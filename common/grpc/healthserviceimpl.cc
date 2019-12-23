@@ -33,24 +33,24 @@ HealthServiceImpl::~HealthServiceImpl() {}
 
 void HealthServiceImpl::setStatus(const std::string &service,
                                   const HealthCheckResponse::ServingStatus &status) {
-    boost::unique_lock<boost::mutex> lock(this->mutex);
+    std::unique_lock<std::mutex> lock(this->mutex);
     this->statuses[service] = status;
 }
 
 void HealthServiceImpl::clearStatus(const std::string &service) {
-    boost::unique_lock<boost::mutex> lock(this->mutex);
+    std::unique_lock<std::mutex> lock(this->mutex);
     this->statuses.erase(service);
 }
 
 void HealthServiceImpl::clearAll() {
-    boost::unique_lock<boost::mutex> lock(this->mutex);
+    std::unique_lock<std::mutex> lock(this->mutex);
     this->statuses.clear();
 }
 
 grpc::Status HealthServiceImpl::Check(__attribute__ ((unused)) grpc::ServerContext *context,
                                       const HealthCheckRequest *request,
                                       HealthCheckResponse *response) {
-    boost::unique_lock<boost::mutex> lock(this->mutex);
+    std::unique_lock<std::mutex> lock(this->mutex);
 
     // If the service is empty we assume that the client wants to check the server's status.
     if (request->service().empty()) {

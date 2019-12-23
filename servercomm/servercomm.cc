@@ -2567,7 +2567,7 @@ ServerComm::getMDDByOId(unsigned long callingClientId,
                 // not be deleted until the end of transaction, so storing raw pointers is safe.
                 // FIXME: change context->transTiles type to vector< shared_ptr<Tile> >
                 {
-                    std::unique_ptr<vector<boost::shared_ptr<Tile>>> tiles(context->transferMDD->getTiles());
+                    std::unique_ptr<vector<std::shared_ptr<Tile>>> tiles(context->transferMDD->getTiles());
                     context->transTiles = new vector<Tile *>;
                     for (size_t i = 0; i < tiles->size(); ++i)
                     {

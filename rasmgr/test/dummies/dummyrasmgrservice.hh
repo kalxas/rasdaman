@@ -1,8 +1,7 @@
 #ifndef DUMMYRASMGRSERVICE_HH
 #define DUMMYRASMGRSERVICE_HH
 
-#include <boost/smart_ptr.hpp>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include <logging.hh>
 #include "rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
@@ -53,7 +52,7 @@ public:
     const std::string clientId;
     const std::string dbSessionId;
     const std::string serverHost;
-    const boost::uint32_t serverPort;
+    const std::uint32_t serverPort;
 };
 }
 }

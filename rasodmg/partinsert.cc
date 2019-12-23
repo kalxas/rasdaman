@@ -30,27 +30,27 @@ rasdaman GmbH.
  *      None
 */
 
-#include <cstring>
-#include <cstdio>
-#include <vector>
-
-#include "raslib/minterval.hh"
-#include "raslib/error.hh"
+#include "rasodmg/partinsert.hh"
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/gmarray.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/oqlquery.hh"
-#include "rasodmg/partinsert.hh"
 #include "rasodmg/ref.hh"
+#include "raslib/minterval.hh"
+#include "raslib/error.hh"
 
 #include <logging.hh>
+
+#include <cstring>
+#include <cstdio>
+#include <vector>
 
 
 // format string for creating collections; parameters: collection name, set type
 #define FORMAT_CREATE "CREATE COLLECTION %s %s"
 // format string for updating the MDD; parameters: collection name, local oid
-#define FORMAT_UPDATE "UPDATE %s AS x SET x ASSIGN $1 WHERE OID(x) = %ll"
+#define FORMAT_UPDATE "UPDATE %s AS x SET x ASSIGN $1 WHERE OID(x) = %lld"
 
 
 r_Partial_Insert::r_Partial_Insert(r_Database &usedb, const char *collname, const char *mddtype,

@@ -20,6 +20,17 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+#include "server.hh"
+#include "servergroup.hh"
+#include "servergroupfactory.hh"
+#include "servermanagerconfig.hh"
+#include "servermanager.hh"
+
+#include "exceptions/rasmgrexceptions.hh"
+#include "common/exceptions/rasexceptions.hh"
+#include "common/uuid/uuid.hh"
+#include <logging.hh>
+
 #include <cerrno>
 #include <cstdio>
 #include <unistd.h>
@@ -28,42 +39,18 @@
 #include <set>
 #include <stdexcept>
 #include <sstream>
+#include <unordered_set>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/format.hpp>
-
-#include "common/exceptions/rasexceptions.hh"
-#include <logging.hh>
-#include "common/uuid/uuid.hh"
-
-#include "exceptions/rasmgrexceptions.hh"
-
-#include "server.hh"
-#include "servergroup.hh"
-#include "servergroupfactory.hh"
-#include "servermanagerconfig.hh"
-
-#include "servermanager.hh"
 
 namespace rasmgr
 {
 
 using boost::format;
 using boost::lexical_cast;
-using boost::mutex;
-using boost::posix_time::microsec_clock;
-using boost::posix_time::milliseconds;
-using boost::scoped_ptr;
 using boost::shared_lock;
 using boost::shared_mutex;
-using boost::shared_ptr;
-using boost::thread;
-using boost::unique_lock;
-using boost::unordered_set;
 
 using std::map;
 using std::runtime_error;
@@ -74,11 +61,11 @@ using std::list;
 using common::UUID;
 
 
-ServerManager::ServerManager(const ServerManagerConfig &config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
-    : serverGroupFactory(serverGroupFactory), config(config)
+ServerManager::ServerManager(const ServerManagerConfig &config1, std::shared_ptr<ServerGroupFactory> sgf)
+    : serverGroupFactory(sgf), config(config1)
 {
     this->isWorkerThreadRunning = true;
-    this->workerCleanup.reset(new thread(&ServerManager::workerCleanupRunner, this));
+    this->workerCleanup.reset(new std::thread(&ServerManager::workerCleanupRunner, this));
 }
 
 ServerManager::~ServerManager()
@@ -86,7 +73,7 @@ ServerManager::~ServerManager()
     try
     {
         {
-            boost::lock_guard<boost::mutex> lock(this->threadMutex);
+            std::lock_guard<std::mutex> lock(this->threadMutex);
             this->isWorkerThreadRunning = false;
         }
 
@@ -104,7 +91,7 @@ ServerManager::~ServerManager()
     }
 }
 
-bool ServerManager::tryGetFreeServer(const std::string &databaseName, boost::shared_ptr<Server> &out_server)
+bool ServerManager::tryGetFreeServer(const std::string &databaseName, std::shared_ptr<Server> &out_server)
 {
     bool success = false;
 
@@ -146,7 +133,7 @@ void ServerManager::registerServer(const string &serverId)
 
 void ServerManager::defineServerGroup(const ServerGroupConfigProto &serverGroupConfig)
 {
-    unique_lock<shared_mutex> lock(this->serverGroupMutex);
+    boost::unique_lock<shared_mutex> lock(this->serverGroupMutex);
 
     for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
@@ -163,7 +150,7 @@ void ServerManager::changeServerGroup(const std::string &oldServerGroupName, con
 {
     bool changed = false;
 
-    unique_lock<shared_mutex> lock(this->serverGroupMutex);
+    boost::unique_lock<shared_mutex> lock(this->serverGroupMutex);
     for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         if ((*it)->getGroupName() == oldServerGroupName)
@@ -193,7 +180,7 @@ void ServerManager::removeServerGroup(const std::string &serverGroupName)
 {
     bool removed = false;
 
-    unique_lock<shared_mutex> lock(this->serverGroupMutex);
+    boost::unique_lock<shared_mutex> lock(this->serverGroupMutex);
     for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         if ((*it)->getGroupName() == serverGroupName)
@@ -221,20 +208,19 @@ void ServerManager::removeServerGroup(const std::string &serverGroupName)
 void ServerManager::startServerGroup(const StartServerGroup &startGroup)
 {
     shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
-
+    
     if (startGroup.has_group_name())
     {
         bool found = false;
         for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            shared_ptr<ServerGroup>  srv = (*it);
+            auto srv = (*it);
 
             if (srv->getGroupName() == startGroup.group_name())
             {
                 LDEBUG << "Starting server: " << srv->getGroupName();
                 srv->start();
                 found = true;
-
                 break;
             }
         }
@@ -284,21 +270,19 @@ void ServerManager::startServerGroup(const StartServerGroup &startGroup)
 
 void ServerManager::stopServerGroup(const StopServerGroup &stopGroup)
 {
-    list<shared_ptr<ServerGroup>>::iterator it;
     shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
     if (stopGroup.has_group_name())
     {
         bool stopped = false;
 
-        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+        for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            shared_ptr<ServerGroup>  srv = (*it);
+            auto srv = (*it);
             if (srv->getGroupName() == stopGroup.group_name())
             {
                 srv->stop(stopGroup.kill_level());
                 stopped = true;
-
                 break;
             }
         }
@@ -313,7 +297,7 @@ void ServerManager::stopServerGroup(const StopServerGroup &stopGroup)
         bool hostExists = false;
         std::string onHost = stopGroup.host_name();
 
-        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+        for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
             if ((*it)->getConfig().host() == onHost)
             {
@@ -332,7 +316,7 @@ void ServerManager::stopServerGroup(const StopServerGroup &stopGroup)
     }
     else if (stopGroup.has_all())
     {
-        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+        for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
             if (!(*it)->isStopped())
             {
@@ -350,10 +334,9 @@ bool ServerManager::hasRunningServers()
 {
     bool found = false;
 
-    unique_lock<shared_mutex> lock(this->serverGroupMutex);
+    boost::unique_lock<shared_mutex> lock(this->serverGroupMutex);
 
-    list<shared_ptr<ServerGroup>>::iterator it;
-    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+    for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         if (!(*it)->isStopped())
         {
@@ -370,9 +353,7 @@ ServerMgrProto ServerManager::serializeToProto()
     ServerMgrProto result;
 
     shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
-    list<shared_ptr<ServerGroup>>::iterator it;
-
-    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+    for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         result.add_server_groups()->CopyFrom((*it)->serializeToProto());
     }
@@ -382,16 +363,16 @@ ServerMgrProto ServerManager::serializeToProto()
 
 void ServerManager::workerCleanupRunner()
 {
-    boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(this->config.getCleanupInterval());
+    std::chrono::milliseconds timeToSleepFor(this->config.getCleanupInterval());
 
-    boost::unique_lock<boost::mutex> threadLock(this->threadMutex);
+    std::unique_lock<std::mutex> threadLock(this->threadMutex);
     while (this->isWorkerThreadRunning)
     {
         try
         {
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
-            if (!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
+            if (this->isThreadRunningCondition.wait_for(threadLock, timeToSleepFor) == std::cv_status::timeout)
             {
                 this->evaluateServerGroups();
             }

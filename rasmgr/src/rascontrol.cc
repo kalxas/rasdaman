@@ -23,7 +23,7 @@
 #include <set>
 #include <sstream>
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/format.hpp>
 
 #include "common/crypto/crypto.hh"
@@ -46,16 +46,15 @@ namespace rasmgr
 {
 using common::Crypto;
 
-using boost::shared_ptr;
 using boost::format;
 
 using std::list;
 
-RasControl::RasControl(boost::shared_ptr<UserManager> userManager,
-                       boost::shared_ptr<DatabaseHostManager> dbHostManager,
-                       boost::shared_ptr<DatabaseManager> dbManager,
-                       boost::shared_ptr<ServerManager> serverManager,
-                       boost::shared_ptr<PeerManager> peerManager,
+RasControl::RasControl(std::shared_ptr<UserManager> userManager,
+                       std::shared_ptr<DatabaseHostManager> dbHostManager,
+                       std::shared_ptr<DatabaseManager> dbManager,
+                       std::shared_ptr<ServerManager> serverManager,
+                       std::shared_ptr<PeerManager> peerManager,
                        RasManager *rasmanager):
     userManager_ {userManager},
     dbHostManager_ {dbHostManager},
@@ -663,7 +662,7 @@ std::string RasControl::defineOutpeer(const DefineOutpeer &outpeerData)
 
     try
     {
-        boost::uint32_t peerPort = outpeerData.port() == 0 ? DEFAULT_PORT : outpeerData.port();
+        std::uint32_t peerPort = outpeerData.port() == 0 ? DEFAULT_PORT : outpeerData.port();
 
         this->peerManager_->defineOutPeer(outpeerData.host_name(), peerPort);
         LDEBUG << "Defined rasmgr outpeer on:" << outpeerData.host_name() << ":" << peerPort;
@@ -1255,7 +1254,7 @@ void RasControl::stopRasmgrAsync()
 
 bool RasControl::hasInfoRights(std::string userName, std::string password)
 {
-    boost::shared_ptr<User> user;
+    std::shared_ptr<User> user;
 
     if (this->userManager_->tryGetUser(userName, user) && user->getPassword() == password)
     {
@@ -1269,7 +1268,7 @@ bool RasControl::hasInfoRights(std::string userName, std::string password)
 
 bool RasControl::hasConfigRights(std::string userName, std::string password)
 {
-    boost::shared_ptr<User> user;
+    std::shared_ptr<User> user;
 
     if (this->userManager_->tryGetUser(userName, user) && user->getPassword() == password)
     {
@@ -1283,7 +1282,7 @@ bool RasControl::hasConfigRights(std::string userName, std::string password)
 
 bool RasControl::hasUserAdminRights(std::string userName, std::string password)
 {
-    boost::shared_ptr<User> user;
+    std::shared_ptr<User> user;
 
     if (this->userManager_->tryGetUser(userName, user) && user->getPassword() == password)
     {
@@ -1297,7 +1296,7 @@ bool RasControl::hasUserAdminRights(std::string userName, std::string password)
 
 bool RasControl::hasServerAdminRights(std::string userName, std::string password)
 {
-    boost::shared_ptr<User> user;
+    std::shared_ptr<User> user;
 
     if (this->userManager_->tryGetUser(userName, user) && user->getPassword() == password)
     {
@@ -1310,7 +1309,7 @@ bool RasControl::hasServerAdminRights(std::string userName, std::string password
 }
 bool RasControl::isValidUser(std::string userName, std::string password)
 {
-    boost::shared_ptr<User> user;
+    std::shared_ptr<User> user;
 
     return this->userManager_->tryGetUser(userName, user) && user->getPassword() == password ;
 }

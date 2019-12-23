@@ -30,10 +30,11 @@ rasdaman GmbH.
  *
 */
 
-#include <cstring>
 #include "raslib/mddtypes.hh"
+#include "raslib/error.hh"
 #include <logging.hh>
 
+#include <cstring>
 
 /*
  *  The names of all data formats
@@ -135,52 +136,41 @@ const char *all_data_format_names[r_Data_Format_NUMBER] =
     format_name_gdal
 };
 
-
 const char *get_name_from_data_format(r_Data_Format fmt)
 {
-    unsigned int idx = static_cast<unsigned int>(fmt);
-
-    if (idx >= static_cast<unsigned int>(r_Data_Format_NUMBER))
+    auto idx = static_cast<unsigned int>(fmt);
+    if (idx < static_cast<unsigned int>(r_Data_Format_NUMBER))
+        return all_data_format_names[idx];
+    else
     {
-        return "???";
+        LWARNING << "Data format index (" << idx << ") out of bounds.";
+        return "UnknownFormat";
     }
-
-    return all_data_format_names[idx];
 }
-
-
 r_Data_Format get_data_format_from_name(const char *name)
 {
     if (!name)
     {
+        LWARNING << "Format name not specified.";
         return r_Data_Format_NUMBER;
     }
-
-    unsigned int i = r_Data_Format_NUMBER;
-
-    for (i = 0; i < static_cast<unsigned int>(r_Data_Format_NUMBER); i++)
+    for (unsigned int i = 0; i < static_cast<unsigned int>(r_Data_Format_NUMBER); i++)
     {
         if (strcasecmp(name, all_data_format_names[i]) == 0)
-        {
-            break;
-        }
+            return static_cast<r_Data_Format>(i);
     }
-    return static_cast<r_Data_Format>(i);
+    LWARNING << "Format not found: " << name;
+    return r_Data_Format_NUMBER;
 }
-
-
-
-std::ostream &operator<<(std::ostream &s, r_Data_Format &d)
-{
-    s << get_name_from_data_format(d);
-    return s;
-}
-
 std::ostream &operator<<(std::ostream &s, const r_Data_Format &d)
 {
     s << get_name_from_data_format(d);
     return s;
 }
+
+/*
+ * The names of all scale functions
+ */
 
 const char *scale_function_name_subsampling = "subsampling";
 const char *scale_function_name_bitaggregation = "bitaggregation";
@@ -193,40 +183,33 @@ const char *all_scale_function_names[r_Scale_Function_NUMBER] =
 
 const char *get_name_from_scale_function(r_Scale_Function fmt)
 {
-    unsigned int idx = static_cast<unsigned int>(fmt);
-
-    if (idx >= static_cast<unsigned int>(r_Scale_Function_NUMBER))
+    auto idx = static_cast<unsigned int>(fmt);
+    if (idx < static_cast<unsigned int>(r_Scale_Function_NUMBER))
+        return all_scale_function_names[idx];
+    else
     {
-        return "???";
+        LWARNING << "Scale function index (" << idx << ") out of bounds.";
+        return "UnknownScaleFunction";
     }
-
-    return all_scale_function_names[idx];
 }
-
-
 r_Scale_Function get_scale_function_from_name(const char *name)
 {
     if (!name)
     {
+        LWARNING << "Scale function name not specified.";
         return r_Scale_Function_NUMBER;
     }
-
-    unsigned int i = r_Scale_Function_NUMBER;
-
-    for (i = 0; i < static_cast<unsigned int>(r_Scale_Function_NUMBER); i++)
+    for (unsigned int i = 0; i < static_cast<unsigned int>(r_Data_Format_NUMBER); i++)
     {
         if (strcasecmp(name, all_scale_function_names[i]) == 0)
-        {
-            break;
-        }
+            return static_cast<r_Scale_Function>(i);
     }
-    return static_cast<r_Scale_Function>(i);
+    LWARNING << "Scale function not found: " << name;
+    return r_Scale_Function_NUMBER;
 }
-
 std::ostream &operator<<(std::ostream &s, const r_Scale_Function &d)
 {
     s << get_name_from_scale_function(d);
-
     return s;
 }
 
@@ -255,72 +238,45 @@ const char *all_index_type_names[r_Index_Type_NUMBER] =
 
 const char *get_name_from_index_type(r_Index_Type it)
 {
-    unsigned int idx = static_cast<unsigned int>(it);
-
-    if (idx >= static_cast<unsigned int>(r_Index_Type_NUMBER))
+    auto idx = static_cast<unsigned int>(it);
+    if (idx < static_cast<unsigned int>(r_Invalid_Index))
+        return "invalid";
+    else if (idx < static_cast<unsigned int>(r_Index_Type_NUMBER))
+        return all_index_type_names[idx];
+    else
     {
-        return "UNKNOWN r_Index_Type";
+        LWARNING << "Index type (" << idx << ") out of bounds.";
+        return "UnknownIndexType";
     }
-
-    if (idx == static_cast<unsigned int>(r_Invalid_Index))
-    {
-        return "r_Invalid_Index";
-    }
-
-    return all_index_type_names[idx];
 }
-
 r_Index_Type get_index_type_from_name(const char *name)
 {
     if (!name)
     {
+        LWARNING << "Index type name not specified.";
         return r_Index_Type_NUMBER;
     }
-
-    unsigned int i = r_Index_Type_NUMBER;
-
-    for (i = 0; i < static_cast<unsigned int>(r_Index_Type_NUMBER); i++)
+    for (unsigned int i = 0; i < static_cast<unsigned int>(r_Index_Type_NUMBER); i++)
     {
         if (strcasecmp(name, all_index_type_names[i]) == 0)
-        {
-            break;
-        }
+            return static_cast<r_Index_Type>(i);
     }
-    return static_cast<r_Index_Type>(i);
+    LWARNING << "Index type not found: " << name;
+    return r_Index_Type_NUMBER;
 }
-
-
 std::ostream &operator<<(std::ostream &s, r_Index_Type d)
 {
     switch (d)
     {
-    case r_Invalid_Index:
-        s << "r_Invalid_Index";
-        break;
-    case r_Auto_Index:
-        s << "r_Auto_Index";
-        break;
-    case r_Directory_Index:
-        s << "r_Directory_Index";
-        break;
-    case r_Reg_Directory_Index:
-        s << "r_Reg_Directory_Index";
-        break;
-    case r_RPlus_Tree_Index:
-        s << "r_RPlus_Tree_Index";
-        break;
-    case r_Reg_RPlus_Tree_Index:
-        s << "r_Reg_RPlus_Tree_Index";
-        break;
-    case r_Tile_Container_Index:
-        s << "r_Tile_Container_Index";
-        break;
-    case r_Reg_Computed_Index:
-        s << "r_Reg_Computed_Index";
-        break;
-    default:
-        s << "UNKNOWN r_Index_Type " << d;
-        break;
+    case r_Invalid_Index: s << "r_Invalid_Index"; break;
+    case r_Auto_Index: s << "r_Auto_Index"; break;
+    case r_Directory_Index: s << "r_Directory_Index"; break;
+    case r_Reg_Directory_Index: s << "r_Reg_Directory_Index"; break;
+    case r_RPlus_Tree_Index: s << "r_RPlus_Tree_Index"; break;
+    case r_Reg_RPlus_Tree_Index: s << "r_Reg_RPlus_Tree_Index"; break;
+    case r_Tile_Container_Index: s << "r_Tile_Container_Index"; break;
+    case r_Reg_Computed_Index: s << "r_Reg_Computed_Index"; break;
+    default: s << "UNKNOWN r_Index_Type " << d; break;
     }
 
     return s;
@@ -351,33 +307,29 @@ const char *all_tiling_scheme_names[r_Tiling_Scheme_NUMBER] =
 
 const char *get_name_from_tiling_scheme(r_Tiling_Scheme ts)
 {
-    unsigned int idx = static_cast<unsigned int>(ts);
-
-    if (idx >= static_cast<unsigned int>(r_Tiling_Scheme_NUMBER))
+    auto idx = static_cast<unsigned int>(ts);
+    if (idx < static_cast<unsigned int>(r_Tiling_Scheme_NUMBER))
+        return all_tiling_scheme_names[idx];
+    else
     {
-        return "UNKNOWN r_Tiling_Scheme";
+        LWARNING << "Tiling scheme index (" << idx << ") out of bounds.";
+        return "UnknownTilingScheme";
     }
-
-    return all_tiling_scheme_names[idx];
 }
-
 r_Tiling_Scheme get_tiling_scheme_from_name(const char *name)
 {
     if (!name)
     {
+        LWARNING << "Tiling scheme name not specified.";
         return r_Tiling_Scheme_NUMBER;
     }
-
-    unsigned int i = r_Tiling_Scheme_NUMBER;
-
-    for (i = 0; i < static_cast<unsigned int>(r_Tiling_Scheme_NUMBER); i++)
+    for (unsigned int i = 0; i < static_cast<unsigned int>(r_Data_Format_NUMBER); i++)
     {
         if (strcasecmp(name, all_tiling_scheme_names[i]) == 0)
-        {
-            break;
-        }
+            return static_cast<r_Tiling_Scheme>(i);
     }
-    return static_cast<r_Tiling_Scheme>(i);
+    LWARNING << "Tiling scheme not found: " << name;
+    return r_Tiling_Scheme_NUMBER;
 }
 
 std::ostream &operator<<(std::ostream &s, r_Tiling_Scheme d)
@@ -385,57 +337,15 @@ std::ostream &operator<<(std::ostream &s, r_Tiling_Scheme d)
     s << get_name_from_tiling_scheme(d);
     return s;
 }
-
 std::ostream &operator<<(std::ostream &s, const r_Clustering_Scheme d)
 {
     switch (d)
     {
-    case r_Insertion_Order_Clustering:
-        s << "r_Insertion_Order_Clustering";
-        break;
-    case r_Coords_Order_Clustering:
-        s << "r_Coords_Order_Clustering";
-        break;
-    case r_Index_Cluster_Clustering:
-        s << "r_Index_Cluster_Clustering";
-        break;
-    case r_Based_Cluster_Stat_Clustering:
-        s << "r_Based_Cluster_Stat_Clustering";
-        break;
-    default:
-        s << "UNKNOWN r_Clustering_Scheme " << d;
-        break;
+    case r_Insertion_Order_Clustering: s << "r_Insertion_Order_Clustering"; break;
+    case r_Coords_Order_Clustering: s << "r_Coords_Order_Clustering"; break;
+    case r_Index_Cluster_Clustering: s << "r_Index_Cluster_Clustering"; break;
+    case r_Based_Cluster_Stat_Clustering: s << "r_Based_Cluster_Stat_Clustering"; break;
+    default: s << "UNKNOWN r_Clustering_Scheme " << d; break;
     }
-
     return s;
 }
-
-
-#ifdef __VISUALC__
-#include <ctype.h>
-int strcasecmp(const char *s1, const char *s2)
-{
-    const char *b, *d;
-
-    b = s1;
-    d = s2;
-    while ((*b != '\0') && (*d != '\0'))
-    {
-        if (tolower((unsigned int)*b) != tolower((unsigned int)*d))
-        {
-            break;
-        }
-        b++;
-        d++;
-    }
-    if ((*b == '\0') && (*d == '\0'))
-    {
-        return 0;
-    }
-    if (tolower((unsigned int)*b) < tolower((unsigned int)*d))
-    {
-        return -1;
-    }
-    return 1;
-}
-#endif

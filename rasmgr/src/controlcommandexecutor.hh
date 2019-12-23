@@ -25,9 +25,8 @@ rasdaman GmbH.
 #define RASMGR_X_SRC_CONTROLCOMMANDEXECUTOR_HH_
 
 #include <string>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
+#include <memory>
+#include <mutex>
 
 #include "rascontrolgrammar.hh"
 
@@ -42,7 +41,7 @@ class RasControl;
 class ControlCommandExecutor
 {
 public:
-    ControlCommandExecutor(boost::shared_ptr<RasControl> control);
+    ControlCommandExecutor(std::shared_ptr<RasControl> control);
 
     virtual ~ControlCommandExecutor();
 
@@ -66,8 +65,8 @@ public:
 
 private:
     RasControlGrammar grammar;
-    boost::shared_ptr<RasControl> rascontrol;
-    boost::mutex mut;
+    std::shared_ptr<RasControl> rascontrol;
+    std::mutex mut;
 
     /**
      * @brief canRunCommand Check if the user can run the command.

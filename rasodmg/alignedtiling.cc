@@ -30,16 +30,14 @@ rasdaman GmbH.
  *          None
 */
 
+#include "rasodmg/alignedtiling.hh"
+#include <logging.hh>
+
 #include <vector>
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
 #include <sstream>
-
-#include "rasodmg/alignedtiling.hh"
-#include "raslib/rminit.hh"
-
-#include <logging.hh>
 
 const char *
 r_Aligned_Tiling::description = "tile configuration or tile dimension and tile size (in bytes) (ex: \"[0:9,0:9];100\" or \"2;100\")";

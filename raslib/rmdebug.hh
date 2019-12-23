@@ -30,19 +30,13 @@
  *
 */
 
-#ifndef _RMDEBUG_
-#define _RMDEBUG_
-
-#ifdef __VISUALC__
-#include <time.h>
-#else
-#include <sys/time.h>
-#endif
+#ifndef RMDEBUG_HH
+#define RMDEBUG_HH
 
 #include "raslib/rminit.hh"
 #include "raslib/rm.hh"
-
 #include <logging.hh>
+#include <sys/time.h>
 
 extern int RManDebug;
 extern int RManBenchmark;
@@ -160,17 +154,17 @@ public:
     static int initRMDebug(void);
 
     /// get the debug level of a module by its number
-    static inline int getModuleDebugLevel(int modNum)
+    static int getModuleDebugLevel(int modNum)
     {
         return allModuleLevels[modNum];
     }
     /// get the name of a module by its number
-    static inline const char *getModuleName(int modNum)
+    static const char *getModuleName(int modNum)
     {
         return allModuleNames[modNum];
     }
     /// indent by the amount specified by level
-    static inline void indentLine(void)
+    static void indentLine(void)
     {
         for (int i = 0; i < level; i++)
         {
@@ -305,7 +299,7 @@ class RMTimer : public RM_Class
 {
 public:
     /// constructor, initializes members and starts timer.
-    inline RMTimer(const char *newClass, const char *newFunc,
+    RMTimer(const char *newClass, const char *newFunc,
                    int newBmLevel = 4);
     /**
       The parameters newClass and newFunc have to be string literals. Just
@@ -313,30 +307,30 @@ public:
       < newBmLevel.
     */
     /// destructor, calls stop().
-    inline ~RMTimer();
+    ~RMTimer();
     /// switch output on RMInit::bmOut on and off.
-    inline void setOutput(int newOutput);
+    void setOutput(int newOutput);
     /**
       If newOutoutput is FALSE no output is created on RMInit::bmOut on
       the following calls to stop() and ~RMTimer() until the next start().
     */
     /// pauses timer.
-    inline void pause();
+    void pause();
     /// resumes timer.
-    inline void resume();
+    void resume();
     /// resets timer.
-    inline void start();
+    void start();
     /**
       Also switches output to RMInit::bmOut on again.
     */
     /// prints time spent if output is TRUE.
-    inline void stop();
+    void stop();
     /**
       Time spent is the time since construction or last start() excluding
       the times between pause() and resume().
     */
     /// delivers current time count.
-    inline int getTime();
+    int getTime();
 
 private:
     /// name of class.
@@ -348,11 +342,7 @@ private:
     /// stores benchmark level, checked before output.
     int bmLevel;
     // reference parameter for gettimeofday().
-#ifdef __VISUALC__
-    time_t acttime;
-#else
     timeval acttime;
-#endif
     /// accu for saving time in us
     long accuTime;
     /// flag indicating if the timer is currently running.
@@ -364,7 +354,7 @@ private:
     /// used to calculate time spent in function.
     long oldusec;
     /// aux function to determine clock time elapsed so far.
-    inline void fetchTime();
+    void fetchTime();
 };
 ///Module: {\bf raslib}.
 
@@ -386,8 +376,5 @@ public:
 private:
     bool doStuff;
 };
-
-#include "raslib/rmdebug.icc"
-
 
 #endif

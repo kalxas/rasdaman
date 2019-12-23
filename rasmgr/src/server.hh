@@ -2,8 +2,7 @@
 #define RASMGR_X_SRC_SERVER_HH_
 
 #include <string>
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 
@@ -69,7 +68,7 @@ public:
      * it has reached a number of sessions
      * (to prevent memory leaks from getting out of control)
      */
-    virtual boost::uint32_t getTotalSessionNo() = 0;
+    virtual std::uint32_t getTotalSessionNo() = 0;
 
     /**
      * Stop the RasServer process.
@@ -93,7 +92,7 @@ public:
     /**
      * @return the port on which the server is running.
      */
-    virtual boost::int32_t getPort() const = 0 ;
+    virtual std::int32_t getPort() const = 0 ;
 
     /**
      * @return the name of the host on which the server is running

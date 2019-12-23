@@ -31,15 +31,13 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "qlparser/qtcommand.hh"
+#include "qlparser/querytree.hh"
+#include "qlparser/qtinsert.hh"
 #include "mddmgr/mddcoll.hh"
 #include "catalogmgr/typefactory.hh"
 #include "reladminif/databaseif.hh"
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/mdddomaintype.hh"
-#include "servercomm/servercomm.hh"
-#include "servercomm/cliententry.hh"
-#include "qlparser/querytree.hh"
-#include "qlparser/qtinsert.hh"
 #include <logging.hh>
 
 #include <iostream>

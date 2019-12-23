@@ -34,6 +34,7 @@ rasdaman GmbH.
 #include "rasodmg/ref.hh"
 #include "rasodmg/iterator.hh"
 #include "rasodmg/database.hh"
+#include "rasodmg/transaction.hh"
 #include "raslib/collectiontype.hh"
 #include "raslib/error.hh"
 
@@ -487,4 +488,32 @@ r_Collection<T>::get_element_type_schema()
     }
 
     return elementTypePtr;
+}
+
+template<class T>
+unsigned long
+r_Collection<T>::cardinality() const
+{
+    return card;
+}
+
+template<class T>
+bool
+r_Collection<T>::is_empty() const
+{
+    return !coll->elem;
+}
+
+template<class T>
+bool
+r_Collection<T>::is_ordered() const
+{
+    return isOrdered;
+}
+
+template<class T>
+bool
+r_Collection<T>::allows_duplicates() const
+{
+    return allowsDuplicates;
 }

@@ -23,18 +23,16 @@
 #ifndef RASMGR_X_SRC_SERVERMANAGER_HH_
 #define RASMGR_X_SRC_SERVERMANAGER_HH_
 
+#include "servermanagerconfig.hh"
+#include "rasmgr/src/messages/rasmgrmess.pb.h"
+
 #include <map>
 #include <list>
 #include <string>
-
-#include <boost/cstdint.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/smart_ptr.hpp>
-
-#include "servermanagerconfig.hh"
-
-#include "rasmgr/src/messages/rasmgrmess.pb.h"
+#include <thread>
+#include <cstdint>
+#include <condition_variable>
+#include <boost/thread/shared_mutex.hpp>
 
 namespace rasmgr
 {
@@ -55,14 +53,14 @@ public:
     /**
       * @brief ServerManager ServerManager Initialize a new instance of the ServerManager class.
       */
-    ServerManager(const ServerManagerConfig &config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory);
+    ServerManager(const ServerManagerConfig &config, std::shared_ptr<ServerGroupFactory> serverGroupFactory);
 
     virtual ~ServerManager();
 
     /**
      * Method used to retrieve a free server. This method is NOT THREAD SAFE.
      */
-    virtual bool tryGetFreeServer(const std::string &databaseName, boost::shared_ptr<Server> &out_server);
+    virtual bool tryGetFreeServer(const std::string &databaseName, std::shared_ptr<Server> &out_server);
 
     /**
      * Registers a rasserver when the server starts and becomes available.
@@ -118,19 +116,19 @@ public:
     virtual ServerMgrProto serializeToProto();
 
 private:
-    std::list<boost::shared_ptr<ServerGroup>> serverGroupList;/*!< Server group list */
+    std::list<std::shared_ptr<ServerGroup>> serverGroupList;/*!< Server group list */
 
     boost::shared_mutex serverGroupMutex;/*!< Mutex used to synchronize access to the list of server groups */
 
-    boost::scoped_ptr<boost::thread> workerCleanup; /*!< Thread object running the @see workerCleanupRunner() function. */
+    std::unique_ptr<std::thread> workerCleanup; /*!< Thread object running the @see workerCleanupRunner() function. */
 
-    boost::shared_ptr<ServerGroupFactory> serverGroupFactory;
+    std::shared_ptr<ServerGroupFactory> serverGroupFactory;
 
     ServerManagerConfig config;
 
     bool isWorkerThreadRunning; /*! Flag used to stop the worker thread */
-    boost::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
-    boost::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
+    std::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
+    std::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
 
     /**
      * Function which cleans the servers which failed to start or were stopped.

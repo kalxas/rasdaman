@@ -103,10 +103,10 @@ public:
     void abort();
 
     /// returns the current state
-    inline r_TAStatus get_status() const;
+    r_TAStatus get_status() const;
 
     /// returns current mode
-    inline r_TAMode get_mode() const;
+    r_TAMode get_mode() const;
 
     //@Man: Methods and types for internal use only:
     //@{
@@ -165,12 +165,6 @@ private:
 };
 
 #define DEF_TRANSACTION
-
-#include "rasodmg/iterator.hh"
-// For HP cfront compiler each template instantiation used in a library
-// must be defined in an included header.
-typedef r_Iterator<r_Object *> r_Iterator_r_Object_dummy;
-#include "rasodmg/transaction.icc"
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__

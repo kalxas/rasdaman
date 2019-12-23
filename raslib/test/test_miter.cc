@@ -35,7 +35,7 @@
 #define __EXECUTABLE__
 #endif
 
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #include "raslib/miter.hh"
 #include "raslib/minterval.hh"
 #include "raslib/rminit.hh"

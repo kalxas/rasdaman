@@ -33,7 +33,7 @@ rasdaman GmbH.
 class RasnetServerComm : public rasnet::service::ClientRassrvrService::Service
 {
 public:
-    RasnetServerComm(::boost::shared_ptr<rasserver::ClientManager> clientManager);
+    RasnetServerComm(std::shared_ptr<rasserver::ClientManager> clientManager);
     virtual ~RasnetServerComm();
 
     virtual grpc::Status OpenServerDatabase(grpc::ServerContext *context, const rasnet::service::OpenServerDatabaseReq *request, rasnet::service::OpenServerDatabaseRepl *response) override;
@@ -74,7 +74,7 @@ public:
 private:
 
 
-    ::boost::shared_ptr<rasserver::ClientManager> clientManager;
+    std::shared_ptr<rasserver::ClientManager> clientManager;
 
     static grpc::Status getRErrorStatus(r_Error &err);
     static grpc::Status getSTLExceptionStatus(std::exception &ex);

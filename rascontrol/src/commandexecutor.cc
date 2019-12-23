@@ -20,17 +20,15 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <boost/algorithm/string.hpp>
-
 #include <logging.hh>
-
+#include "common/string/stringutil.hh"
 #include "controlrasmgrcomm.hh"
 #include "commandexecutor.hh"
 
 namespace rascontrol
 {
 
-CommandExecutor::CommandExecutor(boost::shared_ptr<ControlRasMgrComm> communicationArg)
+CommandExecutor::CommandExecutor(std::shared_ptr<ControlRasMgrComm> communicationArg)
 {
     this->communication = communicationArg;
 }
@@ -40,11 +38,10 @@ void CommandExecutor::executeCommand(const std::string &command, std::string &re
     reply = this->communication->processCommand(command);
 }
 
-bool CommandExecutor::isExitCommand(std::string command)
+bool CommandExecutor::isExitCommand(const std::string &command)
 {
-    boost::trim(command);
-
-    return (command == "quit") || (command == "bye") || (command == "exit");
+    auto cmd = common::StringUtil::trim(command);
+    return (cmd == "quit") || (cmd == "bye") || (cmd == "exit");
 }
 
 void CommandExecutor::executeLogin(std::string &reply)

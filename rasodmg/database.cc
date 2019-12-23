@@ -30,13 +30,12 @@ rasdaman GmbH.
  *      None
 */
 
-#include "config.h"
-#include "raslib/type.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/ref.hh"
-#include "clientcomm/clientcomm.hh"
-
+#include "raslib/type.hh"
+#include "raslib/error.hh"
+#include "clientcomm/rasnetclientcomm.hh"
 #include <logging.hh>
 
 #include <string.h>
@@ -122,7 +121,7 @@ r_Database::open(const char *database_name, access_status new_status)
     // of open(...).
     try
     {
-        communication = ClientComm::createObject(rasmgrName.c_str(), rasmgrPort);
+        communication = new RasnetClientComm(rasmgrName.c_str(), rasmgrPort);
         if (!userName.empty() && !plainPass.empty())
         {
             communication->setUserIdentification(userName.c_str(), plainPass.c_str());
@@ -305,8 +304,6 @@ r_Database::lookup_object(const r_OId &oid) const
 void
 r_Database::set_transfer_format(r_Data_Format format, const char *formatParams)
 {
-    unsigned short result;
-
     if (db_status == not_open)
     {
         throw r_Error(r_Error::r_Error_DatabaseClosed);
@@ -316,7 +313,7 @@ r_Database::set_transfer_format(r_Data_Format format, const char *formatParams)
     {
         formatParams = "";
     }
-    result = communication->setTransferFormat(format, formatParams);
+    auto result = communication->setTransferFormat(format, formatParams);
     switch (result)
     {
     case 1:
@@ -331,8 +328,6 @@ r_Database::set_transfer_format(r_Data_Format format, const char *formatParams)
 void
 r_Database::set_storage_format(r_Data_Format format, const char *formatParams)
 {
-    unsigned short result;
-
     if (db_status == not_open)
     {
         throw r_Error(r_Error::r_Error_DatabaseClosed);
@@ -344,7 +339,7 @@ r_Database::set_storage_format(r_Data_Format format, const char *formatParams)
         formatParams = "";
     }
 
-    result = communication->setStorageFormat(format, formatParams);
+    auto result = communication->setStorageFormat(format, formatParams);
     switch (result)
     {
     case 1:
@@ -378,3 +373,8 @@ ClientComm *r_Database::getComm()
     return communication;
 }
 
+r_Database::access_status
+r_Database::get_status() const
+{
+    return db_status;
+}

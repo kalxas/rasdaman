@@ -24,7 +24,7 @@
 #define RASMGR_X_SRC_CLIENTSERVERSESSION_HH
 
 #include <string>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace rasmgr
 {
@@ -41,7 +41,7 @@ struct ClientServerSession
 
     std::string serverHostName;/*!< The host on which the remote server runs*/
 
-    boost::uint32_t serverPort;/*!< The port on which the remote server runs*/
+    std::uint32_t serverPort;/*!< The port on which the remote server runs*/
 };
 }
 

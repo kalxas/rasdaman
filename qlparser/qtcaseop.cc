@@ -206,7 +206,7 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
     Tile *condMaskTile = NULL;
     Tile *finResTile = NULL;
     auto *focuCondTiles = focusCondMddObj->getTiles();
-    vector<boost::shared_ptr<Tile>>::iterator tileFocusCondIt;
+    vector<std::shared_ptr<Tile>>::iterator tileFocusCondIt;
     for (tileFocusCondIt = focuCondTiles->begin();tileFocusCondIt != focuCondTiles->end(); tileFocusCondIt++){
         condMaskTile = new Tile(tileFocusCondIt->get()->getDomain(), focusCondMddObj->getCellType());
         conditionMask->insertTile(condMaskTile);
@@ -299,16 +299,16 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
     const r_Minterval &areaOp2 = resultMddObj->getDefinitionDomain();
     if (areaOp1.get_extent() == areaOp2.get_extent())
         {
-                vector<boost::shared_ptr<Tile>> *allTilesCond;
-            vector<boost::shared_ptr<Tile>> *allTilesCondMask;
+            vector<std::shared_ptr<Tile>> *allTilesCond;
+            vector<std::shared_ptr<Tile>> *allTilesCondMask;
          // contains all tiles of op2 which intersect a given op1 Tile in the relevant area.
-            vector<boost::shared_ptr<Tile>> *allTilesResult = NULL;
-            vector<boost::shared_ptr<Tile>> *allTilesFinalResult = NULL;
+            vector<std::shared_ptr<Tile>> *allTilesResult = NULL;
+            vector<std::shared_ptr<Tile>> *allTilesFinalResult = NULL;
          // iterators for tiles of the MDDs
-            vector<boost::shared_ptr<Tile>>::iterator tileCondIt;
-            vector<boost::shared_ptr<Tile>>::iterator tileCondMaskIt;
-            vector<boost::shared_ptr<Tile>>::iterator tileResIt;
-            vector<boost::shared_ptr<Tile>>::iterator tileFinResIt;
+            vector<std::shared_ptr<Tile>>::iterator tileCondIt;
+            vector<std::shared_ptr<Tile>>::iterator tileCondMaskIt;
+            vector<std::shared_ptr<Tile>>::iterator tileResIt;
+            vector<std::shared_ptr<Tile>>::iterator tileFinResIt;
          
             r_Minterval intersectDom;
             r_Minterval intersectDom2;
@@ -439,8 +439,8 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
                 
                 if (finalBranch){
                     
-                    vector<boost::shared_ptr<Tile>> *allTilesDefResult = NULL;
-                    vector<boost::shared_ptr<Tile>>::iterator tileDefResIt;
+                    vector<std::shared_ptr<Tile>> *allTilesDefResult = NULL;
+                    vector<std::shared_ptr<Tile>>::iterator tileDefResIt;
                     allTilesDefResult = defResultMddObj->intersect(tileOp1Dom);
                     
                     allTilesFinalResult = finalResObj->intersect(tileOp1Dom);
@@ -612,16 +612,16 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
 	    MDDObj *focusCondMdd = (static_cast<QtMDD *>(*(conditionList2->begin())))->getMDDObject();
 	    MDDObj *focusMdd = new MDDObj((static_cast<MDDBaseType *>(const_cast<Type *>(dataStreamType.getType()))), focusCondMdd->getDefinitionDomain());
 	    //add tiles
-	    std::vector<boost::shared_ptr<Tile>> *tiles = new std::vector<boost::shared_ptr<Tile>>;
-	    std::vector<boost::shared_ptr<Tile>> *focusCondTiles = focusCondMdd->getTiles();
+	    std::vector<std::shared_ptr<Tile>> *tiles = new std::vector<std::shared_ptr<Tile>>;
+	    std::vector<std::shared_ptr<Tile>> *focusCondTiles = focusCondMdd->getTiles();
 	    if (focusCondTiles == NULL)
 	    {
-	        focusCondTiles = new std::vector<boost::shared_ptr<Tile>>;
+	        focusCondTiles = new std::vector<std::shared_ptr<Tile>>;
 	    }
-	    std::vector<boost::shared_ptr<Tile>>::iterator tileIter;
+	    std::vector<std::shared_ptr<Tile>>::iterator tileIter;
 	    for (tileIter = focusCondTiles->begin(); tileIter != focusCondTiles->end(); tileIter++)
 	    {
-	        tiles->push_back(boost::shared_ptr<Tile>(new Tile((*tileIter)->getDomain(), this->baseType)));
+	        tiles->push_back(std::shared_ptr<Tile>(new Tile((*tileIter)->getDomain(), this->baseType)));
 	    }
 	    //iterate through all the tiles of the focus mdd object
 	    vector<QtData *>::iterator condIter;
@@ -638,8 +638,8 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
 	                condIter++, resultIter++)
 	        {
 	            MDDObj *condMdd = (static_cast<QtMDD *>(*condIter))->getMDDObject();
-	            boost::shared_ptr<std::vector<boost::shared_ptr<Tile>>> condTiles(condMdd->getTiles());
-	            boost::shared_ptr<Tile> condTile = condTiles->at(tilePos);
+	            std::shared_ptr<std::vector<std::shared_ptr<Tile>>> condTiles(condMdd->getTiles());
+	            std::shared_ptr<Tile> condTile = condTiles->at(tilePos);
 	            std::vector<Tile *> *cachedTiles = new std::vector<Tile *>();
 	            //if the result is an mdd then fetch the cached tiles as well
 	            if ((*resultIter)->getDataStreamType().getDataType() == QT_MDD)
@@ -647,7 +647,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
 	                QtDataList *cachedData = getCachedData((*resultIter), cacheList);
 	                for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++)
 	                {
-	                    boost::shared_ptr<Tile> aTile = getCorrespondingTile((static_cast<QtMDD *>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
+	                    std::shared_ptr<Tile> aTile = getCorrespondingTile((static_cast<QtMDD *>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
 	                    if (aTile == NULL)
 	                    {
 	                        LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
@@ -669,7 +669,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
 	                    QtDataList *cachedData = getCachedData(defaultResult, cacheList);
 	                    for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++)
 	                    {
-	                        boost::shared_ptr<Tile> theTile = getCorrespondingTile((static_cast<QtMDD *>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
+	                        std::shared_ptr<Tile> theTile = getCorrespondingTile((static_cast<QtMDD *>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
 	                        Tile *aTile = new Tile(*theTile);
 	                        if (aTile == NULL)
 	                        {
@@ -950,6 +950,11 @@ QtCaseOp::printAlgebraicExpression(ostream &s)
     QtNaryOperation::printAlgebraicExpression(s);
 
     s << "]";
+}
+
+QtNode::QtNodeType QtCaseOp::getNodeType() const
+{
+    return QT_CASEOP;
 }
 
 /**
@@ -1284,10 +1289,10 @@ void QtCaseOp::restoreTree()
  * @param domain - the domain of the wanted tile
  * @return The tile corresponding to the given domain
  */
-boost::shared_ptr<Tile> QtCaseOp::getCorrespondingTile(std::vector<boost::shared_ptr<Tile>> *tiles, const r_Minterval &domain)
+std::shared_ptr<Tile> QtCaseOp::getCorrespondingTile(std::vector<std::shared_ptr<Tile>> *tiles, const r_Minterval &domain)
 {
-    boost::shared_ptr<Tile> returnValue;
-    for (std::vector<boost::shared_ptr<Tile>>::iterator i = tiles->begin(); i != tiles->end(); i++)
+    std::shared_ptr<Tile> returnValue;
+    for (auto i = tiles->begin(); i != tiles->end(); i++)
     {
         if ((*i)->getDomain().covers(domain))
         {
@@ -1355,6 +1360,5 @@ void QtCaseOp::addMddsToCache(QtDataList *inputList, QtOperation *&op, std::vect
     }
     cacheList->emplace_back(std::make_pair(op, correspondingMdds));
 }
-#include "qlparser/qtcaseop.icc"
 
 

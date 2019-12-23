@@ -27,6 +27,7 @@
 #include "dirwrapper.hh"             // for DirEntryIterator, DirWrapper
 #include "reladminif/sqlitewrapper.hh"
 #include "raslib/error.hh"           // for r_Error, BLOBFILENOTFOUND, FAILE...
+#include "common/string/stringutil.hh"
 #include "logging.hh"                // for LINFO, LERROR, LDEBUG
 
 #include <errno.h>                   // for errno

@@ -24,9 +24,7 @@
 
 #include <stdexcept>
 #include <algorithm>
-
-#include <boost/lexical_cast.hpp>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include <logging.hh>
 #include "common/exceptions/rasexceptions.hh"
@@ -48,20 +46,16 @@ using std::string;
 using std::pair;
 using std::runtime_error;
 
-using boost::mutex;
-using boost::shared_ptr;
 using boost::unique_lock;
 using boost::shared_lock;
 using boost::shared_mutex;
-using boost::int32_t;
-using boost::uint32_t;
-using boost::lexical_cast;
 
 using common::Timer;
 
-ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager,
-                                 boost::shared_ptr<ServerFactory> serverFactory):
-    config(config), dbhManager(dbhManager), serverFactory(serverFactory)
+ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &c,
+                                 std::shared_ptr<DatabaseHostManager> m,
+                                 std::shared_ptr<ServerFactory> f):
+    config(c), dbhManager(m), serverFactory(f)
 {
     //Validate the configuration and initialize defaults
     this->validateAndInitConfig(this->config);
@@ -105,7 +99,7 @@ void ServerGroupImpl::start()
     {
         this->stopped = false;
 
-        for (boost::uint32_t i = 0; i < this->config.min_alive_server_no(); i++)
+        for (std::uint32_t i = 0; i < this->config.min_alive_server_no(); i++)
         {
             this->startServer();
         }
@@ -195,16 +189,14 @@ void ServerGroupImpl::evaluateServerGroup()
     this->evaluateGroup();
 }
 
-bool ServerGroupImpl::tryGetAvailableServer(const std::string &dbName, boost::shared_ptr<Server> &out_server)
+bool ServerGroupImpl::tryGetAvailableServer(const std::string &dbName, std::shared_ptr<Server> &out_server)
 {
     unique_lock<shared_mutex> groupLock(this->groupMutex);
 
-    boost::shared_ptr<Server> result;
+    std::shared_ptr<Server> result;
     if (this->databaseHost->ownsDatabase(dbName))
     {
-        list<shared_ptr<Server>>::iterator it;
-
-        for (it = this->runningServers.begin(); it != this->runningServers.end(); ++it)
+        for (auto it = this->runningServers.begin(); it != this->runningServers.end(); ++it)
         {
             if ((*it)->isAvailable())
             {
@@ -306,7 +298,7 @@ void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
         this->availablePorts.clear();
         for (int i = 0; i < this->config.ports_size(); ++i)
         {
-            this->availablePorts.insert(static_cast<boost::int32_t>(this->config.ports(i)));
+            this->availablePorts.insert(static_cast<std::int32_t>(this->config.ports(i)));
         }
     }
 }
@@ -329,7 +321,7 @@ ServerGroupProto ServerGroupImpl::serializeToProto()
 
     for (int i = 0; i < this->config.ports_size(); ++i)
     {
-        result.add_ports(static_cast<boost::int32_t>(this->config.ports(i)));
+        result.add_ports(static_cast<std::int32_t>(this->config.ports(i)));
     }
 
     result.set_min_alive_server_no(this->config.min_alive_server_no());
@@ -349,8 +341,7 @@ bool ServerGroupImpl::hasAvailableServers()
 {
     bool result = false;
 
-    list<shared_ptr<Server>>::iterator runningServer;
-    for (runningServer = this->runningServers.begin(); runningServer != this->runningServers.end(); ++runningServer)
+    for (auto runningServer = this->runningServers.begin(); runningServer != this->runningServers.end(); ++runningServer)
     {
         try
         {
@@ -631,8 +622,8 @@ void ServerGroupImpl::startServer()
 
         serverConfig.setOptions(this->config.server_options());
 
-        shared_ptr<Server> server = this->serverFactory->createServer(serverConfig);
-        pair<shared_ptr<Server>, Timer> startingServerEntry(server, Timer(this->config.starting_server_lifetime()));
+        auto server = this->serverFactory->createServer(serverConfig);
+        pair<std::shared_ptr<Server>, Timer> startingServerEntry(server, Timer(this->config.starting_server_lifetime()));
 
         this->startingServers.emplace(server->getServerId(), startingServerEntry);
 
@@ -698,85 +689,43 @@ void ServerGroupImpl::stopActiveServers(KillLevel level)
     this->startingServers.clear();
 }
 
-void ServerGroupImpl::validateAndInitConfig(ServerGroupConfigProto &config)
+void ServerGroupImpl::validateAndInitConfig(ServerGroupConfigProto &cfg)
 {
-    if (!config.has_name())
-    {
-        throw common::InvalidArgumentException("Missing configuration parameter:\"name\"");
-    }
-
-    if (!config.has_host())
-    {
-        throw common::InvalidArgumentException("Missing configuration parameter:\"host\"");
-    }
-
-    if (!config.has_db_host())
-    {
-        throw common::InvalidArgumentException("Missing configuration parameter:\"db_host\"");
-    }
-
-    if (!config.ports_size())
-    {
-        throw common::InvalidArgumentException("Missing configuration parameter:\"ports\"");
-    }
+    if (!cfg.has_name())
+        throw common::InvalidArgumentException("Missing configuration parameter: \"name\"");
+    if (!cfg.has_host())
+        throw common::InvalidArgumentException("Missing configuration parameter: \"host\"");
+    if (!cfg.has_db_host())
+        throw common::InvalidArgumentException("Missing configuration parameter: \"db_host\"");
+    if (!cfg.ports_size())
+        throw common::InvalidArgumentException("Missing configuration parameter: \"ports\"");
 
     //Make the list of ports contain unique entries
-    std::set<boost::int32_t> ports;
+    std::set<std::int32_t> ports;
+    for (int i = 0; i < cfg.ports_size(); ++i)
+        ports.insert(static_cast<std::int32_t>(cfg.ports(i)));
+    cfg.clear_ports();
+    for (std::set<std::int32_t>::iterator it = ports.begin(); it != ports.end(); ++it)
+        cfg.add_ports(static_cast<std::uint32_t>(*it));
 
-    for (int i = 0; i < config.ports_size(); ++i)
-    {
-        ports.insert(static_cast<boost::int32_t>(config.ports(i)));
-    }
-
-    config.clear_ports();
-    for (std::set<boost::int32_t>::iterator it = ports.begin(); it != ports.end(); ++it)
-    {
-        config.add_ports(static_cast<std::uint32_t>(*it));
-    }
-
-    if (!config.has_min_alive_server_no())
-    {
-        config.set_min_alive_server_no(MIN_ALIVE_SERVER_NO);
-    }
-
-    if (!config.has_min_available_server_no())
-    {
-        config.set_min_available_server_no(MIN_AVAILABLE_SERVER_NO);
-    }
-
-    if (!config.has_max_idle_server_no())
-    {
-        config.set_max_idle_server_no(MAX_IDLE_SERVER_NO);
-    }
-
-    if (!config.has_autorestart())
-    {
-        config.set_autorestart(AUTORESTART_SERVER);
-    }
-
-    if (!config.has_countdown())
-    {
-        config.set_countdown(MAX_SERVER_SESSIONS);
-    }
-
-    if (!config.has_starting_server_lifetime())
-    {
-        config.set_starting_server_lifetime(STARTING_SERVER_LIFETIME);
-    }
-
-    if (config.min_available_server_no() > config.min_alive_server_no())
-    {
-        std::string errorMessage = "The minimum number of available servers must be less or equal to the minimum number of alive servers";
-
-        throw common::InvalidArgumentException(errorMessage);
-    }
-
-    if ((boost::uint32_t)config.ports_size() < config.min_alive_server_no())
-    {
-        std::string errorMessage = "The number of allocated ports must be greater than the minimum number of alive servers.";
-
-        throw common::InvalidArgumentException(errorMessage);
-    }
+    if (!cfg.has_min_alive_server_no())
+        cfg.set_min_alive_server_no(MIN_ALIVE_SERVER_NO);
+    if (!cfg.has_min_available_server_no())
+        cfg.set_min_available_server_no(MIN_AVAILABLE_SERVER_NO);
+    if (!cfg.has_max_idle_server_no())
+        cfg.set_max_idle_server_no(MAX_IDLE_SERVER_NO);
+    if (!cfg.has_autorestart())
+        cfg.set_autorestart(AUTORESTART_SERVER);
+    if (!cfg.has_countdown())
+        cfg.set_countdown(MAX_SERVER_SESSIONS);
+    if (!cfg.has_starting_server_lifetime())
+        cfg.set_starting_server_lifetime(STARTING_SERVER_LIFETIME);
+    if (cfg.min_available_server_no() > cfg.min_alive_server_no())
+        throw common::InvalidArgumentException(
+                "The minimum number of available servers must be less or equal to the minimum number of alive servers");
+    if ((std::uint32_t)cfg.ports_size() < cfg.min_alive_server_no())
+        throw common::InvalidArgumentException(
+                "The number of allocated ports must be greater than the minimum number of alive servers.");
 }
 
 }

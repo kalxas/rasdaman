@@ -135,8 +135,8 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD *operand, const BaseType *resultBaseType,
     MDDObj *mddres = new MDDObj(mddBaseType, areaOp, op->getNullValues());
 
     // get all tiles in relevant area
-    vector<boost::shared_ptr<Tile>> *allTiles = op->intersect(areaOp);
-    std::vector<boost::shared_ptr<Tile>>::iterator tileIt = allTiles->begin();
+    auto *allTiles = op->intersect(areaOp);
+    auto tileIt = allTiles->begin();
     UnaryOp *myOp = NULL;
 
     if (operation == Ops::OP_IDENTITY)

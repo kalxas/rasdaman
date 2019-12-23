@@ -137,7 +137,7 @@ QtShift::evaluate(QtDataList *inputList)
         MDDObj *resultMDD = new MDDObj(currentMDDObj->getMDDBaseType(), destinationDomain, currentMDDObj->getNullValues());
 
         // get all tiles
-        vector<boost::shared_ptr<Tile>> *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
+        auto *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
 
         // iterate over source tiles
         for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
@@ -469,11 +469,11 @@ QtExtend::evaluate(QtDataList *inputList)
         // --- 1: put all existing tiles into their place ------------------------
 
         // get all tiles
-        vector<boost::shared_ptr<Tile>> *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
+        auto *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
 
         // iterate over source tiles
         // Note that source and target MDD have the same coordinate basis
-        for (vector<boost::shared_ptr<Tile>>::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+        for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
         {
             // LINFO << "QtExtend::evaluate( QtDataList* ) - load domain is " << qtMDDObj->getLoadDomain();
             // get relevant area of source tile
@@ -1028,9 +1028,9 @@ QtScale::evaluate(QtDataList *inputList)
     auto sourceDomainOrigin = r_Point(scaleVector.size()); // all zero!!
 
     // get all tiles
-    vector<boost::shared_ptr<Tile>> *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
+    auto *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
     vector<Tile *> *tmpTiles = new vector<Tile *>();
-    for (vector<boost::shared_ptr<Tile>>::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+    for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
     {
         Tile *t = const_cast<Tile *>(tileIter->get());
         tmpTiles->push_back(t);

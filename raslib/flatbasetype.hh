@@ -85,7 +85,6 @@ public:
     /// print status to a stream
     void print_status(std::ostream &str) const;
 
-
 protected:
     /// shared init code
     void init_shared(void);

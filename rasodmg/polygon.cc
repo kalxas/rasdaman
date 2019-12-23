@@ -41,24 +41,18 @@ rasdaman GmbH.
 */
 
 #include "rasodmg/polygon.hh"
+#include "rasodmg/marray.hh"
+#include "raslib/miter.hh"
+#include "raslib/error.hh"
+
+#include <logging.hh>
 
 #include <set>
 #include <algorithm>
 #include <math.h>
 #include <limits.h>
 
-#if defined(SOLARIS)
-#include <strings.h>
-#endif
-
 using std::sort;
-//causes problems compiling on old red hat
-//using std::iterator;
-
-#include "raslib/miter.hh"
-#include "rasodmg/marray.hh"
-
-#include <logging.hh>
 
 // ------------------------------------------------------------------
 // r_Edge

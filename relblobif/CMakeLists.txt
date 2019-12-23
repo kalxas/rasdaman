@@ -61,6 +61,10 @@ target_include_directories(relblobif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(relblobif
     ${BASEDB_LIBRARIES})
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(relblobif REUSE_FROM common_logging)
+endif()
+
 add_dependencies(relblobif reladminif)
 
 install(TARGETS relblobif

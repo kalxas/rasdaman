@@ -22,7 +22,6 @@
 
 #include <string>
 #include <memory>
-#include <boost/cstdint.hpp>
 
 #include <grpc++/grpc++.h>
 #include <grpc++/security/credentials.h>
@@ -128,9 +127,9 @@ protected:
         this->goodPort = 50001;
         this->badPort = 50002;
 
-        boost::shared_ptr<RasServerService::Service> service(new MockRasServerService());
+        std::shared_ptr<RasServerService::Service> service(new MockRasServerService());
 
-        boost::shared_ptr<RasServerService::Service> failService(new FailingMockRasServerService());
+        std::shared_ptr<RasServerService::Service> failService(new FailingMockRasServerService());
 
         ServerBuilder goodServerBuilder;
         ServerBuilder failingServerBuilder;
@@ -161,15 +160,15 @@ protected:
 
 
     std::string hostName;
-    boost::int32_t goodPort;
-    boost::int32_t badPort;
+    std::int32_t goodPort;
+    std::int32_t badPort;
 
     std::unique_ptr<Server>  goodService;
     std::unique_ptr<Server> failingService;
-    boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
+    std::shared_ptr<rasmgr::DatabaseHost> dbHost;
 
-    boost::shared_ptr<rasmgr::ServerRasNet> server;
-    boost::shared_ptr<rasmgr::ServerRasNet> failingServer;
+    std::shared_ptr<rasmgr::ServerRasNet> server;
+    std::shared_ptr<rasmgr::ServerRasNet> failingServer;
 };
 
 //TEST_F(RasServerTest, isAlive)
@@ -220,7 +219,7 @@ protected:
 //    std::string dbName = "dbName";
 //    rasmgr::UserDatabaseRights dbRights(false,true);
 //    rasmgr::Database db(dbName);
-//    boost::shared_ptr<rasmgr::DatabaseHost> dbh( new rasmgr::DatabaseHost("hostName", "connectString", "user","passwd"));
+//    std::shared_ptr<rasmgr::DatabaseHost> dbh( new rasmgr::DatabaseHost("hostName", "connectString", "user","passwd"));
 
 //    dbh->addDbToHost(db);
 

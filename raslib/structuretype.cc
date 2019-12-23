@@ -20,9 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <malloc.h>
-#include <string.h>
-
 #include "raslib/structuretype.hh"
 #include "raslib/attribute.hh"
 #include "raslib/error.hh"

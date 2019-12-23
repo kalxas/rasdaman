@@ -48,9 +48,9 @@ namespace rasmgr
 {
 using std::runtime_error;
 using std::list;
-using boost::shared_ptr;
-using boost::mutex;
-using boost::unique_lock;
+using std::shared_ptr;
+using std::mutex;
+using std::unique_lock;
 
 using common::InvalidArgumentException;
 
@@ -69,7 +69,7 @@ UserManager::~UserManager()
 void UserManager::defineUser(const UserProto &userInfo)
 {
     bool duplicate = false;
-    list<boost::shared_ptr<User>>::iterator it;
+    list<std::shared_ptr<User>>::iterator it;
 
     if (!userInfo.has_name() || userInfo.name().empty())
     {
@@ -91,17 +91,17 @@ void UserManager::defineUser(const UserProto &userInfo)
         throw UserAlreadyExistsException(userInfo.name());
     }
 
-    boost::shared_ptr<User> user(new User(userInfo.name(),
-                                          userInfo.password(),
-                                          UserDatabaseRights::parseFromProto(userInfo.default_db_rights()),
-                                          UserAdminRights::parseFromProto(userInfo.admin_rights())));
+    std::shared_ptr<User> user(new User(userInfo.name(),
+                                        userInfo.password(),
+                                        UserDatabaseRights::parseFromProto(userInfo.default_db_rights()),
+                                        UserAdminRights::parseFromProto(userInfo.admin_rights())));
 
     this->userList.push_back(user);
 }
 
 void UserManager::changeUser(const std::string &userName, const UserProto &newUserInfo)
 {
-    list<boost::shared_ptr<User>>::iterator it;
+    list<std::shared_ptr<User>>::iterator it;
     bool changed = false;
 
     unique_lock<mutex> lock(this->mut);
@@ -143,7 +143,7 @@ void UserManager::changeUser(const std::string &userName, const UserProto &newUs
 
 void UserManager::removeUser(const std::string &userName)
 {
-    list<boost::shared_ptr<User>>::iterator it;
+    list<std::shared_ptr<User>>::iterator it;
     bool removed = false;
 
     unique_lock<mutex> lock(this->mut);
@@ -163,9 +163,9 @@ void UserManager::removeUser(const std::string &userName)
     }
 }
 
-bool UserManager::tryGetUser(const std::string &userName, boost::shared_ptr<User> &out_user)
+bool UserManager::tryGetUser(const std::string &userName, std::shared_ptr<User> &out_user)
 {
-    list<boost::shared_ptr<User>>::iterator it;
+    list<std::shared_ptr<User>>::iterator it;
 
     unique_lock<mutex> lock(this->mut);
     for (it = this->userList.begin(); it != this->userList.end(); ++it)

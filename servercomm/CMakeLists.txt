@@ -42,4 +42,8 @@ if (ENABLE_PROFILING)
     target_link_libraries(servercomm profiler tcmalloc)
 endif ()
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(servercomm REUSE_FROM common_logging)
+endif()
+
 install(TARGETS servercomm DESTINATION ${LIB_DIR})

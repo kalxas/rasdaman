@@ -66,6 +66,10 @@ target_link_libraries(reladminif PUBLIC
     ${BASEDB_LIBRARIES}
     )
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(reladminif REUSE_FROM common_logging)
+endif()
+
 install(TARGETS reladminif
     DESTINATION ${LIB_DIR})
 

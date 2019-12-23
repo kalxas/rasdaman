@@ -249,10 +249,10 @@ QtConcat::evaluate(QtDataList *inputList)
                     nullvalues = tempValues->getNullvalues();
                 }
                 // get all tiles
-                vector<boost::shared_ptr<Tile>> *tilesA = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
+                auto *tilesA = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
 
                 // iterate over source tiles
-                for (vector<boost::shared_ptr<Tile>>::iterator tileIter = tilesA->begin(); tileIter != tilesA->end(); tileIter++)
+                for (auto tileIter = tilesA->begin(); tileIter != tilesA->end(); tileIter++)
                 {
                     // get relevant area of source tile
                     r_Minterval tileDomain = qtMDDObj->getLoadDomain().create_intersection((*tileIter)->getDomain());
@@ -285,10 +285,10 @@ QtConcat::evaluate(QtDataList *inputList)
                     }
                 }
                 // get all tiles
-                vector<boost::shared_ptr<Tile>> *tilesB = currentMDDObj2->intersect(qtMDDObj2->getLoadDomain());
+                auto *tilesB = currentMDDObj2->intersect(qtMDDObj2->getLoadDomain());
 
                 // iterate over source tiles
-                for (vector<boost::shared_ptr<Tile>>::iterator tileIter = tilesB->begin(); tileIter != tilesB->end(); tileIter++)
+                for (auto tileIter = tilesB->begin(); tileIter != tilesB->end(); tileIter++)
                 {
                     // get relevant area of source tile
                     r_Minterval sourceTileDomain = qtMDDObj2->getLoadDomain().create_intersection((*tileIter)->getDomain());

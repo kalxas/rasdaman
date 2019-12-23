@@ -611,7 +611,8 @@ Tile::execScaleOp(const Tile *opTile, const r_Minterval &sourceDomain)
     assert(dummy1);
     unsigned int typeLength = getType()->getSize();
 
-    r_MiterFloat iterSrc(const_cast<Tile *>(opTile), const_cast<r_Minterval &>(sourceDomain), domain);
+    r_MiterFloat iterSrc(opTile->getType()->getSize(), opTile->getContents(), opTile->getDomain(),
+                     	 sourceDomain, domain);
     r_Miter iterDest(&domain, &domain, typeLength, dummy1);
 
     // optimize for common basetypes
@@ -733,7 +734,7 @@ Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval
 }
 
 void
-Tile::copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, const r_Minterval &areaOp,
+Tile::copyTile(const r_Minterval &areaRes, std::shared_ptr<Tile> &opTile, const r_Minterval &areaOp,
                const size_t resOff, const r_Bytes opOff, const r_Bytes bandSize)
 {
     size_t cellSize = this->getType()->getSize();

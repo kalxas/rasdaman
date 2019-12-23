@@ -21,7 +21,7 @@
  */
 
 #include <string>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -64,7 +64,7 @@ using ::testing::Return;
 using ::testing::SetArgReferee;
 using rasmgr::UserAdminRightsProto;
 using rasmgr::UserDatabaseRightsProto;
-using boost::shared_ptr;
+using std::shared_ptr;
 
 class ClientManagerTest: public ::testing::Test
 {
@@ -84,20 +84,20 @@ protected:
         adminRights.setSystemConfigRights(true);
 
         rasmgr::UserDatabaseRights dbRights(true, true);
-        user = boost::make_shared<User>(userName, userPassword, dbRights, adminRights);
+        user = std::make_shared<User>(userName, userPassword, dbRights, adminRights);
 
-        userManager = boost::make_shared<UserManagerMock>();
-        serverGroupFactory = boost::make_shared<ServerGroupFactoryMock>();
+        userManager = std::make_shared<UserManagerMock>();
+        serverGroupFactory = std::make_shared<ServerGroupFactoryMock>();
 
         ServerManagerConfig serverManagerConfig;
-        serverManager = boost::make_shared<ServerManagerMock>(serverManagerConfig, serverGroupFactory);
+        serverManager = std::make_shared<ServerManagerMock>(serverManagerConfig, serverGroupFactory);
 
-        peerManager = boost::make_shared<PeerManagerMock>();
+        peerManager = std::make_shared<PeerManagerMock>();
 
-        clientManager = boost::make_shared<ClientManager>(config, userManager, serverManager, peerManager);
+        clientManager = std::make_shared<ClientManager>(config, userManager, serverManager, peerManager);
     }
 
-    boost::shared_ptr<rasmgr::User> user;
+    std::shared_ptr<rasmgr::User> user;
 
     std::string clientId;
     std::string userName;
@@ -107,12 +107,12 @@ protected:
     ClientManagerConfig config;
 
     std::string serverHost;
-    boost::int32_t serverPort;
-    boost::shared_ptr<UserManager> userManager;
-    boost::shared_ptr<ServerGroupFactory> serverGroupFactory;
-    boost::shared_ptr<ClientManager> clientManager;
-    boost::shared_ptr<ServerManager> serverManager;
-    boost::shared_ptr<PeerManager> peerManager;
+    std::int32_t serverPort;
+    std::shared_ptr<UserManager> userManager;
+    std::shared_ptr<ServerGroupFactory> serverGroupFactory;
+    std::shared_ptr<ClientManager> clientManager;
+    std::shared_ptr<ServerManager> serverManager;
+    std::shared_ptr<PeerManager> peerManager;
 };
 
 TEST_F(ClientManagerTest, connectClient_FailsInexistentUser)
@@ -121,7 +121,7 @@ TEST_F(ClientManagerTest, connectClient_FailsInexistentUser)
     std::string badPassword = "badPassword";
     std::string out_clientId;
     rasmgr::ClientCredentials badCredentials(badUser, badPassword);
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
 
     EXPECT_CALL(userMgrMock, tryGetUser(_, _)).WillOnce(Return(false));
 
@@ -136,7 +136,7 @@ TEST_F(ClientManagerTest, connectClientBadPassword)
 
     // Create credentials with the same user name but with a different password
     rasmgr::ClientCredentials badCredentials(user->getName(), badPassword);
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
 
     EXPECT_CALL(userMgrMock, tryGetUser(_, _)).WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
@@ -148,7 +148,7 @@ TEST_F(ClientManagerTest, connectClientSuccess)
     std::string out_clientId;
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_, _)).WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
@@ -165,7 +165,7 @@ TEST_F(ClientManagerTest, disconnectClient_Success)
     std::string out_clientId;
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
 
     EXPECT_CALL(userMgrMock, tryGetUser(_, _))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
@@ -179,9 +179,9 @@ TEST_F(ClientManagerTest, disconnectClient_Success)
 
 TEST_F(ClientManagerTest, openClientDbSession_FailBecauseThereIsNoClientWithTheGivenId)
 {
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::shared_ptr<Server> server(new MockRasServer());
 
-    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
+    MockRasServer& serverMock = *std::dynamic_pointer_cast<MockRasServer>(server);
     //  EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
     EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
 
@@ -194,18 +194,18 @@ TEST_F(ClientManagerTest, openClientDbSession_FailBecauseThereIsNoClientWithTheG
 TEST_F(ClientManagerTest, openClientDbSession_SuccessLocalServerFirstAttempt)
 {
     // Setup the user manager to successfully connect a client
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_, _))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     // The ServerManager will return this server when asked for one
-    boost::shared_ptr<Server> freeServer(new MockRasServer());
-    MockRasServer& mockServer = *boost::dynamic_pointer_cast<MockRasServer>(freeServer);
+    std::shared_ptr<Server> freeServer(new MockRasServer());
+    MockRasServer& mockServer = *std::dynamic_pointer_cast<MockRasServer>(freeServer);
     EXPECT_CALL(mockServer, getHostName()).WillOnce(Return(serverHost));
     EXPECT_CALL(mockServer, getPort()).WillOnce(Return(serverPort));
     EXPECT_CALL(mockServer, allocateClientSession(_, _, _, _)).Times(1);
 
-    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
+    ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
     EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _)).WillOnce(DoAll(SetArgReferee<1>(freeServer), Return(true)));
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
@@ -225,18 +225,18 @@ TEST_F(ClientManagerTest, openClientDbSession_SuccessLocalServerFirstAttempt)
 TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessLocalServerLastAttempt)
 {
     // Setup the user manager to successfully connect a client
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_, _))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     // The ServerManager will return this server when asked for one
-    boost::shared_ptr<Server> freeServer(new MockRasServer());
-    MockRasServer& mockServer = *boost::dynamic_pointer_cast<MockRasServer>(freeServer);
+    std::shared_ptr<Server> freeServer(new MockRasServer());
+    MockRasServer& mockServer = *std::dynamic_pointer_cast<MockRasServer>(freeServer);
     EXPECT_CALL(mockServer, getHostName()).WillOnce(Return(serverHost));
     EXPECT_CALL(mockServer, getPort()).WillOnce(Return(serverPort));
     EXPECT_CALL(mockServer, allocateClientSession(_, _, _, _)).Times(1);
 
-    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
+    ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
     EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _))
     .Times(MAX_GET_SERVER_RETRIES - 1)
     .WillOnce(Return(false))
@@ -259,20 +259,20 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessLocalServerLastAtt
 TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessRemoteServer)
 {
     // Setup the user manager to successfully connect a client
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_, _))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
+    ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
     EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _))
     .Times(MAX_GET_SERVER_RETRIES)
     .WillRepeatedly(Return(false));
 
-    PeerManagerMock& peerMgrMock = *boost::dynamic_pointer_cast<PeerManagerMock>(peerManager);
+    PeerManagerMock& peerMgrMock = *std::dynamic_pointer_cast<PeerManagerMock>(peerManager);
     std::string remoteClientId = "remoteClientId";
     std::string remoteDbId = "dbSessionId";
     std::string remoteServerHost = "remote";
-    boost::uint32_t remoteServerPort = 46000;
+    std::uint32_t remoteServerPort = 46000;
     ClientServerSession serverSession {remoteClientId, remoteDbId, remoteServerHost, remoteServerPort};
 
     EXPECT_CALL(peerMgrMock, tryGetRemoteServer(_, _))
@@ -296,16 +296,16 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessRemoteServer)
 TEST_F(ClientManagerTest, DISABLED_openClientDbSession_FailBecauseNoAvailableServer)
 {
     // Setup the user manager to successfully connect a client
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_, _))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    ServerManagerMock& serverMgrMock = *boost::dynamic_pointer_cast<ServerManagerMock>(serverManager);
+    ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
     EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _))
     .Times(MAX_GET_SERVER_RETRIES)
     .WillRepeatedly(Return(false));
 
-    PeerManagerMock& peerMgrMock = *boost::dynamic_pointer_cast<PeerManagerMock>(peerManager);
+    PeerManagerMock& peerMgrMock = *std::dynamic_pointer_cast<PeerManagerMock>(peerManager);
 
     EXPECT_CALL(peerMgrMock, tryGetRemoteServer(_, _))
     .Times(1)
@@ -325,7 +325,7 @@ TEST_F(ClientManagerTest, closeClientDbSession_FailsBecauseThereIsNoClient)
     std::string out_clientId;
     std::string out_sessionId;
 
-    PeerManagerMock& peerMgrMock = *boost::dynamic_pointer_cast<PeerManagerMock>(peerManager);
+    PeerManagerMock& peerMgrMock = *std::dynamic_pointer_cast<PeerManagerMock>(peerManager);
 
     EXPECT_CALL(peerMgrMock, isRemoteClientSession(_))
     .Times(1)
@@ -342,7 +342,7 @@ TEST_F(ClientManagerTest, closeClientDbSession_NoOpenSessions)
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_, _))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
@@ -357,7 +357,7 @@ TEST_F(ClientManagerTest, closeClientDbSession_RemoteSession)
     std::string out_clientId;
     std::string out_sessionId;
 
-    PeerManagerMock& peerMgrMock = *boost::dynamic_pointer_cast<PeerManagerMock>(peerManager);
+    PeerManagerMock& peerMgrMock = *std::dynamic_pointer_cast<PeerManagerMock>(peerManager);
 
     EXPECT_CALL(peerMgrMock, isRemoteClientSession(_))
     .WillOnce(Return(true));
@@ -380,7 +380,7 @@ TEST_F(ClientManagerTest, keepClientAlive_ValidClient)
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_, _))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
@@ -394,12 +394,12 @@ TEST_F(ClientManagerTest, keepClientAlive_ExpiredClient)
     std::string out_clientId;
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::shared_ptr<Server> server(new MockRasServer());
 
-    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
+    MockRasServer& serverMock = *std::dynamic_pointer_cast<MockRasServer>(server);
     EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
 
-    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
     EXPECT_CALL(userMgrMock, tryGetUser(_, _))
     .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
@@ -409,7 +409,7 @@ TEST_F(ClientManagerTest, keepClientAlive_ExpiredClient)
     ASSERT_NO_THROW(clientManager->keepClientAlive(out_clientId));
 
     //Wait for the client to die
-    usleep(boost::uint32_t(config.getCleanupInterval() * 1000 * 2));
+    usleep(std::uint32_t(config.getCleanupInterval() * 1000 * 4));
 
     ASSERT_THROW(clientManager->keepClientAlive(out_clientId), InexistentClientException);
 }

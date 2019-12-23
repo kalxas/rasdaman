@@ -125,8 +125,6 @@ public:
     virtual void print_status(std::ostream &s);
 };
 
-#include "rasodmg/marray.icc"
-
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__
 #include "rasodmg/marray.cc"

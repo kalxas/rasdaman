@@ -20,16 +20,15 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <stdexcept>
-
-#include <boost/cstdlib.hpp>
-
 #include "../exceptions/invalidargumentexception.hh"
 #include "timer.hh"
 
+#include <stdexcept>
+#include <cstdint>
+
 namespace common
 {
-Timer::Timer(boost::int32_t periodArg)
+Timer::Timer(std::int32_t periodArg)
 {
   if (periodArg < 0)
   {
@@ -49,7 +48,7 @@ Timer::Timer(boost::int32_t periodArg)
 Timer::~Timer()
 {}
 
-boost::int32_t Timer::getPeriod() const
+std::int32_t Timer::getPeriod() const
 {
   return this->period;
 }

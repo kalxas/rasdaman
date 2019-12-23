@@ -22,11 +22,11 @@
 
 #include "turboqueryresult.hh"
 
-TurboQueryResult::TurboQueryResult(char *rawData, size_t rawDataSize, r_Data_Format data_format, std::string domain):
-    rawData(rawData),
-    rawDataSize(rawDataSize),
-    data_format(data_format),
-    domain(domain)
+TurboQueryResult::TurboQueryResult(char *rawData1, size_t rawDataSize1, r_Data_Format data_format1, std::string domain1):
+    rawData(rawData1),
+    rawDataSize(rawDataSize1),
+    data_format(data_format1),
+    domain(domain1)
 {}
 
 TurboQueryResult::~TurboQueryResult()

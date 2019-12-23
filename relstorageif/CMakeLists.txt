@@ -43,5 +43,9 @@ target_link_libraries(relstorageif PUBLIC
     reladminif
     )
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(relstorageif REUSE_FROM common_logging)
+endif()
+
 install(TARGETS relstorageif
         DESTINATION ${LIB_DIR})

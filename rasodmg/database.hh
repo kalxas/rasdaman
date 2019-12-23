@@ -66,7 +66,7 @@ public:
     enum type_schema
     {
         CELL        = 3,
-        MARRAY  = 2,
+        MARRAY      = 2,
         COLLECTION  = 1
     };
 
@@ -141,7 +141,7 @@ public:
     */
 
     /// get the actual status
-    inline access_status get_status() const;
+    access_status get_status() const;
 
     /// give a name to an object (signature is not ODMG conformant because of compiler bug)
     void set_object_name(r_Object &obj, const char *name);
@@ -265,7 +265,5 @@ private:
     /// stores the user password (this will change!)
     std::string plainPass;
 };
-
-#include "rasodmg/database.icc"
 
 #endif

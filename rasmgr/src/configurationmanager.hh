@@ -1,8 +1,7 @@
 #ifndef RASMGR_X_SRC_CONFIGURATIONMANAGER_HH
 #define RASMGR_X_SRC_CONFIGURATIONMANAGER_HH
 
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
+#include <memory>
 
 namespace rasmgr
 {
@@ -21,12 +20,12 @@ class UserManager;
 class ConfigurationManager
 {
 public:
-    ConfigurationManager(boost::shared_ptr<ControlCommandExecutor> commandExecutor,
-                         boost::shared_ptr<DatabaseHostManager> dbhManager,
-                         boost::shared_ptr<DatabaseManager> dbManager,
-                         boost::shared_ptr<PeerManager> peerManager,
-                         boost::shared_ptr<ServerManager> serverManager,
-                         boost::shared_ptr<UserManager> userManager);
+    ConfigurationManager(std::shared_ptr<ControlCommandExecutor> commandExecutor,
+                         std::shared_ptr<DatabaseHostManager> dbhManager,
+                         std::shared_ptr<DatabaseManager> dbManager,
+                         std::shared_ptr<PeerManager> peerManager,
+                         std::shared_ptr<ServerManager> serverManager,
+                         std::shared_ptr<UserManager> userManager);
 
     virtual ~ConfigurationManager();
 
@@ -51,12 +50,12 @@ public:
     void setIsDirty(bool isDirty);
 
 private:
-    boost::shared_ptr<ControlCommandExecutor> commandExecutor_;
-    boost::shared_ptr<DatabaseHostManager> dbhManager_;
-    boost::shared_ptr<DatabaseManager> dbManager_;
-    boost::shared_ptr<PeerManager> peerManager_;
-    boost::shared_ptr<ServerManager> serverManager_;
-    boost::shared_ptr<UserManager> userManager_;
+    std::shared_ptr<ControlCommandExecutor> commandExecutor_;
+    std::shared_ptr<DatabaseHostManager> dbhManager_;
+    std::shared_ptr<DatabaseManager> dbManager_;
+    std::shared_ptr<PeerManager> peerManager_;
+    std::shared_ptr<ServerManager> serverManager_;
+    std::shared_ptr<UserManager> userManager_;
 
     std::string rasmgrConfFilePath;
     bool isDirty_;

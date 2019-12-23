@@ -24,10 +24,11 @@ rasdaman GmbH.
 #ifndef _D_NULLVALUES_
 #define _D_NULLVALUES_
 
+#include "raslib/odmgtypes.hh"
+
 #include <vector>
 #include <string>
 #include <cmath>
-#include "raslib/odmgtypes.hh"
 
 class r_Nullvalues
 {

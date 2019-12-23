@@ -1382,11 +1382,10 @@ bool r_Minterval::covers(const r_Minterval &inter2) const
             // second check if it is high fixed and the other isn't: false
             // both are high fixed
             // check if it is smaller than the other: false
-            if (
-                (intervals[i].is_low_fixed() && (!(inter2[i].is_low_fixed()) || intervals[i].low() > inter2[i].low()))
-                ||
-                (intervals[i].is_high_fixed() && (!(inter2[i].is_high_fixed()) || intervals[i].high() < inter2[i].high()))
-            )
+            const auto &a = intervals[i];
+            const auto &b = inter2[i];
+            if ((a.is_low_fixed() && (!b.is_low_fixed() || a.low() > b.low())) ||
+                (a.is_high_fixed() && (!b.is_high_fixed() || a.high() < b.high())))
             {
                 retval = false;
                 break;
@@ -1398,6 +1397,67 @@ bool r_Minterval::covers(const r_Minterval &inter2) const
         LERROR << "r_Minterval::covers(" << inter2 << ") dimensions do not match";
         retval = false;
     }
+    return retval;
+}
+
+r_Dimension
+r_Minterval::dimension() const
+{
+    return dimensionality;
+}
+
+bool
+r_Minterval::is_origin_fixed() const
+{
+    bool retval = true;
+
+    if (!dimensionality)
+    {
+        retval = false;
+    }
+    else
+    {
+        for (r_Dimension i = 0; i < dimensionality; i++)
+        {
+            retval &= intervals[i].is_low_fixed();
+        }
+    }
 
     return retval;
+}
+
+bool
+r_Minterval::is_high_fixed() const
+{
+    bool retval = true;
+
+    if (!dimensionality)
+    {
+        //we have an uninitialized interval
+        retval = false;
+    }
+    else
+    {
+        for (r_Dimension i = 0; i < dimensionality; i++)
+        {
+            retval &= intervals[i].is_high_fixed();
+        }
+    }
+
+    return retval;
+}
+
+template <class castType>
+bool
+r_Minterval::within_bounds(const castType point)
+{
+    for (r_Dimension i = 0; i < dimensionality ; i++)
+    {
+        if ((!intervals[i].is_low_fixed() || point >= intervals[i].low()) && 
+            (!intervals[i].is_high_fixed() || point <= intervals[i].high()))
+        {
+            return true;
+        }
+    }
+    return false;
 }

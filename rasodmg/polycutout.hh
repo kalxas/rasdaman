@@ -53,7 +53,6 @@ rasdaman GmbH.
 #include "rasodmg/polygon.hh"
 
 #include <iosfwd>
-#include <vector>
 #include <list>
 #include <string>
 

@@ -22,8 +22,6 @@
 
 #include <stdexcept>
 
-#include <boost/thread/locks.hpp>
-
 #include <logging.hh>
 
 #include "exceptions/rasmgrexceptions.hh"
@@ -35,15 +33,13 @@
 
 namespace rasmgr
 {
-using boost::shared_ptr;
+using std::shared_ptr;
 using std::runtime_error;
 using std::list;
-using boost::mutex;
-using boost::unique_lock;
+using std::mutex;
+using std::unique_lock;
 
-DatabaseManager::DatabaseManager(
-    boost::shared_ptr<DatabaseHostManager> dbHostManager) :
-    dbHostManager(dbHostManager)
+DatabaseManager::DatabaseManager(std::shared_ptr<DatabaseHostManager> m) : dbHostManager(m)
 {}
 
 DatabaseManager::~DatabaseManager()
@@ -55,16 +51,15 @@ void DatabaseManager::defineDatabase(const std::string &dbHostName,
     unique_lock<mutex> lock(this->mut);
 
     //Get and lock access to the database host
-    boost::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDatabaseHost(dbHostName);
+    auto dbHost = this->dbHostManager->getAndLockDatabaseHost(dbHostName);
     //Release the lock as we do not care if the database host is removed in between
     dbHost->decreaseServerCount();
 
-    boost::shared_ptr<Database> db;
+    std::shared_ptr<Database> db;
     bool dbExists = false;
 
     //Check if there already is a database with this name in the list
-    for (std::list<boost::shared_ptr<Database>>::iterator it = this->databases.begin();
-            it != this->databases.end(); ++it)
+    for (auto it = this->databases.begin(); it != this->databases.end(); ++it)
     {
         if ((*it)->getDbName() == databaseName)
         {
@@ -93,7 +88,7 @@ void DatabaseManager::changeDatabase(const std::string &oldDbName, const Databas
     bool changedDb = false;
 
     //Check if there already is a database with this name in the list
-    for (std::list<boost::shared_ptr<Database>>::iterator it = this->databases.begin();
+    for (std::list<std::shared_ptr<Database>>::iterator it = this->databases.begin();
             it != this->databases.end(); ++it)
     {
         if ((*it)->getDbName() == oldDbName)
@@ -126,7 +121,7 @@ void DatabaseManager::removeDatabase(const std::string &databaseHostName, const 
     unique_lock<mutex> lock(this->mut);
 
     //Get and lock access to the database host
-    boost::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDatabaseHost(databaseHostName);
+    std::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDatabaseHost(databaseHostName);
     //Release the lock as we do not care if the database host is removed in between
     dbHost->decreaseServerCount();
 
@@ -134,7 +129,7 @@ void DatabaseManager::removeDatabase(const std::string &databaseHostName, const 
 
     LDEBUG << "Removed database \"" + databaseName + "\" from database host name \"" + databaseHostName + "\"";
 
-    for (std::list<boost::shared_ptr<Database>>::iterator it = this->databases.begin();
+    for (std::list<std::shared_ptr<Database>>::iterator it = this->databases.begin();
             it != this->databases.end(); ++it)
     {
         if ((*it)->getDbName() == databaseName)

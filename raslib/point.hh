@@ -30,8 +30,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_POINT_
-#define _D_POINT_
+#ifndef D_POINT_HH
+#define D_POINT_HH
 
 #include "raslib/mddtypes.hh"  // for r_Range, r_Dimension
 #include <vector>
@@ -48,37 +48,31 @@ rasdaman GmbH.
 class r_Point
 {
 public:
+    /// default constructor
+    r_Point() = default;
     /// constructor getting dimensionality for stream initializing
     r_Point(r_Dimension);
-
-    /// stream-input operator for stream initializing
-    r_Point &operator<<(r_Range);
 
     /// constructor taking string representation (e.g. [ 1, 2, 3])
     r_Point(char *);
 
     //@Man: 'easy-to-use' constructors
     //@{
-    ///
     r_Point(r_Range, r_Range);
-    ///
     r_Point(r_Range, r_Range, r_Range);
-    ///
     r_Point(r_Range, r_Range, r_Range, r_Range);
-    ///
     r_Point(r_Range, r_Range, r_Range, r_Range, r_Range);
-    ///
     r_Point(const std::vector<r_Range> &pointArg);
     //@}
 
-    /// default constructor
-    r_Point();
-
     /// copy constructor
-    r_Point(const r_Point &);
+    r_Point(const r_Point &) = default;
 
     /// destructor: cleanup dynamic memory
-    ~r_Point();
+    ~r_Point() = default;
+    
+    /// stream-input operator for stream initializing
+    r_Point &operator<<(r_Range);
 
     /// subscriptor for read access
     r_Range operator[](r_Dimension) const;
@@ -86,10 +80,10 @@ public:
     r_Range &operator[](r_Dimension);
 
     /// assignment: cleanup + copy
-    const r_Point &operator=(const r_Point &);
+    r_Point &operator=(const r_Point &) = default;
 
     /// compares this point with the given point.
-    inline int compare_with(const r_Point &p) const;
+    int compare_with(const r_Point &p) const;
     /**
       Returns 0 if this == p, -1 if this < p, 1 if this > p (considering
       the coordinates in decreasing order of magnitude).
@@ -129,7 +123,7 @@ public:
     r_Range dotProduct(const r_Point &r) const;
 
     /// get dimensionality
-    inline r_Dimension dimension() const;
+    r_Dimension dimension() const;
 
     /// get vectorized version of the stored point
     std::vector<r_Range> getVector() const;
@@ -153,16 +147,13 @@ public:
     std::string to_string() const;
 
 private:
+    void checkDimensionMatch(const r_Point &pt) const;
+    
     /// array holding the point coordinates
-    r_Range *points;
-    /// dimensionality of the point
-    r_Dimension dimensionality;
-    /// number of components initialized already
-    r_Dimension streamInitCnt;
+    std::vector<r_Range> points;
+    size_t streamIndex{0};
 };
 
 extern std::ostream &operator<<(std::ostream &s, const r_Point &d);
-
-#include "point.icc" // IWYU pragma: keep
 
 #endif

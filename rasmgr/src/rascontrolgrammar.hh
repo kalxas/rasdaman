@@ -32,7 +32,7 @@ namespace rasmgr
 class RasControlGrammar
 {
 public:
-    RasControlGrammar(boost::shared_ptr<RasControl> rascontrol);
+    RasControlGrammar(std::shared_ptr<RasControl> rascontrol);
 
     // parse the given command; return true if successfull, false otherwise
     void parse(const std::string &command);
@@ -124,7 +124,7 @@ private:
     std::string empty;
     std::vector<std::string> tokens;
     int argc;
-    boost::shared_ptr<RasControl> rascontrol;
+    std::shared_ptr<RasControl> rascontrol;
 
     DefineUser defUser;
     RemoveUser remUser;

@@ -11,13 +11,13 @@ class ServerFactory;
 class ServerGroupFactoryImpl: public ServerGroupFactory
 {
 public:
-    ServerGroupFactoryImpl(boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
+    ServerGroupFactoryImpl(std::shared_ptr<DatabaseHostManager> dbhManager, std::shared_ptr<ServerFactory> serverFactory);
     virtual ~ServerGroupFactoryImpl();
 
-    virtual boost::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto &config);
+    virtual std::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto &config);
 private:
-    boost::shared_ptr<DatabaseHostManager> dbhManager;
-    boost::shared_ptr<ServerFactory> serverFactory;
+    std::shared_ptr<DatabaseHostManager> dbhManager;
+    std::shared_ptr<ServerFactory> serverFactory;
 };
 
 }

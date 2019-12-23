@@ -31,7 +31,7 @@ namespace rasmgr
 {
 
 RasControlGrammar::RasControlGrammar(
-    boost::shared_ptr<RasControl> rascontrolArg) :
+    std::shared_ptr<RasControl> rascontrolArg) :
     rascontrol{rascontrolArg}
 {}
 

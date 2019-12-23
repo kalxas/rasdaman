@@ -21,7 +21,7 @@
  */
 
 #include <string>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -75,13 +75,13 @@ protected:
     rasmgr::UserAdminRights adminRights;
     std::string dbName;
     std::string sessionId;
-    boost::shared_ptr<rasmgr::User> user;
-    boost::shared_ptr<rasmgr::Client> client;
+    std::shared_ptr<rasmgr::User> user;
+    std::shared_ptr<rasmgr::Client> client;
 
-    boost::int32_t clientLifeTime;
+    std::int32_t clientLifeTime;
     std::string serverHost;
-    boost::int32_t serverPort;
-    boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
+    std::int32_t serverPort;
+    std::shared_ptr<rasmgr::DatabaseHost> dbHost;
 };
 
 TEST_F(ClientTest, isAliveSucceedsWhenTheClientTimerHasNotExpired)
@@ -93,7 +93,7 @@ TEST_F(ClientTest, isAliveSucceedsWhenTheClientTimerHasNotExpired)
 TEST_F(ClientTest, isAliveFailsWhenTheClientTimerHasExpiredNoServers)
 {
     //sleep so that the client's time expires
-    usleep(boost::uint32_t(this->clientLifeTime) * 1000);
+    usleep(std::uint32_t(this->clientLifeTime) * 1000);
 
     //The client will now be dead
     ASSERT_FALSE(client->isAlive());
@@ -102,15 +102,15 @@ TEST_F(ClientTest, isAliveFailsWhenTheClientTimerHasExpiredNoServers)
 //Test when the client has active sessions with a server
 TEST_F(ClientTest, isAliveSucceedsWhenClientAliveOnServers)
 {
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::shared_ptr<Server> server(new MockRasServer());
     std::string out_sessionId;
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ , dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, dbName, _)).Times(1);
     EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(clientId)).WillOnce(Return(true));
 
     client->addDbSession(dbName, server, out_sessionId);
 
-    usleep(boost::uint32_t(this->clientLifeTime) * 1000);
+    usleep(std::uint32_t(this->clientLifeTime) * 1000);
 
     //This will now return true because the server will confirm that the client is alive
     ASSERT_TRUE(client->isAlive());
@@ -119,16 +119,16 @@ TEST_F(ClientTest, isAliveSucceedsWhenClientAliveOnServers)
 TEST_F(ClientTest, isAliveFailsWhenClientDeadOnServers)
 {
 
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::shared_ptr<Server> server(new MockRasServer());
     std::string out_sessionId;
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ , dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, dbName, _)).Times(1);
     EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(clientId)).WillOnce(Return(false));
     ASSERT_TRUE(client->isAlive());
 
     client->addDbSession(dbName, server, out_sessionId);
 
-    usleep(boost::uint32_t(this->clientLifeTime) * 1000);
+    usleep(std::uint32_t(this->clientLifeTime) * 1000);
 
     //This will now return true because the server will confirm that the client is alive
     ASSERT_FALSE(client->isAlive());
@@ -138,7 +138,7 @@ TEST_F(ClientTest, resetLiveliness)
 {
     ASSERT_TRUE(client->isAlive());
 
-    usleep(boost::uint32_t(this->clientLifeTime) * 1000);
+    usleep(std::uint32_t(this->clientLifeTime) * 1000);
 
     ASSERT_FALSE(client->isAlive());
 
@@ -154,7 +154,7 @@ TEST_F(ClientTest, addDbSessionFailWhenUserDoesNotHaveRights)
     // on the database.
     std::string out_sessionId;
     rasmgr::UserDatabaseRights noDbRights(false, false);
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::shared_ptr<Server> server(new MockRasServer());
 
     user->setDefaultDbRights(noDbRights);
     EXPECT_ANY_THROW(client->addDbSession(dbName, server, out_sessionId));
@@ -164,9 +164,9 @@ TEST_F(ClientTest, addDbSessionFailWhenUserDoesNotHaveRights)
 TEST_F(ClientTest, addDbSessionSuccess)
 {
     std::string out_sessionId;
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::shared_ptr<Server> server(new MockRasServer());
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ , dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, dbName, _)).Times(1);
 
     EXPECT_NO_THROW(client->addDbSession(dbName, server, out_sessionId));
 }
@@ -176,9 +176,9 @@ TEST_F(ClientTest, addDbSessionSuccess)
 TEST_F(ClientTest, removeDbSession)
 {
     std::string out_sessionId;
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::shared_ptr<Server> server(new MockRasServer());
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ , dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, dbName, _)).Times(1);
     EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId, _)).Times(1);
 
     EXPECT_NO_THROW(client->addDbSession(dbName, server, out_sessionId));
@@ -188,10 +188,10 @@ TEST_F(ClientTest, removeDbSession)
 TEST_F(ClientTest, removeClientFromServers)
 {
     std::string out_sessionId;
-    boost::shared_ptr<Server> server(new MockRasServer());
+    std::shared_ptr<Server> server(new MockRasServer());
 
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ , dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, dbName, _)).Times(1);
     EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId, _)).Times(1);
 
     EXPECT_NO_THROW(client->addDbSession(dbName, server, out_sessionId));

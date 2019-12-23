@@ -30,9 +30,7 @@ rasdaman GmbH.
  *      None
 */
 
-#include "config.h"
 #include "object.hh"
-#include "mymalloc/mymalloc.h"
 #include "raslib/type.hh"
 #include "raslib/error.hh"
 #include "rasodmg/object.hh"
@@ -40,6 +38,7 @@ rasdaman GmbH.
 #include "rasodmg/database.hh"
 #include "rasodmg/ref.hh"
 #include "clientcomm/clientcomm.hh"
+#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 #include <iostream>
 
@@ -276,7 +275,6 @@ r_Object::r_deactivate()
         delete [] type_structure;
         type_structure = 0;
     }
-    oid.r_deactivate();
 }
 
 
@@ -505,3 +503,130 @@ r_Transaction *r_Object::get_transaction() const
     return transaction != NULL ? transaction : r_Transaction::actual_transaction;
 }
 
+
+void
+r_Object::mark_modified()
+{
+    if (object_status == no_status ||
+            object_status == read)
+    {
+        object_status = modified;
+    }
+}
+
+void
+r_Object::set_object_name(const char *name)
+{
+    if (!name)
+    {
+        //null pointer
+        LERROR << "r_Object::set_object_name(name) name is null!";
+        throw r_Error(INVALIDOBJECTNAME);
+    }
+
+    const char *cptr = name;
+
+    //check if the name contains only [a-zA-Z0-9_]
+    while (*cptr)
+    {
+        if (((*cptr >= 'a') && (*cptr <= 'z')) ||
+                ((*cptr >= 'A') && (*cptr <= 'Z')) ||
+                ((*cptr >= '0') && (*cptr <= '9')) ||
+                (*cptr == '_'))
+        {
+            cptr++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if (*cptr)
+    {
+        //invalid character in object name
+        LERROR << "r_Object::set_object_name(" << name << ") invalid name!";
+        throw r_Error(INVALIDOBJECTNAME);
+    }
+
+    if (object_name)
+    {
+        free(object_name);
+    }
+
+    object_name = strdup(name);
+}
+
+void
+r_Object::set_type_by_name(const char *name)
+{
+    if (!name)
+    {
+        //null pointer
+        LERROR << "r_Object::set_type_by_name(name) name is null!";
+        throw r_Error(r_Error:: r_Error_NameInvalid);
+    }
+
+    if (type_name)
+    {
+        free(type_name);
+    }
+
+    type_name = strdup(name);
+}
+
+void
+r_Object::set_type_structure(const char *name)
+{
+    if (!name)
+    {
+        //null pointer
+        LERROR << "r_Object::type_structure(name) name is null!";
+        throw r_Error(r_Error:: r_Error_NameInvalid);
+    }
+
+    if (type_structure)
+    {
+        delete [] type_structure;
+    }
+
+    type_structure = new char[strlen(name) + 1];
+    strcpy(type_structure, name);
+}
+
+const char *
+r_Object::get_type_name() const
+{
+    return type_name;
+}
+
+const char *
+r_Object::get_object_name() const
+{
+    return object_name;
+}
+
+const char *
+r_Object::get_type_structure() const
+{
+    if (type_structure != NULL)
+    {
+        return type_structure;
+    }
+    else
+    {
+        return "";
+    }
+}
+
+r_Object::ObjectStatus
+r_Object::get_status() const
+{
+    return object_status;
+}
+
+const r_OId &
+r_Object::get_oid() const
+{
+    return oid;
+}

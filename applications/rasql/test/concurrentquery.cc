@@ -27,11 +27,12 @@
 
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
 
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
+#include "rasodmg/oqlquery.hh"
 #include "globals.hh"
 
 // needed to configure logging

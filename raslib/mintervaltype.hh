@@ -30,8 +30,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_MINTERVAL_TYPE_
-#define _D_MINTERVAL_TYPE_
+#ifndef D_MINTERVAL_TYPE_HH
+#define D_MINTERVAL_TYPE_HH
 
 #include "raslib/type.hh"
 
@@ -46,30 +46,30 @@ class r_Minterval_Type : public r_Type
 {
 public:
     /// default constructor
-    r_Minterval_Type();
+    r_Minterval_Type() = default;
 
     /// copy constructor
     r_Minterval_Type(const r_Minterval_Type &oldObj);
+    
+    /// destructor
+    ~r_Minterval_Type() override = default;
 
     /// clone operation
-    virtual r_Type *clone() const;
+    r_Type *clone() const override;
 
     /// retrieve id of the type.
-    virtual r_Type::r_Type_Id type_id() const;
+    r_Type::r_Type_Id type_id() const override;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
+    void convertToLittleEndian(char *cells, r_Area noCells) const override;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
+    void convertToBigEndian(char *cells, r_Area noCells) const override;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s) const;
+    void print_status(std::ostream &s) const override;
 
-    virtual bool isMintervalType() const;
-
-    /// destructor
-    ~r_Minterval_Type();
+    bool isMintervalType() const override;
 };
 
 //@Doc: write the status of a minterval type to a stream

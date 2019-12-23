@@ -72,6 +72,10 @@ target_include_directories(relcatalogif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(relcatalogif PUBLIC
         relmddif reladminif raslib)
+    
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(relcatalogif REUSE_FROM common_logging)
+endif()
 
 install(TARGETS relcatalogif
         DESTINATION ${LIB_DIR})

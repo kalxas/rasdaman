@@ -31,6 +31,9 @@ rasdaman GmbH.
  *      Create convertors out of data formats
 */
 
+#ifndef CONVFACTORY_HH
+#define CONVFACTORY_HH
+
 #include "raslib/mddtypes.hh"
 #include "raslib/error.hh"
 
@@ -62,3 +65,5 @@ public:
     static r_Convertor *create(r_Data_Format fmt, const char *src, const r_Minterval &interv,
                                int type);
 };
+
+#endif

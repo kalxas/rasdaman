@@ -24,8 +24,7 @@
 #ifndef COMMON_SRC_GRPC_HEALTHSERVICEIMPL_HH
 #define COMMON_SRC_GRPC_HEALTHSERVICEIMPL_HH
 
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
+#include <mutex>
 #include "common/grpc/messages/health_service.grpc.pb.h"
 
 namespace common
@@ -79,7 +78,7 @@ public:
     virtual grpc::Status Check(grpc::ServerContext* context, const HealthCheckRequest* request, HealthCheckResponse* response);
 
 private:
-    boost::mutex mutex;
+    std::mutex mutex;
     // Map with the meaning <serviceIdentifier, status>
     std::map<std::string, HealthCheckResponse::ServingStatus> statuses;
 };

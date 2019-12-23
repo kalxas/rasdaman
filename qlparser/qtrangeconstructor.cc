@@ -179,7 +179,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                     QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
                     MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
                     // vector of tiles for the source mdd object
-                    auto tiles = std::unique_ptr<vector<boost::shared_ptr<Tile>>>(
+                    auto tiles = std::unique_ptr<vector<std::shared_ptr<Tile>>>(
                         currentMDDObj->intersect(qtMDDObj->getLoadDomain()));
                     // cell size for this band
                     bandCellSize = currentMDDObj->getCellType()->getSize();

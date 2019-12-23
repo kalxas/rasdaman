@@ -31,9 +31,9 @@ rasdaman GmbH.
 */
 
 #include "nullvalues.hh"
-#include <stack>
 #include "raslib/nullvalues.hh"
 #include <logging.hh>
+#include <stack>
 
 NullValuesHandler::NullValuesHandler()
     : nullValues(NULL), nullValuesCount(0)
@@ -129,7 +129,7 @@ NullValuesHandler::unionNullValues(r_Nullvalues *nullValues1, r_Nullvalues *null
     tempNullValuesData.insert(tempNullValuesData.end(),tempNullValues2Data.begin(),tempNullValues2Data.end());
     sort(tempNullValuesData.begin(),tempNullValuesData.end(),compareInterval);
     stackNullValues.push(tempNullValuesData[0]);
-    for (int i =1; i < tempNullValuesData.size();i++)
+    for (size_t i =1; i < tempNullValuesData.size();i++)
     {
         std::pair<r_Double,r_Double> top = stackNullValues.top();
         if (top.second < tempNullValuesData[i].first)

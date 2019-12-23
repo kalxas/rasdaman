@@ -21,9 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "mymalloc/mymalloc.h"
 #include "raslib/metaobject.hh"
-
 
 r_Meta_Object::r_Meta_Object(const char *newTypeName): typeName{newTypeName}
 {

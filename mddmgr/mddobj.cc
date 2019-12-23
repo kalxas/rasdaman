@@ -51,14 +51,15 @@ rasdaman GmbH.
 #include "raslib/point.hh"
 #include <logging.hh>
 
-#include <boost/make_shared.hpp>        // for make_shared, shared_ptr::operator...
 #include <iostream>                     // for ostream
 #include <stdlib.h>
 #include <cstring>
+#include <memory>
+#include <cassert>
 
 
-using boost::shared_ptr;
-using boost::make_shared;
+using std::shared_ptr;
+using std::make_shared;
 
 const r_Minterval &MDDObj::checkStorage(const r_Minterval &domain2)
 {
@@ -305,7 +306,7 @@ void MDDObj::insertTile(shared_ptr<Tile> insertTile)
 
 std::vector<shared_ptr<Tile>> *MDDObj::intersect(const r_Minterval &searchInter) const
 {
-    std::vector<shared_ptr<Tile>> *retval = myMDDIndex->intersect(searchInter);
+    auto *retval = myMDDIndex->intersect(searchInter);
 #ifdef DEBUG
     if (retval)
     {
@@ -390,7 +391,7 @@ void MDDObj::removeTile(shared_ptr<Tile> &tileToRemove)
 {
     LTRACE << "removing tile: " << tileToRemove->getDBTile().getOId().getCounter() << ", with sdom: " << tileToRemove->getDomain()
            << ", from index: " << myMDDIndex->getDBMDDObjIxId().getOId().getCounter();
-    int found = myMDDIndex->removeTile(tileToRemove);
+    auto found = myMDDIndex->removeTile(tileToRemove);
     if (found)
     {
         // frees its memory. Persistent freeing??

@@ -30,19 +30,18 @@ rasdaman GmbH.
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtmintervaldata.hh"
 #include "qlparser/qtintervaldata.hh"
+#include "qlparser/algebraops.hh"
 
 #include "mddmgr/mddobj.hh"
 #include "tilemgr/tile.hh"
-
 #include "catalogmgr/typefactory.hh"
-
-#include "catalogmgr/algebraops.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 
 #include <logging.hh>
 
 #include <iostream>
 #include <string>
+
 using namespace std;
 
 const QtNode::QtNodeType QtMarrayOp::nodeType = QT_MARRAYOP;

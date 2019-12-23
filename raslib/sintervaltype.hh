@@ -30,8 +30,8 @@
  *
 */
 
-#ifndef _D_SINTERVAL_TYPE_
-#define _D_SINTERVAL_TYPE_
+#ifndef D_SINTERVAL_TYPE_HH
+#define D_SINTERVAL_TYPE_HH
 
 #include "raslib/type.hh"
 
@@ -45,31 +45,25 @@
 class r_Sinterval_Type : public r_Type
 {
 public:
-    /// default constructor
-    r_Sinterval_Type();
+    r_Sinterval_Type() = default;
+    r_Sinterval_Type(const r_Sinterval_Type &oldObj) = default;
+    ~r_Sinterval_Type() override = default;
 
-    /// copy constructor
-    r_Sinterval_Type(const r_Sinterval_Type &oldObj);
-
-    /// clone operation
-    virtual r_Type *clone() const;
+    r_Type *clone() const override;
 
     /// retrieve id of the type.
-    virtual r_Type::r_Type_Id type_id() const;
+    r_Type::r_Type_Id type_id() const override;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
+    void convertToLittleEndian(char *cells, r_Area noCells) const override;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
+    void convertToBigEndian(char *cells, r_Area noCells) const override;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s) const;
+    void print_status(std::ostream &s) const override;
 
-    virtual bool isSintervalType() const;
-
-    /// destructor
-    ~r_Sinterval_Type();
+    bool isSintervalType() const override;
 };
 
 //@Doc: write the status of a sinterval type to a stream

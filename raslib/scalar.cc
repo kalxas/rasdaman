@@ -30,21 +30,14 @@
  *
 */
 
-#include <sstream>
-#include <string.h>
-#include <fstream>
-#include <stdlib.h>
-
 #include "raslib/scalar.hh"
 #include "raslib/basetype.hh"
 #include "raslib/error.hh"
-
 #include <logging.hh>
 
-
+#include <iostream>
 
 r_Scalar::r_Scalar(const r_Base_Type *newType)
-    : valueType(NULL)
 {
     if (newType)
     {
@@ -52,26 +45,21 @@ r_Scalar::r_Scalar(const r_Base_Type *newType)
     }
     else
     {
-        LERROR << "r_Scalar::r_Scalar(NULL) base type must be not NULL";
+        LERROR << "base type must be not NULL";
         throw r_Error(SCALARWASPASSEDNULLTYPE);
     }
 }
-
-
 
 r_Scalar::r_Scalar(const r_Scalar &obj)
     : valueType(obj.valueType)
 {
 }
 
-
-
 r_Scalar::~r_Scalar()
 {
     delete valueType;
+    valueType = NULL;
 }
-
-
 
 const r_Scalar &
 r_Scalar::operator=(const r_Scalar &obj)
@@ -81,7 +69,6 @@ r_Scalar::operator=(const r_Scalar &obj)
         delete valueType;
         valueType = static_cast<r_Base_Type *>(obj.valueType->clone());
     }
-
     return *this;
 }
 
@@ -90,13 +77,11 @@ r_Scalar::isStructure() const
 {
     return false;
 }
-
 bool
 r_Scalar::isComplex() const
 {
     return false;
 }
-
 bool
 r_Scalar::isPrimitive() const
 {
@@ -108,7 +93,6 @@ r_Scalar::get_type() const
 {
     return valueType;
 }
-
 
 std::ostream &operator<<(std::ostream &s, const r_Scalar &obj)
 {

@@ -119,7 +119,7 @@ void DBRCIndexDS::insertInDb()
 #ifdef RMANDEBUG  // dump low-level blob byte string
     {
         char printbuf[10000];
-        (void) sprintf(printbuf, "DBRCIndexDS::insertInDb(): [%d]", completesize);
+        (void) sprintf(printbuf, "DBRCIndexDS::insertInDb(): [%ld]", completesize);
 #if 0   // extra verbose output: dump buffer
         char bytebuf[3];
         for (long i = 0; i < completesize; i++)

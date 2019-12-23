@@ -255,7 +255,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
     }
 
     // get all source tiles
-    boost::shared_ptr<vector<boost::shared_ptr<Tile>>> tmpTilePtrs(sourceObj->getTiles());
+    std::shared_ptr<vector<std::shared_ptr<Tile>>> tmpTilePtrs(sourceObj->getTiles());
     vector<Tile *> sourceTiles;
     for (auto it = tmpTilePtrs->begin(); it != tmpTilePtrs->end(); ++it)
     {

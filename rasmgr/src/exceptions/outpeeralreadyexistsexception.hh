@@ -24,7 +24,7 @@
 #define RASMGR_X_SRC_EXCEPTIONS_OUTPEERALREADYEXISTSEXCEPTION_HH
 
 #include <string>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include "common/exceptions/rasexceptions.hh"
 
@@ -43,7 +43,7 @@ public:
      * @param hostName Host name uniquely identifying the peer
      * @param port Port uniquely identifying the peer
      */
-    OutPeerAlreadyExistsException(const std::string& hostName, const boost::uint32_t port);
+    OutPeerAlreadyExistsException(const std::string& hostName, const std::uint32_t port);
 
     virtual ~OutPeerAlreadyExistsException() noexcept;
 };

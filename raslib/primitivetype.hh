@@ -30,8 +30,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_PRIMITIVE_TYPE_
-#define _D_PRIMITIVE_TYPE_
+#ifndef D_PRIMITIVE_TYPE_HH
+#define D_PRIMITIVE_TYPE_HH
 
 #include "raslib/basetype.hh"
 #include "raslib/odmgtypes.hh"
@@ -47,95 +47,67 @@ rasdaman GmbH.
 class r_Primitive_Type : public r_Base_Type
 {
 public:
-    /// constructor getting name of type, size of type and type id.
     r_Primitive_Type(const char *newTypeName, const r_Type::r_Type_Id newTypeId);
-    /// copy constructor
     r_Primitive_Type(const r_Primitive_Type &oldObj);
-    /// assignment operator.
+    ~r_Primitive_Type() override = default;
+    
     const r_Primitive_Type &operator=(const r_Primitive_Type &oldObj);
-    /// destructor.
-    virtual ~r_Primitive_Type();
 
     /// clone operation
-    virtual r_Type *clone() const;
+    r_Type *clone() const override;
 
     /// retrieve id of the type.
-    virtual r_Type::r_Type_Id type_id() const;
+    r_Type::r_Type_Id type_id() const override;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
+    void convertToLittleEndian(char *cells, r_Area noCells) const override;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
+    void convertToBigEndian(char *cells, r_Area noCells) const override;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s) const;
+    void print_status(std::ostream &s) const override;
 
     /// check, if type is primitive.
-    virtual bool isPrimitiveType() const;
+    bool isPrimitiveType() const override;
 
     /// prints value of a primitive type
-    virtual void print_value(const char *storage,  std::ostream &s) const;
+    void print_value(const char *storage,  std::ostream &s) const override;
 
     //@Man: Type-safe value access methods. In case of type mismatch, an exception is raised.
     //@{
-    ///
-
-    ///
     r_Double get_value(const char *cell) const;
-    ///
     void  set_value(char *cell, r_Double);
-    ///
     void  get_limits(r_Double &,  r_Double &);
 
-
-    ///
     r_Boolean get_boolean(const char *cell) const;
-    ///
     r_Char    get_char(const char *cell)    const;
-    ///
     r_Octet   get_octet(const char *cell)   const;
-    ///
     r_Short   get_short(const char *cell)   const;
-    ///
     r_UShort  get_ushort(const char *cell)  const;
-    ///
     r_Long    get_long(const char *cell)    const;
-    ///
     r_ULong   get_ulong(const char *cell)   const;
-    ///
     r_Float   get_float(const char *cell)   const;
-    ///
     r_Double  get_double(const char *cell)  const;
 
-    ///
     void  set_boolean(char *cell, r_Boolean);
-    ///
     void  set_char(char *cell, r_Char);
-    ///
     void  set_octet(char *cell, r_Octet);
-    ///
     void  set_short(char *cell, r_Short);
-    ///
     void  set_ushort(char *cell, r_UShort);
-    ///
     void  set_long(char *cell, r_Long);
-    ///
     void  set_ulong(char *cell, r_ULong);
-    ///
     void  set_float(char *cell, r_Float);
-    ///
     void  set_double(char *cell, r_Double);
-
-
-    ///
     //@}
 
 protected:
     /// default constructor.
-    r_Primitive_Type();
+    r_Primitive_Type() = default;
+    
+    void checkType(r_Type::r_Type_Id cellType) const;
 
-    r_Type::r_Type_Id typeId;
+    r_Type::r_Type_Id typeId{UNKNOWNTYPE};
 };
 
 //@Doc: write the status of a primitive type to a stream

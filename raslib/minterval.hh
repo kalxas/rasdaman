@@ -30,8 +30,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_MINTERVAL_
-#define _D_MINTERVAL_
+#ifndef D_MINTERVAL_HH
+#define D_MINTERVAL_HH
 
 #include "raslib/sinterval.hh"
 #include "raslib/point.hh"
@@ -228,9 +228,7 @@ rasdaman GmbH.
  interval containing the two operands.
  The method {\tt intersects_with()} returns 0 in the error cases of the
  intersection operation and 1 otherwise.
-
 */
-
 class r_Minterval
 {
 public:
@@ -318,13 +316,13 @@ public:
     /// checks whether point (scalar) is between any of the single intervals in this minterval
     /// used to check whether a null value is in an interval
     template <class castType>
-    inline bool within_bounds(const castType point);
+    bool within_bounds(const castType point);
 
     /// get dimensionality
-    inline r_Dimension dimension() const;
+    r_Dimension dimension() const;
 
     /// checks if all lower bounds are fixed
-    inline bool is_origin_fixed() const;
+    bool is_origin_fixed() const;
     /*@Doc:
       Returns true if all lower bounds are fixed, otherwise false.
     */
@@ -337,7 +335,7 @@ public:
     */
 
     /// checks if all upper bounds are fixed
-    inline bool is_high_fixed() const;
+    bool is_high_fixed() const;
     /*@Doc:
       Returns true if all upper bounds are fixed, otherwise false.
     */
@@ -593,7 +591,5 @@ protected:
 extern std::ostream &operator<<(std::ostream &s, const r_Minterval &d);
 extern std::ostream &operator<<(std::ostream &s, const std::vector<r_Minterval> &d);
 extern std::ostream &operator<<(std::ostream &s, const std::vector<double> &doubleVec);
-
-#include "raslib/minterval.icc"
 
 #endif

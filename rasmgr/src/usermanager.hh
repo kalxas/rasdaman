@@ -24,8 +24,8 @@
 #define RASMGR_X_SRC_USERMANAGER_HH_
 
 #include <list>
-#include <boost/thread.hpp>
-#include <boost/shared_ptr.hpp>
+#include <mutex>
+#include <memory>
 
 namespace rasmgr
 {
@@ -74,7 +74,7 @@ public:
      * @param userName
      * @return TRUE if there was a user with this name, FALSE otherwise
      */
-    virtual bool tryGetUser(const std::string &userName, boost::shared_ptr<User> &out_user);
+    virtual bool tryGetUser(const std::string &userName, std::shared_ptr<User> &out_user);
 
     /**
      * @brief Save the information stored by the user manager to the RASMGR_AUTH_FILE
@@ -99,8 +99,8 @@ public:
 
 private:
     const std::string rasmgrAuthFilePath;
-    std::list<boost::shared_ptr<User>> userList;
-    boost::mutex mut;
+    std::list<std::shared_ptr<User>> userList;
+    std::mutex mut;
 
     bool tryLoadUserAuthFromOldFile(const std::string &filePath);
     bool tryLoadUserAuthFromFile(const std::string &filePath);

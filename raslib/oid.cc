@@ -31,6 +31,8 @@ rasdaman GmbH.
 */
 
 #include "raslib/oid.hh"
+#include "raslib/error.hh"
+#include <logging.hh>
 
 #include <sstream>
 #include <fstream>
@@ -40,31 +42,18 @@ rasdaman GmbH.
 
 
 r_OId::r_OId(const char *initOIdString)
+    : oidString{initOIdString ? initOIdString : ""}
 {
     // set oidString
     if (initOIdString)
     {
-        oidString = new char[ strlen(initOIdString) + 1 ];
-        strcpy(oidString, initOIdString);
-
-        //
-        // extract oid parts
-        //
-        char *startPtr = NULL;
-        char *endPtr = NULL;
-
         // system name
-        startPtr = endPtr = oidString;
+        const char *endPtr;
+        const char *startPtr = endPtr = initOIdString;
         while (*endPtr != '|' && *endPtr != '\0')
-        {
             endPtr++;
-        }
         if (endPtr - startPtr >= 1)
-        {
-            systemName = new char[ endPtr - startPtr + 1 ];
-            strncpy(systemName, startPtr, static_cast<size_t>(endPtr - startPtr));
-            systemName[endPtr - startPtr] = '\0';
-        }
+            systemName = std::string(startPtr, static_cast<size_t>(endPtr - startPtr));
 
         if (*endPtr != '\0')
         {
@@ -72,251 +61,131 @@ r_OId::r_OId(const char *initOIdString)
             endPtr++;
             startPtr = endPtr;
             while (*endPtr != '|' && *endPtr != '\0')
-            {
                 endPtr++;
-            }
             if (endPtr - startPtr >= 1)
-            {
-                baseName = new char[ endPtr - startPtr + 1 ];
-                strncpy(baseName, startPtr, static_cast<size_t>(endPtr - startPtr));
-                baseName[endPtr - startPtr] = '\0';
-            }
+                baseName = std::string(startPtr, static_cast<size_t>(endPtr - startPtr));
 
             if (*endPtr != '\0')
             {
                 // local oid
                 endPtr++;
                 startPtr = endPtr;
-
-                localOId = atof(startPtr);
+                size_t pos;
+                try {
+                    localOId = std::stoll(startPtr, &pos);
+                } catch (...) {
+                    LERROR << "Failed parsing local oid from '" << startPtr << "'.";
+                    throw r_Error(r_Error::r_Error_OIdInvalid);
+                }
             }
-
         }
-
     }
 }
 
 r_OId::r_OId(const char *initSystemName, const char *initBaseName, long long initLocalOId)
-    : localOId(initLocalOId)
+    : systemName{initSystemName ? initSystemName : ""},
+      baseName{initBaseName ? initBaseName : ""},
+      localOId(initLocalOId)
 {
-    // set members
-    if (initSystemName)
-    {
-        systemName = new char[ strlen(initSystemName) + 1 ];
-        strcpy(systemName, initSystemName);
-    }
-
-    if (initBaseName)
-    {
-        baseName = new char[ strlen(initBaseName) + 1 ];
-        strcpy(baseName, initBaseName);
-    }
-
-    std::ostringstream oidStream;
-
-    // write into the string stream
-    if (systemName)
-    {
-        oidStream << systemName << "|";
-    }
-    else
-    {
-        oidStream << "|";
-    }
-
-    if (baseName)
-    {
-        oidStream << baseName << "|";
-    }
-    else
-    {
-        oidStream << "|";
-    }
-
-    oidStream << std::setprecision(50) << localOId;
-
-    // allocate memory taking the final string
-    const auto tmpstr = oidStream.str();
-    oidString = new char[ tmpstr.size() + 1 ];
-    strcpy(oidString, tmpstr.c_str());
+    oidString.reserve(systemName.size() + baseName.size() + 10);
+    oidString += systemName;
+    oidString += "|";
+    oidString += baseName;
+    oidString += "|";
+    oidString += std::to_string(localOId);
 }
-
-r_OId::r_OId(const r_OId &obj)
-    : localOId(obj.localOId)
+    
+r_OId &r_OId::operator=(const r_OId &o)
 {
-    if (obj.oidString)
-    {
-        oidString = new char[ strlen(obj.oidString) + 1 ];
-        strcpy(oidString, obj.oidString);
-    }
-
-    if (obj.systemName)
-    {
-        systemName = new char[ strlen(obj.systemName) + 1 ];
-        strcpy(systemName, obj.systemName);
-    }
-
-    if (obj.baseName)
-    {
-        baseName = new char[ strlen(obj.baseName) + 1 ];
-        strcpy(baseName, obj.baseName);
-    }
-}
-
-r_OId::~r_OId()
-{
-    r_deactivate();
-}
-
-void
-r_OId::r_deactivate()
-{
-    delete[] oidString;
-    oidString = NULL;
-    delete[] systemName;
-    systemName = NULL;
-    delete[] baseName;
-    baseName = NULL;
-}
-
-void
-r_OId::print_status(std::ostream &s) const
-{
-    if (oidString)
-    {
-        s << oidString;
-    }
-}
-
-const r_OId &
-r_OId::operator=(const r_OId &obj)
-{
-    if (this != &obj)
-    {
-        delete[] oidString;
-        oidString = NULL;
-        if (obj.oidString)
-        {
-            oidString = new char[ strlen(obj.oidString) + 1 ];
-            strcpy(oidString, obj.oidString);
-        }
-        delete[] systemName;
-        systemName = NULL;
-        if (obj.systemName)
-        {
-            systemName = new char[ strlen(obj.systemName) + 1 ];
-            strcpy(systemName, obj.systemName);
-        }
-        delete[] baseName;
-        baseName = NULL;
-        if (obj.baseName)
-        {
-            baseName = new char[ strlen(obj.baseName) + 1 ];
-            strcpy(baseName, obj.baseName);
-        }
-        localOId = obj.localOId;
-    }
+    if (this == &o)
+        return *this;
+    if (!o.oidString.empty())
+        oidString = o.oidString;
+    if (!o.systemName.empty())
+        systemName = o.systemName;
+    if (!o.baseName.empty())
+        baseName = o.baseName;
+    localOId = o.localOId;
     return *this;
 }
 
 bool
 r_OId::operator==(const r_OId &oid) const
 {
-    bool equal = false;
-    if (oidString && oid.oidString)
-    {
-        equal = !strcmp(oidString, oid.oidString);
-    }
-    return equal;
+    return oidString == oid.oidString;
 }
-
 bool
 r_OId::operator!=(const r_OId &oid) const
 {
     return !operator==(oid);
 }
-
 bool
-r_OId::operator> (const r_OId &oid) const
+r_OId::operator>(const r_OId &oid) const
 {
-    int comparison = 0;
-
-    if (systemName && oid.systemName)
-    {
-        comparison = strcmp(systemName, oid.systemName);
-
-        if (!comparison && baseName && oid.baseName)
-        {
-            comparison = strcmp(baseName, oid.baseName);
-
-            if (!comparison)
-            {
-                if (localOId < oid.localOId)
-                {
-                    comparison = -1;
-                }
-                else if (localOId == oid.localOId)
-                {
-                    comparison = 0;
-                }
-                else
-                {
-                    comparison = 1;
-                }
-            }
-        }
-    }
-    return comparison > 0;
+    return systemName == oid.systemName && baseName == oid.baseName &&
+           localOId > oid.localOId;
 }
-
 bool
 r_OId::operator< (const r_OId &oid) const
 {
-    int comparison = 0;
-
-    if (systemName && oid.systemName)
-    {
-        comparison = strcmp(systemName, oid.systemName);
-
-        if (!comparison && baseName && oid.baseName)
-        {
-            comparison = strcmp(baseName, oid.baseName);
-
-            if (!comparison)
-            {
-                if (localOId < oid.localOId)
-                {
-                    comparison = -1;
-                }
-                else if (localOId == oid.localOId)
-                {
-                    comparison = 0;
-                }
-                else
-                {
-                    comparison = 1;
-                }
-            }
-        }
-    }
-    return comparison < 0;
+    return systemName == oid.systemName && baseName == oid.baseName &&
+           localOId < oid.localOId;
 }
-
 bool
 r_OId::operator>=(const r_OId &oid) const
 {
-    return !operator< (oid);
+    return !operator<(oid);
 }
-
 bool
 r_OId::operator<=(const r_OId &oid) const
 {
-    return !operator> (oid);
+    return !operator>(oid);
 }
-
+        
+        
+void
+r_OId::print_status(std::ostream &s) const
+{
+    s << oidString;
+}
 std::ostream &operator<<(std::ostream &s, const r_OId &oid)
 {
     oid.print_status(s);
     return s;
 }
+                        
+const char *
+r_OId::get_string_representation() const
+{
+    return oidString.c_str();
+}
 
+const char *
+r_OId::get_system_name() const
+{
+    return systemName.c_str();
+}
+
+const char *
+r_OId::get_base_name() const
+{
+    return baseName.c_str();
+}
+
+long long
+r_OId::get_local_oid() const
+{
+    return localOId;
+}
+
+double
+r_OId::get_local_oid_double() const
+{
+    return localOId;
+}
+
+bool
+r_OId::is_valid() const
+{
+    return localOId != 0;
+}

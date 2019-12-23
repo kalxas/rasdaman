@@ -30,12 +30,11 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _PARSE_PARAMS_HH_
-#define _PARSE_PARAMS_HH_
+#ifndef PARSE_PARAMS_HH_
+#define PARSE_PARAMS_HH_
 
 #include <iosfwd>
 #include <string>
-//#include <json/json.h>
 
 //@ManMemo: Module {\bf raslib}
 
@@ -64,8 +63,7 @@ public:
        \end{tabular}
     */
 
-    /// default constructor, should not be used
-    r_Parse_Params(void);
+    r_Parse_Params(void) = default;
     /// constructor, gets descriptor of the values to scan for
     r_Parse_Params(unsigned int num);
     /// destructor
@@ -91,48 +89,20 @@ public:
        or -1 for error.
     */
 
-    /**
-     * @return a json representation of the format parameters. This generally looks like this:
-     *
-    {
-    // Absolute path to input file(s). This improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed;
-    // It is possible that a format could have multiple files associated to each other, so this argument is an array of filepaths.
-    "filePaths": [ "/path/to/file.tif", ... ],
-
-    // Only the given subset needs to be extracted from the input file.
-    "subsetDomain": "[0:100,0:100]",
-
-    // Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and GRIB and has a performance penalty, so avoid if possible);
-    // The argument is an array of 0-based axis ids indicating the axes that need to be transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
-    "transpose": [0,1],
-
-    // Specify variable names, band ids (0-based), etc.
-    "datasets": [ "var1", "var2", ... ],
-
-    // Extra format parameters
-    "formatParameters": {
-    "key": "value",
-    ..
-    }
-    }
-     */
-//    Json::Value toJson();
-
-
 protected:
     //@Man: The parameter descriptor
     //@{
-    typedef struct parse_params_s
+    struct parse_params_t
     {
         const char *key;
         void *store;
         parse_param_type type;
-    } parse_params_t;
+    };
     //@}
 
-    parse_params_t *params;
-    unsigned int maxnum;
-    unsigned int number;
+    parse_params_t *params{NULL};
+    unsigned int maxnum{};
+    unsigned int number{};
 
     static const unsigned int granularity;
 };

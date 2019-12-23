@@ -3,9 +3,9 @@
 namespace rasserver
 {
 
-const boost::uint64_t ClientQueryStreamedResult::CHUNK_SIZE;
+const std::uint64_t ClientQueryStreamedResult::CHUNK_SIZE;
 
-ClientQueryStreamedResult::ClientQueryStreamedResult(char* dataArg, boost::uint64_t lengthArg, const std::string& clientUUIDArg)
+ClientQueryStreamedResult::ClientQueryStreamedResult(char* dataArg, std::uint64_t lengthArg, const std::string& clientUUIDArg)
     : data(dataArg), length(lengthArg), clientUUID(clientUUIDArg), offset(0)
 {
 
@@ -28,7 +28,7 @@ std::string ClientQueryStreamedResult::getClientUUID() const
     return this->clientUUID;
 }
 
-boost::uint64_t ClientQueryStreamedResult::getRemainingBytesLength() const
+std::uint64_t ClientQueryStreamedResult::getRemainingBytesLength() const
 {
     return this->length - this->offset;
 }

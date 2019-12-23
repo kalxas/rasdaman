@@ -23,10 +23,8 @@
 #ifndef RASMGR_X_SRC_CLIENTMANAGEMENTSERVICE_HH_
 #define RASMGR_X_SRC_CLIENTMANAGEMENTSERVICE_HH_
 
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
-
 #include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
+#include <memory>
 
 namespace rasmgr
 {
@@ -42,22 +40,22 @@ class ClientManagementService : public rasnet::service::RasmgrClientService::Ser
 {
 public:
 
-    ClientManagementService(boost::shared_ptr<ClientManager> clientManager);
+    ClientManagementService(std::shared_ptr<ClientManager> clientManager);
 
-    virtual ~ClientManagementService();
+    ~ClientManagementService() override = default;
 
-    virtual grpc::Status Connect(grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response) override;
+    grpc::Status Connect(grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response) override;
 
-    virtual grpc::Status Disconnect(grpc::ServerContext *context, const rasnet::service::DisconnectReq *request, rasnet::service::Void *response) override;
+    grpc::Status Disconnect(grpc::ServerContext *context, const rasnet::service::DisconnectReq *request, rasnet::service::Void *response) override;
 
-    virtual grpc::Status OpenDb(grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response) override;
+    grpc::Status OpenDb(grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response) override;
 
-    virtual grpc::Status CloseDb(grpc::ServerContext *context, const rasnet::service::CloseDbReq *request, rasnet::service::Void *response) override;
+    grpc::Status CloseDb(grpc::ServerContext *context, const rasnet::service::CloseDbReq *request, rasnet::service::Void *response) override;
 
-    virtual grpc::Status KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveReq *request, rasnet::service::Void *response) override;
+    grpc::Status KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveReq *request, rasnet::service::Void *response) override;
 
 private:
-    boost::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */
+    std::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */
 };
 
 } /* namespace rasmgr */

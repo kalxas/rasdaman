@@ -34,10 +34,9 @@ rasdaman GmbH.
 #define _D_GMARRAY_
 
 #include "rasodmg/object.hh"
-
+#include "rasodmg/set.hh"
 #include "raslib/minterval.hh"
 #include "raslib/mddtypes.hh"
-#include "rasodmg/set.hh"
 #include <iosfwd>
 #include <vector>
 
@@ -109,21 +108,21 @@ public:
     /// gets a pointer to the storage layout object
     const r_Storage_Layout *get_storage_layout() const;
     /// getting the spatial domain
-    inline const r_Minterval &spatial_domain() const;
+    const r_Minterval &spatial_domain() const;
     /// get the internal representation of the array
-    inline char         *get_array();
+    char         *get_array();
     /// get the internal representation of the array for reading
-    inline const char   *get_array() const;
+    const char   *get_array() const;
     /// get the internal representation of the array
-    inline r_Set<r_GMarray *>        *get_tiled_array();
+    r_Set<r_GMarray *>        *get_tiled_array();
     /// get the internal representation of the array for reading
-    inline const r_Set<r_GMarray *>  *get_tiled_array() const;
+    const r_Set<r_GMarray *>  *get_tiled_array() const;
     /// get size of internal array representation in byets
-    inline r_Bytes get_array_size() const;
+    r_Bytes get_array_size() const;
     /// get length of cell type in bytes
-    inline r_Bytes get_type_length() const;
+    r_Bytes get_type_length() const;
     /// get current data format
-    inline r_Data_Format get_current_format() const;
+    r_Data_Format get_current_format() const;
 
     /// get base type schema
     const r_Base_Type *get_base_type_schema();
@@ -137,17 +136,17 @@ public:
     /// sets the storage layout object and checks compatibility with the domain
     void set_storage_layout(r_Storage_Layout *);
     /// set spatial domain
-    inline void  set_spatial_domain(const r_Minterval &domain);
+    void  set_spatial_domain(const r_Minterval &domain);
     /// set the internal representation of the array
-    inline void  set_array(char *);
+    void  set_array(char *);
     /// set the internal representation of the array
-    inline void  set_tiled_array(r_Set<r_GMarray *> *newData);
+    void  set_tiled_array(r_Set<r_GMarray *> *newData);
     /// set size of internal memory representation in bytes
-    inline void  set_array_size(r_Bytes);
+    void  set_array_size(r_Bytes);
     /// set length of cell type in bytes
-    inline void  set_type_length(r_Bytes);
+    void  set_type_length(r_Bytes);
     /// set current data format
-    inline void  set_current_format(r_Data_Format);
+    void  set_current_format(r_Data_Format);
 
     ///
     //@}
@@ -165,7 +164,7 @@ public:
     //@}
 
     /// writes the state of the object to the specified stream
-    virtual void print_status(std::ostream &s = std::cout);
+    virtual void print_status(std::ostream &s);
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s, int hexoutput);
@@ -192,7 +191,5 @@ protected:
     /// pointer to storage layout object
     r_Storage_Layout *storage_layout{NULL};
 };
-
-#include "rasodmg/gmarray.icc"
 
 #endif

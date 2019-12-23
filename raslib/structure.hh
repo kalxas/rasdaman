@@ -32,8 +32,8 @@
  *
 */
 
-#ifndef _D_STRUCTURE_
-#define _D_STRUCTURE_
+#ifndef D_STRUCTURE_HH
+#define D_STRUCTURE_HH
 
 #include "raslib/scalar.hh"
 
@@ -57,19 +57,19 @@ public:
     r_Structure(const r_Structure &obj);
 
     /// destructor
-    virtual ~r_Structure();
+    ~r_Structure() override;
 
     /// clone operator
-    virtual r_Scalar *clone() const;
+    r_Scalar *clone() const override;
 
     /// operator for assigning a structure
     const r_Structure &operator= (const r_Structure &);
 
     /// debug output
-    virtual void print_status(std::ostream &s) const;
+    void print_status(std::ostream &s) const override;
 
     /// returns true to indicate that this is a structured value
-    virtual bool isStructure() const;
+    bool isStructure() const override;
 
     /// get number of elements
     unsigned int count_elements() const;
@@ -87,13 +87,13 @@ public:
 
 private:
     /// number of elements
-    unsigned int numElements;
+    unsigned int numElements{};
 
     /// array of pointers to elements
-    r_Scalar **elements;
+    r_Scalar **elements{NULL};
 
     /// char representation
-    char *valueBuffer;
+    char *valueBuffer{NULL};
 };
 
 

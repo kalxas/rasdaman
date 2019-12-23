@@ -31,7 +31,8 @@ if (READLINE_FOUND)
 endif (READLINE_FOUND)
 
 # Create library from rascontrol sources so that we can test the functionality
-add_library(rascontrol_lib commandexecutor.cc
+add_library(rascontrol_lib
+        commandexecutor.cc
         commandexecutor.hh
         controlrasmgrcomm.cc
         controlrasmgrcomm.hh
@@ -47,17 +48,21 @@ add_library(rascontrol_lib commandexecutor.cc
         rascontrolconfig.cc
         rascontrolconfig.hh
         usercredentials.cc
-        usercredentials.hh)
+        usercredentials.hh
+        )
 
 target_link_libraries(rascontrol_lib commline rasnet
-        common_crypto common_logging common_exceptions common_grpc
+        common_crypto common_logging common_exceptions common_grpc common_string
         ${REQUIRED_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 # Create rascontrol executable
 add_executable(rascontrol rascontrol_main.cc)
 target_link_libraries(rascontrol rascontrol_lib)
 
-# cotire(rascontrol rascontrol_lib)
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(rascontrol_lib REUSE_FROM common_logging)
+target_precompile_headers(rascontrol REUSE_FROM common_logging)
+endif()
 
 # Install rascontrol
 install(TARGETS rascontrol

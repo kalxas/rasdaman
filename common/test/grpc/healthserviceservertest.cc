@@ -23,7 +23,6 @@
 #include <memory>
 #include <chrono>
 
-#include <boost/cstdint.hpp>
 #include <grpc++/grpc++.h>
 
 #include <gtest/gtest.h>
@@ -60,7 +59,7 @@ protected:
 
     std::string serverAddress;
     std::unique_ptr<grpc::Server> server;
-    boost::shared_ptr<HealthService::Stub> service;
+    std::shared_ptr<HealthService::Stub> service;
     HealthServiceImpl* serverService;
 };
 

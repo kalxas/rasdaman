@@ -38,7 +38,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #ifdef __GNUG__
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
 #endif
 

@@ -27,8 +27,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Marray_Type::r_Marray_Type()
-    :   r_Type(),
-        baseType(NULL)
+    :   r_Type()
 {
 }
 
@@ -47,7 +46,7 @@ r_Marray_Type::r_Marray_Type(const r_Marray_Type &oldObj)
     }
     else
     {
-        LERROR << "r_Marray_Type::r_Marray_Type( oldObj ) the element type is NULL.";
+        LERROR << "the base type is NULL.";
         throw r_Error(MARRAYTYPEHASNOELEMENTTYPE);
     }
 }
@@ -55,18 +54,12 @@ r_Marray_Type::r_Marray_Type(const r_Marray_Type &oldObj)
 const r_Marray_Type &
 r_Marray_Type::operator=(const r_Marray_Type &oldObj)
 {
-    // Gracefully handle self assignment
     if (this == &oldObj)
-    {
         return *this;
-    }
 
     r_Type::operator=(oldObj);
-    if (baseType)
-    {
-        delete baseType;
-        baseType = 0;
-    }
+    delete baseType;
+    baseType = NULL;
 
     if (oldObj.baseType)
     {
@@ -74,10 +67,9 @@ r_Marray_Type::operator=(const r_Marray_Type &oldObj)
     }
     else
     {
-        LERROR << "r_Marray_Type::operator=( oldObj ) the element type is NULL.";
+        LERROR << "the base type is NULL.";
         throw r_Error(MARRAYTYPEHASNOELEMENTTYPE);
     }
-
     return *this;
 }
 
@@ -106,12 +98,12 @@ r_Marray_Type::type_id() const
 }
 
 void
-r_Marray_Type::convertToLittleEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
+r_Marray_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
 void
-r_Marray_Type::convertToBigEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
+r_Marray_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
@@ -125,10 +117,8 @@ r_Marray_Type::print_status(std::ostream &s) const
 
 r_Marray_Type::~r_Marray_Type()
 {
-    if (baseType)
-    {
-        delete baseType;
-    }
+    delete baseType;
+    baseType = NULL;
 }
 
 std::ostream &operator<<(std::ostream &str, const r_Marray_Type &type)

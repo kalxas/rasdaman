@@ -160,7 +160,7 @@ QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
     //
     // Load op tiles
     //
-    std::unique_ptr<vector<boost::shared_ptr<Tile>>> tiles;
+    std::unique_ptr<vector<std::shared_ptr<Tile>>> tiles;
     if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
     {
         tiles.reset(currentMDDObj->intersect(qtMDD->getLoadDomain()));

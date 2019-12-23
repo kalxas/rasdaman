@@ -23,17 +23,21 @@
 #include <unistd.h>
 #include <errno.h>
 #include <cstring>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/lexical_cast.hpp>
 #include <logging.hh>
 
 #include "../../include/globals.hh"
 #include "configuration.hh"
+#include "constants.hh"
 
 namespace rasmgr
 {
 /// host/domain name size (See man gethostname)
-const boost::uint32_t Configuration::HOSTNAME_SIZE = 255;
+const std::uint32_t Configuration::HOSTNAME_SIZE = 255;
 const std::string Configuration::RASMGR_LOG_PREFIX = "rasmgr";
-const boost::uint32_t Configuration::MAXMSGOUTBUFF = 20000;
+const std::uint32_t Configuration::MAXMSGOUTBUFF = 20000;
 
 Configuration::Configuration():
     cmlInter(CommandLineParser::getInstance()),
@@ -140,7 +144,7 @@ void Configuration::printHelp()
     std::cout << std::endl;
 }
 
-boost::uint32_t Configuration::getPort() const
+std::uint32_t Configuration::getPort() const
 {
     return port;
 }

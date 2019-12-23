@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include <sstream>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "raslib/rmdebug.hh"
 
@@ -36,6 +37,9 @@ rasdaman GmbH.
 #include <logging.hh>
 
 using namespace std;
+
+using std::unique_ptr;
+using std::shared_ptr;
 
 const QtNode::QtNodeType QtVariable::nodeType = QT_MDD_VAR;
 

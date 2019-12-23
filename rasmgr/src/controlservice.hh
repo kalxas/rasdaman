@@ -24,8 +24,7 @@
 #define RASMGR_X_SRC_CONTROLSERVICE_HH_
 
 #include <string>
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 
@@ -41,14 +40,14 @@ class ControlCommandExecutor;
 class ControlService: public ::rasnet::service::RasMgrRasCtrlService::Service
 {
 public:
-    ControlService(boost::shared_ptr<ControlCommandExecutor> commandExecutor);
+    ControlService(std::shared_ptr<ControlCommandExecutor> commandExecutor);
 
     virtual ~ControlService();
 
     virtual grpc::Status ExecuteCommand(grpc::ServerContext *context, const rasnet::service::RasCtrlRequest *request, rasnet::service::RasCtrlResponse *response) override;
 
 private:
-    boost::shared_ptr<ControlCommandExecutor> commandExecutor;
+    std::shared_ptr<ControlCommandExecutor> commandExecutor;
 };
 
 } /* namespace rasmgr */

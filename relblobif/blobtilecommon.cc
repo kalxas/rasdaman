@@ -47,10 +47,6 @@ rasdaman GmbH.
 #include <stdlib.h>                  // for malloc
 #include <cstring>                   // for memset
 
-
-// defined in rasserver.cc
-extern char globalConnectId[256];
-
 const long long BLOBTile::NO_TILE_FOUND;
 
 BLOBTile::BLOBTile(r_Data_Format dataformat) : DBTile(dataformat)

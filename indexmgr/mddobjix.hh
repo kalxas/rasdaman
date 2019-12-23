@@ -35,8 +35,8 @@ rasdaman GmbH.
 #include "relindexif/indexid.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "raslib/minterval.hh"
-#include <boost/shared_ptr.hpp>
 #include <vector>
+#include <memory>
 
 class r_Point;
 class PersTile;
@@ -92,15 +92,15 @@ public:
     
     void printStatus(unsigned int level, std::ostream &stream) const;
 
-    void insertTile(boost::shared_ptr<Tile> newTile);
+    void insertTile(std::shared_ptr<Tile> newTile);
 
-    bool removeTile(boost::shared_ptr<Tile> tile);
+    bool removeTile(std::shared_ptr<Tile> tile);
 
-    std::vector<boost::shared_ptr<Tile>> *intersect(const r_Minterval &) const;
+    std::vector<std::shared_ptr<Tile>> *intersect(const r_Minterval &) const;
 
     const char *pointQuery(const r_Point &searchPoint) const;
 
-    std::vector<boost::shared_ptr<Tile>> *getTiles() const;
+    std::vector<std::shared_ptr<Tile>> *getTiles() const;
 
     void releasePersTiles();
     /*@Doc:
@@ -120,11 +120,11 @@ public:
 
 protected:
     
-    boost::shared_ptr<Tile> containPointQuery(const r_Point &searchPoint) const;
+    std::shared_ptr<Tile> containPointQuery(const r_Point &searchPoint) const;
     
-    void setNewLastAccess(const r_Minterval &newLastAccess, const std::vector<boost::shared_ptr<Tile>> *newLastTiles);
+    void setNewLastAccess(const r_Minterval &newLastAccess, const std::vector<std::shared_ptr<Tile>> *newLastTiles);
 
-    void setNewLastAccess(const boost::shared_ptr<Tile> newLastTile, bool te = true);
+    void setNewLastAccess(const std::shared_ptr<Tile> newLastTile, bool te = true);
     /*@Doc:
         Add a new tile to the cache and reset the access domain
         If clear:
@@ -132,11 +132,11 @@ protected:
             release all tiles
     */
 
-    std::vector<boost::shared_ptr<Tile>> *lastAccessIntersect(const r_Minterval &searchInter) const;
+    std::vector<std::shared_ptr<Tile>> *lastAccessIntersect(const r_Minterval &searchInter) const;
 
-    boost::shared_ptr<Tile> lastAccessPointQuery(const r_Point &searchPoint) const;
+    std::shared_ptr<Tile> lastAccessPointQuery(const r_Point &searchPoint) const;
 
-    bool removeTileFromLastAccesses(boost::shared_ptr<Tile> tileToRemove);
+    bool removeTileFromLastAccesses(std::shared_ptr<Tile> tileToRemove);
     /*@Doc:
         Does NOT free tileToRemove allocated memory. Only removes this pointer
         from lastAccesses list if it finds it there.
@@ -161,7 +161,7 @@ protected:
         Last searched region.
     */
 
-    std::vector<boost::shared_ptr<Tile>> lastAccessTiles;
+    std::vector<std::shared_ptr<Tile>> lastAccessTiles;
     /*@Doc:
         Internal cache of {\tt Tile}s accessed the last time.
         Contents change everytime there is an insert, an intersect, a getTiles

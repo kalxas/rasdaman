@@ -2,12 +2,9 @@
 #define RASMGR_X_SRC_RASMANAGER_HH
 
 #include <signal.h>
-
 #include <memory>
 #include <string>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace grpc
 {
@@ -54,11 +51,11 @@ public:
 
     void setIsConfigurationDirty(bool isDirty);
 private:
-    boost::shared_ptr<ConfigurationManager> configManager;
+    std::shared_ptr<ConfigurationManager> configManager;
     std::unique_ptr<grpc::Server> server;
 
     sig_atomic_t running; /*!<True if the rasmgr is running, false otherwise */
-    boost::uint32_t port; /*!< Port on which this rasmgr instance will be running */
+    std::uint32_t port; /*!< Port on which this rasmgr instance will be running */
 };
 
 }

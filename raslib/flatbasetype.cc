@@ -30,9 +30,6 @@ rasdaman GmbH.
  *
 */
 
-#include <iostream>
-#include <stdio.h>
-
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/flatbasetype.hh"
@@ -242,7 +239,6 @@ void r_Flat_Base_Type::parse_primitive_type(r_Primitive_Type *nType, unsigned in
     {
         primTypes[num] = nType;
         offsets[num] = off;
-        //cout << "TYPE "; nType->print_status(); cout << ", NUM " << num << ", OFF " << off << endl;
     }
 }
 
@@ -254,14 +250,17 @@ unsigned int r_Flat_Base_Type::parse_structure_type(const r_Structure_Type *nTyp
     for (const auto &att: nType->getAttributes())
     {
         r_Type *newType = att.type_of().clone();
+        const auto attOffset = static_cast<unsigned int>(att.offset());
         if (newType->isStructType())
         {
-            numPrim += parse_structure_type(static_cast<const r_Structure_Type *>(newType), num + numPrim, off + att.offset());
+            numPrim += parse_structure_type(static_cast<const r_Structure_Type *>(newType),
+                                            num + numPrim, off + attOffset);
             delete newType;
         }
         else
         {
-            parse_primitive_type(static_cast<r_Primitive_Type *>(newType), num + numPrim, off + att.offset());
+            parse_primitive_type(static_cast<r_Primitive_Type *>(newType),
+                                 num + numPrim, off + attOffset);
             numPrim++;
         }
     }

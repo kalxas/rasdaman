@@ -29,7 +29,7 @@
 namespace rasmgr
 {
 
-ControlService::ControlService(boost::shared_ptr<ControlCommandExecutor> commandExecutor):
+ControlService::ControlService(std::shared_ptr<ControlCommandExecutor> commandExecutor):
     commandExecutor(commandExecutor)
 {}
 

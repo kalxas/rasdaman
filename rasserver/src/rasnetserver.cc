@@ -44,8 +44,8 @@ rasdaman GmbH.
 namespace rasserver
 {
 
-using boost::shared_ptr;
-using boost::scoped_ptr;
+using std::shared_ptr;
+using std::unique_ptr;
 using common::ConnectionFailedException;
 using common::GrpcUtils;
 using common::HealthServiceImpl;
@@ -57,18 +57,17 @@ RasnetServer::RasnetServer(const Configuration& configuration):
 {
     shared_ptr<ClientManager> clientManager(new ClientManager());
 
-    rasserverService.reset(new RasServerServiceImpl(clientManager));
-    clientServerService.reset(new RasnetServerComm(clientManager));
-    healthServiceImpl.reset(new HealthServiceImpl());
+    rasserverService = std::make_shared<RasServerServiceImpl>(clientManager);
+    clientServerService = std::make_shared<RasnetServerComm>(clientManager);
+    healthServiceImpl = std::make_shared<HealthServiceImpl>();
 }
-
 
 void RasnetServer::startRasnetServer()
 {
     RasServerEntry& rasserver = RasServerEntry::getInstance();
     rasserver.connectToRasbase();
     
-    std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0",  boost::uint32_t(configuration.getListenPort()));
+    std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0",  std::uint32_t(configuration.getListenPort()));
     
     grpc::ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
@@ -93,11 +92,11 @@ void RasnetServer::startRasnetServer()
 
 void RasnetServer::registerServerWithRasmgr()
 {
-    std::string rasmgrAddress = GrpcUtils::constructAddressString(configuration.getRasmgrHost(), boost::uint32_t(configuration.getRasmgrPort()));
+    std::string rasmgrAddress = GrpcUtils::constructAddressString(configuration.getRasmgrHost(), std::uint32_t(configuration.getRasmgrPort()));
     std::shared_ptr<grpc::Channel> channel(grpc::CreateCustomChannel(rasmgrAddress, grpc::InsecureChannelCredentials(), GrpcUtils::getDefaultChannelArguments()));
 
     ::rasnet::service::RasMgrRasServerService::Stub rasmgrRasserverService(channel);
-    boost::shared_ptr<common::HealthService::Stub> healthService(new common::HealthService::Stub(channel));
+    std::shared_ptr<common::HealthService::Stub> healthService(new common::HealthService::Stub(channel));
 
     ::rasnet::service::Void response;
     ::rasnet::service::RegisterServerReq request;

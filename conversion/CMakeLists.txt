@@ -62,12 +62,12 @@ add_library(conversion ${CONVERSION_HEADER_FILES}
         netcdf.cc
         tiff.cc
         jpeg.cc
-        png.cc
         bmp.cc
         tmpfile.cc
         transpose.cc
         colormap.cc
-        json.cc)
+        json.cc
+        png.cc)
 
 set(OPTIONAL_LIBRARIES "")
 set(OPTIONAL_INCLUDE_DIRECTORIES "")
@@ -103,6 +103,10 @@ if (USE_JPEG)
 endif ()
 
 target_link_libraries(conversion ${JSONCPP_LIBRARY})
+
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(conversion REUSE_FROM common_logging)
+endif()
 
 install(TARGETS conversion
         DESTINATION ${LIB_DIR})

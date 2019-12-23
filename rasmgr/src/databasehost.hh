@@ -24,8 +24,9 @@
 #define RASMGR_X_SRC_DATABASEHOST_HH
 
 #include <string>
-
-#include <boost/thread.hpp>
+#include <memory>
+#include <mutex>
+#include <list>
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 
@@ -96,7 +97,7 @@ public:
      * Add the database to this host.
      * @param db
      */
-    void addDbToHost(boost::shared_ptr<Database> db);
+    void addDbToHost(std::shared_ptr<Database> db);
 
     /**
      * Remove the database with the given name from this host.
@@ -131,8 +132,8 @@ private:
 
     int sessionCount; /*!< Counter used to track the number of active sessions*/
     int serverCount;/*!< Counter used to track the number of server groups using this host*/
-    std::list<boost::shared_ptr<Database>> databaseList;/*!< List of databases located on this host */
-    mutable boost::mutex mut;/*!< Mutex used for syncrhonizing access to this object*/
+    std::list<std::shared_ptr<Database>> databaseList;/*!< List of databases located on this host */
+    mutable std::mutex mut;/*!< Mutex used for syncrhonizing access to this object*/
 
     /**
      * Check if this host contains the database identified by the given name.

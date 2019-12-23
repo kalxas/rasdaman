@@ -20,22 +20,11 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
-
 
 #ifndef _ALGEBRAOPS_HH_
-#define _ALGEBRAOPS_HH__
+#define _ALGEBRAOPS_HH_
 
-#include "ops.hh"
-#include "qlparser/qtmdd.hh"
+#include "catalogmgr/ops.hh"
 
 #include <vector>
 #include <string>
@@ -43,6 +32,8 @@ rasdaman GmbH.
 // forward declarations
 class QtOperation;
 class QtData;
+class QtMDD;
+class r_Minterval;
 
 //@ManMemo: Module: {\bf catalogif}
 

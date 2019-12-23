@@ -24,9 +24,6 @@
 #include <utility>
 #include <set>
 
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <logging.hh>
@@ -72,10 +69,10 @@ protected:
         this->server.reset(new MockRasServer());
     }
 
-    boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
-    boost::shared_ptr<rasmgr::ServerFactory> serverFactory;
-    boost::shared_ptr<rasmgr::DatabaseHostManager> dbHostManager;
-    boost::shared_ptr<rasmgr::Server> server;
+    std::shared_ptr<rasmgr::DatabaseHost> dbHost;
+    std::shared_ptr<rasmgr::ServerFactory> serverFactory;
+    std::shared_ptr<rasmgr::DatabaseHostManager> dbHostManager;
+    std::shared_ptr<rasmgr::Server> server;
 };
 
 
@@ -156,7 +153,7 @@ TEST_F(ServerGroupTest, constructorValidation)
         //The server count will be decreased in the destructor of the server group
         //so it is neccessary to increase it
         this->dbHost->increaseServerCount();
-        DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+        DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
         EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
         ASSERT_NO_THROW(group = new ServerGroupImpl(groupConfig, this->dbHostManager, this->serverFactory));
@@ -227,22 +224,22 @@ TEST_F(ServerGroupTest, constructorValidation)
 
 TEST_F(ServerGroupTest, start)
 {
-    boost::int32_t runningPort = 2034;
+    std::int32_t runningPort = 2034;
     //The minimum number of alive servers will be created
     //The created servers will be started
     //The servers will be stopped in the destructor
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     std::string serverId = "serverId";
-    MockRasServer& serverRef = *boost::dynamic_pointer_cast<MockRasServer>(this->server);
+    MockRasServer& serverRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
     EXPECT_CALL(serverRef, startProcess());
     EXPECT_CALL(serverRef, getServerId()).WillOnce(Return(serverId));
     EXPECT_CALL(serverRef, stop(_));
     EXPECT_CALL(serverRef, getPort()).WillOnce(Return(runningPort));
 
-    ServerFactoryMock& factoryRef = *boost::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
+    ServerFactoryMock& factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
     EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server));
 
     ServerGroupConfigProto groupConfig;
@@ -263,13 +260,13 @@ TEST_F(ServerGroupTest, start)
 
 TEST_F(ServerGroupTest, tryRegisterServer)
 {
-    boost::int32_t runningPort = 2034;
+    std::int32_t runningPort = 2034;
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     std::string serverId = "serverId";
-    MockRasServer& serverRef = *boost::dynamic_pointer_cast<MockRasServer>(this->server);
+    MockRasServer& serverRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
     EXPECT_CALL(serverRef, startProcess());
     EXPECT_CALL(serverRef, getServerId()).WillOnce(Return(serverId));
     EXPECT_CALL(serverRef, stop(_));
@@ -277,7 +274,7 @@ TEST_F(ServerGroupTest, tryRegisterServer)
     EXPECT_CALL(serverRef, registerServer(serverId));
 
 
-    ServerFactoryMock& factoryRef = *boost::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
+    ServerFactoryMock& factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
     EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server));
 
     ServerGroupConfigProto groupConfig;
@@ -304,7 +301,7 @@ TEST_F(ServerGroupTest, tryRegisterServer)
 TEST_F(ServerGroupTest, stopFailure)
 {
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     ServerGroupConfigProto groupConfig;
@@ -324,16 +321,16 @@ TEST_F(ServerGroupTest, stopFailure)
 TEST_F(ServerGroupTest, stop)
 {
     KillLevel force = FORCE;
-    boost::int32_t startingPort = 2034;
-    boost::int32_t runningPort = 2035;
+    std::int32_t startingPort = 2034;
+    std::int32_t runningPort = 2035;
 
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
 
     std::string runningServerId = "runningServerId";
-    MockRasServer& runningServerRef = *boost::dynamic_pointer_cast<MockRasServer>(this->server);
+    MockRasServer& runningServerRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
     EXPECT_CALL(runningServerRef, startProcess());
     EXPECT_CALL(runningServerRef, registerServer(runningServerId));
     EXPECT_CALL(runningServerRef, getServerId()).WillRepeatedly(Return(runningServerId));
@@ -344,15 +341,15 @@ TEST_F(ServerGroupTest, stop)
     EXPECT_CALL(runningServerRef, getPort()).WillOnce(Return(runningPort));
 
     std::string startingServerId = "startingServerId";
-    boost::shared_ptr<rasmgr::Server> startingServer(new MockRasServer());
-    MockRasServer& startingServerRef = *boost::dynamic_pointer_cast<MockRasServer>(startingServer);
+    std::shared_ptr<rasmgr::Server> startingServer(new MockRasServer());
+    MockRasServer& startingServerRef = *std::dynamic_pointer_cast<MockRasServer>(startingServer);
     EXPECT_CALL(startingServerRef, startProcess());
     EXPECT_CALL(startingServerRef, getServerId()).WillOnce(Return(startingServerId));
     //A starting server will be forcibly closed
     EXPECT_CALL(startingServerRef, stop(KILL));
     EXPECT_CALL(startingServerRef, getPort()).WillOnce(Return(startingPort));
 
-    ServerFactoryMock& factoryRef = *boost::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
+    ServerFactoryMock& factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
     EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server)).WillOnce(Return(startingServer));
 
     ServerGroupConfigProto groupConfig;
@@ -376,11 +373,11 @@ TEST_F(ServerGroupTest, stop)
 
 TEST_F(ServerGroupTest, evaluateServerGroupNoStart)
 {
-    boost::int32_t startingPort = 2034;
-    boost::int32_t runningPort = 2035;
+    std::int32_t startingPort = 2034;
+    std::int32_t runningPort = 2035;
 
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     ServerGroupConfigProto groupConfig;
@@ -398,21 +395,21 @@ TEST_F(ServerGroupTest, evaluateServerGroupNoStart)
 
 TEST_F(ServerGroupTest, evaluateServerGroup)
 {
-    boost::int32_t runningServerPort = 20034;
-    boost::int32_t startingServerPort = 20035;
-    boost::int32_t deadServerPort = 20036;
-    boost::int32_t fullServerPort = 20037;
-    boost::uint32_t maxSessions = 5;
+    std::int32_t runningServerPort = 20034;
+    std::int32_t startingServerPort = 20035;
+    std::int32_t deadServerPort = 20036;
+    std::int32_t fullServerPort = 20037;
+    std::uint32_t maxSessions = 5;
 
 
     // The server count of the database host would be increased by the dbh manager
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     std::string dummyServerId = "dummyServerId";
-    boost::shared_ptr<rasmgr::Server> dummyServer(new MockRasServer());
-    MockRasServer& dummyServerRef = *boost::dynamic_pointer_cast<MockRasServer>(dummyServer);
+    std::shared_ptr<rasmgr::Server> dummyServer(new MockRasServer());
+    MockRasServer& dummyServerRef = *std::dynamic_pointer_cast<MockRasServer>(dummyServer);
     EXPECT_CALL(dummyServerRef, startProcess()).Times(2);
     //Because the server is stopped isAlive will return false.
     EXPECT_CALL(dummyServerRef, getPort()).WillOnce(Return(deadServerPort));
@@ -422,7 +419,7 @@ TEST_F(ServerGroupTest, evaluateServerGroup)
 
     // Setup a server that is running correctly
     std::string runningServerId = "runningServerId";
-    MockRasServer& runningServerRef = *boost::dynamic_pointer_cast<MockRasServer>(this->server);
+    MockRasServer& runningServerRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
     EXPECT_CALL(runningServerRef, startProcess());
     EXPECT_CALL(runningServerRef, registerServer(runningServerId));
     EXPECT_CALL(runningServerRef, getTotalSessionNo()).WillOnce(Return(0));
@@ -436,8 +433,8 @@ TEST_F(ServerGroupTest, evaluateServerGroup)
     EXPECT_CALL(runningServerRef, stop(KILL));
 
     std::string startingServerId = "startingServerId";
-    boost::shared_ptr<rasmgr::Server> startingServer(new MockRasServer());
-    MockRasServer& startingServerRef = *boost::dynamic_pointer_cast<MockRasServer>(startingServer);
+    std::shared_ptr<rasmgr::Server> startingServer(new MockRasServer());
+    MockRasServer& startingServerRef = *std::dynamic_pointer_cast<MockRasServer>(startingServer);
     EXPECT_CALL(startingServerRef, startProcess());
     //Because the server is stopped isAlive will return false.
     EXPECT_CALL(startingServerRef, getPort()).WillOnce(Return(startingServerPort));
@@ -446,8 +443,8 @@ TEST_F(ServerGroupTest, evaluateServerGroup)
     EXPECT_CALL(startingServerRef, stop(KILL));
 
     std::string deadServerId = "deadServerId";
-    boost::shared_ptr<rasmgr::Server> deadServer(new MockRasServer());
-    MockRasServer& deadServerRef = *boost::dynamic_pointer_cast<MockRasServer>(deadServer);
+    std::shared_ptr<rasmgr::Server> deadServer(new MockRasServer());
+    MockRasServer& deadServerRef = *std::dynamic_pointer_cast<MockRasServer>(deadServer);
     EXPECT_CALL(deadServerRef, startProcess());
 
     EXPECT_CALL(deadServerRef, registerServer(deadServerId));
@@ -458,8 +455,8 @@ TEST_F(ServerGroupTest, evaluateServerGroup)
     EXPECT_CALL(deadServerRef, getPort()).WillOnce(Return(deadServerPort));
 
     std::string fullServerId = "fullServerId";
-    boost::shared_ptr<rasmgr::Server> fullServer(new MockRasServer());
-    MockRasServer& fullServerRef = *boost::dynamic_pointer_cast<MockRasServer>(fullServer);
+    std::shared_ptr<rasmgr::Server> fullServer(new MockRasServer());
+    MockRasServer& fullServerRef = *std::dynamic_pointer_cast<MockRasServer>(fullServer);
     EXPECT_CALL(fullServerRef, startProcess());
     EXPECT_CALL(fullServerRef, registerServer(fullServerId));
     EXPECT_CALL(fullServerRef, getTotalSessionNo()).WillOnce(Return(maxSessions));
@@ -472,7 +469,7 @@ TEST_F(ServerGroupTest, evaluateServerGroup)
     //When the server group is destructed, it will kill the servers
     EXPECT_CALL(fullServerRef, stop(KILL));
 
-    ServerFactoryMock& factoryRef = *boost::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
+    ServerFactoryMock& factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
     EXPECT_CALL(factoryRef, createServer(_))
     .WillOnce(Return(this->server))
     .WillOnce(Return(startingServer))

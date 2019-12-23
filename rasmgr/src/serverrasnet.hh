@@ -31,10 +31,9 @@
 #include <vector>
 #include <utility>
 #include <memory>
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
-#include <boost/date_time.hpp>
-#include <boost/smart_ptr.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 #include <grpc++/grpc++.h>
 
@@ -115,7 +114,7 @@ public:
      * (to prevent memory leaks from getting out of control)
      * @return
      */
-    virtual boost::uint32_t getTotalSessionNo();
+    virtual std::uint32_t getTotalSessionNo();
 
     /**
      * Stop the RasServer process.
@@ -143,7 +142,7 @@ public:
     /**
      * @return the port on which the server is running.
      */
-    virtual boost::int32_t getPort() const;
+    virtual std::int32_t getPort() const;
 
     /**
      * @return the name of the host on which the server is running
@@ -166,15 +165,15 @@ private:
      * The number of microseconds between a SIGTERM signal and a SIGKILL signal sent to the server.
      * This timeout allows the server enough time to cleanup after itself.
     */
-    static const boost::int32_t SERVER_CLEANUP_TIMEOUT;
+    static const std::int32_t SERVER_CLEANUP_TIMEOUT;
     /**
      * Microseconds to wait between checks on whether the server is still alive
      */
-    static const boost::int32_t SERVER_CHECK_INTERVAL;
+    static const std::int32_t SERVER_CHECK_INTERVAL;
 
     std::string hostName;/*! Hostname of the RasServer process */
-    boost::int32_t port;/*! Port of the RasServer process */
-    boost::shared_ptr<DatabaseHost> dbHost;/*! Database host to which this server has access */
+    std::int32_t port;/*! Port of the RasServer process */
+    std::shared_ptr<DatabaseHost> dbHost;/*! Database host to which this server has access */
     std::string options;
 
     pid_t processId; /*Id of the server process*/
@@ -182,12 +181,12 @@ private:
 
     boost::shared_mutex stateMtx;
     bool registered;/*! Flag to indicate if the server is starting but has not yet registered */
-    boost::uint32_t allocatedClientsNo; /*! The number of allocated clients */
+    std::uint32_t allocatedClientsNo; /*! The number of allocated clients */
     bool started; /*True after the process is started*/
 
-    boost::uint32_t sessionNo;
+    std::uint32_t sessionNo;
 
-    boost::shared_ptr<::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
+    std::shared_ptr<::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
 
 
     boost::shared_mutex sessionMtx; /*!Mutex used for making the object thread safe */

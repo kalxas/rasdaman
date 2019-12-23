@@ -42,12 +42,10 @@ rasdaman GmbH.
 
 #include <iostream>
 #include <string>
+
 using namespace std;
 
-#include <iostream>
-
 const QtNode::QtNodeType QtConst::nodeType = QtNode::QT_CONST;
-
 
 QtConst::QtConst(QtData *newDataObj)
     :  QtOperation(),

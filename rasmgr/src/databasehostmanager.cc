@@ -21,7 +21,6 @@
  */
 
 #include <stdexcept>
-#include <boost/smart_ptr.hpp>
 
 #include <logging.hh>
 #include "common/exceptions/rasexceptions.hh"
@@ -34,9 +33,9 @@
 namespace rasmgr
 {
 using std::list;
-using boost::shared_ptr;
-using boost::unique_lock;
-using boost::mutex;
+using std::shared_ptr;
+using std::unique_lock;
+using std::mutex;
 using std::runtime_error;
 
 DatabaseHostManager::~DatabaseHostManager()
@@ -73,7 +72,7 @@ void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &
         std::string connectStr = newDbHost.has_connect_string() ? newDbHost.connect_string() : empty;
         std::string userName = newDbHost.has_user_name() ? newDbHost.user_name() : empty;
         std::string password = newDbHost.has_password() ? newDbHost.password() : empty;
-        auto dbHost = boost::make_shared<DatabaseHost>(newDbHost.host_name(), connectStr, userName, password);
+        auto dbHost = std::make_shared<DatabaseHost>(newDbHost.host_name(), connectStr, userName, password);
 
         this->hostList.push_back(dbHost);
     }
@@ -160,7 +159,7 @@ void DatabaseHostManager::removeDatabaseHost(const std::string &dbHostName)
     }
 }
 
-boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(const std::string &dbHostName)
+std::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(const std::string &dbHostName)
 {
     list<shared_ptr<DatabaseHost>>::iterator it;
 
@@ -178,7 +177,7 @@ boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(cons
     throw InexistentDbHostException(dbHostName);
 }
 
-std::list<boost::shared_ptr<DatabaseHost>> DatabaseHostManager::getDatabaseHostList() const
+std::list<std::shared_ptr<DatabaseHost>> DatabaseHostManager::getDatabaseHostList() const
 {
     return this->hostList;
 }

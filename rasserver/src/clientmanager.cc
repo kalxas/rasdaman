@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include "common/uuid/uuid.hh"
 #include "server/rasserver_entry.hh"
 #include "common/exceptions/missingresourceexception.hh"
+#include <boost/thread.hpp>
 
 #include "clientmanager.hh"
 
@@ -36,14 +37,12 @@ using std::pair;
 using std::make_pair;
 using std::map;
 using std::set;
-using common::Timer;
-using boost::scoped_ptr;
-using boost::unique_lock;
+using std::unique_lock;
+using std::shared_ptr;
+using std::thread;
 using boost::shared_mutex;
-using boost::shared_ptr;
 using boost::shared_lock;
-using boost::thread;
-using boost::unique_lock;
+using common::Timer;
 using common::UUID;
 
 const int ClientManager::ALIVE_PERIOD = 30000;
@@ -60,7 +59,7 @@ ClientManager::~ClientManager()
     try
     {
         {
-            boost::lock_guard<boost::mutex> lock(this->threadMutex);
+            std::lock_guard<std::mutex> lock(this->threadMutex);
             this->isThreadRunning = false;
         }
 
@@ -146,16 +145,16 @@ void ClientManager::evaluateClientStatus()
     map<string, shared_ptr<ClientQueryStreamedResult>>::iterator resultIt;
     map<string, shared_ptr<ClientQueryStreamedResult>>::iterator toEraseResult;
 
-    boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(ALIVE_PERIOD);
+    std::chrono::milliseconds timeToSleepFor{ALIVE_PERIOD};
 
-    boost::unique_lock<boost::mutex> threadLock(this->threadMutex);
+    std::unique_lock<std::mutex> threadLock(this->threadMutex);
     while (this->isThreadRunning)
     {
         try
         {
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
-            if (!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
+            if (this->isThreadRunningCondition.wait_for(threadLock, timeToSleepFor) == std::cv_status::timeout)
             {
                 set<string> deadClients;
 

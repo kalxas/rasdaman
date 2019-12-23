@@ -21,107 +21,101 @@
 #
 ###################################################################
 
-add_library(raslib attribute.hh attribute.cc
-        basetype.hh basetype.cc
-        collectiontype.hh collectiontype.cc
-        complex.hh complex.cc
-        complextype.hh complextype.cc
-        endian.hh endian.cc
-        error.hh error.cc
-        flatbasetype.hh flatbasetype.cc
-        marraytype.hh marraytype.cc
-        mddtypes.hh mddtypes.cc
-        metaobject.hh metaobject.cc
-        minterval.hh minterval.cc minterval.icc
-        mintervaltype.hh mintervaltype.cc
-        miter.hh miter.icc
-        mitera.hh mitera.cc
-        miterd.hh miterd.cc miterd.icc
-        miterf.hh miterf.icc
-        nullvalues.cc nullvalues.hh
+set(SRC_HEADERS
+        attribute.hh
+        basetype.hh
+        collectiontype.hh
+        complex.hh
+        complextype.hh
+        endian.hh
+        error.hh
+        flatbasetype.hh
+        marraytype.hh
+        mddtypes.hh
+        metaobject.hh
+        minterval.hh
+        mintervaltype.hh
+        mitera.hh
+        miterd.hh
+        miterf.hh
+        miter.hh
+        nullvalues.hh
         odmgtypes.hh
-        oid.hh oid.cc oid.icc
-        oidtype.hh oidtype.cc
-        parseparams.hh parseparams.cc
-        point.hh point.cc point.icc
-        pointtype.hh pointtype.cc
-        primitive.hh primitive.cc
-        primitivetype.hh primitivetype.cc
-        property.hh property.cc
-        rm.hh rm.cc
-        rmdebug.hh rmdebug.cc rmdebug.icc
-        rminit.hh rminit.cc
-        scalar.hh scalar.cc
-        shhopt.hh shhopt.cc
-        sinterval.hh sinterval.cc sinterval.icc
-        sintervaltype.hh sintervaltype.cc
-        storageman.hh storageman.cc
-        structure.hh structure.cc
-        structuretype.hh structuretype.cc
-        template_inst.hh
-        type.hh type.cc
-        turboqueryresult.cc turboqueryresult.hh
-        pointdouble.hh pointdouble.cc pointdouble.icc)
+        oid.hh
+        oidtype.hh
+        parseparams.hh
+        pointdouble.hh
+        point.hh
+        pointtype.hh
+        primitive.hh
+        primitivetype.hh
+        property.hh
+        rmdebug.hh
+        rm.hh
+        rminit.hh
+        scalar.hh
+        shhopt.hh
+        sinterval.hh
+        sintervaltype.hh
+        storageman.hh
+        structure.hh
+        structuretype.hh
+        type.hh
+        miterd.icc
+        miterf.icc
+        miter.icc
+        )
+    
+add_library(raslib 
+        attribute.cc
+        basetype.cc
+        collectiontype.cc
+        complex.cc
+        complextype.cc
+        endian.cc
+        error.cc
+        flatbasetype.cc
+        marraytype.cc
+        mddtypes.cc
+        metaobject.cc
+        minterval.cc
+        mintervaltype.cc
+        miter.cc
+        mitera.cc
+        miterd.cc
+        miterf.cc
+        nullvalues.cc
+        oid.cc
+        oidtype.cc
+        parseparams.cc
+        point.cc
+        pointdouble.cc
+        pointtype.cc
+        primitive.cc
+        primitivetype.cc
+        property.cc
+        rm.cc
+        rmdebug.cc
+        rminit.cc
+        scalar.cc
+        shhopt.cc
+        sinterval.cc
+        sintervaltype.cc
+        storageman.cc
+        structure.cc
+        structuretype.cc
+        turboqueryresult.cc
+        type.cc
+        ${SRC_HEADERS}
+        )
 
-target_include_directories(raslib PUBLIC "${CMAKE_SOURCE_DIR}/debug")
 target_link_libraries(raslib 
         mymalloc_cln
         stdc++
         m)
 
-# cotire(raslib)
-
 install(TARGETS raslib
         DESTINATION ${LIB_DIR})
 
-install(FILES
-    attribute.hh
-    basetype.hh
-    collectiontype.hh
-    complex.hh
-    complextype.hh
-    endian.hh
-    error.hh
-    flatbasetype.hh
-    marraytype.hh
-    mddtypes.hh
-    metaobject.hh
-    minterval.hh
-    mintervaltype.hh
-    mitera.hh
-    miterd.hh
-    miterf.hh
-    miter.hh
-    nullvalues.hh
-    odmgtypes.hh
-    oid.hh
-    oidtype.hh
-    parseparams.hh
-    pointdouble.hh
-    point.hh
-    pointtype.hh
-    primitive.hh
-    primitivetype.hh
-    property.hh
-    rmdebug.hh
-    rm.hh
-    rminit.hh
-    scalar.hh
-    shhopt.hh
-    sinterval.hh
-    sintervaltype.hh
-    storageman.hh
-    structure.hh
-    structuretype.hh
-    template_inst.hh
-    type.hh
-    minterval.icc
-    miterd.icc
-    miterf.icc
-    miter.icc
-    oid.icc
-    pointdouble.icc
-    point.icc
-    rmdebug.icc
-    sinterval.icc
-    DESTINATION "${INCLUDE_DIR}/raslib")
+install(FILES ${SRC_HEADERS}
+        DESTINATION "${INCLUDE_DIR}/raslib")

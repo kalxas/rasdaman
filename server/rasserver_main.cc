@@ -31,7 +31,7 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #ifdef __GNUG__
 #include "template_inst.hh"
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
 #endif
 
@@ -76,6 +76,8 @@ int           noTimeOut = 0;
 char globalConnectId[256];
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
+// used in qtmddaccess.cc
+bool isLockMgrOn = false;
 
 bool initialize();
 

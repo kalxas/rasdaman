@@ -65,7 +65,7 @@ class r_Dir_Decompose
 {
 public:
     r_Dir_Decompose() = default;
-    virtual ~r_Dir_Decompose() = default;
+    ~r_Dir_Decompose() = default;
     r_Dir_Decompose(const r_Dir_Decompose &other) = default;
 
     /// Reads a new limit for the current dimension
@@ -81,7 +81,7 @@ public:
     r_Range get_partition(size_t number) const;
 
     /// Prints the current status of the object
-    virtual void print_status(std::ostream &os) const;
+    void print_status(std::ostream &os) const;
 
 protected:
     r_Sinterval get_total_interval();

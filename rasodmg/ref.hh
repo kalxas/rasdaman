@@ -150,7 +150,7 @@ public:
     //@}
 
     /// get oid
-    inline const r_OId &get_oid() const;
+    const r_OId &get_oid() const;
 
     //@Man: Methods for internal use only
     //@{
@@ -158,7 +158,7 @@ public:
     /// constructor getting oid and memory pointer
     r_Ref_Any(const r_OId &, r_Object *, r_Transaction *ta = NULL);
     ///
-    inline unsigned int is_oid_valid() const;
+    unsigned int is_oid_valid() const;
     /// get memory pointer (without loading the object)
     void *get_memory_ptr() const;
     /// get transaction
@@ -297,7 +297,7 @@ public:
     void delete_object();
 
     /// get oid
-    inline const r_OId &get_oid() const;
+    const r_OId &get_oid() const;
 
     //@Man: Methods for internal use only
     //@{
@@ -312,7 +312,7 @@ public:
     T *get_memory_ptr() const;
 
     ///
-    inline unsigned int is_oid_valid() const;
+    unsigned int is_oid_valid() const;
 
     ///
     //@}
@@ -330,7 +330,5 @@ private:
     /// object identifier
     r_OId oid;
 };
-
-#include "rasodmg/ref.icc"
 
 #endif

@@ -30,13 +30,9 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _OVERLOADED_VEC_
-#define _OVERLOADED_VEC_
+#ifndef R_DOUBLEPOINT_HH
+#define R_DOUBLEPOINT_HH
 
-#ifdef __VISUALC__
-// disable warning for exception specification
-#pragma warning( disable : 4290 )
-#endif
 
 #include "raslib/mddtypes.hh"
 #include "raslib/point.hh"
@@ -83,7 +79,7 @@ public:
     const r_PointDouble &operator= (const r_PointDouble &);
 
     /// compares this point with the given point.
-    inline int compare_with(const  r_PointDouble &p) const;
+    int compare_with(const  r_PointDouble &p) const;
     /**
       Returns 0 if this == p, -1 if this < p, 1 if this > p (considering
       the coordinates in lexicographic order).
@@ -116,13 +112,13 @@ public:
     double dotProduct(const r_PointDouble &r) const;
 
     /// same as std::vector::size()
-    inline size_t dimension() const;
+    size_t dimension() const;
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s) const;
 
     /// returns the stored vector
-    inline const std::vector<double> &getVectorContent() const;
+    const std::vector<double> &getVectorContent() const;
 
     /// converts the stored vector to an r_Point (integer vertices)
     r_Point toIntPoint() const;
@@ -132,8 +128,5 @@ private:
     /// array holding the point coordinates
     std::vector<double> points;
 };
-
-
-#include "raslib/pointdouble.icc"
 
 #endif

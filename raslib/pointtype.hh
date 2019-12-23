@@ -30,8 +30,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_POINT_TYPE_
-#define _D_POINT_TYPE_
+#ifndef D_POINT_TYPE_HH
+#define D_POINT_TYPE_HH
 
 #include "raslib/type.hh"
 
@@ -46,30 +46,30 @@ class r_Point_Type : public r_Type
 {
 public:
     /// default constructor
-    r_Point_Type();
+    r_Point_Type() = default;
 
     /// copy constructor
     r_Point_Type(const r_Point_Type &oldObj);
 
     /// clone operation
-    virtual r_Type *clone() const;
+    r_Type *clone() const override;
 
     /// retrieve id of the type.
-    virtual r_Type::r_Type_Id type_id() const;
+    r_Type::r_Type_Id type_id() const override;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
+    void convertToLittleEndian(char *cells, r_Area noCells) const override;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
+    void convertToBigEndian(char *cells, r_Area noCells) const override;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s) const;
+    void print_status(std::ostream &s) const override;
 
-    virtual bool isPointType() const;
+    bool isPointType() const override;
 
     /// destructor
-    ~r_Point_Type();
+    ~r_Point_Type() override = default;
 };
 
 //@Doc: write the status of point type to a stream

@@ -24,21 +24,13 @@ rasdaman GmbH.
 #ifndef RASSERVER_X_SRC_RASNETSERVER_HH
 #define RASSERVER_X_SRC_RASNETSERVER_HH
 
-#include <unistd.h>
-
-#include <iostream>
-#include <memory>
-
-#include <boost/thread.hpp>
-
-#include <grpc++/grpc++.h>
-
-
+#include "rasserverserviceimpl.hh"
+#include "rasnetprotocol/rasnetservercomm.hh"
 #include "common/grpc/healthserviceimpl.hh"
 #include "server/rasserver_config.hh"
-#include "rasnetprotocol/rasnetservercomm.hh"
 
-#include "rasserverserviceimpl.hh"
+#include <memory>
+#include <grpc++/grpc++.h>
 
 namespace grpc
 {
@@ -58,9 +50,9 @@ private:
     Configuration configuration;
 
     std::unique_ptr<grpc::Server> server;
-    boost::shared_ptr<rasnet::service::RasServerService::Service> rasserverService;
-    boost::shared_ptr<rasnet::service::ClientRassrvrService::Service> clientServerService;
-    boost::shared_ptr<common::HealthServiceImpl> healthServiceImpl;
+    std::shared_ptr<rasnet::service::RasServerService::Service> rasserverService;
+    std::shared_ptr<rasnet::service::ClientRassrvrService::Service> clientServerService;
+    std::shared_ptr<common::HealthServiceImpl> healthServiceImpl;
 
     void registerServerWithRasmgr();
 };

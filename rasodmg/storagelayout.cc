@@ -35,9 +35,9 @@ rasdaman GmbH.
 #include "rasodmg/iterator.hh"
 #include "rasodmg/tiling.hh"
 #include "rasodmg/alignedtiling.hh"
-#include "raslib/minterval.hh"
-#include "rasodmg/gmarray.hh""
+#include "rasodmg/gmarray.hh"
 #include "rasodmg/set.hh"
+#include "raslib/minterval.hh"
 
 #include <logging.hh>
 

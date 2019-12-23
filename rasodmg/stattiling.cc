@@ -26,10 +26,10 @@ rasdaman GmbH.
 #include "rasodmg/alignedtiling.hh"
 #include "raslib/error.hh"
 
+#include <logging.hh>
+
 #include <cmath>
 #include <cstdlib>
-
-#include <logging.hh>
 
 const char *
 r_Stat_Tiling::description = "dimensions, access patterns, border threshold, interesting threshold, tile size (in bytes) (ex: \"2;[0:9,0:9],3;[100:109,0:9],2;2;0.3;100\")";

@@ -24,13 +24,13 @@
 #ifndef RASMGR_X_SRC_CLIENTMANAGER_HH_
 #define RASMGR_X_SRC_CLIENTMANAGER_HH_
 
-#include <boost/cstdint.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/thread.hpp>
 #include <map>
 #include <string>
+#include <memory>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 #include "common/time/timer.hh"
 
@@ -67,9 +67,9 @@ public:
      * @param peerManager the peer manager
      */
     ClientManager(const ClientManagerConfig &config,
-                  boost::shared_ptr<UserManager> userManager,
-                  boost::shared_ptr<ServerManager> serverManager,
-                  boost::shared_ptr<PeerManager> peerManager);
+                  std::shared_ptr<UserManager> userManager,
+                  std::shared_ptr<ServerManager> serverManager,
+                  std::shared_ptr<PeerManager> peerManager);
 
     /**
      * Destruct the ClientManager class object.
@@ -122,18 +122,18 @@ public:
 
 private:
     ClientManagerConfig config;
-    boost::scoped_ptr<boost::thread> managementThread; /*! Thread used to manage the list of clients and remove dead ones */
+    std::unique_ptr<std::thread> managementThread; /*! Thread used to manage the list of clients and remove dead ones */
 
-    std::map<std::string, boost::shared_ptr<Client>> clients; /*! list of active clients */
+    std::map<std::string, std::shared_ptr<Client>> clients; /*! list of active clients */
     boost::shared_mutex clientsMutex; /*! Mutex used to synchronize access to the clients object*/
-    boost::mutex serverManagerMutex; /*! Mutex used to prevent a free server being assigned to two different clients when tryGetFreeServer is called*/
-    boost::shared_ptr<UserManager> userManager;
-    boost::shared_ptr<ServerManager> serverManager;
-    boost::shared_ptr<PeerManager> peerManager;
+    std::mutex serverManagerMutex; /*! Mutex used to prevent a free server being assigned to two different clients when tryGetFreeServer is called*/
+    std::shared_ptr<UserManager> userManager;
+    std::shared_ptr<ServerManager> serverManager;
+    std::shared_ptr<PeerManager> peerManager;
 
-    boost::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
+    std::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
     bool isThreadRunning; /*! Flag used to stop the worker thread */
-    boost::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
+    std::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
 
     /**
      * Evaluate the list of clients and remove the ones that have died.
@@ -146,7 +146,7 @@ private:
      * @param server
      * @return
      */
-    bool tryGetFreeLocalServer(boost::shared_ptr<Client> client, const std::string &dbName, ClientServerSession &out_serverSession);
+    bool tryGetFreeLocalServer(std::shared_ptr<Client> client, const std::string &dbName, ClientServerSession &out_serverSession);
 
     bool tryGetFreeRemoteServer(const ClientServerRequest &request, ClientServerSession &out_serverSession);
 };

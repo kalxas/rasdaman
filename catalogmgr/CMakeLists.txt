@@ -23,7 +23,6 @@
 ###################################################################
 
 add_library(catalogmgr
-    algebraops.hh algebraops.cc
     nullvalues.hh nullvalues.cc
     ops.hh ops.cc
     typeenum.hh
@@ -31,7 +30,11 @@ add_library(catalogmgr
     )
 
 target_link_libraries(catalogmgr
-    reladminif relcatalogif relmddif raslib)
+    reladminif relcatalogif relmddif raslib common_logging common_string)
+
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(catalogmgr REUSE_FROM common_logging)
+endif()
 
 add_dependencies(catalogmgr reladminif)
 

@@ -27,5 +27,9 @@ add_library(tilemgr
 
 target_link_libraries(tilemgr raslib catalogmgr)
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(tilemgr REUSE_FROM common_logging)
+endif()
+
 install(TARGETS tilemgr
         DESTINATION ${LIB_DIR})

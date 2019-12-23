@@ -1,10 +1,9 @@
 #ifndef RASMGR_X_SRC_SERVERGROUPIMPL_HH
 #define RASMGR_X_SRC_SERVERGROUPIMPL_HH
 
-#include <boost/cstdint.hpp>
-
-#include <boost/thread.hpp>
-
+#include <cstdint>
+#include <list>
+#include <boost/thread/shared_mutex.hpp>
 #include "common/time/timer.hh"
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
@@ -30,7 +29,7 @@ public:
       * used by servers of this server group.
       * @param serverFactory
       */
-    ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
+    ServerGroupImpl(const ServerGroupConfigProto &config, std::shared_ptr<DatabaseHostManager> dbhManager, std::shared_ptr<ServerFactory> serverFactory);
 
     virtual ~ServerGroupImpl();
 
@@ -79,7 +78,7 @@ public:
      * @param out_server shared_ptr to the RasServer instance
      * @return TRUE if there is a free server, false otherwise.
      */
-    virtual bool tryGetAvailableServer(const std::string &dbName, boost::shared_ptr<Server> &out_server);
+    virtual bool tryGetAvailableServer(const std::string &dbName, std::shared_ptr<Server> &out_server);
 
     /**
      * @brief getConfig Get a copy of the ServerGroupConfig
@@ -106,26 +105,26 @@ public:
 private:
     ServerGroupConfigProto config;/*!< Configuration for this group */
 
-    boost::shared_ptr<DatabaseHostManager> dbhManager; /*!< Reference to the DBH manager for retrieving dbh*/
+    std::shared_ptr<DatabaseHostManager> dbhManager; /*!< Reference to the DBH manager for retrieving dbh*/
 
-    boost::shared_ptr<ServerFactory> serverFactory;
+    std::shared_ptr<ServerFactory> serverFactory;
 
-    std::list<boost::shared_ptr<Server>> runningServers;
+    std::list<std::shared_ptr<Server>> runningServers;
 
-    std::list<boost::shared_ptr<Server>> restartingServers;/*!< List of servers that were restarted*/
+    std::list<std::shared_ptr<Server>> restartingServers;/*!< List of servers that were restarted*/
 
-    boost::shared_ptr<DatabaseHost> databaseHost;
+    std::shared_ptr<DatabaseHost> databaseHost;
 
     /**
      * @brief startingServers List of servers that are starting but have not yet registered
      */
-    std::map<std::string, std::pair<boost::shared_ptr<Server>, common::Timer>> startingServers;
+    std::map<std::string, std::pair<std::shared_ptr<Server>, common::Timer>> startingServers;
 
     boost::shared_mutex groupMutex;
 
     bool stopped;/*!< TRUE if the group is stopped, FALSE otherwise*/
 
-    std::set<boost::int32_t> availablePorts;/*!< */
+    std::set<std::int32_t> availablePorts;/*!< */
 
     int failedRegistrations{};/*!< number of consecutive times a server failed to register */
 

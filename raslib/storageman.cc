@@ -79,10 +79,6 @@ r_Storage_Man::r_Storage_Man(const r_Storage_Man &src)
     myfree = src.myfree;
 }
 
-r_Storage_Man::~r_Storage_Man(void)
-{
-}
-
 void r_Storage_Man::set_storage_functions(storage_man_alloc a, storage_man_free f)
 {
     myalloc = a;
@@ -119,15 +115,7 @@ r_Storage_Man_C::r_Storage_Man_C(void) : r_Storage_Man(alloc_c_style, free_c_sty
 {
 }
 
-r_Storage_Man_C::~r_Storage_Man_C(void)
-{
-}
-
 
 r_Storage_Man_CPP::r_Storage_Man_CPP(void) : r_Storage_Man(alloc_cpp_style, free_cpp_style)
-{
-}
-
-r_Storage_Man_CPP::~r_Storage_Man_CPP(void)
 {
 }

@@ -21,7 +21,7 @@
  */
 
 #include <string>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -83,7 +83,7 @@ TEST_F(DatabaseHostManagerTest, defineDatabaseHost)
     ASSERT_EQ(1, dbhManager.getDatabaseHostList().size());
 
     //Get the first database and see if the result was valid.
-    boost::shared_ptr<DatabaseHost> dbhResult = dbhManager.getDatabaseHostList().front();
+    std::shared_ptr<DatabaseHost> dbhResult = dbhManager.getDatabaseHostList().front();
 
     ASSERT_EQ(hostName, dbhResult->getHostName());
     ASSERT_EQ(connectString, dbhResult->getConnectString());
@@ -132,7 +132,7 @@ TEST_F(DatabaseHostManagerTest, changeDbHostProperties)
 
     ASSERT_NO_THROW(dbhManager.changeDatabaseHost(hostName, properties));
 
-    boost::shared_ptr<DatabaseHost> dbhResult = dbhManager.getDatabaseHostList().front();
+    std::shared_ptr<DatabaseHost> dbhResult = dbhManager.getDatabaseHostList().front();
 
     if (properties.has_connect_string())
     {
@@ -199,13 +199,13 @@ TEST_F(DatabaseHostManagerTest, removeDatabaseHost)
 
 TEST_F(DatabaseHostManagerTest, getAndLockDHFailsWhenNoDbHost)
 {
-    boost::shared_ptr<DatabaseHost> dbhResult;
+    std::shared_ptr<DatabaseHost> dbhResult;
     ASSERT_ANY_THROW(dbhManager.getAndLockDatabaseHost(hostName));
 }
 
 TEST_F(DatabaseHostManagerTest, getAndLockDH)
 {
-    boost::shared_ptr<DatabaseHost> dbhResult;
+    std::shared_ptr<DatabaseHost> dbhResult;
 
     DatabaseHostPropertiesProto originalDBH;
     originalDBH.set_host_name(hostName);

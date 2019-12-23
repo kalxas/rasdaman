@@ -23,16 +23,13 @@
 #ifndef COMMON_SRC_GRPC_GRPCUTILS_HH
 #define COMMON_SRC_GRPC_GRPCUTILS_HH
 
-#include <string>
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <memory>
-
-#include <grpc++/grpc++.h>
-
 #include "common/grpc/messages/health_service.grpc.pb.h"
 #include "common/grpc/messages/error.pb.h"
+
+#include <string>
+#include <cstdint>
+#include <memory>
+#include <grpc++/grpc++.h>
 
 namespace common
 {
@@ -51,7 +48,7 @@ public:
      * @param port
      * @return String of the format host:port
      */
-    static std::string constructAddressString(const std::string& host, boost::uint32_t port);
+    static std::string constructAddressString(const std::string& host, std::uint32_t port);
 
     /**
      * @brief convertExceptionToStatus Convert a given a std::exception object or one of its subclasses to a grpc::Status
@@ -91,7 +88,7 @@ public:
      * a reply from the server before declaring it unresponsive and returning false.
      * @return TRUE if the server responds with a valid message within the given timeout, FALSE otherwise.
      */
-    static bool isServerAlive(const boost::shared_ptr<HealthService::Stub>& healthService, boost::uint32_t timeoutMilliseconds);
+    static bool isServerAlive(const std::shared_ptr<HealthService::Stub> &healthService, std::uint32_t timeoutMilliseconds);
 
     /**
      * @brief isPortUsed Utility function used to check whether a port is already taken.
@@ -99,7 +96,7 @@ public:
      * @param port The port which will be cecked.
      * @return True if the port is busy, false otherwise.
      */
-    static bool isPortBusy(const std::string& host, boost::uint32_t port);
+    static bool isPortBusy(const std::string& host, std::uint32_t port);
 
     /**
      * @brief getDefaultChannelArguments Utility function returning default channel arguments,

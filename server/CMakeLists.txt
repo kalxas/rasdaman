@@ -21,30 +21,40 @@
 #
 ###################################################################
 
+
+add_library(rasserver_lib
+    rasserver_config.hh rasserver_config.cc
+    rasserver_entry.hh rasserver_entry.cc
+    createinitmdd.hh createinitmdd.cc
+    )
+target_link_libraries(rasserver_lib
+    commline rasnet
+    )
+
 add_definitions(${PNG_DEFINITIONS})
-add_executable(rasserver createinitmdd.hh createinitmdd.cc
-        rasserver_config.hh rasserver_config.cc
-        rasserver_entry.hh rasserver_entry.cc
+add_executable(rasserver
         rasserver_main.cc template_inst.hh
         rasserver_rasdl.hh rasserver_rasdl.cc
         rasserver_directql.cc rasserver_directql.hh
-        ../mymalloc/mymalloc.h ../mymalloc/mymalloc_svc.cc
         ../applications/rasql/rasql_error.cc
 )
 
 target_include_directories(rasserver PUBLIC "${CMAKE_SOURCE_DIR}/debug" ${OPENSSL_INCLUDE_DIR})
 
-target_link_libraries(rasserver servercomm qlparser conversion
+target_link_libraries(rasserver rasserver_lib
+        servercomm qlparser conversion
         rasodmg raslib storagemgr reladminif tilemgr mddmgr
         catalogmgr relmddif relstorageif
         relcatalogif indexmgr relblobif relindexif
         commline relcatalogif lockmanager servercomm
         mymalloc_svc common_logging clientcomm relcatalogif
         rasnetserver rasnet
-        ${OPENSSL_LIBRARIES} ${BASEDB_LIBRARIES} ${ELPP_LIBRARY})
+        ${OPENSSL_LIBRARIES} ${BASEDB_LIBRARIES})
 
 
-# cotire(rasserver)
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(rasserver REUSE_FROM common_logging)
+endif()
 
 install(TARGETS rasserver
         DESTINATION ${BIN_DIR})

@@ -20,8 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <boost/cstdlib.hpp>
-
 #include <logging.hh>
 #include "common/crypto/crypto.hh"
 #include "common/grpc/grpcutils.hh"

@@ -31,105 +31,73 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_OID_
-#define _D_OID_
+#ifndef D_OID_HH
+#define D_OID_HH
 
 #include <iosfwd>
-#include "raslib/odmgtypes.hh"
+#include <string>
 
 //@ManMemo: Module: {\bf raslib}
 
-/*@Doc:
-
- Class \Ref{r_OId} represents an object identifier.
-
-*/
-
+/*@Doc: 
+ * Class r_OId represents an object identifier.
+ */
 class r_OId
 {
 public:
     /// default constructor
     r_OId() = default;
-
     /// constructs an OId from the string representation
     r_OId(const char *);
-
     /// constructor getting oid parts
     r_OId(const char *initSystemName, const char *initBaseName, long long initLocalOId);
-
-    /// copy constructor
-    r_OId(const r_OId &);
-
-    /// destructor
-    virtual ~r_OId();
-
-    /// it is called when an object leaves transient memory
-    virtual void r_deactivate();
+    
+    r_OId &operator=(const r_OId &o);
+    
+    virtual ~r_OId() = default;
 
     /// debug output
     void print_status(std::ostream &s) const;
 
-    /// operator for assigning an oid
-    const r_OId &operator= (const r_OId &);
-
     //@Man: Comparison operators:
     //@{
-    ///
-
     /// operator for equality
     bool operator==(const r_OId &) const;
-
     /// operator for not equal
     bool operator!=(const r_OId &) const;
-
     /// operator for greater than
     bool operator> (const r_OId &) const;
-
     /// operator for less than
     bool operator< (const r_OId &) const;
-
     /// operator for greater or equal than
     bool operator>=(const r_OId &) const;
-
     /// operator for less than or equal
     bool operator<=(const r_OId &) const;
-
-    ///
     //@}
 
     /// gets the oid's string representation
-    inline const char *get_string_representation() const;
-
+    const char *get_string_representation() const;
     /// get system name
-    inline const char *get_system_name() const;
-
+    const char *get_system_name() const;
     /// get base name
-    inline const char *get_base_name() const;
-
+    const char *get_base_name() const;
     /// get local oid
-    inline long long get_local_oid() const;
-
-    //get local oid in double
-    inline double get_local_oid_double() const;
-
+    long long get_local_oid() const;
+    /// get local oid as double
+    double get_local_oid_double() const;
     /// determines if oid is valid
-    inline bool is_valid() const;
+    bool is_valid() const;
 
 private:
     /// string representation
-    char *oidString{NULL};
-
+    std::string oidString;
     /// system name
-    char *systemName{NULL};
-
+    std::string systemName;
     /// base name
-    char *baseName{NULL};
-
+    std::string baseName;
     /// local oid
     long long localOId{};
 };
-
-
 
 //@ManMemo: Module: {\bf raslib}
 /**
@@ -137,5 +105,4 @@ private:
 */
 extern std::ostream &operator<<(std::ostream &s, const r_OId &oid);
 
-#include "raslib/oid.icc"
 #endif

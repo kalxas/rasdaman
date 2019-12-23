@@ -33,14 +33,11 @@ rasdaman GmbH.
 #ifndef _TYPEFACTORY_HH_
 #define _TYPEFACTORY_HH_
 
-#include "reladminif/oidif.hh"
-#include "reladminif/dbobjectiterator.hh"// for DBObjectIterator
-#include "relcatalogif/typeiterator.hh"  // for TypeIterator
-#include "raslib/type.hh"
+#include "relcatalogif/typeiterator.hh"            // for TypeIterator
+#include <string>
+#include <list>
 
-#include <map>                           // for map
-#include <string>                        // for string
-#include <vector>                        // for vector
+class r_Type;
 
 class BaseType;
 class BoolType;
@@ -257,9 +254,7 @@ public:
 
     static const Type *fromRaslibType(const r_Type *type);
 
-    static const short MaxBuiltInId;
-
-    static const std::string ANONYMOUS_CELL_TYPE_PREFIX;
+    static const char *ANONYMOUS_CELL_TYPE_PREFIX;
 
     // Maps syntax types to internal type names (e.g. char -> Char)
     static std::string getInternalTypeFromSyntaxType(const std::string &syntaxTypeName);
@@ -273,17 +268,8 @@ protected:
     */
 
 private:
-    static TypeFactory *myInstance;
 
-    static const std::map<std::string, std::string> syntaxTypeInternalTypeMap;
-    static const std::map<std::string, std::string> internalTypeSyntaxTypeMap;
-    static std::map<std::string, std::string> createSyntaxTypeInternalTypeMap();
-    static std::map<std::string, std::string> createInternalTypeSyntaxTypeMap();
-    /*@Doc:
-    pointer to instance for Singleton pattern.
-    */
-
-    static std::vector<Type *> *theTempTypes;
+    static std::list<Type *> theTempTypes;
     /*@Doc:
     a vector containing pointers to temporary allocated types.
     */

@@ -30,8 +30,8 @@ rasdaman GmbH.
  *      None
 */
 
-#ifndef _D_COLLECTION_TYPE_
-#define _D_COLLECTION_TYPE_
+#ifndef D_COLLECTION_TYPE_HH
+#define D_COLLECTION_TYPE_HH
 
 #include "raslib/type.hh"
 
@@ -56,6 +56,9 @@ public:
 
     /// constructor getting element type
     r_Collection_Type(r_Type &newType);
+    
+    /// destructor
+    ~r_Collection_Type() override;
 
     /// returns identifier SET of enumeration r_Kind
     r_Kind kind() const;
@@ -71,24 +74,21 @@ public:
     const r_Type &element_type() const;
 
     /// clone operation
-    virtual r_Type *clone() const;
+    r_Type *clone() const override;
 
     /// retrieve id of the type.
-    virtual r_Type::r_Type_Id type_id() const;
+    r_Type::r_Type_Id type_id() const override;
 
-    virtual bool isCollectionType() const;
+    bool isCollectionType() const override;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
+    void convertToLittleEndian(char *cells, r_Area noCells) const override;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
+    void convertToBigEndian(char *cells, r_Area noCells) const override;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s) const;
-
-    /// destructor
-    ~r_Collection_Type();
+    void print_status(std::ostream &s) const override;
 
 protected:
     /// default constructor
@@ -96,7 +96,7 @@ protected:
     r_Collection_Type();
 
     /// element type
-    r_Type *elementType;
+    r_Type *elementType{NULL};
 };
 
 //@Doc: write the status of a collection type to a stream

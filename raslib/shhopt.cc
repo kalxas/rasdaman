@@ -20,10 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/* $Id: shhopt.cc,v 1.4 2000/09/20 14:41:56 widmann Exp $ */
 /* *
- *  FILE            shhopt.cc
- *
  *  DESCRIPTION     Functions for parsing command line arguments. Values
  *                  of miscellaneous types may be stored in variables,
  *                  or passed to functions as specified.
@@ -56,8 +53,6 @@
 static void optFatalFunc(const char *, ...);
 static void (*optFatal)(const char *format, ...) = optFatalFunc;
 
-
-
 /**************************************************************************
  *                                                                        *
  *                   P R I V A T E    F U N C T I O N S                   *
@@ -87,8 +82,6 @@ void optFatalFunc(const char *format, ...)
     exit(99);
 }
 
-
-
 /*-------------------------------------------------------------------------
  *
  *  NAME          optStructCount
@@ -113,8 +106,6 @@ static int optStructCount(optStruct opt[])
     }
     return ret;
 }
-
-
 
 /*-------------------------------------------------------------------------
  *
@@ -177,8 +168,6 @@ static int optMatch(optStruct opt[], const char *s, int lng)
     return -1;
 }
 
-
-
 /*-------------------------------------------------------------------------
  *
  *  NAME          optString
@@ -209,8 +198,6 @@ static char *optString(optStruct *opt, int lng)
     return ret;
 }
 
-
-
 /*-------------------------------------------------------------------------
  *
  *  NAME          optNeedsArgument
@@ -230,8 +217,6 @@ static int optNeedsArgument(optStruct *opt)
            || opt->type == OPT_LONG
            || opt->type == OPT_ULONG;
 }
-
-
 
 /*-------------------------------------------------------------------------
  *
@@ -259,8 +244,6 @@ static void argvRemove(int *argc, char *argv[], int i)
     }
     --*argc;
 }
-
-
 
 /*-------------------------------------------------------------------------
  *

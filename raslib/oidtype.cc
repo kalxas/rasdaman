@@ -23,20 +23,10 @@ rasdaman GmbH.
 
 #include "raslib/oidtype.hh"
 
-r_Oid_Type::r_Oid_Type()
-    : r_Type()
-{
-}
-
 bool
 r_Oid_Type::isOidType() const
 {
     return true;
-}
-
-r_Oid_Type::r_Oid_Type(const r_Oid_Type &oldObj)
-    : r_Type(oldObj)
-{
 }
 
 r_Type *
@@ -52,12 +42,12 @@ r_Oid_Type::type_id() const
 }
 
 void
-r_Oid_Type::convertToLittleEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
+r_Oid_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
 void
-r_Oid_Type::convertToBigEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
+r_Oid_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
@@ -65,10 +55,6 @@ void
 r_Oid_Type::print_status(std::ostream &s) const
 {
     s << "oid";
-}
-
-r_Oid_Type::~r_Oid_Type()
-{
 }
 
 std::ostream &operator<<(std::ostream &str, const r_Oid_Type &type)

@@ -24,8 +24,6 @@
 #define RASMGR_X_SRC_DATABASEHOSTMANAGER_HH_
 
 #include <list>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
@@ -76,21 +74,21 @@ public:
      * @param dbHostName
      * @return
      */
-    virtual boost::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string &dbHostName);
+    virtual std::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string &dbHostName);
 
     /**
      * @brief getDatabaseHostList Retrieve a list containing the list of database hosts
      * currently registered with this rasmgr.
      * @return
      */
-    virtual std::list<boost::shared_ptr<DatabaseHost>> getDatabaseHostList() const;
+    virtual std::list<std::shared_ptr<DatabaseHost>> getDatabaseHostList() const;
 
 
     virtual DatabaseHostMgrProto serializeToProto();
 
 private:
-    std::list<boost::shared_ptr<DatabaseHost>> hostList;
-    boost::mutex mut;
+    std::list<std::shared_ptr<DatabaseHost>> hostList;
+    std::mutex mut;
 };
 
 } /* namespace rasmgr */

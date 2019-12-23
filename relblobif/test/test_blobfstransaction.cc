@@ -30,7 +30,7 @@
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "../../server/template_inst.hh"
-#include "../../raslib/template_inst.hh"
+#include "../../rasodmg/template_inst.hh"
 #endif
 
 #include "relblobif/blobfstransactionlock.hh"

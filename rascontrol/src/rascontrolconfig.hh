@@ -24,8 +24,7 @@
 #define RASCONTROL_X_SRC_RASCONTROLCONFIG_HH
 
 #include <string>
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include "../../commline/cmlparser.hh"
 
@@ -68,9 +67,9 @@ public:
      */
     bool parseCommandLineParameters(int argc, char **argv);
 
-    boost::int32_t getWorkMode() const;
+    std::int32_t getWorkMode() const;
 
-    boost::int32_t getLoginMode() const;
+    std::int32_t getLoginMode() const;
 
     std::string getRasMgrHost() const;
 
@@ -86,7 +85,7 @@ public:
 
     std::string getCommand() const;
 
-    boost::uint16_t getRasMgrPort() const;
+    std::uint16_t getRasMgrPort() const;
 
     void displayHelp() const;
 
@@ -105,8 +104,8 @@ private:
 
     std::string rasMgrHost;/*!< Name of the rasmgr host to which we want to connect.*/
     std::string logConfigFile;/*!< File used to configure logging*/
-    boost::uint16_t rasMgrPort;/*!< Port of the rasmgr instance to which we want to connect.*/
-    boost::int32_t promptMode; /*!< Used to configure the prompt displayed to the user. */
+    std::uint16_t rasMgrPort;/*!< Port of the rasmgr instance to which we want to connect.*/
+    std::int32_t promptMode; /*!< Used to configure the prompt displayed to the user. */
     LoginMode loginMode;
     WorkMode workMode;
     bool isHistoryRequired; /*!<True if the history is required */

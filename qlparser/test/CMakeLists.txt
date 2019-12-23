@@ -26,23 +26,24 @@
 
 set(TEST_SOURCES 
         clippingtests/clippinghelpfunctions.cc
+        ../../applications/rasql/rasql_error.cc
         main_test.cc)
 
 add_executable(clipping_test EXCLUDE_FROM_ALL ${TEST_SOURCES})
 
 find_package(Threads REQUIRED)
 target_link_libraries(clipping_test
-        raslib 
-        qlparser
-        mymalloc_cln
-        common_logging
-        ${ELPP_LIBRARY}
-        ${Boost_LIBRARIES}
+        servercomm qlparser conversion rasserver_lib
+        rasodmg raslib storagemgr reladminif tilemgr mddmgr
+        catalogmgr relmddif relstorageif
+        relcatalogif indexmgr relblobif relindexif
+        commline relcatalogif lockmanager servercomm
+        mymalloc_svc common_logging clientcomm relcatalogif
+        rasnetserver rasnet
+        ${OPENSSL_LIBRARIES} ${BASEDB_LIBRARIES}
         ${GMOCK_LIBRARY}
         ${CMAKE_THREAD_LIBS_INIT})
 
 add_test(clipping_testrunner clipping_test)
 
 add_dependencies(unit-check clipping_test)
-
-

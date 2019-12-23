@@ -23,11 +23,6 @@ rasdaman GmbH.
 
 #include "raslib/pointtype.hh"
 
-r_Point_Type::r_Point_Type()
-    : r_Type()
-{
-}
-
 r_Point_Type::r_Point_Type(const r_Point_Type &oldObj)
     : r_Type(oldObj)
 {
@@ -46,13 +41,12 @@ r_Point_Type::type_id() const
 }
 
 void
-r_Point_Type::convertToLittleEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells)
-const
+r_Point_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
 void
-r_Point_Type::convertToBigEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
+r_Point_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
@@ -60,10 +54,6 @@ void
 r_Point_Type::print_status(std::ostream &s) const
 {
     s << "point";
-}
-
-r_Point_Type::~r_Point_Type()
-{
 }
 
 bool

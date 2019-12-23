@@ -23,9 +23,7 @@
 #ifndef RASMGR_X_SRC_RASMGRSERVICE_HH
 #define RASMGR_X_SRC_RASMGRSERVICE_HH
 
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
-
+#include <memory>
 #include "rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
 
 namespace rasmgr
@@ -41,7 +39,7 @@ class ServerManager;
 class RasmgrService: public rasnet::service::RasmgrRasmgrService::Service
 {
 public:
-    RasmgrService(boost::shared_ptr<ClientManager> clientManager);
+    RasmgrService(std::shared_ptr<ClientManager> clientManager);
 
     virtual ~RasmgrService();
 
@@ -50,7 +48,7 @@ public:
     virtual ::grpc::Status ReleaseServer(::grpc::ServerContext *context, const ::rasnet::service::ReleaseServerRequest *request, ::rasnet::service::Void *response);
 
 private:
-    boost::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */
+    std::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */
 
 };
 

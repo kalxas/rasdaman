@@ -58,15 +58,12 @@ void FileUtils::copyFile(const std::string& srcFile, const std::string& destFile
 
 std::string FileUtils::readFile(FILE *fp)
 {
-    static const size_t BUFFER_SIZE = 20000;
+    static const size_t BUFFER_SIZE = 1000;
     char buffer[BUFFER_SIZE];
     std::string ret;
-    while (!feof(fp))
+    while (fgets(buffer, BUFFER_SIZE, fp) != NULL)
     {
-        if (fgets(buffer, BUFFER_SIZE, fp) != NULL)
-        {
-            ret += buffer;
-        }
+        ret += buffer;
     }
     return ret;
 }

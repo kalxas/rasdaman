@@ -24,10 +24,13 @@
 add_executable(rasql rasql.cc
         rasql_error.hh rasql_error.cc)
 
-target_link_libraries(rasql rasodmg clientcomm raslib
-    commline common_logging rasnet)
+target_link_libraries(rasql
+    rasodmg raslib clientcomm commline common_logging rasnet)
 
-install(TARGETS rasql
-        DESTINATION ${BIN_DIR})
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(rasql REUSE_FROM common_logging)
+endif()
+
+install(TARGETS rasql DESTINATION ${BIN_DIR})
 
 add_subdirectory(test)

@@ -30,12 +30,11 @@ rasdaman GmbH.
  *      None
 */
 
-#include "config.h"
-
 #include "rasodmg/marray.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/alignedtiling.hh"
+#include "rasodmg/transaction.hh"
 #include "clientcomm/clientcomm.hh"
 #include "mymalloc/mymalloc.h"
 
@@ -43,6 +42,7 @@ rasdaman GmbH.
 #include "raslib/marraytype.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/point.hh"
+#include "raslib/error.hh"
 
 #include <logging.hh>
 
@@ -50,7 +50,6 @@ rasdaman GmbH.
 #include <iostream>
 #include <iomanip>
 #include <vector>
-
 
 r_GMarray::r_GMarray(r_Transaction *ta)
     : r_Object(1, ta), storage_layout{new r_Storage_Layout()}
@@ -287,7 +286,7 @@ r_GMarray::print_status(std::ostream &s, int hexoutput)
             r_Dimension i = 0;
             while (++p[i] > domain[i].high())
             {
-                s << endl;
+                s << std::endl;
                 p[i] = domain[i].low();
                 i++;
                 if (i >= domain.dimension())
@@ -297,7 +296,7 @@ r_GMarray::print_status(std::ostream &s, int hexoutput)
                 }
             }
             if (i > 1)
-                s << endl;
+                s << std::endl;
         }
     }
     else
@@ -317,7 +316,7 @@ r_GMarray::print_status(std::ostream &s, int hexoutput)
             else
                 s << "<nn>";
         }
-        s << endl;
+        s << std::endl;
     }
     // turn off hex mode again
     s << std::dec << std::flush;
@@ -376,4 +375,90 @@ r_GMarray::get_base_type_schema()
     }
 
     return baseTypePtr;
+}
+
+const r_Minterval &
+r_GMarray::spatial_domain() const
+{
+    return domain;
+}
+
+char *
+r_GMarray::get_array()
+{
+    return data;
+}
+
+const char *
+r_GMarray::get_array() const
+{
+    return data;
+}
+
+r_Set< r_GMarray * > *
+r_GMarray::get_tiled_array()
+{
+    return tiled_data;
+}
+
+const r_Set< r_GMarray * > *
+r_GMarray::get_tiled_array() const
+{
+    return tiled_data;
+}
+
+void
+r_GMarray::set_array(char *newData)
+{
+    // In case the array already has an array allocated, free it first.
+//  if (data != NULL) delete [] data;
+    data = newData;
+}
+
+void
+r_GMarray::set_tiled_array(r_Set< r_GMarray * > *newData)
+{
+    tiled_data = newData;
+}
+
+void
+r_GMarray::set_current_format(r_Data_Format newFormat)
+{
+    current_format = newFormat;
+}
+
+r_Bytes
+r_GMarray::get_type_length() const
+{
+    return type_length;
+}
+
+r_Bytes
+r_GMarray::get_array_size() const
+{
+    return data_size;
+}
+
+r_Data_Format
+r_GMarray::get_current_format() const
+{
+    return current_format;
+}
+
+void
+r_GMarray::set_spatial_domain(const r_Minterval &dom)
+{
+    domain = dom;
+}
+
+void
+r_GMarray::set_type_length(r_Bytes newValue)
+{
+    type_length = newValue;
+}
+
+void
+r_GMarray::set_array_size(r_Bytes newValue)
+{
+    data_size = newValue;
 }

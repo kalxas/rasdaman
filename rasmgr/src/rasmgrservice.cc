@@ -32,16 +32,12 @@ namespace rasmgr
 {
 using common::GrpcUtils;
 
-using boost::mutex;
-using boost::shared_ptr;
-using boost::unique_lock;
-
 using grpc::Status;
 
 using std::string;
 
-RasmgrService::RasmgrService(boost::shared_ptr<ClientManager> clientManager)
-    : clientManager(clientManager)
+RasmgrService::RasmgrService(std::shared_ptr<ClientManager> m)
+    : clientManager(m)
 {}
 
 RasmgrService::~RasmgrService()

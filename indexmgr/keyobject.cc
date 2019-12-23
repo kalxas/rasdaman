@@ -27,7 +27,6 @@ rasdaman GmbH.
 #include "relblobif/tileid.hh"    // for DBTileId
 #include "raslib/error.hh"
 
-#include <boost/make_shared.hpp>  // for shared_ptr::operator bool
 #include <ostream>                // for operator<<, ostream, basic_ostream
 
 
@@ -60,7 +59,7 @@ std::string KeyObject::toString() const
     }
 }
 
-KeyObject::KeyObject(boost::shared_ptr<Tile> tile)
+KeyObject::KeyObject(std::shared_ptr<Tile> tile)
     : persobject(), domain(tile->getDomain())
 {
     if (tile->isPersistent())
@@ -86,7 +85,7 @@ void KeyObject::setDomain(const r_Minterval &dom)
     domain = dom;
 }
 
-void KeyObject::setTransObject(boost::shared_ptr<Tile> tile)
+void KeyObject::setTransObject(std::shared_ptr<Tile> tile)
 {
     domain = tile->getDomain();
     transobject = tile;
@@ -115,7 +114,7 @@ bool KeyObject::isPersCarrier() const
     return (transobject == nullptr);
 }
 
-boost::shared_ptr<Tile> KeyObject::getTransObject() const
+std::shared_ptr<Tile> KeyObject::getTransObject() const
 {
     return transobject;
 }

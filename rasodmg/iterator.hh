@@ -38,8 +38,6 @@ rasdaman GmbH.
 
 //@ManMemo: Module: {\bf rasodmg}
 
-
-
 /*@Doc:
 
   The template class \Ref{r_Iterator} defines the generic
@@ -95,7 +93,7 @@ public:
     */
 
     /// returns 1 if there are more elements to be visited in the iteration and 0 if iteration is complete
-    inline bool not_done() const;
+    bool not_done() const;
     /// advances one element
     void advance();
 
@@ -119,8 +117,6 @@ private:
     typename r_Collection<T>::CNode *ptr{NULL};
 
 };
-
-#include "iterator.icc"
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__

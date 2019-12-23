@@ -30,13 +30,11 @@ rasdaman GmbH.
  *      None
 */
 
-#include "config.h"
 #include "rasodmg/marray.hh"
-
 #include "rasodmg/database.hh"
-#include "clientcomm/clientcomm.hh"
-
 #include "raslib/rmdebug.hh"
+#include "raslib/error.hh"
+#include "clientcomm/clientcomm.hh"
 
 #include <string.h>  // for memcpy()
 #include <iostream>

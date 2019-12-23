@@ -64,7 +64,7 @@ public:
     /// copy constructor
     r_Storage_Man(const r_Storage_Man &src);
     /// destructor
-    ~r_Storage_Man(void);
+    ~r_Storage_Man() = default;
     /// setting the storage functions
     void set_storage_functions(storage_man_alloc a, storage_man_free f);
     /// assignment
@@ -90,9 +90,9 @@ class r_Storage_Man_C : public r_Storage_Man
 {
 public:
     /// default constructor
-    r_Storage_Man_C(void);
+    r_Storage_Man_C();
     /// default destructor
-    ~r_Storage_Man_C(void);
+    ~r_Storage_Man_C() = default;
 };
 
 
@@ -104,9 +104,9 @@ class r_Storage_Man_CPP : public r_Storage_Man
 {
 public:
     /// default constructor
-    r_Storage_Man_CPP(void);
+    r_Storage_Man_CPP();
     /// destructor
-    ~r_Storage_Man_CPP(void);
+    ~r_Storage_Man_CPP() = default;
 };
 
 #endif

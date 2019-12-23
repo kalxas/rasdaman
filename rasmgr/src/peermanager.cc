@@ -35,9 +35,6 @@ namespace rasmgr
 
 using std::list;
 using std::string;
-using boost::shared_ptr;
-using boost::mutex;
-using boost::unique_lock;
 
 using common::InvalidArgumentException;
 using common::ResourceBusyException;
@@ -55,7 +52,7 @@ void PeerManager::defineInPeer(const std::string &peerHostName)
         throw InvalidArgumentException("Invalid peer host name.");
     }
 
-    unique_lock<mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     // Check for duplicates
     for (const auto &inPeer : this->inPeers)
@@ -67,7 +64,7 @@ void PeerManager::defineInPeer(const std::string &peerHostName)
     }
 
     // Create the peer
-    boost::shared_ptr<InPeer> peer = boost::make_shared<InPeer>(peerHostName);
+    std::shared_ptr<InPeer> peer = std::make_shared<InPeer>(peerHostName);
     this->inPeers.push_back(peer);
 }
 
@@ -78,7 +75,7 @@ void PeerManager::removeInPeer(const std::string &peerHostName)
         throw InvalidArgumentException("Invalid peer host name.");
     }
 
-    unique_lock<mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     bool removed = false;
     for (auto inPeer = this->inPeers.begin(); inPeer != this->inPeers.end(); ++inPeer)
@@ -98,14 +95,14 @@ void PeerManager::removeInPeer(const std::string &peerHostName)
     }
 }
 
-void PeerManager::defineOutPeer(const std::string &peerHostName, const boost::uint32_t port)
+void PeerManager::defineOutPeer(const std::string &peerHostName, const std::uint32_t port)
 {
     if (peerHostName.empty())
     {
         throw InvalidArgumentException("Invalid peer host name.");
     }
 
-    unique_lock<mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     // Check for duplicates
     for (const auto &outPeer : this->outPeers)
@@ -117,7 +114,7 @@ void PeerManager::defineOutPeer(const std::string &peerHostName, const boost::ui
     }
 
     // Create the peer
-    boost::shared_ptr<OutPeer> peer = boost::make_shared<OutPeer>(peerHostName, port);
+    std::shared_ptr<OutPeer> peer = std::make_shared<OutPeer>(peerHostName, port);
     this->outPeers.push_back(peer);
 }
 
@@ -128,7 +125,7 @@ void PeerManager::removeOutPeer(const std::string &peerHostName)
         throw InvalidArgumentException("Invalid peer host name.");
     }
 
-    unique_lock<mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     bool removed = false;
     for (auto outPeer = this->outPeers.begin(); outPeer != this->outPeers.end(); ++outPeer)
@@ -156,7 +153,7 @@ void PeerManager::removeOutPeer(const std::string &peerHostName)
 
 bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientServerSession &out_reply)
 {
-    unique_lock<mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     for (const auto &outpeer : this->outPeers)
     {
@@ -176,7 +173,7 @@ bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientS
 
 bool PeerManager::isRemoteClientSession(const RemoteClientSession &clientSession)
 {
-    unique_lock<mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     string sessionKey = this->remoteClientSessionToString(clientSession);
 
@@ -185,7 +182,7 @@ bool PeerManager::isRemoteClientSession(const RemoteClientSession &clientSession
 
 void PeerManager::releaseServer(const RemoteClientSession &clientSession)
 {
-    unique_lock<mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     string sessionKey = this->remoteClientSessionToString(clientSession);
 
@@ -199,7 +196,7 @@ void PeerManager::releaseServer(const RemoteClientSession &clientSession)
 
 PeerMgrProto PeerManager::serializeToProto()
 {
-    unique_lock<mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     PeerMgrProto result;
 

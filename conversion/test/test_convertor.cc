@@ -32,7 +32,7 @@ rasdaman GmbH.
 
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
 
 // define if you want to use r_Type variables to set the

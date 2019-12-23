@@ -34,6 +34,7 @@
 #include <chrono>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
 
 #include <grpc++/grpc++.h>
 #include <grpc++/security/credentials.h>
@@ -62,12 +63,10 @@ using std::set;
 using std::pair;
 using std::runtime_error;
 
-using boost::scoped_ptr;
-using boost::shared_ptr;
-using boost::unique_lock;
+using std::shared_ptr;
+using std::unique_lock;
 using boost::shared_lock;
 using boost::shared_mutex;
-using boost::lexical_cast;
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -90,9 +89,9 @@ using rasnet::service::RasServerService;
 #define RASEXECUTABLE BINDIR"rasserver"
 
 // give 3 seconds to rasserver to cleanly shutdown, before killing it with a SIGKILL
-const boost::int32_t ServerRasNet::SERVER_CLEANUP_TIMEOUT = 3000000;
+const std::int32_t ServerRasNet::SERVER_CLEANUP_TIMEOUT = 3000000;
 // 10 milliseconds
-const boost::int32_t ServerRasNet::SERVER_CHECK_INTERVAL = 10000;
+const std::int32_t ServerRasNet::SERVER_CHECK_INTERVAL = 10000;
 
 ServerRasNet::ServerRasNet(const ServerConfig &config)
 {
@@ -109,7 +108,7 @@ ServerRasNet::ServerRasNet(const ServerConfig &config)
     this->sessionNo = 0;
 
     // Initialize the service
-    std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, boost::uint32_t(this->port));
+    std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, std::uint32_t(this->port));
     this->service.reset(new ::rasnet::service::RasServerService::Stub(grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials())));
 }
 
@@ -415,7 +414,7 @@ void ServerRasNet::registerServer(const std::string &serverId)
     }
 }
 
-boost::uint32_t ServerRasNet::getTotalSessionNo()
+std::uint32_t ServerRasNet::getTotalSessionNo()
 {
     return this->sessionNo;
 }
@@ -447,7 +446,7 @@ void ServerRasNet::stop(KillLevel level)
             sendSignal(SIGTERM);
 
             // wait until the server process is dead
-            boost::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
+            std::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
             while (cleanupTimeout > 0 && isProcessAlive())
             {
                 usleep(SERVER_CHECK_INTERVAL);
@@ -538,7 +537,7 @@ bool ServerRasNet::isAvailable()
     return ret;
 }
 
-boost::int32_t ServerRasNet::getPort() const
+std::int32_t ServerRasNet::getPort() const
 {
     return this->port;
 }
@@ -553,7 +552,7 @@ string ServerRasNet::getServerId() const
     return this->serverId;
 }
 
-boost::uint32_t ServerRasNet::getClientQueueSize()
+std::uint32_t ServerRasNet::getClientQueueSize()
 {
     ServerStatusReq request = ServerStatusReq::default_instance();
     ServerStatusRepl reply;
@@ -577,14 +576,14 @@ boost::uint32_t ServerRasNet::getClientQueueSize()
 std::string ServerRasNet::getStartProcessCommand()
 {
     //TODO:Factor this out
-    shared_ptr<RasMgrConfig> globalConfig = RasMgrConfig::getInstance();
+    auto globalConfig = RasMgrConfig::getInstance();
     std::stringstream ss;
     ss << globalConfig->getRasServerExecPath() << " ";
-    ss << "--lport" << " " << lexical_cast<string>(port) << " ";
+    ss << "--lport" << " " << std::to_string(port) << " ";
     ss << "--serverId" << " " << this->getServerId() << " ";
     ss << "--mgr" << " " << globalConfig->getConnectHostName() << " ";
     ss << "--rsn" << " " << this->getServerId() << " ";
-    ss << "--mgrport" << " " << lexical_cast<string>(globalConfig->getRasMgrPort()) << " ";
+    ss << "--mgrport" << " " << std::to_string(globalConfig->getRasMgrPort()) << " ";
     ss << "--connect" << " " << this->dbHost->getConnectString();
     return ss.str();
 }

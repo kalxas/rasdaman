@@ -28,36 +28,33 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_MITERF_
-#define _D_MITERF_
-
-class r_Minterval;
-
+#ifndef D_MITERF_HH
+#define D_MITERF_HH
 
 #include "raslib/mddtypes.hh"
+
+class r_Minterval;
+class Tile;
 
 class r_FixedPointNumber
 {
 public:
-    inline r_FixedPointNumber();
-    inline r_FixedPointNumber(const double &);
+    r_FixedPointNumber() = default;
+    r_FixedPointNumber(const double &);
 
-    inline r_FixedPointNumber &operator=(const r_FixedPointNumber &);
-    inline r_FixedPointNumber &operator=(const double &);
-
-    // returns intPart_new - intPart_old -- used for tests
-    inline r_Range stepForward(const r_FixedPointNumber &);
-
+    r_FixedPointNumber &operator=(const r_FixedPointNumber &) = default;
+    r_FixedPointNumber &operator=(const double &);
+    
     // returns carry of fracPart
     inline bool    stepForwardFlag(const r_FixedPointNumber &);
 
     inline r_Range getIntPart();
 
 private:
-    inline void init(const double &);
+    void init(const double &);
 
-    r_Range intPart;
-    r_Range fracPart;
+    r_Range intPart{};
+    r_Range fracPart{};
 
     static const int FIXPREC;
     static const r_Range carryPos;
@@ -66,8 +63,6 @@ private:
 
     friend std::ostream &operator<<(std::ostream &, r_FixedPointNumber &);
 };
-
-
 
 //@ManMemo: Module: {\bf raslib}
 
@@ -79,22 +74,18 @@ private:
   Apart from that behaviour is exactly as in r_Miter.
 
 */
-
 class r_MiterFloat
 {
 public:
     /// Constructor getting the source tile, the source domain and the destination domain
-    inline r_MiterFloat(Tile *sourceTile, r_Minterval &sourceDomain, r_Minterval &destDomain);
-
-    /// destructor
-    inline ~r_MiterFloat();
+    r_MiterFloat(r_Bytes srcCellSize, const char* srcTile, const r_Minterval tileDomain,
+                        const r_Minterval &srcDomain, const r_Minterval &destDomain);
+    ~r_MiterFloat();
 
     /// iterator reset
-    inline void reset();
-
+    void reset();
     /// get the next cell
     inline char *nextCell();
-
     /// true if done
     inline bool isDone();
 
@@ -113,15 +104,12 @@ protected:
         char    *cell;
     };
 
-    r_Dimension dim;
-    char        *currentCell;
-    const char  *firstCell;
-
-    iter_desc   *iterDesc;
-
-    bool done;
+    char        *currentCell{NULL};
+    const char  *firstCell{NULL};
+    iter_desc   *iterDesc{NULL};
+    r_Dimension dim{};
+    bool done{false};
 };
-
 
 #include "miterf.icc"
 

@@ -31,16 +31,17 @@ rasdaman GmbH.
  *
 */
 
+#include "rasodmg/tiling.hh"
+#include "rasodmg/gmarray.hh"
+#include "raslib/minterval.hh"
+#include "raslib/error.hh"
+
+#include <logging.hh>
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <string>
-#include "raslib/minterval.hh"
-#include "raslib/error.hh"
-#include "rasodmg/tiling.hh"
-#include "rasodmg/gmarray.hh"
-
-#include <logging.hh>
 
 // ------------- tiling base ---------------------------------------------------
 

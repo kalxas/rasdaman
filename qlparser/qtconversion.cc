@@ -36,6 +36,7 @@ rasdaman GmbH.
 #include "conversion/convfactory.hh"
 #include "conversion/mimetypes.hh"
 #include "conversion/convutil.hh"
+#include "common/string/stringutil.hh"
 #include "raslib/basetype.hh"
 #include "qlparser/qtmdd.hh"
 #include "mddmgr/mddobj.hh"
@@ -45,7 +46,6 @@ rasdaman GmbH.
 #include "relcatalogif/chartype.hh"
 
 #include <logging.hh>
-#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <string>
 
@@ -111,7 +111,7 @@ bool QtConversion::isInternalFormat(r_Data_Format dataFormat)
 void
 QtConversion::setConversionTypeByName(string formatName)
 {
-    boost::algorithm::to_lower(formatName);
+    formatName = common::StringUtil::toLowerCase(formatName);
     if (string("hdf") == formatName)
         conversionType = QtConversion::QT_TOHDF;
     else if (string("tiff") == formatName)
@@ -208,7 +208,7 @@ QtConversion::evaluate(QtDataList *inputList)
             QtMDD *qtMDD = static_cast<QtMDD *>(operand);
             currentMDDObj = qtMDD->getMDDObject();
             nullValues = currentMDDObj->getNullValues();
-            vector<boost::shared_ptr<Tile>> *tiles = NULL;
+            vector<std::shared_ptr<Tile>> *tiles = NULL;
             /*if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
             {
                 // get relevant tiles

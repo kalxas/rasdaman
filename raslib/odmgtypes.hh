@@ -27,186 +27,70 @@ rasdaman GmbH.
  *
  * PURPOSE:
  *      The file contains ODMG type definitions.
- *
- * COMMENTS:
- *  For further porting please adapt the typedef for r_Long and r_Ulong
 */
 
-#ifndef _D_ODMGTYPES_
-#define _D_ODMGTYPES_
+#ifndef D_ODMGTYPES_HH
+#define D_ODMGTYPES_HH
 
 // for type-limits
 #include <limits.h>
 #include <float.h>
 
-//@Man: r_Char
-//@Type: typedef
-//@Args: as unsigned char (1 byte)
-//@Memo: Module: {\bf rasodmg}.
-
-typedef unsigned char r_Char;
-
-/**
-  {\tt typedef unsigned char r_Char;}
-*/
-
-
-
-//@Man: r_Octet
-//@Type: typedef
-//@Args: as signed char (1 byte)
-//@Memo: Module: {\bf rasodmg}.
-
-typedef signed char r_Octet;
-
-/**
-  {\tt typedef signed char r_Octet;}
-  (Stroustroup: sign of plain char is implementation-defined)
-*/
-
-
-
-//@Man: r_Short
-//@Type: typedef
-//@Args: as short (2 bytes)
-//@Memo: Module: {\bf rasodmg}.
-
-typedef short r_Short;
-
-/**
-  {\tt typedef short r_Short;}
-*/
-
-
-
-//@Man: r_UShort
-//@Type: typedef
-//@Args: as unsigned short (2 bytes)
-//@Memo: Module: {\bf rasodmg}.
-
-typedef unsigned short r_UShort;
-
-/**
-  {\tt typedef short r_UShort;}
-*/
-
-
-
-//@Man: r_Long
-//@Type: typedef
-//@Args: as long (4 bytes)
-//@Memo: Module: {\bf rasodmg}.
-
-typedef int r_Long;
-/**
-  {\tt typedef int r_Long;}
-*/
-
-
-
-
-
-//@Man: r_ULong
-//@Type: typedef
-//@Args: as unsigned long (4 bytes)
-//@Memo: Module: {\bf rasodmg}.
-
-typedef unsigned int r_ULong;
-/**
-  {\tt typedef unsigned long r_ULong;}
-*/
-
-
-//@Man: r_Float
-//@Type: typedef
-//@Args: as float
-//@Memo: Module: {\bf rasodmg}.
-
-typedef float r_Float;
-
-/**
-  {\tt typedef float r_Float;}
-*/
-
-
-
-//@Man: r_Double
-//@Type: typedef
-//@Args: as double
-//@Memo: Module: {\bf rasodmg}.
-
-typedef double r_Double;
-
-/**
-  {\tt typedef double r_Double;}
-*/
-
-
-
-//@Man: r_Boolean
-//@Type: typedef
-//@Args: as unsigned char (1 byte)
-//@Memo: Module: {\bf rasodmg}.
-
-typedef unsigned char r_Boolean;
-
-/**
-  {\tt typedef unsigned char r_Boolean;}
-  Changed to unsigned char
-*/
-
-
-//@Man: get_limits()
-//@Type: function
-//@Args: as function
-//@Memo: Module: {\bf rasodmg}
+using r_Boolean = unsigned char;
+using r_Char = unsigned char;
+using r_Octet = signed char;
+using r_UShort = unsigned short;
+using r_Short = signed short;
+using r_Long = signed int;
+using r_ULong = unsigned int;
+using r_Float = float;
+using r_Double = double;
 
 inline void get_limits_octet(double &min, double &max)
 {
-    min = (double)SCHAR_MIN;
-    max = (double)SCHAR_MAX;
+    min = static_cast<double>(SCHAR_MIN);
+    max = static_cast<double>(SCHAR_MAX);
 }
-
 inline void get_limits_char(double &min, double &max)
 {
-    min = static_cast<double>(0.0);
-    max = (double)UCHAR_MAX;
+    min = 0.0;
+    max = static_cast<double>(UCHAR_MAX);
 }
 
 inline void get_limits_short(double &min, double &max)
 {
-    min = (double)SHRT_MIN;
-    max = (double)SHRT_MAX;
+    min = static_cast<double>(SHRT_MIN);
+    max = static_cast<double>(SHRT_MAX);
 }
 
 inline void get_limits_Ushort(double &min, double &max)
 {
-    min = static_cast<double>(0.0);
-    max = (double)USHRT_MAX;
+    min = 0.0;
+    max = static_cast<double>(USHRT_MAX);
 }
 
 inline void get_limits_long(double &min, double &max)
 {
-    min = (double)INT_MIN;
-    max = (double)INT_MAX;
+    min = static_cast<double>(INT_MIN);
+    max = static_cast<double>(INT_MAX);
 }
 
 inline void get_limits_Ulong(double &min, double &max)
 {
-    min = static_cast<double>(0.0);
-    max = (double)UINT_MAX;
+    min = 0.0;
+    max = static_cast<double>(UINT_MAX);
 }
 
 inline void get_limits_float(double &min, double &max)
 {
-    min = -((double)FLT_MAX);
-    max = (double)FLT_MAX;
+    min = -static_cast<double>(FLT_MAX);
+    max = static_cast<double>(FLT_MAX);
 }
 
 inline void get_limits_double(double &min, double &max)
 {
-    min = -((double)DBL_MAX);
-    max = (double)DBL_MAX;
+    min = -DBL_MAX;
+    max = DBL_MAX;
 }
 
 #endif

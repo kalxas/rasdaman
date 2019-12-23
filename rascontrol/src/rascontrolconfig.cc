@@ -201,12 +201,12 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
     return true;
 }
 
-boost::int32_t RasControlConfig::getWorkMode() const
+std::int32_t RasControlConfig::getWorkMode() const
 {
     return this->workMode;
 }
 
-boost::int32_t RasControlConfig::getLoginMode() const
+std::int32_t RasControlConfig::getLoginMode() const
 {
     return this->loginMode;
 }
@@ -265,7 +265,7 @@ std::string RasControlConfig::getCommand() const
     return this->command;
 }
 
-boost::uint16_t RasControlConfig::getRasMgrPort() const
+std::uint16_t RasControlConfig::getRasMgrPort() const
 {
     return this->rasMgrPort;
 }

@@ -22,23 +22,19 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <limits.h>
-#include <string.h> // memcpy()
-#ifdef __APPLE__
-#include <sys/malloc.h> // malloc()
-#include <float.h>
-#else
-#include <complex>
-#include <malloc.h> // malloc()
-#include <values.h>
-#include <cmath>
-#endif
 #include "ops.hh"
-#include "relcatalogif/alltypes.hh"
-#include "reladminif/objectbroker.hh"
 #include "typefactory.hh"
 #include "raslib/point.hh"
+#include "relcatalogif/basetype.hh"
+#include "relcatalogif/structtype.hh"
+#include "relcatalogif/complextype.hh"
 #include <logging.hh>
+
+#include <limits.h>
+#include <string.h>
+#include <complex>
+#include <values.h>
+#include <cmath>
 
 //-----------------------------------------------
 //  getUnaryOp
@@ -4425,7 +4421,7 @@ OpBinaryStruct::OpBinaryStruct(const BaseType *newStructType, Ops::OpType op,
     size_t i = 0;
 
     _operation = op;
-    BaseType *boolType = ((BaseType *)ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, "Bool"));
+    const BaseType *boolType = TypeFactory::mapType("Bool");
 
 
     myStructType = dynamic_cast<StructType *>(const_cast<BaseType *>(newStructType));
@@ -4926,7 +4922,7 @@ OpUnaryStruct::operator()(char *result, const char *op)
         {
             (*elemOps[i])(result, op);
         }
-        catch (int err)
+        catch (...)
         {
             // cleanup
             for (i = 0; i < numElems; i++)
@@ -5591,7 +5587,7 @@ OpUpdateULong::operator()(char *res, const char *op)
     auto opVal = *(const r_ULong *)(op + opOff);
     if (!isNull(opVal))
     {
-        *reinterpret_cast<r_Long *>(res + resOff) = opVal;
+        *reinterpret_cast<r_ULong *>(res + resOff) = opVal;
     }
 }
 

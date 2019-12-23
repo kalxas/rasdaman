@@ -38,9 +38,9 @@
 namespace common
 {
 
-boost::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkResolver(const std::string& host, boost::uint32_t port)
+std::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkResolver(const std::string& host, std::uint32_t port)
 {
-    boost::shared_ptr<AbstractNetworkResolver> resolver;
+    std::shared_ptr<AbstractNetworkResolver> resolver;
 
     struct addrinfo hint, *res = NULL;
 

@@ -61,12 +61,12 @@
 
 namespace rasmgr
 {
-using boost::shared_ptr;
+using std::shared_ptr;
 
 RasManager::RasManager(rasmgr::Configuration &config)
 {
     this->port = config.getPort();
-    RasMgrConfig::getInstance()->setRasMgrPort(static_cast<boost::int32_t>(this->port));
+    RasMgrConfig::getInstance()->setRasMgrPort(static_cast<std::int32_t>(this->port));
     this->running = false;
 }
 
@@ -83,36 +83,36 @@ void RasManager::start()
             "Failed to start rasmanager on port " + std::to_string(this->port) + ": address is already in use.");
     }
 
-    shared_ptr<DatabaseHostManager> dbhManager(new DatabaseHostManager());
+    std::shared_ptr<DatabaseHostManager> dbhManager(new DatabaseHostManager());
     shared_ptr<DatabaseManager> dbManager(new DatabaseManager(dbhManager));
-    boost::shared_ptr<rasmgr::UserManager> userManager(new rasmgr::UserManager());
+    std::shared_ptr<rasmgr::UserManager> userManager(new rasmgr::UserManager());
 
     ServerManagerConfig serverMgrConfig;
-    boost::shared_ptr<ServerFactory> serverFactory(new ServerFactoryRasNet());
-    boost::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl(dbhManager, serverFactory));
+    std::shared_ptr<ServerFactory> serverFactory(new ServerFactoryRasNet());
+    std::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl(dbhManager, serverFactory));
     shared_ptr<ServerManager> serverManager(new ServerManager(serverMgrConfig,  serverGroupFactory));
 
     shared_ptr<PeerManager> peerManager(new PeerManager());
 
     ClientManagerConfig clientManagerConfig;
-    shared_ptr<ClientManager> clientManager(new ClientManager(clientManagerConfig, userManager, serverManager, peerManager));
+    std::shared_ptr<ClientManager> clientManager(new ClientManager(clientManagerConfig, userManager, serverManager, peerManager));
 
-    shared_ptr<RasControl> rascontrol(new RasControl(userManager, dbhManager, dbManager, serverManager, peerManager, this));
+    std::shared_ptr<RasControl> rascontrol(new RasControl(userManager, dbhManager, dbManager, serverManager, peerManager, this));
 
-    shared_ptr<ControlCommandExecutor> commandExecutor(new ControlCommandExecutor(rascontrol));
+    std::shared_ptr<ControlCommandExecutor> commandExecutor(new ControlCommandExecutor(rascontrol));
 
     this->configManager.reset(new ConfigurationManager(commandExecutor, dbhManager, dbManager, peerManager, serverManager, userManager));
     LINFO << "Loading rasmgr configuration.";
     this->configManager->loadConfiguration();
     LINFO << "Finished loading rasmgr configuration.";
 
-    boost::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService(new rasmgr::ServerManagementService(serverManager));
-    boost::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService(new rasmgr::ControlService(commandExecutor));
-    boost::shared_ptr<rasnet::service::RasmgrClientService::Service> clientService(new rasmgr::ClientManagementService(clientManager));
-    boost::shared_ptr<rasnet::service::RasmgrRasmgrService::Service> rasmgrService(new rasmgr::RasmgrService(clientManager));
+    std::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService(new rasmgr::ServerManagementService(serverManager));
+    std::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService(new rasmgr::ControlService(commandExecutor));
+    std::shared_ptr<rasnet::service::RasmgrClientService::Service> clientService(new rasmgr::ClientManagementService(clientManager));
+    std::shared_ptr<rasnet::service::RasmgrRasmgrService::Service> rasmgrService(new rasmgr::RasmgrService(clientManager));
 
     //The health service will only be used to report on the health of the server.
-    boost::shared_ptr<common::HealthServiceImpl> healthService(new common::HealthServiceImpl());
+    std::shared_ptr<common::HealthServiceImpl> healthService(new common::HealthServiceImpl());
 
     std::string serverAddress = common::GrpcUtils::constructAddressString(ALL_IP_ADDRESSES,  this->port);
     //GreeterServiceImpl service;

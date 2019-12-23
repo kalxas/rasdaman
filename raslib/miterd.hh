@@ -28,8 +28,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _R_MITERD_
-#define _R_MITERD_
+#ifndef R_MITERD_HH
+#define R_MITERD_HH
 
 #include "raslib/mddtypes.hh"
 #include "raslib/odmgtypes.hh"
@@ -37,7 +37,6 @@ rasdaman GmbH.
 #include <iosfwd>
 
 class r_Minterval;
-
 class r_miter_direct_data;
 
 //@ManMemo: Module {\bf raslib}
@@ -56,22 +55,17 @@ class r_miter_direct_data;
 class r_MiterDirect
 {
 public:
-    /// constructor
-    r_MiterDirect(void *data, const r_Minterval &total, const r_Minterval &iter,
-                  r_Bytes tlen, unsigned int step = 1);
     /**
        constructor getting the data, the total domain, the iteration
        domain, the base type length and the number of steps per
        iteration.
     */
-
-    /// destructor
+    r_MiterDirect(void *data, const r_Minterval &total, const r_Minterval &iter,
+                  r_Bytes tlen, unsigned int step = 1);
     ~r_MiterDirect(void);
 
     /// increment the iterator in the default order, i.e. last dimension first
     inline r_MiterDirect &operator++(void);
-    /// increment in user-specified order
-    inline r_MiterDirect &iterateUserOrder(const r_Dimension *order, const unsigned int *step);
     /**
        increment the iterator in a user-specified order. order points to an array
        defining the order of the dimensions during iteration, e.g. for a 3D
@@ -79,22 +73,21 @@ public:
        last dimension last wheres 2,1,0 is equivalent to operator++(). step
        is the number of steps to do in each dimension.
     */
-    /// increment or decrement in user-specified order
-    inline r_MiterDirect &iterateUserOrder(const unsigned int *order, const int *step);
+    inline r_MiterDirect &iterateUserOrder(const r_Dimension *order, const unsigned int *step);
     /**
        see the other incrementUserOrder method for more details
     */
+    inline r_MiterDirect &iterateUserOrder(const unsigned int *order, const int *step);
 
-    /// returns != 0 if iteration is finished.
+    /// @returns true if iteration is finished.
     inline bool isDone(void) const;
-    /// returns pointer to data during normal iteration.
+    /// @returns pointer to data during normal iteration.
     inline void *getData(void);
-    /// return pointer to data for non-standard iteration order
-    inline void *getData(unsigned int *order);
     /**
-       returns pointer to data during user-defined iteration; order is as
+       @returns pointer to data during user-defined iteration; order is as
        defined in iterateUserOrder().
     */
+    inline void *getData(unsigned int *order);
     /// returns number of bytes to step in dimension d in one iteration
     inline r_Range getDimStep(r_Dimension d) const;
     /// returns number of bytes to step in dimension d when pos changes by 1.
@@ -108,16 +101,16 @@ public:
     /// print the position
     void print_pos(std::ostream &str) const;
 
-    bool done;
-    r_miter_direct_data *id;
-    void *baseAddress;
+    r_miter_direct_data *id{NULL};
+    void *baseAddress{NULL};
 
 private:
-
-    /// if this data should change you must construct a new iterator,
-    /// therefore no public access.
-    r_Dimension dim;
-    r_ULong length;
+    /// if this data should change you must construct a new iterator, therefore no public access.
+    r_ULong length{};
+    r_Dimension dim{};
+    
+public:
+    bool done{false};
 };
 
 
@@ -134,31 +127,28 @@ class r_miter_direct_data
 
 public:
 
-    r_miter_direct_data();
-    ~r_miter_direct_data();
+    r_miter_direct_data() = default;
+    ~r_miter_direct_data() = default;
 
     /// Data concerning the iteration position and domain. May
     /// be changed by the user.
-    void *data;
-    r_Range pos;
-    r_Range low;
-    r_Range high;
+    void *data{NULL};
+    r_Range pos{};
+    r_Range low{};
+    r_Range high{};
 
 private:
 
     /// Data concerning the domain of the source object. Is fixed
     /// in the constructor.
-    r_Range step;
-    r_Range baseStep;
-    r_Range extent;
-    r_Range origin;
+    r_Range step{};
+    r_Range baseStep{};
+    r_Range extent{};
+    r_Range origin{};
 };
-
 
 /// overloaded stream operator
 extern std::ostream &operator<<(std::ostream &str, const r_MiterDirect &iter);
-
-
 
 #include "raslib/miterd.icc"
 

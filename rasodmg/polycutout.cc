@@ -50,7 +50,7 @@ I have considered them so because of the usual coordinates of tiffs
 #include "rasodmg/marray.hh"
 #include "raslib/miter.hh"
 #include "raslib/error.hh"
-
+#include <logging.hh>
 #include <math.h>
 
 using namespace std;
@@ -619,7 +619,7 @@ r_PolygonCutOut::TablePoint &r_PolygonCutOut::getTP(r_Range line, r_Range column
 
 void r_PolygonCutOut::print(r_Range onlyLine)
 {
-    std::cout << "r_PolygonCutOut::print: " << tableWidth << ':' << tableHeight << std::endl;
+    LDEBUG << "r_PolygonCutOut::print: " << tableWidth << ':' << tableHeight;
 
     if (onlyLine == -1) // print all
     {
@@ -636,7 +636,7 @@ void r_PolygonCutOut::print(r_Range onlyLine)
         }
         else
         {
-            std::cout << "Line " << onlyLine << " doesn't exist" << std::endl;
+            LDEBUG << "Line " << onlyLine << " doesn't exist";
         }
     }
 }
@@ -646,7 +646,7 @@ void r_PolygonCutOut::printLine(r_Range line)
     r_Range count = usedCount[line];
     TablePoint *tp = &getTP(line, 0);
 
-    std::cout << "line " << line << '(' << count << ") ";
+    LDEBUG << "line " << line << '(' << count << ") ";
     for (r_Range i = 0; i < count; i++)
     {
         char inside = '0';
@@ -659,9 +659,8 @@ void r_PolygonCutOut::printLine(r_Range line)
             inside = '+';
         }
 
-        std::cout << '[' << tp[i].x << ',' << inside << ',' << tp[i].cosFunc << ']';
+        LDEBUG << '[' << tp[i].x << ',' << inside << ',' << tp[i].cosFunc << ']';
     }
-    std::cout << std::endl;
 }
 
 void r_PolygonCutOut::addPoint(r_Range tableLine, r_Range coordX, int inside, int cosFunc)

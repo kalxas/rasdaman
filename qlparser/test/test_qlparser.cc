@@ -36,7 +36,7 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #ifdef __GNUG__
 #include "qlparser/symtab.hh"
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
 #endif
 

@@ -18,9 +18,9 @@ class ClientManagerMock: public rasmgr::ClientManager
 {
 public:
     ClientManagerMock(const ClientManagerConfig& config,
-                      boost::shared_ptr<UserManager> userManager,
-                      boost::shared_ptr<ServerManager> serverManager,
-                      boost::shared_ptr<PeerManager> peerManager):
+                      std::shared_ptr<UserManager> userManager,
+                      std::shared_ptr<ServerManager> serverManager,
+                      std::shared_ptr<PeerManager> peerManager):
         ClientManager(config, userManager, serverManager, peerManager) {}
     MOCK_METHOD2(connectClient, void(const ClientCredentials&, std::string&));
     MOCK_METHOD1(disconnectClient, void(const std::string&));

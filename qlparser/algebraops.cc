@@ -20,29 +20,17 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
 
 #include "algebraops.hh"
-
 #include "qlparser/qtoperation.hh"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtscalardata.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtbinaryinduce.hh"
-
 #include "relcatalogif/basetype.hh"
-
 #include <logging.hh>
 
 QLMarrayOp::QLMarrayOp(QtOperation     *newCellExpression,

@@ -20,18 +20,17 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+#include "grpcutils.hh"
+
+#include "../network/networkresolverfactory.hh"
+#include "../exceptions/exception.hh"
+#include "../exceptions/runtimeexception.hh"
+#include <logging.hh>
+
+#include <grpc/support/log.h>
 #include <stdexcept>
 #include <chrono>
 #include <cstring>
-
-#include <grpc/support/log.h>
-
-#include "../network/networkresolverfactory.hh"
-#include <logging.hh>
-#include "../exceptions/exception.hh"
-#include "../exceptions/runtimeexception.hh"
-
-#include "grpcutils.hh"
 
 namespace common
 {
@@ -42,7 +41,7 @@ using std::chrono::system_clock;
 using std::chrono::milliseconds;
 
 std::string GrpcUtils::constructAddressString(const std::string &host,
-                                              boost::uint32_t port) {
+                                              std::uint32_t port) {
     return host + ":" + std::to_string(port);
 }
 
@@ -105,7 +104,7 @@ void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status &status) {
   }
 }
 
-bool GrpcUtils::isServerAlive(const boost::shared_ptr<HealthService::Stub> &healthService,
+bool GrpcUtils::isServerAlive(const std::shared_ptr<HealthService::Stub> &healthService,
                               uint32_t timeoutMilliseconds) {
   HealthCheckRequest request;
   HealthCheckResponse response;
@@ -121,7 +120,7 @@ bool GrpcUtils::isServerAlive(const boost::shared_ptr<HealthService::Stub> &heal
   return status.ok() && response.status() == HealthCheckResponse::SERVING;
 }
 
-bool GrpcUtils::isPortBusy(const std::string &host, boost::uint32_t port) {
+bool GrpcUtils::isPortBusy(const std::string &host, std::uint32_t port) {
   return NetworkResolverFactory::getNetworkResolver(host, port)->isPortBusy();
 }
 

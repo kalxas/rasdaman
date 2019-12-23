@@ -65,7 +65,7 @@ public:
     const r_Attribute &operator=(const r_Attribute &oldObj);
 
     /// destructor.
-    virtual ~r_Attribute();
+    ~r_Attribute() override;
 
     /// retrieve (local) offset
     r_Bytes offset() const;
@@ -80,7 +80,7 @@ public:
     void set_global_offset(r_Bytes newOffset);
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s) const;
+    virtual void print_status(std::ostream &s) const override;
 
     /// subscript operator to access attributes of a structured attribute
     /// throws error when type is not a struct type

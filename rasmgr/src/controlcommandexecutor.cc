@@ -41,7 +41,7 @@ rasdaman GmbH.
 
 namespace rasmgr
 {
-ControlCommandExecutor::ControlCommandExecutor(boost::shared_ptr<RasControl> control)
+ControlCommandExecutor::ControlCommandExecutor(std::shared_ptr<RasControl> control)
     : grammar(control), rascontrol(control)
 {}
 
@@ -70,7 +70,7 @@ std::string ControlCommandExecutor::sudoExecuteCommand(const std::string &comman
     std::string resultMessage;
 
     //The grammar must be protected by a mutex.
-    boost::unique_lock<boost::mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     this->grammar.parse(command);
     resultMessage = this->grammar.processRequest();
@@ -83,7 +83,7 @@ bool ControlCommandExecutor::canRunCommand(const std::string &userName, const st
     bool result = false;
 
     //The grammar must be protected by a mutex.
-    boost::unique_lock<boost::mutex> lock(this->mut);
+    std::unique_lock<std::mutex> lock(this->mut);
 
     this->grammar.parse(command);
     if (this->grammar.isInfoCommand())

@@ -24,8 +24,8 @@
 #define RASMGR_X_SRC_RASCONTROL_HH
 
 #include <string>
-
-#include <boost/smart_ptr.hpp>
+#include <memory>
+#include <thread>
 #include <boost/thread.hpp>
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
@@ -45,11 +45,11 @@ class UserManager;
 class RasControl
 {
 public:
-    RasControl(boost::shared_ptr<UserManager> userManager,
-               boost::shared_ptr<DatabaseHostManager> dbHostManager,
-               boost::shared_ptr<DatabaseManager> dbManager,
-               boost::shared_ptr<ServerManager> serverManager,
-               boost::shared_ptr<PeerManager> peerManager,
+    RasControl(std::shared_ptr<UserManager> userManager,
+               std::shared_ptr<DatabaseHostManager> dbHostManager,
+               std::shared_ptr<DatabaseManager> dbManager,
+               std::shared_ptr<ServerManager> serverManager,
+               std::shared_ptr<PeerManager> peerManager,
                RasManager *rasmanager);
 
     std::string deprecatedCommand();
@@ -113,11 +113,11 @@ public:
     bool hasServerAdminRights(std::string userName, std::string password);
     bool isValidUser(std::string userName, std::string password);
 private:
-    boost::shared_ptr<UserManager> userManager_;
-    boost::shared_ptr<DatabaseHostManager> dbHostManager_;
-    boost::shared_ptr<DatabaseManager> dbManager_;
-    boost::shared_ptr<ServerManager> serverManager_;
-    boost::shared_ptr<PeerManager> peerManager_;
+    std::shared_ptr<UserManager> userManager_;
+    std::shared_ptr<DatabaseHostManager> dbHostManager_;
+    std::shared_ptr<DatabaseManager> dbManager_;
+    std::shared_ptr<ServerManager> serverManager_;
+    std::shared_ptr<PeerManager> peerManager_;
     RasManager *rasmanager_;
 
     std::string convertAdminRights(const UserAdminRightsProto &adminRights);
@@ -132,7 +132,8 @@ private:
      */
     void stopRasmgrAsync();
 
-    boost::scoped_ptr<boost::thread> stopRasmgrThread;
+    // TODO: converting to std::thread causes a segfault when stopping rasmgr
+    std::unique_ptr<boost::thread> stopRasmgrThread;
 };
 }
 

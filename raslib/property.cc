@@ -27,19 +27,6 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-#ifdef __APPLE__
-#include <sys/malloc.h>
-#else
-#include <malloc.h>
-#endif
-#include <string.h>
-
-r_Property::r_Property()
-    :   r_Meta_Object(),
-        myType(NULL)
-{
-}
-
 r_Property::r_Property(const char *newTypeName, const r_Base_Type &newType)
     :   r_Meta_Object(newTypeName),
         myType(static_cast<r_Base_Type *>(newType.clone()))
@@ -55,7 +42,7 @@ r_Property::r_Property(const r_Property &oldObj)
     }
     else
     {
-        LERROR << "r_Property::r_Property(oldObj) property does not have a base type";
+        LERROR << "property does not have a base type";
         throw r_Error(PROPERTYTYPEHASNOELEMENTTYPE);
     }
 }
@@ -70,7 +57,7 @@ r_Property::operator=(const r_Property &oldObj)
         if (myType)
         {
             delete myType;
-            myType = 0;
+            myType = NULL;
         }
 
         if (oldObj.myType)
@@ -92,6 +79,7 @@ r_Property::~r_Property()
     if (myType)
     {
         delete myType;
+        myType = NULL;
     }
 }
 
@@ -100,10 +88,9 @@ r_Property::type_of() const
 {
     if (!myType)
     {
-        LERROR << "r_Property::type_of() property does not have a base type";
+        LERROR << "property does not have a base type";
         throw r_Error(PROPERTYTYPEHASNOELEMENTTYPE);
     }
-
     return *myType;
 }
 

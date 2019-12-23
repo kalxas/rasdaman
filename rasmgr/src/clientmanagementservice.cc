@@ -20,12 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <fstream>
 
-#include <boost/cstdint.hpp>
-#include <boost/thread/locks.hpp>
-
-#include <logging.hh>
 #include "common/uuid/uuid.hh"
 #include "common/grpc/grpcutils.hh"
 #include "common/exceptions/exception.hh"
@@ -35,18 +30,20 @@
 
 #include "clientmanager.hh"
 #include "constants.hh"
-
 #include "clientcredentials.hh"
 #include "clientmanagementservice.hh"
 #include "rasmgrconfig.hh"
 #include "server.hh"
 #include "user.hh"
+#include <logging.hh>
+
+#include <fstream>
+#include <cstdint>
 
 namespace rasmgr
 {
-using boost::mutex;
-using boost::shared_ptr;
-using boost::unique_lock;
+using std::mutex;
+using std::shared_ptr;
 
 using common::GrpcUtils;
 
@@ -54,11 +51,8 @@ using grpc::Status;
 
 using std::string;
 
-ClientManagementService::ClientManagementService(boost::shared_ptr<ClientManager> clientManager)
-    : clientManager(clientManager)
-{}
-
-ClientManagementService::~ClientManagementService()
+ClientManagementService::ClientManagementService(std::shared_ptr<ClientManager> clientManager1)
+    : clientManager(clientManager1)
 {}
 
 

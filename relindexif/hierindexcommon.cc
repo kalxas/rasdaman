@@ -54,6 +54,7 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>                   // for Writer, CTRACE, LTRACE, CDEBUG
 
+#include <cassert>
 #include <algorithm>                    // for max
 #include <cstring>                      // for memcpy, memset, memcmp, strcmp
 #include <memory>                       // for allocator_traits<>::value_type

@@ -26,9 +26,8 @@
 #include <list>
 #include <map>
 #include <functional>
-
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
+#include <memory>
+#include <mutex>
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 
@@ -67,7 +66,7 @@ public:
      * @param peerHostName The name of the host on which the peer is running
      * @throws An exception is thrown if an InPeer with the same name exists
      */
-    virtual void defineOutPeer(const std::string &peerHostName, const boost::uint32_t port);
+    virtual void defineOutPeer(const std::string &peerHostName, const std::uint32_t port);
 
     /**
      * Remove the OutPeer with the given host name from the list of OutPeers.
@@ -107,13 +106,13 @@ public:
     virtual PeerMgrProto serializeToProto();
 
 private:
-    boost::mutex mut;/*!< Mutex used to synchronize access to the resources managed by this class.*/
+    std::mutex mut;/*!< Mutex used to synchronize access to the resources managed by this class.*/
 
-    std::list<boost::shared_ptr<InPeer>> inPeers;
+    std::list<std::shared_ptr<InPeer>> inPeers;
 
-    std::list<boost::shared_ptr<OutPeer>> outPeers;
+    std::list<std::shared_ptr<OutPeer>> outPeers;
 
-    std::map<std::string, boost::shared_ptr<OutPeer>> remoteSessions;/*!< Mapping between a string identifying a remote session and the peer on which the remote session is active*/
+    std::map<std::string, std::shared_ptr<OutPeer>> remoteSessions;/*!< Mapping between a string identifying a remote session and the peer on which the remote session is active*/
 
     /**
      * @brief remoteClientSessionToString Generate a string uniquely identifying a remote session from a RemoteClientSession struct.

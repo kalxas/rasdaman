@@ -35,6 +35,7 @@ rasdaman GmbH.
 
 #include "servercomm.hh"
 #include "cliententry.hh"
+#include "raslib/odmgtypes.hh"
 #include <memory>
 
 //@ManMemo: Module: {\bf servercomm}

@@ -31,26 +31,20 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "config.h"
-#include "raslib/rmdebug.hh"
-
 #include "qlparser/qtmddaccess.hh"
 #include "qlparser/qtmdd.hh"
+#include "mddmgr/mddcoll.hh"
+#include "mddmgr/mddcolliter.hh"
+#include "servercomm/cliententry.hh"
+#include "lockmgr/lockmanager.hh"
+#include <logging.hh>
 
 #include <iostream>
 #include <string>
 using namespace std;
 
-#include "mddmgr/mddcoll.hh"
-#include "mddmgr/mddcolliter.hh"
-
-#include <logging.hh>
-
-#include "server/rasserver_config.hh"
-#include "servercomm/cliententry.hh"
-
-#include "lockmgr/lockmanager.hh"
-
 extern ClientTblElt *currentClientTblElt;
+extern bool isLockMgrOn;
 
 const QtNode::QtNodeType QtMDDAccess::nodeType = QT_MDD_ACCESS;
 
@@ -118,12 +112,12 @@ QtMDDAccess::next()
 
         // encapsulate the next MDDObj in an QtMDD object
         ptr =  mddIter->getElement();
-        if (configuration.isLockMgrOn())
+        if (isLockMgrOn)
         {
             if (ptr)
             {
                 LockManager *lockmanager = LockManager::Instance();
-                std::vector<boost::shared_ptr<Tile>> *tiles = ptr->getTiles();
+                auto *tiles = ptr->getTiles();
                 lockmanager->lockTiles(tiles);
                 delete tiles;
             }

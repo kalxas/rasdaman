@@ -35,9 +35,6 @@ rasdaman GmbH.
 #ifndef _OPS_HH_
 #define _OPS_HH_
 
-#include "qlparser/qtatomicdata.hh"
-
-#include <limits.h>
 #include "nullvalues.hh"
 #include "typeenum.hh"
 
@@ -46,7 +43,6 @@ class UnaryOp;
 class BinaryOp;
 class BaseType;
 class StructType;
-class Tile;
 class r_Point;
 
 //@ManMemo: Module: {\bf catalogif}.

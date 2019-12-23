@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/* $Id: shhopt.hh,v 1.4 2000/09/20 14:41:56 widmann Exp $ */
 #ifndef SHHOPT_H
 #define SHHOPT_H
 
@@ -48,7 +47,6 @@ typedef struct
                             * or pointer to function if Type == OPT_FUNC. */
     int        flags;      /* Modifier flags. */
 } optStruct;
-
 
 void optSetFatalFunc(void (*f)(const char *, ...));
 void optParseOptions(int *argc, char *argv[],

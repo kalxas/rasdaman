@@ -69,14 +69,14 @@ public:
     virtual void r_deactivate();
 
     /// get number of elements
-    inline unsigned long cardinality() const;
+    unsigned long cardinality() const;
 
     /// tells if the collection is empty or not
-    inline bool           is_empty() const;
+    bool           is_empty() const;
     /// tells if the collection is ordered or not
-    inline bool           is_ordered() const;
+    bool           is_ordered() const;
     /// tells if the collections allowes duplicates or not
-    inline bool           allows_duplicates() const;
+    bool           allows_duplicates() const;
 
     /// asks about the containment of a specific element
     bool  contains_element(const T &element) const;
@@ -199,8 +199,6 @@ protected:
     /// pointer to collection elements
     CNode *coll;
 };
-
-#include "rasodmg/collection.icc"
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__

@@ -38,6 +38,7 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"   // for r_Minterval
 #include "raslib/point.hh"       // for r_Point
 #include "raslib/mddtypes.hh"    // for r_Data_Format
+#include "raslib/rminit.hh"
 #include "catalogmgr/ops.hh"                // for Ops::OpType
 #include "relcatalogif/basetype.hh"           // for BaseType
 #include "relblobif/tileid.hh"
@@ -49,7 +50,6 @@ rasdaman GmbH.
 #include "raslib/rmdebug.hh"        // for RMTimer
 #endif
 
-#include <boost/shared_ptr.hpp>
 #include <functional>               // for less
 #include <iosfwd>                   // for cout, ostream
 #include <set>                      // for set
@@ -356,7 +356,7 @@ public:
 
     /// copy a subcube from one tile to another, with offsets per cell for the result and the operand
     /// and band sizes for the result and operand
-    virtual void copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, const r_Minterval &areaOp,
+    virtual void copyTile(const r_Minterval &areaRes, std::shared_ptr<Tile> &opTile, const r_Minterval &areaOp,
                           const size_t resOff, const r_Bytes opOff, const r_Bytes bandSize);
 
     DBTileId getDBTile();

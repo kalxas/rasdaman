@@ -277,14 +277,13 @@ vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId2, const char* st
 
     r_Minterval stripeInterval(stripeDomain);
 
-    vector<boost::shared_ptr<Tile>>* tiles = mymdd->intersect(stripeInterval);
+    auto* tiles = mymdd->intersect(stripeInterval);
 
     vector<r_Minterval> result;
 
     for (unsigned int i = 0; i < tiles->size(); i++)
-    {
         result.push_back((*tiles)[i]->getDomain());
-    }
+
     delete tiles;
     delete mymdd;
     return result;
@@ -325,8 +324,8 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char* stripeDomain, const ch
 
 void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, __attribute__((unused)) const BaseType* baseType)
 {
-    static unsigned int lastSize = 0;
-    unsigned int uncompressedSize = tileInterval.cell_count() * static_cast<unsigned int>(cellSize);
+    static unsigned long lastSize = 0;
+    unsigned long uncompressedSize = tileInterval.cell_count() * static_cast<unsigned long>(cellSize);
 
     if (comprData)
     {

@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_SERVERFACTORY_HH_
 #define RASMGR_X_SRC_SERVERFACTORY_HH_
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace rasmgr
 {
@@ -42,7 +42,7 @@ public:
      * @param configuration
      * @return
      */
-    virtual boost::shared_ptr<Server> createServer(const ServerConfig &configuration) = 0;
+    virtual std::shared_ptr<Server> createServer(const ServerConfig &configuration) = 0;
 };
 
 } /* namespace rasmgr */

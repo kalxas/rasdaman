@@ -27,8 +27,7 @@ rasdaman GmbH.
 #include <set>
 #include <utility>
 #include <string>
-
-#include <boost/smart_ptr.hpp>
+#include <memory>
 
 #include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
@@ -39,7 +38,7 @@ class ClientManager;
 class RasServerServiceImpl : public rasnet::service::RasServerService::Service
 {
 public:
-    RasServerServiceImpl(::boost::shared_ptr<rasserver::ClientManager> clientManagerArg);
+    RasServerServiceImpl(std::shared_ptr<rasserver::ClientManager> clientManagerArg);
 
     virtual grpc::Status AllocateClient(grpc::ServerContext* context, const rasnet::service::AllocateClientReq* request, rasnet::service::Void* response) override;
 
@@ -52,7 +51,7 @@ public:
     virtual grpc::Status GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response) override;
 
 private:
-    ::boost::shared_ptr<rasserver::ClientManager> clientManager;
+    std::shared_ptr<rasserver::ClientManager> clientManager;
 };
 }
 

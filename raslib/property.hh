@@ -30,8 +30,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_PROPERTY_
-#define _D_PROPERTY_
+#ifndef D_PROPERTY_HH
+#define D_PROPERTY_HH
 
 #include "metaobject.hh"
 
@@ -43,7 +43,6 @@ class r_Base_Type;
   This class the superclass for properties of classes in the ODMG
   conformant representation of the RasDaMan type system.
 */
-
 class r_Property : public r_Meta_Object
 {
 public:
@@ -58,18 +57,17 @@ public:
     const r_Property &operator=(const r_Property &oldObj);
 
     /// destructor.
-    virtual ~r_Property();
+    ~r_Property() override;
 
     /// retrieve type of property.
     const r_Base_Type &type_of() const;
 
 protected:
 
-    r_Base_Type *myType;
+    r_Base_Type *myType{NULL};
 
     /// default constructor.
-    r_Property();
-
+    r_Property() = default;
 };
 
 #endif

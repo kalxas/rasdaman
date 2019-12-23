@@ -23,7 +23,7 @@
 #ifndef RASCONTROL_X_SRC_COMMANDEXECUTOR_HH
 #define RASCONTROL_X_SRC_COMMANDEXECUTOR_HH
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace rascontrol
 {
@@ -36,7 +36,7 @@ public:
       * @brief CommandExecutor Initialize an instance of the CommandExecutor class.
       * @param communication Communication object used to execute commands.
       */
-    CommandExecutor(boost::shared_ptr<ControlRasMgrComm> communication);
+    CommandExecutor(std::shared_ptr<ControlRasMgrComm> communication);
 
     /**
      * @brief executeCommand Parse the command given as a string and execute it.
@@ -52,7 +52,7 @@ public:
      * @param command
      * @return TRUE if the command is equal to 'exit', 'quit' or 'bye', FALSE otherwise.
      */
-    bool isExitCommand(std::string command);
+    bool isExitCommand(const std::string &command);
 
     /**
      * Send a login message and check if the client credentials are valid.
@@ -61,7 +61,7 @@ public:
     void executeLogin(std::string &reply);
 
 private:
-    boost::shared_ptr<ControlRasMgrComm> communication; /*!< Communication object used to forward messages to the server and receive replies */
+    std::shared_ptr<ControlRasMgrComm> communication; /*!< Communication object used to forward messages to the server and receive replies */
 };
 
 }

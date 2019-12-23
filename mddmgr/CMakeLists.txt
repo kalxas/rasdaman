@@ -26,8 +26,12 @@ add_library(mddmgr mddcoll.hh mddcoll.cc
     mddobj.hh mddobj.cc)
 
 target_link_libraries(mddmgr
-    indexmgr tilemgr catalogmgr raslib
+    indexmgr tilemgr catalogmgr raslib common_string
     reladminif relblobif relcatalogif relmddif relstorageif)
+
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(mddmgr REUSE_FROM common_logging)
+endif()
 
 install(TARGETS mddmgr
     DESTINATION ${LIB_DIR})

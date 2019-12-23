@@ -31,7 +31,9 @@ rasdaman GmbH.
 #include "qlparser/qtmintervaldata.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtcomplexdata.hh"
-#include "catalogmgr/algebraops.hh"
+#include "qlparser/algebraops.hh"
+#include "qlparser/qtvariable.hh"
+
 #include "mddmgr/mddobj.hh"
 
 #include <logging.hh>
@@ -43,6 +45,7 @@ rasdaman GmbH.
 
 #include <iostream>
 #include <string>
+
 using namespace std;
 
 const QtNode::QtNodeType QtCondenseOp::nodeType = QT_CONDENSEOP;

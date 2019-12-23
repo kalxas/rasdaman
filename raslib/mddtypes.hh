@@ -39,88 +39,55 @@ rasdaman GmbH.
 #include <ostream>
 #include <cstdint>
 
-//@Man: r_Bytes
-//@Type: typedef
-//@Args: as unsigned int
-//@Memo: Module: {\bf raslib}.
+/// number of bytes in an tile or mdd or type.
+using r_Bytes = size_t;
 
-typedef size_t r_Bytes;
+/// for conversion from pointers to integer variables on 64bit arch.
+using r_Ptr = unsigned long;
 
-/**
-  {\tt typedef unsigned int r_Bytes;}
+/// number of cells in an mdd object or tile.
+using r_Area = std::uint64_t;
 
-  The typedef \Ref{r_Bytes} is used as type for the number of bytes in an tile or mdd or type.
-*/
+/// for axis indexing, e.g. lower/upper bounds of r_Sinterval, projection value
+/// and coordinate values of r_Point.
+using r_Range = long long;
 
-//@Man: r_Ptr
-//@Type: typedef
-//@Args: as unsigned long
-//@Memo: Module: {\bf raslib}.
-
-typedef unsigned long r_Ptr;
+/// number of dimensions in r_Point and r_Minterval.
+using r_Dimension = unsigned int;
 
 /**
-  {\tt typedef unsigned long r_Ptr;}
+  \begin{tabular}{ll}
+  {\tt r_Array}              && no compression, row-major memory representation\\
 
-  The typedef \Ref{r_Ptr} was introduced to handle correctly convertions from
-  pointers to integer variables on 64bit architectures.
+  {\tt r_TIFF}               && TIFF format (see r_Conv_TIFF)\\
+  {\tt r_JPEG}               && JPEG format (see r_Conv_JPEG)\\
+  {\tt r_JP2}                && JPEG2000 format (see r_Conv_JP2)\\
+  {\tt r_HDF}                && HDF  format (see r_Conv_HDF)\\
+  {\tt r_PNG}                && PNG  format (see r_Conv_PNG)\\
+  {\tt r_BMP}                && BMP  format (see r_Conv_BMP)\\
+  {\tt r_PPM}                && PPM  format (see r_Conv_PPM)\\
+  {\tt r_DEM}                && DEM  format (see r_Conv_DEM)\\
+  {\tt r_ECW}                && ECW  format (see r_Conv_ECW)\\
+  {\tt r_NITF}               && NITF  format (see r_Conv_NITF)\\
+  {\tt r_NETCDF}             && NETCDF  format (see r_Conv_NETCDF)\\
+  {\tt r_GRIB}               && GRIB  format (see r_Conv_GRIB)\\
+  {\tt r_GDAL}               && GDAL supported format (see r_Conv_GDAL)\\
+
+  {\tt r_Auto_Compression}   && automatic compression\\
+  {\tt r_ZLib}               && ZLIB compresion  (see r_Tile_Comp_RLE)\\
+  {\tt r_Pack_Bits}          && Packbits rle compresion  (see r_Tile_Comp_Packbits)\\
+  {\tt r RLE}                && RLE compression  (see r_Tile_Comp_RLE)\\
+  {\tt r_Wavelet_Haar}       && Haar Wavelet compression  (see r_Haar_Wavelet_Compression)\\
+  {\tt r_Wavelet_Daubechies} && Daubechies 4-tap Wavelet compression  (see r_Daubechies_Wavelet_Compression)\\
+  {\tt r_Sep_ZLib}           && ZLIB compression, compress base types separately  (see r_Tile_Separate_ZLIB)\\
+  {\tt r_Sep_RLE}            && RLE compression, compress base types separately  (see r_Tile_Separate_RLE)\\
+  {\tt r_Wavelet_Daub#n}     && Daubechies n-tap Wavelet compression, n=6,8,...,18,20  (see r_Ortho_Wavelet_Factory)\\
+  {\tt r_Wavelet_Least#n}    && Least asymmetric n-tap Wavelet comp., n=8,10,...,18,20  (see r_Ortho_Wavelet_Factory)\\
+  {\tt r_Wavelet_Coiflet#n}  && Coiflet n-tap Wavelet compression, n=6,12,18,24,30  (see r_Ortho_Wavelet_Factory)\\
+  {\tt r_Wavelet_QHaar}      && Lossy Haar Wavelet compression  (see r_Haar_QWavelet_Compression)\\
+
+  \end{tabular}
 */
-
-
-
-//@Man: r_Area
-//@Type: typedef
-//@Args: as unsigned int
-//@Memo: Module: {\bf raslib}.
-
-typedef std::uint64_t r_Area;
-
-/**
-  {\tt typedef unsigned int r_Area;}
-
-  The typedef \Ref{r_Area} is used as type for the number of cells in an mdd object or tile.
-*/
-
-
-
-//@Man: r_Range
-//@Type: typedef
-//@Args: as int
-//@Memo: Module: {\bf raslib}.
-
-typedef long long r_Range;
-
-/**
-  {\tt typedef int r_Range;}
-
-  The typedef \Ref{r_Range} is used as type for the point set
-  of one dimension of a spatial domain. This means that lower
-  and upper bounds of \Ref{r_Sinterval}, the projection value,
-  and the cooridnate values of \Ref{r_Point} are of this type.
-*/
-
-
-
-//@Man: r_Dimension
-//@Type: typedef
-//@Args: as unsigned int
-//@Memo: Module: {\bf raslib}.
-
-typedef unsigned int r_Dimension;
-
-/**
-  {\tt typedef unsigned int r_Dimension;}
-
-  This is used as type for the number of dimensions in
-  \Ref{r_Point} and \Ref{r_Minterval}.
-*/
-
-
-//@Man: r_Data_Format
-//@Type: enum
-//@Args:
-//@Memo: Module: {\bf raslib}.
-
 enum r_Data_Format
 {
     r_Array,
@@ -137,7 +104,7 @@ enum r_Data_Format
     r_BMP,
     r_RLE,
     r_Wavelet_Haar,
-    r_Wavelet_Daubechies, // = Daubechies 4 tap
+    r_Wavelet_Daubechies,
     r_Sep_ZLib,
     r_Sep_RLE,
     r_Wavelet_Daub6,
@@ -171,42 +138,6 @@ enum r_Data_Format
     r_GDAL,
     r_Data_Format_NUMBER
 };
-
-/**
-  {\tt enum r_Data_Format}
-
-  \begin{tabular}{lll}
-  {\ttr_Array}              && no compression, row-major memory representation\\
-
-  {\ttr_TIFF}               && TIFF format (see \Ref{r_Conv_TIFF})\\
-  {\ttr_JPEG}               && JPEG format (see \Ref{r_Conv_JPEG})\\
-  {\ttr_JP2}                && JPEG2000 format (see \Ref{r_Conv_JP2})\\
-  {\ttr_HDF}                && HDF  format (see \Ref{r_Conv_HDF})\\
-  {\ttr_PNG}                && PNG  format (see \Ref{r_Conv_PNG})\\
-  {\ttr_BMP}                && BMP  format (see \Ref{r_Conv_BMP})\\
-  {\ttr_PPM}                && PPM  format (see \Ref{r_Conv_PPM})\\
-  {\ttr_DEM}                && DEM  format (see \Ref{r_Conv_DEM})\\
-  {\ttr_ECW}                && ECW  format (see \Ref{r_Conv_ECW})\\
-  {\ttr_NITF}               && NITF  format (see \Ref{r_Conv_NITF})\\
-  {\ttr_NETCDF}             && NETCDF  format (see \Ref{r_Conv_NETCDF})\\
-  {\ttr_GRIB}               && GRIB  format (see \Ref{r_Conv_GRIB})\\
-  {\ttr_GDAL}               && GDAL supported format (see \Ref{r_Conv_GDAL})\\
-
-  {\ttr_Auto_Compression}   && automatic compression\\
-  {\ttr_ZLib}               && ZLIB compresion  (see \Ref{r_Tile_Comp_RLE})\\
-  {\ttr_Pack_Bits}          && Packbits rle compresion  (see \Ref{r_Tile_Comp_Packbits})\\
-  {\ttr RLE}                && RLE compression  (see \Ref{r_Tile_Comp_RLE})\\
-  {\ttr_Wavelet_Haar}       && Haar Wavelet compression  (see \Ref{r_Haar_Wavelet_Compression})\\
-  {\ttr_Wavelet_Daubechies} && Daubechies 4-tap Wavelet compression  (see \Ref{r_Daubechies_Wavelet_Compression})\\
-  {\ttr_Sep_ZLib}           && ZLIB compression, compress base types separately  (see \Ref{r_Tile_Separate_ZLIB})\\
-  {\ttr_Sep_RLE}            && RLE compression, compress base types separately  (see \Ref{r_Tile_Separate_RLE})\\
-  {\ttr_Wavelet_Daub#n}     && Daubechies n-tap Wavelet compression, n=6,8,...,18,20  (see \Ref{r_Ortho_Wavelet_Factory})\\
-  {\ttr_Wavelet_Least#n}    && Least asymmetric n-tap Wavelet comp., n=8,10,...,18,20  (see \Ref{r_Ortho_Wavelet_Factory})\\
-  {\ttr_Wavelet_Coiflet#n}  && Coiflet n-tap Wavelet compression, n=6,12,18,24,30  (see \Ref{r_Ortho_Wavelet_Factory})\\
-  {\ttr_Wavelet_QHaar}      && Lossy Haar Wavelet compression  (see \Ref{r_Haar_QWavelet_Compression})\\
-
-  \end{tabular}
-*/
 
 //@ManMemo: Module: {\bf raslib}
 /**
@@ -281,22 +212,9 @@ r_Data_Format get_data_format_from_name(const char *name);
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Data_Format}.
+  Output stream operator for objects of type {\tt const} r_Data_Format.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Data_Format &d);
-
-
-
-//@ManMemo: Module: {\bf raslib}
-/**
-  Output stream operator for objects of type \Ref{r_Data_Format}.
-*/
-extern std::ostream &operator<<(std::ostream &s, r_Data_Format &d);
-
-//@Man: r_Scale_Function
-//@Type: enum
-//@Args:
-//@Memo: Module: {\bf raslib}.
 
 enum r_Scale_Function
 {
@@ -322,18 +240,12 @@ const char *get_name_from_scale_function(r_Scale_Function func);
 */
 r_Scale_Function get_scale_function_from_name(const char *name);
 
-
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Scale_Function}.
+  Output stream operator for objects of type {\tt const} r_Scale_Function.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Scale_Function &d);
 
-
-//@Man: r_Index_Type
-//@Type: enum
-//@Args:
-//@Memo: Module: {\bf raslib}.
 
 enum r_Index_Type
 {
@@ -382,11 +294,22 @@ const char *get_name_from_index_type(r_Index_Type it);
 */
 r_Index_Type get_index_type_from_name(const char *name);
 
-//@Man: r_Tiling_Scheme
-//@Type: enum
-//@Args:
-//@Memo: Module: {\bf raslib}.
+/**
+    Tiling of the object:
 
+    \begin{tabular}{ll}
+    r_NoTiling       && no tiling is done unless the object is too big;
+                        in that case, tiling is done along the first direction only;
+                        for objects which are to be accessed always as a whole \\
+    r_RegularTiling  && all tiles have the same scheme and size \\
+    r_StatisticalTiling && based on statistics regarding access to this MDD object \\
+    r_InterestTiling && based on specified areas of interest \\
+    r_AlignedTiling  && like regular tiling, but tiles at the MDD edges are 
+                        allowed to be different size / sdom \\
+    r_DirectionalTiling && directional tiling \\
+    r_SizeTiling    && tiles have a size smaller than the specified size
+    \end{tabular}
+*/
 enum r_Tiling_Scheme
 {
     r_NoTiling = 0,
@@ -398,26 +321,6 @@ enum r_Tiling_Scheme
     r_SizeTiling = 6,
     r_Tiling_Scheme_NUMBER = 7
 };
-/**
-    Tiling of the object:
-
-    \begin{tabular}{lll}
-    NoTiling && no tiling is done unless the object is too big;
-    in that case, tiling is done along the first direction only;
-    for objects which are to be accessed always as a whole \\
-    {\bf Aligned} &&    aligned tiling, needs tileConfig \\
-    LowVariationAreas && according to areas of low cell value variation \\
-    BasedTilesStat && based on statistics regarding access  to this MDD object
-    \end{tabular}
-
-    In addition, it is possible to have a tiling according to areas of
-    interest, {\bf AreasInterest} mode.
-    The {\tt AreasInterest} mode is indicated by a non - null value of the
-    {\tt areasInterestPath} attribute.
-    This mode is not an alternative mode in {\tt TilingScheme} because it is
-    compatible with the other modes. For instance, an aligned tiling may be
-    adopted outside the areas of interest.
-    */
 
 //@ManMemo: Module: {\bf raslib}
 /**
@@ -453,29 +356,18 @@ r_Tiling_Scheme get_tiling_scheme_from_name(const char *name);
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Tiling_Scheme}.
+  Output stream operator for objects of type {\tt const} r_Tiling_Scheme.
 */
 extern std::ostream &operator<<(std::ostream &in, r_Tiling_Scheme type);
 
-//@Man: r_Clustering_Scheme
-//@Type: enum
-//@Args:
-//@Memo: Module: {\bf raslib}.
-enum r_Clustering_Scheme
-{
-    r_Insertion_Order_Clustering = 1,
-    r_Coords_Order_Clustering = 2,
-    r_Index_Cluster_Clustering = 3,
-    r_Based_Cluster_Stat_Clustering = 4
-};
 /**
-Clustering of the Tiles according to:
+Clustering of the tiles according to:
 
 \begin{tabular}{lll}
-{\bf InsertionOrder } && the order of insertion of the tiles \\
-CoordsOrder &&  the coordinates of the tiles \\
-IndexCluster && the index structure \\
-BasedClusterStat && statistics about access to the object
+r_Insertion_Order_Clustering    && the order of insertion of the tiles \\
+r_Coords_Order_Clustering       &&  the coordinates of the tiles \\
+r_Index_Cluster_Clustering      && the index structure \\
+r_Based_Cluster_Stat_Clustering && statistics about access to the object
 \end{tabular}
 
 There is the additional {\bf PathCluster} mode, where clustering is
@@ -485,10 +377,13 @@ attribute and a non - null value of the {\tt areasInterest}.
 This mode is not an alternative mode in {\tt ClusteringScheme} because
 it is compatible with the other modes.
 */
+enum r_Clustering_Scheme
+{
+    r_Insertion_Order_Clustering = 1,
+    r_Coords_Order_Clustering = 2,
+    r_Index_Cluster_Clustering = 3,
+    r_Based_Cluster_Stat_Clustering = 4
+};
 extern std::ostream &operator<<(std::ostream &in, r_Clustering_Scheme type);
-
-#ifdef __VISUALC__
-extern int strcasecmp(const char *str1, const char *str2);
-#endif
 
 #endif

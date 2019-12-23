@@ -21,46 +21,45 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <cstring>
-#include <fstream>
-#include <chrono>
+#include "rasnetclientcomm.hh"
+#include "globals.hh"
+#include "rasodmg/transaction.hh"
+#include "rasodmg/database.hh"
+#include "rasodmg/iterator.hh"
+#include "rasodmg/set.hh"
+#include "rasodmg/ref.hh"
+#include "rasodmg/storagelayout.hh"
+#include "rasodmg/tiling.hh"
+#include "rasodmg/gmarray.hh"
+#include "rasodmg/oqlquery.hh"
 
-#include <grpc++/grpc++.h>
-#include <grpc++/security/credentials.h>
-
-#include "../rasodmg/transaction.hh"
-#include "../rasodmg/database.hh"
-#include "../rasodmg/iterator.hh"
-#include "../rasodmg/set.hh"
-#include "../rasodmg/ref.hh"
-#include "../rasodmg/storagelayout.hh"
-#include "../rasodmg/tiling.hh"
-#include "../rasodmg/gmarray.hh"
-
-#include "../raslib/minterval.hh"
-#include "../raslib/rminit.hh"
-#include "../raslib/primitivetype.hh"
-#include "../raslib/complextype.hh"
-#include "../raslib/structuretype.hh"
-#include "../raslib/primitive.hh"
-#include "../raslib/complex.hh"
-#include "../raslib/structure.hh"
-#include "../raslib/parseparams.hh"
-#include "../mymalloc/mymalloc.h"
+#include "raslib/minterval.hh"
+#include "raslib/rminit.hh"
+#include "raslib/primitivetype.hh"
+#include "raslib/complextype.hh"
+#include "raslib/structuretype.hh"
+#include "raslib/primitive.hh"
+#include "raslib/complex.hh"
+#include "raslib/structure.hh"
+#include "raslib/parseparams.hh"
+#include "raslib/turboqueryresult.hh"
+#include "mymalloc/mymalloc.h"
+#include "rasnetprotocol/rpcif.h"
 
 #include "common/crypto/crypto.hh"
 #include "common/uuid/uuid.hh"
 #include "common/grpc/grpcutils.hh"
+#include "common/grpc/messages/error.pb.h"
 #include <logging.hh>
 
-#include "common/grpc/messages/error.pb.h"
+#include <cstring>
+#include <fstream>
+#include <chrono>
+#include <grpc++/grpc++.h>
+#include <grpc++/security/credentials.h>
 
-#include "globals.hh"
-#include "rasnetclientcomm.hh"
-
-
-using boost::scoped_ptr;
-using boost::shared_ptr;
+using std::unique_ptr;
+using std::shared_ptr;
 using boost::shared_mutex;
 using boost::unique_lock;
 using boost::thread;
@@ -142,7 +141,7 @@ using common::ErrorMessage;
 
 using std::string;
 
-RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort):
+RasnetClientComm::RasnetClientComm(string rasmgrHost1, int rasmgrPort1):
     transferFormatParams(NULL),
     storageFormatParams(NULL)
 {
@@ -150,7 +149,7 @@ RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort):
 
     clientParams = new r_Parse_Params();
 
-    this->rasmgrHost = GrpcUtils::constructAddressString(rasmgrHost, static_cast<boost::uint32_t>(rasmgrPort));
+    this->rasmgrHost = GrpcUtils::constructAddressString(rasmgrHost1, static_cast<boost::uint32_t>(rasmgrPort1));
 
     this->initializedRasMgrService = false;
     this->initializedRasServerService = false;
@@ -225,7 +224,7 @@ int RasnetClientComm::disconnectClient()
     return retval;
 }
 
-int RasnetClientComm::openDB(const char *database)
+int RasnetClientComm::openDB(const char *database1)
 {
     int retval = 0; // ok
 
@@ -234,7 +233,7 @@ int RasnetClientComm::openDB(const char *database)
 
     openDatabaseReq.set_clientid(this->clientId);
     openDatabaseReq.set_clientuuid(this->clientUUID.c_str());
-    openDatabaseReq.set_databasename(database);
+    openDatabaseReq.set_databasename(database1);
 
     LDEBUG << "Opening rasmgr database for client with ID: " << clientId << ", UUID: " << clientUUID;
     ClientContext openDbContext;
@@ -266,7 +265,7 @@ int RasnetClientComm::openDB(const char *database)
     OpenServerDatabaseRepl openServerDatabaseRepl;
 
     openServerDatabaseReq.set_client_id(this->clientId);
-    openServerDatabaseReq.set_database_name(database);
+    openServerDatabaseReq.set_database_name(database1);
 
     LDEBUG << "Opening rasserver database for client with ID: " << clientId << ", UUID: " << clientUUID;
     grpc::ClientContext openServerDbContext;
@@ -818,7 +817,7 @@ void RasnetClientComm::initRasserverService()
     }
 }
 
-boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> RasnetClientComm::getRasServerService(bool throwIfConnectionFailed)
+std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> RasnetClientComm::getRasServerService(bool throwIfConnectionFailed)
 {
     this->initRasserverService();
 
@@ -843,7 +842,7 @@ void RasnetClientComm::closeRasserverService()
     }
 }
 
-boost::shared_ptr<rasnet::service::RasmgrClientService::Stub> RasnetClientComm::getRasMgrService(bool throwIfConnectionFailed)
+std::shared_ptr<rasnet::service::RasmgrClientService::Stub> RasnetClientComm::getRasMgrService(bool throwIfConnectionFailed)
 {
     this->initRasmgrService();
 

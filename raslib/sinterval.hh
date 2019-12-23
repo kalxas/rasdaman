@@ -30,12 +30,11 @@
  *
 */
 
-#ifndef _D_SINTERVAL_
-#define _D_SINTERVAL_
-
-#include <iosfwd>     // for ostream, cout
+#ifndef D_SINTERVAL_HH
+#define D_SINTERVAL_HH
 
 #include "raslib/mddtypes.hh"  // for r_Range, r_Bytes
+#include <iosfwd>     // for ostream, cout
 
 //@ManMemo: Module: {\bf raslib}
 
@@ -226,10 +225,10 @@ class r_Sinterval
 {
 public:
     /// default constructor creates an interval with open bounds
-    r_Sinterval();
+    r_Sinterval() = default;
 
     /// constructor taking string representation (e.g. *:200 )
-    r_Sinterval(char *);
+    r_Sinterval(const char *);
 
     /// constructor for an interval with fixed bounds
     r_Sinterval(r_Range low, r_Range high);
@@ -258,22 +257,22 @@ public:
     //@Man: Read/Write methods:
     //@{
     ///
-    inline r_Range low() const;
+    r_Range low() const;
     ///
-    inline r_Range high() const;
+    r_Range high() const;
     ///
-    inline bool is_low_fixed() const;
+    bool is_low_fixed() const;
     ///
-    inline bool is_high_fixed() const;
+    bool is_high_fixed() const;
 
     ///
     void set_low(r_Range low);
     ///
     void set_high(r_Range high);
     ///
-    inline void set_low(char);
+    void set_low(char);
     ///
-    inline void set_high(char);
+    void set_high(char);
 
     /// get the size of one dimensional interval as range.
     r_Range get_extent() const;
@@ -396,18 +395,18 @@ private:
     //@Man: Attributes storing the bounds:
     //@{
     ///
-    r_Range lower_bound;
+    r_Range lower_bound{0};
     ///
-    r_Range upper_bound;
+    r_Range upper_bound{0};
     ///
     //@}
 
     //@Man: Attributes specifying wheter the lower/upper bound is fixed or not:
     //@{
     ///
-    bool low_fixed;
+    bool low_fixed{false};
     ///
-    bool high_fixed;
+    bool high_fixed{false};
     ///
     //@}
 };
@@ -417,7 +416,5 @@ private:
   Output stream operator for objects of type {\tt const r_Sinterval}.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Sinterval &d);
-
-#include "raslib/sinterval.icc"
 
 #endif

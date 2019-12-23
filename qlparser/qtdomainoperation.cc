@@ -596,18 +596,15 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 if (trimming || projection)
                 {
                     // get relevant tiles
-                    vector<boost::shared_ptr<Tile>> *relevantTiles = currentMDDObj->intersect(domain);
+                    auto *relevantTiles = currentMDDObj->intersect(domain);
 
                     if (relevantTiles->size() > 0)
                     {
-                        // iterator for tiles
-                        vector<boost::shared_ptr<Tile>>::iterator tileIt;
-
                         // create a transient MDD object for the query result
                         MDDObj *resultMDD = new MDDObj(currentMDDObj->getMDDBaseType(), projectedDom, currentMDDObj->getNullValues());
 
                         // and iterate over them
-                        for (tileIt = relevantTiles->begin(); tileIt !=  relevantTiles->end(); tileIt++)
+                        for (auto tileIt = relevantTiles->begin(); tileIt !=  relevantTiles->end(); tileIt++)
                         {
                             // domain of the actual tile
                             r_Minterval tileDom = (*tileIt)->getDomain();

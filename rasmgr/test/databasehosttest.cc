@@ -21,7 +21,6 @@
  */
 
 #include <string>
-#include <boost/cstdint.hpp>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -51,7 +50,7 @@ protected:
     std::string passwdString;
     std::string dbName;
     DatabaseHost dbh;
-    boost::shared_ptr<Database> db;
+    std::shared_ptr<Database> db;
 };
 
 TEST_F(DatabaseHostTest, preconditions)

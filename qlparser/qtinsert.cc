@@ -46,27 +46,26 @@ rasdaman GmbH.
 
 
 #include "config.h"
-#include <vector>
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/dirdecompose.hh"
 
 #include "qlparser/qtinsert.hh"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtmdd.hh"
+#include "qlparser/qtatomicdata.hh"
 
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddobj.hh"
 
-#include <iostream>
-#include <exception>
-
-#include "servercomm/servercomm.hh"
-#include "servercomm/cliententry.hh"
 #include "qlparser/qtmintervaldata.hh"
 #include "raslib/basetype.hh"
 #include "raslib/collectiontype.hh"
 
 #include <logging.hh>
+
+#include <iostream>
+#include <exception>
+#include <vector>
 
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
 
@@ -266,7 +265,7 @@ QtInsert::evaluate()
             LINFO << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter();
 #endif
             // get all tiles
-            vector<boost::shared_ptr<Tile>> *sourceTiles = sourceObj->getTiles();
+            auto *sourceTiles = sourceObj->getTiles();
 
             // get a persistent type pointer
             MDDBaseType *persMDDType = static_cast<MDDBaseType *>(const_cast<MDDType *>(targetMDDType));
@@ -281,8 +280,9 @@ QtInsert::evaluate()
                 }
             }
             r_Index_Type ri = getIndexType(mddConfig);
+            r_Data_Format dataFormat = getDataFormat(mddConfig);
             StorageLayout tempStorageLayout;
-            tempStorageLayout.setDataFormat(getDataFormat(mddConfig));
+            tempStorageLayout.setDataFormat(dataFormat);
             r_Tiling_Scheme scheme = getTilingScheme(mddConfig);
             tempStorageLayout.setIndexType(ri);
             tempStorageLayout.setTilingScheme(scheme);

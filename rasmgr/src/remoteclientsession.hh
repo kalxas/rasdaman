@@ -24,7 +24,7 @@
 #define RASMGR_X_SRC_REMOTECLIENTSESSION_HH
 
 #include <string>
-#include <boost/cstdint.hpp>
+
 namespace rasmgr
 {
 /**

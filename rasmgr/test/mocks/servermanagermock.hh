@@ -11,10 +11,10 @@ namespace test
 class ServerManagerMock: public rasmgr::ServerManager
 {
 public:
-    ServerManagerMock(const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
+    ServerManagerMock(const ServerManagerConfig& config, std::shared_ptr<ServerGroupFactory> serverGroupFactory)
         : ServerManager(config, serverGroupFactory) {}
 
-    MOCK_METHOD2(tryGetFreeServer, bool(const std::string&, boost::shared_ptr<Server>&));
+    MOCK_METHOD2(tryGetFreeServer, bool(const std::string&, std::shared_ptr<Server>&));
     MOCK_METHOD1(registerServer, void(const std::string&));
     MOCK_METHOD1(defineServerGroup, void(const ServerGroupConfigProto&));
     MOCK_METHOD2(changeServerGroup, void(const std::string&, const ServerGroupConfigProto&));

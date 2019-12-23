@@ -1,7 +1,7 @@
 #ifndef RASMGR_X_SRC_SERVERMANAGERCONFIG_HH
 #define RASMGR_X_SRC_SERVERMANAGERCONFIG_HH
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace rasmgr
 {
@@ -11,11 +11,11 @@ public:
     ServerManagerConfig();
     virtual ~ServerManagerConfig();
 
-    boost::int32_t getCleanupInterval() const;
-    void setCleanupInterval(const boost::int32_t &value);
+    std::int32_t getCleanupInterval() const;
+    void setCleanupInterval(const std::int32_t &value);
 
 private:
-    boost::int32_t cleanupInterval;
+    std::int32_t cleanupInterval;
 };
 
 }

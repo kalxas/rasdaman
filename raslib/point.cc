@@ -38,213 +38,109 @@ rasdaman GmbH.
 #include <string>                  // for basic_string
 
 r_Point::r_Point(char *stringRep)
-    : points(nullptr), dimensionality(1), streamInitCnt(0)
 {
-    char charToken = 0;
-    r_Range valueToken = 0;
-
     // for parsing the string
     std::istringstream str(stringRep);
 
     // calculate dimensionality
+    size_t dimensionality = 0;
     char *p = stringRep;
     while ((p = strchr(++p, ',')))
-    {
         dimensionality++;
-    }
-
-    // allocate space for intervals
-    points = new r_Range[dimensionality];
-
+    points.reserve(dimensionality);
+    
+    char charToken;
     str >> charToken;
     if (charToken != '[')
-    {
-        // error
-        dimensionality = 0;
-        delete[] points;
-        points = nullptr;
         throw r_Error(NOPOINT);
-    }
-
+    
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
+        r_Range valueToken;
         str >> valueToken;
-        points[i] = valueToken;
+        points.push_back(valueToken);
 
         if (i < dimensionality - 1)
         {
             str >> charToken;
             if (charToken != ',')
-            {
-                // error
-                dimensionality = 0;
-                delete[] points;
-                points = nullptr;
                 throw r_Error(NOPOINT);
-            }
         }
     }
 }
 
-r_Point::r_Point(r_Dimension dim) : dimensionality(dim), streamInitCnt(0)
+r_Point::r_Point(r_Dimension dim) : points(dim, 0)
 {
-    points = new r_Range[dimensionality];
-
-    for (r_Dimension i = 0; i < dimensionality; i++)
-    {
-        points[i] = 0;
-    }
 }
 
 r_Point &r_Point::operator<<(r_Range newElement)
 {
-    if (streamInitCnt >= dimensionality)
+    if (streamIndex < dimension())
     {
-        LERROR << "r_Point::operator<<(" << newElement << ") already fully initialised";
+        points[streamIndex++] = newElement;
+    }
+    else
+    {
+        LERROR << "cannot add new element to point, already fully initialized.";
         throw r_Einit_overflow();
     }
-
-    points[streamInitCnt++] = newElement;
     return *this;
 }
 
-r_Point::r_Point(r_Range p1, r_Range p2) : dimensionality(2), streamInitCnt(2)
+r_Point::r_Point(r_Range p1, r_Range p2) : r_Point(2u)
 {
-    points = new r_Range[dimensionality];
-    points[0] = p1;
-    points[1] = p2;
+    streamIndex = points.size();
+    points[0] = p1; points[1] = p2;
 }
 
-r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3)
-    : dimensionality(3), streamInitCnt(3)
+r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3) : r_Point(3u)
 {
-    points = new r_Range[dimensionality];
-    points[0] = p1;
-    points[1] = p2;
-    points[2] = p3;
+    streamIndex = points.size();
+    points[0] = p1; points[1] = p2; points[2] = p3;
 }
 
-r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4)
-    : dimensionality(4), streamInitCnt(4)
+r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4) : r_Point(4u)
 {
-    points = new r_Range[dimensionality];
-    points[0] = p1;
-    points[1] = p2;
-    points[2] = p3;
-    points[3] = p4;
+    streamIndex = points.size();
+    points[0] = p1; points[1] = p2; points[2] = p3; points[3] = p4;
 }
 
-r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5)
-    : dimensionality(5), streamInitCnt(5)
+r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5) : r_Point(5u)
 {
-    points = new r_Range[dimensionality];
-    points[0] = p1;
-    points[1] = p2;
-    points[2] = p3;
-    points[3] = p4;
-    points[4] = p5;
+    streamIndex = points.size();
+    points[0] = p1; points[1] = p2; points[2] = p3; points[3] = p4; points[4] = p5;
 }
 
-r_Point::r_Point(const std::vector<r_Range> &pointArg)
-    : dimensionality(pointArg.size()), streamInitCnt(dimensionality)
+r_Point::r_Point(const std::vector<r_Range> &pointArg) 
+    : points{pointArg}, streamIndex{points.size()}
 {
-    points = new r_Range[dimensionality];
-    for (size_t i = 0; i < dimensionality; i++)
-    {
-        points[i] = pointArg[i];
-    }
-}
-
-r_Point::r_Point() : points(nullptr), dimensionality(0), streamInitCnt(0) {}
-
-r_Point::r_Point(const r_Point &pt)
-    : points(new r_Range[pt.dimensionality]),
-      dimensionality(pt.dimensionality),
-      streamInitCnt(pt.streamInitCnt)
-{
-    for (r_Dimension i = 0; i < dimensionality; i++)
-    {
-        points[i] = pt[i];
-    }
-}
-
-r_Point::~r_Point()
-{
-    if (points)
-    {
-        delete[] points;
-        points = nullptr;
-    }
 }
 
 r_Range r_Point::operator[](r_Dimension i) const
 {
-    if (i >= dimensionality)
+    if (i < dimension())
+        return points[i];
+    else
     {
-        LERROR << "r_Point::operator[](" << i << ") const dimension out of bounds (" << dimensionality << ")";
-        throw r_Eindex_violation(0, dimensionality - 1, i);
+        LERROR << "dimension (" << i << ") out of bounds (" << points.size() << ")";
+        throw r_Eindex_violation(0ll, static_cast<r_Range>(points.size()) - 1, i);
     }
-
-    return points[i];
 }
 
 r_Range &r_Point::operator[](r_Dimension i)
 {
-    if (i >= dimensionality)
+    if (i < dimension())
+        return points[i];
+    else
     {
-        LERROR << "r_Point::operator[](" << i << ") dimension out of bounds (" << dimensionality << ")";
-        throw r_Eindex_violation(0, dimensionality - 1, i);
+        LERROR << "dimension (" << i << ") out of bounds (" << points.size() << ")";
+        throw r_Eindex_violation(0ll, static_cast<r_Range>(points.size()) - 1, i);
     }
-
-    return points[i];
-}
-
-const r_Point &r_Point::operator=(const r_Point &pt)
-{
-    if (this != &pt)
-    {
-        if (points && dimensionality != pt.dimension())
-        {
-            delete[] points;
-            points = nullptr;
-        }
-
-        dimensionality = pt.dimension();
-        streamInitCnt = dimensionality;
-
-        if (!points)
-        {
-            points = new r_Range[dimensionality];
-        }
-
-        for (r_Dimension i = 0; i < dimensionality; i++)
-        {
-            points[i] = pt[i];
-        }
-    }
-
-    return *this;
 }
 
 bool r_Point::operator==(const r_Point &pt) const
 {
-    bool returnValue = false;
-
-    if (dimensionality == pt.dimensionality)
-    {
-        returnValue = true;
-
-        for (r_Dimension i = 0; i < dimensionality && returnValue; i++)
-        {
-            if (points[i] != pt[i])
-            {
-                returnValue = false;
-                break;
-            }
-        }
-    }
-
-    return returnValue;
+    return pt.points == points;
 }
 
 bool r_Point::operator!=(const r_Point &pt) const
@@ -255,145 +151,84 @@ bool r_Point::operator!=(const r_Point &pt) const
 bool
 r_Point::operator < (const r_Point &pt) const
 {
-    if (this->dimensionality != pt.dimension())
-    {
-        LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
-        throw r_Edim_mismatch(dimensionality, pt.dimension());
-    }
+    checkDimensionMatch(pt);
     bool returnValue = true;
-    for (r_Dimension dim = 0; dim < dimensionality; dim++)
-    {
+    for (r_Dimension dim = 0; dim < dimension(); dim++)
         returnValue &= this->points[dim] < pt[dim];
-    }
-
     return returnValue;
 }
 bool
 r_Point::operator > (const r_Point &pt) const
 {
-    if (this->dimensionality != pt.dimension())
-    {
-        LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
-        throw r_Edim_mismatch(dimensionality, pt.dimension());
-    }
+    checkDimensionMatch(pt);
     bool returnValue = true;
-    for (r_Dimension dim = 0; dim < dimensionality; dim++)
-    {
+    for (r_Dimension dim = 0; dim < dimension(); dim++)
         returnValue &= this->points[dim] > pt[dim];
-    }
-
     return returnValue;
 }
 
 bool
 r_Point::operator >= (const r_Point &pt) const
 {
-    if (this->dimensionality != pt.dimension())
-    {
-        LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
-        throw r_Edim_mismatch(dimensionality, pt.dimension());
-    }
+    checkDimensionMatch(pt);
     bool returnValue = true;
-    for (r_Dimension dim = 0; dim < dimensionality; dim++)
-    {
+    for (r_Dimension dim = 0; dim < dimension(); dim++)
         returnValue &= this->points[dim] >= pt[dim];
-    }
-
     return returnValue;
 }
 
 bool
 r_Point::operator <= (const r_Point &pt) const
 {
-    if (this->dimensionality != pt.dimension())
-    {
-        LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
-        throw r_Edim_mismatch(dimensionality, pt.dimension());
-    }
+    checkDimensionMatch(pt);
     bool returnValue = true;
-    for (r_Dimension dim = 0; dim < dimensionality; dim++)
-    {
+    for (r_Dimension dim = 0; dim < dimension(); dim++)
         returnValue &= this->points[dim] <= pt[dim];
-    }
-
     return returnValue;
 }
 
 r_Point r_Point::operator+(const r_Point &pt) const
 {
-    if (dimensionality != pt.dimension())
-    {
-        LERROR << "r_Point::operator+(" << pt << ") dimensions (" << dimensionality << ") do not match";
-        throw r_Edim_mismatch(dimensionality, pt.dimension());
-    }
-
-    r_Point result(dimensionality);
-
-    for (r_Dimension i = 0; i < dimensionality; i++)
-    {
+    checkDimensionMatch(pt);
+    r_Point result(dimension());
+    for (r_Dimension i = 0; i < dimension(); i++)
         result[i] = points[i] + pt[i];
-    }
-
     return result;
 }
 
 r_Point r_Point::operator-(const r_Point &pt) const
 {
-    if (dimensionality != pt.dimension())
-    {
-        LERROR << "r_Point::operator-(" << pt << ") dimensions (" << dimensionality << ") do not match";
-        throw r_Edim_mismatch(dimensionality, pt.dimension());
-    }
-
-    r_Point result(dimensionality);
-
-    for (r_Dimension i = 0; i < dimensionality; i++)
-    {
+    checkDimensionMatch(pt);
+    r_Point result(dimension());
+    for (r_Dimension i = 0; i < dimension(); i++)
         result[i] = points[i] - pt[i];
-    }
-
     return result;
 }
 
 r_Point r_Point::operator*(const r_Point &pt) const
 {
-    if (dimensionality != pt.dimension())
-    {
-        LERROR << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match";
-        throw r_Edim_mismatch(dimensionality, pt.dimension());
-    }
-
-    r_Point result(dimensionality);
-
-    for (r_Dimension i = 0; i < dimensionality; i++)
-    {
+    checkDimensionMatch(pt);
+    r_Point result(dimension());
+    for (r_Dimension i = 0; i < dimension(); i++)
         result[i] = points[i] * pt[i];
-    }
-
     return result;
 }
 
 r_Point
 r_Point::operator*(const r_Range newElement) const
 {
-    r_Point result(dimensionality);
-
-    for (r_Dimension i = 0; i < dimensionality; i++)
-    {
+    r_Point result(dimension());
+    for (r_Dimension i = 0; i < dimension(); i++)
         result[i] = points[i] * newElement;
-    }
-
     return result;
 }
 
 r_Point
 r_Point::indexedMap(const std::vector<r_Dimension> &vecArg) const
 {
-    r_Point retVal(vecArg.size());
+    r_Point retVal(static_cast<r_Dimension>(vecArg.size()));
     for (size_t i = 0; i < vecArg.size(); i++)
-    {
-        retVal[i] = points[vecArg[i]];
-    }
+        retVal[static_cast<r_Dimension>(i)] = points[vecArg[i]];
     return retVal;
 }
 
@@ -401,19 +236,10 @@ r_Point::indexedMap(const std::vector<r_Dimension> &vecArg) const
 r_Range
 r_Point::dotProduct(const r_Point &pt) const
 {
-    if (dimensionality != pt.dimension())
-    {
-        LERROR << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match";
-        throw r_Edim_mismatch(dimensionality, pt.dimension());
-    }
-
+    checkDimensionMatch(pt);
     r_Range result = 0;
-
-    for (r_Dimension i = 0; i < dimensionality; i++)
-    {
+    for (r_Dimension i = 0; i < dimension(); i++)
         result += points[i] * pt[i];
-    }
-
     return result;
 }
 
@@ -421,52 +247,49 @@ std::vector<r_Range>
 r_Point::getVector() const
 {
     std::vector<r_Range> returnVal;
-    returnVal.reserve(dimensionality);
-    for (size_t i = 0; i < dimensionality; i++)
-    {
+    returnVal.reserve(dimension());
+    for (size_t i = 0; i < dimension(); i++)
         returnVal.emplace_back(points[i]);
-    }
     return returnVal;
 }
 
 void r_Point::print_status(std::ostream &s) const
 {
     s << "[";
-
-    if (dimensionality > 0)
+    if (dimension() > 0)
     {
-        for (r_Dimension i = 0; i < dimensionality - 1; i++)
-        {
+        for (r_Dimension i = 0; i < dimension() - 1; i++)
             s << points[i] << ",";
-        }
-
-        s << points[dimensionality - 1];
+        s << points[dimension() - 1];
     }
-
     s << "]";
 }
 
 char *r_Point::get_string_representation() const
 {
-    // initialize string stream
     std::ostringstream domainStream;
-
-    // write into string stream
     domainStream << (*this);
-
-    // allocate memory taking the final string
     char *returnString = strdup(domainStream.str().c_str());
-
     return returnString;
 }
 
 std::string
 r_Point::to_string() const
 {
-    char *stringRep = this->get_string_representation();
-    std::string returnValue(stringRep);
-    std::free(stringRep);
+    std::ostringstream domainStream;
+    domainStream << (*this);
+    auto returnValue = domainStream.str();
     return returnValue;
+}
+
+void r_Point::checkDimensionMatch(const r_Point &pt) const
+{
+    if (dimension() != pt.dimension())
+    {
+        LERROR << "dimension of given point (" << dimension() 
+               << ") does not match dimension of this point (" << dimension() << ").";
+        throw r_Edim_mismatch(dimension(), pt.dimension());
+    }
 }
 
 std::ostream &operator<<(std::ostream &s, const r_Point &d)
@@ -475,3 +298,24 @@ std::ostream &operator<<(std::ostream &s, const r_Point &d)
     return s;
 }
 
+r_Dimension
+r_Point::dimension() const
+{
+    return static_cast<r_Dimension>(points.size());
+}
+
+int
+r_Point::compare_with(const r_Point &p) const
+{
+    if (dimension() != p.dimension())
+        return -2;
+
+    for (r_Dimension i = 0; i < dimension(); i++)
+    {
+        if (points[i] > p[i])
+            return 1;
+        if (points[i] < p[i])
+            return -1;
+    }
+    return 0;
+}

@@ -24,24 +24,30 @@ rasdaman GmbH.
 #ifndef RASNETCLIENTCOMM_HH
 #define RASNETCLIENTCOMM_HH
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/thread.hpp>
-
-#include <google/protobuf/service.h>
-#include <google/protobuf/stubs/common.h>
+#include "clientcomm/clientcomm.hh"
+#include "globals.hh"
 
 #include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
 #include "rasnet/messages/client_rassrvr_service.grpc.pb.h"
 #include "common/grpc/messages/health_service.grpc.pb.h"
 
-#include "clientcomm/clientcomm.hh"
-#include "rpcif.h"
-#include "rasodmg/ref.hh"
-#include "globals.hh"
+#include <memory>
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/thread.hpp>
+#include <google/protobuf/service.h>
+#include <google/protobuf/stubs/common.h>
+
+class TurboQueryResult;
+class r_Ref_Any;
+template <typename T>
+class r_Ref;
+class r_GMarray;
+
+// rpcif.h
+struct RPCMarray;
+struct GetMDDRes;
+struct GetTileRes;
+struct GetElementRes;
 
 class RasnetClientComm : public ClientComm
 {
@@ -96,21 +102,21 @@ public:
     int  getTimeoutInterval();
 
 private:
-    boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
+    std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasServerService; /*! Flag used to indicate if the service was initialized */
     boost::shared_mutex rasServerServiceMtx;
-    boost::shared_ptr<common::HealthService::Stub> rasserverHealthService;
+    std::shared_ptr<common::HealthService::Stub> rasserverHealthService;
 
-    boost::shared_ptr<rasnet::service::RasmgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
+    std::shared_ptr<rasnet::service::RasmgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasMgrService; /*! Flag used to indicate if the service was initialized */
     boost::shared_mutex rasMgrServiceMtx;
-    boost::shared_ptr<common::HealthService::Stub> rasmgrHealthService;
+    std::shared_ptr<common::HealthService::Stub> rasmgrHealthService;
 
     /* START: KEEP ALIVE */
     int64_t keepAliveTimeout;
 
     /* RASMGR */
-    ::boost::scoped_ptr<::boost::thread> rasMgrKeepAliveManagementThread;
+    std::unique_ptr<boost::thread> rasMgrKeepAliveManagementThread;
     boost::mutex rasmgrKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
     bool isRasmgrKeepAliveRunning; /*! Flag used to stop the worker thread */
     boost::condition_variable isRasmgrKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
@@ -121,7 +127,7 @@ private:
     void clientRasMgrKeepAliveRunner();
 
     /* RASSERVER */
-    ::boost::scoped_ptr<::boost::thread> rasServerKeepAliveManagementThread;
+    std::unique_ptr<boost::thread> rasServerKeepAliveManagementThread;
     boost::mutex rasserverKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
     bool isRasserverKeepAliveRunning; /*! Flag used to stop the worker thread */
     boost::condition_variable isRasserverKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
@@ -132,8 +138,8 @@ private:
     void clientRasServerKeepAliveRunner();
     /* END: KEEP ALIVE */
 
-    ::boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService(bool throwIfConnectionFailed = true);
-    ::boost::shared_ptr<rasnet::service::RasmgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed = true);
+    std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService(bool throwIfConnectionFailed = true);
+    std::shared_ptr<rasnet::service::RasmgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed = true);
 
     void initRasserverService();
     void initRasmgrService();

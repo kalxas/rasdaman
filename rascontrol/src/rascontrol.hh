@@ -23,7 +23,7 @@
 #ifndef RASCONTROL_X_SRC_RASCONTROL_HH
 #define RASCONTROL_X_SRC_RASCONTROL_HH
 
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 #include "rascontrolconfig.hh"
 #include "usercredentials.hh"
@@ -45,7 +45,7 @@ public:
      * @param config
      * @param userCredentials
      */
-    RasControl(RasControlConfig &config, const UserCredentials &userCredentials);
+    RasControl(RasControlConfig &config, const UserCredentials &userCredentials1);
 
     /**
      * @brief start Start the rascontrol execution.
@@ -57,7 +57,7 @@ private:
     const UserCredentials &userCredentials; /*!< Reference to the user credentials object */
     EditLine editLine; /*!< Object used to retrieve input from the user */
 
-    boost::scoped_ptr<CommandExecutor> comm; /*!< Executor of user commands */
+    std::unique_ptr<CommandExecutor> comm; /*!< Executor of user commands */
 
     /**
      * @brief startInteractiveMode Start the interactive mode of the client.

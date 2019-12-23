@@ -32,8 +32,8 @@
 namespace rasmgr
 {
 using std::runtime_error;
-using boost::mutex;
-using boost::unique_lock;
+using std::mutex;
+using std::unique_lock;
 
 DatabaseHost::DatabaseHost(std::string hostName, std::string connectString,
                            std::string userName, std::string passwdString) :
@@ -49,8 +49,7 @@ void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, const s
     unique_lock<mutex> lock(this->mut);
 
     bool foundDb = false;
-    std::list<boost::shared_ptr<Database>>::iterator it;
-    for (it = this->databaseList.begin(); !foundDb &&  it != this->databaseList.end(); it++)
+    for (auto it = this->databaseList.begin(); !foundDb &&  it != this->databaseList.end(); it++)
     {
         if ((*it)->getDbName() == databaseName)
         {
@@ -73,8 +72,7 @@ void DatabaseHost::removeClientSessionFromDB(const std::string &clientId, const 
 {
     unique_lock<mutex> lock(this->mut);
 
-    std::list<boost::shared_ptr<Database>>::iterator it;
-    for (it = this->databaseList.begin(); it != this->databaseList.end(); it++)
+    for (auto it = this->databaseList.begin(); it != this->databaseList.end(); it++)
     {
         this->sessionCount -= (*it)->removeClientSession(clientId, sessionId);
     }
@@ -111,7 +109,7 @@ bool DatabaseHost::ownsDatabase(const std::string &databaseName)
     return this->containsDatabase(databaseName);
 }
 
-void DatabaseHost::addDbToHost(boost::shared_ptr<Database> db)
+void DatabaseHost::addDbToHost(std::shared_ptr<Database> db)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -127,12 +125,11 @@ void DatabaseHost::addDbToHost(boost::shared_ptr<Database> db)
 
 void DatabaseHost::removeDbFromHost(const std::string &dbName)
 {
-    std::list<boost::shared_ptr<Database>>::iterator it;
     bool removedDb = false;
 
     unique_lock<mutex> lock(this->mut);
 
-    for (it = this->databaseList.begin(); !removedDb && it != this->databaseList.end(); it++)
+    for (auto it = this->databaseList.begin(); !removedDb && it != this->databaseList.end(); it++)
     {
         if ((*it)->getDbName() == dbName)
         {
@@ -168,9 +165,7 @@ DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
     result.set_session_count(dbHost.sessionCount);
     result.set_server_count(dbHost.serverCount);
 
-    std::list<boost::shared_ptr<Database>>::const_iterator it;
-
-    for (it = dbHost.databaseList.begin(); it != dbHost.databaseList.end(); it++)
+    for (auto it = dbHost.databaseList.begin(); it != dbHost.databaseList.end(); it++)
     {
         result.add_databases()->CopyFrom(Database::serializeToProto(**it));
     }
@@ -230,9 +225,7 @@ void DatabaseHost::setPasswdString(const std::string &passwdString)
 
 bool DatabaseHost::containsDatabase(const std::string &dbName)
 {
-    std::list<boost::shared_ptr<Database>>::iterator it;
-
-    for (it = this->databaseList.begin(); it != this->databaseList.end(); it++)
+    for (auto it = this->databaseList.begin(); it != this->databaseList.end(); it++)
     {
         if ((*it)->getDbName() == dbName)
         {

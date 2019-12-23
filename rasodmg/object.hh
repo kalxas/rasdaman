@@ -86,7 +86,7 @@ public:
     virtual ~r_Object();
 
     /// mark the object as modified
-    inline void mark_modified();
+    void mark_modified();
 
     /// new operator for transient objects
     void *operator new (size_t size);
@@ -101,7 +101,7 @@ public:
     void operator delete (void *obj_ptr);
 
     /// set object type by name
-    inline void set_type_by_name(const char *name);
+    void set_type_by_name(const char *name);
     /**
       With this method a type name has to be given by the user for each
       object which he wants to make persistent. If an object without a valid type
@@ -113,16 +113,16 @@ public:
     */
 
     /// set object type by name
-    inline void set_type_structure(const char *name);
+    void set_type_structure(const char *name);
 
     /// get object type name
-    inline const char *get_type_name() const;
+    const char *get_type_name() const;
 
     /// get object type structure
-    inline const char *get_type_structure() const;
+    const char *get_type_structure() const;
 
     /// get oid
-    inline const r_OId &get_oid() const;
+    const r_OId &get_oid() const;
 
     /// get type schema. returns NULL in case of error
     const r_Type *get_type_schema();
@@ -169,7 +169,7 @@ public:
     virtual void r_activate()
     {
         ;
-    };
+    }
     /// it is called when an object leaves transient memory
     virtual void r_deactivate();
 
@@ -177,13 +177,13 @@ public:
     /// test object status returns 1 if it matches
     bool test_status(ObjectStatus status);
     /// gets the status of the object
-    inline ObjectStatus get_status() const;
+    ObjectStatus get_status() const;
 
     ///
     /// set object name. object name should contain only [a-zA-Z0-9_]
-    inline void set_object_name(const char *name);
+    void set_object_name(const char *name);
     /// get object name
-    inline const char *get_object_name() const;
+    const char *get_object_name() const;
 
     ///
     /// new operator for activating an object (status = read)
@@ -247,10 +247,4 @@ private:
     static ObjectType last_object_type;
 };
 
-#include "rasodmg/object.icc"
-
 #endif
-
-
-
-

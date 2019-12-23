@@ -24,16 +24,15 @@
 #define RASCONTROL_X_SRC_RASCONTROLCONSTANTS_HH
 
 #include <string>
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace rascontrol
 {
-const boost::uint32_t MAXMSG = 2048; /*!< Maximum length of a rascontrol message. */
+const std::uint32_t MAXMSG = 2048; /*!< Maximum length of a rascontrol message. */
 
-const boost::uint32_t MAX_USERNAME_LENGTH = 100; /*!< Maximum length of a user name */
+const std::uint32_t MAX_USERNAME_LENGTH = 100; /*!< Maximum length of a user name */
 
-const boost::uint32_t MAX_USERPASS_LENGTH = 100; /*!< Maximum length of a user password */
+const std::uint32_t MAX_USERPASS_LENGTH = 100; /*!< Maximum length of a user password */
 
 const char EOS_CHAR = '\0'; /*!< Constant representing the end of a string */
 

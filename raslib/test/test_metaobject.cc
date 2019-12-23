@@ -38,7 +38,7 @@
 #define __EXECUTABLE__
 #endif
 
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/attribute.hh"
 #include "raslib/primitivetype.hh"

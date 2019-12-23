@@ -23,7 +23,7 @@
 #ifndef ABSTRACTNETWORKFACTORY_HH
 #define ABSTRACTNETWORKFACTORY_HH
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace common
 {
@@ -47,12 +47,12 @@ protected:
      * @brief AbstractNetworkResolver Protected constructor for preventing the creation of this kind of objects.
      * @param portArg The port to be checked if it is busy.
      */
-    AbstractNetworkResolver(boost::uint32_t portArg);
+    AbstractNetworkResolver(std::uint32_t portArg);
 
     /**
      * @brief port The port to be checked if it is busy.
      */
-    boost::uint32_t port;
+    std::uint32_t port;
 };
 
 }

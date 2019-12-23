@@ -24,7 +24,6 @@
 #define RASCONTROL_X_SRC_CONTROLRASMGRRASNET_HH_
 
 #include <memory>
-#include <boost/smart_ptr.hpp>
 #include "rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 #include "common/grpc/messages/health_service.grpc.pb.h"
 
@@ -53,8 +52,8 @@ private:
     const UserCredentials &userCredentials;
     rascontrol::RasControlConfig &config;
 
-    boost::shared_ptr<::rasnet::service::RasMgrRasCtrlService::Stub> rasmgrService;
-    boost::shared_ptr<::common::HealthService::Stub> healthService;
+    std::shared_ptr<::rasnet::service::RasMgrRasCtrlService::Stub> rasmgrService;
+    std::shared_ptr<::common::HealthService::Stub> healthService;
 };
 
 } /* namespace rascontrol */

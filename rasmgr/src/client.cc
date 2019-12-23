@@ -40,15 +40,13 @@ using std::string;
 using std::runtime_error;
 using std::map;
 using common::UUID;
-using boost::weak_ptr;
 using boost::shared_lock;
 using boost::shared_mutex;
-using boost::shared_ptr;
 using boost::unique_lock;
 using boost::upgrade_lock;
 using boost::upgrade_to_unique_lock;
 
-Client::Client(const string &clientIdArg, boost::shared_ptr<User> userArg, boost::int32_t lifeTime)
+Client::Client(const string &clientIdArg, std::shared_ptr<User> userArg, std::int32_t lifeTime)
     : clientId(clientIdArg), user(userArg), timer(lifeTime)
 {
 }
@@ -91,7 +89,7 @@ void Client::resetLiveliness()
 }
 
 void Client::addDbSession(const std::string &dbName,
-                          boost::shared_ptr<Server> assignedServer,
+                          std::shared_ptr<Server> assignedServer,
                           std::string &out_sessionId)
 {
     /**
@@ -130,14 +128,12 @@ void Client::addDbSession(const std::string &dbName,
 
 void Client::removeDbSession(const string &sessionId)
 {
-    map<string, weak_ptr<Server>>::iterator assignedServerIt;
-
     unique_lock<shared_mutex> lock(this->assignedServersMutex);
 
-    assignedServerIt = this->assignedServers.find(sessionId);
+    auto assignedServerIt = this->assignedServers.find(sessionId);
     if (assignedServerIt != this->assignedServers.end())
     {
-        if (shared_ptr<Server> server = assignedServerIt->second.lock())
+        if (auto server = assignedServerIt->second.lock())
         {
             server->deallocateClientSession(this->clientId, sessionId);
         }
@@ -148,12 +144,11 @@ void Client::removeDbSession(const string &sessionId)
 
 void Client::removeClientFromServers()
 {
-    map<string, weak_ptr<Server>>::iterator serverIt;
     upgrade_lock<shared_mutex> lock(this->assignedServersMutex);
 
-    for (serverIt = this->assignedServers.begin(); serverIt != this->assignedServers.end(); ++serverIt)
+    for (auto serverIt = this->assignedServers.begin(); serverIt != this->assignedServers.end(); ++serverIt)
     {
-        if (shared_ptr<Server> server = serverIt->second.lock())
+        if (auto server = serverIt->second.lock())
         {
             server->deallocateClientSession(this->clientId, serverIt->first);
         }
@@ -163,7 +158,7 @@ void Client::removeClientFromServers()
     this->assignedServers.clear();
 }
 
-const boost::shared_ptr<const User> Client::getUser() const
+const std::shared_ptr<const User> Client::getUser() const
 {
     return user;
 }
@@ -176,7 +171,7 @@ bool Client::isClientAliveOnServers()
 
     for (auto serverIt = this->assignedServers.begin(); !isAlive && serverIt != this->assignedServers.end(); ++serverIt)
     {
-        if (shared_ptr<Server> server = serverIt->second.lock())
+        if (auto server = serverIt->second.lock())
         {
             //The client must be alive on at least one server
             isAlive = isAlive || server->isClientAlive(this->clientId);
@@ -199,7 +194,7 @@ void Client::removeDeadServers()
     while (serverIt != this->assignedServers.end())
     {
         //Try to aquire a valid pointer to the assigned server
-        shared_ptr<Server> server = serverIt->second.lock();
+        auto server = serverIt->second.lock();
 
         //The server is dead,remove it
         auto serverToEraseIt = serverIt;

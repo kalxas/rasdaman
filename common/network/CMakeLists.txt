@@ -33,6 +33,10 @@ add_library(common_network
         networkresolverfactory.cc
 	${NETWORK_HEADER_FILES})
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(common_network REUSE_FROM common_logging)
+endif()
+
 # Install the library to the lib folder
 install(TARGETS common_network
 	DESTINATION ${LIB_DIR})

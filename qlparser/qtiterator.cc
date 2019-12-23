@@ -21,9 +21,10 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "raslib/error.hh"
+#include "qlparser/qtiterator.hh"
 #include <logging.hh>
 
-#include "qlparser/qtiterator.hh"
 #include <iostream>
 #include <string>
 using namespace std;

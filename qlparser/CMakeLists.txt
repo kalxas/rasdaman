@@ -39,6 +39,7 @@ add_library(qlparser
         ${FLEX_QlScanner_OUTPUTS}
         lex.ll oql.yy # These files are added to the list to allow QtCreator to see them as part of the project.
         alloca.cc
+        algebraops.hh algebraops.cc
         parseinfo.hh parseinfo.cc parseinfo.icc
         qtatomicdata.hh qtatomicdata.cc qtatomicdata.icc
         qtbinaryfunc.hh qtbinaryfunc.cc qtbinaryfunc.icc
@@ -113,6 +114,8 @@ add_library(qlparser
         symtab.hh symtab.cc
 )
 
+set_source_files_properties(oql.yy oql.cc qtbinaryinduce.cc
+    PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 
 if (USE_GDAL)
     find_package(GDAL REQUIRED)
@@ -125,14 +128,17 @@ target_include_directories(qlparser SYSTEM PUBLIC ${OPTIONAL_INCLUDE_DIRECTORIES
 target_include_directories(qlparser PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(qlparser PUBLIC "${CMAKE_SOURCE_DIR}/debug")
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(qlparser REUSE_FROM common_logging)
+endif()
+
 add_subdirectory(test)
 
-target_link_libraries(qlparser ${OPTIONAL_LIBRARIES} common_geo)
+target_link_libraries(qlparser ${OPTIONAL_LIBRARIES}
+    common_geo lockmanager)
 
 # The qlparser depends on clientcomm and servercomm because somebody included the generated RPC files.
 add_dependencies(qlparser clientcomm servercomm catalogmgr)
-
-#cotire(qlparser)
 
 install(TARGETS qlparser
         DESTINATION ${LIB_DIR})

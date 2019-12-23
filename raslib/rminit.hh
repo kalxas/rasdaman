@@ -23,11 +23,6 @@
 #ifndef _RMINIT_
 #define _RMINIT_
 
-#include <iostream>
-using std::ios;
-using std::endl;
-
-#include <fstream>
 #include <raslib/mddtypes.hh>
 #include <raslib/rm.hh>
 #include "globals.hh"

@@ -20,23 +20,24 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <fstream>
-#include <stdexcept>
-
-#include <logging.hh>
+#include "rascontrol.hh"
 #include "common/exceptions/logicexception.hh"
-
 #include "controlrasmgrrasnet.hh"
 #include "invalidrasctrlcommandexception.hh"
-#include "rascontrol.hh"
 #include "commandexecutor.hh"
+#include <logging.hh>
+
+#include <fstream>
+#include <stdexcept>
+#include <unistd.h>
 
 namespace rascontrol
 {
-RasControl::RasControl(RasControlConfig &config, const UserCredentials &userCredentials): config(config), userCredentials(userCredentials)
+RasControl::RasControl(RasControlConfig &config1, const UserCredentials &userCredentials1)
+    : config(config1), userCredentials(userCredentials1)
 {
-    boost::shared_ptr<ControlRasMgrRasnet> rasnet(new ControlRasMgrRasnet(this->userCredentials, this->config));
-
+    std::shared_ptr<ControlRasMgrRasnet> rasnet(
+                new ControlRasMgrRasnet(this->userCredentials, this->config));
     this->comm.reset(new CommandExecutor(rasnet));
 }
 
@@ -72,7 +73,6 @@ void RasControl::start()
     {
         throw common::LogicException("Invalid work mode");
     }
-    break;
     }
 }
 

@@ -43,14 +43,12 @@ rasdaman GmbH.
 #include "raslib/point.hh"             // for r_Point
 #include <logging.hh>
 
-#include <boost/make_shared.hpp>       // for shared_ptr::operator!, shared_...
-#include <boost/shared_ptr.hpp>        // for shared_ptr, operator==
-#include <ext/alloc_traits.h>          // for __alloc_traits<>::value_type
 #include <iostream>                    // for operator<<, ostream, basic_ost...
 #include <memory>                      // for allocator_traits<>::value_type
 #include <vector>                      // for vector, vector<>::iterator
+#include <cassert>
 
-using boost::shared_ptr;
+using std::shared_ptr;
 using std::vector;
 
 MDDObjIx::MDDObjIx(const StorageLayout &sl, const r_Minterval &dim)
@@ -204,7 +202,7 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(const r_Minterval &searchInter) co
                     if (resultKeys[i].getTransObject() == nullptr)
                     {
                         auto resultDomain = resultKeys[i].getDomain();
-                        auto newResult = boost::make_shared<Tile>(
+                        auto newResult = std::make_shared<Tile>(
                             resultDomain, cellBaseType, DBTileId(resultKeys[i].getObject()));
                         result->push_back(newResult);
                     }
@@ -485,3 +483,4 @@ void MDDObjIx::initializeTimerPointers()
     getTilesTimer = new RMTimer("DirIx", "getTiles");
 }
 #endif
+

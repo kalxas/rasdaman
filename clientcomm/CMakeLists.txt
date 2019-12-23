@@ -22,28 +22,28 @@
 #
 ###################################################################
 
-# TODO: We should refactor so that we have a folder for communication classes 
-# (used by client and server) and one for client classes
-set(SRC_FILES
-    clientcomm.hh clientcomm.cc
-    "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetclientcomm.hh"
-    "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetclientcomm.cc")
-
 set_source_files_properties(
-    "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetclientcomm.cc"
+    rasnetclientcomm.cc
     PROPERTIES COMPILE_FLAGS ${DISABLE_PROTOBUF_WARNINGS_FLAGS})
 
-set(RASNET_LIBRARIES
-    rasnet common_exceptions common_crypto common_grpc
-    common_logging common_time common_uuid
-    ${Boost_THREAD_LIBRARY})
-
-add_library(clientcomm ${SRC_FILES})
+add_library(clientcomm
+    clientcomm.hh clientcomm.cc
+    rasnetclientcomm.hh rasnetclientcomm.cc
+    )
 
 target_include_directories(clientcomm PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(clientcomm ${RASNET_LIBRARIES} ${OPENSSL_LIBRARIES})
+target_link_libraries(clientcomm PUBLIC
+    common_grpc common_logging common_exceptions common_crypto common_uuid 
+    raslib rasodmg rasnet mymalloc_cln
+    ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
+    ${PROTOBUF_LIBRARY}
+    ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${ZLIB_LIBRARIES}
+    )
+
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(clientcomm REUSE_FROM common_logging)
+endif()
 
 install(TARGETS clientcomm DESTINATION ${LIB_DIR})
-
-install(FILES clientcomm.hh DESTINATION "${INCLUDE_DIR}/rasodmg/clientcomm")
+install(FILES clientcomm.hh DESTINATION "${INCLUDE_DIR}/clientcomm")

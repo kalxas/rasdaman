@@ -84,11 +84,6 @@ include(cmake/Functions.cmake)
 # Check for functions and symbols needed by rasdaman
 include(cmake/CheckForRequiredSymbols.cmake)
 
-# Cotire (compile time reducer) is a CMake module that speeds up the build process of 
-# CMake based build systems by fully automating techniques as precompiled header usage 
-# and single compilation unit builds for C and C++. https://github.com/sakra/cotire
-include(cotire)
-
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -164,8 +159,8 @@ endif()
 #
 # Set compiler flags
 #
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -gsplit-dwarf -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -gsplit-dwarf -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 
@@ -188,7 +183,7 @@ if (ENABLE_DEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
     # Do not enable below as it clashes with define from easylogging
     # set(DEBUG ${ENABLE_DEBUG})
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -gsplit-dwarf")
 
     add_definitions(-DELPP_DEBUG_ERRORS)
 
@@ -611,12 +606,14 @@ find_package(OpenSSL REQUIRED)
 #
 # Make subdirectories visible
 #
+# common must be defined first for precompiled headers to work
+add_subdirectory(common)
+
 add_subdirectory(applications)
 add_subdirectory(bin)
 add_subdirectory(catalogmgr)
 add_subdirectory(clientcomm)
 add_subdirectory(commline)
-add_subdirectory(common)
 add_subdirectory(conversion)
 add_subdirectory(doc)
 add_subdirectory(include)
@@ -649,6 +646,33 @@ add_subdirectory(tilemgr)
 include(cmake/CPPCheck.cmake)
 AddCPPCheckTarget("${CMAKE_SOURCE_DIR}/third_party" "${CPP_FILE_EXTENSIONS}")
 
+# Set targets for unity build
+# https://cmake.org/cmake/help/v3.16/prop_tgt/UNITY_BUILD.html
+set_target_properties(
+    common_exceptions 
+    common_util
+    common_logging
+    common_network
+    common_grpc
+    clientcomm
+    conversion
+    indexmgr
+    mddmgr
+    qlparser
+    raslib
+    rasodmg
+    rascontrol_lib
+    rasmgr_lib
+    rasnet
+    #rasnetserver
+    relblobif
+    relcatalogif
+    relindexif
+    relmddif
+    relstorageif
+    servercomm
+    storagemgr
+    PROPERTIES UNITY_BUILD ON)
 
 message(STATUS "Final compiler options: ${CMAKE_CXX_FLAGS}")
 message(STATUS "Rasdaman will be installed in ${CMAKE_INSTALL_PREFIX}")

@@ -24,8 +24,8 @@
 #define NETWORKRESOLVERFACTORY_HH
 
 #include <string>
-#include <boost/cstdint.hpp>
-#include <boost/smart_ptr.hpp>
+#include <cstdint>
+#include <memory>
 
 #include "abstractnetworkresolver.hh"
 namespace common
@@ -45,8 +45,8 @@ public:
      * @param port The port.
      * @return
      */
-  static boost::shared_ptr<AbstractNetworkResolver> getNetworkResolver(const std::string &host,
-                                                                       boost::uint32_t port);
+  static std::shared_ptr<AbstractNetworkResolver> getNetworkResolver(const std::string &host,
+                                                                     std::uint32_t port);
 
 };
 

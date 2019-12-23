@@ -22,9 +22,8 @@
 
 #include <sys/prctl.h>
 #include <signal.h>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "globals.hh"
 #include "config.h"
@@ -54,7 +53,7 @@ using rasmgr::Configuration;
 using rasmgr::RasManager;
 
 //RasManager object that orchestrates
-boost::shared_ptr<rasmgr::RasManager> manager;
+std::shared_ptr<rasmgr::RasManager> manager;
 
 void shutdownHandler(__attribute__((unused)) int sig,
                      __attribute__((unused)) siginfo_t *info, __attribute__((unused)) void *ucontext)

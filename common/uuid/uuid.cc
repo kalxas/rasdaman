@@ -41,10 +41,10 @@ namespace common {
 
 boost::uuids::random_generator UUID::generator;
 
-boost::mutex UUID::generatorMutex;
+std::mutex UUID::generatorMutex;
 std::string UUID::generateUUID()
 {
-    boost::unique_lock<boost::mutex> lock(UUID::generatorMutex);
+    std::unique_lock<std::mutex> lock(UUID::generatorMutex);
     return boost::lexical_cast<std::string>(UUID::generator());
 }
 

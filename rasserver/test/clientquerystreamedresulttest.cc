@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../src/clientquerystreamedresult.hh"
 #include <cstring>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace rasserver
 {
@@ -9,7 +9,7 @@ namespace test
 {
 TEST(ClientQueryStreamedResultTest, streamSmallSize) {
 
-    boost::uint64_t dataSize = 100;
+    std::uint64_t dataSize = 100;
 
     char* data = new char[dataSize];
     for (size_t i = 0; i < dataSize; ++i)
@@ -28,7 +28,7 @@ TEST(ClientQueryStreamedResultTest, streamSmallSize) {
 
 TEST(ClientQueryStreamedResultTest, streamBigSize)
 {
-    boost::uint64_t dataSize = ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE / 2; // 2.5 chunks
+    std::uint64_t dataSize = ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE / 2; // 2.5 chunks
 
     char* data = new char[dataSize];
     char* newData = new char[dataSize];
@@ -62,7 +62,7 @@ TEST(ClientQueryStreamedResultTest, streamBigSize)
 
 TEST(ClientQueryStreamedResultTest, testZeroSize)
 {
-    boost::uint64_t dataSize = 0;
+    std::uint64_t dataSize = 0;
 
     char* data = new char[dataSize];
 

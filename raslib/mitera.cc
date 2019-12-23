@@ -39,30 +39,22 @@ r_MiterArea::r_MiterArea(const r_Minterval *newIterDom,
 {
     if (imgDom->dimension() != iterDom->dimension())
     {
-        //in this case we have an undefined situation
-        LERROR << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") dimension mismatch";
+        LERROR << "dimension mismatch between " << iterDom << " and " << imgDom;
         throw r_Error(INTERVALSWITHDIFFERENTDIMENSION);
     }
-
-    if (!imgDom->is_origin_fixed() ||
-            !imgDom->is_high_fixed())
+    if (!imgDom->is_origin_fixed() || !imgDom->is_high_fixed())
     {
-        //in this case we have an undefined situation
-        LERROR << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") imgDom is opened";
+        LERROR << imgDom << " is opened.";
         throw r_Error(INTERVALOPEN);
     }
-
-    if (!iterDom->is_origin_fixed() ||
-            !iterDom->is_high_fixed())
+    if (!iterDom->is_origin_fixed() || !iterDom->is_high_fixed())
     {
-        //in this case we have an undefined situation
-        LERROR << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") iterDom is opened";
+        LERROR << iterDom << " is opened.";
         throw r_Error(INTERVALOPEN);
     }
-
 
     // dimensionality of both iterDom and imgDom
-    r_Dimension dim = imgDom->dimension();
+    const auto dim = imgDom->dimension();
     // stores the increments
     incArrIter = new incArrElem[dim];
 
@@ -71,8 +63,10 @@ r_MiterArea::r_MiterArea(const r_Minterval *newIterDom,
         // used for counting in iteration, initialize with 0
         incArrIter[i].curr = 0;
         // how often is the iterDom moved inside the imgDom
-        incArrIter[i].repeat = (imgDom->get_extent()[i] / iterDom->get_extent()[i]) +
-                               (imgDom->get_extent()[i] % iterDom->get_extent()[i] != 0);
+        const auto imgExtent = imgDom->get_extent()[i];
+        const auto iterExtent = iterDom->get_extent()[i];
+        incArrIter[i].repeat = static_cast<int>(
+                    (imgExtent / iterExtent) + (imgExtent % iterExtent != 0));
 
         //LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat;
     }
@@ -90,55 +84,41 @@ r_MiterArea::reset()
 {
     done = false;
     for (unsigned int i = 0; i < iterDom->dimension(); i++)
-    {
         incArrIter[i].curr = 0;
-    }
 }
 
 r_Minterval
 r_MiterArea::nextArea()
 {
-    r_Dimension i = 0;
-
     if (done)
-    {
         return retVal;
-    }
-
-    r_Minterval currDom(iterDom->dimension());
 
     // calculate new result domain here
+    r_Minterval currDom(iterDom->dimension());
     if (!done)
     {
-        for (i = 0; i < iterDom->dimension(); i++)
+        for (r_Dimension i = 0; i < iterDom->dimension(); i++)
         {
-            currDom << r_Sinterval((*imgDom)[i].low() + incArrIter[i].curr * iterDom->get_extent()[i],
-                                   (*imgDom)[i].low() + (incArrIter[i].curr + 1)*iterDom->get_extent()[i]
-                                   - 1);
+            const auto imgAxis = (*imgDom)[i];
+            const auto iterExtent = iterDom->get_extent()[i];
+            currDom << r_Sinterval(imgAxis.low() + incArrIter[i].curr * iterExtent,
+                                   imgAxis.low() + (incArrIter[i].curr + 1) * iterExtent - 1);
         }
     }
-    retVal = currDom.intersection_with((*imgDom));
+    retVal = currDom.intersection_with(*imgDom);
 
     // increment dimensions
+    r_Dimension i;
     for (i = 0; i < iterDom->dimension(); i++)
     {
         incArrIter[i].curr++;
         if (incArrIter[i].curr < incArrIter[i].repeat)
-        {
-            // no overflow in this dimension
-            break;
-        }
+            break;                  // no overflow in this dimension
         else
-        {
-            // overflow in this dimension
-            incArrIter[i].curr = 0;
-        }
+            incArrIter[i].curr = 0; // overflow in this dimension
     }
     if (i == iterDom->dimension())
-    {
-        // overflow in last dimension
-        done = true;
-    }
+        done = true;                // overflow in last dimension
 
     return retVal;
 }

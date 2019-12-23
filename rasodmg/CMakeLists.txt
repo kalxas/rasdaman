@@ -21,69 +21,62 @@
 #
 ###################################################################
 
-add_library(rasodmg alignedtiling.hh alignedtiling.cc alignedtiling.icc
-        collection.hh collection.cc collection.icc
-        database.hh database.cc database.icc
-        dirdecompose.hh dirdecompose.cc
-        dirtiling.hh dirtiling.cc
-        gmarray.hh gmarray.cc gmarray.icc
-        interesttiling.hh interesttiling.cc
-        iterator.hh iterator.cc iterator.icc
-        marray.hh marray.cc marray.icc
-        object.hh object.cc object.icc
-        oqlquery.hh oqlquery.cc oqlquery.icc
-        partinsert.hh partinsert.cc
-        polycutout.hh polycutout.cc
-        polygon.hh polygon.cc
-        ref.hh ref.cc ref.icc
-        set.hh set.cc
-        stattiling.hh stattiling.cc
-        storagelayout.hh storagelayout.cc storagelayout.icc
-        tiling.hh tiling.cc
-        transaction.hh transaction.cc transaction.icc)
+set(SRC_HEADERS
+        alignedtiling.hh
+        collection.hh
+        collection.cc
+        database.hh
+        dirdecompose.hh
+        dirtiling.hh
+        gmarray.hh
+        interesttiling.hh
+        iterator.hh
+        iterator.cc
+        marray.hh
+        marray.cc
+        object.hh
+        oqlquery.hh
+        partinsert.hh
+        polycutout.hh
+        polygon.hh
+        ref.hh
+        ref.cc
+        set.hh
+        set.cc
+        stattiling.hh
+        storagelayout.hh
+        tiling.hh
+        transaction.hh
+        template_inst.hh
+        )
 
-target_link_libraries(rasodmg clientcomm)
+add_library(rasodmg
+        alignedtiling.cc
+        database.cc
+        dirdecompose.cc
+        dirtiling.cc
+        gmarray.cc
+        interesttiling.cc
+        object.cc
+        oqlquery.cc
+        partinsert.cc
+        polycutout.cc
+        polygon.cc
+        stattiling.cc
+        storagelayout.cc
+        tiling.cc
+        transaction.cc
+        ${SRC_HEADERS}
+        )
 
-# cotire(rasodmg)
+target_link_libraries(rasodmg clientcomm common_logging)
+
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(rasodmg REUSE_FROM common_logging)
+endif()
 
 install(TARGETS rasodmg
         DESTINATION ${LIB_DIR})
 
-install(FILES
-    alignedtiling.hh
-    collection.hh
-    collection.cc
-    database.hh
-    dirdecompose.hh
-    dirtiling.hh
-    gmarray.hh
-    interesttiling.hh
-    iterator.hh
-    iterator.cc
-    marray.hh
-    marray.cc
-    object.hh
-    oqlquery.hh
-    partinsert.hh
-    polycutout.hh
-    polygon.hh
-    ref.hh
-    ref.cc
-    set.hh
-    set.cc
-    stattiling.hh
-    storagelayout.hh
-    tiling.hh
-    transaction.hh
-    alignedtiling.icc
-    collection.icc
-    database.icc
-    gmarray.icc
-    iterator.icc
-    marray.icc
-    object.icc
-    oqlquery.icc
-    ref.icc
-    storagelayout.icc
-    transaction.icc
-    DESTINATION "${INCLUDE_DIR}/rasodmg")
+install(FILES ${SRC_HEADERS}
+        DESTINATION "${INCLUDE_DIR}/rasodmg")

@@ -135,11 +135,11 @@ public:
     /// resets the expandation of the query string
     void               reset_query();
     /// gets the expanded query string
-    inline const char *get_query() const;
+    const char *get_query() const;
     /// get mdd constants
-    inline const r_Set<r_GMarray *> *get_constants() const;
+    const r_Set<r_GMarray *> *get_constants() const;
     /// gets the parameterized query string
-    inline const char *get_parameterized_query() const;
+    const char *get_parameterized_query() const;
     ///
     //@}
 
@@ -256,29 +256,4 @@ void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Tr
 
 void r_oql_execute(r_OQL_Query &query, r_Transaction *transaction = NULL);
 
-#include "rasodmg/oqlquery.icc"
-
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

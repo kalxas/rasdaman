@@ -24,8 +24,6 @@
 #define RASMGR_X_SRC_EXCEPTIONS_INPEERALREADYEXISTSEXCEPTION_HH
 
 #include <string>
-#include <boost/cstdint.hpp>
-
 #include "common/exceptions/rasexceptions.hh"
 
 namespace rasmgr

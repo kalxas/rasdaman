@@ -31,8 +31,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_COMPLEX_
-#define _D_COMPLEX_
+#ifndef R_COMPLEX_HH
+#define R_COMPLEX_HH
 
 #include "raslib/odmgtypes.hh"
 #include "raslib/primitive.hh"
@@ -58,15 +58,15 @@ public:
     r_Complex(const r_Complex &obj);
 
     /// destructor
-    ~r_Complex();
+    ~r_Complex() override = default;
 
-    virtual bool isComplex() const;
+    virtual bool isComplex() const override;
 
     /// clone operator
-    virtual r_Scalar *clone() const;
+    virtual r_Scalar *clone() const override;
 
     /// operator for assigning a primitive
-    const r_Complex &operator =(const r_Complex &);
+    const r_Complex &operator=(const r_Complex &);
 
     r_Double get_re() const;
     r_Double get_im() const;
@@ -80,8 +80,8 @@ public:
     void set_re_long(r_Long);
     void set_im_long(r_Long);
 
+private:
+    void checkTypeAndBuffer() const;
 };
 
-
 #endif
-

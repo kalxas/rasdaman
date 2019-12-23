@@ -34,6 +34,10 @@ if (HAVE_LIBDW)
     target_link_libraries(common_logging ${LIBDW_LIBRARY})
 endif()
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(common_logging PRIVATE common.hh)
+endif()
+
 install(TARGETS common_logging
         DESTINATION "${LIB_DIR}")
 

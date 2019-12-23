@@ -21,10 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <string>
-#include <sstream>
-#include <vector>
-
 #include "qlparser/qtinfo.hh"
 #include "qlparser/qtvariable.hh"
 #include "qlparser/qtatomicdata.hh"
@@ -39,6 +35,10 @@ rasdaman GmbH.
 #include "raslib/oid.hh"
 #include "raslib/parseparams.hh"
 #include <logging.hh>
+
+#include <string>
+#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -135,7 +135,7 @@ QtInfo::evaluate(QtDataList *inputList)
                         info << "\",\n \"setTypeName\": \""<< collType->getName();
                     }
                     info << "\",\n \"mddTypeName\": \""<<dbObj->getMDDBaseType()->getTypeName();
-                    vector<boost::shared_ptr<Tile>> *tiles = persMDD->getTiles();
+                    auto *tiles = persMDD->getTiles();
                     info << "\",\n \"tileNo\": \"" << tiles->size();
 
                     long totalSize = 0;

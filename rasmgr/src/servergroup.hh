@@ -23,11 +23,9 @@
 #ifndef RASMGR_X_SRC_SERVERGROUP_HH
 #define RASMGR_X_SRC_SERVERGROUP_HH
 
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
+#include <string>
+#include <memory>
 
 namespace rasmgr
 {
@@ -90,7 +88,7 @@ public:
      * @param out_server shared_ptr to the RasServer instance
      * @return TRUE if there is a free server, false otherwise.
      */
-    virtual bool tryGetAvailableServer(const std::string &dbName, boost::shared_ptr<Server> &out_server) = 0;
+    virtual bool tryGetAvailableServer(const std::string &dbName, std::shared_ptr<Server> &out_server) = 0;
 
     /**
      * @brief getConfig Get a copy of the ServerGroupConfig

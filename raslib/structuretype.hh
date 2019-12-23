@@ -56,16 +56,16 @@ public:
     /// assignment operator.
     const r_Structure_Type &operator=(const r_Structure_Type &oldObj);
     /// destructor.
-    virtual ~r_Structure_Type() = default;
+    ~r_Structure_Type() override = default;
 
     /// clone operation
-    virtual r_Type *clone() const;
+    r_Type *clone() const override;
 
     /// retrieve id of the type.
-    virtual r_Type::r_Type_Id type_id() const;
+    r_Type::r_Type_Id type_id() const override;
 
     /// check, if type is primitive or structured.
-    virtual bool isStructType() const;
+    bool isStructType() const override;
 
     /// check, if this type is compatible with myType (e.g. check the structure ignoring then names of atributtes)
     virtual bool compatibleWith(const r_Structure_Type *myType) const;
@@ -90,16 +90,16 @@ public:
     unsigned int count_elements() const;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
+    void convertToLittleEndian(char *cells, r_Area noCells) const override;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
+    void convertToBigEndian(char *cells, r_Area noCells) const override;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s) const;
+    void print_status(std::ostream &s) const override;
 
     /// prints values of a structured type
-    virtual void print_value(const char *storage,  std::ostream &s) const;
+    void print_value(const char *storage,  std::ostream &s) const override;
 
 protected:
     std::vector<r_Attribute> myAttributes;

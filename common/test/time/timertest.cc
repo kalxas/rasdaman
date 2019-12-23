@@ -20,8 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <boost/cstdint.hpp>
-
 #include <gtest/gtest.h>
 #include "common/time/timer.hh"
 

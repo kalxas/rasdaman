@@ -21,23 +21,18 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 // This is -*- C++ -*-
-/*************************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- *
- ***********************************************************************/
 
 #include "typefactory.hh"
+#include "raslib/error.hh"                         // for r_Error
+#include "raslib/odmgtypes.hh"                     // for BOOLTYPE, CHAR, COMP...
+#include "raslib/structuretype.hh"
+#include "raslib/type.hh"
 #include "reladminif/dbobject.hh"                  // for DBObjectId, DBObject
 #include "reladminif/dbref.hh"                     // for DBRef
 #include "reladminif/lists.h"                      // for OIdSet
 #include "reladminif/objectbroker.hh"              // for ObjectBroker
 #include "reladminif/oidif.hh"                     // for OId, operator<<, OId...
+#include "reladminif/dbobjectiterator.hh"          // for DBObjectIterator
 #include "relmddif/dbmddobj.hh"                    // for DBMDDObj
 #include "relmddif/dbmddset.hh"                    // for DBMDDSet
 #include "relmddif/mddid.hh"                       // for DBMDDObjId, DBMDDSetId
@@ -62,24 +57,14 @@ rasdaman GmbH.
 #include "relcatalogif/type.hh"                    // for Type
 #include "relcatalogif/ulongtype.hh"               // for ULongType
 #include "relcatalogif/ushorttype.hh"              // for UShortType
-#include "raslib/error.hh"                         // for r_Error
-#include "raslib/odmgtypes.hh"                     // for BOOLTYPE, CHAR, COMP...
-#include "raslib/structuretype.hh"
+#include <common/string/stringutil.hh>             // for starts_with
 #include <logging.hh>                              // for Writer, CTRACE, LTRACE
 
-#include <boost/algorithm/string/predicate.hpp>    // for starts_with
-#include <map>                                     // for map, _Rb_tree_const_...
+#include <unordered_map>                           // for map, _Rb_tree_const_...
 #include <utility>                                 // for pair, make_pair
 #include <vector>                                  // for vector, vector<>::it...
 
 using namespace std;
-
-TypeFactory *TypeFactory::myInstance = nullptr;
-
-// This variable is not required since any struct
-// type can now be deleted. This resulted as
-// the resolution of ticket #88
-const short TypeFactory::MaxBuiltInId = 13;
 
 const char *OctetType::Name = "Octet";
 const char *UShortType::Name = "UShort";
@@ -95,84 +80,68 @@ const char *ComplexType2::Name = "Complexd";
 const char *CInt16::Name = "CInt16";
 const char *CInt32::Name = "CInt32";
 
-
-const std::string TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX = "__CELLTYPE__";
-
-const map<string, string> TypeFactory::syntaxTypeInternalTypeMap =
-    TypeFactory::createSyntaxTypeInternalTypeMap();
-const map<string, string> TypeFactory::internalTypeSyntaxTypeMap =
-    TypeFactory::createInternalTypeSyntaxTypeMap();
-
-map<string, string> TypeFactory::createSyntaxTypeInternalTypeMap()
-{
-    map<string, string> ret;
-
-    ret.insert(std::make_pair(SyntaxType::OCTET_NAME, OctetType::Name));
-    ret.insert(std::make_pair(SyntaxType::USHORT_NAME, UShortType::Name));
-    ret.insert(std::make_pair(SyntaxType::UNSIGNED_SHORT_NAME, UShortType::Name));
-    ret.insert(std::make_pair(SyntaxType::SHORT_NAME, ShortType::Name));
-    ret.insert(std::make_pair(SyntaxType::ULONG_NAME, ULongType::Name));
-    ret.insert(std::make_pair(SyntaxType::UNSIGNED_LONG_NAME, ULongType::Name));
-    ret.insert(std::make_pair(SyntaxType::LONG_NAME, LongType::Name));
-    ret.insert(std::make_pair(SyntaxType::BOOL_NAME, BoolType::Name));
-    ret.insert(std::make_pair(SyntaxType::CHAR_NAME, CharType::Name));
-    ret.insert(std::make_pair(SyntaxType::FLOAT_NAME, FloatType::Name));
-    ret.insert(std::make_pair(SyntaxType::DOUBLE_NAME, DoubleType::Name));
-    ret.insert(std::make_pair(SyntaxType::COMPLEXTYPE1, ComplexType1::Name));
-    ret.insert(std::make_pair(SyntaxType::COMPLEXTYPE2, ComplexType2::Name));
-    ret.insert(std::make_pair(SyntaxType::CINT16, CInt16::Name));
-    ret.insert(std::make_pair(SyntaxType::CINT32, CInt32::Name));
-    return ret;
-}
-
-map<string, string> TypeFactory::createInternalTypeSyntaxTypeMap()
-{
-    map<string, string> ret;
-    map<string, string> syntaxMap = createSyntaxTypeInternalTypeMap();
-
-    for (auto mapIt = syntaxMap.begin(); mapIt != syntaxMap.end(); ++mapIt)
-    {
-        ret.insert(std::make_pair(mapIt->second, mapIt->first));
-    }
-
-    return ret;
-}
+const char *TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX = "__CELLTYPE__";
 
 string TypeFactory::getInternalTypeFromSyntaxType(const std::string &syntaxTypeName)
 {
+    static unordered_map<string, string> m = {
+        {SyntaxType::OCTET_NAME, OctetType::Name},
+        {SyntaxType::USHORT_NAME, UShortType::Name},
+        {SyntaxType::UNSIGNED_SHORT_NAME, UShortType::Name},
+        {SyntaxType::SHORT_NAME, ShortType::Name},
+        {SyntaxType::ULONG_NAME, ULongType::Name},
+        {SyntaxType::UNSIGNED_LONG_NAME, ULongType::Name},
+        {SyntaxType::LONG_NAME, LongType::Name},
+        {SyntaxType::BOOL_NAME, BoolType::Name},
+        {SyntaxType::CHAR_NAME, CharType::Name},
+        {SyntaxType::FLOAT_NAME, FloatType::Name},
+        {SyntaxType::DOUBLE_NAME, DoubleType::Name},
+        {SyntaxType::COMPLEXTYPE1, ComplexType1::Name},
+        {SyntaxType::COMPLEXTYPE2, ComplexType2::Name},
+        {SyntaxType::CINT16, CInt16::Name},
+        {SyntaxType::CINT32, CInt32::Name}
+    };
     string result = syntaxTypeName;
-    auto it = syntaxTypeInternalTypeMap.find(syntaxTypeName);
-    if (it != syntaxTypeInternalTypeMap.end())
-    {
+    auto it = m.find(syntaxTypeName);
+    if (it != m.end())
         result = it->second;
-    }
-
     return result;
 }
 
 string TypeFactory::getSyntaxTypeFromInternalType(const std::string &internalTypeName)
 {
+    static unordered_map<string, string> m = {
+        {OctetType::Name, SyntaxType::OCTET_NAME},
+        {UShortType::Name, SyntaxType::USHORT_NAME},
+        {UShortType::Name, SyntaxType::UNSIGNED_SHORT_NAME},
+        {ShortType::Name, SyntaxType::SHORT_NAME},
+        {ULongType::Name, SyntaxType::ULONG_NAME},
+        {ULongType::Name, SyntaxType::UNSIGNED_LONG_NAME},
+        {LongType::Name, SyntaxType::LONG_NAME},
+        {BoolType::Name, SyntaxType::BOOL_NAME},
+        {CharType::Name, SyntaxType::CHAR_NAME},
+        {FloatType::Name, SyntaxType::FLOAT_NAME},
+        {DoubleType::Name, SyntaxType::DOUBLE_NAME},
+        {ComplexType1::Name, SyntaxType::COMPLEXTYPE1},
+        {ComplexType2::Name, SyntaxType::COMPLEXTYPE2},
+        {CInt16::Name, SyntaxType::CINT16},
+        {CInt32::Name, SyntaxType::CINT32}
+    };
     string result = internalTypeName;
-    auto it = internalTypeSyntaxTypeMap.find(internalTypeName);
-    if (it != internalTypeSyntaxTypeMap.end())
-    {
+    auto it = m.find(internalTypeName);
+    if (it != m.end())
         result = it->second;
-    }
-
     return result;
 }
 
 // all atomic types given back by mapType()
 // for managing the memory of temporary types
-std::vector<Type *> *TypeFactory::theTempTypes = nullptr;
+std::list<Type *> TypeFactory::theTempTypes;
 
 TypeFactory *TypeFactory::instance()
 {
-    if (myInstance == nullptr)
-    {
-        myInstance = new TypeFactory;
-    }
-    return myInstance;
+    static TypeFactory myInstance;
+    return &myInstance;
 }
 
 const BaseType *TypeFactory::mapType(const char *typeName)
@@ -233,7 +202,7 @@ const BaseType *TypeFactory::addStructType(const BaseType *type)
                 }
                 else if (elemType == STRUCT)
                 {
-                    delete persistentType, persistentType = nullptr;
+                    delete persistentType; persistentType = nullptr;
                     LERROR << "element is struct type " << stype->getElemName(i)
                            << " of type " << stype->getElemType(i)->getName()
                            << "; building a struct using a user-defined struct is currently not supported.";
@@ -241,7 +210,7 @@ const BaseType *TypeFactory::addStructType(const BaseType *type)
                 }
                 else
                 {
-                    delete persistentType, persistentType = nullptr;
+                    delete persistentType; persistentType = nullptr;
                     LERROR << "unknown band type " << elemType;
                     throw r_Error(r_Error::r_Error_General);
                 }
@@ -249,7 +218,7 @@ const BaseType *TypeFactory::addStructType(const BaseType *type)
         }
         else
         {
-            delete persistentType, persistentType = nullptr;
+            delete persistentType; persistentType = nullptr;
             LERROR << "unknown type " << type->getType();
             throw r_Error(r_Error::r_Error_General);
         }
@@ -375,34 +344,25 @@ const MDDType *TypeFactory::addMDDType(const MDDType *type)
 
 Type *TypeFactory::addTempType(Type *type)
 {
-    // put in front to avoid deletion of MDDTypes still referenced
-    // by an MDDBaseType.
-    theTempTypes->insert(theTempTypes->begin(), type);
+    // put in front to avoid deletion of MDDTypes still referenced by an MDDBaseType.
+    theTempTypes.insert(theTempTypes.begin(), type);
     return type;
 }
 
 void TypeFactory::initialize()
 {
-    // to initailize the typefactory
-    if (!theTempTypes)
-    {
-        theTempTypes = new std::vector<Type *>;
-    }
+    theTempTypes.clear();
 }
 
 void TypeFactory::freeTempTypes()
 {
     // delete all temporary types
-    if (theTempTypes)
+    for (auto iter = theTempTypes.begin(); iter != theTempTypes.end(); iter++)
     {
-        for (auto iter = theTempTypes->begin(); iter != theTempTypes->end(); iter++)
-        {
-            delete *iter;
-            *iter = nullptr;
-        }
-        delete theTempTypes;
-        theTempTypes = nullptr;
+        delete *iter;
+        *iter = nullptr;
     }
+    theTempTypes.clear();
 }
 
 TypeFactory::TypeFactory() = default;
@@ -473,8 +433,8 @@ bool TypeFactory::deleteMDDType(const char *typeName)
         {
             const auto *baseType =
                 static_cast<const MDDBaseType *>(resultType)->getBaseType();
-            std::string btname(baseType->getTypeName());
-            if (boost::starts_with(btname, TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+            if (common::StringUtil::startsWithExactCase(
+                    baseType->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
             {
                 DBObjectId baseTypeToKill(baseType->getOId());
                 baseTypeToKill->setPersistent(false);
@@ -557,19 +517,16 @@ void TypeFactory::deleteTmpSetType(const char *typeName)
 
 const Type *TypeFactory::ensurePersistence(Type *type)
 {
-    std::vector<Type *>::iterator iter;
     const Type *retval = nullptr;
     Type *ttype = nullptr;
 
     // deleting type if it is in the list of tempTypes
-    if (theTempTypes)
+    for (auto iter = theTempTypes.begin(); iter != theTempTypes.end(); iter++)
     {
-        for (iter = theTempTypes->begin(); iter < theTempTypes->end(); iter++)
+        if (*iter == type)
         {
-            if (*iter == type)
-            {
-                theTempTypes->erase(iter);
-            }
+            theTempTypes.erase(iter);
+            break;
         }
     }
     // check if the struct type is alread in the DBMS

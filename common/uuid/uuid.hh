@@ -23,7 +23,7 @@
 #ifndef COMMON_SRC_UUID_UUID_HH_
 #define COMMON_SRC_UUID_UUID_HH_
 
-#include <boost/thread.hpp>
+#include <mutex>
 #include <boost/uuid/random_generator.hpp>
 #include <string>                           // for string
 
@@ -43,7 +43,7 @@ class UUID {
   static std::string generateUUID();
  private:
   static boost::uuids::random_generator generator;
-  static boost::mutex generatorMutex;
+  static std::mutex generatorMutex;
 };
 }
 

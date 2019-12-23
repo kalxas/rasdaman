@@ -25,9 +25,8 @@
 
 #include <string>
 #include <list>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
+#include <memory>
+#include <mutex>
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 
@@ -48,7 +47,7 @@ public:
      * Initialize a new instance of the DatabaseManager class.
      * @param dbHostManager Reference to the database host manager with which this object is associated.
      */
-    DatabaseManager(boost::shared_ptr<DatabaseHostManager> dbHostManager);
+    DatabaseManager(std::shared_ptr<DatabaseHostManager> dbHostManager);
 
     virtual ~DatabaseManager();
 
@@ -81,10 +80,10 @@ public:
      */
     DatabaseMgrProto serializeToProto();
 private:
-    boost::shared_ptr<DatabaseHostManager> dbHostManager; /*!< Reference to the database host manager*/
-    std::list<boost::shared_ptr<Database>> databases;
+    std::shared_ptr<DatabaseHostManager> dbHostManager; /*!< Reference to the database host manager*/
+    std::list<std::shared_ptr<Database>> databases;
 
-    boost::mutex mut;  /*!< Mutex used to synchronize access to this object.*/
+    std::mutex mut;  /*!< Mutex used to synchronize access to this object.*/
 };
 
 } /* namespace rasmgr */

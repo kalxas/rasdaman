@@ -20,10 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <string>
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <logging.hh>
@@ -36,6 +32,9 @@
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 
 #include "util/testutil.hh"
+
+#include <string>
+#include <memory>
 
 namespace rasmgr
 {
@@ -207,7 +206,7 @@ TEST_F(UserManagerTest, changeUserSucceeds)
     ASSERT_NO_THROW(userManager.changeUser(userName, newUserProp));
 
     //Test that the change was valid.
-    boost::shared_ptr<User> out_user;
+    std::shared_ptr<User> out_user;
     ASSERT_TRUE(userManager.tryGetUser(newUserName, out_user));
     ASSERT_EQ(newUserName, out_user->getName());
     ASSERT_EQ(newPassword, out_user->getPassword());
@@ -223,14 +222,14 @@ TEST_F(UserManagerTest, changeUserSucceeds)
 
 TEST_F(UserManagerTest, tryGetUserFailsWhenUserDoesNotExist)
 {
-    boost::shared_ptr<User> out_user;
+    std::shared_ptr<User> out_user;
 
     ASSERT_FALSE(userManager.tryGetUser(userName, out_user));
 }
 
 TEST_F(UserManagerTest, tryGetUserSucceedsWhenUserExists)
 {
-    boost::shared_ptr<User> out_user;
+    std::shared_ptr<User> out_user;
     //Define the user
     ASSERT_NO_THROW(userManager.defineUser(createUser()));
 
@@ -250,7 +249,7 @@ TEST_F(UserManagerTest, serializeToProto)
     ASSERT_NO_THROW(userManager.defineUser(createUser()));
 
     proto = userManager.serializeToProto();
-    boost::shared_ptr<User> out_user;
+    std::shared_ptr<User> out_user;
     userManager.tryGetUser(userName, out_user);
 
     ASSERT_EQ(proto.users(0).DebugString(), User::serializeToProto(*out_user).DebugString());

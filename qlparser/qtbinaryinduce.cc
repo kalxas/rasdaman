@@ -161,10 +161,10 @@ QtBinaryInduce::computeUnaryMDDOp(QtMDD *operand1, QtScalarData *operand2, const
     const r_Minterval &areaOp = operand1->getLoadDomain();
 
     // contains all tiles of the operand
-    vector<boost::shared_ptr<Tile>> *allTiles;
+    vector<std::shared_ptr<Tile>> *allTiles;
 
     // iterator for tiles
-    vector<boost::shared_ptr<Tile>>::iterator tileIt;
+    vector<std::shared_ptr<Tile>>::iterator tileIt;
 
     // create MDDObj for result
     MDDDomainType *mddBaseType = new MDDDomainType("tmp", resultBaseType, areaOp);
@@ -289,14 +289,14 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
     if (areaOp1.get_extent() == areaOp2.get_extent())
     {
         // contains all tiles of op1
-        vector<boost::shared_ptr<Tile>> *allTilesOp1;
+        vector<std::shared_ptr<Tile>> *allTilesOp1;
 
         // contains all tiles of op2 which intersect a given op1 Tile in the relevant area.
-        vector<boost::shared_ptr<Tile>> *intersectTilesOp2 = NULL;
+        vector<std::shared_ptr<Tile>> *intersectTilesOp2 = NULL;
 
         // iterators for tiles of the MDDs
-        vector<boost::shared_ptr<Tile>>::iterator tileOp1It;
-        vector<boost::shared_ptr<Tile>>::iterator intersectTileOp2It;
+        vector<std::shared_ptr<Tile>>::iterator tileOp1It;
+        vector<std::shared_ptr<Tile>>::iterator intersectTileOp2It;
 
         // intersection of domains in relevant area.
         r_Minterval intersectDom;

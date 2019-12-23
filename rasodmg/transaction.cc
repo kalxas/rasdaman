@@ -30,14 +30,14 @@ rasdaman GmbH.
  *          None
 */
 
-#include "config.h"
 #include "rasodmg/transaction.hh"
+#include "rasodmg/ref.hh"
+#include "rasodmg/database.hh"
+#include "rasodmg/iterator.hh"
 #include "raslib/error.hh"
 #include "raslib/minterval.hh"
 #include "raslib/scalar.hh"
 #include "raslib/oid.hh"
-#include "rasodmg/ref.hh"
-#include "rasodmg/database.hh"
 
 #include "clientcomm/clientcomm.hh"
 
@@ -337,4 +337,16 @@ r_Database *
 r_Transaction::getDatabase()
 {
     return database != NULL ? database : r_Database::actual_database;
+}
+
+r_Transaction::r_TAStatus
+r_Transaction::get_status() const
+{
+    return ta_state;
+}
+
+r_Transaction::r_TAMode
+r_Transaction::get_mode() const
+{
+    return ta_mode;
 }

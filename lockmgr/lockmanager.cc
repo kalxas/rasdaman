@@ -522,7 +522,7 @@ void LockManager::lockTiles(long long pTileIdsToLock[], int dim)
  * @param tiles
  *     vector of tiles to be locked
  */
-void LockManager::lockTiles(std::vector<boost::shared_ptr<Tile>> *tiles)
+void LockManager::lockTiles(std::vector<std::shared_ptr<Tile>> *tiles)
 {
     RMTIMER("LockManager", "lockTiles");
     if (tiles)
@@ -537,7 +537,7 @@ void LockManager::lockTiles(std::vector<boost::shared_ptr<Tile>> *tiles)
         int dim = tiles->size();
         long long *tileIdsToLock = new long long[dim];
         int i = 0;
-        for (std::vector<boost::shared_ptr<Tile>>::iterator tileIterator = tiles->begin(); tileIterator != tiles->end(); tileIterator++)
+        for (auto tileIterator = tiles->begin(); tileIterator != tiles->end(); tileIterator++)
         {
             DBTileId dbTileId = (*tileIterator)->getDBTile();
             OId objId = dbTileId.getObjId();

@@ -34,5 +34,9 @@ add_library(indexmgr
 target_link_libraries(indexmgr
     tilemgr raslib reladminif relblobif relindexif storagemgr)
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(indexmgr REUSE_FROM common_logging)
+endif()
+
 install(TARGETS indexmgr
     DESTINATION ${LIB_DIR})

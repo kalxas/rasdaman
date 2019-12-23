@@ -30,18 +30,17 @@
  *
 */
 
-#include <iostream>
 
+#include "raslib/rmdebug.hh"
+#include "raslib/odmgtypes.hh"
+#include <logging.hh>
+
+#include <iostream>
 #include <stdio.h>     // fopen, getc
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <fstream>
-
-#include <logging.hh>
-
-#include "raslib/rmdebug.hh"
-#include "raslib/odmgtypes.hh"
 
 using namespace std;
 
@@ -502,5 +501,90 @@ RMCounter::~RMCounter()
         RMDebug::level--;
         //LTRACE << RMDebug::level;
     }
+}
+
+inline
+RMTimer::RMTimer(const char *newClass, const char *newFunc, int newBmLevel)
+    : myClass(newClass), myFunc(newFunc), bmLevel(newBmLevel), running(0)
+{
+    start();
+}
+
+inline
+RMTimer::~RMTimer()
+{
+    stop();
+}
+
+void
+RMTimer::setOutput(int newOutput)
+{
+    output = newOutput;
+}
+
+void
+RMTimer::start()
+{
+    // reset accu
+    accuTime = 0;
+    // set output to TRUE
+    output = 1;
+    resume();
+}
+
+void
+RMTimer::pause()
+{
+    if (running)
+    {
+        fetchTime();
+        // timer is not running
+        running = 0;
+    }
+}
+
+void
+RMTimer::resume()
+{
+    gettimeofday(&acttime, &dummy);
+    // timer is running
+    running = 1;
+}
+
+void
+RMTimer::stop()
+{
+    pause();
+
+    if (output && RManBenchmark >= bmLevel)
+    {
+        LDEBUG
+                << std::endl
+                << "PerformanceTimer: " << myClass << " :: " << myFunc << " = "
+                << accuTime << " usecs";
+        // set output to FALSE
+        output = 0;
+    }
+}
+
+int
+RMTimer::getTime()
+{
+    fetchTime();
+    return static_cast<int>(accuTime);
+}
+
+void
+RMTimer::fetchTime()
+{
+    // save start time
+    oldsec  = acttime.tv_sec;
+    oldusec = acttime.tv_usec;
+
+    // get stop time
+    gettimeofday(&acttime, &dummy);
+
+    // add new time to accu
+    accuTime += (acttime.tv_sec - oldsec) * 1000000 + acttime.tv_usec - oldusec;
 }
 

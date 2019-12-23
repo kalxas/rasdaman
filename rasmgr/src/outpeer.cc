@@ -41,13 +41,13 @@ OutPeer::OutPeer(const std::string &hostName, const uint32_t port)
     : hostName(hostName), port(port)
 {
     // Initialize the service used for communicating with the remote rasmgr
-    std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, boost::uint32_t(this->port));
+    std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, std::uint32_t(this->port));
     auto channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
 
     LDEBUG << "Created channel to outpeer:" << serverAddress;
 
-    this->healthService = boost::make_shared<::common::HealthService::Stub>(channel);
-    this->rasmgrService = boost::make_shared<::rasnet::service::RasmgrRasmgrService::Stub>(channel);
+    this->healthService = std::make_shared<::common::HealthService::Stub>(channel);
+    this->rasmgrService = std::make_shared<::rasnet::service::RasmgrRasmgrService::Stub>(channel);
 }
 
 std::string OutPeer::getHostName() const
@@ -55,7 +55,7 @@ std::string OutPeer::getHostName() const
     return hostName;
 }
 
-boost::uint32_t OutPeer::getPort() const
+std::uint32_t OutPeer::getPort() const
 {
     return port;
 }

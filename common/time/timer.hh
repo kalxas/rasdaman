@@ -24,7 +24,7 @@
 #define COMMON_SRC_TIME_TIMER_HH_
 
 #include <sys/time.h>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace common
 {
@@ -39,11 +39,11 @@ public:
     * @param period The number of milliseconds until the timer will expire.
     * @throws InvalidArgumentException is thrown if the period is negative.
     */
-    Timer(boost::int32_t period);
+    Timer(std::int32_t period);
 
     virtual ~Timer();
 
-    boost::int32_t getPeriod() const;
+    std::int32_t getPeriod() const;
 
     /**
     * Check if the timer has expired.
@@ -65,7 +65,7 @@ private:
     /*!< Timeval used to get the current time when checking for expiration*/
     struct timeval timeout;/*!< Timeval representing the period the Timer measures*/
 
-    boost::int32_t period;
+    std::int32_t period;
 };
 }
 #endif /* COMMON_TIME_TIMER_HH_ */

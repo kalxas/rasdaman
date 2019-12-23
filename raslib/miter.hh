@@ -28,8 +28,10 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_MITER_
-#define _D_MITER_
+#ifndef D_MITER_HH
+#define D_MITER_HH
+
+#include "raslib/mddtypes.hh"
 
 class r_Minterval;
 
@@ -47,23 +49,19 @@ class r_Minterval;
   is done with isDone(). The iterator can be reset with
   reset().
 */
-
 class r_Miter
 {
 public:
-    /// constructor.
-    inline r_Miter(const r_Minterval *newAreaIter,
-                   const r_Minterval *newAreaTile, r_Bytes newCellSize,
-                   const char *newFirstCell);
     /**
       The pointers are stored, do not delete the objects as long
       as the iterator is used!
     */
-
-    /// destructor.
-    inline ~r_Miter();
+    r_Miter(const r_Minterval *newAreaIter,
+                   const r_Minterval *newAreaTile, r_Bytes newCellSize,
+                   const char *newFirstCell);
+    ~r_Miter();
     /// resets iterator to first cell.
-    inline void reset();
+    void reset();
     /// returns current cell and sets iterator to next cell.
     inline char *nextCell();
     /// returns TRUE if iteration is finished.
@@ -71,28 +69,28 @@ public:
 protected:
     // structure storing information on iteration for each dimension
     // (perhaps add dimension for reordering later)
-    typedef struct
+    struct incArrElem
     {
-        int repeat; // total number of repeats
+        r_Range repeat; // total number of repeats
         int inc;    // increment per repeat
         int curr;   // current repeat
-    } incArrElem;
+    };
     /// area to be iterated through
-    const r_Minterval *areaIter;
+    const r_Minterval *areaIter{NULL};
     /// area of tile.
-    const r_Minterval *areaTile;
-    /// size of base type.
-    r_Bytes cellSize;
+    const r_Minterval *areaTile{NULL};
     /// offset of first cell in tile.
-    const char *firstCell;
+    const char *firstCell{NULL};
     /// array with increments
-    incArrElem *incArrIter;
-    /// flag set if iteration is finished.
-    bool done;
+    incArrElem *incArrIter{NULL};
     /// current cell for iteration;
-    char *currCell;
+    char *currCell{NULL};
+    /// size of base type.
+    r_Bytes cellSize{};
     /// counter for position in lowest dimension.
-    int lowCount;
+    int lowCount{};
+    /// flag set if iteration is finished.
+    bool done{false};
 };
 
 #include "miter.icc"

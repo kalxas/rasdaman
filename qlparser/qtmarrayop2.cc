@@ -29,6 +29,7 @@ rasdaman GmbH.
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtmintervaldata.hh"
 #include "qlparser/qtmintervalop.hh"
+#include "qlparser/algebraops.hh"
 
 #include "mddmgr/mddobj.hh"
 #include "qlparser/querytree.hh"
@@ -36,8 +37,6 @@ rasdaman GmbH.
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/longtype.hh"
-
-#include "catalogmgr/algebraops.hh"
 
 #include <logging.hh>
 

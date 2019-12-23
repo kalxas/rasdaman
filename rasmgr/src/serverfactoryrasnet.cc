@@ -30,9 +30,9 @@ ServerFactoryRasNet::~ServerFactoryRasNet()
 {
 }
 
-boost::shared_ptr<Server> ServerFactoryRasNet::createServer(const ServerConfig &configuration)
+std::shared_ptr<Server> ServerFactoryRasNet::createServer(const ServerConfig &configuration)
 {
-    boost::shared_ptr<Server> result(new ServerRasNet(configuration));
+    std::shared_ptr<Server> result(new ServerRasNet(configuration));
     return result;
 }
 

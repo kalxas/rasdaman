@@ -45,10 +45,10 @@ rasdaman GmbH.
 #include "relmddif/mddid.hh"
 #include "catalogmgr/nullvalues.hh"
 
-#include <boost/shared_ptr.hpp>                // for shared_ptr
 #include <vector>                              // for vector
 #include <iosfwd>                              // for cout, ostream
 #include <string>                              // for string
+#include <memory>                              // for string
 
 class MDDObjIx;
 
@@ -186,7 +186,7 @@ public:
     */
 
     /// Inserts new tile into the object.
-    void insertTile(boost::shared_ptr<Tile> insertTile);
+    void insertTile(std::shared_ptr<Tile> insertTile);
 
     /// Inserts new tile into the object. MDDObj becomes the owner of the pointer.
     void insertTile(Tile *newTile);
@@ -197,7 +197,7 @@ public:
     //@{
     /**
     */
-    void removeTile(boost::shared_ptr<Tile> &tileToRemove);
+    void removeTile(std::shared_ptr<Tile> &tileToRemove);
     /**
         Removes tile from the object.
         This functon is not implemented yet.
@@ -214,14 +214,14 @@ public:
     */
 
     /// Finds all tiles of the object which intersect searchInter.
-    std::vector<boost::shared_ptr<Tile>> *intersect(const r_Minterval &searchInter) const;
+    std::vector<std::shared_ptr<Tile>> *intersect(const r_Minterval &searchInter) const;
     /**
         Returns a vector of pointers to the intersected tiles which belong to the MDDObj.
         The returned vector but not the tiles must be freed by the caller.
     */
 
     /// Returns all the tiles belonging to the object.
-    std::vector<boost::shared_ptr<Tile>> *getTiles() const;
+    std::vector<std::shared_ptr<Tile>> *getTiles() const;
     /**
         Returns a vector with all the tiles which belong to the MDDObj.
         The returned vector but not the tiles must be freed by the caller.

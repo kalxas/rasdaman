@@ -24,9 +24,7 @@
 #define RASMGR_X_SRC_CONFIGURATION_HH
 
 #include <string>
-
-#include <boost/cstdint.hpp>
-
+#include <cstdint>
 
 #include "../../commline/cmlparser.hh"
 
@@ -47,7 +45,7 @@ public:
 
     void printHelp();
 
-    boost::uint32_t getPort() const;
+    std::uint32_t getPort() const;
 
     std::string getHostName() const;
 
@@ -58,9 +56,9 @@ public:
     std::string getLogFile() const;
 
 private:
-    static const boost::uint32_t HOSTNAME_SIZE;
+    static const std::uint32_t HOSTNAME_SIZE;
     static const std::string RASMGR_LOG_PREFIX;
-    static const boost::uint32_t MAXMSGOUTBUFF;
+    static const std::uint32_t MAXMSGOUTBUFF;
 
     //interface program
     CommandLineParser    &cmlInter;
@@ -70,8 +68,8 @@ private:
     bool quiet;
     std::string name; /*!< symbolic name of this rasmgr  */
     std::string hostName;/*!< the advertized host name (master only, default: same as UNIX command 'hostname')" */
-    boost::uint32_t port;/*!< Port number */
-    std::string logFile;/*!< The file to which to output the log */
+    std::uint32_t port;/*!< Port number */
+    std::string logFile;/*!< The file to which to output the log */;
 
 };
 }

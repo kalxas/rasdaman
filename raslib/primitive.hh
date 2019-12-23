@@ -36,6 +36,7 @@ rasdaman GmbH.
 
 #include "raslib/scalar.hh"
 #include "raslib/odmgtypes.hh"
+#include "raslib/type.hh"
 #include <iosfwd>
 
 class r_Primitive_Type;
@@ -44,88 +45,59 @@ class r_Primitive_Type;
 
 /*@Doc:
 
- Class \Ref{r_Primitive} represents a primitive type value.
-
+ Class \Ref{r_Primitive} represents a primitive (atomic) type value.
 */
-
 class r_Primitive : public r_Scalar
 {
 public:
 
-    explicit
-
-    /// constructs a scalar type value
     r_Primitive(const char *newBuffer, const r_Primitive_Type *newType);
-
-    /// copy constructor
     r_Primitive(const r_Primitive &obj);
-
-    /// destructor
-    ~r_Primitive();
+    ~r_Primitive() override;
 
     /// clone operator
-    virtual r_Scalar *clone() const;
+    r_Scalar *clone() const override;
 
     /// operator for assigning a primitive
-    const r_Primitive &operator= (const r_Primitive &);
+    const r_Primitive &operator=(const r_Primitive &);
 
     /// gets the pointer to the buffer
     const char *get_buffer() const;
 
     /// debug output
-    virtual void print_status(std::ostream &s) const;
+    void print_status(std::ostream &s) const override;
 
-    virtual bool isPrimitive() const;
+    bool isPrimitive() const override;
 
     //@Man: Type-safe value access methods. In case of type mismatch, an exception is raised.
     //@{
-    ///
-
-    ///
     r_Boolean get_boolean() const;
-    ///
     r_Char    get_char()    const;
-    ///
     r_Octet   get_octet()   const;
-    ///
     r_Short   get_short()   const;
-    ///
     r_UShort  get_ushort()  const;
-    ///
     r_Long    get_long()    const;
-    ///
     r_ULong   get_ulong()   const;
-    ///
     r_Float   get_float()   const;
-    ///
     r_Double  get_double()  const;
 
-    ///
     void set_boolean(r_Boolean);
-    ///
     void set_char(r_Char);
-    ///
     void set_octet(r_Octet);
-    ///
     void set_short(r_Short);
-    ///
     void set_ushort(r_UShort);
-    ///
     void set_long(r_Long);
-    ///
     void set_ulong(r_ULong);
-    ///
     void set_float(r_Float);
-    ///
     void set_double(r_Double);
-
-
-    ///
     //@}
 
-private:
+protected:
+    void checkBufferAndType() const;
+    void checkBufferAndType(r_Type::r_Type_Id type);
+    
     /// buffer
-    char *valueBuffer;
+    char *valueBuffer{NULL};
 };
 
 

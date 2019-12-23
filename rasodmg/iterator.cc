@@ -179,3 +179,10 @@ r_Iterator<T>::advance()
     else
         ndone = false;
 }
+
+template<class T>
+bool
+r_Iterator<T>::not_done() const
+{
+    return ndone;
+}

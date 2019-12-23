@@ -83,17 +83,17 @@ public:
     dimension.
     */
 
-    virtual ~r_Dir_Tiling() = default;
+    ~r_Dir_Tiling() override = default;
 
-    virtual std::vector<r_Minterval> compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
+    std::vector<r_Minterval> compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const override;
 
-    virtual bool is_compatible(const r_Minterval &obj_domain, r_Bytes type_len) const;
+    bool is_compatible(const r_Minterval &obj_domain, r_Bytes type_len) const override;
 
-    virtual void print_status(std::ostream &os) const;
+    void print_status(std::ostream &os) const override;
 
-    virtual r_Tiling *clone() const;
+    r_Tiling *clone() const override;
 
-    virtual r_Tiling_Scheme get_tiling_scheme() const;
+    r_Tiling_Scheme get_tiling_scheme() const override;
 
     //@ManMemo: Module: {\bf raslib}
     /**

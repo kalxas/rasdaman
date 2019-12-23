@@ -41,10 +41,36 @@
 #error "Please specify RMANVERSION variable!"
 #endif
 
+#include "rasql_error.hh"
+#include "raslib/type.hh"
+#include "raslib/marraytype.hh"
+#include "raslib/minterval.hh"
+#include "raslib/primitive.hh"
+#include "raslib/complex.hh"
+#include "raslib/structure.hh"
+#include "raslib/rmdebug.hh"
+#include "raslib/structuretype.hh"
+#include "raslib/primitivetype.hh"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
+#include "rasodmg/transaction.hh"
+#include "rasodmg/database.hh"
+#include "rasodmg/ref.hh"
+#include "rasodmg/set.hh"
+#include "rasodmg/marray.hh"
+#include "rasodmg/iterator.hh"
+#include "rasodmg/oqlquery.hh"
+#include "rasodmg/storagelayout.hh"
+#include "rasodmg/alignedtiling.hh"
+
+#include "common/logging/signalhandler.hh"
+#include "clientcomm/clientcomm.hh"
+#include "commline/cmlparser.hh"
+#include "loggingutils.hh"
+#include "globals.hh"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -58,50 +84,9 @@
 #include <iomanip>
 #include <memory>
 
-using namespace std;
-
-#ifdef __VISUALC__
-#define __EXECUTABLE__
-#endif
-
-#include "rasodmg/transaction.hh"
-#include "rasodmg/database.hh"
-
-#include "rasodmg/ref.hh"
-#include "raslib/marraytype.hh"
-#include "rasodmg/set.hh"
-#include "rasodmg/marray.hh"
-#include "rasodmg/iterator.hh"
-#include "rasodmg/oqlquery.hh"
-#include "rasodmg/storagelayout.hh"
-#include "rasodmg/alignedtiling.hh"
-
-#include "raslib/type.hh"
-
-#include "raslib/minterval.hh"
-
-#include "raslib/primitive.hh"
-#include "raslib/complex.hh"
-#include "raslib/structure.hh"
-
-#include "raslib/rmdebug.hh"
-#include "raslib/structuretype.hh"
-#include "raslib/primitivetype.hh"
-#include "common/logging/signalhandler.hh"
-
-#include "commline/cmlparser.hh"
-
-#include "loggingutils.hh"
-
-#include "rasql_error.hh"
-
-#include "globals.hh"
-
-#ifdef __VISUALC__
-#undef __EXECUTABLE__
-#endif
-
 RMINITGLOBALS('C')
+
+using namespace std;
 
 const int MAX_STR_LEN = 255;
 const int MAX_QUERY_LEN = 10240;

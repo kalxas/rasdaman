@@ -89,19 +89,18 @@ rasdaman GmbH.
 #undef EQUAL
 #undef ABS
 
+// defined in servercomm
 extern ClientTblElt* currentClientTblElt;
 extern AccessControl accessControl;
+
+// defined in lex.ll
 extern ParseInfo *currInfo;
-
+extern QueryTree* parseQueryTree;
 void   yyerror(void* mflag, const char* s );
-
 extern int  yylex();
 extern unsigned int lineNo;
 extern unsigned int columnNo;
 extern char*        yytext;
-
-//defined in oql.l
-extern QueryTree* parseQueryTree;
 
 ParseInfo* parseError = NULL;
 

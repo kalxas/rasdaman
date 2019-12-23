@@ -42,9 +42,9 @@ class r_Complex_Type :  public r_Primitive_Type
 public:
     r_Complex_Type();
     r_Complex_Type(const char *newTypeName, const r_Type::r_Type_Id newTypeId);
-    r_Complex_Type(const r_Complex_Type &oldObj);
-    const r_Complex_Type &operator=(const r_Complex_Type &oldObj);
-    virtual ~r_Complex_Type();
+    r_Complex_Type(const r_Complex_Type &oldObj) = default;
+    r_Complex_Type &operator=(const r_Complex_Type &oldObj) = default;
+    virtual ~r_Complex_Type() = default;
 
     virtual r_Type *clone() const;
     virtual void print_status(std::ostream &s) const;
@@ -63,10 +63,16 @@ public:
 
     virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
     virtual void convertToBigEndian(char *cells, r_Area noCells) const;
+    
     virtual bool isComplexType() const;
 
 private:
-    r_Bytes imOff;
+    template <typename T>
+    void swapEndianessDouble(char *cells, r_Area noCells) const;
+    template <typename T>
+    void swapEndianessLong(char *cells, r_Area noCells) const;
+    
+    r_Bytes imOff{};
 };
 
 //@Doc: write the status of a complex type to a stream

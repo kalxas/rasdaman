@@ -23,12 +23,10 @@
 #ifndef RASMGR_X_SRC_CLIENT_HH_
 #define RASMGR_X_SRC_CLIENT_HH_
 
-#include <string>
-
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
-
 #include "common/time/timer.hh"
+#include <boost/thread.hpp>
+#include <string>
+#include <memory>
 
 namespace rasmgr
 {
@@ -50,7 +48,7 @@ public:
      * @param user user object with access rights this client has on the database
      * @param lifeTime The number of milliseconds for how long the client is alive between pings.
      */
-    Client(const std::string &clientId, boost::shared_ptr<User> user, boost::int32_t lifeTime);
+    Client(const std::string &clientId, std::shared_ptr<User> user, std::int32_t lifeTime);
 
     /**
      *
@@ -64,7 +62,7 @@ public:
      * User data should be modified only through the UserManager.
      * @return
      */
-    const boost::shared_ptr<const User> getUser() const;
+    const std::shared_ptr<const User> getUser() const;
 
     /**
      * Check if the client is alive.
@@ -85,7 +83,7 @@ public:
      * @throws An exception is thrown if the user does not have rights on the database with the given name
      * or if the server cannot allocate a client session.
      */
-    void addDbSession(const std::string &dbName, boost::shared_ptr<Server> assignedServer, std::string &out_sessionId);
+    void addDbSession(const std::string &dbName, std::shared_ptr<Server> assignedServer, std::string &out_sessionId);
 
     /**
      * Remove the session with the given ID from the client's memory.
@@ -100,12 +98,12 @@ public:
 
 private:
     std::string clientId; /*! Unique client id.*/
-    boost::shared_ptr<User> user; /*! User represented by this client. */
+    std::shared_ptr<User> user; /*! User represented by this client. */
     common::Timer timer;/*! Timer for keeping track of the life of the client */
 
     boost::shared_mutex timerMutex; /*! Mutex used to synchronize access to the timer */
 
-    std::map<std::string, boost::weak_ptr<Server>> assignedServers; /*! Map between sessionIds and the server assigned for the session*/
+    std::map<std::string, std::weak_ptr<Server>> assignedServers; /*! Map between sessionIds and the server assigned for the session*/
     boost::shared_mutex assignedServersMutex; /*! Mutex used to synchronize access to the list of servers*/
 
     /**

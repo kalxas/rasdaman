@@ -51,39 +51,23 @@ class r_Base_Type;
 class r_Scalar
 {
 public:
-    /// constructs a scalar value
     r_Scalar(const r_Base_Type *newType);
-
-    /// copy constructor
     r_Scalar(const r_Scalar &obj);
-
-    /// destructor
     virtual ~r_Scalar();
 
-    /// clone operator
     virtual r_Scalar *clone() const = 0;
+    const r_Scalar &operator=(const r_Scalar &);
 
-    /// operator for assigning a scalar
-    const r_Scalar &operator= (const r_Scalar &);
-
-    /// debug output
     virtual void print_status(std::ostream &s) const = 0;
 
-    /// get type
     virtual const r_Base_Type *get_type() const;
 
-    ///
     virtual bool isStructure() const;
-
-    ///
     virtual bool isComplex() const;
-
-    ///
     virtual bool isPrimitive() const;
 
 protected:
-    /// type
-    r_Base_Type *valueType;
+    r_Base_Type *valueType{NULL};
 };
 
 

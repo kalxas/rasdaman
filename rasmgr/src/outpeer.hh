@@ -25,9 +25,7 @@
 
 #include <string>
 #include <set>
-
-#include <boost/smart_ptr.hpp>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #include "rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
 #include "common/grpc/messages/health_service.grpc.pb.h"
@@ -50,11 +48,11 @@ public:
      * @param hostName
      * @param port
      */
-    OutPeer(const std::string &hostName, const boost::uint32_t port);
+    OutPeer(const std::string &hostName, const std::uint32_t port);
 
     std::string getHostName() const;
 
-    boost::uint32_t getPort() const;
+    std::uint32_t getPort() const;
 
     /**
      * @brief isBusy Check if the peer has active client sessions i.e. a server was requested and acquired from the remote host
@@ -81,10 +79,10 @@ public:
 private:
     std::set<std::string> openSessions; /*!< Set of open sessions */
     std::string hostName; /*!< Name of the host on which the rasmgr is running.*/
-    boost::uint32_t port; /*!< Port on which the rasmgr is running on the given host */
+    std::uint32_t port; /*!< Port on which the rasmgr is running on the given host */
 
-    boost::shared_ptr<::rasnet::service::RasmgrRasmgrService::Stub> rasmgrService;
-    boost::shared_ptr<::common::HealthService::Stub> healthService;
+    std::shared_ptr<::rasnet::service::RasmgrRasmgrService::Stub> rasmgrService;
+    std::shared_ptr<::common::HealthService::Stub> healthService;
 
     std::string createSessionId(const RemoteClientSession &clientSession);
 };

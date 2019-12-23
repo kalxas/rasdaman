@@ -23,11 +23,9 @@
 #ifndef RASMGR_X_SRC_SERVERMANAGEMENTSERVICE_HH_
 #define RASMGR_X_SRC_SERVERMANAGEMENTSERVICE_HH_
 
-#include <boost/smart_ptr.hpp>
-
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
-
+#include <memory>
 #include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 
 namespace rasmgr
@@ -42,14 +40,14 @@ class ServerManager;
 class ServerManagementService: public ::rasnet::service::RasMgrRasServerService::Service
 {
 public:
-    ServerManagementService(boost::shared_ptr<ServerManager> serverManager);
+    ServerManagementService(std::shared_ptr<ServerManager> serverManager);
 
     virtual ~ServerManagementService();
 
     virtual grpc::Status RegisterServer(grpc::ServerContext *context, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *response) override;
 
 private:
-    boost::shared_ptr<ServerManager> serverManager;
+    std::shared_ptr<ServerManager> serverManager;
 };
 
 } /* namespace rasmgr */

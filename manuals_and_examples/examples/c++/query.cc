@@ -42,20 +42,28 @@
  *  from the command line, it is way more flexible.
  *
  ************************************************************/
-#include <iostream>
 
 // Linux needs this for template instantiation
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #ifdef __GNUG__
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
 #endif
 
+#include "raslib/minterval.hh"
+#include "raslib/odmgtypes.hh"
+#include "raslib/error.hh"
+#include "rasodmg/database.hh"
+#include "rasodmg/transaction.hh"
+#include "rasodmg/set.hh"
+#include "rasodmg/ref.hh"
+#include "rasodmg/gmarray.hh"
+#include "rasodmg/iterator.hh"
+#include "rasodmg/oqlquery.hh"
 // needed to configure logging
 #include "loggingutils.hh"
-
-RMINITGLOBALS('C')
+#include <iostream>
 
 INITIALIZE_EASYLOGGINGPP
 

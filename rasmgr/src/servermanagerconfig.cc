@@ -14,12 +14,12 @@ ServerManagerConfig::~ServerManagerConfig()
 }
 
 
-boost::int32_t ServerManagerConfig::getCleanupInterval() const
+std::int32_t ServerManagerConfig::getCleanupInterval() const
 {
     return cleanupInterval;
 }
 
-void ServerManagerConfig::setCleanupInterval(const boost::int32_t &value)
+void ServerManagerConfig::setCleanupInterval(const std::int32_t &value)
 {
     cleanupInterval = value;
 }

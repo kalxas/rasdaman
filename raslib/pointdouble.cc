@@ -253,3 +253,15 @@ r_Point r_PointDouble::toIntPoint() const
     }
     return returnValue;
 }
+
+size_t
+r_PointDouble::dimension() const
+{
+    return points.size();
+}
+
+const std::vector<double> &
+r_PointDouble::getVectorContent() const
+{
+    return points;
+}

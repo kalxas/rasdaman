@@ -14,22 +14,22 @@ ClientManagerConfig::~ClientManagerConfig()
 {}
 
 
-boost::int32_t ClientManagerConfig::getCleanupInterval() const
+std::int32_t ClientManagerConfig::getCleanupInterval() const
 {
     return cleanupInterval;
 }
 
-void ClientManagerConfig::setCleanupInterval(const boost::int32_t &value)
+void ClientManagerConfig::setCleanupInterval(const std::int32_t &value)
 {
     cleanupInterval = value;
 }
 
-boost::int32_t ClientManagerConfig::getClientLifeTime() const
+std::int32_t ClientManagerConfig::getClientLifeTime() const
 {
     return clientLifeTime;
 }
 
-void ClientManagerConfig::setClientLifeTime(const boost::int32_t &value)
+void ClientManagerConfig::setClientLifeTime(const std::int32_t &value)
 {
     clientLifeTime = value;
 }

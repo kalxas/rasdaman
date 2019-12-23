@@ -31,14 +31,15 @@ rasdaman GmbH.
  *      None
 */
 
-#include "config.h"
-#include "raslib/type.hh"
 #include "rasodmg/oqlquery.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/set.hh"
 #include "rasodmg/gmarray.hh"
 #include "rasodmg/ref.hh"
+#include "rasodmg/iterator.hh"
+#include "raslib/error.hh"
+#include "raslib/type.hh"
 
 #include "clientcomm/clientcomm.hh"
 
@@ -156,7 +157,7 @@ r_OQL_Query::operator<<(r_Short v)
 r_OQL_Query &
 r_OQL_Query::operator<<(r_UShort v)
 {
-    auto str = std::to_string(v);
+    auto str = std::to_string(static_cast<int>(v));
     replaceNextArgument(str.c_str());
     return *this;
 }
@@ -254,7 +255,10 @@ r_OQL_Query::startsWith(const char *s, const char *prefix) const
             if (tolower(s[0]) != prefix[0])
                 return false;
             else
-                ++s, ++prefix;
+            {
+                ++s;
+                ++prefix;
+            }
         }
     }
     return true;
@@ -278,7 +282,10 @@ r_OQL_Query::is_retrieval_query() const
         std::transform(q.begin(), q.end(), q.begin(), ::tolower);
 
         // it is retrieval if it's a SELECT but not SELECT INTO expression
-        returnValue = (startsWith(q.c_str(), "select") && q.find(" into ") == std::string::npos);
+        returnValue = (startsWith(q.c_str(), "select") && q.find(" into ") == std::string::npos)
+// -- enterprise
+                      || startsWith(q.c_str(), "list");
+// -- enterprise
     }
 
     return returnValue;
@@ -314,8 +321,6 @@ r_OQL_Query::replaceNextArgument(const char *valueString)
     char *argumentBegin = NULL;
     char *argumentEnd = NULL;
     char *argumentVal = NULL;
-    int   argumentLength = 0;
-    int   length = 0;
 
     // locate the next argument in the query string
 
@@ -331,14 +336,14 @@ r_OQL_Query::replaceNextArgument(const char *valueString)
     while (isdigit(*argumentEnd) && *argumentEnd != ' ' && *argumentEnd != '\0')
         argumentEnd++;
 
-    argumentLength = argumentEnd - argumentBegin;
+    auto argumentLength = argumentEnd - argumentBegin;
     argumentVal    = new char[ argumentLength + 1];
     strncpy(argumentVal, argumentBegin, static_cast<size_t>(argumentLength));
     argumentVal[argumentLength] = '\0';
 
     while (true)
     {
-        length = strlen(queryString);
+        auto length = strlen(queryString);
         // allocate a new query string and fill it
         *argumentBegin = '\0';
         std::ostringstream queryStream;
@@ -353,7 +358,7 @@ r_OQL_Query::replaceNextArgument(const char *valueString)
         queryString[tmpStr.length()] = '\0';
 
         //update the reference
-        auto offset = static_cast<size_t>(length) + strlen(valueString);
+        auto offset = length + strlen(valueString);
         if (offset > strlen(queryString))
             break;
 
@@ -467,4 +472,22 @@ void r_oql_execute(r_OQL_Query &query, r_Transaction *transaction)
     transaction->setDatabase(database);
     database->getComm()->executeQuery(query);
     query.reset_query();
+}
+
+const char *
+r_OQL_Query::get_query() const
+{
+    return static_cast<const char *>(queryString);
+}
+
+const r_Set< r_GMarray * > *
+r_OQL_Query::get_constants() const
+{
+    return mddConstants;
+}
+
+const char *
+r_OQL_Query::get_parameterized_query() const
+{
+    return static_cast<const char *>(parameterizedQueryString);
 }

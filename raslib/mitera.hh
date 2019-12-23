@@ -28,8 +28,8 @@ rasdaman GmbH.
  *
 */
 
-#ifndef _D_MITERA_
-#define _D_MITERA_
+#ifndef D_MITERA_HH
+#define D_MITERA_HH
 
 #include "raslib/minterval.hh"
 
@@ -49,20 +49,15 @@ rasdaman GmbH.
   r_Minterval iterated through the results at the border may have
   a different (smaller) shape.
 */
-
 class r_MiterArea
 {
 public:
-    /// constructor.
-    /// An exception is thrown if newIterDom and newImgDom have different dimension
-    r_MiterArea(const r_Minterval *newIterDom,
-                const r_Minterval *newImgDom);
     /**
       The pointers are stored, do not delete the objects as long
       as the iterator is used!
+      @throws if newIterDom and newImgDom have different dimension
     */
-
-    /// destructor.
+    r_MiterArea(const r_Minterval *newIterDom, const r_Minterval *newImgDom);
     ~r_MiterArea();
     /// resets iterator to beginning.
     void reset();
@@ -73,21 +68,21 @@ public:
 protected:
     // structure storing information on iteration for each dimension
     // (perhaps add dimension for reordering later)
-    typedef struct
+    struct incArrElem
     {
         int repeat; // total number of repeats
         int curr;   // current repeat
-    } incArrElem;
-    /// area to be iterated through
-    const r_Minterval *iterDom;
-    /// area of tile.
-    const r_Minterval *imgDom;
-    /// array with increments
-    incArrElem *incArrIter;
-    /// flag set if iteration is finished.
-    bool done;
+    };
     /// This is used for the return value in nextArea()
     r_Minterval retVal;
+    /// area to be iterated through
+    const r_Minterval *iterDom{NULL};
+    /// area of tile.
+    const r_Minterval *imgDom{NULL};
+    /// array with increments
+    incArrElem *incArrIter{NULL};
+    /// flag set if iteration is finished.
+    bool done{false};
 };
 
 #endif

@@ -43,31 +43,20 @@
 #include <fstream>
 #include <stdlib.h>
 
-
-
-
 r_Structure::r_Structure(const char *newBuffer, const r_Structure_Type *newType)
-    : r_Scalar(newType),
-      numElements(0),
-      elements(NULL),
-      valueBuffer(NULL)
+    : r_Scalar(newType)
 {
     if (newType)
     {
-
         numElements = newType->count_elements();
         elements = new r_Scalar*[numElements];
 
         valueBuffer = static_cast<char *>(mymalloc(newType->size()));
 
         if (newBuffer)
-        {
             memcpy(valueBuffer, newBuffer, newType->size());
-        }
         else
-        {
             memset(valueBuffer, 0, newType->size());
-        }
 
         for (unsigned int i = 0; i < newType->count_elements(); i++)
         {
@@ -80,71 +69,52 @@ r_Structure::r_Structure(const char *newBuffer, const r_Structure_Type *newType)
             else
             {
                 elements[i] = new r_Primitive(valueBuffer + att.offset(),
-                                              (r_Primitive_Type *)const_cast<r_Base_Type *>(&(att.type_of())));
+                                              reinterpret_cast<const r_Primitive_Type *>(&(att.type_of())));
             }
         }
     }
 }
 
-
-
 r_Structure::r_Structure(const r_Structure &obj)
-    : r_Scalar(obj),
-      numElements(obj.numElements),
-      elements(NULL),
-      valueBuffer(NULL)
+    : r_Scalar(obj), numElements(obj.numElements)
 {
     if (numElements)
     {
         elements = new r_Scalar*[numElements];
-
         for (unsigned int i = 0; i < numElements; i++)
-        {
             elements[i] = obj.elements[i]->clone();
-        }
     }
 
     valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
 
     if (obj.valueBuffer)
-    {
         memcpy(valueBuffer, obj.valueBuffer, valueType->size());
-    }
     else
-    {
         memset(valueBuffer, 0, valueType->size());
-    }
 }
-
-
 
 r_Structure::~r_Structure()
 {
     if (numElements)
     {
         for (unsigned int i = 0; i < numElements; i++)
-        {
             delete elements[i];
-        }
-
         delete[] elements;
+        elements = NULL;
     }
 
     if (valueBuffer)
     {
         free(valueBuffer);
+        valueBuffer = NULL;
     }
 }
-
-
 
 r_Scalar *
 r_Structure::clone() const
 {
     return new r_Structure(*this);
 }
-
-
 
 const r_Structure &
 r_Structure::operator=(const r_Structure &obj)
@@ -157,10 +127,7 @@ r_Structure::operator=(const r_Structure &obj)
         if (numElements)
         {
             for (unsigned int i = 0; i < numElements; i++)
-            {
                 delete elements[i];
-            }
-
             delete[] elements;
         }
 
@@ -168,35 +135,21 @@ r_Structure::operator=(const r_Structure &obj)
         {
             numElements = obj.numElements;
             elements = new r_Scalar*[numElements];
-
             for (unsigned int i = 0; i < numElements; i++)
-            {
                 elements[i] = obj.elements[i]->clone();
-            }
         }
 
         if (valueBuffer)
-        {
             free(valueBuffer);
-        }
 
         valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
-
         if (obj.valueBuffer)
-        {
             memcpy(valueBuffer, obj.valueBuffer, valueType->size());
-        }
         else
-        {
             memset(valueBuffer, 0, valueType->size());
-        }
-
     }
-
     return *this;
 }
-
-
 
 unsigned int
 r_Structure::count_elements() const
@@ -209,23 +162,19 @@ r_Structure::get_buffer() const
 {
     memset(valueBuffer, 0, valueType->size());
 
-    unsigned int i = 0;
+    size_t i = 0;
     for (const auto &att: static_cast<r_Structure_Type *>(valueType)->getAttributes())
     {
         if (att.type_of().type_id() == r_Type::STRUCTURETYPE)
-        {
-            memcpy(valueBuffer + att.offset(), (static_cast<r_Structure *>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
-        }
+            memcpy(valueBuffer + att.offset(), static_cast<r_Structure *>(elements[i])->get_buffer(),
+                   elements[i]->get_type()->size());
         else
-        {
-            memcpy(valueBuffer + att.offset(), (static_cast<r_Primitive *>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
-        }
+            memcpy(valueBuffer + att.offset(), static_cast<r_Primitive *>(elements[i])->get_buffer(),
+                   elements[i]->get_type()->size());
         ++i;
     }
-
     return valueBuffer;
 }
-
 
 bool
 r_Structure::isStructure() const
@@ -233,50 +182,40 @@ r_Structure::isStructure() const
     return true;
 }
 
-
-
 const r_Scalar &
 r_Structure::operator[](unsigned int index) const
 {
     if (!valueType)
     {
-        LERROR << "r_Structure::operator[](" << index << ") const value type is NULL";
+        LERROR << "value type is null.";
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
-
     if (index > numElements)
     {
-        LERROR << "r_Structure::operator[](" << index << ") const index is out of bounds (" << numElements - 1 << ")";
+        LERROR << "index " << index << " out of bounds.";
         throw r_Eindex_violation(0, numElements, index);
     }
-
     return *(elements[index]);
 }
-
-
 
 const r_Scalar &
 r_Structure::operator[](const char *name) const
 {
     if (!valueType)
     {
-        LERROR << "r_Structure::operator[](" << name << ") value type is NULL";
+        LERROR << "value type is null.";
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
-
-    int index = 0;
+    size_t index = 0;
     for (const auto &att: static_cast<r_Structure_Type *>(valueType)->getAttributes())
     {
         if (strcmp(att.name(), name) == 0)
-        {
             return *(elements[index]);
-        }
         ++index;
     }
-    LERROR << "r_Structure::operator[](" << name << ") name is not valid";
+    LERROR << "attribute with name " << name << " not found in structure.";
     throw r_Error(r_Error::r_Error_NameInvalid);
 }
-
 
 void
 r_Structure::print_status(std::ostream &s) const
@@ -284,17 +223,12 @@ r_Structure::print_status(std::ostream &s) const
     if (valueType)
     {
         s << "{ " << std::flush;
-
         for (unsigned int i = 0; i < numElements; i++)
         {
             s << *(elements[i]) << std::flush;
-
             if (i < numElements - 1)
-            {
                 s << ", " << std::flush;
-            }
         }
-
         s << " }" << std::flush;
     }
     else
@@ -302,8 +236,6 @@ r_Structure::print_status(std::ostream &s) const
         s << "<nn>" << std::flush;
     }
 }
-
-
 
 std::ostream &operator<<(std::ostream &s, const r_Structure &obj)
 {

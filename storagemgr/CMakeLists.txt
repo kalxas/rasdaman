@@ -30,5 +30,9 @@ target_link_libraries(storagemgr
     reladminif relstorageif
     common_logging)
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(storagemgr REUSE_FROM common_logging)
+endif()
+
 install(TARGETS storagemgr
     DESTINATION ${LIB_DIR})

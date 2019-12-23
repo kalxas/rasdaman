@@ -21,8 +21,6 @@
  */
 
 #include <string>
-#include <boost/cstdint.hpp>
-#include <boost/smart_ptr.hpp>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -60,9 +58,9 @@ protected:
     std::string userName;
     std::string passwdString;
     std::string dbName;
-    boost::shared_ptr<Database> db;
-    boost::shared_ptr<DatabaseHostManager> dbhManager;
-    boost::shared_ptr<DatabaseManager> dbManager;
+    std::shared_ptr<Database> db;
+    std::shared_ptr<DatabaseHostManager> dbhManager;
+    std::shared_ptr<DatabaseManager> dbManager;
 };
 
 TEST_F(DatabaseManagerTest, defineDatabaseFailBecauseThereIsNoHost)

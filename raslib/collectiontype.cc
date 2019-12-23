@@ -26,8 +26,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Collection_Type::r_Collection_Type()
-    :   r_Type(),
-        elementType(NULL)
+    :   r_Type()
 {
 }
 
@@ -38,8 +37,7 @@ r_Collection_Type::r_Collection_Type(r_Type &newElementType)
 }
 
 r_Collection_Type::r_Collection_Type(const r_Collection_Type &oldObj)
-    :   r_Type(oldObj),
-        elementType(NULL)
+    :   r_Type(oldObj)
 {
     if (oldObj.elementType)
     {
@@ -47,7 +45,7 @@ r_Collection_Type::r_Collection_Type(const r_Collection_Type &oldObj)
     }
     else
     {
-        LERROR << "r_Collection_Type::r_Collection_Type( oldObj ) the element type is NULL.";
+        LERROR << "the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
 }
@@ -76,7 +74,7 @@ r_Collection_Type::operator=(const r_Collection_Type &oldObj)
     }
     else
     {
-        LERROR << "r_Collection_Type::operator=( oldObj ) the element type is NULL.";
+        LERROR << "the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
     return *this;
@@ -87,7 +85,7 @@ r_Collection_Type::element_type() const
 {
     if (elementType == NULL)
     {
-        LERROR << "r_Collection_Type::element_type() the element type is NULL.";
+        LERROR << "the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
     return *elementType;
@@ -112,12 +110,12 @@ r_Collection_Type::type_id() const
 }
 
 void
-r_Collection_Type::convertToLittleEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
+r_Collection_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
 void
-r_Collection_Type::convertToBigEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
+r_Collection_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
@@ -133,10 +131,7 @@ r_Collection_Type::print_status(std::ostream &s) const
 
 r_Collection_Type::~r_Collection_Type()
 {
-    if (elementType)
-    {
-        delete elementType;
-    }
+    delete elementType;
     elementType = NULL;
 }
 

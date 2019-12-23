@@ -35,7 +35,7 @@ rasdaman GmbH.
 
 #ifdef LINUX
 #define __EXECUTABLE__
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
 
 #ifdef __VISUALC__

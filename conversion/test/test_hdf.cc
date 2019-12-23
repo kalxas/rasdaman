@@ -30,7 +30,7 @@ rasdaman GmbH.
 
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
-#include "raslib/template_inst.hh"
+#include "rasodmg/template_inst.hh"
 #endif
 
 char* TypeIDToName(int tpid)

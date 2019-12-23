@@ -20,12 +20,32 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
+#include "config.h"
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "server/template_inst.hh"
+#include "rasodmg/template_inst.hh"
+#endif
+#endif
 
 //include statements
 #include <gtest/gtest.h>
 #include "qlparser/qtclippingutil.hh"
-#include "catalogmgr/nullvalues.cc"
-#include "raslib/pointdouble.cc"
+#include "qlparser/querytree.hh"
+#include "catalogmgr/nullvalues.hh"
+#include "raslib/pointdouble.hh"
+
+// needed in reladminif
+char globalConnectId[256];
+char globalDbUser[255] = {0};
+char globalDbPasswd[255] = {0};
+
+//class MDDColl;
+//MDDColl *mddConstants = 0; // used in QtMDD
+unsigned long maxTransferBufferSize = 4000000;
+int noTimeOut = 0;
+bool isLockMgrOn = false;
 
 using namespace std;
 

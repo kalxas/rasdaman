@@ -5,18 +5,18 @@
 namespace rasmgr
 {
 
-ServerGroupFactoryImpl::ServerGroupFactoryImpl(boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory)
+ServerGroupFactoryImpl::ServerGroupFactoryImpl(std::shared_ptr<DatabaseHostManager> m, std::shared_ptr<ServerFactory> f)
 {
-    this->dbhManager = dbhManager;
-    this->serverFactory = serverFactory;
+    this->dbhManager = m;
+    this->serverFactory = f;
 }
 
 ServerGroupFactoryImpl::~ServerGroupFactoryImpl()
 {}
 
-boost::shared_ptr<ServerGroup> ServerGroupFactoryImpl::createServerGroup(const ServerGroupConfigProto &config)
+std::shared_ptr<ServerGroup> ServerGroupFactoryImpl::createServerGroup(const ServerGroupConfigProto &config)
 {
-    boost::shared_ptr<ServerGroup> result(new ServerGroupImpl(config, this->dbhManager, this->serverFactory));
+    std::shared_ptr<ServerGroup> result(new ServerGroupImpl(config, this->dbhManager, this->serverFactory));
 
     return result;
 }

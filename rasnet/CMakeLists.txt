@@ -49,7 +49,13 @@ add_library(rasnet STATIC
         ${GENERATED_PROTO_SOURCES}
         ${GENERATED_GRPC_SOURCES})
 
-target_link_libraries(rasnet ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${PROTOBUF_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(rasnet
+    ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${PROTOBUF_LIBRARY}
+    ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES})
+
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(rasnet REUSE_FROM common_logging)
+endif()
 
 install(TARGETS rasnet
         DESTINATION ${LIB_DIR})

@@ -26,15 +26,12 @@ namespace rasmgr
 {
 using std::runtime_error;
 
-using boost::mutex;
-using boost::unique_lock;
-
-ConfigurationManager::ConfigurationManager(boost::shared_ptr<ControlCommandExecutor> commandExecutor,
-        boost::shared_ptr<DatabaseHostManager> dbhManager,
-        boost::shared_ptr<DatabaseManager> dbManager,
-        boost::shared_ptr<PeerManager> peerManager,
-        boost::shared_ptr<ServerManager> serverManager,
-        boost::shared_ptr<UserManager> userManager)
+ConfigurationManager::ConfigurationManager(std::shared_ptr<ControlCommandExecutor> commandExecutor,
+        std::shared_ptr<DatabaseHostManager> dbhManager,
+        std::shared_ptr<DatabaseManager> dbManager,
+        std::shared_ptr<PeerManager> peerManager,
+        std::shared_ptr<ServerManager> serverManager,
+        std::shared_ptr<UserManager> userManager)
     : commandExecutor_(commandExecutor),
       dbhManager_(dbhManager),
       dbManager_(dbManager),
@@ -202,7 +199,7 @@ void ConfigurationManager::saveServers(std::ofstream &out)
             << " -host " << serverGroup.host();
 
         // Store ports in an array for sorting.
-        std::vector<boost::int32_t> ports;
+        std::vector<std::int32_t> ports;
         for (int j = 0; j < serverGroup.ports_size(); ++j)
         {
             ports.push_back(serverGroup.ports(j));
@@ -212,12 +209,12 @@ void ConfigurationManager::saveServers(std::ofstream &out)
         std::sort(ports.begin(), ports.end());
 
         out << " -port ";
-        for (boost::uint32_t j = 0; j < ports.size(); ++j)
+        for (std::uint32_t j = 0; j < ports.size(); ++j)
         {
-            boost::uint32_t start = j;
-            boost::uint32_t end = j;
+            std::uint32_t start = j;
+            std::uint32_t end = j;
 
-            for (boost::uint32_t k = j + 1; k < ports.size(); ++k)
+            for (std::uint32_t k = j + 1; k < ports.size(); ++k)
             {
                 if (ports[k - 1] + 1 == ports[k])
                 {

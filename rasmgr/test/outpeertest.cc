@@ -21,7 +21,7 @@
  */
 
 #include <string>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <thread>
 
 #include <gtest/gtest.h>
@@ -46,8 +46,8 @@ protected:
     OutPeerTest()
         : peerHost("127.0.0.1"), peerPort(35000), peer(peerHost, peerPort)
     {
-        this->service = boost::make_shared<DummyRasmgrService>();
-        this->healthService = boost::make_shared<common::HealthServiceImpl>();
+        this->service = std::make_shared<DummyRasmgrService>();
+        this->healthService = std::make_shared<common::HealthServiceImpl>();
     }
 
     std::unique_ptr<grpc::Server> createAndInitServer()
@@ -66,10 +66,10 @@ protected:
     }
 
     std::string peerHost;
-    boost::uint32_t peerPort;
+    std::uint32_t peerPort;
     OutPeer peer;
-    boost::shared_ptr<DummyRasmgrService> service;
-    boost::shared_ptr<common::HealthServiceImpl> healthService;
+    std::shared_ptr<DummyRasmgrService> service;
+    std::shared_ptr<common::HealthServiceImpl> healthService;
 };
 
 TEST_F(OutPeerTest, isBusyWithNoActiveSessions)

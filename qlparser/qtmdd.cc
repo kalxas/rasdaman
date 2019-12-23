@@ -350,7 +350,7 @@ QtMDD::printStatus(ostream &stream) const
 #ifdef DEBUG
     mddObject->printStatus(0, stream);
 
-    vector<boost::shared_ptr<Tile>> *vec = mddObject->getTiles();
+    auto *vec = mddObject->getTiles();
     for (unsigned int i = 0; i < vec->size(); i++)
     {
         ((*vec)[i])->printStatus();

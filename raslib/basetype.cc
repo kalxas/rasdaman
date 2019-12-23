@@ -21,9 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <ctype.h>   //  for isalpha()
-#include <string.h> //  for strncmp()
-
 #include "raslib/basetype.hh"
 #include "raslib/attribute.hh"
 

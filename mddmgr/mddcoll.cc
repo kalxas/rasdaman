@@ -62,11 +62,10 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"                    // for r_Minterval
 #include "raslib/sinterval.hh"                    // for r_Sinterval
 #include "common/util/vectorutils.hh"
+#include "common/string/stringutil.hh"
 #include "logging.hh"                             // for LTRACE
 
 #include <iostream>                               // for operator<<, ostream
-#include <boost/algorithm/string/predicate.hpp>   // for starts_with
-#include <boost/shared_ptr.hpp>                   // for shared_ptr
 #include <stdlib.h>                               // for free, size_t
 #include <string>                                 // for string, basic_string
 #include <utility>                                // for pair
@@ -418,8 +417,8 @@ std::vector<std::string> MDDColl::getVirtualCollection(const char *collName)
         while (structIter.not_done())
         {
             StructType *typePtr = structIter.get_element();
-            if (!boost::starts_with(typePtr->getTypeName(),
-                                    TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+            if (!common::StringUtil::startsWithExactCase(
+                    typePtr->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
             {
                 char *tmpTypeStructure = typePtr->getNewTypeStructure();
                 std::string typeStructure{tmpTypeStructure};
@@ -515,7 +514,7 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
         retval = new MDDColl(ct, AllCollectionnamesName);
         OIdSet *list = ObjectBroker::getAllObjects(OId::MDDCOLLOID);
         MDDObj *transObj = nullptr;
-        boost::shared_ptr<Tile> transTile;
+        std::shared_ptr<Tile> transTile;
         const char *nameBuffer = nullptr;
         size_t namelen = 0;
         while (!list->empty())
@@ -569,7 +568,7 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
 
             char *typeStructure = typePtr->getNewTypeStructure();
 
-            if (!boost::starts_with(typePtr->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+            if (!common::StringUtil::startsWithExactCase(typePtr->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
             {
                 std::string result = "";
                 result.append("CREATE TYPE ");

@@ -24,11 +24,13 @@ rasdaman GmbH.
 #ifndef CLIENTCOMM_HH_
 #define CLIENTCOMM_HH_
 
-#include "rasodmg/database.hh"
-#include "rasodmg/transaction.hh"
-#include "rasodmg/oqlquery.hh"
+#include "raslib/mddtypes.hh"
 
-
+class r_Database;
+class r_Transaction;
+class r_OId;
+class r_OQL_Query;
+class r_GMarray;
 template <class T> class r_Set;
 class r_Ref_Any;
 class r_Base_Type;
@@ -54,9 +56,6 @@ public:
 
     /// destructor (closes the connection and releases resources)
     virtual ~ClientComm() = default;
-
-    // the class is not necessary singleton, but the type of the actual object depends on the environment
-    static ClientComm* createObject(const char* rasmgrName, int rasmgrPort);
 
     //@Man: Database methods
     //@{
@@ -230,11 +229,6 @@ public:
     ///
     //@}
     
-    /// changes endianness of MDD data
-    static int changeEndianness(r_GMarray* mdd, const r_Base_Type* bt = NULL);
-    /// changes the endianness of MDD data and keeps the original untouched
-    static int changeEndianness(const r_GMarray* mdd, void* newData, const r_Base_Type* bt = NULL);
-
     /// provides read access to my clientID
     virtual unsigned long getClientID() const  = 0;
 

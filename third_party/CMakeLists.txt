@@ -271,9 +271,9 @@ add_custom_command(OUTPUT ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${GRPC_CPP
         && sed -i "s|CONFIG)) -g |CONFIG)) |g" Makefile
         && sed -i "s|-C third_party/protobuf\$|&\\n\\tmake -C third_party/protobuf install|" Makefile
         && export MAKEFLAGS= && export MAKEOVERRIDES=
-        && $(MAKE) -j${PROCESSOR_COUNT} CONFIG=opt PROTOBUF_CONFIG_OPTS="--prefix=${PROTOBUF_BINARY_DIR}"
+        && make -j${PROCESSOR_COUNT} CONFIG=opt PROTOBUF_CONFIG_OPTS="--prefix=${PROTOBUF_BINARY_DIR}"
         && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
-        COMMAND $(MAKE) ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH} -j${PROCESSOR_COUNT}
+        COMMAND make ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH} -j${PROCESSOR_COUNT}
         WORKING_DIRECTORY ${GRPC_SOURCE_DIR}
         COMMENT "Building Google GRPC library."
         VERBATIM)
@@ -292,11 +292,11 @@ find_package (Threads REQUIRED)
 
 InstallExternalLibrary(${GRPC_LIBRARY} ${GRPC_LIBRARY_PATH} google-grpc)
 set_property(TARGET ${GRPC_LIBRARY} APPEND PROPERTY
-        IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+        IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES})
 
 InstallExternalLibrary(${GRPCPP_LIBRARY} ${GRPCPP_LIBRARY_PATH} google-grpc)
 set_property(TARGET ${GRPCPP_LIBRARY} APPEND PROPERTY
-        IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+        IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES})
 
 InstallExternalLibrary(${PROTOBUF_LIBRARY} ${PROTOBUF_LIBRARY_PATH} google-grpc)
 

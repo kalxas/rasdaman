@@ -22,14 +22,8 @@ rasdaman GmbH.
 */
 
 #include "clientcomm.hh"
-#include "rasnetprotocol/rasnetclientcomm.hh"
-#include "raslib/endian.hh"
-#include "rasodmg/gmarray.hh"
-
-ClientComm* ClientComm::createObject(const char* rasmgrName, int rasmgrPort)
-{
-    return new RasnetClientComm(rasmgrName, rasmgrPort);
-}
+#include "rasodmg/database.hh"
+#include "rasodmg/transaction.hh"
 
 void ClientComm::setTransaction(r_Transaction* transaction1)
 {
@@ -49,45 +43,4 @@ void ClientComm::updateTransaction()
         database = transaction->getDatabase();
     if (!database)
         database = r_Database::actual_database;
-}
-
-int
-ClientComm::changeEndianness(r_GMarray* mdd, const r_Base_Type* bt)
-{
-    const r_Base_Type* baseType;
-    const r_Minterval& interv = mdd->spatial_domain();
-
-    baseType = (bt == NULL) ? mdd->get_base_type_schema() : bt;
-
-    if (baseType == NULL)
-    {
-        LERROR << "Cannot change endianess, no base type information.";
-        return 0;
-    }
-
-    r_Endian::swap_array(baseType, interv, interv, mdd->get_array(), mdd->get_array());
-
-    return 1;
-}
-
-
-int
-ClientComm::changeEndianness(const r_GMarray* mdd, void* newMdd, const r_Base_Type* bt)
-{
-    const r_Base_Type* baseType;
-    const r_Minterval& interv = mdd->spatial_domain();
-
-    // Get the base type...
-    baseType = (bt == NULL) ? (const_cast<r_GMarray*>(mdd))->get_base_type_schema() : bt;
-
-    if (baseType == NULL)
-    {
-        LERROR << "Cannot change endianess, no base type information.";
-        memcpy(newMdd, mdd->get_array(), mdd->get_array_size());
-        return 0;
-    }
-
-    r_Endian::swap_array(baseType, interv, interv, mdd->get_array(), newMdd);
-
-    return 1;
 }

@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include "reladminif/oidif.hh"
 #include "ecpg_lockmanager.hh"
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class Tile;
 
@@ -114,7 +114,7 @@ public:
 
     // function processes parameters and then call the corresponding private functions for
     // a vector of tiles
-    void lockTiles(std::vector<boost::shared_ptr<Tile>> *);
+    void lockTiles(std::vector<std::shared_ptr<Tile>> *);
 
     // function for locking all tiles corresponding to the ids in the array
     void lockTiles(long long [], int);

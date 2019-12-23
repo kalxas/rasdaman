@@ -63,8 +63,6 @@ rasdaman GmbH.
 #include <iostream>
 #include <stack>
 #include <vector>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
 
 struct mapCmpMinterval
 {
@@ -168,7 +166,7 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
     resultMDD.reset(new MDDObj(mddBaseType, resultDomainGlobal));
 
     // get all tiles in relevant area
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> allTiles;
     allTiles.reset(op->getTiles());
 
     // iterate over the tiles
@@ -197,7 +195,7 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
                 size_t typeSize = (*tileIt)->getType()->getSize();
 
                 // result tile and contents
-                boost::shared_ptr<Tile> resTile;
+                std::shared_ptr<Tile> resTile;
                 resTile.reset(new Tile(resultDomain, (*tileIt).get()->getType()));
                 char *resultData = resTile->getContents();
 
@@ -312,9 +310,9 @@ QtClipping::extractSubspace(const MDDObj *op,
     resultMDD.reset(new MDDObj(mddBaseType, projectedDomain));
 
     // get all tiles in relevant area
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> allTiles;
     allTiles.reset(op->intersect(tranBox));
-    boost::shared_ptr<Tile> resTile;
+    std::shared_ptr<Tile> resTile;
     resTile.reset(new Tile(projectedDomain, (*(allTiles->begin()))->getType()));
 
     //data type size
@@ -481,7 +479,7 @@ QtClipping::extractLinestring(const MDDObj *op,
     //process Bresenham into the respective output tile
 
     // get all tiles in relevant area
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> srcTiles;
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> srcTiles;
     srcTiles.reset(op->getTiles());
 
     //initialize the result tiles here
@@ -494,12 +492,12 @@ QtClipping::extractLinestring(const MDDObj *op,
     }
 
     // prepare result tiles with null values
-    vector< boost::shared_ptr<Tile>> resultTiles;
+    vector<std::shared_ptr<Tile>> resultTiles;
     resultTiles.reserve(resultTileMintervals.size());
     for (size_t i = 0; i < resultTileMintervals.size(); i++)
     {
         //build a new tile
-        auto resultTile = boost::make_shared<Tile>(resultTileMintervals[i], resultType);
+        auto resultTile = std::make_shared<Tile>(resultTileMintervals[i], resultType);
         //initialize contents to null values
         char *resData = resultTile->getContents();
         op->fillTileWithNullvalues(resData, resultTileMintervals[i].cell_count());
@@ -599,7 +597,7 @@ QtClipping::extractMultipolygon(const MDDObj *op,
         return NULL;
     }
 
-    auto resultMask = buildResultMask(resultMaskDom,areaOp, clipVector, geomType);
+    auto resultMask = buildResultMask(resultMaskDom, areaOp, clipVector, geomType);
 
     //generate resultMDD
     MDDDimensionType *mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), 3);
@@ -609,13 +607,14 @@ QtClipping::extractMultipolygon(const MDDObj *op,
 
     std::shared_ptr<r_Minterval> resultDom;
     resultDom.reset(new r_Minterval(resultMaskDom->create_intersection(areaOp)));
+
     std::unique_ptr<MDDObj> resultMDD;
     resultMDD.reset(new MDDObj(mddBaseType, *resultDom, op->getNullValues()));
 
     // here, we apply the resultMask to each tile to generate the output tiles.
 
     //iterate over the source tiles
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> allTiles;
     allTiles.reset(op->intersect(*resultMaskDom));
     try
     {
@@ -630,7 +629,7 @@ QtClipping::extractMultipolygon(const MDDObj *op,
             const char *sourceDataPtr = (*tileIt)->getContents();
 
             //construct result tile
-            boost::shared_ptr<Tile> resTile;
+            std::shared_ptr<Tile> resTile;
             r_Minterval intersectDom = resultDom->create_intersection(srcTileDom);
             resTile.reset(new Tile(intersectDom, op->getCellType()));
 
@@ -705,7 +704,7 @@ QtClipping::extractCurtain(const MDDObj *op, const r_Minterval &areaOp,
     resultMDD.reset(new MDDObj(mddBaseType, resultDomain, op->getNullValues()));
 
     // pointer to all source tiles
-    std::unique_ptr< std::vector< boost::shared_ptr<Tile>>> allTiles;
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> allTiles;
     allTiles.reset(op->intersect(resultDomain));
 
     // iterate over source tiles
@@ -723,7 +722,7 @@ QtClipping::extractCurtain(const MDDObj *op, const r_Minterval &areaOp,
         r_Bytes typeSize = baseType->getSize();
 
         // generate the result tile and initialize its contents to 0
-        boost::shared_ptr<Tile> resTile;
+        std::shared_ptr<Tile> resTile;
         resTile.reset(new Tile(aoiSrc, baseType));
         // result data pointer
         char *resDataPtr = resTile->getContents();
@@ -861,7 +860,7 @@ QtClipping::extractCorridor(const MDDObj *op, const r_Minterval &areaOp,
     // REMARK (BBELL): I cannot think of a better way of doing this; it might be nice if we could predictively and meaningfully chunk this.
 
     // generate the unique result tile
-    boost::shared_ptr<Tile> resTile;
+    std::shared_ptr<Tile> resTile;
     resTile.reset(new Tile(resultDomain, op->getCellType()));
     // result data pointer
     char *resDataPtr = resTile->getContents();
@@ -869,7 +868,7 @@ QtClipping::extractCorridor(const MDDObj *op, const r_Minterval &areaOp,
     op->fillTileWithNullvalues(resDataPtr, resultDomain.cell_count());
 
     // pointer to all source tiles which might intersect our area of interest
-    std::unique_ptr< std::vector< boost::shared_ptr<Tile>>> allTiles;
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> allTiles;
     allTiles.reset(op->intersect(outerHull));
 
     //if no intersections were found, we throw an error.
@@ -1357,7 +1356,6 @@ QtClipping::checkType(QtTypeTuple *typeTuple)
             parseInfo.setErrorNo(GEOMETRYARGREQUIRED);
             throw parseInfo;
         }
-    
 
         if (!withCoordinates)
         {

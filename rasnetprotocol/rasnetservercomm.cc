@@ -34,7 +34,7 @@ using common::ErrorMessage;
 using rasserver::ClientQueryStreamedResult;
 using common::UUID;
 
-RasnetServerComm::RasnetServerComm(::boost::shared_ptr<rasserver::ClientManager> cm)
+RasnetServerComm::RasnetServerComm(std::shared_ptr<rasserver::ClientManager> cm)
 {
     this->clientManager = cm;
 }
@@ -1013,7 +1013,7 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(__attribute__((unused)) gr
 
         auto requestUUID = UUID::generateUUID();
 
-        boost::shared_ptr<ClientQueryStreamedResult> result(new ClientQueryStreamedResult(
+        std::shared_ptr<ClientQueryStreamedResult> result(new ClientQueryStreamedResult(
                     resultBuffer, static_cast<uint64_t>(resultLen), request->client_uuid()));
 
         rasserver::DataChunk nextChunk = result->getNextChunk();

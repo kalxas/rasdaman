@@ -23,8 +23,8 @@
 // This version was created based on rview. Let's see if the other programs compile
 // also.
 
-#ifndef _TEMPLATE_INST_RASLIB_
-#define _TEMPLATE_INST_RASLIB_
+#ifndef TEMPLATE_INST_RASODMG_HH
+#define TEMPLATE_INST_RASODMG_HH
 
 #include <raslib/minterval.hh>
 

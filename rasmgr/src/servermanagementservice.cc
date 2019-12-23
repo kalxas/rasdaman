@@ -29,15 +29,13 @@
 
 namespace rasmgr
 {
-using boost::shared_ptr;
-
 using grpc::Status;
 
 using std::string;
 
-ServerManagementService::ServerManagementService(shared_ptr<ServerManager> serverManager)
+ServerManagementService::ServerManagementService(std::shared_ptr<ServerManager> m)
 {
-    this->serverManager = serverManager;
+    this->serverManager = m;
 }
 
 ServerManagementService::~ServerManagementService()
