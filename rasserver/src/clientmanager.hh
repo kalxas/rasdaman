@@ -24,6 +24,9 @@ rasdaman GmbH.
 #ifndef RASSERVER_CLIENTMANAGER_HH
 #define RASSERVER_CLIENTMANAGER_HH
 
+#include "clientquerystreamedresult.hh"
+#include "common/time/timer.hh"
+
 #include <map>
 #include <string>
 #include <memory>
@@ -31,9 +34,6 @@ rasdaman GmbH.
 #include <mutex>
 #include <condition_variable>
 #include <boost/thread/shared_mutex.hpp>
-
-#include "common/time/timer.hh"
-#include "clientquerystreamedresult.hh"
 
 namespace rasserver
 {

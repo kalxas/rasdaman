@@ -135,9 +135,18 @@ endif()
 add_subdirectory(test)
 
 target_link_libraries(qlparser ${OPTIONAL_LIBRARIES}
-    common_geo lockmanager)
+    raslib rasodmg mymalloc_svc conversion
+    common_geo common_logging common_string
+    lockmanager
+    reladminif
+    relblobif
+    catalogmgr relcatalogif # algebraops.cc
+    mddmgr relmddif
+    storagemgr
+    tilemgr
+    servercomm # oql.yy
+    )
 
-# The qlparser depends on clientcomm and servercomm because somebody included the generated RPC files.
 add_dependencies(qlparser clientcomm servercomm catalogmgr)
 
 install(TARGETS qlparser

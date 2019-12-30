@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "servercomm.hh"
 #include "cliententry.hh"
 #include "accesscontrol.hh"
-#include "rasnetprotocol/rpcif.h"
+#include "rpcif.h"
 
 #include "raslib/rmdebug.hh"
 #include "raslib/rminit.hh"

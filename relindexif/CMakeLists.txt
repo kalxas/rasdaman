@@ -41,11 +41,9 @@ target_include_directories(relindexif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relindexif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(relindexif PUBLIC
-    indexmgr
-    reladminif
-    relcatalogif
-    relblobif
-    relstorageif
+    indexmgr storagemgr raslib
+    reladminif relcatalogif relblobif relstorageif
+    common_logging
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

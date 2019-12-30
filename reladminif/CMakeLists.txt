@@ -21,22 +21,38 @@
 #
 ###################################################################
 
+set(COMPILED_SQL_SOURCES_COMMON "")
+CompileEmbeddedSQL(sqlerror ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+    COMPILED_SQL_SOURCES_COMMON)
+add_library(reladminif_common
+    ${COMPILED_SQL_SOURCES_COMMON}
+    sqlerror.hh
+    sqlitewrapper.hh sqlitewrapper.cc
+    )
+target_link_libraries(reladminif_common PUBLIC
+    raslib common_logging
+    ${BASEDB_LIBRARIES}
+    )
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(reladminif_common REUSE_FROM common_logging)
+endif()
+
 # The name of the SQL sources files without extension
-set(EMBEDDED_SQL_SOURCES adminif
+set(EMBEDDED_SQL_SOURCES
+    adminif
     databaseif
     objectbroker
     oidif
-    sqlerror
     transactionif
     )
 
 set(COMPILED_SQL_SOURCES "")
-
 foreach (FILE ${EMBEDDED_SQL_SOURCES})
     CompileEmbeddedSQL(${FILE} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} COMPILED_SQL_SOURCES)
 endforeach ()
 
-add_library(reladminif ${COMPILED_SQL_SOURCES}
+add_library(reladminif
+    ${COMPILED_SQL_SOURCES}
     adminif.hh adminifcommon.cc
     binaryrepresentation.hh
     databaseif.hh databaseifcommon.cc
@@ -51,9 +67,7 @@ add_library(reladminif ${COMPILED_SQL_SOURCES}
     lists.h
     objectbroker.hh objectbrokercommon.cc
     oidif.hh oidifcommon.cc
-    sqlerror.hh
     sqlglobals.h
-    sqlitewrapper.hh sqlitewrapper.cc
     transactionif.hh transactionifcommon.cc
     )
 
@@ -61,7 +75,9 @@ target_include_directories(reladminif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(reladminif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(reladminif PUBLIC
-    raslib mymalloc_svc
+    reladminif_common
+    common_logging common_exceptions common_string
+    catalogmgr indexmgr raslib mymalloc_svc
     relblobif relcatalogif relindexif relmddif relstorageif
     ${BASEDB_LIBRARIES}
     )

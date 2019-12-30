@@ -35,6 +35,10 @@ macro(AddRelblobifTest TEST_NAME)
         relindexif indexmgr relcatalogif 
         tilemgr catalogmgr relblobif reladminif
     )
+    
+    if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+    target_precompile_headers(${TEST_NAME}_test REUSE_FROM common_logging)
+    endif()
 
     add_test(${TEST_NAME}_testrunner ${TEST_NAME}_test)
     # run on make unit-check

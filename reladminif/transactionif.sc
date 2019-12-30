@@ -27,7 +27,9 @@ rasdaman GmbH.
 #include "sqlerror.hh"
 #include "adminif.hh"
 #include "databaseif.hh"
+#ifdef RMANBENCHMARK
 #include "dbobject.hh"
+#endif
 #include "objectbroker.hh"
 #include "oidif.hh"
 #include "relblobif/blobfs.hh"
@@ -38,13 +40,9 @@ rasdaman GmbH.
 void TransactionIf::begin(bool readOnly)
 {
     if (readOnly)
-    {
         SQLiteQuery::execute("BEGIN TRANSACTION");
-    }
     else
-    {
         SQLiteQuery::execute("BEGIN IMMEDIATE TRANSACTION");
-    }
 
     isReadOnly = readOnly;
     AdminIf::setAborted(false);
@@ -99,9 +97,7 @@ void TransactionIf::commit()
     BlobFS::getInstance().postRasbaseCommit();
 
     if (lastBase)
-    {
         lastBase->baseDBMSClose();
-    }
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.stop();
@@ -131,16 +127,12 @@ void TransactionIf::abort()
     AdminIf::setReadOnlyTA(false);
 
     if (SQLiteQuery::isTransactionActive())
-    {
         SQLiteQuery::execute("ROLLBACK TRANSACTION");
-    }
 
     BlobFS::getInstance().postRasbaseAbort();
 
     if (lastBase)
-    {
         lastBase->baseDBMSClose();
-    }
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.stop();

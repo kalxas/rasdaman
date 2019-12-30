@@ -49,7 +49,7 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 #include "rasserver_config.hh"
 #include "rasserver_entry.hh"
-#include "rasnetprotocol/rpcif.h"
+#include "servercomm/rpcif.h"
 #include "servercomm/accesscontrol.hh"
 
 #include <logging.hh>

@@ -24,6 +24,16 @@ rasdaman GmbH.
 #define RASSERVER_ENTRY_HH
 
 #include "servercomm/httpserver.hh"
+#include <vector>
+#include <memory>
+
+class ClientTblElt;
+class r_OId;
+class r_Minterval;
+struct ExecuteQueryRes;
+struct ExecuteUpdateRes;
+struct RPCMarray;
+struct RPCOIdEntry;
 
 /** 
  * This class is the entry point of the rasdaman server. Its functions are

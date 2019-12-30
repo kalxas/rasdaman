@@ -21,21 +21,32 @@
 #
 ###################################################################
 
-# These are folders that contain files used to build this library (generated files or source files)
-set(CLIENTCOMM_SOURCE_DIR "${CMAKE_SOURCE_DIR}/clientcomm")
-set(CLIENTCOMM_BINARY_DIR "${CMAKE_BINARY_DIR}/clientcomm")
+# rasnetservercomm
+
+add_library(rasnetservercomm
+        rasnetservercomm.hh rasnetservercomm.cc
+        )
+
+target_link_libraries(rasnetservercomm
+    common_grpc common_uuid
+    rasnetserver rasnet raslib rasserver_lib mymalloc_svc qlparser)
+
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(rasnetservercomm REUSE_FROM common_logging)
+endif()
+
+# servercomm
 
 set(SRC_FILES
     cliententry.cc cliententry.hh
     accesscontrol.cc accesscontrol.hh
     httpserver.hh httpserver.cc
-    servercomm.hh servercomm.cc
-    "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.hh"
-    "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.cc")
+    servercomm.hh servercomm.cc)
 
 add_library(servercomm ${SRC_FILES})
 
 target_link_libraries(servercomm
+    rasnetservercomm
     rasnet common_exceptions common_grpc common_logging common_time common_uuid)
 
 if (ENABLE_PROFILING)

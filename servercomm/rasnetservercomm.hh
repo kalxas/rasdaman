@@ -24,8 +24,6 @@ rasdaman GmbH.
 #ifndef RASNETSERVERCOMM_HH
 #define RASNETSERVERCOMM_HH
 
-#include <boost/smart_ptr.hpp>
-
 #include "rasserver/src/clientmanager.hh"
 #include "rasnet/messages/client_rassrvr_service.grpc.pb.h"
 #include "raslib/error.hh"
@@ -34,7 +32,7 @@ class RasnetServerComm : public rasnet::service::ClientRassrvrService::Service
 {
 public:
     RasnetServerComm(std::shared_ptr<rasserver::ClientManager> clientManager);
-    virtual ~RasnetServerComm();
+    ~RasnetServerComm() override;
 
     virtual grpc::Status OpenServerDatabase(grpc::ServerContext *context, const rasnet::service::OpenServerDatabaseReq *request, rasnet::service::OpenServerDatabaseRepl *response) override;
     virtual grpc::Status CloseServerDatabase(grpc::ServerContext *context, const rasnet::service::CloseServerDatabaseReq *request, rasnet::service::Void *response) override;

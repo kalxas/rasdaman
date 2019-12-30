@@ -39,8 +39,8 @@ target_include_directories(relstorageif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relstorageif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(relstorageif PUBLIC
-    relcatalogif
-    reladminif
+    storagemgr common_logging mymalloc_svc raslib
+    relcatalogif reladminif
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

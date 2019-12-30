@@ -34,18 +34,17 @@ rasdaman GmbH.
 #include <iostream>                 // for operator<<, ostream, endl
 
 using std::endl;
+using std::vector;
 
 InlineTile::InlineTile(r_Data_Format dataformat)
     : BLOBTile(dataformat)
 {
-    LTRACE << "InlineTile()";
     objecttype = OId::INLINETILEOID;
 }
 
 InlineTile::InlineTile(r_Bytes newSize, r_Data_Format dataformat)
     : BLOBTile(newSize, dataformat)
 {
-    LTRACE << "InlineTile(" << newSize << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
@@ -53,7 +52,6 @@ InlineTile::InlineTile(r_Bytes newSize, char c,
                        r_Data_Format dataformat)
     : BLOBTile(newSize, c, dataformat)
 {
-    LTRACE << "InlineTile(" << newSize << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
@@ -61,7 +59,6 @@ InlineTile::InlineTile(r_Bytes newSize, const char *newCells,
                        r_Data_Format dataformat)
     : BLOBTile(newSize, newCells, dataformat)
 {
-    LTRACE << "InlineTile(" << size << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
@@ -69,8 +66,6 @@ InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells,
                        char *newCells, r_Data_Format dataformat)
     : BLOBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
 {
-    LTRACE << "InlineTile(" << size << ", data, " << dataformat
-           << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
     objecttype = OId::INLINETILEOID;
 }
 
@@ -144,13 +139,8 @@ void InlineTile::setModified()
     DBObject::setModified();
     if (isInlined())
     {
-        LTRACE << " index will be modified";
         DBTCIndexId t(myIndexOId);
         t->setInlineTileHasChanged();
-    }
-    else
-    {
-        LTRACE << "index will not be modified";
     }
 }
 
@@ -215,13 +205,7 @@ char *InlineTile::insertInMemBlock(char *thecontents)
     // store the blob
     memcpy(thecontents, cells, size * sizeof(char));
     thecontents = thecontents + size * sizeof(char);
-    LTRACE << "OId " << myOId << " size " << size << " DataFormat " << dataFormat;
-#ifdef DEBUG
-    for (int i = 0; i < size; i++)
-    {
-        LTRACE << (unsigned int)(cells[i]) << " ";
-    }
-#endif
+    
     DBObject::updateInDb();
     return thecontents;
 }

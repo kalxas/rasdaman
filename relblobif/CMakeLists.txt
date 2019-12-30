@@ -59,6 +59,9 @@ target_include_directories(relblobif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relblobif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(relblobif
+    reladminif
+    relindexif storagemgr # inlinetile.cc
+    raslib mymalloc_svc common_util common_logging
     ${BASEDB_LIBRARIES})
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

@@ -33,7 +33,7 @@ rasdaman GmbH.
 #include "httpserver.hh"
 #include "config.h"
 #include "accesscontrol.hh"
-#include "rasnetprotocol/rpcif.h"
+#include "rpcif.h"
 
 #include "raslib/error.hh"
 #include "raslib/minterval.hh"

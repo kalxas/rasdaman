@@ -27,8 +27,8 @@ rasdaman GmbH.
  * Author: Sorin Stancu-Mara
  */
 
-#ifndef TESTING_H__
-#define TESTING_H__
+#ifndef RELBLOBIF_TESTING_H__
+#define RELBLOBIF_TESTING_H__
 
 #include <iostream>
 #include <string>
@@ -58,22 +58,26 @@ private:
 
 #define LOG Test::log_ << __FILE__ << ":" << __LINE__ << " "
 
+#undef TEST_FAIL
 #define TEST_FAIL() \
     Test::test_result_ = false,\
                          LOG << "Test failed at " << __FILE__ << ":" << __LINE__ << endl
 
+#undef EXPECT_TRUE
 #define EXPECT_TRUE(a) \
     if (!(a)) Test::test_result_ = false, \
                                        LOG << "Expected " << #a << " to evaluate to true but found " \
                                        "otherwise" << endl \
                                        << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
+#undef EXPECT_FALSE
 #define EXPECT_FALSE(a) \
     if (a) Test::test_result_ = false, \
                                     LOG << "Expected " << #a << " to evaluate to false but found " \
                                     "otherwise" << endl \
                                     << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
+#undef EXPECT_NOT_EQ
 #define EXPECT_NOT_EQ(a,b) \
     if ((a) == (b)) Test::test_result_ = false, \
                                              LOG << "Expected different values but found otherwise" <<endl \
@@ -81,6 +85,7 @@ private:
                                              << #b << " : '" << (b) << "'" << endl \
                                              << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
+#undef EXPECT_EQ
 #define EXPECT_EQ(a,b) \
     if ((a) != (b)) Test::test_result_ = false, \
                                              LOG << "Expected equality but found otherwise" <<endl \
@@ -88,6 +93,7 @@ private:
                                              << #b << " : '" << (b) << "'" << endl \
                                              << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
+#undef EXPECT_EQ_STR
 #define EXPECT_EQ_STR(a,b) \
     if (strcmp((a),(b)) != 0) Test::test_result_ = false, \
                 LOG << "Expected equality but found otherwise" <<endl \
@@ -95,6 +101,7 @@ private:
                 << "Second string: '" << b << "'." << endl \
                 << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
+#undef EXPECT_EQ_MEM
 #define EXPECT_EQ_MEM(a,b,size) \
     if (memcmp((a),(b),(size)) != 0) Test::test_result_ = false, \
                 LOG << "Expected equality but found otherwise" <<endl \
@@ -102,6 +109,7 @@ private:
                 << "Second string: '" << Test::charPtrToString(b, size) << "'." << endl \
                 << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
+#undef RUN_TEST
 #define RUN_TEST(method) \
     {LOG << "Running " << #method << endl; \
         Test::test_result_ = true; \
@@ -119,6 +127,7 @@ private:
         } \
         LOG << endl; }
 
+#undef TEST_SUMMARY
 #define TEST_SUMMARY() \
     LOG << "Run " << Test::tests_run_ << " tests" << endl; \
     LOG << Test::tests_passed_ << " tests passed!" << endl; \

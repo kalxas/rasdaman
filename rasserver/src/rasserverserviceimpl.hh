@@ -24,12 +24,12 @@ rasdaman GmbH.
 #ifndef RASSERVERSERVICE_HH
 #define RASSERVERSERVICE_HH
 
+#include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
+
 #include <set>
 #include <utility>
 #include <string>
 #include <memory>
-
-#include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
 namespace rasserver
 {

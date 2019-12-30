@@ -27,8 +27,7 @@ using namespace std;
 #include "rasserver_config.hh"
 #include "globals.hh"   // DEFAULT_PORT, LOGDIR, LOG_SUFFIX
 
-#include "storagemgr/sstoragelayout.hh"
-#include "servercomm/httpserver.hh"
+#include "raslib/error.hh"
 #include "commline/cmlparser.hh"
 #include "applications/rasql/rasql_error.hh"
 #include "loggingutils.hh"
@@ -39,6 +38,8 @@ using namespace std;
 #include <iostream>
 #include <string>
 #include <sstream>
+
+using namespace std;
 
 // -- directql section start
 

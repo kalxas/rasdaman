@@ -21,12 +21,14 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "mymalloc/mymalloc.h"
 
 #include "rasserver_entry.hh"
+#include "raslib/error.hh"
+#include "raslib/oid.hh"
 #include "servercomm/cliententry.hh"
 #include "servercomm/accesscontrol.hh"
 #include "reladminif/adminif.hh"
+#include "mymalloc/mymalloc.h"
 
 #include <logging.hh>
 #include <limits>

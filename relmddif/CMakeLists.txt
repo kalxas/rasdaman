@@ -40,11 +40,10 @@ target_include_directories(relmddif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relmddif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(relmddif PUBLIC
-    reladminif
-    relblobif
-    relcatalogif
-    relstorageif
-    relindexif)
+    raslib common_logging
+    indexmgr catalogmgr 
+    reladminif relblobif relcatalogif relstorageif relindexif
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(relmddif REUSE_FROM common_logging)

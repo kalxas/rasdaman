@@ -21,39 +21,32 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
-#include <iostream>
-
-#include <grpc++/grpc++.h>
-#include <chrono>
-
-#include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
-
-#include <logging.hh>
+#include "rasnetserver.hh"
+#include "clientmanager.hh"
 #include "common/grpc/grpcutils.hh"
-#include "common/exceptions/rasexceptions.hh"
-#include "rasnetprotocol/rasnetservercomm.hh"
-
+#include "common/exceptions/connectionfailedexception.hh"
+#include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
+#include "servercomm/rasnetservercomm.hh"
 #include "server/rasserver_entry.hh"
 #include "include/globals.hh"
 
-#include "clientmanager.hh"
+#include <logging.hh>
 
-#include "rasnetserver.hh"
+#include <iostream>
+#include <chrono>
+#include <grpc++/grpc++.h>
 
 namespace rasserver
 {
 
 using std::shared_ptr;
 using std::unique_ptr;
-using common::ConnectionFailedException;
 using common::GrpcUtils;
 using common::HealthServiceImpl;
 
 
-RasnetServer::RasnetServer(const Configuration& configuration):
-    isRunning(false),
-    configuration(configuration)
+RasnetServer::RasnetServer(const Configuration& c):
+    isRunning(false), configuration(c)
 {
     shared_ptr<ClientManager> clientManager(new ClientManager());
 
@@ -104,7 +97,7 @@ void RasnetServer::registerServerWithRasmgr()
 
     if (!GrpcUtils::isServerAlive(healthService, SERVICE_CALL_TIMEOUT))
     {
-        throw ConnectionFailedException("rasserver failed to connect to rasmgr.");
+        throw common::ConnectionFailedException("rasserver failed to connect to rasmgr.");
     }
 
     grpc::ClientContext context;

@@ -25,7 +25,7 @@ rasdaman GmbH.
 #define RASSERVER_X_SRC_RASNETSERVER_HH
 
 #include "rasserverserviceimpl.hh"
-#include "rasnetprotocol/rasnetservercomm.hh"
+#include "servercomm/rasnetservercomm.hh"
 #include "common/grpc/healthserviceimpl.hh"
 #include "server/rasserver_config.hh"
 

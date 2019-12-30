@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "raslib/parseparams.hh"
 #include "raslib/turboqueryresult.hh"
 #include "mymalloc/mymalloc.h"
-#include "rasnetprotocol/rpcif.h"
+#include "servercomm/rpcif.h"
 
 #include "common/crypto/crypto.hh"
 #include "common/uuid/uuid.hh"

@@ -21,13 +21,13 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <logging.hh>
+#include "clientmanager.hh"
+
 #include "common/uuid/uuid.hh"
 #include "server/rasserver_entry.hh"
 #include "common/exceptions/missingresourceexception.hh"
+#include <logging.hh>
 #include <boost/thread.hpp>
-
-#include "clientmanager.hh"
 
 namespace rasserver
 {
