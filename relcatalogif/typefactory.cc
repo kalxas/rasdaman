@@ -22,7 +22,7 @@ rasdaman GmbH.
 */
 // This is -*- C++ -*-
 
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "raslib/error.hh"                         // for r_Error
 #include "raslib/odmgtypes.hh"                     // for BOOLTYPE, CHAR, COMP...
 #include "raslib/structuretype.hh"
@@ -534,7 +534,7 @@ const Type *TypeFactory::ensurePersistence(Type *type)
     {
     case STRUCT:
     {
-        TypeIterator<StructType> ist = createStructIter();
+        DBObjectIterator<StructType> ist = createStructIter();
         while (ist.not_done())
         {
             ttype = ist.get_element();
@@ -553,7 +553,7 @@ const Type *TypeFactory::ensurePersistence(Type *type)
     break;
     case MDDTYPE:
     {
-        TypeIterator<MDDType> imd = createMDDIter();
+        DBObjectIterator<MDDType> imd = createMDDIter();
         while (imd.not_done())
         {
             ttype = imd.get_element();
@@ -572,7 +572,7 @@ const Type *TypeFactory::ensurePersistence(Type *type)
     break;
     case SETTYPE:
     {
-        TypeIterator<SetType> ise = createSetIter();
+        DBObjectIterator<SetType> ise = createSetIter();
         while (ise.not_done())
         {
             ttype = ise.get_element();
@@ -639,25 +639,25 @@ const Type *TypeFactory::ensurePersistence(Type *type)
     return retval;
 }
 
-TypeIterator<SetType> TypeFactory::createSetIter()
+DBObjectIterator<SetType> TypeFactory::createSetIter()
 {
     OIdSet *t = ObjectBroker::getAllObjects(OId::SETTYPEOID);
-    TypeIterator<SetType> ti(*t);
+    DBObjectIterator<SetType> ti(*t);
     delete t;
     t = nullptr;
     return ti;
 }
 
-TypeIterator<StructType> TypeFactory::createStructIter()
+DBObjectIterator<StructType> TypeFactory::createStructIter()
 {
     OIdSet *t = ObjectBroker::getAllObjects(OId::STRUCTTYPEOID);
-    TypeIterator<StructType> ti(*t);
+    DBObjectIterator<StructType> ti(*t);
     delete t;
     t = nullptr;
     return ti;
 }
 
-TypeIterator<MDDType> TypeFactory::createMDDIter()
+DBObjectIterator<MDDType> TypeFactory::createMDDIter()
 {
     OIdSet theMDDTypes;
     OIdSet *tempList = nullptr;
@@ -691,7 +691,7 @@ TypeIterator<MDDType> TypeFactory::createMDDIter()
     }
     delete tempList;
 
-    return TypeIterator<MDDType>(theMDDTypes);
+    return DBObjectIterator<MDDType>(theMDDTypes);
 }
 
 const Type *TypeFactory::fromRaslibType(const r_Type *type)

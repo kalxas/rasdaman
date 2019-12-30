@@ -37,17 +37,22 @@ add_library(relmddif ${COMPILED_SQL_SOURCES}
         mddid.hh)
 
 target_include_directories(relmddif PUBLIC ${BASEDB_INCLUDE_DIR})
-target_include_directories(relmddif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(relmddif PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(relmddif PUBLIC
-    raslib common_logging
-    indexmgr catalogmgr 
-    reladminif relblobif relcatalogif relstorageif relindexif
+target_link_libraries(relmddif
+    PUBLIC
+#    raslib
+    reladminif
+    
+    PRIVATE
+#    common_logging
+    # indexmgr catalogmgr
+#    relblobif
+#    relcatalogif
+#    relstorageif
+#    relindexif
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(relmddif REUSE_FROM common_logging)
 endif()
-
-install(TARGETS relmddif
-        DESTINATION ${LIB_DIR})

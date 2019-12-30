@@ -42,7 +42,7 @@ rasdaman GmbH.
 #include <vector>
 #include "rasodmg/dirdecompose.hh"
 #include "raslib/minterval.hh"
-#include "../rasodmg/interesttiling.hh"
+#include "rasodmg/interesttiling.hh"
 
 class StgMddConfig
 {

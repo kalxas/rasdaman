@@ -26,8 +26,10 @@ using namespace std;
 #include "server/createinitmdd.hh"
 #include <iomanip>
 #include "reladminif/objectbroker.hh"
+#include "storagemgr/sstoragelayout.hh"
 #include "raslib/mitera.hh"
 #include "mymalloc/mymalloc.h"
+#include "relcatalogif/basetype.hh"
 
 #include <logging.hh>
 

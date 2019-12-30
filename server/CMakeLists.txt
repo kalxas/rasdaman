@@ -28,7 +28,7 @@ add_library(rasserver_lib
     createinitmdd.hh createinitmdd.cc
     )
 target_link_libraries(rasserver_lib
-    commline rasnet
+    PUBLIC commline rasnet
     )
 
 add_definitions(${PNG_DEFINITIONS})
@@ -53,6 +53,7 @@ target_link_libraries(rasserver rasserver_lib
 
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(rasserver_lib REUSE_FROM common_logging)
 target_precompile_headers(rasserver REUSE_FROM common_logging)
 endif()
 

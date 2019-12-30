@@ -27,14 +27,10 @@ rasdaman GmbH.
  * Created on September 11, 2017, 4:39 PM
  */
 
-//#include "catalogmgr/ops.hh"
-
 //@ManMemo: Module: {\bf qlparser}
 
 //The class represents a polygon clipping operation on MDD objects.
-
 //this class summarizes and builds upon the work of Vlad Frasineanu from his Bachelor's thesis
-
 //positive genus means the polygon has holes; in other words, drilled-out interior regions which are polygons themselves.
 
 #ifndef QTPOLYGONCLIPPING_HH

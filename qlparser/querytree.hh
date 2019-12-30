@@ -23,8 +23,6 @@ rasdaman GmbH.
 #ifndef _QUERYTREE_
 #define _QUERYTREE_
 
-#include "mddmgr/mddcoll.hh"
-
 #include "qlparser/qtnode.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtbinaryinduce.hh"

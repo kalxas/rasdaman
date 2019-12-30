@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "raslib/endian.hh"
 #include "raslib/basetype.hh"
 
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "mymalloc/mymalloc.h"
 #include "mddmgr/mddcoll.hh"
 #include "qlparser/qtnode.hh"
@@ -53,6 +53,7 @@ rasdaman GmbH.
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtstringdata.hh"
 #include "qlparser/querytree.hh"
+#include "relcatalogif/basetype.hh"
 #include "relcatalogif/mddtype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/settype.hh"

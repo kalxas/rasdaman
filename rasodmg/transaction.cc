@@ -34,6 +34,7 @@ rasdaman GmbH.
 #include "rasodmg/ref.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/iterator.hh"
+#include "rasodmg/genreftype.hh"
 #include "raslib/error.hh"
 #include "raslib/minterval.hh"
 #include "raslib/scalar.hh"

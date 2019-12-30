@@ -22,7 +22,6 @@ rasdaman GmbH.
 */
 #pragma once
 
-#include "relmddif/mddid.hh"
 #include "raslib/mddtypes.hh"
 #include "raslib/minterval.hh"
 
@@ -105,4 +104,3 @@ using OIdConstPair = std::pair<const double, const OId>;
 using DomainMap = std::map<double, r_Minterval, std::less<double>>;
 using DomainPair = std::pair<const double, r_Minterval>;
 using DomainConstPair = std::pair<const double, const r_Minterval>;
-

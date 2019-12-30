@@ -31,26 +31,10 @@ rasdaman GmbH.
 */
 
 #include "rasodmg/iterator.hh"
+#include "rasodmg/collection.hh"
 #include <iostream>
-
 using namespace std;
 
-#ifdef OBJECT_NOT_SET
-#undef __EXECUTABLE__
-#endif
-
-#ifdef EARLY_TEMPLATE
-#ifndef __EXECUTABLE__
-#define __EXECUTABLE__
-#define ITERATOR_NOT_SET
-#endif
-#endif
-
-#include "rasodmg/collection.hh"
-
-#ifdef ITERATOR_NOT_SET
-#undef __EXECUTABLE__
-#endif
 
 template<class T>
 r_Iterator<T>::r_Iterator(const r_Iterator<T> &iter)
@@ -186,3 +170,13 @@ r_Iterator<T>::not_done() const
 {
     return ndone;
 }
+
+#include "rasodmg/gmarray.hh"
+template class r_Iterator<r_GMarray *>;
+#include "rasodmg/ref.hh"
+template class r_Iterator<r_Ref_Any>;
+#include "rasodmg/object.hh"
+template class r_Iterator<r_Ref<r_Object>>;
+template class r_Iterator<r_Ref<r_GMarray>>;
+#include "rasodmg/genreftype.hh"
+template class r_Iterator<GenRefElement *>;

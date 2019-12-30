@@ -36,7 +36,7 @@ rasdaman GmbH.
 
 #include "qtdroptype.hh"
 #include "relcatalogif/alltypes.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 const QtNode::QtNodeType QtDropType::nodeType = QtNode::QT_DROP_TYPE;
 

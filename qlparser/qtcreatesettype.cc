@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "qtunaryoperation.hh"
 #include "qtnullvaluesdata.hh"
 #include "relcatalogif/alltypes.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 const size_t QtCreateSetType::MAX_SET_TYPE_NAME_LENGTH;
 

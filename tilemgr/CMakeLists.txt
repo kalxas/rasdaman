@@ -26,13 +26,19 @@ add_library(tilemgr
         tiler.hh tiler.cc)
 
 target_link_libraries(tilemgr
-    raslib catalogmgr mymalloc_svc common_logging
-    reladminif relblobif relcatalogif
+    PUBLIC
+#    raslib
+#    reladminif
+    relblobif
+    
+    PRIVATE
+    catalogmgr
+#    common_logging
+#    mymalloc_svc
+#    relcatalogif
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(tilemgr REUSE_FROM common_logging)
 endif()
 
-install(TARGETS tilemgr
-        DESTINATION ${LIB_DIR})

@@ -60,6 +60,7 @@ rasdaman GmbH.
 #include "qlparser/qtmintervaldata.hh"
 #include "raslib/basetype.hh"
 #include "raslib/collectiontype.hh"
+#include "storagemgr/sstoragelayout.hh"
 
 #include <logging.hh>
 

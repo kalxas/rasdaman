@@ -33,6 +33,8 @@ rasdaman GmbH.
 #include <string>
 #include <iostream>
 
+class OId;
+
 //@ManMemo: Module: {\bf qlparser}
 
 /**

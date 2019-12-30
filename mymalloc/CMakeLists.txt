@@ -22,11 +22,9 @@
 ###################################################################
 
 add_library(mymalloc_svc mymalloc.h mymalloc_svc.cc)
-install(TARGETS mymalloc_svc
-        DESTINATION ${LIB_DIR})
-
-add_dependencies(mymalloc_svc reladminif)
+target_link_libraries(mymalloc_svc PRIVATE reladminif)
 
 add_library(mymalloc_cln mymalloc.h mymalloc_cln.cc)
+#target_link_libraries(mymalloc_cln PRIVATE common_logging)
 install(TARGETS mymalloc_cln
         DESTINATION ${LIB_DIR})

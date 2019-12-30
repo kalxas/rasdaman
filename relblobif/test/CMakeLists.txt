@@ -30,10 +30,19 @@ macro(AddRelblobifTest TEST_NAME)
 
     add_executable(${TEST_NAME}_test EXCLUDE_FROM_ALL test_${TEST_NAME}.cc testing.cc)
     target_link_libraries(${TEST_NAME}_test 
-        rasodmg clientcomm raslib conversion commline
-        relstorageif storagemgr relmddif mddmgr
-        relindexif indexmgr relcatalogif 
-        tilemgr catalogmgr relblobif reladminif
+        raslib 
+        rasodmg
+        commline
+        clientcomm 
+        storagemgr 
+        mddmgr
+        catalogmgr 
+        relblobif 
+        relcatalogif 
+        relindexif 
+        relmddif 
+        relstorageif 
+        reladminif
     )
     
     if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

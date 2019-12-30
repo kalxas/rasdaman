@@ -23,9 +23,13 @@
 
 # do not build on make, only on make unit-check
 
-add_executable(concurrentquery EXCLUDE_FROM_ALL concurrentquery.cc)
+add_executable(concurrentquery_test EXCLUDE_FROM_ALL concurrentquery.cc)
 
-target_link_libraries(concurrentquery rasodmg clientcomm raslib
+target_link_libraries(concurrentquery_test rasodmg clientcomm raslib
         commline common_logging rasnet -lpthread)
 
-add_dependencies(unit-check concurrentquery)
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(concurrentquery_test REUSE_FROM common_logging)
+endif()
+
+add_dependencies(unit-check concurrentquery_test)

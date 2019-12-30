@@ -23,8 +23,8 @@ rasdaman GmbH.
 */
 
 #include "ops.hh"
-#include "typefactory.hh"
 #include "raslib/point.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/complextype.hh"

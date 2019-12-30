@@ -26,8 +26,9 @@ rasdaman GmbH.
 
 #include <string>
 #include "qlparser/qtnaryoperation.hh"
-#include "catalogmgr/typefactory.hh"
 #include "mddmgr/mddobj.hh"
+
+class BaseType;
 
 class QtRangeConstructor : public QtNaryOperation
 {

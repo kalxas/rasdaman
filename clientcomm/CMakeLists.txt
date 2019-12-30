@@ -33,12 +33,25 @@ add_library(clientcomm
 
 target_include_directories(clientcomm PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(clientcomm PUBLIC
-    common_grpc common_logging common_exceptions common_crypto common_uuid 
-    raslib rasodmg rasnet mymalloc_cln
-    ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY}
+target_link_libraries(clientcomm
+    PUBLIC
+    raslib
+    rasnet
+    common_grpc
+    ${Boost_THREAD_LIBRARY}
     ${PROTOBUF_LIBRARY}
-    ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${ZLIB_LIBRARIES}
+    
+    PRIVATE
+    rasodmg
+    mymalloc_cln
+    common_logging
+    common_exceptions
+    common_crypto
+    common_uuid 
+    ${Boost_SYSTEM_LIBRARY}
+    ${GRPCPP_LIBRARY}
+    ${GRPC_LIBRARY}
+    ${ZLIB_LIBRARIES}
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

@@ -118,10 +118,16 @@ private:
 
 };
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "iterator.cc"
-#endif
-#endif
+class r_GMarray;
+extern template class r_Iterator<r_GMarray *>;
+class r_Ref_Any;
+extern template class r_Iterator<r_Ref_Any>;
+class r_Object;
+template <typename T> class r_Ref;
+extern template class r_Iterator<r_Ref<r_Object>>;
+extern template class r_Iterator<r_Ref<r_GMarray>>;
+
+struct GenRefElement;
+extern template class r_Iterator<GenRefElement *>;
 
 #endif

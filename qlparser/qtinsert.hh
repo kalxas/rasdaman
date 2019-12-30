@@ -29,7 +29,6 @@ rasdaman GmbH.
 #include "qlparser/qtmddconfig.hh"
 #include "qlparser/qtmddcfgop.hh"
 #include "qlparser/qtdata.hh"
-#include "storagemgr/sstoragelayout.hh"
 
 #include "rasodmg/stattiling.hh"
 #include "rasodmg/interesttiling.hh"
@@ -37,6 +36,7 @@ rasdaman GmbH.
 #include <string>
 #include <iostream>
 
+class StorageLayout;
 
 //@ManMemo: Module: {\bf qlparser}
 

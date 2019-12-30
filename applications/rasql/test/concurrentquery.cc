@@ -25,11 +25,6 @@
 
 #include "globals.hh"
 
-#ifdef EARLY_TEMPLATE
-#define __EXECUTABLE__
-#include "rasodmg/template_inst.hh"
-#endif
-
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/oqlquery.hh"
@@ -41,6 +36,8 @@
 #include <iostream>
 #include <vector>
 #include <pthread.h>
+
+using std::string;
 
 const unsigned int THREAD_NO = 2;
 

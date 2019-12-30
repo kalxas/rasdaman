@@ -23,7 +23,7 @@ rasdaman GmbH.
 #include "databaseif.hh"
 #include "transactionif.hh"
 #include "adminif.hh"
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "blobtile.hh"
 #include <iostream.h>
 #include <stdio.h>

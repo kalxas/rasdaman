@@ -21,14 +21,8 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-// This file is included from dbjectiterator.hh if EARLY_TEMPLATE and __EXECUTABLE_
-// are defined.
-#ifndef EARLY_TEMPLATE
-#ifndef __EXECUTABLE__
 #include "dbobjectiterator.hh"
 #include "dbref.hh"    // for DBRef
-#endif
-#endif
 
 template <class T>
 DBObjectIterator<T>::DBObjectIterator(const DBObjectIterator<T> &oidlist)
@@ -102,3 +96,14 @@ DBObjectIterator<T>::~DBObjectIterator()
     mySet = nullptr;
     counter = 0;
 }
+
+#include "relmddif/dbmddobj.hh"
+template class DBObjectIterator<DBMDDObj>;
+#include "relmddif/dbmddset.hh"
+template class DBObjectIterator<DBMDDSet>;
+#include "relcatalogif/mddtype.hh"
+template class DBObjectIterator<MDDType>;
+#include "relcatalogif/structtype.hh"
+template class DBObjectIterator<StructType>;
+#include "relcatalogif/settype.hh"
+template class DBObjectIterator<SetType>;

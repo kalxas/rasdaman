@@ -82,7 +82,7 @@ rasdaman GmbH.
 #endif
 
 #include "raslib/rminit.hh"
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "ulongtype.hh"       // from the catalogif base DBMS interface module    
 
 #include "mddmgr/persmddcoll.hh"

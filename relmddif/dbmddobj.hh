@@ -25,14 +25,18 @@ rasdaman GmbH.
 
 #include "mddid.hh"
 #include "raslib/mddtypes.hh"
-#include "relindexif/indexid.hh"
+#include "raslib/nullvalues.hh"
 #include "reladminif/dbobject.hh"
-#include "relstorageif//storageid.hh"
-#include "relstorageif//dbstoragelayout.hh"
+#include "reladminif/dbref.hh"
 #include "relblobif/tileid.hh"
-#include "relcatalogif/mddbasetype.hh"
-#include "relcatalogif/dbnullvalues.hh"
+#include "relindexif/indexid.hh"
+#include "relstorageif/dbstoragelayout.hh"
+#include "relstorageif/storageid.hh"
 #include <iosfwd>
+
+class BaseType;
+class MDDBaseType;
+class DBNullvalues;
 
 //@ManMemo: Module: relmddif
 /**

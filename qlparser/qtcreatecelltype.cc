@@ -1,6 +1,6 @@
 #include "qtcreatecelltype.hh"
 #include "qtcelltypeattributes.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/alltypes.hh"
 const size_t QtCreateCellType::MAX_CELL_TYPE_NAME_LENGTH;
 

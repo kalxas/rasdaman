@@ -28,9 +28,12 @@ rasdaman GmbH.
 
 #include "mddmgr/mddobj.hh"
 #include "raslib/type.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relmddif/dbmddobj.hh"
 #include "relcatalogif/basetype.hh"
+#include "relcatalogif/mddbasetype.hh"
+#include "relcatalogif/collectiontype.hh"
+#include "tilemgr/tile.hh"
 
 #include "raslib/oid.hh"
 #include "raslib/parseparams.hh"

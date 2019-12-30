@@ -26,11 +26,15 @@ add_library(catalogmgr
     nullvalues.hh nullvalues.cc
     ops.hh ops.cc
     typeenum.hh
-    typefactory.hh typefactory.cc
     )
 
 target_link_libraries(catalogmgr
-    reladminif relcatalogif relmddif raslib common_logging common_string)
+    PUBLIC
+    raslib 
+    PRIVATE
+    common_logging
+    relcatalogif
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(catalogmgr REUSE_FROM common_logging)
@@ -39,6 +43,3 @@ endif()
 add_dependencies(catalogmgr reladminif)
 
 target_include_directories(catalogmgr PUBLIC ${BASEDB_INCLUDE_DIR})
-
-install(TARGETS catalogmgr
-        DESTINATION ${LIB_DIR})

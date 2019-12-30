@@ -38,7 +38,6 @@ rasdaman GmbH.
 
 #include "mddobj.hh"
 #include "relmddif/mddid.hh"    // for DBMDDObjIdIter, DBMDDSetId
-#include "relcatalogif/type.hh" // for cout, ostream
 
 #include <stdlib.h>
 #include <iosfwd>         // for cout, ostream

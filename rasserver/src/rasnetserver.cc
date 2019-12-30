@@ -45,8 +45,10 @@ using common::GrpcUtils;
 using common::HealthServiceImpl;
 
 
-RasnetServer::RasnetServer(const Configuration& c):
-    isRunning(false), configuration(c)
+RasnetServer::RasnetServer(std::uint32_t listenPort1, const char* rasmgrHost1,
+                           std::uint32_t rasmgrPort1, const char* serverId1):
+    isRunning(false), listenPort{listenPort1},
+    rasmgrPort{rasmgrPort1}, rasmgrHost{rasmgrHost1}, serverId{serverId1}
 {
     shared_ptr<ClientManager> clientManager(new ClientManager());
 
@@ -60,7 +62,7 @@ void RasnetServer::startRasnetServer()
     RasServerEntry& rasserver = RasServerEntry::getInstance();
     rasserver.connectToRasbase();
     
-    std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0",  std::uint32_t(configuration.getListenPort()));
+    std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0",  listenPort);
     
     grpc::ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
@@ -85,7 +87,7 @@ void RasnetServer::startRasnetServer()
 
 void RasnetServer::registerServerWithRasmgr()
 {
-    std::string rasmgrAddress = GrpcUtils::constructAddressString(configuration.getRasmgrHost(), std::uint32_t(configuration.getRasmgrPort()));
+    std::string rasmgrAddress = GrpcUtils::constructAddressString(rasmgrHost, rasmgrPort);
     std::shared_ptr<grpc::Channel> channel(grpc::CreateCustomChannel(rasmgrAddress, grpc::InsecureChannelCredentials(), GrpcUtils::getDefaultChannelArguments()));
 
     ::rasnet::service::RasMgrRasServerService::Stub rasmgrRasserverService(channel);
@@ -93,7 +95,7 @@ void RasnetServer::registerServerWithRasmgr()
 
     ::rasnet::service::Void response;
     ::rasnet::service::RegisterServerReq request;
-    request.set_serverid(configuration.getNewServerId());
+    request.set_serverid(serverId);
 
     if (!GrpcUtils::isServerAlive(healthService, SERVICE_CALL_TIMEOUT))
     {

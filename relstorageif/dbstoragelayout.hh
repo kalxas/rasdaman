@@ -24,11 +24,12 @@ rasdaman GmbH.
 #ifndef _DBSTORAGELAYOUT_HH_
 #define _DBSTORAGELAYOUT_HH_
 
-#include <string>
-#include <vector>
 #include "relcatalogif/dbminterval.hh"
 #include "reladminif/dbobject.hh"
 #include "reladminif/dbref.hh"
+
+#include <string>
+#include <vector>
 
 class DBStorageLayout;
 template <class T>

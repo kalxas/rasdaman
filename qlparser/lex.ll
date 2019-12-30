@@ -41,6 +41,8 @@ rasdaman GmbH.
 #include "qlparser/qtnullvaluesop.hh"
 #include "qlparser/qtmshapeop.hh"
 #include "qlparser/qtgeometryop.hh"
+#include "rasodmg/dirdecompose.hh"
+#include "relcatalogif/typefactory.hh"
 
 std::list<ParseInfo> infoList;
 

@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
-#ifdef EARLY_TEMPLATE
-#define __EXECUTABLE__
-#ifdef __GNUG__
-#include "server/template_inst.hh"
-#include "rasodmg/template_inst.hh"
-#endif
-#endif
-
 //include statements
 #include <gtest/gtest.h>
 #include "qlparser/qtclippingutil.hh"

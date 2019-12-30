@@ -672,6 +672,7 @@ set_target_properties(
     relstorageif
     servercomm
     storagemgr
+    rasserver
     PROPERTIES UNITY_BUILD ON)
 
 message(STATUS "Final compiler options: ${CMAKE_CXX_FLAGS}")

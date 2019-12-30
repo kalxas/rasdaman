@@ -27,20 +27,13 @@ rasdaman GmbH.
 #error "Please specify RMANVERSION variable!"
 #endif
 
-#ifdef EARLY_TEMPLATE
-#define __EXECUTABLE__
-#ifdef __GNUG__
-#include "template_inst.hh"
-#include "rasodmg/template_inst.hh"
-#endif
-#endif
-
 #include "globals.hh"
 #include "servercomm/httpserver.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "common/logging/signalhandler.hh"
 #include "rasserver_entry.hh"
 #include "rasserver/src/rasnetserver.hh"
+#include "rasserver_config.hh"
 #include "servercomm/accesscontrol.hh"
 
 #include "rasserver_directql.hh"
@@ -186,7 +179,9 @@ int main(int argc, char** argv)
         if (configuration.isRasserver())
         {
             LDEBUG << "starting daemon server...";
-            rasserver::RasnetServer rasnetServer(configuration);
+            rasserver::RasnetServer rasnetServer(
+                        configuration.getListenPort(), configuration.getRasmgrHost(),
+                        configuration.getRasmgrPort(), configuration.getNewServerId());
             rasnetServer.startRasnetServer();
             LDEBUG << "daemon server started.";
         }

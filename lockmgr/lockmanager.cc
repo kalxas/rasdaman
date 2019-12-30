@@ -31,15 +31,14 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include <string.h>
 #include "lockmanager.hh"
 #include "reladminif/adminif.hh"
 #include "reladminif/databaseif.hh"
-#include "raslib/error.hh"
-//#include "server/rasserver_config.hh"
-#include "tilemgr/tile.hh"
-#include <stdlib.h>
 #include "raslib/rmdebug.hh"
+#include "raslib/error.hh"
+#include "tilemgr/tile.hh"
+#include <string.h>
+#include <stdlib.h>
 #include <logging.hh>
 
 /**

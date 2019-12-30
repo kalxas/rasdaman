@@ -69,47 +69,42 @@ add_library(conversion ${CONVERSION_HEADER_FILES}
         json.cc
         png.cc)
 
-set(OPTIONAL_LIBRARIES "")
-set(OPTIONAL_INCLUDE_DIRECTORIES "")
-
 if (USE_NETCDF)
-    target_link_libraries(conversion ${NetCDF_LIBRARIES})
-    target_include_directories(conversion SYSTEM PUBLIC ${NetCDF_INCLUDE_DIRS})
+    target_link_libraries(conversion PRIVATE ${NetCDF_LIBRARIES})
+    target_include_directories(conversion SYSTEM PRIVATE ${NetCDF_INCLUDE_DIRS})
 endif ()
 if (USE_HDF4)
-    target_link_libraries(conversion ${HDF4_LIBRARIES})
-    target_include_directories(conversion SYSTEM PUBLIC ${HDF4_INCLUDE_DIR})
+    target_link_libraries(conversion PRIVATE ${HDF4_LIBRARIES})
+    target_include_directories(conversion SYSTEM PRIVATE ${HDF4_INCLUDE_DIR})
 endif ()
 if (USE_GRIB)
-    target_link_libraries(conversion ${GRIB_LIBRARIES})
-    target_include_directories(conversion SYSTEM PUBLIC ${GRIB_INCLUDE_DIR})  
+    target_link_libraries(conversion PRIVATE ${GRIB_LIBRARIES})
+    target_include_directories(conversion SYSTEM PRIVATE ${GRIB_INCLUDE_DIR})  
 endif ()
 if (USE_GDAL)
-    target_link_libraries(conversion ${GDAL_LIBRARY})
+    target_link_libraries(conversion PUBLIC ${GDAL_LIBRARY} ${ZLIB_LIBRARIES})
     target_include_directories(conversion SYSTEM PUBLIC ${GDAL_INCLUDE_DIR})
 endif ()
-
 if (USE_TIFF)
-    target_link_libraries(conversion ${TIFF_LIBRARIES})
-    target_include_directories(conversion SYSTEM PUBLIC ${TIFF_INCLUDE_DIRS})
+    target_link_libraries(conversion PRIVATE ${TIFF_LIBRARIES})
+    target_include_directories(conversion SYSTEM PRIVATE ${TIFF_INCLUDE_DIRS})
 endif ()
 if (USE_PNG)
-    target_link_libraries(conversion ${PNG_LIBRARIES})
-    target_include_directories(conversion SYSTEM PUBLIC ${PNG_INCLUDE_DIRS})
+    target_link_libraries(conversion PRIVATE ${PNG_LIBRARIES})
+    target_include_directories(conversion SYSTEM PRIVATE ${PNG_INCLUDE_DIRS})
 endif ()
 if (USE_JPEG)
-    target_link_libraries(conversion ${JPEG_LIBRARIES})
-    target_include_directories(conversion SYSTEM PUBLIC ${JPEG_INCLUDE_DIRS})
+    target_link_libraries(conversion PRIVATE ${JPEG_LIBRARIES})
+    target_include_directories(conversion SYSTEM PRIVATE ${JPEG_INCLUDE_DIRS})
 endif ()
 
-target_link_libraries(conversion ${JSONCPP_LIBRARY})
+target_link_libraries(conversion
+    PUBLIC
+    raslib
+    mymalloc_cln
+    ${JSONCPP_LIBRARY}
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(conversion REUSE_FROM common_logging)
 endif()
-
-install(TARGETS conversion
-        DESTINATION ${LIB_DIR})
-
-install(FILES ${CONVERSION_HEADER_FILES}
-        DESTINATION "${INCLUDE_DIR}/conversion")

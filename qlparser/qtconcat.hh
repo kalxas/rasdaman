@@ -27,7 +27,8 @@ rasdaman GmbH.
 #include <string>
 
 #include "qlparser/qtnaryoperation.hh"
-#include "catalogmgr/typefactory.hh"
+
+class BaseType;
 
 class QtConcat : public QtNaryOperation
 {

@@ -517,3 +517,14 @@ r_Collection<T>::allows_duplicates() const
 {
     return allowsDuplicates;
 }
+
+// explicit instantiation
+#include "rasodmg/gmarray.hh"
+template class r_Collection<r_GMarray*>;
+#include "rasodmg/collection.hh"
+template class r_Collection<r_Ref_Any>;
+#include "rasodmg/object.hh"
+template class r_Collection<r_Ref<r_Object>>;
+template class r_Collection<r_Ref<r_GMarray>>;
+#include "genreftype.hh"
+template class r_Collection<GenRefElement *>;

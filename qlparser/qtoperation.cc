@@ -22,7 +22,7 @@ rasdaman GmbH.
 */
 
 #include "qlparser/qtoperation.hh"
-
+#include "relcatalogif/mddbasetype.hh"
 #include <logging.hh>
 
 #include <iostream>

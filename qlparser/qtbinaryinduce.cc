@@ -34,8 +34,9 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"
+#include "relcatalogif/basetype.hh"
 
 #include "tilemgr/tile.hh"
 

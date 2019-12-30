@@ -28,7 +28,7 @@ rasdaman GmbH.
 #include "mddtype.hh"              // for MDDType, MDDType::MDDBASETYPE, MDD...
 #include "raslib/mddtypes.hh"      // for r_Bytes
 #include "type.hh"                 // for Type (ptr only), ostream
-#include "catalogmgr/typefactory.hh" // for TypeFactory
+#include "relcatalogif/typefactory.hh" // for TypeFactory
 #include "mymalloc/mymalloc.h"
 
 #include <logging.hh>              // for Writer, CTRACE, LTRACE

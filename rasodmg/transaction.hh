@@ -32,11 +32,12 @@ rasdaman GmbH.
 
 //@ManMemo: Module: {\bf rasodmg}
 
-#ifndef _D_TRANSACTION_
-#define _D_TRANSACTION_
+#ifndef D_TRANSACTION_HH
+#define D_TRANSACTION_HH
 
 #include "rasodmg/set.hh"
 #include "rasodmg/object.hh"
+#include "rasodmg/genreftype.hh"
 
 class r_OId;
 class r_Database;
@@ -118,9 +119,6 @@ public:
     /// load an object (internal use only)
     r_Ref_Any load_object(const r_OId &oid);
 
-    /// possible non-r_Object values maintained by the transaction
-    enum GenRefType { MINTERVAL, SINTERVAL, POINT, OID, SCALAR };
-
     /// adds a non-r_Object to the list of persistent objects
     void add_object_list(GenRefType type, void *ref);
 
@@ -148,13 +146,6 @@ private:
     /// list of \Ref{r_Object} references which have been created within the transaction
     r_Set<r_Ref<r_Object>> object_list;
 
-    // element type of non \Ref{r_Object} list maintained by the transaction
-    typedef struct
-    {
-        GenRefType type;
-        void *ref;
-    } GenRefElement;
-
     /// list of non \Ref{r_Object} references which have been created within the transaction
     r_Set<GenRefElement *> non_object_list;
 
@@ -163,14 +154,5 @@ private:
     /// reference to the database used by this transaction
     r_Database *database;
 };
-
-#define DEF_TRANSACTION
-
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "rasodmg/ref.cc"
-#endif
-#endif
-
 
 #endif

@@ -49,6 +49,8 @@ rasdaman GmbH.
 #include "qtmdd.hh"
 #include <memory>
 
+class Tile;
+
 class QtCaseOp : public QtNaryOperation
 {
 public:

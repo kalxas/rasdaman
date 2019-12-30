@@ -21,21 +21,16 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-// This file is included from dbref.hh if EARLY_TEMPLATE and __EXECUTABLE__
-// are defined.
-#ifndef EARLY_TEMPLATE
-#ifndef __EXECUTABLE__
-
 #include "dbref.hh"
-#include <stdio.h>
+#include "relblobif/blobtile.hh"
+#include "relblobif/inlinetile.hh"
 #include "relindexif/dbrcindexds.hh"
 #include "relindexif/dbtcindex.hh"
+#include "relmddif/dbmddobj.hh"
 #include "indexmgr/hierindexds.hh"
 #include "indexmgr/indexds.hh"
 #include "objectbroker.hh"
-
-#endif
-#endif
+#include <stdio.h>
 
 template <class T>
 bool DBRef<T>::pointerCaching = true;
@@ -730,3 +725,26 @@ bool DBRef<T>::is_null_ref(void) const
 {
     return object == 0 || (!pointerCaching && !pointerValid);
 }
+
+template class DBRef<DBObject>;
+template class DBRef<DBHierIndex>;
+template class DBRef<DBRCIndexDS>;
+template class DBRef<DBTCIndex>;
+template class DBRef<BLOBTile>;
+template class DBRef<DBTile>;
+template class DBRef<InlineTile>;
+template class DBRef<DBMDDObj>;
+#include "relmddif/dbmddset.hh"
+template class DBRef<DBMDDSet>;
+#include "relcatalogif/dbminterval.hh"
+template class DBRef<DBMinterval>;
+#include "relcatalogif/dbnullvalues.hh"
+template class DBRef<DBNullvalues>;
+#include "relstorageif/dbstoragelayout.hh"
+template class DBRef<DBStorageLayout>;
+#include "relcatalogif/structtype.hh"
+template class DBRef<StructType>;
+#include "relcatalogif/settype.hh"
+template class DBRef<SetType>;
+#include "relcatalogif/mddtype.hh"
+template class DBRef<MDDType>;

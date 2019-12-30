@@ -21,6 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 #include "compositetype.hh"
+#include "reladminif/oidif.hh"     // for OId
 
 CompositeType::CompositeType()
     : BaseType("unnamed compositetype")

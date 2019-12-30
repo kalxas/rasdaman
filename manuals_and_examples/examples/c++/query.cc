@@ -43,17 +43,10 @@
  *
  ************************************************************/
 
-// Linux needs this for template instantiation
-#ifdef EARLY_TEMPLATE
-#define __EXECUTABLE__
-#ifdef __GNUG__
-#include "rasodmg/template_inst.hh"
-#endif
-#endif
-
 #include "raslib/minterval.hh"
 #include "raslib/odmgtypes.hh"
 #include "raslib/error.hh"
+#include "raslib/type.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/set.hh"
@@ -61,9 +54,12 @@
 #include "rasodmg/gmarray.hh"
 #include "rasodmg/iterator.hh"
 #include "rasodmg/oqlquery.hh"
+
 // needed to configure logging
-#include "loggingutils.hh"
+#include "common/logging/loggingutils.hh"
 #include <iostream>
+
+using namespace std;
 
 INITIALIZE_EASYLOGGINGPP
 

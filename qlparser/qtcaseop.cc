@@ -42,6 +42,7 @@ rasdaman GmbH.
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtcomplexdata.hh"
 #include "mddmgr/mddobj.hh"
+#include "tilemgr/tile.hh"
 #include "qlparser/qtbinaryinduce.hh"
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtvariable.hh"
@@ -49,7 +50,7 @@ rasdaman GmbH.
 
 #include "catalogmgr/ops.hh"
 #include "relcatalogif/type.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 

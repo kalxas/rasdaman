@@ -28,16 +28,16 @@
 #
 ##################################################################
 
-COMPILER = g++
-LINKER   = g++
-FLAGS    = -fPIC -pthread -std=c++11 -fno-stack-protector -fno-strict-overflow -O3 -g0
+COMPILER = @CMAKE_CXX_COMPILER@
+LINKER   = @CMAKE_CXX_COMPILER@
+FLAGS    = @CMAKE_CXX_FLAGS@
 
 INCS = -I @CMAKE_INSTALL_PREFIX@/include
 
 LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lrasodmg               \
-       -lclientcomm            \
        -lraslib                \
+       -lclientcomm            \
        -lcommline              \
        -lrasnet                \
        -lcommon_crypto         \
@@ -57,10 +57,11 @@ LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lboost_thread          \
        -lboost_system          \
        -lcrypto                \
-       -lcrypt
+       -lcrypt                 \
+       -ldw
 
-DEFS = -DEARLY_TEMPLATE -DELPP_NO_DEFAULT_LOG_FILE -DELPP_FEATURE_CRASH_LOG -DELPP_STACKTRACE -DELPP_FEATURE_CRASH_LOG \
-       -DELPP_NO_CHECK_MACROS -DELPP_THREAD_SAFE
+DEFS = -DEARLY_TEMPLATE -DELPP_NO_DEFAULT_LOG_FILE -DELPP_FEATURE_CRASH_LOG -DELPP_STACKTRACE \
+       -DELPP_FEATURE_CRASH_LOG -DELPP_NO_CHECK_MACROS -DELPP_THREAD_SAFE
 
 
 all: bin

@@ -43,7 +43,8 @@ rasdaman GmbH.
 
 #include <string>
 #include "qlparser/qtdata.hh"
-#include "catalogmgr/typefactory.hh"
+
+class BaseType;
 
 class QtScalarData : public QtData
 {

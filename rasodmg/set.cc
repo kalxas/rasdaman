@@ -56,3 +56,13 @@ r_Set<T>::insert_element(const T &element, int no_modification)
         r_Collection<T>::insert_element(element, no_modification);
     }
 }
+
+#include "rasodmg/ref.hh"
+template class r_Set<r_Ref_Any>;
+#include "rasodmg/gmarray.hh"
+template class r_Set<r_GMarray *>;
+#include "rasodmg/object.hh"
+template class r_Set<r_Ref<r_Object>>;
+template class r_Set<r_Ref<r_GMarray>>;
+#include "genreftype.hh"
+template class r_Set<GenRefElement *>;

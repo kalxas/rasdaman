@@ -33,8 +33,8 @@ rasdaman GmbH.
 #ifndef QTCREATECELLTYPE_HH
 #define QTCREATECELLTYPE_HH
 
-#include "qtexecute.hh"
-#include "qtcelltypeattributes.hh"
+#include "qlparser/qtexecute.hh"
+#include "qlparser/qtcelltypeattributes.hh"
 
 /**
  * @brief The QtCreateCellType class - Node in the query tree which creates a struct type

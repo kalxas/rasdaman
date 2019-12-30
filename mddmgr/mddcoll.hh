@@ -38,7 +38,6 @@ rasdaman GmbH.
 #include "reladminif/databaseif.hh"  // for ostream
 #include "reladminif/oidif.hh"       // for OId
 #include "relmddif/mddid.hh"         // for DBMDDSetId
-#include "relcatalogif/collectiontype.hh"  // from catalogif base DBMS interface module
 #include "raslib/error.hh"
 
 #include <stdlib.h>

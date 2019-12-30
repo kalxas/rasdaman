@@ -23,7 +23,7 @@ rasdaman GmbH.
 #ifndef _DBITERID_HH_
 #define _DBITERID_HH_
 
-#include "dbobjectiterator.hh"
+#include "reladminif/dbobjectiterator.hh"
 
 class DBMDDObj;
 

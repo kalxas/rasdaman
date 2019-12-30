@@ -34,23 +34,25 @@ rasdaman GmbH.
 #define _MDDOBJ_HH_
 
 #include "reladminif/oidif.hh"              // for OId
+#include "reladminif/dbref.hh"
 #include "relmddif/mddid.hh"                // for DBMDDObjId
-#include "storagemgr/sstoragelayout.hh"     // for StorageLayout
-#include "tilemgr/tile.hh"
-#include "relcatalogif/mddbasetype.hh"      // from catalogif base DBMS class
 #include "raslib/mddtypes.hh"               // for r_Dimension
 #include "raslib/minterval.hh"              // for r_Minterval
 #include "raslib/point.hh"                  // for r_Point
-#include "storagemgr/sstoragelayout.hh"
-#include "relmddif/mddid.hh"
 #include "catalogmgr/nullvalues.hh"
+#include "catalogmgr/typeenum.hh"
 
 #include <vector>                              // for vector
 #include <iosfwd>                              // for cout, ostream
 #include <string>                              // for string
 #include <memory>                              // for string
 
+class Tile;
+class BaseType;
+class MDDBaseType;
 class MDDObjIx;
+class StorageLayout;
+class EOId;
 
 //@ManMemo: Module: {\bf cachetamgr}
 /*@Doc:

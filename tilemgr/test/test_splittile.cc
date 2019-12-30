@@ -30,7 +30,7 @@ rasdaman GmbH.
 
 #include <stdlib.h>
 #include <iostream>
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "basetype.hh"
 #include "tilemgr/tile.hh"
 #include "tilemgr/transtile.hh"

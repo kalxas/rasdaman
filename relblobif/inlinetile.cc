@@ -71,7 +71,6 @@ InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells,
 
 InlineTile::InlineTile(const OId &id) : BLOBTile(id)
 {
-    LTRACE << "InlineTile(" << id << ")";
     objecttype = OId::INLINETILEOID;
 }
 

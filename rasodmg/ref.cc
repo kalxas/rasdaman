@@ -423,8 +423,6 @@ r_Ref<T>::is_oid_valid() const
     return oid.is_valid();
 }
 
-#ifdef DEF_TRANSACTION
-
 template<class T>
 void
 r_Ref<T>::load_object() const
@@ -450,5 +448,21 @@ r_Ref<T>::load_object() const
 }
 
 
+#include "rasodmg/gmarray.hh"
+template class r_Ref<r_GMarray>;
+#include "rasodmg/object.hh"
+template class r_Ref<r_Object>;
+#include "rasodmg/set.hh"
+template class r_Ref<r_Set<r_Ref<r_GMarray>>>;
 
-#endif
+#include "raslib/point.hh"
+template class r_Ref<r_Point>;
+#include "raslib/sinterval.hh"
+template class r_Ref<r_Sinterval>;
+#include "raslib/minterval.hh"
+template class r_Ref<r_Minterval>;
+#include "raslib/oid.hh"
+template class r_Ref<r_OId>;
+#include "raslib/scalar.hh"
+template class r_Ref<r_Scalar>;
+

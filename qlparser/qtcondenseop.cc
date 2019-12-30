@@ -38,7 +38,7 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/doubletype.hh"
 #include "relcatalogif/ulongtype.hh"
 #include "relcatalogif/longtype.hh"

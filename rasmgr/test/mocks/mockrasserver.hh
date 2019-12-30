@@ -13,7 +13,7 @@ namespace rasmgr
 namespace test
 {
 
-class MockRasServer: public Server
+class MockRasServer: public rasmgr::Server
 {
 public:
     MOCK_METHOD0(startProcess, void(void));

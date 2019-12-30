@@ -45,6 +45,7 @@ class r_Format_Params
 public:
 
     r_Format_Params();
+    ~r_Format_Params() = default;
 
     /**
      * Parse the input format parameters into a JSON object and get the values for

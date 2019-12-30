@@ -69,10 +69,23 @@ public:
 
 };
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "rasodmg/set.cc"
-#endif
-#endif
+class r_Ref_Any;
+extern template class r_Set<r_Ref_Any>;
+class r_GMarray;
+extern template class r_Set<r_GMarray*>;
+
+template <typename T> class r_Ref;
+class r_Object;
+extern template class r_Set<r_Ref<r_Object>>;
+extern template class r_Set<r_Ref<r_GMarray>>;
+
+struct GenRefElement;
+extern template class r_Set<GenRefElement *>;
+
+//#ifdef EARLY_TEMPLATE
+//#ifdef __EXECUTABLE__
+//#include "rasodmg/set.cc"
+//#endif
+//#endif
 
 #endif

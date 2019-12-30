@@ -32,11 +32,18 @@ add_library(indexmgr
     transdirix.hh transdirix.cc)
 
 target_link_libraries(indexmgr
-    tilemgr raslib reladminif relblobif relindexif storagemgr)
+    PUBLIC
+#    raslib
+#    reladminif
+    relindexif
+#    storagemgr
+    
+    PRIVATE
+    tilemgr
+#    relblobif
+#    common_logging
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(indexmgr REUSE_FROM common_logging)
 endif()
-
-install(TARGETS indexmgr
-    DESTINATION ${LIB_DIR})

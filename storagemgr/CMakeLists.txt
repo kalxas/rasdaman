@@ -26,13 +26,15 @@ add_library(storagemgr
     stgmddconfig.hh stgmddconfig.cc)
 
 target_link_libraries(storagemgr
-    raslib rasodmg
-    reladminif relstorageif
-    common_logging)
+    PUBLIC
+    raslib
+    rasodmg
+#    reladminif
+    relstorageif
+#    common_logging
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(storagemgr REUSE_FROM common_logging)
 endif()
 
-install(TARGETS storagemgr
-    DESTINATION ${LIB_DIR})

@@ -43,7 +43,7 @@ public:
 
     /// check whether a value is in an interval (hence a null value)
     template <typename T>
-    inline bool isNullNonFloat(const T value)
+    inline bool isNullNonFloat(const T value) const
     {
         for (const auto &p : nullvalues)
         {
@@ -58,12 +58,12 @@ public:
     /// check whether a value is in an interval (hence a null value)
     /// TODO: this needs to be improved, performance and scope
     template <typename T>
-    inline bool isNullFloat(const T value)
+    inline bool isNullFloat(const T value) const
     {
         for (const auto &p : nullvalues)
         {
             if ((value >= (p.first - DBL_EPSILON) && value <= (p.second + DBL_EPSILON)) ||
-                    (std::isnan(value) && std::isnan(p.first)))
+                (std::isnan(value) && std::isnan(p.first)))
             {
                 return true;
             }

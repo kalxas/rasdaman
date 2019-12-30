@@ -27,13 +27,15 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "relcatalogif/mddbasetype.hh"
+#include "relcatalogif/dbnullvalues.hh"
 #include "indexmgr/indexds.hh"
 #include "relindexif/indexid.hh"
 #include "relstorageif/dbstoragelayout.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/dbminterval.hh"
 #include "relcatalogif/mddbasetype.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "dbmddobj.hh"
 #include <logging.hh>
 

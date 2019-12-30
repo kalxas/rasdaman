@@ -109,10 +109,12 @@ add_library(raslib
         ${SRC_HEADERS}
         )
 
-target_link_libraries(raslib 
+target_link_libraries(raslib
+        PRIVATE
         mymalloc_cln
         stdc++
-        m)
+        m
+        )
 
 install(TARGETS raslib
         DESTINATION ${LIB_DIR})

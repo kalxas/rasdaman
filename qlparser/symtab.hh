@@ -1,6 +1,3 @@
-#ifndef _SYMTAB_HH_
-#define _SYMTAB_HH_
-
 /*
 * This file is part of rasdaman community.
 *
@@ -34,12 +31,13 @@ rasdaman GmbH.
  *   none
  *
  ***********************************************************************/
+#ifndef _SYMTAB_HH_
+#define _SYMTAB_HH_
 
 #include <iostream>
 #include <vector>
 #include <map>
 #include <string>
-#include "raslib/rmdebug.hh"
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -102,10 +100,6 @@ private:
     std::vector<std::map<std::string, T>> STScopes;
 };
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "symtab.cc"
-#endif
-#endif
+extern template class SymbolTable<int>;
 
 #endif

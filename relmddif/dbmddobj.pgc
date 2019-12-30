@@ -38,7 +38,7 @@ rasdaman GmbH.
 #include "reladminif/dbref.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/mddbasetype.hh"
 #include "relcatalogif/basetype.hh"
 #include "reladminif/objectbroker.hh"

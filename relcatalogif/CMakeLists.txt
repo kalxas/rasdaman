@@ -61,21 +61,25 @@ add_library(relcatalogif ${COMPILED_SQL_SOURCES}
     shorttype.C shorttype.hh
     structtype.hh structtype.icc structtypecommon.cc
     type.C type.hh
-    typeiterator.hh
     uintegraltype.hh uintegraltype.icc
     ulongtype.C ulongtype.hh
     ushorttype.C ushorttype.hh
+    typefactory.hh typefactory.cc
     )
 
 target_include_directories(relcatalogif PUBLIC ${BASEDB_INCLUDE_DIR})
-target_include_directories(relcatalogif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(relcatalogif PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(relcatalogif PUBLIC
-        relmddif reladminif raslib)
+target_link_libraries(relcatalogif
+    PUBLIC
+#    relmddif
+    common_string
+    
+    PRIVATE
+    raslib
+    reladminif
+    )
     
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(relcatalogif REUSE_FROM common_logging)
 endif()
-
-install(TARGETS relcatalogif
-        DESTINATION ${LIB_DIR})

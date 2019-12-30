@@ -40,7 +40,7 @@ EXEC SQL include sqlglobals.h;
 #include "transactionif.hh"
 #include "adminif.hh"
 #include "oidif.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "sqlerror.hh"
 #include "objectbroker.hh"
 #include "databaseif.hh"

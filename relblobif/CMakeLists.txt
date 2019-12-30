@@ -56,21 +56,22 @@ add_library(relblobif
     )
 
 target_include_directories(relblobif PUBLIC ${BASEDB_INCLUDE_DIR})
-target_include_directories(relblobif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(relblobif PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(relblobif
-    reladminif
-    relindexif storagemgr # inlinetile.cc
-    raslib mymalloc_svc common_util common_logging
-    ${BASEDB_LIBRARIES})
+    PUBLIC
+    raslib
+#    reladminif
+    
+    PRIVATE
+#    relindexif
+#    relcatalogif
+#    relstorageif
+    ${BASEDB_LIBRARIES}
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(relblobif REUSE_FROM common_logging)
 endif()
-
-add_dependencies(relblobif reladminif)
-
-install(TARGETS relblobif
-        DESTINATION ${LIB_DIR})
 
 add_subdirectory(test)

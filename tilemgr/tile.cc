@@ -36,14 +36,15 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "tile.hh"
-#include "catalogmgr/ops.hh"
-#include "relblobif/blobtile.hh"
-#include "reladminif/adminif.hh"
-#include "relblobif/inlinetile.hh"
 #include "raslib/miter.hh"
 #include "raslib/miterf.hh"
 #include "raslib/miterd.hh"
 #include "raslib/basetype.hh"
+#include "catalogmgr/ops.hh"
+#include "reladminif/adminif.hh"
+#include "relblobif/blobtile.hh"
+#include "relblobif/inlinetile.hh"
+#include "relcatalogif/basetype.hh"           // for BaseType
 #include "mymalloc/mymalloc.h"
 
 #include <logging.hh>               // for Writer, CTRACE

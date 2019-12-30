@@ -30,11 +30,12 @@ rasdaman GmbH.
 #include "qlparser/qtcomplexdata.hh"
 #include "qlparser/qtconst.hh"
 #include "tilemgr/tile.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/mddbasetype.hh"
 #include "mddmgr/mddobj.hh"
 #include "mymalloc/mymalloc.h"
 #include "tilemgr/tiler.hh"
 #include "relcatalogif/structtype.hh"
+#include "relcatalogif/typefactory.hh"
 
 #include <logging.hh>
 

@@ -23,15 +23,7 @@ rasdaman GmbH.
 #pragma once
 
 #include "lists.h"  // for OIdSet
-
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "objectbroker.hh"
-#endif
-#endif
-
-template <class T>
-class DBRef;
+#include "dbref.hh"
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
@@ -101,8 +93,13 @@ private:
     */
 };
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "dbobjectiterator.cc"
-#endif
-#endif
+class DBMDDObj;
+extern template class DBObjectIterator<DBMDDObj>;
+class DBMDDSet;
+extern template class DBObjectIterator<DBMDDSet>;
+class MDDType;
+extern template class DBObjectIterator<MDDType>;
+class StructType;
+extern template class DBObjectIterator<StructType>;
+class SetType;
+extern template class DBObjectIterator<SetType>;

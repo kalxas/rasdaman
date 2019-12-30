@@ -57,7 +57,6 @@ using std::fill_n;
 #include "relblobif/dbtile.hh"
 #include "relblobif/inlinetile.hh"
 
-#include "relcatalogif/typeiterator.hh"
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/mddtype.hh"
@@ -89,9 +88,9 @@ template class DBRef<DBStorageLayout>;
 //template class DBRef<DBMDDObj>;
 // template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
 
-//template TypeIterator<StructType>;
-//template TypeIterator<SetType>;
-template class TypeIterator<MDDType>;
+//template DBObjectIterator<StructType>;
+//template DBObjectIterator<SetType>;
+template class DBObjectIterator<MDDType>;
 template class DBRef<DBMDDObj>;
 template class DBRef<DBObject>;
 

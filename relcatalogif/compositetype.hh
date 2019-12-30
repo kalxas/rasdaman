@@ -26,7 +26,8 @@ rasdaman GmbH.
 #define _COMPOSITETYPE_HH_
 
 #include "basetype.hh"
-#include "reladminif/oidif.hh"     // for OId
+
+class OId;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 

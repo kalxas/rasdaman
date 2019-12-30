@@ -46,6 +46,7 @@ set(SRC_HEADERS
         stattiling.hh
         storagelayout.hh
         tiling.hh
+        genreftype.hh
         transaction.hh
         template_inst.hh
         )
@@ -69,7 +70,14 @@ add_library(rasodmg
         ${SRC_HEADERS}
         )
 
-target_link_libraries(rasodmg clientcomm common_logging)
+target_link_libraries(rasodmg
+    PUBLIC
+    raslib
+    
+    PRIVATE
+    clientcomm
+    common_logging
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(rasodmg REUSE_FROM common_logging)

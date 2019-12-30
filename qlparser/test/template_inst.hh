@@ -42,7 +42,6 @@ rasdaman GmbH.
 #include "relblobif/dbtile.hh"
 #include "relblobif/inlinetile.hh"
 
-#include "relcatalogif/typeiterator.hh"
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/mddtype.hh"
@@ -117,28 +116,28 @@ template class std::vector<r_Minterval>;
 template class r_Iterator<r_Transaction::GenRefElement*>;
 template class r_Set<r_Ref<r_GMarray>>;
 template class r_Ref<r_Set<r_Ref<r_GMarray>>>;
-                     template class r_Set<r_Ref_Any>;
-                     template class r_Marray<r_ULong>;
-                     template class r_Marray<r_Char>;
+template class r_Set<r_Ref_Any>;
+template class r_Marray<r_ULong>;
+template class r_Marray<r_Char>;
 
-                     template class DBRef<DBMDDObj>;
-                     template class DBRef<DBObject>;
+template class DBRef<DBMDDObj>;
+template class DBRef<DBObject>;
 
-                     template class DBObjectIdIterator<DBMDDObj>;
-                     template class DBObjectIterator<DBMDDObj>;
-                     template class DBObjectIterator<DBMDDSet>;
-                     template class DBObjectIterator<StructType>;
-                     template class DBObjectIterator<SetType>;
-                     template class DBObjectIterator<MDDType>;
-                     template class DBRef<StructType>;
-                     template class DBRef<SetType>;
-                     template class DBRef<MDDType>;
+template class DBObjectIdIterator<DBMDDObj>;
+template class DBObjectIterator<DBMDDObj>;
+template class DBObjectIterator<DBMDDSet>;
+template class DBObjectIterator<StructType>;
+template class DBObjectIterator<SetType>;
+template class DBObjectIterator<MDDType>;
+template class DBRef<StructType>;
+template class DBRef<SetType>;
+template class DBRef<MDDType>;
 
 
-                     template std::ostream& operator << (std::ostream& os, const std::vector<r_Minterval>& list);
-                     template std::ostream& operator << (std::ostream& os, const std::vector<r_Dir_Decompose>& list);
-                     template std::ostream& operator << (std::ostream& os, const std::vector<r_Access>& list);
-                     template std::ostream& operator << (std::ostream& os, const std::vector<double>& list);
-                     template class SymbolTable<int>;
+template std::ostream& operator << (std::ostream& os, const std::vector<r_Minterval>& list);
+template std::ostream& operator << (std::ostream& os, const std::vector<r_Dir_Decompose>& list);
+template std::ostream& operator << (std::ostream& os, const std::vector<r_Access>& list);
+template std::ostream& operator << (std::ostream& os, const std::vector<double>& list);
+template class SymbolTable<int>;
 
 #endif

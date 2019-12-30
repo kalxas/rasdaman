@@ -28,8 +28,18 @@ add_library(rasnetservercomm
         )
 
 target_link_libraries(rasnetservercomm
-    common_grpc common_uuid
-    rasnetserver rasnet raslib rasserver_lib mymalloc_svc qlparser)
+    PUBLIC
+    rasnetserver
+    rasnet
+    raslib
+    
+    PRIVATE
+    common_grpc
+    common_uuid
+    rasserver_lib
+    mymalloc_svc
+    # qlparser
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(rasnetservercomm REUSE_FROM common_logging)
@@ -46,15 +56,32 @@ set(SRC_FILES
 add_library(servercomm ${SRC_FILES})
 
 target_link_libraries(servercomm
+    PUBLIC
+    raslib
+    reladminif
+    
+    PRIVATE
     rasnetservercomm
-    rasnet common_exceptions common_grpc common_logging common_time common_uuid)
-
+    rasserver_lib
+    rasnet
+    mymalloc_svc
+    qlparser
+    lockmanager
+    storagemgr
+    tilemgr
+    mddmgr
+    relcatalogif
+    common_exceptions
+    common_grpc
+    common_logging
+    common_time
+    common_uuid
+    )
+    
 if (ENABLE_PROFILING)
-    target_link_libraries(servercomm profiler tcmalloc)
+    target_link_libraries(servercomm PRIVATE profiler tcmalloc)
 endif ()
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(servercomm REUSE_FROM common_logging)
 endif()
-
-install(TARGETS servercomm DESTINATION ${LIB_DIR})

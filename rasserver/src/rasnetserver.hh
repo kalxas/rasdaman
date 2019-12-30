@@ -25,11 +25,9 @@ rasdaman GmbH.
 #define RASSERVER_X_SRC_RASNETSERVER_HH
 
 #include "rasserverserviceimpl.hh"
-#include "servercomm/rasnetservercomm.hh"
 #include "common/grpc/healthserviceimpl.hh"
-#include "server/rasserver_config.hh"
+#include "rasnet/messages/client_rassrvr_service.grpc.pb.h"
 
-#include <memory>
 #include <grpc++/grpc++.h>
 
 namespace grpc
@@ -42,12 +40,16 @@ namespace rasserver
 class RasnetServer
 {
 public:
-    RasnetServer(const Configuration& configuration);
+    RasnetServer(std::uint32_t listenPort1, const char* rasmgrHost1, 
+                 std::uint32_t rasmgrPort1, const char* serverId1);
     void startRasnetServer();
 
 private:
     bool isRunning{false};
-    Configuration configuration;
+    std::uint32_t listenPort;
+    std::uint32_t rasmgrPort;
+    std::string rasmgrHost;
+    std::string serverId;
 
     std::unique_ptr<grpc::Server> server;
     std::shared_ptr<rasnet::service::RasServerService::Service> rasserverService;

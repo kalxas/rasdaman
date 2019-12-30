@@ -31,7 +31,7 @@ rasdaman GmbH.
 //#include "mddmgr/mddobj.hh"
 //#include "tilemgr/tile.hh"
 //
-//#include "catalogmgr/typefactory.hh"
+//#include "relcatalogif/typefactory.hh"
 //#include "relcatalogif/structtype.hh"
 //#include "relcatalogif/mdddimensiontype.hh"
 //#include "relcatalogif/syntaxtypes.hh"

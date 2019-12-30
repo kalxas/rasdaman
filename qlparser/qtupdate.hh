@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+class Tile;
+
 /*
 * This file is part of rasdaman community.
 *

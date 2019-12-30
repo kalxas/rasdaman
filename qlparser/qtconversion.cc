@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include "qlparser/qtmdd.hh"
 #include "mddmgr/mddobj.hh"
 #include "tilemgr/tile.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/chartype.hh"
 

@@ -38,17 +38,22 @@ add_library(relindexif ${COMPILED_SQL_SOURCES}
     )
 
 target_include_directories(relindexif PUBLIC ${BASEDB_INCLUDE_DIR})
-target_include_directories(relindexif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(relindexif PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(relindexif PUBLIC
-    indexmgr storagemgr raslib
-    reladminif relcatalogif relblobif relstorageif
-    common_logging
+target_link_libraries(relindexif
+    PUBLIC
+#    reladminif
+#    relcatalogif
+#    relblobif
+    
+    PRIVATE
+#    raslib
+    indexmgr
+#    storagemgr
+#    relstorageif
+#    common_logging
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(relindexif REUSE_FROM common_logging)
 endif()
-
-install(TARGETS relindexif
-        DESTINATION ${LIB_DIR})

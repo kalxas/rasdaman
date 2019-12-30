@@ -33,7 +33,7 @@ rasdaman GmbH.
 #ifndef _TYPEFACTORY_HH_
 #define _TYPEFACTORY_HH_
 
-#include "relcatalogif/typeiterator.hh"            // for TypeIterator
+#include "reladminif/dbobjectiterator.hh"
 #include <string>
 #include <list>
 
@@ -198,19 +198,19 @@ public:
     delete a temporary mdd type in the current DBMS, created by a select into
     */
 
-    static TypeIterator<StructType> createStructIter();
+    static DBObjectIterator<StructType> createStructIter();
     /*@Doc:
         Note that get_element returns a pointer to a StructType!
     returns an iterator for StructTypes.
     */
 
-    static TypeIterator<SetType> createSetIter();
+    static DBObjectIterator<SetType> createSetIter();
     /*@Doc:
         Note that get_element returns a pointer to a SetType!
     returns an iterator for SetTypes.
     */
 
-    static TypeIterator<MDDType> createMDDIter();
+    static DBObjectIterator<MDDType> createMDDIter();
     /*@Doc:
         Note that get_element returns a pointer to a MDDType!
     returns an iterator for MDDTypes.

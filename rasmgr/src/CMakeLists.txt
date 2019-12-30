@@ -172,10 +172,21 @@ add_library(rasmgr_lib ${RASMGR_SOURCES})
 find_package(Threads REQUIRED)
 
 target_link_libraries(rasmgr_lib
-        rasnet commline mymalloc_cln
-        common_exceptions common_crypto common_grpc common_logging common_time
-        common_uuid common_util
-        ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+        PRIVATE
+        rasnet 
+        commline
+        mymalloc_cln
+        common_exceptions 
+        common_crypto 
+        common_grpc 
+        common_logging 
+        common_time
+        common_uuid 
+        common_util 
+        ${Boost_THREAD_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
+        ${CMAKE_THREAD_LIBS_INIT}
+        )
 
 # Create the rasmgr executable
 add_executable(rasmgr main.cc)

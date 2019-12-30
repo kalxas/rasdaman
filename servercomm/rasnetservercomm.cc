@@ -23,11 +23,12 @@ rasdaman GmbH.
 
 #include "rasnetservercomm.hh"
 #include "rpcif.h"
+#include "rasserver/src/clientmanager.hh"
+#include "rasserver/src/clientquerystreamedresult.hh"
 #include "mymalloc/mymalloc.h"
 #include "server/rasserver_entry.hh"
 #include "common/grpc/messages/error.pb.h"
 #include "common/uuid/uuid.hh"
-#include "rasserver/src/clientquerystreamedresult.hh"
 #include <logging.hh>
 
 using common::ErrorMessage;
@@ -35,11 +36,9 @@ using rasserver::ClientQueryStreamedResult;
 using common::UUID;
 
 RasnetServerComm::RasnetServerComm(std::shared_ptr<rasserver::ClientManager> cm)
+    : clientManager{cm}
 {
-    this->clientManager = cm;
 }
-
-RasnetServerComm::~RasnetServerComm() {}
 
 grpc::Status RasnetServerComm::OpenServerDatabase(__attribute__((unused)) grpc::ServerContext *context,
         const rasnet::service::OpenServerDatabaseReq *request,

@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "databaseif.hh"
 #include "transactionif.hh"
 #include "raslib/rminit.hh"
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 
 // global variable for AdminIf because of O2 d_Session::begin()

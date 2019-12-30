@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "mddmgr/transtile.hh"
 #include "mddmgr/transmddobj.hh"
 
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "ulongtype.hh"              // from catalogif
 #include "mddbasetype.hh"            //  from catalogif
 

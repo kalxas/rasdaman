@@ -34,7 +34,7 @@ rasdaman GmbH.
 #include "transactionif.hh"
 
 #include "alltypes.hh"
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 #include "dbmddcoll.hh"
 #include "dbmddcolloidentry.hh"

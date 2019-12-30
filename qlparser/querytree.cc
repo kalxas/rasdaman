@@ -53,7 +53,8 @@ rasdaman GmbH.
 #include "qlparser/qtexecute.hh"
 
 #include "raslib/type.hh"
-#include "catalogmgr/typefactory.hh"
+#include "mddmgr/mddcoll.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/settype.hh"
 

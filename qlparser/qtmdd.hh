@@ -1,19 +1,3 @@
-#ifndef _QTMDD_
-#define _QTMDD_
-
-#include "qlparser/qtdata.hh"
-#include "qlparser/qtscalardata.hh"
-#include "catalogmgr/typefactory.hh"
-#include "mddmgr/mddcoll.hh"
-#include "raslib/minterval.hh"
-
-#include <string>
-#include <list>
-
-// forward declarations
-class MDDObj;
-class QtOperation;
-
 /*
 * This file is part of rasdaman community.
 *
@@ -36,12 +20,20 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTMDD_
+#define _QTMDD_
+
+#include "qlparser/qtdata.hh"
+#include "qlparser/qtscalardata.hh"
+#include "raslib/minterval.hh"
+
+#include <string>
+#include <list>
+
+// forward declarations
+class MDDObj;
+class QtOperation;
+class CollectionType;
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -132,7 +124,7 @@ public:
 
 private:
     /// prevents from using the default constructor
-    QtMDD() {};
+    QtMDD() {}
 
     /// pointer to the MDDObj object
     MDDObj *mddObject;

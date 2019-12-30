@@ -27,10 +27,11 @@ CompileEmbeddedSQL(ecpg_lockmanager ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_
 add_library(lockmanager lockmanager.hh lockmanager.cc
         ecpg_lockmanager.hh ${COMPILED_SQL_SOURCES})
 
-target_include_directories(lockmanager PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(lockmanager PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(lockmanager PUBLIC ${BASEDB_INCLUDE_DIR})
 
-target_link_libraries(lockmanager ${BASEDB_LIBRARIES})
-
-install(TARGETS lockmanager
-        DESTINATION ${LIB_DIR})
+target_link_libraries(lockmanager
+    PRIVATE
+    raslib
+    tilemgr
+    ${BASEDB_LIBRARIES})

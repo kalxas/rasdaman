@@ -1,5 +1,3 @@
-#ifndef _QTPROJECT__
-#define _QTPROJECT__
 /*************************************************************
  *
  * HEADER: qtproject.hh
@@ -20,12 +18,14 @@
  *
  ************************************************************/
 
+#ifndef _QTPROJECT__
+#define _QTPROJECT__
+
 #include "conversion/gdalincludes.hh"
 
 #include "raslib/error.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtunaryoperation.hh"
-#include "tilemgr/tile.hh"
 #include "raslib/primitivetype.hh"
 #include "common/geo/geobbox.hh"
 #include <common/geo/resamplingalg.hh>
@@ -36,6 +36,8 @@ using GDALDatasetPtr = std::unique_ptr<GDALDataset, void(*)(GDALDataset *)>;
 /// Closes and frees the dataset
 void deleteGDALDataset(GDALDataset *dataset);
 #endif
+
+class Tile;
 
 //@ManMemo: Module: {\bf qlparser}
 

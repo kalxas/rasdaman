@@ -52,7 +52,7 @@ rasdaman GmbH.
 #include "transactionif.hh"
 #include "tilemgr/perstile.hh"
 #include "tilemgr/transtile.hh"
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "raslib/rminit.hh"
 
 // global variable for AdminIf because of O2 d_Session::begin()

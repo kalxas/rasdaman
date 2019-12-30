@@ -26,7 +26,6 @@ rasdaman GmbH.
 
 #include "raslib/type.hh"
 #include "conversion/gdalincludes.hh"
-#include "conversion/hdfincludes.hh"
 #include "conversion/convtypes.hh"
 #include "config.h"
 

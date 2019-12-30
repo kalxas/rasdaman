@@ -22,6 +22,7 @@ rasdaman GmbH.
  */
 
 #include "conversion/convutil.hh"
+#include "conversion/hdfincludes.hh"
 #include "raslib/attribute.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/error.hh"

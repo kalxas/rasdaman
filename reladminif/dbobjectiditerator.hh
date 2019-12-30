@@ -26,12 +26,6 @@ rasdaman GmbH.
 
 #pragma once
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "objectbroker.hh"
-#endif
-#endif
-
 #include "lists.h"
 
 #include <functional>  // for less
@@ -111,8 +105,6 @@ private:
     */
 };
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "dbobjectiditerator.cc"
-#endif
-#endif
+class DBMDDObj;
+extern template class DBObjectIdIterator<DBMDDObj>;
+

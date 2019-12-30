@@ -32,6 +32,7 @@ rasdaman GmbH.
 #include "rasodmg/tiling.hh"
 #include "rasodmg/gmarray.hh"
 #include "rasodmg/oqlquery.hh"
+#include "rasodmg/genreftype.hh"
 
 #include "raslib/minterval.hh"
 #include "raslib/rminit.hh"
@@ -1671,7 +1672,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
         case r_Type::FLOAT:
         case r_Type::DOUBLE:
             element = new r_Primitive(thisResult->data.confarray_val, static_cast<r_Primitive_Type *>(const_cast<r_Type *>(elementType)));
-            transaction->add_object_list(r_Transaction::SCALAR, (void *) element);
+            transaction->add_object_list(GenRefType::SCALAR, (void *) element);
             break;
 
         case r_Type::COMPLEXTYPE1:
@@ -1679,12 +1680,12 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
         case r_Type::CINT16:
         case r_Type::CINT32:
             element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type *>(const_cast<r_Type *>(elementType)));
-            transaction->add_object_list(r_Transaction::SCALAR, (void *)element);
+            transaction->add_object_list(GenRefType::SCALAR, (void *)element);
             break;
 
         case r_Type::STRUCTURETYPE:
             element = new r_Structure(thisResult->data.confarray_val, static_cast<r_Structure_Type *>(const_cast<r_Type *>(elementType)));
-            transaction->add_object_list(r_Transaction::SCALAR, (void *) element);
+            transaction->add_object_list(GenRefType::SCALAR, (void *) element);
             break;
 
         case r_Type::POINTTYPE:
@@ -1695,7 +1696,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
 
             r_Point *typedElement = new r_Point(stringRep);
             element               = typedElement;
-            transaction->add_object_list(r_Transaction::POINT, (void *) typedElement);
+            transaction->add_object_list(GenRefType::POINT, (void *) typedElement);
             delete [] stringRep;
         }
         break;
@@ -1708,7 +1709,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
 
             r_Sinterval *typedElement = new r_Sinterval(stringRep);
             element                   = typedElement;
-            transaction->add_object_list(r_Transaction::SINTERVAL, (void *) typedElement);
+            transaction->add_object_list(GenRefType::SINTERVAL, (void *) typedElement);
             delete [] stringRep;
         }
         break;
@@ -1721,7 +1722,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
 
             r_Minterval *typedElement = new r_Minterval(stringRep);
             element                   = typedElement;
-            transaction->add_object_list(r_Transaction::MINTERVAL, (void *) typedElement);
+            transaction->add_object_list(GenRefType::MINTERVAL, (void *) typedElement);
             delete [] stringRep;
         }
         break;
@@ -1734,7 +1735,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
 
             r_OId *typedElement = new r_OId(stringRep);
             element             = typedElement;
-            transaction->add_object_list(r_Transaction::OID, (void *) typedElement);
+            transaction->add_object_list(GenRefType::OID, (void *) typedElement);
             delete [] stringRep;
         }
         break;

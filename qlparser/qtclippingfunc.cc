@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 
 //includes catalogmgr
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 //includes relcatalogif
 #include "relcatalogif/structtype.hh"

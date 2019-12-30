@@ -49,6 +49,7 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"           // for r_Ptr, r_Dimension, r_Directory_I...
 #include "raslib/sinterval.hh"          // for r_Sinterval
 #include "raslib/point.hh"
+#include "storagemgr/sstoragelayout.hh"     // for StorageLayout
 #include <logging.hh>
 
 #include <iostream>                     // for ostream

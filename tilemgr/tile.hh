@@ -40,12 +40,11 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"    // for r_Data_Format
 #include "raslib/rminit.hh"
 #include "catalogmgr/ops.hh"                // for Ops::OpType
-#include "relcatalogif/basetype.hh"           // for BaseType
+#include "reladminif/dbref.hh"
 #include "relblobif/tileid.hh"
 #include "relblobif/blobtile.hh"
 #include "relblobif/inlinetile.hh"
 #include "relblobif/dbtile.hh"
-#include "reladminif/dbref.hh"
 #ifdef RMANBENCHMARK
 #include "raslib/rmdebug.hh"        // for RMTimer
 #endif
@@ -58,6 +57,7 @@ rasdaman GmbH.
 
 class KeyObject;
 class PersMDDObjIx;
+class BaseType;
 
 //@ManMemo: Module: {\bf cachetamgr}.
 

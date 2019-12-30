@@ -23,7 +23,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "qlparser/qtnode.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/type.hh"
 #include "relcatalogif/basetype.hh"
 

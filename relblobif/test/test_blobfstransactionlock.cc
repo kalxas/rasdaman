@@ -27,12 +27,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#ifdef EARLY_TEMPLATE
-#define __EXECUTABLE__
-#include "../../server/template_inst.hh"
-#include "../../rasodmg/template_inst.hh"
-#endif
-
+#include "raslib/rminit.hh"
 #include "relblobif/blobfstransactionlock.hh"
 #include "relblobif/blobfile.hh"
 #include "relblobif/dirwrapper.hh"

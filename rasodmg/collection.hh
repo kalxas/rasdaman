@@ -200,10 +200,17 @@ protected:
     CNode *coll;
 };
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "collection.cc"
-#endif
-#endif
+class r_GMarray;
+extern template class r_Collection<r_GMarray*>;
+class r_Ref_Any;
+extern template class r_Collection<r_Ref_Any>;
+
+template <typename T> class r_Ref;
+class r_Object;
+extern template class r_Collection<r_Ref<r_Object>>;
+extern template class r_Collection<r_Ref<r_GMarray>>;
+
+struct GenRefElement;
+extern template class r_Collection<GenRefElement *>;
 
 #endif

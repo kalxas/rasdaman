@@ -34,7 +34,7 @@ rasdaman GmbH.
 #include "mddmgr/mddobj.hh"
 #include "qlparser/querytree.hh"
 
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/longtype.hh"
 

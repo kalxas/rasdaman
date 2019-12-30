@@ -76,6 +76,9 @@ private:
 
     // private function for locking a tile (shared or exclusive)
     void lockTileInternal(const char *, OId::OIdCounter, enum Lock);
+    
+    // function for locking an array of tile ids at "once"
+    void lockTilesInternal(const char *, long long [], int, enum Lock);
 
     // private function for unlocking a tile with respect to a specific rasserver
     void unlockTileInternal(const char *, OId::OIdCounter);
@@ -97,9 +100,6 @@ private:
 
     // compare function need by qsort from stdlib.h which is used to sort the sequence of tile ids
     static int compareIds(const void *, const void *);
-
-    // function for locking an array of tile ids at "once"
-    void lockTilesInternal(const char *, long long [], int, enum Lock);
 
 public:
     // function creating an instance of the lock manager. There should be no other

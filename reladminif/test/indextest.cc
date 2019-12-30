@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include "oidif.hh"
 
 #include "raslib/rminit.hh"
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 #include "dbmddobj.hh"
 #include "dbmddcoll.hh"

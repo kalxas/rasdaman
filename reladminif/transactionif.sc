@@ -33,7 +33,7 @@ rasdaman GmbH.
 #include "objectbroker.hh"
 #include "oidif.hh"
 #include "relblobif/blobfs.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include <logging.hh>
 
 

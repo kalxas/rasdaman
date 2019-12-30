@@ -49,7 +49,7 @@ EXEC SQL include "sqlglobals.h";
 #include "dbref.hh"
 #include "dbnamedobject.hh"
 #include "externs.h"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 #include <logging.hh>
 

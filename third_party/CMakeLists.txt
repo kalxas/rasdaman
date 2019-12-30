@@ -48,12 +48,6 @@ macro(InstallExternalLibrary LIBRARY_NAME LIBRARY_PATH DEPENDENCIES)
 
     # The library depends on the external project.
     add_dependencies(${LIBRARY_NAME} ${DEPENDENCIES})
-
-    # Install the directory to the lib directory
-    install(FILES ${LIBRARY_PATH}
-            DESTINATION ${LIB_DIR}
-            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-
 endmacro()
 
 # Add an executable built by a custom command to the environment.
@@ -137,8 +131,6 @@ ExternalProject_add(google-gtest
 
 # Set the include directories for GTest
 include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
-install(DIRECTORY ${GTEST_INCLUDE_DIR}/
-        DESTINATION ${INCLUDE_DIR})
 
 InstallExternalLibrary(${GTEST_LIBRARY} ${GTEST_LIBRARY_PATH} google-gtest)
 
@@ -169,15 +161,12 @@ ExternalProject_add(jsoncpp_project
         INSTALL_COMMAND ""
         LOG_DOWNLOAD ON
         LOG_BUILD ON
+        BUILD_BYPRODUCTS ${JSONCPP_LIBRARY_PATH}
         )
 
 include_directories(SYSTEM ${JSONCPP_INCLUDE_DIR})
 
-install(DIRECTORY ${JSONCPP_INCLUDE_DIR}/
-         DESTINATION ${INCLUDE_DIR})
-
 InstallExternalLibrary(${JSONCPP_LIBRARY} ${JSONCPP_LIBRARY_PATH} jsoncpp_project)
-
 
 
 ############################################################################
@@ -205,10 +194,6 @@ ExternalProject_Add(google-gmock
         LOG_INSTALL ON)
 
 include_directories(SYSTEM ${GMOCK_INCLUDE_DIR})
-
-# Install the contents of GTest directory to the given location
-install(DIRECTORY ${GMOCK_INCLUDE_DIR}/
-        DESTINATION ${INCLUDE_DIR})
 
 # Setup the library and install the library files.
 InstallExternalLibrary(${GMOCK_LIBRARY} ${GMOCK_LIBRARY_PATH} google-gmock)
@@ -271,11 +256,11 @@ add_custom_command(OUTPUT ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${GRPC_CPP
         && sed -i "s|CONFIG)) -g |CONFIG)) |g" Makefile
         && sed -i "s|-C third_party/protobuf\$|&\\n\\tmake -C third_party/protobuf install|" Makefile
         && export MAKEFLAGS= && export MAKEOVERRIDES=
-        && make -j${PROCESSOR_COUNT} CONFIG=opt PROTOBUF_CONFIG_OPTS="--prefix=${PROTOBUF_BINARY_DIR}"
+        && make -j${PROCESSOR_COUNT} CONFIG=opt PROTOBUF_CONFIG_OPTS="--prefix=${PROTOBUF_BINARY_DIR}" > ${GRPC_SOURCE_DIR}/make.log 2>&1
         && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
-        COMMAND make ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH} -j${PROCESSOR_COUNT}
+        COMMAND make ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH} -j${PROCESSOR_COUNT} > ${GRPC_SOURCE_DIR}/make_install.log 2>&1
         WORKING_DIRECTORY ${GRPC_SOURCE_DIR}
-        COMMENT "Building Google GRPC library."
+        COMMENT "Building Google GRPC library (log file in ${GRPC_SOURCE_DIR}/make.log)."
         VERBATIM)
 
 add_custom_target(google-grpc
@@ -299,6 +284,9 @@ set_property(TARGET ${GRPCPP_LIBRARY} APPEND PROPERTY
         IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES})
 
 InstallExternalLibrary(${PROTOBUF_LIBRARY} ${PROTOBUF_LIBRARY_PATH} google-grpc)
+
+install(FILES ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${PROTOBUF_LIBRARY_PATH}
+        DESTINATION ${LIB_DIR})
 
 AddExternalExecutable(${GRPC_CPP_PLUGIN_EXECUTABLE} ${GRPC_CPP_PLUGIN_EXECUTABLE_PATH} google-grpc)
 AddExternalExecutable(${PROTOBUF_PROTOC_EXECUTABLE} ${PROTOBUF_PROTOC_EXECUTABLE_PATH} google-grpc)

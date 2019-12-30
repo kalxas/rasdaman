@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include "relindexif/indexid.hh"
 #include "common/exceptions/exception.hh"
 
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 #include <logging.hh>
 

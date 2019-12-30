@@ -176,3 +176,5 @@ void SymbolTable<T>::wipe()
     STVars.clear();
     STScopes.clear();
 }
+
+template class SymbolTable<int>;

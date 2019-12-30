@@ -117,16 +117,32 @@ add_library(qlparser
 set_source_files_properties(oql.yy oql.cc qtbinaryinduce.cc
     PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 
+target_include_directories(qlparser PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(qlparser PRIVATE "${CMAKE_SOURCE_DIR}/debug")
+
+target_link_libraries(qlparser
+    PUBLIC
+    raslib
+    rasodmg
+    catalogmgr
+    
+    PRIVATE
+    common_geo
+    common_logging
+    lockmanager
+    mddmgr
+    tilemgr
+    storagemgr
+    mymalloc_svc
+    relcatalogif
+    servercomm
+    )
+
 if (USE_GDAL)
     find_package(GDAL REQUIRED)
-
-    set(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} ${GDAL_LIBRARY})
-    set(OPTIONAL_INCLUDE_DIRECTORIES ${OPTIONAL_INCLUDE_DIRECTORIES} ${GDAL_INCLUDE_DIR})
+    target_link_libraries(qlparser PRIVATE ${GDAL_LIBRARY} ${ZLIB_LIBRARIES})
+    target_include_directories(qlparser SYSTEM PRIVATE ${GDAL_INCLUDE_DIR})
 endif ()
-
-target_include_directories(qlparser SYSTEM PUBLIC ${OPTIONAL_INCLUDE_DIRECTORIES})
-target_include_directories(qlparser PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories(qlparser PUBLIC "${CMAKE_SOURCE_DIR}/debug")
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(qlparser REUSE_FROM common_logging)
@@ -134,20 +150,4 @@ endif()
 
 add_subdirectory(test)
 
-target_link_libraries(qlparser ${OPTIONAL_LIBRARIES}
-    raslib rasodmg mymalloc_svc conversion
-    common_geo common_logging common_string
-    lockmanager
-    reladminif
-    relblobif
-    catalogmgr relcatalogif # algebraops.cc
-    mddmgr relmddif
-    storagemgr
-    tilemgr
-    servercomm # oql.yy
-    )
-
 add_dependencies(qlparser clientcomm servercomm catalogmgr)
-
-install(TARGETS qlparser
-        DESTINATION ${LIB_DIR})

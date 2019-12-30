@@ -21,7 +21,8 @@
 #
 ###################################################################
 
-set(PROTO_SRC protomessages/client_rassrvr_service.proto
+set(PROTO_SRC
+        protomessages/client_rassrvr_service.proto
         protomessages/common_service.proto
         protomessages/rasmgr_client_service.proto
         protomessages/rasmgr_rasctrl_service.proto
@@ -47,11 +48,17 @@ endforeach ()
 add_library(rasnet STATIC
         ${PROTO_SRC} # Added to the list of files so that QtCreator sees them.
         ${GENERATED_PROTO_SOURCES}
-        ${GENERATED_GRPC_SOURCES})
+        ${GENERATED_GRPC_SOURCES}
+        )
 
 target_link_libraries(rasnet
-    ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${PROTOBUF_LIBRARY}
-    ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES})
+    PRIVATE
+    ${GRPCPP_LIBRARY}
+    ${GRPC_LIBRARY}
+    ${ZLIB_LIBRARIES}
+    ${PROTOBUF_LIBRARY}
+    ${CMAKE_THREAD_LIBS_INIT}
+    )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(rasnet REUSE_FROM common_logging)

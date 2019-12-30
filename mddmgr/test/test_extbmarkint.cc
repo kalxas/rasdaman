@@ -58,7 +58,7 @@ rasdaman GmbH.
 #include "oidif.hh"
 
 #include "raslib/rminit.hh"
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 #include "mddif/dbmddobj.hh"
 #include "mddif/dbmddcoll.hh"

@@ -331,4 +331,23 @@ private:
     r_OId oid;
 };
 
+class r_GMarray;
+extern template class r_Ref<r_GMarray>;
+class r_Object;
+extern template class r_Ref<r_Object>;
+
+template <typename T> class r_Set;
+extern template class r_Ref<r_Set<r_Ref<r_GMarray>>>;
+
+class r_Point;
+extern template class r_Ref<r_Point>;
+class r_Sinterval;
+extern template class r_Ref<r_Sinterval>;
+class r_Minterval;
+extern template class r_Ref<r_Minterval>;
+class r_OId;
+extern template class r_Ref<r_OId>;
+class r_Scalar;
+extern template class r_Ref<r_Scalar>;
+
 #endif

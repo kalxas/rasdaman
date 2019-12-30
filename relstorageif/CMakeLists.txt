@@ -36,16 +36,20 @@ add_library(relstorageif ${COMPILED_SQL_SOURCES}
         storageid.hh)
 
 target_include_directories(relstorageif PUBLIC ${BASEDB_INCLUDE_DIR})
-target_include_directories(relstorageif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(relstorageif PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(relstorageif PUBLIC
-    storagemgr common_logging mymalloc_svc raslib
-    relcatalogif reladminif
+target_link_libraries(relstorageif
+    PUBLIC
+#    reladminif
+#    relcatalogif
+    
+    PRIVATE
+    storagemgr
+#    common_logging
+#    mymalloc_svc
+#    raslib
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(relstorageif REUSE_FROM common_logging)
 endif()
-
-install(TARGETS relstorageif
-        DESTINATION ${LIB_DIR})

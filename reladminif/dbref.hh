@@ -25,13 +25,6 @@ rasdaman GmbH.
 
 #include "oidif.hh"
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-// needed if dbref.cc is included at the end of this file
-#include "objectbroker.hh"
-#endif
-#endif
-
 class r_Error;
 class BLOBTile;
 class DBHierIndex;
@@ -294,8 +287,29 @@ private:
 template <class T>
 bool operator<(const DBRef<T> &me, const DBRef<T> &him);
 
-#ifdef EARLY_TEMPLATE
-#ifdef __EXECUTABLE__
-#include "dbref.cc"
-#endif
-#endif
+class DBMDDSet;
+class DBMinterval;
+class DBNullvalues;
+class DBStorageLayout;
+class DBUDFDS;
+class DBUDFPackageDS;
+class StructType;
+class SetType;
+class MDDType;
+
+extern template class DBRef<DBObject>;
+extern template class DBRef<DBHierIndex>;
+extern template class DBRef<DBRCIndexDS>;
+extern template class DBRef<DBTCIndex>;
+extern template class DBRef<BLOBTile>;
+extern template class DBRef<DBTile>;
+extern template class DBRef<InlineTile>;
+extern template class DBRef<DBMDDObj>;
+extern template class DBRef<DBMDDSet>;
+extern template class DBRef<DBMinterval>;
+extern template class DBRef<DBNullvalues>;
+extern template class DBRef<DBStorageLayout>;
+extern template class DBRef<StructType>;
+extern template class DBRef<SetType>;
+extern template class DBRef<MDDType>;
+extern template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);

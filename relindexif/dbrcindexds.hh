@@ -33,8 +33,8 @@ rasdaman GmbH.
 
 #pragma once
 
-#include "reladminif/dbobject.hh"
 #include "indexmgr/indexds.hh"
+#include "reladminif/dbobject.hh"
 #include "relcatalogif/inlineminterval.hh"
 
 //@ManMemo: Module: {\bf relindexif}

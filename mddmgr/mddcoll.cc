@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include "mddcolliter.hh"                         // for MDDCollIter
 #include "mddobj.hh"                              // for MDDObj
 #include "tilemgr/tile.hh"                        // for Tile
-#include "catalogmgr/typefactory.hh"              // for TypeFactory, TypeFac...
+#include "relcatalogif/typefactory.hh"              // for TypeFactory, TypeFac...
 #include "reladminif/databaseif.hh"               // for ostream
 #include "reladminif/dbobjectiterator.hh"         // for DBObjectIterator
 #include "reladminif/dbref.hh"                    // for DBRef
@@ -55,7 +55,6 @@ rasdaman GmbH.
 #include "relcatalogif/dbnullvalues.hh"           // for DBNullvalues
 #include "relcatalogif/mddtype.hh"                // for MDDType
 #include "relcatalogif/structtype.hh"             // for StructType
-#include "relcatalogif/typeiterator.hh"           // for TypeIterator
 #include "relmddif/dbmddset.hh"                   // for DBMDDSet
 #include "raslib/error.hh"                        // for r_Error, COLLTYPE_NULL
 #include "raslib/mddtypes.hh"                     // for r_Ptr, r_Array, r_Bytes
@@ -413,7 +412,7 @@ std::vector<std::string> MDDColl::getVirtualCollection(const char *collName)
     }
     else if (strcmp(collName, AllStructTypesName) == 0)
     {
-        TypeIterator<StructType> structIter = TypeFactory::createStructIter();
+        DBObjectIterator<StructType> structIter = TypeFactory::createStructIter();
         while (structIter.not_done())
         {
             StructType *typePtr = structIter.get_element();
@@ -436,7 +435,7 @@ std::vector<std::string> MDDColl::getVirtualCollection(const char *collName)
     }
     else if (strcmp(collName, AllMarrayTypesName) == 0)
     {
-        TypeIterator<MDDType> mddIter = TypeFactory::createMDDIter();
+        DBObjectIterator<MDDType> mddIter = TypeFactory::createMDDIter();
 
         while (mddIter.not_done())
         {
@@ -464,7 +463,7 @@ std::vector<std::string> MDDColl::getVirtualCollection(const char *collName)
     }
     else if (strcmp(collName, AllSetTypesName) == 0)
     {
-        TypeIterator<SetType> it = TypeFactory::createSetIter();
+        DBObjectIterator<SetType> it = TypeFactory::createSetIter();
         while (it.not_done())
         {
             SetType *typePtr = it.get_element();
@@ -548,7 +547,7 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllStructTypesName);
 
-        TypeIterator<StructType> structIter = TypeFactory::createStructIter();
+        DBObjectIterator<StructType> structIter = TypeFactory::createStructIter();
         MDDObj *transObj = nullptr;
         Tile *transTile = nullptr;
 
@@ -604,7 +603,7 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
         MDDObj *transObj = nullptr;
         Tile *transTile = nullptr;
 
-        TypeIterator<MDDType> mddIter = TypeFactory::createMDDIter();
+        DBObjectIterator<MDDType> mddIter = TypeFactory::createMDDIter();
 
         while (mddIter.not_done())
         {
@@ -660,11 +659,11 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllSetTypesName);
 
-        TypeIterator<StructType> structIter = TypeFactory::createStructIter();
+        DBObjectIterator<StructType> structIter = TypeFactory::createStructIter();
         MDDObj *transObj = nullptr;
         Tile *transTile = nullptr;
 
-        TypeIterator<SetType> setIter = TypeFactory::createSetIter();
+        DBObjectIterator<SetType> setIter = TypeFactory::createSetIter();
         while (setIter.not_done())
         {
             SetType *typePtr = NULL;

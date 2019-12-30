@@ -38,11 +38,11 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"
 #include "raslib/parseparams.hh"
 
-#include "catalogmgr/typefactory.hh"
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddcolliter.hh"
 #include "mddmgr/mddobj.hh"
 #include "tilemgr/tile.hh"
+#include "storagemgr/sstoragelayout.hh"
 #include "lockmgr/lockmanager.hh"
 #include "mymalloc/mymalloc.h"
 
@@ -60,6 +60,7 @@ rasdaman GmbH.
 #include "server/rasserver_config.hh"
 #include "reladminif/adminif.hh"
 #include "reladminif/eoid.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/mddtype.hh"
 #include "relcatalogif/mdddomaintype.hh"

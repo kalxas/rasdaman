@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include "mddmgr/mddobj.hh"
 #include "mddmgr/mddcolliter.hh"
 #include "tilemgr/tile.hh"
-#include "catalogmgr/typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/mddtype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/settype.hh"

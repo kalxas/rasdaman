@@ -55,7 +55,7 @@ rasdaman GmbH.
 #include "transactionif.hh"
 
 #include "raslib/rminit.hh"
-#include "typefactory.hh"
+#include "relcatalogif/typefactory.hh"
 
 #include "mddbasetype.hh"
 #include "mdddomaintype.hh"

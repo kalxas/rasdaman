@@ -52,10 +52,6 @@
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
 
-#ifdef EARLY_TEMPLATE
-#define __EXECUTABLE__
-#include "rasodmg/template_inst.hh"
-#endif
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/ref.hh"

@@ -1,10 +1,3 @@
-#ifndef _QTCONVERSION_HH__
-#define _QTCONVERSION_HH___
-
-#include "qlparser/qtunaryoperation.hh"
-#include "raslib/structuretype.hh"
-#include "catalogmgr/typefactory.hh"
-#include <string>
 /*
 * This file is part of rasdaman community.
 *
@@ -33,7 +26,14 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ************************************************************/
+#ifndef _QTCONVERSION_HH__
+#define _QTCONVERSION_HH___
 
+#include "qlparser/qtunaryoperation.hh"
+#include "raslib/structuretype.hh"
+#include <string>
+
+class BaseType;
 
 //@ManMemo: Module: {\bf qlparser}
 

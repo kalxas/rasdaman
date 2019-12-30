@@ -37,12 +37,12 @@ rasdaman GmbH.
 
 #pragma once
 
-#include "blobtile.hh"             // for BLOBTile
+#include "blobtile.hh"          // for BLOBTile
 #include "tileid.hh"
-#include "reladminif/oidif.hh"       // for OId
-#include "raslib/mddtypes.hh"  // for r_Bytes, r_Data_Format, r_Array
+#include "reladminif/oidif.hh"  // for OId
+#include "raslib/mddtypes.hh"   // for r_Bytes, r_Data_Format, r_Array
 
-#include <iosfwd>                // for cout, ostream
+#include <iosfwd>               // for cout, ostream
 
 class r_Error;
 class OId;

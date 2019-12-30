@@ -29,11 +29,12 @@ rasdaman GmbH.
 #include "qlparser/qtoperation.hh"
 
 #include "mddmgr/mddobj.hh"
-#include "tilemgr/tile.hh"
 #include "mddmgr/mddcoll.hh"
-#include "catalogmgr/typefactory.hh"
-
+#include "tilemgr/tile.hh"
+#include "relcatalogif/typefactory.hh"
 #include "relcatalogif/mdddimensiontype.hh"
+#include "relcatalogif/basetype.hh"
+#include "relcatalogif/collectiontype.hh"
 
 #include <iostream>
 #include <string>
