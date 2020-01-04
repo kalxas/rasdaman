@@ -56,15 +56,15 @@ public:
     arrays lowerbound, upperbound, lowerfixed, upperfixed.
     */
 
-    InlineMinterval(const r_Minterval &old);
+    InlineMinterval(const r_Minterval &);
 
-    InlineMinterval(const InlineMinterval &old);
-
-    // replaces only the r_Minterval part of the object
-    virtual InlineMinterval &operator=(const InlineMinterval &old);
+    InlineMinterval(const InlineMinterval &);
 
     // replaces only the r_Minterval part of the object
-    virtual InlineMinterval &operator=(const r_Minterval &old);
+    virtual InlineMinterval &operator=(const InlineMinterval &);
+
+    // replaces only the r_Minterval part of the object
+    virtual InlineMinterval &operator=(const r_Minterval &);
 
     ~InlineMinterval();
 

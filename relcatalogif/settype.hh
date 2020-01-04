@@ -48,8 +48,8 @@ public:
     SetType();
     SetType(const OId &id);
     SetType(const char *newTypeName, MDDType *newMDDType);
-    SetType(const SetType &old) = default;
-    SetType &operator=(const SetType &old) = default;
+    SetType(const SetType &) = default;
+    SetType &operator=(const SetType &) = default;
     ~SetType() noexcept(false) override;
 
     char *getTypeStructure() const override;

@@ -57,8 +57,8 @@ class Type : public DBNamedObject
 public:
     Type();
     Type(const OId &id);
-    Type(const Type &old) = default;
-    Type &operator=(const Type &old) = default;
+    Type(const Type &) = default;
+    Type &operator=(const Type &) = default;
     ~Type() override = default;
 
     void destroy() override;

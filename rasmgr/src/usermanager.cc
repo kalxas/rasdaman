@@ -180,7 +180,7 @@ bool UserManager::tryGetUser(const std::string &userName, std::shared_ptr<User> 
     return false;
 }
 
-void UserManager::saveUserInformation(bool backup)
+void UserManager::saveUserInformation(bool)
 {
     UserMgrProto userData = this->serializeToProto();
 

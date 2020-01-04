@@ -47,21 +47,21 @@ public:
 
     DBNullvalues(const OId &id);
 
-    DBNullvalues(const r_Nullvalues &old);
+    DBNullvalues(const r_Nullvalues &);
 
-    DBNullvalues(const DBNullvalues &old);
+    DBNullvalues(const DBNullvalues &);
 
     ~DBNullvalues() noexcept(false);
     /*@Doc:
     validates the object in the database.
     */
 
-    virtual DBNullvalues &operator=(const DBNullvalues &old);
+    virtual DBNullvalues &operator=(const DBNullvalues &);
     /*@Doc:
     replaces only the r_Minterval part of the object
     */
 
-    virtual DBNullvalues &operator=(const r_Nullvalues &old);
+    virtual DBNullvalues &operator=(const r_Nullvalues &);
     /*@Doc:
     replaces only the r_Minterval part of the object
     */

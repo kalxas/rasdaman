@@ -64,9 +64,9 @@ public:
 
     MDDType(const char *newTypeName);
 
-    MDDType(const MDDType &old) = default;
+    MDDType(const MDDType &) = default;
 
-    MDDType &operator=(const MDDType &old) = default;
+    MDDType &operator=(const MDDType &) = default;
 
     ~MDDType() noexcept(false) override;
 

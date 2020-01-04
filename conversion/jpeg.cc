@@ -267,7 +267,7 @@ r_Conv_JPEG::~r_Conv_JPEG(void)
 }
 
 
-r_Conv_Desc &r_Conv_JPEG::convertTo(const char *options, const r_Range *nullValue)
+r_Conv_Desc &r_Conv_JPEG::convertTo(const char *options, const r_Range *)
 {
 #ifdef HAVE_JPEG
 

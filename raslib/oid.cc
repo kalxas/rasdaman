@@ -94,7 +94,7 @@ r_OId::r_OId(const char *initSystemName, const char *initBaseName, long long ini
     oidString += "|";
     oidString += std::to_string(localOId);
 }
-    
+
 r_OId &r_OId::operator=(const r_OId &o)
 {
     if (this == &o)

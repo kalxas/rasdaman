@@ -364,18 +364,18 @@ unsigned int DBHierIndex::getOptimalSize(r_Dimension dim)
     blocksize = 2048;
     // BLOCKSIZE - (BLOCK OVERHEAD + ROW OVERHEAD + 1 * largerow + number(15,0) + short)
     useablespace = blocksize - (130 + 3 + 1 * 3 + 12 + 2);
-#elif BASEDB_DB2
+#elseif BASEDB_DB2
     blocksize = 4096;
     // from the manual
     useablespace = 3990;
-#elifd BASEDB_INFORMIX
+#elseif BASEDB_INFORMIX
     blocksize = 4096;
     // from the manual
     useablespace = 3990;
-#elif BASEDB_PGSQL
+#elseif BASEDB_PGSQL
     blocksize = 8192;   // default only!!!;
     useablespace = 7000;    // no indication for any less space available, but to be sure we go a little lower -- PB 2005-jan-10
-#elif BASEDB_SQLITE
+#elseif BASEDB_SQLITE
     // blocksize = 4096;
     useablespace = 3990;
 #else

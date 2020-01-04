@@ -86,7 +86,7 @@ public:
     initializes all attributes.  the oid is set to 0.  the objecttype is set to OId::INVALID.
     */
 
-    DBObject(const DBObject &old);
+    DBObject(const DBObject &);
     /*@Doc:
     clones all attributes.
     */
@@ -147,7 +147,7 @@ public:
     yet persistent also return their object type.
     */
 
-    DBObject &operator=(const DBObject &old) = default;
+    DBObject &operator=(const DBObject &) = default;
     /*@Doc:
     clones all DBObject attributes except reference count.
     */

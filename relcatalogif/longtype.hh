@@ -48,9 +48,9 @@ public:
 
     LongType();
 
-    LongType(const LongType &old) = default;
+    LongType(const LongType &) = default;
 
-    LongType &operator=(const LongType &old) = default;
+    LongType &operator=(const LongType &) = default;
 
     ~LongType() override = default;
 

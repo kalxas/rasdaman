@@ -46,7 +46,7 @@ class r_Oid_Type : public r_Type
 {
 public:
     r_Oid_Type() = default;
-    r_Oid_Type(const r_Oid_Type &oldObj) = default;
+    r_Oid_Type(const r_Oid_Type &) = default;
     ~r_Oid_Type() override = default;
 
     /// clone operation

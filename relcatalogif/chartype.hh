@@ -62,9 +62,9 @@ public:
 
     CharType(const OId &id);
 
-    CharType(const CharType &old);
+    CharType(const CharType &);
 
-    CharType &operator=(const CharType &old) = default;
+    CharType &operator=(const CharType &) = default;
 
     ~CharType() override = default;
 

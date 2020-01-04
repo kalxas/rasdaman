@@ -48,9 +48,9 @@ public:
 
     OctetType();
 
-    OctetType(const OctetType &old);
+    OctetType(const OctetType &);
 
-    OctetType &operator=(const OctetType &old) = default;
+    OctetType &operator=(const OctetType &) = default;
 
     ~OctetType() override = default;
 

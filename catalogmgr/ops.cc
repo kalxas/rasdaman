@@ -4937,7 +4937,7 @@ OpUnaryStruct::operator()(char *result, const char *op)
 void 
 OpUnaryStruct::setExponent(double newExponent)
 {
-    for (int i =0;i < numElems; i++)
+    for (size_t i =0; i < numElems; i++)
     {
         (static_cast<OpPOWCDouble *>(elemOps[i]))->setExponent(newExponent);
     }

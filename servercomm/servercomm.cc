@@ -1127,7 +1127,7 @@ ServerComm::startInsertPersMDD(unsigned long callingClientId,
                     DBGERROR("while creating persistent tile: " << err.what());
                     returnValue = RC_GENERAL_ERROR;
                 }
-                catch (std::bad_alloc &ex)
+                catch (std::bad_alloc &)
                 {
                     DBGERROR("memory allocation failed.");
                     returnValue = RC_GENERAL_ERROR;
@@ -2197,7 +2197,6 @@ ServerComm::getCollByName(unsigned long callingClientId,
                           const char *collName, char *&typeName, char *&typeStructure, r_OId &oid)
 {
     static constexpr unsigned short RC_OK_SOME_ELEMENTS = 0;
-    static constexpr unsigned short RC_OK_NO_ELEMENTS = 1;
     static constexpr unsigned short RC_COLL_NOT_FOUND = 2;
     // TODO: this should be 1 as in other methods
     static constexpr unsigned short RC_CLIENT_CONTEXT_NOT_FOUND = 3;
@@ -2232,7 +2231,7 @@ ServerComm::getCollByName(unsigned long callingClientId,
                 throw;
             }
         }
-        catch (std::bad_alloc &ex)
+        catch (std::bad_alloc &)
         {
             DBGERROR("memory allocation failed.");
             throw;
@@ -2258,7 +2257,6 @@ ServerComm::getCollByOId(unsigned long callingClientId,
                          r_OId &oid, char *&typeName, char *&typeStructure, char *&collName)
 {
     static constexpr unsigned short RC_OK_SOME_ELEMENTS = 0;
-    static constexpr unsigned short RC_OK_NO_ELEMENTS = 1;
     static constexpr unsigned short RC_COLL_NOT_FOUND = 2;
     // TODO: this should be 1 as in other methods
     static constexpr unsigned short RC_CLIENT_CONTEXT_NOT_FOUND = 3;
@@ -2331,7 +2329,6 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
                               r_OId &oid, RPCOIdEntry *&oidTable, unsigned int &oidTableSize)
 {
     static constexpr unsigned short RC_OK_SOME_ELEMENTS = 0;
-    static constexpr unsigned short RC_OK_NO_ELEMENTS = 1;
     static constexpr unsigned short RC_COLL_NOT_FOUND = 2;
     // TODO: this should be 1 as in other methods
     static constexpr unsigned short RC_CLIENT_CONTEXT_NOT_FOUND = 3;
@@ -2415,10 +2412,9 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
 unsigned short
 ServerComm::getCollOIdsByOId(unsigned long callingClientId,
                              r_OId &oid, char *&typeName, char *&typeStructure,
-                             RPCOIdEntry *&oidTable, unsigned int &oidTableSize, char *&collName)
+                             RPCOIdEntry *&oidTable, unsigned int &oidTableSize, char *&)
 {
     static constexpr unsigned short RC_OK_SOME_ELEMENTS = 0;
-    static constexpr unsigned short RC_OK_NO_ELEMENTS = 1;
     static constexpr unsigned short RC_COLL_NOT_FOUND = 2;
     // TODO: this should be 1 as in other methods
     static constexpr unsigned short RC_CLIENT_CONTEXT_NOT_FOUND = 3;

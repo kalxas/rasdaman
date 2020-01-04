@@ -210,9 +210,9 @@ insert tile:
  the storage layout returns the domains into which the tile should be divided before insertion.
  if there is not enough data to fill a complete layout domain, then 0 will be set.
 */
-void MDDObj::insertTile(shared_ptr<Tile> insertTile)
+void MDDObj::insertTile(shared_ptr<Tile> newTile)
 {
-    auto layoutDoms = myStorageLayout->getLayout(insertTile->getDomain());
+    auto layoutDoms = myStorageLayout->getLayout(newTile->getDomain());
 #ifdef RASDEBUG
     LTRACE << "storage layout returned the following domains";
     for (auto domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++)
@@ -226,7 +226,7 @@ void MDDObj::insertTile(shared_ptr<Tile> insertTile)
     r_Area tempArea = 0;
     r_Area completeArea = 0;
     r_Minterval tempDom;
-    r_Minterval tileDom = insertTile->getDomain();
+    r_Minterval tileDom = newTile->getDomain();
     std::vector<shared_ptr<Tile>> *indexTiles = NULL;
     char *newContents = NULL;
     size_t sizeOfData = 0;
@@ -238,9 +238,9 @@ void MDDObj::insertTile(shared_ptr<Tile> insertTile)
             // normal case.  just insert the tile.
             // this case also means that there was no insertion in the previous loops
             LTRACE << "tile domain is same as layout domain, just inserting data";
-            myMDDIndex->insertTile(insertTile);
+            myMDDIndex->insertTile(newTile);
             // set to NULL so it will not get deleted at the end of the method
-            insertTile.reset();
+            newTile.reset();
             if (layoutDoms.size() != 1)
             {
                 LERROR << "MDDObj::insertTile(Tile " << tileDom << ") the layout has more than one element but the tile domain completely covers the layout domain";
@@ -265,7 +265,7 @@ void MDDObj::insertTile(shared_ptr<Tile> insertTile)
                 }
                 // update the existing tile with the new data
                 tempDom = (*it).create_intersection(tileDom);
-                (*(indexTiles->begin()))->copyTile(tempDom, insertTile.get(), tempDom);
+                (*(indexTiles->begin()))->copyTile(tempDom, newTile.get(), tempDom);
                 //LDEBUG << "updated tile to";
                 // (*(indexTiles->begin()))->printStatus(99,RMInit::dbgOut);
             }
@@ -275,11 +275,11 @@ void MDDObj::insertTile(shared_ptr<Tile> insertTile)
                 // must be computed everytime because layoutDoms may change in size
                 LTRACE << "found no tiles in layout domain " << *it;
                 // generate a tile of the domain : layout domain
-                tile.reset(new Tile(*it, getMDDBaseType()->getBaseType(), insertTile->getDataFormat()));
+                tile.reset(new Tile(*it, getMDDBaseType()->getBaseType(), newTile->getDataFormat()));
 
                 tempDom = (*it).create_intersection(tileDom);
                 // only update the actual data - the rest was set to 0
-                tile->copyTile(tempDom, insertTile.get(), tempDom);
+                tile->copyTile(tempDom, newTile.get(), tempDom);
                 LTRACE << "created tile with domain " << tile->getDomain();
                 //LDEBUG << "insert tile";
                 //  tile->printStatus(99,RMInit::dbgOut);
@@ -294,14 +294,14 @@ void MDDObj::insertTile(shared_ptr<Tile> insertTile)
         }
         checkEquality = false;
     }
-    if (insertTile)
+    if (newTile)
     {
         LTRACE << "deleting inserted tile";
-        if (insertTile->isPersistent())
+        if (newTile->isPersistent())
         {
-            insertTile->getDBTile()->setPersistent(false);
+            newTile->getDBTile()->setPersistent(false);
         }
-        insertTile.reset();
+        newTile.reset();
     }
 }
 

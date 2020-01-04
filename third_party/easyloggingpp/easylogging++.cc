@@ -172,10 +172,10 @@ Configuration& Configuration::operator=(const Configuration& c) {
 }
 
 /// @brief Full constructor used to sets value of configuration
-Configuration::Configuration(Level level, ConfigurationType configurationType, const std::string& value) :
-  m_level(level),
-  m_configurationType(configurationType),
-  m_value(value) {
+Configuration::Configuration(Level level1, ConfigurationType configurationType1, const std::string& value1) :
+  m_level(level1),
+  m_configurationType(configurationType1),
+  m_value(value1) {
 }
 
 void Configuration::log(el::base::type::ostream_t& os) const {
@@ -201,26 +201,26 @@ Configurations::Configurations(void) :
   m_isFromFile(false) {
 }
 
-Configurations::Configurations(const std::string& configurationFile, bool useDefaultsForRemaining,
+Configurations::Configurations(const std::string& configurationFile1, bool useDefaultsForRemaining,
                                Configurations* base) :
-  m_configurationFile(configurationFile),
+  m_configurationFile(configurationFile1),
   m_isFromFile(false) {
-  parseFromFile(configurationFile, base);
+  parseFromFile(configurationFile1, base);
   if (useDefaultsForRemaining) {
     setRemainingToDefault();
   }
 }
 
-bool Configurations::parseFromFile(const std::string& configurationFile, Configurations* base) {
+bool Configurations::parseFromFile(const std::string& configurationFile1, Configurations* base) {
   // We initial assertion with true because if we have assertion diabled, we want to pass this
   // check and if assertion is enabled we will have values re-assigned any way.
   bool assertionPassed = true;
-  ELPP_ASSERT((assertionPassed = base::utils::File::pathExists(configurationFile.c_str(), true)) == true,
-              "Configuration file [" << configurationFile << "] does not exist!");
+  ELPP_ASSERT((assertionPassed = base::utils::File::pathExists(configurationFile1.c_str(), true)) == true,
+              "Configuration file [" << configurationFile1 << "] does not exist!");
   if (!assertionPassed) {
     return false;
   }
-  bool success = Parser::parseFromFile(configurationFile, this, base);
+  bool success = Parser::parseFromFile(configurationFile1, this, base);
   m_isFromFile = success;
   return success;
 }
@@ -532,8 +532,8 @@ void LogBuilder::convertToColoredOutput(base::type::string_t* logLine, Level lev
 
 // Logger
 
-Logger::Logger(const std::string& id, base::LogStreamsReferenceMap* logStreamsReference) :
-  m_id(id),
+Logger::Logger(const std::string& id1, base::LogStreamsReferenceMap* logStreamsReference) :
+  m_id(id1),
   m_typedConfigurations(nullptr),
   m_parentApplicationName(std::string()),
   m_isConfigured(false),
@@ -541,15 +541,15 @@ Logger::Logger(const std::string& id, base::LogStreamsReferenceMap* logStreamsRe
   initUnflushedCount();
 }
 
-Logger::Logger(const std::string& id, const Configurations& configurations,
+Logger::Logger(const std::string& id1, const Configurations& configurations1,
                base::LogStreamsReferenceMap* logStreamsReference) :
-  m_id(id),
+  m_id(id1),
   m_typedConfigurations(nullptr),
   m_parentApplicationName(std::string()),
   m_isConfigured(false),
   m_logStreamsReference(logStreamsReference) {
   initUnflushedCount();
-  configure(configurations);
+  configure(configurations1);
 }
 
 Logger::Logger(const Logger& logger) {
@@ -577,7 +577,7 @@ Logger& Logger::operator=(const Logger& logger) {
   return *this;
 }
 
-void Logger::configure(const Configurations& configurations) {
+void Logger::configure(const Configurations& configurations1) {
   m_isConfigured = false;  // we set it to false in case if we fail
   initUnflushedCount();
   if (m_typedConfigurations != nullptr) {
@@ -588,8 +588,8 @@ void Logger::configure(const Configurations& configurations) {
     }
   }
   base::threading::ScopedLock scopedLock(lock());
-  if (m_configurations != configurations) {
-    m_configurations.setFromBase(const_cast<Configurations*>(&configurations));
+  if (m_configurations != configurations1) {
+    m_configurations.setFromBase(const_cast<Configurations*>(&configurations1));
   }
   base::utils::safeDelete(m_typedConfigurations);
   m_typedConfigurations = new base::TypedConfigurations(&m_configurations, m_logStreamsReference);
@@ -765,6 +765,7 @@ std::string File::extractPathFromFilename(const std::string& fullPath, const cha
 }
 
 void File::buildStrippedFilename(const char* filename, char buff[], std::size_t limit) {
+  (void) limit;
   std::size_t sizeOfFilename = strlen(filename);
 #ifdef SRC_DIR
   static const auto SRC_DIR_SIZE = strlen(SRC_DIR);
@@ -1383,8 +1384,8 @@ LogFormat::LogFormat(void) :
   m_currentHost(base::utils::OS::currentHost()) {
 }
 
-LogFormat::LogFormat(Level level, const base::type::string_t& format)
-  : m_level(level), m_userFormat(format), m_currentUser(base::utils::OS::currentUser()),
+LogFormat::LogFormat(Level level1, const base::type::string_t& format1)
+  : m_level(level1), m_userFormat(format1), m_currentUser(base::utils::OS::currentUser()),
     m_currentHost(base::utils::OS::currentHost()) {
   parseFromFormat(m_userFormat);
 }
@@ -1428,11 +1429,11 @@ bool LogFormat::operator==(const LogFormat& other) {
 
 /// @brief Updates format to be used while logging.
 /// @param userFormat User provided format
-void LogFormat::parseFromFormat(const base::type::string_t& userFormat) {
+void LogFormat::parseFromFormat(const base::type::string_t& userFormat1) {
   // We make copy because we will be changing the format
   // i.e, removing user provided date format from original format
   // and then storing it.
-  base::type::string_t formatCopy = userFormat;
+  base::type::string_t formatCopy = userFormat1;
   m_flags = 0x0;
   auto conditionalAddFlag = [&](const base::type::char_t* specifier, base::FormatFlags flag) {
     std::size_t foundAt = base::type::string_t::npos;
@@ -1558,9 +1559,9 @@ void LogFormat::updateFormatSpec(void) {
 
 // TypedConfigurations
 
-TypedConfigurations::TypedConfigurations(Configurations* configurations,
+TypedConfigurations::TypedConfigurations(Configurations* configurations1,
     base::LogStreamsReferenceMap* logStreamsReference) {
-  m_configurations = configurations;
+  m_configurations = configurations1;
   m_logStreamsReference = logStreamsReference;
   build(m_configurations);
 }
@@ -1620,14 +1621,14 @@ std::size_t TypedConfigurations::logFlushThreshold(Level level) {
   return getConfigByVal<std::size_t>(level, &m_logFlushThresholdMap, "logFlushThreshold");
 }
 
-void TypedConfigurations::build(Configurations* configurations) {
+void TypedConfigurations::build(Configurations* configurations1) {
   base::threading::ScopedLock scopedLock(lock());
   auto getBool = [] (std::string boolStr) -> bool {  // Pass by value for trimming
     base::utils::Str::trim(boolStr);
     return (boolStr == "TRUE" || boolStr == "true" || boolStr == "1");
   };
   std::vector<Configuration*> withFileSizeLimit;
-  for (Configurations::const_iterator it = configurations->begin(); it != configurations->end(); ++it) {
+  for (Configurations::const_iterator it = configurations1->begin(); it != configurations1->end(); ++it) {
     Configuration* conf = *it;
     // We cannot use switch on strong enums because Intel C++ dont support them yet
     if (conf->configurationType() == ConfigurationType::Enabled) {
@@ -1661,7 +1662,7 @@ void TypedConfigurations::build(Configurations* configurations) {
     }
   }
   // As mentioned earlier, we will now set filename configuration in separate loop to deal with non-existent files
-  for (Configurations::const_iterator it = configurations->begin(); it != configurations->end(); ++it) {
+  for (Configurations::const_iterator it = configurations1->begin(); it != configurations1->end(); ++it) {
     Configuration* conf = *it;
     if (conf->configurationType() == ConfigurationType::Filename) {
       insertFile(conf->level(), conf->value());
@@ -1689,8 +1690,8 @@ unsigned long TypedConfigurations::getULong(std::string confVal) {
   return static_cast<unsigned long>(atol(confVal.c_str()));
 }
 
-std::string TypedConfigurations::resolveFilename(const std::string& filename) {
-  std::string resultingFilename = filename;
+std::string TypedConfigurations::resolveFilename(const std::string& filename1) {
+  std::string resultingFilename = filename1;
   std::size_t dateIndex = std::string::npos;
   std::string dateTimeFormatSpecifierStr = std::string(base::consts::kDateTimeFormatSpecifierForFilename);
   if ((dateIndex = resultingFilename.find(dateTimeFormatSpecifierStr.c_str())) != std::string::npos) {
@@ -1770,9 +1771,9 @@ bool TypedConfigurations::unsafeValidateFileRolling(Level level, const PreRollOu
   if (fs == nullptr) {
     return true;
   }
-  std::size_t maxLogFileSize = unsafeGetConfigByVal(level, &m_maxLogFileSizeMap, "maxLogFileSize");
+  std::size_t maxLogFileSize1 = unsafeGetConfigByVal(level, &m_maxLogFileSizeMap, "maxLogFileSize");
   std::size_t currFileSize = base::utils::File::getSizeOfFile(fs);
-  if (maxLogFileSize != 0 && currFileSize >= maxLogFileSize) {
+  if (maxLogFileSize1 != 0 && currFileSize >= maxLogFileSize1) {
     std::string fname = unsafeGetConfigByRef(level, &m_filenameMap, "filename");
     ELPP_INTERNAL_INFO(1, "Truncating log file [" << fname << "] as a result of configurations for level ["
                        << LevelHelper::convertToString(level) << "]");
@@ -1884,19 +1885,19 @@ void RegisteredLoggers::unsafeFlushAll(void) {
 
 // VRegistry
 
-VRegistry::VRegistry(base::type::VerboseLevel level, base::type::EnumType* pFlags) : m_level(level), m_pFlags(pFlags) {
+VRegistry::VRegistry(base::type::VerboseLevel level1, base::type::EnumType* pFlags) : m_level(level1), m_pFlags(pFlags) {
 }
 
 /// @brief Sets verbose level. Accepted range is 0-9
-void VRegistry::setLevel(base::type::VerboseLevel level) {
+void VRegistry::setLevel(base::type::VerboseLevel level1) {
   base::threading::ScopedLock scopedLock(lock());
-  if (level > 9)
+  if (level1 > 9)
     m_level = base::consts::kMaxVerboseLevel;
   else
-    m_level = level;
+    m_level = level1;
 }
 
-void VRegistry::setModules(const char* modules) {
+void VRegistry::setModules(const char* modules1) {
   base::threading::ScopedLock scopedLock(lock());
   auto addSuffix = [](std::stringstream& ss, const char* sfx, const char* prev) {
     if (prev != nullptr && base::utils::Str::endsWith(ss.str(), std::string(prev))) {
@@ -1936,9 +1937,9 @@ void VRegistry::setModules(const char* modules) {
   bool isMod = true;
   bool isLevel = false;
   std::stringstream ss;
-  int level = -1;
-  for (; *modules; ++modules) {
-    switch (*modules) {
+  int lvl = -1;
+  for (; *modules1; ++modules1) {
+    switch (*modules1) {
     case '=':
       isLevel = true;
       isMod = false;
@@ -1946,25 +1947,25 @@ void VRegistry::setModules(const char* modules) {
     case ',':
       isLevel = false;
       isMod = true;
-      if (!ss.str().empty() && level != -1) {
-        insert(ss, static_cast<base::type::VerboseLevel>(level));
+      if (!ss.str().empty() && lvl != -1) {
+        insert(ss, static_cast<base::type::VerboseLevel>(lvl));
         ss.str(std::string(""));
-        level = -1;
+        lvl = -1;
       }
       break;
     default:
       if (isMod) {
-        ss << *modules;
+        ss << *modules1;
       } else if (isLevel) {
-        if (isdigit(*modules)) {
-          level = static_cast<base::type::VerboseLevel>(*modules) - 48;
+        if (isdigit(*modules1)) {
+          lvl = static_cast<base::type::VerboseLevel>(*modules1) - 48;
         }
       }
       break;
     }
   }
-  if (!ss.str().empty() && level != -1) {
-    insert(ss, static_cast<base::type::VerboseLevel>(level));
+  if (!ss.str().empty() && lvl != -1) {
+    insert(ss, static_cast<base::type::VerboseLevel>(lvl));
   }
 }
 
@@ -2136,8 +2137,8 @@ void LogDispatchCallback::handle(const LogDispatchData* data) {
     filename = config->filename(data->logMessage()->level());
   else
     filename = "stdout";
-  auto lock = m_fileLocks.find(filename);
-  if (lock == m_fileLocks.end()) {
+  auto lck = m_fileLocks.find(filename);
+  if (lck == m_fileLocks.end()) {
     m_fileLocks.emplace(std::make_pair(filename, std::unique_ptr<base::threading::Mutex>(new base::threading::Mutex)));
   }
 #endif
@@ -2449,8 +2450,7 @@ void LogDispatcher::dispatch(void) {
   }
   LogDispatchCallback* callback = nullptr;
   LogDispatchData data;
-  for (const std::pair<std::string, base::type::LogDispatchCallbackPtr>& h
-       : ELPP->m_logDispatchCallbacks) {
+  for (auto& h : ELPP->m_logDispatchCallbacks) {
     callback = h.second.get();
     if (callback != nullptr && callback->enabled()) {
       data.setLogMessage(m_logMessage);

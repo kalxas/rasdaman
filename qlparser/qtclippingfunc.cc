@@ -68,7 +68,6 @@ struct mapCmpMinterval
 {
     bool operator()(const r_Minterval &a, const r_Minterval &b) const
     {
-        bool firstIsBigger = true;
         for (r_Dimension d = 0; d < a.dimension(); d++)
         {
             if ((a[d].high() - a[d].low()) < (b[d].high() - b[d].low()))
@@ -119,15 +118,6 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
 
     TypeFactory::addTempType(mddBaseType);
 
-    // the dataset dimension is the same as the dimension of the points defining the mshape, so
-    // to extract the dataset dimension we use the first point.
-    r_Dimension datasetDimension = (mshape->getMShapeData())[0].dimension();
-
-    // directionVectors contains a set of n orthogonal vectors where n is the dimension of the dataset. The first
-    // m vectors, where m is the dimension of the mshape define the space in which the m-dimensional shape lies into
-    // The remaining vectors are vectors orthogonal to the mshape.
-    std::vector<r_PointDouble> *directionVectors = mshape->getDirectionVectors();
-
     // Construct r_Minterval from the bounding box of the multidimensional shape
     r_Minterval mintervalBoundingBox = bBox->getHull();
 
@@ -150,7 +140,6 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
 
     // resultDom's r_Sinterval corresponds to the longest extent of domainOfInterestGlobal
     std::vector<r_Range> bbExtents = (domainOfInterest.get_extent()).getVector();
-    r_Range maxExtent = *(std::max_element(bbExtents.begin(), bbExtents.end()));
     r_Dimension index = std::distance(bbExtents.begin(), std::max_element(bbExtents.begin(), bbExtents.end()));
 
     // startEndIndicesGlobal keeps track of the segment of the line contained inside areaOp.
@@ -251,7 +240,7 @@ QtClipping::extractSubspace(const MDDObj *op,
                             QtMShapeData *mshape)
 {
     // dimension of the source space.
-    r_Dimension datasetDimension = (mshape->getMShapeData())[0].dimension();
+    r_Dimension datasetDimension = static_cast<r_Dimension>((mshape->getMShapeData())[0].dimension());
 
     // compute the bounding box of the mShape
     std::unique_ptr<BoundingBox> bBox;
@@ -786,7 +775,7 @@ QtClipping::extractCurtain(const MDDObj *op, const r_Minterval &areaOp,
 }
 
 MDDObj *
-QtClipping::extractCorridor(const MDDObj *op, const r_Minterval &areaOp,
+QtClipping::extractCorridor(const MDDObj *op, const r_Minterval &,
                             QtMShapeData *lineStringData,
                             const std::vector<r_Dimension> &maskDims,
                             const std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> &mask,
@@ -1210,7 +1199,7 @@ QtClipping::computeOp(QtMDD *operand, QtGeometryData *geomData)
 
 void
 QtClipping::computeOpErrorChecking(r_Dimension opDim,
-                                   const r_Minterval &areaOp,
+                                   const r_Minterval &,
                                    QtMShapeData *shapeOp,
                                    QtGeometryData::QtGeometryType geomType)
 {
@@ -1410,7 +1399,7 @@ QtClipping::checkType(QtTypeTuple *typeTuple)
 
 vector<QtPositiveGenusClipping>
 QtClipping::buildMultipoly(const vector< vector< QtMShapeData * >> &polygonData,
-                           QtGeometryData::QtGeometryType geomType)
+                           QtGeometryData::QtGeometryType)
 {
     vector< QtPositiveGenusClipping> clipVector;
     clipVector.reserve(polygonData.size());

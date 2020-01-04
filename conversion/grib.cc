@@ -411,7 +411,9 @@ void r_Conv_GRIB::decodeSubset(char *messageData, r_Minterval messageDomain, r_M
     while (!resTileIter.isDone())
     {
         // copy entire line (continuous chunk in last dimension) in one go
-        memcpy(resTileIter.getData(), opTileIter.getData(), static_cast<size_t>(lastDimExtent) * sizeof(double));
+        memcpy(const_cast<void*>(resTileIter.getData()),
+               opTileIter.getData(),
+               static_cast<size_t>(lastDimExtent) * sizeof(double));
         // force overflow of last dimension
         resTileIter.id[dimNo - 1].pos += lastDimExtent;
         opTileIter.id[dimNo - 1].pos += lastDimExtent;

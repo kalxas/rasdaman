@@ -47,12 +47,7 @@ class Tile;
 class KeyObject
 {
 public:
-    KeyObject();
-
-    KeyObject(const KeyObject &old);
-    /*@Doc:
-        Copy constructor.  Copies the tile pointer.
-    */
+    KeyObject() = default;
 
     KeyObject(std::shared_ptr<Tile> p);
     /*@Doc:

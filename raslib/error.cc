@@ -59,8 +59,8 @@ r_Error::r_Error(unsigned int errorno)
     resetErrorText();
 }
 
-r_Error::r_Error(const char *what)
-    : errorText{what}, errorNo(0u), theKind(r_EGeneral)
+r_Error::r_Error(const char *w)
+    : errorText{w}, errorNo(0u), theKind(r_EGeneral)
 {
 }
 

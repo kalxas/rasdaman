@@ -41,7 +41,7 @@ QtNullvaluesData::getDataType() const
 
 
 bool
-QtNullvaluesData::equal(const QtData *obj) const
+QtNullvaluesData::equal(const QtData *) const
 {
     bool returnValue = false;
     return returnValue;

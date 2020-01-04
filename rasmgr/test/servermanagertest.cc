@@ -40,6 +40,7 @@ using rasmgr::ServerGroupConfigProto;
 using rasmgr::ServerGroup;
 using rasmgr::StartServerGroup;
 using rasmgr::StopServerGroup;
+using rasmgr::Server;
 using rasmgr::ServerMgrProto;
 
 using ::testing::AtLeast;                     // #1
@@ -61,7 +62,7 @@ protected:
 
 TEST_F(ServerManagerTest, preconditions)
 {
-    ServerManager* serverManager;
+    ServerManager* serverManager = nullptr;
 
     ASSERT_NO_THROW(serverManager = new ServerManager(this->config, this->serverGroupFactory));
 
@@ -219,7 +220,7 @@ TEST_F(ServerManagerTest, registerServer)
 TEST_F(ServerManagerTest, tryGetFreeServer)
 {
     std::string databaseName = "dbName";
-    std::shared_ptr<rasmgr::Server> out_server;
+    std::shared_ptr<Server> out_server;
 
     ServerManager serverManager(this->config, this->serverGroupFactory);
 

@@ -47,9 +47,9 @@ public:
 
     FloatType();
 
-    FloatType(const FloatType &old) = default;
+    FloatType(const FloatType &) = default;
 
-    FloatType &operator=(const FloatType &old) = default;
+    FloatType &operator=(const FloatType &) = default;
 
     ~FloatType() override = default;
 

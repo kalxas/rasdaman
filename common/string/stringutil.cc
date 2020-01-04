@@ -221,7 +221,7 @@ std::string StringUtil::getRandomAlphaNumString(const int length)
         "abcdefghijklmnopqrstuvwxyz";
 
     for (size_t i = 0; i < static_cast<size_t>(length); ++i)
-        s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+        s[i] = alphanum[static_cast<size_t>(rand()) % (sizeof(alphanum) - 1)];
 
     return s;
 }

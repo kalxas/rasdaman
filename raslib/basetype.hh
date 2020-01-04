@@ -52,7 +52,7 @@ public:
     r_Base_Type(const char *newTypeName, r_Bytes newSize);
 
     /// copy constructor
-    r_Base_Type(const r_Base_Type &oldObj);
+    r_Base_Type(const r_Base_Type &);
 
     /// assignment operator.
     const r_Base_Type &operator=(const r_Base_Type &oldObj);

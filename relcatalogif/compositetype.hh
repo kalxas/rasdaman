@@ -48,9 +48,9 @@ public:
 
     CompositeType(const OId &id);
 
-    CompositeType(const CompositeType &old) = default;
+    CompositeType(const CompositeType &) = default;
 
-    CompositeType &operator=(const CompositeType &old) = default;
+    CompositeType &operator=(const CompositeType &) = default;
 
     ~CompositeType() override = default;
 

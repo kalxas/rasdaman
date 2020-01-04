@@ -617,7 +617,7 @@ void ServerGroupImpl::startServer()
         this->availablePorts.erase(port);
 
         std::string host = this->config.host();
-        ServerConfig serverConfig(host, port, this->databaseHost);
+        ServerConfig serverConfig(host, static_cast<uint32_t>(port), this->databaseHost);
         LTRACE << "Starting server in group " << this->getGroupName() << " on " << host << ":" << port;
 
         serverConfig.setOptions(this->config.server_options());

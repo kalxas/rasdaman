@@ -75,8 +75,8 @@ public:
 
     ComplexType1();
     ComplexType1(const OId &id);
-    ComplexType1(const ComplexType1 &old);
-    ComplexType1 &operator=(const ComplexType1 &old);
+    ComplexType1(const ComplexType1 &);
+    ComplexType1 &operator=(const ComplexType1 &);
     ~ComplexType1() override = default;
     void printCell(std::ostream &stream, const char *cell) const override;
     unsigned int getReOffset() const override;
@@ -110,8 +110,8 @@ public:
 
     ComplexType2();
     ComplexType2(const OId &id);
-    ComplexType2(const ComplexType2 &old);
-    ComplexType2 &operator=(const ComplexType2 &old);
+    ComplexType2(const ComplexType2 &);
+    ComplexType2 &operator=(const ComplexType2 &);
     ~ComplexType2() override = default;
     void printCell(std::ostream &stream, const char *cell) const override;
     unsigned int getReOffset() const override;
@@ -145,8 +145,8 @@ public:
 
     CInt16();
     CInt16(const OId &id);
-    CInt16(const CInt16 &old);
-    CInt16 &operator=(const CInt16 &old);
+    CInt16(const CInt16 &);
+    CInt16 &operator=(const CInt16 &);
     ~CInt16() override = default;
     void printCell(std::ostream &stream, const char *cell) const override;
     unsigned int getReOffset() const override;
@@ -180,8 +180,8 @@ public:
 
     CInt32();
     CInt32(const OId &id);
-    CInt32(const CInt32 &old);
-    CInt32 &operator=(const CInt32 &old);
+    CInt32(const CInt32 &);
+    CInt32 &operator=(const CInt32 &);
     ~CInt32() override = default;
     void printCell(std::ostream &stream, const char *cell) const override;
     unsigned int getReOffset() const override;

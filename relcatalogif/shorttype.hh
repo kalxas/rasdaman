@@ -49,9 +49,9 @@ public:
 
     ShortType();
 
-    ShortType(const ShortType &old) = default;
+    ShortType(const ShortType &) = default;
 
-    ShortType &operator=(const ShortType &old) = default;
+    ShortType &operator=(const ShortType &) = default;
 
     ~ShortType() override = default;
 

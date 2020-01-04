@@ -54,9 +54,9 @@ public:
 
     CollectionType(const OId &id);
 
-    CollectionType(const CollectionType &old);
+    CollectionType(const CollectionType &);
 
-    CollectionType &operator=(const CollectionType &old) = default;
+    CollectionType &operator=(const CollectionType &) = default;
 
     ~CollectionType() override = default;
 

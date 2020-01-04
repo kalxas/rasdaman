@@ -326,8 +326,8 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char* stripeDomain, const ch
 
 void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, __attribute__((unused)) const BaseType* baseType)
 {
-    static unsigned long lastSize = 0;
-    unsigned long uncompressedSize = tileInterval.cell_count() * static_cast<unsigned long>(cellSize);
+    static r_Area lastSize = 0;
+    auto uncompressedSize = tileInterval.cell_count() * static_cast<r_Area>(cellSize);
 
     if (comprData)
     {

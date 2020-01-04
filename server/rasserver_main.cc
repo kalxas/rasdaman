@@ -74,9 +74,9 @@ bool isLockMgrOn = false;
 
 bool initialize();
 
-// -------------------------------------------------------------------------- \\
-//                           signal handlers                                  \\
-// -------------------------------------------------------------------------- \\
+// -------------------------------------------------------------------------- //
+//                           signal handlers                                  //
+// -------------------------------------------------------------------------- //
 
 /**
  * Invoked on SIGUSR1 signal, this handler prints the stack trace and then kills
@@ -134,9 +134,9 @@ void installSignalHandlers()
 #endif
 }
 
-// -------------------------------------------------------------------------- \\
-//                                   main                                     \\
-// -------------------------------------------------------------------------- \\
+// -------------------------------------------------------------------------- //
+//                                   main                                     //
+// -------------------------------------------------------------------------- //
 
 int main(int argc, char** argv)
 {
@@ -180,8 +180,10 @@ int main(int argc, char** argv)
         {
             LDEBUG << "starting daemon server...";
             rasserver::RasnetServer rasnetServer(
-                        configuration.getListenPort(), configuration.getRasmgrHost(),
-                        configuration.getRasmgrPort(), configuration.getNewServerId());
+                        static_cast<std::uint32_t>(configuration.getListenPort()),
+                        configuration.getRasmgrHost(),
+                        static_cast<std::uint32_t>(configuration.getRasmgrPort()), 
+                        configuration.getNewServerId());
             rasnetServer.startRasnetServer();
             LDEBUG << "daemon server started.";
         }

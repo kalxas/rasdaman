@@ -41,6 +41,17 @@ r_Set<T>::r_Set(const r_Set<T> &set) : r_Collection<T>(set)
 }
 
 template<class T>
+r_Set<T> &r_Set<T>::operator=(const r_Set<T> &o)
+{
+    if (this == &o)
+        return *this;
+    r_Collection<T>::operator=(o);
+    this->allowsDuplicates = 0;
+    this->isOrdered = 0;
+    return *this;
+}
+
+template<class T>
 void
 r_Set<T>::insert_element(const T &element, int no_modification)
 {

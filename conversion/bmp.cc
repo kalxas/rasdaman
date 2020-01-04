@@ -181,7 +181,7 @@ unsigned char *r_Conv_BMP::flushLiterals(int numLit, int pixelAdd, unsigned char
 }
 
 
-r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue)
+r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *)
 {
     void *handle = NULL;
     bitmap_info_header_t ihead;

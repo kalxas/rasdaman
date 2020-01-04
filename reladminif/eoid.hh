@@ -63,7 +63,7 @@ public:
 
     ~EOId() = default;
 
-    EOId &operator=(const EOId &old) = default;
+    EOId &operator=(const EOId &) = default;
 
     const char *getSystemName() const;
     /*@Doc:

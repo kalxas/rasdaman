@@ -50,9 +50,9 @@ public:
 
     BoolType();
 
-    BoolType(const BoolType &old) = default;
+    BoolType(const BoolType &) = default;
 
-    BoolType &operator=(const BoolType &old) = default;
+    BoolType &operator=(const BoolType &) = default;
 
     ~BoolType() override = default;
 

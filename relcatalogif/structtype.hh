@@ -58,8 +58,8 @@ public:
     StructType();
     StructType(const char *newTypeName, unsigned int numElem);
     StructType(const OId &structtypeid);
-    StructType(const StructType &old);
-    StructType &operator=(const StructType &old) = delete;
+    StructType(const StructType &);
+    StructType &operator=(const StructType &) = delete;
     ~StructType() noexcept(false) override;
 
     void printCell(std::ostream &stream, const char *cell) const override;

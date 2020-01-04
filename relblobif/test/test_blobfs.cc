@@ -50,6 +50,8 @@ MDDColl *mddConstants = 0;              // used in QtMDD
 unsigned long maxTransferBufferSize = 4000000;
 int noTimeOut = 0;
 
+char testData[] = {'t', 'e', 's', 't'};
+
 INITIALIZE_EASYLOGGINGPP
 
 RMINITGLOBALS('C')
@@ -104,7 +106,7 @@ public:
 
     void testInsert()
     {
-        BlobData blobData(4294967296, 4, "test");
+        BlobData blobData(4294967296, 4, testData);
         BlobFS::getInstance().insert(blobData);
         commit();
 
@@ -118,7 +120,7 @@ public:
     {
         try
         {
-            BlobData blobData(-100, 4, "test");
+            BlobData blobData(-100, 4, testData);
             BlobFS::getInstance().insert(blobData);
             TEST_FAIL();
         }
@@ -144,7 +146,6 @@ public:
 
     void testRetrieve()
     {
-        char* testData = "test";
         r_Bytes testDataSize = 4;
         long long blobId = 4294967296;
 
@@ -192,16 +193,16 @@ public:
     void testUpdate()
     {
         long long blobId = 4294967296;
-
-        BlobData blobData(blobId, 4, "test");
+        
+        BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
         commit();
 
         const char* expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
         struct stat status;
         EXPECT_TRUE(stat(expectedFilePath, &status) == 0);
-
-        char* newData = "test2";
+        
+        char newData[] = {'t', 'e', 's', 't', '2'};
         r_Bytes newDataSize = 5;
         BlobData newBlobData(blobId, newDataSize, newData);
         BlobFS::getInstance().update(newBlobData);
@@ -224,7 +225,7 @@ public:
         {
             auto expectedFilePath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId);
             unlink(expectedFilePath.c_str());
-            BlobData blobData(blobId, 4, "test");
+            BlobData blobData(blobId, 4, testData);
             BlobFS::getInstance().update(blobData);
             commit();
             struct stat status;
@@ -239,8 +240,8 @@ public:
     void testInvalidDataUpdate()
     {
         long long blobId = 4294967296;
-
-        BlobData blobData(blobId, 4, "test");
+        
+        BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
         commit();
 
@@ -261,7 +262,7 @@ public:
 
     void testRemove()
     {
-        BlobData blobData(4294967296, 4, "test");
+        BlobData blobData(4294967296, 4, testData);
         BlobFS::getInstance().insert(blobData);
         commit();
 
@@ -341,7 +342,7 @@ public:
     void testFinalizeUncompletedTransactions_InsertTransactionInProgress()
     {
         long long blobId = 4294967294;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
 
         const string expectedFilePath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId);
@@ -359,7 +360,7 @@ public:
     void testFinalizeUncompletedTransactions_InsertTransactionCrash()
     {
         long long blobId = 4294967293;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
 
         const string expectedFilePath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId);
@@ -379,7 +380,7 @@ public:
     void testFinalizeUncompletedTransactions_InsertTransactionCrash2()
     {
         long long blobId = 12294967292;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
 
         const string expectedFilePath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId);
@@ -403,7 +404,7 @@ public:
     void testFinalizeUncompletedTransactions_InsertTransactionCrashDuringCommit()
     {
         long long blobId = 12294967292;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
 
         const string expectedFilePath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId);
@@ -436,7 +437,7 @@ public:
     void testFinalizeUncompletedTransactions_InsertTransactionCrashDuringAbort()
     {
         long long blobId = 12294967291;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
 
         const string expectedFilePath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId);

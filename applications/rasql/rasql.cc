@@ -1244,7 +1244,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
 }
 
 void
-shutdownHandler(int sig, siginfo_t *info, void *ucontext)
+shutdownHandler(int sig, siginfo_t *, void *)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
@@ -1259,7 +1259,7 @@ shutdownHandler(int sig, siginfo_t *info, void *ucontext)
 }
 
 void
-crashHandler(int sig, siginfo_t *info, void *ucontext)
+crashHandler(int sig, siginfo_t *info, void *)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)

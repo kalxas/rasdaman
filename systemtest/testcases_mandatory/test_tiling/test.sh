@@ -103,7 +103,9 @@ function run_test()
     log "  warning: oracle not found - $ora_file; output will be copied."
     cp "$out_file" "$ora_file"
   fi
-  cmp $ORACLE_PATH/$q_id "$OUTPUT_PATH/$q_id" > /dev/null
+  sort "$out_file" | sed 's/,$//g' > "$OUTPUT_PATH/tmp_out"
+  sort "$ora_file" | sed 's/,$//g' > "$OUTPUT_PATH/tmp_ora"
+  cmp "$OUTPUT_PATH/tmp_ora" "$OUTPUT_PATH/tmp_out" > /dev/null
   local rc=$?
 
   if [ $known_fail -ne 0 ]; then

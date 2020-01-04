@@ -37,6 +37,7 @@
 
 #include <iostream>
 #include <string>
+
 using namespace std;
 
 const QtNode::QtNodeType QtProject::nodeType = QtNode::QT_PROJECT;
@@ -63,6 +64,7 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
     : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, "", 0, 0},
       resampleAlg{static_cast<common::ResampleAlg>(ra)}
 {
+    (void) ra; // fix buggy warning on CentOS 7
 #ifdef HAVE_GDAL
     GDALAllRegister();
 #endif
@@ -74,6 +76,7 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
     : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, boundsOut, widthOut, heightOut},
       resampleAlg{static_cast<common::ResampleAlg>(ra)}, errThreshold{et}
 {
+    (void) ra; // fix buggy warning on CentOS 7
 #ifdef HAVE_GDAL
     GDALAllRegister();
 #endif
@@ -84,6 +87,7 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
     : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, boundsOut,0,0},
       resampleAlg{static_cast<common::ResampleAlg>(ra)}, errThreshold{et}
 {
+    (void) ra; // fix buggy warning on CentOS 7
     if (xres == 0 || yres == 0)
     {
         LERROR << "Invalid resolution, xres and yres must not be 0";

@@ -62,4 +62,8 @@ target_link_libraries(rasmgr_test rasmgr_lib common_logging ${GMOCK_LIBRARY})
 
 add_test(rasmgr_testrunner rasmgr_test)
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(rasmgr_test REUSE_FROM common_logging)
+endif()
+
 add_dependencies(unit-check rasmgr_test)

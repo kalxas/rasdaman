@@ -49,9 +49,9 @@ public:
 
     UShortType();
 
-    UShortType(const UShortType &old) = default;
+    UShortType(const UShortType &) = default;
 
-    UShortType &operator=(const UShortType &old) = default;
+    UShortType &operator=(const UShortType &) = default;
 
     ~UShortType() override = default;
 

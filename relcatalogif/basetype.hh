@@ -76,9 +76,9 @@ public:
 
     BaseType(const OId &id);
 
-    BaseType(const BaseType &old) = default;
+    BaseType(const BaseType &) = default;
 
-    BaseType &operator=(const BaseType &old) = default;
+    BaseType &operator=(const BaseType &) = default;
 
     ~BaseType() noexcept(false) override = default;
 

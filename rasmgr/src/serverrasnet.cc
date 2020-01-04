@@ -96,7 +96,7 @@ const std::int32_t ServerRasNet::SERVER_CHECK_INTERVAL = 10000;
 ServerRasNet::ServerRasNet(const ServerConfig &config)
 {
     this->hostName = config.getHostName();
-    this->port = config.getPort();
+    this->port = static_cast<int32_t>(config.getPort());
     this->dbHost = config.getDbHost();
     this->options = config.getOptions();
     this->serverId = UUID::generateUUID();
@@ -659,7 +659,7 @@ int ServerRasNet::messageDigest(const char *input, char *output, const char *mdN
         sprintf(output + i + i, "%02x", md_value[i]);
     }
 
-    return strlen(output);
+    return static_cast<int>(strlen(output));
 }
 
 const char *ServerRasNet::convertDatabRights(const UserDatabaseRights &dbRights)

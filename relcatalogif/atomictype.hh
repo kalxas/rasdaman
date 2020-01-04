@@ -63,13 +63,13 @@ public:
 
     AtomicType(unsigned int newSize);
 
-    AtomicType(const AtomicType &old);
+    AtomicType(const AtomicType &);
 
     AtomicType(const OId &id);
     
     ~AtomicType() override = default;
 
-    AtomicType &operator=(const AtomicType &old) = default;
+    AtomicType &operator=(const AtomicType &) = default;
 
     /// generate equivalent C type names
     void generateCTypeName(std::vector<const char *> &names) const override;

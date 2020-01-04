@@ -45,7 +45,7 @@ public:
 
     RealType(const OId &id) : AtomicType(id) {}
 
-    RealType(const RealType &old) = default;
+    RealType(const RealType &) = default;
 
     ~RealType() override = default;
 

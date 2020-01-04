@@ -1031,8 +1031,8 @@ r_Bytes Tile::calcOffset(const r_Point &point) const
     // calculate offset
     for (auto i = domain.dimension(); i-- > 0;)
     {
-        offset += (point[i] - domain[i].low()) * factor;
-        factor *= domain[i].high() - domain[i].low() + 1;
+        offset += static_cast<r_Bytes>(point[i] - domain[i].low()) * factor;
+        factor *= static_cast<r_Bytes>(domain[i].get_extent());
     }
 
     return offset;

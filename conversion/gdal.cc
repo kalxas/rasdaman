@@ -26,6 +26,8 @@ rasdaman GmbH.
 #include "conversion/convutil.hh"
 #include "conversion/mimetypes.hh"
 #include "conversion/formatparamkeys.hh"
+#include "conversion/transpose.hh"
+#include "conversion/colormap.hh"
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
@@ -33,8 +35,6 @@ rasdaman GmbH.
 #include "raslib/structuretype.hh"
 #include "raslib/odmgtypes.hh"
 #include "mymalloc/mymalloc.h"
-#include "conversion/transpose.hh"
-#include "conversion/colormap.hh"
 #include "config.h"
 
 #include <logging.hh>

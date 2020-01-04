@@ -51,9 +51,9 @@ public:
 
     MDDDimensionType();
 
-    MDDDimensionType(const MDDDimensionType &old) = default;
+    MDDDimensionType(const MDDDimensionType &) = default;
 
-    MDDDimensionType &operator=(const MDDDimensionType &old) = default;
+    MDDDimensionType &operator=(const MDDDimensionType &) = default;
 
     void print_status(std::ostream &s) const override;
     /*@Doc:

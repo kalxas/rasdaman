@@ -21,7 +21,7 @@ namespace rasserver
 namespace rasdl
 {
 
-int runRasdl(int argc, char* argv[])
+int runRasdl(int, char* argv[])
 {
 
     int result = EXIT_FAILURE;  // program exit code

@@ -51,7 +51,7 @@ public:
     r_OId(const char *);
     /// constructor getting oid parts
     r_OId(const char *initSystemName, const char *initBaseName, long long initLocalOId);
-    
+    r_OId(const r_OId &) = default;
     r_OId &operator=(const r_OId &o);
     
     virtual ~r_OId() = default;

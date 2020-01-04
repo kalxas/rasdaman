@@ -49,6 +49,7 @@ class MDDColl;
 MDDColl *mddConstants = 0; // used in QtMDD
 unsigned long maxTransferBufferSize = 4000000;
 int noTimeOut = 0;
+char testData[] = {'t', 'e', 's', 't'};
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -88,7 +89,7 @@ public:
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         long long blobId = 4294967296;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         transaction->add(blobData);
 
         string expectedTmpBlobPath = transactionPath + "4294967296";
@@ -133,7 +134,7 @@ public:
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         long long blobId = 4294967296;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         transaction->add(blobData);
 
         string expectedTmpBlobPath = transactionPath + "4294967296";
@@ -157,7 +158,7 @@ public:
     void testUpdateTransactionCommit()
     {
         long long blobId = 4294967296;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         insertTestdata(blobData);
 
         BlobFSTransaction* transaction = new BlobFSUpdateTransaction(config);
@@ -168,7 +169,8 @@ public:
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         blobData.size = 5;
-        blobData.data = "test2";
+        char newData[] = {'t', 'e', 's', 't', '2'};
+        blobData.data = newData;
         transaction->add(blobData);
 
         EXPECT_TRUE(BlobFile::fileExists(expectedTmpBlobPath));
@@ -206,7 +208,7 @@ public:
     void testUpdateTransactionAbort()
     {
         long long blobId = 4294967296;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         insertTestdata(blobData);
 
         BlobFSTransaction* transaction = new BlobFSUpdateTransaction(config);
@@ -217,7 +219,8 @@ public:
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         blobData.size = 5;
-        blobData.data = "test2";
+        char newData[] = {'t', 'e', 's', 't', '2'};
+        blobData.data = newData;
         transaction->add(blobData);
 
         EXPECT_TRUE(BlobFile::fileExists(expectedTmpBlobPath));
@@ -240,7 +243,7 @@ public:
         BlobFile readBlobFile2(expectedFinalBlobPath);
         BlobData readBlobData2(blobId);
         readBlobFile2.readData(readBlobData2);
-        EXPECT_EQ_MEM(readBlobData2.data, "test", 4);
+        EXPECT_EQ_MEM(readBlobData2.data, testData, 4);
 
         delete transaction;
 
@@ -251,7 +254,7 @@ public:
     void testRemoveTransactionCommit()
     {
         long long blobId = 4294967296;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         insertTestdata(blobData);
 
         BlobFSTransaction* transaction = new BlobFSRemoveTransaction(config);
@@ -286,7 +289,7 @@ public:
     void testRemoveTransactionAbort()
     {
         long long blobId = 4294967296;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         insertTestdata(blobData);
 
         BlobFSTransaction* transaction = new BlobFSRemoveTransaction(config);
@@ -316,7 +319,7 @@ public:
     void testRemoveTransactionPreRasbaseCommitAbort()
     {
         long long blobId = 4294967296;
-        BlobData blobData(blobId, 4, "test");
+        BlobData blobData(blobId, 4, testData);
         insertTestdata(blobData);
 
         BlobFSTransaction* transaction = new BlobFSRemoveTransaction(config);
@@ -346,7 +349,7 @@ public:
         BlobFile readBlobFile2(expectedFinalBlobPath);
         BlobData readBlobData2(blobId);
         readBlobFile2.readData(readBlobData2);
-        EXPECT_EQ_MEM(readBlobData2.data, "test", 4);
+        EXPECT_EQ_MEM(readBlobData2.data, testData, 4);
 
         delete transaction;
 

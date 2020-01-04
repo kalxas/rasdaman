@@ -321,9 +321,9 @@ BlobFSTransaction::getBlobFSTransaction(const string &trPath, BlobFSConfig &conf
     }
 }
 
-// -------------------------------------------------------------------------- \\
-//                                   INSERT                                   \\
-// -------------------------------------------------------------------------- \\
+// -------------------------------------------------------------------------- //
+//                                   INSERT                                   //
+// -------------------------------------------------------------------------- //
 
 BlobFSInsertTransaction::BlobFSInsertTransaction(
     BlobFSConfig &configArg, const string &transactionPathArg)
@@ -367,9 +367,9 @@ void BlobFSInsertTransaction::postRasbaseAbort()
     transactionLock->clear(TransactionLockType::Abort);
 }
 
-// -------------------------------------------------------------------------- \\
-//                                   UPDATE                                   \\
-// -------------------------------------------------------------------------- \\
+// -------------------------------------------------------------------------- //
+//                                   UPDATE                                   //
+// -------------------------------------------------------------------------- //
 
 BlobFSUpdateTransaction::BlobFSUpdateTransaction(
     BlobFSConfig &configArg, const string &transactionPathArg)
@@ -411,9 +411,9 @@ void BlobFSUpdateTransaction::postRasbaseAbort()
     transactionLock->clear(TransactionLockType::Abort);
 }
 
-// -------------------------------------------------------------------------- \\
-//                                   REMOVE                                   \\
-// -------------------------------------------------------------------------- \\
+// -------------------------------------------------------------------------- //
+//                                   REMOVE                                   //
+// -------------------------------------------------------------------------- //
 
 BlobFSRemoveTransaction::BlobFSRemoveTransaction(
     BlobFSConfig &configArg, const string &transactionPathArg)
@@ -497,9 +497,9 @@ void BlobFSRemoveTransaction::postRasbaseAbort()
     transactionLock->clear(TransactionLockType::Abort);
 }
 
-// -------------------------------------------------------------------------- \\
-//                                   SELECT                                   \\
-// -------------------------------------------------------------------------- \\
+// -------------------------------------------------------------------------- //
+//                                   SELECT                                   //
+// -------------------------------------------------------------------------- //
 
 BlobFSSelectTransaction::BlobFSSelectTransaction(BlobFSConfig &configArg)
     : BlobFSTransaction(configArg) {}

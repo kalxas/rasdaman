@@ -136,7 +136,8 @@ protected:
 
         std::string serverBaseAddress = "0.0.0.0";
 
-        goodServerBuilder.AddListeningPort(common::GrpcUtils::constructAddressString(serverBaseAddress, this->goodPort), grpc::InsecureServerCredentials());
+        goodServerBuilder.AddListeningPort(common::GrpcUtils::constructAddressString(serverBaseAddress, this->goodPort), 
+                                           grpc::InsecureServerCredentials());
         //was originally goodServerBuilder.RegisterService((SynchronousService*)service.get());
         //SynchronousService no longer exists?
         goodServerBuilder.RegisterService(service.get());
@@ -160,8 +161,8 @@ protected:
 
 
     std::string hostName;
-    std::int32_t goodPort;
-    std::int32_t badPort;
+    std::uint32_t goodPort;
+    std::uint32_t badPort;
 
     std::unique_ptr<Server>  goodService;
     std::unique_ptr<Server> failingService;

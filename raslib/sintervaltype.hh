@@ -46,7 +46,7 @@ class r_Sinterval_Type : public r_Type
 {
 public:
     r_Sinterval_Type() = default;
-    r_Sinterval_Type(const r_Sinterval_Type &oldObj) = default;
+    r_Sinterval_Type(const r_Sinterval_Type &) = default;
     ~r_Sinterval_Type() override = default;
 
     r_Type *clone() const override;

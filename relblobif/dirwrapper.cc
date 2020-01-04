@@ -82,7 +82,7 @@ void DirWrapper::removeDirectory(const string &dirPath)
 
 bool DirWrapper::directoryExists(const char *dirPath)
 {
-    struct stat status {};
+    struct stat status;
     if (stat(dirPath, &status) == IO_ERROR_RC)
         return false;
     else
@@ -156,7 +156,7 @@ string DirEntryIterator::next()
         const char *d_name = dirEntry->d_name;
         if (strcmp(d_name, ".") != 0 && strcmp(d_name, "..") != 0)
         {
-            struct stat st {};
+            struct stat st;
             if (fstatat(dirfd(dirStream), d_name, &st, 0) == IO_ERROR_RC)
             {
                 if (errno == ENOENT)

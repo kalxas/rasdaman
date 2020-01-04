@@ -116,7 +116,7 @@ TEST_F(ServerGroupTest, constructorValidation)
     {
         groupConfig.set_min_alive_server_no(20);
         for (size_t i = 0; i < 20; ++i) {
-            groupConfig.add_ports(2035 + i);
+            groupConfig.add_ports(2035 + uint32_t(i));
         }
     }
 
@@ -141,7 +141,7 @@ TEST_F(ServerGroupTest, constructorValidation)
     }
 
 
-    ServerGroupImpl* group;
+    ServerGroupImpl* group = nullptr;
 
     // If one of these properties is not set, an exception shoulb be thrown
     if (!hasName || !hasHost || !hasDbHost || !hasPorts)
@@ -260,7 +260,7 @@ TEST_F(ServerGroupTest, start)
 
 TEST_F(ServerGroupTest, tryRegisterServer)
 {
-    std::int32_t runningPort = 2034;
+    std::uint32_t runningPort = 2034;
     this->dbHost->increaseServerCount();
     DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
@@ -321,8 +321,8 @@ TEST_F(ServerGroupTest, stopFailure)
 TEST_F(ServerGroupTest, stop)
 {
     KillLevel force = FORCE;
-    std::int32_t startingPort = 2034;
-    std::int32_t runningPort = 2035;
+    std::uint32_t startingPort = 2034;
+    std::uint32_t runningPort = 2035;
 
     this->dbHost->increaseServerCount();
     DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
@@ -373,8 +373,8 @@ TEST_F(ServerGroupTest, stop)
 
 TEST_F(ServerGroupTest, evaluateServerGroupNoStart)
 {
-    std::int32_t startingPort = 2034;
-    std::int32_t runningPort = 2035;
+    std::uint32_t startingPort = 2034;
+    std::uint32_t runningPort = 2035;
 
     this->dbHost->increaseServerCount();
     DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
@@ -395,10 +395,10 @@ TEST_F(ServerGroupTest, evaluateServerGroupNoStart)
 
 TEST_F(ServerGroupTest, evaluateServerGroup)
 {
-    std::int32_t runningServerPort = 20034;
-    std::int32_t startingServerPort = 20035;
-    std::int32_t deadServerPort = 20036;
-    std::int32_t fullServerPort = 20037;
+    std::uint32_t runningServerPort = 20034;
+    std::uint32_t startingServerPort = 20035;
+    std::uint32_t deadServerPort = 20036;
+    std::uint32_t fullServerPort = 20037;
     std::uint32_t maxSessions = 5;
 
 

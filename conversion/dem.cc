@@ -735,7 +735,7 @@ r_Conv_Desc &r_Conv_DEM::convertFrom(__attribute__((unused)) r_Format_Params opt
 
 
 r_Conv_Desc &
-r_Conv_DEM::convertTo(const char *options, const r_Range *nullValue)
+r_Conv_DEM::convertTo(const char *options, const r_Range *)
 {
     bool hasSrcType = true;
 

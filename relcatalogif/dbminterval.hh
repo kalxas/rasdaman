@@ -53,23 +53,23 @@ public:
 
     DBMinterval(const char *dom);
 
-    DBMinterval(const r_Minterval &old);
+    DBMinterval(const r_Minterval &);
 
-    DBMinterval(const r_Minterval &old, const std::vector<std::string> *axisNames2);
+    DBMinterval(const r_Minterval &, const std::vector<std::string> *axisNames2);
 
-    DBMinterval(const DBMinterval &old);
+    DBMinterval(const DBMinterval &);
 
     ~DBMinterval() noexcept(false) override;
     /*@Doc:
     validates the object in the database.
     */
 
-    virtual DBMinterval &operator=(const DBMinterval &old);
+    virtual DBMinterval &operator=(const DBMinterval &);
     /*@Doc:
     replaces only the r_Minterval part of the object
     */
 
-    virtual DBMinterval &operator=(const r_Minterval &old);
+    virtual DBMinterval &operator=(const r_Minterval &);
     /*@Doc:
     replaces only the r_Minterval part of the object
     */

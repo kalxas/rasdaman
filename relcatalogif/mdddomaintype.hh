@@ -57,9 +57,9 @@ public:
 
     MDDDomainType();
 
-    MDDDomainType(const MDDDomainType &old) = delete;
+    MDDDomainType(const MDDDomainType &) = delete;
 
-    MDDDomainType &operator=(const MDDDomainType &old);
+    MDDDomainType &operator=(const MDDDomainType &);
 
     ~MDDDomainType() noexcept(false) override;
 

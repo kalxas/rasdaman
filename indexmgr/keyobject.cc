@@ -43,10 +43,6 @@ std::ostream &operator<<(std::ostream &in, const KeyObject &d)
     return in;
 }
 
-KeyObject::KeyObject() = default;
-
-KeyObject::KeyObject(const KeyObject &old) = default;
-
 std::string KeyObject::toString() const
 {
     if (isPersCarrier())

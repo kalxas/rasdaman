@@ -37,14 +37,14 @@ namespace rasmgr
 class ServerConfig
 {
 public:
-    ServerConfig(const std::string &hostName, const std::int32_t &port, std::shared_ptr<DatabaseHost> dbHost);
+    ServerConfig(const std::string &hostName, const std::uint32_t &port, std::shared_ptr<DatabaseHost> dbHost);
     virtual ~ServerConfig();
 
     std::string getHostName() const;
     void setHostName(const std::string &value);
 
-    std::int32_t getPort() const;
-    void setPort(const std::int32_t &value);
+    std::uint32_t getPort() const;
+    void setPort(const std::uint32_t &value);
 
     std::shared_ptr<DatabaseHost> getDbHost() const;
     void setDbHost(const std::shared_ptr<DatabaseHost> &value);
@@ -54,7 +54,7 @@ public:
 
 private:
     std::string hostName;
-    std::int32_t port;
+    std::uint32_t port;
     std::shared_ptr<DatabaseHost> dbHost;
     std::string options;
 };

@@ -25,7 +25,7 @@ rasdaman GmbH.
 
 namespace common {
 
-Exception::Exception(const std::string &what) : msg{what} {}
+Exception::Exception(const std::string &what1) : msg{what1} {}
 
 const std::string &Exception::what() const { return msg; }
 } // namespace common

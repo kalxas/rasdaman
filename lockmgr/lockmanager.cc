@@ -295,7 +295,7 @@ void LockManager::clearLockTableInternal(const char *pRasServerId)
  * @param pResultRasServerId
  *      generated rasserver id returned by reference
  */
-void LockManager::generateServerId(char *pResultRasServerId)
+void LockManager::generateServerId(char *)
 {
 //    char *serverName;
 //    int port;

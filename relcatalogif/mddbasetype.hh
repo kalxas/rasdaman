@@ -52,9 +52,9 @@ public:
 
     MDDBaseType(const char *newtypename);
 
-    MDDBaseType(const MDDBaseType &old) = default;
+    MDDBaseType(const MDDBaseType &) = default;
 
-    MDDBaseType &operator=(const MDDBaseType &old) = default;
+    MDDBaseType &operator=(const MDDBaseType &) = default;
 
     ~MDDBaseType() noexcept(false) override;
 

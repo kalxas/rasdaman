@@ -49,9 +49,9 @@ public:
 
     ULongType();
 
-    ULongType(const ULongType &old) = default;
+    ULongType(const ULongType &) = default;
 
-    ULongType &operator=(const ULongType &old) = default;
+    ULongType &operator=(const ULongType &) = default;
 
     ~ULongType() override = default;
 

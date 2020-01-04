@@ -66,7 +66,7 @@ class r_Dir_Decompose
 public:
     r_Dir_Decompose() = default;
     ~r_Dir_Decompose() = default;
-    r_Dir_Decompose(const r_Dir_Decompose &other) = default;
+    r_Dir_Decompose(const r_Dir_Decompose &) = default;
 
     /// Reads a new limit for the current dimension
     r_Dir_Decompose &operator<<(r_Range limit);

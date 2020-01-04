@@ -48,9 +48,9 @@ public:
 
     DoubleType(const OId &id);
 
-    DoubleType(const DoubleType &old) = default;
+    DoubleType(const DoubleType &) = default;
 
-    DoubleType &operator=(const DoubleType &old) = default;
+    DoubleType &operator=(const DoubleType &) = default;
 
     ~DoubleType() override = default;
 

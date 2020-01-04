@@ -42,7 +42,7 @@ class r_Complex_Type :  public r_Primitive_Type
 public:
     r_Complex_Type();
     r_Complex_Type(const char *newTypeName, const r_Type::r_Type_Id newTypeId);
-    r_Complex_Type(const r_Complex_Type &oldObj) = default;
+    r_Complex_Type(const r_Complex_Type &) = default;
     r_Complex_Type &operator=(const r_Complex_Type &oldObj) = default;
     virtual ~r_Complex_Type() = default;
 

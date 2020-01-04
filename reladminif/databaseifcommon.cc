@@ -40,11 +40,11 @@ rasdaman GmbH.
 
 #ifdef SPARC
 #define RASARCHITECTURE "SPARC"
-#elif DECALPHA
+#elseif DECALPHA
 #define RASARCHITECTURE "DECALPHA"
-#elif X86
+#elseif X86
 #define RASARCHITECTURE "X86"
-#elif AIX
+#elseif AIX
 #define RASARCHITECTURE "AIX"
 #else
 #define RASARCHITECTURE "X86"

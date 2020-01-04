@@ -43,7 +43,7 @@ class IntegralType : public AtomicType
 public:
     IntegralType(unsigned int newSize) : AtomicType(newSize) {}
 
-    IntegralType(const IntegralType &old)  = default;
+    IntegralType(const IntegralType &)  = default;
 
     IntegralType(const OId &id) : AtomicType(id) {}
 

@@ -56,6 +56,7 @@ public:
     r_Set();
     /// copy constructor
     r_Set(const r_Set<T> &set);
+    r_Set<T> &operator=(const r_Set<T> &set);
     /// virtual destructor
     virtual ~r_Set() = default;
 

@@ -134,11 +134,9 @@ r_Conv_Desc &r_Conv_HDF::convertTo(const char *options,
 {
 #ifdef HAVE_HDF
     char name[] = "hdfTempXXXXXX";
-    int32 handle = 0, sds_id = 0, rank = 0;
+    int32 handle = 0, sds_id = 0;
     comp_coder_t comp_type = COMP_CODE_NONE;
     int32 *dimsizes = NULL, *start = NULL;
-    size_t filesize = 0;
-    int i = 0, j = 0;
     FILE *fp = NULL;
     comp_info c_info;
     int tempFD;
@@ -157,19 +155,19 @@ r_Conv_Desc &r_Conv_HDF::convertTo(const char *options,
         LERROR << "r_Conv_HDF::convertTo(): unable to open output file.";
         throw r_Error(r_Error::r_Error_General);
     }
-    rank = desc.srcInterv.dimension();
+    auto rank = desc.srcInterv.dimension();
 
     dimsizes = new int32[rank];
     start = new int32[rank];
     datatype = ConvUtil::ctypeToHdfType(desc.baseType, datasize);
 
-    for (i = 0; i < rank; i++)
+    for (size_t i = 0; i < rank; i++)
     {
         dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
         start[i] = 0;
     }
 
-    if ((sds_id = SDcreate(handle, "RasDaMan object", datatype, rank, dimsizes)) == FAIL)
+    if ((sds_id = SDcreate(handle, "RasDaMan object", datatype, static_cast<int32>(rank), dimsizes)) == FAIL)
     {
         LERROR << "r_Conv_HDF::convertTo(): unable to create object.";
         SDend(handle);
@@ -184,6 +182,7 @@ r_Conv_Desc &r_Conv_HDF::convertTo(const char *options,
     comp_type = COMP_CODE_DEFLATE;
     if (compType != NULL)
     {
+        size_t i;
         for (i = 0; compNames[i].key != NULL; i++)
         {
             if (strcasecmp(compNames[i].key, compType) == 0)
@@ -219,19 +218,19 @@ r_Conv_Desc &r_Conv_HDF::convertTo(const char *options,
         throw r_Error(r_Error::r_Error_General);
     }
     fseek(fp, 0, SEEK_END);
-    filesize = ftell(fp);
+    auto filesize = ftell(fp);
 
     desc.destInterv = r_Minterval(1);
     desc.destInterv << r_Sinterval((r_Range)0, (r_Range)filesize - 1);
 
-    if ((desc.dest = (char *)mystore.storage_alloc(filesize)) == NULL)
+    if ((desc.dest = (char *)mystore.storage_alloc(static_cast<size_t>(filesize))) == NULL)
     {
         LERROR << "r_Conv_HDF::convertTo(): out of memory error";
         fclose(fp);
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     fseek(fp, 0, SEEK_SET);
-    fread(desc.dest, 1, filesize, fp);
+    fread(desc.dest, 1, static_cast<size_t>(filesize), fp);
 
     fclose(fp);
 
@@ -257,13 +256,11 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options)
 #ifdef HAVE_HDF
 
     char name[] = "HDFtempXXXXXX";
-    int32 handle = 0, sds_id = 0, rank = 0, dtype = 0, numattr = 0, array_size = 0;
+    int32 handle = 0, sds_id = 0, dtype = 0, numattr = 0, array_size = 0;
     int32 dimsizes[H4_MAX_VAR_DIMS];
     int32 *start = NULL;
     int dsize = 0;
-    size_t filesize = 0;
     FILE *fp = NULL;
-    int i = 0;
     int tempFD;
 
     if (desc.srcInterv.dimension() != 1)
@@ -286,7 +283,8 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options)
         LERROR << "r_Conv_HDF::convertFrom(): unable to write temporary file!";
         throw r_Error(r_Error::r_Error_General);
     }
-    filesize = desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1;
+    size_t filesize = static_cast<size_t>(
+                desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
     size_t j = 0;
     if ((j = fwrite(desc.src, 1, filesize, fp)) != filesize)
     {
@@ -310,6 +308,7 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options)
         throw r_Error(r_Error::r_Error_General);
     }
 
+    int32 rank;
     SDgetinfo(sds_id, NULL, &rank, dimsizes, &dtype, &numattr);
 
     // Ignore native datatype flag
@@ -318,9 +317,9 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options)
     desc.destType = get_external_type(ConvUtil::hdfTypeToCtype(dtype, dsize));
 
     start = new int32[rank];
-    desc.destInterv = r_Minterval(rank);
+    desc.destInterv = r_Minterval(static_cast<r_Dimension>(rank));
     array_size = (int32)dsize;
-    for (i = 0; i < rank; i++)
+    for (size_t i = 0; i < static_cast<size_t>(rank); i++)
     {
         desc.destInterv << r_Sinterval(r_Range(0), r_Range(dimsizes[i] - 1));
         array_size *= dimsizes[i];
@@ -332,7 +331,7 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options)
         desc.destInterv = desc.srcInterv;
     }
 
-    if ((desc.dest = (char *)mystore.storage_alloc(array_size)) == NULL)
+    if ((desc.dest = (char *)mystore.storage_alloc(static_cast<size_t>(array_size))) == NULL)
     {
         LERROR << "r_Conv_HDF::convertFrom(): out of memory error!";
         SDend(handle);

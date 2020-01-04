@@ -82,7 +82,7 @@ QtNullvaluesOp::getDoubleValue(const QtScalarData *data)
 
 
 QtData *
-QtNullvaluesOp::evaluate(QtDataList *inputList)
+QtNullvaluesOp::evaluate(QtDataList *)
 {
     startTimer("QtNullvaluesOp");
 
@@ -125,7 +125,7 @@ QtNullvaluesOp::printAlgebraicExpression(ostream &s)
 
 
 const QtTypeElement &
-QtNullvaluesOp::checkType(QtTypeTuple *typeTuple)
+QtNullvaluesOp::checkType(QtTypeTuple *)
 {
     dataStreamType.setDataType(QT_MINTERVAL);
     return dataStreamType;
