@@ -55,9 +55,6 @@ rasdaman GmbH.
 const int RASSCHEMAVERSION = 5; // currently still v5
 #endif // RASSCHEMAVERSION
 
-// defined in rasserver.cc
-extern char globalConnectId[256];
-
 const char *DatabaseIf::DefaultDatabaseName = DEFAULT_DBNAME;
 
 DatabaseIf::~DatabaseIf()

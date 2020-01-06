@@ -795,25 +795,26 @@ post_request_file() {
 #
 run_test()
 {
+  local f="$1"
   if [ ! -f "$f" ]; then
     error "test case not found: $f"
   fi
 
   # get test type - file extension
-  test_type=$(echo "$f" | sed 's/.*\.//')
+  local test_type=$(echo "$f" | sed 's/.*\.//')
 
   # various other files expected  by the run_*_test functions
   # NOTE: remove input protocol extension: all queries with the same basename 
   #       shall refer to the same oracle.
-  oracle="$ORACLE_PATH/${f%\.*}.oracle"
+  local oracle="$ORACLE_PATH/${f%\.*}.oracle"
   # If there is a special oracle file for the OS (e.g: test.oracle.ubuntu1804, then use this file as oracle)
   [ -f "$oracle.$OS_VERSION" ] && oracle="$oracle.$OS_VERSION"
 
-  out="$OUTPUT_PATH/$f.out"
-  err="$OUTPUT_PATH/$f.err"
-  pre_script="$QUERIES_PATH/${f%\.*}.pre.sh"
-  post_script="$QUERIES_PATH/${f%\.*}.post.sh"
-  check_script="$QUERIES_PATH/${f%\.*}.check.sh"
+  local out="$OUTPUT_PATH/$f.out"
+  local err="$OUTPUT_PATH/$f.err"
+  local pre_script="$QUERIES_PATH/${f%\.*}.pre.sh"
+  local post_script="$QUERIES_PATH/${f%\.*}.post.sh"
+  local check_script="$QUERIES_PATH/${f%\.*}.check.sh"
 
   #
   # run pre script if present
@@ -836,7 +837,7 @@ run_test()
   else
     # error: if file contents has "*" then it replaces it with file name, 
     # then must turn off this feature
-    QUERY=$(cat "$f" | tr -d '\n')
+    local QUERY=$(cat "$f" | tr -d '\n')
 
     #
     # 1. execute test query (NOTE: rasql is actually test_rasql_servlet)
@@ -855,10 +856,10 @@ run_test()
                     fi
                     ;;
                 input)
-                    templateFile="$SCRIPT_DIR/queries/post-upload.template"
-                    inputFile="$SCRIPT_DIR/queries/$f"
+                    local templateFile="$SCRIPT_DIR/queries/post-upload.template"
+                    local inputFile="$SCRIPT_DIR/queries/$f"
                     # read parameters from *.input file (NOTE: need to escape special characters like: &)
-                    parameters=$(cat "$inputFile")
+                    local parameters=$(cat "$inputFile")
                     # replace the parameters from current .input file into templateFile
                     sed "s#PARAMETERS#$parameters#g" "$templateFile" > "$templateFile.tmp.sh"
                     # run the replaced script to upload file and rasql query to 
@@ -877,7 +878,7 @@ run_test()
                     QUERY=$(cat "$f" | sed 's/\$/%24/g')
                     
                     # File to upload to server, same name with test request file but with .file                
-                    upload_file="${f%.*}.file"
+                    local upload_file="${f%.*}.file"
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
                       post_request_file "$PETASCOPE_URL" "query=$QUERY" "$upload_file" "$out"
@@ -929,7 +930,7 @@ run_test()
                     QUERY=$(cat "$f" | sed 's/\$/%24/g')
                     
                     # File to upload to server, same name with test request file but with .file                
-                    upload_file="${f%.*}.file"
+                    local upload_file="${f%.*}.file"
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
                       post_request_file "$PETASCOPE_URL" "$QUERY" "$upload_file" "$out"
@@ -979,9 +980,9 @@ run_test()
 
               QUERY=$(cat "$f")
 
-              RASQL_CMD="$RASQL"
+              local RASQL_CMD="$RASQL"
               [ "$SVC_NAME" == "rasdapy" ] && RASQL_CMD="$PY_RASQL"
-              out_scalar="${out}_scalar"
+              local out_scalar="${out}_scalar"
 
               $RASQL_CMD -q "$QUERY" --out file --outfile "$out" 2> "$err" | grep "  Result " > $out_scalar
 
@@ -991,6 +992,7 @@ run_test()
                 mv "$err" "$out"
               else
                 # move to proper output file (e.g: output.rasql.out.uknown to output.rasql.out)
+                local tmpf
                 for tmpf in $(ls "$out".* 2> /dev/null); do
                     # $tmpf here is  a file in the output directory from --outfile
                     [ -f "$tmpf" ] || continue
@@ -1012,7 +1014,7 @@ run_test()
     #
     # 2a. create $oracle from $output, if missing
     #
-    outfiletype=$(file "$out" | awk -F ':' '{print $2;}')
+    local outfiletype=$(file "$out" | awk -F ':' '{print $2;}')
     if [ ! -f "$oracle" ]; then
       status=$ST_COPY
       if [[ "$outfiletype" == *XML* ]]; then
@@ -1028,8 +1030,8 @@ run_test()
     #
 
     # temporary files
-    oracle_tmp="$out.oracle_tmp"
-    output_tmp="$out.output_tmp"
+    local oracle_tmp="$out.oracle_tmp"
+    local output_tmp="$out.output_tmp"
     cp "$oracle" "$oracle_tmp"
     cp "$out" "$output_tmp"
 
@@ -1042,7 +1044,7 @@ run_test()
     else
 
       # check the file type of oracle
-      orafiletype=$(file "$oracle" | awk -F ':' '{print $2;}')
+      local orafiletype=$(file "$oracle" | awk -F ':' '{print $2;}')
 
       # check that oracle is gdal readable (e.g: tiff, png, jpeg,..)
       gdalinfo "$oracle" &> /dev/null
@@ -1052,6 +1054,8 @@ run_test()
         # 1.1 oracle could be read by gdal, do image comparison
 
         # if oracle/output is netcdf then compare them with ncdump
+        local output_tmp_prepared_file=
+        local oracle_tmp_prepared_file=
         if [[ "$orafiletype" =~ "NetCDF" || "$orafiletype=" =~ "Hierarchical Data Format" ]]; then
           output_tmp_prepared_file=$(prepare_netcdf_file "$output_tmp" output)
           oracle_tmp_prepared_file=$(prepare_netcdf_file "$oracle_tmp" oracle)

@@ -219,7 +219,7 @@ for f in *; do
 
   start_timer
 
-  run_test
+  run_test "$f"
 
   stop_timer
 

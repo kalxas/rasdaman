@@ -676,6 +676,7 @@ set_target_properties(
     relindexif
     relmddif
     relstorageif
+    reladminif
     servercomm
     storagemgr
     rasserver
