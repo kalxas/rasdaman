@@ -364,79 +364,21 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
                     r_Miter opCondTileIter(&intersectionTileOp1Dom, &opCondTile->getDomain(), opCondTile->getType()->getSize(), dummy3);
                     r_Miter finResTileIter(&intersectionTileOp1Dom, &opFinResTile->getDomain(), opFinResTile->getType()->getSize(), dummy4);
                     r_Miter opCondMaskTileIter(&intersectionTileOp1Dom, &opMaskTile->getDomain(), opMaskTile->getType()->getSize(), dummyMask);
+                    auto op1Type = opResTile->getType();
+                    UnaryOp *myOp = NULL;
+                    myOp = Ops::getUnaryOp(Ops::OP_IDENTITY, op1Type, op1Type, 0, 0); 
                     while (!finResTileIter.isDone())
                     {
                         cellOpFinalRes = finResTileIter.nextCell();
                         cellOpRes = opResTileIter.nextCell();
                         cellOpCond = opCondTileIter.nextCell();
                         cellOpCondMask = opCondMaskTileIter.nextCell();
+                        
                         if  (*cellOpCond != 0 && *cellOpCondMask == 0){ 
                             
                             *cellOpCondMask = 1;
-                            auto op1Type = opResTile->getType()->getType();
-                            if (op1Type == CHAR || op1Type == BOOLTYPE)
-                            {
-                                *(char *)(cellOpFinalRes) = *cellOpRes;
-                            }
-                            else if (op1Type >= ULONG && op1Type <= BOOLTYPE)
-                            {
-                                *(r_ULong *)(cellOpFinalRes) = *(r_ULong *)cellOpRes;
-                            }
-                            else if (op1Type >= LONG && op1Type <= OCTET)
-                            {
-                                *(r_Long *)(cellOpFinalRes) = *(r_Long *)cellOpRes;
-                            }
-                            else if (op1Type == FLOAT || op1Type == DOUBLE)
-                            {
-                                *(r_Double *)(cellOpFinalRes) = *(r_Double *)cellOpRes;
-                            }
-                            else if (op1Type == COMPLEXTYPE1)
-                            {
-                                *const_cast<std::complex<float>*>(reinterpret_cast<std::complex<float>*>(cellOpFinalRes)) = 
-                                    *reinterpret_cast<std::complex<float>*>(cellOpRes);
-                            }
-                            else if (op1Type == COMPLEXTYPE2)
-                            {
-                                *const_cast<std::complex<double>*>(reinterpret_cast<std::complex<double>*>(cellOpFinalRes)) = 
-                                    *reinterpret_cast<std::complex<double>*>(cellOpRes);
-                            }
-                            else if (op1Type == CINT16)
-                            {
-                                *const_cast<std::complex<int16_t>*>(reinterpret_cast<std::complex<int16_t>*>(cellOpFinalRes)) = 
-                                    *reinterpret_cast<std::complex<int16_t>*>(cellOpRes);
-                            }
-                            else if (op1Type == CINT32)
-                            {
-                                *const_cast<std::complex<int32_t>*>(reinterpret_cast<std::complex<int32_t>*>(cellOpFinalRes)) = 
-                                    *reinterpret_cast<std::complex<int32_t>*>(cellOpRes);
-                            }
-                            else if (op1Type == STRUCT)
-                            {
-                                unsigned int numElems = dynamic_cast<StructType *>(const_cast<BaseType *>(opResTile->getType()))->getNumElems();
-                                auto *type1 = opResTile->getType();
-                                size_t offset1 = 0;
-                                type1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(type1)))->getElemType(1);
-                                //char dummy = 1;
-                                for (size_t i = 0; i < numElems; i++)
-                                {    
-                                    offset1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(opResTile->getType())))->getOffset(i);
-                                    if (type1->getType() == CHAR){
-                                        *(char *)(cellOpFinalRes+offset1) =  *(cellOpRes+offset1);
-                                    }
-                                    else if (type1->getType() == BOOLTYPE){
-                                        *(char *)(cellOpFinalRes+offset1) = *(cellOpRes+offset1);
-                                    }
-                                    else if (type1->getType() >= ULONG &&type1->getType()<=BOOLTYPE){
-                                        *(r_ULong *)(cellOpFinalRes+offset1) = *(r_ULong *)(cellOpRes+offset1);
-                                    }
-                                    else if (type1->getType() >= LONG &&type1->getType()<=OCTET){
-                                        *(r_Long *)(cellOpFinalRes+offset1) = *(r_Long *)(cellOpRes+offset1);
-                                    }
-                                    else if (type1->getType() == FLOAT || type1->getType() == DOUBLE){
-                                        *(r_Double *)(cellOpFinalRes+offset1) = *(r_Double *)(cellOpRes+offset1);
-                                    }
-                                }
-                            }
+                            (*myOp)(cellOpFinalRes,cellOpRes);
+                            
                         }
                     }
                 }
@@ -469,6 +411,9 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
                         r_Miter opDefResTileIter(&intersectionTileOp1Dom, &opDefResTile->getDomain(), opDefResTile->getType()->getSize(), dummy2);
                         r_Miter finResTileIter(&intersectionTileOp1Dom, &opFinResTile->getDomain(), opFinResTile->getType()->getSize(), dummy3);
                         r_Miter opCondMaskTileIter(&intersectionTileOp1Dom, &opMaskTile->getDomain(), opMaskTile->getType()->getSize(), dummyMask);
+                        auto op1Type = opDefResTile->getType();
+                        UnaryOp *myOp = NULL;
+                        myOp = Ops::getUnaryOp(Ops::OP_IDENTITY, op1Type, op1Type, 0, 0); 
                         while (!finResTileIter.isDone())
                         {
                             cellOpFinalRes = finResTileIter.nextCell();
@@ -477,76 +422,7 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
                             if  (*cellOpCondMask == 0)
                             {
                                 *cellOpCondMask = 1;
-                                auto op1Type = opDefResTile->getType()->getType();
-                                if (op1Type == CHAR || op1Type == BOOLTYPE)
-                                {
-                                    *(char *)(cellOpFinalRes) =  *cellDefRes;
-                                }
-                                else if (op1Type >= ULONG && op1Type <= BOOLTYPE)
-                                {
-                                    *(r_ULong *)(cellOpFinalRes) = *(r_ULong *)(cellDefRes);
-                                }
-                                else if (op1Type >= LONG && op1Type <= OCTET)
-                                {
-                                    *(r_Long *)(cellOpFinalRes) = *(r_Long *)(cellDefRes);
-                                }
-                                else if (op1Type == FLOAT || op1Type == DOUBLE)
-                                {
-                                    *(r_Double *)(cellOpFinalRes) = *(r_Double *)(cellDefRes);
-                                }
-                                else if (op1Type == COMPLEXTYPE1)
-                                {
-                                    *const_cast<std::complex<float>*>(reinterpret_cast<std::complex<float>*>(cellOpFinalRes)) =
-                                        *reinterpret_cast<std::complex<float>*>(cellDefRes);
-                                }
-                                else if (op1Type == COMPLEXTYPE2)
-                                {
-                                    *const_cast<std::complex<double>*>(reinterpret_cast<std::complex<double>*>(cellOpFinalRes)) =
-                                        *reinterpret_cast<std::complex<double>*>(cellDefRes);
-                                }
-                                else if (op1Type == CINT16)
-                                {
-                                    *const_cast<std::complex<int16_t>*>(reinterpret_cast<std::complex<int16_t>*>(cellOpFinalRes)) =
-                                        *reinterpret_cast<std::complex<int16_t>*>(cellDefRes);
-                                }
-                                else if (op1Type == CINT32)
-                                {
-                                    *const_cast<std::complex<int32_t>*>(reinterpret_cast<std::complex<int32_t>*>(cellOpFinalRes)) =
-                                        *reinterpret_cast<std::complex<int32_t>*>(cellDefRes);
-                                }
-                                else if (op1Type == STRUCT)
-                                {
-                                    unsigned int numElems = dynamic_cast<StructType *>(const_cast<BaseType *>(opDefResTile->getType()))->getNumElems();
-                                    auto *type1 = opDefResTile->getType();
-                                    size_t offset1 = 0;
-                                    type1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(type1)))->getElemType(1);
-                                    
-                                    for (size_t i = 0; i < numElems; i++)
-                                    {    
-                                        offset1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(opDefResTile->getType())))->getOffset(i);
-                                        if (type1->getType() == CHAR)
-                                        {
-                                            *(cellOpFinalRes+offset1) =  *(cellDefRes+offset1);
-                                        }
-                                        else if (type1->getType() == BOOLTYPE)
-                                        {
-                                            *(cellOpFinalRes+offset1) = *(cellDefRes+offset1);
-                                        }
-                                        else if (type1->getType() >= ULONG &&type1->getType() <= BOOLTYPE)
-                                        {
-                                            *(r_ULong *)(cellOpFinalRes+offset1) = *(r_ULong *)(cellDefRes+offset1);
-                                        }
-                                        else if (type1->getType() >= LONG &&type1->getType() <= OCTET)
-                                        {
-                                            *(r_Long *)(cellOpFinalRes+offset1) = *(r_Long *)(cellDefRes+offset1);
-                                        }
-                                        else if (type1->getType() == FLOAT || type1->getType() == DOUBLE)
-                                        {
-                                            *(r_Double *)(cellOpFinalRes+offset1) = *(r_Double *)(cellDefRes+offset1);
-                                        }
-                                        
-                                    }
-                                }
+                                (*myOp)(cellOpFinalRes,cellDefRes);
                             }
 
                         }
