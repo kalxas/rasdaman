@@ -21,7 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-import urllib2, base64
+import urllib, urllib2, base64
 import ssl
 from master.error.runtime_exception import RuntimeException
 
@@ -33,15 +33,18 @@ def __encode_quote(url):
     return url.replace('"', "%22")
 
 
-def validate_and_read_url(url):
+def validate_and_read_url(url, data=None):
     """
     Open url and validate the status code before returning the response in string
     :param str url: the url to open
+    :param dict data: POST parameters
     :rtype: str
     """
     url = __encode_quote(url)
     try:
         request = urllib2.Request(url)
+        if data is not None:
+            request.add_data(data)
 
         from config_manager import ConfigManager
 

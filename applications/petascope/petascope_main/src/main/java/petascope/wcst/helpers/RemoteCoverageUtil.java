@@ -79,6 +79,16 @@ public class RemoteCoverageUtil {
         }
         return result;
     }
+    
+    /**
+     * Return bytes array from a remote file.
+     */
+    public static byte[] getBytesFromRemoteFile(String fileURL) throws IOException {
+        InputStream inputStream = new URL(fileURL).openStream();
+        byte[] bytes = IOUtils.toByteArray(inputStream);
+        
+        return bytes;
+    }
 
     public static File copyFileLocally(String fileUrl) throws IOException, PetascopeException {
         String filePath = TEMP_FILE_PATH_PREFIX + java.util.UUID.randomUUID().toString();

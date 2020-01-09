@@ -77,12 +77,20 @@ class Mediator:
                                          self._get_domain_set(), self._get_range_set(), self._get_range_type(),
                                          CoverageMetadata(self.metadata_provider.extra_metadata))
 
+    def get_gml_str(self):
+        """
+        Return the GML coverage as string
+        :return: str
+        """
+        gml = self.get_gml_coverage().to_gml()
+        return gml
+
     def get_gml_file(self):
         """
         Returns the file path to the file containing the coverage held by the mediator
         :rtype: File
         """
-        gml = self.get_gml_coverage().to_gml()
+        gml = self.get_gml_str()
         fu = FileUtil()
         return File(fu.write_to_tmp_file(gml))
 

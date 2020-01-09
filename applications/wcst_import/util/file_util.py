@@ -28,6 +28,7 @@ import uuid
 from config_manager import ConfigManager
 from util.log import log
 import re
+from master.error.runtime_exception import RuntimeException
 
 class FileUtil:
 
@@ -174,3 +175,19 @@ class FileUtil:
             return False
 
         return True
+
+    @staticmethod
+    def read_file_to_string(file_path):
+        """
+        Read a file path to a string
+        :param str file_path: absolute path
+        :return: file content
+        """
+
+        if not os.access(file_path, os.R_OK):
+            raise RuntimeException("Cannot read content from file '" + file_path + "' as string.")
+
+        with open(file_path, "r") as myfile:
+            data = myfile.read()
+
+            return data

@@ -36,7 +36,13 @@ public abstract class RasdamanUpdater {
      * Updates rasdaman data.
      * @throws petascope.exceptions.PetascopeException
      */
-    public abstract void update() throws PetascopeException;
+    public abstract void updateWithFile() throws PetascopeException;
+    
+    /**
+     * Instead of using the input file to update to rasdaman.
+     * It will use the bytes of the file to update.
+     */
+    public abstract void updateWithBytes(byte bytes[]) throws PetascopeException;
     
     /**
      * Check if it needs to add shift() in Rasql query to update collection.

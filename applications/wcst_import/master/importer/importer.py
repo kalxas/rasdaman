@@ -51,6 +51,7 @@ from wcst.wmst import WMSTGetCapabilities
 from util.crs_util import CRSUtil
 from util.time_util import DateTimeUtil
 from lxml import etree
+from util.file_util import FileUtil
 
 
 class Importer:
@@ -111,12 +112,17 @@ class Importer:
         for attempt in range(0, ConfigManager.retries):
             try:
                 current_str = str(current)
-                file = self._generate_gml_slice(current)
+                gml_obj = self._generate_gml_slice(current)
+
                 subsets = self._get_update_subsets_for_slice(current)
-                request = WCSTUpdateRequest(self.coverage.coverage_id, file.get_url(), subsets, ConfigManager.insitu)
+
+                if ConfigManager.mock:
+                    request = WCSTUpdateRequest(self.coverage.coverage_id, gml_obj.get_url(), subsets, ConfigManager.insitu, None)
+                else:
+                    request = WCSTUpdateRequest(self.coverage.coverage_id, None, subsets, ConfigManager.insitu, gml_obj)
+
                 executor = ConfigManager.executor
                 executor.execute(request, mock=ConfigManager.mock)
-                file.release()
                 self.resumer.add_imported_data(current.data_provider)
             except Exception as e:
                 log.warn(
@@ -266,15 +272,20 @@ class Importer:
         """
         Initializes the coverage
         """
-        file = self._generate_initial_gml_slice()
-        request = WCSTInsertRequest(file.get_url(), False, self.coverage.pixel_data_type,
-                                    self.coverage.tiling)
         executor = ConfigManager.executor
+        gml_obj = self._generate_initial_gml_slice()
+
+        if ConfigManager.mock:
+            request = WCSTInsertRequest(gml_obj.get_url(), False, self.coverage.pixel_data_type,
+                                        self.coverage.tiling, executor.insitu, None)
+        else:
+            request = WCSTInsertRequest(None, False, self.coverage.pixel_data_type,
+                                        self.coverage.tiling, executor.insitu, gml_obj)
+
         current_insitu_value = executor.insitu
         executor.insitu = None
         executor.execute(request, mock=ConfigManager.mock)
         executor.insitu = current_insitu_value
-        file.release()
 
         # If scale_levels specified in ingredient files, send the query to Petascope to create downscaled collections
         if self.scale_levels:
@@ -336,14 +347,19 @@ class Importer:
         """
         Generates the gml for a regular slice
         :param slice: the slice for which the gml should be created
-        :rtype: File
+        :rtype: GML file (if mock is true to debug) / gml string
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self._get_update_axes(slice),
                                              self.coverage.range_fields, self._get_update_crs(slice, self.coverage.crs),
                                              slice.local_metadata, self.grid_coverage)
         data_provider = slice.data_provider
-        gml_file = Mediator(metadata_provider, data_provider).get_gml_file()
-        return gml_file
+
+        if ConfigManager.mock:
+            gml_obj = Mediator(metadata_provider, data_provider).get_gml_file()
+        else:
+            gml_obj = Mediator(metadata_provider, data_provider).get_gml_str()
+
+        return gml_obj
 
     def _get_update_axes(self, slice):
         """
@@ -398,8 +414,13 @@ class Importer:
             tuple_list.append(insert_value)
 
         data_provider = TupleListDataProvider(",".join(tuple_list))
-        file = Mediator(metadata_provider, data_provider).get_gml_file()
-        return file
+
+        if ConfigManager.mock:
+            gml_obj = Mediator(metadata_provider, data_provider).get_gml_file()
+        else:
+            gml_obj = Mediator(metadata_provider, data_provider).get_gml_str()
+
+        return gml_obj
 
     def _generate_initial_gml_inistu(self):
         """

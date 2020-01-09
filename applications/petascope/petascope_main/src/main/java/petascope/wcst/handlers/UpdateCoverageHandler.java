@@ -175,11 +175,12 @@ public class UpdateCoverageHandler {
                 //tuple list given explicitly
                 String values = getReplacementValuesFromTupleList(currentCoverage, rangeSet, request.getPixelDataType());
                 updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);                
-                updater.update();                
+                updater.updateWithFile();                
             } else {
                 //tuple list given as file
                 //retrieve the file, if needed
                 boolean isLocal = false;
+                byte[] bytes = null;
                 String fileUrl = GMLParserService.parseFilePath(rangeSet);
                 if (isLocalFile(fileUrl)) {
                     fileUrl = fileUrl.replace(FILE_PROTOCOL, "");
@@ -188,9 +189,8 @@ public class UpdateCoverageHandler {
                         fileUrl = new File(fileUrl).getAbsolutePath();
                     }
                 } else {
-                    // remote file, get it
-                    File valuesFile = getReplacementValuesFromFile(rangeSet);
-                    fileUrl = valuesFile.getAbsolutePath();
+                    // remote file, get it as bytes
+                    bytes = getReplacementValuesFromFileAsBytes(rangeSet);                    
                 }
                 String mimetype = GMLParserService.parseMimeType(rangeSet);
                 // e.g: netCDF test_eobstest: "{"variables": ["tg"]}",
@@ -201,11 +201,12 @@ public class UpdateCoverageHandler {
                 String decodeParameters = convertor.toRasdamanDecodeParameters();
 
                 updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid,
-                        affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters);                
-                updater.update();
-                // delete the file
-                if (!isLocal) {
-                    new File(fileUrl).delete();
+                        affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters, isLocal);
+                
+                if (isLocal) {
+                    updater.updateWithFile();
+                } else {
+                    updater.updateWithBytes(bytes);                    
                 }
             }
             
@@ -944,5 +945,18 @@ public class UpdateCoverageHandler {
         File tmpFile = RemoteCoverageUtil.copyFileLocally(fileUrl);
 
         return tmpFile;
+    }
+    
+    
+    /**
+     * Get the bytes array of input file to be used to update a rasdaman collection
+     */
+    private byte[] getReplacementValuesFromFileAsBytes(Element rangeSet) throws IOException, WCSException, PetascopeException {
+        //tuple list given as file
+        String fileUrl = GMLParserService.parseFilePath(rangeSet);
+        //save in a temporary file to pass to gdal and rasdaman
+        byte[] bytes = RemoteCoverageUtil.getBytesFromRemoteFile(fileUrl);
+
+        return bytes;
     }
 }

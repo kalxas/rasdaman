@@ -76,15 +76,23 @@ class WCSTRequest:
         """
         params = self._get_request_type_parameters().copy()
         params.update(self.global_params)
-        extra_params = ""
+        encoded_extra_params = ""
         for key, value in params.iteritems():
             # We don't send the UpdateCoverage request with subset1=Lat(...)&subset2=Long(...) as they are not valid
             if str(key).startswith("subset"):
                 key = "subset"
-            extra_params += "&" + str(key) + "=" + str(value)
-        return self.SERVICE_PARAMETER + "=" + self.SERVICE_VALUE + "&" + \
-               self.VERSION_PARAMETER + "=" + self.VERSION_VALUE + "&" + \
-               self.REQUEST_PARAMETER + "=" + self._get_request_type() + extra_params
+
+            tmp_dict = {}
+            tmp_dict[key] = value
+
+            encoded_extra_params += "&" + urllib.urlencode(tmp_dict)
+
+        tmp_dict = {self.SERVICE_PARAMETER: self.SERVICE_VALUE,
+                    self.VERSION_PARAMETER: self.VERSION_VALUE,
+                    self.REQUEST_PARAMETER: self._get_request_type()}
+
+        query_string = urllib.urlencode(tmp_dict) + "&" + encoded_extra_params
+        return query_string
 
     def add_global_param(self, key, value):
         """
@@ -112,7 +120,7 @@ class WCSTRequest:
 
 
 class WCSTInsertRequest(WCSTRequest):
-    def __init__(self, coverage_ref, generate_id=False, pixel_data_type=None, tiling=None, insitu=None):
+    def __init__(self, coverage_ref, generate_id=False, pixel_data_type=None, tiling=None, insitu=None, coverage=None):
         """
         Class to represent WCST insert requests
 
@@ -127,6 +135,7 @@ class WCSTInsertRequest(WCSTRequest):
         self.pixel_data_type = pixel_data_type
         self.tiling = tiling
         self.insitu = insitu
+        self.coverage = coverage
 
     def _get_request_type(self):
         """
@@ -148,13 +157,18 @@ class WCSTInsertRequest(WCSTRequest):
         if self.tiling is not None:
             request_kvp[self.__TILING_PARAMETER] = self.tiling
 
-        request_kvp[self.__COVERAGE_REF_PARAMETER] = self.coverage_ref
+        if self.coverage is not None:
+            request_kvp[self.__COVERAGE_PARAMETER] = self.coverage
+
+        if self.coverage_ref is not None:
+            request_kvp[self.__COVERAGE_REF_PARAMETER] = self.coverage_ref
 
         return request_kvp
 
     __GENERATE_ID_TRUE_VALUE = "new"
     __GENERATE_ID_FALSE_VALUE = "existing"
     __GENERATE_ID_PARAMETER = "useId"
+    __COVERAGE_PARAMETER = "coverage"
     __COVERAGE_REF_PARAMETER = "coverageRef"
     __PIXEL_DATA_TYPE_PARAMETER = "pixelDataType"
     __TILING_PARAMETER = "tiling"
@@ -202,7 +216,7 @@ class WCSTUpdateRequest(WCSTRequest):
     Class to perform WCST insert requests
     """
 
-    def __init__(self, coverage_id, input_coverage_ref, subsets, insitu=None):
+    def __init__(self, coverage_id, input_coverage_ref, subsets, insitu=None, input_coverage=None):
         """
         Constructor for the class
 
@@ -215,6 +229,7 @@ class WCSTUpdateRequest(WCSTRequest):
         self.input_coverage_ref = input_coverage_ref
         self.subsets = subsets
         self.insitu = insitu
+        self.input_coverage = input_coverage
 
     def _get_request_type(self):
         return self.__REQUEST_TYPE
@@ -233,13 +248,18 @@ class WCSTUpdateRequest(WCSTRequest):
             request_kvp["subset" + str(subset_index)] = subset.to_request_kvp()
             subset_index += 1
 
-        request_kvp[self.__COVERAGE_INPUT_PARAMETER] = self.input_coverage_ref
+        if self.input_coverage is not None:
+            request_kvp[self.__INPUT_COVERAGE_PARAMATER] = self.input_coverage
+
+        if self.input_coverage_ref is not None:
+            request_kvp[self.__INPUT_COVERAGE_REF_PARAMETER] = self.input_coverage_ref
 
         return request_kvp
 
     __SUBSET_PARAM_NAME = "subset"
     __COVERAGE_ID_PARAMETER = "coverageId"
-    __COVERAGE_INPUT_PARAMETER = "inputCoverageRef"
+    __INPUT_COVERAGE_PARAMATER = "inputCoverage"
+    __INPUT_COVERAGE_REF_PARAMETER = "inputCoverageRef"
     __REQUEST_TYPE = "UpdateCoverage"
 
 
@@ -344,7 +364,7 @@ class WCSTExecutor(WCSTBaseExecutor):
         :rtype str
         """
         request = self.prepare_request(request)
-        service_call = self.base_url + "?" + urllib.pathname2url(request.get_query_string())
+        service_call = self.base_url + "?" + request.get_query_string()
         if output:
             log.info(service_call)
         if mock:
@@ -352,7 +372,7 @@ class WCSTExecutor(WCSTBaseExecutor):
             log.info(service_call)
             return
         try:
-            response = validate_and_read_url(service_call)
+            response = validate_and_read_url(self.base_url, request.get_query_string())
         except Exception as ex:
             raise WCSTException(404, "Failed reading response from WCS service. "
                                      "Detailed error: {}.".format(str(ex)), service_call)

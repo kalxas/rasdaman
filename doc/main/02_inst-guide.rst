@@ -1157,7 +1157,10 @@ the ``configure`` step with the ``-DWAR_DIR=<DIR>`` cmake option;
 by default this is ``$RMANHOME/share/rasdaman/war``.
 
 To implement the geo semantics, petascope uses a relational database for
-the geo-related metadata. Currently, PostgreSQL and HSQLDB are supported.
+the geo-related metadata. Currently, PostgreSQL and H2 / HSQLDB are supported.
+
+**PostgreSQL**
+
 To set up PostgreSQL for use by petascope:
 
 1. If postgres has not been initialized yet: ::
@@ -1193,6 +1196,29 @@ To set up PostgreSQL for use by petascope:
 
    Following successful deployment, petascope accepts OGC W*S requests at
    URL ``http://localhost:8080/rasdaman/ows``.
+
+**H2 / HSQLDB**
+
+1. Create a directory that will host petascopedb and the H2 driver: ::
+
+   $ mkdir /opt/rasdaman/geodb
+
+2. Make sure the user running the webserver serving petascope
+   can read/write to the folder above. For example, Tomcat webserver
+   which uses `tomcat` user ::
+
+   $ sudo chown -R tomcat /opt/rasdaman/geodb 
+
+3. Download the driver and place it in the created directory. 
+   For example, download a H2 driver ::
+
+   $ cd /opt/rasdaman/geodb
+   $ wget http://repo2.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
+
+4. Configure database settings in petascope.properties file, 
+   see :ref:`details <petascope-database-connection>`.
+
+5. Restart the webserver running petascope. 
 
 .. _selinux-configuration:
 

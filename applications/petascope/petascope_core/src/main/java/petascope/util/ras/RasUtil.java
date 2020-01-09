@@ -28,9 +28,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.odmg.Database;
@@ -54,6 +57,9 @@ import rasj.odmg.RasBag;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
+import rasj.RasGMArray;
+import rasj.RasMInterval;
+import rasj.RasResultIsNoIntervalException;
 
 /**
  * Rasdaman utility classes - execute queries, etc.
@@ -90,7 +96,29 @@ public class RasUtil {
             }
         }
     }
+
+    /**
+     * Create a RasGMArray from an array of bytes;
+     */
+    private static RasGMArray createRasGMArray(byte[] bytes) throws RasResultIsNoIntervalException, IOException {
+        
+        String mIntervals = "[0:" + (bytes.length - 1) + "]";
+        // with cell length = 1 (byte)
+        RasGMArray rasGMArray = new RasGMArray(new RasMInterval(mIntervals), 1);
+        rasGMArray.setArray(bytes);
+        rasGMArray.setObjectTypeName("GreyString");
+        
+        return rasGMArray;
+    }
     
+    /**
+     * Executes a rasql query and returns result.
+     */
+    public static Object executeRasqlQuery(String query, String username, String password, boolean rw) throws PetascopeException {
+        Object ret = executeRasqlQuery(query, username, password, rw, null);
+        return ret;
+    }
+       
     /**
      * Executes a rasql query and returns result.
      *
@@ -100,7 +128,7 @@ public class RasUtil {
      * @param rw true if query will do DB updates
      * @return result from query
      */
-    public static Object executeRasqlQuery(String query, String username, String password, boolean rw) throws PetascopeException {
+    public static Object executeRasqlQuery(String query, String username, String password, boolean rw, RasGMArray rasGMArray) throws PetascopeException {
         final long start = System.currentTimeMillis();
         log.info("Executing rasql query: " + query);
 
@@ -132,6 +160,9 @@ public class RasUtil {
         try {
             q = impl.newOQLQuery();
             q.create(query);
+            if (rasGMArray != null) {
+                q.bind(rasGMArray);
+            }
         } catch (Exception ex) {
             // not really supposed to ever throw an exception
             log.error("Failed creating query object: " + ex.getMessage());
@@ -213,7 +244,8 @@ public class RasUtil {
         if (result.isEmpty()) {
             //no object left, delete the collection so that the name can be reused in the future
             log.info("No objects left in the collection, dropping the collection so the name can be reused in the future.");
-            executeRasqlQuery(TEMPLATE_DROP_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName), ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+            executeRasqlQuery(TEMPLATE_DROP_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName), 
+                               ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         }
     }
 
@@ -379,6 +411,18 @@ public class RasUtil {
     public static void executeUpdateFileStatement(String query) throws PetascopeException {
         // This needs to run with open transaction and rasadmin permission
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+    }
+    
+    public static void executeUpdateBytesStatement(String query, byte[] bytes) throws PetascopeException {
+        RasGMArray rasGMArray;
+        try {
+            rasGMArray = createRasGMArray(bytes);
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError,
+                                         "Cannot create RasGMArray from an array of bytes. Reason: " + ex.getMessage(), ex);
+        }
+        
+        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true, rasGMArray);
     }
 
     /**

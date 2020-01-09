@@ -1280,6 +1280,11 @@ cell values must be one supported by the GDAL library
 (http://www.gdal.org/formats_list.html), such as TIFF / GeoTIFF, JPEG, JPEG2000,
 PNG etc.
 
+  .. note:: 
+
+      Besides the standard HTTP GET requests, petascope supports key-value parameters
+      which are sent as HTTP POST requests to Insert/Update coverages.  
+
 Inserting coverages
 ^^^^^^^^^^^^^^^^^^^
 
@@ -1384,8 +1389,9 @@ Non-standard requests
 
 **WMS**
 
-The following requests are used to *create/delete* downscaled coverages which
-are used for WMS pyramids feature.
+The following requests are used to *create/delete* downscaled coverages. Internally
+they are used for efficient zooming in/out in WMS, and downscaling when
+using the scale() function in WCPS or scaling extension in WCS.
 
 * ``InsertScaleLevel``: create a downscaled collection for a specific coverage
   and given level; e.g. to create a downscaled coverage
@@ -1409,7 +1415,9 @@ are used for WMS pyramids feature.
   &coverageId=test_world_map_scale_levels
   &level=4
 
-
+wcst_import can send ``InsertScaleLevel`` requests automatically 
+when importing data with it with ``scale_levels`` option in the ingredients file,
+more details :ref:`here <data-import-intro>`.
 
 Non-standard functionality
 ==========================
@@ -3689,6 +3697,7 @@ The petascope configuration can be found in
 ``$RMANHOME/etc/petascope.properties``; editing this file requires restarting
 Tomcat.
 
+.. _petascope-database-connection:
 
 Database connection
 -------------------

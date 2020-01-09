@@ -62,14 +62,18 @@ public class RasdamanValuesUpdater extends RasdamanUpdater {
     }
 
     @Override
-    public void update() throws RasdamanException, PetascopeException {
+    public void updateWithFile() throws RasdamanException, PetascopeException {
         String queryString = UPDATE_TEMPLATE_VALUES.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
                              .replace("$oid", affectedCollectionOid)
                              .replace("$values", values)
                              .replace("$shiftDomain", shiftDomain);
-        RasUtil.executeRasqlQuery(queryString, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        RasUtil.executeRasqlQuery(queryString, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true, null);
     }
 
     private static final String UPDATE_TEMPLATE_VALUES = "UPDATE $collection SET $collection$domain ASSIGN shift($values, $shiftDomain) WHERE oid($collection) = $oid";
+
+    @Override
+    public void updateWithBytes(byte[] bytes) throws PetascopeException {
+    }
 }

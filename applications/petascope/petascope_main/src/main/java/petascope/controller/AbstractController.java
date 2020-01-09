@@ -24,6 +24,7 @@ package petascope.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -162,18 +163,25 @@ public abstract class AbstractController {
         
         final String QUERY = "query=";
 
-        // then can decode the query string
-        queryString = URLDecoder.decode(queryString, "utf-8");
-        
         List<String> wcsVersions = VersionManager.getAllSupportedVersions(KVPSymbols.WCS_SERVICE);
         String[] supportedWCSVersions = wcsVersions.toArray(new String[wcsVersions.size()]);
         
         List<String> wcpsVersions = VersionManager.getAllSupportedVersions(KVPSymbols.WCPS_SERVICE);
         String[] supportedWCPSVersions = wcpsVersions.toArray(new String[wcpsVersions.size()]);
+        
+        boolean decoded = false; 
+        
+        if (!(queryString.contains(KVPSymbols.KEY_COVERAGE + "=")
+            || queryString.contains(KVPSymbols.KEY_INPUT_COVERAGE + "="))) {
+            // NOTE: WCS-T Insert/Update coverage requests posted by wcst_import with character & between key value pairs
+            // are not encoded.
+            queryString = URLDecoder.decode(queryString, "utf-8");
+            decoded = true;
+        }
 
         if (!XMLUtil.isXmlString(queryString.replace(QUERY, ""))) {
             // The request is in KVP GET/POST requests
-            kvpParameters = parseKVPParameters(queryString);
+            kvpParameters = parseKVPParameters(queryString, decoded);
         } else {
             // NOTE: As only WCS 2.0.1 supports POST XML/SOAP
             // @TODO: It can use a simple XML parser to get the version element to check it correctly.            
@@ -434,6 +442,12 @@ public abstract class AbstractController {
         String request = "";
         for (Map.Entry<String, String[]> entry : kvpParametersMap.entrySet()) {
             for (String value : entry.getValue()) {
+                
+                // As they contain long GML text, no need to show
+                if (entry.getKey().equalsIgnoreCase(KVPSymbols.KEY_COVERAGE)
+                  || entry.getKey().equalsIgnoreCase(KVPSymbols.KEY_INPUT_COVERAGE)) {
+                    value = value.substring(0, 50) + "...";
+                }
                 request = request + entry.getKey() + "=";
                 request = request + value + "&";
             }
@@ -448,9 +462,10 @@ public abstract class AbstractController {
     /**
      * Parse the KVP parameters to map of keys and values
      */
-    private static Map<String, String[]> parseKVPParameters(String queryString) {
+    private static Map<String, String[]> parseKVPParameters(String queryString, boolean decoded) throws UnsupportedEncodingException {
         Map<String, String[]> parametersMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (!queryString.equals("")) {
+            
             String[] keyValues = queryString.split("&");
             for (String keyValue : keyValues) {
                 // No parse keyValue when it empty such as: &service=DescribeCoverage&coverageId=test_mr, then the first & is empty string
@@ -472,6 +487,10 @@ public abstract class AbstractController {
                 } else {
                     // e.g: WMS: Style=&
                     key = keyValue;
+                }
+                
+                if (!decoded) {                    
+                    value = URLDecoder.decode(value, "utf-8");
                 }
 
                 if (parametersMap.get(key) == null) {

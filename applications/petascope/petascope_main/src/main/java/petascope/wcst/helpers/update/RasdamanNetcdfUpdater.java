@@ -46,7 +46,7 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
     }
 
     @Override
-    public void update() throws PetascopeException {
+    public void updateWithFile() throws PetascopeException {
         
         String templateStr = UPDATE_TEMPLATE_FILE;
         if (!this.needShiftDomain(shiftDomain)) {
@@ -59,6 +59,23 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$rangeParams", rangeParameters);
         RasUtil.executeUpdateFileStatement(queryString);
+    }
+    
+    
+    @Override
+    public void updateWithBytes(byte[] bytes) throws PetascopeException {
+        
+        String templateStr = UPDATE_TEMPLATE_WITH_BYTES;
+        if (!this.needShiftDomain(shiftDomain)) {
+            templateStr = UPDATE_TEMPLATE_WITH_BYTES_NO_SHIFT;
+        }
+        
+        String queryString = templateStr.replace("$collection", affectedCollectionName)
+                             .replace("$domain", affectedDomain)
+                             .replace("$oid", affectedCollectionOid)
+                             .replace("$shiftDomain", shiftDomain)
+                             .replace("$rangeParams", rangeParameters);
+        RasUtil.executeUpdateBytesStatement(queryString, bytes);
     }
 
     // sample query
@@ -73,5 +90,15 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
     
     private static final String UPDATE_TEMPLATE_FILE_NO_SHIFT = "UPDATE $collection SET $collection$domain "
                                                  + "ASSIGN decode(<[0:0] 1c>, "
-                                                 + "\"NetCDF\"" + ", \"$rangeParams\") WHERE oid($collection) = $oid";    
+                                                 + "\"NetCDF\"" + ", \"$rangeParams\") WHERE oid($collection) = $oid";
+    
+    
+    private static final String UPDATE_TEMPLATE_WITH_BYTES = "UPDATE $collection SET $collection$domain "
+                                                           + "ASSIGN shift(decode($1, "
+                                                           + "\"NetCDF\"" + ", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";    
+    
+    
+    private static final String UPDATE_TEMPLATE_WITH_BYTES_NO_SHIFT = "UPDATE $collection SET $collection$domain "
+                                                                    + "ASSIGN decode($1, "
+                                                                    + "\"NetCDF\"" + ", \"$rangeParams\") WHERE oid($collection) = $oid";
 }
