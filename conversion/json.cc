@@ -49,7 +49,7 @@ void r_Conv_JSON::initJSON(void)
 }
 
 
-r_Conv_JSON::r_Conv_JSON(const char *src, const r_Minterval &interv, const r_Type *tp)
+r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, const r_Type* tp)
     : r_Conv_CSV(src, interv, tp)
 {
     initJSON();
@@ -57,7 +57,7 @@ r_Conv_JSON::r_Conv_JSON(const char *src, const r_Minterval &interv, const r_Typ
 
 
 
-r_Conv_JSON::r_Conv_JSON(const char *src, const r_Minterval &interv, int tp)
+r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, int tp)
     : r_Conv_CSV(src, interv, tp)
 {
     initJSON();
@@ -67,18 +67,18 @@ r_Conv_JSON::~r_Conv_JSON(void)
 {
 }
 
-r_Conv_Desc &r_Conv_JSON::convertTo(const char *options,
-                                    const r_Range *nullValue)
+r_Conv_Desc& r_Conv_JSON::convertTo(const char* options,
+                                    const r_Range* nullValue)
 {
     return r_Conv_CSV::convertTo(options, nullValue);
 }
 
-r_Conv_Desc &r_Conv_JSON::convertFrom(const char *options)
+r_Conv_Desc& r_Conv_JSON::convertFrom(const char* options)
 {
     return r_Conv_CSV::convertFrom(options);
 }
 
-const char *r_Conv_JSON::get_name(void) const
+const char* r_Conv_JSON::get_name(void) const
 {
     return format_name_json;
 }
@@ -90,7 +90,7 @@ r_Data_Format r_Conv_JSON::get_data_format(void) const
 }
 
 
-r_Convertor *r_Conv_JSON::clone(void) const
+r_Convertor* r_Conv_JSON::clone(void) const
 {
     return new r_Conv_JSON(desc.src, desc.srcInterv, desc.baseType);
 }

@@ -1,1 +1,1 @@
-rasdaman error 365: Execution error 365 in line 1, column 21, near token <: Scalar types of binary operation are incompatible.
+rasdaman error 455: Execution error 455 in line 1, column 21, near token <: Operation not supported on operand of complex type.

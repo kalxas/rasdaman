@@ -46,6 +46,9 @@ class QtUnaryInduce : public QtUnaryOperation
 public:
     /// constructor getting the operand
     QtUnaryInduce(QtOperation *input);
+    
+    /// type checking of the subtree
+    const QtTypeElement &checkOperandType(Ops::OpType optype, QtTypeTuple *typeTuple);
 
 protected:
     /// computes the unary operation

@@ -652,35 +652,39 @@ add_subdirectory(tilemgr)
 include(cmake/CPPCheck.cmake)
 AddCPPCheckTarget("${CMAKE_SOURCE_DIR}/third_party" "${CPP_FILE_EXTENSIONS}")
 
-# Set targets for unity build
-# https://cmake.org/cmake/help/v3.16/prop_tgt/UNITY_BUILD.html
-set_target_properties(
-    common_exceptions 
-    common_util
-    common_logging
-    common_network
-    common_grpc
-    clientcomm
-    conversion
-    indexmgr
-    mddmgr
-    qlparser
-    raslib
-    rasodmg
-    rascontrol_lib
-    rasmgr_lib
-    rasnet
-    #rasnetserver
-    relblobif
-    relcatalogif
-    relindexif
-    relmddif
-    relstorageif
-    reladminif
-    servercomm
-    storagemgr
-    rasserver
-    PROPERTIES UNITY_BUILD ON)
+set(ENABLE_UNITY_BUILD ON CACHE BOOL "Enable unity build.")
+if (ENABLE_UNITY_BUILD)
+    # Set targets for unity build
+    # https://cmake.org/cmake/help/v3.16/prop_tgt/UNITY_BUILD.html
+    set_target_properties(
+        common_exceptions 
+        common_util
+        common_logging
+        common_network
+        common_grpc
+        clientcomm
+        conversion
+        indexmgr
+        mddmgr
+        qlparser
+        raslib
+        rasodmg
+        rascontrol_lib
+        rasmgr_lib
+        rasnet
+        #rasnetserver
+        relblobif
+        relcatalogif
+        relindexif
+        relmddif
+        relstorageif
+        reladminif
+        servercomm
+        storagemgr
+        rasserver
+        PROPERTIES UNITY_BUILD ON)
+
+endif() # ENABLE_UNITY_BUILD
 
 message(STATUS "Final compiler options: ${CMAKE_CXX_FLAGS}")
 message(STATUS "Rasdaman will be installed in ${CMAKE_INSTALL_PREFIX}")

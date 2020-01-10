@@ -128,22 +128,22 @@ public:
         r_ULong flipy, flipx;
     };
 
-    r_Conv_DEM(const char *source, const r_Minterval &lengthordomain, const r_Type *tp);
+    r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, const r_Type* tp);
 
-    r_Conv_DEM(const char *source, const r_Minterval &lengthordomain, int tp);
+    r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, int tp);
 
-    r_Conv_Desc &convertFrom(const char *options = NULL);
+    r_Conv_Desc& convertFrom(const char* options = NULL);
 
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
 
-    r_Conv_Desc &convertTo(const char *options = NULL,
-                           const r_Range *nullValue = NULL);
+    r_Conv_Desc& convertTo(const char* options = NULL,
+                           const r_Range* nullValue = NULL);
 
-    const char *get_name() const noexcept;
+    const char* get_name() const noexcept;
 
     r_Data_Format get_data_format() const noexcept;
 
-    r_Convertor *clone() const;
+    r_Convertor* clone() const;
 
     /// dimension of src domain accepted as input in convertFrom
     static const r_Dimension srcIntervDim;
@@ -152,17 +152,17 @@ public:
     static const r_Dimension destIntervDim;
 
     /// decode convertor options
-    static bool decodeOptions(const char *options,
-                              r_GeoBBox &collBBox) noexcept;
+    static bool decodeOptions(const char* options,
+                              r_GeoBBox& collBBox) noexcept;
 
     /// encode convertor options
-    static string encodeOptions(const r_GeoBBox &collBBox) noexcept;
+    static string encodeOptions(const r_GeoBBox& collBBox) noexcept;
 
     /// destructor
     virtual ~r_Conv_DEM(void);
 
     /// init convertor parameters to default value
-    static void initGeoBBox(r_GeoBBox &cBBox);
+    static void initGeoBBox(r_GeoBBox& cBBox);
 
 private:
 
@@ -174,23 +174,23 @@ private:
     void readFromSrcStream();
     void readToSrcStream();
     void writeFromDestStream();
-    void writeToDestStream(ofstream &oFile);
+    void writeToDestStream(ofstream& oFile);
 
     /// parameters
     r_GeoBBox collBBox;
 
     /// class constants
     static const r_ULong paramMin;
-    static const char *paramSep;
-    static const char *paramEq;
-    static const char *paramFlipX;
-    static const char *paramFlipY;
-    static const char *paramStartX;
-    static const char *paramEndX;
-    static const char *paramResX;
-    static const char *paramStartY;
-    static const char *paramEndY;
-    static const char *paramResY;
+    static const char* paramSep;
+    static const char* paramEq;
+    static const char* paramFlipX;
+    static const char* paramFlipY;
+    static const char* paramStartX;
+    static const char* paramEndX;
+    static const char* paramResX;
+    static const char* paramStartY;
+    static const char* paramEndY;
+    static const char* paramResY;
 
 
     /// internal data

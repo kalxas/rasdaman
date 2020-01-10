@@ -54,6 +54,7 @@ rasdaman GmbH.
 
 #include "raslib/type.hh"
 #include "mddmgr/mddcoll.hh"
+#include "tilemgr/tile.hh"
 #include "relcatalogif/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/settype.hh"

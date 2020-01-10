@@ -49,7 +49,7 @@ rasdaman GmbH.
  *  r_Convertor class
  */
 
-void r_Convertor::initShare(const char *src, const r_Minterval &interv)
+void r_Convertor::initShare(const char* src, const r_Minterval& interv)
 {
     desc.src = src;
     desc.srcInterv = interv;
@@ -72,7 +72,7 @@ r_Convertor::r_Convertor(void)
 }
 
 
-r_Convertor::r_Convertor(const char *src, const r_Minterval &interv, const r_Type *tp, bool fullTypes)
+r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Type* tp, bool fullTypes)
 {
     initShare(src, interv);
 
@@ -110,7 +110,7 @@ r_Convertor::r_Convertor(const char *src, const r_Minterval &interv, const r_Typ
 }
 
 
-r_Convertor::r_Convertor(const char *src, const r_Minterval &interv, int type)
+r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, int type)
 {
     initShare(src, interv);
 
@@ -151,19 +151,19 @@ void r_Convertor::releaseDest()
 }
 
 
-void r_Convertor::set_format(const std::string &formatArg)
+void r_Convertor::set_format(const std::string& formatArg)
 {
     format = formatArg;
 }
 
 
-void r_Convertor::set_storage_handler(const r_Storage_Man &newStore)
+void r_Convertor::set_storage_handler(const r_Storage_Man& newStore)
 {
     mystore = newStore;
 }
 
 
-const r_Storage_Man &
+const r_Storage_Man&
 r_Convertor::get_storage_handler() const
 {
     return mystore;
@@ -215,7 +215,7 @@ std::string r_Convertor::type_to_string(int ctype)
     }
 }
 
-r_Type *r_Convertor::get_external_type(int ctype)
+r_Type* r_Convertor::get_external_type(int ctype)
 {
     return r_Type::get_any_type(type_to_string(ctype).c_str());
 }
@@ -224,10 +224,10 @@ r_Type *r_Convertor::get_external_type(int ctype)
 template <class baseType>
 void r_Convertor::applyColorScheme()
 {
-    baseType *data = (baseType *)const_cast<char *>(desc.src);
+    baseType* data = (baseType*)const_cast<char*>(desc.src);
     baseType min = data[0], max = data[0];
     int i, size = desc.srcInterv.cell_count();
-    unsigned char *t, *img = new unsigned char[size * 3];
+    unsigned char* t, *img = new unsigned char[size * 3];
     for (i = 1; i < size; ++i)
     {
         if (min > data[i])
@@ -262,11 +262,11 @@ void r_Convertor::applyColorScheme()
         }
     }
     destroySrc = true;
-    desc.src = (char *)img;
+    desc.src = (char*)img;
 }
 
 convert_type_e
-r_Convertor::get_internal_type(const r_Type *tp, bool fullTypes)
+r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes)
 {
     convert_type_e retval = ctype_void;
 
@@ -282,7 +282,7 @@ r_Convertor::get_internal_type(const r_Type *tp, bool fullTypes)
         // add case for structs -- DM 2011-nov-10
 //        retval = ctype_rgb;
         int bands = 0;
-        for (const auto &att: static_cast<const r_Structure_Type *>(tp)->getAttributes())
+        for (const auto& att : static_cast<const r_Structure_Type*>(tp)->getAttributes())
         {
             ++bands;
             if (att.type_of().type_id() != r_Type::CHAR || bands > 3)
@@ -397,7 +397,7 @@ r_Convertor::get_internal_type(const r_Type *tp, bool fullTypes)
     return retval;
 }
 
-void r_Convertor::updateNodataValue(const r_Range *nullValue)
+void r_Convertor::updateNodataValue(const r_Range* nullValue)
 {
     if (formatParams.getNodata().empty() && nullValue != NULL)
     {
@@ -405,7 +405,7 @@ void r_Convertor::updateNodataValue(const r_Range *nullValue)
     }
 }
 
-std::ostream &operator<<(std::ostream &os, convert_type_e &cte)
+std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
 {
     switch (cte)
     {
@@ -485,7 +485,7 @@ void r_Convert_Memory::initMemory(void)
     memFS = new memFSContext;
     if (memFS != NULL)
     {
-        handle = static_cast<void *>(memFS);
+        handle = static_cast<void*>(memFS);
         if (memfs_initfs(handle) >= 0)
         {
             status = 0;
@@ -500,14 +500,14 @@ void r_Convert_Memory::initMemory(void)
 }
 
 
-r_Convert_Memory::r_Convert_Memory(const char *src, const r_Minterval &interv, const r_Type *tp, int fullTypes)
+r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, const r_Type* tp, int fullTypes)
     : r_Convertor(src, interv, tp, fullTypes)
 {
     initMemory();
 }
 
 
-r_Convert_Memory::r_Convert_Memory(const char *src, const r_Minterval &interv, int type)
+r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, int type)
     : r_Convertor(src, interv, type)
 {
     initMemory();

@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include <string>
 #include <ostream>
 
+class BaseType;
 class QtData;  // forward declaration of a subclass of QtOperation
 
 //@ManMemo: Module: {\bf qlparser}
@@ -76,7 +77,7 @@ public:
       The method triggers type checking of the node's subtree. If an error occurs, an exception
       is raised.
     */
-
+    
     //@Man: Read/Write methods
     //@{
     ///
@@ -92,6 +93,9 @@ public:
     void printAlgebraicExpression(std::ostream &s);
 
 protected:
+    /// utility method used in type checking
+    const BaseType *getBaseType(const QtTypeElement &inputType);
+
     /// result type of the node
     QtTypeElement dataStreamType;
 

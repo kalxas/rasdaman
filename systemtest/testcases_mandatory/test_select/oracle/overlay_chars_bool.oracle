@@ -1,1 +1,1 @@
-rasdaman error 364: Execution error 364 in line 1, column 28, near token overlay: Cell base type and scalar type of binary induce operation are incompatible.
+rasdaman error 363: Execution error 363 in line 1, column 28, near token overlay: Cell base types of binary induce operation are incompatible.

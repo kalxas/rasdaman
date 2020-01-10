@@ -64,25 +64,25 @@ class r_Conv_NETCDF : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_NETCDF(const char *src, const r_Minterval &interv, const r_Type *tp);
+    r_Conv_NETCDF(const char* src, const r_Minterval& interv, const r_Type* tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_NETCDF(const char *src, const r_Minterval &interv, int tp);
+    r_Conv_NETCDF(const char* src, const r_Minterval& interv, int tp);
     /// destructor
     ~r_Conv_NETCDF(void);
 
     /// convert to NETCDF
-    virtual r_Conv_Desc &convertTo(const char *options = NULL,
-                                   const r_Range *nullValue = NULL);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL);
     /// convert from NETCDF
-    virtual r_Conv_Desc &convertFrom(const char *options = NULL);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
 
     /// cloning
-    virtual r_Convertor *clone(void) const;
+    virtual r_Convertor* clone(void) const;
 
     /// identification
-    virtual const char *get_name(void) const;
+    virtual const char* get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
 private:
@@ -101,12 +101,12 @@ private:
     /**
      * Read data from tmpFile into desc.dest and return the file size.
      */
-    void parseDecodeOptions(const std::string &options);
+    void parseDecodeOptions(const std::string& options);
 
 
     void validateDecodeOptions();
 
-    void parseEncodeOptions(const std::string &options);
+    void parseEncodeOptions(const std::string& options);
 
     void validateJsonEncodeOptions();
 
@@ -126,7 +126,7 @@ private:
      * @param bandOffset offset bytes at the current variable.
      */
     template <class T>
-    void readVarData(int var, size_t cellSize, size_t &bandOffset, bool isStruct);
+    void readVarData(int var, size_t cellSize, size_t& bandOffset, bool isStruct);
 
     /**
      * Build struct type
@@ -141,12 +141,12 @@ private:
     /**
      * write single variable data
      */
-    void writeSingleVar(const std::vector<int> &dims);
+    void writeSingleVar(const std::vector<int>& dims);
 
     /**
      * write multiple variables from a struct
      */
-    void writeMultipleVars(const std::vector<int> &dims);
+    void writeMultipleVars(const std::vector<int>& dims);
 
     /**
      * write extra metadata (specified by json parameters)
@@ -156,14 +156,14 @@ private:
     /**
      * add metadata attributes to var if not null, otherwise to dataFile.
      */
-    void addJsonAttributes(const Json::Value &metadata, int var = NC_GLOBAL);
+    void addJsonAttributes(const Json::Value& metadata, int var = NC_GLOBAL);
 
     template <class T>
     void addVarAttributes(int var, nc_type nctype, T validMin, T validMax,
                           size_t dimNum);
 
     // return true if attribute att exists, false otherwise
-    bool attExists(int var, const char *att) const;
+    bool attExists(int var, const char* att) const;
 
     /**
      * Convert type to a nc_type; returns ncNoType in case of invalid type.
@@ -176,8 +176,8 @@ private:
     void jsonArrayToNcVar(int var, int dimid, Json::Value jsonArray);
 
     template <class T>
-    void writeData(const std::string &varName, const std::vector<int> &dims,
-                   const char *src, nc_type nctype,
+    void writeData(const std::string& varName, const std::vector<int>& dims,
+                   const char* src, nc_type nctype,
                    T validMin, T validMax, size_t dimNum = 0);
 
     /**
@@ -186,8 +186,8 @@ private:
      * @param bandOffset offset bytes in the rasdaman struct at the current variable.
      */
     template <class T>
-    void writeDataStruct(const std::string &varName,
-                         const std::vector<int> &dims,
+    void writeDataStruct(const std::string& varName,
+                         const std::vector<int>& dims,
                          size_t structSize, size_t bandOffset, nc_type nctype,
                          T validMin, T validMax, size_t dimNum = 0);
 
@@ -199,7 +199,7 @@ private:
     /**
      * @return single variable name for exporting to netcdf
      */
-    const std::string &getVariableName();
+    const std::string& getVariableName();
 
     // close the netCDF dataFile
     void closeDataFile();

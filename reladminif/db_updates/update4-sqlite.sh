@@ -21,7 +21,7 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 
-$SQLITE "PRAGME table_info('RAS_DOMAINVALUES')" | grep -q "AxisName"
+$SQLITE "PRAGMA table_info('RAS_DOMAINVALUES')" | grep -q "AxisName"
 if [ $? -ne 0 ]; then
     $SQLITE "ALTER TABLE RAS_DOMAINVALUES ADD AxisName TEXT"
 fi

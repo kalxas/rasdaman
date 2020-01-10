@@ -107,10 +107,7 @@ before creating instances of types with mapType().
 class TypeFactory
 {
 public:
-    static TypeFactory *instance();
-    /*@Doc:
-    used to access instance of TileFactory.
-    */
+    TypeFactory() = delete;
 
     static const BaseType *mapType(const char *typeName);
     /*@Doc:
@@ -260,12 +257,6 @@ public:
     static std::string getInternalTypeFromSyntaxType(const std::string &syntaxTypeName);
     // Maps internal types to syntax types (e.g. Char -> char)
     static std::string getSyntaxTypeFromInternalType(const std::string &internalTypeName);
-
-protected:
-    TypeFactory();
-    /*@Doc:
-    constructor, can not be used from outside.
-    */
 
 private:
 

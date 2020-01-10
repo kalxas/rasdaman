@@ -30,12 +30,13 @@ rasdaman GmbH.
 #ifndef TRANSPOSE_HH
 #define TRANSPOSE_HH
 
+#include <utility> // std::pair
 
-#include "raslib/minterval.hh"
-#include "raslib/basetype.hh"
+class r_Type;
+class r_Minterval;
 
 //transpose the last two dimensions of data via a temporary 2D object dataTemp
-void transposeLastTwo(char *data, r_Minterval &dimData, const r_Type *dataType);
+void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType);
 
 //general transpose function. used to throw errors in case the transpose option,
 //and otherwise to call the transposeLastTwo function. Should also simplify
@@ -46,6 +47,7 @@ void transposeLastTwo(char *data, r_Minterval &dimData, const r_Type *dataType);
 //either a cumbersome memory computation, a vacancy tracking algorithm, or
 //a bit map to implement effectively. For now, we only need this for pictures,
 //and as such, transposeLastTwo is good enough for the time being.
-void transpose(char *data, r_Minterval &dimData, const r_Type *dataType, const std::pair<int, int> transposeParams);
+void transpose(char* data, r_Minterval& dimData, const r_Type* dataType,
+               const std::pair<int, int> transposeParams);
 
 #endif /* TRANSPOSE_HH */

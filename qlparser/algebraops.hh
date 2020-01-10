@@ -54,8 +54,8 @@ class QLMarrayOp: public MarrayOp
 public:
     /// constructor
     QLMarrayOp(QtOperation *newCellExpression, std::vector<QtData *> *newDataList,
-               std::string       &newIteratorName,
-               BaseType    *newResType,        unsigned int newResOff = 0);
+               std::string &newIteratorName,
+               const BaseType *newResType, unsigned int newResOff = 0);
     /**
       Constructor gets cell expression pointer, data vector for bounded variables,
       cell type, and type offset
@@ -137,11 +137,9 @@ class QLInducedCondenseOp
 {
 public:
     ///constructor
-    QLInducedCondenseOp(QtOperation *cellExpression,
-                        QtOperation *condExpression,
+    QLInducedCondenseOp(QtOperation *cellExpression, QtOperation *condExpression,
                         std::vector<QtData *> *dataList,
-                        BinaryOp *myOp,
-                        std::string iteratorName);
+                        Ops::OpType op, const BaseType *newResBaseType, const BaseType *cellBaseType, std::string iteratorName);
 
     /// operator that carries out the cell expression on point {\tt p}.
     virtual void operator()(const r_Point &p);
@@ -157,17 +155,20 @@ public:
 private:
 
     /// pointer to the cell expression
-    QtOperation *cellExpression;
+    QtOperation *cellExpression{NULL};
 
     /// pointer to the condition expression
-    QtOperation *condExpression;
+    QtOperation *condExpression{NULL};
 
     /// pointer to data vector
-    std::vector<QtData *> *dataList;
+    std::vector<QtData *> *dataList{NULL};
+    
+    const BaseType *resBaseType{NULL};
 
-    BinaryOp *myOp;
+    BinaryOp *myOp{NULL};
+    BinaryOp *myInitialOp{NULL};
 
-    QtMDD *accumulatedValue;
+    QtMDD *accumulatedValue{NULL};
 };
 
 #endif

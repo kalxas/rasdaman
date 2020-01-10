@@ -44,6 +44,7 @@ rasdaman GmbH.
 #include "relcatalogif/typefactory.hh"
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/chartype.hh"
+#include "relcatalogif/mddbasetype.hh"
 
 #include <logging.hh>
 #include <iostream>

@@ -181,11 +181,11 @@ long long BlobFile::getBlobId()
         {
             ret = std::stoll(fileName);
         }
-        catch (std::invalid_argument &ex)
+        catch (std::invalid_argument &)
         {
             generateError("could not parse long long blob id", FILENAMETOBLOBIDFAILED);
         }
-        catch (std::out_of_range &ex)
+        catch (std::out_of_range &)
         {
             generateError("blob id out of long long range", FILENAMETOBLOBIDFAILED);
         }

@@ -32,8 +32,8 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#ifndef _TYPEENUM_HH_
-#define _TYPEENUM_HH_
+#ifndef TYPEENUM_HH
+#define TYPEENUM_HH
 
 //@Man: TypeEnum
 //@Type: typedef
@@ -60,5 +60,25 @@ enum TypeEnum
 This is the ops code and the persistence code: from the typenum the oids are generated.
 changing the order of the enums makes old databases incompatible.
  */
+
+//
+// Generate a switch for all base TypeEnums, and put the given code
+// block in each case.
+//
+#define CODE(...) __VA_ARGS__
+#define MAKE_SWITCH_TYPEENUM(cellType, T, code, codeDefault) \
+    switch (cellType) { \
+    case TypeEnum::ULONG:    { using T = r_ULong;   code break; } \
+    case TypeEnum::USHORT:   { using T = r_UShort;  code break; } \
+    case TypeEnum::CHAR:     { using T = r_Char;    code break; } \
+    case TypeEnum::BOOLTYPE: { using T = r_Boolean; code break; } \
+    case TypeEnum::LONG:     { using T = r_Long;    code break; } \
+    case TypeEnum::SHORT:    { using T = r_Short;   code break; } \
+    case TypeEnum::OCTET:    { using T = r_Octet;   code break; } \
+    case TypeEnum::DOUBLE:   { using T = r_Double;  code break; } \
+    case TypeEnum::FLOAT:    { using T = r_Float;   code break; } \
+    default:       { codeDefault break; } \
+    }
+
 
 #endif

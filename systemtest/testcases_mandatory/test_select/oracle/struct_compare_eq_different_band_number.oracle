@@ -1,1 +1,1 @@
-rasdaman error 365: Execution error 365 in line 1, column 21, near token =: Scalar types of binary operation are incompatible.
+rasdaman error 363: Execution error 363 in line 1, column 21, near token =: Cell base types of binary induce operation are incompatible.

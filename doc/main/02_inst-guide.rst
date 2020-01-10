@@ -1199,6 +1199,8 @@ To set up PostgreSQL for use by petascope:
 
 **H2 / HSQLDB**
 
+To alternatively set up H2 / HSQLDB for use by petascope:
+
 1. Create a directory that will host petascopedb and the H2 driver: ::
 
    $ mkdir /opt/rasdaman/geodb

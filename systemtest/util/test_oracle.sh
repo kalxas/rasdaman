@@ -65,12 +65,6 @@ ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Oracles directory not found: $ORACLE_PATH"
 OUTPUT_PATH="$SCRIPT_DIR/output"
 
-# before running any test queries in test directory, 
-# remove all the output files to make it clean first
-rm -rf "$OUTPUT_PATH"
-# then create the output directory
-mkdir -p "$OUTPUT_PATH"
-
 KNOWN_FAILS="$SCRIPT_DIR/known_fails"
 
 #
@@ -113,7 +107,7 @@ ingest_data()
   [ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data "$TESTDATA_PATH"
   [ "$SVC_NAME" == "subsetting" ] && import_subsetting_data "$TESTDATA_PATH"
   if [ -e "$TESTDATA_PATH/complex.binary" ] ; then
-    if [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "jit" -o "$SVC_NAME" == "nullvalues" -o "$SVC_NAME" == "cache" ]; then
+    if [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ]; then
       check_type Gauss2Set
       drop_colls $TEST_COMPLEX
       create_coll $TEST_COMPLEX Gauss2Set
@@ -166,13 +160,23 @@ fi
 #
 # check options
 #
+
+test_single_file=
 for i in $*; do
   case $i in
     --drop)      DROP_DATA=1;;
     --no-ingest) INGEST_DATA=0;;
-    *) error "unknown option: $i"
+    *)           test_single_file=$i;;
   esac
 done
+
+
+if [ -n "$test_single_file" ]; then
+  [ -f "$QUERIES_PATH/$test_single_file" ] || error "$test_single_file not found."
+else
+  rm -r "$OUTPUT_PATH"
+  mkdir -p "$OUTPUT_PATH"
+fi
 
 start_timer
 
@@ -196,7 +200,9 @@ curr_test_no=0
 for f in *; do
 
   # uncomment for single test run
-  #[[ "$f" == 094-* ]] || continue
+  if [ -n "$test_single_file" ]; then
+    [[ "$f" == "$test_single_file" ]] || continue
+  fi
 
   # skip non-files
   [ -f "$f" ] || continue

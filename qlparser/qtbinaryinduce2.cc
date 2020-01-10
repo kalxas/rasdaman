@@ -27,6 +27,8 @@ rasdaman GmbH.
 
 #include "mddmgr/mddobj.hh"
 
+#include "relcatalogif/basetype.hh"
+#include "relcatalogif/mddbasetype.hh"
 #include "relcatalogif/typefactory.hh"
 
 #include <logging.hh>
@@ -670,74 +672,48 @@ const QtTypeElement &QtBit::checkType(QtTypeTuple *typeTuple)
         const QtTypeElement &inputType1 = input1->checkType(typeTuple);
         const QtTypeElement &inputType2 = input2->checkType(typeTuple);
 
-        if (RManDebug >= 4)
-        {
-            LTRACE << "Operand 1: ";
-            std::stringstream os1;
-            inputType1.printStatus(os1);
-            LTRACE << os1.str();
-            
-            std::stringstream os2;
-            LTRACE << "Operand 2: ";
-            inputType2.printStatus(os2);
-            LTRACE << os2.str();
-
-            LTRACE << "Operation            " << opType;
-        }
-
         if (inputType2.getDataType() < QT_BOOL || inputType2.getDataType() > QT_LONG)
         {
-            LERROR << "Error: QtBit::checkType() - second operand must be of integral type.";
+            LERROR << "second operand of bit operation must be of integral type.";
             parseInfo.setErrorNo(418);
             throw parseInfo;
         }
+        
+        const BaseType *baseType1 = getBaseType(inputType1);
+        const BaseType *baseType2 = getBaseType(inputType2);
 
-        if (inputType1.getDataType() == QT_MDD)
+        if (inputType1.getDataType() == QT_MDD || inputType1.isBaseType())
         {
-            const BaseType *baseType1 = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType1.getType())))->getBaseType();
-            BaseType *baseType2 = static_cast<BaseType *>(const_cast<Type *>(inputType2.getType()));
-
-            const BaseType *resultBaseType = Ops::getResultType(opType, baseType1, baseType2);
-
-            if (!resultBaseType)
-            {
-                LERROR << "Error: QtBit::checkType() - unary induce: operand types are incompatible.";
-                parseInfo.setErrorNo(364);
+            const BaseType *resultBaseType;
+            try {
+                resultBaseType = Ops::getResultType(opType, baseType1, baseType2);
+                if (!resultBaseType) throw r_Error(364);
+            } catch (r_Error &e) {
+                LERROR << "operand types of bit operation are incompatible.";
+                parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
                 throw parseInfo;
             }
-
-            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
-            TypeFactory::addTempType(resultMDDType);
-
-            dataStreamType.setType(resultMDDType);
-        }
-
-        else if (inputType1.isBaseType())
-        {
-            BaseType *baseType1 = static_cast<BaseType *>(const_cast<Type *>(inputType1.getType()));
-            BaseType *baseType2 = static_cast<BaseType *>(const_cast<Type *>(inputType2.getType()));
-
-            const BaseType *resultBaseType = Ops::getResultType(opType, baseType1, baseType2);
-
-            if (!resultBaseType)
+            if (inputType1.getDataType() == QT_MDD)
             {
-                LERROR << "Error: QtBit::computeOp() - operand types are incompatible.";
-                parseInfo.setErrorNo(365);
-                throw parseInfo;
+                MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
+                TypeFactory::addTempType(resultMDDType);
+                dataStreamType.setType(resultMDDType);
             }
-
-            dataStreamType.setType(resultBaseType);
+            else
+            {
+                dataStreamType.setType(resultBaseType);
+            }
         }
         else
         {
-            LERROR << "Error: QtBit::checkType() - operation is not supported on these data types.";
+            LERROR << "bit operation is not supported on these data types.";
             parseInfo.setErrorNo(403);
             throw parseInfo;
         }
     }
     else
     {
-        LERROR << "Error: QtBit::checkType() - operand branch invalid.";
+        LERROR << "operand branch invalid.";
     }
 
     return dataStreamType;

@@ -33,15 +33,16 @@ rasdaman GmbH.
 #include "qlparser/qtcomplexdata.hh"
 #include "qlparser/algebraops.hh"
 #include "qlparser/qtvariable.hh"
-
+#include "common/util/scopeguard.hh"
 #include "mddmgr/mddobj.hh"
-
-#include <logging.hh>
+#include "tilemgr/tile.hh"
 
 #include "relcatalogif/typefactory.hh"
 #include "relcatalogif/doubletype.hh"
 #include "relcatalogif/ulongtype.hh"
 #include "relcatalogif/longtype.hh"
+
+#include <logging.hh>
 
 #include <iostream>
 #include <string>
@@ -62,8 +63,6 @@ QtCondenseOp::QtCondenseOp(Ops::OpType  newOperation,
 {
 }
 
-
-
 QtCondenseOp::~QtCondenseOp()
 {
     if (condOp)
@@ -72,8 +71,6 @@ QtCondenseOp::~QtCondenseOp()
         condOp = NULL;
     }
 }
-
-
 
 QtNode::QtNodeList *
 QtCondenseOp::getChilds(QtChildType flag)
@@ -103,8 +100,6 @@ QtCondenseOp::getChilds(QtChildType flag)
     return resultList;
 }
 
-
-
 bool
 QtCondenseOp::equalMeaning(QtNode *node)
 {
@@ -125,8 +120,6 @@ QtCondenseOp::equalMeaning(QtNode *node)
 
     return (result);
 }
-
-
 
 string
 QtCondenseOp::getSpelling()
@@ -152,7 +145,6 @@ QtCondenseOp::getSpelling()
     return result;
 }
 
-
 void
 QtCondenseOp::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
@@ -168,8 +160,6 @@ QtCondenseOp::setInput(QtOperation *inputOld, QtOperation *inputNew)
         }
     }
 }
-
-
 
 void
 QtCondenseOp::optimizeLoad(QtTrimList *trimList)
@@ -193,7 +183,6 @@ QtCondenseOp::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
 void
 QtCondenseOp::simplify()
 {
@@ -215,14 +204,11 @@ QtCondenseOp::simplify()
     resultList = NULL;
 }
 
-
 bool
 QtCondenseOp::isCommutative() const
 {
     return false; // NOT commutative
 }
-
-
 
 QtData *
 QtCondenseOp::evaluate(QtDataList *inputList)
@@ -234,6 +220,8 @@ QtCondenseOp::evaluate(QtDataList *inputList)
 
     if (getOperand(inputList, operand1, 1))
     {
+        const auto deleteOperand1 = common::make_scope_guard(
+            [&operand1]() noexcept { if (operand1) operand1->deleteRef(); });
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if (operand1->getDataType() != QT_MINTERVAL)
@@ -254,73 +242,35 @@ QtCondenseOp::evaluate(QtDataList *inputList)
         LTRACE << "Marray domain " << domain;
 
         // determine aggregation type
-        const BaseType *cellBaseType;
         QtDataType cellType = input2->getDataStreamType().getDataType();
+        const BaseType *cellBaseType;
+        if (cellType == QT_MDD)
+            cellBaseType = (static_cast<const MDDBaseType *>(input2->getDataStreamType().getType()))->getBaseType();
+        else
+            cellBaseType = static_cast<const BaseType *>(input2->getDataStreamType().getType());
+
+        const BaseType *resBaseType = getBaseType(dataStreamType);
+        
+        // get operation object
         if (cellType == QT_MDD)
         {
-            cellBaseType = (static_cast<const MDDBaseType *>(input2->getDataStreamType().getType()))->getBaseType();
+            returnValue = evaluateInducedOp(inputList, operation, resBaseType, cellBaseType, domain);
+            if (!returnValue)
+            {
+                MDDDomainType *mddBaseType = new MDDDomainType("tmp", resBaseType, domain);
+                TypeFactory::addTempType(mddBaseType);
+                MDDObj *mddres = new MDDObj(mddBaseType, domain, operand1->getNullValues());
+                Tile *resTile = new Tile(domain, resBaseType);
+                mddres->fillTileWithNullvalues(resTile->getContents(), domain.cell_count());
+                mddres->insertTile(resTile);
+                returnValue = new QtMDD(mddres);
+            }
         }
         else
         {
-            cellBaseType = static_cast<const BaseType *>(input2->getDataStreamType().getType());
-        }
-
-        const BaseType *resBaseType;
-        switch (cellType)
-        {
-        case QT_FLOAT:
-            resBaseType = TypeFactory::mapType("Double");
-            break;
-        case QT_CHAR:
-        case QT_USHORT:
-            resBaseType = TypeFactory::mapType("ULong");
-            break;
-        case QT_OCTET:
-        case QT_SHORT:
-            resBaseType = TypeFactory::mapType("Long");
-            break;
-        default:
-            resBaseType = cellBaseType;
-            break;
-        }
-        // get operation object
-        std::unique_ptr<BinaryOp> cellBinOp;
-        try
-        {
-            if (cellType == QT_MDD)
-            {
-                cellBinOp = std::unique_ptr<BinaryOp>(Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType,0,0,0, true));
-                returnValue = evaluateInducedOp(inputList, cellBinOp.get(), domain);
-                if (!returnValue)
-                {
-                    MDDDomainType *mddBaseType = new MDDDomainType("tmp", resBaseType, domain);
-                    TypeFactory::addTempType(mddBaseType);
-                    MDDObj *mddres = NULL;
-                    mddres = new MDDObj(mddBaseType, domain, operand1->getNullValues());
-                    Tile *resTile = NULL;
-                    resTile = new Tile(domain, resBaseType);
-                    mddres->fillTileWithNullvalues(resTile->getContents(),domain.cell_count());
-                    mddres->insertTile(resTile);
-                    returnValue = new QtMDD(mddres);
-                }
-            }
-            else
-            {
-                cellBinOp = std::unique_ptr<BinaryOp>(Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType));
-                returnValue = evaluateScalarOp(inputList, resBaseType, cellBinOp.get(), domain);
-            }
-        }
-        catch (...)
-        {
-            if (operand1)
-            {
-                operand1->deleteRef();
-            }
-            throw;
-        }
-        if (operand1)
-        {
-            operand1->deleteRef();
+            auto cellBinOp = std::unique_ptr<BinaryOp>(
+                        Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType));
+            returnValue = evaluateScalarOp(inputList, resBaseType, cellBinOp.get(), domain);
         }
     }
 
@@ -331,26 +281,26 @@ QtCondenseOp::evaluate(QtDataList *inputList)
 void 
 QtCondenseOp::checkOp(){
     //check legal ops
-        switch (operation)
-        {
-            {
-            case Ops::OP_PLUS:
-            case Ops::OP_MAX:
-            case Ops::OP_MAX_BINARY:
-            case Ops::OP_MIN:
-            case Ops::OP_MIN_BINARY:
-            case Ops::OP_MULT:
-            case Ops::OP_AND:
-            case Ops::OP_OR:
-            case Ops::OP_XOR:
-                break;
-            default:
-                LERROR << "Unsupported condense operator: " << operation << ", expected one of: +, *, max, min, and, or, xor";
-                parseInfo.setErrorNo(450);
-                throw parseInfo;
-            }
-        }
+    switch (operation)
+    {
+    case Ops::OP_PLUS:
+    case Ops::OP_MAX:
+    case Ops::OP_MAX_BINARY:
+    case Ops::OP_MIN:
+    case Ops::OP_MIN_BINARY:
+    case Ops::OP_MULT:
+    case Ops::OP_AND:
+    case Ops::OP_OR:
+    case Ops::OP_XOR:
+        break;
+    default: {
+        LERROR << "Unsupported condense operator: " << operation << ", expected one of: +, *, max, min, and, or, xor";
+        parseInfo.setErrorNo(450);
+        throw parseInfo;
+    }
+    }
 }
+
 QtData *
 QtCondenseOp::evaluateScalarOp(QtDataList *inputList, const BaseType *resType, BinaryOp *cellBinOp, r_Minterval domain)
 {
@@ -368,13 +318,9 @@ QtCondenseOp::evaluateScalarOp(QtDataList *inputList, const BaseType *resType, B
     // create data object for the cell
     QtScalarData *scalarDataObj = NULL;
     if (resType->getType() == STRUCT)
-    {
         scalarDataObj = new QtComplexData();
-    }
     else
-    {
         scalarDataObj = new QtAtomicData();
-    }
 
     scalarDataObj->setValueType(resType);
     scalarDataObj->setValueBuffer(resultBuffer);
@@ -384,10 +330,11 @@ QtCondenseOp::evaluateScalarOp(QtDataList *inputList, const BaseType *resType, B
 }
 
 QtData *
-QtCondenseOp::evaluateInducedOp(QtDataList *inputList, BinaryOp *cellBinOp, r_Minterval domain)
+QtCondenseOp::evaluateInducedOp(QtDataList *inputList, Ops::OpType op, const BaseType *resBaseType, 
+                                const BaseType *cellBaseType, r_Minterval domain)
 {
     auto qlInducedCondenseOp = std::unique_ptr<QLInducedCondenseOp>(
-                                   new QLInducedCondenseOp(input2, condOp, inputList, cellBinOp, iteratorName));
+                                   new QLInducedCondenseOp(input2, condOp, inputList, op, resBaseType, cellBaseType, iteratorName));
     return QLInducedCondenseOp::execGenCondenseInducedOp(qlInducedCondenseOp.get(), domain);
 }
 
@@ -395,40 +342,26 @@ void
 QtCondenseOp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCondenseOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
-
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
-
     QtBinaryOperation::printTree(tab, s, mode);
 }
-
-
 
 void
 QtCondenseOp::printAlgebraicExpression(ostream &s)
 {
     s << "(";
-
     s << iteratorName.c_str() << ",";
-
     if (input1)
-    {
         input1->printAlgebraicExpression(s);
-    }
     else
-    {
         s << "<nn>";
-    }
 
     s << ",";
 
     if (input2)
-    {
         input2->printAlgebraicExpression(s);
-    }
     else
-    {
         s << "<nn>";
-    }
 
     s << ")";
 }
@@ -443,23 +376,22 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input1 && input2)
     {
-
         // check domain expression
         const QtTypeElement &domainExp = input1->checkType(typeTuple);
 
         if (domainExp.getDataType() != QT_MINTERVAL)
         {
-            LERROR << "Error: QtCondenseOp::checkType() - Can not evaluate domain expression to an minterval";
+            LERROR << "Can not evaluate domain expression to an minterval";
             parseInfo.setErrorNo(401);
             throw parseInfo;
         }
 
         // add domain iterator to the list of bounded variables
-        bool newList = false;
+        std::unique_ptr<QtTypeTuple> typeTuplePtr;
         if (!typeTuple)
         {
             typeTuple = new QtTypeTuple();
-            newList = true;
+            typeTuplePtr.reset(typeTuple);
         }
         typeTuple->tuple.push_back(QtTypeElement(QT_POINT, iteratorName.c_str()));
 
@@ -472,50 +404,61 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
         auto op2Type = valueExp.getDataType();
 
         // check type
-        if (op2Type != QT_BOOL   && op2Type != QT_COMPLEX &&
-                op2Type != QT_CHAR   && op2Type != QT_OCTET   &&
-                op2Type != QT_USHORT && op2Type != QT_SHORT   &&
-                op2Type != QT_ULONG  && op2Type != QT_LONG    &&
-                op2Type != QT_FLOAT  && op2Type != QT_DOUBLE  &&
-                op2Type != QT_COMPLEXTYPE1 && op2Type != QT_COMPLEXTYPE2 &&
-                op2Type != QT_CINT16 && op2Type != QT_CINT32 && op2Type != QT_MDD)
+        const auto isAtomic = op2Type >= QT_BOOL && op2Type <= QT_COMPLEXTYPE2;
+        if (!isAtomic && op2Type != QT_COMPLEX && op2Type != QT_MDD)
         {
-            LERROR << "Error: QtCondenseOp::checkType() - Value expression must be either of type atomic, complex or MDD.";
+            LERROR << "Value expression must be either of type atomic, complex or MDD.";
             parseInfo.setErrorNo(412);
             throw parseInfo;
         }
 
-        switch (op2Type)
+        const BaseType *resultBaseType;
+        try {
+            const auto *opType = getBaseType(valueExp);
+            resultBaseType = Ops::getResultType(operation, opType, opType);
+            if (!resultBaseType) throw r_Error(412);
+        } catch (r_Error &e) {
+            LERROR << "Failed to determine result type.";
+            parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
+            throw parseInfo;
+        }
+        
+        switch (resultBaseType->getType())
         {
-        case QT_FLOAT:
-            dataStreamType.setDataType(QT_DOUBLE);
-            break;
-        case QT_CHAR:
-        case QT_USHORT:
-            dataStreamType.setDataType(QT_ULONG);
-            break;
-        case QT_OCTET:
-        case QT_SHORT:
-            dataStreamType.setDataType(QT_LONG);
-            break;
-        default:
-            dataStreamType = valueExp;
-            break;
+        case TypeEnum::ULONG: dataStreamType.setDataType(QT_ULONG); break;
+        case TypeEnum::USHORT: dataStreamType.setDataType(QT_USHORT); break;
+        case TypeEnum::CHAR: dataStreamType.setDataType(QT_CHAR); break;
+        case TypeEnum::BOOLTYPE: dataStreamType.setDataType(QT_BOOL); break;
+        case TypeEnum::LONG: dataStreamType.setDataType(QT_LONG); break;
+        case TypeEnum::SHORT: dataStreamType.setDataType(QT_SHORT); break;
+        case TypeEnum::OCTET: dataStreamType.setDataType(QT_OCTET); break;
+        case TypeEnum::DOUBLE: dataStreamType.setDataType(QT_DOUBLE); break;
+        case TypeEnum::FLOAT: dataStreamType.setDataType(QT_FLOAT); break;
+        case TypeEnum::COMPLEXTYPE1: dataStreamType.setDataType(QT_COMPLEXTYPE1); break;
+        case TypeEnum::COMPLEXTYPE2: dataStreamType.setDataType(QT_COMPLEXTYPE2); break;
+        case TypeEnum::CINT16: dataStreamType.setDataType(QT_CINT16); break;
+        case TypeEnum::CINT32: dataStreamType.setDataType(QT_CINT32); break;
+        case TypeEnum::STRUCT: dataStreamType.setDataType(QT_COMPLEX); break;
+        default: dataStreamType.setDataType(valueExp.getDataType()); break;
+        }
+        if (op2Type == QT_MDD)
+        {
+            MDDBaseType *mddBaseType = new MDDBaseType("tmp", resultBaseType);
+            TypeFactory::addTempType(mddBaseType);
+            dataStreamType.setType(mddBaseType);
+        }
+        else
+        {
+            dataStreamType.setType(resultBaseType);
         }
 
-        //
         // check condition expression
-        //
-
         if (condOp)
         {
-            // get value expression type
             const QtTypeElement &condExp = condOp->checkType(typeTuple);
-
-            // check type
             if (condExp.getDataType() != QT_BOOL)
             {
-                LERROR << "Error: QtCondenseOp::checkType() - Condition expression must be of type boolean";
+                LERROR << "Condition expression must be of type boolean";
                 parseInfo.setErrorNo(413);
                 throw parseInfo;
             }
@@ -523,15 +466,10 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
 
         // remove iterator again
         typeTuple->tuple.pop_back();
-        if (newList)
-        {
-            delete typeTuple;
-            typeTuple = NULL;
-        }
     }
     else
     {
-        LERROR << "Error: QtCondenseOp::checkType() - operand branch invalid.";
+        LERROR << "operand branch invalid.";
     }
 
     return dataStreamType;

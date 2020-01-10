@@ -37,6 +37,8 @@ rasdaman GmbH.
 #include "mddmgr/mddcolliter.hh"
 #include "servercomm/cliententry.hh"
 #include "lockmgr/lockmanager.hh"
+#include "relcatalogif/mdddimensiontype.hh"
+#include "relcatalogif/collectiontype.hh"
 #include <logging.hh>
 
 #include <iostream>

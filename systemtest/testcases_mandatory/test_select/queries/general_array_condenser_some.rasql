@@ -1,1 +1,1 @@
-select condense or over x in sdom(a) using a[x] from test_grey as a
+select condense or over x in sdom(a) using (bool)a[x] from test_grey as a

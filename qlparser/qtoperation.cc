@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 
 #include "qlparser/qtoperation.hh"
+#include "relcatalogif/basetype.hh"
 #include "relcatalogif/mddbasetype.hh"
 #include <logging.hh>
 
@@ -111,4 +112,15 @@ QtOperation::printAlgebraicExpression(std::ostream &s)
     s << "no ops";
 
     s << ">";
+}
+
+const BaseType *
+QtOperation::getBaseType(const QtTypeElement &inputType)
+{
+    if (inputType.getDataType() == QT_MDD)
+        return (static_cast<const MDDBaseType *>(inputType.getType()))->getBaseType();
+    else if (inputType.isBaseType())
+        return static_cast<const BaseType *>(inputType.getType());
+    else
+        return nullptr;
 }

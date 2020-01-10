@@ -30,8 +30,8 @@
  *
 */
 
-#ifndef _D_TYPE_
-#define _D_TYPE_
+#ifndef D_TYPE_HH
+#define D_TYPE_HH
 
 #include "raslib/metaobject.hh"
 #include "raslib/mddtypes.hh"
@@ -160,5 +160,32 @@ private:
 };
 
 extern std::ostream &operator<<(std::ostream &s, r_Type::r_Type_Id t);
+
+//ULONG, USHORT, CHAR, BOOL, LONG, SHORT, OCTET,
+//DOUBLE, FLOAT, COMPLEXTYPE1, COMPLEXTYPE2, CINT16, CINT32,
+//STRUCTURETYPE, MARRAYTYPE, COLLECTIONTYPE,
+//SINTERVALTYPE, MINTERVALTYPE, POINTTYPE, OIDTYPE,
+//UNKNOWNTYPE
+//};
+
+//
+// Generate a switch for all base r_Type_Id, and put the given code
+// block in each case.
+//
+#define CODE(...) __VA_ARGS__
+#define MAKE_SWITCH_TYPEID(cellType, T, code, codeDefault) \
+    switch (cellType) { \
+    case r_Type::r_Type_Id::ULONG: { using T = r_ULong;   code break; } \
+    case r_Type::r_Type_Id::USHORT:{ using T = r_UShort;  code break; } \
+    case r_Type::r_Type_Id::CHAR:  { using T = r_Char;    code break; } \
+    case r_Type::r_Type_Id::BOOL:  { using T = r_Boolean; code break; } \
+    case r_Type::r_Type_Id::LONG:  { using T = r_Long;    code break; } \
+    case r_Type::r_Type_Id::SHORT: { using T = r_Short;   code break; } \
+    case r_Type::r_Type_Id::OCTET: { using T = r_Octet;   code break; } \
+    case r_Type::r_Type_Id::DOUBLE:{ using T = r_Double;  code break; } \
+    case r_Type::r_Type_Id::FLOAT: { using T = r_Float;   code break; } \
+    default:       { codeDefault break; } \
+    }
+
 
 #endif

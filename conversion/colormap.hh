@@ -23,14 +23,15 @@
 #ifndef R_CONV_COLORMAP_HH
 #define R_CONV_COLORMAP_HH
 
+#include "raslib/minterval.hh"
+#include "raslib/basetype.hh"
+#include "raslib/type.hh"
+
 #include <vector>
 #include <string>
 #include <map>
 #include <unordered_map>
-
-#include "raslib/minterval.hh"
-#include "raslib/basetype.hh"
-#include "raslib/type.hh"
+#include <memory>
 
 using ColorTableMap = std::map<double, std::vector<unsigned char>>;
 using ColorTableUMap = std::unordered_map<double, std::vector<unsigned char>>;
@@ -44,18 +45,18 @@ public:
         INTERVALS,
         RAMP
     };
-    
+
     r_ColorMap();
 
-    const char *applyColorMap(
-            const r_Type *srcType, const char *srcData, const r_Minterval &dimData, int &baseType);
-    
+    std::unique_ptr<unsigned char[]> applyColorMap(
+        const r_Type* srcType, const char* srcData, const r_Minterval& dimData, int& baseType);
+
     void setColorMapType(r_ColorMap::Type type);
 
     void setColorTable(ColorTableMap colorTableMap);
 
     void setUColorTable(ColorTableUMap uColorTableMap);
-    
+
     size_t getResultBandNumber() const;
 private:
     r_ColorMap::Type colorMapType{r_ColorMap::Type::VALUES};
@@ -67,15 +68,15 @@ private:
     ColorTableUMap uColorTable;
 
     template <class T>
-    const char *applySpecificColorMap(const char *srcData, size_t nrPixels, size_t nrBands, unsigned char* res);
+    void applySpecificColorMap(const T* srcData, size_t nrPixels, size_t nrBands, unsigned char* res);
 
     template <class T>
-    const char *applyValuesColorMap(const T *srcData, size_t nrPixels, size_t nrBands, unsigned char* res);
+    void applyValuesColorMap(const T* srcData, size_t nrPixels, size_t nrBands, unsigned char* res);
 
     template <class T>
-    const char *applyIntervalsColorMap(const T *srcData, size_t nrPixels, size_t nrBands, unsigned char* res, bool ramp);
-    
-    const std::vector<unsigned char> *getUColor(double curr) const;
+    void applyIntervalsColorMap(const T* srcData, size_t nrPixels, size_t nrBands, unsigned char* res, bool ramp);
+
+    const std::vector<unsigned char>* getUColor(double curr) const;
 };
 
 #endif /* R_CONV_COLORMAP_HH */

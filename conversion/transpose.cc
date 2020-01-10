@@ -33,15 +33,17 @@ rasdaman GmbH.
  *
 */
 #include "transpose.hh"
+#include "raslib/minterval.hh"
+#include "raslib/basetype.hh"
 #include "raslib/error.hh"
 #include <logging.hh>
 
 
-void transposeLastTwo(char *data, r_Minterval &dimData, const r_Type *dataType)
+void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType)
 {
     LDEBUG << "transposing last two dimensions...";
     const auto dim = dimData.dimension();
-    size_t typeSize = static_cast<r_Base_Type *>(const_cast<r_Type *>(dataType))->size();
+    size_t typeSize = static_cast<r_Base_Type*>(const_cast<r_Type*>(dataType))->size();
     //the number of 2D slices we need to transpose
     size_t s = 1;
     for (size_t i = 0; i < static_cast<size_t>(dim - 2); i++)
@@ -56,7 +58,7 @@ void transposeLastTwo(char *data, r_Minterval &dimData, const r_Type *dataType)
     const size_t sliceSize = m * n * typeSize;
     std::unique_ptr<char[]> dataTempPtr;
     dataTempPtr.reset(new char [sliceSize]);
-    char *dataTemp = dataTempPtr.get();
+    char* dataTemp = dataTempPtr.get();
     //a loop for changing each 2D data slice
     for (size_t v = 0; v < s; v++)
     {
@@ -80,7 +82,7 @@ void transposeLastTwo(char *data, r_Minterval &dimData, const r_Type *dataType)
     dimData.transpose(dim - 2, dim - 1);
 }
 
-void transpose(char *data, r_Minterval &dimData, const r_Type *dataType, const std::pair<int, int> transposeParams)
+void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams)
 {
     int dims = static_cast<int>(dimData.dimension());
     int tParam0 = std::get<0>(transposeParams);

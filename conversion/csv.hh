@@ -51,28 +51,28 @@ class r_Conv_CSV : public r_Convertor
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_CSV(const char *src, const r_Minterval &interv, const r_Type *tp);
+    r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type* tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_CSV(const char *src, const r_Minterval &interv, int tp);
+    r_Conv_CSV(const char* src, const r_Minterval& interv, int tp);
     /// destructor
     ~r_Conv_CSV(void);
 
     /// convert to CSV
-    virtual r_Conv_Desc &convertTo(const char *options = NULL,
-                                   const r_Range *nullValue = NULL);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL);
     /// convert from CSV
-    virtual r_Conv_Desc &convertFrom(const char *options = NULL);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
     /// convert data in a specific format to array
     using r_Convertor::convertFrom;
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
     /// cloning
-    virtual r_Convertor *clone(void) const;
+    virtual r_Convertor* clone(void) const;
     /// identification
-    virtual const char *get_name(void) const;
+    virtual const char* get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
-    static const char *FALSE;
-    static const char *TRUE;
+    static const char* FALSE;
+    static const char* TRUE;
 
 protected:
 
@@ -94,19 +94,19 @@ private:
     /// logic for displaying values
     //    each method has argument "val" - pointer to the beginning of the record
     //    and returns pointer to the end of the read record
-    const char *printValue(std::stringstream &f, const r_Base_Type &type, const char *val);
-    const char *printStructValue(std::stringstream &f, const char *val);
-    const char *printComplexValue(std::stringstream &f, const r_Base_Type &type, const char *val);
-    const char *printPrimitiveValue(std::stringstream &f, const r_Base_Type &type, const char *val);
+    const char* printValue(std::stringstream& f, const r_Base_Type& type, const char* val);
+    const char* printStructValue(std::stringstream& f, const char* val);
+    const char* printComplexValue(std::stringstream& f, const r_Base_Type& type, const char* val);
+    const char* printPrimitiveValue(std::stringstream& f, const r_Base_Type& type, const char* val);
     /// logic for displaying nested arrays
     //     dims  - array describing how many elements are in each dimension
     //     offsets - array describing memory offset between values in each dimension
     //     dim   - number of dimensions
-    void printArray(std::stringstream &f, int *dims, size_t *offsets, int dim, const char *val,
-                    const r_Base_Type &type);
+    void printArray(std::stringstream& f, int* dims, size_t* offsets, int dim, const char* val,
+                    const r_Base_Type& type);
 
-    void processEncodeOptions(const std::string &options);
-    void processDecodeOptions(const std::string &options);
+    void processEncodeOptions(const std::string& options);
+    void processDecodeOptions(const std::string& options);
 
     /// Description of constructStruct - Construct desc.dest when the type of the array
     // is a struct type.
@@ -117,7 +117,7 @@ private:
     /// Description of constructDest - Construct desc.dest
     //      @param type - type of the elements in the csv file.
     //      @param numElem - number of values that will be read from the csv file.
-    void constructDest(const r_Base_Type &type, unsigned int numElem);
+    void constructDest(const r_Base_Type& type, unsigned int numElem);
 
     Order order;
     std::string basetype;
@@ -134,10 +134,10 @@ private:
 //      @param src - the content of the csv file.
 //      @param numElem - number of elements that will be read from the csv file.
 template<class T>
-void constructPrimitive(char *dest, const char *src, unsigned int numElem, size_t srcSize);
+void constructPrimitive(char* dest, const char* src, unsigned int numElem, size_t srcSize);
 
 bool isValidCharacter(char c);
-size_t skipToValueBegin(const char *src, size_t srcSize, size_t srcIndex);
-size_t skipToValueEnd(const char *src, size_t srcSize, size_t srcIndex);
+size_t skipToValueBegin(const char* src, size_t srcSize, size_t srcIndex);
+size_t skipToValueEnd(const char* src, size_t srcSize, size_t srcIndex);
 
 #endif

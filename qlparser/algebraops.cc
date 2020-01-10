@@ -30,13 +30,15 @@ rasdaman GmbH.
 #include "qlparser/qtscalardata.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtbinaryinduce.hh"
+#include "mddmgr/mddobj.hh"
 #include "relcatalogif/basetype.hh"
+#include "relcatalogif/mddbasetype.hh"
 #include <logging.hh>
 
 QLMarrayOp::QLMarrayOp(QtOperation     *newCellExpression,
                        std::vector<QtData *> *newDataList,
                        std::string           &newIteratorName,
-                       BaseType        *newResType,
+                       const BaseType   *newResType,
                        unsigned int     newResOff) :
     MarrayOp(newResType, newResOff),
     cellExpression(newCellExpression),
@@ -176,78 +178,67 @@ QLCondenseOp::operator()(const r_Point &p)
 }
 
 QLInducedCondenseOp::QLInducedCondenseOp(QtOperation *newCellExpression,
-        QtOperation *newCondExpression,
-        std::vector<QtData *> *newDataList,
-        BinaryOp *newMyOp,
-        std::string iteratorName)
-    : cellExpression(newCellExpression),
-      condExpression(newCondExpression),
-      dataList(newDataList),
-      myOp(newMyOp)
-
-{
-    //
+        QtOperation *newCondExpression, std::vector<QtData *> *newDataList,
+        Ops::OpType op, const BaseType *newResBaseType, const BaseType *cellBaseType, std::string iteratorName)
+    : cellExpression(newCellExpression), condExpression(newCondExpression),
+      dataList(newDataList), resBaseType(newResBaseType)
+{    
+    myInitialOp = Ops::getBinaryOp(op, resBaseType, cellBaseType, cellBaseType, 0, 0, 0, true);
+    myOp = Ops::getBinaryOp(op, resBaseType, resBaseType, cellBaseType, 0, 0, 0, true);
+    
     // add point with its iterator name to the data list
-    //
 
     // create QtPointData object
     QtPointData *pointData = new QtPointData(r_Point());
-
     // set its iterator name
     pointData->setIteratorName(iteratorName);
-
     // add it to the list
     dataList->push_back(pointData);
-
     accumulatedValue = NULL;
 }
 
 void
 QLInducedCondenseOp::operator()(const r_Point &p)
 {
-    bool currentCellValid = true;
     // update point data of input list
     if (dataList)
-    {
         (static_cast<QtPointData *>(dataList->back()))->setPointData(p);
-    }
+
+    bool currentCellValid = true;
     if (condExpression)
     {
         QtData *condData = condExpression->evaluate(dataList);
 #ifdef QT_RUNTIME_TYPE_CHECK
         if (condData->getDataType() != QT_BOOL)
-        {
-            LERROR << "Internal error in QLCondenseOp::operator() - "
-                   << "runtime type checking failed (BOOL).";
-        }
-        else
+            LERROR << "runtime type checking failed.";
 #endif
-            currentCellValid = (static_cast<QtAtomicData *>(condData))->getUnsignedValue();
+        currentCellValid = (static_cast<QtAtomicData *>(condData))->getUnsignedValue();
         condData->deleteRef();
     }
     if (currentCellValid)
     {
         QtMDD *resultData = static_cast<QtMDD *>(cellExpression->evaluate(dataList));
         //execute binary operation on current tile
-        //if accumulatedValue has not been initialized, it actually takes the value of the tile
         if (accumulatedValue == NULL)
         {
+            //if accumulatedValue has not been initialized, it actually takes the value of the tile
             accumulatedValue = resultData;
         }
-        //else, accumulated value becomes the condense op applied to accumulatedValue and currentValue
         else
         {
-            QtMDD *result = static_cast<QtMDD *>(
-                                QtBinaryInduce::computeBinaryMDDOp(accumulatedValue,
-                                        resultData,
-                                        accumulatedValue->getCellType(),
-                                        myOp
-                                                                  ));
+            //else, accumulated value becomes the condense op applied to accumulatedValue and currentValue
+            //for the first condense application, use myInitialOp, and afterwards myOp
+            auto *result = QtBinaryInduce::computeBinaryMDDOp(
+                        accumulatedValue, resultData, resBaseType, myInitialOp ? myInitialOp : myOp
+                        );
+            // delete myInitialOp so that myOp is used in the next condense application
+            delete myInitialOp;
+            myInitialOp = NULL;
             //delete the mdds as they are not used
             accumulatedValue->deleteRef();
             resultData->deleteRef();
             //update the accumulated values
-            accumulatedValue = result;
+            accumulatedValue = static_cast<QtMDD *>(result);
         }
     }
 }
@@ -262,38 +253,33 @@ QLInducedCondenseOp::getAccumulatedValue()
 QtMDD *
 QLInducedCondenseOp::execGenCondenseInducedOp(QLInducedCondenseOp *myOp, const r_Minterval &areaOp)
 {
-    r_Point pOp(areaOp.dimension());
-    int done = 0;
-    int i = 0;
-    unsigned int j = 0;
-    unsigned int dim = areaOp.dimension();
-
     // initialize points
-    for (j = 0; j < dim; j++)
-    {
-        pOp << areaOp[j].low();
-    }
+    const auto dim = areaOp.dimension();
+    r_Point pOp(dim);
+    for (r_Dimension i = 0; i < dim; i++)
+        pOp << areaOp[i].low();
 
 #ifdef RMANBENCHMARK
     opTimer.resume();
 #endif
     // iterate over all cells
+    bool done = false;
     while (!done)
     {
         (*myOp)(pOp);
         // increment coordinates
-        i = static_cast<int>(dim) - 1;
-        ++pOp[static_cast<r_Dimension>(i)];
-        while (pOp[static_cast<r_Dimension>(i)] > areaOp[static_cast<r_Dimension>(i)].high())
+        auto i = dim - 1;
+        ++pOp[i];
+        while (pOp[i] > areaOp[i].high())
         {
-            pOp[static_cast<r_Dimension>(i)] = areaOp[static_cast<r_Dimension>(i)].low();
-            i--;
-            if (i < 0)
+            pOp[i] = areaOp[i].low();
+            if (i == 0)
             {
-                done = 1;
+                done = true;
                 break;
             }
-            ++pOp[static_cast<r_Dimension>(i)];
+            --i;
+            ++pOp[i];
         }
     }
 #ifdef RMANBENCHMARK
@@ -307,4 +293,6 @@ QLInducedCondenseOp::~QLInducedCondenseOp()
     // remove point data object from inputList again
     dataList->back()->deleteRef();
     dataList->pop_back();
+    delete myInitialOp; myInitialOp = NULL;
+    delete myOp; myOp = NULL;
 }

@@ -38,7 +38,9 @@ rasdaman GmbH.
 #include "qlparser/qtmdd.hh"            // these three can be deleted with new memory management
 
 #include "relcatalogif/basetype.hh"
+#include "relcatalogif/mddbasetype.hh"
 #include "mddmgr/mddobj.hh"
+#include "tilemgr/tile.hh"
 
 #include <iostream>
 #include <string>

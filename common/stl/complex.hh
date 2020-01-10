@@ -23,31 +23,23 @@ template <typename L, typename R>
 auto operator+(const complex<L>& lhs, R rhs) -> complex<decltype(L{} + R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   using ResultType = decltype(L{} + R{});
-
   return complex<ResultType>{lhs.real() + rhs, lhs.imag() + rhs};
 }
-
 template <typename L, typename R>
 auto operator+(L lhs, const complex<R>& rhs) -> complex<decltype(L{} + R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   using ResultType = decltype(L{} + R{});
-
   return complex<ResultType>{lhs + rhs.real(), lhs + rhs.imag()};
 }
-
 template <typename L, typename R>
 auto operator+(const complex<L>& lhs, const complex<R>& rhs)
     -> complex<decltype(L{} + R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
   ASSERT_IS_DIFFERENT_TYPES(L, R);
-
   using ResultType = decltype(L{} + R{});
-
   return complex<ResultType>{lhs.real() + rhs.real(), lhs.imag() + rhs.imag()};
 }
 
@@ -55,54 +47,43 @@ template <typename L, typename R>
 auto operator-(const complex<L>& lhs, R rhs) -> complex<decltype(L{} - R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   using ResultType = decltype(L{} - R{});
-
-  return complex<ResultType>{lhs.real() - rhs, lhs.imag() - rhs};
+  return complex<ResultType>{static_cast<ResultType>(lhs.real()) - static_cast<ResultType>(rhs),
+              static_cast<ResultType>(lhs.imag()) - static_cast<ResultType>(rhs)};
 }
-
 template <typename L, typename R>
 auto operator-(L lhs, const complex<R>& rhs) -> complex<decltype(L{} - R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   using ResultType = decltype(L{} - R{});
-
-  return complex<ResultType>{lhs - rhs.real(), lhs - rhs.imag()};
+  return complex<ResultType>{static_cast<ResultType>(lhs) - static_cast<ResultType>(rhs.real()), 
+              static_cast<ResultType>(lhs) - static_cast<ResultType>(rhs.imag())};
 }
-
 template <typename L, typename R>
 auto operator-(const complex<L>& lhs, const complex<R>& rhs)
     -> complex<decltype(L{} - R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
   ASSERT_IS_DIFFERENT_TYPES(L, R);
-
   using ResultType = decltype(L{} - R{});
-
-  return complex<ResultType>{lhs.real() - rhs.real(), lhs.imag() - rhs.imag()};
+  return complex<ResultType>{static_cast<ResultType>(lhs.real()) - static_cast<ResultType>(rhs.real()), 
+              static_cast<ResultType>(lhs.imag()) - static_cast<ResultType>(rhs.imag())};
 }
 
 template <typename L, typename R>
 auto operator*(const complex<L>& lhs, R rhs) -> complex<decltype(L{} * R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   using ResultType = decltype(L{} * R{});
-
   return complex<ResultType>{lhs.real() * rhs, lhs.imag() * rhs};
 }
-
 template <typename L, typename R>
 auto operator*(L lhs, const complex<R>& rhs) -> complex<decltype(L{} * R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   using ResultType = decltype(L{} * R{});
-
   return complex<ResultType>{lhs * rhs.real(), lhs * rhs.imag()};
 }
-
 template <typename L, typename R>
 auto operator*(const complex<L>& lhs, const complex<R>& rhs)
     -> complex<decltype(L{} * R{})> {
@@ -111,11 +92,9 @@ auto operator*(const complex<L>& lhs, const complex<R>& rhs)
   ASSERT_IS_DIFFERENT_TYPES(L, R);
 
   using ResultType = decltype(L{} * R{});
-
   // TODO: Benchmark different multiplication algorithms
   ResultType realPart = lhs.real() * rhs.real() - lhs.imag() * rhs.imag();
   ResultType imagPart = lhs.real() * rhs.imag() + lhs.imag() * rhs.real();
-
   return complex<ResultType>{realPart, imagPart};
 }
 
@@ -123,22 +102,16 @@ template <typename L, typename R>
 auto operator/(L lhs, const complex<R>& rhs) -> complex<decltype(L{} / R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   using ResultType = decltype(L{} / R{});
-
   return complex<ResultType>{lhs / rhs.real(), lhs / rhs.imag()};
 }
-
 template <typename L, typename R>
 auto operator/(const complex<L>& lhs, R rhs) -> complex<decltype(L{} / R{})> {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   using ResultType = decltype(L{} / R{});
-
   return complex<ResultType>{lhs.real() / rhs, lhs.imag() / rhs};
 }
-
 template <typename L, typename R>
 auto operator/(const complex<L>& lhs, const complex<R>& rhs)
     -> complex<decltype(L{} / R{})> {
@@ -147,15 +120,12 @@ auto operator/(const complex<L>& lhs, const complex<R>& rhs)
   ASSERT_IS_DIFFERENT_TYPES(L, R);
 
   using ResultType = decltype(L{} / R{});
-
   // TODO: Benchmark different multiplication algorithms
   ResultType divisor = rhs.real() * rhs.real() + rhs.imag() * rhs.imag();
-
   ResultType realPart =
       (lhs.real() * rhs.real() - lhs.imag() * rhs.imag()) / divisor;
   ResultType imagPart =
       (lhs.real() * rhs.imag() + lhs.imag() * rhs.real()) / divisor;
-
   return complex<ResultType>{realPart, imagPart};
 }
 
@@ -163,22 +133,17 @@ template <typename L, typename R>
 common::bool_t operator==(const complex<L>& lhs, R rhs) {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   return (lhs.real() == rhs) && (lhs.imag() == rhs);
 }
-
 template <typename L, typename R>
 common::bool_t operator==(L lhs, const complex<R>& rhs) {
   ASSERT_IS_ARITHMETIC_TYPE(L);
   ASSERT_IS_ARITHMETIC_TYPE(R);
-
   return (lhs == rhs.real()) && (lhs == rhs.imag());
 }
-
 template <typename L, typename R>
 common::bool_t operator==(const complex<L>& lhs, const complex<R>& rhs) {
   ASSERT_IS_DIFFERENT_TYPES(L, R);
-
   return (lhs.real() == rhs.real()) && (lhs.imag() == rhs.imag());
 }
 
@@ -186,16 +151,13 @@ template <typename L, typename R>
 common::bool_t operator!=(const complex<L>& lhs, R rhs) {
   return !(lhs == rhs);
 }
-
 template <typename L, typename R>
 common::bool_t operator!=(L lhs, const complex<R>& rhs) {
   return !(lhs == rhs);
 }
-
 template <typename L, typename R>
 common::bool_t operator!=(const complex<L>& lhs, const complex<R>& rhs) {
   ASSERT_IS_DIFFERENT_TYPES(L, R);
-
   return !(lhs == rhs);
 }
 } // namespace std

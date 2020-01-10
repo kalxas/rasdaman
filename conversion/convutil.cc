@@ -94,10 +94,10 @@ string ConvUtil::gdalTypeToRasTypeString(GDALDataType dataType)
     return ret;
 }
 
-r_Type *ConvUtil::gdalTypeToRasType(GDALDataset *poDataset, const vector<int> &bandIds)
+r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& bandIds)
 {
     size_t nBands = bandIds.size();
-    r_Type *baseType = NULL;
+    r_Type* baseType = NULL;
     if (nBands == 1 || nBands == 0) // primitive type
     {
         if (poDataset->GetRasterCount())
@@ -146,7 +146,7 @@ r_Type *ConvUtil::gdalTypeToRasType(GDALDataset *poDataset, const vector<int> &b
     return baseType;
 }
 
-GDALDataType ConvUtil::rasTypeToGdalType(r_Type *rasType)
+GDALDataType ConvUtil::rasTypeToGdalType(r_Type* rasType)
 {
     GDALDataType ret = GDT_Unknown;
     switch (rasType->type_id())
@@ -202,57 +202,85 @@ ConvUtil::getDataFormat(string formatName)
     r_Data_Format ret = r_Array;
     boost::algorithm::to_lower(formatName);
     if (formatName == "png")
+    {
         ret = r_PNG;
+    }
     else if (formatName == "netcdf")
+    {
         ret = r_NETCDF;
+    }
     else if (formatName == "gtiff" || formatName == "tiff")
+    {
         ret = r_TIFF;
+    }
     else if (formatName == "jpeg")
+    {
         ret = r_JPEG;
+    }
     else if (formatName == "jpeg2000" || formatName == "jp2openjpeg")
+    {
         ret = r_JP2;
+    }
     else if (formatName == "nitf")
+    {
         ret = r_NITF;
+    }
     else if (formatName == "ecw")
+    {
         ret = r_ECW;
+    }
     else if (formatName == "hdf" || formatName == "hdf4" || formatName == "hdf4image" || formatName == "hdf5")
+    {
         ret = r_HDF;
+    }
     else if (formatName == "bmp")
+    {
         ret = r_BMP;
+    }
     else if (formatName == "csv")
+    {
         ret = r_CSV;
+    }
     else if (formatName == "json")
+    {
         ret = r_JSON;
+    }
     else if (formatName == "grib")
+    {
         ret = r_GRIB;
+    }
     else if (formatName == "ppm")
+    {
         ret = r_PPM;
+    }
     else if (formatName == "dem")
+    {
         ret = r_DEM;
+    }
     return ret;
 }
 
-size_t ConvUtil::getBandBaseTypeSize(r_Type *type, int bandId)
+size_t ConvUtil::getBandBaseTypeSize(r_Type* type, int bandId)
 {
     size_t ret = 0;
     if (type->isStructType())
     {
-        r_Attribute att = ((r_Structure_Type *) type)->resolve_attribute((unsigned int) bandId);
+        r_Attribute att = ((r_Structure_Type*) type)->resolve_attribute((unsigned int) bandId);
         ret = att.type_of().size();
     }
     else
     {
-        ret = ((r_Base_Type *) type)->size();
+        ret = ((r_Base_Type*) type)->size();
     }
     return ret;
 }
 
-unsigned int ConvUtil::getNumberOfBands(const r_Type *type)
+unsigned int ConvUtil::getNumberOfBands(const r_Type* type)
 {
     unsigned int ret = 1;
     if (type->isStructType())
     {
-        ret = static_cast<const r_Structure_Type *>(type)->count_elements();
+        ret = static_cast<const r_Structure_Type*>(type)->count_elements();
     }
     return ret;
 }
@@ -260,7 +288,7 @@ unsigned int ConvUtil::getNumberOfBands(const r_Type *type)
 
 #ifdef HAVE_HDF
 
-int ConvUtil::ctypeToHdfType(int ctype, int &size)
+int ConvUtil::ctypeToHdfType(int ctype, int& size)
 {
     int result = 0;
 
@@ -316,7 +344,7 @@ int ConvUtil::ctypeToHdfType(int ctype, int &size)
     return result;
 }
 
-int ConvUtil::hdfTypeToCtype(int hdfType, int &size)
+int ConvUtil::hdfTypeToCtype(int hdfType, int& size)
 {
     int result = 0;
 

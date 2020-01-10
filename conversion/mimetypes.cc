@@ -29,12 +29,12 @@ using namespace std;
 
 std::map<std::string, std::string> r_MimeTypes::mimeTypeToFormatName = initMimeTypeToFormatNameMap();
 
-bool r_MimeTypes::isMimeType(const std::string &mimeType)
+bool r_MimeTypes::isMimeType(const std::string& mimeType)
 {
     return mimeTypeToFormatName.count(mimeType) == 1;
 }
 
-std::string r_MimeTypes::getFormatName(const std::string &mimeType)
+std::string r_MimeTypes::getFormatName(const std::string& mimeType)
 {
     if (isMimeType(mimeType))
     {

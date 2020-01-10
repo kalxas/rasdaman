@@ -56,11 +56,16 @@ rasdaman GmbH.
 
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddobj.hh"
+#include "tilemgr/tile.hh"
 
 #include "qlparser/qtmintervaldata.hh"
 #include "raslib/basetype.hh"
 #include "raslib/collectiontype.hh"
 #include "storagemgr/sstoragelayout.hh"
+#include "relcatalogif/basetype.hh"
+#include "relcatalogif/mddtype.hh"
+#include "relcatalogif/mddbasetype.hh"
+#include "relcatalogif/collectiontype.hh"
 
 #include <logging.hh>
 

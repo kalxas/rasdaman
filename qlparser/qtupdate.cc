@@ -32,6 +32,8 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 #include "tilemgr/tiler.hh"
 #include "storagemgr/sstoragelayout.hh"
+#include "relcatalogif/basetype.hh"
+#include "relcatalogif/mddbasetype.hh"
 
 #include "mddmgr/mddobj.hh"
 #include "qtnullvaluesdata.hh"

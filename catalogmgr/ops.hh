@@ -104,14 +104,15 @@ class Ops : public NullValuesHandler
 public:
     enum OpType
     {
-        // condense operations.
+        // Important: do not change order as it is relevant in ops.cc
+        
+        //
+        // UNARY
+        //
+        
+        // condensers
         OP_COUNT, OP_MAX, OP_MIN, OP_SUM, OP_SQSUM, OP_SOME, OP_ALL,
-        /* insert new condense ops before this line */
-        // unary operations.
-        OP_NOT,
-        OP_IS_NULL,
-
-        //*******************
+        // unary arithmetic functions
         OP_UFUNC_BEGIN,
         OP_ABS, OP_SQRT, OP_POW,
         OP_EXP, OP_LOG, OP_LN,
@@ -119,12 +120,12 @@ public:
         OP_SINH, OP_COSH, OP_TANH,
         OP_ARCSIN, OP_ARCCOS, OP_ARCTAN,
         OP_UFUNC_END,
-
+        // complex part extraction
         OP_REALPART,
         OP_IMAGINARPART,
         OP_REALPARTINT,
         OP_IMAGINARPARTINT,
-
+        // cast to new type
         OP_CAST_BEGIN,
         OP_CAST_BOOL,
         OP_CAST_CHAR,
@@ -137,16 +138,28 @@ public:
         OP_CAST_DOUBLE,
         OP_CAST_GENERAL,
         OP_CAST_END,
-        //*******************
-
-        /* insert new unary ops before this line */ OP_IDENTITY, OP_UPDATE,
-        // binary operations.
-        OP_MINUS, OP_PLUS, OP_MAX_BINARY, OP_MIN_BINARY, OP_DIV, OP_MULT, OP_INTDIV, OP_MOD,
-        OP_IS, OP_AND, OP_OR, OP_OVERLAY, OP_BIT, OP_XOR, OP_CONSTRUCT_COMPLEX,
-        /* insert new binary ops before this line */
-        OP_EQUAL, OP_LESS, OP_LESSEQUAL,
-        OP_NOTEQUAL, OP_GREATER, OP_GREATEREQUAL
-
+        // logical
+        OP_NOT,
+        OP_IS_NULL,
+        /* insert new unary ops before this line */
+        OP_IDENTITY, OP_UPDATE,
+        
+        //
+        // BINARY
+        //
+        
+        // arithmetic
+        OP_MINUS, OP_PLUS, OP_MULT, OP_INTDIV, OP_DIV, OP_MOD,
+        // internal
+        OP_MAX_BINARY, OP_MIN_BINARY, OP_OVERLAY,
+        // logical
+        OP_IS, OP_AND, OP_OR, OP_XOR, OP_BIT,
+        // complex
+        OP_CONSTRUCT_COMPLEX,
+        // comparison
+        OP_EQUAL, OP_NOTEQUAL,
+        OP_LESS, OP_LESSEQUAL,
+        OP_GREATER, OP_GREATEREQUAL
     };
 
 
@@ -239,13 +252,18 @@ private:
                                          const BaseType *op1Type,
                                          const BaseType *op2Type);
     /// returns 1 for signed types, 0 for unsigned.
-    static int isSignedType(const BaseType *type);
+    static bool isIntType(TypeEnum type);
+    static bool isSignedType(TypeEnum type);
+    static bool isUnsignedType(TypeEnum type);
+    static bool isComplexType(TypeEnum type);
+    static bool isPrimitiveType(TypeEnum type);
+    static bool isFloatType(TypeEnum type);
     // these functions aren't even used for the time being, but may
     // be important for better implementations of isApplicable and
     // getResultType.
-    static int isCondenseOp(Ops::OpType op);
-    static int isUnaryOp(Ops::OpType op);
-    static int isBinaryOp(Ops::OpType op);
+    static bool isCondenseOp(Ops::OpType op);
+    static bool isUnaryOp(Ops::OpType op);
+    static bool isBinaryOp(Ops::OpType op);
 };
 
 //@ManMemo: Module: {\bf catalogif}.
@@ -893,8 +911,8 @@ public:
     virtual void getCondenseInit(char *init);
     /*@ManMemo: virtual destructor because subclass OpBinaryStruct has
                 non-trivial destructor. */
-    virtual ~BinaryOp() { };
-
+    virtual ~BinaryOp() = default;
+    
 protected:
     const BaseType *op1Type;
     const BaseType *op2Type;
@@ -1631,6 +1649,23 @@ public:
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char *res, const char *op1,
                             const char *op2);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_MOD on C type #double# and #double#, result #double#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpMODCDouble : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpMODCDouble(const BaseType *newResType, const BaseType *newOp1Type,
+                 const BaseType *newOp2Type, size_t newResOff = 0,
+                 size_t newOp1Off = 0, size_t newOp2Off = 0);
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()(char *res, const char *op1, const char *op2);
 };
 
 //@ManMemo: Module: {\bf catalogif}.
@@ -2400,6 +2435,19 @@ public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYLong(const BaseType *newResType, const BaseType *newOpType,
                    size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char *result, const char *op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpIDENTITYDouble : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpIDENTITYDouble(const BaseType *newResType, const BaseType *newOpType,
+                     size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char *result, const char *op);
 };

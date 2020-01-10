@@ -33,6 +33,7 @@ rasdaman GmbH.
 #include "qlparser/qtmdd.hh"
 #include "mymalloc/mymalloc.h"
 #include "mddmgr/mddobj.hh"
+#include "tilemgr/tile.hh"
 
 #include <logging.hh>
 

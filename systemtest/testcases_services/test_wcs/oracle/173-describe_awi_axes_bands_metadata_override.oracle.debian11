@@ -57,7 +57,7 @@
           "upperCorner" : "40.99999733333333333333333333 25.0833390 \"2000-01-01T00:00:00+00:00\""
         }
       },
-      "fileReferenceHistory" : "/home/dimitar/rasdaman/enterprise/src/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_awi_axes_band_local_metadata_override/L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc",
+      "fileReferenceHistory" : "/home/dimitar/rasdaman/community/src/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_awi_axes_band_local_metadata_override/L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc",
       "history" : "Thu Feb  7 13:43:23 2019: ncks -d lat,40.0,41.0 -d lon,25.0,25.1 L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc -O output.nc\n20171027T104149Z: globcolour_l3_reproject.sh -inlist /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -outdir /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -startdataday 20000101 -enddataday 20000101 -projwin -180 90 180 -90 -insitename GLOB -outsitename GLOB -resolutioncode 4 -resolution 0.041666666666666664 -resolutionx 0.041666666666666664 -parameters CHL1 CDM BBP -tmpdir /work/scratch"
     } ]
   },

@@ -28,35 +28,42 @@ rasdaman GmbH.
 #include <cerrno>
 
 
-OpABSCDouble::OpABSCDouble(
-    const BaseType *newResType,
-    const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+OpABSCDouble::OpABSCDouble(const BaseType *newResType, const BaseType *newOpType,
+    size_t newResOff, size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
-
 
 void OpABSCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
-    double convRes;
-
-    if (isNull(convOp))
-    {
-        convRes = convOp;
-    }
-    else
-    {
-        convRes = fabs(convOp);
-    }
+    double convRes = isNull(convOp) ? convOp : std::abs(convOp);
     resType->makeFromCDouble(res + resOff, &convRes);
+}
+
+OpABSCLong::OpABSCLong(const BaseType *newResType, const BaseType *newOpType,
+    size_t newResOff, size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
+
+void OpABSCLong::operator()(char *res, const char *op)
+{
+    r_Long convOp = *(opType->convertToCLong(op + opOff, &convOp));
+    r_Long convRes = isNull(convOp) ? convOp : std::abs(convOp);
+    resType->makeFromCLong(res + resOff, &convRes);
+}
+
+OpABSCULong::OpABSCULong(const BaseType *newResType, const BaseType *newOpType,
+    size_t newResOff, size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
+
+void OpABSCULong::operator()(char *res, const char *op)
+{
+    memcpy(res + resOff, op + opOff, opType->getSize());
 }
 
 OpSQRTCDouble::OpSQRTCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -79,8 +86,8 @@ void OpSQRTCDouble::operator()(char *res, const char *op)
 OpPOWCDouble::OpPOWCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -108,8 +115,8 @@ void OpPOWCDouble::setExponent(double newExponent)
 OpEXPCDouble::OpEXPCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -132,8 +139,8 @@ void OpEXPCDouble::operator()(char *res, const char *op)
 OpLOGCDouble::OpLOGCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -156,8 +163,8 @@ void OpLOGCDouble::operator()(char *res, const char *op)
 OpLNCDouble::OpLNCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -180,8 +187,8 @@ void OpLNCDouble::operator()(char *res, const char *op)
 OpSINCDouble::OpSINCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -204,8 +211,8 @@ void OpSINCDouble::operator()(char *res, const char *op)
 OpCOSCDouble::OpCOSCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -228,8 +235,8 @@ void OpCOSCDouble::operator()(char *res, const char *op)
 OpTANCDouble::OpTANCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -252,8 +259,8 @@ void OpTANCDouble::operator()(char *res, const char *op)
 OpSINHCDouble::OpSINHCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -276,8 +283,8 @@ void OpSINHCDouble::operator()(char *res, const char *op)
 OpCOSHCDouble::OpCOSHCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -300,8 +307,8 @@ void OpCOSHCDouble::operator()(char *res, const char *op)
 OpTANHCDouble::OpTANHCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -324,8 +331,8 @@ void OpTANHCDouble::operator()(char *res, const char *op)
 OpARCSINCDouble::OpARCSINCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -348,8 +355,8 @@ void OpARCSINCDouble::operator()(char *res, const char *op)
 OpARCCOSCDouble::OpARCCOSCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
@@ -372,8 +379,8 @@ void OpARCCOSCDouble::operator()(char *res, const char *op)
 OpARCTANCDouble::OpARCTANCDouble(
     const BaseType *newResType,
     const BaseType *newOpType,
-    unsigned int newResOff,
-    unsigned int newOpOff)
+    size_t newResOff,
+    size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 

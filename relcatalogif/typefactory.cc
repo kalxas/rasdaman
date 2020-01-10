@@ -138,12 +138,6 @@ string TypeFactory::getSyntaxTypeFromInternalType(const std::string &internalTyp
 // for managing the memory of temporary types
 std::list<Type *> TypeFactory::theTempTypes;
 
-TypeFactory *TypeFactory::instance()
-{
-    static TypeFactory myInstance;
-    return &myInstance;
-}
-
 const BaseType *TypeFactory::mapType(const char *typeName)
 {
     BaseType *resultType = nullptr;
@@ -364,8 +358,6 @@ void TypeFactory::freeTempTypes()
     }
     theTempTypes.clear();
 }
-
-TypeFactory::TypeFactory() = default;
 
 bool TypeFactory::deleteStructType(const char *typeName)
 {

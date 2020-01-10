@@ -331,7 +331,7 @@ public class TypeResolverUtil {
     // 128 bit | single precision floating point complex
     public static final String R_CFloat64 = "CFloat64";
     public static final String R_COMPLEXD = "complexd";
-    public static final String R_Boolean = "boolean";
+    public static final String R_Boolean = "bool";
 
     //rasdaman abbreviations
     public static final String R_Abb_Char = "c";

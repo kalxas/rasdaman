@@ -1881,7 +1881,8 @@ void RasnetClientComm::handleError(const string &error)
         {
             LDEBUG << "Throwing error received from the server: " << msg;
             const auto &what = message.error_text();
-            if (!what.empty() && message.kind() == 1 && message.error_no() == 0)
+            if (!what.empty() && message.error_no() == 0 &&
+                (message.kind() == 1 || message.kind() == 0))
             {
                 throw r_Error(what.c_str());
             }

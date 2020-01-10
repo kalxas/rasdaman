@@ -242,7 +242,7 @@ check
 # ------------------------------------------------------------------------------
 
 logn "updating MDD from collection... "
-$RASQL --quiet -q "update $TEST_COLL as a set a assign a[0:179,0:54] + 1c"
+$RASQL --quiet -q "update $TEST_COLL as a set a assign (char)(a[0:179,0:54] + 1c)"
 check
 
 # ------------------------------------------------------------------------------
@@ -447,79 +447,79 @@ exp_result="1"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM on non-overlapping domains from a single collection... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[0:9,0:9] ASSIGN shift(b[0:9,10:19], [0,-10])+1c FROM $TEST_TARGET AS b"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[0:9,0:9] ASSIGN (char)(shift(b[0:9,10:19], [0,-10])+1c) FROM $TEST_TARGET AS b"
 result=$(select_scalar "select c[5,5] from $TEST_TARGET as c")
 exp_result="1"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM ... WHERE on non-overlapping domains from a single collection... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[100:109,100:109] ASSIGN shift(b[100:109,110:119], [0,-10])+2c FROM $TEST_TARGET AS b WHERE ( 0 = 0 )"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[100:109,100:109] ASSIGN (char)(shift(b[100:109,110:119], [0,-10])+2c) FROM $TEST_TARGET AS b WHERE ( 0 = 0 )"
 result=$(select_scalar "select c[105,105] from $TEST_TARGET as c")
 exp_result="2"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM on overlapping domains from a single collection... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[0:9,20:29] ASSIGN b[0:9,20:29]+3c FROM $TEST_TARGET AS b"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[0:9,20:29] ASSIGN (char)(b[0:9,20:29]+3c) FROM $TEST_TARGET AS b"
 result=$(select_scalar "select c[5,25] from $TEST_TARGET as c")
 exp_result="3"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM ... WHERE on overlapping domains from a single collection... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[100:109,120:129] ASSIGN b[100:109,120:129]+4c FROM $TEST_TARGET AS b WHERE ( 0 = 0 )"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[100:109,120:129] ASSIGN (char)(b[100:109,120:129]+4c) FROM $TEST_TARGET AS b WHERE ( 0 = 0 )"
 result=$(select_scalar "select c[105,125] from $TEST_TARGET as c")
 exp_result="4"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM on non-overlapping grid domains from two distinct collections... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[10:19,0:9] ASSIGN shift(b[10:19,10:19], [0,-10]) +7c FROM $TEST_SOURCE AS b"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[10:19,0:9] ASSIGN (char)(shift(b[10:19,10:19], [0,-10]) +7c) FROM $TEST_SOURCE AS b"
 result=$(select_scalar "select c[15,5] from $TEST_TARGET as c")
 exp_result="8"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM ... WHERE on non-overlapping grid domains from two distinct collections... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[110:119,100:109] ASSIGN shift(b[110:119,110:119], [0,-10]) +8c FROM $TEST_SOURCE AS b WHERE ( 0 = 0 )"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[110:119,100:109] ASSIGN (char)(shift(b[110:119,110:119], [0,-10]) +8c) FROM $TEST_SOURCE AS b WHERE ( 0 = 0 )"
 result=$(select_scalar "select c[115,105] from $TEST_TARGET as c")
 exp_result="9"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM on overlapping grid domains from two distinct collections... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[10:19,10:19] ASSIGN b[10:19,10:19] +9c FROM $TEST_SOURCE AS b"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[10:19,10:19] ASSIGN (char)(b[10:19,10:19] +9c) FROM $TEST_SOURCE AS b"
 result=$(select_scalar "select c[15,15] from $TEST_TARGET as c")
 exp_result="10"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM ... WHERE on overlapping grid domains from two distinct collections... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[110:119,110:119] ASSIGN b[110:119,110:119] +10c FROM $TEST_SOURCE AS b WHERE ( 0 = 0 )"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[110:119,110:119] ASSIGN (char)(b[110:119,110:119] +10c) FROM $TEST_SOURCE AS b WHERE ( 0 = 0 )"
 result=$(select_scalar "select c[115,115] from $TEST_TARGET as c")
 exp_result="11"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM on two distinct collections, where the collection described in the FROM clause appears in the SET clause... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET b[10:19,10:19] ASSIGN b[10:19,10:19] +11c FROM $TEST_SOURCE AS b"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET b[10:19,10:19] ASSIGN (char)(b[10:19,10:19] +11c) FROM $TEST_SOURCE AS b"
 result=$(select_scalar "select c[15,15] from $TEST_SOURCE as c")
 exp_result="12"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM ... WHERE on two distinct collections, where the collection described in the FROM clause appears in the SET clause... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET b[120:129,110:119] ASSIGN b[120:129,110:119] +12c FROM $TEST_SOURCE AS b WHERE ( 0 = 0 )"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET b[120:129,110:119] ASSIGN (char)(b[120:129,110:119] +12c) FROM $TEST_SOURCE AS b WHERE ( 0 = 0 )"
 result=$(select_scalar "select c[125,115] from $TEST_SOURCE as c")
 exp_result="13"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM ... WHERE on two distinct collections, with the WHERE clause a function of the FROM clause... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[130:139,110:119] ASSIGN b[130:139,110:119] +13c FROM $TEST_SOURCE AS b WHERE some_cells( b = 1 )"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[130:139,110:119] ASSIGN (char)(b[130:139,110:119] +13c) FROM $TEST_SOURCE AS b WHERE some_cells( b = 1 )"
 result=$(select_scalar "select c[135,115] from $TEST_TARGET as c")
 exp_result="14"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM ... WHERE on two distinct collections, with the WHERE clause a function of the UPDATE clause... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[140:149,110:119] ASSIGN b[140:149,110:119] +14c FROM $TEST_SOURCE AS b WHERE some_cells( a = 0 )"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[140:149,110:119] ASSIGN (char)(b[140:149,110:119] +14c) FROM $TEST_SOURCE AS b WHERE some_cells( a = 0 )"
 result=$(select_scalar "select c[145,115] from $TEST_TARGET as c")
 exp_result="15"
 check_result $exp_result $result 
 
 logn "testing UPDATE ... FROM ... WHERE on two distinct collections, with the WHERE clause a function of both the FROM clause and the UPDATE clause... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[150:159,110:119] ASSIGN b[150:159,110:119] +15c FROM $TEST_SOURCE AS b WHERE some_cells( a = b )"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[150:159,110:119] ASSIGN (char)(b[150:159,110:119] +15c) FROM $TEST_SOURCE AS b WHERE some_cells( a = b )"
 result=$(select_scalar "select c[155,115] from $TEST_TARGET as c")
 exp_result="16"
 check_result $exp_result $result 
@@ -531,7 +531,7 @@ exp_result="0"
 check_result $exp_result $result
 
 logn "testing UPDATE ... FROM where the FROM clause consists of a list of two collections... "
-$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[210:215,210:215] ASSIGN b[210:215,210:215] + c[210:215,210:215] FROM $TEST_SOURCE as b, $TEST_SOURCE as c"
+$RASQL --quiet -q "UPDATE $TEST_TARGET AS a SET a[210:215,210:215] ASSIGN (char)(b[210:215,210:215] + c[210:215,210:215]) FROM $TEST_SOURCE as b, $TEST_SOURCE as c"
 result=$(select_scalar "select c[212,212] from $TEST_TARGET as c")
 exp_result="2"
 check_result $exp_result $result

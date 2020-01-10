@@ -39,8 +39,11 @@
 
 #ifdef HAVE_GDAL
 
-#pragma GCC diagnostic ignored "-Wredundant-decls"
-#pragma GCC diagnostic ignored "-Wshadow"
+#include "common/pragmas/pragmas.hh"
+
+DIAGNOSTIC_PUSH
+IGNORE_WARNING("-Wredundant-decls")
+IGNORE_WARNING("-Wshadow")
 
 // fix redefinition of macros in the GDAL config
 #undef PACKAGE_BUGREPORT
@@ -65,8 +68,7 @@
 #undef PACKAGE_URL
 #undef PACKAGE_VERSION
 
-#pragma GCC diagnostic warning "-Wredundant-decls"
-#pragma GCC diagnostic warning "-Wshadow"
+DIAGNOSTIC_POP
 
 #endif
 

@@ -1,1 +1,1 @@
-rasdaman error 451: Execution error 451 in line 1, column 8, near token min_cells: Unsupported condense operator for complex types.
+rasdaman error 455: Execution error 455 in line 1, column 8, near token min_cells: Operation not supported on operand of complex type.

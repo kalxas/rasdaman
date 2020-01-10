@@ -30,6 +30,7 @@ rasdaman GmbH.
 #include "qlparser/qtatomicdata.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/alltypes.hh"
+#include "relcatalogif/typefactory.hh"
 #include <logging.hh>
 
 #include <iostream>

@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 #include "qlparser/qtcomplexdata.hh"
 #include "relcatalogif/structtype.hh"
+#include "relcatalogif/typefactory.hh"
 #include <stdio.h>
 #include <cstring>
 

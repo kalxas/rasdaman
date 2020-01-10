@@ -30,7 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 
 #include "qlparser/qtcondense.hh"
 #include "qlparser/qtmdd.hh"
@@ -39,17 +38,19 @@ rasdaman GmbH.
 #include "qlparser/qtcomplexdata.hh"
 #include "qlparser/qtbinaryinduce.hh"
 #include "qlparser/qtbinaryinduce2.hh"
+#include "mddmgr/mddobj.hh"
+#include "catalogmgr/ops.hh"
+#include "tilemgr/tile.hh"
+#include "relcatalogif/typefactory.hh"
+#include "relcatalogif/mddbasetype.hh"
+#include "relcatalogif/complextype.hh"
 
 #include <logging.hh>
 
-#include "mddmgr/mddobj.hh"
-
-#include "relcatalogif/typefactory.hh"
-#include "catalogmgr/ops.hh"
-#include "relcatalogif/complextype.hh"
-
 #include <iostream>
 #include <string>
+#include "config.h"
+
 using namespace std;
 
 const QtNode::QtNodeType QtCondense::nodeType = QtNode::QT_CONDENSE;
@@ -110,123 +111,88 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
 
     if (operand)
     {
-
-#ifdef QT_RUNTIME_TYPE_CHECK
-        if (operand->getDataType() != QT_MDD)
-        {
-            LERROR << "Internal error in QtCountCells::computeFullCondense() - "
-                   << "runtime type checking failed (MDD).";
-
-            // delete old operand
-            if (operand)
-            {
-                operand->deleteRef();
-            }
-
-            return 0;
-        }
-#endif
-
         QtMDD *mdd = static_cast<QtMDD *>(operand);
 
-#ifdef QT_RUNTIME_TYPE_CHECK
-        if (opType == Ops::OP_SOME || opType == Ops::OP_ALL || opType == Ops::OP_COUNT)
-        {
-            if (mdd->getCellType()->getType() != BOOLTYPE)
-            {
-                LERROR << "Internal error in QtCondense::computeFullCondense() - "
-                       << "runtime type checking failed (BOOL).";
-
-                // delete old operand
-                if (operand)
-                {
-                    operand->deleteRef();
-                }
-
-                return 0;
-            }
-        }
-#endif
-
-        // get result type
-        const BaseType *resultType = Ops::getResultType(opType, mdd->getCellType());
-        if (resultType->getType() >= COMPLEXTYPE1 && resultType->getType() <= CINT32 && opType != Ops::OP_SUM)
-        {
-            LERROR << "Operation " << opType << " is not supported for complex types; only + is allowed.";
-            parseInfo.setErrorNo(451);
+        const BaseType *resultType;
+        try {
+            resultType = Ops::getResultType(opType, mdd->getCellType());
+            if (!resultType) throw r_Error(360);
+        } catch (r_Error &e) {
+            LERROR << "operation " << opType << " is not supported on the given operands.";
+            operand->deleteRef();
+            parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
             throw parseInfo;
         }
 
         // get the MDD object
-        MDDObj *op = (static_cast<QtMDD *>(operand))->getMDDObject();
+        MDDObj *op = mdd->getMDDObject();
         auto *nullValues = op->getNullValues();
 
         //  get the area, where the operation has to be applied
         areaOp = mdd->getLoadDomain();
 
         // get all tiles in relevant area
-        vector<std::shared_ptr<Tile>> *allTiles = op->intersect(areaOp);
+        unique_ptr<vector<std::shared_ptr<Tile>>> allTiles;
+        allTiles.reset(op->intersect(areaOp));
 
+        // create result object
+        if (resultType->getType() == STRUCT)
+            returnValue = new QtComplexData();
+        else
+            returnValue = new QtAtomicData();
 
         // get new operation object
-        CondenseOp *condOp = Ops::getCondenseOp(opType, resultType, mdd->getCellType());
-        condOp->setNullValues(nullValues);
-        unsigned long totalValuesCount{0};
-
-
-        // and iterate over them
-        for (auto tileIt = allTiles->begin(); tileIt != allTiles->end(); tileIt++)
+        unique_ptr<CondenseOp> condOp;
+        condOp.reset(Ops::getCondenseOp(opType, resultType, mdd->getCellType()));
+        if (!condOp)
         {
-            // domain of the actual tile
-            r_Minterval tileDom = (*tileIt)->getDomain();
+            LERROR << "condense not supported on operands of type " << mdd->getCellType()->getType();
+            parseInfo.setErrorNo(360);
+            throw parseInfo;
+        }
+        condOp->setNullValues(nullValues);
+
+        size_t resultTypeSize = resultType->getSize();
+        size_t tileNo = allTiles->size();
+        size_t partialResultsSize = tileNo * resultTypeSize;
+        char *partialResults = new char[partialResultsSize];
+        memset(partialResults, 0, partialResultsSize);
+        unsigned long totalValuesCount = 0;
+        size_t nullValuesCount = 0;
+        unique_ptr<r_Area[]> tileCellCount(new r_Area[tileNo]);
+
+        // iterate over all tiles
+        for (size_t i = 0; i < tileNo; i++)
+        {
+            auto tile = allTiles->at(i);
+            r_Minterval tileDom = tile->getDomain();
 
             // domain of the relevant area of the actual tile
             r_Minterval intersectDom = tileDom.create_intersection(areaOp);
             totalValuesCount += intersectDom.cell_count();
 
-            (*tileIt)->execCondenseOp(condOp, intersectDom);
+            tile->execCondenseOp(condOp.get(), intersectDom);
         }
 
-        // delete tile vector
-        delete allTiles;
-        allTiles = NULL;
 
-        LDEBUG << "computeFullCondense-a\n";
         // create result object
         if (resultType->getType() == STRUCT)
-        {
             returnValue = new QtComplexData();
-        }
         else
-        {
             returnValue = new QtAtomicData();
-        }
+
         returnValue->setNullValuesCount(condOp->getNullValuesCount());
         returnValue->setTotalValuesCount(totalValuesCount);
 
-        LDEBUG << "computeFullCondense-b\n";
         // allocate buffer for the result
         char *resultBuffer = new char[resultType->getSize()];
         memcpy(resultBuffer, condOp->getAccuVal(), resultType->getSize());
 
-        LDEBUG << "computeFullCondense-c\n";
         returnValue->setValueType(resultType);
         returnValue->setValueBuffer(resultBuffer);
 
-        LDEBUG << "computeFullCondense-d\n";
-        // delete operation object
-        delete condOp;
-        condOp = NULL;
-
-        LDEBUG << "computeFullCondense-e\n";
         // delete old operand
         operand->deleteRef();
-#ifdef DEBUG
-        LTRACE << "opType of QtCondense::computeFullCondense(): " << opType;
-        LTRACE <<         "Result.....................................: ";
-
-        returnValue->printStatus(RMInit::dbgOut);
-#endif
     }
 
     return returnValue;
@@ -242,70 +208,54 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input)
     {
-
         // get input types
         const QtTypeElement &inputType = input->checkType(typeTuple);
-#ifdef DEBUG
-        LTRACE << "Class..: " << getClassName();
-        LTRACE << "Operand: ";
-
-        inputType.printStatus(RMInit::dbgOut);
-#endif
-
         if (inputType.getDataType() != QT_MDD)
         {
-            LERROR << "Error: QtCondense::evaluate() - operand must be multidimensional.";
+            LERROR << "operand of condenser must be an array, but got " << inputType.getDataType();
             parseInfo.setErrorNo(353);
             throw parseInfo;
         }
 
-        const BaseType *baseType = (static_cast<const MDDBaseType *>(inputType.getType()))->getBaseType();
-
-        if (opType == Ops::OP_SOME || opType == Ops::OP_ALL)
-        {
-            if (baseType->getType() != BOOLTYPE)
-            {
-                LERROR << "Error: QtCondense::evaluate() - operand of quantifiers must be of type r_Marray<d_Boolean>.";
-                parseInfo.setErrorNo(354);
-                throw parseInfo;
-            }
+        const BaseType *baseType = getBaseType(inputType);
+        const BaseType *resultBaseType;
+        try {
+            resultBaseType = Ops::getResultType(opType, baseType);
+            if (!resultBaseType) throw r_Error(360);
+        } catch (r_Error &e) {
+            LERROR << "condenser cannot be applied on operand of the given type.";
+            parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
+            throw parseInfo;
         }
-
-        if (opType == Ops::OP_COUNT)
-        {
-            if (baseType->getType() != BOOLTYPE)
-            {
-                LERROR << "Error: QtCondense::evaluate() - operand of count_cells must be of type r_Marray<d_Boolean>.";
-                parseInfo.setErrorNo(415);
-                throw parseInfo;
-            }
-        }
-
-        const BaseType *resultType = Ops::getResultType(opType, baseType);
 
         if (getNodeType() == QT_AVGCELLS)
         {
-            // consider division by the number of cells
-
-            const BaseType *DoubleType = TypeFactory::mapType("Double");
-            const BaseType *finalResultType = Ops::getResultType(Ops::OP_DIV, resultType, DoubleType);
-
-            resultType = finalResultType;
+            try {
+                resultBaseType = Ops::getResultType(Ops::OP_DIV, resultBaseType, TypeFactory::mapType("Double"));
+                if (!resultBaseType) throw r_Error(363);
+            } catch (r_Error &e) {
+                LERROR << "division cannot be applied on operands of the given types.";
+                parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
+                throw parseInfo;
+            }
         }
-
-        if (getNodeType() >= QT_VARPOP && getNodeType() <= QT_STDDEVSAMP)
+        else if (getNodeType() >= QT_VARPOP && getNodeType() <= QT_STDDEVSAMP)
         {
-            const BaseType *finalResultType = Ops::getResultType(Ops::OP_CAST_DOUBLE, resultType);
-
-            resultType = finalResultType;
-
+            try {
+                resultBaseType = Ops::getResultType(Ops::OP_CAST_DOUBLE, resultBaseType);
+                if (!resultBaseType) throw r_Error(360);
+            } catch (r_Error &e) {
+                LERROR << "cast cannot be applied on operands of the given types.";
+                parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
+                throw parseInfo;
+            }
         }
 
-        dataStreamType.setType(resultType);
+        dataStreamType.setType(resultBaseType);
     }
     else
     {
-        LERROR << "Error: QtCondense::checkType() - operand branch invalid.";
+        LERROR << "operand branch invalid.";
     }
 
     return dataStreamType;

@@ -1,1 +1,1 @@
-username=rasadmin&password=rasadmin&query=update test_mr_test1 as a set a assign a[0:179,0:54] + 1c
+username=rasadmin&password=rasadmin&query=update test_mr_test1 as a set a assign (char)(a[0:179,0:54] + 1c)

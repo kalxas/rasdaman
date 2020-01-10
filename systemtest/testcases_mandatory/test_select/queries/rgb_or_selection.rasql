@@ -1,1 +1,1 @@
-select encode(marray px in [0:1,334:343] values condense or over i in [0:9] using ((c[px[0],px[1]])), "csv") from test_rgb2 as c
+select encode(marray px in [0:1,334:343] values condense or over i in [0:9] using (bool)c[px[0],px[1]], "csv") from test_rgb2 as c

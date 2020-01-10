@@ -439,25 +439,6 @@ void MDDObj::setUpdateNullValues(r_Nullvalues *newNullValues)
     }
 }
 
-//
-// Generate a switch for all base TypeEnums, and put the given code
-// block in each case.
-//
-#define CODE(...) __VA_ARGS__
-#define MAKE_SWITCH_TYPEENUM(cellType, T, code, codeDefault) \
-    switch (cellType) { \
-    case ULONG:    { using T = r_ULong;   code break; } \
-    case USHORT:   { using T = r_UShort;  code break; } \
-    case CHAR:     { using T = r_Char;    code break; } \
-    case BOOLTYPE: { using T = r_Boolean; code break; } \
-    case LONG:     { using T = r_Long;    code break; } \
-    case SHORT:    { using T = r_Short;   code break; } \
-    case OCTET:    { using T = r_Octet;   code break; } \
-    case DOUBLE:   { using T = r_Double;  code break; } \
-    case FLOAT:    { using T = r_Float;   code break; } \
-    default:       { codeDefault break; } \
-    }
-
 template <class T>
 void fillTile(r_Range fillValArg, size_t cellCount, char *startPointArg)
 {
@@ -492,13 +473,13 @@ MDDObj::fillSinglebandTileWithNullvalues(char *resDataPtr, size_t cellCount, Typ
     LDEBUG << "Initializing single-band tile with null value " << nullValue;
 
     MAKE_SWITCH_TYPEENUM(cellType, T,
-                         CODE( // case T:
-                             fillTile<T>(nullValue, cellCount, resDataPtr);
-                         ),
-                         CODE( // default:
-                             LDEBUG << "Unknown base type: " << this->getCellType()->getName();
-                             fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
-                         ));
+         CODE( // case T:
+             fillTile<T>(nullValue, cellCount, resDataPtr);
+         ),
+         CODE( // default:
+             LDEBUG << "Unknown base type: " << this->getCellType()->getName();
+             fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
+         ));
 }
 
 template <typename T>
@@ -551,13 +532,13 @@ void MDDObj::fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount)
             char *dst = resDataPtr + bandOffset;
 
             MAKE_SWITCH_TYPEENUM(structType->getElemType(i)->getType(), T,
-                                 CODE( // case T:
-                                     fillBand<T>(nullValue, cellCount, dst, cellTypeSize);
-                                 ),
-                                 CODE( // default:
-                                     LDEBUG << "Unknown base type: " << this->getCellType()->getName();
-                                     fillBand<r_Char>(nullValue, cellCount, dst, cellTypeSize);
-                                 ));
+                 CODE( // case T:
+                     fillBand<T>(nullValue, cellCount, dst, cellTypeSize);
+                 ),
+                 CODE( // default:
+                     LDEBUG << "Unknown base type: " << this->getCellType()->getName();
+                     fillBand<r_Char>(nullValue, cellCount, dst, cellTypeSize);
+                 ));
 
             bandOffset += structType->getElemType(i)->getSize();
         }

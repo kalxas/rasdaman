@@ -1,5 +1,6 @@
 #include "qtcreatemarraytype.hh"
 #include "relcatalogif/alltypes.hh"
+#include "relcatalogif/typefactory.hh"
 #include "qtmintervaldata.hh"
 #include "qtunaryoperation.hh"
 #include "qtcreatecelltype.hh"

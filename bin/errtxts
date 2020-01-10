@@ -88,7 +88,7 @@
 351^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Spatial domains of the binary induce operands are incompatible.
 352^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand types are incompatible.
 353^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand of quantifier must be multidimensional.
-354^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand of quantifier must be of type r_Marray<d_Boolean>.
+354^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand of quantifier must be a boolean array.
 355^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Collection name is unknown.
 356^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Specified domain does not intersect with spatial domain of MDD.
 357^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Variable is unknown.
@@ -109,6 +109,9 @@
 371^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Retrieval query must start with a SELECT statement.
 372^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.
 373^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unsatisfied MDD constant parameter.
+374^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected at least one operand.
+375^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected a boolean operand.
+376^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected boolean operands.
 380^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Data type can not be converted to selected data exchange format.
 381^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Error in convertor of the selected data exchange format.
 382^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown conversion format.
@@ -148,7 +151,7 @@
 411^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Index for point selection is out of range.
 412^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Value expression must be either of type atomic or complex.
 413^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Condition expression must be of type boolean.
-415^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand of count_cells must be of type r_Marray<d_Boolean>.
+415^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand of count_cells must be a boolean array.
 #
 416^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: First operand of scale function must be of type MDD.
 417^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Second operand of scale function must be either of type Point, Integer or Float.
@@ -194,6 +197,8 @@
 452^E^Execution error: Invalid X resolution, output width is 0.
 453^E^Execution error: Invalid Y resolution, output width is 0.
 454^E^Execution error: X and Y resolution should be non-zero values.
+455^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation not supported on operand of complex type.
+456^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected more than one operand.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #

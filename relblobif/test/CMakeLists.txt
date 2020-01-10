@@ -36,10 +36,10 @@ macro(AddRelblobifTest TEST_NAME)
         clientcomm 
         storagemgr 
         mddmgr
-        catalogmgr 
         relblobif 
-        relcatalogif 
         relindexif 
+        relcatalogif 
+        catalogmgr
         relmddif 
         relstorageif 
         reladminif

@@ -803,7 +803,7 @@ run_test()
   local test_type=$(echo "$f" | sed 's/.*\.//')
 
   # various other files expected  by the run_*_test functions
-  # NOTE: remove input protocol extension: all queries with the same basename 
+  # NOTE: remove input protocol extension: all queries with the same basename
   #       shall refer to the same oracle.
   local oracle="$ORACLE_PATH/${f%\.*}.oracle"
   # If there is a special oracle file for the OS (e.g: test.oracle.ubuntu1804, then use this file as oracle)

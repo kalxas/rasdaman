@@ -45,11 +45,13 @@ void r_ColorMap::setUColorTable(ColorTableUMap uColorTableMap)
     this->uColorTable = std::move(uColorTableMap);
 }
 
-size_t r_ColorMap::getResultBandNumber() const {
+size_t r_ColorMap::getResultBandNumber() const
+{
     return colorTable.begin()->second.size();
 }
 
-const char *r_ColorMap::applyColorMap(const r_Type *srcType, const char *srcData, const r_Minterval &dimData, int &baseType)
+std::unique_ptr<unsigned char[]>
+r_ColorMap::applyColorMap(const r_Type* srcType, const char* srcData, const r_Minterval& dimData, int& baseType)
 {
     auto nrBands = getResultBandNumber();
     switch (nrBands)
@@ -62,59 +64,50 @@ const char *r_ColorMap::applyColorMap(const r_Type *srcType, const char *srcData
         throw r_Error(r_Error::r_Error_Conversion);
     }
     size_t nrPixels = dimData.cell_count();
-    
-    LDEBUG << "Applying color map to image with " << nrBands << " bands.";
-    
-    unsigned char *img = new unsigned char[nrBands * nrPixels];
 
-    switch (srcType->type_id())
+    LDEBUG << "Applying color map to image with " << nrBands << " bands.";
+
+    std::unique_ptr<unsigned char[]> img;
+    img.reset(new unsigned char[nrBands * nrPixels]);
+    
+    MAKE_SWITCH_TYPEID(srcType->type_id(), T,
+        CODE(
+            applySpecificColorMap<T>(reinterpret_cast<const T*>(srcData), nrPixels, nrBands, img.get());
+        ),
+        CODE(
+            LERROR << "Unsupported base type " << srcType->type_id() << ", cannot perform color mapping.";
+            throw r_Error(r_Error::r_Error_Conversion);
+        )
+    )
+    return img;
+}
+
+template <class T>
+void r_ColorMap::applySpecificColorMap(const T* data, size_t nrPixels, size_t nrBands, unsigned char* res)
+{
+    switch (colorMapType)
     {
-    case r_Type::ULONG:
-        return applySpecificColorMap<r_ULong>(srcData, nrPixels, nrBands, img);
-    case r_Type::LONG:
-        return applySpecificColorMap<r_Long>(srcData, nrPixels, nrBands, img);
-    case r_Type::CHAR:
-        return applySpecificColorMap<r_Char>(srcData, nrPixels, nrBands, img);
-    case r_Type::USHORT:
-        return applySpecificColorMap<r_UShort>(srcData, nrPixels, nrBands, img);
-    case r_Type::SHORT:
-        return applySpecificColorMap<r_Short>(srcData, nrPixels, nrBands, img);
-    case r_Type::OCTET:
-        return applySpecificColorMap<r_Octet>(srcData, nrPixels, nrBands, img);
-    case r_Type::FLOAT:
-        return applySpecificColorMap<r_Float>(srcData, nrPixels, nrBands, img);
-    case r_Type::DOUBLE:
-        return applySpecificColorMap<r_Double>(srcData, nrPixels, nrBands, img);
+    case r_ColorMap::Type::VALUES:
+        applyValuesColorMap<T>(data, nrPixels, nrBands, res);
+        break;
+    case r_ColorMap::Type::INTERVALS:
+        applyIntervalsColorMap<T>(data, nrPixels, nrBands, res, false);
+        break;
+    case r_ColorMap::Type::RAMP:
+        applyIntervalsColorMap<T>(data, nrPixels, nrBands, res, true);
+        break;
     default:
-        LERROR << "Unsupported base type " << srcType->type_id() << ", cannot perform color mapping.";
         throw r_Error(r_Error::r_Error_Conversion);
     }
 }
 
 template <class T>
-const char *r_ColorMap::applySpecificColorMap(const char *data, size_t nrPixels, size_t nrBands, unsigned char* res)
+void r_ColorMap::applyValuesColorMap(const T* data, size_t nrPixels, size_t nrBands, unsigned char* res)
 {
-    auto *srcData = reinterpret_cast<const T*>(data);
-    switch (colorMapType)
-    {
-    case r_ColorMap::Type::VALUES:
-        return applyValuesColorMap<T>(srcData, nrPixels, nrBands, res);
-    case r_ColorMap::Type::INTERVALS:
-        return applyIntervalsColorMap<T>(srcData, nrPixels, nrBands, res, false);
-    case r_ColorMap::Type::RAMP:
-        return applyIntervalsColorMap<T>(srcData, nrPixels, nrBands, res, true);
-    default:
-        return data;
-    }
-}
-
-template <class T>
-const char *r_ColorMap::applyValuesColorMap(const T *data, size_t nrPixels, size_t nrBands, unsigned char* res)
-{
-    auto *p = res;
+    auto* p = res;
     for (size_t i = 0; i < nrPixels; i++)
     {
-        auto el = uColorTable.find(data[i]);
+        auto el = uColorTable.find(static_cast<double>(data[i]));
         if (el != uColorTable.end())
         {
             for (size_t j = 0; j < nrBands; ++j, ++p)
@@ -128,51 +121,58 @@ const char *r_ColorMap::applyValuesColorMap(const T *data, size_t nrPixels, size
             p += nrBands;
         }
     }
-    return reinterpret_cast<const char*>(res);
 }
 
-const std::vector<unsigned char> *r_ColorMap::getUColor(double curr) const
+const std::vector<unsigned char>* r_ColorMap::getUColor(double curr) const
 {
     auto it = uColorTable.find(curr);
     return it != uColorTable.end() ? &it->second : nullptr;
 }
 
 template <class T>
-const char *r_ColorMap::applyIntervalsColorMap(const T *data, size_t nrPixels, size_t nrBands, unsigned char* res, bool ramp)
+void r_ColorMap::applyIntervalsColorMap(const T* data, size_t nrPixels, size_t nrBands, unsigned char* res, bool ramp)
 {
-    auto *p = res;
-    
+    auto* p = res;
+
     double min = colorTable.begin()->first;
     double max = colorTable.rbegin()->first;
 
     for (size_t i = 0; i < nrPixels; ++i)
     {
         double curr = static_cast<double>(data[i]);
-        
+
         // Get target color if it can be selected from exact values in the color map
-        const std::vector<unsigned char> *color = nullptr;
+        const std::vector<unsigned char>* color = nullptr;
         if (curr < min)
+        {
             color = &colorTable.begin()->second;
+        }
         else if (curr > max)
+        {
             color = &colorTable.rbegin()->second;
+        }
         else
+        {
             color = getUColor(curr);
-        
+        }
+
         if (color != nullptr)
         {
             // Value matches exactly an entry or outside of color map range
             for (size_t j = 0; j < nrBands; ++j, ++p)
+            {
                 *p = (*color)[j];
+            }
         }
         else
         {
             // Value between two entries
             auto larger = (curr - min < fabs(max - curr))
-                    ? colorTable.lower_bound(curr)
-                    : colorTable.upper_bound(curr);
+                          ? colorTable.lower_bound(curr)
+                          : colorTable.upper_bound(curr);
             auto smaller = larger;
             smaller--;
-            
+
             if (!ramp)
             {
                 for (size_t j = 0; j < nrBands; ++j, ++p)
@@ -189,13 +189,11 @@ const char *r_ColorMap::applyIntervalsColorMap(const T *data, size_t nrPixels, s
                 for (size_t j = 0; j < nrBands; ++j, ++p)
                 {
                     auto interpolatedColor = static_cast<unsigned char>(
-                        (smaller->second[j] * linIntS) + (larger->second[j] * linIntL));
+                                                 (smaller->second[j] * linIntS) + (larger->second[j] * linIntL));
                     *p = static_cast<unsigned char>(interpolatedColor);
                 }
             }
         }
     }
-
-    return reinterpret_cast<const char*>(res);
 }
 

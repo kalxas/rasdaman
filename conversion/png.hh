@@ -51,31 +51,31 @@ class r_Conv_PNG : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object
-    r_Conv_PNG(const char *src, const r_Minterval &interv, const r_Type *tp);
+    r_Conv_PNG(const char* src, const r_Minterval& interv, const r_Type* tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_PNG(const char *src, const r_Minterval &interv, int tp);
+    r_Conv_PNG(const char* src, const r_Minterval& interv, int tp);
     /// destructor
     ~r_Conv_PNG(void);
 
     /// convert to PNG
-    virtual r_Conv_Desc &convertTo(const char *options = NULL,
-                                   const r_Range *nullValue = NULL);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL);
     /// convert from PNG
-    virtual r_Conv_Desc &convertFrom(const char *options = NULL);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
     /// cloning
-    virtual r_Convertor *clone(void) const;
+    virtual r_Convertor* clone(void) const;
     /// identification
-    virtual const char *get_name(void) const;
+    virtual const char* get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
 private:
     /// names
-    static const char *name_InfoKey;
-    static const char *name_InfoText;
-    static const char *method_convertTo;
-    static const char *method_convertFrom;
+    static const char* name_InfoKey;
+    static const char* name_InfoText;
+    static const char* method_convertTo;
+    static const char* method_convertFrom;
 };
 
 #endif

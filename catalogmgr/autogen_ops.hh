@@ -29,6 +29,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+class BaseType;
 
 //@ManMemo: Module: {\bf catalogmgr}
 
@@ -46,8 +47,38 @@ public:
     OpABSCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
+    );
+    virtual void operator()(char *result, const char *op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpABSCLong : public UnaryOp
+{
+public:
+    OpABSCLong(
+        const BaseType *newResType,
+        const BaseType *newOpType,
+        size_t newResOff = 0,
+        size_t newOpOff = 0
+    );
+    virtual void operator()(char *result, const char *op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpABSCULong : public UnaryOp
+{
+public:
+    OpABSCULong(
+        const BaseType *newResType,
+        const BaseType *newOpType,
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -68,8 +99,8 @@ public:
     OpSQRTCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -90,8 +121,8 @@ public:
     OpPOWCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
     void setExponent(double exponent);
@@ -115,8 +146,8 @@ public:
     OpEXPCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -137,8 +168,8 @@ public:
     OpLOGCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -159,8 +190,8 @@ public:
     OpLNCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -181,8 +212,8 @@ public:
     OpSINCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -203,8 +234,8 @@ public:
     OpCOSCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -225,8 +256,8 @@ public:
     OpTANCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -247,8 +278,8 @@ public:
     OpSINHCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -269,8 +300,8 @@ public:
     OpCOSHCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -291,8 +322,8 @@ public:
     OpTANHCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -313,8 +344,8 @@ public:
     OpARCSINCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -335,8 +366,8 @@ public:
     OpARCCOSCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };
@@ -357,8 +388,8 @@ public:
     OpARCTANCDouble(
         const BaseType *newResType,
         const BaseType *newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char *result, const char *op);
 };

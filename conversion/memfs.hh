@@ -48,16 +48,16 @@ typedef struct memFSContext
 {
     r_Long pos, high;
     int mamSize, mamHighest;
-    char **mam;
-    char *chunk;
+    char** mam;
+    char* chunk;
 } memFSContext;
 
 // copied from tiffio.h to avoid dependency on TIFF
 // in TIFF these are defined with "t" as prefix instead of "ras_"
 typedef signed long ras_size_t;
 typedef unsigned long ras_off_t;
-typedef void *ras_handle_t;
-typedef void *ras_data_t;
+typedef void* ras_handle_t;
+typedef void* ras_data_t;
 
 int memfs_ensure(ras_handle_t handle, ras_off_t off);
 
@@ -74,16 +74,16 @@ ras_size_t memfs_write(ras_handle_t handle, ras_data_t mem, ras_size_t size);
 ras_off_t memfs_seek(ras_handle_t handle, ras_off_t offset, int mode);
 int memfs_close(ras_handle_t handle);
 ras_off_t memfs_size(ras_handle_t handle);
-int memfs_map(ras_handle_t handle, ras_data_t *memp, ras_off_t *top);
+int memfs_map(ras_handle_t handle, ras_data_t* memp, ras_off_t* top);
 void memfs_unmap(ras_handle_t handle, ras_data_t mem, ras_off_t top);
 
 /* Simple, read-only memFS */
-void memfs_chunk_initfs(ras_handle_t handle, char *src, r_Long size);
+void memfs_chunk_initfs(ras_handle_t handle, char* src, r_Long size);
 ras_size_t memfs_chunk_read(ras_handle_t handle, ras_data_t mem, ras_size_t size);
 ras_off_t memfs_chunk_seek(ras_handle_t handle, ras_off_t offset, int mode);
 int memfs_chunk_close(ras_handle_t handle);
 ras_off_t memfs_chunk_size(ras_handle_t handle);
-int memfs_chunk_map(ras_handle_t handle, ras_data_t *memp, ras_off_t *top);
+int memfs_chunk_map(ras_handle_t handle, ras_data_t* memp, ras_off_t* top);
 void memfs_chunk_unmap(ras_handle_t handle, ras_data_t mem, ras_off_t to);
 
 #ifdef __cplusplus

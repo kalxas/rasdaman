@@ -48,9 +48,11 @@ rasdaman GmbH.
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtpointdata.hh"
+#include "qlparser/qtconst.hh"
 
 #include "mddmgr/mddobj.hh"
 #include "tilemgr/tile.hh"
+#include "relcatalogif/basetype.hh"
 
 #include "raslib/rmdebug.hh"
 #include <logging.hh>

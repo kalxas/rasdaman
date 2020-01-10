@@ -56,13 +56,13 @@ class r_Parse_Params;
 
 typedef struct r_Conv_Desc
 {
-    const char *src{NULL};        // pointer to source data
-    char *dest{NULL};             // pointer to destination data
+    const char* src{NULL};        // pointer to source data
+    char* dest{NULL};             // pointer to destination data
     r_Minterval srcInterv;        // dimensions of source data
     r_Minterval destInterv;       // dimensions of destination data
     int baseType;                 // shortcut to src basetype
-    const r_Type *srcType{NULL};  // basetypes of src data
-    r_Type *destType{NULL};       // basetypes of dest data
+    const r_Type* srcType{NULL};  // basetypes of src data
+    r_Type* destType{NULL};       // basetypes of dest data
 } r_Conv_Desc;
 //@ManMemo: Module {\bf conversion}
 
@@ -112,41 +112,41 @@ public:
     /// default constructor (should not be used)
     r_Convertor(void);
     /// constructor using an r_Type object
-    r_Convertor(const char *src, const r_Minterval &interv, const r_Type *tp,
+    r_Convertor(const char* src, const r_Minterval& interv, const r_Type* tp,
                 bool fullTypes = false);
     /// constructor using convert_type_e shortcut
-    r_Convertor(const char *src, const r_Minterval &interv, int type);
+    r_Convertor(const char* src, const r_Minterval& interv, int type);
 
     /// destructor
     virtual ~r_Convertor(void);
 
     //@Man: Interface
     /// convert array to a specific format
-    virtual r_Conv_Desc &convertTo(const char *options = NULL,
-                                   const r_Range *nullValue = NULL) = 0;
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL) = 0;
 
     /// convert data in a specific format to array
-    virtual r_Conv_Desc &convertFrom(const char *options = NULL) = 0;
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL) = 0;
 
     /// convert data in a specific format to array
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options) = 0;
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options) = 0;
 
 
     /// cloning
-    virtual r_Convertor *clone(void) const = 0;
+    virtual r_Convertor* clone(void) const = 0;
 
     /// identification
-    virtual const char *get_name(void) const = 0;
+    virtual const char* get_name(void) const = 0;
     virtual r_Data_Format get_data_format(void) const = 0;
 
     /// set conversion format, used only by r_Conv_GDAL at the moment
-    virtual void set_format(const std::string &formatArg);
+    virtual void set_format(const std::string& formatArg);
 
     /// set storage handler, default is malloc/free
-    void set_storage_handler(const r_Storage_Man &newStore);
+    void set_storage_handler(const r_Storage_Man& newStore);
 
     /// get storage handler, default is malloc/free
-    const r_Storage_Man &get_storage_handler() const;
+    const r_Storage_Man& get_storage_handler() const;
 
     /// release the resulting object
     void releaseDest();
@@ -154,7 +154,7 @@ public:
     //@{ helper structure for encoding string-to-int parameters
     typedef struct convert_string_s
     {
-        const char *key;
+        const char* key;
         int id;
     } convert_string_t;
     //@}
@@ -163,14 +163,14 @@ public:
     static std::string type_to_string(int ctype);
 
     /// get a r_Type from an internal type
-    static r_Type *get_external_type(int ctype);
+    static r_Type* get_external_type(int ctype);
 
     /// get a internal type from a r_Type
-    static convert_type_e get_internal_type(const r_Type *type, bool fullTypes = false);
+    static convert_type_e get_internal_type(const r_Type* type, bool fullTypes = false);
 
 protected:
     /// initialize internal structures
-    void initShare(const char *src, const r_Minterval &interv);
+    void initShare(const char* src, const r_Minterval& interv);
 
     /// convert unsupported type to rgb by applying the default color scheme
     template <class baseType>
@@ -178,7 +178,7 @@ protected:
 
     // if no nodata is present in formatParams and nullValue is not NULL, then
     // add the nullValue to nodata
-    void updateNodataValue(const r_Range *nullValue = NULL);
+    void updateNodataValue(const r_Range* nullValue = NULL);
 
     /// true if we should free the src area (in case the input was converted to rgb)
     bool destroySrc;
@@ -187,7 +187,7 @@ protected:
     r_Conv_Desc desc;
 
     /// parameter parser
-    r_Parse_Params *params;
+    r_Parse_Params* params;
 
     /// new-style format params
     r_Format_Params formatParams;
@@ -202,7 +202,7 @@ protected:
 };
 
 ///ostream operator for convert_type_e
-std::ostream &operator<<(std::ostream &os, convert_type_e &cte);
+std::ostream& operator<<(std::ostream& os, convert_type_e& cte);
 
 /*@Doc:
   Abstract base class for all memory-to-memory conversion classes,
@@ -213,10 +213,10 @@ class r_Convert_Memory : public r_Convertor
 {
 public:
     /// constructor using an r_Type object
-    r_Convert_Memory(const char *src, const r_Minterval &interv, const r_Type *tp,
+    r_Convert_Memory(const char* src, const r_Minterval& interv, const r_Type* tp,
                      int fullTypes = 0);
     /// constructur using convert_type_e shortcut
-    r_Convert_Memory(const char *src, const r_Minterval &interv, int type);
+    r_Convert_Memory(const char* src, const r_Minterval& interv, int type);
     /// destructor
     virtual ~r_Convert_Memory(void);
 
@@ -226,8 +226,8 @@ protected:
     void initMemory(void);
 
     /// variables
-    memFSContext *memFS;
-    void *handle;
+    memFSContext* memFS;
+    void* handle;
 };
 
 #endif

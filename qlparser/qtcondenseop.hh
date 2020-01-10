@@ -108,7 +108,8 @@ private:
     QtData *evaluateScalarOp(QtDataList *inputList, const BaseType *cellType, BinaryOp *cellBinOp, r_Minterval domain);
 
     ///method for evaluating array returning condensers (induced)
-    QtData *evaluateInducedOp(QtDataList *inputList, BinaryOp *cellBinOp, r_Minterval domain);
+    QtData *evaluateInducedOp(QtDataList *inputList, Ops::OpType op, const BaseType *resBaseType, 
+                              const BaseType *cellBaseType, r_Minterval domain);
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
