@@ -27,7 +27,6 @@ import petascope.util.IOUtil;
 
 import java.io.IOException;
 import org.springframework.stereotype.Service;
-import static petascope.util.JSONUtil.EMPTY_ROOT_NODE;
 
 /**
  * Class creating the correct RasdamanUpdater object.
@@ -41,11 +40,11 @@ public class RasdamanUpdaterFactory {
     public RasdamanUpdaterFactory() {
     }
 
-    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, String values, String shiftDomain) {
-        return new RasdamanValuesUpdater(collectionName, collectionOid, domain, values, shiftDomain);
+    public RasdamanUpdater getUpdater(String collectionName, String domain, String values, String shiftDomain) {
+        return new RasdamanValuesUpdater(collectionName, domain, values, shiftDomain);
     }
 
-    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, String filePath, String mimeType,
+    public RasdamanUpdater getUpdater(String collectionName, String domain, String filePath, String mimeType,
                                       String shiftDomain, String rangeParameters, boolean updateFilePath) throws IOException {
         
         // Add the filePaths to the rangeParameters json string
@@ -54,11 +53,11 @@ public class RasdamanUpdaterFactory {
         }
         
         if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {            
-            return new RasdamanGribUpdater(collectionName, collectionOid, domain, rangeParameters, shiftDomain);
+            return new RasdamanGribUpdater(collectionName, domain, rangeParameters, shiftDomain);
         } else if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.NETCDF_MIMETYPE)) {
-            return new RasdamanNetcdfUpdater(collectionName, collectionOid, domain, shiftDomain, rangeParameters);
+            return new RasdamanNetcdfUpdater(collectionName, domain, shiftDomain, rangeParameters);
         } else {
-            return new RasdamanDecodeUpdater(collectionName, collectionOid, domain, shiftDomain, rangeParameters);
+            return new RasdamanGdalDecodeUpdater(collectionName, domain, shiftDomain, rangeParameters);
         }
     }
     

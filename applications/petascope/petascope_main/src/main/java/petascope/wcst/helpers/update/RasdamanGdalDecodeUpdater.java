@@ -30,10 +30,9 @@ import petascope.exceptions.PetascopeException;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class RasdamanDecodeUpdater extends RasdamanUpdater {
+public class RasdamanGdalDecodeUpdater extends RasdamanUpdater {
 
     String affectedCollectionName;
-    String affectedCollectionOid;
     String affectedDomain;
     String shiftDomain;    
     String rangeParameters;
@@ -41,14 +40,11 @@ public class RasdamanDecodeUpdater extends RasdamanUpdater {
     /**
      * Class constructor.
      * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
-     * @param affectedCollectionOid the oid of the rasdaman array corresponding to the coverage.
      * @param affectedDomain the rasdaman domain over which the update is executed.
      * @param shiftDomain the domain with which the array stored in the file must be shifted.
      */
-    public RasdamanDecodeUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain, 
-                                 String shiftDomain, String rangeParameters) {
+    public RasdamanGdalDecodeUpdater(String affectedCollectionName, String affectedDomain, String shiftDomain, String rangeParameters) {
         this.affectedCollectionName = affectedCollectionName;
-        this.affectedCollectionOid = affectedCollectionOid;
         this.affectedDomain = affectedDomain;
         this.shiftDomain = shiftDomain;
         this.rangeParameters = rangeParameters;
@@ -63,7 +59,6 @@ public class RasdamanDecodeUpdater extends RasdamanUpdater {
         
         String queryString = templateStr.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
-                             .replace("$oid", affectedCollectionOid)
                              .replace("$rangeParams", rangeParameters)
                              .replace("$shiftDomain", shiftDomain);
         
@@ -79,7 +74,6 @@ public class RasdamanDecodeUpdater extends RasdamanUpdater {
         
         String queryString = templateStr.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
-                             .replace("$oid", affectedCollectionOid)
                              .replace("$rangeParams", rangeParameters)
                              .replace("$shiftDomain", shiftDomain);
         
@@ -92,18 +86,18 @@ public class RasdamanDecodeUpdater extends RasdamanUpdater {
     //  "GDAL", "{\"filePaths\":[\"/home/rasdaman/mr_1.png\"]}"), [0,0]) WHERE oid(test_mr) = 6145'
     private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain "
                                                      + "ASSIGN shift(decode(<[0:0] 1c>, "
-                                                     + "\"GDAL\"" + ", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";
+                                                     + "\"GDAL\"" + ", \"$rangeParams\"), $shiftDomain)";
     
     private static final String UPDATE_TEMPLATE_FILE_NO_SHIFT = "UPDATE $collection SET $collection$domain "
-                                                     + "ASSIGN decode(<[0:0] 1c>, "
-                                                     + "\"GDAL\"" + ", \"$rangeParams\") WHERE oid($collection) = $oid";
+                                                              + "ASSIGN decode(<[0:0] 1c>, "
+                                                              + "\"GDAL\"" + ", \"$rangeParams\")";
     
     
     private static final String UPDATE_TEMPLATE_WITH_BYTES = "UPDATE $collection SET $collection$domain "
                                                            + "ASSIGN shift(decode($1, "
-                                                           + "\"GDAL\"" + ", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";
+                                                           + "\"GDAL\"" + ", \"$rangeParams\"), $shiftDomain)";
     
     private static final String UPDATE_TEMPLATE_WITH_BYTES_NO_SHIFT = "UPDATE $collection SET $collection$domain "
                                                                     + "ASSIGN decode($1, "
-                                                                    + "\"GDAL\"" + ", \"$rangeParams\") WHERE oid($collection) = $oid";
+                                                                    + "\"GDAL\"" + ", \"$rangeParams\")";
 }

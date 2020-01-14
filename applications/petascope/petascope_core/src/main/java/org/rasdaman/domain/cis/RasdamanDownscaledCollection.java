@@ -53,9 +53,6 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
     @Column(name = "collection_name")
     private String collectionName;
     
-    @Column(name = "oid")
-    private Long oid;
-
     @Column(name = "level")
     private BigDecimal level;
 
@@ -82,14 +79,6 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
 
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
-    }
-
-    public Long getOid() {
-        return oid;
-    }
-
-    public void setOid(Long oid) {
-        this.oid = oid;
     }
 
     public BigDecimal getLevel() {

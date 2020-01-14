@@ -312,9 +312,8 @@ public class CoverageRepositoryService {
         if (coverage.getRasdamanRangeSet().getTiling() == null) {
             // e.g: [0:500,0:500] ALIGNED 4194304
             String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
-            long oid = coverage.getRasdamanRangeSet().getOid();
             try {
-                String tiling = RasUtil.retrieveTilingInfo(collectionName, oid);
+                String tiling = RasUtil.retrieveTilingInfo(collectionName);
                 coverage.getRasdamanRangeSet().setTiling(tiling);                
                 // Then update coverage to database
                 this.save(coverage);

@@ -176,7 +176,6 @@ public class InsertCoverageHandler {
                 throw new WCSTCoverageIdNotValid(collectionName);
             }
 
-            Long oid;
             RasdamanInserter rasdamanInserter;
             RasdamanCollectionCreator rasdamanCollectionCreator;
             Element rangeSet = GMLParserService.parseRangeSet(gmlCoverageDocument.getRootElement());
@@ -218,7 +217,7 @@ public class InsertCoverageHandler {
                     rasdamanCollectionCreator.createCollection();
                 }
                 rasdamanInserter = new RasdamanValuesInserter(collectionName, rasCollectionType, rasdamanValues, tiling);
-                oid = rasdamanInserter.insert();
+                rasdamanInserter.insert();
                 end = System.currentTimeMillis();
                 log.debug("Time for creating collection: " + String.valueOf(end - start));
             } else {
@@ -250,7 +249,7 @@ public class InsertCoverageHandler {
                 rasdamanInserter = new RasdamanFileInserter(collectionName, tmpFile.getAbsolutePath(), mimetype, tiling);
 
                 rasdamanCollectionCreator.createCollection();
-                oid = rasdamanInserter.insert();
+                rasdamanInserter.insert();
                 //delete the temporary file
                 if (!fileIsLocal) {
                     tmpFile.delete();
@@ -258,7 +257,6 @@ public class InsertCoverageHandler {
             }
 
             RasdamanRangeSet rasdamanRangeSet = new RasdamanRangeSet();
-            rasdamanRangeSet.setOid(oid);
             rasdamanRangeSet.setCollectionName(collectionName);
             // set Type
             rasdamanRangeSet.setCollectionType(rasCollectionType);

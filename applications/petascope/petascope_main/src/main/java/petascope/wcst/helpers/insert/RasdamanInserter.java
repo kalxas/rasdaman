@@ -37,5 +37,5 @@ public interface RasdamanInserter {
      * Inserts data into rasdaman.
      * @return the oid of the affected array.
      */
-    public Long insert() throws RasdamanException, IOException, PetascopeException;
+    public void insert() throws RasdamanException, IOException, PetascopeException;
 }

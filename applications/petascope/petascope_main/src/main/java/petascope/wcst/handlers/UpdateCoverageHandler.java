@@ -130,7 +130,6 @@ public class UpdateCoverageHandler {
         Coverage currentCoverage = persistedCoverageService.readCoverageByIdFromDatabase(request.getCoverageId());
         String coverageId = request.getCoverageId();
 
-        String affectedCollectionOid = currentCoverage.getRasdamanRangeSet().getOid().toString();
         String affectedCollectionName = currentCoverage.getRasdamanRangeSet().getCollectionName();
 
         String gmlInputCoverage = getGmlCoverageFromRequest(request);
@@ -174,7 +173,7 @@ public class UpdateCoverageHandler {
             if (dataBlockElements.size() != 0) {
                 //tuple list given explicitly
                 String values = getReplacementValuesFromTupleList(currentCoverage, rangeSet, request.getPixelDataType());
-                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);                
+                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedDomain, values, shiftDomain);                
                 updater.updateWithFile();                
             } else {
                 //tuple list given as file
@@ -200,8 +199,8 @@ public class UpdateCoverageHandler {
                 RangeParametersConvertor convertor = rangeParametersConvertorFactory.getConvertor(mimetype, rangeParameters, currentCoverage);
                 String decodeParameters = convertor.toRasdamanDecodeParameters();
 
-                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid,
-                        affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters, isLocal);
+                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName,
+                                                            affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters, isLocal);
                 
                 if (isLocal) {
                     updater.updateWithFile();

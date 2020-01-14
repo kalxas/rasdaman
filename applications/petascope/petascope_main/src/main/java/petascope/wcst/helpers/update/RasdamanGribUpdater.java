@@ -32,7 +32,6 @@ import petascope.exceptions.PetascopeException;
 public class RasdamanGribUpdater extends RasdamanUpdater {
 
     String affectedCollectionName;
-    String affectedCollectionOid;
     String affectedDomain;
     String rangeParameters;
     String shiftDomain;
@@ -40,15 +39,13 @@ public class RasdamanGribUpdater extends RasdamanUpdater {
     /**
      * Class constructor.
      * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
-     * @param affectedCollectionOid the oid of the rasdaman array corresponding to the coverage.
      * @param affectedDomain the rasdaman domain over which the update is executed.
      * @param rangeParameters the parameters from which the grib messages can be computed.
      * @param shiftDomain the domain with which the array stored in the file must be shifted.
      */
-    public RasdamanGribUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain,
+    public RasdamanGribUpdater(String affectedCollectionName, String affectedDomain,
                                String rangeParameters, String shiftDomain) {
         this.affectedCollectionName = affectedCollectionName;
-        this.affectedCollectionOid = affectedCollectionOid;
         this.affectedDomain = affectedDomain;
         this.rangeParameters = rangeParameters;
         this.shiftDomain = shiftDomain;
@@ -64,7 +61,6 @@ public class RasdamanGribUpdater extends RasdamanUpdater {
         
         String queryString = templateStr.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
-                             .replace("$oid", affectedCollectionOid)
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$gribMessages", rangeParameters);
         RasUtil.executeUpdateFileStatement(queryString);
@@ -79,7 +75,6 @@ public class RasdamanGribUpdater extends RasdamanUpdater {
         
         String queryString = templateStr.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
-                             .replace("$oid", affectedCollectionOid)
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$gribMessages", rangeParameters);
         RasUtil.executeUpdateBytesStatement(queryString, bytes);
@@ -90,20 +85,20 @@ public class RasdamanGribUpdater extends RasdamanUpdater {
     // -q 'UPDATE test_grib_irregular_1_message SET test_grib_irregular_1_message[0:0,2:2,0:287,0:144] 
     // ASSIGN shift(decode(<[0:0] 1c>, "GRIB", "{\"internalStructure\": 
     //        {\"messageDomains\":[{\"msgId\":1,\"domain\":\"[0:0,0:0,0:287,0:144]\"}]},
-    //        \"filePaths\":[\"/home/rasdaman/output_20030107_20030107.grib2\"]}"), [0,2,0,0]) WHERE oid(test_grib_irregular_1_message) = 6657'
+    //        \"filePaths\":[\"/home/rasdaman/output_20030107_20030107.grib2\"]}"), [0,2,0,0])'
     private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain "
                                                      + "ASSIGN shift(decode(<[0:0] 1c>, "
-                                                     + "\"GRIB\"" + ", \"$gribMessages\"), $shiftDomain) WHERE oid($collection) = $oid";            
+                                                     + "\"GRIB\"" + ", \"$gribMessages\"), $shiftDomain)";            
     
     private static final String UPDATE_TEMPLATE_FILE_NO_SHIFT = "UPDATE $collection SET $collection$domain "
                                                      + "ASSIGN decode(<[0:0] 1c>, "
-                                                     + "\"GRIB\"" + ", \"$gribMessages\") WHERE oid($collection) = $oid";
+                                                     + "\"GRIB\"" + ", \"$gribMessages\")";
     
     private static final String UPDATE_TEMPLATE_WITH_BYTES = "UPDATE $collection SET $collection$domain "
                                                            + "ASSIGN shift(decode($1, "
-                                                           + "\"GRIB\"" + ", \"$gribMessages\"), $shiftDomain) WHERE oid($collection) = $oid";
+                                                           + "\"GRIB\"" + ", \"$gribMessages\"), $shiftDomain)";
     
     private static final String UPDATE_TEMPLATE_WITH_BYTES_NO_SHIFT = "UPDATE $collection SET $collection$domain "
                                                                     + "ASSIGN decode($1, "
-                                                                    + "\"GRIB\"" + ", \"$gribMessages\") WHERE oid($collection) = $oid";
+                                                                    + "\"GRIB\"" + ", \"$gribMessages\")";
 }

@@ -77,12 +77,11 @@ public class DeleteCoverageHandler {
 
         //delete all of them
         for (Coverage coverage : coverages) {
-            Long oid = coverage.getRasdamanRangeSet().getOid();
             String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
 
             // first, try to delete the rasdaman collection.
             try {
-                this.deleteFromRasdaman(oid, collectionName);
+                this.deleteFromRasdaman(collectionName);
             } catch (RasdamanException e) {
                 log.error("Cannot delete collection: " + collectionName + ", error: ", e);
                 // NOTE: If cannot delete collection for some reason (e.g: collection does not exist), it should not throw exception as it cannot delete coverage's metadata
@@ -164,8 +163,8 @@ public class DeleteCoverageHandler {
      * @param coverage
      * @throws RasdamanException
      */
-    private void deleteFromRasdaman(Long oid, String collectionName) throws RasdamanException, PetascopeException {
-        RasUtil.deleteFromRasdaman(oid, collectionName);
+    private void deleteFromRasdaman(String collectionName) throws RasdamanException, PetascopeException {
+        RasUtil.deleteFromRasdaman(collectionName);
     }
     
     /**
@@ -173,9 +172,8 @@ public class DeleteCoverageHandler {
      */
     private void deleteAssociatedScaleLevelFromRasdaman(Coverage coverage) throws RasdamanException, PetascopeException {
         for (RasdamanDownscaledCollection rasdamanScaleDownCollection : coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
-            Long oid = rasdamanScaleDownCollection.getOid();
             String collectionName = rasdamanScaleDownCollection.getCollectionName();
-            RasUtil.deleteFromRasdaman(oid, collectionName);
+            RasUtil.deleteFromRasdaman(collectionName);
         }
     }
 

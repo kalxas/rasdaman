@@ -31,15 +31,13 @@ import petascope.exceptions.PetascopeException;
 public class RasdamanNetcdfUpdater extends RasdamanUpdater {
 
     String affectedCollectionName;
-    String affectedCollectionOid;
     String affectedDomain;
     String shiftDomain;
     String rangeParameters;
 
-    public RasdamanNetcdfUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain,
+    public RasdamanNetcdfUpdater(String affectedCollectionName, String affectedDomain,
                                  String shiftDomain, String rangeParameters) {
         this.affectedCollectionName = affectedCollectionName;
-        this.affectedCollectionOid = affectedCollectionOid;
         this.affectedDomain = affectedDomain;
         this.shiftDomain = shiftDomain;
         this.rangeParameters = rangeParameters;
@@ -55,7 +53,6 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
         
         String queryString = templateStr.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
-                             .replace("$oid", affectedCollectionOid)
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$rangeParams", rangeParameters);
         RasUtil.executeUpdateFileStatement(queryString);
@@ -72,7 +69,6 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
         
         String queryString = templateStr.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
-                             .replace("$oid", affectedCollectionOid)
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$rangeParams", rangeParameters);
         RasUtil.executeUpdateBytesStatement(queryString, bytes);
@@ -85,20 +81,20 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
     // \"filePaths\":[\"/home/rasdaman/eobs.nc\"]}"), [0,0,0]) WHERE oid(test_eobstest) = 5633'
     private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain "
                                                      + "ASSIGN shift(decode(<[0:0] 1c>, "
-                                                     + "\"NetCDF\"" + ", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";    
+                                                     + "\"NetCDF\"" + ", \"$rangeParams\"), $shiftDomain)";    
     
     
     private static final String UPDATE_TEMPLATE_FILE_NO_SHIFT = "UPDATE $collection SET $collection$domain "
                                                  + "ASSIGN decode(<[0:0] 1c>, "
-                                                 + "\"NetCDF\"" + ", \"$rangeParams\") WHERE oid($collection) = $oid";
+                                                 + "\"NetCDF\"" + ", \"$rangeParams\")";
     
     
     private static final String UPDATE_TEMPLATE_WITH_BYTES = "UPDATE $collection SET $collection$domain "
                                                            + "ASSIGN shift(decode($1, "
-                                                           + "\"NetCDF\"" + ", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";    
+                                                           + "\"NetCDF\"" + ", \"$rangeParams\"), $shiftDomain)";    
     
     
     private static final String UPDATE_TEMPLATE_WITH_BYTES_NO_SHIFT = "UPDATE $collection SET $collection$domain "
                                                                     + "ASSIGN decode($1, "
-                                                                    + "\"NetCDF\"" + ", \"$rangeParams\") WHERE oid($collection) = $oid";
+                                                                    + "\"NetCDF\"" + ", \"$rangeParams\")";
 }

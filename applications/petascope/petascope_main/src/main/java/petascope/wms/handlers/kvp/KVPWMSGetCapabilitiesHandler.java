@@ -21,7 +21,6 @@
  */
 package petascope.wms.handlers.kvp;
 
-import io.netty.util.internal.StringUtil;
 import java.util.ArrayList;
 import petascope.core.response.Response;
 import java.util.Arrays;
@@ -29,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import nu.xom.Attribute;
 import nu.xom.Element;
+import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.owsmetadata.Address;
@@ -507,13 +507,13 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         
         Element rasdamanElement = new Element(XMLSymbols.LABEL_RASDAMAN);
         
-        if (!StringUtil.isNullOrEmpty(rasqlQueryFragment)) {
+        if (!StringUtils.isEmpty(rasqlQueryFragment)) {
             Element rasqlQueryFragmentElement = new Element(XMLSymbols.LABEL_WMS_RASQL_QUERY_FRAGMENT);
             rasqlQueryFragmentElement.appendChild(rasqlQueryFragment);
             rasdamanElement.appendChild(rasqlQueryFragmentElement);
         }
         
-        if (!StringUtil.isNullOrEmpty(wcpsQueryFragment)) {
+        if (!StringUtils.isEmpty(wcpsQueryFragment)) {
             Element wcpsQueryFragmentElement = new Element(XMLSymbols.LABEL_WMS_WCPS_QUERY_FRAGMENT);
             wcpsQueryFragmentElement.appendChild(wcpsQueryFragment);
             rasdamanElement.appendChild(wcpsQueryFragmentElement);
@@ -521,7 +521,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         
         Element colorTableElement = new Element(XMLSymbols.LABEL_WMS_COLOR_TABLE);
         
-        if (!StringUtil.isNullOrEmpty(colorTableType)) {
+        if (!StringUtils.isEmpty(colorTableType)) {
             Element colorTableTypeElement = new Element(XMLSymbols.LABEL_WMS_COLOR_TABLE_TYPE);
             colorTableTypeElement.appendChild(colorTableType);
             colorTableElement.appendChild(colorTableTypeElement);

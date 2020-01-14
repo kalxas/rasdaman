@@ -234,8 +234,8 @@ public class RasUtil {
     /**
      * Deletes an array from rasdaman.
      */
-    public static void deleteFromRasdaman(Long oid, String collectionName) throws RasdamanException, PetascopeException {
-        String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_OID, oid.toString());
+    public static void deleteFromRasdaman(String collectionName) throws RasdamanException, PetascopeException {
+        String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         //check if there are other objects left in the collection
         log.info("Checking the number of objects left in collection " + collectionName);
@@ -267,7 +267,7 @@ public class RasUtil {
      * 
      * INSERT INTO test_AverageTemperature_2 VALUES <[0:0,0:0,0:0] {0c, 0c, 0c}> TILING ALIGNED [0:1000,0:1000,0:2] tile size 4194304
      */
-    public static Long initializeMDD(int numberOfDimensions, int numberOfBands, 
+    public static void initializeMDD(int numberOfDimensions, int numberOfBands, 
             String collectionType, String tileSetting, String collectionName) throws PetascopeException {
 
         List<String> domainsTmp = new ArrayList<>();
@@ -292,21 +292,19 @@ public class RasUtil {
 
         // e.g: 3 dimensions and 3 bands: <[0:0,0:0,0:0] {0c,0c,0c}>
         String values = "<[" + domainValue + "] " + multibandValue + ">";
-        Long oid = RasUtil.executeInsertStatement(collectionName, values, tileSetting);
-        
-        return oid;
+        RasUtil.executeInsertStatement(collectionName, values, tileSetting);
     }
     
     /**
      * Update data from a source Rasdaman collection with grid subsets on a downscaled Rasdaman collection with grid subets.
      */
-    public static void updateDownscaledCollectionFromSourceCollection(Long oid, String sourceAffectedDomain, 
+    public static void updateDownscaledCollectionFromSourceCollection(String sourceAffectedDomain, 
             String targetAffectedDomain, String sourceCollectionName, String targetDownscaledCollectionName) throws PetascopeException {
         
         // e.g: update test_mr1 as c set c[*:*,*:*] assign scale(d[*:*,*:*], [0:20,0:30]) from test_mr as d
         String rasqlQuery = "UPDATE " + targetDownscaledCollectionName + " as d SET d" + targetAffectedDomain 
                      + " ASSIGN SCALE(c" + sourceAffectedDomain + ", " + targetAffectedDomain + ")"
-                     + " FROM " + sourceCollectionName + " as c WHERE oid(c) = " + oid;
+                     + " FROM " + sourceCollectionName + " as c";
         RasUtil.executeRasqlQuery(rasqlQuery, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, Boolean.TRUE);
     }
 
@@ -315,25 +313,19 @@ public class RasUtil {
      * "INSERT INTO PM10_2 VALUES <[0:0,0:0,0:0] 0f> TILING ALIGNED [0:366,
      * 0:500, 0:500]"
      *
-     * @return the oid of the newly inserted object
-     * @throws RasdamanException
      */
-    public static Long executeInsertStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
+    public static void executeInsertStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
                 .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
-        Object rasjResult = executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
-        Long oid = Long.parseLong(new RasQueryResult(rasjResult).getScalars().get(0));
-
-        return oid;
+        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
     }
 
     /**
      * Insert an image to an existing collection by decoding file
      */
-    public static Long executeInsertFileStatement(String collectionName, String filePath, String mime,
-            String tiling) throws RasdamanException, IOException, PetascopeException {
-        Long oid = new Long("0");
+    public static void executeInsertFileStatement(String collectionName, String filePath, String mime,
+                                                  String tiling) throws RasdamanException, IOException, PetascopeException {
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
 
@@ -353,20 +345,6 @@ public class RasUtil {
             //error occured
             throw new RasdamanException(response);
         }
-        //get the collection oid
-        String oidQuery = TEMPLATE_SELECT_OID.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
-        RasBag result = (RasBag) executeRasqlQuery(oidQuery);
-        Iterator resultIterator = result.iterator();
-        Object resultInstance = null;
-        //get the last available oid
-        while (resultIterator.hasNext()) {
-            resultInstance = resultIterator.next();
-        }
-        if (resultInstance != null) {
-            oid = new Long(resultInstance.toString());
-        }
-        
-        return oid;
     }
 
     /**
@@ -524,8 +502,8 @@ public class RasUtil {
     
      /* Get the tiling information from rasql query of a collection.
      */
-    public static String retrieveTilingInfo(String collectionName, long oid) throws PetascopeException {
-        String query = "select dbinfo(c) from " + collectionName + " as c where oid(c) = " + oid;
+    public static String retrieveTilingInfo(String collectionName) throws PetascopeException {
+        String query = "select dbinfo(c) from " + collectionName + " as c";
         String dbinfoResult = new RasQueryResult(RasUtil.executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, false)).toString();
         // Parse the result for "tiling" value, e.g:  "tiling": { "tilingScheme": "aligned", "tileSize": "4194304", "tileConfiguration": "[0:500,0:500]" }
 
@@ -555,9 +533,7 @@ public class RasUtil {
     private static final String TILING_KEYWORD = "TILING";
     private static final String RASDAMAN_TYPE = "%TYPE%";
     private static final String TEMPLATE_INSERT_VALUES = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES " + TOKEN_VALUES + " " + TOKEN_TILING;
-    private static final String TEMPLATE_SELECT_OID = "SELECT oid(" + TOKEN_COLLECTION_NAME + ") FROM " + TOKEN_COLLECTION_NAME;
-    private static final String TOKEN_OID = "%oid%";
-    private static final String TEMPLATE_DELETE = "DELETE FROM " + TOKEN_COLLECTION_NAME + " WHERE oid(" + TOKEN_COLLECTION_NAME + ")=" + TOKEN_OID;
+    private static final String TEMPLATE_DELETE = "DELETE FROM " + TOKEN_COLLECTION_NAME;
     private static final String TEMPLATE_INSERT_DECODE_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)" + " " + TOKEN_TILING;
     private static final String RASQL = "rasql";
     private static final String TEMPLATE_SDOM = "SELECT sdom(m) FROM " + TOKEN_COLLECTION_NAME + " m";

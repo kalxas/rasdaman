@@ -36,7 +36,6 @@ import petascope.util.ras.RasUtil;
 public class RasdamanValuesUpdater extends RasdamanUpdater {
 
     String affectedCollectionName;
-    String affectedCollectionOid;
     String affectedDomain;
     String values;
     String shiftDomain;
@@ -48,14 +47,12 @@ public class RasdamanValuesUpdater extends RasdamanUpdater {
     /**
      * Class constructor.
      * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
-     * @param affectedCollectionOid the oid of the rasdaman array corresponding to the coverage.
      * @param affectedDomain the rasdaman domain over which the update is executed.
      * @param values the values clause in the rasdaman update operation.
      * @param shiftDomain the domain with which the rasdaman array in the values clause must be shifted.
      */
-    public RasdamanValuesUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain, String values, String shiftDomain) {
+    public RasdamanValuesUpdater(String affectedCollectionName, String affectedDomain, String values, String shiftDomain) {
         this.affectedCollectionName = affectedCollectionName;
-        this.affectedCollectionOid = affectedCollectionOid;
         this.affectedDomain = affectedDomain;
         this.values = values;
         this.shiftDomain = shiftDomain;
@@ -65,13 +62,12 @@ public class RasdamanValuesUpdater extends RasdamanUpdater {
     public void updateWithFile() throws RasdamanException, PetascopeException {
         String queryString = UPDATE_TEMPLATE_VALUES.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
-                             .replace("$oid", affectedCollectionOid)
                              .replace("$values", values)
                              .replace("$shiftDomain", shiftDomain);
         RasUtil.executeRasqlQuery(queryString, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true, null);
     }
 
-    private static final String UPDATE_TEMPLATE_VALUES = "UPDATE $collection SET $collection$domain ASSIGN shift($values, $shiftDomain) WHERE oid($collection) = $oid";
+    private static final String UPDATE_TEMPLATE_VALUES = "UPDATE $collection SET $collection$domain ASSIGN shift($values, $shiftDomain)";
 
     @Override
     public void updateWithBytes(byte[] bytes) throws PetascopeException {

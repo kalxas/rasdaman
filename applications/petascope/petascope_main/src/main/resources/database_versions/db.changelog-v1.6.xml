@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+<changeSet author="rasdaman (generated)" id="1579010069425-1">
+<dropForeignKeyConstraint baseTableName="multi_point_coverage" constraintName="fk3k2cjbpw2af3r9b8xxr7h76vf"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1579010069425-2">
+<dropForeignKeyConstraint baseTableName="directmultipoint_positions" constraintName="fk4vv7y8m65jq4hnjlw4f02r1cl"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1579010069425-3">
+<dropForeignKeyConstraint baseTableName="multi_point_domain_set" constraintName="fk8nb5or6qlr5y88bbv5agtkg26"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1579010069425-4">
+<dropForeignKeyConstraint baseTableName="multi_point_domain_set" constraintName="fkq5t3mw3duh04vt5xwhb6rt5wy"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1579010069425-5">
+<dropTable tableName="directmultipoint_positions"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1579010069425-6">
+<dropTable tableName="multi_point_coverage"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1579010069425-7">
+<dropTable tableName="multi_point_domain_set"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1579010069425-8">
+<dropColumn columnName="oid" tableName="rasdaman_down_scaled_collection"/>
+</changeSet>
+</databaseChangeLog>

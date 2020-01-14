@@ -54,8 +54,7 @@ public class RasdamanFileInserter implements RasdamanInserter {
     }
 
     @Override
-    public Long insert() throws RasdamanException, IOException, PetascopeException {
-        Long oid = RasUtil.executeInsertFileStatement(collectionName, filePath, mimetype, tiling);
-        return oid;
+    public void insert() throws RasdamanException, IOException, PetascopeException {
+        RasUtil.executeInsertFileStatement(collectionName, filePath, mimetype, tiling);
     }
 }

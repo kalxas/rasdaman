@@ -56,15 +56,13 @@ public class RasdamanValuesInserter implements RasdamanInserter {
     }
 
     @Override
-    public Long insert() throws RasdamanException, PetascopeException {
-        Long oid = null;
+    public void insert() throws RasdamanException, PetascopeException {
         try {
-            //insert the values
-            oid = RasUtil.executeInsertStatement(collectionName, values, tiling);
+            // insert the values
+            RasUtil.executeInsertStatement(collectionName, values, tiling);
         } catch (RasdamanException ex) {
             log.error("Rasdaman error when inserting into collection " + collectionName + ". Error message: " + ex.getMessage());
             throw ex;
         }
-        return oid;
     }
 }
