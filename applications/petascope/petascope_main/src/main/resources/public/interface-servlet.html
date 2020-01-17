@@ -36,12 +36,21 @@ rasdaman GmbH.
     </style>
     
     <script>
+        var PROXY = "$PROXY";
+        
         function updateIframeURL() {
             // e.g: "http://localhost:8080/wcs-conformance-testing/ows"
             var url = window.location.href;
             var lastIndex = url.lastIndexOf('/');
-            url = url.substr(0, lastIndex);          
-            document.getElementById('iframe').src = url  + "/wcs-client/index.html";
+            url = url.substr(0, lastIndex);
+            
+            var path = "";
+            if (PROXY === "") {
+                path = url;
+            } else {
+                path = PROXY;
+            }
+            document.getElementById('iframe').src = path.replace("/ows", "") + "/wcs-client/index.html";
         }
         
         window.onload = updateIframeURL;

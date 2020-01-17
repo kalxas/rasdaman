@@ -657,35 +657,16 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         wcpsParser.DimensionCrsElementLabelContext crsY = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(3);
         axisCrss.put(crsY.axisName().getText(), StringUtil.stripQuotes(crsY.crsName().getText()));
+        
+        String interpolationType = null;
 
-        // Store the interpolation objects (rangeName, method -> nodata values)
-        HashMap<String, HashMap<String, String>> rangeInterpolations = new LinkedHashMap<>();
-
-        // get interpolation parameters
-        if (ctx.fieldInterpolationList().fieldInterpolationListElement().size() > 0) {
-            // Iterate the interpolation list to get the range (band name) and its parameters (if it is available)
-            for (wcpsParser.FieldInterpolationListElementContext element : ctx.fieldInterpolationList().fieldInterpolationListElement()) {
-
-                // e.g: b1(A, B)
-                String rangeName = element.getChild(0).getText();
-                wcpsParser.InterpolationMethodContext intMethodObj = (wcpsParser.InterpolationMethodContext) element.getChild(2);
-                // e.g: A = "near"
-                String interpolationMethod = StringUtil.stripQuotes(intMethodObj.getChild(0).getText());
-                // e.g: B = "1,2,3"
-                String nullValues = StringUtil.stripQuotes(intMethodObj.getChild(2).getText());
-
-                // e.g: "near" -> "1,2,3"
-                HashMap<String, String> map = new LinkedHashMap<>();
-                map.put(interpolationMethod, nullValues);
-
-                rangeInterpolations.put(rangeName, map);
-            }
+        if (ctx.interpolationType() != null) {
+            interpolationType = ctx.interpolationType().getText();
         }
-
         
         WcpsResult result = null;
         try {
-            result = crsTransformHandler.handle(coverageExpression, axisCrss, rangeInterpolations);
+            result = crsTransformHandler.handle(coverageExpression, axisCrss, interpolationType);
         } catch (PetascopeException | SecoreException ex) {
             String errorMessage = "Error processing crsTransform() operator expression. Reason: " + ex.getMessage();
             throw new WCPSException(errorMessage, ex);

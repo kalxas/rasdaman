@@ -53,17 +53,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCoverageExpressionTrigonometricLabel(@NotNull wcpsParser.CoverageExpressionTrigonometricLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#FieldInterpolationListElementLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterFieldInterpolationListElementLabel(@NotNull wcpsParser.FieldInterpolationListElementLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#FieldInterpolationListElementLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitFieldInterpolationListElementLabel(@NotNull wcpsParser.FieldInterpolationListElementLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#coverageXpressionShortHandSubsetWithLetClauseVariableLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -238,17 +227,6 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFieldName(@NotNull wcpsParser.FieldNameContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link wcpsParser#nullResistance}.
-	 * @param ctx the parse tree
-	 */
-	void enterNullResistance(@NotNull wcpsParser.NullResistanceContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#nullResistance}.
-	 * @param ctx the parse tree
-	 */
-	void exitNullResistance(@NotNull wcpsParser.NullResistanceContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#SliceDimensionIntervalElementLabel}.
@@ -1109,17 +1087,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitNotUnaryBooleanExpressionLabel(@NotNull wcpsParser.NotUnaryBooleanExpressionLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#InterpolationMethodLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterInterpolationMethodLabel(@NotNull wcpsParser.InterpolationMethodLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#InterpolationMethodLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitInterpolationMethodLabel(@NotNull wcpsParser.InterpolationMethodLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#letClauseCoverageExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1646,17 +1613,6 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitWhereClauseLabel(@NotNull wcpsParser.WhereClauseLabelContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link wcpsParser#fieldInterpolationList}.
-	 * @param ctx the parse tree
-	 */
-	void enterFieldInterpolationList(@NotNull wcpsParser.FieldInterpolationListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#fieldInterpolationList}.
-	 * @param ctx the parse tree
-	 */
-	void exitFieldInterpolationList(@NotNull wcpsParser.FieldInterpolationListContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageIdentifierExpressionLabel}.

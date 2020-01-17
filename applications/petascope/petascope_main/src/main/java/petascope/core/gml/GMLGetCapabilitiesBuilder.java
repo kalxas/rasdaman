@@ -183,11 +183,26 @@ public class GMLGetCapabilitiesBuilder {
 
     // Interpoltation Extension
     private static final String INTERPOLATION_NEAREST_NEIGHBOR = "http://www.opengis.net/def/interpolation/OGC/1.0/nearest-neighbor";
+    private static final String INTERPOLATION_BILINEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/bilinear";
+    private static final String INTERPOLATION_CUBIC = "http://www.opengis.net/def/interpolation/OGC/1.0/cubic";
+    private static final String INTERPOLATION_CUBICSPLINE = "http://www.opengis.net/def/interpolation/OGC/1.0/cubicspline";
+    private static final String INTERPOLATION_LANCZOS = "http://www.opengis.net/def/interpolation/OGC/1.0/lanczos";
+    private static final String INTERPOLATION_AVERAGE = "http://www.opengis.net/def/interpolation/OGC/1.0/average";
+    private static final String INTERPOLATION_MODE = "http://www.opengis.net/def/interpolation/OGC/1.0/mode";
+    private static final String INTERPOLATION_MAX = "http://www.opengis.net/def/interpolation/OGC/1.0/max";
+    private static final String INTERPOLATION_MIN = "http://www.opengis.net/def/interpolation/OGC/1.0/min";
+    private static final String INTERPOLATION_MED = "http://www.opengis.net/def/interpolation/OGC/1.0/med";
+    private static final String INTERPOLATION_Q1 = "http://www.opengis.net/def/interpolation/OGC/1.0/q1";
+    private static final String INTERPOLATION_Q3 = "http://www.opengis.net/def/interpolation/OGC/1.0/q3";
 
     // Singleton object to store all the extensions (profiles) of WCS
     private static List<String> profiles;
 
-    public static final List<String> supportedInterpolations = ListUtil.valuesToList(INTERPOLATION_NEAREST_NEIGHBOR);
+    public static final List<String> SUPPORTED_INTERPOLATIONS = ListUtil.valuesToList(INTERPOLATION_NEAREST_NEIGHBOR, INTERPOLATION_BILINEAR,
+                                                                        INTERPOLATION_CUBIC, INTERPOLATION_CUBICSPLINE, INTERPOLATION_LANCZOS,
+                                                                        INTERPOLATION_AVERAGE, INTERPOLATION_MODE, INTERPOLATION_MAX,
+                                                                        INTERPOLATION_MIN, INTERPOLATION_MED, INTERPOLATION_Q1, INTERPOLATION_Q3
+                                                                        );
 
     /**
      * Return the list of supported WCS extension (profiles)
@@ -592,9 +607,11 @@ public class GMLGetCapabilitiesBuilder {
         wcsExtensionElement.appendChild(interpolationMetadataElement);
 
         // 1.1.1 Children elements of InterpolationMetadata element
-        Element interpolationSupportedElement = new Element(XMLUtil.createXMLLabel(PREFIX_INT, LABEL_INTERPOLATION_SUPPORTED), NAMESPACE_INTERPOLATION);
-        interpolationSupportedElement.appendChild(INTERPOLATION_NEAREST_NEIGHBOR);
-        interpolationMetadataElement.appendChild(interpolationSupportedElement);
+        for (String interpolationType : SUPPORTED_INTERPOLATIONS) {
+            Element interpolationSupportedElement = new Element(XMLUtil.createXMLLabel(PREFIX_INT, LABEL_INTERPOLATION_SUPPORTED), NAMESPACE_INTERPOLATION);
+            interpolationSupportedElement.appendChild(interpolationType);
+            interpolationMetadataElement.appendChild(interpolationSupportedElement);
+        }
 
         return wcsExtensionElement;
     }

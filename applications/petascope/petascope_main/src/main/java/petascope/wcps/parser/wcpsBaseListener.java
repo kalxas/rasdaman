@@ -69,19 +69,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterFieldInterpolationListElementLabel(@NotNull wcpsParser.FieldInterpolationListElementLabelContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitFieldInterpolationListElementLabel(@NotNull wcpsParser.FieldInterpolationListElementLabelContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterCoverageXpressionShortHandSubsetWithLetClauseVariableLabel(@NotNull wcpsParser.CoverageXpressionShortHandSubsetWithLetClauseVariableLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -284,19 +271,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitFieldName(@NotNull wcpsParser.FieldNameContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterNullResistance(@NotNull wcpsParser.NullResistanceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitNullResistance(@NotNull wcpsParser.NullResistanceContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1317,19 +1291,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterInterpolationMethodLabel(@NotNull wcpsParser.InterpolationMethodLabelContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitInterpolationMethodLabel(@NotNull wcpsParser.InterpolationMethodLabelContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1948,19 +1909,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitWhereClauseLabel(@NotNull wcpsParser.WhereClauseLabelContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterFieldInterpolationList(@NotNull wcpsParser.FieldInterpolationListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitFieldInterpolationList(@NotNull wcpsParser.FieldInterpolationListContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

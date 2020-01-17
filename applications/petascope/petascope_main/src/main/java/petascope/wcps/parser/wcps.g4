@@ -432,7 +432,7 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
 		          | switchCaseExpression
                     #CoverageExpressionSwitchCaseLabel
                   | SCALE LEFT_PARENTHESIS
-                        coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE (COMMA fieldInterpolationList)*
+                        coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE
                     RIGHT_PARENTHESIS
                     #CoverageExpressionScaleByDimensionIntervalsLabel
 		          | SCALE LEFT_PARENTHESIS
@@ -727,13 +727,14 @@ clipWKTExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA wktExpression 
  *
  * for c in (mean_summer_airtemp) return encode(crsTransform(c,
  * {Lat:"www.opengis.net/def/area/EPSG/0/4326", Long:"www.opengis.net/def/area/EPSG/0/4326"},
- * {b1(near,"0,1,2,3,NULL")}), "tiff")
+ * {"near"}), "tiff")
  *
  * NOTE: if mean_summer_airtemp has multiple ranges (bands), e.g: b1, b2, b3 then b2 and b3 which are not
  * passed in $INTERPOLATION then will use default interpolation of Rasdaman and "NODATA=..." in encoding.
 */
 crsTransformExpression: CRS_TRANSFORM LEFT_PARENTHESIS
-                          coverageExpression COMMA dimensionCrsList COMMA fieldInterpolationList
+                          coverageExpression COMMA dimensionCrsList
+                          (COMMA LEFT_BRACE interpolationType? RIGHT_BRACE)?
                         RIGHT_PARENTHESIS
 #CrsTransformExpressionLabel;
 
@@ -751,39 +752,11 @@ dimensionCrsList: LEFT_BRACE dimensionCrsElement (COMMA dimensionCrsElement)* RI
 dimensionCrsElement: axisName COLON crsName
 #DimensionCrsElementLabel;
 
-
-/*
- * e.g: interpolate red band with NODATA values is 1,2,3 or NULL
- * { red(near, "1,2,3,NULL") } OR {}
-*/
-fieldInterpolationList: LEFT_BRACE fieldInterpolationListElement (COMMA fieldInterpolationListElement)* RIGHT_BRACE
-            		     |	LEFT_BRACE RIGHT_BRACE;
-
-
-fieldInterpolationListElement: fieldName LEFT_PARENTHESIS interpolationMethod RIGHT_PARENTHESIS
-#FieldInterpolationListElementLabel;
-
-
-/*
- * e.g: near, "1,2,3,NULL"  (interpolate with linear and if value is 1 or 2 or 3 or NULL then it is NODATA value)
-*/
-interpolationMethod: interpolationType COMMA nullResistance
-#InterpolationMethodLabel;
-
-
 /*
  * GDAL supported interpolation methods (near, bilinear, cubic, average,...)
 */
-interpolationType: STRING_LITERAL
+interpolationType: COVERAGE_VARIABLE_NAME
 #InterpolationTypeLabel;
-
-
-/*
- * It will only apply NULL values on the specific range (band name), not other ranges (band names)
- * e.g: b1("near", "1,2,3") then if pixel value is 1 or 2 or 3 then it is set to NODATA for this pixel.
- *
-*/
-nullResistance: STRING_LITERAL;
 
 
 coverageConstructorExpression: COVERAGE COVERAGE_VARIABLE_NAME

@@ -105,7 +105,7 @@ repository.
 
 **Alternative 4: Virtual Machine**
 
-By `downloading a Virtual Machine <sec-download-vm>`__ you get a fully configured
+By :ref:`downloading a Virtual Machine <sec-download-vm>` you get a fully configured
 system with rasdaman installed and ready to run. This alternative does not
 require any system administration skills other than starting the VM and working
 with the rasdaman services, e.g., via the OGC standards based geo service
@@ -1453,9 +1453,10 @@ environment with `vagrant <https://www.vagrantup.com/>`__:
 
 .. code-block:: text
 
-    rasdaman/ubuntu1404
-    rasdaman/debian8
-    rasdaman/centos7
+    rasdaman/ubuntu1604
+    rasdaman/ubuntu1804
+    rasdaman/centos7e
+    rasdaman/centos7e_gdal2
 
 rasdaman is not installed, but all packages needed for building are preinstalled and
 the rasdaman sources can be found in ``/opt/rasdaman/source`` (make sure
@@ -1465,12 +1466,12 @@ configure and build rasdaman. To build and install rasdaman, you can use
 the `rasdaman installer <http://rasdaman.org/wiki/Installer>`_ or
 :ref:`do it from scratch <sec-system-install>`.
 
-Here is a sample ``Vagrantfile`` for the Ubuntu 14.04 box:
+Here is a sample ``Vagrantfile`` for the Ubuntu 16.04 box:
 
 .. code-block:: text
 
     Vagrant.configure(2) do |config|
-       config.vm.box = "rasdaman/ubuntu1404"
+       config.vm.box = "rasdaman/ubuntu1604"
        config.vm.box_check_update = false
        config.vm.synced_folder ".", "/vagrant", type: "rsync"
        config.vm.provider "virtualbox" do |vb|
@@ -1600,8 +1601,6 @@ Server rasdaman configuration files can be found in ``$RMANHOME/etc``.
 +------------------------------+---------------------------------------------------------------------------------------------------+
 |``petascope.properties``      |set `petascope <http://rasdaman.org/wiki/PetascopeUserGuide>`_ properties, e.g. database/rasdaman  |
 |                              |connection details, CRS resolver URLs, various feature options                                     |
-+------------------------------+---------------------------------------------------------------------------------------------------+
-|``wms_service.properties``    |petascope properties specifically for the WMS service                                              |
 +------------------------------+---------------------------------------------------------------------------------------------------+
 |``secore.properties``         |`secore <http://rasdaman.org/wiki/SecoreUserGuide>`_ configuration                                 |
 +------------------------------+---------------------------------------------------------------------------------------------------+
@@ -2022,10 +2021,9 @@ A series of geo Web services is available at the following endpoints:
 *  Geo Web Services based on the interface standards of the Open
    Geospatial Consortium (OGC Web Services, OWS):
 
-   - ``/rasdaman/ows/wms:`` OGC Web Map Service (WMS)
-   - ``/rasdaman/ows/wcs:`` OGC Web Coverage Service (WCS) suite
-   - ``/rasdaman/ows/wcps`` OGC WCPS (deprecated, now with WCS)
-   - ``/rasdaman/ows/wps`` OGC Web Processing Service (WPS)
+   - ``/rasdaman/ows:`` OGC Web Coverage Service (WCS),
+     Web Coverage Processing Service (WCPS),
+     Web Map Service (WMS) suites.
 
    This requires deployment of war file ``rasdaman.war``.
 

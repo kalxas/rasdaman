@@ -40,13 +40,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitCoverageExpressionTrigonometricLabel(@NotNull wcpsParser.CoverageExpressionTrigonometricLabelContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#FieldInterpolationListElementLabel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFieldInterpolationListElementLabel(@NotNull wcpsParser.FieldInterpolationListElementLabelContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#coverageXpressionShortHandSubsetWithLetClauseVariableLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -157,13 +150,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFieldName(@NotNull wcpsParser.FieldNameContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link wcpsParser#nullResistance}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNullResistance(@NotNull wcpsParser.NullResistanceContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#SliceDimensionIntervalElementLabel}.
@@ -712,13 +698,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitNotUnaryBooleanExpressionLabel(@NotNull wcpsParser.NotUnaryBooleanExpressionLabelContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#InterpolationMethodLabel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInterpolationMethodLabel(@NotNull wcpsParser.InterpolationMethodLabelContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#letClauseCoverageExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -1053,13 +1032,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitWhereClauseLabel(@NotNull wcpsParser.WhereClauseLabelContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link wcpsParser#fieldInterpolationList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFieldInterpolationList(@NotNull wcpsParser.FieldInterpolationListContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageIdentifierExpressionLabel}.

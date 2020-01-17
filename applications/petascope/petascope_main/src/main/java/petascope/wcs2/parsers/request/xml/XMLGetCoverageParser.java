@@ -276,7 +276,7 @@ public class XMLGetCoverageParser extends XMLAbstractParser {
             } else {
                 Element globalInterpolationElement = childElements.get(0);
                 String interpolationValue = globalInterpolationElement.getValue();
-                if (!GMLGetCapabilitiesBuilder.supportedInterpolations.contains(interpolationValue)) {
+                if (!GMLGetCapabilitiesBuilder.SUPPORTED_INTERPOLATIONS.contains(interpolationValue)) {
                     throw new WCSException(ExceptionCode.InterpolationMethodNotSupported, "Received interpolation URL: " + interpolationValue + " is not supported.");
                 } else {
                     // as the globalInterpolation URI as a KVP parameter

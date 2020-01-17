@@ -114,6 +114,17 @@
 <wcs:Extension>
 <int:InterpolationMetadata>
 <int:InterpolationSupported>/interpolation/OGC/1.0/nearest-neighbor</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/bilinear</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/cubic</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/cubicspline</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/lanczos</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/average</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/mode</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/max</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/min</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/med</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/q1</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/q3</int:InterpolationSupported>
 </int:InterpolationMetadata>
 </wcs:Extension>
 </wcs:ServiceMetadata>

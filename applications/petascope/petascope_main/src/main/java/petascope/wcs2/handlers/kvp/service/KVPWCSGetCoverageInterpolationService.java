@@ -50,7 +50,7 @@ public class KVPWCSGetCoverageInterpolationService {
             throw new WCSException(ExceptionCode.InvalidRequest,
                     "Multiple \"" + KEY_INTERPOLATION + "\" parameters in the request: must be unique.");
         } // if set, it must be a supported one:
-        else if (!GMLGetCapabilitiesBuilder.supportedInterpolations.contains(interpolations[0])) {
+        else if (!GMLGetCapabilitiesBuilder.SUPPORTED_INTERPOLATIONS.contains(interpolations[0])) {
             throw new WCSException(ExceptionCode.InterpolationMethodNotSupported, "Received interpolation URL: " + interpolations[0] + " is not supported.");
         }
     }

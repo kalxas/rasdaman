@@ -54,7 +54,7 @@ import petascope.wcps.result.WcpsResult;
  * Class to handle an crsTransform coverage expression  <code>
  * encode(
  *      crsTransform($c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"),
- *                       {b1("near", "1,2,3")},
+ *                       {"near"},
  * "tiff", "NODATA=0")
  * </code> returns a Rasql query  <code>
  * encode(project(c, {20,30,40,50}, "EPSG:3857, EPSG:4326"),
@@ -74,13 +74,12 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
      * @param coverageExpression the coverage expression that is encoded
      * @param axisCrss List of 2 coverage's axes and their CRS (e.g:
      * http://opengis.net/def/crs/epsg/0/4326)
-     * @param rangeInterpolations List of ranges and their interpolation type
-     * (e.g: near, bilinear, average,..) and null values (e.g: "1,2,3")
-     * @param wcpsCoverageMetadataService
+     * @param interpolationType resample algorithm (e.g: "near", "bilinear",...). 
+     * If interpolation type is null, use default type = near.
      * @return
      */
     public WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, 
-                            HashMap<String, HashMap<String, String>> rangeInterpolations) throws PetascopeException, SecoreException {
+                             String interpolationType) throws PetascopeException, SecoreException {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR);
         int numberOfAxes = coverageExpression.getMetadata().getAxes().size();
@@ -89,7 +88,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         }
         
         checkValid(axisCrss);
-        String rasql = getBoundingBox(coverageExpression, axisCrss);
+        String rasql = getRasqlExpression(coverageExpression, axisCrss, interpolationType);
         String outputCrs = axisCrss.values().toArray()[0].toString();
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
@@ -282,7 +281,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         }
     }
 
-    public String getBoundingBox(WcpsResult coverageExpression, HashMap<String, String> axisCrss) {
+    public String getRasqlExpression(WcpsResult coverageExpression, HashMap<String, String> axisCrss, String interpolationType) {
         String outputStr = "";
 
         // Get the calculated coverage in grid axis with Rasql
@@ -313,15 +312,22 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         String outputCrs = axisCrss.values().toArray()[0].toString();
         String sourceCRS = CrsUtil.CrsUri.getAuthorityCode(covCRS);
         String targetCRS = CrsUtil.CrsUri.getAuthorityCode(outputCrs);
-
+        
+        if (interpolationType == null) {
+            interpolationType = DEFAULT_INTERPOLATION_TYPE;
+        }
+        
         outputStr = TEMPLATE.replace("$COVERAGE_EXPRESSION", covRasql).replace("$BOUNDING_BOX", bbox)
-                .replace("$SOURCE_CRS", sourceCRS).replace("$TARGET_CRS", targetCRS);
+                            .replace("$SOURCE_CRS", sourceCRS).replace("$TARGET_CRS", targetCRS)
+                            .replace("$INTERPOLATION_TYPE", interpolationType);
 
         return outputStr;
     }
+    
+    // Nearest neighbour (default, fastest algorithm, worst interpolation quality).
+    private static final String DEFAULT_INTERPOLATION_TYPE = "near";
 
     // e.g Rasql query: select encode(project( c[0,-10:10,51:71], "20.0,40.0,30.0,50.0", "EPSG:4326", "EPSG:32633" ),
     // "GTiff", "xmin=20000.0;xmax=300000.0;ymin=400000.0;ymax=500000.0;crs=EPSG:32633") from eobstest AS c where oid(c)=1537
-    private final String TEMPLATE = "project( $COVERAGE_EXPRESSION, \"$BOUNDING_BOX\", \"$SOURCE_CRS\", \"$TARGET_CRS\" )";
-
+    private static final String TEMPLATE = "project( $COVERAGE_EXPRESSION, \"$BOUNDING_BOX\", \"$SOURCE_CRS\", \"$TARGET_CRS\", $INTERPOLATION_TYPE )";
 }

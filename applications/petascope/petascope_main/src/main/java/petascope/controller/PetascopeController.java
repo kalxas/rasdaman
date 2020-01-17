@@ -139,6 +139,21 @@ public class PetascopeController extends AbstractController {
             }
         }
     }
+    
+    /**
+     * Return WSClient page with some extra parameters if needed 
+     */
+    private Response returnWSClientPage() throws IOException {        
+        String wsclientHtmlContent = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/interface-servlet.html"));
+        // NOTE: In case petascope is behind proxy, client's web browser cannot see the assets (HTML, CSS, Javascript) files from local tomcat
+        // it needs to configure an external endpoint for this local tomcat to allow client to view assets on Web browser.
+        String proxy = ConfigManager.PETASCOPE_ENDPOINT_URL;
+        wsclientHtmlContent = wsclientHtmlContent.replace("$PROXY", proxy);
+        
+        byte[] bytes = wsclientHtmlContent.getBytes();
+        Response response = new Response(Arrays.asList(bytes), "text/html");
+        return response;
+    }
 
     /**
      * Depend on the request parameter to handle the request (WCS, WCPS,...)
@@ -167,10 +182,8 @@ public class PetascopeController extends AbstractController {
                 PETASCOPE_ENDPOINT_URL = this.httpServletRequest.getRequestURL().toString();
             }
                 
-            if (kvpParameters.isEmpty()) {
-                // a WCS request without any params, so returns WCS-Client            
-                byte[] bytes = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/interface-servlet.html")).getBytes();
-                response = new Response(Arrays.asList(bytes), "text/html");
+            if (kvpParameters.isEmpty()) {               
+                response = this.returnWSClientPage();
             } else {
 
                 // e.g: WCS, WMS
