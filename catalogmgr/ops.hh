@@ -251,13 +251,6 @@ private:
     static int isApplicableOnStructConst(Ops::OpType op,
                                          const BaseType *op1Type,
                                          const BaseType *op2Type);
-    /// returns 1 for signed types, 0 for unsigned.
-    static bool isIntType(TypeEnum type);
-    static bool isSignedType(TypeEnum type);
-    static bool isUnsignedType(TypeEnum type);
-    static bool isComplexType(TypeEnum type);
-    static bool isPrimitiveType(TypeEnum type);
-    static bool isFloatType(TypeEnum type);
     // these functions aren't even used for the time being, but may
     // be important for better implementations of isApplicable and
     // getResultType.

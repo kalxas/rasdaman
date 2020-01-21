@@ -415,7 +415,10 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
         const BaseType *resultBaseType;
         try {
             const auto *opType = getBaseType(valueExp);
-            resultBaseType = Ops::getResultType(operation, opType, opType);
+            auto op = operation;
+            if (op == Ops::OP_PLUS || op == Ops::OP_MULT)
+                op = Ops::OP_SUM;
+            resultBaseType = Ops::getResultType(op, opType, opType);
             if (!resultBaseType) throw r_Error(412);
         } catch (r_Error &e) {
             LERROR << "Failed to determine result type.";

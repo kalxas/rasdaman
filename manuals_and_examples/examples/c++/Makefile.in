@@ -38,6 +38,8 @@ LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lrasodmg               \
        -lraslib                \
        -lclientcomm            \
+       -lrasodmg               \
+       -lraslib                \
        -lcommline              \
        -lrasnet                \
        -lcommon_crypto         \
@@ -76,5 +78,4 @@ bin: query.o
 
 
 clean:
-	-rm -f *.o
-	-rm -f $(EXEC_FILE)
+	-rm -f *.o query

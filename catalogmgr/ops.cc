@@ -127,8 +127,7 @@ UnaryOp *Ops::getUnaryOp(Ops::OpType op, const BaseType *resType, const BaseType
     // is null
     if (op == Ops::OP_IS_NULL)
     {
-        if (typeRes != BOOLTYPE)
-            return 0;
+        assert(typeRes == BOOLTYPE);
         if (isUnsignedType(typeOp))
             return new OpISNULLCULong(resType, opType, resOff, opOff);
         else if (isSignedType(typeOp))
@@ -575,7 +574,8 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
 //-----------------------------------------------------------------
 
 CondenseOp *
-Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, const BaseType *opType, size_t resOff, size_t opOff)
+Ops::getCondenseOp(Ops::OpType op, const BaseType *resType,
+                   const BaseType *opType, size_t resOff, size_t opOff)
 {
     const auto restype = resType->getType();
     const auto optype = opType->getType();
@@ -588,18 +588,24 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, const BaseType *opTy
         case Ops::OP_ALL:
             return new OpALLCChar(resType, opType, resOff, opOff);
         case Ops::OP_MAX:
-            return new OpMAXCLong(resType, opType, resOff, opOff);
+            return new OpMAXCULong(resType, opType, resOff, opOff);
         case Ops::OP_MIN:
-            return new OpMINCLong(resType, opType, resOff, opOff);
+            return new OpMINCULong(resType, opType, resOff, opOff);
         default:
             break;
         }
     }
-    else if (op == Ops::OP_COUNT)
+    else if (restype == ULONG && optype == BOOLTYPE)
     {
-        return new OpCOUNTCChar(resType, opType, resOff, opOff);
+        switch (op)
+        {
+        case Ops::OP_COUNT:
+            return new OpCOUNTCChar(resType, opType, resOff, opOff);
+        default:
+            break;
+        }
     }
-    else if (isUnsignedType(restype) && isUnsignedType(optype))
+    else if (isUnsignedType(restype))
     {
         switch (op)
         {
@@ -607,6 +613,8 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, const BaseType *opTy
             return new OpMAXCULong(resType, opType, resOff, opOff);
         case Ops::OP_MIN:
             return new OpMINCULong(resType, opType, resOff, opOff);
+        case Ops::OP_SUM:
+            return new OpSUMCULong(resType, opType, resOff, opOff);
         default:
             break;
         }
@@ -657,7 +665,6 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, const BaseType *opTy
     {
         return new OpSQSUMCDouble(resType, opType, resOff, opOff);
     }
-
     return 0;
 }
 
@@ -676,11 +683,15 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, char *newAccu,
             return new OpSOMECChar(resType, newAccu, opType, resOff, opOff);
         case Ops::OP_ALL:
             return new OpALLCChar(resType, newAccu, opType, resOff, opOff);
+        case Ops::OP_MAX:
+            return new OpMAXCULong(resType, newAccu, opType, resOff, opOff);
+        case Ops::OP_MIN:
+            return new OpMINCULong(resType, newAccu, opType, resOff, opOff);
         default:
             break;
         }
     }
-    else if (restype == LONG && optype == BOOLTYPE)
+    else if (restype == ULONG && optype == BOOLTYPE)
     {
         switch (op)
         {
@@ -690,7 +701,7 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, char *newAccu,
             break;
         }
     }
-    else if (isUnsignedType(restype) && isUnsignedType(optype))
+    else if (isUnsignedType(restype))
     {
         switch (op)
         {
@@ -704,7 +715,7 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, char *newAccu,
             break;
         }
     }
-    else if (isSignedType(restype) && isIntType(optype))
+    else if (isSignedType(restype))
     {
         switch (op)
         {
@@ -738,6 +749,17 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, char *newAccu,
     {
         // res and op are structs with same structure.
         return new OpCondenseStruct(resType, newAccu, opType, op, resOff, opOff);
+    }
+    else if (op == Ops::OP_SUM && isComplexType(restype))
+    {
+        if (restype == COMPLEXTYPE1 || restype == COMPLEXTYPE2)
+            return new OpSUMComplex(resType, newAccu, opType, resOff, opOff);
+        else if (restype == CINT16 || restype == CINT32)
+            return new OpSUMComplexInt(resType, newAccu, opType, resOff, opOff);
+    }
+    else if (op == OP_SQSUM && isFloatType(restype))
+    {
+        return new OpSQSUMCDouble(resType, newAccu, opType, resOff, opOff);
     }
     return 0;
 }
@@ -879,7 +901,7 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     {
     case OP_COUNT:
         // 415: Operand of count_cells must be a boolean array.
-        return type1 == BOOLTYPE ? TypeFactory::mapType("Long") : throw r_Error(415);
+        return type1 == BOOLTYPE ? TypeFactory::mapType("ULong") : throw r_Error(415);
     case OP_MAX:
     case OP_MIN:
         return op1;
@@ -896,6 +918,10 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         case FLOAT:
         case DOUBLE:
             return TypeFactory::mapType("Double");
+        case CHAR:
+        case USHORT:
+        case ULONG:
+            return TypeFactory::mapType("ULong");
         default:
             return TypeFactory::mapType("Long");
         }
@@ -915,9 +941,10 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         return op1;
 
     // sqrt, log, ln, exp, sin, cos, tan, sinh, cosh, tanh, arcsin, arccos, arctan
-    // op(f) -> f, op(X) -> d
+    // op(c,o,us,s,f) -> f, op(ul,l,d) -> d
     if (op > OP_ABS && op < OP_UFUNC_END)
-        return TypeFactory::mapType(type1 == FLOAT ? "Float" : "Double");
+        return TypeFactory::mapType(type1 == ULONG || type1 == LONG || type1 == DOUBLE
+                                    ? "Double" : "Float");
 
     // (X)Y -> X
     if (op > OP_CAST_BEGIN && op < OP_CAST_END && op != OP_CAST_GENERAL)
@@ -943,17 +970,10 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     // Binary
     //
     
-    // pow is binary, but the exponent is not passed for some reason
-    // f x f -> f, any x any -> d
-    if (op == OP_POW)
-    {
-        return TypeFactory::mapType(
-                    type1 == FLOAT /*&& type2 == FLOAT*/ ? "Float" : "Double");
-    }
-    
     if (!op2)
         throw r_Error(456); // Operation expected more than one operand.
     auto type2 = op2->getType();
+    auto maxType = greaterType(type1, type2);
     
     // handle struct type
     if (op >= OP_MINUS && op < OP_BIT && (type1 == STRUCT || type2 == STRUCT))
@@ -1002,67 +1022,54 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     if (op >= OP_EQUAL && op <= OP_GREATEREQUAL)
         return TypeFactory::mapType("Bool");
     
-    // -, +, *, div(), /, mod, pow
-    if (op >= OP_MINUS && op <= OP_INTDIV)
+    // X overlay,max,min X -> X
+    if (op == OP_OVERLAY || op == OP_MAX_BINARY || op == OP_MIN_BINARY)
+        // 363: Cell base types of binary induce operation are incompatible.
+        return type1 == type2 ? op1 : throw r_Error(363);
+
+    // +, *, div(), mod()
+    // X op d -> d, X op f -> f, U1 op U2 -> max(U1,U2)+1
+    if (op == OP_PLUS || op == OP_MULT || (op == OP_INTDIV && maxType < DOUBLE) || 
+        op == OP_MOD || op == OP_MINUS)
     {
-        TypeEnum maxType = std::max(type1, type2);
-        TypeEnum minType = std::min(type1, type2);
-        if (maxType == FLOAT && minType != DOUBLE)
-            return TypeFactory::mapType("Float");
-        else if ((type1 == DOUBLE || type2 == DOUBLE) && maxType <= FLOAT)
-            return TypeFactory::mapType("Double");
-        else if ((type1 == ULONG || type2 == ULONG) && isUnsignedType(maxType))
-            return TypeFactory::mapType("ULong");
-        else if (!isComplexType(maxType))
-            return TypeFactory::mapType("Long");
-        else if (maxType <= COMPLEXTYPE2)
-            return TypeFactory::mapType("Complexd");
-        else if (maxType <= CINT32)
-            return TypeFactory::mapType("CInt32");
-        else
-            throw r_Error(363); // Cell base types of binary induce operation are incompatible.
+        if (isFloatType(maxType))
+            return TypeFactory::mapType(typeToString(maxType));
+        
+        auto nextType = nextGreaterType(maxType);
+        if (isSignedType(type1) || isSignedType(type2) || op == OP_MINUS)
+            nextType = toSignedType(nextType);
+        
+        return TypeFactory::mapType(typeToString(nextType));
     }
-    if (op == OP_DIV)
+    
+    // / or div on floating point
+    // X op d -> d, X op f -> f, U1 op U2 -> max(U1,U2)+1
+    if (op == OP_DIV || op == OP_INTDIV)
     {
-        int maxType = std::max(type1, type2);
         switch (maxType)
         {
+        case BOOLTYPE:
+        case CHAR:
+        case OCTET:
+        case SHORT:
+        case USHORT:
         case FLOAT:
             return TypeFactory::mapType("Float");
-        case COMPLEXTYPE1:
-            return TypeFactory::mapType("Complex");
+        case LONG:
+        case ULONG:
+        case DOUBLE:
+            return TypeFactory::mapType("Double");
         case CINT16:
         case CINT32:
+        case COMPLEXTYPE1:
         case COMPLEXTYPE2:
             return TypeFactory::mapType("Complexd");
         default:
-            return TypeFactory::mapType("Double");
+            // 363: Cell base types of binary induce operation are incompatible.
+            throw r_Error(363);
         }
     }
-    // f % f -> f; X % f,d -> d; unsigned % ul -> ul; X % Y -> l
-    if (op == OP_MOD)
-    {
-        if (type1 == FLOAT && type2 == FLOAT)
-            return op1;
-        else if (isFloatType(type1) || isFloatType(type2))
-            return TypeFactory::mapType("Double");
-        else if ((type1 == ULONG && isUnsignedType(type2)) ||
-                 (type2 == ULONG && isUnsignedType(type1)))
-            return TypeFactory::mapType("ULong");
-        else
-            return TypeFactory::mapType("Long");
-    }
 
-    // X overlay,max,min X -> X
-    if (op == OP_OVERLAY || op == OP_MAX_BINARY || op == OP_MIN_BINARY)
-    {
-        // 363: Cell base types of binary induce operation are incompatible.
-        return type1 == type2 ? op1 : throw r_Error(363);
-    }
-
-    if (op >= OP_IS && op <= OP_XOR)
-        return TypeFactory::mapType("Bool");
-    
     throw r_Error(363); // Cell base types of binary induce operation are incompatible.
 }
 
@@ -1097,40 +1104,6 @@ Ops::isApplicableOnStructConst(Ops::OpType op, const BaseType *op1Type,
             return 0;
     }
     return 1;
-}
-
-bool
-Ops::isIntType(TypeEnum type)
-{
-    return type <= OCTET;
-}
-
-bool
-Ops::isSignedType(TypeEnum type)
-{
-    return type >= LONG && type <= OCTET;
-}
-
-bool Ops::isUnsignedType(TypeEnum type)
-{
-    return type >= ULONG && type <= BOOLTYPE;
-}
-
-bool
-Ops::isComplexType(TypeEnum type)
-{
-    return type >= COMPLEXTYPE1 && type <= CINT32;
-}
-
-bool
-Ops::isPrimitiveType(TypeEnum type)
-{
-    return type <= NUMERICAL_TYPES_END;
-}
-
-bool Ops::isFloatType(TypeEnum type)
-{
-    return type == FLOAT || type == DOUBLE;
 }
 
 bool
@@ -3364,12 +3337,15 @@ CondenseOp::CondenseOp(const BaseType *newResType, const BaseType *newOpType,
 CondenseOp::CondenseOp(const BaseType *newResType, char *newAccu,
                        const BaseType *newOpType, size_t newResOff,
                        size_t newOpOff)
-    : NullValuesHandler(), opType(newOpType), resType(newResType), resOff(newResOff), opOff(newOpOff),
+    : NullValuesHandler(), accu(0), opType(newOpType), resType(newResType), resOff(newResOff), opOff(newOpOff),
       initialized(false), nullAccu(false)
 {
     nullValues = NULL;
-    accu = new char[resType->getSize()];
-    memcpy(accu, newAccu, resType->getSize());
+    if (newAccu)
+    {
+        accu = new char[resType->getSize()];
+        memcpy(accu, newAccu, resType->getSize());
+    }
 }
 
 char *
@@ -4040,15 +4016,12 @@ OpSQSUMCDouble::operator()(const char *op)
 ///
 
 OpCondenseStruct::OpCondenseStruct(
-    const BaseType *newResType,
-    const BaseType *newOpType,
-    Ops::OpType op,
-    size_t newResOff,
-    size_t newOpOff)
+    const BaseType *newResType, const BaseType *newOpType,
+    Ops::OpType op, size_t newResOff, size_t newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
 {
     size_t i = 0;
-
+    
     myResType = dynamic_cast<StructType *>(const_cast<BaseType *>(newResType));
     myOpType = dynamic_cast<StructType *>(const_cast<BaseType *>(newOpType));
     numElems = myOpType->getNumElems();
@@ -4063,14 +4036,13 @@ OpCondenseStruct::OpCondenseStruct(
                          newOpOff + myOpType->getOffset(i)
                      );
     }
-
+    
     accu = new char[resType->getSize()];
     for (i = 0; i < numElems; i++)
     {
         memcpy(accu + myResType->getOffset(i), elemOps[i]->getAccuVal(),
                myResType->getElemType(i)->getSize());
     }
-
 }
 
 //--------------------------------------------
@@ -4078,12 +4050,8 @@ OpCondenseStruct::OpCondenseStruct(
 //--------------------------------------------
 
 OpCondenseStruct::OpCondenseStruct(
-    const BaseType *newResType,
-    char *newAccu,
-    const BaseType *newOpType,
-    Ops::OpType op,
-    size_t newResOff,
-    size_t newOpOff)
+    const BaseType *newResType, char *newAccu, const BaseType *newOpType,
+    Ops::OpType op, size_t newResOff, size_t newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
 {
     size_t i = 0;
@@ -4094,13 +4062,11 @@ OpCondenseStruct::OpCondenseStruct(
     elemOps = new CondenseOp*[numElems];
     for (i = 0; i < numElems; i++)
     {
-        elemOps[i] = Ops::getCondenseOp(
-                         op,
-                         myResType->getElemType(i),
+        elemOps[i] = Ops::getCondenseOp(op,
+                         myResType->getElemType(i), newAccu,
                          myOpType->getElemType(i),
                          newResOff + myResType->getOffset(i),
-                         newOpOff + myOpType->getOffset(i)
-                     );
+                         newOpOff + myOpType->getOffset(i));
     }
 
     accu = new char[resType->getSize()];
@@ -4217,21 +4183,13 @@ OpBinaryStruct::~OpBinaryStruct()
     for (size_t i = 0; i < numElems; i++)
     {
         if (elemOps[i])
-        {
             delete elemOps[i];
-        }
         if (lessOps[i])
-        {
             delete lessOps[i];
-        }
         if (equalOps[i])
-        {
             delete equalOps[i];
-        }
         if (assignmentOps[i])
-        {
             delete assignmentOps[i];
-        }
     }
     delete[] elemOps;
     delete[] lessOps;

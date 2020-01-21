@@ -639,7 +639,7 @@ QtAvgCells::evaluate(QtDataList *inputList)
     const auto inpType = inputValueType->getType();
     char *constBuffer;
     const BaseType     *constType;
-    if (inpType == COMPLEXTYPE1 || inpType == COMPLEXTYPE2 || inpType == CINT16 || inpType == CINT32)
+    if (isComplexType(inpType))
     {
         double constValueD = 0;
         constValueD = static_cast<double>(constValue);

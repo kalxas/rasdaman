@@ -159,8 +159,8 @@ endif()
 #
 # Set compiler flags
 #
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -gsplit-dwarf -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -gsplit-dwarf -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 
@@ -183,7 +183,7 @@ if (ENABLE_DEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
     # Do not enable below as it clashes with define from easylogging
     # set(DEBUG ${ENABLE_DEBUG})
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -gsplit-dwarf")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
 
     add_definitions(-DELPP_DEBUG_ERRORS)
 
@@ -683,7 +683,6 @@ if (ENABLE_UNITY_BUILD)
         storagemgr
         rasserver
         PROPERTIES UNITY_BUILD ON)
-
 endif() # ENABLE_UNITY_BUILD
 
 message(STATUS "Final compiler options: ${CMAKE_CXX_FLAGS}")

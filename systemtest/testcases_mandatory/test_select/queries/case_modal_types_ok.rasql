@@ -1,1 +1,1 @@
-select encode((case when(c > 0) then (log(c)) else ((double) 0) end)[80:90,80:90], "csv") from test_grey as c
+select encode((case when(c > 0) then log(c) else 0f end)[80:90,80:90], "csv") from test_grey as c
