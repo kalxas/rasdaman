@@ -181,7 +181,12 @@ public class PetascopeController extends AbstractController {
                 String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
                 request = requestService;
                 
-                String sourceIP = httpServletRequest.getRemoteAddr();
+                String sourceIP = httpServletRequest.getHeader("X-FORWARDED-FOR");
+                if (sourceIP == null) {
+                    // In case petascope is not proxied by apache
+                    sourceIP = httpServletRequest.getRemoteAddr();
+                }
+                                
                 this.validateWriteRequestFromIP(request, sourceIP);
 
                 // Check if any handlers can handle the request
