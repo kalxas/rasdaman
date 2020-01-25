@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select extend(<[0:0] true>, [0:1])"
+      char                char   "select extend(<[0:0] 1c>, [0:1])"
+     octet               octet   "select extend(<[0:0] 1o>, [0:1])"
+    ushort              ushort   "select extend(<[0:0] 1us>, [0:1])"
+     short               short   "select extend(<[0:0] 1s>, [0:1])"
+     ulong               ulong   "select extend(<[0:0] 1ul>, [0:1])"
+      long                long   "select extend(<[0:0] 1l>, [0:1])"
+     float               float   "select extend(<[0:0] 1f>, [0:1])"
+    double              double   "select extend(<[0:0] 1d>, [0:1])"
+    cint16              cint16   "select extend(<[0:0] complex(1s,2s)>, [0:1])"
+    cint32              cint32   "select extend(<[0:0] complex(1,2)>, [0:1])"
+   complex             complex   "select extend(<[0:0] complex(1f,2f)>, [0:1])"
+  complexd            complexd   "select extend(<[0:0] complex(1d,2d)>, [0:1])"

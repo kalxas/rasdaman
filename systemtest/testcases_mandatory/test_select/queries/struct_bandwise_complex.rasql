@@ -1,1 +1,1 @@
-select encode(complex(cos(x.0), -1/sin(x.1))[0:4,0:4,0], "csv") from test_struct as x
+select encode(complex((double)cos(x.0), -1/sin(x.1))[0:4,0:4,0], "csv") from test_struct as x

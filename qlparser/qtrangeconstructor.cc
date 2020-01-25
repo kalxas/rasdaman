@@ -192,7 +192,8 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                         auto intersection = resultDomain.create_intersection((*tileIter)->getDomain());
                         resultTile->copyTile(intersection, *tileIter, intersection, structElemShift, 0, bandCellSize);
                     }
-                    delete qtMDDObj;
+                    (*iter)->deleteRef();
+                    *iter = NULL;
                 }
                 // for offset computations in the next pass
                 structElemShift += bandCellSize;
@@ -220,9 +221,9 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
             // get this operand's domain
             r_Minterval currDomain = currMDD->getDefinitionDomain();
             //check that the domains match:
-            if (destinationDomainSet && (currDomain != destinationDomain))
+            if (destinationDomainSet && currDomain != destinationDomain)
             {
-                LERROR << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands have different domains.";
+                LERROR << "the operands have different domains.";
                 parseInfo.setErrorNo(351);
                 throw parseInfo;
             }
@@ -235,15 +236,11 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
         }
     }
 
-    if (dynamic_cast<const MDDBaseType *>(dataStreamType.getType()))
-    {
-        return std::unique_ptr<MDDObj>(
-            new MDDObj(dynamic_cast<const MDDBaseType *>(dataStreamType.getType()), destinationDomain));
-    }
+    const auto *mddBaseType = dynamic_cast<const MDDBaseType *>(dataStreamType.getType());
+    if (mddBaseType)
+        return std::unique_ptr<MDDObj>(new MDDObj(mddBaseType, destinationDomain));
     else
-    {
         return nullptr;
-    }
 }
 
 void
@@ -294,10 +291,7 @@ const QtTypeElement &
 QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
-
     complexLit = true;
-
-    QtTypeElement inputType;
 
     // check operand branches
     if (operationList)
@@ -305,60 +299,44 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
         StructType *structType = new StructType("tmp_struct_name", operationList->size());
         for (QtOperationList::iterator iter = operationList->begin(); iter != operationList->end(); iter++)
         {
-
             //check if the current operand's subtree exists
-            if (*iter)
-            {
-                inputType = (*iter)->checkType(typeTuple);
-            }
-            else
-            {
-                LERROR << "Error: QtRangeConstructor::checkType() - operand branch invalid.";
-            }
+            if (!*iter)
+                LERROR << "operand branch invalid.";
+            auto inputType = (*iter)->checkType(typeTuple);
 
             // add an element to the runtime Structure, which corresponds to the
             // result type of the current operand's subtree
+            auto elementName = std::to_string(structType->getNumElems());
+            const BaseType *elementType;
             if (inputType.getDataType() == QT_MDD)
             {
                 complexLit = false;
-                //we need to identify the base type of the QT_MDD, and add it to our struct.
-                char elementName[50];
-                sprintf(elementName, "%d", structType->getNumElems());
-                //we first need the MDDBaseType* from the child:
-                MDDBaseType *dummyMDDBaseTypePtr = static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType()));
-                //next, we reference the underlying BaseType:
-                const BaseType *dummyBaseTypePtr = dummyMDDBaseTypePtr->getBaseType();
-                //lastly, we pass the base type into the transient struct:
-                structType->addElement(elementName, const_cast<BaseType *>(dummyBaseTypePtr));
+                elementType = static_cast<const MDDBaseType *>(inputType.getType())->getBaseType();
             }
             else
             {
-                char elementName[50];
-                sprintf(elementName, "%d", structType->getNumElems());
-                //in this case, the base type is much easier to pass into to the transient struct:
-                structType->addElement(elementName, (static_cast<BaseType *>(const_cast<Type *>(inputType.getType()))));
+                elementType = static_cast<const BaseType *>(inputType.getType());
             }
+            structType->addElement(elementName.c_str(), elementType);
         }
 
         // add the struct type to the list of temporary runtime struct types
         // if it is not scalar data, we must first create a resultMDDType to add
+        TypeFactory::addTempType(structType);
         if (complexLit)
         {
-            TypeFactory::addTempType(structType);
-            dataStreamType.setDataType(QT_COMPLEX);
             dataStreamType.setType(structType);
         }
         else
         {
-            MDDBaseType *resultMDDType = new MDDBaseType("tmptype", static_cast<BaseType *>(structType));
+            auto *resultMDDType = new MDDBaseType("tmptype", structType);
             TypeFactory::addTempType(resultMDDType);
-            dataStreamType.setDataType(QT_MDD);
             dataStreamType.setType(resultMDDType);
         }
     }
     else
     {
-        LERROR << "Error: QtRangeConstructor::checkType() - operand branch invalid.";
+        LERROR << "operand branch invalid.";
     }
 
     return dataStreamType;

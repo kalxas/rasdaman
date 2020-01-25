@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool               ulong   "select condense * over i in [0:1] using <[0:0] true>"
+      char               ulong   "select condense * over i in [0:1] using <[0:0] 1c>"
+     octet                long   "select condense * over i in [0:1] using <[0:0] 1o>"
+    ushort               ulong   "select condense * over i in [0:1] using <[0:0] 1us>"
+     short                long   "select condense * over i in [0:1] using <[0:0] 1s>"
+     ulong               ulong   "select condense * over i in [0:1] using <[0:0] 1ul>"
+      long                long   "select condense * over i in [0:1] using <[0:0] 1l>"
+     float              double   "select condense * over i in [0:1] using <[0:0] 1f>"
+    double              double   "select condense * over i in [0:1] using <[0:0] 1d>"
+    cint16            complexd   "select condense * over i in [0:1] using <[0:0] complex(1s,2s)>"
+    cint32            complexd   "select condense * over i in [0:1] using <[0:0] complex(1,2)>"
+   complex            complexd   "select condense * over i in [0:1] using <[0:0] complex(1f,2f)>"
+  complexd            complexd   "select condense * over i in [0:1] using <[0:0] complex(1d,2d)>"

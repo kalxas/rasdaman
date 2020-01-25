@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool               ulong   "select count_cells(<[0:0] true>)"
+      char                       "select count_cells(<[0:0] 1c>)"
+     octet                       "select count_cells(<[0:0] 1o>)"
+    ushort                       "select count_cells(<[0:0] 1us>)"
+     short                       "select count_cells(<[0:0] 1s>)"
+     ulong                       "select count_cells(<[0:0] 1ul>)"
+      long                       "select count_cells(<[0:0] 1l>)"
+     float                       "select count_cells(<[0:0] 1f>)"
+    double                       "select count_cells(<[0:0] 1d>)"
+    cint16                       "select count_cells(<[0:0] complex(1s,2s)>)"
+    cint32                       "select count_cells(<[0:0] complex(1,2)>)"
+   complex                       "select count_cells(<[0:0] complex(1f,2f)>)"
+  complexd                       "select count_cells(<[0:0] complex(1d,2d)>)"

@@ -163,18 +163,12 @@ QtBinaryInduce::computeUnaryMDDOp(QtMDD *operand1, QtScalarData *operand2, const
 
     unique_ptr<BinaryOp> myOp;
     if (scalarPos == 1)
-    {
         myOp.reset(Ops::getBinaryOp(opType, resultBaseType, constBaseType, op->getCellType()));
-    }
     else
-    {
         myOp.reset(Ops::getBinaryOp(opType, resultBaseType, op->getCellType(), constBaseType));
-    }
 
     if (myOp)
-    {
         myOp->setNullValues(nullValues);
-    }
     else
     {
         LERROR << "Operation " << opType << " not applicable to operands of the given types.";
@@ -269,15 +263,11 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
         LTRACE << "  Domain op1 " << areaOp1 << " op2 " << areaOp2;
         LTRACE << "  Translation vector " << offset12;
 
-        // create MDDObj for result
-        MDDDomainType *mddBaseType = new MDDDomainType("tmp", resultBaseType, areaOp1);
-        TypeFactory::addTempType(mddBaseType);
-        unique_ptr<MDDObj> mddres;
-        mddres.reset(new MDDObj(mddBaseType, areaOp1, op1->getNullValues()));   // FIXME consider op2 too
         // get all tiles in relevant area of MDD op1
         unique_ptr<vector<std::shared_ptr<Tile>>> allTilesOp1;
         allTilesOp1.reset(op1->intersect(areaOp1));
 
+        vector<vector<std::shared_ptr<Tile>>*> intersectTilesVector;
         for (auto tileOp1It = allTilesOp1->begin(); tileOp1It !=  allTilesOp1->end(); tileOp1It++)
         {
             auto tile = (*tileOp1It);
@@ -291,44 +281,27 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
             // intersect relevant area of the tile with MDD op2 (including translation)
             auto intersectTilesOp2 = op2->intersect(intersectionTileOp1Dom.create_translation(offset12));
 
-            // iterate over intersecting tiles
-            for (auto intersectTileOp2It = intersectTilesOp2->begin();
-                    intersectTileOp2It != intersectTilesOp2->end();
-                    intersectTileOp2It++)
-            {
-                const r_Minterval &tileOp2Dom = (*intersectTileOp2It)->getDomain();
-
-                // the relevant domain is the intersection of the
-                // domains of the two tiles with the relevant area.
-                auto intersectDom = tileOp1Dom.create_intersection(tileOp2Dom.create_translation(offset21));
-                intersectDom.intersection_with(areaOp1);
-
-                // create tile for result
-                auto *resTile = new Tile(intersectDom, resultBaseType);
-
-                //
-                // carry out operation on the relevant area of the tiles
-                //
-                try
-                {
-                    resTile->execBinaryOp(&(*myOp), intersectDom, tileOp1It->get(), intersectDom,
-                                       intersectTileOp2It->get(), intersectDom.create_translation(offset12));
-                }
-                catch (int errcode)
-                {
-                    LERROR << "Error: QtBinaryInduce::computeBinaryMDDOp() caught errno " << errcode;
-                    delete myOp;
-                    delete resTile;
-                    delete intersectTilesOp2;
-                    throw;
-                }
-
-                // insert Tile in result mddobj
-                mddres->insertTile(resTile);
-            }
-            delete intersectTilesOp2;
-            intersectTilesOp2 = NULL;
+            intersectTilesVector.push_back(intersectTilesOp2);
         }
+        
+        // create MDDObj for result
+        MDDDomainType *mddBaseType = new MDDDomainType("tmp", resultBaseType, areaOp1);
+        TypeFactory::addTempType(mddBaseType);
+        unique_ptr<MDDObj> mddres;
+        mddres.reset(new MDDObj(mddBaseType, areaOp1, op1->getNullValues()));
+
+        unsigned int capturedErrCode = 0;
+        {
+            for (size_t i = 0; i < allTilesOp1->size(); i++)
+            {
+                unique_ptr<vector<std::shared_ptr<Tile>>> tileOp2(intersectTilesVector[i]);
+                auto currResTiles = computeBinaryMDDOpOneTile(allTilesOp1->at(i), tileOp2, offset12, offset21, 
+                                                         areaOp1, resultBaseType, myOp, false, capturedErrCode);
+                for (const auto &tile: currResTiles)
+                    mddres->insertTile(tile);
+            }
+        }
+
 
         // create a new QtMDD object as carrier object for the transient MDD object
         returnValue = new QtMDD(mddres.release());
@@ -343,6 +316,49 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
     }
 
     return returnValue;
+}
+
+std::vector<std::shared_ptr<Tile>> QtBinaryInduce::computeBinaryMDDOpOneTile(
+        const std::shared_ptr<Tile> &tileOp1, const unique_ptr<vector<std::shared_ptr<Tile>>> &tileOp2Vec,
+        const r_Point &offset12, const r_Point &offset21, const r_Minterval &areaOp1,
+        const BaseType *resultBaseType, BinaryOp *myOp, bool fullTiles, unsigned int &capturedErrCode)
+{
+    // domain of the op1 tile
+    const r_Minterval &tileOp1Dom = tileOp1->getDomain();
+    std::vector<std::shared_ptr<Tile>> resTiles;
+    resTiles.reserve(tileOp2Vec->size());
+
+    for (const auto &tileOp2: *tileOp2Vec)
+    {
+        const r_Minterval &tileOp2Dom = tileOp2->getDomain();
+    
+        // the relevant domain is the intersection of the
+        // domains of the two tiles with the relevant area.
+        r_Minterval tileIntersectDom = tileOp1Dom.create_intersection(tileOp2Dom.create_translation(offset21));
+    
+        r_Minterval intersectDom = tileIntersectDom.create_intersection(areaOp1);
+        (void) fullTiles;
+    
+        // create tile for result
+        auto resTile = std::make_shared<Tile>(intersectDom, resultBaseType);
+    
+        //
+        // carry out operation on the relevant area of the tiles
+        //
+        try
+        {
+            resTile->execBinaryOp(&(*myOp), intersectDom, tileOp1.get(), intersectDom,
+                                  tileOp2.get(), intersectDom.create_translation(offset12));
+            resTiles.push_back(resTile);
+        }
+        catch (int errcode)
+        {
+            LERROR << "caught errno " << errcode;
+            capturedErrCode = static_cast<unsigned>(errcode);
+            throw errcode;
+        }
+    }
+    return resTiles;
 }
 
 

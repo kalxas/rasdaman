@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                       "select condense xor over i in [0:1] using <[0:0] true>"
+      char                       "select condense xor over i in [0:1] using <[0:0] 1c>"
+     octet                       "select condense xor over i in [0:1] using <[0:0] 1o>"
+    ushort                       "select condense xor over i in [0:1] using <[0:0] 1us>"
+     short                       "select condense xor over i in [0:1] using <[0:0] 1s>"
+     ulong                       "select condense xor over i in [0:1] using <[0:0] 1ul>"
+      long                       "select condense xor over i in [0:1] using <[0:0] 1l>"
+     float                       "select condense xor over i in [0:1] using <[0:0] 1f>"
+    double                       "select condense xor over i in [0:1] using <[0:0] 1d>"
+    cint16                       "select condense xor over i in [0:1] using <[0:0] complex(1s,2s)>"
+    cint32                       "select condense xor over i in [0:1] using <[0:0] complex(1,2)>"
+   complex                       "select condense xor over i in [0:1] using <[0:0] complex(1f,2f)>"
+  complexd                       "select condense xor over i in [0:1] using <[0:0] complex(1d,2d)>"

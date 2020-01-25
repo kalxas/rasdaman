@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select marray i in [0:0] values <[0:0] true>[0]"
+      char                char   "select marray i in [0:0] values <[0:0] 1c>[0]"
+     octet               octet   "select marray i in [0:0] values <[0:0] 1o>[0]"
+    ushort              ushort   "select marray i in [0:0] values <[0:0] 1us>[0]"
+     short               short   "select marray i in [0:0] values <[0:0] 1s>[0]"
+     ulong               ulong   "select marray i in [0:0] values <[0:0] 1ul>[0]"
+      long                long   "select marray i in [0:0] values <[0:0] 1l>[0]"
+     float               float   "select marray i in [0:0] values <[0:0] 1f>[0]"
+    double              double   "select marray i in [0:0] values <[0:0] 1d>[0]"
+    cint16              cint16   "select marray i in [0:0] values <[0:0] complex(1s,2s)>[0]"
+    cint32              cint32   "select marray i in [0:0] values <[0:0] complex(1,2)>[0]"
+   complex             complex   "select marray i in [0:0] values <[0:0] complex(1f,2f)>[0]"
+  complexd            complexd   "select marray i in [0:0] values <[0:0] complex(1d,2d)>[0]"

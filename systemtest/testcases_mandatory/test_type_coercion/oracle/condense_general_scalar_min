@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select condense min over i in [0:1] using <[0:0] true>[0]"
+      char                char   "select condense min over i in [0:1] using <[0:0] 1c>[0]"
+     octet               octet   "select condense min over i in [0:1] using <[0:0] 1o>[0]"
+    ushort              ushort   "select condense min over i in [0:1] using <[0:0] 1us>[0]"
+     short               short   "select condense min over i in [0:1] using <[0:0] 1s>[0]"
+     ulong               ulong   "select condense min over i in [0:1] using <[0:0] 1ul>[0]"
+      long                long   "select condense min over i in [0:1] using <[0:0] 1l>[0]"
+     float               float   "select condense min over i in [0:1] using <[0:0] 1f>[0]"
+    double              double   "select condense min over i in [0:1] using <[0:0] 1d>[0]"
+    cint16                       "select condense min over i in [0:1] using <[0:0] complex(1s,2s)>[0]"
+    cint32                       "select condense min over i in [0:1] using <[0:0] complex(1,2)>[0]"
+   complex                       "select condense min over i in [0:1] using <[0:0] complex(1f,2f)>[0]"
+  complexd                       "select condense min over i in [0:1] using <[0:0] complex(1d,2d)>[0]"

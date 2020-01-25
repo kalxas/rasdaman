@@ -2,7 +2,7 @@
 #define COMMON_MATH_HH
 
 #ifdef ENABLE_COMPLEX
-#include <complex>
+#include "common/types/model/types.hh"
 #endif
 #include <cmath>
 
@@ -15,7 +15,7 @@ namespace common
  */
 #ifdef ENABLE_COMPLEX
 template <typename T>
-bool isnan(const std::complex<T> &value) {
+bool isnan(const common::complex<T> &value) {
   return std::isnan(value.real()) || std::isnan(value.imag());
 }
 #endif

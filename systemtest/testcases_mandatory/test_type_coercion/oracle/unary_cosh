@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool               float   "select cosh(<[0:0] true>)"
+      char               float   "select cosh(<[0:0] 1c>)"
+     octet               float   "select cosh(<[0:0] 1o>)"
+    ushort               float   "select cosh(<[0:0] 1us>)"
+     short               float   "select cosh(<[0:0] 1s>)"
+     ulong              double   "select cosh(<[0:0] 1ul>)"
+      long              double   "select cosh(<[0:0] 1l>)"
+     float               float   "select cosh(<[0:0] 1f>)"
+    double              double   "select cosh(<[0:0] 1d>)"
+    cint16                       "select cosh(<[0:0] complex(1s,2s)>)"
+    cint32                       "select cosh(<[0:0] complex(1,2)>)"
+   complex                       "select cosh(<[0:0] complex(1f,2f)>)"
+  complexd                       "select cosh(<[0:0] complex(1d,2d)>)"

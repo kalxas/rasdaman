@@ -1,0 +1,1 @@
+select condense min over i in [0:1] using first

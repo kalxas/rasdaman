@@ -1,0 +1,1 @@
+select complex(first, second)

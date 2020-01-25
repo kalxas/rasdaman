@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select some_cells(<[0:0] true>)"
+      char                       "select some_cells(<[0:0] 1c>)"
+     octet                       "select some_cells(<[0:0] 1o>)"
+    ushort                       "select some_cells(<[0:0] 1us>)"
+     short                       "select some_cells(<[0:0] 1s>)"
+     ulong                       "select some_cells(<[0:0] 1ul>)"
+      long                       "select some_cells(<[0:0] 1l>)"
+     float                       "select some_cells(<[0:0] 1f>)"
+    double                       "select some_cells(<[0:0] 1d>)"
+    cint16                       "select some_cells(<[0:0] complex(1s,2s)>)"
+    cint32                       "select some_cells(<[0:0] complex(1,2)>)"
+   complex                       "select some_cells(<[0:0] complex(1f,2f)>)"
+  complexd                       "select some_cells(<[0:0] complex(1d,2d)>)"

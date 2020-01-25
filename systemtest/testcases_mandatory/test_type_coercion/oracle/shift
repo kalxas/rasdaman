@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select shift(<[0:0] true>, [1])"
+      char                char   "select shift(<[0:0] 1c>, [1])"
+     octet               octet   "select shift(<[0:0] 1o>, [1])"
+    ushort              ushort   "select shift(<[0:0] 1us>, [1])"
+     short               short   "select shift(<[0:0] 1s>, [1])"
+     ulong               ulong   "select shift(<[0:0] 1ul>, [1])"
+      long                long   "select shift(<[0:0] 1l>, [1])"
+     float               float   "select shift(<[0:0] 1f>, [1])"
+    double              double   "select shift(<[0:0] 1d>, [1])"
+    cint16              cint16   "select shift(<[0:0] complex(1s,2s)>, [1])"
+    cint32              cint32   "select shift(<[0:0] complex(1,2)>, [1])"
+   complex             complex   "select shift(<[0:0] complex(1f,2f)>, [1])"
+  complexd            complexd   "select shift(<[0:0] complex(1d,2d)>, [1])"

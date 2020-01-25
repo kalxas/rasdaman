@@ -31,6 +31,7 @@ rasdaman GmbH.
 #include "qlparser/qtscalardata.hh"
 
 #include "catalogmgr/ops.hh"
+class Tile;
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -55,6 +56,10 @@ public:
 
     /// computes a binary induce operation on two MDD objects
     static QtData *computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseType *resultBaseType, BinaryOp *myOp);
+    static std::vector<std::shared_ptr<Tile>> computeBinaryMDDOpOneTile(
+             const std::shared_ptr<Tile> &tileOp1, const std::unique_ptr<std::vector<std::shared_ptr<Tile>>> &tileOp2,
+             const r_Point &offset12, const r_Point &offset21, const r_Minterval &areaOp1,
+             const BaseType *resultBaseType, BinaryOp *myOp, bool fullTiles, unsigned int &capturedErrCode);
     /**
       The method carries out the binary induce operation specified by {\tt operation} on the two operands. For
       the result, a new transient MDD object is created and returned. In the end, the MDD objects of the operands

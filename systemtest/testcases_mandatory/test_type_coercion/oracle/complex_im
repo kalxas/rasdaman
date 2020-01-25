@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                       "select <[0:0] true>.im"
+      char                       "select <[0:0] 1c>.im"
+     octet                       "select <[0:0] 1o>.im"
+    ushort                       "select <[0:0] 1us>.im"
+     short                       "select <[0:0] 1s>.im"
+     ulong                       "select <[0:0] 1ul>.im"
+      long                       "select <[0:0] 1l>.im"
+     float                       "select <[0:0] 1f>.im"
+    double                       "select <[0:0] 1d>.im"
+    cint16               short   "select <[0:0] complex(1s,2s)>.im"
+    cint32                long   "select <[0:0] complex(1,2)>.im"
+   complex               float   "select <[0:0] complex(1f,2f)>.im"
+  complexd              double   "select <[0:0] complex(1d,2d)>.im"

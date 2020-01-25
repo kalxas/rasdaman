@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select <[0:0] true> is null"
+      char                bool   "select <[0:0] 1c> is null"
+     octet                bool   "select <[0:0] 1o> is null"
+    ushort                bool   "select <[0:0] 1us> is null"
+     short                bool   "select <[0:0] 1s> is null"
+     ulong                bool   "select <[0:0] 1ul> is null"
+      long                bool   "select <[0:0] 1l> is null"
+     float                bool   "select <[0:0] 1f> is null"
+    double                bool   "select <[0:0] 1d> is null"
+    cint16                       "select <[0:0] complex(1s,2s)> is null"
+    cint32                       "select <[0:0] complex(1,2)> is null"
+   complex                       "select <[0:0] complex(1f,2f)> is null"
+  complexd                       "select <[0:0] complex(1d,2d)> is null"

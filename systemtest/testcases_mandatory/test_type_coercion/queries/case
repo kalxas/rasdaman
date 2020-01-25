@@ -1,0 +1,1 @@
+select case true then first else second end

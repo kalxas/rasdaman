@@ -4,10 +4,37 @@
 #ifdef ENABLE_COMPLEX
 
 #include <complex>
+#include <type_traits>
 
-#include "common/types/model/typetraits.hh"
+namespace common {
 
-namespace std {
+template<class T>
+struct complex : std::complex<T> {
+    complex() = default;
+    
+    // Allow casting from non-complex real argument; 
+    // needed in physical/tile/cpu/binary.hh for example, in the case of
+    // complex<int> - uint, see https://stackoverflow.com/questions/59894531/
+    //
+    // To remove this method for U = complex the enable_if trick is used,
+    // see https://stackoverflow.com/a/17842519/1499165
+    template<class U, typename std::enable_if<(
+      !std::is_same<U, complex<int16_t>>{} && !std::is_same<U, complex<int32_t>>{} &&
+      !std::is_same<U, complex<float>>{} && !std::is_same<U, complex<double>>{})>::type...>
+    complex(U real) : complex<T>(static_cast<T>(real)) {}
+    
+    complex(T real) : complex<T>(real, T{}) {}
+    
+    template<class U>
+    complex(const std::complex<U> &o) : complex<T>(static_cast<T>(o.real()),
+                                                   static_cast<T>(o.imag())) {}
+    complex(T real, T imag) : std::complex<T>(real, imag) {}
+    
+    template<class U>
+    operator complex<U>() const {
+        return complex{static_cast<U>(this->real()), static_cast<U>(this->imag())};
+    }
+};
 
 /**
  * In this file we extend the capabilities of the standard complex<T> class by
@@ -18,79 +45,69 @@ namespace std {
  * (complex<T> op R) where R is a primitive, arithmetic type.
  * The result of any operation is always complex<T>.
  */
-
 template <typename L, typename R>
 auto operator+(const complex<L>& lhs, R rhs) -> complex<decltype(L{} + R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
   using ResultType = decltype(L{} + R{});
-  return complex<ResultType>{lhs.real() + rhs, lhs.imag() + rhs};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs.real()) + static_cast<ResultType>(rhs),
+      static_cast<ResultType>(lhs.imag()) + static_cast<ResultType>(rhs)};
 }
 template <typename L, typename R>
 auto operator+(L lhs, const complex<R>& rhs) -> complex<decltype(L{} + R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
   using ResultType = decltype(L{} + R{});
-  return complex<ResultType>{lhs + rhs.real(), lhs + rhs.imag()};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs) + static_cast<ResultType>(rhs.real()),
+      static_cast<ResultType>(lhs) + static_cast<ResultType>(rhs.imag())};
 }
 template <typename L, typename R>
 auto operator+(const complex<L>& lhs, const complex<R>& rhs)
     -> complex<decltype(L{} + R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
-  ASSERT_IS_DIFFERENT_TYPES(L, R);
   using ResultType = decltype(L{} + R{});
-  return complex<ResultType>{lhs.real() + rhs.real(), lhs.imag() + rhs.imag()};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs.real()) + static_cast<ResultType>(rhs.real()),
+      static_cast<ResultType>(lhs.imag()) + static_cast<ResultType>(rhs.imag())};
 }
 
 template <typename L, typename R>
 auto operator-(const complex<L>& lhs, R rhs) -> complex<decltype(L{} - R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
   using ResultType = decltype(L{} - R{});
-  return complex<ResultType>{static_cast<ResultType>(lhs.real()) - static_cast<ResultType>(rhs),
-              static_cast<ResultType>(lhs.imag()) - static_cast<ResultType>(rhs)};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs.real()) - static_cast<ResultType>(rhs),
+      static_cast<ResultType>(lhs.imag()) - static_cast<ResultType>(rhs)};
 }
 template <typename L, typename R>
 auto operator-(L lhs, const complex<R>& rhs) -> complex<decltype(L{} - R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
   using ResultType = decltype(L{} - R{});
-  return complex<ResultType>{static_cast<ResultType>(lhs) - static_cast<ResultType>(rhs.real()), 
-              static_cast<ResultType>(lhs) - static_cast<ResultType>(rhs.imag())};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs) - static_cast<ResultType>(rhs.real()), 
+      static_cast<ResultType>(lhs) - static_cast<ResultType>(rhs.imag())};
 }
 template <typename L, typename R>
 auto operator-(const complex<L>& lhs, const complex<R>& rhs)
     -> complex<decltype(L{} - R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
-  ASSERT_IS_DIFFERENT_TYPES(L, R);
   using ResultType = decltype(L{} - R{});
-  return complex<ResultType>{static_cast<ResultType>(lhs.real()) - static_cast<ResultType>(rhs.real()), 
-              static_cast<ResultType>(lhs.imag()) - static_cast<ResultType>(rhs.imag())};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs.real()) - static_cast<ResultType>(rhs.real()), 
+      static_cast<ResultType>(lhs.imag()) - static_cast<ResultType>(rhs.imag())};
 }
 
 template <typename L, typename R>
 auto operator*(const complex<L>& lhs, R rhs) -> complex<decltype(L{} * R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
   using ResultType = decltype(L{} * R{});
-  return complex<ResultType>{lhs.real() * rhs, lhs.imag() * rhs};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs.real()) * static_cast<ResultType>(rhs),
+      static_cast<ResultType>(lhs.imag()) * static_cast<ResultType>(rhs)};
 }
 template <typename L, typename R>
 auto operator*(L lhs, const complex<R>& rhs) -> complex<decltype(L{} * R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
   using ResultType = decltype(L{} * R{});
-  return complex<ResultType>{lhs * rhs.real(), lhs * rhs.imag()};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs) * static_cast<ResultType>(rhs.real()),
+      static_cast<ResultType>(lhs) * static_cast<ResultType>(rhs.imag())};
 }
 template <typename L, typename R>
 auto operator*(const complex<L>& lhs, const complex<R>& rhs)
     -> complex<decltype(L{} * R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
-  ASSERT_IS_DIFFERENT_TYPES(L, R);
-
   using ResultType = decltype(L{} * R{});
   // TODO: Benchmark different multiplication algorithms
   ResultType realPart = lhs.real() * rhs.real() - lhs.imag() * rhs.imag();
@@ -100,66 +117,58 @@ auto operator*(const complex<L>& lhs, const complex<R>& rhs)
 
 template <typename L, typename R>
 auto operator/(L lhs, const complex<R>& rhs) -> complex<decltype(L{} / R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
   using ResultType = decltype(L{} / R{});
-  return complex<ResultType>{lhs / rhs.real(), lhs / rhs.imag()};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs) / static_cast<ResultType>(rhs.real()),
+      static_cast<ResultType>(lhs) / static_cast<ResultType>(rhs.imag())};
 }
 template <typename L, typename R>
 auto operator/(const complex<L>& lhs, R rhs) -> complex<decltype(L{} / R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
   using ResultType = decltype(L{} / R{});
-  return complex<ResultType>{lhs.real() / rhs, lhs.imag() / rhs};
+  return complex<ResultType>{
+      static_cast<ResultType>(lhs.real()) / static_cast<ResultType>(rhs),
+      static_cast<ResultType>(lhs.imag()) / static_cast<ResultType>(rhs)};
 }
 template <typename L, typename R>
 auto operator/(const complex<L>& lhs, const complex<R>& rhs)
     -> complex<decltype(L{} / R{})> {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
-  ASSERT_IS_DIFFERENT_TYPES(L, R);
-
   using ResultType = decltype(L{} / R{});
   // TODO: Benchmark different multiplication algorithms
   ResultType divisor = rhs.real() * rhs.real() + rhs.imag() * rhs.imag();
-  ResultType realPart =
-      (lhs.real() * rhs.real() - lhs.imag() * rhs.imag()) / divisor;
-  ResultType imagPart =
-      (lhs.real() * rhs.imag() + lhs.imag() * rhs.real()) / divisor;
+  ResultType realPart = (lhs.real() * rhs.real() - lhs.imag() * rhs.imag()) / divisor;
+  ResultType imagPart = (lhs.real() * rhs.imag() + lhs.imag() * rhs.real()) / divisor;
   return complex<ResultType>{realPart, imagPart};
 }
 
 template <typename L, typename R>
-common::bool_t operator==(const complex<L>& lhs, R rhs) {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
-  return (lhs.real() == rhs) && (lhs.imag() == rhs);
+bool operator==(const complex<L>& lhs, R rhs) {
+  return (lhs.real() == rhs) &&
+         (lhs.imag() == rhs);
 }
 template <typename L, typename R>
-common::bool_t operator==(L lhs, const complex<R>& rhs) {
-  ASSERT_IS_ARITHMETIC_TYPE(L);
-  ASSERT_IS_ARITHMETIC_TYPE(R);
-  return (lhs == rhs.real()) && (lhs == rhs.imag());
+bool operator==(L lhs, const complex<R>& rhs) {
+  return (lhs == rhs.real()) &&
+         (lhs == rhs.imag());
 }
 template <typename L, typename R>
-common::bool_t operator==(const complex<L>& lhs, const complex<R>& rhs) {
-  ASSERT_IS_DIFFERENT_TYPES(L, R);
-  return (lhs.real() == rhs.real()) && (lhs.imag() == rhs.imag());
+bool operator==(const complex<L>& lhs, const complex<R>& rhs) {
+  return (lhs.real() == rhs.real()) &&
+         (lhs.imag() == rhs.imag());
 }
 
 template <typename L, typename R>
-common::bool_t operator!=(const complex<L>& lhs, R rhs) {
+bool operator!=(const complex<L>& lhs, R rhs) {
   return !(lhs == rhs);
 }
 template <typename L, typename R>
-common::bool_t operator!=(L lhs, const complex<R>& rhs) {
+bool operator!=(L lhs, const complex<R>& rhs) {
   return !(lhs == rhs);
 }
 template <typename L, typename R>
-common::bool_t operator!=(const complex<L>& lhs, const complex<R>& rhs) {
-  ASSERT_IS_DIFFERENT_TYPES(L, R);
+bool operator!=(const complex<L>& lhs, const complex<R>& rhs) {
   return !(lhs == rhs);
 }
+
 } // namespace std
 
 #endif

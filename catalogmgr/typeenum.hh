@@ -78,6 +78,14 @@ inline bool isComplexType(TypeEnum type)
 {
     return type == CINT16 || type == CINT32 || type == COMPLEXTYPE1 || type == COMPLEXTYPE2;
 }
+inline bool isComplexTypeFloat(TypeEnum type)
+{
+    return type == COMPLEXTYPE1 || type == COMPLEXTYPE2;
+}
+inline bool isComplexTypeInt(TypeEnum type)
+{
+    return type == CINT16 || type == CINT32;
+}
 inline bool isPrimitiveType(TypeEnum type)
 {
     return type <= NUMERICAL_TYPES_END;

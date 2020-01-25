@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select <[0:0] true>[0]"
+      char                char   "select <[0:0] 1c>[0]"
+     octet               octet   "select <[0:0] 1o>[0]"
+    ushort              ushort   "select <[0:0] 1us>[0]"
+     short               short   "select <[0:0] 1s>[0]"
+     ulong               ulong   "select <[0:0] 1ul>[0]"
+      long                long   "select <[0:0] 1l>[0]"
+     float               float   "select <[0:0] 1f>[0]"
+    double              double   "select <[0:0] 1d>[0]"
+    cint16              cint16   "select <[0:0] complex(1s,2s)>[0]"
+    cint32              cint32   "select <[0:0] complex(1,2)>[0]"
+   complex             complex   "select <[0:0] complex(1f,2f)>[0]"
+  complexd            complexd   "select <[0:0] complex(1d,2d)>[0]"

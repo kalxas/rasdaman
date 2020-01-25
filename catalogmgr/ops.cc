@@ -360,6 +360,7 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         case Ops::OP_MINUS:
             return new OpMINUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_DIV:
+        case Ops::OP_INTDIV:
             return new OpDIVComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MULT:
             return new OpMULTComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
@@ -384,6 +385,7 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         case Ops::OP_MINUS:
             return new OpMINUSComplexInt(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_DIV:
+        case Ops::OP_INTDIV:
             return new OpDIVComplexInt(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MULT:
             return new OpMULTComplexInt(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
@@ -600,6 +602,7 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType,
         switch (op)
         {
         case Ops::OP_COUNT:
+        case Ops::OP_SUM:
             return new OpCOUNTCChar(resType, opType, resOff, opOff);
         default:
             break;
@@ -696,6 +699,7 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, char *newAccu,
         switch (op)
         {
         case Ops::OP_COUNT:
+        case Ops::OP_SUM:
             return new OpCOUNTCChar(resType, newAccu, opType, resOff, opOff);
         default:
             break;
@@ -889,9 +893,9 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         if (res)
             return res;
     }
-    // complex supported only on add_cells, and .re/.im extract
+    // complex supported only on add_cells, .re/.im extract, and is null
     if (isComplexType(type1) && !op2 &&
-        !((op >= OP_REALPART && op <= OP_IMAGINARPARTINT) || op == OP_SUM))
+        !((op >= OP_REALPART && op <= OP_IMAGINARPARTINT) || op == OP_SUM || op == OP_IS_NULL))
     {
         throw r_Error(455); // Operation not supported on operand of complex type.
     }
@@ -904,20 +908,23 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         return type1 == BOOLTYPE ? TypeFactory::mapType("ULong") : throw r_Error(415);
     case OP_MAX:
     case OP_MIN:
-        return op1;
+        if (isComplexType(type1))
+            throw r_Error(452); // Unsupported condense operator for complex types.
+        else
+            return op1;
     case OP_SUM:
     {
         switch (type1)
         {
         case CINT16:
         case CINT32:
-            return TypeFactory::mapType("CInt32");
         case COMPLEXTYPE1:
         case COMPLEXTYPE2:
             return TypeFactory::mapType("Complexd");
         case FLOAT:
         case DOUBLE:
             return TypeFactory::mapType("Double");
+        case BOOLTYPE:
         case CHAR:
         case USHORT:
         case ULONG:
@@ -958,7 +965,7 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     if (op == OP_REALPART || op == OP_IMAGINARPART)
     {
         static const char *typeName[] = {"Float", "Double", "Short", "Long"};
-        return TypeFactory::mapType(typeName[type1 - COMPLEXTYPE1 - 1]);
+        return TypeFactory::mapType(typeName[type1 - COMPLEXTYPE1]);
     }
     if (op == OP_NOT)
         // 375: Operation expected a boolean operand.
@@ -990,16 +997,16 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     }
     if (op == OP_CONSTRUCT_COMPLEX && type1 != STRUCT && type2 != STRUCT)
     {
-        if (type1 == DOUBLE || type2 == DOUBLE)
+        if (type1 == DOUBLE && type2 == DOUBLE)
             return TypeFactory::mapType("Complexd");
-        else if (type1 == FLOAT || type2 == FLOAT)
+        else if (type1 == FLOAT && type2 == FLOAT)
             return TypeFactory::mapType("Complex");
-        else if (type1 == LONG || type2 == LONG)
+        else if (type1 == LONG && type2 == LONG)
             return TypeFactory::mapType("CInt32");
-        else if (type1 == SHORT || type2 == SHORT)
+        else if (type1 == SHORT && type2 == SHORT)
             return TypeFactory::mapType("CInt16");
         else
-            return TypeFactory::mapType("Complexd");
+            throw r_Error(311); // Complex constructor must have both arguments of the same type.
     }
     
     if (type1 == STRUCT || type2 == STRUCT)
@@ -1020,18 +1027,46 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     
     // comparison operators always return atomic bool
     if (op >= OP_EQUAL && op <= OP_GREATEREQUAL)
-        return TypeFactory::mapType("Bool");
+    {
+        if ((isComplexType(type1) || isComplexType(type2)) &&
+            ((isComplexTypeInt(type1) != isComplexTypeInt(type2)) ||
+             (isComplexTypeFloat(type1) != isComplexTypeFloat(type2)) ||
+             (op != OP_EQUAL && op != OP_NOTEQUAL)))
+            // 363: Cell base types of binary induce operation are incompatible.
+            throw r_Error(363);
+        else
+            return TypeFactory::mapType("Bool");
+    }
     
     // X overlay,max,min X -> X
     if (op == OP_OVERLAY || op == OP_MAX_BINARY || op == OP_MIN_BINARY)
+    {
+        if (isComplexType(type1) || isComplexType(type2))
+            throw r_Error(455); // Operation not supported on operand of complex type.
         // 363: Cell base types of binary induce operation are incompatible.
         return type1 == type2 ? op1 : throw r_Error(363);
+    }
 
     // +, *, div(), mod()
     // X op d -> d, X op f -> f, U1 op U2 -> max(U1,U2)+1
-    if (op == OP_PLUS || op == OP_MULT || (op == OP_INTDIV && maxType < DOUBLE) || 
-        op == OP_MOD || op == OP_MINUS)
+    auto minType = maxType == type1 ? type2 : type1;
+    if (op == OP_PLUS || op == OP_MULT || op == OP_MOD || op == OP_MINUS ||
+        (op == OP_INTDIV && (isIntType(maxType) ||
+                             (isComplexTypeInt(maxType) && (isIntType(minType) ||
+                                                            isComplexTypeInt(minType))))))
     {
+        if (maxType == FLOAT && (minType == LONG || minType == ULONG))
+            // long/ulong may overflow float, so return double
+            return TypeFactory::mapType("Double");
+        
+        if (isComplexTypeInt(maxType))
+        {
+            if (isComplexTypeInt(minType) || isIntType(minType))
+                return TypeFactory::mapType("CInt32");
+            else
+                return TypeFactory::mapType("Complexd");
+        }
+        
         if (isFloatType(maxType))
             return TypeFactory::mapType(typeToString(maxType));
         
@@ -1046,6 +1081,10 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     // X op d -> d, X op f -> f, U1 op U2 -> max(U1,U2)+1
     if (op == OP_DIV || op == OP_INTDIV)
     {
+        if (maxType == FLOAT && (minType == LONG || minType == ULONG))
+            // long/ulong may overflow float, so return double
+            return TypeFactory::mapType("Double");
+        
         switch (maxType)
         {
         case BOOLTYPE:

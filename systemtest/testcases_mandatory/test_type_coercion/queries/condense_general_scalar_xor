@@ -1,0 +1,1 @@
+select condense xor over i in [0:1] using first[0]

@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select not <[0:0] true>"
+      char                       "select not <[0:0] 1c>"
+     octet                       "select not <[0:0] 1o>"
+    ushort                       "select not <[0:0] 1us>"
+     short                       "select not <[0:0] 1s>"
+     ulong                       "select not <[0:0] 1ul>"
+      long                       "select not <[0:0] 1l>"
+     float                       "select not <[0:0] 1f>"
+    double                       "select not <[0:0] 1d>"
+    cint16                       "select not <[0:0] complex(1s,2s)>"
+    cint32                       "select not <[0:0] complex(1,2)>"
+   complex                       "select not <[0:0] complex(1f,2f)>"
+  complexd                       "select not <[0:0] complex(1d,2d)>"
