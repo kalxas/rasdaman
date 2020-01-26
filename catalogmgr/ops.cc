@@ -964,8 +964,14 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     // complex.re and complex.im
     if (op == OP_REALPART || op == OP_IMAGINARPART)
     {
-        static const char *typeName[] = {"Float", "Double", "Short", "Long"};
-        return TypeFactory::mapType(typeName[type1 - COMPLEXTYPE1]);
+        switch (type1)
+        {
+        case COMPLEXTYPE1: return TypeFactory::mapType("Float");
+        case COMPLEXTYPE2: return TypeFactory::mapType("Double");
+        case CINT16: return TypeFactory::mapType("Short");
+        case CINT32: return TypeFactory::mapType("Long");
+        default: throw r_Error(368); // Cell base type for induced dot operation must be complex.
+        }
     }
     if (op == OP_NOT)
         // 375: Operation expected a boolean operand.
@@ -6556,7 +6562,7 @@ void OpBIT::operator()(char *res, const char *op1, const char *op2)
     }
     else
     {
-        lngRes = lngOp1 >> lngOp2 & 0x1L;
+        lngRes = lngOp1 & (0x1u << lngOp2);
     }
     resType->makeFromCULong(res + resOff, &lngRes);
 }

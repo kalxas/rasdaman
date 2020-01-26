@@ -29,6 +29,8 @@ rasdaman GmbH.
 #include "qlparser/qtnaryoperation.hh"
 
 class BaseType;
+class MDDObj;
+class QtMDD;
 
 class QtConcat : public QtNaryOperation
 {
@@ -68,13 +70,11 @@ public:
     /// getter for the dimension along which the concatenation is performed
     inline unsigned int getDimension();
 
-    /// type coercion
-    const BaseType *getResultType(const BaseType *op1, const BaseType *op2);
-
-    /// checks whether a type is signed or not (for type coercion)
-    int isSignedType(const BaseType *type);
-
 private:
+    // process the i-th operand and insert the new tiles into resultMDD
+    void processOperand(unsigned int i, QtMDD *qtMDDObj, MDDObj *resultMDD,
+                        const BaseType *baseType, const std::vector<r_Point> &tVector);
+    
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 

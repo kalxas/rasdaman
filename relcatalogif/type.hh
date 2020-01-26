@@ -101,6 +101,8 @@ public:
     /*@Doc:
     checks, if two types are compatible (see also \Ref{MDDType}).
     */
+    
+    virtual bool operator==(const Type &o) const;
 
 protected:
     TypeEnum myType;

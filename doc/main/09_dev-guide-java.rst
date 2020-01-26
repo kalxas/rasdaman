@@ -1,5 +1,7 @@
 .. highlight:: java
 
+.. _java-dev-guide:
+
 #####################
 Java Developers Guide
 #####################

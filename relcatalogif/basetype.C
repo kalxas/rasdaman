@@ -40,6 +40,7 @@ int
 BaseType::compatibleWith(const Type *aType) const
 {
     return (myType == aType->getType()) ||
-           (aType->getType() == CHAR && myType == BOOLTYPE);
+           (aType->getType() == CHAR && myType == BOOLTYPE) ||
+           (aType->getType() == BOOLTYPE && myType == CHAR);
 }
 

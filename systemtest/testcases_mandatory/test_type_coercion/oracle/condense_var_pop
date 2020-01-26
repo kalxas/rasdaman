@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool              double   "select var_pop(<[0:0] true>)"
+      char              double   "select var_pop(<[0:0] 1c>)"
+     octet              double   "select var_pop(<[0:0] 1o>)"
+    ushort              double   "select var_pop(<[0:0] 1us>)"
+     short              double   "select var_pop(<[0:0] 1s>)"
+     ulong              double   "select var_pop(<[0:0] 1ul>)"
+      long              double   "select var_pop(<[0:0] 1l>)"
+     float              double   "select var_pop(<[0:0] 1f>)"
+    double              double   "select var_pop(<[0:0] 1d>)"
+    cint16                       "select var_pop(<[0:0] complex(1s,2s)>)"
+    cint32                       "select var_pop(<[0:0] complex(1,2)>)"
+   complex                       "select var_pop(<[0:0] complex(1f,2f)>)"
+  complexd                       "select var_pop(<[0:0] complex(1d,2d)>)"

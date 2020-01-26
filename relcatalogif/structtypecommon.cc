@@ -34,7 +34,6 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
-#include <stdlib.h>                   // for free, malloc
 #include <cstring>                    // for strlen, strcat, strcpy, strdup
 #include <ostream>                    // for operator<<, basic_ostream, ostr...
 #include <string>                     // for char_traits, string
@@ -376,6 +375,19 @@ int StructType::compatibleWith(const Type *aType) const
         }
     }
     return 1;
+}
+
+bool StructType::operator==(const Type &o) const
+{
+  if (o.getType() != STRUCT)
+    return false;
+  const auto &stype = static_cast<const StructType &>(o);
+  if (getNumElems() != stype.getNumElems())
+    return false;
+  for (size_t i = 0; i < elements.size(); ++i)
+    if (!(*getElemType(i) == *stype.getElemType(i)))
+      return false;
+  return true;
 }
 
 void StructType::calcSize()

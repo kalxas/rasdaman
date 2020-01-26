@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select abs(<[0:0] true>)"
+      char                char   "select abs(<[0:0] 1c>)"
+     octet               octet   "select abs(<[0:0] 1o>)"
+    ushort              ushort   "select abs(<[0:0] 1us>)"
+     short               short   "select abs(<[0:0] 1s>)"
+     ulong               ulong   "select abs(<[0:0] 1ul>)"
+      long                long   "select abs(<[0:0] 1l>)"
+     float               float   "select abs(<[0:0] 1f>)"
+    double              double   "select abs(<[0:0] 1d>)"
+    cint16                       "select abs(<[0:0] complex(1s,2s)>)"
+    cint32                       "select abs(<[0:0] complex(1,2)>)"
+   complex                       "select abs(<[0:0] complex(1f,2f)>)"
+  complexd                       "select abs(<[0:0] complex(1d,2d)>)"

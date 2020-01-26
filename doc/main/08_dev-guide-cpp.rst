@@ -1,5 +1,7 @@
 .. highlight:: c++
 
+.. _cpp-dev-guide:
+
 ####################
 C++ Developers Guide
 ####################

@@ -39,7 +39,6 @@ rasdaman GmbH.
 #include "logging.hh"           // for LERROR
 
 #include <ctype.h>              // for tolower
-#include <stdlib.h>             // for malloc
 #include <cstring>              // for strlen, strcpy
 
 Type::Type() : DBNamedObject("unnamed type")
@@ -54,19 +53,19 @@ Type::Type(const char *name) : DBNamedObject(name)
 {
 }
 
-void Type::generateCTypeName(std::vector<const char *> &names) const
+void Type::generateCTypeName(std::vector<const char *> &) const
 {
     LERROR << "no equivalent type found for C";
     throw r_Error(INTERNALDLPARSEERROR);
 }
 
-void Type::generateCTypePos(std::vector<int> &position, int offset) const
+void Type::generateCTypePos(std::vector<int> &, int ) const
 {
     LERROR << "no equivalent type found for C";
     throw r_Error(INTERNALDLPARSEERROR);
 }
 
-void Type::getTypes(std::vector<const BaseType *> &types) const
+void Type::getTypes(std::vector<const BaseType *> &) const
 {
     LERROR << "no type information was found";
     throw r_Error(INTERNALDLPARSEERROR);
@@ -87,7 +86,7 @@ char *Type::getTypeStructure() const
     // default implementation for all non-structured base types.
     char *result = strdup(getTypeName());
     for (size_t i = 0; i < strlen(result); ++i)
-        result[i] = tolower(result[i]);
+        result[i] = static_cast<char>(tolower(result[i]));
 
     return result;
 }
@@ -104,5 +103,10 @@ TypeEnum Type::getType() const
 
 int Type::compatibleWith(const Type * /* aType */) const
 {
-    return 0;
+  return 0;
+}
+
+bool Type::operator==(const Type &o) const
+{
+  return myType == o.myType;
 }

@@ -72,7 +72,6 @@ QtConcat::equalMeaning(QtNode *node)
 string
 QtConcat::getSpelling()
 {
-
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
@@ -116,14 +115,11 @@ QtConcat::evaluate(QtDataList *inputList)
     QtData *returnValue = NULL;
     QtDataList *operandList = NULL;
 
-    QtDataList::iterator iter;
-
     if (getOperands(inputList, operandList))
     {
-
 #ifdef QT_RUNTIME_TYPE_CHECK
-
-        for (iter = operandList->begin(); iter != operandList->end(); iter++)
+        for (auto iter = operandList->begin(); iter != operandList->end(); iter++)
+        {
             if ((*iter)->getDataType() != QT_MDD)
             {
                 LERROR << "Internal error in QtConcat::evaluate() - "
@@ -137,95 +133,49 @@ QtConcat::evaluate(QtDataList *inputList)
 
                 return 0;
             }
+        }
 #endif
+        std::unique_ptr<QtDataList> operandListDeleter(operandList);
 
         // check if type coercion is possible and compute the result type
-        const BaseType *baseType = NULL;
-
-        for (iter = operandList->begin(); iter != operandList->end(); iter++)
-        {
-            if (iter == operandList->begin())
-            {
-                QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
-                MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
-                baseType = (currentMDDObj->getMDDBaseType())->getBaseType();
-            }
-            else
-            {
-                QtMDD *qtMDDObj2 = static_cast<QtMDD *>(*iter);
-                MDDObj *currentMDDObj2 = qtMDDObj2->getMDDObject();
-                const BaseType *baseType2 = (currentMDDObj2->getMDDBaseType())->getBaseType();
-                baseType = getResultType(baseType, baseType2);
-                if (!baseType)
-                {
-                    LERROR << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible";
-                    parseInfo.setErrorNo(352);
-                    throw parseInfo;
-
-                    if (operandList)
-                    {
-                        delete operandList;
-                        operandList = NULL;
-                    }
-
-                    return 0;
-                }
-            }
-        }
-
-        MDDBaseType *resultMDDType = new MDDBaseType("tmptype", baseType);
-        TypeFactory::addTempType(resultMDDType);
+        const auto *resultMDDType = static_cast<const MDDBaseType *>(dataStreamType.getType());
+        const BaseType *baseType = resultMDDType->getBaseType();
 
         // compute the result domain
         vector<r_Point> tVector(operandList->size()); // save the translating vectors for all arrays except the first
         r_Minterval destinationDomain;
         unsigned int i = 0;
-        for (iter = operandList->begin(); iter != operandList->end(); iter++, i++)
+        for (auto iter = operandList->begin(); iter != operandList->end(); iter++, i++)
         {
-
+            QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
             if (iter == operandList->begin())
             {
-                QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
                 destinationDomain = qtMDDObj->getLoadDomain();
                 if (destinationDomain.dimension() <= static_cast<r_Dimension>(dimension))
                 {
-                    if (operandList)
-                    {
-                        delete operandList;
-                        operandList = NULL;
-                    }
-
-                    LERROR << "Error: QtConcat::evaluate( QtDataList* ) - the operands have less dimensions than the one specified";
+                    LERROR << "the operands have less dimensions than the one specified";
                     parseInfo.setErrorNo(424);
                     throw parseInfo;
                 }
             }
             else
             {
-                QtMDD *qtMDDObj2 = static_cast<QtMDD *>(*iter);
+                // compute target position of the array in the result
+                r_Point newPosB = destinationDomain.get_origin();
+                newPosB[dimension] += destinationDomain.get_extent()[dimension];
+                // translating vector as a difference between intial lower left 
+                // corner and target position in the new array
+                const auto &opDom = qtMDDObj->getLoadDomain();
+                tVector[i] = newPosB - opDom.get_origin();
 
-                r_Minterval domB = qtMDDObj2->getLoadDomain();
-                r_Point *difA = new r_Point(destinationDomain.dimension());
-                (*difA)[dimension] = destinationDomain.get_extent()[dimension];
-                const r_Point &newPosB = destinationDomain.get_origin() + *difA; // compute target position of the array in the result
-                delete difA;
-                r_Point transVector = newPosB - domB.get_origin(); // translating vector as a difference between intial lower left corner and target position in the new array
-                tVector[i] = transVector;
-
-                const r_Minterval &dummyB = domB.create_translation(transVector);
-                if (destinationDomain.is_mergeable(dummyB))
+                auto opDomTranslated = opDom.create_translation(tVector[i]);
+                if (destinationDomain.is_mergeable(opDomTranslated))
                 {
-                    destinationDomain = dummyB.create_closure(destinationDomain);
+                    destinationDomain = opDomTranslated.create_closure(destinationDomain);
                 }
                 else
                 {
-                    if (operandList)
-                    {
-                        delete operandList;
-                        operandList = NULL;
-                    }
-
-                    LERROR << "Error: QtConcat::evaluate( QtDataList* ) - r_Mintervals of operands not mergeable";
+                    LERROR << "operands of concat have non-mergeable domains";
                     parseInfo.setErrorNo(425);
                     throw parseInfo;
                 }
@@ -235,110 +185,66 @@ QtConcat::evaluate(QtDataList *inputList)
         // create a transient MDD object for the query result
         MDDObj *resultMDD = new MDDObj(resultMDDType, destinationDomain);
         std::vector<std::pair<r_Double, r_Double>> nullvalues;
-
         i = 0;
-        for (iter = operandList->begin(); iter != operandList->end(); iter++, i++)
+        for (auto iter = operandList->begin(); iter != operandList->end(); iter++, i++)
         {
-
-            if (iter == operandList->begin())   // only for the first array, which shouldn't be shifted
+            QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
+            MDDObj *mddOp = qtMDDObj->getMDDObject();
+            
+            processOperand(i, qtMDDObj, resultMDD, baseType, tVector);
+            
+            auto *tempValues = mddOp->getNullValues();
+            if (tempValues != NULL)
             {
-                QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
-                MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
-                // add the null values of the current array to the set of the null values of the result
-                auto *tempValues = currentMDDObj->getNullValues();
-                if (tempValues != NULL)
-                {
-                    nullvalues = tempValues->getNullvalues();
-                }
-                // get all tiles
-                auto *tilesA = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
-
-                // iterate over source tiles
-                for (auto tileIter = tilesA->begin(); tileIter != tilesA->end(); tileIter++)
-                {
-                    // get relevant area of source tile
-                    r_Minterval tileDomain = qtMDDObj->getLoadDomain().create_intersection((*tileIter)->getDomain());
-
-                    // create a new transient tile, copy the transient data, and insert it into the mdd object
-                    Tile *newTransTile = new Tile(tileDomain, baseType);
-                    UnaryOp *myOp = NULL;
-                    myOp = Ops::getUnaryOp(Ops::OP_CAST_DOUBLE, baseType, currentMDDObj->getCellType(), 0, 0); // OP_CAST_DOUBLE is used just for identifying the operation as cast
-                    newTransTile->execUnaryOp(myOp, tileDomain, tileIter->get(), tileDomain);
-                    resultMDD->insertTile(newTransTile);
-                }
-
-                // delete the tile vectors, the tiles themselves are deleted when the destructor
-                // of the MDD object is called
-                delete tilesA;
-                tilesA = NULL;
-
-            }
-            else     // all other arrays, which are shifted
-            {
-                QtMDD *qtMDDObj2 = static_cast<QtMDD *>(*iter);
-                MDDObj *currentMDDObj2 = qtMDDObj2->getMDDObject();
-                // add the null values of the current array to the set of the null values of the result
-                auto *tempValues = currentMDDObj2->getNullValues();
-                if (tempValues != NULL)
-                {
-                    for (const auto &p : tempValues->getNullvalues())
-                    {
-                        nullvalues.push_back(p);
-                    }
-                }
-                // get all tiles
-                auto *tilesB = currentMDDObj2->intersect(qtMDDObj2->getLoadDomain());
-
-                // iterate over source tiles
-                for (auto tileIter = tilesB->begin(); tileIter != tilesB->end(); tileIter++)
-                {
-                    // get relevant area of source tile
-                    r_Minterval sourceTileDomain = qtMDDObj2->getLoadDomain().create_intersection((*tileIter)->getDomain());
-
-                    // compute translated tile domain
-                    r_Minterval destinationTileDomain = sourceTileDomain.create_translation(tVector[i]);
-
-                    // create a new transient tile, copy the transient data, and insert it into the mdd object
-                    Tile *newTransTile = new Tile(destinationTileDomain, baseType);
-                    UnaryOp *myOp = NULL;
-                    myOp = Ops::getUnaryOp(Ops::OP_CAST_DOUBLE, baseType, currentMDDObj2->getCellType(), 0, 0); // OP_CAST_DOUBLE is used just for identifying the operation as cast
-                    newTransTile->execUnaryOp(myOp, destinationTileDomain, tileIter->get(), sourceTileDomain);
-                    resultMDD->insertTile(newTransTile);
-                }
-                if (!nullvalues.empty())
-                {
-                    auto nullvaluesTmp = nullvalues;
-                    auto *tmp = new r_Nullvalues(std::move(nullvaluesTmp));
-                    resultMDD->setNullValues(tmp);
-                }
-                // create a new QtMDD object as carrier object for the transient MDD object
-                returnValue = new QtMDD(static_cast<MDDObj *>(resultMDD));
-                if (!nullvalues.empty())
-                {
-                    auto nullvaluesTmp = nullvalues;
-                    auto *tmp = new r_Nullvalues(std::move(nullvaluesTmp));
-                    returnValue->setNullValues(tmp);
-                }
-                // delete the tile vectors, the tiles themselves are deleted when the destructor
-                // of the MDD object is called
-                delete tilesB;
-                tilesB = NULL;
-
+                for (const auto &p : tempValues->getNullvalues())
+                    nullvalues.push_back(p);
             }
         }
-
-        // delete old operands
-        if (operandList)
+        
+        if (!nullvalues.empty())
         {
-            delete operandList;
-            operandList = NULL;
+            auto nullvaluesTmp = nullvalues;
+            auto *tmp = new r_Nullvalues(std::move(nullvaluesTmp));
+            resultMDD->setNullValues(tmp);
         }
-
+        // create a new QtMDD object as carrier object for the transient MDD object
+        returnValue = new QtMDD(resultMDD);
+        if (!nullvalues.empty())
+        {
+            auto nullvaluesTmp = nullvalues;
+            auto *tmp = new r_Nullvalues(std::move(nullvaluesTmp));
+            returnValue->setNullValues(tmp);
+        }
     }
 
     return returnValue;
 }
 
+void QtConcat::processOperand(unsigned int i, QtMDD *qtMDDObj, MDDObj *resultMDD,
+                              const BaseType *baseType, const vector<r_Point> &tVector)
+{
+  MDDObj *mddOp = qtMDDObj->getMDDObject();
+  const auto &mddOpDomain = qtMDDObj->getLoadDomain();
+  
+  // get intersecting tiles
+  auto opTiles = std::unique_ptr<std::vector<shared_ptr<Tile>>>(mddOp->intersect(mddOpDomain));
+  
+  // iterate over source tiles
+  for (const auto &opTile: *opTiles)
+  {
+      // get relevant area of source tile
+      r_Minterval srcTileDomain = mddOpDomain.create_intersection(opTile->getDomain());
+      // compute translated tile domain
+      r_Minterval dstTileDomain = i == 0 ? srcTileDomain
+                                         : srcTileDomain.create_translation(tVector[i]);
+      // create a new transient tile, copy the transient data, and insert it into the mdd object
+      Tile *newTransTile = new Tile(dstTileDomain, baseType);
+      auto myOp = std::unique_ptr<UnaryOp>(Ops::getUnaryOp(
+          Ops::OP_IDENTITY, baseType, mddOp->getCellType(), 0, 0));
+      newTransTile->execUnaryOp(myOp.get(), dstTileDomain, opTile.get(), srcTileDomain);
+      resultMDD->insertTile(newTransTile);
+  }
+}
 
 
 void
@@ -349,41 +255,29 @@ QtConcat::printTree(int tab, ostream &s, QtChildType mode)
     QtNaryOperation::printTree(tab, s, mode);
 }
 
-
-
 void
 QtConcat::printAlgebraicExpression(ostream &s)
 {
     s << "concat(";
-
     if (operationList)
     {
         QtOperationList::iterator iter;
-
         for (iter = operationList->begin(); iter != operationList->end(); iter++)
         {
             if (iter != operationList->begin())
-            {
                 s << ",";
-            }
 
             if (*iter)
-            {
                 (*iter)->printAlgebraicExpression(s);
-            }
             else
-            {
                 s << "<nn>";
-            }
         }
     }
     else
     {
         s << "<nn>";
     }
-
     s << "; " << dimension;
-
     s << ")";
 }
 
@@ -401,49 +295,41 @@ QtConcat::checkType(QtTypeTuple *typeTuple)
 
         for (iter = operationList->begin(); iter != operationList->end(); iter++)
         {
-
             if (*iter)
-            {
                 inputType = (*iter)->checkType(typeTuple);
-            }
             else
-            {
-                LERROR << "Error: QtConcat::checkType() - operand branch invalid.";
-            }
+                LERROR << "operand branch invalid.";
 
             if (inputType.getDataType() != QT_MDD)
             {
-                LERROR << "Error: QtConcat::checkType() - every operand must be of type MDD.";
+                LERROR << "every operand of concat must be an MDD.";
                 parseInfo.setErrorNo(423);
                 throw parseInfo;
             }
 
-            if (iter == operationList->begin())
+            const auto *opType = static_cast<const MDDBaseType *>(inputType.getType())->getBaseType();
+            if (!baseType)
             {
-                baseType = (static_cast<const MDDBaseType *>(inputType.getType()))->getBaseType();
+                baseType = opType;
             }
             else
             {
-                baseType = getResultType(baseType, (static_cast<const MDDBaseType *>(inputType.getType()))->getBaseType());
-                if (!baseType)
+                if (!(*baseType == *opType))
                 {
-                    LERROR << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible";
+                    LERROR << "operand types of concat are incompatible";
                     parseInfo.setErrorNo(352);
                     throw parseInfo;
                 }
             }
-
         }
         MDDBaseType *resultMDDType = new MDDBaseType("tmp", baseType);
         TypeFactory::addTempType(resultMDDType);
-
         dataStreamType.setType(resultMDDType);
     }
     else
     {
-        LERROR << "Error: QtConcat::checkType() - operand branch invalid.";
+        LERROR << "operand branch invalid.";
     }
-
     return dataStreamType;
 }
 
@@ -454,95 +340,3 @@ QtConcat::getAreaType()
     return QT_AREA_MDD;
 }
 
-const BaseType *QtConcat::getResultType(const BaseType *op1, const BaseType *op2)
-{
-
-    if ((op1->getType() == STRUCT) || (op2->getType() == STRUCT))
-    {
-        if (op1->compatibleWith(op2))
-        {
-            return op1;
-        }
-        else
-        {
-            return NULL;
-        }
-    }
-    if (op1->getType() == op2->getType())
-    {
-        return op1;
-    }
-
-
-    // if only one of operand is signed, result also has to be signed.
-    if (isSignedType(op1) && !isSignedType(op2))
-    {
-        // swap it, action is in next if clause
-        const BaseType *dummy;
-        dummy = op2;
-        op2 = op1;
-        op1 = dummy;
-    }
-    if (!isSignedType(op1) && isSignedType(op2))
-    {
-        // got to get the thing with the highest precision and make sure
-        // it is signed.
-        if (op2->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE2 ||
-            op2->getType() == FLOAT || op2->getType() == DOUBLE || op2->getType() == LONG ||
-            op2->getType() == CINT16  || op2->getType() == CINT32)
-        {
-            return op2;
-        }
-        if (op1->getType() == USHORT)
-        {
-            return TypeFactory::mapType("Short");
-        }
-        if (op2->getType() == SHORT)
-        {
-            return op2;
-        }
-        return TypeFactory::mapType("Octet");
-    }
-    // return the stronger type
-    if (op1->getType() == COMPLEXTYPE2 || op2->getType() == COMPLEXTYPE2)
-    {
-        return TypeFactory::mapType("Complexd");
-    }
-    if (op1->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE1)
-    {
-        return TypeFactory::mapType("Complex");
-    }
-    if (op1->getType() == DOUBLE || op2->getType() == DOUBLE)
-    {
-        return TypeFactory::mapType("Double");
-    }
-    
-    if (op1->getType() == FLOAT || op2->getType() == FLOAT)
-    {
-        return TypeFactory::mapType("Float");
-    }
-    if (op1->getType() == CINT32 || op2->getType() == CINT32)
-    {
-        return TypeFactory::mapType("CInt32");
-    }
-    if (op1->getType() == CINT16 || op2->getType() == CINT16)
-    {
-        return TypeFactory::mapType("CInt16");
-    }
-    if (op1->getType() <= op2->getType())
-    {
-        return op1;
-    }
-    else
-    {
-        return op2;
-    }
-
-    return NULL;
-}
-
-
-int QtConcat::isSignedType(const BaseType *type)
-{
-    return (type->getType() >= LONG && type->getType() <= COMPLEXTYPE2);
-}

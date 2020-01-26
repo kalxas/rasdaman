@@ -14,21 +14,20 @@ Overview
 ========
 
 This guide provides information about how to use the rasdaman database
-management system (in short: rasdaman). The document explains usage
-of the rasdaman Query Language.
+management system (in short: rasdaman). The document explains usage of the
+rasdaman Query Language.
 
-Follow the instructions in this guide as you develop your application
-which makes use of rasdaman services. Explanations detail how to create
-type definitions and instances; how to retrieve information from
-databases; how to insert, manipulate, and delete instances within
-databases.
+Follow the instructions in this guide as you develop your application which
+makes use of rasdaman services. Explanations detail how to create type
+definitions and instances; how to retrieve information from databases; how to
+insert, manipulate, and delete data within databases.
 
 Audience
 ========
 
-The information in this manual is intended primarily for application
-developers; additionally, it can be useful for advanced users of
-rasdaman applications and for database administrators.
+The information in this manual is intended primarily for application developers;
+additionally, it can be useful for advanced users of rasdaman applications and
+for database administrators.
 
 Rasdaman Documentation Set
 ==========================
@@ -89,6 +88,7 @@ the alphanumeric data, thereby considerably easing database maintenance
 
 .. figure:: media/ql-guide/image3.png
    :align: center
+   :width: 80%
 
    Embedding of rasdaman in IT infrastructure
 
@@ -111,9 +111,9 @@ such statements into the rasdaman system:
    ``oql_execute()`` to forward query strings to the rasdaman server and get
    back the results.
 
-RasLib are not the subject of this document. Please refer to
-the *C++ Developer's Guide* or *Java Developer's Guide* of the rasdaman
-documentation set for further information.
+Developing applications using the client API is the subject of this document.
+Please refer to the :ref:`cpp-dev-guide` or :ref:`java-dev-guide` of the
+rasdaman documentation set for further information.
 
 rasql and Standard SQL
 ======================
@@ -122,13 +122,13 @@ The declarative interface to the rasdaman system consists of the
 *rasdaman Query Language,* rasql, which supports retrieval,
 manipulation, and data definition.
 
-Moreover, the rasdaman query language, rasql, is very similar - and in
-fact embeds into - standard SQL. Hence, if you are familiar with SQL,
-you will quickly be able to use rasql. Otherwise you may want to consult
-the introductory literature referenced at the end of this chapter.
+Moreover, the rasdaman query language, rasql, is very similar - and in fact
+embeds into - standard SQL. With only slight adaptations, rasql has been
+standardized by ISO as 9075 SQL Part 15: MDA (Multi-Dimensional Arrays). Hence,
+if you are familiar with SQL, you will quickly be able to use rasql. Otherwise
+you may want to consult the introductory literature referenced at the end of
+this chapter.
 
-The rasql language is, with only slight adaptations, being standardized
-by ISO as 9075 SQL Part 15: MDA (Multi-Dimensional Arrays).
 
 Notational Conventions
 ======================
@@ -204,9 +204,9 @@ lifetime.
    Constituents of an array
 
 
-Synonyms for the term array are *multidimensional arrays*,
-*multi­dimen­sional data*, *MDD*. They are used interchangeably in the
-rasdaman documentation.
+Synonyms for the term array are *multidimensional array* / *MDA*,
+*multi­dimen­sional data* / *MDD*, *raster data*, *gridded data*. They are used
+interchangeably in the rasdaman documentation.
 
 In rasdaman databases, arrays are grouped into collections. All elements
 of a collection share the same array type definition (for the remaining
@@ -226,8 +226,8 @@ for each dimension, resp. Arrays, therefore, always cover a finite,
 axis-parallel subset of Euclidean space.
 
 Cell types can be any of the base types and composite types defined in
-the ODMG standard and known, for example from C/C++. In fact, every
-admissible C/C++ type is admissible in the rasdaman type system, too.
+the ODMG standard and known, for example from C/C++. In fact, most
+admissible C/C++ types are admissible in the rasdaman type system, too.
 
 In rasdaman, arrays are strictly typed wrt. spatial domain and cell
 type. Type checking is done at query evaluation time. Type checking can
@@ -344,7 +344,7 @@ database, materializes the base types defined in the ODMG standard
     +--------------------+------------+------------------------------------------+
     | **type name**      | **size**   | **description**                          |
     +====================+============+==========================================+
-    | ``boolean``        | 1 bit [2]_ | true (nonzero value), false (zero value) |
+    | ``bool``           | 1 bit [2]_ | true (nonzero value), false (zero value) |
     +--------------------+------------+------------------------------------------+
     | ``octet``          | 8 bit      | signed integer                           |
     +--------------------+------------+------------------------------------------+
@@ -870,6 +870,7 @@ Options:
 
 --passwd p          password of user (default: rasguest)
 
+--quiet             print no ornament messages, only results and errors
 
 
 ******************************
@@ -935,10 +936,10 @@ The complete rasql query syntax can be found in the Appendix.
 Select Clause: Result Preparation
 =================================
 
-Type and format of the query result are specified in the **select** part
-of the query. The query result type can be multidimensional, a struct,
-or atomic (i.e., scalar). The select clause can reference the collection
-iteration variable defined in the from clause; each array in the
+Type and format of the query result are specified in the **select** part of the
+query. The query result type can be multidimensional, a struct or atomic (i.e.,
+scalar), or a spatial domain / interval. The select clause can reference the
+collection iteration variable defined in the from clause; each array in the
 collection will be assigned to this iteration variable successively.
 
 **Example**
@@ -1048,9 +1049,9 @@ Atomic Constants
 
 Atomic constants are written in standard C/C++ style. If necessary
 con­stants are augmented with a one or two letter postfix to
-un­ambiguously determine its data type (:numref:`table2`).
+un­ambiguously determine its data type (:numref:`table-literal-type-suffix`).
 
-The default for integer constants is '``L``', for floats it is '``F``'.
+The default for integer constants is ``l``, and for floating-point it is ``d``.
 Specifiers are case insensitive.
 
 **Example**
@@ -1063,18 +1064,18 @@ Specifiers are case insensitive.
 
 .. note::
     Boolean constants true and false are unique, so they do not need a
-    length specifier.
+    type specifier.
 
-.. _table2:
+.. _table-literal-type-suffix:
 
 .. table:: Data type specifiers
 
     +--------------+----------------+
     | postfix      | type           |
     +==============+================+
-    | c            | char           |
-    +--------------+----------------+
     | o            | octet          |
+    +--------------+----------------+
+    | c            | char           |
     +--------------+----------------+
     | s            | short          |
     +--------------+----------------+
@@ -1110,34 +1111,12 @@ well:
     +--------------+-----------+
 
 
-.. _sec-composite-constants:
+Complex numbers
+---------------
 
-Composite Constants
-===================
-
-Composite constants resemble records ("structs") over atomic con­stants
-or other records. Notation is as follows.
-
-**Syntax**
-
-::
-
-    struct { const_0, ..., const_n }
-
-where *const_i* can be atomic or a **struct** again.
-
-**Example**
-
-::
-
-    struct{ struct{ 1l, 2l, 3l }, true }
-
-
-**Complex numbers**
-
-Special built-in structs are ``CFloat32`` and ``CFloat64`` for single and double
+Special built-in types are ``CFloat32`` and ``CFloat64`` for single and double
 precision complex numbers, resp, as well as ``CInt16`` and ``CInt32`` for 
-signed integer complex numbers. The constructor is defined by
+signed integer complex numbers.
 
 **Syntax**
 
@@ -1146,30 +1125,69 @@ signed integer complex numbers. The constructor is defined by
     complex( re, im )
 
 where *re* and *im* are integer or floating point expressions. The resulting
-complex constant is of type 
+constant type is summarized on the table below. Further re/im type combinations
+are not supported.
 
-- ``CFloat64`` if at least one of the constituent expressions is double 
-  precision floating point, otherwise
-- ``CFloat32`` if at least one of the constituent expressions is single 
-  precision floating point, otherwise
-- ``CInt32`` if at least one of the constituent expressions is 32 bit signed
-  integer (long), otherwise
-- ``CInt16`` if at least one of the constituent expressions is 16 bit signed
-  integer (short).
+.. _table-complex-constants:
+
+.. table:: Complex constant type depends on the type of the re and im arguments.
+
+    +----------------+-----------------+------------------------------+
+    | **type of re** | **type of im**  | **type of complex constant** |
+    +================+=================+==============================+
+    | short          | short           | CInt16                       |
+    +----------------+-----------------+------------------------------+
+    | long           | long            | CInt32                       |
+    +----------------+-----------------+------------------------------+
+    | float          | float           | CFloat32                     |
+    +----------------+-----------------+------------------------------+
+    | double         | double          | CFloat64                     |
+    +----------------+-----------------+------------------------------+
+
 
 **Example**
 
 ::
 
-    complex( .35, 16.0d )   -- CFloat64
+    complex( .35d, 16.0d )  -- CFloat64
     complex( .35f, 16.0f )  -- CFloat32
     complex( 5s, 16s )      -- CInt16
     complex( 5, 16 )        -- CInt32
 
 **Component access**
 
-See :ref:`sec-struct-component-sel` for details on how to extract the constituents from a
-composite value.
+The complex parts can be extracted with ``.re`` and ``.im``; more details
+can be found in the :ref:`induced-operations` section.
+
+.. _sec-composite-constants:
+
+Composite Constants
+===================
+
+Composite constants resemble records ("structs") over atomic con­stants or other
+records. Notation is as follows.
+
+**Syntax**
+
+::
+
+    struct { const_0, ..., const_n }
+
+where *const_i* must be of atomic or complex type, i.e. nested structs are not
+supported.
+
+**Example**
+
+::
+
+    struct{ 0c, 0c, 0c }  -- black pixel in an RGB image, for example
+    struct{ 1l, true }    -- mixed component types
+
+**Component access**
+
+See :ref:`sec-struct-component-sel` for details on how to extract the
+constituents from a composite value.
+
 
 .. _sec-arrayconstant:
 
@@ -1296,9 +1314,7 @@ Collections are named containers for sets of MDD objects (see
 :ref:`sec-linking-mdd`). A collection name is made up of lower and upper
 case characters, underscores, and digits. Depending on the underlying base DBMS,
 names may be limited in length, and some systems (rare though) may not
-distinguish upper and lower case letters. Please refer to the *rasdaman
-External Products Integration Guide* for details on your par­ticular
-platform.
+distinguish upper and lower case letters.
 
 Operations available on name constants are string equality "``=``" and
 inequality "``!=``".
@@ -1578,8 +1594,8 @@ pixels, namely the ones with coordinate [100,150]: ::
 
 .. _sec-wildcard:
 
-The Array Bound Wildcard Operator "*"
--------------------------------------
+Trim Wildcard Operator "*"
+--------------------------
 
 An asterisk "*" can be used as a shorthand for an sdom() invocation in a
 trim expression; the following phrases all are equivalent:
@@ -2270,6 +2286,7 @@ using the classic slicing style of: ::
 as the memory offset computations are performed much more efficiently.
 
 
+.. _induced-operations:
 
 Induced Operations
 ==================
@@ -2331,7 +2348,7 @@ array cell. Or the induce operation combines a single value (scalar)
 with the array; then, the contents of each cell is combined with the
 scalar value.
 
-A special case, syntactically, is the struct component selection (see
+A special case, syntactically, is the struct/complex component selection (see
 next subsection).
 
 In any case, sequence of iteration through the array for cell inspection
@@ -2342,9 +2359,9 @@ query optimisation) and not known to the user.
 
 ::
 
+    unaryOp mddExp
     mddExp binaryOp scalarExp
     scalarExp binaryOp mddExp
-    unaryOp mddExp
 
 
 **Example**
@@ -2354,12 +2371,12 @@ The red images of collection rgb with all pixel values multiplied by 2: ::
     select rgb.red * 2c
     from rgb
 
-Note that the constant is marked as being of type char so that the
-result of the two char types again will yield a char result (8 bit per
-pixel). Omitting the "``c``" would lead to an addition of long integer and
-char, the result being long integer with 32 bit per pixel. Although
-pixel values obviously are the same in both cases, the second
-alternative requires four times the memory space.
+Note that the constant is marked as being of type char so that the result type
+is minimized (short). Omitting the "``c``" would lead to an addition of long
+integer and char, resulting in long integer with 32 bit per pixel. Although
+pixel values obviously are the same in both cases, the second alternative
+requires twice the memory space. For more details visit the
+:ref:`type-coercion` section.
 
 .. _sec-struct-component-sel:
 
@@ -2404,8 +2421,7 @@ This is a special case of a unary induced operator.
 Aside of operations involving base types such as integer and boolean,
 combination of complex base types (structs) with scalar values are
 supported. In this case, the operation is applied to each element of the
-structure in turn. Both operands then have to be of exactly the same
-type, which further must be the same for all components of the struct.
+structure in turn.
 
 
 **Examples**
@@ -2466,7 +2482,7 @@ the ``mr2`` collection: ::
 
 **Note**
 
-As in the previous section, two cases have to be distinguished:
+Two cases have to be distinguished:
 
 -  Both left hand array expression and right hand array expression
    operate on the same array, for example: ::
@@ -2534,7 +2550,7 @@ syntax, making query writing simpler.
     else generalExp
     end
 
-  All *generalExp*'s must be evaluate to a compatible type.
+  All *generalExp*'s must evaluate to a compatible type.
 
 
 **Example**
@@ -2572,22 +2588,9 @@ multiplication and addition.
 Induction: All Operations
 -------------------------
 
-Below is a complete listing of all cell level operations that can be
-induced, both unary and binary.
-
-If two different data types are involved, the result will be of the more
-general type; e.g., float and integer addition will yield a float
-result.
-
-is, and, or, xor, not
-    For each cell within some Boolean MDD (or evaluated MDD expression),
-    combine it with the second MDD argument using the logical operation ``and``,
-    ``or``, or ``xor``. The ``is`` operation is equivalent to ``=`` (see below). The
-    signature of the binary induced operation is ::
-
-        is, and, or, xor: mddExp, intExp -> mddExp
-
-    Unary function ``not`` negates each cell value in the MDD.
+Below is a complete listing of all cell level operations that can be induced,
+both unary and binary. Supported operand types and rules for deriving the result
+types for each operantion are specified in :ref:`type-coercion`.
 
 +, -, \*, /
     For each cell within some MDD value (or evaluated MDD expression), add
@@ -2596,12 +2599,23 @@ is, and, or, xor, not
 
         img1 + img2
 
-    As usual, these arithmetic operations are overloaded to expect mddExp as
-    well as numExp, integer as well as float numbers, and single precision
-    as well as double precision values.
+div, mod
+    In contrast to the previous operators, div and mod are binary functions.
+    The difference of ``div`` to ``/`` is that in the case of integer inputs,
+    ``div`` results in integer result, and hence must check for division with 0,
+    in which case an error would be thrown. The behaviour of ``mod`` is the same.
+    Example usage: ::
 
-    In a division, if at least one cell in the second MDD parameter is zero
-    then an exception will be thrown.
+        div(a, b)
+        mod(a, b)
+
+pow, power
+    The power function can be written as ``pow`` or ``power``. The signature
+    is: ::
+
+        pow( base, exp )
+
+    where *base* is an MDD or scalar and *exp* is a floating point number.
 
 =, <, >, <=, >=, !=
     For two MDD values (or evaluated MDD expressions), compare for each
@@ -2614,6 +2628,16 @@ is, and, or, xor, not
     a compatible cell structure. In this case, the comparison result is the
     conjunction ("and" connection) of the pairwise comparison of all cell
     components.
+
+and, or, xor, is, not
+    For each cell within some Boolean MDD (or evaluated MDD expression),
+    combine it with the second MDD argument using the logical operation ``and``,
+    ``or``, or ``xor``. The ``is`` operation is equivalent to ``=`` (see below). The
+    signature of the binary induced operation is ::
+
+        is, and, or, xor: mddExp, intExp -> mddExp
+
+    Unary function ``not`` negates each cell value in the MDD.
 
 min, max
     For two MDD values (or evaluated MDD expressions), take the minimum /
@@ -2628,31 +2652,15 @@ min, max
     the first struct component being most significant and the last component
     being least significant.
 
-bit(mdd, pos)
-    For each cell within MDD value (or evaluated MDD expression) mdd, take
-    the bit with nonnegative position number pos and put it as a Boolean
-    value into a byte. Position counting starts with 0 and runs from least
-    to most significant bit. The bit operation signature is ::
-
-        bit: mddExp, intExp -> mddExp
-
-    In C/C++ style, ::
-
-        bit(mdd,pos)
-
-    is equivalent to ::
-
-        mdd >> pos & 1
-
 overlay
     The overlay operator allows to combine two equally sized MDDs by placing
     the second one "on top" of the first one, informally speaking. Formally,
     overlaying is done in the following way:
 
-    -  wherever the second operand's cell value is non-zero [7]_, the result
-       value will be this value.
+    -  wherever the second operand's cell value is not zero and not null,
+       the result value will be this value.
 
-    -  wherever the second operand's cell value is zero, the first
+    -  wherever the second operand's cell value is zero or null, the first
        argument's cell value will be taken.
 
     This way stacking of layers can be accomplished, e.g., in geographic
@@ -2669,10 +2677,20 @@ overlay
 
     is equivalent to ::
 
-        (b != 0) * b + (b = 0) * a
+        (b is not null) * b + (b is null) * a
 
     However, on the server the overlay operator is executed more efficiently
     than the above expression.
+
+bit(mdd, pos)
+    For each cell within MDD value (or evaluated MDD expression) mdd, take
+    the bit with nonnegative position number pos and put it as a Boolean
+    value into a byte. Position counting starts with 0 and runs from least
+    to most significant bit. The bit operation signature is ::
+
+        bit: mddExp, intExp -> mddExp
+
+    In C/C++ style, ``bit(mdd, pos)`` is equivalent to ``mdd >> pos & 1``.
 
 Arithmetic, trigonometric, and exponential functions
     The following advanced arithmetic functions are available with the
@@ -2680,24 +2698,17 @@ Arithmetic, trigonometric, and exponential functions
 
         abs()
         sqrt()
-        exp() log() ln() pow() power()
+        exp() log() ln()
         sin() cos() tan()
         sinh() cosh() tanh()
         arcsin() arccos() arctan()
 
-pow, power
-    The power function can be written as ``pow()`` and ``power()``, both are
-    identical. The signature is: ::
-
-        power( base, exp )
-
-    where *base* is an MDD and *exp* is a floating point number.
-
     **Exceptions**
 
-    If at least one cell in the *base* argument violates the usual
-    constraints on such functions (such as a zero value as input for log())
-    then an exception will be thrown.
+    Generally, on domain error or other invalid cell values these functions will
+    not throw an error, but result in NaN or similar according to IEEE
+    floating-point arithmetic. Internally the rasdaman implementation calls the
+    corresponding C++ functions, so the C++ documentation applies.
 
 cast
     Sometimes the desired ultimate scalar type or MDD cell type is different
@@ -2721,31 +2732,29 @@ cast
     operator is applied to each cell of the MDD yielding an array over the
     indicated type.
 
-    The cast operator also works properly on recursively nested cell
-    structures. In such a case, the cast type is applied to every component
-    of the cell. For example, the following expression converts the pixel
-    type of an (3x8 bit) RGB image to an image where each cell is a
-    structure with three long components: ::
+    The cast operator also works properly on composite cell structures. In such
+    a case, the cast type is applied to every component of the cell. For
+    example, the following expression converts the pixel type of an (3x8 bit)
+    RGB image to an image where each cell is a structure with three long
+    components: ::
 
         (long) rgb
 
-    Obviously in the result structure all components will bear the same
-    type.
+    Obviously in the result structure all components will bear the same type.
+    In addition, the target type can be a user-defined composite type, e.g. the 
+    following will cast the operand to `{1c, 2c, 3c}`:
+
+        (RGBPixel) {1c, 2l, 3.0}
 
 
-    **Restrictions**
+**Restrictions**
 
-    Currently only base types are permitted as cast result types, it is not
-    possible to cast to a struct or complex type, e.g. ::
+On base type complex, only the following operations are available right
+now:
 
-        (RGBPixel) rgb -- illegal
+::
 
-    On base type complex, only the following operations are available right
-    now:
-
-    ::
-
-        + - * /
+    + - * /
 
 
 Scaling
@@ -2808,33 +2817,30 @@ Concatenation of two arrays "glues" together arrays by lining them up
 along an axis.
 
 This can be achieved with a shorthand function, ``concat``, which for
-convenience is implemented as an n-ary operator accepting an unlimited
-number of arrays. The operator takes the input arrays, lines them up
-along the concatenation dimension specified in the request, and outputs
-one result array. To this end, each input array is shifted to the
-appropriate position, with the first array's position remaining
-unchanged; therefore, it is irrelevant whether array extents, along the
-concatenation dimension, are disjoint, overlapping, or containing each
-other.
+convenience is implemented as an n-ary operator accepting an unlimited number of
+arrays of the same base type. The operator takes the input arrays, lines them up
+along the concatenation dimension specified in the request, and outputs one
+result array. To this end, each input array is shifted to the appropriate
+position, with the first array's position remaining unchanged; therefore, it is
+irrelevant whether array extents, along the concatenation dimension, are
+disjoint, overlapping, or containing each other.
 
-The resulting array's dimensionality is equal to the input array
-dimensionality.
+The resulting array's dimensionality is equal to the input array dimensionality.
 
-The resulting array extent is the sum of all extents along the
-concatenation dimension, and the extent of the input arrays in all
-other dimensions.
+The resulting array extent is the sum of all extents along the concatenation
+dimension, and the extent of the input arrays in all other dimensions.
 
-The resulting array cell type is the largest type covering all input
-array cell types (type coercion).
+The resulting array cell type is same as the cell types of the input arrays.
 
 **Constraints**
 
 All participating arrays must have the same number of dimensions.
 
-All participating arrays must have identical extents in all dimensions,
-except that dimension along which concatenation is performed.
+All participating arrays must have identical extents in all dimensions, except
+that dimension along which concatenation is performed.
 
-Input array data types must be compatible.
+Input arrays must have the same cell types, i.e. concatenating a char and float
+arrays is not possible and requires explicit casting to a common type.
 
 **Syntax**
 
@@ -2965,7 +2971,7 @@ principle which is represented by the *general condenser* statement.
 The general condense operation consolidates cell values of a
 multidimensional array to a scalar value based on the condensing
 operation indicated. It iterates over a spatial domain while combining
-the result values of the *cellExp*\ s through the *condenserFunction*
+the result values of the *cellExp*\ s through the *condenserOp*
 indicated.
 
 The general condense operation consolidates cell values of a
@@ -3093,7 +3099,7 @@ condenser statement is as shown in :numref:`table3`.
 **Restriction**
 
 Currently condensers over complex numbers are generally not supported, with
-exception of ``add_cells``, ``max_cells``, and ``min_cells``.
+exception of ``add_cells`` and ``avg_cells``.
 
 
 .. _sec-marray:
@@ -3213,6 +3219,9 @@ equivalent to *var*\ [0]: ::
     marray x in [1:5]
     values a[ x ]       -- equivalent to a[ x[0] ]
 
+*Known issue:* the shorthand notation currently works as expected only when one
+variable is defined.
+
 **Many vs. One Variable**
 
 Obviously an expression containing several 1-D variables, such as: ::
@@ -3234,14 +3243,9 @@ use of reordering traversal sequence to achieve best performance.
 
 **Restriction**
 
-Currently there is a restriction in variable lists: for each marray
-variable declaration, either there is only one variable which can be
-multidimensional, or there is a list of one-dimensional variables; a
-mixture of
-
-case that a list of variables is defined. In this case, a variable
-definition can only consist of constant expressions, it is not possible,
-e.g., to use sdom().
+Currently there is a restriction in variable lists: for each marray variable
+declaration, either there is only one variable which can be multidimensional, or
+there is a list of one-dimensional variables; mixing the two is not allowed.
 
 
 **A Note on Expressiveness and Performance**
@@ -3277,6 +3281,268 @@ phrasing.
     | Induction     | a + b             | marray x in sdom(a)               |
     |               |                   | values a[x] + b[x]                |
     +---------------+-------------------+-----------------------------------+
+
+
+.. _type-coercion:
+
+Type Coercion Rules
+===================
+
+This section specifies the type coercion rules in query expressions, i.e. how
+the base type of the result from an operation applied on operands of various
+base types is derived.
+
+The *guiding design principle* for these rules is to minimize the risk for
+overflow, but also "type inflation": when a smaller result type is sufficient to
+represent all possible values of an operation, then it is preferred over a
+larger result type. This is especially important in the context of rasdaman,
+where the difference between float and double for example can be multiple GBs or
+TBs for large arrays. As such, the rules are somewhat different from C++ for
+example or even numpy, where in general careful explicit casting is required
+to avoid overflow or overtyping.
+
+Here a summary is presented, while full details can be explored in `rasdaman's
+systemtest
+<http://rasdaman.org/browser/systemtest/testcases_mandatory/test_type_coercion/oracle>`_.
+The type specifiers (c, o, s, ...) are the literal type suffixes as documented
+in :numref:`table-literal-type-suffix`; ``X`` and ``Y`` indicate any cell type,
+``U`` corresponds to any unsigned integer type, ``S`` to any signed integer
+type, ``C`` to any complex type. In every table the upper rows have precedence,
+i.e. the deduction rules are ordered; if a particular operand type combination
+is missing it means that it is not supported and would lead to a type error. The
+first/second operand types are commutative by default and only one direction is
+shown to reduce clutter. Types have a *rank* determined by their size in bytes
+and signedness, so that double has a higher rank than float, and long has higher
+rank than ulong; max/min of two types returns the type with higher/lower type.
+Adding 1 to a type results in the next type by rank, preserving signedness; the
+integer/floating-point boundary is not crossed, however, i.e. ``long + 1 = long``.
+
+Binary Induced
+--------------
+
+Complex operands are only supported by ``+, -, \*, /, div, =, and !=``. If any
+operand of these operations is complex, then the result is complex with
+underlying type derived by applying the rules to the underlying types of the
+inputs. E.g. ``char + CInt16 = char + short = CInt32``, and ``CInt32 * CFloat32
+= long * float = CFloat64``.
+
+**+, \*, div, mod**
+
+    +-----------+------------+------------------------+
+    | first     | second     | result                 |
+    +===========+============+========================+
+    | X         | d          | d                      |
+    +-----------+------------+------------------------+
+    | l,ul      | f          | d                      |
+    +-----------+------------+------------------------+
+    | X         | f          | f                      |
+    +-----------+------------+------------------------+
+    | U1        | U2         | max(U1, U2) + 1        |
+    +-----------+------------+------------------------+
+    | X         | Y          | signed(max(X, Y) + 1)  |
+    +-----------+------------+------------------------+
+
+**\- (subtraction)**
+
+The result can always be negative, even if inputs are unsigned (positive), so
+for integers the result type is always the next greater signed type. Otherwise,
+the rules are the same as for +, \*, div, mod.
+
+    +-----------+------------+------------------------+
+    | first     | second     | result                 |
+    +===========+============+========================+
+    | X         | d          | d                      |
+    +-----------+------------+------------------------+
+    | l,ul      | f          | d                      |
+    +-----------+------------+------------------------+
+    | X         | f          | f                      |
+    +-----------+------------+------------------------+
+    | X         | Y          | signed(max(X, Y) + 1)  |
+    +-----------+------------+------------------------+
+
+**/ (division)**
+
+Division returns floating-point to avoid inadvertent precision loss as well as
+unnecessary check for division by zero. Integer division is supported with the
+``div`` function.
+
+    +-----------+------------+------------------------+
+    | first     | second     | result                 |
+    +===========+============+========================+
+    | c,o,s,us,f| c,o,s,us,f | f                      |
+    +-----------+------------+------------------------+
+    | X         | Y          | d                      |
+    +-----------+------------+------------------------+
+
+**pow, power**
+
+Note: operand types are not commutative, the second operand must be a float or
+double scalar.
+
+    +-----------+------------+------------------------+
+    | first     | second     | result                 |
+    +===========+============+========================+
+    | c,o,s,us,f| f, d       | f                      |
+    +-----------+------------+------------------------+
+    | ul,l,d    | f, d       | d                      |
+    +-----------+------------+------------------------+
+
+**<, >, <=, >=, =, !=**
+
+    +-----------+------------+------------------------+
+    | first     | second     | result                 |
+    +===========+============+========================+
+    | X         | Y          | bool                   |
+    +-----------+------------+------------------------+
+
+**min, max, overlay**
+
+    +-----------+------------+------------------------+
+    | first     | second     | result                 |
+    +===========+============+========================+
+    | X         | X          | X                      |
+    +-----------+------------+------------------------+
+
+**and, or, xor, is**
+
+    +-----------+------------+------------------------+
+    | first     | second     | result                 |
+    +===========+============+========================+
+    | bool      | bool       | bool                   |
+    +-----------+------------+------------------------+
+
+**bit**
+
+``I`` stands for any signed and unsigned integer type.
+
+    +-----------+------------+------------------------+
+    | first     | second     | result                 |
+    +===========+============+========================+
+    | I         | I          | bool                   |
+    +-----------+------------+------------------------+
+
+**complex(re, im)**
+
+    +----------------+-----------------+------------+
+    | first (re)     | second (im)     | result     |
+    +================+=================+============+
+    | s              | s               | CInt16     |
+    +----------------+-----------------+------------+
+    | l              | l               | CInt32     |
+    +----------------+-----------------+------------+
+    | f              | f               | CFloat32   |
+    +----------------+-----------------+------------+
+    | d              | d               | CFloat64   |
+    +----------------+-----------------+------------+
+
+
+Unary Induced
+-------------
+
+**not**
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | bool      | bool       |
+    +-----------+------------+
+
+**abs**
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | C         | error      |
+    +-----------+------------+
+    | X         | X          |
+    +-----------+------------+
+
+**sqrt, log, ln, exp, sin, cos, tan, sinh, cosh, tanh, arcsin, arccos, arctan**
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | c,o,us,s,f| f          |
+    +-----------+------------+
+    | u,l,d     | d          |
+    +-----------+------------+
+
+
+Condensers
+----------
+
+**count_cells**
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | bool      | ul         |
+    +-----------+------------+
+
+**add_cells** and **condense +, \***
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | C         | CFloat64   |
+    +-----------+------------+
+    | f,d       | d          |
+    +-----------+------------+
+    | S         | l          |
+    +-----------+------------+
+    | U         | ul         |
+    +-----------+------------+
+
+**avg_cells**
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | C         | CFloat64   |
+    +-----------+------------+
+    | X         | d          |
+    +-----------+------------+
+
+**stddev_pop, stddev_samp, var_pop, var_samp**
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | C         | error      |
+    +-----------+------------+
+    | X         | d          |
+    +-----------+------------+
+
+**min_cells, max_cells** and **condense min, max**
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | C         | error      |
+    +-----------+------------+
+    | X         | X          |
+    +-----------+------------+
+
+**some_cells, all_cells** and **condense and, or**
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | bool      | bool       |
+    +-----------+------------+
+
+Geometric Operations
+--------------------
+
+The base type does not change in the result of subset, shift, extend, scale, 
+clip, concat, and geographic reprojection.
+
+    +-----------+------------+
+    | op        | result     |
+    +===========+============+
+    | X         | X          |
+    +-----------+------------+
+
 
 
 .. _format-conversion:
@@ -4351,44 +4617,40 @@ as +.
 
 **System Reaction**
 
-The overflow will be silently ignored, producing a result represented by
-the bit pattern pruned to the available size. This is in coherence with
-overflow handling in programming languages.
+The overflow will be silently ignored, producing a result represented by the bit
+pattern pruned to the available size. This is in coherence with overflow
+handling in performance-oriented programming languages.
 
 **Remedy**
 
-Query coding should avoid potential overflow situations by applying
-numerical knowledge - simply said, the same care should be applied as
-always when dealing with numerics.
+Query coding should avoid potential overflow situations by applying numerical
+knowledge - simply said, the same care should be applied as always when dealing
+with numerics.
 
-**Example**
+It is worth being aware of the `type coercion rules <type-coercion>` in 
+rasdaman and `overflow handling in C++
+<https://en.cppreference.com/w/cpp/language/operator_arithmetic#Overflows>`__.
+The type coercion rules have been crafted to avoid overflow as much as possible,
+but of course it remains a possibility. Adding or multiplying two chars for
+example is guaranteed to not overflow. However, adding or multyplying two ulongs
+would result in a ulong by default, which may not be large enough to hold the
+result. Therefore, it may be worth casting to double in this case based on
+knowledge about the data.
 
-Obtaining an 8-bit grey image from a 3*8-bit colour image through ::
-
-    ( a.red + a.green + a.blue ) / 3c
-
-most likely will result in an overflow situation after the additions,
-and scaling back by the division cannot remedy that. Better is to scale
-before adding up: ::
-
-    a.red / 3c + a.green / 3c + a.blue / 3c
-
-However, this may result in accuracy loss in the last bits. So the final
-suggestion is to use a larger data type for the interim computation and
-push back the result into an 8-bit integer: ::
-
-    (char) ( (float)a.red+(float)a.green+(float)a.blue) / 3 )
-
-Another option is to capture and replace overflow situations: ::
+Checking for overflow with a case statement like the below will not work as
+one might expect and is hence not recommended: ::
 
     case
-    when a.red+a.green+a.blue > 255 then 255
-    else a.red+a.green+a.blue
+    when a.longatt1 * a.longatt2 > 2147483647 then 2147483647
+    else a.longatt1 * a.longatt2
     end
 
-Obviously, this will be paid with some performance penalty due to the
-more expensive float arithmetics. It is up to the application developer
-to weight and decide.
+If ``a.longatt1 * a.longatt2`` overflows, the result is undefined behavior
+according to C++ so it is not clear what the result value would be in this case.
+It will never be larger than the maximum value of 32-bit signed integer,
+however, because that is the result type according to the type coercion rules.
+Hence the comparison to 2147483647 (maximum value of 32-bit signed integer) will
+never return true.
 
 
 Illegal operands
@@ -4430,6 +4692,14 @@ result of choice, ``c``: ::
 
     case when b = 0 then c else div(a, b) end
 
+If the particular situation allows, it may be more efficient to cast to
+floating-point, and cast back to integer after the division (if an integer
+result is wanted): ::
+
+    (long)((double)a / b)
+
+Division by 0 will result in Inf in this case, which turns into 0 when cast to
+integer.
 
 Access Rights Clash
 ===================
@@ -5742,9 +6012,6 @@ they are in double quotes to distinguish them from the grammar parentheses
 .. [6]
    the dimension which is the *rightmost* in the spatial domain
    specification
-
-.. [7]
-   Null means a numerical value of 0 (zero).
 
 .. .[8]
 ..   Standard C/C++ notation is used to indicate parameter types: %i for

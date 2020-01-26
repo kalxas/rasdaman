@@ -1,0 +1,15 @@
+   operand              result   query
+----------------------------------------------------------------------------
+      bool                bool   "select bit(<[0:0] true>, 1)"
+      char                bool   "select bit(<[0:0] 1c>, 1)"
+     octet                bool   "select bit(<[0:0] 1o>, 1)"
+    ushort                bool   "select bit(<[0:0] 1us>, 1)"
+     short                bool   "select bit(<[0:0] 1s>, 1)"
+     ulong                bool   "select bit(<[0:0] 1ul>, 1)"
+      long                bool   "select bit(<[0:0] 1l>, 1)"
+     float                       "select bit(<[0:0] 1f>, 1)"
+    double                       "select bit(<[0:0] 1d>, 1)"
+    cint16                       "select bit(<[0:0] complex(1s,2s)>, 1)"
+    cint32                       "select bit(<[0:0] complex(1,2)>, 1)"
+   complex                       "select bit(<[0:0] complex(1f,2f)>, 1)"
+  complexd                       "select bit(<[0:0] complex(1d,2d)>, 1)"
