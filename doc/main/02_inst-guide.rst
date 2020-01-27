@@ -150,7 +150,7 @@ Installation
 
 1. Import the rasdaman repository public key to the apt keychain: ::
 
-    wget -O - http://download.rasdaman.org/packages/rasdaman.gpg | sudo apt-key add -
+    $ wget -O - http://download.rasdaman.org/packages/rasdaman.gpg | sudo apt-key add -
 
 2. Add the rasdaman repository to apt. There are two types of packages:
 
@@ -204,7 +204,7 @@ Installation
    If you are automating the installation (in a script for example), you can
    bypass this prompt with an apt-get option as follows: ::
 
-    apt-get -o Dpkg::Options::="--force-confdef" install -y rasdaman
+    $ apt-get -o Dpkg::Options::="--force-confdef" install -y rasdaman
 
 5. Check that everything is fine: ::
 
@@ -283,7 +283,7 @@ Installation
 
 3. Add the EPEL repository to yum (`official page <https://fedoraproject.org/wiki/EPEL>`__): ::
 
-    sudo yum install epel-release
+    $ sudo yum install epel-release
 
 4. Install the rasdaman package: ::
 
@@ -999,8 +999,8 @@ programs, development libraries, documentation, etc. (covered in more detail in
 Section :ref:`sec-system-install-conf`). For your convenience you can add the
 executable path location to the ``$PATH`` definition, e.g: ::
 
-    export RMANHOME=/opt/rasdaman
-    export PATH=$RMANHOME/bin:$PATH
+    $ export RMANHOME=/opt/rasdaman
+    $ export PATH=$RMANHOME/bin:$PATH
 
 This allows to invoke ``rasql`` without specifying the full path
 ``/opt/rasdaman/bin/rasql``.
@@ -1118,7 +1118,7 @@ Start rasdaman by invoking ::
 
    Workaround: use this to get the actual server state, as user ``rasdaman``: ::
 
-        rascontrol -e -x "list srv -all"
+        $ rascontrol -e -x "list srv -all"
 
 Correspondingly, rasdaman can be stopped by invoking ::
 
@@ -1491,9 +1491,9 @@ information):
 
 .. code-block:: text
 
-    cd /location/of/Vagrantfile
-    vagrant up
-    vagrant ssh
+    $ cd /location/of/Vagrantfile
+    $ vagrant up
+    $ vagrant ssh
 
 
 
@@ -2128,7 +2128,7 @@ Starting up the rasdaman system is done by invoking the rasdaman
 manager, ``rasmgr``, from a shell under the ``rasdaman`` operating system login.
 Usually the manager will be sent to the background: ::
 
-    rasmgr &
+    $ rasmgr &
 
 Starting ``rasmgr`` is the only direct action to be done on it. Any further
 administration is performed using ``rascontrol``.
@@ -3238,17 +3238,17 @@ Manually stop rasdaman
 If stopping rasdaman fails, it may be necessary to manually stop it: ::
 
     # check the rasdaman processes still running on the system
-    ps aux | grep ras
+    $ ps aux | grep ras
 
     # force kill any rasmgr process; <pid> is the number in the 2nd column
     # of the output from the previous command
-    kill -9 <pid>
+    $ kill -9 <pid>
 
     # then try to kill rasserver processes
-    pkill rasserver
+    $ pkill rasserver
 
     # if this fails, force kill rasservers
-    pkill -9 rasserver
+    $ pkill -9 rasserver
 
 Checking the server logs could provide further information on why stopping
 rasdaman failed in the first place.

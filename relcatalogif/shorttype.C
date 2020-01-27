@@ -52,6 +52,13 @@ r_Long *ShortType::convertToCLong(const char *cell, r_Long *value) const
     return value;
 }
 
+r_ULong *ShortType::convertToCULong(const char *cell, r_ULong *value) const
+{
+    const auto tmp = *reinterpret_cast<const r_Short*>(cell);
+    *value = tmp < 0 ? 0 : static_cast<r_ULong>(tmp);
+    return value;
+}
+
 char *ShortType::makeFromCLong(char *cell, const r_Long *value) const
 {
     r_Short myvalue;
@@ -63,5 +70,12 @@ char *ShortType::makeFromCLong(char *cell, const r_Long *value) const
         myvalue = static_cast<r_Short>(*value);
 
     *reinterpret_cast<r_Short *>(cell) = myvalue;
+    return cell;
+}
+
+char *ShortType::makeFromCULong(char *cell, const r_ULong *value) const
+{
+    *reinterpret_cast<r_Short *>(cell) =
+        *value > SHRT_MAX ? SHRT_MAX : static_cast<r_Short>(*value);
     return cell;
 }

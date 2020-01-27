@@ -72,10 +72,10 @@ public:
      * Prints a cell cell on stream followed by a space.
      */
     void printCell(std::ostream &stream, const char *cell) const override;
-
+    
     r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
-
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
+    char *makeFromCLong(char *cell, const r_Long *value) const override;
 
     static const char *Name;
 

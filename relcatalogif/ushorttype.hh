@@ -58,8 +58,10 @@ public:
     void printCell(std::ostream &stream, const char *cell) const override;
 
     r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
+    r_Long *convertToCLong(const char *cell, r_Long *value) const override;
 
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
+    char *makeFromCLong(char *cell, const r_Long *value) const override;
 
     static const char *Name;
 

@@ -2996,15 +2996,35 @@ OpCAST provide cast operation.
 /**
   * \ingroup Catalogmgrs
   */
-class OpCAST : public UnaryOp
+class OpCASTDouble : public UnaryOp
 {
 public:
-    OpCAST(
-        const BaseType *newResType,
-        const BaseType *newOpType,
-        size_t newResOff = 0,
-        size_t newOpOff = 0
-    );
+    OpCASTDouble(const BaseType *newResType, const BaseType *newOpType,
+                 size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out cast operation.
+    virtual void operator()(char *result, const char *op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpCASTLong : public UnaryOp
+{
+public:
+    OpCASTLong(const BaseType *newResType, const BaseType *newOpType,
+               size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out cast operation.
+    virtual void operator()(char *result, const char *op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpCASTULong : public UnaryOp
+{
+public:
+    OpCASTULong(const BaseType *newResType, const BaseType *newOpType,
+                size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out cast operation.
     virtual void operator()(char *result, const char *op);
 };

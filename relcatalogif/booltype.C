@@ -45,12 +45,12 @@ void BoolType::printCell(std::ostream &stream, const char *cell) const
 
 r_ULong *BoolType::convertToCULong(const char *cell, r_ULong *value) const
 {
-    *value = *reinterpret_cast<const unsigned char *>(cell) ? 1 : 0;
+    *value = *reinterpret_cast<const r_Boolean *>(cell) ? 1u : 0u;
     return value;
 }
 
 char *BoolType::makeFromCULong(char *cell, const r_ULong *value) const
 {
-    *reinterpret_cast<unsigned char *>(cell) = static_cast<unsigned char>(*value ? 1 : 0);
+    *reinterpret_cast<r_Boolean *>(cell) = static_cast<r_Boolean>(*value ? 1 : 0);
     return cell;
 }

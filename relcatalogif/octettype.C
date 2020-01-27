@@ -50,9 +50,14 @@ void OctetType::printCell(std::ostream &stream, const char *cell) const
 
 r_Long *OctetType::convertToCLong(const char *cell, r_Long *value) const
 {
-    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
-    // byte order
     *value = static_cast<r_Long>(*reinterpret_cast<const r_Octet *>(cell));
+    return value;
+}
+
+r_ULong *OctetType::convertToCULong(const char *cell, r_ULong *value) const
+{
+    const auto tmp = *reinterpret_cast<const r_Octet *>(cell);
+    *value = tmp < 0 ? 0 : static_cast<r_ULong>(tmp);
     return value;
 }
 
@@ -68,5 +73,12 @@ char *OctetType::makeFromCLong(char *cell, const r_Long *value) const
         myvalue = static_cast<r_Octet>(*value);
 
     *reinterpret_cast<r_Octet *>(cell) = myvalue;
+    return cell;
+}
+
+char *OctetType::makeFromCULong(char *cell, const r_ULong *value) const
+{
+    *reinterpret_cast<r_Octet *>(cell) =
+        *value > SCHAR_MAX ? SCHAR_MAX : static_cast<r_Octet>(*value);
     return cell;
 }

@@ -828,24 +828,25 @@ QtCast::QtCast(QtOperation *initInput, cast_types t):
 
 QtCast::QtCast(QtOperation *input2, const char *typeName2): QtUnaryInduce(input2)
 {
-    std::map<string, cast_types> baseCastTypes;
-    baseCastTypes.insert(std::make_pair(SyntaxType::BOOL_NAME, t_bool));
-    baseCastTypes.insert(std::make_pair(SyntaxType::CHAR_NAME, t_char));
-    baseCastTypes.insert(std::make_pair(SyntaxType::OCTET_NAME, t_octet));
-    baseCastTypes.insert(std::make_pair(SyntaxType::SHORT_NAME, t_short));
-    baseCastTypes.insert(std::make_pair(SyntaxType::USHORT_NAME, t_ushort));
-    baseCastTypes.insert(std::make_pair(SyntaxType::UNSIGNED_SHORT_NAME, t_ushort));
-    baseCastTypes.insert(std::make_pair(SyntaxType::LONG_NAME, t_long));
-    baseCastTypes.insert(std::make_pair(SyntaxType::ULONG_NAME, t_ulong));
-    baseCastTypes.insert(std::make_pair(SyntaxType::UNSIGNED_LONG_NAME, t_ulong));
-    baseCastTypes.insert(std::make_pair(SyntaxType::FLOAT_NAME, t_float));
-    baseCastTypes.insert(std::make_pair(SyntaxType::DOUBLE_NAME, t_double));
+    static std::map<string, cast_types> baseCastTypes;
+    baseCastTypes.emplace(SyntaxType::BOOL_NAME, t_bool);
+    baseCastTypes.emplace(SyntaxType::CHAR_NAME, t_char);
+    baseCastTypes.emplace(SyntaxType::OCTET_NAME, t_octet);
+    baseCastTypes.emplace(SyntaxType::SHORT_NAME, t_short);
+    baseCastTypes.emplace(SyntaxType::USHORT_NAME, t_ushort);
+    baseCastTypes.emplace(SyntaxType::UNSIGNED_SHORT_NAME, t_ushort);
+    baseCastTypes.emplace(SyntaxType::LONG_NAME, t_long);
+    baseCastTypes.emplace(SyntaxType::ULONG_NAME, t_ulong);
+    baseCastTypes.emplace(SyntaxType::UNSIGNED_LONG_NAME, t_ulong);
+    baseCastTypes.emplace(SyntaxType::FLOAT_NAME, t_float);
+    baseCastTypes.emplace(SyntaxType::DOUBLE_NAME, t_double);
 
-    auto findIt = baseCastTypes.find(string(typeName2));
+    string dstTypeName(typeName2);
+    auto findIt = baseCastTypes.find(dstTypeName);
     if (findIt != baseCastTypes.end())
         this->castType = findIt->second;
     else
-        this->typeName = string(typeName2);
+        this->typeName = std::move(dstTypeName);
 }
 
 QtData *QtCast::evaluate(QtDataList *inputList)
@@ -867,14 +868,14 @@ QtData *QtCast::evaluate(QtDataList *inputList)
             const BaseType *resultType = TypeFactory::mapType(typeName.c_str());
             if (operand->getDataType() == QT_MDD)
             {
-                QtMDD *mdd = static_cast<QtMDD *>(operand);
-                returnValue = computeUnaryMDDOp(mdd, resultType, Ops::OP_CAST_GENERAL);
-                (static_cast<QtMDD *>(returnValue))->setFromConversion(mdd->isFromConversion());
+                auto *op = static_cast<QtMDD *>(operand);
+                returnValue = computeUnaryMDDOp(op, resultType, Ops::OP_CAST_GENERAL);
+                (static_cast<QtMDD *>(returnValue))->setFromConversion(op->isFromConversion());
             }
             else if (operand->isScalarData())
             {
-                QtScalarData *scalar = static_cast<QtScalarData *>(operand);
-                returnValue = computeUnaryOp(scalar, resultType, Ops::OP_CAST_GENERAL);
+                auto *op = static_cast<QtScalarData *>(operand);
+                returnValue = computeUnaryOp(op, resultType, Ops::OP_CAST_GENERAL);
             }
         }
     }

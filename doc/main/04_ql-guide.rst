@@ -2746,6 +2746,23 @@ cast
 
         (RGBPixel) {1c, 2l, 3.0}
 
+    **Casting from larger to smaller integer type**
+
+    If the new type is smaller than the value's type, i.e. not all values can
+    be represented by it, then standard C++ casting will typically lead to
+    strange results due to wrap around for unsigned and implementation-defined 
+    behavior for a signed types. For example, casting int 1234 to char in C++
+    will result in 210, while the possible range would be 0 - 255.
+
+    Rasdaman implements a more reasonable cast behavior in this case: if the
+    value is larger than the maximum value representable by the new type, then
+    the result is the maximum value (e.g. 255 in the previous example);
+    analogously, if the value is smaller than the minimum possible value, then
+    the result is the minimum value.
+
+    This is implemented only on integer types and entails a small performance
+    penalty in comparison to raw C++ as up to two comparisons per cell (with
+    the maximum and minimum) are necessary when casting.
 
 **Restrictions**
 

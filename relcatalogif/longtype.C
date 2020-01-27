@@ -52,8 +52,22 @@ r_Long *LongType::convertToCLong(const char *cell, r_Long *value) const
     return value;
 }
 
+r_ULong *LongType::convertToCULong(const char *cell, r_ULong *value) const
+{
+    const auto tmp = *reinterpret_cast<const r_Long*>(cell);
+    *value = tmp < 0 ? 0 : static_cast<r_ULong>(tmp);
+    return value;
+}
+
 char *LongType::makeFromCLong(char *cell, const r_Long *value) const
 {
     *reinterpret_cast<r_Long *>(cell) = *value;
+    return cell;
+}
+
+char *LongType::makeFromCULong(char *cell, const r_ULong *value) const
+{
+    *reinterpret_cast<r_Long *>(cell) =
+        *value > INT_MAX ? INT_MAX : static_cast<r_Long>(*value);
     return cell;
 }

@@ -74,3 +74,10 @@ char *CharType::makeFromCULong(char *cell, const r_ULong *value) const
         static_cast<r_Char>(*value > UCHAR_MAX ? UCHAR_MAX : *value);
     return cell;
 }
+
+char *CharType::makeFromCLong(char *cell, const r_Long *value) const
+{
+    *reinterpret_cast<r_Char *>(cell) =
+        static_cast<r_Char>(*value > UCHAR_MAX ? UCHAR_MAX : (*value < 0 ? 0 : *value));
+    return cell;
+}

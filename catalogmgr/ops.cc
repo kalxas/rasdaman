@@ -122,7 +122,14 @@ UnaryOp *Ops::getUnaryOp(Ops::OpType op, const BaseType *resType, const BaseType
     
     // cast operations
     if (op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END)
-        return new OpCAST(resType, opType, resOff, opOff);
+    {
+        if (isUnsignedType(typeRes))
+            return new OpCASTULong(resType, opType, resOff, opOff);
+        else if (isSignedType(typeRes))
+            return new OpCASTLong(resType, opType, resOff, opOff);
+        else if (isFloatType(typeRes))
+            return new OpCASTDouble(resType, opType, resOff, opOff);
+    }
     
     // is null
     if (op == Ops::OP_IS_NULL)
@@ -6468,36 +6475,40 @@ void OpImaginarPartInt::operator()(char *res, const char *op)
 //  OpCAST
 //--------------------------------------------
 
-OpCAST::OpCAST(
-    const BaseType *newResType,
-    const BaseType *newOpType,
-    size_t newResOff,
-    size_t newOpOff)
+OpCASTDouble::OpCASTDouble(const BaseType *newResType, const BaseType *newOpType,
+                           size_t newResOff, size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
-void OpCAST::operator()(char *res, const char *op)
+void OpCASTDouble::operator()(char *res, const char *op)
 {
+    double dblOp = *(opType->convertToCDouble(op + opOff, &dblOp));
+    if (isNull(dblOp))
+        dblOp = getNullValue();
+    resType->makeFromCDouble(res + resOff, &dblOp);
+}
 
-    if (resType->getType() == FLOAT || resType->getType() == DOUBLE)
-    {
-        // floating point types
-        double dblOp = *(opType->convertToCDouble(op + opOff, &dblOp));
-        if (isNull(dblOp))
-        {
-            dblOp = NAN;
-        }
-        resType->makeFromCDouble(res + resOff, &dblOp);
-    }
-    else
-    {
-        // all integral types
-        r_Long lngOp = *(opType->convertToCLong(op + opOff, &lngOp));
-        if (isNull(lngOp))
-        {
-            lngOp = 0;
-        }
-        resType->makeFromCLong(res + resOff, &lngOp);
-    }
+OpCASTLong::OpCASTLong(const BaseType *newResType, const BaseType *newOpType,
+                       size_t newResOff, size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
+
+void OpCASTLong::operator()(char *res, const char *op)
+{
+    r_Long lngOp = *(opType->convertToCLong(op + opOff, &lngOp));
+    if (isNull(lngOp))
+        lngOp = static_cast<r_Long>(getNullValue());
+    resType->makeFromCLong(res + resOff, &lngOp);
+}
+
+OpCASTULong::OpCASTULong(const BaseType *newResType, const BaseType *newOpType,
+                         size_t newResOff, size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
+
+void OpCASTULong::operator()(char *res, const char *op)
+{
+    r_ULong lngOp = *(opType->convertToCULong(op + opOff, &lngOp));
+    if (isNull(lngOp))
+        lngOp = static_cast<r_ULong>(getNullValue());
+    resType->makeFromCULong(res + resOff, &lngOp);
 }
 
 

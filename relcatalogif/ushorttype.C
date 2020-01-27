@@ -52,9 +52,22 @@ r_ULong *UShortType::convertToCULong(const char *cell, r_ULong *value) const
     return value;
 }
 
+r_Long *UShortType::convertToCLong(const char *cell, r_Long *value) const
+{
+    *value = static_cast<r_Long>(*reinterpret_cast<const r_UShort *>(cell));
+    return value;
+}
+
 char *UShortType::makeFromCULong(char *cell, const r_ULong *value) const
 {
     *reinterpret_cast<r_UShort *>(cell) = 
         (*value > USHRT_MAX ? USHRT_MAX : static_cast<r_UShort>(*value));
+    return cell;
+}
+
+char *UShortType::makeFromCLong(char *cell, const r_Long *value) const
+{
+    *reinterpret_cast<r_UShort *>(cell) =
+        static_cast<r_UShort>(*value > USHRT_MAX ? USHRT_MAX : (*value < 0 ? 0 : *value));
     return cell;
 }
