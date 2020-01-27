@@ -74,11 +74,11 @@ Rasdaman is continuously tested on the platforms listed below. The rasdaman code
 has been developed on SUN/Solaris and HP-UX originally, and has been ported to
 IBM AIX, SGI IRIX, and DEC Unix - but that was way back in the last millennium.
 
-- Debian 8
 - Ubuntu 16.04, 18.04
 - CentOS 7
 
-In general, compiling rasdaman should work on distributions with gcc 4.8+, Java 7+
+In general, compiling rasdaman should work on distributions with gcc 4.8 or
+later and Java 8 or later.
 
 **Alternative 1: Packages**
 
@@ -87,12 +87,23 @@ on CentOS or :ref:`sec-system-install-pkgs-deb` on Debian / Ubuntu; this is the
 recommended way - among others because the package manager will be able
 to manage your installation.
 
-**Alternative 2: Source Code**
+**Alternative 2: Guided Build**
+
+Download and compile rasdaman with the help of an :ref:`automated installer
+<sec-system-install-installer>`. On supported operating systems this option
+works automatically out of the box, but also allows to easily adjust the build
+and install procedures by editing a configuration file. As such it is mainly
+aimed  at non-developers who would like to customize their rasdaman installation
+to something different than the official packages.
+
+**Alternative 3: Source Code**
 
 :ref:`Download and compile rasdaman <sec-system-install>`; this is the most
-flexible alternative; however, it requires some experience in manual compilation.
+flexible alternative; however, it requires some experience in manual compilation
+and is generally done by developers who plan to contribute code to the rasdaman
+repository.
 
-**Alternative 3: Virtual Machine**
+**Alternative 4: Virtual Machine**
 
 By `downloading a Virtual Machine <sec-download-vm>`__ you get a fully configured
 system with rasdaman installed and ready to run. This alternative does not
@@ -396,18 +407,23 @@ just as easy: ::
 
     $ update_rasdaman.sh
 
-That is all, follow the instructions on the screen and you
-should be done.
+That is all, follow the instructions on the screen and you should be done.
+
+.. note:: The updating feature of the installer has been introduced more 
+          recently. If you have an older installer on your system, please follow
+          the steps for first-time installation after manually stopping rasdaman.
 
 Creating Your Own Profile
 -------------------------
 
-The installer makes use of a configuration file,
-``installer_profile.toml``, created during first-time rasdaman
-installation and reused during rasdaman updates. While reasonable
-defaults are built in, settings can be tweaked by editing the TOML file.
+The installer makes use of a configuration file, ``installer_profile.toml``,
+created during first-time rasdaman installation and reused during updates. While
+reasonable defaults are built in, settings can be tweaked by editing the TOML
+file.
 
-After establishing this file, apply it through ::
+After establishing this file in e.g.
+``/opt/rasdaman/share/rasdaman/installer/install_profile.toml``, apply it
+through ::
 
     $ ./install.sh -j /opt/rasdaman/share/rasdaman/installer/install_profile.toml
 
