@@ -161,9 +161,26 @@ fi
 # check options
 #
 
+usage() {
+  cat <<EOF
+Usage: ./test.sh [ OPTION... ]
+
+Supported options:
+
+  <queryfile>   test only the given query file name (e.g. "project.rasql")
+
+  --drop        drop the testing data after the test finishes
+  --no-ingest   do not ingest testing data before running the test
+
+  -h, --help    show this message
+EOF
+  exit 2
+}
+
 test_single_file=
 for i in $*; do
   case $i in
+    --help|-h)   usage;;
     --drop)      DROP_DATA=1;;
     --no-ingest) INGEST_DATA=0;;
     *)           test_single_file=$i;;

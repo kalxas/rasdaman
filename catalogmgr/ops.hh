@@ -106,27 +106,36 @@ public:
     {
         // Important: do not change order as it is relevant in ops.cc
         
-        //
         // UNARY
-        //
-        
-        // condensers
-        OP_COUNT, OP_MAX, OP_MIN, OP_SUM, OP_SQSUM, OP_SOME, OP_ALL,
-        // unary arithmetic functions
-        OP_UFUNC_BEGIN,
-        OP_ABS, OP_SQRT, OP_POW,
-        OP_EXP, OP_LOG, OP_LN,
-        OP_SIN, OP_COS, OP_TAN,
-        OP_SINH, OP_COSH, OP_TANH,
-        OP_ARCSIN, OP_ARCCOS, OP_ARCTAN,
+        OP_COUNT,           // condensers
+        OP_MAX,
+        OP_MIN,
+        OP_SUM,
+        OP_SQSUM,
+        OP_SOME,
+        OP_ALL,
+        OP_UFUNC_BEGIN,     // unary arithmetic functions
+        OP_ABS,
+        OP_SQRT,
+        OP_POW,
+        OP_EXP,
+        OP_LOG,
+        OP_LN,
+        OP_SIN,
+        OP_COS,
+        OP_TAN,
+        OP_SINH,
+        OP_COSH,
+        OP_TANH,
+        OP_ARCSIN,
+        OP_ARCCOS,
+        OP_ARCTAN,
         OP_UFUNC_END,
-        // complex part extraction
-        OP_REALPART,
+        OP_REALPART,        // complex part extraction
         OP_IMAGINARPART,
         OP_REALPARTINT,
         OP_IMAGINARPARTINT,
-        // cast to new type
-        OP_CAST_BEGIN,
+        OP_CAST_BEGIN,      // cast to new type
         OP_CAST_BOOL,
         OP_CAST_CHAR,
         OP_CAST_OCTET,
@@ -138,28 +147,33 @@ public:
         OP_CAST_DOUBLE,
         OP_CAST_GENERAL,
         OP_CAST_END,
-        // logical
-        OP_NOT,
+        OP_NOT,             // logical
         OP_IS_NULL,
-        /* insert new unary ops before this line */
-        OP_IDENTITY, OP_UPDATE,
-        
-        //
+        OP_IDENTITY,        // copy
+        OP_UPDATE,
+      
         // BINARY
-        //
-        
-        // arithmetic
-        OP_MINUS, OP_PLUS, OP_MULT, OP_INTDIV, OP_DIV, OP_MOD,
-        // internal
-        OP_MAX_BINARY, OP_MIN_BINARY, OP_OVERLAY,
-        // logical
-        OP_IS, OP_AND, OP_OR, OP_XOR, OP_BIT,
-        // complex
+        OP_MINUS,           // arithmetic
+        OP_PLUS,
+        OP_MULT,
+        OP_INTDIV,
+        OP_DIV,
+        OP_MOD,
+        OP_MAX_BINARY,      // internal
+        OP_MIN_BINARY,
+        OP_OVERLAY,
+        OP_IS,              // logical
+        OP_AND,
+        OP_OR,
+        OP_XOR,
+        OP_BIT,
         OP_CONSTRUCT_COMPLEX,
-        // comparison
-        OP_EQUAL, OP_NOTEQUAL,
-        OP_LESS, OP_LESSEQUAL,
-        OP_GREATER, OP_GREATEREQUAL
+        OP_EQUAL,           // comparison
+        OP_NOTEQUAL,
+        OP_LESS,
+        OP_LESSEQUAL,
+        OP_GREATER,
+        OP_GREATEREQUAL
     };
 
 
@@ -1073,6 +1087,7 @@ protected:
     // array of operations on the elements.
     BinaryOp **elemOps;
     BinaryOp **equalOps;
+    Ops::OpType op;
 };
 
 //@ManMemo: Module: {\bf catalogif}.

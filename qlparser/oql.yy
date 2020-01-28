@@ -1960,19 +1960,9 @@ condenseOpLit: PLUS
             $$ = Ops::OP_PLUS;
             FREESTACK($1)
         }
-        | MINUS
-        { 
-            $$ = Ops::OP_MINUS;
-            FREESTACK($1)
-        }
         | MULT
         {
             $$ = Ops::OP_MULT;
-            FREESTACK($1)
-        }
-        | DIV
-        {
-            $$ = Ops::OP_DIV;
             FREESTACK($1)
         }
         | AND
@@ -1983,6 +1973,11 @@ condenseOpLit: PLUS
         | OR
         {
             $$ = Ops::OP_OR;
+            FREESTACK($1)
+        }
+        | XOR
+        {
+            $$ = Ops::OP_XOR;
             FREESTACK($1)
         }
         | MAX_BINARY

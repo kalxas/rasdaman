@@ -1,0 +1,1 @@
+select encode(condense max over i in [0:1] using (<[0:1] {1c,2c}, {2c,1c}>)[i[0]], "csv")

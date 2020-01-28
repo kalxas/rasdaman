@@ -220,11 +220,11 @@ r_Complex_Type::print_value(const char *storage, std::ostream &s) const
     {
     case COMPLEXTYPE1:
     case COMPLEXTYPE2:
-        s << "(" << get_re(storage) << ", " << get_im(storage) << ")";
+        s << "(" << get_re(storage) << "," << get_im(storage) << ")";
         break;
     case CINT16:
     case CINT32:
-        s << "(" << get_re_long(storage) << ", " << get_im_long(storage) << ")";
+        s << "(" << get_re_long(storage) << "," << get_im_long(storage) << ")";
         break;
     default:
         LERROR << "invalid complex typeId " << typeId;

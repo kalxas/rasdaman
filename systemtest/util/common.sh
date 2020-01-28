@@ -477,9 +477,9 @@ print_summary()
 #
 check_result()
 {
-  exp="$1"
-  res="$2"
-  msg="$3"
+  local exp="$1"
+  local res="$2"
+  local msg="$3"
 
   [ -n "$msg" ] && logn "$msg... "
   if [ "$exp" != "$res" ]; then
@@ -533,107 +533,53 @@ check_known_fail()
 
 #
 # Check return code ($?) and update variables tracking number of
-# failed/successfull tests.
-# In case of the open tests TEST SKIPPED is printed instead of TEST FAILED.
+# failed ($NUM_FAIL) / ($NUM_SUC) successfull tests.
+# In case of known fail TEST SKIPPED is printed instead of TEST FAILED.
 #
 update_result()
 {
   local rc=$?
-
   check_known_fail
   local known_fail=$?
 
-  if [ $rc != 0 ]; then 
-
+  if [ $rc -ne 0 ]; then 
     # failed
-    if [ $known_fail -eq 0 ]; then
-      # known fail, skip
-      status=$ST_SKIP
-    else
-      # proper fail
+    [ $known_fail -eq 0 ] && status=$ST_SKIP || {
       status=$ST_FAIL
       NUM_FAIL=$(($NUM_FAIL + 1))
-      if [ -n "$FAILED_LOG_FILE" -a -n "$f" ]; then
-        echo "$f" >> "$FAILED_LOG_FILE"
-      fi
-    fi
-
+      [ -n "$FAILED_LOG_FILE" -a -n "$f" ] && echo "$f" >> "$FAILED_LOG_FILE"
+    }
   else
-
     # passed
-    if [ $known_fail -eq 0 ]; then
-      # marked as known failed = now fixed
-      status=$ST_FIX
-    else
-      # proper pass
-      status=$ST_PASS
-    fi
+    [ $known_fail -eq 0 ] && status=$ST_FIX || status=$ST_PASS
     NUM_SUC=$(($NUM_SUC + 1))
-
   fi
-
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
 
-# ------------------------------------------------------------------------------
-#
-# run rasql query test
-# expects several global variables to be set:
-# - "$f"      - input file
-# - $out    - output file
-# - $oracle - oracle file with expected result
-# - $custom_script - bash script to be executed for special comparison of result
-#                    to oracle.
-#
-run_rasql_test()
-{
-  rm -f "$out"
-  local QUERY=`cat "$f"`
-  $RASQL -q "$QUERY" --out file --outfile "$out"
-
-  # move to proper output file
-  for tmpf in `ls "$out".*  2> /dev/null`; do
-    mv "$tmpf" "$out"
-    break
-  done
-
-  # if the result is a scalar, there will be no tmp file by rasql,
-  # here we output the Result element scalar into tmp.unknown
-  if [ ! -f "$out" ]; then
-    $RASQL -q "$QUERY" --out string | grep "  Result " > $out
-  fi
-
-  cmp "$oracle" "$out"
-  update_result
-}
-
-
-# ------------------------------------------------------------------------------
-#
 # Remove URLs and some prefixes which might break a tests during oracle comparison
-#
 prepare_xml_file()
 {
-  xml_file="$1"
+  local xml_file="$1"
   if [ -n "$xml_file" -a -f "$xml_file" ]; then
-      sed -i -e 's/gml://g' \
-             -e $'s/\r//g' \
-             -e '/xlink:href/d' \
-             -e '/identifier /d' \
-             -e 's|xmlns[^"]*"[^"]*"||g' \
-             -e 's|xsi:schemaLocation="[^"]*"||g' \
-             -e 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' \
-             -e 's|at=[^ ]*||g' \
-             -e '/fileReferenceHistory/d' \
-             -e '/PostCode/d' \
-             -e '/PostalCode/d' \
-             -e 's/Long/Lon/g' \
-             -e 's/Point /Point\n/g' \
-             -e 's/ReferenceableGridCoverage /ReferenceableGridCoverage\n/g' \
-             -e 's/^[[:space:]]*//' \
-             -e '/^[[:space:]]*$/d' \
-             -e 's/[[:space:]]>/>/g' \
-             "$xml_file"
+    sed -i -e 's/gml://g' \
+           -e $'s/\r//g' \
+           -e '/xlink:href/d' \
+           -e '/identifier /d' \
+           -e 's|xmlns[^"]*"[^"]*"||g' \
+           -e 's|xsi:schemaLocation="[^"]*"||g' \
+           -e 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' \
+           -e 's|at=[^ ]*||g' \
+           -e '/fileReferenceHistory/d' \
+           -e '/PostCode/d' \
+           -e '/PostalCode/d' \
+           -e 's/Long/Lon/g' \
+           -e 's/Point /Point\n/g' \
+           -e 's/ReferenceableGridCoverage /ReferenceableGridCoverage\n/g' \
+           -e 's/^[[:space:]]*//' \
+           -e '/^[[:space:]]*$/d' \
+           -e 's/[[:space:]]>/>/g' \
+           "$xml_file"
   fi
 }
 
@@ -643,42 +589,30 @@ prepare_xml_file()
 # stdout: the prepared filepath
 prepare_gdal_file()
 {
-  local tmpf="$1.${2}_tmp"
+  local tmpf="$1.tmp"
   # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
   # here we compare the metadata and statistic values on output and oracle files directly
-  gdalinfo -approx_stats "$1" > "$tmpf" 2> /dev/null
-  # remove the gdalinfo tmp file
-  rm -f "$1.aux.xml"
-  # then remove the first different few lines (driver, filename and filename.aux)
-  sed -i -n '/Size is/,$p' "$tmpf"
-  # some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
-  sed '/TOWGS84\[/d' -i "$tmpf"
-  # remove fileReferenceHistory in local coverage's metadata as the path can be different
-  sed -i '/fileReferenceHistory/d' "$tmpf"
+  gdalinfo -approx_stats "$1" 2> /dev/null | sed -n \
+    -e '/Size is/,$p' "$tmpf" \
+    -e '/TOWGS84\[/d' "$tmpf" \
+    -e '/fileReferenceHistory/d' > "$tmpf"
 
-  # print the file path to caller
-  echo "$tmpf"
+  rm -f "$1.aux.xml" "$1" && mv "$tmpf" "$1"
 }
 
 prepare_netcdf_file()
 {
-  local tmpf="$1.${2}_tmp"
-  ncdump -c "$1" > "$tmpf"
-  # remove the line to 'dimensions'
-  sed -i -n '/dimensions/,$p' "$tmpf"
-  # remove fileReferenceHistory in local coverage's metadata as the path can be different
-  sed -i '/fileReferenceHistory/d' "$tmpf"
-  # Differences between version 4.5+ and version < 4.5
-  sed -i '/_NCProperties/d' "$tmpf"
-  sed -i '/global attributes/d' "$tmpf"
-  sed -i 's/_ /0 /g' "$tmpf" 
-  # Remove all blank lines
-  sed -i '/^$/d' "$tmpf"
-  # Long axis and Lon axis are the same
-  sed -i 's/Long/Lon/g' "$tmpf"
-  
-  # print the file path to caller
-  echo "$tmpf"
+  local tmpf="$1.tmp"
+  ncdump -c "$1" | sed -n \
+    -e '/dimensions/,$p' \
+    -e '/fileReferenceHistory/d' \
+    -e '/_NCProperties/d' \
+    -e '/global attributes/d' \
+    -e 's/_ /0 /g' \
+    -e '/^$/d' \
+    -e 's/Long/Lon/g' > "$tmpf"
+
+  rm -f "$1" && mv "$tmpf" "$1"
 }
 
 
@@ -711,11 +645,13 @@ delete_coverage() {
     coverage_ids=($(get_coverage_ids))
   fi
   
+  local coverage_id=
   for coverage_id in "${coverage_ids[@]}"; do
+    echo "Check "$coverage_id
 
     if [ "$coverage_id" == "$input_coverage_id" ]; then
 
-        echo "Deleting coverage $coverage_id"
+        echo "Deleting coverage""$coverage_id"
 
         # Store the result of deleting request to a temp file
         curl -s -i "$WCS_END_POINT" > "$OUTPUT_FILE"
@@ -743,10 +679,10 @@ get_request_kvp() {
   # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&query=....)
   # $3 is output file
   # $4 only use for SECORE as it will only GET KVP in the URL directly without encoding
-  url="$1"
+  local url="$1"
   # replace the "\n" in the query to be a valid GET request without break lines
-  kvpValues=$(echo "$2" | tr -d '\n')
-  if [[ -z "$4" ]]; then
+  local kvpValues=$(echo "$2" | tr -d '\n')
+  if [ -z "$4" ]; then
     curl -s -G -X GET "$url" --data-urlencode "$kvpValues" > "$3"
   else
     # SECORE (just send the request as it is without encoding)
@@ -759,16 +695,16 @@ post_request_kvp() {
   # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/ows)
   # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&query=....)
   # $3 is output file
-  url="$1"
-  kvpValues=$(echo "$2" | tr -d '\n')
+  local url="$1"
+  local kvpValues=$(echo "$2" | tr -d '\n')
   curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
 # this function will be used to send XML/SOAP request for WCS, WCPS
 post_request_xml() {
   # curl -s -X POST --data-urlencode "$kvpValues" "$PETASCOPE_URL" -o "$2"
-  url="$1"
-  kvpValues=$(echo "$2" | tr -d '\n')
+  local url="$1"
+  local kvpValues=$(echo "$2" | tr -d '\n')
   curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
@@ -779,10 +715,48 @@ post_request_file() {
   # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&request=GetCoverage&clip=$1...)
   # $3 is the path to the file to be uploaded to server
   # $4 is output file from HTTP response
-  url="$1"
-  kvpValues=$(echo "$2" | tr -d '\n')
-  upload_file="$3"
+  local url="$1"
+  local kvpValues=$(echo "$2" | tr -d '\n')
+  local upload_file="$3"
   curl -s -F "file=@$upload_file" "$url?$kvpValues" > "$4"
+}
+
+# check if the output produced by the test ($1) matches the expected oracle ($2)
+# and update the comparison result (NUM_SUC/NUM_FAIL/NUM_TOTAL global variables)
+compare_output_to_oracle() {
+  local out="$1"
+  local ora="$2"
+
+  if [ -n "$check_script" -a -f "$check_script" ]; then
+    export -f prepare_xml_file
+    "$check_script" "$out" "$ora"
+  else
+    local ora_tmp="$out.oracle_tmp"
+    local out_tmp="$out.output_tmp"
+    cp "$ora" "$ora_tmp"
+    cp "$out" "$out_tmp"
+    local orafiletype=$(file "$ora" | awk -F ':' '{print $2;}')
+
+    # normalize files to remove irrelevant differences across systems
+    if gdalinfo "$ora" &> /dev/null; then
+      if [[ "$orafiletype" =~ "NetCDF" || "$orafiletype" =~ "Hierarchical Data Format" ]]; then
+        prepare_netcdf_file "$out_tmp"
+        prepare_netcdf_file "$ora_tmp"
+      else
+        prepare_gdal_file "$out_tmp"
+        prepare_gdal_file "$ora_tmp"
+      fi
+    elif [[ "$orafiletype" == *XML* ]]; then
+      prepare_xml_file "$out_tmp"
+      prepare_xml_file "$ora_tmp"
+    fi
+    # diff comparison ignoring EOLs [see ticket #551]
+    diff -b "$out_tmp" "$ora_tmp" > /dev/null 2>&1
+  fi
+
+  # any previous statement must have been a comparison (diff, check_script, ...),\
+  # so that at this point the $? points to the result of that comparison.
+  update_result
 }
 
 
@@ -1025,69 +999,11 @@ run_test()
     #
     # 2b. check result
     #
-    # If query has associated custom script then use this script first and compare the result (only XML)
-    #
-
-    # temporary files
-    local oracle_tmp="$out.oracle_tmp"
-    local output_tmp="$out.output_tmp"
-    cp "$oracle" "$oracle_tmp"
-    cp "$out" "$output_tmp"
-
-    if [ -n "$check_script" -a -f "$check_script" ]; then
-
-      export -f prepare_xml_file
-      "$check_script" "$out" "$oracle"
-      update_result
-
-    else
-
-      # check the file type of oracle
-      local orafiletype=$(file "$oracle" | awk -F ':' '{print $2;}')
-
-      # check that oracle is gdal readable (e.g: tiff, png, jpeg,..)
-      gdalinfo "$oracle" &> /dev/null
-
-      if [ $? -eq 0 ]; then
-
-        # 1.1 oracle could be read by gdal, do image comparison
-
-        # if oracle/output is netcdf then compare them with ncdump
-        local output_tmp_prepared_file=
-        local oracle_tmp_prepared_file=
-        if [[ "$orafiletype" =~ "NetCDF" || "$orafiletype=" =~ "Hierarchical Data Format" ]]; then
-          output_tmp_prepared_file=$(prepare_netcdf_file "$output_tmp" output)
-          oracle_tmp_prepared_file=$(prepare_netcdf_file "$oracle_tmp" oracle)
-        else
-          output_tmp_prepared_file=$(prepare_gdal_file "$output_tmp" output)
-          oracle_tmp_prepared_file=$(prepare_gdal_file "$oracle_tmp" oracle)
-        fi
-
-        # Compare the prepared file (output of ncdump/gdalinfo)
-        cmp "$output_tmp_prepared_file" "$oracle_tmp_prepared_file" > /dev/null 2>&1
-        update_result
-
-      else
-
-        # 1.2 oracle could not be read by gdal
-        if [[ "$orafiletype" == *XML* ]]; then
-          # need special function to extract the URL before comparison
-          prepare_xml_file "$oracle_tmp"
-          prepare_xml_file "$output_tmp"
-
-          # diff comparison ignoring EOLs [see ticket #551]
-          diff -b "$oracle_tmp" "$output_tmp"> /dev/null 2>&1 
-        else
-          # csv, json, raw binary
-          # diff comparison ignoring EOLs [see ticket #551]
-          diff -b "$oracle" "$out" > /dev/null 2>&1
-        fi
-
-        update_result
-
-      fi # end of text oracle file
-
-    fi # end of if not have custom script for test queries
+    compare_output_to_oracle "$out" "$oracle"
+    if [ "$status" = $ST_FAIL ]; then
+      local alt_oracle="$oracle.newengine"
+      [ -f "$alt_oracle" ] && compare_output_to_oracle "$out" "$alt_oracle"
+    fi
 
   fi # end of if not sh file
 

@@ -1,6 +1,6 @@
    operand              result   query
 ----------------------------------------------------------------------------
-      bool                       "select condense xor over i in [0:1] using <[0:0] true>"
+      bool                bool   "select condense xor over i in [0:1] using <[0:0] true>"
       char                       "select condense xor over i in [0:1] using <[0:0] 1c>"
      octet                       "select condense xor over i in [0:1] using <[0:0] 1o>"
     ushort                       "select condense xor over i in [0:1] using <[0:0] 1us>"

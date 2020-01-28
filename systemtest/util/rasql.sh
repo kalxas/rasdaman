@@ -320,11 +320,11 @@ function import_rasql_data()
   $RASQL -q "insert into $TEST_GREY3D values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
 }
 
-#adds the necessary data to the $TEST_OVERLAP colelction
+#adds the necessary data to the $TEST_OVERLAP collection
 function add_overlap_data()
 {
   #2d
-  insert_into $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:9,0:9] tile size 100"
+  insert_into $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:59,0:59] tile size 3600"
   update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[0:255,211:421]" "[0,211]"
   update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[256:511,211:421]" "[256,211]"
   update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[256:511,0:210]" "[256,0]"
@@ -332,7 +332,7 @@ function add_overlap_data()
   update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[200:455,-100:110]" "[200,-100]"
   update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[-100:155,50:260]" "[-100,50]"
   #3d
-  $RASQL -q "insert into $TEST_OVERLAP_3D values <[0:0,0:0,0:0] 0c> TILING ALIGNED [0:9,0:9,0:9] TILE SIZE 1000"> /dev/null
+  $RASQL -q "insert into $TEST_OVERLAP_3D values <[0:0,0:0,0:0] 0c> TILING ALIGNED [0:0,0:59,0:59] TILE SIZE 3600"> /dev/null
   update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,0:255,0:210]" "[0,0]"
   update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,0:255,211:421]" "[0,211]"
   update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,256:511,211:421]" "[256,211]"

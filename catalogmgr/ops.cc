@@ -4258,6 +4258,7 @@ OpBinaryStruct::operator()(char *res, const char *op1,
     if (_operation == Ops::OP_OVERLAY)
     {
         for (i = 0; i < numElems; ++i)
+        {
             if (*(op2 + op2Off) && !isNull(*(op2 + op2Off)))
             {
                 for (size_t j = 0; j < numElems; ++j)
@@ -4266,6 +4267,7 @@ OpBinaryStruct::operator()(char *res, const char *op1,
                 }
                 return;
             }
+        }
     }
     if (_operation == Ops::OP_MIN_BINARY || _operation == Ops::OP_MAX_BINARY)
     {
@@ -4284,10 +4286,14 @@ OpBinaryStruct::operator()(char *res, const char *op1,
                     break;
                 }
             }
+            else
+            {
+                break;
+            }
         }
         const char *op = op1;
         if ((_operation == Ops::OP_MIN_BINARY && !op1Min) ||
-                (_operation == Ops::OP_MAX_BINARY && op1Min))
+            (_operation == Ops::OP_MAX_BINARY && op1Min))
         {
             op = op2;
         }
@@ -4432,23 +4438,23 @@ OpEQUALStruct::OpEQUALStruct(const BaseType *newResType,
 {
     bool struct1 = op1Type->getType() == STRUCT;
     bool struct2 = op2Type->getType() == STRUCT;
-    numElems = dynamic_cast<StructType *>(const_cast<BaseType *>(struct1 ? op1Type : op2Type))->getNumElems();
+    numElems = dynamic_cast<const StructType *>(struct1 ? op1Type : op2Type)->getNumElems();
     elemOps = new BinaryOp*[numElems];
-    for (size_t i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
         auto *type1 = op1Type;
         size_t offset1 = 0;
         if (struct1)
         {
-            type1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op1Type)))->getElemType(i);
-            offset1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op1Type)))->getOffset(i);
+            type1 = dynamic_cast<const StructType *>(op1Type)->getElemType(i);
+            offset1 = dynamic_cast<const StructType *>(op1Type)->getOffset(i);
         }
         auto *type2 = op2Type;
         size_t offset2 = 0;
         if (struct2)
         {
-            type2 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op2Type)))->getElemType(i);
-            offset2 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op2Type)))->getOffset(i);
+            type2 = dynamic_cast<const StructType *>(op2Type)->getElemType(i);
+            offset2 = dynamic_cast<const StructType *>(op2Type)->getOffset(i);
         }
         elemOps[i] = Ops::getBinaryOp(Ops::OP_EQUAL, resType, type1, type2,
                                       newResOff, newOp1Off + offset1, newOp2Off + offset2);
@@ -4458,9 +4464,7 @@ OpEQUALStruct::OpEQUALStruct(const BaseType *newResType,
 OpEQUALStruct::~OpEQUALStruct()
 {
     for (size_t i = 0; i < numElems; i++)
-    {
         delete elemOps[i];
-    }
     delete[] elemOps;
 }
 
@@ -4491,23 +4495,23 @@ OpNOTEQUALStruct::OpNOTEQUALStruct(const BaseType *newResType,
 {
     bool struct1 = op1Type->getType() == STRUCT;
     bool struct2 = op2Type->getType() == STRUCT;
-    numElems = dynamic_cast<StructType *>(const_cast<BaseType *>(struct1 ? op1Type : op2Type))->getNumElems();
+    numElems = dynamic_cast<const StructType *>(struct1 ? op1Type : op2Type)->getNumElems();
     elemOps = new BinaryOp*[numElems];
-    for (size_t i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
         auto *type1 = op1Type;
         size_t offset1 = 0;
         if (struct1)
         {
-            type1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op1Type)))->getElemType(i);
-            offset1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op1Type)))->getOffset(i);
+            type1 = dynamic_cast<const StructType *>(op1Type)->getElemType(i);
+            offset1 = dynamic_cast<const StructType *>(op1Type)->getOffset(i);
         }
         auto *type2 = op2Type;
         size_t offset2 = 0;
         if (struct2)
         {
-            type2 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op2Type)))->getElemType(i);
-            offset2 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op2Type)))->getOffset(i);
+            type2 = dynamic_cast<const StructType *>(op2Type)->getElemType(i);
+            offset2 = dynamic_cast<const StructType *>(op2Type)->getOffset(i);
         }
         elemOps[i] = Ops::getBinaryOp(Ops::OP_NOTEQUAL, resType, type1, type2,
                                       newResOff, newOp1Off + offset1, newOp2Off + offset2);
@@ -4517,9 +4521,7 @@ OpNOTEQUALStruct::OpNOTEQUALStruct(const BaseType *newResType,
 OpNOTEQUALStruct::~OpNOTEQUALStruct()
 {
     for (size_t i = 0; i < numElems; i++)
-    {
         delete elemOps[i];
-    }
     delete[] elemOps;
 }
 
@@ -4540,35 +4542,35 @@ OpNOTEQUALStruct::operator()(char *res, const char *op1,
 //  OpComparisonStruct (<, >, <=, >=)
 //--------------------------------------------
 
-OpComparisonStruct::OpComparisonStruct(Ops::OpType op,
+OpComparisonStruct::OpComparisonStruct(Ops::OpType op1,
                                        const BaseType *newResType,
                                        const BaseType *newOp1Type,
                                        const BaseType *newOp2Type,
                                        size_t newResOff,
                                        size_t newOp1Off,
                                        size_t newOp2Off)
-    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off)
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), op{op1}
 {
     bool struct1 = op1Type->getType() == STRUCT;
     bool struct2 = op2Type->getType() == STRUCT;
-    numElems = dynamic_cast<StructType *>(const_cast<BaseType *>(struct1 ? op1Type : op2Type))->getNumElems();
+    numElems = dynamic_cast<const StructType *>(struct1 ? op1Type : op2Type)->getNumElems();
     elemOps = new BinaryOp*[numElems];
     equalOps = new BinaryOp*[numElems];
-    for (size_t i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
         auto *type1 = op1Type;
         size_t offset1 = 0;
         if (struct1)
         {
-            type1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op1Type)))->getElemType(i);
-            offset1 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op1Type)))->getOffset(i);
+            type1 = dynamic_cast<const StructType *>(op1Type)->getElemType(i);
+            offset1 = dynamic_cast<const StructType *>(op1Type)->getOffset(i);
         }
         auto *type2 = op2Type;
         size_t offset2 = 0;
         if (struct2)
         {
-            type2 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op2Type)))->getElemType(i);
-            offset2 = (dynamic_cast<StructType *>(const_cast<BaseType *>(op2Type)))->getOffset(i);
+            type2 = dynamic_cast<const StructType *>(op2Type)->getElemType(i);
+            offset2 = dynamic_cast<const StructType *>(op2Type)->getOffset(i);
         }
         elemOps[i] = Ops::getBinaryOp(op, resType, type1, type2,
                                       newResOff, newOp1Off + offset1, newOp2Off + offset2);
@@ -4601,15 +4603,20 @@ OpComparisonStruct::operator()(char *res, const char *op1,
             // as soon as result is true we're done
             break;
         }
-        else
+        else if (op == Ops::OP_LESS || op == Ops::OP_GREATER)
         {
-            // otherwise check operands are equal
+            // otherwise check operands are equal (lexicographic comparison)
             (*equalOps[i])(res, op1, op2);
             if (!*res)
             {
                 // not equal, result is false
                 break;
             }
+        }
+        else
+        {
+            // result is false and op is <= or >=
+            break;
         }
     }
 }
@@ -4626,8 +4633,6 @@ OpUnaryStruct::OpUnaryStruct(
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff)
 {
-    size_t i = 0;
-
     myResType = dynamic_cast<StructType *>(const_cast<BaseType *>(newResType));
     myOpType = dynamic_cast<StructType *>(const_cast<BaseType *>(newOpType));
     numElems = myOpType->getNumElems();
@@ -4638,7 +4643,7 @@ OpUnaryStruct::OpUnaryStruct(
         throw r_Error(r_Error::r_Error_General);
     }
     elemOps = new UnaryOp*[numElems];
-    for (i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
         elemOps[i] = Ops::getUnaryOp(
                          op,
@@ -4647,30 +4652,22 @@ OpUnaryStruct::OpUnaryStruct(
                          newResOff + myResType->getOffset(i),
                          newOpOff + myOpType->getOffset(i)
                      );
-        if (elemOps[i] == NULL)
-        {
+        if (!elemOps[i])
             throw r_Error(CELLUNARYOPUNAVAILABLE);
-        }
     }
 }
 
 OpUnaryStruct::~OpUnaryStruct()
 {
-    size_t i;
-
-    for (i = 0; i < numElems; i++)
-    {
+    for (size_t i = 0; i < numElems; i++)
         delete elemOps[i];
-    }
     delete[] elemOps;
 }
 
 void
 OpUnaryStruct::operator()(char *result, const char *op)
 {
-    size_t i;
-
-    for (i = 0; i < numElems; i++)
+    for (size_t i = 0; i < numElems; i++)
     {
         try
         {
@@ -4680,9 +4677,7 @@ OpUnaryStruct::operator()(char *result, const char *op)
         {
             // cleanup
             for (i = 0; i < numElems; i++)
-            {
                 delete elemOps[i];
-            }
             delete[] elemOps;
             throw;
         }
