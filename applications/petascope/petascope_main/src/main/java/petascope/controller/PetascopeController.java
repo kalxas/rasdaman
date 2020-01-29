@@ -70,9 +70,6 @@ public class PetascopeController extends AbstractController {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PetascopeController.class);
     
-    @Autowired
-    HttpServletRequest httpServletRequest;
-    
     // These write requests will need to check if requesting IP address is in petascope's whitelist.
     private static final List WRITE_REQUESTS = Arrays.asList(new String[]{ VALUE_INSERT_COVERAGE, VALUE_UPDATE_COVERAGE, VALUE_DELETE_COVERAGE, 
                                                     VALUE_INSERT_SCALE_LEVEL, VALUE_DELETE_SCALE_LEVEL,
@@ -179,7 +176,7 @@ public class PetascopeController extends AbstractController {
             // no url for petascope is defined in petascope.properties, only now can have the HTTP request object to set this value
             if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {
                 // use the requesting URL to Petascope (not always: http://localhost:8080/rasdaman/ows)
-                PETASCOPE_ENDPOINT_URL = this.httpServletRequest.getRequestURL().toString();
+                PETASCOPE_ENDPOINT_URL = httpServletRequest.getRequestURL().toString();
             }
                 
             if (kvpParameters.isEmpty()) {               

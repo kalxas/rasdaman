@@ -139,6 +139,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        setRegisterErrorPageFilter(false);
         return builder.sources(ApplicationMain.class);
     }
 

@@ -103,8 +103,8 @@ petascope_admin_pass=petapasswd
 # parameter:     xml_validation
 # purpose:       If set to 'true', input WCS POST/SOAP in XML requests will be validated against
 #                OGC WCS 2.0.1 schema definitions.
-#                (!) When starting Petascope it will take around 1-2 mins to
-#                load the schemas from OGC server(!). Set the parameter to 'false' if no WCS 2.0.1 POST/SOAP input
+#                When starting Petascope it will take around 1-2 mins to
+#                load the schemas from OGC server. Set the parameter to 'false' if no WCS 2.0.1 POST/SOAP input
 #                validation is required.
 # need to adapt: yes
 xml_validation=false
@@ -114,9 +114,9 @@ xml_validation=false
 #                bypass some test cases.
 # description:   Petascope will trim indentation from output of WCS GetCoverage,
 #                DescribeCoverage. 
-#                (!) Only enable this option when executing OGC CITE tests, and set
+#                Only enable this option when executing OGC CITE tests, and set
 #                xml_validation to false otherwise some SOAP requests will fail
-#                due to the input requests could not pass the schema validation (!).
+#                due to the input requests could not pass the schema validation.
 # need to adapt: no
 ogc_cite_output_optimization=false
 

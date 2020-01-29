@@ -38,9 +38,6 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import petascope.controller.AbstractController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -57,17 +54,6 @@ public class BeanApplicationConfiguration implements Condition {
 
     private static final Logger log = LoggerFactory.getLogger(BeanApplicationConfiguration.class);
     public static final String LIQUIBASE_CHANGELOG_PATH = "classpath:database_versions/db.changelog-master.xml";
-
-    // ************************ For general beans ************************
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("*");
-            }
-        };
-    }
 
     /**
      * NOTE: This must be enabled to have POST request body in POST handler of

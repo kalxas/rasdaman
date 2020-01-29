@@ -727,7 +727,7 @@ clipWKTExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA wktExpression 
  *
  * for c in (mean_summer_airtemp) return encode(crsTransform(c,
  * {Lat:"www.opengis.net/def/area/EPSG/0/4326", Long:"www.opengis.net/def/area/EPSG/0/4326"},
- * {"near"}), "tiff")
+ * {near}), "tiff")
  *
  * NOTE: if mean_summer_airtemp has multiple ranges (bands), e.g: b1, b2, b3 then b2 and b3 which are not
  * passed in $INTERPOLATION then will use default interpolation of Rasdaman and "NODATA=..." in encoding.

@@ -89,18 +89,6 @@ public class KVPRasqlHandler implements IKVPHandler {
     }
 
     /**
-     * Return the value of the requested key
-     */
-    private String getValue(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
-        String values[] = kvpParameters.get(key);
-        if (values == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Required KVP parameter: " + key + " missing from the request.");
-        }
-
-        return values[0];
-    }
-
-    /**
      * Execute rasql query and return response.
      *
      * @param username rasdaman username

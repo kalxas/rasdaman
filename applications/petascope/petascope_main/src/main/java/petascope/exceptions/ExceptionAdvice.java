@@ -22,15 +22,11 @@
 package petascope.exceptions;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import petascope.util.ExceptionUtil;
-import petascope.util.MIMEUtil;
 
 /**
  * A fallback class to handle the unchecked exception if it cannot be handled in PetascopeController which is in most cases.
@@ -42,9 +38,6 @@ public class ExceptionAdvice {
     /**
      * To Overwrite the body of the white page with a custom response in String.
      * NOTE: this one is only used as a fallback for rare cases as exceptions are parsed as exception report in PetascopeController.
-     * @param ex
-     * @param httpServletResponse
-     * @throws IOException 
      */
     @ExceptionHandler(Exception.class)    
     @ResponseBody    

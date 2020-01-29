@@ -113,7 +113,7 @@
 %formatSupported%
 <wcs:Extension>
 <int:InterpolationMetadata>
-<int:InterpolationSupported>/interpolation/OGC/1.0/nearest-neighbor</int:InterpolationSupported>
+<int:InterpolationSupported>/interpolation/OGC/1.0/near</int:InterpolationSupported>
 <int:InterpolationSupported>/interpolation/OGC/1.0/bilinear</int:InterpolationSupported>
 <int:InterpolationSupported>/interpolation/OGC/1.0/cubic</int:InterpolationSupported>
 <int:InterpolationSupported>/interpolation/OGC/1.0/cubicspline</int:InterpolationSupported>

@@ -34,6 +34,8 @@ import petascope.core.gml.GMLGetCapabilitiesBuilder;
  */
 @Service
 public class KVPWCSGetCoverageInterpolationService {
+    
+    private static final String NEAR = "near";
 
     public KVPWCSGetCoverageInterpolationService() {
 
@@ -45,7 +47,7 @@ public class KVPWCSGetCoverageInterpolationService {
      *
      * @param interpolations
      */
-    public void handleInterpolation(String[] interpolations) throws WCSException {
+    public String handleInterpolation(String[] interpolations) throws WCSException {
         if (interpolations.length > 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
                     "Multiple \"" + KEY_INTERPOLATION + "\" parameters in the request: must be unique.");
@@ -53,5 +55,11 @@ public class KVPWCSGetCoverageInterpolationService {
         else if (!GMLGetCapabilitiesBuilder.SUPPORTED_INTERPOLATIONS.contains(interpolations[0])) {
             throw new WCSException(ExceptionCode.InterpolationMethodNotSupported, "Received interpolation URL: " + interpolations[0] + " is not supported.");
         }
+        
+        String url = interpolations[0];
+        // e.g: near, bilinear
+        String interpolationType = url.substring(url.lastIndexOf("/") + 1);
+               
+        return interpolationType;
     }
 }

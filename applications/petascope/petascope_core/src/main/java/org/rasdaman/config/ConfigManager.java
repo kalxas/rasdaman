@@ -218,7 +218,7 @@ public class ConfigManager {
     
     // Deprecated property used for backwards compatibility
     private static final String DEPRECATED_KEY_DISABLE_WRITE_OPERATIONS = "disable_write_operations";
-
+    
     /* ***** LOG4J configuration ***** */
     // from petascope.properties used for log4j
     private static final String KEY_LOG_FILE_PATH = "log4j.appender.rollingFile.File";
@@ -415,7 +415,6 @@ public class ConfigManager {
                 STATIC_HTML_DIR_PATH = "";
             }
         }
-        
     }
     
     private void initRasdamanSettings() throws PetascopeException {

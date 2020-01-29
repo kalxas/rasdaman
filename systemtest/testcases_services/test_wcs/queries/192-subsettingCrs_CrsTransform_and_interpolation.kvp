@@ -1,0 +1,9 @@
+service=WCS
+&version=2.0.1
+&request=GetCoverage
+&coverageId=test_mean_summer_airtemp
+&subset=Long(120,130)
+&subset=Lat(-40,-25)
+&format=image/png
+&subsettingCrs=http://localhost:8080/def/crs/EPSG/0/4269
+&interpolation=http://www.opengis.net/def/interpolation/OGC/1.0/bilinear

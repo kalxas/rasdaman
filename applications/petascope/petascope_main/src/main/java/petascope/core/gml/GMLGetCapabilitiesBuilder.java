@@ -182,7 +182,7 @@ public class GMLGetCapabilitiesBuilder {
     private static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
 
     // Interpoltation Extension
-    private static final String INTERPOLATION_NEAREST_NEIGHBOR = "http://www.opengis.net/def/interpolation/OGC/1.0/nearest-neighbor";
+    private static final String INTERPOLATION_NEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/near";
     private static final String INTERPOLATION_BILINEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/bilinear";
     private static final String INTERPOLATION_CUBIC = "http://www.opengis.net/def/interpolation/OGC/1.0/cubic";
     private static final String INTERPOLATION_CUBICSPLINE = "http://www.opengis.net/def/interpolation/OGC/1.0/cubicspline";
@@ -198,7 +198,7 @@ public class GMLGetCapabilitiesBuilder {
     // Singleton object to store all the extensions (profiles) of WCS
     private static List<String> profiles;
 
-    public static final List<String> SUPPORTED_INTERPOLATIONS = ListUtil.valuesToList(INTERPOLATION_NEAREST_NEIGHBOR, INTERPOLATION_BILINEAR,
+    public static final List<String> SUPPORTED_INTERPOLATIONS = ListUtil.valuesToList(INTERPOLATION_NEAR, INTERPOLATION_BILINEAR,
                                                                         INTERPOLATION_CUBIC, INTERPOLATION_CUBICSPLINE, INTERPOLATION_LANCZOS,
                                                                         INTERPOLATION_AVERAGE, INTERPOLATION_MODE, INTERPOLATION_MAX,
                                                                         INTERPOLATION_MIN, INTERPOLATION_MED, INTERPOLATION_Q1, INTERPOLATION_Q3

@@ -5,4 +5,4 @@ coverageId=test_mr&
 subset=i(10,11)&
 subset=j(10,11)&
 scalefactor=2&
-interpolation=http://www.opengis.net/def/interpolation/OGC/1.0/nearest-neighbor
+interpolation=http://www.opengis.net/def/interpolation/OGC/1.0/near

@@ -54,6 +54,9 @@ public class OWSAdminController extends AbstractController {
     @Autowired
     OWSMetadataRepostioryService owsMetadataRepostioryService;
 
+    private static final String UPDATE_SERVICE_IDENTIFICATION = "UpdateServiceIdentification";
+    private static final String UPDATE_SERVICE_PROVIDER = "UpdateServiceProvider";
+
     /**
      * Only process non-login request if user logged in.
      */
@@ -80,7 +83,7 @@ public class OWSAdminController extends AbstractController {
         httpServletRequest.getSession().setAttribute(USERNAME, true);
     }
     
-    @RequestMapping(OWS_ADMIN + "/UpdateServiceIdentification")
+    @RequestMapping(OWS_ADMIN + "/" + UPDATE_SERVICE_IDENTIFICATION)
     public void handleOWSUpdateServiceIdentification(HttpServletRequest httpServletRequest) throws Exception {
         this.validateSession(httpServletRequest);
         
@@ -96,7 +99,7 @@ public class OWSAdminController extends AbstractController {
         log.debug("OWS Service metadata is updated in database from input Service Identification.");
     }
     
-    @RequestMapping(OWS_ADMIN + "/UpdateServiceProvider")
+    @RequestMapping(OWS_ADMIN + "/" + UPDATE_SERVICE_PROVIDER)
     public void handleOWSUpdateServiceProvider(HttpServletRequest httpServletRequest) throws Exception {
         this.validateSession(httpServletRequest);
         

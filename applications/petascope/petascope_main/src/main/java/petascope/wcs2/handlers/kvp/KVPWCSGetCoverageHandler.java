@@ -149,9 +149,11 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
             WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(coverageId);
 
             // Interpolation extension
+            String interpolationType = null;
+          
             if (kvpParameters.get(KVPSymbols.KEY_INTERPOLATION) != null) {
                 String[] interpolations = kvpParameters.get(KVPSymbols.KEY_INTERPOLATION);
-                kvpGetCoverageInterpolationService.handleInterpolation(interpolations);
+                interpolationType = kvpGetCoverageInterpolationService.handleInterpolation(interpolations);
             }
 
             // Subset extension
@@ -173,7 +175,7 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
 
             // Generate the WCPS query from the translated WcpsCoverageMetadata
             String generateCoverageExpression = this.generateCoverageExpression(kvpParameters,
-                    wcpsCoverageMetadata, subsetDimensions);
+                    wcpsCoverageMetadata, subsetDimensions, interpolationType);
 
             // The main content of WCPS query
             String queryContent;
@@ -223,7 +225,7 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
      * @return
      */
     private String generateCoverageExpression(Map<String, String[]> kvpParameters,
-            WcpsCoverageMetadata wcpsCoverageMetadata, List<AbstractSubsetDimension> subsetDimensions) throws WCSException {
+            WcpsCoverageMetadata wcpsCoverageMetadata, List<AbstractSubsetDimension> subsetDimensions, String interpolationType) throws WCSException {
 
         // Crs Extension: Translate from the input CRS (subsettingCrs) to native CRS (XYAxes's Crs)
         String subsettingCrs = kvpParameters.get(KVPSymbols.KEY_SUBSETTING_CRS) != null
@@ -290,8 +292,12 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
                     transformAxes.add(axis.getLabel() + ":" + "\"" + outputCrs + "\"");
                 }
             }
-            // @TODO: No support interpolation in crsTransform now
-            coverageExpression += ", { " + ListUtil.join(transformAxes, ", ") + " }, {} )";
+            
+            String interpolationExpression = "{}";
+            if (interpolationType != null) {
+                interpolationExpression = "{" + interpolationType + "}";
+            }
+            coverageExpression += ", { " + ListUtil.join(transformAxes, ", ") + " }, " + interpolationExpression + " )";
         }
 
         return coverageExpression;
