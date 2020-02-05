@@ -2372,6 +2372,13 @@ options of the ingredients file. Each coverage model contains a
 
         "colorPaletteTable": "PATH/TO/color_palette_table.cpt"
 
+   Since v10, general recipe with slicer ``gdal`` reads ``colorPaletteTable``
+   automatically if the first input file (TIFF format with  Color Table
+   (RGB with 256 entries)) contains this metadata when ``colorPaletteTable``
+   is set to ``auto`` or not specified in the ingredients file. 
+   If ``colorPaletteTable`` is set to empty, this metadata is ignored
+   when creating coverage's global metadata.
+
 
 * ``slicer`` - specifies the driver (**netcdf**, **gdal** or **grib**) to use to
   read from the data files and for each axis from the CRS how to obtain the
@@ -2407,7 +2414,7 @@ Here's an example ingredient file for *grib* data:
               "Experiment": "'${grib:experimentVersionNumber}'"
             },
 
-            // or automatically import metadata, netcdf only (!)
+            // or automatically import metadata, netcdf/gdal only (!)
             "global": "auto"
 
             "local": {

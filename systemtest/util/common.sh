@@ -603,7 +603,7 @@ prepare_gdal_file()
 prepare_netcdf_file()
 {
   local tmpf="$1.tmp"
-  ncdump -c "$1" | sed -n \
+  ncdump -c "$1" | sed -i \
     -e '/dimensions/,$p' \
     -e '/fileReferenceHistory/d' \
     -e '/_NCProperties/d' \

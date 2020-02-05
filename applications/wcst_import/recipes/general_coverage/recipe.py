@@ -123,44 +123,61 @@ class Recipe(BaseRecipe):
                     "No valid type given for the metadata parameter, accepted values are xml and json")
 
         if "metadata" in self.options['coverage']:
-            supported_recipe = (self.options['coverage']['slicer']['type'] == "netcdf")
+            supported_recipe = (self.options['coverage']['slicer']['type'] == "netcdf"
+                                or self.options['coverage']['slicer']['type'] == "gdal")
             if not supported_recipe:
-                # global metadata auto is supported for netCDF recipe
+                # global metadata auto is supported for netCDF/GDAL recipe
                 if "global" in self.options['coverage']['metadata']:
                     # NOTE: if global is not specified in netCDF ingredient file, it is considered auto
                     # which means extract all the global attributes of netcdf file to create global metadata
                     if self.options['coverage']['metadata']['global'] == "auto":
                         raise RecipeValidationException(
-                            "Global auto metadata only supported in general recipe with slicer's type: 'netcdf'.")
+                            "Global auto metadata only supported in general recipe with slicer's type: netcdf/gdal.")
 
                 # bands metadata auto is supported for netCDF recipe
                 if "bands" in self.options['coverage']['metadata']:
                     bands_metadata = self.options['coverage']['metadata']['bands']
                     if bands_metadata == "auto":
                         raise RecipeValidationException(
-                            "Bands auto metadata only supported in general recipe with slicer's type: 'netcdf'.")
+                            "Bands auto metadata only supported in general recipe with slicer's type: netcdf.")
                     elif type(bands_metadata) is dict:
                         # Check if one band of bands specified with "auto"
                         for key, value in bands_metadata.items():
                             if value == "auto":
                                 raise RecipeValidationException(
-                                    "Band auto metadata only supported in general recipe with slicer's type: 'netcdf', "
+                                    "Band auto metadata only supported in general recipe with slicer's type: netcdf, "
                                     "violated for band '" + key + "'.")
 
         if "metadata" in self.options['coverage']:
-            if "colorPaletteTable" in self.options['coverage']['metadata']:
-                file_path = self.options['coverage']['metadata']['colorPaletteTable']
-                # file_path can be relative path or full path
-                file_paths = FileUtil.get_file_paths_by_regex(self.session.get_ingredients_dir_path(), file_path)
+            supported_recipe = (self.options['coverage']['slicer']['type'] == "gdal")
 
-                if len(file_paths) == 0:
-                    raise RecipeValidationException("Color palette table file does not exist, given: '" + file_path + "'.")
-                else:
-                    file_path = file_paths[0]
-                    # Add the content of colorPaletteTable to coverage's metadata
-                    with open(file_path, 'r') as file_reader:
-                        color_palette_table = file_reader.read()
-                        self.options['coverage']['metadata']['colorPaletteTable'] = color_palette_table
+            if "colorPaletteTable" in self.options['coverage']['metadata']:
+                value = self.options['coverage']['metadata']['colorPaletteTable']
+
+                if value.strip() != "":
+                    if value == "auto" and not supported_recipe:
+                        raise RecipeValidationException("colorPaletteTable auto is only supported"
+                                                        " in general recipe with slicer's type: gdal.")
+                    elif value == "auto":
+                        # Get colorPaletteTable automatically from first file
+                        gdal_dataset = GDALGmlUtil(self.session.get_files()[0])
+                        self.options['coverage']['metadata']['colorPaletteTable'] = gdal_dataset.get_color_table()
+                    else:
+                        # file_path can be relative path or full path
+                        file_paths = FileUtil.get_file_paths_by_regex(self.session.get_ingredients_dir_path(), value)
+
+                        if len(file_paths) == 0:
+                            raise RecipeValidationException("Color palette table file does not exist, given: '" + value + "'.")
+                        else:
+                            file_path = file_paths[0]
+                            # Add the content of colorPaletteTable to coverage's metadata
+                            with open(file_path, 'r') as file_reader:
+                                color_palette_table = file_reader.read()
+                                self.options['coverage']['metadata']['colorPaletteTable'] = color_palette_table
+            elif supported_recipe:
+                # If colorPaletteTable is not mentioned in the ingredient, automatically fetch it
+                gdal_dataset = GDALGmlUtil(self.session.get_files()[0])
+                self.options['coverage']['metadata']['colorPaletteTable'] = gdal_dataset.get_color_table()
 
     def describe(self):
         """
@@ -368,54 +385,41 @@ class Recipe(BaseRecipe):
         """
         if "colorPaletteTable" in self.options["coverage"]["metadata"]:
             color_palette_table = self.options["coverage"]["metadata"]["colorPaletteTable"]
-            metadata_dict["colorPaletteTable"] = color_palette_table
+            if color_palette_table is not None:
+                metadata_dict["colorPaletteTable"] = color_palette_table
 
     def _global_metadata_fields(self):
         """
         Returns the global metadata fields
         :rtype: dict
         """
-        if "metadata" in self.options['coverage']:
-            metadata_dict = {}
-            if "global" in self.options['coverage']['metadata']:
-                metadata_dict = escape_metadata_dict(self.options['coverage']['metadata']['global'])
-
-            self.__add_color_palette_table_to_global_metadata(metadata_dict)
-
-            result = escape_metadata_dict(metadata_dict)
-            return result
-
-        return {}
-
-    def _netcdf_global_metadata_fields(self):
-        """
-        Returns the global metadata fields for netCDF file
-        + If global is specified in ingredient file with: "global": { ... some values ... }, then this is the global metadata
-        for the coverage
-        + If global is not specified in ingredient file or specified with "global": "auto", then all the global metadata
-        of the first file will be extracted internally to make coverage's metadata
-        :rtype: dict
-        """
         file_path = self.session.get_files()[0].filepath
 
         if "metadata" in self.options['coverage']:
-            # global is defined in ingredient file
+
             if "global" in self.options['coverage']['metadata']:
                 global_metadata = self.options['coverage']['metadata']['global']
-                # global_metadata is defined with { ... some values }
+
+                # global_metadata is manually defined with { ... some values }
                 if type(global_metadata) is dict:
                     metadata_dict = self.options['coverage']['metadata']['global']
                 else:
                     # global metadata is defined with "a string"
                     if global_metadata != "auto":
-                        raise RuntimeException("No valid global metadata attribute for netCDF slicer could be found, "
+                        raise RuntimeException("No valid global metadata attribute for gdal slicer could be found, "
                                                "given: " + global_metadata)
                     else:
                         # global metadata is defined with auto, then parse the metadata from the first file to a dict
-                        metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
+                        if self.options['coverage']['slicer']['type'] == "gdal":
+                            metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path)
+                        elif self.options['coverage']['slicer']['type'] == "netcdf":
+                            metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
             else:
                 # global is not specified in ingredient file, it is considered as "global": "auto"
-                metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
+                if self.options['coverage']['slicer']['type'] == "gdal":
+                    metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path)
+                elif self.options['coverage']['slicer']['type'] == "netcdf":
+                    metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
 
             self.__add_color_palette_table_to_global_metadata(metadata_dict)
 
@@ -677,7 +681,7 @@ class Recipe(BaseRecipe):
                                              recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                              self._read_bands(),
                                              self.session.get_files(), crs, self._read_axes(crs),
-                                             self.options['tiling'], self._netcdf_global_metadata_fields(),
+                                             self.options['tiling'], self._global_metadata_fields(),
                                              self._local_metadata_fields(),
                                              self._netcdf_bands_metadata_fields(),
                                              self._netcdf_axes_metadata_fields(),

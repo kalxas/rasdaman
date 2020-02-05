@@ -27,6 +27,7 @@ from util.crs_util import CRSUtil
 from util.file_util import FileUtil
 from util.gdal_field import GDALField
 from decimal import Decimal
+import json
 
 _spatial_ref_cache = {}
 
@@ -311,6 +312,42 @@ class GDALGmlUtil:
             raise RuntimeException(
                 "No tifftag " + tag + " found for " + self.gdal_file_path)
         return metadata[tag]
+
+    def get_metadata(self):
+        """
+        Returns the file's metadata as dictionary
+        :return: dict
+        """
+        metadata = self.gdal_dataset.GetMetadata()
+        import collections
+        metadata = collections.OrderedDict(sorted(metadata.items()))
+
+        return metadata
+
+    def get_color_table(self):
+        """
+        Return a valid colorTable as JSON string if any
+        e.g: { "colorTable": [[0, 0, 0, 255], .... [43, 131, 186, 255], [43, 131, 186, 255]] }
+
+        :return: str
+        """
+        result = None
+
+        band = self.gdal_dataset.GetRasterBand(1)
+        if band is not None:
+            color_table = band.GetRasterColorTable()
+
+            if color_table is not None:
+                color_list = []
+                for i in range(color_table.GetCount()):
+                    color_list.append(list(color_table.GetColorEntry(i)))
+
+                color_dict = {}
+                color_dict["colorTable"] = color_list
+
+                result = json.dumps(color_dict)
+
+        return result
 
     def get_subdatasets(self):
         """

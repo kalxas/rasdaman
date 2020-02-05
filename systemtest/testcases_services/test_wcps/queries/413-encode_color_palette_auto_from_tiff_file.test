@@ -1,0 +1,1 @@
+for $c in (test_wcps_color_palette_table_tiff_auto)  return encode($c[Lat(41:42.5), Long(2:3.25)], "image/png")

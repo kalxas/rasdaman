@@ -43,6 +43,7 @@ from util.file_obj import File
 from master.helper.high_pixel_adjuster import HighPixelAjuster
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from util.gdal_util import GDALGmlUtil
+from osgeo import gdal
 
 
 class GdalToCoverageConverter(AbstractToCoverageConverter):
@@ -92,6 +93,19 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
 
     def _data_type(self):
         return self.data_type
+
+    @staticmethod
+    def parse_gdal_global_metadata(file_path):
+        """
+        Parse the first file of importing gdal files to extract the global metadata for the coverage
+        str file_path: path to first gdal input file
+        :return: dict: global_metadata
+        """
+        # NOTE: all files should have same global metadata for each file
+        gdal_dataset = GDALGmlUtil(file_path)
+        global_metadata = gdal_dataset.get_metadata()
+
+        return global_metadata
 
     def _file_band_nil_values(self, index):
         """

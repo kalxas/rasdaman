@@ -1,0 +1,4 @@
+service=WCS
+&version=2.0.1
+&request=DescribeCoverage
+&coverageId=test_wcs_general_recipe_gdal_auto_metadata_tiff_tags

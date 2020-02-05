@@ -7,7 +7,7 @@
     "track_files": false
   },
   "input": {
-    "coverage_id": "test_gdal_recipe_index_irregular_axis_3d",
+    "coverage_id": "test_wcs_general_recipe_gdal_auto_metadata_tiff_tags",
     "paths": [
       "*.tiff"
     ]
@@ -16,14 +16,12 @@
     "name": "general_coverage",
     "options": {
         "coverage": {
-          "crs": "OGC/0/Index1D@EPSG/0/4326",
+          "crs": "EPSG/0/4326",
           "metadata": {
             "type": "xml",
-            "global": {
-              "Title": "'Drought code'"
-         	  },
+            "global": "auto",
              "local": {
-                  "local_metadata_key": "${gdal:metadata:local_metadata_key}"
+                  "local_metadata_key": "${gdal:metadata:TIFFTAG_DOCUMENTNAME}"
               }
           },
           "slicer": {
@@ -34,20 +32,14 @@
               "Long": {
                 "min": "${gdal:minX}",
                 "max": "${gdal:maxX}",
-                "gridOrder": 1,
+                "gridOrder": 0,
                 "resolution": "${gdal:resolutionX}"
               },
               "Lat": {
                 "min": "${gdal:minY}",
                 "max": "${gdal:maxY}",
-                "gridOrder": 2,
+                "gridOrder": 1,
                 "resolution": "${gdal:resolutionY}"
-              },
-              "i": {
-                    "min": "int(regex_extract('${file:name}', 'test_(.*).tiff', 1))",
-                    "gridOrder": 0,
-                    "irregular": true,
-                    "dataBound": false
               }
           }
         }      
