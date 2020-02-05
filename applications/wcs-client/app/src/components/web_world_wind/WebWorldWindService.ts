@@ -188,6 +188,49 @@ module rasdaman {
             return coveragedIds;
         }
 
+        public showCoverageExtentOnGlobe(canvasId: string, coverageId) {
+            var webWorldWindModel = null;            
+            for (var i = 0; i < this.webWorldWindModels.length; i++) {
+                if (this.webWorldWindModels[i].canvasId === canvasId) {             
+                    webWorldWindModel = this.webWorldWindModels[i];
+                    break;
+                }
+            }
+            
+            var polygonLayer = webWorldWindModel.polygonLayer;
+            var coveragesExtentsArray = polygonLayer.coveragesExtentsArray;
+            var coverageExtent = null;
+            for (var i = 0; i < coveragesExtentsArray.length; i++) {
+                if (coveragesExtentsArray[i].coverageId == coverageId) {
+                    coverageExtent = coveragesExtentsArray[i];
+                    break;
+                }
+            }
+
+            if (coverageExtent != null) {
+                // look at the showed/hided coverage extent's center
+                this.gotoCoverageExtentCenter(canvasId, [coverageExtent]);
+            }
+
+            // Cannot find a polygon to hide, then it must need to show a coverage
+            for (var i = 0; i < webWorldWindModel.hidedPolygonObjsArray.length; i++) {
+                var polygonObj = webWorldWindModel.hidedPolygonObjsArray[i];
+                if (polygonObj.coverageId == coverageId) {
+                    // show the polygon (coverageExtent)
+                    polygonLayer.addRenderable(polygonObj);
+
+                    var polygonObj = polygonLayer.renderables[0];
+                    polygonObj.coverageExtentStr = "Coverage Id: " + coverageId + "\n\n" 
+                                                 + polygonObj.coverageExtentStr + "\n";
+
+                    // then update the text of polygon when hide 
+                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+
+                    return;
+                }
+            } 
+        }
+
         // If a coverage is reprojectable, user can show/hide it manually, default it is shown on globe.
         // Only work for GetCapabilities tab.
         public showHideCoverageExtentOnGlobe(canvasId: string, coverageId:string) {
@@ -279,7 +322,7 @@ module rasdaman {
             } 
         }
 
-        // Only prepare all the polygon for coverages's extents, don't load it to globe by default
+        // Prepare all the polygon for coverages's extents for a canvas (GetCapabilities, DescribeCoverage, GetCoverage)        
         public prepareCoveragesExtentsForGlobe(canvasId: string, coveragesExtentsArray: any) {    
             var exist = false;
             var webWorldWindModel = null;            
@@ -302,6 +345,8 @@ module rasdaman {
             // Remove the rendered polygon layer and replace it with new layer
             wwd.removeLayer(polygonLayer);
             polygonLayer = new WorldWind.RenderableLayer();
+            wwd.redraw();
+            
             webWorldWindModel.polygonLayer = polygonLayer;     
             wwd.addLayer(polygonLayer);                            
                     
@@ -401,7 +446,7 @@ module rasdaman {
                 coverageIdsStr += coverageIds[j];
             }
 
-            var userProperties = coverageIdsStr + "\n" +  coverageExtentStr;
+            var userProperties = coverageIdsStr + "\n" +  coverageExtentStr + "\n";
 
             return userProperties;
         }
@@ -541,7 +586,7 @@ module rasdaman {
                xhr.responseType = "arraybuffer";               
                xhr.onload = function () {
                        var blb = new Blob([xhr.response], { type: 'image/png' });
-                       var url = (window.URL || window.webkitURL).createObjectURL(blb);
+                       var url = (window.URL).createObjectURL(blb);
                        image.src = url;
                };
                xhr.open("GET", url, true);

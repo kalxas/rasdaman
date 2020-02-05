@@ -651,7 +651,7 @@ delete_coverage() {
 
     if [ "$coverage_id" == "$input_coverage_id" ]; then
 
-        echo "Deleting coverage""$coverage_id"
+        echo "Deleting coverage $coverage_id"
 
         # Store the result of deleting request to a temp file
         curl -s -i "$WCS_END_POINT" > "$OUTPUT_FILE"

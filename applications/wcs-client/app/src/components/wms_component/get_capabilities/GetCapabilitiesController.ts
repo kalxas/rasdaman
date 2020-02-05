@@ -70,6 +70,7 @@ module rasdaman {
                                                 ];
             
             $scope.display = true;
+            $scope.showAllFootprints = {isChecked: false};
 
             // From the WMS's EX_GeographicBoundingBox
             // NOTE: not like WCS, all layers can be display on the globe as they are geo-referenced.            
@@ -89,8 +90,7 @@ module rasdaman {
 
             // Load/Unload all coverages's extents on globe
             $scope.displayAllFootprintsOnGlobe = (status:boolean)=> {
-                // Array of coverageExtents belong to WMS layers
-                $scope.showAllFootprints = status;
+                // Array of coverageExtents belong to WMS layers                
                 if (status == true) {
                     // load all unloaded footprints from all pages on globe                    
                     for (var i = 0; i < $scope.capabilities.layers.length; i++) {
@@ -128,9 +128,16 @@ module rasdaman {
                 }
                 // It already reloaded, then set to false.
                 $scope.wmsStateInformation.reloadServerCapabilities = false;
-            });            
+            });  
             
-            // Handle the click event on GetCoverage button
+            // Handle the click event on GetCapabilities button
+            $scope.handleGetServerCapabilities = () => {              
+                $scope.getServerCapabilities();
+                
+                $scope.showAllFootprints.isChecked = false;
+            }
+          
+            // Handle server capabilities request
             $scope.getServerCapabilities = (...args: any[])=> {                
                 if (!$scope.wmsServerEndpoint) {
                     alertService.error("The entered WMS endpoint is invalid.");
@@ -163,6 +170,7 @@ module rasdaman {
                             $scope.initCheckboxesForCoverageIds();
                             
                             var coverageExtentArray = [];
+
                             for (var i = 0; i < $scope.capabilities.layers.length; i++) {
                                 coverageExtentArray.push($scope.capabilities.layers[i].coverageExtent);
                             }
@@ -193,7 +201,7 @@ module rasdaman {
         capabilitiesDocument:rasdaman.common.ResponseDocument;
         capabilities:wms.Capabilities;                            
         rowPerPageSmartTable:number;
-        showAllFootprints:boolean;
+        showAllFootprints:any;
         
         isAvailableLayersOpen:boolean;        
         isServiceIdentificationOpen:boolean;

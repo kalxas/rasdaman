@@ -149,7 +149,7 @@ module rasdaman {
                         var coverageExtentArray = [];
 
                         coverageExtentArray.push($scope.layer.coverageExtent);
-                        webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
+                        
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(
                                 (response:rasdaman.common.Response<wcs.CoverageDescription>)=> {
@@ -161,8 +161,10 @@ module rasdaman {
                                     
                                     selectOptionsChange();
                                    
+                                    // Also prepare for GetCoverage's globe with only 1 coverageExtent                    
+                                    webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                                     // Then, load the footprint of layer on the globe
-                                    webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.layer.name);
+                                    webWorldWindService.showCoverageExtentOnGlobe(canvasId, $scope.layer.name);
                                 },
                                 (...args:any[])=> {                                    
                                     errorHandlingService.handleError(args);

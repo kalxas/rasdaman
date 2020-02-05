@@ -9,7 +9,7 @@
                        placeholder="WCS server endpoint"
                        ng-model="wcsServerEndpoint" readonly/>
                             <span class="input-group-btn">
-                            <button type="button" id="btnWCSGetServerCapabilities" class="btn btn-info" ng-click="getServerCapabilities()">Get
+                            <button type="button" id="btnWCSGetServerCapabilities" class="btn btn-info" ng-click="handleGetServerCapabilities()">Get
                                                                                                             Capabilities
                             </button>
                             </span>
@@ -77,10 +77,12 @@
                                                 st-search="importedType">
                                                 <option ng-repeat="item in displayCoveragesDropdownItems" value="{{item.value}}">{{item.name}}</option>
                                             </select>
-                                            
+
+                                            <!-- NOTE: checkbox under accordion does not work with ng-model=boolean, it needs to be a object's property to allow uncheck dynamically-->
                                             <input type="checkbox" id="wcsDisplayAllFootprintsCheckbox" title="Load all coverages's footprints on globe from all pages." 
-                                            ng-model="showAllFootprints" ng-change="displayAllFootprintsOnGlobe(showAllFootprints)"
-                                            onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">&nbsp;Display all footprints</input> 
+                                            ng-model="showAllFootprints.isChecked" ng-change="displayAllFootprintsOnGlobe(showAllFootprints.isChecked)"
+                                            onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">&nbsp;Display all footprints</input>
+                                           
                                         </div>
                                     </td>
                                 </tr>

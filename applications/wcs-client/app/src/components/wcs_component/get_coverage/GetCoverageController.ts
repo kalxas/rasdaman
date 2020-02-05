@@ -106,9 +106,7 @@ module rasdaman {
                     // Also prepare for GetCoverage's globe with only 1 coverageExtent                    
                     webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                     // Then, load the footprint of this coverage on the globe
-                    webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
-                    // And look at the coverage's center on globe
-                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
+                    webWorldWindService.showCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
                 }                                
             }
 
@@ -173,7 +171,19 @@ module rasdaman {
                     wcsService.getCoverageHTTPPOST(getCoverageRequest);
                 }
                 
-                // window.open("http://localhost:8080/wcs-client/app/test.html", "'_blank'");
+            }
+
+            // Set the output format according to number of axes
+            $scope.setOutputFormat = function(numberOfDimensions) {
+                var result = "application/netcdf";
+
+                if (numberOfDimensions == 2) {
+                    result = "image/tiff";
+                } else if (numberOfDimensions == 1) {
+                    result = "application/json";
+                }
+
+                return result;
             }
 
             $scope.$watch("wcsStateInformation.selectedCoverageDescription",
@@ -329,7 +339,7 @@ module rasdaman {
                             trims: [],
                             isTrimSelected: [],
                             isMultiPartFormat: false,
-                            selectedCoverageFormat: $scope.wcsStateInformation.serverCapabilities.serviceMetadata.formatSupported[0],
+                            selectedCoverageFormat: $scope.setOutputFormat(numberOfAxis),
                             requestUrl: null
                         };
 
@@ -651,6 +661,9 @@ module rasdaman {
         interpolationExtension:WCSInterpolationExtensionModel;
 
         getCoverageTabStates:GetCoverageTabStates;
+
+        // Based on the number of dimensions to set the output format accordingly
+        setOutputFormat(numberOfDimensions:number):string;
 
         // select a coverage to show the form
         selectCoverageClickEvent():void;

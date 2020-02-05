@@ -9,7 +9,7 @@
                        placeholder="WMS server endpoint"
                        ng-model="wmsServerEndpoint" readonly/>
                             <span class="input-group-btn">
-                            <button class="btn btn-info" id="wmsGetServerCapabilitiesBtn" type="button" ng-click="getServerCapabilities()">
+                            <button class="btn btn-info" id="wmsGetServerCapabilitiesBtn" type="button" ng-click="handleGetServerCapabilities()">
                                 Get Capabilities
                             </button>
                             </span>
@@ -77,8 +77,9 @@
                                                 <option ng-repeat="item in displayLayersDropdownItems" value="{{item.value}}">{{item.name}}</option>
                                             </select>
 
+                                            <!-- NOTE: checkbox under accordion does not work with ng-model=boolean, it needs to be a object's property to allow uncheck dynamically-->
                                             <input type="checkbox" id="wmsDisplayAllFootprintsCheckbox" title="Load all layers's footprints on globe from all pages." 
-                                                ng-model="showAllFootprints" ng-change="displayAllFootprintsOnGlobe(showAllFootprints)"
+                                                ng-model="showAllFootprints.isChecked" ng-change="displayAllFootprintsOnGlobe(showAllFootprints.isChecked)"
                                                 onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">&nbsp; Display all footprints</input>
                                         </div>
                                     </td>

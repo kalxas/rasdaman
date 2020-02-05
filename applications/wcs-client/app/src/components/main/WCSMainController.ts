@@ -38,13 +38,33 @@ module rasdaman {
         public constructor(private $scope:WCSMainControllerScope, $rootScope:angular.IRootScopeService, $state:any) {
             this.initializeTabs($scope);
 
+            
+
+            // NOTE: When petascope admin user logged in, then show Insert and Delete Coverage tabs in WCS tab
+            $scope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean) => {
+                if (newValue == true) {
+                    if ($scope.isSupportWCST) {
+                        $scope.wcsInsertCoverageTab.disabled = false;
+                        $scope.wcsDeleteCoverageTab.disabled = false;
+                    }
+                } else {
+                    $scope.wcsInsertCoverageTab.disabled = true;
+                    $scope.wcsDeleteCoverageTab.disabled = true;     
+                }
+            });
+
             $scope.$watch("wcsStateInformation.serverCapabilities", (newValue:wcs.Capabilities, oldValue:wcs.Capabilities)=> {                
                 if (newValue) {
                     $scope.wcsDescribeCoverageTab.disabled = false;
                     $scope.wcsGetCoverageTab.disabled = false;
                     $scope.wcsProcessCoverageTab.disabled = !WCSMainController.isProcessCoverageEnabled(newValue);
-                    $scope.wcsInsertCoverageTab.disabled = !WCSMainController.isCoverageTransactionEnabled(newValue);
-                    $scope.wcsDeleteCoverageTab.disabled = !WCSMainController.isCoverageTransactionEnabled(newValue);
+                    $scope.isSupportWCST = WCSMainController.isCoverageTransactionEnabled(newValue)
+
+                    // Disable these WCS-T tabs by default if petascope admin did not log in
+                    if ($rootScope.adminStateInformation.loggedIn === false) {
+                        $scope.wcsInsertCoverageTab.disabled = true;
+                        $scope.wcsDeleteCoverageTab.disabled = true;
+                    }
                 } else {
                     this.resetState();
                 }
@@ -122,8 +142,8 @@ module rasdaman {
             this.$scope.wcsDescribeCoverageTab.disabled = true;
             this.$scope.wcsGetCoverageTab.disabled = true;
             this.$scope.wcsProcessCoverageTab.disabled = true;
-            this.$scope.wcsDeleteCoverageTab.disabled = true;
-            this.$scope.wcsInsertCoverageTab.disabled = true;
+            this.$scope.wcsDeleteCoverageTab.disabled = false;
+            this.$scope.wcsInsertCoverageTab.disabled = false;
         }
 
         private static isProcessCoverageEnabled(serverCapabilities:wcs.Capabilities) {
@@ -132,7 +152,7 @@ module rasdaman {
             return serverCapabilities.serviceIdentification.profile.indexOf(processExtensionUri) != -1;
         }
 
-        private static  isCoverageTransactionEnabled(serverCapabilities:wcs.Capabilities) {
+        private static isCoverageTransactionEnabled(serverCapabilities:wcs.Capabilities) {
             var transactionExtensionUri = rasdaman.Constants.TRANSACTION_EXT_URI;
 
             return serverCapabilities.serviceIdentification.profile.indexOf(transactionExtensionUri) != -1;
@@ -157,6 +177,7 @@ module rasdaman {
 
         //Implement a better way to navigate between tabs
         describeCoverage(coverageId:string);
+        isSupportWCST:boolean;
     }
 
     interface TabState {

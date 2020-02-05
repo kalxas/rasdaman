@@ -219,9 +219,7 @@ module rasdaman {
                                 // Also prepare for DescribeCoverage's globe with only 1 coverageExtent                                
                                 webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                                 // Then, load the footprint of this coverage on the globe
-                                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
-                                // And look at the coverage's center on globe
-                                webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
+                                webWorldWindService.showCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
                             }
                         },
                         (...args:any[])=> {                            

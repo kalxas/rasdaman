@@ -67,6 +67,8 @@ module rasdaman {
                             
             $scope.coveragesExtents = [];
 
+            $scope.showAllFootprints = {isChecked: false};
+
             // Only display 10 rows in a smart table's page
             $scope.rowPerPageSmartTable = 10;
 
@@ -107,7 +109,7 @@ module rasdaman {
 
             // Load/Unload all coverages's extents on globe
             $scope.displayAllFootprintsOnGlobe = (status:boolean)=> {
-                $scope.showAllFootprints = status;
+                
                 if (status == true) {
                     // load all unloaded footprints from all pages on globe                    
                     for (var i = 0; i < $scope.coveragesExtents.length; i++) {
@@ -185,16 +187,27 @@ module rasdaman {
 
                 // Init all possible checkboxes for geo-reference coverages and set to false
                 $scope.initCheckboxesForCoverageIds();
+
                 // Prepare all coverage's extents but does not load it on WebWorldWind
                 webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, $scope.coveragesExtents);              
             }
 
-            // Handle the click event on Get Capabilities button
+            // Handle the click event on GetCapabilities button
+            $scope.handleGetServerCapabilities = () => {              
+                $scope.getServerCapabilities();
+                
+                $scope.showAllFootprints.isChecked = false;
+            }
+
+            // Handle server capabilities request
             $scope.getServerCapabilities = (...args: any[])=> {                            
                 if (!$scope.wcsServerEndpoint) {
                     alertService.error("The entered WCS endpoint is invalid.");
                     return;
                 }
+
+                // Load new coverage extents
+                $scope.coveragesExtents = [];     
 
                 //Update settings:
                 settings.wcsEndpoint = $scope.wcsServerEndpoint;
@@ -247,7 +260,7 @@ module rasdaman {
         coveragesExtents:any[];        
         rowPerPageSmartTable:number;
 
-        showAllFootprints:boolean;
+        showAllFootprints:any;
 
         parseCoveragesExtents():void;
 
