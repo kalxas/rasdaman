@@ -45,12 +45,11 @@ UTIL_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # --------------------------------------------------------
 # command shortcuts; variables configured in conf/test.cfg
 #
-export RASQL="rasql --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
---passwd $RASMGR_ADMIN_PASSWD"
+export RASQL_OPTS="--server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD"
+export RASQL="rasql --server $RASMGR_HOST $RASQL_OPTS"
+export PY_RASQL="$SCRIPT_DIR/rasql.py $RASQL_OPTS --database $RASDB"
 export DIRECTQL="directql --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD"
-export PY_RASQL="python $UTIL_SCRIPT_DIR/../testcases_mandatory/test_rasdapy/rasql.py \
---server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
---passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
+export DIRECTQL="directql --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
 export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
 
 export START_RAS=start_rasdaman.sh
@@ -945,13 +944,13 @@ run_test()
               get_request_kvp "$SECORE_URL" "$QUERY" "$out" "secore"
               ;;
 
-      select|rasql|nullvalues|subsetting|clipping|rasdapy)
+      select|rasql|nullvalues|subsetting|clipping|rasdapy|rasdapy3)
 
               QUERY=$(cat "$f")
 
-              local RASQL_CMD="$RASQL"
-              [ "$SVC_NAME" == "rasdapy" ] && RASQL_CMD="$PY_RASQL"
-              local out_scalar="${out}_scalar"
+              RASQL_CMD="$RASQL"
+              [ "$SVC_NAME" = "rasdapy" -o "$SVC_NAME" = "rasdapy3" ] && RASQL_CMD="$PY_RASQL"
+              out_scalar="${out}_scalar"
 
               $RASQL_CMD -q "$QUERY" --out file --outfile "$out" 2> "$err" | grep "  Result " > $out_scalar
 

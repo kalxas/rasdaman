@@ -83,7 +83,7 @@ function py_insert_into()
 
   logn "inserting data... "
   #echo "insert into $coll_name values $values, file: $file_name"
-  $PY_RASQL -q "insert into $coll_name values $values" -f $file_name $PY_RASQL_opts > /dev/null
+  $PY_RASQL -q "insert into $coll_name values $values" -f $file_name $rasql_opts > /dev/null
   feedback
 }
 

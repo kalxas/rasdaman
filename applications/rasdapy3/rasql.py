@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #
 # This file is part of rasdaman community.
 #
@@ -142,9 +142,6 @@ class Main:
                 res = self.query_executor.execute_write(self.validator.query)
 
             res_arr = res
-            # If the output is only 1 value, it needs to create a list for it as in rasql
-            if res is not None and not isinstance(res, list):
-                res_arr = [res]
 
             # Depend on the output (string, file) to write the result from rasserver
             self.__handle_result(res_arr)
@@ -161,7 +158,7 @@ class Main:
         finally:
             #  Close the connection to rasserver to release rasserver from this client
             self.db_connector.close()
-            print "rasql done."
+            print("rasql done.")
 
     def __handle_result(self, res_arr):
         """
@@ -189,17 +186,13 @@ class Main:
                 Result object 1: {0,0,0},{0,0,0}
         :param list res_arr: output from rasserver
         """
-        total = 0
-        if res_arr is not None:
-            total = len(res_arr)
-        output = "Query result collection has {} element(s): \n".format(total)
-        if total > 0:
-            result_type = "element"
-            if isinstance(res_arr[0], ResultArray):
-                result_type = "object"
+
+        output = "Query result collection has {} element(s): \n".format(res_arr.size)
+        if res_arr.size > 0:
             for index, res in enumerate(res_arr):
-                output += "  Result {} {}: {}\n".format(result_type, index + 1, res)
-        print output.strip()
+                msg = res.decode() if res_arr.is_object else res
+                output += "  Result {} {}: {}\n".format(res_arr.nature, index + 1, msg)
+        print(output.strip())
 
     def __handle_result_as_file(self, res_arr):
         """
@@ -213,24 +206,24 @@ class Main:
 
         :param list res_arr: output from rasserver
         """
-        temp = self.validator.query.lower()
-        if '"png"' in temp:
+        cur_data = self.validator.query.lower()
+        if '"png"' in cur_data:
             file_ext = "png"
-        elif '"jp2"' in temp:
+        elif '"jp2"' in cur_data:
             file_ext = "jp2"
-        elif '"jpg"' in temp:
+        elif '"jpg"' in cur_data:
             file_ext = "jpg"
-        elif '"bmp"' in temp:
+        elif '"bmp"' in cur_data:
             file_ext = "bmp"
-        elif '"netcdf"' in temp:
+        elif '"netcdf"' in cur_data:
             file_ext = "nc"
-        elif '"json"' in temp:
+        elif '"json"' in cur_data:
             file_ext = "json"
-        elif '"csv"' in temp:
+        elif '"csv"' in cur_data:
             file_ext = "csv"
-        elif '"tiff"' in temp:
+        elif '"tiff"' in cur_data:
             file_ext = "tif"
-        elif '"gtiff"' in temp:
+        elif '"gtiff"' in cur_data:
             file_ext = "tif"
         else:
             file_ext = "unknown"
@@ -241,26 +234,21 @@ class Main:
         if self.validator.outfile is not None:
             file_name_prefix = self.validator.outfile
 
-        total = 0
-        if res_arr is not None:
-            total = len(res_arr)
-
         # Write output results to files
-        for i in range(0, total):
-            if self.validator.outfile is None:
+        for i, cur_data in enumerate(res_arr):
+            if res_arr.size > 1:
                 file_name = file_name_prefix + "_{}.{}".format(i + 1, file_ext)
             else:
-                file_name = file_name_prefix + ".{}".format(i + 1, file_ext)
-            with open(file_name, "wb") as binary_file:
-                temp = res_arr[i]
-                # If it is MDDArray then write the data inside it
-                if isinstance(temp, ResultArray):
-                    binary_file.write(temp.data)
-                else:
-                    result_type = "element"
-                    output = "  Result {} {}: {}\n".format(result_type, i + 1, str(temp))
+                file_name = file_name_prefix + ".{}".format(file_ext)
+            if res_arr.is_object:
+                with open(file_name, "wb") as binary_file:
+                    # If it is MDDArray then write the data inside it
+                    binary_file.write(cur_data)
+            else:
+                with open(file_name, "w") as text_file:
+                    output = "  Result {} {}: {}\n".format(res_arr.nature, i + 1, cur_data)
                     # If it is scalar value then just write it
-                    binary_file.write(output)
+                    text_file.write(output)
 
 
 if __name__ == "__main__":
