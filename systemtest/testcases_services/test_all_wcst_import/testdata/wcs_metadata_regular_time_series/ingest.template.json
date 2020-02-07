@@ -1,0 +1,52 @@
+{
+
+	"config": {
+
+		"service_url": "PETASCOPE_URL",
+		"tmp_directory": "/tmp/",
+		"default_crs": "SECORE_URL/crs/EPSG/0/4326",
+		"track_files": false,
+		"mock": false,
+		"automated": true
+
+	},
+
+	"input": {
+
+		"coverage_id": "test_wcs_metadata_regular_time_series",
+		"paths": [
+			"../wcs_metadata_irregular_time_series/*.tiff"
+		]
+
+	},
+
+	"recipe": {
+
+		"name": "time_series_regular",
+
+		"options": {
+
+			"coverage": {
+
+				"metadata": {
+					"type": "xml",
+					"global": "auto",
+					"local": {
+						"local_metadata_key": "${gdal:metadata:local_metadata_key}",
+						"metadata_file": {
+							"root_element": "INSPIRE",
+							"path": "replace('${file:path}', '.tiff', '.xml')"
+						}
+					}
+				}
+			},
+
+			"time_start": "2012-12-02T20:12:02",
+			"time_format": "auto",
+			"time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+			"time_step": "2 days 10 minutes 3 seconds"
+		}
+
+	}
+
+}

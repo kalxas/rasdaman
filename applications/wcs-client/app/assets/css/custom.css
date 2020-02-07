@@ -537,13 +537,27 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     color: black !important;
 }
 
+/* Selected tab color */
 .nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover, 
 .nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:focus, .nav-tabs.nav-justified>.active>a:hover {
-    border-color: #afafaf;                    
+    background-color: #EFEDEE;
+    color: #343638;     
+}
+
+/* Boder of parent tabs (e.g: WCS, WMS) */
+.nav-tabs>li>a {
+    border: 1px solid #afafaf !important;
+    margin-right: 0px;
+}
+
+/* Border of children tabs (e.g: GetCoverage) */
+.nav-tabs.nav-justified>li>a {
+    border: 1px solid #afafaf !important;
+    margin-right: 0px;
 }
 
 .nav-tabs {
-    border-bottom: 1px solid #afafaf;
+    
 }
 
 .panel-default {

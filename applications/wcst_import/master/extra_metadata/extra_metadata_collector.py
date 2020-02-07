@@ -76,36 +76,38 @@ class ExtraGlobalMetadataCollector:
         # NOTE: this bands's metadata is added to gmlcov:metadata not swe:field
         bands_metadata = {}
         # band_attributes is a dict of keys, values
-        for band, band_attributes in self.extra_metadata_info.bands_attributes.items():
-            bands_metadata[band] = {}
-            for key, value in band_attributes.items():
-                # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
-                # output of extra metadata should be string in any cases
-                if str(value) != "":
-                    bands_metadata[band][key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
-                else:
-                    bands_metadata[band][key] = str(value)
-
-        bands_metadata = escape_metadata_nested_dicts(bands_metadata)
-
-        # Axes metadata (dimension's metadata)
-        axes_metadata = {}
-        # axes_attributes is a dict of keys, values
-        for axis, axis_attributes in self.extra_metadata_info.axes_attributes.items():
-            axes_metadata[axis] = {}
-            if type(axis_attributes) is dict:
-                for key, value in axis_attributes.items():
+        if self.extra_metadata_info.bands_attributes is not None:
+            for band, band_attributes in self.extra_metadata_info.bands_attributes.items():
+                bands_metadata[band] = {}
+                for key, value in band_attributes.items():
                     # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
                     # output of extra metadata should be string in any cases
                     if str(value) != "":
-                        axes_metadata[axis][key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
+                        bands_metadata[band][key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
                     else:
-                        axes_metadata[axis][key] = str(value)
-            else:
-                # It should be a string (e.g: ${netcdf:variable:lat:metadata}) and need to be evaluated
-                axes_metadata[axis] = self.evaluator.evaluate(axis_attributes, self.metadata_entry.evalutor_slice)
+                        bands_metadata[band][key] = str(value)
 
-        axes_metadata = escape_metadata_nested_dicts(axes_metadata)
+            bands_metadata = escape_metadata_nested_dicts(bands_metadata)
+
+        # Axes metadata (dimension's metadata)
+        axes_metadata = {}
+        if self.extra_metadata_info.axes_attributes is not None:
+            # axes_attributes is a dict of keys, values
+            for axis, axis_attributes in self.extra_metadata_info.axes_attributes.items():
+                axes_metadata[axis] = {}
+                if type(axis_attributes) is dict:
+                    for key, value in axis_attributes.items():
+                        # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
+                        # output of extra metadata should be string in any cases
+                        if str(value) != "":
+                            axes_metadata[axis][key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
+                        else:
+                            axes_metadata[axis][key] = str(value)
+                else:
+                    # It should be a string (e.g: ${netcdf:variable:lat:metadata}) and need to be evaluated
+                    axes_metadata[axis] = self.evaluator.evaluate(axis_attributes, self.metadata_entry.evalutor_slice)
+
+            axes_metadata = escape_metadata_nested_dicts(axes_metadata)
 
         return GlobalExtraMetadata(global_metadata, bands_metadata, axes_metadata)
 

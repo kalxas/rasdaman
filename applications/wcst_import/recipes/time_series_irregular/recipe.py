@@ -23,8 +23,10 @@
 """
 
 import re
-import time
 
+from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
+from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
+from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.helper.gdal_axis_filler import GdalAxisFiller
 from master.helper.gdal_range_fields_generator import GdalRangeFieldsGenerator
 from master.importer.axis_subset import AxisSubset
@@ -36,6 +38,7 @@ from master.provider.metadata.irregular_axis import IrregularAxis
 from master.recipe.base_recipe import BaseRecipe
 from master.error.validate_exception import RecipeValidationException
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
+from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
 from util.log import log
@@ -46,7 +49,7 @@ from config_manager import ConfigManager
 from util.file_util import FileUtil
 from master.importer.resumer import Resumer
 from util.timer_util import Timer
-import os
+from recipes.general_coverage.recipe import Recipe as GeneralRecipe
 
 
 class Recipe(BaseRecipe):
@@ -59,6 +62,11 @@ class Recipe(BaseRecipe):
         self.options = session.get_recipe()['options'] if "options" in session.get_recipe() else {}
         self.importer = None
         self.resumer = Resumer(self.session.get_coverage_id())
+
+        self.recipe_type = GdalToCoverageConverter.RECIPE_TYPE
+        if "coverage" in self.options:
+            self.options['coverage']['slicer'] = {}
+            self.options['coverage']['slicer']['type'] = GdalToCoverageConverter.RECIPE_TYPE
 
         validator = GDALValidator(self.session.files)
         if ConfigManager.skip:
@@ -171,7 +179,7 @@ class Recipe(BaseRecipe):
 
         return sorted(ret)
 
-    def _get_slices(self, crs):
+    def _get_coverage_slices(self, crs, gdal_coverage_converter):
         """
         Returns the slices for the collection of files given
         """
@@ -203,7 +211,10 @@ class Recipe(BaseRecipe):
                     valid_coverage_slice = False
 
                 if valid_coverage_slice:
-                    slices.append(Slice(subsets, FileDataProvider(tpair.file)))
+                    # Generate local metadata string for current coverage slice
+                    evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, tpair.file)
+                    local_metadata = gdal_coverage_converter._generate_local_metadata(subsets, evaluator_slice)
+                    slices.append(Slice(subsets, FileDataProvider(tpair.file), local_metadata))
 
                 timer.print_elapsed_time()
                 count += 1
@@ -235,10 +246,32 @@ class Recipe(BaseRecipe):
         """
         gdal_dataset = GDALGmlUtil.open_gdal_dataset_from_any_file(self.session.get_files())
         crs = CRSUtil.get_compound_crs([self.options['time_crs'], gdal_dataset.get_crs()])
-        slices = self._get_slices(crs)
+
+        general_recipe = GeneralRecipe(self.session)
+        global_metadata_fields = general_recipe._global_metadata_fields()
+        local_metadata_fields = general_recipe._local_metadata_fields()
+
+        sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
+
+        gdal_coverage_converter = GdalToCoverageConverter(self.resumer, self.session.get_default_null_values(),
+                                                          self.recipe_type, sentence_evaluator,
+                                                          self.session.get_coverage_id(),
+                                                          None, self.session.get_files(),
+                                                          crs, None, None,
+                                                          global_metadata_fields, local_metadata_fields,
+                                                          None, None, general_recipe._metadata_type(),
+                                                          None, None)
+
+        coverage_slices = self._get_coverage_slices(crs, gdal_coverage_converter)
         fields = GdalRangeFieldsGenerator(gdal_dataset, self.options['band_names']).get_range_fields()
-        coverage = Coverage(self.session.get_coverage_id(), slices, fields, crs,
-            gdal_dataset.get_band_gdal_type(), self.options['tiling'])
+
+        global_metadata = None
+        if len(coverage_slices) > 0:
+            global_metadata = gdal_coverage_converter._generate_global_metadata(coverage_slices[0])
+
+        coverage = Coverage(self.session.get_coverage_id(), coverage_slices, fields, crs,
+                            gdal_dataset.get_band_gdal_type(), self.options['tiling'], global_metadata)
+
         return coverage
 
     def _get_importer(self):

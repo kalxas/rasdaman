@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oi-cov:OrthoimageCoverageMetadata xmlns:oi-cov="http://inspire.ec.europa.eu/schemas/oi/4.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/oi/4.0 https://schema.datacove.eu/OrthoimageryMetadata.xsd">
+	<oi-cov:inspireId>
+		<base:Identifier>
+			<base:localId>FILE 1</base:localId>
+			<base:namespace>catalunya</base:namespace>
+		</base:Identifier>
+	</oi-cov:inspireId>
+	<oi-cov:domainExtent>
+		<gmd:EX_Extent>
+			<gmd:description>
+				<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7623.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+			</gmd:description>
+			<gmd:geographicElement>
+				<gmd:EX_GeographicBoundingBox>
+					<gmd:westBoundLongitude>
+						<gco:Decimal>2.645040265</gco:Decimal>
+					</gmd:westBoundLongitude>
+					<gmd:eastBoundLongitude>
+						<gco:Decimal>2.813051159</gco:Decimal>
+					</gmd:eastBoundLongitude>
+					<gmd:southBoundLatitude>
+						<gco:Decimal>42.083102736</gco:Decimal>
+					</gmd:southBoundLatitude>
+					<gmd:northBoundLatitude>
+						<gco:Decimal>42.166893882</gco:Decimal>
+					</gmd:northBoundLatitude>
+				</gmd:EX_GeographicBoundingBox>
+			</gmd:geographicElement>
+		</gmd:EX_Extent>
+	</oi-cov:domainExtent>
+	<oi-cov:footprint>
+		<gml:MultiSurface>
+			<gml:surfaceMember>
+				<gml:Polygon>
+					<gml:exterior>
+						<gml:LinearRing>
+							<gml:posList>
+									42.166893882 2.645040265 42.166893882 2.813051159 42.083102736 2.813051159 42.083102736 2.645040265 42.166893882 2.645040265</gml:posList>
+						</gml:LinearRing>
+					</gml:exterior>
+				</gml:Polygon>
+			</gml:surfaceMember>
+		</gml:MultiSurface>
+	</oi-cov:footprint>
+	<oi-cov:interpolationType xlink:href="http://inspire.ec.europa.eu/codelist/InterpolationMethodValue/bilinear"/>
+	<oi-cov:name>oi25m7623.tif</oi-cov:name>
+	<oi-cov:phenomenonTime>
+		<gml:TimePeriod>
+			<gml:beginPosition>2018-06-26T10:15:35+01:00</gml:beginPosition>
+			<gml:endPosition>2018-07-04T11:09:36+01:00</gml:endPosition>
+		</gml:TimePeriod>
+	</oi-cov:phenomenonTime>
+	<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+</oi-cov:OrthoimageCoverageMetadata>

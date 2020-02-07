@@ -43,7 +43,6 @@ from util.file_obj import File
 from master.helper.high_pixel_adjuster import HighPixelAjuster
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from util.gdal_util import GDALGmlUtil
-from osgeo import gdal
 
 
 class GdalToCoverageConverter(AbstractToCoverageConverter):
@@ -54,7 +53,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields,
                  axes_metadata_fields, metadata_type, grid_coverage, import_order):
         """
-        Converts a grib list of files to a coverage
+        Converts a gdal list of files to a coverage
         :param resumer: resumer object
         :param default_null_values: list of null values from ingredient files if specified
         :param recipe_type: the type of recipe

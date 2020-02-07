@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions 
+>
+<wcs:CoverageDescription id="test_wcs_metadata_irregular_time_series">
+<boundedBy>
+<Envelope axisLabels="ansi Lat Lon" srsDimension="3"
+srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
+<lowerCorner>"2015-01-01T00:00:00.000Z" -44.975 111.975</lowerCorner>
+<upperCorner>"2015-07-01T00:00:00.000Z" -8.975 155.975</upperCorner>
+</Envelope>
+</boundedBy>
+<wcs:CoverageId>test_wcs_metadata_irregular_time_series</wcs:CoverageId>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +3 +1">Linear</sequenceRule>
+<startPoint>-3 0 -33</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<bands/>
+<axes/>
+<slices>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>ansi Lat Lon</axisLabels>
+<srsDimension>3</srsDimension>
+<lowerCorner>"2015-07-01T00:00:00+00:00" -44.975 144.975</lowerCorner>
+<upperCorner>"2015-07-01T00:00:00+00:00" -8.975 155.975</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>value_4</local_metadata_key>
+<INSPIRE>
+<oi-cov:OrthoimageCoverageMetadata
+>
+<oi-cov:inspireId>
+<base:Identifier>
+<base:localId>FILE 4</base:localId>
+<base:namespace>catalunya</base:namespace>
+</base:Identifier>
+</oi-cov:inspireId>
+<oi-cov:domainExtent>
+<gmd:EX_Extent>
+<gmd:description>
+<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7724.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+</gmd:description>
+<gmd:geographicElement>
+<gmd:EX_GeographicBoundingBox>
+<gmd:westBoundLonitude>
+<gco:Decimal>2.811931401</gco:Decimal>
+</gmd:westBoundLonitude>
+<gmd:eastBoundLonitude>
+<gco:Decimal>2.979503231</gco:Decimal>
+</gmd:eastBoundLonitude>
+<gmd:southBoundLatitude>
+<gco:Decimal>41.999761973</gco:Decimal>
+</gmd:southBoundLatitude>
+<gmd:northBoundLatitude>
+<gco:Decimal>42.083573749</gco:Decimal>
+</gmd:northBoundLatitude>
+</gmd:EX_GeographicBoundingBox>
+</gmd:geographicElement>
+</gmd:EX_Extent>
+</oi-cov:domainExtent>
+<oi-cov:footprint>
+<MultiSurface>
+<surfaceMember>
+<Polygon>
+<exterior>
+<LinearRing>
+<posList>
+42.083573749 2.811931401 42.083573749 2.979503231 41.999761973 2.979503231 41.999761973 2.811931401 42.083573749 2.811931401</posList>
+</LinearRing>
+</exterior>
+</Polygon>
+</surfaceMember>
+</MultiSurface>
+</oi-cov:footprint>
+<oi-cov:name>oi25m7724.tif</oi-cov:name>
+<oi-cov:phenomenonTime>
+<TimePeriod>
+<beginPosition>2018-06-26T09:42:44+01:00</beginPosition>
+<endPosition>2018-07-25T09:28:43+01:00</endPosition>
+</TimePeriod>
+</oi-cov:phenomenonTime>
+<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+</oi-cov:OrthoimageCoverageMetadata>
+</INSPIRE>
+</slice>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>ansi Lat Lon</axisLabels>
+<srsDimension>3</srsDimension>
+<lowerCorner>"2015-05-01T00:00:00+00:00" -44.975 134.975</lowerCorner>
+<upperCorner>"2015-05-01T00:00:00+00:00" -8.975 145.975</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>value_3</local_metadata_key>
+<INSPIRE>
+<oi-cov:OrthoimageCoverageMetadata
+>
+<oi-cov:inspireId>
+<base:Identifier>
+<base:localId>FILE 3</base:localId>
+<base:namespace>catalunya</base:namespace>
+</base:Identifier>
+</oi-cov:inspireId>
+<oi-cov:domainExtent>
+<gmd:EX_Extent>
+<gmd:description>
+<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7723.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+</gmd:description>
+<gmd:geographicElement>
+<gmd:EX_GeographicBoundingBox>
+<gmd:westBoundLonitude>
+<gco:Decimal>2.811926906</gco:Decimal>
+</gmd:westBoundLonitude>
+<gmd:eastBoundLonitude>
+<gco:Decimal>2.979506658</gco:Decimal>
+</gmd:eastBoundLonitude>
+<gmd:southBoundLatitude>
+<gco:Decimal>42.083095563</gco:Decimal>
+</gmd:southBoundLatitude>
+<gmd:northBoundLatitude>
+<gco:Decimal>42.166906064</gco:Decimal>
+</gmd:northBoundLatitude>
+</gmd:EX_GeographicBoundingBox>
+</gmd:geographicElement>
+</gmd:EX_Extent>
+</oi-cov:domainExtent>
+<oi-cov:footprint>
+<MultiSurface>
+<surfaceMember>
+<Polygon>
+<exterior>
+<LinearRing>
+<posList>
+42.166906064 2.811926906 42.166906064 2.979506658 42.083095563 2.979506658 42.083095563 2.811926906 42.166906064 2.811926906</posList>
+</LinearRing>
+</exterior>
+</Polygon>
+</surfaceMember>
+</MultiSurface>
+</oi-cov:footprint>
+<oi-cov:name>oi25m7723.tif</oi-cov:name>
+<oi-cov:phenomenonTime>
+<TimePeriod>
+<beginPosition>2018-06-26T10:15:35+01:00</beginPosition>
+<endPosition>2018-07-04T11:09:36+01:00</endPosition>
+</TimePeriod>
+</oi-cov:phenomenonTime>
+<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+</oi-cov:OrthoimageCoverageMetadata>
+</INSPIRE>
+</slice>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>ansi Lat Lon</axisLabels>
+<srsDimension>3</srsDimension>
+<lowerCorner>"2015-02-01T00:00:00+00:00" -44.975 129.975</lowerCorner>
+<upperCorner>"2015-02-01T00:00:00+00:00" -8.975 135.975</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>value_2</local_metadata_key>
+<INSPIRE>
+<oi-cov:OrthoimageCoverageMetadata
+>
+<oi-cov:inspireId>
+<base:Identifier>
+<base:localId>FILE 2</base:localId>
+<base:namespace>catalunya</base:namespace>
+</base:Identifier>
+</oi-cov:inspireId>
+<oi-cov:domainExtent>
+<gmd:EX_Extent>
+<gmd:description>
+<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7624.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+</gmd:description>
+<gmd:geographicElement>
+<gmd:EX_GeographicBoundingBox>
+<gmd:westBoundLonitude>
+<gco:Decimal>2.645051737</gco:Decimal>
+</gmd:westBoundLonitude>
+<gmd:eastBoundLonitude>
+<gco:Decimal>2.813053781</gco:Decimal>
+</gmd:eastBoundLonitude>
+<gmd:southBoundLatitude>
+<gco:Decimal>41.999769197</gco:Decimal>
+</gmd:southBoundLatitude>
+<gmd:northBoundLatitude>
+<gco:Decimal>42.083561712</gco:Decimal>
+</gmd:northBoundLatitude>
+</gmd:EX_GeographicBoundingBox>
+</gmd:geographicElement>
+</gmd:EX_Extent>
+</oi-cov:domainExtent>
+<oi-cov:footprint>
+<MultiSurface>
+<surfaceMember>
+<Polygon>
+<exterior>
+<LinearRing>
+<posList>
+42.083561712 2.645051737 42.083561712 2.813053781 41.999769197 2.813053781 41.999769197 2.645051737 42.083561712 2.645051737</posList>
+</LinearRing>
+</exterior>
+</Polygon>
+</surfaceMember>
+</MultiSurface>
+</oi-cov:footprint>
+<oi-cov:name>oi25m7624.tif</oi-cov:name>
+<oi-cov:phenomenonTime>
+<TimePeriod>
+<beginPosition>2018-06-26T09:42:44+01:00</beginPosition>
+<endPosition>2018-07-25T09:30:41+01:00</endPosition>
+</TimePeriod>
+</oi-cov:phenomenonTime>
+<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+</oi-cov:OrthoimageCoverageMetadata>
+</INSPIRE>
+</slice>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>ansi Lat Lon</axisLabels>
+<srsDimension>3</srsDimension>
+<lowerCorner>"2015-01-01T00:00:00+00:00" -44.975 111.975</lowerCorner>
+<upperCorner>"2015-01-01T00:00:00+00:00" -8.975 130.975</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>value_1</local_metadata_key>
+<INSPIRE>
+<oi-cov:OrthoimageCoverageMetadata
+>
+<oi-cov:inspireId>
+<base:Identifier>
+<base:localId>FILE 1</base:localId>
+<base:namespace>catalunya</base:namespace>
+</base:Identifier>
+</oi-cov:inspireId>
+<oi-cov:domainExtent>
+<gmd:EX_Extent>
+<gmd:description>
+<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7623.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+</gmd:description>
+<gmd:geographicElement>
+<gmd:EX_GeographicBoundingBox>
+<gmd:westBoundLonitude>
+<gco:Decimal>2.645040265</gco:Decimal>
+</gmd:westBoundLonitude>
+<gmd:eastBoundLonitude>
+<gco:Decimal>2.813051159</gco:Decimal>
+</gmd:eastBoundLonitude>
+<gmd:southBoundLatitude>
+<gco:Decimal>42.083102736</gco:Decimal>
+</gmd:southBoundLatitude>
+<gmd:northBoundLatitude>
+<gco:Decimal>42.166893882</gco:Decimal>
+</gmd:northBoundLatitude>
+</gmd:EX_GeographicBoundingBox>
+</gmd:geographicElement>
+</gmd:EX_Extent>
+</oi-cov:domainExtent>
+<oi-cov:footprint>
+<MultiSurface>
+<surfaceMember>
+<Polygon>
+<exterior>
+<LinearRing>
+<posList>
+42.166893882 2.645040265 42.166893882 2.813051159 42.083102736 2.813051159 42.083102736 2.645040265 42.166893882 2.645040265</posList>
+</LinearRing>
+</exterior>
+</Polygon>
+</surfaceMember>
+</MultiSurface>
+</oi-cov:footprint>
+<oi-cov:name>oi25m7623.tif</oi-cov:name>
+<oi-cov:phenomenonTime>
+<TimePeriod>
+<beginPosition>2018-06-26T10:15:35+01:00</beginPosition>
+<endPosition>2018-07-04T11:09:36+01:00</endPosition>
+</TimePeriod>
+</oi-cov:phenomenonTime>
+<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+</oi-cov:OrthoimageCoverageMetadata>
+</INSPIRE>
+</slice>
+</slices>
+<local_metadata_key>value_1</local_metadata_key>
+<AREA_OR_POINT>Area</AREA_OR_POINT>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_metadata_irregular_time_series-grid">
+<limits>
+<GridEnvelope>
+<low>-3 0 -33</low>
+<high>0 35 10</high>
+</GridEnvelope>
+</limits>
+<axisLabels>ansi Lat Lon</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_wcs_metadata_irregular_time_series-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
+<pos>"2015-01-01T00:00:00.000Z" -9.475 112.475</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">1 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>"2015-01-01T00:00:00.000Z" "2015-02-01T00:00:00.000Z" "2015-05-01T00:00:00.000Z" "2015-07-01T00:00:00.000Z"</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -1 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 1</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<wcs:ServiceParameters>
+<wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+</wcs:ServiceParameters>
+</wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

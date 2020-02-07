@@ -1,4 +1,4 @@
-<div class="row top15 row-centered">
+<div class="row row-centered top15" style="padding-bottom: 20px;">
     <div class="col-sm-11 col-centered">
         <div class="row row-centered">
             <div class="col-sm-12 input-group input-group-lg">
@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: 15px;">
             <div class="col-sm-12 col-centered">
                 <p>You have selected the coverage with ID:
                     <span class="important-text">{{coverageDescription.coverageId}} </span>
@@ -27,273 +27,292 @@
             </div>
         </div>
 
-        <div ng-show="coverageDescriptionsDocument.value" style="height: 70vh; margin-left: -20px;">
-            <div class="row" style=" height: 100%; margin-left: 5px; margin-right: -50px;  padding-right: 50px; overflow-y: scroll;">
-
-                <!-- WebWorldWind -->
-                <div ng-hide="isGetCoverageHideGlobe" style="margin-bottom: -25px;">
-                    <uib-accordion close-others="false">
-                        <uib-accordion-group is-open="isGlobeOpen">
-                            <uib-accordion-heading>
-                                Footprints of geo-referenced coverage
-                                <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isGlobeOpen, 
-                                            'glyphicon-chevron-right': !isGlobeOpen}"></i>
-                            </uib-accordion-heading>
-                            <div>
-                                <!-- Create a canvas for Web WorldWind. -->
-                                <canvas id="wcsCanvasGetCoverage" style="width:100%;height:500px;">
-                                    Your browser does not support HTML5 Canvas.
-                                </canvas>
-                            </div>
-                        </uib-accordion-group>
-                    </uib-accordion>
-                </div>
-                
-                <div>
-                    <uib-accordion class="col-sm-12" close-others="false" style="margin-top: 20px;">
-                        <uib-accordion-group class="row" is-open="getCoverageTabStates.isCoreOpen">
-                            <uib-accordion-heading>
-                                Core <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isCoreOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isCoreOpen}"></i>
-                            </uib-accordion-heading>
-                            <div>
-                                <div class="row">
-                                    <div class="col-sm-12 col-centered">
-                                        <div class="row">
-                                            <div class="col-sm-3">
-                                                <label for="select-coverage-format">
-                                                    Select encoding format:
-                                                </label>
-                                            </div>
-                                            <div class="col-sm-9">
-                                                <select id="select-coverage-format" ng-model="core.selectedCoverageFormat" ng-options="format for format in wcsStateInformation.serverCapabilities.serviceMetadata.formatSupported">\
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-3">
-                                                <label for="multipart-format">Multipart:</label>
-                                            </div>
-                                            <div class="col-sm-9 display-value">
-                                                <input id="multipart-format" type="checkbox" ng-model="core.isMultiPartFormat" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- coverage's axes's domains -->
-                                <div class="row">
-                                    <div class="col-sm-12 col-centered">
-                                        <div class="row top7" ng-repeat="axisLabel in coverageDescription.boundedBy.envelope.axisLabels">
-                                            <div class="col-sm-12">
-                                                <div class="row">
-                                                    <div class="col-sm-12">
-                                                        Subset coverage along {{typeOfAxis[$index]}} axis
-                                                        <span class="important-text">
-                                                            {{axisLabel}}
-                                                        </span> with domain extent from
-                                                        <span class="important-text"> {{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}} {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> to
-                                                        <span class="important-text"> {{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}  {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> by:
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <ul class="bullet-less">
-                                                        <li class="top5">
-
-                                                            <!-- trimming -->
-                                                            <input type="radio" ng-model="core.isTrimSelected[$index]" ng-value="true"> trimming from
-                                                            
-                                                            <!-- irregular axis low -->
-                                                            <input class="valuesContainer" type="string" list="{{'trimmIrrValuesMin' + $index}}" ng-model="item2" 
-                                                                ng-change="selectTrimIrregularMin($index)" ng-attr-id="{{'trimmIrrMin' + $index}}" 
-                                                                ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="!core.isTrimSelected[$index]"/>
-                                                            <datalist class="form-control" ng-attr-id="{{'trimmIrrValuesMin' + $index}}" ng-hide="true">
-                                                            </datalist>
-
-                                                            <!-- regular axis low -->
-                                                            <input class="valuesContainer" type="string" ng-model="core.trims[$index].trimLow" ng-change="inputValidator($index)" 
-                                                                ng-show="typeOfAxis[$index] == 'regular'" ng-disabled="!core.isTrimSelected[$index]">
-
-                                                            <span class="important-text">
-                                                                {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
-                                                            </span> 
-
-                                                            to
-
-                                                            <!-- irregular axis high -->
-                                                            <input class="valuesContainer" type="string" list="{{'trimmIrrValuesMax' + $index}}" ng-model="item1" 
-                                                                ng-change="selectTrimIrregularMax($index)" ng-attr-id="{{'trimmIrrMax' + $index}}" 
-                                                                ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="!core.isTrimSelected[$index]"/>
-                                                            <datalist  class="form-control" ng-attr-id="{{'trimmIrrValuesMax' + $index}}" ng-hide="true">
-                                                            </datalist>
-
-                                                            <!-- regular axis low -->
-                                                            <input class="valuesContainer" type="string" ng-model="core.trims[$index].trimHigh" ng-change="inputValidator($index)" 
-                                                                ng-show="typeOfAxis[$index] == 'regular'" ng-disabled="!core.isTrimSelected[$index]">
-                                                           
-                                                            <span class="important-text">
-                                                                {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
-                                                            </span>
-
-                                                            <!-- Validation -->
-                                                            <span ng-show="core.trims[$index].trimLowNotValid" style="color:#ff0000">
-                                                                Lower bound {{core.trims[$index].trimLow}} is not within axis's domain 
-                                                                [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
-                                                            </span>
-                                                            <span ng-show="core.trims[$index].trimHighNotValid" style="color:#ff0000">
-                                                                Upper bound {{core.trims[$index].trimHigh}} is not within axis's domain 
-                                                                [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
-                                                            </span>
-                                                            <span ng-show="core.trims[$index].trimLowerUpperBoundNotInOrder" style="color:#ff0000">
-                                                                Upper bound must be greater than lower bound.
-                                                            </span>
-                                                            <span ng-show="core.trims[$index].typeOfTrimUpperNotValidDate" style="color:#ff0000">
-                                                                Upper bound is not ISO 8601 format.
-                                                            </span>
-                                                            <span ng-show="core.trims[$index].typeOfTrimLowerNotValidDate" style="color:#ff0000">
-                                                                Lower bound is not ISO 8601 format.
-                                                            </span>
-                                                            <span ng-show="core.trims[$index].typeOfTrimUpperNotValidNumber" style="color:#ff0000">
-                                                                Upper bound is not number.
-                                                            </span>
-                                                            <span ng-show="core.trims[$index].typeOfTrimLowerNotValidNumber" style="color:#ff0000">
-                                                                Lower bound is not number.
-                                                            </span>
-                                                        </li>
-
-                                                        <li class="top5">
-
-                                                            <!-- slicing -->
-                                                            <input type="radio" ng-model="core.isTrimSelected[$index]" ng-value="false"> slicing at
-
-                                                            <!-- irregular axis slicing -->
-                                                            <input class="valuesContainer" type="string" list="{{'sliceIrrValues' + $index}}" ng-model="item3" 
-                                                                ng-change="selectSliceIrregular($index)" ng-attr-id="{{'sliceIrr' + $index}}" 
-                                                                ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="core.isTrimSelected[$index]" 
-                                                                style="margin-left: 28px;"/>
-                                                            <datalist  class="form-control" ng-attr-id="{{'sliceIrrValues' + $index}}" ng-hide="true">
-                                                            </datalist>
-
-                                                            <!-- regular axis slicing -->
-                                                            <input class="valuesContainer" type="string" ng-model="core.slices[$index].slicePoint" 
-                                                                ng-show="typeOfAxis[$index] == 'regular'" ng-change="inputValidator($index)" 
-                                                                ng-disabled="core.isTrimSelected[$index]" style="margin-left: 28px;">
-                                                            
-                                                            <span class="important-text" style="display:inline-block;">
-                                                                {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
-                                                            </span>
-
-                                                            <!-- Validation -->
-                                                            <span ng-show="core.slices[$index].sliceIrrNotValid" style="color:#ff0000">
-                                                                    value {{core.slices[$index].slicePoint}} does not exist in axis's direct position values
-                                                            </span>
-                                                            <span ng-show="core.slices[$index].sliceRegularNotValid" style="color:#ff0000">
-                                                                value {{core.slilces[$index].slicePoint}} is not within axis's domain 
-                                                                [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
-                                                            </span>
-                                                            <span ng-show="core.slices[$index].typeOfSliceNotValidDate" style="color:#ff0000">
-                                                                Input value is not ISO 8601 format.
-                                                            </span>
-                                                            <span ng-show="core.slices[$index].typeOfSliceNotValidNumber" style="color:#ff0000">
-                                                                Input value is not number.
-                                                            </span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                
-                                                <hr style="BORDER-RIGHT: medium none; BORDER-TOP: #cccccc 1px solid; BORDER-LEFT: medium none; BORDER-BOTTOM: medium none; HEIGHT: 1px"> 
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </uib-accordion-group>
-                    </uib-accordion>
-                </div>
-
-                <div ng-show="getCoverageTabStates.isRangeSubsettingSupported">
-                    <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
-                        <uib-accordion-group class="row" is-open="getCoverageTabStates.IsRangeSubsettingOpen">
-                            <uib-accordion-heading>
-                                Range Subsetting Extension
-                                <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.IsRangeSubsettingOpen, 'glyphicon-chevron-right': !getCoverageTabStates.IsRangeSubsettingOpen}"></i>
-                            </uib-accordion-heading>
-                            <div range-subsetting-extension ng-model="rangeSubsettingExtension">
-
-                            </div>
-                        </uib-accordion-group>
-                    </uib-accordion>
-                </div>
-
-                <div ng-show="getCoverageTabStates.isScalingSupported">
-                    <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
-                        <uib-accordion-group class="row" is-open="getCoverageTabStates.isScalingOpen">
-                            <uib-accordion-heading>
-                                Scaling Extension
-                                <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isScalingOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isScalingOpen}"></i>
-                            </uib-accordion-heading>
-                            <div scaling-extension ng-model="scalingExtension">
-                            </div>
-                        </uib-accordion-group>
-                    </uib-accordion>
-                </div>
-
-                <div ng-show="getCoverageTabStates.isCRSSupported">
-                    <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
-                        <uib-accordion-group class="row" is-open="getCoverageTabStates.isCRSOpen">
-                            <uib-accordion-heading>
-                                CRS Extension
-                                <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isCRSOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isCRSOpen}"></i>
-                            </uib-accordion-heading>
-                            <div crs-extension ng-model="crsExtension">
-                            </div>
-                        </uib-accordion-group>
-                    </uib-accordion>
-                </div>
-
-                <div ng-show="getCoverageTabStates.isClippingSupported">
-                    <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
-                        <uib-accordion-group class="row" is-open="getCoverageTabStates.isClippingOpen">
-                            <uib-accordion-heading>
-                                Clipping Extension
-                                <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isClippingOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isClippingOpen}"></i>
-                            </uib-accordion-heading>
-                            <div clipping-extension ng-model="clippingExtension">
-                            </div>
-                        </uib-accordion-group>
-                    </uib-accordion>
-                </div>
-
-                <div ng-show="getCoverageTabStates.isInterpolationSupported">
-                    <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
-                        <uib-accordion-group class="row" is-open="getCoverageTabStates.isInterpolationOpen">
-                            <uib-accordion-heading>
-                                Interpolation Extension
-                                <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isInterpolationOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isInterpolationOpen}"></i>
-                            </uib-accordion-heading>
-                            <div interpolation-extension ng-model="interpolationExtension">
-                            </div>
-                        </uib-accordion-group>
-                    </uib-accordion>
-                </div>
-
-                <!-- Only used for GET KVP Request -->
-                <div ng-show="core.requestUrl" style="background-color: white; padding: 10px; margin-left: 2px; margin-bottom: 15px;">
-                    The constructed GET KVP request is: <a href="{{core.requestUrl}}" target="_blank">{{core.requestUrl}}</a>
-                </div>
-
-            </div>
-        </div>
         <div ng-show="coverageDescriptionsDocument.value" 
-        style="position: fixed; bottom: 0; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 10px; margin-left: -15px; margin-right: 15px; margin-top: -5px; border-radius: 5px;">
+        style="background-color: white; margin: 20px 0px;" class="row row-centered">
+
             <b>Select HTTP request method</b>:
             <select style="height: 30px;" ng-options="httpRequest for httpRequest in avaiableHTTPRequests" 
                                 ng-model="selectedHTTPRequest" id="selectHTTPRequest">                             
             </select>
-            <button type="button" class="btn btn-info" style="margin-left: 15px;"               
-            ng-click="getCoverageClickEvent()">
-            <b> Get Coverage </b>
+            <button type="button" class="btn btn-primary" style="margin-left: 15px;"               
+                ng-click="getCoverageClickEvent()">
+                <b> Get Coverage </b>
             </button>
+
         </div>
+
+        
+        <div class="row" ng-show="coverageDescriptionsDocument.value">
+
+            <!-- WebWorldWind -->
+            <div ng-hide="isGetCoverageHideGlobe" style="margin-bottom: -25px;">
+                <uib-accordion close-others="false">
+                    <uib-accordion-group is-open="isGlobeOpen">
+                        <uib-accordion-heading>
+                            Footprints of geo-referenced coverage
+                            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isGlobeOpen, 
+                                        'glyphicon-chevron-right': !isGlobeOpen}"></i>
+                        </uib-accordion-heading>
+                        <div>
+                            <!-- Create a canvas for Web WorldWind. -->
+                            <canvas id="wcsCanvasGetCoverage" style="width:100%;height:500px;">
+                                Your browser does not support HTML5 Canvas.
+                            </canvas>
+                        </div>
+                    </uib-accordion-group>
+                </uib-accordion>
+            </div>
+            
+            <div>
+                <uib-accordion class="col-sm-12" close-others="false" style="margin-top: 20px;">
+                    <uib-accordion-group class="row" is-open="getCoverageTabStates.isCoreOpen">
+                        <uib-accordion-heading>
+                            Core <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isCoreOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isCoreOpen}"></i>
+                        </uib-accordion-heading>
+                        <div>
+                            <div class="row">
+                                <div class="col-sm-12 col-centered">
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <label for="select-coverage-format">
+                                                Select encoding format:
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <select id="select-coverage-format" ng-model="core.selectedCoverageFormat" ng-options="format for format in wcsStateInformation.serverCapabilities.serviceMetadata.formatSupported">\
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <label for="multipart-format">Multipart:</label>
+                                        </div>
+                                        <div class="col-sm-9 display-value">
+                                            <input id="multipart-format" type="checkbox" ng-model="core.isMultiPartFormat" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- coverage's axes's domains -->
+                            <div class="row">
+                                <div class="col-sm-12 col-centered">
+                                    <div class="row top7" ng-repeat="axisLabel in coverageDescription.boundedBy.envelope.axisLabels">
+                                        <div class="col-sm-12">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    Subset coverage along {{typeOfAxis[$index]}} axis
+                                                    <span class="important-text">
+                                                        {{axisLabel}}
+                                                    </span> with domain extent from
+                                                    <span class="important-text"> {{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}} {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> to
+                                                    <span class="important-text"> {{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}  {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> by:
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <ul class="bullet-less">
+                                                    <li class="top5">
+
+                                                        <!-- trimming -->
+                                                        <input type="radio" ng-model="core.isTrimSelected[$index]" ng-value="true"> trimming from
+                                                        
+                                                        <!-- irregular axis low -->
+                                                        <input class="valuesContainer" type="string" list="{{'trimmIrrValuesMin' + $index}}" ng-model="item2" 
+                                                            ng-change="selectTrimIrregularMin($index)" ng-attr-id="{{'trimmIrrMin' + $index}}" 
+                                                            ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="!core.isTrimSelected[$index]"/>
+                                                        <datalist class="form-control" ng-attr-id="{{'trimmIrrValuesMin' + $index}}" ng-hide="true">
+                                                        </datalist>
+
+                                                        <!-- regular axis low -->
+                                                        <input class="valuesContainer" type="string" ng-model="core.trims[$index].trimLow" ng-change="inputValidator($index)" 
+                                                            ng-show="typeOfAxis[$index] == 'regular'" ng-disabled="!core.isTrimSelected[$index]">
+
+                                                        <span class="important-text">
+                                                            {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
+                                                        </span> 
+
+                                                        to
+
+                                                        <!-- irregular axis high -->
+                                                        <input class="valuesContainer" type="string" list="{{'trimmIrrValuesMax' + $index}}" ng-model="item1" 
+                                                            ng-change="selectTrimIrregularMax($index)" ng-attr-id="{{'trimmIrrMax' + $index}}" 
+                                                            ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="!core.isTrimSelected[$index]"/>
+                                                        <datalist  class="form-control" ng-attr-id="{{'trimmIrrValuesMax' + $index}}" ng-hide="true">
+                                                        </datalist>
+
+                                                        <!-- regular axis low -->
+                                                        <input class="valuesContainer" type="string" ng-model="core.trims[$index].trimHigh" ng-change="inputValidator($index)" 
+                                                            ng-show="typeOfAxis[$index] == 'regular'" ng-disabled="!core.isTrimSelected[$index]">
+                                                        
+                                                        <span class="important-text">
+                                                            {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
+                                                        </span>
+
+                                                        <!-- Validation -->
+                                                        <span ng-show="core.trims[$index].trimLowNotValid" style="color:#ff0000">
+                                                            Lower bound {{core.trims[$index].trimLow}} is not within axis's domain 
+                                                            [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
+                                                        </span>
+                                                        <span ng-show="core.trims[$index].trimHighNotValid" style="color:#ff0000">
+                                                            Upper bound {{core.trims[$index].trimHigh}} is not within axis's domain 
+                                                            [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
+                                                        </span>
+                                                        <span ng-show="core.trims[$index].trimLowerUpperBoundNotInOrder" style="color:#ff0000">
+                                                            Upper bound must be greater than lower bound.
+                                                        </span>
+                                                        <span ng-show="core.trims[$index].typeOfTrimUpperNotValidDate" style="color:#ff0000">
+                                                            Upper bound is not ISO 8601 format.
+                                                        </span>
+                                                        <span ng-show="core.trims[$index].typeOfTrimLowerNotValidDate" style="color:#ff0000">
+                                                            Lower bound is not ISO 8601 format.
+                                                        </span>
+                                                        <span ng-show="core.trims[$index].typeOfTrimUpperNotValidNumber" style="color:#ff0000">
+                                                            Upper bound is not number.
+                                                        </span>
+                                                        <span ng-show="core.trims[$index].typeOfTrimLowerNotValidNumber" style="color:#ff0000">
+                                                            Lower bound is not number.
+                                                        </span>
+                                                    </li>
+
+                                                    <li class="top5">
+
+                                                        <!-- slicing -->
+                                                        <input type="radio" ng-model="core.isTrimSelected[$index]" ng-value="false"> slicing at
+
+                                                        <!-- irregular axis slicing -->
+                                                        <input class="valuesContainer" type="string" list="{{'sliceIrrValues' + $index}}" ng-model="item3" 
+                                                            ng-change="selectSliceIrregular($index)" ng-attr-id="{{'sliceIrr' + $index}}" 
+                                                            ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="core.isTrimSelected[$index]" 
+                                                            style="margin-left: 28px;"/>
+                                                        <datalist  class="form-control" ng-attr-id="{{'sliceIrrValues' + $index}}" ng-hide="true">
+                                                        </datalist>
+
+                                                        <!-- regular axis slicing -->
+                                                        <input class="valuesContainer" type="string" ng-model="core.slices[$index].slicePoint" 
+                                                            ng-show="typeOfAxis[$index] == 'regular'" ng-change="inputValidator($index)" 
+                                                            ng-disabled="core.isTrimSelected[$index]" style="margin-left: 28px;">
+                                                        
+                                                        <span class="important-text" style="display:inline-block;">
+                                                            {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
+                                                        </span>
+
+                                                        <!-- Validation -->
+                                                        <span ng-show="core.slices[$index].sliceIrrNotValid" style="color:#ff0000">
+                                                                value {{core.slices[$index].slicePoint}} does not exist in axis's direct position values
+                                                        </span>
+                                                        <span ng-show="core.slices[$index].sliceRegularNotValid" style="color:#ff0000">
+                                                            value {{core.slilces[$index].slicePoint}} is not within axis's domain 
+                                                            [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
+                                                        </span>
+                                                        <span ng-show="core.slices[$index].typeOfSliceNotValidDate" style="color:#ff0000">
+                                                            Input value is not ISO 8601 format.
+                                                        </span>
+                                                        <span ng-show="core.slices[$index].typeOfSliceNotValidNumber" style="color:#ff0000">
+                                                            Input value is not number.
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            
+                                            <hr style="BORDER-RIGHT: medium none; BORDER-TOP: #cccccc 1px solid; BORDER-LEFT: medium none; BORDER-BOTTOM: medium none; HEIGHT: 1px"> 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </uib-accordion-group>
+                </uib-accordion>
+            </div>
+
+            <div ng-show="getCoverageTabStates.isRangeSubsettingSupported">
+                <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
+                    <uib-accordion-group class="row" is-open="getCoverageTabStates.IsRangeSubsettingOpen">
+                        <uib-accordion-heading>
+                            Range Subsetting Extension
+                            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.IsRangeSubsettingOpen, 'glyphicon-chevron-right': !getCoverageTabStates.IsRangeSubsettingOpen}"></i>
+                        </uib-accordion-heading>
+                        <div range-subsetting-extension ng-model="rangeSubsettingExtension">
+
+                        </div>
+                    </uib-accordion-group>
+                </uib-accordion>
+            </div>
+
+            <div ng-show="getCoverageTabStates.isScalingSupported">
+                <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
+                    <uib-accordion-group class="row" is-open="getCoverageTabStates.isScalingOpen">
+                        <uib-accordion-heading>
+                            Scaling Extension
+                            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isScalingOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isScalingOpen}"></i>
+                        </uib-accordion-heading>
+                        <div scaling-extension ng-model="scalingExtension">
+                        </div>
+                    </uib-accordion-group>
+                </uib-accordion>
+            </div>
+
+            <div ng-show="getCoverageTabStates.isCRSSupported">
+                <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
+                    <uib-accordion-group class="row" is-open="getCoverageTabStates.isCRSOpen">
+                        <uib-accordion-heading>
+                            CRS Extension
+                            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isCRSOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isCRSOpen}"></i>
+                        </uib-accordion-heading>
+                        <div crs-extension ng-model="crsExtension">
+                        </div>
+                    </uib-accordion-group>
+                </uib-accordion>
+            </div>
+
+            <div ng-show="getCoverageTabStates.isClippingSupported">
+                <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
+                    <uib-accordion-group class="row" is-open="getCoverageTabStates.isClippingOpen">
+                        <uib-accordion-heading>
+                            Clipping Extension
+                            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isClippingOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isClippingOpen}"></i>
+                        </uib-accordion-heading>
+                        <div clipping-extension ng-model="clippingExtension">
+                        </div>
+                    </uib-accordion-group>
+                </uib-accordion>
+            </div>
+
+            <div ng-show="getCoverageTabStates.isInterpolationSupported">
+                <uib-accordion class="col-sm-12" close-others="false" style="margin-top: -10px;">
+                    <uib-accordion-group class="row" is-open="getCoverageTabStates.isInterpolationOpen">
+                        <uib-accordion-heading>
+                            Interpolation Extension
+                            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isInterpolationOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isInterpolationOpen}"></i>
+                        </uib-accordion-heading>
+                        <div interpolation-extension ng-model="interpolationExtension">
+                        </div>
+                    </uib-accordion-group>
+                </uib-accordion>
+            </div>
+
+            <!-- Only used for GET KVP Request -->
+            <div ng-show="core.requestUrl" style="background-color: white; padding: 10px; margin-left: 2px; margin-bottom: 15px;">
+                The constructed GET KVP request is: <a href="{{core.requestUrl}}" target="_blank">{{core.requestUrl}}</a>
+            </div>
+
+        </div>
+
+        <div ng-show="coverageDescriptionsDocument.value" 
+        style="background-color: white; margin: 20px 0px;" class="row row-centered">
+
+            <b>Select HTTP request method</b>:
+            <select style="height: 30px;" ng-options="httpRequest for httpRequest in avaiableHTTPRequests" 
+                                ng-model="selectedHTTPRequest" id="selectHTTPRequest">                             
+            </select>
+            <button type="button" class="btn btn-primary" style="margin-left: 15px;"               
+                ng-click="getCoverageClickEvent()">
+                <b> Get Coverage </b>
+            </button>
+
+        </div>
+
+   
+        
     
 </div>
 

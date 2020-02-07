@@ -21,7 +21,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-import re
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
 from master.error.validate_exception import RecipeValidationException
@@ -47,7 +46,6 @@ from util.string_util import escape_metadata_nested_dicts
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
 from master.importer.resumer import Resumer
-from util.list_util import get_null_values
 
 
 class Recipe(BaseRecipe):
@@ -395,7 +393,7 @@ class Recipe(BaseRecipe):
         """
         file_path = self.session.get_files()[0].filepath
 
-        if "metadata" in self.options['coverage']:
+        if "coverage" in self.options and "metadata" in self.options['coverage']:
 
             if "global" in self.options['coverage']['metadata']:
                 global_metadata = self.options['coverage']['metadata']['global']
@@ -433,7 +431,7 @@ class Recipe(BaseRecipe):
         Returns the local metadata fields
         :rtype: dict
         """
-        if "metadata" in self.options['coverage']:
+        if "coverage" in self.options and "metadata" in self.options['coverage']:
             if "local" in self.options['coverage']['metadata']:
                 # Each file can have different local metadata (e.g: different netCDF attributes, tiff tags,...)
                 local_metadata_dict = self.options['coverage']['metadata']['local']
@@ -606,7 +604,7 @@ class Recipe(BaseRecipe):
         Returns the metadata type
         :rtype: str
         """
-        if "metadata" in self.options['coverage']:
+        if "coverage" in self.options and "metadata" in self.options['coverage']:
             return self.options['coverage']['metadata']['type']
         return None
 
