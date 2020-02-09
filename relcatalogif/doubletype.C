@@ -58,3 +58,18 @@ char *DoubleType::makeFromCDouble(char *cell, const r_Double *value) const
     *reinterpret_cast<r_Double *>(cell) = *value;
     return cell;
 }
+
+r_ULong *DoubleType::convertToCULong(const char *cell, r_ULong *value) const
+{
+  auto tmp = *reinterpret_cast<const r_Double *>(cell);
+  *value = tmp > UINT_MAX ? UINT_MAX : static_cast<r_ULong>(tmp);
+  return value;
+}
+
+r_Long *DoubleType::convertToCLong(const char *cell, r_Long *value) const
+{
+  auto tmp = *reinterpret_cast<const r_Double *>(cell);
+  *value = tmp > INT_MAX ? INT_MAX : 
+          (tmp < INT_MIN ? INT_MIN : static_cast<r_Long>(tmp));
+  return value;
+}

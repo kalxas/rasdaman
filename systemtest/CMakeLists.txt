@@ -32,7 +32,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/conf/test.cfg.in"
                
 
 add_custom_target(check
-        COMMAND ./run_test.sh ${BIN_DIR}
+        COMMAND ./run_test.sh
         DEPENDS run_test.sh
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Running system tests."

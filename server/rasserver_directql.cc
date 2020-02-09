@@ -136,13 +136,7 @@ void openDatabase()
     {
         auto &instance = RasServerEntry::getInstance();
         accessControl.setServerName(DQ_SERVER_NAME);
-        accessControl.crunchCapability(DQ_CAPABILITY);
-        
-        if (configuration.getBaseName())
-            baseName = configuration.getBaseName();
-        else
-            baseName = getDefaultDb();
-        
+        baseName = configuration.getBaseName() ? configuration.getBaseName() : getDefaultDb();
         strcpy(globalConnectId, baseName.c_str());
         instance.connectToRasbase();
         
@@ -151,7 +145,9 @@ void openDatabase()
         if (configuration.getPasswd())
             passwd = configuration.getPasswd();
         
-        instance.connectNewClient(DQ_CAPABILITY);
+        char capability[500];
+        sprintf(capability, "%s$U%s$P%s$K", DQ_CAPABILITY, user, passwd);
+        instance.connectNewClient(capability);
         
         INFO("opening database " << baseName << " at " << DQ_SERVER_NAME << "..." << flush);
         instance.openDB(baseName.c_str());
@@ -561,6 +557,7 @@ void doStuff()
 
     try
     {
+        openDatabase();
         if (fileName != NULL)
         {
             openTransaction(false);
@@ -714,7 +711,7 @@ void doStuff()
             openTransaction(false);
 
             ExecuteQueryRes result;
-            unsigned short status = instance.compat_executeQueryRpc(queryString, result);
+            auto status = instance.compat_executeQueryRpc(queryString, result);
 
             if (status <= 2) {
                 printOutput(status, &result);
@@ -736,8 +733,10 @@ void doStuff()
             SECURE_FREE_PTR(marray->domain);
             SECURE_FREE_PTR(marray);
         }
+        closeDatabase();
         throw err;
     }
+    closeDatabase();
 
     if (marray)
     {

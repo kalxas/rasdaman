@@ -52,8 +52,8 @@ r_ULong *ULongType::convertToCULong(const char *cell, r_ULong *value) const
 
 r_Long *ULongType::convertToCLong(const char *cell, r_Long *value) const
 {
-    auto tmp = *reinterpret_cast<const r_Long *>(cell);
-    *value = tmp > INT_MAX ? INT_MAX : tmp;
+    auto tmp = *reinterpret_cast<const r_ULong *>(cell);
+    *value = tmp > INT_MAX ? INT_MAX : static_cast<r_Long>(tmp);
     return value;
 }
 

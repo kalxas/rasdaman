@@ -59,8 +59,10 @@ public:
     void printCell(std::ostream &stream, const char *cell) const override;
 
     double *convertToCDouble(const char *cell, r_Double *value) const override;
-
     char *makeFromCDouble(char *cell, const r_Double *value) const override;
+    
+    r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
+    r_Long *convertToCLong(const char *cell, r_Long *value) const override;
 
     static const char *Name;
 

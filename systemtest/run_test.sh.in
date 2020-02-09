@@ -21,21 +21,16 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <rasdaman_bin_directory>"
-    exit 1
-fi
+PROG=$(basename $0)
 
-TEST_SEQUENCE=`ls -d @TEST_SEQUENCE@`
-BIN_DIR=$1
-if [ ! -d "$BIN_DIR" ]; then
-    echo "Directory not found: $BIN_DIR"
-    exit 1
-fi
-if [ ! -f "$BIN_DIR/rasql" ]; then
-    echo "rasql not found: $BIN_DIR/rasql"
-    exit 1
-fi
+log()   { echo -e "$PROG: $@"; }
+error() { log "$@; exiting."; exit 1; }
+
+TEST_SEQUENCE=$(ls -d @TEST_SEQUENCE@)
+BIN_DIR="@BIN_DIR@"
+
+[ -d "$BIN_DIR" ] || error "Rasdaman bin directory not found: '$BIN_DIR'"
+[ -f "$BIN_DIR/rasql" ] || error "rasql not found: $BIN_DIR/rasql"
 
 PATH=$BIN_DIR:$PATH
 
@@ -45,25 +40,36 @@ rm -f "$log"
 ret=0
 
 for test_case in $TEST_SEQUENCE; do
-    PROG_TEST=($test_case/*.sh)
-    echo $PROG_TEST
-    [ -f $PROG_TEST ] || continue
-    echo
-    echo
 
+    # determine test script
+    TEST_SCRIPT="$test_case/test.sh"
+    if [ ! -f $TEST_SCRIPT ]; then
+        TEST_SCRIPT="$test_case/test.py"
+        if [ ! -f $TEST_SCRIPT ]; then
+            log "test script not found in $test_case (neither test.sh nor test.py); skipping test."
+            continue
+        fi
+    fi
+
+    echo
+    echo "==================================================================================="
+    log "Running test $TEST_SCRIPT\n"
+
+    # execute test script, check result and log it along with execution time (s)
     SECONDS=0
-    $PROG_TEST
+    $TEST_SCRIPT
     rc=$?
     case $rc in
-        2) status=SKIP;;
         0) status=OK;;
+        2) status=SKIP;;
         *) status=FAIL; ret=$rc;;
     esac
-    # print status to output
-    printf "%5s %4ds  $PROG_TEST\n" $status $SECONDS >> "$log"
+    printf "%5s %4ds  $TEST_SCRIPT\n" $status $SECONDS >> "$log"
 done
 
-echo -e "\n\nTEST SUMMARY\n"
+echo
+echo
+log "TEST SUMMARY\n"
 cat "$log"
 
 exit $ret

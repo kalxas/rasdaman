@@ -57,7 +57,22 @@ double *FloatType::convertToCDouble(const char *cell, r_Double *value) const
 
 char *FloatType::makeFromCDouble(char *cell, const r_Double *value) const
 {
-    *reinterpret_cast<r_Float *>(cell) = static_cast<r_Float>(*value);
-    return cell;
+  *reinterpret_cast<r_Float *>(cell) = static_cast<r_Float>(*value);
+  return cell;
+}
+
+r_ULong *FloatType::convertToCULong(const char *cell, r_ULong *value) const
+{
+  auto tmp = *reinterpret_cast<const r_Float *>(cell);
+  *value = tmp > UINT_MAX ? UINT_MAX : static_cast<r_ULong>(tmp);
+  return value;
+}
+
+r_Long *FloatType::convertToCLong(const char *cell, r_Long *value) const
+{
+  auto tmp = *reinterpret_cast<const r_Float *>(cell);
+  *value = tmp > INT_MAX ? INT_MAX : 
+          (tmp < INT_MIN ? INT_MIN : static_cast<r_Long>(tmp));
+  return value;
 }
 

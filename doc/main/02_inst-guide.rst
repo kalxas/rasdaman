@@ -2888,9 +2888,6 @@ for a particular server using the ``rascontrol`` command ``change srv -xp``
 which passes the rest of the line after ``-xp`` on to the server upon
 starting it (see :ref:`sec-rasdaman-servers`).
 
---enablefs              store new tiles in operating system files; only relevant
-                        when PostgreSQL backend is used.
-
 --log logfile           print log to *logfile.*
                         If *logfile* is stdout, then log output will be printed to
                         standard output.
@@ -2899,17 +2896,14 @@ starting it (see :ref:`sec-rasdaman-servers`).
 --timeout t             client time out in seconds for sign-of-life signal.
                         If no t indicated: 300 sec; if set to 0, no sign-of-life
                         check is done.
-                        Activated only if ``--mgmntint`` is also set.
 
 --transbuffer b         set maximum size of transfer buffer to *b* bytes
-                        (default: 4 MB = 4,194,304 bytes)
+                        (default: 10 MB = 10000000 bytes)
 
---cachelimit c
-                        upper limit of cache area in bytes
+--cachelimit c          specifies upper limit in bytes on using memory for caching
                         (default: 0)
 
---enable-tilelocking
-                        perform tile-level locking on insert / update / delete
+--enable-tilelocking    perform tile-level locking on insert / update / delete
                         (default: whole database is locked)
 
 Distributed Query Processing

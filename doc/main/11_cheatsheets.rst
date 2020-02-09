@@ -6,6 +6,166 @@
 Cheatsheets
 ###########
 
+.. _cheatsheet-wcs:
+
+WCS
+===
+
+The `OGC Web Coverage Service (WCS) standard 
+<https://www.opengeospatial.org/standards/wcs>`_ defines support for modeling
+and retrieval of geospatial data as *coverages* (e.g. sensor, image, or
+statistics data).
+
+WCS consists of a *Core* specification for basic operation support with regards
+to coverage discovery and retreival, and various *Extension* specifications for
+optional capabilities that a service could provide on offered coverage objects.
+
+Core
+----
+
+The Core specification is agnostic of implementation details, hence, access 
+syntax and mechanics are defined by *protocol extensions*:
+`KVP/GET <https://portal.opengeospatial.org/files/09-147r3>`__,
+`XML/POST <https://portal.opengeospatial.org/files/09-148r1>`__, and 
+`XML/SOAP <https://portal.opengeospatial.org/files/09-149r1>`__.  Rasdaman 
+supports all three, but further on the examples are in *KVP/GET* exclusively, as it
+is the most straightforward way for constructing requests by appending a standard
+`query string <https://en.wikipedia.org/wiki/Query_string>`__ to the
+service endpoint URL. Commonly, for all operations the KVP/GET request will look
+as follows: ::
+
+  http(s)://<endpoint url>?service=WCS
+                          &version=2.0.1
+                          &request=<operation>
+                          &...
+
+Three fundamental operations are defined by the Core:
+
+- **GetCapabilities** - returns overal service information and a list of available
+  coverages; the request looks generally as above, with the `<operation>` being
+  GetCapabilities:
+
+  ::
+
+    http(s)://<endpoint url>?service=WCS&version=2.0.1&request=GetCapabilities
+
+- **DescribeCoverage** - detailed description of a specific coverage:
+
+  ::
+
+    http(s)://<endpoint url>?service=WCS&version=2.0.1&request=DescribeCoverage
+                            &coverageId=<coverage id>
+
+- **GetCoverage** - retreive a whole coverage, or arbitrarily restricted on any of
+  its axes whether by new lower/upper bounds (*trimming*) or at a single index
+  (*slicing*):
+
+  ::
+
+    http(s)://<endpoint url>?service=WCS&version=2.0.1&request=GetCoverage
+                            &coverageId=<coverage id>
+            [optional]      &subset=<axis>(<lower>:<upper>)
+            [optional]      &subset=<axis>(<index>)
+            [optional]      &format=<mime type>
+
+  Example:
+
+  ::
+
+    http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=DescribeCoverage
+      &coverageId=My3DCov&subset=Lat(10.0:15.3)&subset=time("2020-02-11")&format=image/tiff
+
+
+Updating
+--------
+
+The `Transaction extension (WCS-T) 
+<http://docs.opengeospatial.org/is/13-057r1/13-057r1.html>`__ specifies the
+following operations for constructing, maintenance, and removal of coverages on
+a server: *InsertCoverage*, *UpdateCoverage*, and *DeleteCoverage*.
+
+Rasdaman provides the `wcst_import tool
+<http://doc.rasdaman.org/05_geo-services-guide.html#data-import>`__ to simplify
+the ingestion of data into analysis-ready coverages (aka datacubes) by 
+generating WCS-T requests as instructed by a simple configuration file.
+
+
+Processing
+----------
+
+The `Processing extension <https://portal.opengeospatial.org/files/08-059r4>`__
+enables advanced analytics on coverages through `WCPS <cheatsheet-wcps>`__
+queries. The request format is as follows: ::
+
+  http(s)://<endpoint url>?service=WCS&version=2.0.1&request=ProcessCoverages
+                          &query=<wcps query>
+
+E.g, calculate the average on the subset from the previous GetCoverage example: ::
+
+  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=ProcessCoverages
+    &query=for $c in (My3DCov) return avg($c[Lat(10.0:15.3), time("2020-02-11")])
+
+
+Range subsetting
+----------------
+
+The cell values of some coverages consist of multiple components (also known as
+ranges, bands, channels, fields, attributes). The `Range subsetting extension
+<https://portal.opengeospatial.org/files/12-040>`__ specifies the extraction
+and/or recombination in possibly different order of one or more bands. This is
+done by listing the wanted bands or band intervals; e.g assuming `MyRGBCov` has
+red, green, and blue bands, the following recombines the bands into a green,
+blue, red order: ::
+
+  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
+    &coverageId=MyRGBCov&rangesubset=green:blue,red
+
+
+Scaling
+-------
+
+Scaling up or down is a common operation supported by the `Scaling extension
+<https://portal.opengeospatial.org/files/12-039>`__. An additional GetCoverage
+parameter indicates the scale factor in several possible ways: as a single 
+number applying to all axes, multiple numbers applying to individual axes,
+full target scale domain, or per-axis target scale domains. E.g. a single factor
+downscale all axes by 2x: ::
+
+  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
+    &coverageId=MyLargeCov&scaleFactor=0.5
+
+
+Reprojection
+------------
+
+The `CRS extension <https://portal.opengeospatial.org/files/54209>`__ allows to
+reproject a coverage before retreiving it: ::
+
+  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
+    &coverageId=MyCov&outputCrs=http://www.opengis.net/def/crs/EPSG/0/4326
+
+or change the CRS in which subset or scale coordinates are specified: ::
+
+  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
+    &coverageId=MyCov&subsetCrs=http://www.opengis.net/def/crs/EPSG/0/4326
+
+
+Interpolation
+-------------
+
+Scaling or reprojection can be performed with various interpolation methods as
+enabled by the `Interpolation extension
+<https://portal.opengeospatial.org/files/12-049>`__: ::
+
+  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
+    &coverageId=MyCov&interpolation=http://www.opengis.net/def/interpolation/OGC/1/cubic
+
+Rasdaman supports several interpolations as documented `here
+<http://doc.rasdaman.org/04_ql-guide.html#the-project-function>`__.
+
+
+.. _cheatsheet-wcps:
+
 WCPS
 ====
 
@@ -196,3 +356,24 @@ Several functions allow to extract metadata information about a coverage ``C``:
 +---------------------------+-----------------------------------------+
 | nullSet(C)                | Set of null values.                     |
 +---------------------------+-----------------------------------------+
+
+
+.. _cheatsheet-wms:
+
+WMS
+===
+
+The `OGC Web Map Service (WMS) standard 
+<https://www.opengeospatial.org/standards/wms>`_ defines map portrayal on
+geo-spatial data. In rasdaman, a WMS service can be enabled on any coverage,
+including 3-D or higher dimensional; the latest 1.3.0 version is supported.
+
+WMS defines three operations: *GetCapabilities*, *GetMap*, and *GetFeatureInfo*.
+We will not go into the details, as users do not normally hand-write WMS 
+requests, but let a client tool or library generate them instead. Below we list
+several widely used Web and Desktop tools with support for WMS 1.3:
+
+- `OpenLayers <https://openlayers.org/>`__
+- `NASA WebWorldWind <https://worldwind.arc.nasa.gov/web/>`__
+- `Leaflet <https://leafletjs.com/examples/wms/wms.html>`__
+- `QGIS <https://docs.qgis.org/3.4/en/docs/user_manual/working_with_ogc/ogc_client_support.html#wms-wmts-client>`__

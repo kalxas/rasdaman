@@ -191,7 +191,7 @@ done
 if [ -n "$test_single_file" ]; then
   [ -f "$QUERIES_PATH/$test_single_file" ] || error "$test_single_file not found."
 else
-  rm -r "$OUTPUT_PATH"
+  rm -rf "$OUTPUT_PATH"
   mkdir -p "$OUTPUT_PATH"
 fi
 
