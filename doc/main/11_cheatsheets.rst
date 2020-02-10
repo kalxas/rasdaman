@@ -49,12 +49,20 @@ Three fundamental operations are defined by the Core:
 
     http(s)://<endpoint url>?service=WCS&version=2.0.1&request=GetCapabilities
 
+  Example:
+
+    http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCapabilities
+
 - **DescribeCoverage** - detailed description of a specific coverage:
 
   ::
 
     http(s)://<endpoint url>?service=WCS&version=2.0.1&request=DescribeCoverage
                             &coverageId=<coverage id>
+
+  Example:
+
+    http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=DescribeCoverage&coverageId=AvgLandTemp
 
 - **GetCoverage** - retreive a whole coverage, or arbitrarily restricted on any of
   its axes whether by new lower/upper bounds (*trimming*) or at a single index
@@ -64,16 +72,13 @@ Three fundamental operations are defined by the Core:
 
     http(s)://<endpoint url>?service=WCS&version=2.0.1&request=GetCoverage
                             &coverageId=<coverage id>
-            [optional]      &subset=<axis>(<lower>:<upper>)
+            [optional]      &subset=<axis>(<lower>,<upper>)
             [optional]      &subset=<axis>(<index>)
             [optional]      &format=<mime type>
 
   Example:
 
-  ::
-
-    http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=DescribeCoverage
-      &coverageId=My3DCov&subset=Lat(10.0:15.3)&subset=time("2020-02-11")&format=image/tiff
+    `http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AvgLandTemp&subset=Lon(-90.0,85.3)&subset=ansi("2014-10-01")&format=image/jpeg <http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AvgLandTemp&subset=Lon(-90.0,85.3)&subset=ansi("2014-10-01")&format=image/jpeg>`__
 
 
 Updating
@@ -100,10 +105,9 @@ queries. The request format is as follows: ::
   http(s)://<endpoint url>?service=WCS&version=2.0.1&request=ProcessCoverages
                           &query=<wcps query>
 
-E.g, calculate the average on the subset from the previous GetCoverage example: ::
+E.g, calculate the average on the subset from the previous GetCoverage example:
 
-  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=ProcessCoverages
-    &query=for $c in (My3DCov) return avg($c[Lat(10.0:15.3), time("2020-02-11")])
+  `http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=ProcessCoverages&query=for $c in (AvgLandTemp) return avg($c[Lon(-90.0:85.3), ansi("2014-10-01")]) <http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=ProcessCoverages&query=for $c in (AvgLandTemp) return avg($c[Lon(-90.0:85.3), ansi("2014-10-01")])>`__
 
 
 Range subsetting
@@ -113,12 +117,11 @@ The cell values of some coverages consist of multiple components (also known as
 ranges, bands, channels, fields, attributes). The `Range subsetting extension
 <https://portal.opengeospatial.org/files/12-040>`__ specifies the extraction
 and/or recombination in possibly different order of one or more bands. This is
-done by listing the wanted bands or band intervals; e.g assuming `MyRGBCov` has
-red, green, and blue bands, the following recombines the bands into a green,
-blue, red order: ::
+done by listing the wanted bands or band intervals; e.g
+`AverageChlorophyllScaled` has Blue, Green, and Red bands and the following
+recombines them into a Red, Green, Blue order:
 
-  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
-    &coverageId=MyRGBCov&rangesubset=green:blue,red
+  `http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AverageChlorophyllScaled&format=image/png&subset=unix("2015-01-01")&rangesubset=Red,Green,Blue <http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AverageChlorophyllScaled&format=image/png&subset=unix("2015-01-01")&rangesubset=Red,Green,Blue>`__
 
 
 Scaling
@@ -129,25 +132,24 @@ Scaling up or down is a common operation supported by the `Scaling extension
 parameter indicates the scale factor in several possible ways: as a single 
 number applying to all axes, multiple numbers applying to individual axes,
 full target scale domain, or per-axis target scale domains. E.g. a single factor
-downscale all axes by 2x: ::
+to downscale all axes by 4x:
 
-  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
-    &coverageId=MyLargeCov&scaleFactor=0.5
+  `http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AvgLandTemp&subset=ansi("2014-10-01")&format=image/jpeg&scaleFactor=0.25 <http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AvgLandTemp&subset=ansi("2014-10-01")&format=image/jpeg&scaleFactor=0.25>`__
 
 
 Reprojection
 ------------
 
 The `CRS extension <https://portal.opengeospatial.org/files/54209>`__ allows to
-reproject a coverage before retreiving it: ::
+reproject a coverage before retreiving it. For example ``AverageChlorophyllScaled``
+has native CRS EPSG:4326, and the following request will return the result in
+EPSG:3857:
 
-  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
-    &coverageId=MyCov&outputCrs=http://www.opengis.net/def/crs/EPSG/0/4326
+  `http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AverageChlorophyllScaled&format=image/png&subset=unix("2015-01-01")&outputCrs=http://ows.rasdaman.org/def/crs/EPSG/0/3857 <http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AverageChlorophyllScaled&format=image/png&subset=unix("2015-01-01")&outputCrs=http://ows.rasdaman.org/def/crs/EPSG/0/3857>`__
 
-or change the CRS in which subset or scale coordinates are specified: ::
+or change the CRS in which subset or scale coordinates are specified:
 
-  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
-    &coverageId=MyCov&subsetCrs=http://www.opengis.net/def/crs/EPSG/0/4326
+  `http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AverageChlorophyllScaled&format=image/png&subset=Lon(0,10000000)&subset=Lat(0,20000000)&subset=unix(%222015-01-01%22)&subsettingCrs=http://ows.rasdaman.org/def/crs/EPSG/0/3857 <http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AverageChlorophyllScaled&format=image/png&subset=Lon(0,10000000)&subset=Lat(0,20000000)&subset=unix(%222015-01-01%22)&subsettingCrs=http://ows.rasdaman.org/def/crs/EPSG/0/3857>`__
 
 
 Interpolation
@@ -155,10 +157,9 @@ Interpolation
 
 Scaling or reprojection can be performed with various interpolation methods as
 enabled by the `Interpolation extension
-<https://portal.opengeospatial.org/files/12-049>`__: ::
+<https://portal.opengeospatial.org/files/12-049>`__:
 
-  http://ows.rasdaman.org/ows?service=WCS&version=2.0.1&request=GetCoverage
-    &coverageId=MyCov&interpolation=http://www.opengis.net/def/interpolation/OGC/1/cubic
+  http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=mean_summer_airtemp&outputCrs=http://ows.rasdaman.org/def/crs/EPSG/0/3857&interpolation=http://www.opengis.net/def/interpolation/OGC/1/cubic
 
 Rasdaman supports several interpolations as documented `here
 <http://doc.rasdaman.org/04_ql-guide.html#the-project-function>`__.
@@ -368,12 +369,344 @@ The `OGC Web Map Service (WMS) standard
 geo-spatial data. In rasdaman, a WMS service can be enabled on any coverage,
 including 3-D or higher dimensional; the latest 1.3.0 version is supported.
 
-WMS defines three operations: *GetCapabilities*, *GetMap*, and *GetFeatureInfo*.
+rasdaman supports two operations: *GetCapabilities*, *GetMap* from the standard.
 We will not go into the details, as users do not normally hand-write WMS 
-requests, but let a client tool or library generate them instead. Below we list
-several widely used Web and Desktop tools with support for WMS 1.3:
+requests, but let a client tool or library generate them instead. Please check
+the :ref:`cheatsheet-clients` section for some examples.
 
-- `OpenLayers <https://openlayers.org/>`__
-- `NASA WebWorldWind <https://worldwind.arc.nasa.gov/web/>`__
-- `Leaflet <https://leafletjs.com/examples/wms/wms.html>`__
-- `QGIS <https://docs.qgis.org/3.4/en/docs/user_manual/working_with_ogc/ogc_client_support.html#wms-wmts-client>`__
+.. _cheatsheet-clients:
+
+Clients
+=======
+
+.. _cheatsheet-wsclient:
+
+Rasdaman WSClient
+-----------------
+
+WSClient is a web-client application to interact with WCS (version 2.0.1)
+and WMS (version 1.3.0) compliant servers. Once rasdaman is installed it is
+usually accessible at ``http://localhost:8080/rasdaman/ows``; a publicly
+accessible example is available at http://ows.rasdaman.org/rasdaman/ows. The
+client has three main tabs: ``OGC Web Coverage Service (WCS)``, ``OGC Web Map
+Service (WMS)`` and ``Admin``. Further on, the functionality in each tab is
+described in details.
+
+
+WCS
+^^^
+
+There are sub-tabs for each of OGC WCS standard requests: GetCapabilities,
+DescribeCoverage, GetCoverage, ProcessCoverages.
+
+**GetCapabilities**
+
+This is the default tab when accessing the WSClient. It lists all coverages
+available at the specified WCS endpoint. Clicking on the ``Get Capabilities``
+button will reload the coverages list. One can also search a coverage by typing
+the first characters of its name in the text box. Clicking on a coverage name
+will move to  ``DescribeCoverage`` tab to view its metadata.
+
+.. figure:: media/cheatsheets/wsclient_wcs-getcapabilities-tab-1.png
+   :align: center
+
+   List of coverages shown on the GetCapabilities tab.
+
+If a coverage is geo-referenced, a checkbox will be visible in the ``Display
+footprints`` column, allowing to view the coverage's geo bounding box (in 
+EPSG:4326) on the globe below.
+
+.. figure:: media/cheatsheets/wsclient_wcs-getcapabilities-tab-2.jpg
+   :align: center
+
+   Selected coverage footprints shown on a globe.
+
+At the bottom the metadata of the OGC WCS service endpoint are shown. These
+metadata can be changed in the ``Admin -> OWS Metadata Management`` tab. Once
+updated in the admin tab, click on ``Get Capabilities`` button to see the new
+metadata.
+
+.. figure:: media/cheatsheets/wsclient_wcs-getcapabilities-tab-3.png
+   :align: center
+
+   WCS service metadata.
+
+**DescribeCoverage**
+
+Here the full description of a selected coverage can be seen. One can type the
+first few characters to search for a coverage id and click on ``Describe
+Coverage`` button to view its OGC WCS metadata.
+
+.. figure:: media/cheatsheets/wsclient_wcs-describecoverage-tab-1.png
+   :align: center
+
+   Showing full description of a coverage.
+
+Once logged in as admin, it's possible to replace the metadata with one from a
+valid XML or JSON file.
+
+.. figure:: media/cheatsheets/wsclient_wcs-describecoverage-tab-2.png
+   :align: center
+
+   Updating the metadata of a coverage.
+
+**GetCoverage**
+
+Downloading coverage *data* can be done on this tab (or the next one,
+ProcessCoverages). It's similiarly possible search for a coverage id in the text
+box and click on ``Select Coverage`` button to view its boundaries. Depending on
+the coverage dimension, one can do trim or slice subsets on the corresponding
+axes to select an area of interest. The output format can be selected (provided
+it supports the output dimension). Finally, clicking on ``Get Coverage`` button
+will download the coverage.
+
+.. figure:: media/cheatsheets/wsclient_wcs-getcoverage-tab-1.jpg
+   :align: center
+
+   Downloading a subset of a coverage, encoded in image/tiff.
+
+In addition, further parameters can be specified as supported by the WCS 
+extensions, e.g. scaling factor, output CRS, subset of ranges (bands), etc.
+
+**ProcessCoverages**
+
+WCPS queries can be typed in a text box. Once ``Excute`` is clicked, the result
+will be
+
+- displayed on the output console if it's a scalar or the query was prefixed
+  with ``image>>`` (for 2D png/jpeg) or ``diagram>>`` for (1D csv/json);
+
+- otherwise it will be downloaded.
+
+.. figure:: media/cheatsheets/wsclient_wcs-processcoverages-tab-1.png
+   :align: center
+
+   Query and output areas on the ProcessCoverages tab.
+
+**DeleteCoverage**
+
+This tab allows to *delete* a specific coverage from the server. It is only
+visible when logged in the ``Admin`` tab.
+
+.. figure:: media/cheatsheets/wsclient_wcs-deletecoverage-tab-1.png
+   :align: center
+
+   Deleting coverage test_DaysPerMonth.
+
+**InsertCoverage**
+
+Similarly, this tab is only visible when logged in the ``Admin`` tab. To insert
+a coverage, a URL pointing to a valid coverage definition according to the WCS-T
+standard needs to be provided. Clicking on ``Insert Coverage`` button will
+invoke the correct WCS-T request on the server. 
+
+.. figure:: media/cheatsheets/wsclient_wcs-insertcoverage-tab-1.png
+   :align: center
+
+   Inserting a coverage given a URL pointing to a valid GML document.
+
+
+WMS
+^^^
+
+This tab contain sub-tabs which are related to the supported OGC WMS requests.
+
+**GetCapabilities**
+
+This tab lists the available layers on the specified server. To reload the list,
+click on the ``Get Capabilities`` button. Clicking on a layer name will move to
+``DescribeLayer`` tab to view its description.
+
+.. figure:: media/cheatsheets/wsclient_wms-getcapabilities-tab-1.png
+   :align: center
+
+   List of layers shown on the GetCapabilities tab.
+
+Similar to the WCS GetCapabilities tab, it's possible to search for layer names,
+or show their footprints.
+
+.. figure:: media/cheatsheets/wsclient_wms-getcapabilities-tab-2.jpg
+   :align: center
+
+   Selected layer footprints shown on a globe.
+
+**DescribeLayer**
+
+Here the full description of a selected layer is shown. One can type the first
+few characters to search for a layer name and click on ``Describe Layer`` button
+to view its OGC WMS metadata.
+
+.. figure:: media/cheatsheets/wsclient_wms-describelayer-tab-1.png
+   :align: center
+
+   Showing full description of a layer.
+
+Depending on layer's dimension, one can click on ``show layer`` button and
+interact with axes' sliders to view a layer's slice on the globe below. Click on
+the ``hide layer`` button to hide the displayed layer on the globe.
+
+.. figure:: media/cheatsheets/wsclient_wms-describelayer-tab-2.jpg
+   :align: center
+
+   Showing/hiding a layer on the map.
+
+Finally, managing WMS styles is possible on this tab. To create a style, it is
+required to input various parameters along with a rasql or WCPS query fragment,
+which are applied on every GetMap request if the style is active. Afterwards, 
+click on ``Insert Style`` to insert a new style or ``Update Style`` to update an
+existing style of the current selected layer. One can also delete an existing
+style by clicking on the ``Delete`` button corresponding to a style name.
+
+.. figure:: media/cheatsheets/wsclient_wms-describelayer-tab-3.png
+   :align: center
+
+   Style management on the DescribeLayer tab.
+
+
+`NASA WebWorldWind <https://worldwind.arc.nasa.gov/web/>`__
+-----------------------------------------------------------
+
+Simple example to setup a web page with a map from a WMS server using WebWorldWind:
+
+  .. code-block:: html
+
+    <html>
+      <head>
+        <script src="https://files.worldwind.arc.nasa.gov/artifactory/web/0.9.0/worldwind.min.js"></script>
+        <script>
+          document.addEventListener("DOMContentLoaded", function(event) {
+            WorldWind.Logger.setLoggingLevel(WorldWind.Logger.LEVEL_WARNING);
+            var wwd = new WorldWind.WorldWindow("canvasOne");
+            var layers = [{
+              layer: new WorldWind.BingRoadsLayer(null),
+              enabled: true
+            }, {
+              layer: new WorldWind.CoordinatesDisplayLayer(wwd),
+              enabled: true
+            }, {
+              layer: new WorldWind.ViewControlsLayer(wwd),
+              enabled: true
+            }];
+
+            for (var l = 0; l < layers.length; l++) {
+              wwd.addLayer(layers[l].layer);
+            }
+
+            var layerNamesToRequest = ["AvgTemperatureColorScaled"];
+            var config = {
+              title: "AvgTemperatureColorScaled", version: "1.3.0",
+              service: "http://ows.rasdaman.org/rasdaman/ows",
+              layerNames: layerNamesToRequest,
+              // min Lat, max Lat, min Long, max Long of the requesting layer
+              sector: new WorldWind.Sector(-90, 90, -180, 180),
+              levelZeroDelta: new WorldWind.Location(36, 36),
+              numLevels: 15, format: "image/png", styleNames: "", size: 256
+            };
+
+            var wmsLayer = new WorldWind.WmsLayer(config);
+            wmsLayer.enabled = true;
+            wwd.addLayer(wmsLayer);
+          });
+        </script>
+      </head>
+      <body>
+          <canvas id="canvasOne" style="width: 100%; height: 100%;"> </canvas>
+      </body>
+    </html> 
+
+
+`OpenLayers <https://openlayers.org/>`__
+----------------------------------------
+
+Simple example to setup a web page with a map from a WMS server using OpenLayers:
+
+  .. code-block:: html
+
+    <html>
+      <head>
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/3.8.2/ol.css"></link> 
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/3.8.2/ol.js"></script>
+         <script>
+          document.addEventListener("DOMContentLoaded", function(event) { 
+            var layers = [
+              new ol.layer.Tile({
+                source: new ol.source.TileWMS({
+                  url: "https://ahocevar.com/geoserver/wms",
+                  params: {'LAYERS': 'ne:NE1_HR_LC_SR_W_DR'}
+                })
+              }),
+              new ol.layer.Tile({
+                source: new ol.source.TileWMS({
+                  url: "http://ows.rasdaman.org/rasdaman/ows",
+                  params: {'LAYERS': 'AvgTemperatureColorScaled'}
+                })
+              })
+            ];
+            var map = new ol.Map({
+              layers: layers,
+              target: 'map',
+              view: new ol.View({
+                center: [7.5, 53.15178], projection : "EPSG:4326", zoom: 6
+              })
+            });
+          });
+         </script>
+      </head>
+      <body>
+        <div id="map" style="width: 100%; height: 95vh"> </div>
+      </body>
+    </html>
+
+
+`Leaflet <https://leafletjs.com/examples/wms/wms.html>`__
+---------------------------------------------------------
+
+Simple example to setup a web page with a map from a WMS server using Leaflet:
+
+  .. code-block:: html
+
+    <html>
+      <head>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+        <script>
+          document.addEventListener("DOMContentLoaded", function(event) {
+            var map = new L.Map('map', {
+              center: new L.LatLng(40, 52),
+              zoom: 3, attributionControl: true, zoomControl: true, minZoom: 2
+            });
+            var wmsLayer = L.tileLayer.wms("http://ows.rasdaman.org/rasdaman/ows", {
+              version: '1.3.0', layers: 'AvgTemperatureColorScaled', format: 'image/png'
+            });
+            map.addLayer(wmsLayer);
+          });
+        </script>
+      </head>
+      <body>
+        <div id="map" style="width: 100%; height: 100%;"> </div>
+      </body>
+    </html>
+
+`QGIS <https://docs.qgis.org/3.4/en/docs/user_manual/working_with_ogc/ogc_client_support.html#wms-wmts-client>`__
+-----------------------------------------------------------------------------------------------------------------
+
+Command-line tools
+------------------
+
+It's straightforward to make individual OGC WCS / WCPS / WMS requests from the
+terminal. Examples with ``curl`` follow.
+
+- Make a GetCapabilities request:
+
+  .. code-block:: shell
+
+    curl "http://ows.rasdaman.org/rasdaman/ows\
+    ?service=WCS&version=2.0.1&request=GetCapabilities"
+
+- Execute a WCPS query with a ProcessCoverages request:
+
+  .. code-block:: shell
+
+    curl "http://ows.rasdaman.org/rasdaman/ows" --out test.png --data-urlencode \
+    'service=WCS&version=2.0.1&request=ProcessCoverages&query=\
+    for c in (mean_summer_airtemp) return encode(c, "png")'
