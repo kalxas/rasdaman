@@ -1,0 +1,2 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_world_temp&format=image/png&
+subset=Lon(0,30000000)&subsettingCrs=http://localhost:8080/def/crs/EPSG/0/3857

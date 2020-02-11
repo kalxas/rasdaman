@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.Pair;
 
 /**
  * Utilities for handling BigDecimals computations and scales.
@@ -170,4 +171,16 @@ public class BigDecimalUtil {
         
         return result;
     }
+    
+    /**
+     * Swap values of two inputs
+     */
+    public static Pair<BigDecimal, BigDecimal> swap(BigDecimal firstValue, BigDecimal secondValue) {
+        BigDecimal temp = secondValue;
+        secondValue = firstValue;
+        firstValue = temp;
+        
+        return new Pair<>(firstValue, secondValue);
+    }
+   
 }

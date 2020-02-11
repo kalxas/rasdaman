@@ -139,7 +139,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param subsets
      * @return
      */
-    public void transformSubsettingCrsXYSubsets(WcpsCoverageMetadata metadata, List<Subset> subsets) {
+    public void transformSubsettingCrsXYSubsets(WcpsCoverageMetadata metadata, List<Subset> subsets) throws PetascopeException {
         String xyAxis = metadata.getXYCrs();
         if (!CrsUtil.isValidTransform(xyAxis)) {
             // No need to transform if XY axis is not geo-referenced or Authority is not EPSG
@@ -185,9 +185,41 @@ public class WcpsCoverageMetadataGeneralService {
             }
         }
 
-        // NOTE: not support if X and Y has different subsetting (e.g: X is EPSG:4326 and Y is EPSG:3857)
         if (!subsettingCrsX.equals(subsettingCrsY)) {
-            throw new NotIdenticalCrsInCrsTransformException(subsettingCrsX, subsettingCrsY);
+            // In this case, only 1 X/Y axis is provided, the other one is not specified and is derived implicility
+            String subsettingCRS = null;
+            boolean isXAxisNotSpecified = false;
+            boolean isYAxisNotSpecified = false;
+            
+            if (subsettingCrsX.equals(nativeCrs)) {
+                // Axis X is not specified in subsets, only axis Y is specified
+                subsettingCRS = subsettingCrsY;
+                isXAxisNotSpecified = true;
+            } else if (subsettingCrsY.equals(nativeCrs)) {
+                // Axis Y is not specified in subsets, only axis X is specified
+                subsettingCRS = subsettingCrsX;
+                isYAxisNotSpecified = true;
+            }
+            
+            List<BigDecimal> xyMin;
+            List<BigDecimal> xyMax;
+            
+            // Transform the geo XY bounding box of current coverage before subsetting in original CRS (e.g: EPSG:4326) to subsettingCRS (e.g: EPSG:3857)
+            xyMin = CrsProjectionUtil.transform(nativeCrs, subsettingCRS, 
+                                                                new double[] {xAxis.getGeoBounds().getLowerLimit().doubleValue(),
+                                                                              yAxis.getGeoBounds().getLowerLimit().doubleValue()}); 
+            xyMax = CrsProjectionUtil.transform(nativeCrs, subsettingCRS, 
+                                                                new double[] {xAxis.getGeoBounds().getUpperLimit().doubleValue(),
+                                                                              yAxis.getGeoBounds().getUpperLimit().doubleValue()}); 
+            
+            if (isXAxisNotSpecified) {
+                xMin = xyMin.get(0).doubleValue();
+                xMax = xyMax.get(0).doubleValue();
+            }
+            if (isYAxisNotSpecified) {
+                yMin = xyMin.get(1).doubleValue();
+                yMax = xyMax.get(1).doubleValue();
+            }
         }
 
         // Only consider about transform when subsettingCrsX = subsetSettingCrsY but it is not the same as native CRS XY
@@ -201,11 +233,11 @@ public class WcpsCoverageMetadataGeneralService {
                 boolean xyOrder = metadata.isXYOrder() && CrsUtil.isXYAxesOrder(subsettingCrs);
                 boolean yxOrder = !metadata.isXYOrder() && !CrsUtil.isXYAxesOrder(subsettingCrs);
                 if (xyOrder || yxOrder) {
-                    xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMin, yMin});
-                    xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMax, yMax});                
+                    xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {xMin, yMin});
+                    xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {xMax, yMax});                
                 } else {
-                    xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{yMin, xMin});
-                    xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{yMax, xMax}); 
+                    xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {yMin, xMin});
+                    xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {yMax, xMax}); 
                 }
             } catch (Exception ex) {
                 String bboxStr = "xmin=" + xMin + "," + "ymin=" + yMin + ","
@@ -218,11 +250,32 @@ public class WcpsCoverageMetadataGeneralService {
             // and without CrsTransform then, the outputCrs is set to subsettingCRS (i.e: coverage is transformed from native CRS: EPSG:4326 to EPSG:3857)
             for (Subset subset : subsets) {
                 if (CrsUtil.axisLabelsMatch(subset.getAxisName(), xAxisName)) {
-                    subset.getNumericSubset().setLowerLimit(xyMin.get(0));
-                    subset.getNumericSubset().setUpperLimit(xyMax.get(0));
+                    BigDecimal geoXMin = xyMin.get(0);
+                    BigDecimal geoXMax = xyMax.get(0);
+                    
+                    // NOTE: with CRS transform, geoXMax can be less then geoXMin (e.g: for CRS EPSG:3857 on Long axis)
+                    if (geoXMin.compareTo(geoXMax) > 0) {
+                        Pair<BigDecimal, BigDecimal> pair = BigDecimalUtil.swap(geoXMin, geoXMax);
+                        geoXMin = pair.fst;
+                        geoXMax = pair.snd;
+                    }
+                    
+                    subset.getNumericSubset().setLowerLimit(geoXMin);
+                    subset.getNumericSubset().setUpperLimit(geoXMax);
                 } else if (subset.getAxisName().equals(yAxisName)) {
-                    subset.getNumericSubset().setLowerLimit(xyMin.get(1));
-                    subset.getNumericSubset().setUpperLimit(xyMax.get(1));
+                    
+                    BigDecimal geoYMin = xyMin.get(1);
+                    BigDecimal geoYMax = xyMax.get(1);
+                    
+                    // NOTE: with CRS transform, geoXMax can be less then geoXMin (e.g: for CRS EPSG:3857 on Long axis)
+                    if (geoYMin.compareTo(geoYMax) > 0) {
+                        Pair<BigDecimal, BigDecimal> pair = BigDecimalUtil.swap(geoYMin, geoYMax);
+                        geoYMin = pair.fst;
+                        geoYMax = pair.snd;
+                    }
+                    
+                    subset.getNumericSubset().setLowerLimit(geoYMin);
+                    subset.getNumericSubset().setUpperLimit(geoYMax);
                 }
             }
         }
