@@ -615,6 +615,47 @@ Simple example to setup a web page with a map from a WMS server using WebWorldWi
     </html> 
 
 
+Python / Jupyter Notebook
+-------------------------
+
+`OWSLib <https://geopython.github.io/OWSLib/>`__ is a Python package that helps
+with programming clients for OGC services such as WCS, WCPS, or WMS. To install
+it please follow the official `installation instructions
+<https://geopython.github.io/OWSLib/#installation>`__. Example usage for WCS
+follows below.
+
+.. code-block:: python
+
+    # Import OWSLib in Python once installed
+    from owslib.wcs import WebCoverageService
+
+    # Create coverage object
+    my_wcs = WebCoverageService('http://ows.rasdaman.org/rasdaman/ows', 
+                                version='2.0.1')
+
+    # Get list of coverages: ['RadianceColor', 'test_irr_cube_2', ...]
+    print my_wcs.contents.keys()
+
+    # Get geo-bounding boxes and native CRS
+    print my_wcs.contents['test_irr_cube_2'].boundingboxes
+
+    # Get axis labels
+    print my_wcs.contents['test_irr_cube_2'].grid.axislabels
+
+    # Get dimension
+    print my_wcs.contents['test_irr_cube_2'].grid.dimension
+
+    # Get grid domains
+    print my_wcs.contents['test_irr_cube_2'].lowlimits
+    print my_wcs.contents['test_irr_cube_2'].highlimits
+
+    # Get offset vectors for geo axes
+    print my_wcs.contents['test_irr_cube_2'].grid.offsetvectors
+
+    # For coverage with time axis get the date time values
+    print my_wcs.contents['test_irr_cube_2'].timepositions
+
+
 `OpenLayers <https://openlayers.org/>`__
 ----------------------------------------
 
