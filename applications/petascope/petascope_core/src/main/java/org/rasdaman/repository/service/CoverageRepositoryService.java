@@ -40,6 +40,7 @@ import org.rasdaman.domain.cis.GeneralGrid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeneralGridDomainSet;
 import org.rasdaman.domain.cis.Quantity;
+import org.rasdaman.domain.cis.RasdamanRangeSet;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -181,7 +182,7 @@ public class CoverageRepositoryService {
         
         log.debug("Coverage '" + coverageId + "' is read from database.");
         
-        long coverageSize = this.calculateCoverageSizeInBytes(coverageId);
+        long coverageSize = this.calculateCoverageSizeInBytes(coverage);
         coverage.setCoverageSizeInBytes(coverageSize);
         this.addRasdamanDataTypesForRangeQuantities(coverage);
         this.addRasdamanTilingConfiguration(coverage);
@@ -201,10 +202,10 @@ public class CoverageRepositoryService {
     /**
      * Calculate the size of a coverage in bytes from number of pixels and number of bits per band.
      */
-    public long calculateCoverageSizeInBytes(String coverageId) throws PetascopeException {
+    public long calculateCoverageSizeInBytes(Coverage coverage) throws PetascopeException {
         long result = 0;
         
-        String setType = coverageRepository.readRasdamanSetTypeByCoverageId(coverageId);
+        String setType = coverage.getRasdamanRangeSet().getCollectionType();
         if (setType != null) {
             TypeRegistryEntry typeEntry = null;
             try {
@@ -217,7 +218,7 @@ public class CoverageRepositoryService {
                 List<String> bandsTypes = typeEntry.getBandsTypes();
                 List<Byte> bandsSizes = typeEntry.getBandsSizesInBytes(bandsTypes);
 
-                List<Object[]> gridBounds = coverageRepository.readGridBoundsByCoverageId(coverageId);
+                List<Object[]> gridBounds = coverageRepository.readGridBoundsByCoverageId(coverage.getCoverageId());
 
                 long totalPixels = 0;
 
@@ -235,7 +236,7 @@ public class CoverageRepositoryService {
                 }
             }
         } else {
-            log.warn("Cannot find rasdaman set type for coverage '" + coverageId + "'.");
+            log.warn("Cannot find rasdaman set type for coverage '" + coverage.getCoverageId() + "'.");
         }
                
         return result;
@@ -264,10 +265,13 @@ public class CoverageRepositoryService {
         Envelope envelope = new Envelope();
         envelope.setEnvelopeByAxis(envelopeByAxis);
         ((GeneralGridCoverage) coverage).setEnvelope(envelope);
+        
+        RasdamanRangeSet rasdamanRangeSet = this.coverageRepository.readRasdamanRangeSet(coverageId);
+        coverage.setRasdamanRangeSet(rasdamanRangeSet);
 
-        long coverageSize = this.calculateCoverageSizeInBytes(coverageId);
+        long coverageSize = this.calculateCoverageSizeInBytes(coverage);
         coverage.setCoverageSizeInBytes(coverageSize);
-
+        
         // Then cache the read coverage's basic metadata
         coveragesCacheMap.put(coverage.getCoverageId(), new Pair<>(coverage, false));
     }
@@ -530,7 +534,7 @@ public class CoverageRepositoryService {
         
         CoverageRepositoryService.addCrsPrefix(coverage);
         
-        long coverageSize = this.calculateCoverageSizeInBytes(coverageId);
+        long coverageSize = this.calculateCoverageSizeInBytes(coverage);
         coverage.setCoverageSizeInBytes(coverageSize);
 
         coveragesCacheMap.put(coverageId, new Pair(coverage, true));

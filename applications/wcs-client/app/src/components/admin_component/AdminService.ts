@@ -26,15 +26,31 @@
 
 module rasdaman {
     export class AdminService {
-        public static $inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        public static $inject = ["$http", "$rootScope", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
 
         public constructor(private $http:angular.IHttpService,
+                           private $rootScope:angular.IRootScopeService,
                            private $q:angular.IQService,
                            private settings:rasdaman.WCSSettingsService,
                            private serializedObjectFactory:rasdaman.common.SerializedObjectFactory,
-                           private $window:angular.IWindowService) {
+                           private $window:angular.IWindowService) {        
         }
 
+        // Mark as petascope admin user logged in
+        public persitLoggedIn = () => {
+            window.localStorage.setItem("adminLoggedIn", "true");
+        }
+
+        // Mark as petascope admin user logged out
+        public persitLoggedOut = () => {    
+            window.localStorage.removeItem("adminLoggedIn");
+        }
+
+        // Check if petascope admin user logged in
+        public checkLoggedIn = () => {            
+            let tmp = window.localStorage.getItem("adminLoggedIn");
+            return tmp != null;
+        }        
 
         // Login
 
@@ -53,6 +69,7 @@ module rasdaman {
 
             // send request to Petascope and get response (headers and contents)
             this.$http(request).then(function (data:any) {
+                this.adminLoggedIn = true;
                 result.resolve(data);
             }, function (error) {
                 result.reject(error);
@@ -114,4 +131,5 @@ module rasdaman {
             return result.promise;
         }  
     }
+
 }

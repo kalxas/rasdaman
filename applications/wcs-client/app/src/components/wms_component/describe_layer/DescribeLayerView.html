@@ -175,7 +175,7 @@
                                     onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">GetMap request</a></td>
                                 </td>
                                 <td colspan=10%>                                    
-                                     <button class="btn btn-danger" ng-click="deleteStyle(style.name)">Delete</button>                                    
+                                     <button class="btn btn-danger" ng-click="deleteStyle(style.name)" ng-show="adminStateInformation.loggedIn">Delete</button>                                    
                                 </td>                           
                             </tr>
                         </tbody>
@@ -189,7 +189,7 @@
                     </table>
 
                    <!-- style's form to insert/update -->
-                   <div class="container">
+                   <div class="container" ng-show="adminStateInformation.loggedIn">
                         <form class="form-horizontal" action="">
                             <div class="form-group">
                                 <label class="control-label col-sm-2">Style name:</label>
@@ -262,12 +262,71 @@
             </uib-accordion>
         </div>
 
+        <!-- Layers's downscaled collection levels of selected layer -->
+        <div class="row top15" ng-hide="!isLayerDocumentOpen">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="isLayerDocumentOpen"> 	
+                    <uib-accordion-heading>
+                        Downscaled collection levels of the selected layer
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen, 
+                                    'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
+                    </uib-accordion-heading>                    
+                    <!-- smart table for pagination http://lorenzofox3.github.io/smart-table-website/ -->
+                    <table st-table="levels" st-safe-src="layer.downscaledCollectionLevels"
+                           class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th colspan=55% style="width: 40%;">Level</th>
+                                <th colspan=45% style="width: 45%;">Operations</th>
+                            </tr>                            
+
+                        </thead>
+                        <tbody>                            
+                            <tr ng-repeat="level in levels">                                
+                                <td colspan=55%>{{level}}</td>
+                                <td colspan=45%>                                    
+                                     <button class="btn btn-danger" ng-click="deleteDownscaledCollectionLevel(level)" ng-show="adminStateInformation.loggedIn">Delete</button>
+                                </td>                           
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan=100% class="text-right">
+                                    <div st-pagination="" st-items-by-page="5"></div>                                    
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                   <!-- downscaled collection levels' form to insert -->
+                   <div class="container" ng-show="adminStateInformation.loggedIn">
+                        <form class="form-horizontal" action="">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Level:</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" placeholder="Positive number for downscaled level" id="levelValue">
+                                </div>
+                            </div>                            
+
+                            <div class="form-group">        
+                                <div class="col-sm-offset-2 col-sm-1">
+                                    <button class="btn btn-primary" type="button" ng-click="insertDownscaledCollectionLevel()">Insert Level</button>
+                                </div>                                
+                            </div>
+                        </form>
+                    </div>
+
+                </uib-accordion-group>
+            </uib-accordion>
+        </div>
+
         <!-- GML document of specified metadata -->
         <div class="row top15" ng-hide="!isLayerDocumentOpen" style="margin-top: -15px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isLayerDocumentOpen">
                     <uib-accordion-heading>
-                        GML coverage descriptions document <i class="pull-right glyphicon"
+                        GML layer descriptions document <i class="pull-right glyphicon"
                                                               ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen,
 'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
                     </uib-accordion-heading>

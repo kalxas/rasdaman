@@ -26,13 +26,14 @@
 
 module rasdaman {
     export class WMSService {
-        public static $inject = ["$http", "$q", "rasdaman.WMSSettingsService", 
+        public static $inject = ["$http", "$q", "rasdaman.WMSSettingsService", "rasdaman.WCSSettingsService", 
                                  "rasdaman.common.SerializedObjectFactory", "$window",
                                  "rasdaman.CredentialService"];
 
         public constructor(private $http:angular.IHttpService,
                            private $q:angular.IQService,
                            private settings:rasdaman.WMSSettingsService,
+                           private wcsSettings:rasdaman.WCSSettingsService,
                            private serializedObjectFactory:rasdaman.common.SerializedObjectFactory,
                            private $window:angular.IWindowService,
                            private credentialService:rasdaman.CredentialService) {
@@ -94,6 +95,7 @@ module rasdaman {
             return result.promise;
         }        
      
+        // ******** Layer's style management ********
 
         // Insert the specified style's data to databasee
         public insertLayerStyleRequest(insertLayerStyle:wms.InsertLayerStyle):angular.IPromise<any> {
@@ -125,6 +127,52 @@ module rasdaman {
             var result = this.$q.defer();
             // Build the request URL
             var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
+            var currentHeaders = {};
+
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
+            }).then(function (data:any) {
+                    try {                                                
+                        result.resolve("");
+                    } catch (err) {
+                        result.reject(err);
+                    }
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+        // ******** Layer's downscaled collection management ********
+
+        // Insert the specified downscaled collection level for a layer to databasee
+        public insertLayerDownscaledCollectionLevelRequest(request:wms.InsertLayerDownscaledCollectionLevel):angular.IPromise<any> {
+            var result = this.$q.defer();
+            // Build the request URL
+            var requestUrl = this.wcsSettings.wcsFullEndpoint + "&" + request.toKVP();
+            var currentHeaders = {};
+
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
+            }).then(function (data:any) {
+                try {                                                
+                    result.resolve("");
+                } catch (err) {
+                    result.reject(err);
+                }
+            }, function (error) {
+                result.reject(error);
+            });
+
+            return result.promise;
+        }
+
+        // Delete the specified downscaled collection level for a layer from databasee
+        public deleteLayerDownscaledCollectionLevelRequest(request:wms.DeleteLayerDownscaledCollectionLevel):angular.IPromise<any> {
+            var result = this.$q.defer();
+            // Build the request URL
+            var requestUrl = this.wcsSettings.wcsFullEndpoint + "&" + request.toKVP();
             var currentHeaders = {};
 
             this.$http.get(requestUrl, {

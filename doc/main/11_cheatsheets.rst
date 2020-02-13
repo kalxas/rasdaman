@@ -550,17 +550,31 @@ the ``hide layer`` button to hide the displayed layer on the globe.
 
    Showing/hiding a layer on the map.
 
-Finally, managing WMS styles is possible on this tab. To create a style, it is
-required to input various parameters along with a rasql or WCPS query fragment,
-which are applied on every GetMap request if the style is active. Afterwards, 
-click on ``Insert Style`` to insert a new style or ``Update Style`` to update an
-existing style of the current selected layer. One can also delete an existing
-style by clicking on the ``Delete`` button corresponding to a style name.
+Once logged in as admin, managing WMS styles is possible on this tab. 
+To create a style, it is required to input various parameters along with
+a rasql or WCPS query fragment, which are applied on every GetMap request
+if the style is active. Afterwards, click on ``Insert Style`` to insert
+a new style or ``Update Style`` to update an existing style of the current
+selected layer. One can also delete an existing style by clicking on
+the ``Delete`` button corresponding to a style name.
 
 .. figure:: media/cheatsheets/wsclient_wms-describelayer-tab-3.png
    :align: center
 
    Style management on the DescribeLayer tab.
+
+Finally, once logged in as admin, managing downscaled collection levels
+of a WMS layer is also possible on this tab. To create a new level, 
+it is required to input level parameter (positive number). Afterwards,
+click on ``Insert Level`` to insert a new downscaled collection level
+of the current selected layer. One can also delete an existing level
+by clicking on the ``Delete``button corresponding to a downscaled
+collection level.
+
+.. figure:: media/cheatsheets/wsclient_wms-describelayer-tab-4.png
+   :align: center
+
+   Downscaled collection level management on the DescribeLayer tab.
 
 
 `NASA WebWorldWind <https://worldwind.arc.nasa.gov/web/>`__

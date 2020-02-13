@@ -49,12 +49,19 @@ module rasdaman {
 
             $scope.credential = new login.Credential("", "");
 
+            // Check if petascope admin user logged in
+            $rootScope.adminStateInformation.loggedIn = adminService.checkLoggedIn();
+
             // Login with Petascope admin credential
             $scope.login = (...args: any[])=> {
                 adminService.login($scope.credential).then(
                     (...args:any[])=> {
                         alertService.success("Successfully logged in.");
                         $rootScope.adminStateInformation.loggedIn = true;
+                    
+                        // store to local storage as admin logged in
+                        adminService.persitLoggedIn();
+                       
                     }, (...args:any[])=> {
                         errorHandlingService.handleError(args);                            
                     }).finally(function () {                        
@@ -65,6 +72,8 @@ module rasdaman {
 
     interface AdminLoginControllerScope extends rasdaman.AdminMainControllerScope {        
         credential:login.Credential;
-	    login(...args: any[]):void;
+        login(...args: any[]):void;
+        
+        checkLoggedIn():void;
     }
 }

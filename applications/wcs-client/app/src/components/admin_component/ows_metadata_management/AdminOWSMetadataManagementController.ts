@@ -135,6 +135,8 @@ module rasdaman {
             
             // Logout, just show the loggin form in WSClient and hide other admin tabs
             $scope.logOut = (...args: any[])=> {
+                // clear logged out in local storage
+                adminService.persitLoggedOut();
                 $rootScope.adminStateInformation.loggedIn = false;
             }           
         }

@@ -477,6 +477,46 @@ module rasdaman {
                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
             }
 
+            // ********** Layer's downscaled collection levels management **************
+
+            // Insert a rasdaman downscaled collection level to database
+            $scope.insertDownscaledCollectionLevel = () => {
+                let level = $("#levelValue").val();
+                if (!(!isNaN(level) && Number(level) > 1)) {
+                    alertService.error("Downscaled collection level must be positive numer and greater than 1, given <b>" + level + "</b>");
+                } else if ($scope.layer.downscaledCollectionLevels.includes(level)) {
+                    alertService.error("Downscaled collection level <b>" + level + "</b> already exists.");
+                } else {
+                    // Then, send the insert layer's downscaled collection level request to server
+                    var insertLayerDownscaledCollectionLevel = new wms.InsertLayerDownscaledCollectionLevel($scope.layer.name, level);
+                    wmsService.insertLayerDownscaledCollectionLevelRequest(insertLayerDownscaledCollectionLevel).then(
+                        (...args:any[])=> {
+                            alertService.success("Successfully insert downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                            // reload WMS GetCapabilities 
+                            $scope.wmsStateInformation.reloadServerCapabilities = true;
+                        }, (...args:any[])=> {
+                            errorHandlingService.handleError(args);                            
+                        }).finally(function () {                        
+                    });
+                }
+            }
+
+            // Delete a rasdaman downscaled collection level from database
+            $scope.deleteDownscaledCollectionLevel = (level:string) => {
+                // Then, send the delete layer's downscaled collection level request to server
+                var deleteLayerDownscaledCollectionLevel = new wms.DeleteLayerDownscaledCollectionLevel($scope.layer.name, level);
+                wmsService.deleteLayerDownscaledCollectionLevelRequest(deleteLayerDownscaledCollectionLevel).then(
+                    (...args:any[])=> {
+                        alertService.success("Successfully delete downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                        // reload WMS GetCapabilities 
+                        $scope.wmsStateInformation.reloadServerCapabilities = true;                    
+                    }, (...args:any[])=> {
+                        errorHandlingService.handleError(args);                            
+                    }).finally(function () {                        
+                });                                
+            }
+
+
             // ********** Layer's styles management **************
 
             // Show/hide query/table color definitions if not needed
@@ -695,7 +735,7 @@ module rasdaman {
 	    isStyleNameValid(styleName:string):boolean;
 	    isCoverageDescriptionsHideGlobe:boolean;
 	    isLayerNameValid():boolean;
-	    validateStyle():void;
+	    validateStyle():boolean;
 	    insertStyle():void;
 	    updateStyle():void;
         describeStyleToUpdate(styleName:string):void;

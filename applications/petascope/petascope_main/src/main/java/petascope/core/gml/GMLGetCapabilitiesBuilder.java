@@ -43,6 +43,7 @@ import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.rasdaman.config.VersionManager;
+import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import petascope.core.BoundingBox;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
@@ -73,6 +74,7 @@ import static petascope.core.XMLSymbols.LABEL_COUNTRY;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_ID;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUMMARY;
+import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_DOWNSCALED_COLLECTION_LEVELS;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES;
 import static petascope.core.XMLSymbols.LABEL_DCP;
@@ -709,6 +711,20 @@ public class GMLGetCapabilitiesBuilder {
         if (coverage.getCoverageSizeInBytes() > 0) {
             coverageSizeInBytesElement.appendChild(sizeInBytes.toString());
             metadataElement.appendChild(coverageSizeInBytesElement);
+        }
+        
+        // Downscaled collection levels of a coverage if exist
+        List<String> downscaledCollectionLevels = new ArrayList<>();
+        for (RasdamanDownscaledCollection rasdamanDownscaledCollection : coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
+            downscaledCollectionLevels.add(rasdamanDownscaledCollection.getLevel().toPlainString());
+        }
+        
+        if (downscaledCollectionLevels.size() > 0) {
+            Element downscaledCollectionLevelsElement = new Element(XMLUtil.createXMLLabel(PREFIX_RASDAMAN, LABEL_CUSTOMIZED_DOWNSCALED_COLLECTION_LEVELS),
+                                                                    NAMESPACE_RASDAMAN);
+            String levels = ListUtil.join(downscaledCollectionLevels, ",");
+            downscaledCollectionLevelsElement.appendChild(levels);
+            metadataElement.appendChild(downscaledCollectionLevelsElement);
         }
 
         // No customized metadata is added for coverage, not show it to client

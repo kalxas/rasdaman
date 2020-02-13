@@ -24,6 +24,7 @@ package org.rasdaman.repository.interfaces;
 import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.EnvelopeByAxis;
+import org.rasdaman.domain.cis.RasdamanRangeSet;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -61,9 +62,6 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
     @Query("select b.envelopeByAxis From Coverage c inner join c.envelope b where c.coverageId = :coverageId")
     EnvelopeByAxis readEnvelopeByAxisByCoverageId(@Param("coverageId") String coverageId);
     
-    @Query("select b.collectionType From Coverage c inner join c.rasdamanRangeSet b where c.coverageId = :coverageId")
-    String readRasdamanSetTypeByCoverageId(@Param("coverageId") String coverageId);
-    
     @Query("select e.lowerBound, e.upperBound \n"
     + "FROM Coverage as a \n"
     + "INNER JOIN a.domainSet as b \n"
@@ -72,4 +70,9 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
     + "INNER JOIN d.indexAxes as e \n"
     + "where a.coverageId = :coverageId")
     List<Object[]> readGridBoundsByCoverageId(@Param("coverageId") String coverageId);
+    
+    @Query("select b FROM Coverage as a \n"
+           + "INNER JOIN a.rasdamanRangeSet as b \n"           
+           + "WHERE a.coverageId = :coverageId")
+    RasdamanRangeSet readRasdamanRangeSet(@Param("coverageId") String coverageId);
 }

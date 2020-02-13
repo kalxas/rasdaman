@@ -2224,6 +2224,7 @@ var rasdaman;
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
             this.setWCSEndPoint(this.wcsEndpoint);
             this.defaultContextPath = this.contextPath;
+            this.wcsFullEndpoint = this.wcsEndpoint + "?" + this.wcsServiceNameVersion;
         }
         WCSSettingsService.prototype.setWCSEndPoint = function (petascopeEndPoint) {
             this.wcsEndpoint = petascopeEndPoint;
@@ -5190,6 +5191,7 @@ var wms;
                 this.importedType = "remote";
             }
             this.buildStylesFromGMLDocument();
+            this.getDownscaledCollectionLevelsFromGMLDocument();
         }
         Layer.prototype.initialiseDimenison = function () {
             return {
@@ -5296,6 +5298,14 @@ var wms;
                 return false;
             }
         };
+        Layer.prototype.getDownscaledCollectionLevelsFromGMLDocument = function () {
+            this.downscaledCollectionLevels = [];
+            var tmpXML = $.parseXML(this.gmlDocument);
+            var text = $(tmpXML).find("rasdaman\\:downscaledCollectionLevels").text();
+            if (text !== "") {
+                this.downscaledCollectionLevels = text.split(",");
+            }
+        };
         Layer.prototype.buildStylesFromGMLDocument = function () {
             this.styles = [];
             var tmpXML = $.parseXML(this.gmlDocument);
@@ -5379,10 +5389,11 @@ var wms;
 var rasdaman;
 (function (rasdaman) {
     var WMSService = (function () {
-        function WMSService($http, $q, settings, serializedObjectFactory, $window, credentialService) {
+        function WMSService($http, $q, settings, wcsSettings, serializedObjectFactory, $window, credentialService) {
             this.$http = $http;
             this.$q = $q;
             this.settings = settings;
+            this.wcsSettings = wcsSettings;
             this.serializedObjectFactory = serializedObjectFactory;
             this.$window = $window;
             this.credentialService = credentialService;
@@ -5464,7 +5475,43 @@ var rasdaman;
             });
             return result.promise;
         };
-        WMSService.$inject = ["$http", "$q", "rasdaman.WMSSettingsService",
+        WMSService.prototype.insertLayerDownscaledCollectionLevelRequest = function (request) {
+            var result = this.$q.defer();
+            var requestUrl = this.wcsSettings.wcsFullEndpoint + "&" + request.toKVP();
+            var currentHeaders = {};
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
+            }).then(function (data) {
+                try {
+                    result.resolve("");
+                }
+                catch (err) {
+                    result.reject(err);
+                }
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.prototype.deleteLayerDownscaledCollectionLevelRequest = function (request) {
+            var result = this.$q.defer();
+            var requestUrl = this.wcsSettings.wcsFullEndpoint + "&" + request.toKVP();
+            var currentHeaders = {};
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
+            }).then(function (data) {
+                try {
+                    result.resolve("");
+                }
+                catch (err) {
+                    result.reject(err);
+                }
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.$inject = ["$http", "$q", "rasdaman.WMSSettingsService", "rasdaman.WCSSettingsService",
             "rasdaman.common.SerializedObjectFactory", "$window",
             "rasdaman.CredentialService"];
         return WMSService;
@@ -5872,6 +5919,51 @@ var rasdaman;
                 $scope.displayWMSLayer = false;
                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
             };
+            $scope.insertDownscaledCollectionLevel = function () {
+                var level = $("#levelValue").val();
+                if (!(!isNaN(level) && Number(level) > 1)) {
+                    alertService.error("Downscaled collection level must be positive numer and greater than 1, given <b>" + level + "</b>");
+                }
+                else if ($scope.layer.downscaledCollectionLevels.includes(level)) {
+                    alertService.error("Downscaled collection level <b>" + level + "</b> already exists.");
+                }
+                else {
+                    var insertLayerDownscaledCollectionLevel = new wms.InsertLayerDownscaledCollectionLevel($scope.layer.name, level);
+                    wmsService.insertLayerDownscaledCollectionLevelRequest(insertLayerDownscaledCollectionLevel).then(function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        alertService.success("Successfully insert downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                        $scope.wmsStateInformation.reloadServerCapabilities = true;
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        errorHandlingService.handleError(args);
+                    })["finally"](function () {
+                    });
+                }
+            };
+            $scope.deleteDownscaledCollectionLevel = function (level) {
+                var deleteLayerDownscaledCollectionLevel = new wms.DeleteLayerDownscaledCollectionLevel($scope.layer.name, level);
+                wmsService.deleteLayerDownscaledCollectionLevelRequest(deleteLayerDownscaledCollectionLevel).then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    alertService.success("Successfully delete downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                    $scope.wmsStateInformation.reloadServerCapabilities = true;
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                })["finally"](function () {
+                });
+            };
             function selectOptionsChange() {
                 $("#styleQueryType").val("none").change();
                 $("#styleQueryType").change(function () {
@@ -6068,12 +6160,23 @@ var login;
 var rasdaman;
 (function (rasdaman) {
     var AdminService = (function () {
-        function AdminService($http, $q, settings, serializedObjectFactory, $window) {
+        function AdminService($http, $rootScope, $q, settings, serializedObjectFactory, $window) {
             this.$http = $http;
+            this.$rootScope = $rootScope;
             this.$q = $q;
             this.settings = settings;
             this.serializedObjectFactory = serializedObjectFactory;
             this.$window = $window;
+            this.persitLoggedIn = function () {
+                window.localStorage.setItem("adminLoggedIn", "true");
+            };
+            this.persitLoggedOut = function () {
+                window.localStorage.removeItem("adminLoggedIn");
+            };
+            this.checkLoggedIn = function () {
+                var tmp = window.localStorage.getItem("adminLoggedIn");
+                return tmp != null;
+            };
         }
         AdminService.prototype.login = function (credential) {
             var result = this.$q.defer();
@@ -6086,6 +6189,7 @@ var rasdaman;
                 data: credential.toKVP()
             };
             this.$http(request).then(function (data) {
+                this.adminLoggedIn = true;
                 result.resolve(data);
             }, function (error) {
                 result.reject(error);
@@ -6128,7 +6232,7 @@ var rasdaman;
             });
             return result.promise;
         };
-        AdminService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        AdminService.$inject = ["$http", "$rootScope", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
         return AdminService;
     }());
     rasdaman.AdminService = AdminService;
@@ -6145,6 +6249,7 @@ var rasdaman;
             this.alertService = alertService;
             this.errorHandlingService = errorHandlingService;
             $scope.credential = new login.Credential("", "");
+            $rootScope.adminStateInformation.loggedIn = adminService.checkLoggedIn();
             $scope.login = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -6157,6 +6262,7 @@ var rasdaman;
                     }
                     alertService.success("Successfully logged in.");
                     $rootScope.adminStateInformation.loggedIn = true;
+                    adminService.persitLoggedIn();
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
@@ -6281,6 +6387,7 @@ var rasdaman;
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
+                adminService.persitLoggedOut();
                 $rootScope.adminStateInformation.loggedIn = false;
             };
         }
@@ -6500,6 +6607,23 @@ var admin;
 })(admin || (admin = {}));
 var wms;
 (function (wms) {
+    var DeleteLayerDownscaledCollectionLevel = (function () {
+        function DeleteLayerDownscaledCollectionLevel(layerName, level) {
+            this.request = "DeleteScaleLevel";
+            this.layerName = layerName;
+            this.level = level;
+        }
+        DeleteLayerDownscaledCollectionLevel.prototype.toKVP = function () {
+            return "&request=" + this.request +
+                "&coverageId=" + this.layerName +
+                "&level=" + this.level;
+        };
+        return DeleteLayerDownscaledCollectionLevel;
+    }());
+    wms.DeleteLayerDownscaledCollectionLevel = DeleteLayerDownscaledCollectionLevel;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
     var DeleteLayerStyle = (function () {
         function DeleteLayerStyle(layerName, name) {
             this.request = "DeleteStyle";
@@ -6532,6 +6656,23 @@ var wms;
         return GetMap;
     }());
     wms.GetMap = GetMap;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var InsertLayerDownscaledCollectionLevel = (function () {
+        function InsertLayerDownscaledCollectionLevel(layerName, level) {
+            this.request = "InsertScaleLevel";
+            this.layerName = layerName;
+            this.level = level;
+        }
+        InsertLayerDownscaledCollectionLevel.prototype.toKVP = function () {
+            return "&request=" + this.request +
+                "&coverageId=" + this.layerName +
+                "&level=" + this.level;
+        };
+        return InsertLayerDownscaledCollectionLevel;
+    }());
+    wms.InsertLayerDownscaledCollectionLevel = InsertLayerDownscaledCollectionLevel;
 })(wms || (wms = {}));
 var wms;
 (function (wms) {
