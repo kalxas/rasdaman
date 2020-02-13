@@ -22,6 +22,8 @@
  *
 """
 import copy
+
+
 from lib import arrow
 from util.time_util import DateTimeUtil
 from util import list_util
@@ -172,17 +174,18 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
     def _evaluated_messages(self, grib_file):
         """
         Returns the evaluated_messages for all grib_messages
-        :param File grib_file: the grib file for which to return the evaluated_messages
+        :param String grib_file: path to a grib file
         :rtype: list[GRIBMessage]
         """
         pygrib = import_pygrib()
 
-        self.dataset = pygrib.open(grib_file.get_filepath())
+        self.dataset = pygrib.open(grib_file.filepath)
         evaluated_messages = []
 
         # Message id starts with "1"
         for i in range(1, self.dataset.messages + 1):
             grib_message = self.dataset.message(i)
+
             axes = []
             # Iterate all the axes and evaluate them with message
             # e.g: Long axis: ${grib:longitudeOfFirstGridPointInDegrees}
@@ -200,8 +203,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                 # then, the directPositions of axis is [0, 2, 8,...30]
                 # the syntax to retrieve directions in ingredient file is: ${grib:axis:axis_name}
                 # with axis_name is the name user defined (e.g: AnsiDate?axis-label="time" then axis name is: time)
-                grib_message_evaluator = GribMessageEvaluatorSlice(grib_message, grib_file)
-                evaluated_user_axis = self._user_axis(user_axis, grib_message_evaluator)
+                self.evaluator_slice = GribMessageEvaluatorSlice(grib_message, grib_file)
+                evaluated_user_axis = self._user_axis(user_axis, self.evaluator_slice)
 
                 # When pixelIsPoint:true then it will be adjusted by half pixels for min, max internally (recommended)
                 if self.pixel_is_point is True:

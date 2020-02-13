@@ -26,13 +26,11 @@ import decimal
 import os
 import time
 
-import session
 from lib import arrow
 from collections import OrderedDict
 from time import sleep
 from config_manager import ConfigManager
 from master.importer.coverage import Coverage
-from master.importer.resumer import Resumer
 from master.importer.slice import Slice
 from master.importer.slice_restricter import SliceRestricter
 from master.mediator.mediator import Mediator
@@ -51,7 +49,6 @@ from wcst.wmst import WMSTGetCapabilities
 from util.crs_util import CRSUtil
 from util.time_util import DateTimeUtil
 from lxml import etree
-from util.file_util import FileUtil
 
 
 class Importer:

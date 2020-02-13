@@ -28,6 +28,9 @@ from util.log import log
   Utilities to import optional dependencies and throw proper exceptions for user to install these missing libraries. 
 """
 
+imported_pygrib = None
+imported_netcdf = None
+
 
 def import_numpy():
     """
@@ -44,27 +47,33 @@ def import_pygrib():
     """
     Import pygrib which is used for importing GRIB file.
     """
-    try:
-        import pygrib
-    except ImportError as e:
-        raise RuntimeException("Cannot import GRIB data, please install pygrib first (sudo pip install pygrib). "
-                               "Reason: {}.".format(e))
+    global imported_pygrib
+    if imported_pygrib is None:
+        try:
+            import pygrib
+            imported_pygrib = pygrib
+        except ImportError as e:
+            raise RuntimeException("Cannot import GRIB data, please install pygrib first (sudo pip install pygrib). "
+                                   "Reason: {}.".format(e))
 
-    return pygrib
+    return imported_pygrib
 
 
 def import_netcdf4():
     """
     Import netCDF4 which is used for importing netCDF file.
     """
-    try:
-        import netCDF4
-    except ImportError as e:
-        raise RuntimeException("Cannot import netCDF data, please install netCDF4 first \
-                                (yum install netcdf4-python, or apt-get install python-netcdf, or apt-get install python-netcdf4)."
-                               "Reason: {}.".format(e))
+    global imported_netcdf
+    if imported_netcdf is None:
+        try:
+            import netCDF4
+            imported_netcdf = netCDF4
+        except ImportError as e:
+            raise RuntimeException("Cannot import netCDF data, please install netCDF4 first \
+                                    (yum install netcdf4-python, or apt-get install python-netcdf, or apt-get install python-netcdf4)."
+                                   "Reason: {}.".format(e))
 
-    return netCDF4
+    return imported_netcdf
 
 
 def import_jsonschema():

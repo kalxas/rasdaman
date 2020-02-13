@@ -50,7 +50,7 @@ rasdaman GmbH.
             } else {
                 path = PROXY;
             }
-            document.getElementById('iframe').src = path.replace("/ows", "") + "/wcs-client/index.html";
+            document.getElementById('iframe').src = path.replace("/rasdaman/ows", "") + "/rasdaman/wcs-client/index.html";
         }
         
         window.onload = updateIframeURL;

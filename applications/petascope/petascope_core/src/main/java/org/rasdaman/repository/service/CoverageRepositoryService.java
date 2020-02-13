@@ -23,8 +23,10 @@ package org.rasdaman.repository.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import javax.persistence.EntityManager;
@@ -99,6 +101,10 @@ public class CoverageRepositoryService {
      */
     public static final Map<String, BoundingBox> coveragesExtentsCacheMap = new ConcurrentHashMap<>();
     public static final String COVERAGES_EXTENT_TARGET_CRS_DEFAULT = "EPSG:4326";
+    
+    // Any geo coverages which cannot project its geo bounding box to EPSG:4326 
+    // will be ignored to not show warn log in petascope.log multiple times
+    public static final Set<String> problemCoveragesExtentsCache = new HashSet<>();
 
     public CoverageRepositoryService() {
 
@@ -408,6 +414,11 @@ public class CoverageRepositoryService {
      * (EnvelopeByAxis). The XY axes' BoundingBox is reprojected to EPSG:4326.
      */
     public void createCoverageExtent(String coverageId) throws PetascopeException, SecoreException {
+        if (this.problemCoveragesExtentsCache.contains(coverageId)) {
+            // this coverage has problem to create coverage extent, ignore it
+            return;
+        }
+        
         // Only need a coverage's basic metadata, it is slow to query the whole coverage's metadata
         Coverage coverage = this.readCoverageBasicMetadataByIdFromCache(coverageId);
         List<AxisExtent> axisExtents = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getAxisExtents();
@@ -502,6 +513,7 @@ public class CoverageRepositoryService {
                     boundingBox = new BoundingBox(lonMin, latMin, lonMax, latMax);
                 } catch (PetascopeException ex) {
                     log.warn("Cannot create extent for coverage '" + coverageId + "', error from crs transform '" + ex.getExceptionText() + "'.");
+                    this.problemCoveragesExtentsCache.add(coverageId);
                 }
             }
             
@@ -538,6 +550,8 @@ public class CoverageRepositoryService {
         coverage.setCoverageSizeInBytes(coverageSize);
 
         coveragesCacheMap.put(coverageId, new Pair(coverage, true));
+        problemCoveragesExtentsCache.remove(coverageId);
+        
         try {
             // Also insert/update the coverage's extent in cache as the bounding box of XY axes can be extended by WCST_Import.
             this.createCoverageExtent(coverageId);
@@ -567,6 +581,8 @@ public class CoverageRepositoryService {
 
         entityManager.flush();
         entityManager.clear();
+        
+        problemCoveragesExtentsCache.remove(coverageId);
 
         log.debug("Coverage: " + coverage.getCoverageId() + " is removed from database.");
     }

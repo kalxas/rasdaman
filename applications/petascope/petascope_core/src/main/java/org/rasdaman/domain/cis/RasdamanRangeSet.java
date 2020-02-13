@@ -137,6 +137,10 @@ public class RasdamanRangeSet implements Serializable {
     }
 
     public List<RasdamanDownscaledCollection> getRasdamanDownscaledCollections() {
+        List<RasdamanDownscaledCollection> resultList = new ArrayList<>();
+        if (rasdamanDownscaledCollections == null) {
+            return resultList;
+        }
         // NOTE: it needs to be sorted by level ascending.
         Collections.sort(rasdamanDownscaledCollections);
         return this.rasdamanDownscaledCollections;

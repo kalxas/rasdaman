@@ -25,7 +25,6 @@ from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import GDALEvaluatorSlice
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
 from master.evaluator.evaluator_slice import GribMessageEvaluatorSlice
-from util.gdal_util import GDALGmlUtil
 
 
 class EvaluatorSliceFactory:

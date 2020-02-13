@@ -209,8 +209,8 @@ class Recipe(BaseRecipe):
 
                 if valid_coverage_slice:
                     # Generate local metadata string for current coverage slice
-                    evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, tpair.file)
-                    local_metadata = gdal_coverage_converter._generate_local_metadata(subsets, evaluator_slice)
+                    self.evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, tpair.file)
+                    local_metadata = gdal_coverage_converter._generate_local_metadata(subsets, self.evaluator_slice)
                     slices.append(Slice(subsets, FileDataProvider(tpair.file), local_metadata))
 
             timer.print_elapsed_time()
@@ -264,7 +264,7 @@ class Recipe(BaseRecipe):
 
         global_metadata = None
         if len(coverage_slices) > 0:
-            global_metadata = gdal_coverage_converter._generate_global_metadata(coverage_slices[0])
+            global_metadata = gdal_coverage_converter._generate_global_metadata(coverage_slices[0], self.evaluator_slice)
 
         coverage = Coverage(self.session.get_coverage_id(), coverage_slices, fields, crs,
                             gdal_dataset.get_band_gdal_type(), self.options['tiling'], global_metadata)

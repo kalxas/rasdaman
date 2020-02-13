@@ -113,6 +113,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
             return self.default_null_values
 
         netCDF4 = import_netcdf4()
+
         # NOTE: all files should have same bands's metadata for each file
         nci = netCDF4.Dataset(self.files[0].get_filepath(), 'r')
         try:
@@ -199,8 +200,9 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         str file_path: path to first netCDF input file
         :return: dict: global_metadata
         """
-        # NOTE: all files should have same global metadata for each file
         netCDF4 = import_netcdf4()
+
+        # NOTE: all files should have same global metadata for each file
         dataset = netCDF4.Dataset(file_path, 'r')
         global_metadata = {}
         for attr in dataset.ncattrs():
@@ -220,9 +222,9 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
 
         :return: dict:
         """
+        netCDF4 = import_netcdf4()
 
         # NOTE: all files should have same bands's metadata for each file
-        netCDF4 = import_netcdf4()
         dataset = netCDF4.Dataset(file_path, 'r')
         bands_metadata = {}
 
@@ -248,8 +250,9 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         under "slicer"/"axes" section.
         :return: dict:
         """
-        # NOTE: all files should have same axes's metadata for each file
         netCDF4 = import_netcdf4()
+
+        # NOTE: all files should have same axes's metadata for each file
         dataset = netCDF4.Dataset(file_path, 'r')
         axes_metadata = {}
 

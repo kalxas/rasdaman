@@ -23,7 +23,7 @@
 """
 from util.file_obj import File
 from util.gdal_util import GDALGmlUtil
-from util.import_util import import_pygrib, import_netcdf4
+from util.import_util import import_netcdf4
 
 
 class EvaluatorSlice:
@@ -92,14 +92,7 @@ class GribMessageEvaluatorSlice(FileEvaluatorSlice):
                i.e: when all the messages were evaluated, now it can get the list of values [min,....max] and do some
                addition calculation if it is necessary
         """
-        pygrib = import_pygrib()
-
         FileEvaluatorSlice.__init__(self, container_file)
-        # if no grib_message is passed, we use the first grib message from the grib file to evaluate
-        # e.g: global variables which does not change from message, grib:marsType, grib:marsClass
-        if grib_message is None:
-            dataset = pygrib.open(container_file.get_filepath())
-            grib_message = dataset.message(1)
         self.grib_message = grib_message
         self.direct_positions = direct_positions
 
@@ -141,8 +134,8 @@ class NetcdfEvaluatorSlice(FileEvaluatorSlice):
         Returns the dataset ofthe file
         :rtype: netCDF4.Dataset
         """
+        netCDF4 = import_netcdf4()
         if self.dataset is None:
-            netCDF4 = import_netcdf4()
             file_path = self.get_file().get_filepath()
             self.dataset = netCDF4.Dataset(file_path, "r")
 

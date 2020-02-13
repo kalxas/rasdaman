@@ -274,7 +274,7 @@ class AbstractToCoverageConverter:
             file_structure["variables"] = variables
         return file_structure
 
-    def _generate_global_metadata(self, first_slice):
+    def _generate_global_metadata(self, first_slice, evaluator_slice=None):
         """
         Factory method to generate global metadata defined in ingredient file to xml/json and ingest as
         WCS coverage's global extra metadata via WCS-T InsertCoverage request.
@@ -286,8 +286,10 @@ class AbstractToCoverageConverter:
             return ""
         serializer = ExtraMetadataSerializerFactory.get_serializer(self.metadata_type)
 
+        if not evaluator_slice is None:
+            self.evaluator_slice = evaluator_slice
+
         # get the evaluator for the current recipe_type (each recipe has different evaluator)
-        evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, first_slice.data_provider.file)
         metadata_entry_subsets = []
         for axis in first_slice.axis_subsets:
             metadata_entry_subsets.append(ExtraMetadataSliceSubset(axis.coverage_axis.axis.label, axis.interval))
@@ -297,7 +299,7 @@ class AbstractToCoverageConverter:
                                                  ExtraGlobalMetadataIngredientInformation(self.global_metadata_fields,
                                                                                     self.bands_metadata_fields,
                                                                                     self.axes_metadata_fields),
-                                                 ExtraMetadataEntry(evaluator_slice, metadata_entry_subsets))
+                                                 ExtraMetadataEntry(self.evaluator_slice, metadata_entry_subsets))
 
         global_extra_metadata = global_extra_metadata_collector.collect()
         metadata_str = serializer.serialize(global_extra_metadata)
@@ -414,8 +416,7 @@ class AbstractToCoverageConverter:
                 # e.g: "'${grib:marsClass}'"
                 value = key_value[1]
                 # evaluate this metadata variable by eval() on the slice_file (all files should have same metadata)
-                evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, slice_file)
-                evaluated_value = self.sentence_evaluator.evaluate(value, evaluator_slice)
+                evaluated_value = self.sentence_evaluator.evaluate(value, self.evaluator_slice)
                 # after that, the band's metadata for the current attribute is evaluated
                 setattr(band, key, evaluated_value)
 
@@ -440,19 +441,17 @@ class AbstractToCoverageConverter:
 
                 valid_coverage_slice = True
 
-                evaluator_slice = None
-
                 try:
                     if calculated_evaluator_slice is None:
                         # get the evaluator for the current recipe_type (each recipe has different evaluator)
-                        evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
+                        self.evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
                     else:
-                        evaluator_slice = calculated_evaluator_slice
+                        self.evaluator_slice = calculated_evaluator_slice
 
                     if self.data_type is None:
-                        self.data_type = evaluator_slice.get_data_type(self)
+                        self.data_type = self.evaluator_slice.get_data_type(self)
 
-                    coverage_slice = self._create_coverage_slice(file, crs_axes, evaluator_slice, axis_resolutions)
+                    coverage_slice = self._create_coverage_slice(file, crs_axes, self.evaluator_slice, axis_resolutions)
                 except Exception as ex:
                     # If skip: true then just ignore this file from importing, else raise exception
                     FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
