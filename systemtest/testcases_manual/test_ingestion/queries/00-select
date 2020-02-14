@@ -1,0 +1,1 @@
+rasql -q 'select add_cells(c) from test_concurrent_ingest_3d as c' --out string

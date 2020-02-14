@@ -1,0 +1,1 @@
+rasql -q 'update test_concurrent_ingest_3d as c set c[0,*:*,*:*] assign shift(decode($1), [1500,1500])' -f testdata/char_10000x10000.tif --user rasadmin --passwd rasadmin
