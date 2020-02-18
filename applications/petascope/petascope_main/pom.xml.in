@@ -16,6 +16,7 @@
         <version>@PROJECT_VERSION@</version>
         <sourceDir>${project.basedir}</sourceDir>
         <buildDir>@BUILD_DIR@/petascope_main</buildDir>
+        <gdalJavaJarPath>@GDAL_JAVA_JAR_PATH@</gdalJavaJarPath>
     </properties>
 
    <parent>
@@ -96,6 +97,24 @@
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
+            </plugin>
+
+            <plugin>
+	            <artifactId>maven-antrun-plugin</artifactId>
+	            <executions>
+		            <execution>
+			            <phase>test</phase>
+			            <goals>
+				            <goal>run</goal>
+			            </goals>
+			            <configuration>
+				            <tasks>
+					            <copy file="${gdalJavaJarPath}"
+                                 todir="${buildDir}/target/rasdaman/WEB-INF/lib"/>
+				            </tasks>
+			            </configuration>
+		            </execution>
+	            </executions>
             </plugin>
 
         </plugins>

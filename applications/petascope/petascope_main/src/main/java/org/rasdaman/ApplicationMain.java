@@ -97,6 +97,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
     private static final String TMP_GDAL_JAVA_DIR_NAME = "gdal_java";
     private static final String[] GDAL_LIB_PREFIXES = new String[] {"libgdal", "libogr", "libosr"};
     
+    
     // When invoked from command line (e.g: java -jar rasdaman.war), the migration
     // is set with a command-line parameter --migrate which makes this option true.
     public static boolean MIGRATE = false;
@@ -202,6 +203,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
     }
     
     private static void loadGdalLibrary(Properties applicationProperties) {
+        
         String systemGdalJavaDir = applicationProperties.getProperty(KEY_GDAL_JAVA_DIR);
         
         // Create a gdal_java/datetime temp folder to load shared object files to memory

@@ -341,6 +341,13 @@ if (USE_GDAL)
     set(GDAL_INCLUDE_DIRECTORIES ${GDAL_INCLUDE_DIR})
     include_directories(SYSTEM ${GDAL_INCLUDE_DIR})
     set(HAVE_GDAL ON)
+ 
+    set(GDAL_JAVA_JAR_PATH "/usr/share/java/gdal.jar" CACHE STRING
+    "The path where gdal.jar from gdal-java lib installed")
+
+    if (NOT (EXISTS "${GDAL_JAVA_JAR_PATH}"))
+        message(FATAL_ERROR "gdal.jar from gdal-java lib does not exit, given '${GDAL_JAVA_JAR_PATH}'.")
+    endif() 
 
     message(STATUS "  internal GDAL converter enabled (-DUSE_GDAL=${USE_GDAL}).")
 else()

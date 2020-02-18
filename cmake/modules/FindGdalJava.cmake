@@ -32,7 +32,6 @@ find_library(GDAL_JAVA_VERSION_2 NAMES libgdalalljni.so.20
 if (GDAL_JAVA_VERSION_2)
     get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_2} DIRECTORY)
     set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
-    set(GDAL_JAVA_VERSION "2.3.0")
 else()
 
     # try to find version 2.x, x < 2.3
@@ -41,7 +40,6 @@ else()
     if (GDAL_JAVA_VERSION_2)
         get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_2} DIRECTORY)
         set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
-        set(GDAL_JAVA_VERSION "2.2.1")
     else()
 
         # try to find version 1.x
@@ -51,14 +49,12 @@ else()
             # found version 1.x
             get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_1} DIRECTORY)
             set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
-            set(GDAL_JAVA_VERSION "1.10.1")
         endif()
     endif()
 endif()  
 
 
 # throw error on REQUIRED if GDAL_JAVA_DIR is not found, otherwise print found
-find_package_handle_standard_args(GdalJava DEFAULT_MSG GDAL_JAVA_DIR GDAL_JAVA_VERSION)
+find_package_handle_standard_args(GdalJava DEFAULT_MSG GDAL_JAVA_DIR)
 
 mark_as_advanced(GDAL_JAVA_DIR)
-mark_as_advanced(GDAL_JAVA_VERSION)

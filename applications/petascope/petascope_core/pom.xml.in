@@ -16,7 +16,7 @@
         <version>@PROJECT_VERSION@</version>
         <sourceDir>${project.basedir}</sourceDir>
         <buildDir>@BUILD_DIR@/petascope_core</buildDir>
-        <gdalJavaVersion>@GDAL_JAVA_VERSION@</gdalJavaVersion>
+        <gdalJavaJarPath>@GDAL_JAVA_JAR_PATH@</gdalJavaJarPath>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -24,14 +24,6 @@
         <version>1.5.2.RELEASE</version>
         <relativePath></relativePath>
     </parent>
-
-    <repositories>
-        <repository>
-            <id>GDAL version 1.10.1 repositories</id>
-            <name>For Debian 8, Ubuntun 14.04 as they only installed this version.</name>
-            <url>https://repo.boundlessgeo.com/main/</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <!-- By default Spring Boot uses logback, disable it as petascope uses log4j -->
@@ -44,6 +36,15 @@
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gdal</groupId>
+            <artifactId>gdal</artifactId>
+            <version>0</version>
+            <scope>system</scope>
+            <!-- NOTE: it uses the jar from gdal-java lib installed in the system -->
+            <systemPath>${gdalJavaJarPath}</systemPath>
         </dependency>
 
         <!-- There is a conflict XmlMapper with older dependency,
@@ -134,11 +135,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math</artifactId>
             <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.gdal</groupId>
-            <artifactId>gdal</artifactId>
-            <version>${gdalJavaVersion}</version>
         </dependency>
         <dependency>
             <groupId>com.eaio.uuid</groupId>

@@ -108,8 +108,8 @@ configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 add_custom_target(petascope ALL
     COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "pom.xml"
                                 -DbuildDir=${BUILD_DIR}
-                                -DgdalJavaVersion=${GDAL_JAVA_VERSION}
                                 -Dversion=${PROJECT_VERSION}
+                                -DgdalJavaJarPath=${GDAL_JAVA_JAR_PATH}
 
     DEPENDS rasj
     WORKING_DIRECTORY ${SRC_DIR}
