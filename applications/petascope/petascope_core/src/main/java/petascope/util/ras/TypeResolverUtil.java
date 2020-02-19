@@ -259,7 +259,7 @@ public class TypeResolverUtil {
             result = typeRegistry.createNewType(collectionName, numberOfDimensions, translateTypes(gdalBandTypes), nilValues);
         } catch (PetascopeException ex) {
             // In case, one creates rasql types manually, then petascope cannot see them and it should create new ones to avoid duplicate names.
-            if (ex.getMessage().contains("Type already exists")) {
+            if (ex.getMessage().toLowerCase().contains("type already exists")) {
                 log.warn("Type names for '" + collectionName + "' already exists. Creating new ones...");
                 collectionName = StringUtil.addDateTimeSuffix(collectionName);
                 result = typeRegistry.createNewType(collectionName, numberOfDimensions, translateTypes(gdalBandTypes), nilValues);

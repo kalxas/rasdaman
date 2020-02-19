@@ -87,10 +87,13 @@ module ows {
          * e.g: 1000 -> 1 KB         
          */
         public static convertNumberOfBytesToHumanReadable(numberOfBytes):String {
+            if (numberOfBytes == 0) {
+                return "0 B";
+            }
             const k = 1000;            
             const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             let i = Math.floor(Math.log(numberOfBytes) / Math.log(k));
-            let result = parseFloat((numberOfBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            let result = parseFloat((numberOfBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];           
 
             return result;
         }
