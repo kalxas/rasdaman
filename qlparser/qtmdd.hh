@@ -91,7 +91,7 @@ public:
     /// set whether the MDD data is result from a conversion function
     inline void setFromConversion(bool newFromConversion);
     /// sets the Collection Type
-    inline void setCollType(CollectionType *newCollType);
+    void setCollType(const CollectionType *newCollType);
 
     /// returns a null-terminated string describing the type structure
     virtual char *getTypeStructure() const;
@@ -103,7 +103,7 @@ public:
     //@}
 
     /// returns pointer to the collection type
-    CollectionType *getCollType() const;
+    const CollectionType *getCollType() const;
     /// returns a pointer to the cell type
     BaseType *getCellType() const;
 
@@ -134,9 +134,6 @@ private:
 
     /// load domain
     r_Minterval loadDomain;
-
-    //collection type
-    CollectionType *collType{NULL};
 };
 
 #include "qlparser/qtmdd.icc"

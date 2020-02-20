@@ -50,6 +50,7 @@ rasdaman GmbH.
 #include "raslib/sinterval.hh"          // for r_Sinterval
 #include "raslib/point.hh"
 #include "storagemgr/sstoragelayout.hh"     // for StorageLayout
+#include "relcatalogif/collectiontype.hh"
 #include <logging.hh>
 
 #include <iostream>                     // for ostream
@@ -439,6 +440,129 @@ void MDDObj::setUpdateNullValues(r_Nullvalues *newNullValues)
     }
 }
 
+std::string MDDObj::getArrayInfo(bool printTiles) const
+{
+    std::ostringstream info;
+    auto oid = static_cast<double>(myDBMDDObj->getOId());
+    info << "{\n \"oid\": \"" << oid;
+
+    char *baseType = this->getMDDBaseType()->getTypeStructure();
+    info << "\",\n \"baseType\": \"" << baseType;
+    free(baseType);
+    
+    if (collType)
+    {
+        info << "\",\n \"setTypeName\": \"" << collType->getName();
+    }
+    info << "\",\n \"mddTypeName\": \"" << myDBMDDObj->getMDDBaseType()->getTypeName();
+
+    std::unique_ptr<std::vector<shared_ptr<Tile>>> tiles{};
+    tiles.reset(this->getTiles());
+    info << "\",\n \"tileNo\": \"" << tiles->size();
+
+    size_t totalSize = 0;
+    for (const auto &tile : *tiles)
+    {
+        totalSize += tile->getSize();
+    }
+    info << "\",\n \"totalSize\": \"" << totalSize;
+
+    const auto *sl = this->getStorageLayout();
+    if (sl)
+    {
+        info << "\",\n \"tiling\": {\n";
+        info << "\t\"tilingScheme\": \"";
+        switch (sl->getTilingScheme())
+        {
+        case r_NoTiling:
+            info << "no_tiling";
+            break;
+        case r_RegularTiling:
+            info << "regular";
+            break;
+        case r_StatisticalTiling:
+            info << "statistic";
+            break;
+        case r_InterestTiling:
+            info << "interest";
+            break;
+        case r_AlignedTiling:
+            info << "aligned";
+            break;
+        case r_DirectionalTiling:
+            info << "directional";
+            break;
+        case r_SizeTiling:
+            info << "size";
+            break;
+        default:
+            info << "unknown";
+            break;
+        }
+        info << "\",\n\t\"tileSize\": \"" << sl->getTileSize();
+        info << "\",\n\t\"tileConfiguration\": \"" << sl->getTileConfiguration() << "\"";
+
+        if (printTiles)
+        {
+            info << "\",\n\t\"tileDomains\":\n\t[";
+            bool first = true;
+            for (const auto &tile : *tiles)
+            {
+                info << "\n\t\t\"" << tile->getDomain() << "\"";
+                if (!first)
+                {
+                    info << ",";
+                }
+                else
+                {
+                    first = false;
+                }
+            }
+            info << "\n\t]";
+        }
+
+        info << "\n },\n \"index\": {\n\t\"type\": \"";
+        switch (sl->getIndexType())
+        {
+        case r_Invalid_Index:
+            info << "invalid";
+            break;
+        case r_Auto_Index:
+            info << "a_index";
+            break;
+        case r_Directory_Index:
+            info << "d_index";
+            break;
+        case r_Reg_Directory_Index:
+            info << "rd_index";
+            break;
+        case r_RPlus_Tree_Index:
+            info << "rpt_index";
+            break;
+        case r_Reg_RPlus_Tree_Index:
+            info << "rrpt_index";
+            break;
+        case r_Reg_Computed_Index:
+            info << "rc_index";
+            break;
+        case r_Index_Type_NUMBER:
+            info << "it_index";
+            break;
+        case r_Tile_Container_Index:
+            info << "tc_index";
+            break;
+        default:
+            info << "unknown";
+            break;
+        }
+        info << "\",\n\t\"PCTmax\": \"" << sl->getDBStorageLayout()->getPCTMax();
+        info << "\",\n\t\"PCTmin\": \"" << sl->getDBStorageLayout()->getPCTMin();
+        info << "\"\n }";
+    }
+    info << "\n}";
+    return info.str();
+}
+
 template <class T>
 void fillTile(r_Range fillValArg, size_t cellCount, char *startPointArg)
 {
@@ -545,3 +669,11 @@ void MDDObj::fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount)
     }
 }
 
+void MDDObj::setCollType(const CollectionType *newCollType)
+{
+    collType = newCollType;
+}
+const CollectionType *MDDObj::getCollType() const
+{
+    return collType;
+}

@@ -53,6 +53,7 @@ class MDDBaseType;
 class MDDObjIx;
 class StorageLayout;
 class EOId;
+class CollectionType;
 
 //@ManMemo: Module: {\bf cachetamgr}
 /*@Doc:
@@ -297,6 +298,13 @@ public:
     /// A templated helper function addresses the stored data type.
     void fillTileWithNullvalues(char *resDataPtr, size_t cellCount) const;
 
+    std::string getArrayInfo(bool printTiles) const;
+    
+    /// sets the Collection Type
+    void setCollType(const CollectionType *newCollType);
+    /// returns pointer to the collection type
+    const CollectionType *getCollType() const;
+
 protected:
 
     /// write nullValues to a given tile...
@@ -320,6 +328,9 @@ protected:
 
     /// The storage class which is reponsible for the tiling
     StorageLayout *myStorageLayout;
+    
+    //collection type
+    const CollectionType *collType{NULL};
 
 //      bool doNotUseThisBugFix;
     /**

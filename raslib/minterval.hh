@@ -246,14 +246,14 @@ public:
     r_Minterval &operator<<(r_Range);
 
     /// getter method for axisNames
-    std::vector<std::string> getAxisNames();
+    const std::vector<std::string> &getAxisNames();
 
     /// default constructor
     r_Minterval();
     /// copy constructor
     r_Minterval(const r_Minterval &);
     /// copy constructor with axisNames
-    r_Minterval(const r_Minterval &, const std::vector<std::string> *axisNames);
+    r_Minterval(const r_Minterval &, const std::vector<std::string> &axisNames);
     /// destructor: cleanup dynamic memory
     ~r_Minterval();
 

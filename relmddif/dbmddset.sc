@@ -138,3 +138,20 @@ void DBMDDSet::readFromDb()
     DBObject::readTimer.pause();
 #endif
 }
+
+DBMDDSetId DBMDDSet::getDBMDDSetContainingDBMDDObj(const OId &id)
+{
+  SQLiteQuery query("SELECT MDDCollId FROM RAS_MDDCOLLECTIONS "
+                    "WHERE MDDId = %lld", id.getCounter());
+  if (query.nextRow())
+  {
+      auto setId = query.nextColumnLong();
+      OId setOId{setId, OId::MDDCOLLOID};
+      return DBMDDSetId(static_cast<DBMDDSet *>(ObjectBroker::getObjectByOId(setOId)));
+  }
+  else
+  {
+      LERROR << "MDD collection containing MDD with oid " << id.getCounter() << " not found in RAS_MDDCOLLECTIONS";
+      throw r_Ebase_dbms(SQLITE_NOTFOUND, "MDD collection object not found in RAS_MDDCOLLECTIONS.");
+  }
+}

@@ -21,7 +21,25 @@
 #
 ###################################################################
 
-# Create error messages from bin/errtxts via bash script to a Python file
-add_custom_target(rasdapy_generate_errtxts_message ALL
-    COMMAND $(MAKE) -C ${CMAKE_CURRENT_SOURCE_DIR}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+# User-specified variables, e.g: make PROJECT_VERSION=9.8.0
+# PROJECT_VERSION=9.8.0
+# BUILD_DIR=../../build/java/target/
+
+ifeq ($(BUILD_DIR),)
+$(error BUILD_DIR was not provided)
+endif
+ifeq ($(PROJECT_VERSION),)
+$(error PROJECT_VERSION was not provided)
+endif
+
+target = $(BUILD_DIR)/target/rasdaman.war
+targetapidocs = $(BUILD_DIR)/target/site/apidocs
+
+MVN = mvn
+
+all: $(target)
+
+$(target): pom.xml $(shell find -name '*.java')
+	$(MVN) -q -B package -Prasnet -f pom.xml \
+															  -Dversion=$(PROJECT_VERSION) \
+															  -DbuildDir=$(BUILD_DIR)

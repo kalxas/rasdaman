@@ -603,8 +603,7 @@ prepare_gdal_file()
 prepare_netcdf_file()
 {
   local tmpf="$1.tmp"
-  ncdump -c "$1" | sed -i \
-    -e '/dimensions/,$p' \
+  ncdump -c "$1" | sed \
     -e '/fileReferenceHistory/d' \
     -e '/_NCProperties/d' \
     -e '/global attributes/d' \
@@ -997,10 +996,6 @@ run_test()
     # 2b. check result
     #
     compare_output_to_oracle "$out" "$oracle"
-    if [ "$status" = $ST_FAIL ]; then
-      local alt_oracle="$oracle.newengine"
-      [ -f "$alt_oracle" ] && compare_output_to_oracle "$out" "$alt_oracle"
-    fi
 
   fi # end of if not sh file
 

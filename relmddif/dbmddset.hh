@@ -58,6 +58,8 @@ public:
     static DBMDDSetId getDBMDDSet(const char *name);
 
     static DBMDDSetId getDBMDDSet(const OId &id);
+    
+    static DBMDDSetId getDBMDDSetContainingDBMDDObj(const OId &id);
 
     static bool deleteDBMDDSet(const OId &id);
 

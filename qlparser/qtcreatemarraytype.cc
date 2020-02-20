@@ -9,14 +9,14 @@ const size_t QtCreateMarrayType::MAX_MARRAY_TYPE_NAME_LENGTH;
 
 const QtNode::QtNodeType QtCreateMarrayType::nodeType = QtNode::QT_CREATE_MDD_TYPE;
 
-QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, const std::string cellTypeName2, QtOperation *domainNode2, const std::vector<std::string> *axisNames2)
-    : typeName(typeName2), typeAttributes(NULL), domainNode(domainNode2), axisNames(axisNames2)
+QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, const std::string cellTypeName2, QtOperation *domainNode2, std::vector<std::string> axisNames2)
+    : typeName(typeName2), typeAttributes(NULL), domainNode(domainNode2), axisNames(std::move(axisNames2))
 {
     this->cellTypeName = TypeFactory::getInternalTypeFromSyntaxType(cellTypeName2);
 }
 
-QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, QtNode::QtOperationList *typeAttributes2, QtOperation *domainNode2, const std::vector<std::string> *axisNames2)
-    : typeName(typeName2), typeAttributes(typeAttributes2), domainNode(domainNode2), axisNames(axisNames2)
+QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, QtNode::QtOperationList *typeAttributes2, QtOperation *domainNode2, std::vector<std::string> axisNames2)
+    : typeName(typeName2), typeAttributes(typeAttributes2), domainNode(domainNode2), axisNames(std::move(axisNames2))
 {
     this->cellTypeName = TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX + this->typeName;
 }

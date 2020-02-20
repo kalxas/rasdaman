@@ -52,26 +52,8 @@ if (ENABLE_JAVA)
     # Configure the pom file
     configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
-    # Create error messages from bin/errtxts via bash script to a java file
-    set(GENERATED_ERRTXTS_MESSAGE "rasj_generate_errtxts_message")
-    add_custom_target(${GENERATED_ERRTXTS_MESSAGE} ALL
-        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_errtxts_messages.sh "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/rasj/global/RasErrorTexts.java.in"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        VERBATIM)
-
     add_custom_target(rasj ALL
-            COMMAND ${MAVEN_EXECUTABLE} -q -B package -Prasnet
-                                        -Dversion=${PROJECT_VERSION}
-                                        -DbuildDir=${RASJ_TARGET_DIR}
-                                        -Dpackaging=jar
-
-            COMMAND ${MAVEN_EXECUTABLE} -q install:install-file
-                                        -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
-                                        -DgroupId=org.rasdaman
-                                        -DartifactId=rasj
-                                        -Dversion=${PROJECT_VERSION}
-                                        -Dpackaging=jar
-                                        
+            COMMAND $(MAKE) -C ${SRC_DIR} PROJECT_VERSION=${PROJECT_VERSION} RASJ_TARGET_DIR=${RASJ_TARGET_DIR}
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES} ${GENERATED_ERRTXTS_MESSAGE}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "building rasj"
@@ -79,7 +61,7 @@ if (ENABLE_JAVA)
 
     if (GENERATE_DOCS)
         add_custom_target(rasj_doc ALL
-            COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc -Prasnet || exit 0
+            COMMAND $(MAKE) -C ${SRC_DIR} apidocs PROJECT_VERSION=${PROJECT_VERSION} RASJ_TARGET_DIR=${RASJ_TARGET_DIR} || exit 0
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "generating rasj API documentation"

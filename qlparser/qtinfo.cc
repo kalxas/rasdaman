@@ -123,7 +123,7 @@ QtInfo::evaluate(QtDataList *inputList)
             }
 
             DBMDDObj *dbObj = persMDD->getDBMDDObjId().ptr();
-            CollectionType *collType = qtMDD->getCollType();
+            const auto *collType = qtMDD->getCollType();
 
             if (dbObj)
             {

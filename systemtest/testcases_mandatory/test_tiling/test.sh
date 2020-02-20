@@ -87,8 +87,7 @@ function run_test()
     return
   fi
   if [ $# -gt 1 ]; then
-    sed -i '/oid/d' $f
-    sed -i '/baseType/d' $f
+    sed -i -e '/oid/d' -e '/baseType/d' $f
   fi
   mv $f $q_id
   if [ ! -f "$ORACLE_PATH/$q_id" ]; then

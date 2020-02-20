@@ -65,7 +65,7 @@ DBMinterval::DBMinterval(const r_Minterval &old)
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const r_Minterval& old, const std::vector<std::string> *axisNames2)
+DBMinterval::DBMinterval(const r_Minterval& old, const std::vector<std::string> &axisNames2)
     : DBObject(), r_Minterval(old, axisNames2)
 {
     objecttype = OId::DBMINTERVALOID;
@@ -231,7 +231,7 @@ void DBMinterval::readFromDb()
     streamInitCnt = dimensionality;
     for (r_Dimension count = 0; count < dimensionality; count++)
     {
-        bool hasAxisNameColumn = checkAxisNameColumn();
+        static bool hasAxisNameColumn = checkAxisNameColumn();
 
         const char *queryStr = "SELECT AxisName, Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld";
         if (!hasAxisNameColumn)

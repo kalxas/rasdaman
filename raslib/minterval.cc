@@ -220,7 +220,7 @@ r_Minterval::r_Minterval(const char *mIntStr)
     temp = nullptr;
 }
 
-std::vector<std::string> r_Minterval::getAxisNames()
+const std::vector<std::string> &r_Minterval::getAxisNames()
 {
     return axisNames;
 }
@@ -260,15 +260,7 @@ r_Minterval::r_Minterval()
 r_Minterval::r_Minterval(const r_Minterval &minterval)
     : intervals(nullptr), dimensionality(0), streamInitCnt(0)
 {
-    if(!minterval.axisNames.empty())
-    {
-        for(size_t i=0; i<minterval.axisNames.size(); i++)
-        {
-            std::string temp = minterval.axisNames.at(i);
-            axisNames.push_back(temp);
-        }
-    }
-    
+    axisNames = minterval.axisNames;
     dimensionality = minterval.dimensionality;
     streamInitCnt = minterval.streamInitCnt;
     if (minterval.intervals)
@@ -281,18 +273,9 @@ r_Minterval::r_Minterval(const r_Minterval &minterval)
     }
 }
 
-r_Minterval::r_Minterval(const r_Minterval &minterval, const std::vector<std::string> *axisNames2)
-    : intervals(nullptr), dimensionality(0), streamInitCnt(0)
+r_Minterval::r_Minterval(const r_Minterval &minterval, const std::vector<std::string> &axisNames2)
+    : intervals(nullptr), dimensionality(0), axisNames(axisNames2), streamInitCnt(0)
 {
-    if(!axisNames2->empty())
-    {
-        for(size_t i=0; i<axisNames2->size(); i++)
-        {
-            axisNames.push_back(axisNames2->at(i));
-        }
-        delete axisNames2;
-    }
-    
     dimensionality = minterval.dimensionality;
     streamInitCnt = minterval.streamInitCnt;
     if (minterval.intervals)

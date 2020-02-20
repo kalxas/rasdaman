@@ -21,7 +21,9 @@
 #
 ###################################################################
 
-# Create error messages from bin/errtxts via bash script to a Python file
-add_custom_target(rasdapy_generate_errtxts_message ALL
-    COMMAND $(MAKE) -C ${CMAKE_CURRENT_SOURCE_DIR}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+errtxts = rasdapy/cores/exception_factories.py
+
+all: $(errtxts)
+
+$(errtxts): ../../bin/errtxts $(errtxts).in
+	bash ./generate_errtxts_messages.sh $(errtxts).in

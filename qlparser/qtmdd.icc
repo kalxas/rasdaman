@@ -69,8 +69,3 @@ QtMDD::setFromConversion(bool newFromConversion)
     fromConversion = newFromConversion;
 }
 
-inline void
-QtMDD::setCollType(CollectionType *newCollType)
-{
-    collType = newCollType;
-}

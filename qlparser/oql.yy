@@ -1166,8 +1166,11 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   QueryTree::symtab.wipe();
                   YYABORT;
                 }
-
-                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $5.value, $7.value, $7.names);
+    
+                std::vector<std::string> axisNames;
+                if ($7.names)
+                    axisNames = *$7.names;
+                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $5.value, $7.value, std::move(axisNames));
                 mddTypeNode->setParseInfo( *($1.info));
 
                 parseQueryTree->setRoot( mddTypeNode );
@@ -1203,7 +1206,10 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   YYABORT;
                 }
 
-                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $6, $9.value, $9.names);
+                std::vector<std::string> axisNames;
+                if ($9.names)
+                    axisNames = *$9.names;
+                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $6, $9.value, std::move(axisNames));
                 mddTypeNode->setParseInfo( *($1.info));
 
                 parseQueryTree->setRoot( mddTypeNode );
@@ -3455,7 +3461,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	}
 	| MINUS generalExp %prec UNARYOP
 	{
-	  $$ = new QtMult( $2, new QtConst( new QtAtomicData( (r_Long)-1, 1 ) ) );
+	  $$ = new QtMult( $2, new QtConst( new QtAtomicData( r_Octet(-1), 1 ) ) );
 	  parseQueryTree->removeDynamicObject( $2 );
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)

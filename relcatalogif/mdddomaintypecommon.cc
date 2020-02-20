@@ -36,7 +36,6 @@ rasdaman GmbH.
 #include <logging.hh>                            // for Writer, CTRACE, LTRACE
 
 #include <boost/algorithm/string/predicate.hpp>  // for starts_with
-#include <stdlib.h>                              // for free, malloc
 #include <cstring>                               // for strcat, strlen, strcpy
 #include <iostream>                              // for operator<<, basic_os...
 #include <string>                                // for basic_string, string
@@ -69,7 +68,7 @@ MDDDomainType::MDDDomainType(const char *newTypeName, const BaseType *newBaseTyp
 }
 
 MDDDomainType::MDDDomainType(const char *newTypeName, const BaseType *newBaseType,
-                             const r_Minterval &newDomain, const std::vector<std::string> *axisNames2)
+                             const r_Minterval &newDomain, const std::vector<std::string> &axisNames2)
     : MDDBaseType(newTypeName, newBaseType)
 {
     objecttype = OId::MDDDOMTYPEOID;

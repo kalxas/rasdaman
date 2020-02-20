@@ -106,10 +106,7 @@ configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 
 # Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
-    COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "pom.xml"
-                                -DbuildDir=${BUILD_DIR}
-                                -Dversion=${PROJECT_VERSION}
-
+    COMMAND $(MAKE) -C ${SRC_DIR} PROJECT_VERSION=${PROJECT_VERSION} BUILD_DIR=${BUILD_DIR}
     DEPENDS rasj
     WORKING_DIRECTORY ${SRC_DIR}
     COMMENT "building petascope"

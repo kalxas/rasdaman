@@ -266,10 +266,16 @@ QtMDD::~QtMDD()
     }
 }
 
-CollectionType *
+const CollectionType *
 QtMDD::getCollType() const
 {
-    return collType;
+    return mddObject->getCollType();
+}
+
+void
+QtMDD::setCollType(const CollectionType *newCollType)
+{
+    mddObject->setCollType(newCollType);
 }
 
 BaseType *

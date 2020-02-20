@@ -765,7 +765,8 @@ void r_Conv_NETCDF::addMetadata()
             }
             if (!jsonVar.isMember(FormatParamKeys::Encode::NetCDF::DATA))
             {
-                LWARNING << "variable " << dimVarName << " has no data array, it will not be added to the exported netCDF file.";
+                LWARNING << "variable " << dimVarName
+                         << " has no data array, it will not be added to the exported netCDF file.";
                 continue;
             }
 
@@ -773,7 +774,8 @@ void r_Conv_NETCDF::addMetadata()
             if (nctype == NC_NAT)
             {
                 LWARNING << "unknown netCDF variable type '" << jsonVar[FormatParamKeys::Encode::NetCDF::TYPE] <<
-                         "' in variable " << dimVarName << ", expected one of: byte/char, short/ushort, int/uint, float, double.";
+                         "' in variable " << dimVarName
+                         << ", expected one of: byte/char, short/ushort, int/uint, float, double.";
                 continue;
             }
 
@@ -1021,7 +1023,8 @@ void r_Conv_NETCDF::jsonArrayToNcVar(int var, int dimid, Json::Value jsonArray)
         break;
     }
     default:
-        LWARNING << "cannot add data to netCDF variable " << varname << ", unsupported netCDF type " << vartype;
+        LWARNING << "cannot add data to netCDF variable " << varname
+                 << ", unsupported netCDF type " << vartype;
         break;
     }
 }
@@ -1095,14 +1098,9 @@ void r_Conv_NETCDF::writeDataStruct(const string& varName, const std::vector<int
 
 string r_Conv_NETCDF::getDimName(unsigned int dimId)
 {
-    if (dimId < dimNames.size())
-    {
-        return dimNames[dimId];
-    }
-    else
-    {
-        return DEFAULT_DIM_NAME_PREFIX + std::to_string(dimId);
-    }
+    return dimId < dimNames.size()
+           ? dimNames[dimId]
+           : DEFAULT_DIM_NAME_PREFIX + std::to_string(dimId);
 }
 
 const string& r_Conv_NETCDF::getVariableName()

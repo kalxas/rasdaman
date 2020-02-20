@@ -54,9 +54,7 @@ if (ENABLE_JAVA)
     endif(GENERATE_DOCS)
 
     add_custom_target(secore ALL
-            COMMAND ${MAVEN_EXECUTABLE} -q -B package
-                                        -DbuildDir=${BUILD_DIR}
-
+            COMMAND $(MAKE) -C ${SRC_DIR} BUILD_DIR=${BUILD_DIR}
             WORKING_DIRECTORY ${SRC_DIR}
             COMMENT "building secore"
             VERBATIM)

@@ -165,7 +165,7 @@ DBMDDSetId DBMDDSet::getDBMDDSet(const char *name)
 
 DBMDDSetId DBMDDSet::getDBMDDSet(const OId &o)
 {
-    return DBMDDSetId(static_cast<DBMDDSet *>(ObjectBroker::getObjectByOId(o)));
+  return DBMDDSetId(static_cast<DBMDDSet *>(ObjectBroker::getObjectByOId(o)));
 }
 
 bool DBMDDSet::deleteDBMDDSet(const OId &oid)
