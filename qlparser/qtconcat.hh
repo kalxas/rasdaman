@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include <string>
 
 #include "qlparser/qtnaryoperation.hh"
+#include "raslib/point.hh"
 
 class BaseType;
 class MDDObj;

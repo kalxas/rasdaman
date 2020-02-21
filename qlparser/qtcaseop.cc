@@ -59,6 +59,7 @@ rasdaman GmbH.
 #include <iostream>
 #include <complex>
 #include <string>
+#include <cassert>
 #include <bits/stl_bvector.h>
 #include "raslib/miter.hh"
 #include "qtvariable.hh"

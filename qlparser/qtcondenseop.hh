@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include <string>
 
 #include "qlparser/qtbinaryoperation.hh"
+#include "raslib/minterval.hh"
 
 #include "catalogmgr/ops.hh"
 #include <stdio.h>

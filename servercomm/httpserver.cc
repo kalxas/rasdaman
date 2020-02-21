@@ -68,6 +68,7 @@ rasdaman GmbH.
 #include <unistd.h>    // for alarm(), gethostname()
 #include <cstdint>
 #include <iomanip>
+#include <cassert>     // for assert()
 
 #define UNEXPECTED_INTERNAL_ERROR 10000
 

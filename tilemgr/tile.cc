@@ -50,6 +50,7 @@ rasdaman GmbH.
 #include <logging.hh>               // for Writer, CTRACE
 #include <cstring>                  // for memcpy, strcpy, strlen
 #include <iostream>                 // for endl, ostream
+#include <cassert>                  // for assert
 
 #ifdef RMANBENCHMARK
 RMTimer Tile::opTimer("Tile", "opTimer");

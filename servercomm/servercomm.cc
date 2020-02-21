@@ -87,6 +87,7 @@ rasdaman GmbH.
 #include <signal.h>    // for sigaction()
 #include <unistd.h>    // for alarm(), gethostname()
 #include <byteswap.h>
+#include <cassert>     // for assert()
 
 #ifdef ENABLE_PROFILING
 #include <google/profiler.h>
