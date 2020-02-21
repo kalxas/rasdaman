@@ -1,0 +1,1 @@
+select encode(condense + over i in [0:1] using (test_grey[y(*:*),x(i[0])] ),"csv") from test_grey

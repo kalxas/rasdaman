@@ -297,13 +297,14 @@ struct QtUpdateSpecElement
 %type <qtUpdateSpecElement>   updateSpec
 %type <qtMDDAccessValue>      iteratedCollection
 %type <qtONCStreamListValue>  collectionList
-%type <qtUnaryOperationValue> reduceIdent structSelection trimExp 
+%type <qtUnaryOperationValue> reduceIdent structSelection trimExp namedTrimExp
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp  functionExp spatialOp 
                               integerExp mintervalExp nullvaluesList nullvaluesExp addNullvaluesExp intervalExp
                               condenseExp variable mddConfiguration mintervalList  concatExp rangeConstructorExp
                               caseExp typeAttribute projectExp
-%type <intervalListToken>       namedMintervalExp namedIntervalExp
-%type <intervalListValueToken>  namedSpatialOpList2 namedSpatialOpList
+                              //namedMintervalExp2,namedIntervalExp2 is for select and similar, namedMintervalExp and namedIntervalExp is for type definition.
+%type <intervalListToken>       namedMintervalExp namedIntervalExp namedMintervalExp2 namedIntervalExp2
+%type <intervalListValueToken>  namedSpatialOpList2 namedSpatialOpList namedSpatialOpList22 namedSpatialOpList1
 %type <resampleAlgValue>      resampleAlg
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
@@ -1064,7 +1065,7 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-/* // doesn't work yet, somewhere later the server crashes -- PB 2006-jan-03
+/* // doesnt work yet, somewhere later the server crashes -- PB 2006-jan-03
  * uncommented and fixed, ticket 336 -- DM 2013-jul-18
  */
 	| DELETE FROM iteratedCollection
@@ -1358,6 +1359,7 @@ generalExp:
 	  caseExp                           { $$ = $1; } 
 	| mddExp                            { $$ = $1; }
 	| trimExp                           { $$ = $1; }
+  | namedTrimExp                      { $$ = $1; }
 	| reduceExp                         { $$ = $1; }
 	| inductionExp                      { $$ = $1; }
 	| functionExp                       { $$ = $1; }
@@ -1894,6 +1896,21 @@ namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
           FREESTACK($5)
           FREESTACK($6)
         }
+        | Identifier LRPAR generalExp RRPAR
+        {
+        
+          $$.value = $3;
+          $$.value->setParseInfo( *($1.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->removeDynamicObject( $3 );
+          parseQueryTree->addDynamicObject( $$.value );
+          FREESTACK($2)
+          FREESTACK($4)
+        }
         | Identifier LRPAR MULT COLON MULT RRPAR
         {
           QtConst* const1 = new QtConst( new QtStringData("*") );
@@ -1928,6 +1945,138 @@ namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
           $$.names->push_back(temp);
 
           parseQueryTree->addDynamicObject( $$.value );
+        };
+namedMintervalExp2: LEPAR namedSpatialOpList1 REPAR
+        {
+          QtNode::QtOperationList::iterator iter;
+          $$.names = $2.names;
+          for( iter=$2.value->begin(); iter!=$2.value->end(); ++iter )
+          {
+            parseQueryTree->removeDynamicObject( *iter );
+          }
+          $$.value = new QtMintervalOp( $2.value );
+          $$.value->setParseInfo( *($1.info) );
+          parseQueryTree->addDynamicObject( $$.value );
+        };
+
+namedSpatialOpList1:
+        {
+            $$.value = new QtNode::QtOperationList();
+        }
+        | namedSpatialOpList22
+        {
+            $$.value = $1.value;
+            $$.names = $1.names;
+        };
+
+namedSpatialOpList22: namedSpatialOpList22 COMMA namedIntervalExp2
+        {
+          $1.value->push_back( $3.value );
+
+          for(auto x = $3.names->begin(); x != $3.names->end(); x++)
+          {
+            $1.names->push_back(*x);
+          }
+          delete $3.names;
+
+          $$.value = $1.value;
+          $$.names = $1.names;
+          FREESTACK($2)
+        }
+        | namedIntervalExp2
+        {
+          $$.value = new QtNode::QtOperationList(1);
+          (*$$.value)[0] = $1.value;
+          $$.names = $1.names;
+        };
+
+namedIntervalExp2: Identifier LRPAR generalExp COLON generalExp RRPAR
+        {
+          $$.value = new QtIntervalOp( $3, $5 );
+          $$.value->setParseInfo( *($2.info) );
+          parseQueryTree->removeDynamicObject( $3 );
+          parseQueryTree->removeDynamicObject( $5 );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->addDynamicObject( $$.value );
+          FREESTACK($2)
+          FREESTACK($4)
+          FREESTACK($6)
+        }
+        | Identifier LRPAR MULT COLON generalExp RRPAR
+        {
+          QtConst* const1 = new QtConst( new QtStringData("*") );
+          const1->setParseInfo( *($3.info) );
+          $$.value = new QtIntervalOp( const1, $5 );
+          $$.value->setParseInfo( *($2.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->removeDynamicObject( $5 );
+          parseQueryTree->addDynamicObject( $$.value );
+
+          FREESTACK($2)
+          FREESTACK($3)
+          FREESTACK($4)
+          FREESTACK($6)
+        }
+        | Identifier LRPAR generalExp COLON MULT RRPAR
+        {
+          QtConst* const1 = new QtConst( new QtStringData("*") );
+          const1->setParseInfo( *($5.info) );
+          $$.value = new QtIntervalOp( $3, const1 );
+          $$.value->setParseInfo( *($1.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->removeDynamicObject( $3 );
+          parseQueryTree->addDynamicObject( $$.value );
+          FREESTACK($2)
+          FREESTACK($4)
+          FREESTACK($5)
+          FREESTACK($6)
+        }
+        | Identifier LRPAR generalExp RRPAR
+        {
+        
+          $$.value = $3;
+          $$.value->setParseInfo( *($1.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->removeDynamicObject( $3 );
+          parseQueryTree->addDynamicObject( $$.value );
+          FREESTACK($2)
+          FREESTACK($4)
+        }
+        | Identifier LRPAR MULT COLON MULT RRPAR
+        {
+          QtConst* const1 = new QtConst( new QtStringData("*") );
+          const1->setParseInfo( *($3.info) );
+          QtConst* const2 = new QtConst( new QtStringData("*") );
+          const2->setParseInfo( *($5.info) );
+          $$.value = new QtIntervalOp( const1, const2 );
+          $$.value->setParseInfo( *($2.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->addDynamicObject( $$.value );
+          FREESTACK($2)
+          FREESTACK($3)
+          FREESTACK($4)
+          FREESTACK($5)
+          FREESTACK($6)
         };
 
 /* NEW TYPE END - TODO-GM: refactor*/
@@ -4178,6 +4327,19 @@ trimExp: generalExp mintervalExp
 	  if (mflag == MF_IN_CONTEXT)
 	    parseQueryTree->addDomainObject( dop );	  
 	};    
+
+namedTrimExp: generalExp namedMintervalExp2
+  {
+    QtDomainOperation *dop = new QtDomainOperation( $2.value , $2.names );
+	  dop->setInput( $1 );     // e.g. variable name
+	  parseQueryTree->removeDynamicObject( $1 );
+	  parseQueryTree->removeDynamicObject( $2.value );
+	  parseQueryTree->addDynamicObject( dop );
+	  $$ = dop;
+		$$->setParseInfo( $1->getParseInfo() );
+	  if (mflag == MF_IN_CONTEXT)
+	    parseQueryTree->addDomainObject( dop );
+  };
 
 marray_head:
         MARRAY 

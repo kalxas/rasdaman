@@ -28,6 +28,7 @@ rasdaman GmbH.
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "relcatalogif/mddbasetype.hh"
+#include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/dbnullvalues.hh"
 #include "indexmgr/indexds.hh"
 #include "relindexif/indexid.hh"
@@ -341,7 +342,17 @@ void DBMDDObj::readFromDb()
     if (query.nextRow())
     {
         mddType = static_cast<MDDBaseType *>(ObjectBroker::getObjectByOId(OId(query.nextColumnLong())));
-        myDomain = static_cast<DBMinterval *>(ObjectBroker::getObjectByOId(OId(query.nextColumnLong(), OId::DBMINTERVALOID)));
+        MDDDomainType *myDomainType= dynamic_cast<MDDDomainType *>(const_cast< MDDBaseType*>(mddType));
+        if (myDomainType!=NULL)
+        {
+            myDomain = new DBMinterval(*myDomainType->getDomain());
+            query.nextColumnLong();
+        }
+        else 
+        {
+            myDomain = static_cast<DBMinterval *>(ObjectBroker::getObjectByOId(OId(query.nextColumnLong(), OId::DBMINTERVALOID)));
+        }
+
         myDomain->setCached(true);
         persistentRefCount = query.nextColumnLong();
         objIxId = OId(query.nextColumnLong());

@@ -1,0 +1,2 @@
+select encode(test_grey[x(0:20), 0:10], "csv") from test_grey
+

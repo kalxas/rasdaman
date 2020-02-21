@@ -53,6 +53,8 @@ using namespace std;
 
 #include "catalogmgr/ops.hh"
 #include "relcatalogif/mddbasetype.hh"
+#include "relcatalogif/mdddomaintype.hh"
+
 #include "relcatalogif/ulongtype.hh"
 #include "mymalloc/mymalloc.h"
 
@@ -67,7 +69,17 @@ const QtNode::QtNodeType QtDomainOperation::nodeType = QtNode::QT_DOMAIN_OPERATI
 
 QtDomainOperation::QtDomainOperation(QtOperation *mintOp)
     : mintervalOp(mintOp),
-      dynamicMintervalExpression(true)
+      dynamicMintervalExpression(true), namedAxisFlag(false)
+{
+    if (mintervalOp)
+    {
+        mintervalOp->setParent(this);
+    }
+}
+
+QtDomainOperation::QtDomainOperation(QtOperation *mintOp, std::vector<std::string> *axisNames2)
+    : mintervalOp(mintOp),
+      dynamicMintervalExpression(true), namedAxisFlag(true),  axisNames(axisNames2)
 {
     if (mintervalOp)
     {
@@ -76,9 +88,8 @@ QtDomainOperation::QtDomainOperation(QtOperation *mintOp)
 }
 
 
-
 QtDomainOperation::QtDomainOperation(r_Minterval domainNew, const vector<bool> *newTrimFlags)
-    : dynamicMintervalExpression(false)
+    : dynamicMintervalExpression(false), namedAxisFlag(false)
 {
     // make a copy
     vector<bool> *trimFlags  = new vector<bool>(*newTrimFlags);
@@ -91,6 +102,12 @@ QtDomainOperation::QtDomainOperation(r_Minterval domainNew, const vector<bool> *
 QtDomainOperation::~QtDomainOperation()
 {
     delete mintervalOp;
+    if (namedAxisFlag)
+    {
+        delete axisNamesCorrect;
+        axisNamesCorrect = NULL;
+    }
+
     mintervalOp = NULL;
 }
 
@@ -205,7 +222,7 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
             {
                 r_Minterval   domain    = (static_cast<QtMintervalData *>(operand))->getMintervalData();
                 auto trimFlags = std::unique_ptr<vector<bool>>(
-                    new vector<bool>(*((static_cast<QtMintervalData *>(operand))->getTrimFlags())));
+                                     new vector<bool>(*((static_cast<QtMintervalData *>(operand))->getTrimFlags())));
 
                 // no previous specification for that dimension
                 trimming = true;
@@ -264,7 +281,7 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
     {
         auto inputType = input ? input->getNodeType() : QtNode::QT_UNDEFINED_NODE;
         if (inputType != QtNode::QT_PROJECT && inputType != QtNode::QT_CONVERSION &&
-            inputType != QtNode::QT_ENCODE && inputType != QtNode::QT_SCALE)
+                inputType != QtNode::QT_ENCODE && inputType != QtNode::QT_SCALE)
         {
             LTRACE << "all trimming";
             getParent()->setInput(this, input);
@@ -422,10 +439,9 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     parseInfo.setErrorNo(362);
                     throw parseInfo;
                 }
-                
+
                 // allocate cell buffer
                 char *resultBuffer = new char[ cellType->getSize() ];
-                
                 if (resultCell == NULL)
                     memset(resultBuffer, 0, cellType->getSize());
                 else
@@ -487,6 +503,67 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             // In case of dynamic index expressions, load optimization has to
             // be performed for the current input expression.
             //
+            vector<string> axisSaved;
+            if (namedAxisFlag)
+            {
+                axisSaved = *axisNames;
+                vector<string> axisDef = *axisNamesCorrect;
+                vector<string>::iterator axisIt;
+                vector<string>::iterator axisDefIt;
+                unsigned int count1 =0, count2 = 0;
+                bool check = false;
+
+                if (axisNames->size() > axisNamesCorrect->size())
+                {
+                    LERROR << "Error: QtDomainOperation::evaluate() - More axes are provided than defined for the type.";
+                    parseInfo.setErrorNo(345);
+                    throw parseInfo;
+                }
+
+                for (axisDefIt = axisDef.begin(); axisDefIt != axisDef.end(); axisDefIt++, count1++)
+                {
+                    vector<string>::iterator namesIt;
+                    count2 = 0;
+                    check = false;
+                    for (namesIt = axisNames->begin(); namesIt != axisNames->end(); namesIt++, count2++)
+                    {
+                        if ((*axisDefIt).compare(*namesIt) == 0 )
+                        {
+                            if (check)
+                            {
+                                LERROR << "Error: QtDomainOperation::evaluate() - Axes must have unique names.";
+                                parseInfo.setErrorNo(346);
+                                throw parseInfo;
+                            }
+                            if (count1 != count2)
+                            {
+                                domain.swap_dimensions(count1, count2);
+                                iter_swap(namesIt,(axisNames)->begin()+count1);
+                                iter_swap(trimFlags->begin()+count1,trimFlags->begin()+count2);
+                            }
+                            check = true;
+                        }
+                    }
+                    if (!check)
+                    {
+                        axisNames->push_back(*axisDefIt);
+                        domain.add_dimension();
+                        if (count1 != count2)
+                        {
+                            domain.swap_dimensions(count1, count2);
+                            iter_swap((axisNames)->begin()+count2,(axisNames)->begin()+count1);
+                            iter_swap(trimFlags->begin()+count1,trimFlags->begin()+count2);
+
+                        }
+                    }
+                }
+                if (axisNamesCorrect->size()<domain.dimension())
+                {
+                    LERROR << "Error: QtDomainOperation::evaluate() - Name of the axis doesn't correspond with any defined axis name of the type.";
+                    parseInfo.setErrorNo(347);
+                    throw parseInfo;
+                }
+            }
 
             if (dynamicMintervalExpression)
             {
@@ -516,13 +593,10 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             {
                 // delete index data
                 indexData->deleteRef();
-                if (trimFlags)
-                {
-                    delete trimFlags;
-                    trimFlags = NULL;
-                }
                 return 0;
             }
+            // resolve positiannaly independent axes by reording them according to the type definiton
+
 
 #ifdef QT_RUNTIME_TYPE_CHECK
             if (operand->getDataType() != QT_MDD)
@@ -550,7 +624,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     parseInfo.setErrorNo(356);
                     throw parseInfo;
                 }
-                
+
                 bool trimming   = false;
                 bool projection = false;
                 nullValues = currentMDDObj->getNullValues();
@@ -578,6 +652,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 // build the projected domain
                 for (unsigned int i = 0; i < domain.dimension(); i++)
                     // do not include dimensions projected away
+                    //!!
                     if (projSet.find(i) == projSet.end())
                     {
                         projectedDom << domain[i];
@@ -666,7 +741,13 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 }
 
             } // if( currentMDDObj )
-
+            //If domain has to be evaluated multiple times (ex. dynamic expression), we need to restore the original axis order, so we can correctly
+            //swap misplaced dimensions for every iteration
+            if (dynamicMintervalExpression  && namedAxisFlag)
+            {
+                delete axisNames;
+                axisNames = new vector<string>(axisSaved);
+            }
             // delete index and operand data
             if (indexData)
             {
@@ -819,7 +900,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
 #ifdef QT_RUNTIME_TYPE_CHECK
             if (indexData->getDataType() != QT_POINT  && indexData->getDataType() != QT_CHAR &&
-                indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
+                    indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
             {
                 LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed.";
                 return 0;
@@ -1040,6 +1121,12 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
             LERROR << "selection operation is not supported on this data type.";
             parseInfo.setErrorNo(396);
             throw parseInfo;
+        }
+        
+        if (namedAxisFlag)
+        {   r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType.getType())))->getDomain());
+            vector<string> axisDef = (&domainDef)->getAxisNames();
+            axisNamesCorrect = new vector<string>(axisDef);
         }
     }
     else

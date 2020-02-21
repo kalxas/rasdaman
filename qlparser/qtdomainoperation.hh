@@ -45,7 +45,8 @@ public:
 
     /// constructor getting an minterval expression
     QtDomainOperation(QtOperation *mintOp);
-
+    ///Constructor in case of positionally-independent subsetting in rasql
+    QtDomainOperation(QtOperation *mintOp, std::vector<std::string> *axisNames2);
     /// constructor
     QtDomainOperation(r_Minterval domainNew, const std::vector<bool> *newTrimFlags);
 
@@ -102,7 +103,10 @@ private:
 
     /// the flag determines if the minterval expression has to be calculated at runtime or not
     bool dynamicMintervalExpression;
-
+    /// The flag determines whether the subbsetting is positionally dependent or not(if not, axes names are provided)
+    bool namedAxisFlag;
+    std::vector<std::string> *axisNames;
+    std::vector<std::string> *axisNamesCorrect;
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };

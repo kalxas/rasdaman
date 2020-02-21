@@ -558,6 +558,10 @@ public:
     r_Point cell_point(r_Area) const;
     /// delete the specified dimension
     void delete_dimension(r_Dimension);
+    /// swap dimensions
+    void swap_dimensions(r_Dimension d1, r_Dimension d2);
+    /// add dimension with open bounds
+    void add_dimension();
     /// delete slices (false values in trims); does nothing if trims size != dimension
     void delete_non_trims(const std::vector<bool> &trims);
     /// calculate the size of the storage space occupied

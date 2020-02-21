@@ -1176,6 +1176,31 @@ void r_Minterval::delete_dimension(r_Dimension dim)
     intervals = newIntervals;
 }
 
+void r_Minterval::swap_dimensions(r_Dimension d1, r_Dimension d2)
+{
+    if (d1 >= dimensionality || d2 >= dimensionality)
+    {
+        return;
+    }
+    auto temp = intervals[d1];
+    intervals[d1] = intervals[d2];
+    intervals[d2] = temp;
+}
+
+void r_Minterval::add_dimension()
+{
+    dimensionality += 1;
+    streamInitCnt +=1 ;
+    r_Sinterval *newIntervals = new r_Sinterval[dimensionality];
+    for (r_Dimension i = 0; i < dimensionality-1; i++)
+    {
+        newIntervals[i] = intervals[i];
+    }
+    delete []intervals;
+    r_Sinterval newDim = r_Sinterval("*:*");
+    newIntervals[dimensionality-1] = newDim;
+    intervals = newIntervals;
+}
 void
 r_Minterval::delete_non_trims(const std::vector<bool> &trims)
 {
