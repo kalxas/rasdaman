@@ -925,7 +925,7 @@ that can be specified with ``-D<option>``, along with the default settings.
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``USE_GDAL``             | **ON** / OFF      | Enable inclusion of GDAL library during installation. Further variables  |
     |                          |                   | can be set to control the GDAL paths: ``-DGDAL_INCLUDE_DIR``,            |
-    |                          |                   | ``-DGDAL_LIBRARY``, ``-DGDAL_JAVA_DIR``, ``-DGDAL_JAVA_JAR_PATH``        | 
+    |                          |                   | ``-DGDAL_LIBRARY``, ``-DGDAL_JAVA_JAR_PATH``                             | 
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``USE_GRIB``             | ON / **OFF**      | Enable inclusion of GRIB library during installation. Further variables  |
     |                          |                   | allow controlling the GRIB library paths: ``-DGRIB_LIBRARIES`` and       |

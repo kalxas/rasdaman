@@ -23,7 +23,6 @@
 spring.mvc.view.prefix: /WEB-INF/jsp/
 spring.mvc.view.suffix: .jsp
 petascope.confDir=@CONF_DIR@
-gdal-java.libDir=@GDAL_JAVA_DIR@
 
 # important for Hibernate could generate id field for SQLite with strategy auto
 spring.jpa.hibernate.use-new-id-generator-mappings=true

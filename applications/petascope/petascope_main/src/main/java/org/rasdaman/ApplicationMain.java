@@ -22,19 +22,10 @@
 package org.rasdaman;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.lang3.StringUtils;
 import org.gdal.gdal.gdal;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
@@ -63,7 +54,6 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 import static org.rasdaman.config.ConfigManager.STATIC_HTML_DIR_PATH;
-import petascope.util.IOUtil;
 
 /**
  * This class initializes the petascope properties and runs the application as jar file.
@@ -89,14 +79,9 @@ public class ApplicationMain extends SpringBootServletInitializer {
     
     public static final String APPLICATION_PROPERTIES_FILE = "application.properties";
     // path to gdal native files (.so) which are needed for GDAL java to invoke.
-    public static final String KEY_GDAL_JAVA_DIR = "gdal-java.libDir";
     private static final String PREFIX_INPUT_PARAMETER = "--";
     private static final String KEY_PETASCOPE_CONF_DIR = "petascope.confDir";
     private static final String KEY_MIGRATE = "migrate";
-    
-    private static final String TMP_GDAL_JAVA_DIR_NAME = "gdal_java";
-    private static final String[] GDAL_LIB_PREFIXES = new String[] {"libgdal", "libogr", "libosr"};
-    
     
     // When invoked from command line (e.g: java -jar rasdaman.war), the migration
     // is set with a command-line parameter --migrate which makes this option true.
@@ -202,27 +187,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
         }
     }
     
-    private static void loadGdalLibrary(Properties applicationProperties) {
-        
-        String systemGdalJavaDir = applicationProperties.getProperty(KEY_GDAL_JAVA_DIR);
-        
-        // Create a gdal_java/datetime temp folder to load shared object files to memory
-        File currentTmpLibDir = null;
-        
-        // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")
-        try {
-            currentTmpLibDir = addGdalLibraryPath(TMP_GDAL_JAVA_DIR_NAME, systemGdalJavaDir);
-        } catch (Exception ex) {
-            String errorMessage = "Cannot add GDAL native library from '" + systemGdalJavaDir + "' to java library path, "
-                    + "please restart Tomcat to fix this problem. Reason: " + ex.getMessage();
-            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage, ex);
-            return;
-        } catch (Error ex) {
-            String errorMessage = "Cannot add GDAL native library from '" + systemGdalJavaDir + "' to java library path, "
-                    + "please restart Tomcat to fix this problem. Reason: " + ex.getMessage();
-            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
-            return;
-        }
+    private static void loadGdalLibrary() {
         
         // NOTE: to make sure that GDAL is loaded properly, do a simple CRS transformation here 
         // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
@@ -231,130 +196,10 @@ public class ApplicationMain extends SpringBootServletInitializer {
             // test projection
             GeoTransform sourceGT = new GeoTransform(4326, 0, 0, 1, 1, 0.5, 0.5);
             CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGT, "EPSG:3857");
-        } catch (Exception ex) {
-            String errorMessage = "Transform test failed, probably due to a problem with adding GDAL native library from '" + 
-                    systemGdalJavaDir + "' to java library path; please restart Tomcat to fix this problem. Reason: " + ex;
-            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage, ex);
-        }
-        
-        // Error or not error for loading Gdal, clear created tmp folder
-        FileUtils.deleteQuietly(currentTmpLibDir);
-    }
-    
-    // -----------------------------------------------------------------------------------
-    // Load GDAL native library
-    // 
-    // TODO: these methods should be generalized with a library name (e.g. libgdal.so)
-    //       and moved to a Util class.
-    // -----------------------------------------------------------------------------------
-
-    /**
-     * Adds the specified path to the java library path (very important to load gdal-java)
-     */
-    private static File addGdalLibraryPath(String tmpLibPath, String systemLibPath) throws Exception {
-        File parentTmpLibDir = getParentTmpLibDir(tmpLibPath);
-
-        // Each time application starts, copy the system library to a temp folder to be loaded by Classloader
-        File currentTmpLibDir = createUniqueTmpLibDir(parentTmpLibDir);
-        copyFilesWithPrefix(systemLibPath, currentTmpLibDir, GDAL_LIB_PREFIXES);
-
-        // Then load this new created tmp native library folder by Java class loader
-        loadGdalLibraryByClassLoader(parentTmpLibDir.getPath(), currentTmpLibDir);              
-
-        // As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
-        // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
-        IOUtil.setPathFullPermissions(parentTmpLibDir);
-        
-        return currentTmpLibDir;
-    }
-    
-    /**
-     * Return the lib directory which contains tmp_dir_with_datetime_stamp directories
-     */
-    private static File getParentTmpLibDir(String tmpLibPath) throws PetascopeException {
-        File libTmpDir = new File(ConfigManager.DEFAULT_PETASCOPE_DIR_TMP, tmpLibPath);
-        
-        return libTmpDir;
-    }
-    
-    private static File createUniqueTmpLibDir(File tmpLibDir) throws PetascopeException {
-        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss.SSS").format(new Date());
-        File ret = new File(tmpLibDir, timeStamp);
-        try {
-            FileUtils.forceMkdir(ret);
-        } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.RuntimeError,
-                        "Cannot create temp directory '" + ret +  "'. Reason: " + ex.getMessage());
-        }
-        return ret;
-    }
-    
-    /**
-     * Given a file name prefix, it copies all matches from srcPath to dstDir.
-     */
-    private static void copyFilesWithPrefix(String srcPath, File dstDir, String... fileNamePrefixes) throws PetascopeException {
-        File srcDir = new File(srcPath);
-        
-        IOFileFilter[] fileFilters = new IOFileFilter[fileNamePrefixes.length];
-        for (int i = 0; i < fileNamePrefixes.length; i++) {
-            fileFilters[i] = FileFilterUtils.prefixFileFilter(fileNamePrefixes[i]);
-        }
-        
-        try {
-            FileUtils.copyDirectory(srcDir, dstDir, FileFilterUtils.or(fileFilters));
-        } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.RuntimeError,
-                        "Cannot copy native library folder from '" + srcDir + 
-                        "' to '" + dstDir + "'. Reason: " + ex.getMessage());
-        }
-        
-        // NOTE: It should set last time update for this tmp folder currently, not from library's last time update which is year ago.
-        dstDir.setLastModified(System.currentTimeMillis());
-    }
-
-    /**
-     * Copy native library files from original source folder (e.g: /usr/lib) 
-     * to a temp folder (e.g: /tmp/rasdaman_petascope/gdal_java/2018-04-08_13_31_00).
-     * Then the Java class loader can load the libraries from this temp folder.
-     * 
-     * NOTE: it is critical that Java class loader needs different paths to temp native library folders 
-     * specified by date-time stamp to load correctly.
-     * Any old loaded folder by Java class loader will be removed when *petascope restarts*.
-     * If Java class loader cannot load native library, the only way to solve is to *restart Tomcat*.
-     * 
-     * @paam tmpLibPath the tmp parent folder (e.g: /tmp/rasdaman/petascope/gdal_java) 
-     * to store children folders containing native library files.
-     * @param currentTmpLibDir the child folder of the tmp native library parent folder.
-     */
-    private static void loadGdalLibraryByClassLoader(String tmpLibPath, File currentTmpLibDir) 
-            throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        // Based on this guide to change JNI at run time
-        // http://fahdshariff.blogspot.de/2011/08/changing-java-library-path-at-runtime.html
-        final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
-        usrPathsField.setAccessible(true);
-        // get array of paths
-        final String[] paths = (String[]) usrPathsField.get(null);
-
-        int i = 0;
-        boolean pathExist = false;
-        // check if the path to add is already present
-        for (String path : paths) {
-            String pathFolder = StringUtils.substringBeforeLast(path, "/");
-            if (pathFolder.equals(tmpLibPath)) {                
-                // Override the old path of rasdaman/gdal_native with the new one
-                paths[i] = currentTmpLibDir.getPath();
-                usrPathsField.set(null, paths);
-                pathExist = true;
-                break;
-            }
-            i++;
-        }
-
-        if (pathExist == false) {
-            //add the new path
-            final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);        
-            newPaths[newPaths.length - 1] = currentTmpLibDir.getPath();
-            usrPathsField.set(null, newPaths);
+        } catch (Error | Exception ex) {
+            String errorMessage = "Transform test failed, probably due to a problem with adding GDAL native library "
+                                + "to java library path; please restart Tomcat to fix this problem. Reason: " + ex;
+            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
         }
     }
     
@@ -367,7 +212,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
     @PostConstruct
     private void postInit() {
         
-        loadGdalLibrary(applicationProperties);
+        loadGdalLibrary();
 
         if (MIGRATE && AbstractController.startException == null) {
             log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + 

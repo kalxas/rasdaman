@@ -109,7 +109,6 @@ add_custom_target(petascope ALL
     COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "pom.xml"
                                 -DbuildDir=${BUILD_DIR}
                                 -Dversion=${PROJECT_VERSION}
-                                -DgdalJavaJarPath=${GDAL_JAVA_JAR_PATH}
 
     DEPENDS rasj
     WORKING_DIRECTORY ${SRC_DIR}
