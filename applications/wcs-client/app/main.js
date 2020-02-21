@@ -2300,17 +2300,9 @@ var rasdaman;
             });
             return result.promise;
         };
-        WCSService.prototype.storeKVPParametersToLocalStorage = function (petascopeEndPoint, keysValues) {
-            var arrayTmp = keysValues.split("&");
+        WCSService.prototype.storeKVPParametersToLocalStorage = function (petascopeEndPoint, keysValuesStr) {
             var getCoverageKVPParameters = { "PetascopeEndPoint": petascopeEndPoint };
-            for (var i = 0; i < arrayTmp.length; i++) {
-                if (arrayTmp[i].trim() != "") {
-                    var keyValue = arrayTmp[i].split("=");
-                    var key = keyValue[0];
-                    var value = keyValue[1];
-                    getCoverageKVPParameters[key] = value;
-                }
-            }
+            getCoverageKVPParameters["request"] = keysValuesStr;
             if (this.credentialService.hasStoredCredentials()) {
                 var authorizationObj = this.credentialService.getAuthorizationHeader(petascopeEndPoint);
                 getCoverageKVPParameters = Object.assign(getCoverageKVPParameters, authorizationObj);

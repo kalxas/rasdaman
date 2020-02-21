@@ -35,10 +35,7 @@
               
         $(document).ready(function() {
             
-            var kvpParameters = "";
-            Object.entries(kvpParametersObj).forEach(([key, value]) => {
-                kvpParameters += key + "=" + value + "&";
-            });
+            var kvpParameters = kvpParametersObj["request"];
 
             var fileName = "";
             var mimeType = "";

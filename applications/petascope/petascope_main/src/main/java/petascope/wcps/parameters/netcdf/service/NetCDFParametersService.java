@@ -239,8 +239,8 @@ public class NetCDFParametersService {
                 }
             } else {
                 //Irregular axis, need to add the coefficients into the calculation
-                BigDecimal coeffMin = geoDomMin.subtract(axis.getOrigin()).divide(resolution);
-                BigDecimal coeffMax = geoDomMax.subtract(axis.getOrigin()).divide(resolution);
+                BigDecimal coeffMin = geoDomMin.subtract(axis.getOriginalOrigin()).divide(resolution);
+                BigDecimal coeffMax = geoDomMax.subtract(axis.getOriginalOrigin()).divide(resolution);
                 Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(covName);
                 // Only supports GeneralGridCoverage now and this axis should be irregular axis
                 GeoAxis geoAxis = ((GeneralGridCoverage) coverage).getGeoAxisByName(axis.getLabel());
@@ -249,7 +249,7 @@ public class NetCDFParametersService {
                 List<BigDecimal> coefficients = irregularAxis.getAllCoefficientsInInterval(coeffMin, coeffMax);
 
                 for (BigDecimal coefficient : coefficients) {
-                    BigDecimal coord = axis.getOrigin().add(coefficient.multiply(resolution));
+                    BigDecimal coord = axis.getOriginalOrigin().add(coefficient.multiply(resolution));
                     data.add(coord.doubleValue());
                 }
             }

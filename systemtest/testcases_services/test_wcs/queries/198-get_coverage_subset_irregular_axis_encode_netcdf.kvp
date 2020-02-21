@@ -1,0 +1,9 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=GetCoverage&
+COVERAGEID=test_wms_4d_ecmwf_fire_netcdf&
+SUBSET=Lat(34.4396675)&
+SUBSET=Long(29.6015625)&
+SUBSET=ansi("2017-02-10T00:00:00.000Z","2017-11-18T00:00:00.000Z")&
+SUBSET=forecast(0)&
+FORMAT=application/netcdf

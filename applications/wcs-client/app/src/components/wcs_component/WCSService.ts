@@ -95,20 +95,10 @@ module rasdaman {
         }
 
         // Store these keys values to be reused in result.html page
-        public storeKVPParametersToLocalStorage(petascopeEndPoint:string, keysValues:string) {
-            var arrayTmp = keysValues.split("&");
-            
+        public storeKVPParametersToLocalStorage(petascopeEndPoint:string, keysValuesStr:string) {
+           
             var getCoverageKVPParameters = {"PetascopeEndPoint": petascopeEndPoint};
-
-            for (var i = 0; i < arrayTmp.length;i ++) {
-                if (arrayTmp[i].trim() != "") {
-                    var keyValue = arrayTmp[i].split("=");
-                    var key = keyValue[0];
-                    var value = keyValue[1];
-
-                    getCoverageKVPParameters[key] = value;
-                }
-            }
+            getCoverageKVPParameters["request"] = keysValuesStr;
 
             if (this.credentialService.hasStoredCredentials()) {
                 var authorizationObj = this.credentialService.getAuthorizationHeader(petascopeEndPoint);
