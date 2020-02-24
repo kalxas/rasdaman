@@ -1,8 +1,6 @@
 #ifndef _COMMON_COMPLEX_HH_
 #define _COMMON_COMPLEX_HH_
 
-#ifdef ENABLE_COMPLEX
-
 #include <complex>
 #include <type_traits>
 
@@ -170,8 +168,6 @@ bool operator!=(const complex<L>& lhs, const complex<R>& rhs) {
 }
 
 } // namespace std
-
-#endif
 
 #endif
 

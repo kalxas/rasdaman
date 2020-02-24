@@ -32,9 +32,12 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "qlparser/qtcaseop.hh"
+#include "qtcaseequality.hh"
 #include "raslib/rmdebug.hh"
+#include "raslib/miter.hh"
 
 #include "mymalloc/mymalloc.h"
+#include "qtvariable.hh"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtmintervaldata.hh"
@@ -42,17 +45,19 @@ rasdaman GmbH.
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtcomplexdata.hh"
 #include "mddmgr/mddobj.hh"
-#include "tilemgr/tile.hh"
 #include "qlparser/qtbinaryinduce.hh"
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtvariable.hh"
 #include "qlparser/qtconst.hh"
 
 #include "catalogmgr/ops.hh"
+#include "tilemgr/tile.hh"
+#include "storagemgr/sstoragelayout.hh"
 #include "relcatalogif/type.hh"
 #include "relcatalogif/typefactory.hh"
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/mdddomaintype.hh"
+#include "relcatalogif/basetype.hh"
 
 #include <logging.hh>
 
@@ -61,9 +66,6 @@ rasdaman GmbH.
 #include <string>
 #include <cassert>
 #include <bits/stl_bvector.h>
-#include "raslib/miter.hh"
-#include "qtvariable.hh"
-#include "qtcaseequality.hh"
 
 using namespace std;
 
@@ -490,6 +492,15 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
     return new QtMDD(finalResObj);
 }
 
+/**
+ * Evaluation for the CASE operation of arrays.
+ * The conditions are evaluated and, for each point which evaluates to true, the
+ * result is copied in the resulting array. All the conditions must have the same
+ * dimensionality and tiling.
+ *
+ * @param inputList - the input list to be passed to further evaluations
+ * @return A raster array consisting of the results.
+ */
 QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
 {
     std::vector<std::pair <QtOperation *, QtDataList *>> *cacheList = new std::vector<std::pair <QtOperation *, QtDataList *>>();
@@ -504,14 +515,13 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
     MDDObj *focusCondMdd = (static_cast<QtMDD *>(*(conditionList2->begin())))->getMDDObject();
     MDDObj *focusMdd = new MDDObj((static_cast<MDDBaseType *>(const_cast<Type *>(dataStreamType.getType()))), focusCondMdd->getDefinitionDomain());
     //add tiles
-    std::vector<std::shared_ptr<Tile>> *tiles = new std::vector<std::shared_ptr<Tile>>;
-    std::vector<std::shared_ptr<Tile>> *focusCondTiles = focusCondMdd->getTiles();
+    auto *tiles = new std::vector<std::shared_ptr<Tile>>;
+    auto *focusCondTiles = focusCondMdd->getTiles();
     if (focusCondTiles == NULL)
     {
         focusCondTiles = new std::vector<std::shared_ptr<Tile>>;
     }
-    std::vector<std::shared_ptr<Tile>>::iterator tileIter;
-    for (tileIter = focusCondTiles->begin(); tileIter != focusCondTiles->end(); tileIter++)
+    for (auto tileIter = focusCondTiles->begin(); tileIter != focusCondTiles->end(); tileIter++)
     {
         tiles->push_back(std::shared_ptr<Tile>(new Tile((*tileIter)->getDomain(), this->baseType)));
     }
@@ -519,7 +529,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
     vector<QtData *>::iterator condIter;
     QtOperationList::iterator resultIter;
     unsigned int tilePos = 0;
-    for (tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+    for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
     {
         //declare a watchdog for the changes
         std::vector<bool> changedCells((*tileIter)->getDomain().cell_count());
@@ -531,7 +541,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
         {
             MDDObj *condMdd = (static_cast<QtMDD *>(*condIter))->getMDDObject();
             std::shared_ptr<std::vector<std::shared_ptr<Tile>>> condTiles(condMdd->getTiles());
-            std::shared_ptr<Tile> condTile = condTiles->at(tilePos);
+            auto condTile = condTiles->at(tilePos);
             std::vector<Tile *> *cachedTiles = new std::vector<Tile *>();
             //if the result is an mdd then fetch the cached tiles as well
             if ((*resultIter)->getDataStreamType().getDataType() == QT_MDD)
@@ -539,7 +549,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
                 QtDataList *cachedData = getCachedData((*resultIter), cacheList);
                 for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++)
                 {
-                    std::shared_ptr<Tile> aTile = getCorrespondingTile((static_cast<QtMDD *>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
+                    auto aTile = getCorrespondingTile((static_cast<QtMDD *>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
                     if (aTile == NULL)
                     {
                         LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
@@ -561,7 +571,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
                     QtDataList *cachedData = getCachedData(defaultResult, cacheList);
                     for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++)
                     {
-                        std::shared_ptr<Tile> theTile = getCorrespondingTile((static_cast<QtMDD *>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
+                        auto theTile = getCorrespondingTile((static_cast<QtMDD *>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
                         Tile *aTile = new Tile(*theTile);
                         if (aTile == NULL)
                         {
@@ -734,7 +744,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
     delete scalarCacheList;
 
     //add the tiles to the mddObj
-    for (tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+    for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
     {
         focusMdd->insertTile(*tileIter);
     }
@@ -747,7 +757,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
     //return the resulting MDD
     return new QtMDD(focusMdd);
 }
-	
+
 /**
  * Evaluation for the scalar CASE operation.
  * Conditions are evaluated until one is found to be true. When this happens the
@@ -770,7 +780,6 @@ QtCaseOp::evaluate(QtDataList *inputList)
             res = this->safeEvaluateInducedOp(inputList);
         }
         return res;
-        
     }
     QtData *returnValue = NULL;
     bool foundClause = false;

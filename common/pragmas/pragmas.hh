@@ -1,23 +1,22 @@
 #pragma once
 
-/**
- * Transform the given argument into a string.
- */
+/// Transform the given argument into a string.
 #if ! defined(STRINGIFY)
 #define STRINGIFY(a) #a
 #endif
 
-/**
- * Conditionally include the appropriate file depending on the compiler version.
- */
+/// Use in conditionals to signal that the condition is very unlikely
+#if ! defined(unlikely)
+#define unlikely(x)    __builtin_expect(!!(x), 0)
+#endif
+/// Use in conditionals to signal that the condition is very likely
+#if ! defined(likely)
+#define likely(x)      __builtin_expect(!!(x), 1)
+#endif
+
+/// Conditionally include the appropriate file depending on the compiler version.
 #if defined(__clang__)
-/* Clang/LLVM. */
-
 #include "clang/clangpragmas.hh"
-
 #elif defined(__GNUC__) || defined(__GNUG__)
-
-/* GNU GCC/G++. */
 #include "gcc/gccpragmas.hh"
-
 #endif

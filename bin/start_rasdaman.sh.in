@@ -168,7 +168,7 @@ start_embedded()
             logn "  starting $app_name on port $server_port... "
             check_port_available "$server_port"
             if [ $? -ne 0 ]; then
-                nohup java -jar "$war_path/$war_file_name" >> "$app_name.log" 2>&1 &
+                nohup java $JAVA_OPTS -jar "$war_path/$war_file_name" >> "$app_name.log" 2>&1 &
                 check_process "$app_name"
             else
                 echo "failed, port $server_port is occupied."

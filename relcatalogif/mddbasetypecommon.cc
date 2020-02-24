@@ -32,7 +32,6 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 
 #include <logging.hh>              // for Writer, CTRACE, LTRACE
-#include <stdlib.h>                // for malloc, free
 #include <cstring>                 // for strcat, strcpy, strlen
 #include <iostream>                // for operator<<, basic_ostream, char_tr...
 #include <string>                  // for string

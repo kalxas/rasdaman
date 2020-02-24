@@ -129,6 +129,11 @@ if (ENABLE_ASAN)
     set(SANITIZER_FLAG "-fsanitize=address -fsanitize=undefined -lubsan")
     message(STATUS "AddressSanitizer enabled (-DENABLE_ASAN=${ENABLE_ASAN}).")
 endif ()
+set(ENABLE_TSAN OFF CACHE BOOL "Use ThreadSanitizer (compile with -fsanitize=thread).")
+if (ENABLE_TSAN)
+    set(SANITIZER_FLAG "-fsanitize=thread -fsanitize=undefined -lubsan")
+    message(STATUS "ThreadSanitizer enabled (-DENABLE_TSAN=${ENABLE_TSAN}).")
+endif ()
 
 #
 # Set warnings
@@ -343,10 +348,12 @@ if (USE_GDAL)
     set(HAVE_GDAL ON)
  
     set(GDAL_JAVA_JAR_PATH "/usr/share/java/gdal.jar" CACHE STRING
-    "The path where gdal.jar from gdal-java lib installed")
+                           "The path where gdal.jar from gdal-java lib installed")
 
     if (NOT (EXISTS "${GDAL_JAVA_JAR_PATH}"))
-        message(FATAL_ERROR "gdal.jar from gdal-java lib does not exit, given '${GDAL_JAVA_JAR_PATH}'.")
+        message(FATAL_ERROR "gdal.jar not found in '${GDAL_JAVA_JAR_PATH}', "
+                            "please install gdal-java or set the correct path "
+                            "with -DGDAL_JAVA_JAR_PATH=<path>.")
     endif() 
 
     message(STATUS "  internal GDAL converter enabled (-DUSE_GDAL=${USE_GDAL}).")

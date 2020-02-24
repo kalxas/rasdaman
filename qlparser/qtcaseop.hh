@@ -44,11 +44,11 @@ rasdaman GmbH.
 #define QTCASEOP_HH
 
 #include "qlparser/qtnaryoperation.hh"
-#include "relcatalogif/basetype.hh"
-#include "qtvariable.hh"
-#include "qtmdd.hh"
+#include "qlparser/qtvariable.hh"
+#include "qlparser/qtmdd.hh"
 #include <memory>
 
+class BaseType;
 class Tile;
 
 class QtCaseOp : public QtNaryOperation

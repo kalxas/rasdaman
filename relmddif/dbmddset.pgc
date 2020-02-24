@@ -288,3 +288,11 @@ DBMDDSet::readFromDb()
 
 }
 
+DBMDDSetId DBMDDSet::getDBMDDSetContainingDBMDDObj(const OId &id)
+{
+  {
+      LERROR << "MDD collection containing MDD with oid " << id.getCounter() << " not found in RAS_MDDCOLLECTIONS";
+      throw r_Ebase_dbms(SQLITE_NOTFOUND, "MDD collection object not found in RAS_MDDCOLLECTIONS.");
+  }
+}
+

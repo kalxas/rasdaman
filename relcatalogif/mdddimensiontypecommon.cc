@@ -35,7 +35,6 @@ rasdaman GmbH.
 
 #include <boost/algorithm/string/predicate.hpp>  // for starts_with
 #include <stdio.h>                               // for sprintf
-#include <stdlib.h>                              // for free, malloc
 #include <cstring>                               // for strcat, strlen, strcpy
 #include <iostream>                              // for operator<<, basic_os...
 #include <string>                                // for basic_string, string

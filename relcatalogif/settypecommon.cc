@@ -27,7 +27,6 @@ rasdaman GmbH.
 #include "reladminif/oidif.hh"
 #include "mymalloc/mymalloc.h"
 
-#include <stdlib.h>           // for free, malloc
 #include <string.h>           // for sprintf
 
 SetType::SetType() : CollectionType("unnamed settype")
