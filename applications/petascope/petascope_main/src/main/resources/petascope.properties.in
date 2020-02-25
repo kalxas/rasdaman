@@ -182,7 +182,7 @@ rasdaman_url=http://localhost:7001
 
 # parameter:     rasdaman_database
 # purpose:       name of rasdaman database serving PetaScope raster data
-#                (!) recommendation: use rasdaman standard name, RASBASE (!)
+#                recommendation: use rasdaman standard name, RASBASE
 # need to adapt: no
 rasdaman_database=RASBASE
 

@@ -920,7 +920,7 @@ servers can be combined or not."
 
 Petascope supports WMS 1.3.0. Some resources:
 
-- :ref:`How to publish a WMS layer via WCST\_Import <data-import>`.
+- :ref:`How to publish a WMS layer via WCST\_Import <wms-import>`.
 - :ref:`Add WMS style queries to existing layers <style-creation>`.
 
 Administration
@@ -932,7 +932,7 @@ Petascope servlet starts if necessary. The only input needed from the
 administrator is the service information which should be filled in
 ``$RMANHOME/etc/wms_service.properties`` before the servlet is started.
 
-Data ingestion & removal
+Layer creating & removal
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Layers can be easily created from existing coverages in WCS.
@@ -945,7 +945,17 @@ This has several advantages:
 
 * Data is not duplicated among the services offered by Petascope.
 
+There are 2 ways of publising a new WMS layer from an imported
+geo-referenced coverage:
+
+* By setting: :ref:`wms_import <wms-import>` in the ingredients file
+  when importing wcst_import.
+* By sending HTTP :ref:`InsertWCSLayer <insert-wcs-layer>` request manually
+  to petascope.
+
 **Possible WMS requests**:
+
+.. _insert-wcs-layer:
 
 * The ``InsertWCSLayer`` request will create a new layer from an existing coverage
   without an associated WMS layer served by the web coverage service
@@ -1897,7 +1907,7 @@ For each one of these there is an ingredients example under the
 directory, together with an example for the available parameters
 Further on each recipe type is described in turn.
 
-... data-import-common-options:
+.. _data-import-common-options:
 
 Common options
 ^^^^^^^^^^^^^^
@@ -2023,6 +2033,8 @@ Some options are commonly applicable to all recipes.
 
   For more information on tiling please check the :ref:`storage-layout`
 
+.. _wms-import:
+
 * ``wms_import`` - If set to ``true``, after importing data to coverage,
   it will also create a WMS layer from the imported coverage and populate
   metadata for this layer. After that, this layer will be available from
@@ -2032,12 +2044,15 @@ Some options are commonly applicable to all recipes.
 
       "wms_import": true
 
+.. _scale-levels:
+
 * ``scale_levels`` - Enable the :ref:`WMS pyramids <wms-image-pyramids>` feature.
+  Level must be positive number and greater than 1.
   Syntax:
 
   .. code-block:: json
 
-      "scale_levels": [ level1, level2, ... ]
+      "scale_levels": [ 1.5, 2, 4, ... ]
 
 **hooks section**
 
@@ -3147,9 +3162,9 @@ This feature (v9.7+) allows to create downscaled versions of a given coverage,
 eventually achieving something like an image pyramid, in order to enable
 faster WMS requests when zooming in/out.
 
-By using the ``scale_levels`` option of wcst_import when importing a coverage
-with WMS enabled, petascope will create downscaled collections in rasdaman
-following this pattern: ``coverageId_<level>``.
+By using the :ref:`scale_levels <scale-levels>` option of wcst_import 
+when importing a coverage with WMS enabled, petascope will create downscaled
+collections in rasdaman following this pattern: ``coverageId_<level>``.
 If level is a float, then *the dot* is replaced with an *underscore*,
 as dots are not permitted in a collection name. Some examples:
 
@@ -3804,6 +3819,26 @@ The port for embedded tomcat will be fetched from ``server.port`` configuration
 in ``secore.properties`` file (e.g: 9010). Then secore can be accessed via URL: ::
 
     http://localhost:9010/def
+
+
+.. _start-stop-embedded-applications:
+
+**Start/stop embedded petascope/secore**
+
+By configuring ``java_server=embedded`` in ``$RMANHOME/etc/petascope.properties`` 
+and ``$RMANHOME/etc/secore.properties``, one can start rasdaman with these
+embedded applications by running: ::
+
+    $ start_rasdaman.sh
+
+and stop with: ::
+
+    $ stop_rasdaman.sh
+
+To start/stop only a specific embedded application: ::
+
+    $ start_rasdaman.sh --service (secore | petascope)
+    $ stop_rasdaman.sh --service (secore | petascope)
 
 
 Logging

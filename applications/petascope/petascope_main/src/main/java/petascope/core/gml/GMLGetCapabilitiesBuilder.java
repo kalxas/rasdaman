@@ -712,7 +712,7 @@ public class GMLGetCapabilitiesBuilder {
             coverageSizeInBytesElement.appendChild(sizeInBytes.toString());
             metadataElement.appendChild(coverageSizeInBytesElement);
         }
-        
+
         // Downscaled collection levels of a coverage if exist
         List<String> downscaledCollectionLevels = new ArrayList<>();
         for (RasdamanDownscaledCollection rasdamanDownscaledCollection : coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
