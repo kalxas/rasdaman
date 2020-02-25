@@ -116,6 +116,7 @@ TEST_OVERLAP_3D=test_overlap_3d
 #
 OS_UNKNOWN="unknown"
 OS_CENTOS7="centos7"        # CentOS 7.x
+OS_CENTOS8="centos8"        # CentOS 8.x
 OS_DEBIAN8="debian8"        # Debian 8
 OS_DEBIAN9="debian9"        # Debian 9
 OS_DEBIAN10="debian10"      # Debian 10 (buster)
@@ -132,6 +133,7 @@ OS_UBUNTU1804="ubuntu1804"
 OS_UBUNTU1810="ubuntu1810"
 OS_UBUNTU1904="ubuntu1904"
 OS_UBUNTU1910="ubuntu1910"
+OS_UBUNTU2004="ubuntu2004"
 
 # ------------------------------------------------------------------------------
 # logging
@@ -274,6 +276,8 @@ get_os()
   if [ -f "/etc/centos-release" ]; then
     grep -q "CentOS Linux release 7" /etc/centos-release
     [ $? -eq 0 ] && OS_VERSION=$OS_CENTOS7
+    grep -q "CentOS Linux release 8" /etc/centos-release
+    [ $? -eq 0 ] && OS_VERSION=$OS_CENTOS8
   else
     local version=$(lsb_release -a 2>&1 | grep Description \
       | sed 's/Description: *//' | tr -d '[:space:]')
@@ -291,11 +295,16 @@ get_os()
       Ubuntu18.1*)       OS_VERSION=$OS_UBUNTU1810;;
       Ubuntu19.0*)       OS_VERSION=$OS_UBUNTU1904;;
       Ubuntu19.1*)       OS_VERSION=$OS_UBUNTU1910;;
+      Ubuntu20.0*)       OS_VERSION=$OS_UBUNTU2004;;
       Debian*8*)         OS_VERSION=$OS_DEBIAN8;;
       Debian*9*)         OS_VERSION=$OS_DEBIAN9;;
       Debian*buster*)    OS_VERSION=$OS_DEBIAN10;;
       Debian*bullseye*)  OS_VERSION=$OS_DEBIAN11;;
     esac
+  fi
+  if [ "$OS_VERSION" != $OS_UNKNOWN ]; then
+    OS_VERSION_NUMBER="$(echo "$OS_VERSION" | sed 's/[a-z]*//g')"
+    OS_NAME="$(echo "$OS_VERSION" | sed 's/[0-9]*//g')"
   fi
 }
 

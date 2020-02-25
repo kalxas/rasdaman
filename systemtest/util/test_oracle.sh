@@ -138,9 +138,14 @@ trap cleanup SIGINT
 #
 # checks
 #
-if [ "$SVC_NAME" == "rasdapy" -a "$OS_VERSION" == "$OS_UBUNTU1604" ]; then
+if [ "$SVC_NAME" = "rasdapy" -a "$OS_VERSION" = "$OS_UBUNTU1604" ]; then
   # rasdapy runs with 10s per query on Ubuntu 16.04 for an unknown reason
   exit $RC_SKIP
+fi
+if [ "$SVC_NAME" = "rasdapy3" ]; then
+  # rasql.py doesn't work well on these OS (python3 is not selected properly)
+  [ "$OS_NAME" = "ubuntu" ] && [ "$OS_VERSION_NUMBER" -lt 1804 ] && exit $RC_SKIP
+  [ "$OS_NAME" = "centos" ] && [ "$OS_VERSION_NUMBER" -lt 8 ] && exit $RC_SKIP
 fi
 
 check_curl
