@@ -52,7 +52,7 @@ function(AddCPPCheckTarget THIRD_PARTY_DIR CPP_FILE_EXTENSIONS)
             --suppress=noExplicitConstructor
             --suppress=syntaxError
             --error-exitcode=1
-            -DBACKWARD_HAS_DW=1 -DRASDEBUG -DRMANDEBUG -DRMANVERSION="v9.8.1"
+            -DBACKWARD_HAS_DW=1 -DRASDEBUG -DRMANDEBUG -DRMANVERSION="v10.0.0"
             -DBINDIR="/opt/rasdaman/bin/" -DCONFDIR="/opt/rasdaman/etc/" 
             -DINCLUDE_DIR="/opt/rasdaman/include/" -DLOGDIR="/opt/rasdaman/log/"
             -DSHARE_DATA_DIR="/opt/rasdaman/share/rasdaman/" -DSRC_DIR="/home/rasdaman/src/"

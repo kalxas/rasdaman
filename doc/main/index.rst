@@ -6,6 +6,10 @@
 rasdaman v9.8 documentation
 ###########################
 
+This is the documentation of *rasdaman community*, a multi-dimensional
+Array Analytics Engine that enables efficient querying and manipulation of
+multi-dimensional arrays of unlimited size.
+
 Rasdaman Community is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as published
 by the Free Software Foundation, either version 3 of the License, or (at
@@ -28,6 +32,7 @@ License <http://creativecommons.org/licenses/by-sa/4.0/>`__.
 
 All trade names referenced are service mark, trademark, or registered
 trademark of the respective manufacturer.
+
 
 .. rubric:: Contents:
 

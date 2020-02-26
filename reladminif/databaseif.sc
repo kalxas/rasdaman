@@ -390,9 +390,9 @@ void DatabaseIf::destroyDB(const char *dbName)
 }
 
 #ifndef RMANVERSION
-#define RMANVERSION "v9.8.0-unknown"
+#define RMANVERSION "v10.0.0-unknown"
 #endif
-#define LONGVER 9800
+#define LONGVER 10000
 
 long DatabaseIf::rmanverToLong()
 {

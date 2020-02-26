@@ -152,9 +152,10 @@ Installation
 
     $ wget -O - http://download.rasdaman.org/packages/rasdaman.gpg | sudo apt-key add -
 
-2. Add the rasdaman repository to apt. There are two types of packages:
+2. Add the rasdaman repository to apt. There are three types of packages:
 
-    - **stable:** these are only updated on stable releases of rasdaman. ::
+    - **stable:** these packages are only updated on stable releases of rasdaman,
+      and hence recommended for operational production installations. ::
 
         # For ubuntu 16.04
         $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb xenial stable" \
@@ -164,6 +165,16 @@ Installation
         $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb bionic stable" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
+    - **testing:** updated more frequently with beta releases, so aimed for
+      feature testing in non-critical installations. ::
+
+        # For ubuntu 16.04
+        $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb xenial testing" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
+
+        # For ubuntu 18.04
+        $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb bionic testing" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
     - **nightly:** updated nightly, so that they have the latest patches.
       It is not recommended to use these packages in a production installation as things
@@ -212,7 +223,7 @@ Installation
 
    Typical output: ::
 
-    rasql: rasdaman query tool v1.0, rasdaman v9.0.0 -- generated on 02.07.2015 08:44:56.
+    rasql: rasdaman query tool v1.0, rasdaman v10.0.0 -- generated on 26.02.2020 08:44:56.
     opening database RASBASE at localhost:7001...ok
     Executing retrieval query...ok
     Query result collection has 0 element(s):
@@ -223,7 +234,7 @@ Installation
     http://localhost:8080/rasdaman/ows
 
 7. You will find the rasdaman installation under ``/opt/rasdaman/``; `rasdaman.war` and
-   `def.war` are installed in ``/var/lib/tomcat7/webapps`` (or tomcat8).
+   `def.war` are installed in ``/var/lib/tomcat9/webapps`` (or tomcat8).
 
 8. If SELinux is running then likely some extra configuration is needed to
    get petascope run properly. See :ref:`here <selinux-configuration>` for more
@@ -239,8 +250,6 @@ your installation: ::
 
     $ sudo apt-get update
     $ sudo apt-get install rasdaman
-    $ sudo migrate_petascopedb.sh
-
 
 
 .. _sec-system-install-pkgs-rpm:
@@ -256,11 +265,18 @@ Currently the following RPM-based distributions are supported:
 Installation
 ^^^^^^^^^^^^
 
-1. Add the rasdaman repository to yum. There are two types of packages:
+1. Add the rasdaman repository to yum. There are three types of packages:
 
-    - **stable:** these are only updated on stable releases of rasdaman. ::
+    - **stable:** these packages are only updated on stable releases of rasdaman,
+      and hence recommended for operational production installations. ::
 
         $ sudo curl "http://download.rasdaman.org/packages/rpm/stable/CentOS/7/x86_64/rasdaman.repo" \
+                  -o /etc/yum.repos.d/rasdaman.repo
+
+    - **testing:** updated more frequently with beta releases, so aimed for
+      feature testing in non-critical installations. ::
+
+        $ sudo curl "http://download.rasdaman.org/packages/rpm/testing/CentOS/7/x86_64/rasdaman.repo" \
                   -o /etc/yum.repos.d/rasdaman.repo
 
     - **nightly:** updated nightly, so that they have the latest patches.
@@ -339,7 +355,6 @@ an update perform these steps: ::
     $ sudo service tomcat stop
     $ sudo yum clean all
     $ sudo yum update rasdaman
-    $ sudo migrate_petascopedb.sh
 
 
 Administration

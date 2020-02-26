@@ -568,7 +568,7 @@ of a WMS layer is also possible on this tab. To create a new level,
 it is required to input level parameter (positive number). Afterwards,
 click on ``Insert Level`` to insert a new downscaled collection level
 of the current selected layer. One can also delete an existing level
-by clicking on the ``Delete``button corresponding to a downscaled
+by clicking on the ``Delete`` button corresponding to a downscaled
 collection level.
 
 .. figure:: media/cheatsheets/wsclient_wms-describelayer-tab-4.png

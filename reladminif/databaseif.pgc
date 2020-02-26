@@ -147,12 +147,12 @@ DatabaseIf::connect()
     }
 
     // FIXME: Alan: added check to separate host from dbname, complete parsing of connectid should be implemented
-    char *parsed_host = (char *)malloc(sizeof(char)*STRING_MAXLEN);
+    char *parsed_host = (char *)mymalloc(sizeof(char)*STRING_MAXLEN);
     char parsed_dbname[STRING_MAXLEN] = "";
 
     if ( NULL != strstr(globalConnectId,"@") )
     {
-        char *safeTokenizer=(char*)malloc(sizeof(char)*STRING_MAXLEN);
+        char *safeTokenizer=(char*)mymalloc(sizeof(char)*STRING_MAXLEN);
         strncpy(safeTokenizer,globalConnectId,STRING_MAXLEN - 1);
 
         char *tokenAt=strtok(safeTokenizer, "@");
@@ -1322,9 +1322,10 @@ DatabaseIf::destroyDB(const char* dbName)
 }
 
 #ifndef RMANVERSION
-#define RMANVERSION "v9.8.0-unknown"
+#define RMANVERSION "v10.0.0-unknown"
 #endif
-#define LONGVER 9800
+#define LONGVER 10000
+
 long
 DatabaseIf::rmanverToLong()
 {
