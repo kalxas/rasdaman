@@ -25,6 +25,7 @@
 import argparse
 import sys
 import re
+import os
 from rasdapy.db_connector import DBConnector
 from rasdapy.query_executor import QueryExecutor
 from rasdapy.models.result_array import ResultArray
@@ -40,6 +41,10 @@ RASGUEST = "rasguest"
 
 OUTPUT_STRING = "string"
 OUTPUT_FILE = "file"
+
+# https://github.com/grpc/grpc/issues/17631
+# if 'http_proxy' in os.environ and os.environ['http_proxy'] == '':
+#     del os.environ['http_proxy']
 
 
 class Validator:
