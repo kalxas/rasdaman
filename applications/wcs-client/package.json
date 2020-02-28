@@ -2,8 +2,8 @@
   "name": "wcs-client",
   "version": "1.0.0",
   "description": "This is a WCS Web client developed by the rasdaman community.",
-  "homepage": "http://rasdaman.org/",
-  "license": "http://rasdaman.org/wiki/License",
+  "homepage": "https://rasdaman.org/",
+  "license": "https://rasdaman.org/wiki/License",
   "dependencies": {
     "bower": "^1.6.3",
     "tsd": "^0.6.5",

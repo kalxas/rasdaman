@@ -3,7 +3,7 @@
     "noImplicitAny": false,
     "removeComments": true,
     "preserveConstEnums": true,
-    "outFile": "app/main.js",
+    "outFile": "app/ows/main.js",
     "sourceMap": true
   },
   "exclude": [

@@ -65,8 +65,8 @@
         <resources>
             <!-- first copy wcs-client to target directory -->
             <resource>
-                <directory>${sourceDir}/../../wcs-client/app/</directory>
-                <targetPath>${buildDir}/target/classes/public/wcs-client</targetPath>
+                <directory>${sourceDir}/../../wcs-client/app/ows</directory>
+                <targetPath>${buildDir}/target/classes/public/ows</targetPath>
             </resource>
             <resource>
                 <!-- then copy all the other resources to build directory -->

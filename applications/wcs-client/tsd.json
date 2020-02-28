@@ -2,8 +2,8 @@
   "version": "v4",
   "repo": "borisyankov/DefinitelyTyped",
   "ref": "master",
-  "path": "app/assets/typings",
-  "bundle": "app/assets/typings/tsd.d.ts",
+  "path": "app/ows/assets/typings",
+  "bundle": "app/ows/assets/typings/tsd.d.ts",
   "installed": {
     "angularjs/legacy/angular-scenario-1.2.d.ts": {
       "commit": "43f4fc592a99e2f0f8f4ee3ae26a3a8e2f5ca3ae"

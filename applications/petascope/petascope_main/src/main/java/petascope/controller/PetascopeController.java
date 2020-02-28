@@ -141,11 +141,7 @@ public class PetascopeController extends AbstractController {
      * Return WSClient page with some extra parameters if needed 
      */
     private Response returnWSClientPage() throws IOException {        
-        String wsclientHtmlContent = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/interface-servlet.html"));
-        // NOTE: In case petascope is behind proxy, client's web browser cannot see the assets (HTML, CSS, Javascript) files from local tomcat
-        // it needs to configure an external endpoint for this local tomcat to allow client to view assets on Web browser.
-        String proxy = ConfigManager.PETASCOPE_ENDPOINT_URL;
-        wsclientHtmlContent = wsclientHtmlContent.replace("$PROXY", proxy);
+        String wsclientHtmlContent = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/ows/index.html"));
         
         byte[] bytes = wsclientHtmlContent.getBytes();
         Response response = new Response(Arrays.asList(bytes), "text/html");
