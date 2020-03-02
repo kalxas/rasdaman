@@ -2312,7 +2312,7 @@ var rasdaman;
         WCSService.prototype.getCoverageHTTPGET = function (request) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
-            var url = this.settings.defaultContextPath + "/wcs-client/result.html";
+            var url = this.settings.defaultContextPath + "/ows/result.html";
             this.storeKVPParametersToLocalStorage(this.settings.wcsEndpoint, request.toKVP());
             window.open(url, '_blank');
             result.resolve(requestUrl);

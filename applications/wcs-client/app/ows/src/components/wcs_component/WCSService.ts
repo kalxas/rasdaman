@@ -113,7 +113,7 @@ module rasdaman {
             var result = this.$q.defer();
             // Build the request URL
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
-            var url = this.settings.defaultContextPath + "/wcs-client/result.html";
+            var url = this.settings.defaultContextPath + "/ows/result.html";
                         
             this.storeKVPParametersToLocalStorage(this.settings.wcsEndpoint, request.toKVP());            
             window.open(url, '_blank');            

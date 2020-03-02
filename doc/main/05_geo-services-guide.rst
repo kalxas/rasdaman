@@ -3825,21 +3825,34 @@ in ``secore.properties`` file (e.g: 9010). Then secore can be accessed via URL: 
 
 **Start/stop embedded petascope/secore**
 
-By configuring ``java_server=embedded`` in ``$RMANHOME/etc/petascope.properties`` 
-and ``$RMANHOME/etc/secore.properties``, one can start rasdaman with these
-embedded applications by running: ::
+Each standalone application needs a unique port on which to listen
+ (e.g petascope on port 8080 and secore on port 8081). This should be
+configured in the properties files as below:
 
-    $ start_rasdaman.sh
+- ``$RMANHOME/etc/petascope.properties``
 
-and stop with: ::
+   .. code-block:: ini
+ 
+      java_server=embedded
+      server.port=8080
+      secore_urls=http://localhost:8081/def
 
-    $ stop_rasdaman.sh
+- ``$RMANHOME/etc/secore.properties``
 
-To start/stop only a specific embedded application: ::
+   .. code-block:: ini
+ 
+      java_server=embedded
+      server.port=8081
+
+With these settings, petascope and secore will be started/stopped when
+rasdaman is started or stopped in the usual way. Specific applications,
+e.g. only petascope, can also be selectively started/stopped: ::
 
     $ start_rasdaman.sh --service (secore | petascope)
     $ stop_rasdaman.sh --service (secore | petascope)
 
+Please see the ``--help`` of ``start_rasdaman.sh`` and ``stop_rasdaman.sh``
+for more details.
 
 Logging
 -------
