@@ -41,7 +41,7 @@ from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
 from util.crs_util import CRSUtil, CRSAxis
-from util.file_util import FileUtil
+from util.file_util import TmpFile
 from util.gdal_util import GDALGmlUtil
 from util.time_util import DateTimeUtil
 from util.url_util import validate_and_read_url
@@ -390,9 +390,8 @@ class CoverageReader():
         if isinstance(slice.data_provider, UrlDataProvider):
             # Do this only for coverages that have more than one axis
             if len(slice.axis_subsets) > 1:
-                fu = FileUtil()
                 contents = validate_and_read_url(slice.data_provider.get_url())
-                file_path = fu.write_to_tmp_file(contents, "tif")
+                file_path = TmpFile().write_to_tmp_file(contents, "tif")
                 return GDALGmlUtil(file_path).get_band_gdal_type()
         return None
 

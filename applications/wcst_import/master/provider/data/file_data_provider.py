@@ -25,7 +25,7 @@
 import mimetypes
 
 from master.provider.data.data_provider import DataProvider
-from util.file_obj import File, FilePair
+from util.file_util import File, FilePair
 
 
 class FileDataProvider(DataProvider):

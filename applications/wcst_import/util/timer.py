@@ -23,17 +23,25 @@
 """
 import time
 
-from util.log import log
-
 
 class Timer:
 
     def __init__(self):
+        self.start()
+        self.stop_time = None
+
+    def start(self):
         self.start_time = time.time()
 
+    def stop(self):
+        self.stop_time = time.time()
+
+    def elapsed(self):
+        return time.time() - self.start_time
+
+    def elapsed_total(self):
+        return self.stop_time - self.start_time
+
     def print_elapsed_time(self):
-        """
-        Print how long it is to run some statements.
-        """
-        end_time = time.time()
-        log.info("Elapsed time: " + "{:.3f}".format(end_time - self.start_time) + " s.")
+        from util.log import log
+        log.info("Elapsed time: " + "{:.3f}".format(self.elapsed()) + " s.")

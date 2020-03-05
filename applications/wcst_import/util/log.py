@@ -21,6 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+
 import logging
 import sys
 import os
@@ -53,6 +54,7 @@ logging.Logger.success = success
 def add_coloring_to_emit_ansi(fn):
     # add methods we need to the class
     def new(*args):
+        # add colors
         levelno = args[1].levelno
         if levelno >= logging.CRITICAL:
             color = '\033[1m\x1b[31m'  # red
@@ -72,6 +74,7 @@ def add_coloring_to_emit_ansi(fn):
 
     return new
 
+# add coloring only if it's an interactive use, rather than redirection/piping
 if os.isatty(1):
     logging.StreamHandler.emit = add_coloring_to_emit_ansi(logging.StreamHandler.emit)
 
@@ -88,7 +91,7 @@ class SingleLevelFilter(logging.Filter):
         else:
             return (record.levelno <= self.passlevel)
 
-# Default is logging level debug
+# Default logging level
 log.setLevel(logging.DEBUG)
 
 # Lower than level info (called by method of log (e.g: log.debug()) in other classes) go to stdout

@@ -77,6 +77,15 @@ def escape_metadata_nested_dicts(metadata_dict):
     return metadata_dict
 
 
+def strip_whitespace(s):
+    """
+    Strip all whitespace from a string s
+    :param str s: input string
+    :rtype: str
+    """
+    return s.strip(" \t\n\r")
+
+
 def strip_trailing_zeros(number_str):
     """
     Strip any zeros from number in string (e.g: 111.0 -> 111)

@@ -26,12 +26,11 @@ import glob2 as glob
 import time
 from config_manager import ConfigManager
 from master.importer.resumer import Resumer
-from util.file_obj import File
 
 from util.log import log
 from wcst.wcst import WCSTMockExecutor, WCSTExecutor
 from master.error.runtime_exception import RuntimeException
-from util.file_util import FileUtil
+from util.file_util import FileUtil, File
 from util.list_util import get_null_values
 
 

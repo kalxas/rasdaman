@@ -33,9 +33,8 @@ from master.helper.user_band import UserBand
 from recipes.general_coverage.recipe import Recipe as GeneralCoverageRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from util.crs_util import CRSUtil
-from util.file_util import FileUtil
+from util.file_util import FileUtil, File, FilePair
 from util.gdal_util import GDALGmlUtil
-from util.file_obj import File, FilePair
 from util.log import log, make_bold
 from master.importer.resumer import Resumer
 

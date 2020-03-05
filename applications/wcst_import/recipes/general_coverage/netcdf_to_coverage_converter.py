@@ -40,7 +40,7 @@ from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from util.crs_util import CRSAxis
-from util.file_obj import File
+from util.file_util import File
 from util.import_util import import_netcdf4
 from util.log import log
 

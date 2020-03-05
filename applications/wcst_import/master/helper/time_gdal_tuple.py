@@ -23,7 +23,7 @@
 """
 
 import functools
-from util.file_obj import File
+from util.file_util import File
 
 
 @functools.total_ordering

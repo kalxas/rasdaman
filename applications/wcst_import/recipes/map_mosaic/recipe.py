@@ -42,7 +42,7 @@ from util.file_util import FileUtil
 from master.importer.resumer import Resumer
 from recipes.general_coverage.recipe import Recipe as GeneralRecipe
 
-from util.timer_util import Timer
+from util.timer import Timer
 
 
 class Recipe(BaseRecipe):

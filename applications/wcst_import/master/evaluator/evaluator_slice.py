@@ -21,7 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-from util.file_obj import File
+from util.file_util import File
 from util.gdal_util import GDALGmlUtil
 from util.import_util import import_netcdf4
 

@@ -40,7 +40,7 @@ from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.metadata_provider import MetadataProvider
 from util.coverage_util import CoverageUtil
-from util.file_obj import File
+from util.file_util import File
 from util.log import log, prepend_time
 from util.string_util import strip_trailing_zeros
 from wcst.wcst import WCSTInsertRequest, WCSTInsertScaleLevelsRequest, WCSTUpdateRequest, WCSTSubset

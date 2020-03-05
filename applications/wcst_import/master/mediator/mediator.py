@@ -37,8 +37,7 @@ from master.provider.data.file_data_provider import FileDataProvider
 from master.provider.data.tuple_list_data_provider import TupleListDataProvider
 from master.provider.data.url_data_provider import UrlDataProvider
 from master.provider.metadata.metadata_provider import MetadataProvider
-from util.file_obj import File
-from util.file_util import FileUtil
+from util.file_util import TmpFile, File
 
 
 class Mediator:
@@ -91,8 +90,7 @@ class Mediator:
         :rtype: File
         """
         gml = self.get_gml_str()
-        fu = FileUtil()
-        return File(fu.write_to_tmp_file(gml))
+        return File(TmpFile().write_to_tmp_file(gml))
 
     def _get_bounded_by(self):
         mp = self.metadata_provider

@@ -26,7 +26,7 @@ import os
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator import ExpressionEvaluator
 from master.evaluator.evaluator_slice import FileEvaluatorSlice
-from util.file_obj import FilePair
+from util.file_util import FilePair
 
 
 class FileExpressionEvaluator(ExpressionEvaluator):

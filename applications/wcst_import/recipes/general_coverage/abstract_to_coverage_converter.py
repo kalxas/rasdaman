@@ -53,7 +53,7 @@ from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
 from util.string_util import is_number
 from util.file_util import FileUtil
-from util.timer_util import Timer
+from util.timer import Timer
 
 
 class AbstractToCoverageConverter:

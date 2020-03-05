@@ -45,7 +45,7 @@ from master.helper.regular_user_axis import RegularUserAxis
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSAxis
-from util.file_obj import File
+from util.file_util import File
 
 from util.import_util import import_pygrib
 

@@ -32,51 +32,8 @@ from master.error.runtime_exception import RuntimeException
 
 class FileUtil:
 
-    def __init__(self):
-        """
-        A utility function to do most of the repetitive work
-        :param str tmp_path: the *absolute* path to the temp directory
-        :rtype Util
-        """
-        self.tmp_path = ConfigManager.tmp_directory
-        pass
-
-    def generate_tmp_path(self, ftype="data"):
-        """
-        Generates a tmp unique path
-        :param str ftype: the type of the file
-        :rtype str
-        """
-        tmp_path = self.tmp_path + str(uuid.uuid4()).replace("-", "_") + "." + ftype
-        return tmp_path
-
-    def copy_file_to_tmp(self, file_path):
-        """
-        Copies the file into a new file in the tmp directory and returns the path
-        :param str file_path: the path to the file
-        :rtype: str
-        """
-        parts = file_path.split(".")
-        ret_path = self.generate_tmp_path(parts[-1])
-        shutil.copy(file_path, ret_path)
-        os.chmod(ret_path, 0777)
-        return ret_path
-
-    def write_to_tmp_file(self, contents, ftype="gml"):
-        """
-        Writes a string to a temporary file and returns the path to it
-        :param str contents: the contents to be written to the file
-        :param str ftype: the type of the file
-        :rtype str
-        """
-        ret_path = self.generate_tmp_path(ftype)
-        wfile = open(ret_path, "w")
-        wfile.write(contents)
-        wfile.close()
-        os.chmod(ret_path, 0777)
-        return ret_path
-
-    def delete_file(self, file_path):
+    @staticmethod
+    def delete_file(file_path):
         os.remove(file_path)
 
     @staticmethod
@@ -191,3 +148,83 @@ class FileUtil:
             data = myfile.read()
 
             return data
+
+
+class TmpFile:
+    def __init__(self):
+        """
+        A utility function to do most of the repetitive work
+        :param str tmp_path: the *absolute* path to the temp directory
+        :rtype Util
+        """
+        self.tmp_path = ConfigManager.tmp_directory
+        pass
+
+    def generate_tmp_path(self, ftype="data"):
+        """
+        Generates a tmp unique path
+        :param str ftype: the type of the file
+        :rtype str
+        """
+        tmp_path = self.tmp_path + str(uuid.uuid4()).replace("-", "_") + "." + ftype
+        return tmp_path
+
+    def write_to_tmp_file(self, contents, ftype="gml"):
+        """
+        Writes a string to a temporary file and returns the path to it
+        :param str contents: the contents to be written to the file
+        :param str ftype: the type of the file
+        :rtype str
+        """
+        ret_path = self.generate_tmp_path(ftype)
+        wfile = open(ret_path, "w")
+        wfile.write(contents)
+        wfile.close()
+        os.chmod(ret_path, 0777)
+        return ret_path
+
+    def copy_file_to_tmp(self, file_path):
+        """
+        Copies the file into a new file in the tmp directory and returns the path
+        :param str file_path: the path to the file
+        :rtype: str
+        """
+        parts = file_path.split(".")
+        ret_path = self.generate_tmp_path(parts[-1])
+        shutil.copy(file_path, ret_path)
+        os.chmod(ret_path, 0777)
+        return ret_path
+
+
+class File(object):
+    def __init__(self, filepath):
+        self.filepath = filepath
+
+    def get_filepath(self):
+        return self.filepath
+
+    def get_url(self):
+        return ConfigManager.root_url + self.filepath
+
+    def release(self):
+        if ConfigManager.mock is False:
+            FileUtil.delete_file(self.filepath)
+
+    def __str__(self):
+        return self.get_filepath()
+
+
+class FilePair(File):
+    """
+    A pair of input file paths when there is pre hook changed original input file paths
+    """
+
+    def __init__(self, changed_file_path, original_file_path):
+        super(FilePair, self).__init__(changed_file_path)
+        self.original_file_path = original_file_path
+
+    def get_original_url(self):
+        return ConfigManager.root_url + self.original_file_path
+
+    def get_original_file_path(self):
+        return self.original_file_path

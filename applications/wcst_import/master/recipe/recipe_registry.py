@@ -36,7 +36,7 @@ from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.recipe.base_recipe import BaseRecipe
 from master.error.validate_exception import RecipeValidationException
 from session import Session
-from util.file_obj import File, FilePair
+from util.file_util import File, FilePair
 from util.log import log, make_bold
 from util.reflection_util import ReflectionUtil
 from recipes.general_coverage.recipe import Recipe as GeneralRecipe

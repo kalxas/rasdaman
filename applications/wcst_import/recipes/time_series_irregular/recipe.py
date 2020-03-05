@@ -48,7 +48,7 @@ from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
 from master.importer.resumer import Resumer
-from util.timer_util import Timer
+from util.timer import Timer
 from recipes.general_coverage.recipe import Recipe as GeneralRecipe
 
 
