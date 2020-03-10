@@ -1463,7 +1463,7 @@ in ``application/gml+xml`` format and a new non-standard parameter
 ``outputType=GeneralGridCoverage``.
 
 .. note::
-   This feature only valids for WCS version 2.1.0 and WCPS.
+   This feature only applies to WCS version 2.1.0 and WCPS.
 
 WCS
 ^^^
@@ -3826,7 +3826,7 @@ in ``secore.properties`` file (e.g: 9010). Then secore can be accessed via URL: 
 **Start/stop embedded petascope/secore**
 
 Each standalone application needs a unique port on which to listen
- (e.g petascope on port 8080 and secore on port 8081). This should be
+(e.g petascope on port 8080 and secore on port 8081). This should be
 configured in the properties files as below:
 
 - ``$RMANHOME/etc/petascope.properties``

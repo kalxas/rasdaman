@@ -1654,25 +1654,27 @@ however, is not the case; the server's intelligent query engine makes
 the first version execute at just the same speed.
 
 .. _sec-pos-independent-subsetting:
+
 Positionally-independent Subsetting
 -----------------------------------
+
 Rasdaman supports positionally-independent subsetting like in WCPS and SQL/MDA,
-where for each trim/slice the axis name is indicated as well, e.g.
-::
+where for each trim/slice the axis name is indicated as well, e.g. ::
+
 	select mr2[d0(0:100), d1(50)] from mr2
 
-The axis names give a reference to the addressed axes, so the order doesn't matter anymore. This is equivalent:
-::
+The axis names give a reference to the addressed axes, so the order doesn't matter anymore. This is equivalent: ::
+
 	select mr2[d1(50), d0(0:100)] from mr2
 
-Furthermore, not all axes have to be specified. Any axes which are not specified default to "*:*". For example:
-::
+Furthermore, not all axes have to be specified. Any axes which are not specified default to "*:*". For example: ::
+
 	select mr2[d1(50)] from mr2
 	=
 	select mr2[d0(*:*), d1(50)] from mr2
 
-The two subset formats cannot be mixed, e.g. this is an error:
-::
+The two subset formats cannot be mixed, e.g. this is an error: ::
+
 	select mr2[d0(0:100), 50] from mr2
 
 .. _sec-shift:

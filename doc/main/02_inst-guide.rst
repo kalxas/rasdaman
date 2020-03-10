@@ -370,8 +370,34 @@ A ``rasdaman`` service script allows to start/stop rasdaman, e.g. ::
     $ service rasdaman stop
     $ service rasdaman status
 
-Similarly, the ``tomcat``/``tomcat7`` and ``postgresql`` services can be
-started and stopped.
+The service script can be customized by updating environment variables in
+``/etc/default/rasdaman`` (create the file if it does not exist). The default
+settings are as follows:
+
+.. code-block:: shell
+
+  # rasdaman installation directory
+  RMANHOME=/opt/rasdaman
+  # local user running the rasdaman server
+  RMANUSER=rasdaman
+  # runuser, or sudo for older OS
+  RUNUSER=runuser
+  # login credentials for non-interactive rasdaman start/stop
+  RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+  # port on which clients connect to rasdaman
+  RASMGR_PORT=7001
+  # options to be passed on to start_rasdaman.sh
+  START_RASDAMAN_OPTS="-p $RASMGR_PORT"
+  # options to be passed on to stop_rasdaman.sh
+  STOP_RASDAMAN_OPTS="-p $RASMGR_PORT"
+
+Multiple installation can be maintained as well by copying
+``/etc/init.d/rasdaman`` to ``/etc/init.d/new-rasdaman`` for example. In this
+case, the new service script will attempt to load configuration from
+``/etc/default/new-rasdaman`` if this file exists. If systemd is used, then you
+will need to clone and adapt ``/etc/systemd/system/rasdaman.service`` as well,
+followed by ``systemctl daemon-reload``, and optionally ``systemctl enable
+new-rasdaman.service`` to enable automatic starting on boot.
 
 See also the dedicated pages on :ref:`configuration and log files
 <sec-system-install-conf>` and :ref:`administration <sec-server-administration>`.
