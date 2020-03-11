@@ -1,0 +1,1 @@
+select dbinfo(c, "printtiles=json") from test_grey as c

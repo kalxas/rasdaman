@@ -94,8 +94,8 @@ protected:
     //@{
     struct parse_params_t
     {
-        const char *key;
-        void *store;
+        const char *key = NULL;
+        void *store = NULL;
         parse_param_type type;
     };
     //@}

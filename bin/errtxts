@@ -116,6 +116,7 @@
 374^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected at least one operand.
 375^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected a boolean operand.
 376^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected boolean operands.
+379^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Printtiles argument is not supported.
 380^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Data type can not be converted to selected data exchange format.
 381^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Error in convertor of the selected data exchange format.
 382^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown conversion format.
@@ -196,6 +197,7 @@
 446^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The language template does not contain a UDF processing function.
 447^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Second Operand must be a multidimensional shape.
 448^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: General error reported by the language template when executing the UDF.
+449^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Cannot export tile info to svg format for non-2D collection.
 450^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unsupported condense operator.
 451^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unsupported condense operator for complex types.
 452^E^Execution error: Invalid X resolution, output width is 0.

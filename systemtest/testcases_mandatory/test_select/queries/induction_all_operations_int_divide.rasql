@@ -1,1 +1,1 @@
-select (case when test_grey2[50:100,50:100] = 0 then 0c else (char) div(test_grey[50:100,50:100], test_grey2[50:100,50:100]) end) from test_grey, test_grey2
+select (encode(case when test_grey2[50:100,50:100] = 0 then 0c else (char) div(test_grey[50:100,50:100], test_grey2[50:100,50:100]) end,"csv")) from test_grey, test_grey2

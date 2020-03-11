@@ -1,0 +1,18 @@
+{
+ "oid": "508929",
+ "baseType": "marray <char, [*:*,*:*]>",
+ "setTypeName": "GreySet",
+ "mddTypeName": "GreyImage",
+ "tileNo": "48",
+ "totalSize": "54016",
+ "tiling": {
+	"tilingScheme": "aligned",
+	"tileSize": "1500",
+	"tileConfiguration": "[0:49,0:29]"
+ },
+ "index": {
+	"type": "rpt_index",
+	"PCTmax": "4096",
+	"PCTmin": "2048"
+ }
+}

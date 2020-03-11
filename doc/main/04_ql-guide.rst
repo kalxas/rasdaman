@@ -4592,6 +4592,9 @@ The output format is described below by way of an example.
 
     dbinfo( mddExp )
 
+    dbinfo( mddExp , formatParams)
+
+
 **Example**
 
 .. code-block:: shell
@@ -4617,6 +4620,77 @@ The output format is described below by way of an example.
       }
     }
 
+
+The function supports a string of format parameters as the second argument.
+By now the only supported parameter is printTiles.
+It can take multiple values: "embedded", "json", "svg".
+Example of syntax:
+
+::
+
+	select dbinfo(c, "printtiles=svg") from test_overlap as c
+
+Parameter "printiles=embedded" will print additionally domains of every tile.
+::
+
+	$ rasql -q 'select dbinfo(c, "printtiles=svg") from test_grey as c' --out string
+	{
+	 "oid": "136193",
+	 "baseType": "marray <char, [*:*,*:*]>",
+	 "setTypeName": "GreySet",
+	 "mddTypeName": "GreyImage",
+	 "tileNo": "48",
+	 "totalSize": "54016",
+	 "tiling": {
+		"tilingScheme": "aligned",
+		"tileSize": "1500",
+		"tileConfiguration": "[0:49,0:29]"",
+		"tileDomains":
+		[
+		        "[100:149,210:210]",
+		        "[150:199,0:29]",
+		        "[150:199,30:59]",
+		        "[150:199,60:89]",
+		        "[150:199,90:119]",
+		        "[150:199,120:149]",
+		        "[150:199,150:179]",
+		        "[150:199,180:209]",
+		        "[150:199,210:210]",
+		        "[200:249,0:29]",
+		        "[200:249,30:59]",
+		        "[200:249,60:89]",
+		        "[200:249,90:119]",
+		        "[200:249,120:149]",
+		        "[200:249,150:179]",
+		        "[200:249,180:209]",
+		        "[200:249,210:210]",
+		        "[250:255,0:29]",
+		        "[250:255,30:59]",
+		        "[250:255,60:89]",
+		        ...
+		]
+	 },
+	 "index": {
+		"type": "rpt_index",
+		"PCTmax": "4096",
+		"PCTmin": "2048"
+	 }
+	}
+
+Option "json" will output only the tile domains as a json object.
+::
+
+	["[100:149,210:210]","[150:199,0:29]",..."[0:49,30:59]"]
+
+Last option "svg" will output tiles as svg that can be visualised.
+Example:
+::
+
+	<svg width="array width" height="array height">
+		<rect x="100" y="210" width="50" height="1" id="1232"></rect>
+		<rect x="150" y="0" width="50" height="30" id="3223"></rect>
+		...
+	</svg>
 
 .. note::
     This function can only be invoked on persistent MDD objects, not on

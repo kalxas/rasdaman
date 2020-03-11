@@ -43,33 +43,57 @@ rasdaman GmbH.
 #include <sstream>
 #include <vector>
 
+#define COLOR_PALET_SIZE 15
+
 using namespace std;
 
 const QtNode::QtNodeType QtInfo::nodeType = QtNode::QT_INFO;
 
-
 QtInfo::QtInfo(QtVariable *newInput)
     : QtUnaryOperation(newInput),
-      printTiles(0)
+      printTiles(NONE)
 {
 }
 
 QtInfo::QtInfo(QtVariable *newInput, const char *paramsStr)
     : QtUnaryOperation(newInput),
-      printTiles(0)
+      printTiles(NONE)
 {
-    r_Parse_Params *params = new r_Parse_Params();
-    params->add("printtiles", &printTiles, r_Parse_Params::param_type_int);
+    r_Parse_Params *params = new r_Parse_Params(20);
+    params->add("printtiles", &printParam, r_Parse_Params::param_type_string);
 
     // process params
     if (paramsStr)
     {
+        printParam = NULL;
         params->process(paramsStr);
+        if ((printParam != NULL) && (printParam[0] != '\0'))
+        {
+            if (!strcmp(printParam, "embedded\0") || !strcmp(printParam, "1\0"))
+            {
+                printTiles = EMBEDDED;
+            }
+            else if (!strcmp(printParam, "json"))
+            {
+                printTiles = JSON;
+            }
+            else if (!strcmp(printParam, "svg"))
+            {
+                printTiles = SVG;
+            }
+        }
+        else{
+            LERROR << "Error: QtInfo::QtInfo() - printtiles argument is not supported.";
+            parseInfo.setErrorNo(379);
+            throw parseInfo;
+        }
+        if (printParam != NULL)
+        {
+            delete [] printParam;
+        }
     }
     delete params;
 }
-
-
 
 QtData *
 QtInfo::evaluate(QtDataList *inputList)
@@ -99,7 +123,7 @@ QtInfo::evaluate(QtDataList *inputList)
         }
 #endif
 
-        QtMDD  *qtMDD  = static_cast<QtMDD *>(operand);
+        QtMDD *qtMDD = static_cast<QtMDD *>(operand);
         MDDObj *mddObj = qtMDD->getMDDObject();
 
         if (mddObj->isPersistent())
@@ -131,107 +155,157 @@ QtInfo::evaluate(QtDataList *inputList)
                 if (storageLayout)
                 {
                     ostringstream info("");
-                    info << "{\n \"oid\": \"" << static_cast<double>(localOId);
-                    info << "\",\n \"baseType\": \"" << dbObj->getMDDBaseType()->getTypeStructure();
-                    if (collType)
-                    {
-                        info << "\",\n \"setTypeName\": \""<< collType->getName();
-                    }
-                    info << "\",\n \"mddTypeName\": \""<<dbObj->getMDDBaseType()->getTypeName();
                     auto *tiles = persMDD->getTiles();
-                    info << "\",\n \"tileNo\": \"" << tiles->size();
-
-                    long totalSize = 0;
-                    for (unsigned int i = 0; i < tiles->size(); i++)
+                    if (printTiles == EMBEDDED || printTiles == NONE)
                     {
-                        totalSize += static_cast<long>(tiles->at(i)->getSize());
-                    }
-                    info << "\",\n \"totalSize\": \"" << totalSize;
+                        info << "{\n \"oid\": \"" << static_cast<double>(localOId);
+                        info << "\",\n \"baseType\": \"" << dbObj->getMDDBaseType()->getTypeStructure();
+                        if (collType)
+                        {
+                            info << "\",\n \"setTypeName\": \"" << collType->getName();
+                        }
+                        info << "\",\n \"mddTypeName\": \"" << dbObj->getMDDBaseType()->getTypeName();
 
-                    info << "\",\n \"tiling\": {\n";
-                    info << "\t\"tilingScheme\": \"";
-                    switch (storageLayout->getTilingScheme())
-                    {
-                    case r_NoTiling:
-                        info << "no_tiling";
-                        break;
-                    case r_RegularTiling:
-                        info << "regular";
-                        break;
-                    case r_StatisticalTiling:
-                        info << "statistic";
-                        break;
-                    case r_InterestTiling:
-                        info << "interest";
-                        break;
-                    case r_AlignedTiling:
-                        info << "aligned";
-                        break;
-                    case r_DirectionalTiling:
-                        info << "directional";
-                        break;
-                    case r_SizeTiling:
-                        info << "size";
-                        break;
-                    default:
-                        info << "unknown";
-                        break;
-                    }
-                    info << "\",\n\t\"tileSize\": \"" << storageLayout->getTileSize();
-                    info << "\",\n\t\"tileConfiguration\": \"" << storageLayout->getTileConfiguration() << "\"";
+                        info << "\",\n \"tileNo\": \"" << tiles->size();
 
-                    if (printTiles)
-                    {
-                        info << "\",\n\t\"tileDomains\":\n\t[";
+                        long totalSize = 0;
                         for (unsigned int i = 0; i < tiles->size(); i++)
                         {
-                            info << "\n\t\t\"" << tiles->at(i)->getDomain() << "\"";
+                            totalSize += static_cast<long>(tiles->at(i)->getSize());
+                        }
+                        info << "\",\n \"totalSize\": \"" << totalSize;
+
+                        info << "\",\n \"tiling\": {\n";
+                        info << "\t\"tilingScheme\": \"";
+                        switch (storageLayout->getTilingScheme())
+                        {
+                        case r_NoTiling:
+                            info << "no_tiling";
+                            break;
+                        case r_RegularTiling:
+                            info << "regular";
+                            break;
+                        case r_StatisticalTiling:
+                            info << "statistic";
+                            break;
+                        case r_InterestTiling:
+                            info << "interest";
+                            break;
+                        case r_AlignedTiling:
+                            info << "aligned";
+                            break;
+                        case r_DirectionalTiling:
+                            info << "directional";
+                            break;
+                        case r_SizeTiling:
+                            info << "size";
+                            break;
+                        default:
+                            info << "unknown";
+                            break;
+                        }
+                        info << "\",\n\t\"tileSize\": \"" << storageLayout->getTileSize();
+                        info << "\",\n\t\"tileConfiguration\": \"" << storageLayout->getTileConfiguration() << "\"";
+
+                        if (printTiles == EMBEDDED)
+                        {
+                            info << "\",\n\t\"tileDomains\":\n\t[";
+                            for (unsigned int i = 0; i < tiles->size(); i++)
+                            {
+                                info << "\n\t\t\"" << tiles->at(i)->getDomain() << "\"";
+                                if (i < tiles->size() - 1)
+                                {
+                                    info << ",";
+                                }
+                            }
+                            info << "\n\t]";
+                        }
+
+                        info << "\n },\n \"index\": {\n\t\"type\": \"";
+                        switch (storageLayout->getIndexType())
+                        {
+                        case r_Invalid_Index:
+                            info << "invalid";
+                            break;
+                        case r_Auto_Index:
+                            info << "a_index";
+                            break;
+                        case r_Directory_Index:
+                            info << "d_index";
+                            break;
+                        case r_Reg_Directory_Index:
+                            info << "rd_index";
+                            break;
+                        case r_RPlus_Tree_Index:
+                            info << "rpt_index";
+                            break;
+                        case r_Reg_RPlus_Tree_Index:
+                            info << "rrpt_index";
+                            break;
+                        case r_Reg_Computed_Index:
+                            info << "rc_index";
+                            break;
+                        case r_Index_Type_NUMBER:
+                            info << "it_index";
+                            break;
+                        case r_Tile_Container_Index:
+                            info << "tc_index";
+                            break;
+                        default:
+                            info << "unknown";
+                            break;
+                        }
+                        info << "\",\n\t\"PCTmax\": \"" << storageLayout->getPCTMax();
+                        info << "\",\n\t\"PCTmin\": \"" << storageLayout->getPCTMin();
+                        info << "\"\n }\n}";
+                    }
+                    else if (printTiles == JSON)
+                    {
+                        info << "[";
+                        for (unsigned int i = 0; i < tiles->size(); i++)
+                        {
+                            info << "\"" << tiles->at(i)->getDomain() << "\"";
                             if (i < tiles->size() - 1)
                             {
                                 info << ",";
                             }
                         }
-                        info << "\n\t]";
+                        info << "]\n";
                     }
-
-                    info << "\n },\n \"index\": {\n\t\"type\": \"";
-                    switch (storageLayout->getIndexType())
+                    else if (printTiles == SVG)
                     {
-                    case r_Invalid_Index:
-                        info << "invalid";
-                        break;
-                    case r_Auto_Index:
-                        info << "a_index";
-                        break;
-                    case r_Directory_Index:
-                        info << "d_index";
-                        break;
-                    case r_Reg_Directory_Index:
-                        info << "rd_index";
-                        break;
-                    case r_RPlus_Tree_Index:
-                        info << "rpt_index";
-                        break;
-                    case r_Reg_RPlus_Tree_Index:
-                        info << "rrpt_index";
-                        break;
-                    case r_Reg_Computed_Index:
-                        info << "rc_index";
-                        break;
-                    case r_Index_Type_NUMBER:
-                        info << "it_index";
-                        break;
-                    case r_Tile_Container_Index:
-                        info << "tc_index";
-                        break;
-                    default:
-                        info << "unknown";
-                        break;
-                    }
-                    info << "\",\n\t\"PCTmax\": \"" << storageLayout->getPCTMax();
-                    info << "\",\n\t\"PCTmin\": \"" << storageLayout->getPCTMin();
-                    info << "\"\n }\n}";
+                        auto domain = persMDD->getCurrentDomain();
+                        if (domain.dimension() != 2)
+                        {
+                            LERROR << "Error: QtInfo::evaluate() - Cannot export tile info to svg format for non-2D collection.";
+                            // delete old operand
+                            if (operand)
+                            {
+                                operand->deleteRef();
+                            }
 
+                            parseInfo.setErrorNo(449);
+                            throw parseInfo;
+                        }
+                        std::string colors[COLOR_PALET_SIZE] = {"blue", "red", "brown", "grey", "black", "yellow", "purple", "pink", "olive", "gold", "aqua",
+                                                                "darkorange", "indigo", "khaki", "seashell"};
+                        r_Point origin = domain.get_origin();
+                        r_Point high = domain.get_high();
+                        info << "<svg width=\"" << high[0] - origin[0] << "\" height=\"" << high[1] - origin[1] << "\">";
+                        for (unsigned int i = 0; i < tiles->size(); i++)
+                        {
+                            auto tileDomain = tiles->at(i)->getDomain();
+                            r_Point originTile = tileDomain.get_origin();
+                            r_Point highTile = tileDomain.get_high();
+                            int x = originTile[0];
+                            int y = originTile[1];
+                            int width = highTile[0] - x;
+                            int height = highTile[1] - y;
+                            int id = (tiles->at(i).get())->getDBTile()->getOId().getCounter();
+                            info << "\n\t <rect x=\"" << x << "\" y=\"" << y << "\" width=\"" << width << "\" height=\"" << height << "\" id=\"" << id << "\" style=\"fill:" << colors[i % COLOR_PALET_SIZE] << ";\" stroke=\"black\"></rect>";
+                        }
+                        info << "\n</svg>\n";
+                    }
                     // result domain: it is now format encoded so we just consider it as a char array
                     r_Type *type = r_Type::get_any_type("char");
                     const BaseType *baseType = TypeFactory::mapType(type->name());
@@ -308,20 +382,14 @@ QtInfo::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtInfo::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtInfo::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtInfo Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtInfo::printAlgebraicExpression(std::ostream &s)
+void QtInfo::printAlgebraicExpression(std::ostream &s)
 {
     s << "info(" << std::flush;
 
@@ -336,8 +404,6 @@ QtInfo::printAlgebraicExpression(std::ostream &s)
 
     s << ")";
 }
-
-
 
 const QtTypeElement &
 QtInfo::checkType(QtTypeTuple *typeTuple)

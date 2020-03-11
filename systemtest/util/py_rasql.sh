@@ -35,6 +35,16 @@ function py_check_coll()
   local coll_name="$1"
   $PY_RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$coll_name\b" > /dev/null
 }
+# ------------------------------------------------------------------------------
+# check built-in types, if not present error is thrown
+# arg 1: set type name
+#
+function py_check_type()
+{
+  SET_TYPE="$1"
+  $PY_RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\b$SET_TYPE\b" \
+    || error "rasdaman type $SET_TYPE not found, please create it first."
+}
 
 # ------------------------------------------------------------------------------
 # check if collection is empty
@@ -46,6 +56,19 @@ function py_is_coll_empty()
   local coll_name="$1"
   $PY_RASQL -q "select oid(r) from $coll_name as r" --out string | egrep "\bQuery result collection has 0 element\b" > /dev/null
 }
+# ------------------------------------------------------------------------------
+# drop types
+# arg 1: set type
+# arg 2: mdd type
+# arg 3: pixel type, can be empty if there's none
+#
+function py_drop_types()
+{
+  $PY_RASQL "drop type $1" > /dev/null
+  $PY_RASQL "drop type $2" > /dev/null
+  [ -n "$3" ] && $PY_RASQL "drop type $3" > /dev/null
+}
+
 
 # ------------------------------------------------------------------------------
 # drop collections passed as argument
@@ -75,6 +98,7 @@ function py_insert_into()
   local extraopts="$3"
   local inv_fun="$4"
   local rasql_opts=$5
+  local tiling="$6"
 
   local values="$inv_fun(\$1 $extraopts)"
   if [ -z "$inv_fun" ]; then
@@ -83,7 +107,34 @@ function py_insert_into()
 
   logn "inserting data... "
   #echo "insert into $coll_name values $values, file: $file_name"
-  $PY_RASQL -q "insert into $coll_name values $values" -f $file_name $rasql_opts > /dev/null
+  $PY_RASQL -q "insert into $coll_name values $values $tiling" -f $file_name $rasql_opts > /dev/null
+  feedback
+}
+
+
+# ------------------------------------------------------------------------------
+# update collection data
+# arg 1: coll name
+# arg 2: file name
+# arg 3: extra conversion options
+# arg 4: conversion function
+# arg 5: target domain
+# arg 6: shift point
+#
+function py_update()
+{
+  local coll_name="$1"
+  local file_name="$2"
+  local extraopts="$3"
+  local inv_fun="$4"
+  local target_domain="$5"
+  local shift_point="$6"
+  local values="$inv_fun(\$1 $extraopts)"
+  if [ -z "$inv_fun" ]; then
+    values="\$1"
+  fi
+  logn "updating $coll_name..."
+  $PY_RASQL  -q "update $coll_name set $coll_name$target_domain assign shift($values,$shift_point)" -f $file_name > /dev/null
   feedback
 }
 
@@ -107,7 +158,8 @@ function py_export_to_file()
   fi
 
   logn "selecting data... "
-  $PY_RASQL -q "select $values from $coll_name as c" --out file --outfile $file_name > /dev/null
+  $
+   -q "select $values from $coll_name as c" --out file --outfile $file_name > /dev/null
   feedback
 }
 
@@ -134,37 +186,27 @@ function py_create_coll()
 function py_import_rasql_data()
 {
   local TESTDATA_PATH="$1"
+ 
   if [ ! -d "$TESTDATA_PATH" ]; then
     error "testdata path $TESTDATA_PATH not found."
   fi
-  if [ ! -f "$TESTDATA_PATH/mr_1.png" ]; then
-    error "testdata file $TESTDATA_PATH/mr_1.png not found"
-  fi
-  if [ ! -f "$TESTDATA_PATH/rgb.png" ]; then
-    error "testdata file $TESTDATA_PATH/rgb.png not found"
-  fi
-  if [ ! -f "$TESTDATA_PATH/mr2_1.png" ]; then
-    error "testdata file $TESTDATA_PATH/mr2_1.png not found"
-  fi
-  if [ ! -f "$TESTDATA_PATH/50k.bin" ]; then
-    error "testdata file $TESTDATA_PATH/50k.bin not found"
-  fi
-  if [ ! -f "$TESTDATA_PATH/23k.bin" ]; then
-    error "testdata file $TESTDATA_PATH/23k.bin not found"
-  fi
+  for f in mr_1.png rgb.png mr2_1.png 50k.bin 23k.bin; do
+    if [ ! -f "$TESTDATA_PATH/$f" ]; then
+      error "testdata file $TESTDATA_PATH/$f not found"
+    fi
+  done
   
   # check data types
-
-
-  check_type GreySet
-  check_type GreySet3
-  check_type RGBSet
-  check_type Gauss2Set
-  check_type Gauss1Set
-  check_type CInt16Set
-  check_type CInt32Set
+  py_check_type GreySet
+  py_check_type GreySet3
+  py_check_type RGBSet
+  py_check_type Gauss2Set
+  py_check_type Gauss1Set
+  py_check_type CInt16Set
+  py_check_type CInt32Set
   py_drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT
   py_drop_colls $TEST_CFLOAT32 $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32
+  #py_drop_colls $TEST_OVERLAP $TEST_OVERLAP_3D
 
 
   #create the struct_cube_set type
@@ -191,21 +233,26 @@ function py_import_rasql_data()
   $PY_RASQL -q "insert into $TEST_GREY4D values \$1" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:9,0:9,0:9,0:49]" --mddtype GreyTesseract > /dev/null
 
   py_create_coll $TEST_GREY GreySet
-  py_insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode"
-
   py_create_coll $TEST_GREY2 GreySet
-  py_insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode"
-
   py_create_coll $TEST_RGB2 RGBSet
-  py_insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode"
-
   py_create_coll $TEST_GREY3D GreySet3
-  $PY_RASQL -q "insert into $TEST_GREY3D values \$1" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
-
   py_create_coll $TEST_CFLOAT32 Gauss1Set
   py_create_coll $TEST_CFLOAT64 Gauss2Set
   py_create_coll $TEST_CINT16 CInt16Set
   py_create_coll $TEST_CINT32 CInt32Set
+  #py_update doesn't work as expected. ticket 2269
+  #py_create_coll $TEST_OVERLAP GreySet
+  #py_create_coll $TEST_OVERLAP_3D GreySet3
+  py_insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500"
+  py_insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500"
+  py_insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode" "" "tiling aligned [0:49,0:49] tile size 7500"
+  py_insert_into $TEST_CFLOAT32 "$TESTDATA_PATH/cfloat32_image.tif" "" "decode"
+  py_insert_into $TEST_CFLOAT64 "$TESTDATA_PATH/cfloat64_image.tif" "" "decode"
+  py_insert_into $TEST_CINT16 "$TESTDATA_PATH/cint16_image.tif" "" "decode"
+  py_insert_into $TEST_CINT32 "$TESTDATA_PATH/cint32_image.tif" "" "decode"
+  #py_add_overlap_data
+  $PY_RASQL -q "insert into $TEST_GREY3D values \$1" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
+
 
   py_insert_into $TEST_CFLOAT32 "$TESTDATA_PATH/cfloat32_image.tif" "" "decode"
   py_insert_into $TEST_CFLOAT64 "$TESTDATA_PATH/cfloat64_image.tif" "" "decode"
@@ -221,6 +268,29 @@ function py_import_rasql_data()
   check_result "0" $? "Checking expected error"
   py_drop_colls $ERROR_COLLECTION
 }
+
+#adds the necessary data to the $TEST_OVERLAP collection
+function py_add_overlap_data()
+{
+  #2d
+  py_insert_into $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:59,0:59] tile size 3600"
+  py_update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[0:255,211:421]" "[0,211]"
+  py_update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[256:511,211:421]" "[256,211]"
+  py_update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[256:511,0:210]" "[256,0]"
+  py_update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[100:355,100:310]" "[100,100]"
+  py_update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[200:455,-100:110]" "[200,-100]"
+  py_update $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "[-100:155,50:260]" "[-100,50]"
+  #3d
+  $PY_RASQL -q "insert into $TEST_OVERLAP_3D values <[0:0,0:0,0:0] 0c> TILING ALIGNED [0:0,0:59,0:59] TILE SIZE 3600"> /dev/null
+  py_update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,0:255,0:210]" "[0,0]"
+  py_update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,0:255,211:421]" "[0,211]"
+  py_update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,256:511,211:421]" "[256,211]"
+  py_update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,256:511,0:210]" "[256,0]"
+  py_update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,100:355,100:310]" "[100,100]"
+  py_update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,200:455,-100:110]" "[200,-100]"
+  py_update $TEST_OVERLAP_3D "$TESTDATA_PATH/mr_1.png" "" "decode" "[0,-100:155,50:260]" "[-100,50]"
+}
+
 
 
 

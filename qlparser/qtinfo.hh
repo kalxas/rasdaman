@@ -34,7 +34,13 @@ rasdaman GmbH.
 
 class QtVariable;
 
-
+typedef enum
+{
+    NONE,
+    EMBEDDED,
+    JSON,
+    SVG
+} PrintTiles;
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -71,8 +77,9 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 
-    /// flag indicating whether to print tiles
-    int printTiles;
+    /// flag indicating whether to print tiles and their format.
+    PrintTiles printTiles = NONE;
+    char *printParam;
 };
 
 #include "qlparser/qtinfo.icc"
