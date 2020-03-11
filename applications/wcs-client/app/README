@@ -1,0 +1,6 @@
+NOTE: if one needs to copy this ows folder to replace the existing ows folder of petascope inside tomcat, e.g:
+apache-tomcat-8.5.34/webapps/rasdaman/WEB-INF/classes/public
+
+then, copy the index.html file to the ows folder first and replace the old one in tomcat, 
+otherwise, petascope cannot find the index.html file and return error.
+

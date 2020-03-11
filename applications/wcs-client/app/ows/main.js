@@ -2235,7 +2235,7 @@ var rasdaman;
             if (!this.wcsEndpoint.endsWith("ows")) {
                 this.wcsEndpoint = this.wcsEndpoint + "ows";
             }
-            this.contextPath = this.wcsEndpoint.replace("/ows", "");
+            this.contextPath = this.wcsEndpoint.replace("/rasdaman/ows", "/rasdaman");
         };
         WCSSettingsService.$inject = ["$window"];
         return WCSSettingsService;

@@ -59,7 +59,7 @@ module rasdaman {
                 this.wcsEndpoint = this.wcsEndpoint + "ows";
             }
             
-            this.contextPath = this.wcsEndpoint.replace("/ows", "");
+            this.contextPath = this.wcsEndpoint.replace("/rasdaman/ows", "/rasdaman");
         }
     }
 }
