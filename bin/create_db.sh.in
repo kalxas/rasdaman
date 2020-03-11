@@ -60,7 +60,7 @@ error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
 check(){ [ $? ] && echo "ok." || echo "failed."; }
 
 execute_query() {
-  $rasserver_bin -q "$1" > /dev/null || \
+  $rasserver_bin -q "$1" -d "$DBCONN" > /dev/null || \
     error "failed executing query: $1"
 }
 

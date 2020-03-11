@@ -392,8 +392,18 @@ settings are as follows:
   STOP_RASDAMAN_OPTS="-p $RASMGR_PORT"
 
 Multiple installation can be maintained as well by copying
-``/etc/init.d/rasdaman`` to ``/etc/init.d/new-rasdaman`` for example. In this
-case, the new service script will attempt to load configuration from
+``/etc/init.d/rasdaman`` to ``/etc/init.d/new-rasdaman`` for example and 
+updating this line
+
+```
+# Provides:          rasdaman
+```
+to
+```
+# Provides:          new-rasdaman
+```
+
+In this case, the new service script will attempt to load configuration from
 ``/etc/default/new-rasdaman`` if this file exists. If systemd is used, then you
 will need to clone and adapt ``/etc/systemd/system/rasdaman.service`` as well,
 followed by ``systemctl daemon-reload``, and optionally ``systemctl enable
