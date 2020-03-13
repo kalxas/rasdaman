@@ -82,6 +82,7 @@
 332^E^Preprocessing error $errorNo in line $lineNo, column $columnNo, token $token: number of actual arguments for the called function differs from the number of formal arguments.
 333^E^Preprocessing error $errorNo in line $lineNo, column $columnNo, token $token: the called function name is ambiguous, try the full qualified name.
 #
+344^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Subset extends outside the array sdom.
 345^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: More axes are provided than defined for the type.
 346^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Axes must have unique names.
 347^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Name of the axis doesn't correspond with any defined axis name of the type.
