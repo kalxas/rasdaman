@@ -191,8 +191,12 @@ public class RasUtil {
                     + "Try increasing the maximum memory allowed for Tomcat (-Xmx JVM option).");
         } catch (Exception ex) {
             abortTR(tr);
-            throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, 
+            if (ex.getMessage().contains("GRPC Exception")) {
+                log.warn("Lost connection to rasdaman server.");
+            } else {
+                throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, 
                     "Error evaluating rasdaman query: '" + query + "'. Reason: " + ex.getMessage(), ex);
+            }
         } finally {
             closeDB(db);
         }
@@ -202,33 +206,6 @@ public class RasUtil {
         log.info("Rasql query executed in " + String.valueOf(totalTime) + " ms.");
 
         return ret;
-    }
-
-    /**
-     * Fetch rasdaman version by parsing RasQL ``version()'' output.
-     *
-     * @return The rasdaman version
-     */
-    public static String getRasdamanVersion() throws RasdamanException {
-        String version = "";
-        Object tmpResult = null;
-        try {
-            tmpResult = RasUtil.executeRasqlQuery("select " + RASQL_VERSION + "()");
-        } catch (Exception ex) {
-            log.error("Cannot retrieve rasdaman version", ex);
-            throw new RasdamanException(ExceptionCode.RasdamanUnavailable, "Could not retrieve rasdaman version; is rasdaman started?", ex);
-        }
-        if (null != tmpResult) {
-            RasQueryResult queryResult = new RasQueryResult(tmpResult);
-            String result = queryResult.toString();
-            if (result != null && !result.isEmpty()) {
-                // rasdaman 9.4.0 on x86_64-redhat-linux ...
-                version = result.split(" ")[1];
-            } else {
-                log.warn("Failed retrieving rasdaman version, got: " + result);
-            }
-        }
-        return version;
     }
 
     /**

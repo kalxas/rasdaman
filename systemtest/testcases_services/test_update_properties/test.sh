@@ -42,7 +42,7 @@ log "Testing properties file migration"
 
 # 1. Get the test input in old, new, oracle directories.
 # store the original properties files from data_suite folder to be updated after testing
-TMP_DIR="$SCRIPT_DIR/tmp"
+TMP_DIR="$SCRIPT_DIR/output"
 TMP_OLD_DIR="$TMP_DIR/old"
 TMP_NEW_DIR="$TMP_DIR/new"
 DATA_SUITE_DIR="$SCRIPT_DIR/data_suite"

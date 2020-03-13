@@ -140,13 +140,15 @@ public class ConfigManager {
     public static String RASDAMAN_PASS = "rasguest";
     public static String RASDAMAN_ADMIN_USER = "rasadmin";
     public static String RASDAMAN_ADMIN_PASS = "rasadmin";
-    public static String RASDAMAN_VERSION = "";
     public static String RASDAMAN_BIN_PATH = "";
     // Retry settings when opening a connection to rasdaman server. Ernesto Rodriguez <ernesto4160@gmail.com>
     // Maximum number of re-connect attempts
     public static String RASDAMAN_RETRY_ATTEMPTS = "5";
     // Time in seconds between each re-connect attempt
     public static String RASDAMAN_RETRY_TIMEOUT = "10";
+    
+    private static final String APPLICATION_PROPERTIES = "application.properties";
+    public static String PETASCOPE_VERSION = "";
 
     /* ***** SECORE configuration ***** */
     public static List<String> SECORE_URLS;
@@ -288,6 +290,8 @@ public class ConfigManager {
             throw new RuntimeException("Failed loading the settings file " + petaPropsPath, e);
         }
         
+        loadApplicationProperties();
+        
         initPetascopeSettings();
         initRasdamanSettings();
         initSecoreSettings();
@@ -295,6 +299,20 @@ public class ConfigManager {
         validateLogFilePath();
 
         printStartupMessage();
+    }
+    
+    /**
+     * Load configuration in application.properties file
+     */
+    private void loadApplicationProperties() throws PetascopeException {
+        Properties props = new Properties();
+        try {
+            props.load(ConfigManager.class.getClassLoader().getResourceAsStream(APPLICATION_PROPERTIES));
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                                        "Cannot load properties file from resource file '" + APPLICATION_PROPERTIES + "'. Reason: " + ex.getMessage(), ex);
+        }
+        PETASCOPE_VERSION = props.getProperty("version");
     }
 
     /**
@@ -427,14 +445,6 @@ public class ConfigManager {
         RASDAMAN_RETRY_TIMEOUT = get(KEY_RASDAMAN_RETRY_TIMEOUT);
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
         RASDAMAN_BIN_PATH = get(KEY_RASDAMAN_BIN_PATH);
-        
-        // Get rasdaman version from RasQL (see #546)
-        try {
-            RASDAMAN_VERSION = RasUtil.getRasdamanVersion(); 
-        } catch (RasdamanException ex) {
-            // cannot connect to rasdaman server, set default version
-            RASDAMAN_VERSION = "9.7";
-        }   
     }
     
     private void initSecoreSettings() throws PetascopeException {
@@ -530,13 +540,12 @@ public class ConfigManager {
         log.info("------------------------------------");
 
         log.info("-- PETASCOPE --");
-        log.info("Version " + RASDAMAN_VERSION);
+        log.info("Version " + PETASCOPE_VERSION);
         log.info("DB URL  " + PETASCOPE_DATASOURCE_URL);
         log.info("DB User " + PETASCOPE_DATASOURCE_USERNAME);
         log.info("");
 
         log.info("-- RASDAMAN --");
-        log.info("Version " + RASDAMAN_VERSION);
         log.info("URL     " + RASDAMAN_URL);
         log.info("DB      " + RASDAMAN_DATABASE);
         log.info("User    " + RASDAMAN_USER);

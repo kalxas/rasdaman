@@ -1,0 +1,3 @@
+        <Partition>
+            <CoverageRef>{{coverageRef}}</CoverageRef>
+        </Partition>

@@ -41,7 +41,7 @@ from util.log import log, make_bold
 from util.reflection_util import ReflectionUtil
 from recipes.general_coverage.recipe import Recipe as GeneralRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
-
+from recipes.virtual_coverage.recipe import Recipe as virtual_coverage_recipe
 
 class RecipeRegistry:
     def __init__(self):
@@ -193,18 +193,21 @@ class RecipeRegistry:
         :param Session session: the session of the import
         :rtype BaseRecipe
         """
-        if session.get_recipe()['name'] not in self.registry:
+        recipe_name = session.get_recipe()['name']
+        if recipe_name not in self.registry:
             raise RecipeValidationException("Recipe '" + session.get_recipe()['name'] + "' not found; "
                                             "if it's a custom recipe, please put it in the "
                                             "'$RMANHOME/share/rasdaman/wcst_import/recipes_custom' folder.")
         else:
             recipe = self.registry[session.get_recipe()['name']](session)
             log.title("Initialization")
-            number_of_files = len(session.get_files())
-            if number_of_files > 10:
-                number_of_files = 10
-            log.info("Collected first " + str(number_of_files) + " files: "
-                     + str(map(lambda f: str(f), session.get_files()[:10])) + "...")
+
+            if recipe_name != virtual_coverage_recipe.RECIPE_NAME:
+                number_of_files = len(session.get_files())
+                if number_of_files > 10:
+                    number_of_files = 10
+                log.info("Collected first " + str(number_of_files) + " files: "
+                         + str(map(lambda f: str(f), session.get_files()[:10])) + "...")
 
             log.title("\nValidation")
             recipe.validate()
@@ -252,6 +255,9 @@ def run_status(recipe):
     :param BaseRecipe recipe: the recipe to get the status from
     """
     processed_items, total = 0, 1
+    if recipe.status() is None:
+        return
+
     while processed_items < total or total == 0:
         processed_items, total = recipe.status()
         if total != 0 and total != -1:

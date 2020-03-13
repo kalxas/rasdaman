@@ -24,7 +24,7 @@
 import json
 from abc import abstractmethod
 
-from master.extra_metadata.extra_metadata import GlobalExtraMetadata
+from master.extra_metadata.extra_metadata import GlobalExtraMetadata, LocalExtraMetadata
 
 
 class ExtraMetadataSerializer:
@@ -66,12 +66,14 @@ class ExtraMetadataSerializer:
                 global_meta.pop(self.KEY_AXES, None)
 
             return global_meta
-        else:
+        elif isinstance(extra_metadata, LocalExtraMetadata):
             # Object is local extra metadata
             local_metadata_dict = {self.KEY_LOCAL_METADATA: extra_metadata.local_extra_metadata.copy(),
                                    self.KEY_SLICE_SUBSETS: extra_metadata.slice_subsets}
 
             return local_metadata_dict
+        else:
+            return extra_metadata
 
     def _create_elements_for_bounded_by(self, slice_subsets):
         """

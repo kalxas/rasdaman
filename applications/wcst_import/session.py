@@ -285,6 +285,13 @@ class Session:
         """
         return self.coverage_id
 
+    def get_recipe_name(self):
+        """
+        Return the name of the recipe for this session
+        :return: str
+        """
+        return self.recipe["name"]
+
     def get_files(self):
         """
         Returns the input file paths

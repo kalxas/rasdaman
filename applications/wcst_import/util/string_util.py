@@ -92,3 +92,17 @@ def strip_trailing_zeros(number_str):
     :param str number_str
     """
     return number_str.rstrip('0').rstrip('.')
+
+
+def replace_template_by_dict(template, keys_values_dict):
+    """
+    Replace a template string with keys and values from a dict
+    :param str template: a string contains place holders
+    :param dict keys_values_dict: a dictionary of place holders and their replaced values
+    :return: str
+    """
+    result = template
+    for key, value in keys_values_dict.iteritems():
+        result = result.replace("{{" + str(key) + "}}", str(value))
+
+    return result

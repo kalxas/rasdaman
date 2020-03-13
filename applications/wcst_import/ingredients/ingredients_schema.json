@@ -126,7 +126,9 @@
                             "time_step": {},
                             "time_tag": {},
                             "wcs_endpoint": {},
-                            "wms_import": {}
+                            "wms_import": {},
+                            "envelope": {}
+
                     },
                     "additionalProperties": false
                 }

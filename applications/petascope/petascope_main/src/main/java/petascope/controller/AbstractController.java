@@ -352,6 +352,11 @@ public abstract class AbstractController {
                 writeMultipartResponse(response, mimeType, os);
             else
                 writeSinglepartResponse(response, mimeType, os);
+        } catch(Exception ex) {
+            if (ex.getMessage().contains("Connection reset by peer")) {
+                // e.g: when client sends a request to return large data and it cancels when the download is not finished yet
+                log.error("Lost connection to client.");
+            }
         } finally {
             IOUtils.closeQuietly(os);
             runGarbageCollectionIfNeeded(response);

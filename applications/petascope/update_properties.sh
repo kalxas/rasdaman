@@ -152,6 +152,7 @@ trim_whitespace() {
 
 # if some old settings are removed, the backup file needs to be kept
 keep_backup=0 
+deprecated_settings_exist=1
 
 while read line; do
     line=$(trim_whitespace "$line")
@@ -170,7 +171,13 @@ while read line; do
         new_setting_value="$old_setting=$new_value"
 
         if [[ "$new_value" == "$NULL_VALUE" ]]; then # if no old_file setting value in new_file file
-            log "'$old_setting_value' is deprecated and removed from existing properties file."
+            log "'$old_setting_value' is deprecated and appended to the bottom of properties file."
+            if [ "$deprecated_settings_exist" == 1 ]; then
+                echo "" >> "$new_file_tmp"
+                echo "# Deprecated settings" >> "$new_file_tmp"
+                deprecated_settings_exist=0
+            fi
+            echo "$old_setting_value" >> "$new_file_tmp"
             keep_backup=1 # Some old settings were removed, then it needs to keep the backup file
         elif [[ "$old_setting_value" != "$new_setting_value" ]]; then            
             # 5.3 If the old_file value is not the same as the new_file value 

@@ -42,7 +42,7 @@ spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 
 # ******************************** OLD DEPRECATED PROPERTY ********************************
 # This property is removed from updated propreties file
-spring.old.deprecated.property=
+spring.old.deprecated.property=123
 
 # Config for legacy datasource with Postgresql
 # These parameters below will be removed in rasdaman version 10 as all imported coverages will use the new data model by default.
@@ -59,7 +59,7 @@ metadata_pass=petapasswd
 
 # ******************************** OLD DEPRECATED PROPERTY ********************************
 # This property is removed from updated propreties file
-metdata_old_deprecated_property=
+metdata_old_deprecated_property=456
 
 #------------------- General Petascope configuration -------------------
 

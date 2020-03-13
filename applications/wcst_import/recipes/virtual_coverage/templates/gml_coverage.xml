@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GeneralGridCoverage
+    xmlns="http://www.opengis.net/cis/1.1/gml"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/cis/1.1/gml ../cisAll.xsd"
+    xmlns:int="http://www.opengis.net/wcs/interpolation/1.0"
+    gml:id="{{coverage_id}}">
+
+{{Envelope}}
+
+{{PartitionSet}}
+
+{{Metadata}}
+
+</GeneralGridCoverage>

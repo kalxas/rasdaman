@@ -23,7 +23,6 @@
 """
 
 from abc import ABCMeta, abstractmethod
-import os
 from config_manager import ConfigManager
 
 from master.error.validate_exception import RecipeValidationException
@@ -33,7 +32,6 @@ from session import Session
 from util.coverage_util import CoverageUtil
 from util.log import log, make_bold
 from util.file_util import FileUtil
-
 
 class BaseRecipe:
     """
@@ -126,6 +124,12 @@ class BaseRecipe:
             raise RecipeValidationException("No valid crs resolver provided")
         if self.session.get_coverage_id() is None or self.session.get_coverage_id() == "":
             raise RecipeValidationException("No valid coverage id provided")
+
+        import recipes.virtual_coverage.recipe as super_coverage
+        if self.session.get_recipe_name() == super_coverage.Recipe.RECIPE_NAME:
+            # NOTE: virtual_coverage recipe does not require any input files
+            return
+
         if not FileUtil.check_dir_writable(ConfigManager.tmp_directory):
             raise RecipeValidationException("Cannot write to tmp directory '{}'".format(ConfigManager.tmp_directory))
 
