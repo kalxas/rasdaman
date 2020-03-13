@@ -146,37 +146,6 @@ class Recipe(BaseRecipe):
                                     "Band auto metadata only supported in general recipe with slicer's type: netcdf, "
                                     "violated for band '" + key + "'.")
 
-        if "metadata" in self.options['coverage']:
-            supported_recipe = (self.options['coverage']['slicer']['type'] == "gdal")
-
-            if "colorPaletteTable" in self.options['coverage']['metadata']:
-                value = self.options['coverage']['metadata']['colorPaletteTable']
-
-                if value.strip() != "":
-                    if value == "auto" and not supported_recipe:
-                        raise RecipeValidationException("colorPaletteTable auto is only supported"
-                                                        " in general recipe with slicer's type: gdal.")
-                    elif value == "auto":
-                        # Get colorPaletteTable automatically from first file
-                        gdal_dataset = GDALGmlUtil(self.session.get_files()[0])
-                        self.options['coverage']['metadata']['colorPaletteTable'] = gdal_dataset.get_color_table()
-                    else:
-                        # file_path can be relative path or full path
-                        file_paths = FileUtil.get_file_paths_by_regex(self.session.get_ingredients_dir_path(), value)
-
-                        if len(file_paths) == 0:
-                            raise RecipeValidationException("Color palette table file does not exist, given: '" + value + "'.")
-                        else:
-                            file_path = file_paths[0]
-                            # Add the content of colorPaletteTable to coverage's metadata
-                            with open(file_path, 'r') as file_reader:
-                                color_palette_table = file_reader.read()
-                                self.options['coverage']['metadata']['colorPaletteTable'] = color_palette_table
-            elif supported_recipe:
-                # If colorPaletteTable is not mentioned in the ingredient, automatically fetch it
-                gdal_dataset = GDALGmlUtil(self.session.get_files()[0])
-                self.options['coverage']['metadata']['colorPaletteTable'] = gdal_dataset.get_color_table()
-
     def describe(self):
         """
         Implementation of the base recipe describe method
@@ -381,8 +350,38 @@ class Recipe(BaseRecipe):
         """
         If colorPaletteTable is added in ingredient file, then add it to coverage's global metadata
         """
-        if "colorPaletteTable" in self.options["coverage"]["metadata"]:
-            color_palette_table = self.options["coverage"]["metadata"]["colorPaletteTable"]
+        supported_recipe = (self.options['coverage']['slicer']['type'] == "gdal")
+        color_palette_table = None
+
+        if "metadata" in self.options['coverage']:
+            if "colorPaletteTable" in self.options['coverage']['metadata']:
+                value = self.options['coverage']['metadata']['colorPaletteTable']
+
+                if value.strip() != "":
+                    if value == "auto" and not supported_recipe:
+                        raise RecipeValidationException("colorPaletteTable auto is only supported"
+                                                        " in general recipe with slicer's type: gdal.")
+                    elif value == "auto":
+                        # Get colorPaletteTable automatically from first file
+                        gdal_dataset = GDALGmlUtil(self.session.get_files()[0])
+                        color_palette_table = gdal_dataset.get_color_table()
+                    else:
+                        # file_path can be relative path or full path
+                        file_paths = FileUtil.get_file_paths_by_regex(self.session.get_ingredients_dir_path(), value)
+
+                        if len(file_paths) == 0:
+                            raise RecipeValidationException(
+                                "Color palette table file does not exist, given: '" + value + "'.")
+                        else:
+                            file_path = file_paths[0]
+                            # Add the content of colorPaletteTable to coverage's metadata
+                            with open(file_path, 'r') as file_reader:
+                                color_palette_table = file_reader.read()
+            elif supported_recipe:
+                # If colorPaletteTable is not mentioned in the ingredient, automatically fetch it
+                gdal_dataset = GDALGmlUtil(self.session.get_files()[0])
+                color_palette_table = gdal_dataset.get_color_table()
+
             if color_palette_table is not None:
                 metadata_dict["colorPaletteTable"] = color_palette_table
 

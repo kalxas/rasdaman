@@ -1,0 +1,43 @@
+{
+
+	"config": {
+
+		"service_url": "PETASCOPE_URL",
+        "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+		"tmp_directory": "/tmp/",
+		"track_files": false,
+		"mock": false,
+		"automated": true
+
+	},
+
+	"input": {
+
+		"coverage_id": "test_wcps_map_mosaic_color_palette_rasql_ready_encoded_png",
+		"paths": [
+			"mean_summer_airtemp.tif"
+		]
+
+	},
+
+	"recipe": {
+
+		"name": "map_mosaic",
+
+		"options": {
+
+			"coverage": {
+				"metadata": {
+					"type": "json",
+					"global": {
+						"Title": "'Drought code'"
+					},
+					"colorPaletteTable": "color_palette_table_rasql_READY.cpt"
+				}
+			},
+
+			"tiling": "ALIGNED [0:500, 0:500]"
+		}
+	}
+
+}

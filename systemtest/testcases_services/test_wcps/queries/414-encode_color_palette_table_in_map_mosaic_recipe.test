@@ -1,0 +1,1 @@
+for c in (test_wcps_map_mosaic_color_palette_rasql_ready_encoded_png) return encode(c, "png")
