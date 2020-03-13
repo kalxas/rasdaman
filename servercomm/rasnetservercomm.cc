@@ -48,6 +48,7 @@ grpc::Status RasnetServerComm::OpenServerDatabase(__attribute__((unused)) grpc::
 
     try
     {
+        LTRACE << "OpenServerDatabase";
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.openDB(request->database_name().c_str());
     }
@@ -83,6 +84,7 @@ grpc::Status RasnetServerComm::CloseServerDatabase(__attribute__((unused)) grpc:
 
     try
     {
+        LTRACE << "CloseServerDatabase";
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.closeDB();
     }
@@ -132,6 +134,7 @@ grpc::Status RasnetServerComm::BeginTransaction(__attribute__((unused)) grpc::Se
 
     try
     {
+        LTRACE << "BeginTransaction";
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.beginTA(request->rw());
     }
@@ -167,6 +170,7 @@ grpc::Status RasnetServerComm::CommitTransaction(__attribute__((unused)) grpc::S
 
     try
     {
+        LTRACE << "CommitTransaction";
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.commitTA();
     }
@@ -190,6 +194,15 @@ grpc::Status RasnetServerComm::CommitTransaction(__attribute__((unused)) grpc::S
         LERROR << "Error: request terminated with generic exception.";
         status = RasnetServerComm::getUnknownExceptionStatus();
     }
+    
+    try
+    {
+        this->clientManager->removeAllQueryStreamedResults();
+    }
+    catch (...)
+    {
+        LWARNING << "Failed clearing streamed results.";
+    }
 
     return status;
 }
@@ -202,6 +215,7 @@ grpc::Status RasnetServerComm::AbortTransaction(__attribute__((unused)) grpc::Se
 
     try
     {
+        LTRACE << "AbortTransaction";
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.abortTA();
     }
@@ -225,6 +239,15 @@ grpc::Status RasnetServerComm::AbortTransaction(__attribute__((unused)) grpc::Se
         LERROR << "Error: request terminated with generic exception.";
         status = RasnetServerComm::getUnknownExceptionStatus();
     }
+    
+    try
+    {
+        this->clientManager->removeAllQueryStreamedResults();
+    }
+    catch (...)
+    {
+        LWARNING << "Failed clearing streamed results.";
+    }
 
     return status;
 }
@@ -237,6 +260,7 @@ grpc::Status RasnetServerComm::IsTransactionOpen(__attribute__((unused)) grpc::S
 
     try
     {
+        LTRACE << "IsTransactionOpen";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
         bool isOpen = rasserver.isOpenTA();
         response->set_isopen(isOpen);
@@ -273,6 +297,7 @@ grpc::Status RasnetServerComm::StartInsertMDD(__attribute__((unused)) grpc::Serv
 
     try
     {
+        LTRACE << "StartInsertMDD";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         const char *collName = request->collname().c_str();
@@ -317,6 +342,7 @@ grpc::Status RasnetServerComm::StartInsertTransMDD(__attribute__((unused)) grpc:
 
     try
     {
+        LTRACE << "StartInsertTransMDD";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         const char *domain = request->domain().c_str();
@@ -358,6 +384,7 @@ grpc::Status RasnetServerComm::InsertTile(__attribute__((unused)) grpc::ServerCo
 
     try
     {
+        LTRACE << "InsertTile";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         RPCMarray *rpcMarray = new RPCMarray();
@@ -408,6 +435,7 @@ grpc::Status RasnetServerComm::EndInsertMDD(__attribute__((unused)) grpc::Server
 
     try
     {
+        LTRACE << "EndInsertMDD";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
         int persistent = request->persistent();
         int statusCode = rasserver.compat_EndInsertMDD(persistent);
@@ -444,6 +472,7 @@ grpc::Status RasnetServerComm::InsertCollection(__attribute__((unused)) grpc::Se
 
     try
     {
+        LTRACE << "InsertCollection";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         const char *collName = request->collection_name().c_str();
@@ -483,6 +512,7 @@ grpc::Status RasnetServerComm::DeleteCollectionByName(__attribute__((unused)) gr
 
     try
     {
+        LTRACE << "DeleteCollectionByName";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         const char *collName = request->collection_name().c_str();
@@ -520,6 +550,7 @@ grpc::Status RasnetServerComm::DeleteCollectionByOid(__attribute__((unused)) grp
 
     try
     {
+        LTRACE << "DeleteCollectionByOid";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         r_OId oid(request->oid().c_str());
@@ -557,6 +588,7 @@ grpc::Status RasnetServerComm::RemoveObjectFromCollection(__attribute__((unused)
 
     try
     {
+        LTRACE << "RemoveObjectFromCollection";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         const char *collName = request->collection_name().c_str();
@@ -595,6 +627,7 @@ grpc::Status RasnetServerComm::GetCollectionByNameOrOid(__attribute__((unused)) 
 
     try
     {
+        LTRACE << "GetCollectionByNameOrOid";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         char *typeName      = NULL;
@@ -654,6 +687,7 @@ grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(__attribute__((unused)) gr
 
     try
     {
+        LTRACE << "GetCollOidsByNameOrOid";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         char *typeName      = NULL;
@@ -731,6 +765,7 @@ grpc::Status RasnetServerComm::GetNextMDD(__attribute__((unused)) grpc::ServerCo
 
     try
     {
+        LTRACE << "GetNextMDD";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
         r_Minterval  mddDomain;
         char        *typeName;
@@ -783,6 +818,7 @@ grpc::Status RasnetServerComm::GetNextTile(__attribute__((unused)) grpc::ServerC
 
     try
     {
+        LTRACE << "GetNextTile";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         RPCMarray *tempRpcMarray;
@@ -835,6 +871,7 @@ grpc::Status RasnetServerComm::EndTransfer(__attribute__((unused)) grpc::ServerC
 
     try
     {
+        LTRACE << "EndTransfer";
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
         int statusCode = rasServerEntry.compat_endTransfer();
 
@@ -872,6 +909,7 @@ grpc::Status RasnetServerComm::InitUpdate(__attribute__((unused)) grpc::ServerCo
 
     try
     {
+        LTRACE << "InitUpdate";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         int statusCode = rasserver.compat_InitUpdate();
@@ -914,6 +952,7 @@ grpc::Status RasnetServerComm::ExecuteQuery(__attribute__((unused)) grpc::Server
 
     try
     {
+        LTRACE << "ExecuteQuery";
         const char *query = request->query().c_str();
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
@@ -968,6 +1007,7 @@ grpc::Status RasnetServerComm::ExecuteHttpQuery(__attribute__((unused)) grpc::Se
 
     try
     {
+        LTRACE << "ExecuteHttpQuery";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
         char *resultBuffer = 0;
         long resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
@@ -1006,6 +1046,7 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(__attribute__((unused)) gr
     grpc::Status status = grpc::Status::OK;
     try
     {
+        LTRACE << "BeginStreamedHttpQuery";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
         char *resultBuffer = 0;
         long resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
@@ -1055,6 +1096,7 @@ grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(__attribute__((unused)) 
     grpc::Status status = grpc::Status::OK;
     try
     {
+        LTRACE << "GetNextStreamedHttpQuery";
         auto result = this->clientManager->getQueryStreamedResult(request->uuid());
         rasserver::DataChunk nextChunk = result->getNextChunk();
         response->set_data(nextChunk.bytes, nextChunk.length);
@@ -1087,6 +1129,7 @@ grpc::Status RasnetServerComm::GetNextElement(__attribute__((unused)) grpc::Serv
 
     try
     {
+        LTRACE << "GetNextElement";
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
 
         char *buffer = NULL;
@@ -1130,6 +1173,7 @@ grpc::Status RasnetServerComm::ExecuteUpdateQuery(__attribute__((unused)) grpc::
 
     try
     {
+        LTRACE << "ExecuteUpdateQuery";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
         const char *query = request->query().c_str();
 
@@ -1178,6 +1222,7 @@ grpc::Status RasnetServerComm::ExecuteInsertQuery(__attribute__((unused)) grpc::
 
     try
     {
+        LTRACE << "ExecuteUpdateQuery";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
         const char *query = request->query().c_str();
 
@@ -1235,6 +1280,7 @@ grpc::Status RasnetServerComm::GetNewOid(__attribute__((unused)) grpc::ServerCon
 
     try
     {
+        LTRACE << "GetNewOid";
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
         int objectType = request->object_type();
         r_OId oid = rasServerEntry.compat_getNewOId((unsigned short)objectType);
@@ -1273,6 +1319,7 @@ grpc::Status RasnetServerComm::GetObjectType(__attribute__((unused)) grpc::Serve
 
     try
     {
+        LTRACE << "GetObjectType";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         r_OId oid(request->oid().c_str());
@@ -1315,6 +1362,7 @@ grpc::Status RasnetServerComm::GetTypeStructure(__attribute__((unused)) grpc::Se
 
     try
     {
+        LTRACE << "GetTypeStructure";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         const char *typeName = request->type_name().c_str();
@@ -1360,6 +1408,7 @@ grpc::Status RasnetServerComm::SetFormat(__attribute__((unused)) grpc::ServerCon
 
     try
     {
+        LTRACE << "SetFormat";
         RasServerEntry &rasserver = RasServerEntry::getInstance();
 
         int whichFormat = request->transfer_format();

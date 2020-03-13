@@ -222,7 +222,7 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
             {
                 r_Minterval   domain    = (static_cast<QtMintervalData *>(operand))->getMintervalData();
                 auto trimFlags = std::unique_ptr<vector<bool>>(
-                                     new vector<bool>(*((static_cast<QtMintervalData *>(operand))->getTrimFlags())));
+                    new vector<bool>(*((static_cast<QtMintervalData *>(operand))->getTrimFlags())));
 
                 // no previous specification for that dimension
                 trimming = true;
@@ -281,7 +281,7 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
     {
         auto inputType = input ? input->getNodeType() : QtNode::QT_UNDEFINED_NODE;
         if (inputType != QtNode::QT_PROJECT && inputType != QtNode::QT_CONVERSION &&
-                inputType != QtNode::QT_ENCODE && inputType != QtNode::QT_SCALE)
+            inputType != QtNode::QT_ENCODE && inputType != QtNode::QT_SCALE)
         {
             LTRACE << "all trimming";
             getParent()->setInput(this, input);
@@ -292,7 +292,6 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
         }
     }
 }
-
 
 
 QtData *
@@ -595,7 +594,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 indexData->deleteRef();
                 return 0;
             }
-            // resolve positiannaly independent axes by reording them according to the type definiton
+            // resolve positionnaly independent axes by reording them according to the type definiton
 
 
 #ifdef QT_RUNTIME_TYPE_CHECK
@@ -900,7 +899,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
 #ifdef QT_RUNTIME_TYPE_CHECK
             if (indexData->getDataType() != QT_POINT  && indexData->getDataType() != QT_CHAR &&
-                    indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
+                indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
             {
                 LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed.";
                 return 0;

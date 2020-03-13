@@ -1,7 +1,7 @@
 {
   "name": "wcs-client",
   "version": "1.0.0",
-  "description": "This is a WCS Web client developed by the rasdaman community.",
+  "description": "An OGC Web Services (OWS) Web client for WCS, WCPS, and WMS.",
   "homepage": "https://rasdaman.org/",
   "license": "https://rasdaman.org/wiki/License",
   "dependencies": {

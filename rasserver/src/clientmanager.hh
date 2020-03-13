@@ -84,6 +84,14 @@ public:
      * @param requestUUID An unique identifier for the streamed result.
      */
     void cleanQueryStreamedResult(const std::string& requestUUID);
+    
+    /**
+     * @brief removeAllQueryStreamedResults Remove all results that must be streamed.
+     * Meant to be called from commit/abort transaction, as in certain cases the
+     * client may unexpectedly close the streaming (before all chunks are transferred)
+     * and lead to a leak.
+     */
+    void removeAllQueryStreamedResults();
 
     /**
      * @brief getQueryStreamedResult Retrieves the streamed result based on the request unique identifier.

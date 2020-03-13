@@ -46,7 +46,7 @@
 
 # --- CONSTANTS -----------------------------------------------------
 
-PROG=$(basename $0)
+PROG=$(basename "$0")
 
 RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
@@ -70,9 +70,9 @@ ENABLE_JAVA=@ENABLE_JAVA@
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 [ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
 
-log()  { echo "$PROG: $@"; }
-logn() { echo -n "$PROG: $@"; }
-error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
+log()  { echo "$PROG: $*"; }
+logn() { printf "%s" "$PROG: $*"; }
+error(){ echo "$PROG: $*" >&2; exit $RC_ERROR; }
 check(){ [ $? ] && echo "ok." || echo "failed."; }
 
 sleep --help 2>&1 | grep -q GNU && GNU_SLEEP=true
@@ -87,22 +87,22 @@ wait_for_process_to_shutdown()
     local proc_path="$1"
     local proc_name=$(basename "$1")
     local timeout="$2"
-    local timeout_tenths=$(($timeout * 10))
+    local timeout_tenths=$((timeout * 10))
 
-    local max_count=$(get_sleep_value $timeout_tenths $timeout)
+    local max_count=$(get_sleep_value $timeout_tenths "$timeout")
     local sleep_sec=$(get_sleep_value 0.1 1)
     local count=0
-    while [ $count -lt $max_count ]; do
+    while [ $count -lt "$max_count" ]; do
         if [ -n "$3" ]; then
           ps -Ao pid,args | grep "[^]]$proc_path" | grep -q "$3" > /dev/null 2>&1
         else
           ps -Ao pid,args | grep "[^]]$proc_path" > /dev/null 2>&1
         fi
         [ $? -ne 0 ] && break # no process found, no need to wait more
-        count=$(($count+1))
-        sleep $sleep_sec      # otherwise, wait 0.1 (or 1) seconds and try again
+        count=$((count+1))
+        sleep "$sleep_sec"    # otherwise, wait 0.1 (or 1) seconds and try again
     done
-    if [ $count -eq $max_count ]; then
+    if [ $count -eq "$max_count" ]; then
         echo
         log "timeout of 3 seconds on waiting for $proc_name to shutdown reached;"
         log "please manually check and kill any still running $proc_name processes:"
@@ -161,9 +161,13 @@ stop_embedded()
             check_port_available "$server_port"
             if [ $? -eq 0 ]; then
                 # kill process on this port
-                local pid=$(ps -Ao pid,args | grep "[^]]$war_path/$war_file_name\b" | awk '{print $1}' 2> /dev/null)
-                kill -9 $pid
-                log "embedded $app_name terminated on port $server_port."
+                local pid="$(ps -Ao pid,args | grep "[^]]$war_path/$war_file_name\b" | awk '{print $1}' 2> /dev/null)"
+                if [ -n "$pid" ]; then
+                    kill -9 "$pid"
+                    log "embedded $app_name terminated on port $server_port."
+                else
+                    log "$app_name is not running."
+                fi
             fi
         fi
     elif [ "$ENABLE_JAVA" != "OFF" ]; then
@@ -177,7 +181,7 @@ set_rasmgr_port()
       ''|*[!0-9]*)  error "Invalid port specified: $1; expected a positive number <= 65535.";;
       *)            RASMGR_PORT="$1";;
     esac
-    [ $RASMGR_PORT -gt 0 -a $RASMGR_PORT -lt 65535 ] || \
+    [ "$RASMGR_PORT" -gt 0 -a "$RASMGR_PORT" -lt 65535 ] || \
         error "Invalid port specified: $1; expected a positive number <= 65535."
 }
 
@@ -263,7 +267,7 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
     log "terminating rasdaman server complex... "
 
     logn "  terminating rasserver processes... "
-    "$rascontrol_bin" --port $RASMGR_PORT -e -q -x down srv -all -kill
+    "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x down srv -all -kill
     check
     wait_for_process_to_shutdown "$rasserver_bin" 10 "port $RASMGR_PORT"
 
@@ -271,7 +275,7 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
 
     # finally shut down the server manager
     logn "  "
-    "$rascontrol_bin" --port $RASMGR_PORT -e -q -x down host -all
+    "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x down host -all
     wait_for_process_to_shutdown "$rasmgr_bin" 3 "port $RASMGR_PORT"
 
 fi

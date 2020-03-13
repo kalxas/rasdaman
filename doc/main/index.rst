@@ -1,10 +1,10 @@
 .. image:: media/logo_full.png
     :align: right
-    :target: http://rasdaman.org
+    :target: https://rasdaman.org
 
-###########################
-rasdaman v9.8 documentation
-###########################
+############################
+rasdaman v10.0 documentation
+############################
 
 This is the documentation of *rasdaman community*, a multi-dimensional
 Array Analytics Engine that enables efficient querying and manipulation of

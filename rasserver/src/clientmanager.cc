@@ -50,8 +50,7 @@ const int ClientManager::ALIVE_PERIOD = 30000;
 ClientManager::ClientManager()
 {
     this->isThreadRunning = true;
-    this->managementThread.reset(
-        new thread(&ClientManager::evaluateClientStatus, this));
+    this->managementThread.reset(new thread(&ClientManager::evaluateClientStatus, this));
 }
 
 ClientManager::~ClientManager()
@@ -62,9 +61,7 @@ ClientManager::~ClientManager()
             std::lock_guard<std::mutex> lock(this->threadMutex);
             this->isThreadRunning = false;
         }
-
         this->isThreadRunningCondition.notify_one();
-
         this->managementThread->join();
     }
     catch (std::exception& ex)
@@ -77,12 +74,15 @@ ClientManager::~ClientManager()
     }
 }
 
+void ClientManager::removeAllQueryStreamedResults()
+{
+    this->queryStreamedResultList.clear();
+}
+
 bool ClientManager::allocateClient(std::string clientUUID, __attribute__ ((unused)) std::string sessionId)
 {
     Timer timer(ALIVE_PERIOD);
-
-    pair<map<string, Timer>::iterator, bool> result = this->clientList.insert(make_pair(clientUUID, timer));
-
+    auto result = this->clientList.insert(make_pair(clientUUID, timer));
     return result.second;
 }
 
@@ -93,7 +93,7 @@ void ClientManager::deallocateClient(std::string clientUUID, __attribute__ ((unu
 
 bool ClientManager::isAlive(std::string clientUUID)
 {
-    map<string, Timer>::iterator clientIt = this->clientList.find(clientUUID);
+    auto clientIt = this->clientList.find(clientUUID);
     if (clientIt == this->clientList.end())
     {
         return false;
@@ -103,7 +103,7 @@ bool ClientManager::isAlive(std::string clientUUID)
 
 void ClientManager::resetLiveliness(std::string clientUUID)
 {
-    map<string, Timer>::iterator clientIt = this->clientList.find(clientUUID);
+    auto clientIt = this->clientList.find(clientUUID);
     if (clientIt != this->clientList.end())
     {
         clientIt->second.reset();
@@ -122,13 +122,11 @@ void ClientManager::addQueryStreamedResult(const std::string& requestUUID, const
 
 shared_ptr<ClientQueryStreamedResult> ClientManager::getQueryStreamedResult(const std::string& requestUUID)
 {
-    map<string, shared_ptr<ClientQueryStreamedResult>>::iterator queryResult = this->queryStreamedResultList.find(requestUUID);
-
+    auto queryResult = this->queryStreamedResultList.find(requestUUID);
     if (queryResult == this->queryStreamedResultList.end())
     {
         throw common::MissingResourceException("Invalid request uuid: " + requestUUID);
     }
-
     return queryResult->second;
 }
 
@@ -139,12 +137,6 @@ size_t ClientManager::getClientQueueSize()
 
 void ClientManager::evaluateClientStatus()
 {
-    map<string, Timer>::iterator it;
-    map<string, Timer>::iterator toErase;
-
-    map<string, shared_ptr<ClientQueryStreamedResult>>::iterator resultIt;
-    map<string, shared_ptr<ClientQueryStreamedResult>>::iterator toEraseResult;
-
     std::chrono::milliseconds timeToSleepFor{ALIVE_PERIOD};
 
     std::unique_lock<std::mutex> threadLock(this->threadMutex);
@@ -159,11 +151,11 @@ void ClientManager::evaluateClientStatus()
                 set<string> deadClients;
 
                 boost::upgrade_lock<boost::shared_mutex> clientsLock(this->clientMutex);
-                it = this->clientList.begin();
+                auto it = this->clientList.begin();
 
                 while (it != this->clientList.end())
                 {
-                    toErase = it;
+                    auto toErase = it;
                     ++it;
                     if (toErase->second.hasExpired())
                     {
@@ -191,10 +183,10 @@ void ClientManager::evaluateClientStatus()
                     }
                 }
 
-                resultIt = this->queryStreamedResultList.begin();
+                auto resultIt = this->queryStreamedResultList.begin();
                 while (resultIt != this->queryStreamedResultList.end())
                 {
-                    toEraseResult = resultIt;
+                    auto toEraseResult = resultIt;
                     resultIt++;
 
                     if (deadClients.find(toEraseResult->second->getClientUUID()) != deadClients.end())

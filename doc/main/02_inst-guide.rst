@@ -391,24 +391,6 @@ settings are as follows:
   # options to be passed on to stop_rasdaman.sh
   STOP_RASDAMAN_OPTS="-p $RASMGR_PORT"
 
-Multiple installation can be maintained as well by copying
-``/etc/init.d/rasdaman`` to ``/etc/init.d/new-rasdaman`` for example and 
-updating this line
-
-```
-# Provides:          rasdaman
-```
-to
-```
-# Provides:          new-rasdaman
-```
-
-In this case, the new service script will attempt to load configuration from
-``/etc/default/new-rasdaman`` if this file exists. If systemd is used, then you
-will need to clone and adapt ``/etc/systemd/system/rasdaman.service`` as well,
-followed by ``systemctl daemon-reload``, and optionally ``systemctl enable
-new-rasdaman.service`` to enable automatic starting on boot.
-
 See also the dedicated pages on :ref:`configuration and log files
 <sec-system-install-conf>` and :ref:`administration <sec-server-administration>`.
 
@@ -1225,6 +1207,9 @@ by default this is ``$RMANHOME/share/rasdaman/war``.
 
 To implement the geo semantics, petascope uses a relational database for
 the geo-related metadata. Currently, PostgreSQL and H2 / HSQLDB are supported.
+When installing from packages, the 
+package post-install script will automatically set up PostgreSQL for use 
+by petascope. The steps approximately performed by the script are listed below.
 
 **PostgreSQL**
 
@@ -1590,42 +1575,42 @@ Rasdaman executables are found in ``$RMANHOME/bin``; the table below
 lists the various binaries and scripts. More detailed information on these
 components is provided in the :ref:`sec-rasdaman-architecture` Section.
 
-+------------------------------+-------------------------------------------------------------------------+
-|**Executables**               |**Description**                                                          |
-+==============================+=========================================================================+
-|``rasserver``                 |Client queries are evaluated by a ``rasserver`` worker process.          |
-+------------------------------+-------------------------------------------------------------------------+
-|``rasmgr``                    |A manager process that controls ``rasserver`` processes and              |
-|                              |client/server pairing.                                                   |
-+------------------------------+-------------------------------------------------------------------------+
-|``rascontrol``                |A command-line frontend for ``rasmgr``.                                  |
-+------------------------------+-------------------------------------------------------------------------+
-|``directql``                  |A rasserver that can execute queries directly, bypassing the             |
-|                              |client/server protocol; useful for debugging.                            |
-+------------------------------+-------------------------------------------------------------------------+
-|``rasql``                     |A command-line client for sending queries to a ``rasserver``             |
-|                              |(as assigned by the ``rasmgr``).                                         |
-+------------------------------+-------------------------------------------------------------------------+
-|``start_rasdaman.sh``         |Start ``rasmgr`` and the worker ``rasservers`` as                        |
-|                              |configured in ``$RMANHOME/etc/rasmgr.conf``.                             |
-+------------------------------+-------------------------------------------------------------------------+
-|``stop_rasdaman.sh``          |Shutdown rasdaman, embedded petascope and embedded secore                |
-|                              |if enabled.                                                              |
-+------------------------------+-------------------------------------------------------------------------+
-|``create_db.sh``              |Initialize the rasdaman metadata database (RASBASE).                     |
-+------------------------------+-------------------------------------------------------------------------+
-|``update_dh.sh``              |Applies migration scripts to RASBASE.                                    |
-+------------------------------+-------------------------------------------------------------------------+
-|``rasdaman_insertdemo.sh``    |Insert three demo collections into rasdaman (used in the                 |
-|                              |rasdaman Query Language Guide).                                          |
-+------------------------------+-------------------------------------------------------------------------+
-|``petascope_insertdemo.sh``   |Insert geo-referenced demo coverage in petascope.                        |
-+------------------------------+-------------------------------------------------------------------------+
-|``migrate_petascopedb.sh``    |Applies database migrations on petascopedb.                              |
-+------------------------------+-------------------------------------------------------------------------+
-|``wcst_import.sh``            |Tool for convenient and flexible ingestion of                            |
-|                              |geo-referenced data into petascope.                                      |
-+------------------------------+-------------------------------------------------------------------------+
++------------------------------+----------------------------------------------------------------+
+|**Executables**               |**Description**                                                 |
++==============================+================================================================+
+|``rasserver``                 |Client queries are evaluated by a ``rasserver`` worker process. |
++------------------------------+----------------------------------------------------------------+
+|``rasmgr``                    |A manager process that controls ``rasserver`` processes and     |
+|                              |client/server pairing.                                          |
++------------------------------+----------------------------------------------------------------+
+|``rascontrol``                |A command-line frontend for ``rasmgr``.                         |
++------------------------------+----------------------------------------------------------------+
+|``directql``                  |A rasserver that can execute queries directly, bypassing the    |
+|                              |client/server protocol; useful for debugging.                   |
++------------------------------+----------------------------------------------------------------+
+|``rasql``                     |A command-line client for sending queries to a ``rasserver``    |
+|                              |(as assigned by the ``rasmgr``).                                |
++------------------------------+----------------------------------------------------------------+
+|``start_rasdaman.sh``         |Start ``rasmgr`` and the worker ``rasservers`` as               |
+|                              |configured in ``$RMANHOME/etc/rasmgr.conf``.                    |
++------------------------------+----------------------------------------------------------------+
+|``stop_rasdaman.sh``          |Shutdown rasdaman, embedded petascope and embedded secore       |
+|                              |if enabled.                                                     |
++------------------------------+----------------------------------------------------------------+
+|``create_db.sh``              |Initialize the rasdaman metadata database (RASBASE).            |
++------------------------------+----------------------------------------------------------------+
+|``update_dh.sh``              |Applies migration scripts to RASBASE.                           |
++------------------------------+----------------------------------------------------------------+
+|``rasdaman_insertdemo.sh``    |Insert three demo collections into rasdaman (used in the        |
+|                              |rasdaman Query Language Guide).                                 |
++------------------------------+----------------------------------------------------------------+
+|``petascope_insertdemo.sh``   |Insert geo-referenced demo coverage in petascope.               |
++------------------------------+----------------------------------------------------------------+
+|``migrate_petascopedb.sh``    |Applies database migrations on petascopedb.                     |
++------------------------------+----------------------------------------------------------------+
+|``wcst_import.sh``            |Tool for convenient and flexible ingestion of                   |
+|                              |geo-referenced data into petascope.                             |
++------------------------------+----------------------------------------------------------------+
 
 **start_rasdaman.sh**
 
@@ -2071,16 +2056,18 @@ A series of geo Web services is available at the following endpoints:
 
 *  Web service for directly submitting rasql queries, and receiving results:
 
-   ``/rasdaman/rasql:``
+   ``/rasdaman/rasql``
 
 *  Geo Web Services based on the interface standards of the Open
    Geospatial Consortium (OGC Web Services, OWS):
 
-   - ``/rasdaman/ows:`` OGC Web Coverage Service (WCS),
-     Web Coverage Processing Service (WCPS),
-     Web Map Service (WMS) suites.
+   ``/rasdaman/ows``
 
-   This requires deployment of war file ``rasdaman.war``.
+   This requires deployment of war file ``rasdaman.war``. Supported are:
+
+   -  Web Coverage Service (WCS)
+   -  Web Coverage Processing Service (WCPS)
+   -  Web Map Service (WMS) suites
 
 *  A Coordinate Reference System (CRS) Resolver service, SECORE, which
    is identical to the one deployed by OGC) is available under path

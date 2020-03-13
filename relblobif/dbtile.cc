@@ -26,7 +26,6 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include <logging.hh>
 
-#include <stdlib.h>             // for malloc, free
 #include <cstring>              // for memcpy, memset
 #include <iostream>             // for operator<<, ostream, endl, basic_ostream
 
@@ -232,12 +231,13 @@ DBTile::~DBTile() noexcept(false)
 {
     if (!ownCells)
     {
+//        LTRACE << "DBTile::~DBTile() blob cells of size " << size << " are not owned, nothing to free";
         return;
     }
 
     if (cells)
     {
-        //LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
+//        LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
         if (!allocatedWithNew)
         {
             free(cells);
@@ -248,10 +248,10 @@ DBTile::~DBTile() noexcept(false)
         }
         cells = NULL;
     }
-    //else
-    //{
-    //    LTRACE << "DBTile::~DBTile() blob cells null, nothing to free";
-    //}
+//    else
+//    {
+//        LTRACE << "DBTile::~DBTile() blob cells of size " << size << " null, nothing to free";
+//    }
 }
 
 void DBTile::resize(r_Bytes newSize)

@@ -49,7 +49,7 @@
 
 # --- CONSTANTS -----------------------------------------------------
 
-PROG=$(basename $0)
+PROG=$(basename "$0")
 
 RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
@@ -76,9 +76,9 @@ ENABLE_JAVA=@ENABLE_JAVA@
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 [ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
 
-log()  { echo "$PROG: $@"; }
-logn() { echo -n "$PROG: $@"; }
-error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
+log()  { echo "$PROG: $*"; }
+logn() { printf "%s" "$PROG: $*"; }
+error(){ echo "$PROG: $*" >&2; exit $RC_ERROR; }
 check(){ [ $? ] && echo "ok." || echo "failed."; }
 
 sleep --help 2>&1 | grep -q GNU && GNU_SLEEP=true
@@ -255,7 +255,7 @@ done
     error "$rasmgr_bin not found, rasdaman cannot be started."
 
 # here we want to put all log files
-cd "$log_path"
+cd "$log_path" || error "$log_path not found."
 
 # check if we can actually write anything here
 [ -w . ] || \
@@ -275,12 +275,12 @@ if [ "$start_rasmgr_rasservers" = true ]; then
     # start rasdaman server manager as demon; log will go into nohup.out
     # the manager is started in quiet mode
     logn "  starting rasmgr... "
-    nohup "$rasmgr_bin" --port $RASMGR_PORT > nohup.out 2>&1 &
+    nohup "$rasmgr_bin" --port "$RASMGR_PORT" > nohup.out 2>&1 &
     check_process "rasmgr" 1
 
     # --- start servers: -------------------------------------------------
     # if no input servers provided, check if environmental variable $RASSERVERS exists
-    if [ -z "servers" ]; then
+    if [ -z "$servers" ]; then
         servers="$RASSERVERS"
     fi
 
@@ -288,12 +288,12 @@ if [ "$start_rasmgr_rasservers" = true ]; then
     if [ -n "$servers" ]; then
         for SRV in $servers; do
             logn "  starting server $SRV... "
-            "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
+            "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x up srv "$SRV" || exit $!
             check
         done
     else
         logn "  starting all rasdaman servers... "
-        "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv -all || exit $!
+        "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x up srv -all || exit $!
         check
     fi
 

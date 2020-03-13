@@ -1065,7 +1065,7 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-/* // doesnt work yet, somewhere later the server crashes -- PB 2006-jan-03
+/* // doesn't work yet, somewhere later the server crashes -- PB 2006-jan-03
  * uncommented and fixed, ticket 336 -- DM 2013-jul-18
  */
 	| DELETE FROM iteratedCollection
@@ -1359,7 +1359,7 @@ generalExp:
 	  caseExp                           { $$ = $1; } 
 	| mddExp                            { $$ = $1; }
 	| trimExp                           { $$ = $1; }
-  | namedTrimExp                      { $$ = $1; }
+	| namedTrimExp                      { $$ = $1; }
 	| reduceExp                         { $$ = $1; }
 	| inductionExp                      { $$ = $1; }
 	| functionExp                       { $$ = $1; }

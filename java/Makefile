@@ -44,13 +44,13 @@ apidocs: $(targetapidocs)
 
 $(target):
 	$(MVN) -q -B package -Prasnet -Dpackaging=jar \
-															  -Dversion=$(PROJECT_VERSION) \
-															  -DbuildDir=$(RASJ_TARGET_DIR)
+																-Dversion=$(PROJECT_VERSION) \
+																-DbuildDir=$(RASJ_TARGET_DIR)
 	$(MVN) -q install:install-file -Dfile=$(targetwithdeps) \
 																-DgroupId=org.rasdaman \
-	                              -DartifactId=rasj \
-	                              -Dversion=$(PROJECT_VERSION) \
-	                              -Dpackaging=jar
+																-DartifactId=rasj \
+																-Dversion=$(PROJECT_VERSION) \
+																-Dpackaging=jar
 
 $(errtxts): ../bin/errtxts $(errtxts).in
 	bash ./generate_errtxts_messages.sh $(errtxts).in

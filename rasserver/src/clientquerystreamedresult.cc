@@ -35,8 +35,10 @@ std::uint64_t ClientQueryStreamedResult::getRemainingBytesLength() const
 
 ClientQueryStreamedResult::~ClientQueryStreamedResult()
 {
-    free(this->data);
-    this->data = NULL;
+    if (this->data) {
+        free(this->data);
+        this->data = NULL;
+    }
 }
 
 }
