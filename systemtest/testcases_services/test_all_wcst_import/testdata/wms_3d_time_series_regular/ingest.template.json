@@ -24,7 +24,7 @@
       "time_format": "auto",
       "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
       "time_step": "2 days 10 minutes 3 seconds",
-      "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
+      "tiling": "ALIGNED [0:0, 0:1000, 0:1000]"
     }
   }
 }

@@ -21,8 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-from util import list_util
+from util import list_util, import_util
 from xml.sax.saxutils import escape
+from decimal import Decimal
 
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator import ExpressionEvaluator
@@ -30,6 +31,9 @@ from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
 
 from util.log import log
 
+
+def to_decimal(num):
+    return Decimal(repr(num))
 
 class NetcdfExpressionEvaluator(ExpressionEvaluator):
 
@@ -73,11 +77,9 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         :param list coordinates: the list of coordinates of an axis
         :return: decimal: the resolution of this axis
         """
-        total = len(coordinates)
-        # (lastPoint - firstPoint) / (totalPixels - 1)
-        resolution = (coordinates[-1] - coordinates[0]) / (total - 1)
-
-        return resolution
+        first_point = to_decimal(coordinates[0])
+        last_point = to_decimal(coordinates[-1])
+        return (last_point - first_point) / (len(coordinates) - 1)
 
     def _apply_operation(self, nc_dataset, nc_obj_name, operation):
         """
@@ -106,6 +108,9 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         # List of support operation on a netCDF variable
         supported_operations = [MAX, MIN, LAST, FIRST, RESOLUTION, METADATA]
 
+        import_util.import_numpy()
+        import numpy as np
+
         if nc_obj_name in nc_dataset.variables:
             nc_obj = nc_dataset.variables[nc_obj_name]
 
@@ -115,28 +120,27 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
 
             # It must be an operation that could be applied on a netCDF variable
             # convert list of string values to list of decimal values
-            values = list_util.numpy_array_to_list_decimal(nc_obj[:].flatten())
+            values = nc_obj[:].flatten()
         elif nc_obj_name in nc_dataset.dimensions:
             nc_obj = nc_dataset.dimensions[nc_obj_name]
             # Cannot determine list of values from variable but only dimension (e.g: station = 758)
-            values = range(0, nc_obj.size)
+            values = np.arange(0, nc_obj.size)
         else:
             raise Exception("Cannot find '" + nc_obj_name + "' from list of netCDF variables and dimensions.")
 
         if operation == MAX:
-            return max(values)
+            return to_decimal(np.amax(values))
         elif operation == MIN:
-            return min(values)
+            return to_decimal(np.amin(values))
         elif operation == LAST:
             last_index = len(nc_obj) - 1
-            return values[last_index]
+            return to_decimal(values[last_index])
         elif operation == FIRST:
-            return values[0]
+            return to_decimal(values[0])
         elif operation == RESOLUTION:
             # NOTE: only netCDF needs this expression to calculate resolution automatically
             # for GDAL: it uses: ${gdal:resolutionX} and GRIB: ${grib:jDirectionIncrementInDegrees} respectively
-            resolution = self.__calculate_netcdf_resolution(values)
-            return resolution
+            return self.__calculate_netcdf_resolution(values)
         elif operation == METADATA:
             # return a dict of variable (axis) metadata with keys, values as string
             tmp_dict = {}

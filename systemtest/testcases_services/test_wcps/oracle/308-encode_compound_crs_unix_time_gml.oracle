@@ -1,232 +1,231 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage
-id="test_irregular_time_nc"
-
-
-
-
-
-
->
-<boundedBy>
-<Envelope axisLabels="unix E N" srsDimension="3"
-srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577" uomLabels="s metre metre">
-<lowerCorner>"2013-06-02T01:49:10.370Z" -1000025 -1000025</lowerCorner>
-<upperCorner>"2013-06-25T01:55:14.090Z" -1000000 -1000000</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irregular_time_nc-grid">
-<limits>
-<GridEnvelope>
-<low>0 0 0</low>
-<high>2 0 0</high>
-</GridEnvelope>
-</limits>
-<axisLabels>unix E N</axisLabels>
-<gmlrgrid:origin>
-<Point
-id="test_irregular_time_nc-point" srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577">
-<pos>"2013-06-02T01:49:10.370Z" -1000012.5 -1000012.5</pos>
-</Point>
-</gmlrgrid:origin>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577">1 0 0</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients>"2013-06-02T01:49:10.370Z" "2013-06-09T01:55:19.370Z" "2013-06-25T01:55:14.090Z"</gmlrgrid:coefficients>
-<gmlrgrid:gridAxesSpanned>unix</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577">0 25 0</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577">0 0 -25</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-</gmlrgrid:ReferenceableGridByVectors>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">-999 -999 -999 -999 -999 -999 -999,-999 -999 -999 -999 -999 -999 -999,-999 -999 -999 -999 -999 -999 -999</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+2 +3 +1">Linear</sequenceRule>
-<startPoint>0 0 0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="band_1">
-<swe:Quantity definition="/dataType/OGC/0/signedShort">
-<swe:label>band_1</swe:label>
-<swe:description>Nadir BRDF Adjusted Reflectance 0.43-0.45 microns (Coastal Aerosol)</swe:description>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="band_2">
-<swe:Quantity definition="/dataType/OGC/0/signedShort">
-<swe:label>band_2</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="band_3">
-<swe:Quantity definition="/dataType/OGC/0/signedShort">
-<swe:label>band_3</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="band_4">
-<swe:Quantity definition="/dataType/OGC/0/signedShort">
-<swe:label>band_4</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="band_5">
-<swe:Quantity definition="/dataType/OGC/0/signedShort">
-<swe:label>band_5</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="band_6">
-<swe:Quantity definition="/dataType/OGC/0/signedShort">
-<swe:label>band_6</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="band_7">
-<swe:Quantity definition="/dataType/OGC/0/signedShort">
-<swe:label>band_7</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata >
-<axes>
-<unix>
-<max>1387331687.45</max>
-<directPositions>-1000012.5</directPositions>
-<min>1370137750.3699999</min>
-</unix>
-<E>
-<units>m</units>
-<standard_name>longitude</standard_name>
-<axis>X</axis>
-</E>
-<N>
-<units>m</units>
-<standard_name>latitude</standard_name>
-<axis>Y</axis>
-</N>
-</axes>
-<title>Experimental Data files From the Australian Geoscience Data Cube - DO NOT USE</title>
-<bands>
-<band_6>
-<units>10</units>
-<valid_min>-32768</valid_min>
-<valid_max>32767</valid_max>
-</band_6>
-<band_7>
-<date_created>2016-04-12T11:11:42.114427</date_created>
-<Conventions>CF-1.6, ACDD-1.3</Conventions>
-</band_7>
-<band_4>
-<units>10</units>
-<valid_min>-32768</valid_min>
-<valid_max>32767</valid_max>
-</band_4>
-<band_5>
-<units>10</units>
-<valid_min>-32768</valid_min>
-<valid_max>32767</valid_max>
-</band_5>
-<band_2>
-<units>10</units>
-<valid_min>-32768</valid_min>
-<valid_max>32767</valid_max>
-</band_2>
-<band_3>
-<units>10</units>
-<valid_min>-32768</valid_min>
-<valid_max>32767</valid_max>
-</band_3>
-<band_1>
-<product_version>0.0.0</product_version>
-<test_empty_attribute/>
-</band_1>
-</bands>
-<product_version>0.0.0</product_version>
-<summary>These files are experimental, short lived, and the format will change.</summary>
-<source>This data is a reprojection and retile of Landsat surface reflectance scene data.</source>
-<test_empty_attribute/>
-<date_created>2016-04-12T11:11:42.114427</date_created>
-<Conventions>CF-1.6, ACDD-1.3</Conventions>
-<history>NetCDF-CF file created by datacube version '1.0.2' at 20160412.</history>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:ReferenceableGridCoverage gml:id="test_irregular_time_nc"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+    xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:rasdaman="http://www.rasdaman.org"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+    <gml:boundedBy>
+        <gml:Envelope axisLabels="unix E N" srsDimension="3"
+            srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/UnixTime&amp;2=http://localhost:8080/def/crs/EPSG/0/3577" uomLabels="s metre metre">
+            <gml:lowerCorner>"2013-06-02T01:49:10.370Z" -1000025 -1000025</gml:lowerCorner>
+            <gml:upperCorner>"2013-06-25T01:55:14.090Z" -1000000 -1000000</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irregular_time_nc-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0 0 0</gml:low>
+                    <gml:high>2 0 0</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>unix E N</gml:axisLabels>
+            <gmlrgrid:origin>
+                <gml:Point gml:id="test_irregular_time_nc-point" srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/UnixTime&amp;2=http://localhost:8080/def/crs/EPSG/0/3577">
+                    <gml:pos>"2013-06-02T01:49:10.370Z" -1000012.5 -1000012.5</gml:pos>
+                </gml:Point>
+            </gmlrgrid:origin>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/UnixTime&amp;2=http://localhost:8080/def/crs/EPSG/0/3577">1 0 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients>"2013-06-02T01:49:10.370Z" "2013-06-09T01:55:19.370Z" "2013-06-25T01:55:14.090Z"</gmlrgrid:coefficients>
+                    <gmlrgrid:gridAxesSpanned>unix</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/UnixTime&amp;2=http://localhost:8080/def/crs/EPSG/0/3577">0 25 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/UnixTime&amp;2=http://localhost:8080/def/crs/EPSG/0/3577">0 0 -25</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">-999 -999 -999 -999 -999 -999 -999,-999 -999 -999 -999 -999 -999 -999,-999 -999 -999 -999 -999 -999 -999</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+2 +3 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>0 0 0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="band_1">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedShort">
+                    <swe:label>band_1</swe:label>
+                    <swe:description>Nadir BRDF Adjusted Reflectance 0.43-0.45 microns (Coastal Aerosol)</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="band_2">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedShort">
+                    <swe:label>band_2</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="band_3">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedShort">
+                    <swe:label>band_3</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="band_4">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedShort">
+                    <swe:label>band_4</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="band_5">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedShort">
+                    <swe:label>band_5</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="band_6">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedShort">
+                    <swe:label>band_6</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="band_7">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedShort">
+                    <swe:label>band_7</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <rasdaman:covMetadata>
+                <axes>
+                    <unix>
+                        <max>1387331687.45</max>
+                        <directPositions>-1000012.5</directPositions>
+                        <min>1370137750.37</min>
+                    </unix>
+                    <E>
+                        <units>m</units>
+                        <standard_name>longitude</standard_name>
+                        <axis>X</axis>
+                    </E>
+                    <N>
+                        <units>m</units>
+                        <standard_name>latitude</standard_name>
+                        <axis>Y</axis>
+                    </N>
+                </axes>
+                <title>Experimental Data files From the Australian Geoscience Data Cube - DO NOT USE</title>
+                <bands>
+                    <band_6>
+                        <units>10</units>
+                        <valid_min>-32768</valid_min>
+                        <valid_max>32767</valid_max>
+                    </band_6>
+                    <band_7>
+                        <date_created>2016-04-12T11:11:42.114427</date_created>
+                        <Conventions>CF-1.6, ACDD-1.3</Conventions>
+                    </band_7>
+                    <band_4>
+                        <units>10</units>
+                        <valid_min>-32768</valid_min>
+                        <valid_max>32767</valid_max>
+                    </band_4>
+                    <band_5>
+                        <units>10</units>
+                        <valid_min>-32768</valid_min>
+                        <valid_max>32767</valid_max>
+                    </band_5>
+                    <band_2>
+                        <units>10</units>
+                        <valid_min>-32768</valid_min>
+                        <valid_max>32767</valid_max>
+                    </band_2>
+                    <band_3>
+                        <units>10</units>
+                        <valid_min>-32768</valid_min>
+                        <valid_max>32767</valid_max>
+                    </band_3>
+                    <band_1>
+                        <product_version>0.0.0</product_version>
+                        <test_empty_attribute/>
+                    </band_1>
+                </bands>
+                <product_version>0.0.0</product_version>
+                <summary>These files are experimental, short lived, and the format will change.</summary>
+                <source>This data is a reprojection and retile of Landsat surface reflectance scene data.</source>
+                <test_empty_attribute/>
+                <date_created>2016-04-12T11:11:42.114427</date_created>
+                <Conventions>CF-1.6, ACDD-1.3</Conventions>
+                <history>NetCDF-CF file created by datacube version '1.0.2' at 20160412.</history>
+            </rasdaman:covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

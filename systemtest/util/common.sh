@@ -586,6 +586,8 @@ prepare_xml_file()
            -e 's/^[[:space:]]*//' \
            -e '/^[[:space:]]*$/d' \
            -e 's/[[:space:]]>/>/g' \
+           -e '/<valid_range>/s/ //g' \
+           -e '/_NCProperties/d' \
            "$xml_file"
   fi
 }
@@ -616,6 +618,7 @@ prepare_netcdf_file()
     -e '/global attributes/d' \
     -e 's/_ /0 /g' \
     -e '/^$/d' \
+    -e '/valid_range =/s/ //g' \
     -e 's/Long/Lon/g' > "$tmpf"
 
   rm -f "$1" && mv "$tmpf" "$1"
