@@ -204,6 +204,9 @@
 455^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation not supported on operand of complex type.
 456^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected more than one operand.
 #
+457^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: MDD has a non-char cell type, cannot apply color palette table.
+
+#
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #
 # 5XX errors for overflow situations and clipping

@@ -70,6 +70,7 @@ condensers_min_cint32.rasql
 struct_compare_lt_left_primitive_error.rasql
 struct_compare_lt_right_primitive_error.rasql
 condensers_avg_subset.rasql
+encode_color_palette_notchar.rasql
 
 #error message is returned in a wrong format
 select_pos_independent_wrong_name.rasql

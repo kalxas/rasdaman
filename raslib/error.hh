@@ -384,6 +384,7 @@ public:
 #define CELLBINARYOPUNAVAILABLE             434
 #define CELLUNARYOPUNAVAILABLE              435
 #define GEOMETRYARGREQUIRED                 436
+#define COLORPALETTEFORNONCHAR              457
 #define NEEDTWOORMOREVERTICES               500
 #define INCORRECTPOLYGON                    501
 #define FACEDIMENSIONMISMATCH               502

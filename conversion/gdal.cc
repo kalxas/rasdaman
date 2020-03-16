@@ -181,7 +181,11 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
     setEncodeParams();
     CPLStringList formatParameters;
     getFormatParameters(formatParameters, rasBandType.get());
-
+    if ( rasBandType.get()->type_id() != r_Type::CHAR && !formatParams.getParams().get(COLOR_PALETTE, Json::Value::null).isNull())
+    {
+        LERROR << "MDD has a non-char cell type, cannot apply color palette table.";
+        throw r_Error(COLORPALETTEFORNONCHAR);
+    }
     string tmpFilePath = tmpFile.getFileName();
     GDALDataset* gdalResult = driver->CreateCopy(tmpFilePath.c_str(), poDataset, FALSE, formatParameters.List(), NULL, NULL);
     if (!gdalResult)

@@ -1,0 +1,1 @@
+rasdaman error 457: Execution error 457 in line 1, column 8, near token ENCODE: MDD has a non-char cell type, cannot apply color palette table.
