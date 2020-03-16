@@ -115,15 +115,37 @@ Getting started
 
 2. Main documentation can be found in ``doc/main`` (``*.rst`` files).
 
-3. Build the docs specifically: ::
+3. There are two ways to rebuild the docs when you have made changes to them.
 
-    $ make doc       # generate all documentation
-    $ make doc-html  # generate HTML documentation (requires sphinx)
-    $ make doc-pdf   # generate PDF documentation (requires sphinx, latexmk, texlive)
-    $ make doc-cpp   # generate C++ API documentation (requires doxygen)
+   1. In the build directory of rasdaman (see `relevant documentation 
+      <sec-download-install>`__), the documentation can be built if you have
+      configured rasdaman with ``-DGENERATE_DOCS=ON`` argument for cmake: ::
 
-    # alternatively in doc/main/
-    $ ./build.sh
+        $ make doc       # generate all documentation
+        $ make doc-html  # generate HTML documentation (requires sphinx)
+        $ make doc-pdf   # generate PDF documentation (requires sphinx, latexmk, texlive)
+
+      The generated documentation can be found in
+
+      - HTML - ``<build_dir>/doc/main/html/index.html``
+      - PDF - ``<build_dir>/doc/main/latex/rasdaman.pdf``
+
+   2. Alternatively, in the rasdaman source tree: ::
+
+        $  cd doc/main/
+        $ ./build.sh      # generate all documentation
+        $ ./build.sh html # generate HTML documentation (requires sphinx)
+        $ ./build.sh pdf  # generate PDF documentation (requires sphinx, latexmk, texlive)
+
+      Note that in this case you should have executed cmake in the build
+      directory with ``-DGENERATE_DOCS=ON`` at least once (see `relevant 
+      documentation <sec-download-install>`__); this will generate
+      ``doc/main/conf.py`` which is required to run ``./build.sh`` above.
+
+      The generated documentation can be found in
+
+      - HTML - ``<source_dir>/doc/main/_build/html/index.html``
+      - PDF - ``<source_dir>/doc/main/_build/latex/rasdaman.pdf``
 
 
 Make changes
