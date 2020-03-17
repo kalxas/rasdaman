@@ -26,8 +26,8 @@ alphanumeric data maintained as relational tables or object-oriented
 semantic nets.
 
 This guide is specific for *rasdaman community*; for *rasdaman
-enterprise* (`what's the difference? <http://rasdaman.org/wiki/Features>`_)
-contact `rasdaman GmbH <http://www.rasdaman.com>`_.
+enterprise* (`what's the difference? <https://rasdaman.org/wiki/Features>`_)
+contact `rasdaman GmbH <https://rasdaman.com>`_.
 
 Audience
 ========
@@ -150,42 +150,48 @@ Installation
 
 1. Import the rasdaman repository public key to the apt keychain: ::
 
-    $ wget -O - http://download.rasdaman.org/packages/rasdaman.gpg | sudo apt-key add -
+    $ wget -O - https://download.rasdaman.org/packages/rasdaman.gpg | sudo apt-key add -
 
 2. Add the rasdaman repository to apt. There are three types of packages:
 
     - **stable:** these packages are only updated on stable releases of rasdaman,
-      and hence recommended for operational production installations. ::
+      and hence recommended for operational production installations.
+
+      .. hidden-code-block:: bash
 
         # For ubuntu 16.04
-        $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb xenial stable" \
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb xenial stable" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
         # For ubuntu 18.04
-        $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb bionic stable" \
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic stable" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
     - **testing:** updated more frequently with beta releases, so aimed for
-      feature testing in non-critical installations. ::
+      feature testing in non-critical installations.
+
+      .. hidden-code-block:: bash
 
         # For ubuntu 16.04
-        $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb xenial testing" \
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb xenial testing" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
         # For ubuntu 18.04
-        $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb bionic testing" \
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic testing" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
     - **nightly:** updated nightly, so that they have the latest patches.
       It is not recommended to use these packages in a production installation as things
-      could sometimes break. ::
+      could sometimes break.
+
+      .. hidden-code-block:: bash
 
         # For ubuntu 16.04
-        $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb xenial nightly" \
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb xenial nightly" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
         # For ubuntu 18.04
-        $ echo "deb [arch=amd64] http://download.rasdaman.org/packages/deb bionic nightly" \
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic nightly" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
 3. rasdaman can be installed now: ::
@@ -196,28 +202,28 @@ Installation
     # to make rasql available on the PATH
     $ source /etc/profile.d/rasdaman.sh
 
-5. **NOTE**: if during the install you get a prompt like the below, type **N**
-   (default option) to keep your old ``petascope.properties`` in ``/opt/rasdaman/etc``; the
-   installer will automatically invoke ``/opt/rasdaman/bin/update_properties.sh``
-   script to merge with the new ``petascope.properties`` version from the package. ::
+4. If during the install you get a prompt like the below, type **N** (default 
+   option):
 
-    Configuration file `/etc/opt/rasdaman/petascope.properties'
-     ==> Modified (by you or by a script) since installation.
-     ==> Package distributor has shipped an updated version.
-       What would you like to do about it ?  Your options are:
-        Y or I  : install the package maintainer's version
-        N or O  : keep your currently-installed version
-          D     : show the differences between the versions
-          Z     : start a shell to examine the situation
-     The default action is to keep your current version.
-    *** petascope.properties (Y/I/N/O/D/Z) [default=N] ?
+   .. code-block:: text
+
+      Configuration file `/etc/opt/rasdaman/petascope.properties'
+       ==> Modified (by you or by a script) since installation.
+       ==> Package distributor has shipped an updated version.
+         What would you like to do about it ?  Your options are:
+          Y or I  : install the package maintainer's version
+          N or O  : keep your currently-installed version
+            D     : show the differences between the versions
+            Z     : start a shell to examine the situation
+       The default action is to keep your current version.
+      *** petascope.properties (Y/I/N/O/D/Z) [default=N] ?
 
    If you are automating the installation (in a script for example), you can
    bypass this prompt with an apt-get option as follows: ::
 
     $ apt-get -o Dpkg::Options::="--force-confdef" install -y rasdaman
 
-5. Check that everything is fine: ::
+5. Check that the rasdaman server can answer queries: ::
 
     $ rasql -q 'select c from RAS_COLLECTIONNAMES as c' --out string
 
@@ -233,8 +239,9 @@ Installation
 
     http://localhost:8080/rasdaman/ows
 
-7. You will find the rasdaman installation under ``/opt/rasdaman/``; `rasdaman.war` and
-   `def.war` are installed in ``/var/lib/tomcat9/webapps`` (or tomcat8).
+7. You will find the rasdaman installation under ``/opt/rasdaman/``; 
+   `rasdaman.war` and `def.war` are installed in ``/var/lib/tomcat9/webapps`` 
+   (or tomcat8).
 
 8. If SELinux is running then likely some extra configuration is needed to
    get petascope run properly. See :ref:`here <selinux-configuration>` for more
@@ -268,22 +275,28 @@ Installation
 1. Add the rasdaman repository to yum. There are three types of packages:
 
     - **stable:** these packages are only updated on stable releases of rasdaman,
-      and hence recommended for operational production installations. ::
+      and hence recommended for operational production installations.
 
-        $ sudo curl "http://download.rasdaman.org/packages/rpm/stable/CentOS/7/x86_64/rasdaman.repo" \
+      .. hidden-code-block:: bash
+
+        $ sudo curl "https://download.rasdaman.org/packages/rpm/stable/CentOS/7/x86_64/rasdaman.repo" \
                   -o /etc/yum.repos.d/rasdaman.repo
 
     - **testing:** updated more frequently with beta releases, so aimed for
-      feature testing in non-critical installations. ::
+      feature testing in non-critical installations.
 
-        $ sudo curl "http://download.rasdaman.org/packages/rpm/testing/CentOS/7/x86_64/rasdaman.repo" \
+      .. hidden-code-block:: bash
+
+        $ sudo curl "https://download.rasdaman.org/packages/rpm/testing/CentOS/7/x86_64/rasdaman.repo" \
                   -o /etc/yum.repos.d/rasdaman.repo
 
     - **nightly:** updated nightly, so that they have the latest patches.
       It is not recommended to use these packages in a production installation
-      as things could sometimes break. ::
+      as things could sometimes break.
 
-        $ sudo curl "http://download.rasdaman.org/packages/rpm/nightly/CentOS/7/x86_64/rasdaman.repo" \
+      .. hidden-code-block:: bash
+
+        $ sudo curl "https://download.rasdaman.org/packages/rpm/nightly/CentOS/7/x86_64/rasdaman.repo" \
                   -o /etc/yum.repos.d/rasdaman.repo
 
 2. The rasdaman packages should be available now via yum: ::
@@ -316,7 +329,7 @@ Installation
 
    .. note::
         If petascope has *problems* connecting to rasdaman, check this
-        `FAQ entry <http://rasdaman.org/wiki/FAQ#PetascopecannotconnecttorasdamaninCentos7>`__
+        `FAQ entry <https://rasdaman.org/wiki/FAQ#PetascopecannotconnecttorasdamaninCentos7>`__
         for some advice.
 
 5. Check that everything is fine: ::
@@ -325,7 +338,7 @@ Installation
 
    Typical output: ::
 
-    rasql: rasdaman query tool v1.0, rasdaman v9.0.0 -- generated on 02.07.2015 08:44:56.
+    rasql: rasdaman query tool v1.0, rasdaman v10.0.0 -- generated on 26.02.2020 08:44:56.
     opening database RASBASE at localhost:7001...ok
     Executing retrieval query...ok
     Query result collection has 0 element(s):
@@ -372,9 +385,9 @@ A ``rasdaman`` service script allows to start/stop rasdaman, e.g. ::
 
 The service script can be customized by updating environment variables in
 ``/etc/default/rasdaman`` (create the file if it does not exist). The default
-settings are as follows:
+settings can be seen below.
 
-.. code-block:: shell
+.. hidden-code-block:: shell
 
   # rasdaman installation directory
   RMANHOME=/opt/rasdaman
@@ -417,7 +430,7 @@ First-Time Installation
 
 Download the installer and execute it: ::
 
-    $ wget http://download.rasdaman.org/installer/install.sh
+    $ wget https://download.rasdaman.org/installer/install.sh
     $ bash install.sh
 
 This creates a vanilla installation in ``/opt/rasdaman`` using
@@ -468,7 +481,7 @@ Installer configuration
 
 Default Installer configuration:
 
-.. code-block:: ini
+.. hidden-code-block:: ini
 
     [general]
     # The user running rasdaman
@@ -517,7 +530,7 @@ Default Installer configuration:
     # Build in strict mode (compiler warnings terminate compilation)
     strict = false
     # Apply a particular patch before building; can be a URL or a path
-    patch = "http://rasdaman.org/patchmanager?patchop=Download+Selected-{patch_id}"
+    patch = "https://rasdaman.org/patchmanager?patchop=Download+Selected-{patch_id}"
     # Whether to generate documentation
     generate_docs = false
 
@@ -580,7 +593,7 @@ Default Installer configuration:
     licence = "GPLv3"
     category = "devel"
     maintainer = "Dimitar Misev <misev@rasdaman.com>"
-    url = "http://rasdaman.org"
+    url = "https://rasdaman.org"
 
     #
     # Configure rasdaman uninstall; these settings are only valid if uninstall
@@ -668,7 +681,7 @@ Install Required Packages
 * *libssl-dev*, *libncurses5-dev*, *libedit-dev*, *libboost-dev* (v1.48+),
   *libffi-dev* -- required for various system tasks
 * *libgdal-dev* -- required for data format support (TIFF, JPEG, PNG, `etc.
-  <http://www.gdal.org/formats_list.html>`_)
+  <https://gdal.org/drivers/raster/index.html>`_)
 
 **database stuff:** Pick one option below for rasdaman storage:
 
@@ -696,7 +709,7 @@ Install Required Packages
 * *r-base*, *r-base-dev* -- required for :ref:`sec-rrasdaman-install`, an R package
   providing database interface for rasdaman
 * *performance boosters and additional service components* offered by
-  `rasdaman GmbH <http://www.rasdaman.com>`__
+  `rasdaman GmbH <https://www.rasdaman.com>`__
 
 **geo data support** (optional):
 
@@ -715,7 +728,7 @@ used, here is a guidance for some of the most frequently asked for.
 CentOS 7
 ~~~~~~~~
 
-::
+.. hidden-code-block:: bash
 
     # To build rasdaman
     $ sudo yum install \
@@ -753,7 +766,7 @@ CentOS 7
 Debian 9
 ~~~~~~~~
 
-::
+.. hidden-code-block:: bash
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
@@ -786,7 +799,7 @@ Debian 9
 Ubuntu 16.04
 ~~~~~~~~~~~~
 
-::
+.. hidden-code-block:: bash
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
@@ -816,19 +829,19 @@ Ubuntu 16.04
     # To run wcst_import.sh
     $ sudo pip install glob2 grpcio
 
-Ubuntu 18.04
-~~~~~~~~~~~~
+Ubuntu 18.04 / Debian 10
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
+.. hidden-code-block:: bash
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
       make libtool gawk autoconf automake cmake bison flex git g++ unzip pkg-config \
       libboost-filesystem-dev libboost-thread-dev libboost-system-dev libboost-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libssl1.0-dev \
+      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libssl-dev \
       libedit-dev libreadline-dev libecpg-dev libdw-dev \
-      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl \
-      openjdk-8-jdk maven ant libgdal-java
+      libsqlite3-dev libeccodes-dev libgrib2c-dev curl \
+      openjdk-9-jdk maven ant libgdal-java
 
     # To generate HTML documentation
     $ sudo pip install sphinx sphinx_rtd_theme
@@ -840,11 +853,11 @@ Ubuntu 18.04
 
     # To run rasdaman
     $ sudo apt-get install \
-      postgresql postgresql-contrib sqlite3 zlib1g libssl1.0.0 \
+      postgresql postgresql-contrib sqlite3 zlib1g libssl1.1 \
       gdal-bin python-dev debianutils python-dateutil python-lxml \
       python-pip libdw1 python-gdal libnetcdf-dev netcdf-bin \
-      libecpg6 libedit-dev python-netcdf4 libreadline-dev \
-      openjdk-8-jre libgdal-java tomcat8
+      libecpg6 libedit-dev python-netcdf4 libreadline-dev libeccodes0 \
+      openjdk-9-jre libgdal-java tomcat9
 
     # To run wcst_import.sh
     $ sudo pip install glob2 pygrib grpcio
@@ -859,7 +872,7 @@ Download
 ^^^^^^^^
 
 You can get a complete *rasdaman Community* distribution from
-`www.rasdaman.org <http://www.rasdaman.org>`__ by executing the
+`www.rasdaman.org <https://www.rasdaman.org>`__ by executing the
 following command: ::
 
     $ git clone git://rasdaman.org/rasdaman.git
@@ -875,7 +888,7 @@ Change into the newly cloned directory: ::
     $ cd rasdaman
 
 Optionally, select a tagged stable release. To activate a `particular
-tagged version <http://rasdaman.org/wiki/Versions>`_ use its name
+tagged version <https://rasdaman.org/wiki/Versions>`_ use its name
 prefixed with a "v", e.g: ::
 
     $ git checkout v9.8.1
@@ -1299,7 +1312,9 @@ There are two ways to configure SELinux in order to enable petascope:
 
 2. Create specific rules for the ``tomcat`` user and register with ``SELinux``.
 
-  - Create a rule config file ``tomcat_config.te`` with this contents: ::
+  - Create a rule config file ``tomcat_config.te`` with this contents:
+
+    .. hidden-code-block:: text
 
         module tomcat_config 1.0;
 
@@ -1331,6 +1346,8 @@ There are two ways to configure SELinux in order to enable petascope:
   - Create a shell script ``deployse.sh`` to generate a binary package from this
     config file: ::
 
+    .. hidden-code-block:: bash
+
         #!/bin/bash
         set -e
         MODULE=${1}
@@ -1343,7 +1360,7 @@ There are two ways to configure SELinux in order to enable petascope:
 
   - Run the script to load the binary package module to ``SELinux``: ::
 
-    $ sudo ./deployse.sh tomcat_config
+        $ sudo ./deployse.sh tomcat_config
 
 Restart Tomcat with ``sudo service tomcat restart``; now rasdaman should be able
 to import data to petascope via WCSTImport and get data from rasdaman via
@@ -1363,8 +1380,8 @@ deployed locally as ``def.war``, alongside the petascope
 installation is done in the same way as for petascope.
 
 For further details on SECORE management, security and troubleshooting
-see the `administration <http://rasdaman.org/wiki/SecoreAdministration>`__
-and `developer guide <http://rasdaman.org/wiki/SecoreDevGuide>`__ pages.
+see the `administration <https://rasdaman.org/wiki/SecoreAdministration>`__
+and `developer guide <https://rasdaman.org/wiki/SecoreDevGuide>`__ pages.
 
 SSL/TLS Configuration
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1499,12 +1516,12 @@ the rasdaman sources can be found in ``/opt/rasdaman/source`` (make sure
 to ``git pull`` to get the latest version). In
 ``/opt/rasdaman/third_party`` there is a cmake v3.6 that can be used to
 configure and build rasdaman. To build and install rasdaman, you can use
-the `rasdaman installer <http://rasdaman.org/wiki/Installer>`_ or
+the `rasdaman installer <https://rasdaman.org/wiki/Installer>`_ or
 :ref:`do it from scratch <sec-system-install>`.
 
 Here is a sample ``Vagrantfile`` for the Ubuntu 16.04 box:
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     Vagrant.configure(2) do |config|
        config.vm.box = "rasdaman/ubuntu1604"
@@ -1639,10 +1656,10 @@ Server rasdaman configuration files can be found in ``$RMANHOME/etc``.
 +------------------------------+---------------------------------------------------------------------------------------------------+
 |``rasmgr.conf``               |allows fine-tunning the rasdaman servers, e.g. number of servers, names, database connection, etc. |
 +------------------------------+---------------------------------------------------------------------------------------------------+
-|``petascope.properties``      |set `petascope <http://rasdaman.org/wiki/PetascopeUserGuide>`_ properties, e.g. database/rasdaman  |
+|``petascope.properties``      |set `petascope <https://rasdaman.org/wiki/PetascopeUserGuide>`_ properties, e.g. database/rasdaman |
 |                              |connection details, CRS resolver URLs, various feature options                                     |
 +------------------------------+---------------------------------------------------------------------------------------------------+
-|``secore.properties``         |`secore <http://rasdaman.org/wiki/SecoreUserGuide>`_ configuration                                 |
+|``secore.properties``         |`secore <https://rasdaman.org/wiki/SecoreUserGuide>`_ configuration                                |
 +------------------------------+---------------------------------------------------------------------------------------------------+
 
 Specifically, log output is controlled via these configuration files:
@@ -2079,7 +2096,7 @@ A series of geo Web services is available at the following endpoints:
 
 The diagram below illustrates the OGC service architecture of rasdaman:
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     clients              read:                       read:
     +-----------------+
@@ -2269,7 +2286,9 @@ In interactive use, ``rascontrol`` will be invoked with the host parameter
 only. Following successful authentication, ``rascontrol`` accepts command
 line input from ``stdin``.
 
-Here is an example session (``mypasswd`` will not be echoed on screen): ::
+Here is an example session (``mypasswd`` will not be echoed on screen):
+
+.. hidden-code-block:: bash
 
     $ rascontrol
     Login name: *mylogin*
@@ -3269,7 +3288,9 @@ this does not provide any clues, check the ``petascope.log`` or ``catalina.out``
 Manually stop rasdaman
 ----------------------
 
-If stopping rasdaman fails, it may be necessary to manually stop it: ::
+If stopping rasdaman fails, it may be necessary to manually stop it:
+
+.. hidden-code-block:: bash
 
     # check the rasdaman processes still running on the system
     $ ps aux | grep ras

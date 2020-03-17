@@ -87,7 +87,9 @@ need to be parallel to an axis of the (external) CRS. In such cases, an offset
 vector can be regarded as *resolution* of the grid along an axis.
 
 Rectified grids with *non-aligned* grid axis / offset vectors are not (yet)
-supported. ::
+supported.
+
+.. hidden-code-block:: text
 
    ======= ALIGNED GRID =======             ===== NON-ALIGNED GRID =====
 
@@ -122,7 +124,9 @@ an inherent series of incremental integer coefficients attached to each offset
 vector, so that e.g. the third point along axis 0 is computed as ``[GO + 2\*v0]``
 (indexes start from 0).
 
-A graphical example: ::
+A graphical example:
+
+.. hidden-code-block:: text
 
    ======= IRREGULAR ALIGNED GRID =======              =========== WARPED GRID ===========
 
@@ -218,7 +222,7 @@ how the first axis defined by this CRS is the easting, with label ``E``
 and `metres <http://www.opengis.net/def/uom/EPSG/0/9001>`__ ``m`` as
 Unit of Measure (UoM, see ``gml:CoordinateSystemAxis@uom`` link):
 
-.. code-block:: xml
+.. hidden-code-block:: xml
 
     <gml:CartesianCS>
       [...]
@@ -266,7 +270,7 @@ time series of EO imagery) is proposed:
 
 .. image:: media/geo-services-guide/GridDomainSetAxes.png
     :align: center
-    :scale: 15%
+    :scale: 50%
 
 
 The CRS of the coverage is an (ordered) composition of a temporal CRS (linear
@@ -302,7 +306,7 @@ As a practical example, we propose the complete XML definition of the
 parametrized CRS defining ANSI dates, identified by the URI
 http://rasdaman.org:8080/def/crs/OGC/0/AnsiDate:
 
-.. code-block:: xml
+.. hidden-code-block:: xml
 
     <ParameterizedCRS xmlns:gml="http://www.opengis.net/gml/3.2"
       xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -425,7 +429,7 @@ to the innermost ones. To make it clearer, this means *column-major* order.
 In order to have a coeherent GML output, a mapping coverage function
 is then declared. This can look like this in a 3D hypothetical response:
 
-::
+.. hidden-code-block:: xml
 
  <gml:coverageFunction>
    <gml:GridFunction>
@@ -489,7 +493,7 @@ interpretation of regular rectified images.
 
 The following art explains it visually:
 
-::
+.. hidden-code-block:: text
 
     KEY
               # = grid origin             o = pixel corners
@@ -536,7 +540,7 @@ being \* the norm operator.
 As a final example, imagine that we take this regular 2D pattern
 and we build a stack of such images on irregular levels of altitude:
 
-::
+.. hidden-code-block:: text
 
       KEY
               # = grid origin             X = ticks of the CRS height axis
@@ -644,18 +648,18 @@ regular spacing on the axis, and then irregular 0D-footprints.
     Upper Right ( 156.2750000,  -8.9750000)
     Lower Right ( 156.2750000, -44.5250000)
 
-::
+From this geo-information we deduce that the grid origin,
+which has to be set in the upper-left corner of the image,
+in the centre of the pixel are, will be:
 
-   From this geo-information we deduce that the grid origin,
-   which has to be set in the upper-left corner of the image,
-   in the centre of the pixel are, will be:
+::
 
    origin(mean_summer_airtemp) = [ (111.975 + 0.025) ,  (-8.975 - 0.025) ]
                                = [  112.000          ,   -9.000          ]
 
-::
+Regular axis: *point-is-area*
 
-   Regular axis: *point-is-area*
+.. hidden-code-block:: text
 
     KEY
            o = grid point
@@ -683,7 +687,9 @@ regular spacing on the axis, and then irregular 0D-footprints.
       s4: [112.010, 112.070]
       s5: [111.950, 112.000]
 
-    Applying these subsets to mean_summer_airtemp will produce the following responses:
+Applying these subsets to mean_summer_airtemp will produce the following responses:
+
+.. hidden-code-block:: text
 
         | GRID POINTS INCLUDED |  OUTPUT BOUNDING-BOX(Long)
     -----+----------------------+----------------------------
@@ -693,9 +699,9 @@ regular spacing on the axis, and then irregular 0D-footprints.
      s4 | cell0, cell1         |    [ 111.975, 112.075 ]
      s5 | cell0                |    [ 111.9
 
-::
+Irregular axis: *point-is-point*
 
-   Irregular axis: *point-is-point*
+.. hidden-code-block:: text
 
          KEY
            o = grid point
@@ -722,7 +728,10 @@ regular spacing on the axis, and then irregular 0D-footprints.
       s4: [111.970, 112.090]
       s5: [111.920, 112.000]
 
-   Applying these subsets to mean_summer_airtemp will produce the following responses (please note tickets #681 and #682):
+Applying these subsets to mean_summer_airtemp will produce the following
+responses:
+
+.. hidden-code-block:: text
 
         | GRID POINTS INCLUDED |  OUTPUT BOUNDING-BOX(Long)
     -----+----------------------+----------------------------
@@ -778,7 +787,7 @@ model <http://www.opengeospatial.org/standards/swecommon>`__.
 For instance, the range type of a test coverage ``mr``, associated with the
 primitive quantity with ``unsigned char`` values is the following:
 
-.. code-block:: xml
+.. hidden-code-block:: xml
 
     <gmlcov:rangeType>
         <swe:DataRecord>
@@ -961,25 +970,25 @@ geo-referenced coverage:
   without an associated WMS layer served by the web coverage service
   offered by petascope. Example:
 
-::
+  ::
 
-  http://example.org/rasdaman/ows?service=WMS&version=1.3.0
-         &request=InsertWCSLayer&wcsCoverageId=MyCoverage
+    http://example.org/rasdaman/ows?service=WMS&version=1.3.0
+           &request=InsertWCSLayer&wcsCoverageId=MyCoverage
 
 * To update an existing WMS layer from an existing coverage with
   an associated WMS layer use ``UpdateWCSLayer`` request. Example:
 
-::
+  ::
 
-  http://example.org/rasdaman/ows?service=WMS&version=1.3.0
-          &request=UpdateWCSLayer&wcsCoverageId=MyCoverage
+    http://example.org/rasdaman/ows?service=WMS&version=1.3.0
+            &request=UpdateWCSLayer&wcsCoverageId=MyCoverage
 
-* To remove a layer, just delete associated coverage.  Example:
+* To remove a layer, just delete the associated coverage. Example:
 
-::
+  ::
 
-  http://example.org/rasdaman/ows?service=WCS&version=2.0.1
-          &request=DeleteCoverage&coverageId=MyCoverage
+    http://example.org/rasdaman/ows?service=WCS&version=2.0.1
+            &request=DeleteCoverage&coverageId=MyCoverage
 
 
 Transparent nodata value
@@ -987,7 +996,9 @@ Transparent nodata value
 
 By adding a parameter ``transparent=true`` to WMS requests, the returned image
 will have ``NoData Value=0`` in the bands' metadata, so the WMS client will
-consider all the pixels with 0 value as transparent. E.g: ::
+consider all the pixels with 0 value as transparent. E.g:
+
+.. hidden-code-block:: text
 
     http://localhost:8080/rasdaman/ows?service=WMS&version=1.3.0
         &request=GetMap&layers=waxlake1
@@ -1007,7 +1018,9 @@ algorithm used during the reprojection can be controlled with a **non-standard**
 are documented in the rasql ``project()`` function, cf. :ref:`sec-geo-projection`; by
 default, nearest-neighbour is used (``near``).
 
-Example request that changes the default interpolation method: ::
+Example request that changes the default interpolation method: 
+
+.. hidden-code-block:: text
 
     http://localhost:8080/rasdaman/ows?service=WMS
         &version=1.3.0
@@ -1038,7 +1051,9 @@ abstract and layer provided in the KVP parameters below
     to be encoded correctly. Please use this website
     http://meyerweb.com/eric/tools/dencoder/ to encode your query first:
 
-- WCPS query fragment example (since rasdaman 9.5): ::
+-  WCPS query fragment example (since rasdaman 9.5):
+
+   .. hidden-code-block:: text
 
     http://localhost:8080/rasdaman/ows?
         service=WMS&
@@ -1053,7 +1068,9 @@ abstract and layer provided in the KVP parameters below
    The variable $c will be replaced by a layer name when sending a GetMap request
    containing this layer's style.
 
--  Rasql query fragment examples: ::
+-  Rasql query fragment examples:
+
+   .. hidden-code-block:: text
 
     http://example.org/rasdaman/ows?service=WMS&version=1.3.0&request=InsertStyle
         &name=FireMarkup
@@ -1073,7 +1090,9 @@ abstract and layer provided in the KVP parameters below
    style expression. 
   
    Example: create a WCPS query fragment style referencing 2 layers
-   (``$c`` refers to layer *sentinel2_B4* which defines the style): ::
+   (``$c`` refers to layer *sentinel2_B4* which defines the style):
+
+   .. hidden-code-block:: text
 
     http://localhost:8080/rasdaman/ows?
         service=WMS&
@@ -1086,7 +1105,9 @@ abstract and layer provided in the KVP parameters below
 
    Then, in any `GetMap` request using this style, 
    the result will be obtained from the combination of the 2 layers: 
-   *sentinel2_B4* and *sentinel2_B8*: ::
+   *sentinel2_B4* and *sentinel2_B8*:
+
+   .. hidden-code-block:: text
 
     http://localhost:8080/rasdaman/ows?
         service=WMS&
@@ -1097,12 +1118,14 @@ abstract and layer provided in the KVP parameters below
         format=image/png&transparent=true&
         styles=BandsCombined
 
-- Since *v10.0*, a WMS style supports ``ColorTable`` definition which
-  allows to colorize the result of WMS GetMap request when the style is requested.
-  A style can contain either one or both **query fragment** and **Color Table** definitions.
-  The ``InsertStyle`` request supports two new **non-standard** 
-  extra parameters ``colorTableType`` (valid values: ``ColorMap``, ``GDAL`` and ``SLD``)
-  and ``colorTableDefintion`` containing corresponding definition, example: ::
+-  Since *v10.0*, a WMS style supports ``ColorTable`` definition which
+   allows to colorize the result of WMS GetMap request when the style is requested.
+   A style can contain either one or both **query fragment** and **Color Table** definitions.
+   The ``InsertStyle`` request supports two new **non-standard** 
+   extra parameters ``colorTableType`` (valid values: ``ColorMap``, ``GDAL`` and ``SLD``)
+   and ``colorTableDefintion`` containing corresponding definition, example:
+
+   .. hidden-code-block:: text
 
     http://localhost:8080/rasdaman/ows?
         service=WMS&
@@ -1116,12 +1139,12 @@ abstract and layer provided in the KVP parameters below
         colorTableType=ColorMap&
         colorTableDefinition={"type": "intervals", "colorTable": {  "0": [0, 0, 255, 0], "100": [125, 125, 125, 255], "255": [255, 0, 0, 255] } }
 
-  Below the supported color table definitions for each color table type are explained:
+   Below the supported color table definitions for each color table type are explained:
 
     * Rasdaman ``ColorMap``: check :ref:`coloring-arrays` for more details.
       The color table definition must be a JSON object, for example:
 
-      .. code-block:: json
+      .. hidden-code-block:: json
 
         { 
           "type": "intervals",  
@@ -1130,11 +1153,12 @@ abstract and layer provided in the KVP parameters below
                            "255": [255, 0, 0, 255]  
                         } 
         }
+
     * GDAL ``ColorPalette``: check :ref:`encode` for more details.
       The color table definition must be a JSON object and contains **256 color arrays**
       in ``colorTable`` array, example:
 
-      .. code-block:: json
+      .. hidden-code-block:: json
 
         {
            "colorTable": [
@@ -1145,11 +1169,12 @@ abstract and layer provided in the KVP parameters below
                           [43,131,186,255]
                         ]
         }
+
     * WMS ``Styled Layer Descriptor (SLD)``: The color table definition must be valid XML
       and contains ``ColorMap`` element. Check :ref:`coloring-arrays` for details about the supported types
       (``ramp`` (default), ``values``, ``intervals``), example ``ColorMap`` with ``type="values"``: 
 
-      .. code-block:: xml
+      .. hidden-code-block:: xml
 
         <?xml version="1.0" encoding="UTF-8"?>
         <StyledLayerDescriptor xmlns="http://www.opengis.net/sld"
@@ -1250,7 +1275,7 @@ Testing the WMS
 You can test the service using your favorite WMS client or directly through a
 GetMap request like the following:
 
-::
+.. hidden-code-block:: text
 
     http://example.org/rasdaman/ows?service=WMS&version=1.3.0&request=GetMap
         &layers=MyLayer
@@ -1359,24 +1384,6 @@ aligned tiling is used for the array storing the cell values. ::
     http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1&request=InsertCoverage
         &coverageRef=file:///etc/data/myCov.gml&useId=new&tiling=aligned [0:500, 0:500]
 
-*Coming soon:* the same operation, but via a POST XML request to
-http://localhost:8080/rasdaman/ows:
-
-.. code-block:: xml
-
-    <?xml version="1.0" encoding="UTF-8"?>
-        <wcs:InsertCoverage
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:wcs="http://www.opengis.net/wcs/2.0"
-        xmlns:gml="http://www.opengis.net/gml/3.2"
-        xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
-        service="WCS" version="2.0.1">
-      <wcs:coverage>here goes the contents of myCov.gml</wcs:coverage>
-      <wcs:useId>
-        new
-      </wcs:useId>
-    </wcs:InsertCoverage>
-
 
 Deleting coverages
 ^^^^^^^^^^^^^^^^^^
@@ -1407,23 +1414,23 @@ using the scale() function in WCPS or scaling extension in WCS.
   and given level; e.g. to create a downscaled coverage
   of *test_world_map_scale_levels* that is *4x smaller*:
 
-::
+  .. hidden-code-block:: text
 
-  http://localhost:8082/rasdaman/ows?service=WCS&version=2.0.1
-  &request=InsertScaleLevel
-  &coverageId=test_world_map_scale_levels
-  &level=4
+    http://localhost:8082/rasdaman/ows?service=WCS&version=2.0.1
+    &request=InsertScaleLevel
+    &coverageId=test_world_map_scale_levels
+    &level=4
 
 * ``DeleteScaleLevel``: delete an existing downscaled coverage
   at a given level; e.g. to delete downscaled level 4 of coverage
   *test_world_map_scale_levels*:
 
-::
+  .. hidden-code-block:: text
 
-  http://localhost:8082/rasdaman/ows?service=WCS&version=2.0.1
-  &request=DeleteScaleLevel
-  &coverageId=test_world_map_scale_levels
-  &level=4
+    http://localhost:8082/rasdaman/ows?service=WCS&version=2.0.1
+    &request=DeleteScaleLevel
+    &coverageId=test_world_map_scale_levels
+    &level=4
 
 wcst_import can send ``InsertScaleLevel`` requests automatically 
 when importing data with it with ``scale_levels`` option in the ingredients file,
@@ -1473,31 +1480,29 @@ requests, one can transform coverage imported in CIS 1.0 to CIS 1.1
 by adding  extra request parameter ``outputType=GeneralGridCoverage`` 
 as example below:
 
-  ::
+.. hidden-code-block:: text
 
-     http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
-         &request=DescribeCoverage
-         &coverageId=test_mean_summer_airtemp
-         &outputType=GeneralGridCoverage
+   http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
+       &request=DescribeCoverage
+       &coverageId=test_mean_summer_airtemp
+       &outputType=GeneralGridCoverage
 
-     http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
-         &request=GetCoverage
-         &coverageId=test_mean_summer_airtemp
-         &output=application/gml+xml
-         &outputType=GeneralGridCoverage
+   http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
+       &request=GetCoverage
+       &coverageId=test_mean_summer_airtemp
+       &output=application/gml+xml
+       &outputType=GeneralGridCoverage
 
 WCPS
 ^^^^
 
 For WCPS requests, the same can be achieved using the extra parameter
 ``outputType=GeneralGridCoverage`` in ``encode()`` with
-``application/gml+xml``. Example:
+``application/gml+xml``. Example: ::
 
-    ::
-
-      for c in (test_irr_cube_2) return encode(c,
-              "application/gml+xml",
-              "{\"outputType\":\"GeneralGridCoverage\"}")
+    for c in (test_irr_cube_2)
+    return encode(c, "application/gml+xml",
+                     "{\"outputType\":\"GeneralGridCoverage\"}")
 
 
 .. _petascope-clipping:
@@ -1533,7 +1538,7 @@ WKT as well, otherwise it is assumed that the WKT is in the native coverage CRS.
 
 -  Polygon clipping on coverage with nativeCRS ``EPSG:4326``.
 
-    ::
+   .. hidden-code-block:: text
 
         http://localhost:8080/rasdaman/ows&
         service=WCS&
@@ -1543,9 +1548,10 @@ WKT as well, otherwise it is assumed that the WKT is in the native coverage CRS.
         clip=POLYGON((55.8 -96.6, 15.0 -17.3))&
         format=image/png
 
--  Polygon clipping with coordinates in ``EPSG:3857`` (from ``subsettingCRS`` parameter) on coverage with nativeCRS ``EPSG:4326``.
+-  Polygon clipping with coordinates in ``EPSG:3857`` (from ``subsettingCRS`` 
+   parameter) on coverage with nativeCRS ``EPSG:4326``.
 
-    ::
+   .. hidden-code-block:: text
 
         http://localhost:8080/rasdaman/ows&
         service=WCS&
@@ -1558,7 +1564,7 @@ WKT as well, otherwise it is assumed that the WKT is in the native coverage CRS.
 
 -  Linestring clipping on a 3D coverage ``(axes: X, Y, ansidate)``.
 
-    ::
+   .. hidden-code-block:: text
 
         http://localhost:8080/rasdaman/ows&
         service=WCS&
@@ -1571,7 +1577,7 @@ WKT as well, otherwise it is assumed that the WKT is in the native coverage CRS.
 
 -  Multipolygon clipping on 2D coverage
 
-    ::
+   .. hidden-code-block:: text
 
         http://localhost:8080/rasdaman/ows&
         service=WCS&
@@ -1584,9 +1590,9 @@ WKT as well, otherwise it is assumed that the WKT is in the native coverage CRS.
                              -25.491629 151.259766, -18.050561 142.075195)) )&
         format=image/png
 
-- Curtain clipping by a Linestring on 3D coverage
+-  Curtain clipping by a Linestring on 3D coverage
 
-    ::
+   .. hidden-code-block:: text
 
         http://localhost:8080/rasdaman/ows&
         service=WCS&
@@ -1596,9 +1602,9 @@ WKT as well, otherwise it is assumed that the WKT is in the native coverage CRS.
         clip=CURTAIN( projection(Lat, Long), linestring(25 41, 30 41, 30 45, 30 42) )&
         format=text/csv
 
-- Curtain clipping by a Polygon on 3D coverage
+-  Curtain clipping by a Polygon on 3D coverage
 
-    ::
+   .. hidden-code-block:: text
 
         http://localhost:8080/rasdaman/ows&
         service=WCS&
@@ -1608,9 +1614,9 @@ WKT as well, otherwise it is assumed that the WKT is in the native coverage CRS.
         clip=CURTAIN(projection(Lat, Long), Polygon((25 40, 30 40, 30 45, 30 42)))&
         format=text/csv
 
-- Corridor clipping by a Linestring on 3D coverage
+-  Corridor clipping by a Linestring on 3D coverage
 
-    ::
+   .. hidden-code-block:: text
 
         http://localhost:8080/rasdaman/ows&
         service=WCS&
@@ -1625,9 +1631,9 @@ WKT as well, otherwise it is assumed that the WKT is in the native coverage CRS.
             )&
         format=application/gml+xml
 
-- Corridor clipping by a Polygon on 3D coverage
+-  Corridor clipping by a Polygon on 3D coverage
 
-    ::
+   .. hidden-code-block:: text
 
         http://localhost:8080/rasdaman/ows&
         service=WCS&
@@ -1661,8 +1667,10 @@ where
 
 **Examples**
 
--  Polygon clipping with coordinates in ``EPSG:4326`` on coverage with
-   nativeCRS ``EPSG:3857``. ::
+- Polygon clipping with coordinates in ``EPSG:4326`` on coverage with
+  nativeCRS ``EPSG:3857``:
+
+  .. hidden-code-block:: text
 
     for c in (test_wms_3857) return encode(
      clip(c, POLYGON((
@@ -1680,14 +1688,18 @@ where
           "http://opengis.net/def/crs/EPSG/0/4326" )
     , "png")
 
--  Linestring clipping on 3D coverage (axes: ``X, Y, datetime``). ::
+- Linestring clipping on 3D coverage (axes: ``X, Y, datetime``).
+
+  .. hidden-code-block:: text
 
     for c in (test_irr_cube_2) return encode(
       clip(c, LineStringZ(75042.7273594 5094865.55794 "2008-01-01T02:01:20.000Z",
                          705042.727359 5454865.55794 "2008-01-08T00:02:58.000Z"))
     , "csv")
 
--  Linestring clipping on 2D coverage ``with coordinates`` (axes: ``X, Y``). ::
+- Linestring clipping on 2D coverage ``with coordinates`` (axes: ``X, Y``).
+
+  .. hidden-code-block:: text
 
     for c in (test_mean_summer_airtemp) return encode(
       clip(c, LineString(-29.3822 120.2783, -19.5184 144.4043)) with coordinates
@@ -1700,7 +1712,9 @@ where
 
     "-28.975 119.975 90","-28.975 120.475 84","-28.475 120.975 80", ...
 
--  Multipolygon clipping on 2D coverage. ::
+-  Multipolygon clipping on 2D coverage.
+
+   .. hidden-code-block:: text
 
     for c in (test_mean_summer_airtemp) return encode(
      clip(c, Multipolygon(
@@ -1710,20 +1724,26 @@ where
              -27.9944 139.4604, -21.8819 140.5151 )) ) )
     , "png")
 
-- Curtain clipping by a Linestring on 3D coverage ::
+- Curtain clipping by a Linestring on 3D coverage
+
+  .. hidden-code-block:: text
 
     for c in (test_eobstest) return encode(
        clip(c, CURTAIN(projection(Lat, Long),
             linestring(25 40, 30 40, 30 45, 30 42) ) ), "csv")
 
-- Curtain clipping by a Polygon on 3D coverage ::
+- Curtain clipping by a Polygon on 3D coverage
+
+  .. hidden-code-block:: text
 
     for c in (test_eobstest) return encode(
      clip(c, CURTAIN(projection(Lat, Long),
           Polygon((25 40, 30 40, 30 45, 30 42)) ) ), "csv")
 
 
-- Corridor clipping by a Linestring on 3D coverage ::
+- Corridor clipping by a Linestring on 3D coverage
+
+  .. hidden-code-block:: text
 
     for c in (test_irr_cube_2) return encode(
      clip( c, corridor( projection(E, N),
@@ -1734,7 +1754,9 @@ where
     , "gml")
 
 - Corridor clipping by a Polygon on 3D coverage (geo CRS: ``EPSG:4326``)
-  with input geo coordinates in ``EPSG:3857``. ::
+  with input geo coordinates in ``EPSG:3857``. 
+
+  .. hidden-code-block:: text
 
     for c in (test_eobstest) return encode(
      clip( c, corridor( projection(Lat, Long),
@@ -1951,7 +1973,7 @@ Some options are commonly applicable to all recipes.
   parameter should be an array containing the desired null value either as a
   closed interval ``low:high`` or single values. E.g. for a coverage with 3 bands
 
-  .. code-block:: json
+  .. hidden-code-block:: json
 
       "default_null_values": [ "9995:9999", "-9, -10, -87", 3.14 ],
 
@@ -1993,7 +2015,7 @@ Some options are commonly applicable to all recipes.
   ``{ "low": 0, "high": <max> }``, where low/high are given in the axis format.
   Example:
 
-  .. code-block:: json
+  .. hidden-code-block:: json
 
       "slice_restriction": [
         { "low": 0, "high": 36000 },
@@ -2019,7 +2041,7 @@ Some options are commonly applicable to all recipes.
   or ``descending``).Currently, it sorts by *datetime* which allows
   to import coverage from the first date or the recent date. Example:
 
-  .. code-block:: json
+  .. hidden-code-block:: json
 
       "import_order": "descending"
 
@@ -2027,7 +2049,7 @@ Some options are commonly applicable to all recipes.
   in rasdaman. You can set arbitrary tile sizes for the tiling option only
   if the tile name is ``ALIGNED``. Example:
 
-  .. code-block:: json
+  .. hidden-code-block:: json
 
       "tiling": "ALIGNED [0:0, 0:1023, 0:1023] TILE SIZE 5000000"
 
@@ -2040,7 +2062,7 @@ Some options are commonly applicable to all recipes.
   metadata for this layer. After that, this layer will be available from
   *WMS GetCapabilties request*. Example:
 
-  .. code-block:: json
+  .. hidden-code-block:: json
 
       "wms_import": true
 
@@ -2050,7 +2072,7 @@ Some options are commonly applicable to all recipes.
   Level must be positive number and greater than 1.
   Syntax:
 
-  .. code-block:: json
+  .. hidden-code-block:: json
 
       "scale_levels": [ 1.5, 2, 4, ... ]
 
@@ -2073,7 +2095,7 @@ is being used to update coverage, while the default blocking importing mode
 will run before/after hook(s) for *all input files* before/after
 they are updated to a coverage. Parameters are explained below.
 
-.. code-block:: json
+.. hidden-code-block:: json
 
   "hooks": [
       {
@@ -2119,7 +2141,7 @@ The example ingredients below contains a pre-hook which replaces the collected
 file path into a GDAL subdataset form; in this particular case, with the GDAL
 driver for NetCDF a single variable from the collected NetCDF files is imported.
 
-.. code-block:: json
+.. hidden-code-block:: json
 
   "slicer": {
           "type": "gdal",
@@ -2146,7 +2168,7 @@ Well suited for importing a tiled map, not necessarily continuous; it
 will place all input files given under a single coverage and deal with
 their position in space. Parameters are explained below.
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     {
       "config": {
@@ -2188,7 +2210,7 @@ Well suited for importing multiple 2-D slices created at regular
 intervals of time (e.g sensor data, satelite imagery etc) as 3-D cube
 with the third axis being a temporal one. Parameters are explained below
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     {
       "config": {
@@ -2250,7 +2272,7 @@ particular use case:
   from the data file paths. `Here is an example with the "filename" option
   <http://www.rasdaman.org/attachment/wiki/WCSTImportGuide/ingredient_irregulartime_filename.txt>`_
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     {
       "config": {
@@ -2362,17 +2384,17 @@ options of the ingredients file. Each coverage model contains a
  * *global* - specifies fields which should be saved (e.g. the licence, the creator
    etc) once for the whole coverage. Example:
 
-    .. code-block:: json
+   .. hidden-code-block:: json
 
-        "global": {
-          "Title": "'Drought code'"
-        },
+      "global": {
+        "Title": "'Drought code'"
+      },
 
  * *local* - specifies fields which are fetched from each input file
    to be stored in coverage's metadata. Then, when subsetting output coverage,
    only associated *local* metadata will be added to the result. Example:
 
-   .. code-block:: json
+   .. hidden-code-block:: json
 
         "local": {
 		      "LocalMetadataKey": "${netcdf:metadata:LOCAL_METADATA}"
@@ -2383,7 +2405,7 @@ options of the ingredients file. Each coverage model contains a
    file which can be used internally when encoding coverage to PNG to
    colorize result. Example:
 
-   .. code-block:: json
+   .. hidden-code-block:: json
 
         "colorPaletteTable": "PATH/TO/color_palette_table.cpt"
 
@@ -2408,7 +2430,7 @@ and for **PNG** `here
 <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_mr/ingest.template.json>`__.
 Here's an example ingredient file for *grib* data:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     "recipe": {
       "name": "general_coverage",
@@ -2631,7 +2653,7 @@ complicated cases:
 * In netCDF recipes you can add *uom* for each band by referencing the metadata
   key of the specific variable. For example, for variable ``LAI``:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
    "uomCode": "${netcdf:variable:LAI:units}"
 
@@ -2639,7 +2661,7 @@ complicated cases:
   a *GRIB expression* is used to fetch this information from metadata in the
   GRIB file. Example:
 
-.. code-block:: json
+  .. hidden-code-block:: json
 
     "bands": [
       {
@@ -2664,7 +2686,7 @@ In ingredient file of *general recipe*, under the metadata section add a "local"
 object with keys and values extracted by using format type expression. Example
 of extracting an attribute from a netCDF input file:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     "metadata": {
       "type": "xml",
@@ -2681,7 +2703,7 @@ will be added to the coverage metadata under ``<slice>...</slice>`` element
 if coverage metadata is imported in XML format. Example of a coverage
 containing local metadata in XML from 2 netCDF files:
 
-.. code-block:: xml
+.. hidden-code-block:: xml
 
     <slices>
 
@@ -2729,7 +2751,7 @@ containing local metadata in XML from 2 netCDF files:
 Since v10.0, local metadata for input files can be fetched from corresponding 
 external text files using the optional ``metadata_file`` setting. For example:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
      "local": {
           "local_metadata_key": "${gdal:metadata:local_metadata_key}",
@@ -2750,7 +2772,9 @@ coverage intersect with some input files' envelopes, only local metadata of
 these files will be added to the output coverage metadata.
 
 For example: a ``GetCoverage`` request with a trim such that
-crs axis subsets are within netCDF file 1: ::
+crs axis subsets are within netCDF file 1:
+
+.. hidden-code-block:: text
 
    http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
           &request=GetCoverage
@@ -2762,11 +2786,9 @@ crs axis subsets are within netCDF file 1: ::
 The coverage's metadata result will contain *only* local metadata from
 netCDF file 1:
 
-.. code-block:: xml
-
+.. hidden-code-block:: xml
 
    <slices>
-
       <!--- Begin Local Metadata from netCDF file 1 -->
       <slice>
         <boundedBy>
@@ -2785,7 +2807,6 @@ netCDF file 1:
         </fileReferenceHistory>
       </slice>
       <!--- End Local Metadata from netCDF file 1 -->
-
    <slices>
 
 .. _customized-axis-labels:
@@ -2803,7 +2824,7 @@ For example with below configuration, coverage will be created with
 3 customized axes ``MyDateTimeAxis, MyLatAxis and MyLongAxis`` based on
 coverage's CRS (*AnsiDate* (1 DateTime axis) and *EPSG:4326* (Lat and Long axes)):
 
-.. code-block:: json
+.. hidden-code-block:: json
 
      "axes": {
           "MyDateTimeAxis": {
@@ -2832,7 +2853,7 @@ Since v9.8+, wcst_import allows to group input files on irregular axes
 (with ``"dataBound": false``) by optional ``sliceGroupSize: value (positive integer)``.
 E.g:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     "time": {
         "min": "datetime(regex_extract('${file:name}', '(.*)\\.(.*)',1), 'YYYYMMDD')",
@@ -2844,11 +2865,8 @@ E.g:
     }
 
 If each input slice corresponds to index *X*, and one wants to have slice
-groups of size *N*, then the index would be translated with this option as follows:
-
-::
-
-    X - (X % N)
+groups of size *N*, then the index would be translated with this option to
+``X - (X % N)``.
 
 Typical use case is importing 3D coverage from 2D satellite imageries where
 time axis is irregular and its values are fetched from input files
@@ -2864,7 +2882,7 @@ Metadata can be individually specified for each *band* and *axis* in the
 ingredient file. This metadata is automatically added to the result output when
 encoding to netCDF. Example:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     "metadata": {
       "type": "xml",
@@ -2917,7 +2935,7 @@ netCDF files.
     from the ``min`` or ``max`` value of CRS axis configuration under
     ``"slicer/axes"`` section. For example:
 
-    .. code-block:: json
+    .. hidden-code-block:: json
 
         "slicer": {
            ...
@@ -2942,7 +2960,7 @@ Import from external WCS
 Allows to import a coverage from a remote petascope endpoint into the local
 petascope. Parameters are explained below.
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     {
       "config": {
@@ -2981,7 +2999,7 @@ This is a convenience recipe for importing Sentinel 1 data in particular;
 **currently only GRD/SLC product types are supported**, and only geo-referenced
 tiff files. Below is an example:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     {
       "config": {
@@ -3071,7 +3089,7 @@ possible and automatically handled.
 
 Below is an example:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     {
       "config": {
@@ -3174,7 +3192,7 @@ as dots are not permitted in a collection name. Some examples:
 Example ingredients specification to create two downscaled levels which are
 *8x* and *32x* smaller than the original coverage:
 
-.. code-block: json
+.. hidden-code-block:: json
 
     "options": {
       "scale_levels": [8, 32],
@@ -3202,7 +3220,7 @@ flexible with the time crs that we require so we will add this option as well.
 
 Based on this usecase, the following ingredient file seems to fulfill our need:
 
-.. code-block:: json
+.. hidden-code-block:: json
 
     {
       "config": {
@@ -3225,7 +3243,9 @@ Based on this usecase, the following ingredient file seems to fulfill our need:
     }
 
 To create a new recipe start by creating a new folder in the recipes folder.
-Let's call our recipe ``my_custom_recipe``: ::
+Let's call our recipe ``my_custom_recipe``:
+
+.. hidden-code-block:: bash
 
     $ cd $RMANHOME/share/rasdaman/wcst_import/recipes_custom/
     $ mkdir my_custom_recipe
@@ -3236,7 +3256,9 @@ sources, if you forget to add it, your recipe will not be automatically
 detected. Let's first create an example of our ingredients file so we get a
 feeling for what we will be dealing with in the recipe. Our recipe will just
 request from the user two parameters Let's now create our recipe, by creating a
-file called ``recipe.py`` ::
+file called ``recipe.py``
+
+.. hidden-code-block:: bash
 
     $ touch recipe.py
     $ editor recipe.py
@@ -3247,7 +3269,7 @@ the box completion support). First, let's add the skeleton of the recipe (please
 note that in this tutorial, we will omit the import section of the files (your
 IDE will help you auto import them)):
 
-.. code-block:: python
+.. hidden-code-block:: python
 
     class Recipe(BaseRecipe):
         def __init__(self, session):
@@ -3300,7 +3322,7 @@ validate some of the general things like the WCST Service availability and so on
 although it is not mandatory. We also want to validate our custom recipe options
 here. This is how the recipe looks like now:
 
-.. code-block:: python
+.. hidden-code-block:: python
 
     class Recipe(BaseRecipe):
         def __init__(self, session):
@@ -3370,7 +3392,7 @@ for you, so you don't have to worry if the coverage already exists.) and
 the total number of slices. After adding the importer, the code should look like
 this:
 
-.. code-block:: python
+.. hidden-code-block:: python
 
     class Recipe(BaseRecipe):
         def __init__(self, session):
@@ -3448,7 +3470,7 @@ specific method of doing it. Let's start from the crs of the coverage. For our
 recipe, we want a 3D crs, composed of the CRS of the 2D images and a time crs
 as indicated. The two lines of code would give us exactly this:
 
-.. code-block:: python
+.. hidden-code-block:: python
 
     # Get the crs of one of the images using a GDAL helper class.
     # We are assuming all images have the same CRS.
@@ -3460,7 +3482,7 @@ Let's also get the range fields for this coverage. We can extract them again
 from the 2D image using a helper class that can use GDAL to get the relevant
 information:
 
-.. code-block:: python
+.. hidden-code-block:: python
 
   fields = GdalRangeFieldsGenerator(gdal_dataset).get_range_fields()
 
@@ -3472,7 +3494,7 @@ Let's also get the pixel base type, again using the gdal helper:
 
 Let's see what we have so far:
 
-.. code-block:: python
+.. hidden-code-block:: python
 
     class Recipe(BaseRecipe):
         def __init__(self, session):
@@ -3546,7 +3568,7 @@ As you can notice, the only thing left to do is to implement the _get_slices()
 method. To do so we need to iterate over all the input files and create a slice
 for each. Here's an example on how we could do that
 
-.. code-block:: python
+.. hidden-code-block:: python
 
     def _get_slices(self, crs):
       # Let's first extract all the axes from our crs
@@ -3580,7 +3602,7 @@ finished work items and the number of total work items. In our case we can
 measure this in terms of slices and the importer can already provide this for
 us. So all we need to do is the following:
 
-.. code-block:: python
+.. hidden-code-block:: python
 
     def status(self):
         return self._get_importer().get_progress()
@@ -3588,7 +3610,7 @@ us. So all we need to do is the following:
 We now have a functional recipe. You can try the ingredients file against it and
 see how it works.
 
-.. code-block:: python
+.. hidden-code-block:: python
 
     class Recipe(BaseRecipe):
         def __init__(self, session):
@@ -3693,7 +3715,7 @@ formats are devised accordingly by the `supported raster formats
 Petascope may support can be checked from the WCS 2.0.1 GetCapabilities
 response:
 
-.. code-block:: xml
+.. hidden-code-block:: xml
 
     <wcs:formatSupported>application/gml+xml</wcs:formatSupported>
     <wcs:formatSupported>image/jpeg</wcs:formatSupported>
@@ -3733,7 +3755,7 @@ any given time, more than one is not supported for simultaneous use. Note also
 that changing to another database system requires more than just changing these
 entries, some migration process is involved instead.
 
-.. code-block:: ini
+.. hidden-code-block:: ini
 
     # Postgresql (default)
     spring.datasource.url=jdbc:postgresql://localhost:5432/petascopedb
@@ -3755,7 +3777,7 @@ entries, some migration process is involved instead.
 For non-postgresql DBMS like H2, HSQLDB, check the petascope.properties to add
 path to its JDBC jar driver on your system.
 
-.. code-block:: ini
+.. hidden-code-block:: ini
 
     # Path to JDBC jar file for Spring datasource
     # purpose:       If left empty, the default PostgreSQL JDBC driver will be used.
@@ -3775,7 +3797,7 @@ path to its JDBC jar driver on your system.
 When migrating to a different database system (e.g. PostgreSQL to HSQLDB), you need
 to specify connection details for the existing database like this:
 
-.. code-block:: ini
+.. hidden-code-block:: ini
 
     metadata_url=jdbc:postgresql://localhost:5432/petascopedb
     metadata_user=petauser
@@ -3831,7 +3853,7 @@ configured in the properties files as below:
 
 - ``$RMANHOME/etc/petascope.properties``
 
-   .. code-block:: ini
+   .. hidden-code-block:: ini
  
       java_server=embedded
       server.port=8080
@@ -3839,7 +3861,7 @@ configured in the properties files as below:
 
 - ``$RMANHOME/etc/secore.properties``
 
-   .. code-block:: ini
+   .. hidden-code-block:: ini
  
       java_server=embedded
       server.port=8081

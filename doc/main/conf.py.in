@@ -20,20 +20,8 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('.'))
 
-try:
-    from .confrasql import RasqlLexer
-except KeyError:
-    from confrasql import RasqlLexer
-
-try:
-    from .json_lexer import JSONLexer
-except KeyError:
-    from json_lexer import JSONLexer
-
-# try:
-#     from .confrasql import RasqlDomain
-# except KeyError:
-#     from confrasql import RasqlDomain
+from extensions.confrasql import RasqlLexer
+from extensions.json_lexer import JSONLexer
 
 # -- General configuration ------------------------------------------------
 
@@ -51,6 +39,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.graphviz',
+    'extensions.hidden_code_block',
 ]
 
 #graphviz_output_format = 'svg'

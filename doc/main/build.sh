@@ -35,26 +35,28 @@ log()  { echo -e    "$PROG: $@"; }
 logn() { echo -e -n "$PROG: $@"; }
 sep()  { log "-------------------------------------------------------------"; }
 
-sep
-log "building html..."
-make html > /dev/null
-log "html built."
+if [ -z "$1" ] || [ "$1" = html ]; then
+  sep
+  log "building html..."
+  make html > /dev/null
+  log "html built."
+fi
 
-[ "$1" = html ] && exit
+if [ -z "$1" ] || [ "$1" = pdf ]; then
+  sep
+  log "building pdf..."
+  log ""
+  log "generating latex..."
+  make latex > /dev/null
 
-sep
-log "building pdf..."
-log ""
-log "generating latex..."
-make latex > /dev/null
+  logn "fixing latex document... "
+  pushd _build/latex > /dev/null
+  sed -i 's/\[utf8\]/[utf8x]/g' rasdaman.tex
+  echo "ok."
 
-logn "fixing latex document... "
-pushd _build/latex > /dev/null
-sed -i 's/\[utf8\]/[utf8x]/g' rasdaman.tex
-echo "ok."
-
-log "compiling latex..."
-make > /dev/null
-log "pdf built."
+  log "compiling latex..."
+  make > /dev/null
+  log "pdf built."
+fi
 
 log "done."

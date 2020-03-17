@@ -177,7 +177,7 @@ granular section level:
 
 Example from the QL guide:
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     ####################
     Query Language Guide
@@ -212,7 +212,9 @@ separated from surrounding text with some non-word characters.
 Lists
 -----
 
-.. code-block:: text
+Bullet and number lists are supported:
+
+.. hidden-code-block:: text
 
     * Bulleted list
     * Item two
@@ -274,6 +276,30 @@ the language, e.g. java, cpp, xml, javascript, text, ini, etc. Example for java:
             ...
         }
 
+Furthermore, you can specify code blocks that are foldable, and hidden or shown
+by default (`see extension documentation
+<http://scopatz.github.io/hiddencode/>`__; starthidden is True by default and
+can be omitted):
+
+
+.. code-block:: text
+
+    .. hidden-code-block:: java
+       :starthidden: False
+
+        public static void main(...) {
+            ...
+        }
+
+shows as
+
+.. hidden-code-block:: java
+   :starthidden: False
+
+    public static void main(...) {
+        ...
+    }
+
 You can see all lexers with ``pygmentize -L lexers``; see also
 http://pygments.org/languages/
 
@@ -293,7 +319,7 @@ If an image has no caption then use the image directive, e.g:
 If it has a caption then use the figure directive; the caption is added as an
 indented paragraph after a blank line:
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     .. _my-label:
 
@@ -486,9 +512,8 @@ moved on to working on ticket_1460.
 
 **Apply patches between branches**
 
-E.g you have 1 commit in ticket\_1450 and 1 commit in
-ticket\_1460) then you want to add this patch to
-ticket\_1460)
+E.g you have 1 commit in ticket\_1450 and 1 commit in ticket\_1460) then you
+want to add this patch to ticket\_1460)
 
 1. Check current branch (should be ticket_1450) ::
 
@@ -657,7 +682,7 @@ by the second last axis and so on.
 For example, let's say we have an array with sdom ``[5:10, -2:2, 0:5]``.
 The 1-D internal\_array (in code) corresponds to external\_array (in rasql):
 
-.. code-block:: cpp
+.. hidden-code-block:: cpp
 
     linear_index := 0
     for i := 5..10
@@ -751,30 +776,11 @@ to be adapted before running the tests by editing ``rasdaman/systemtest/conf/tes
 Testdata
 --------
 
-The following coverages are available for the tests (see ``rasdaman/systemtest/testcases_services/test_wcps/README``):
-
-+----------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
-| coverage       | dim | type  | pixel extent    |    axes    | geo-boundingbox |  time extension |   CRS     |
-+----------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
-| ``rgb``        | 2D  | rgb   | 0:399,0:343     | i/j        |                 |                 | Index2D   |
-+----------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
-| ``mr``         | 2D  | char  | 0:255,0:210     | i/j        |                 |                 | Index2D   |
-+----------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
-| ``eobstest``   | 3D  | short | 0:5,0:100,0:231 | t/Long/Lat | 25,-40 - 75,75  |  1950-01-01 ->  | Temporal +|
-|                |     |       |                 |            |                 |  1950-01-06     | EPSG:4326 |
-+----------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
-| ``mean_summer_ | 2D  | char  | 0:885,0:710     | Long/Lat   | 111.975,-44.525 |                 | EPSG:4326 |
-| airtemp``      |     |       |                 |            | 156.275,-8.975  |                 |           |
-+----------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
-| ``irr_cube_1`` | 3D  | short | 0:99,0:99,0:5   | i/j/k      |                 |                 | Index3D   |
-+----------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
-| ``irr_cube_2`` | 3D  | float | 0:62,0:35,0:3   | E/N/ansi   | 75042.72735943, |  2008-01-01 ->  | EPSG:32633|
-|                |     |       |                 |            | 5094865.557938- |  2008-01-08     | + ANSI    |
-|                |     |       |                 |            | 705042.72735943,|                 |           |
-|                |     |       |                 |            | 5454865.5579385 |                 |           |
-+----------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
-
-These coverages are automatically inserted if missing.
+Various coverages are inserted when running ``make check`` with the
+``wcst_import`` test suite in
+``testcases_services/test_all_wcst_import/test.sh``. These are subsequently
+available in the WCPS, WCS, and WMS tests. At the testing end, they are removed
+by running ``testcases_services/test_zero_cleanup/test.sh``.
 
 Adding tests
 ------------
@@ -807,13 +813,9 @@ continuing from the last number:
 
 The associated oracle (.oracle) files must also be added to the ``oracle/``
 directory. The oracle can be automatically added by running the tests. In this
-case it can be more convenient to run the tests on the single new query by
-uncommenting this line in ``test.sh``: ::
-
-   # uncomment for single test run
-   [[ "$f" == 62-* ]] || continue
-
-and choose the proper pattern to select one or more tests.
+case it can be more convenient to run the tests on the single new query by 
+specifying the query file name as an argument of ``test.sh`` (e.g.
+``./test.sh 001-query.test``).
 
 
 Templated System Test
@@ -1030,7 +1032,7 @@ Template instantiation
 The template instantiation engine is a script ``rasqte.py`` that takes a
 template file as an input and produces a concrete output file.
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     usage: rasqte.py [-h] [-t TEMPLATE] [-d OUTDIR] [-s SEPARATOR] [-g]
 
@@ -1063,7 +1065,7 @@ The rendered **concrete file** will have many instantiations of one
 template. Each instantiation ends with a separator line (``===`` by
 default): 
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     instantiated_query
     ===
@@ -1077,7 +1079,7 @@ Each ``instantiated_query`` has this format: The ``id`` is used to compare the
 result of evaluating the query to an *oracle* file named ``id``. ``id`` and
 ``query`` are mandatory, any other parameters are optional.
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     query: concrete rasql query (mandatory)
     id: unique id (mandatory)
@@ -1106,7 +1108,7 @@ Concrete test evaluation
 A systemtest script ``test.py`` then reads a concrete file and evaluates
 the tests, comparing to the expected oracle values.
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     usage: test.py [-h] [-d] [-t TESTSFILE]
 
@@ -1233,7 +1235,7 @@ Select: all binary induced ops
 
 *Template:*
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     {%- set dimension_other = [dimension + 1] if dimension < dimension_max else [] -%}
     {%- for dimension_right in [dimension] + dimension_other -%}
@@ -1248,7 +1250,7 @@ Select: all binary induced ops
 
 *Instantiation:*
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     rasql -q 'select a + b from test_2d_char as a, test_2d_char as b' --out file
     rasql -q 'select a + b from test_2d_char as a, test_2d_octet as b' --out file
@@ -1282,7 +1284,7 @@ Insert encoded data
 
 *Template:*
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     ---
     data.file: ../testdata/data_{{dimension}}d_{{cell_type_name}}.tif
@@ -1293,7 +1295,7 @@ Insert encoded data
 
 *Instantiation:*
 
-.. code-block:: text
+.. hidden-code-block:: text
 
     rasql -q 'insert into test_2d_char values decode($1)' 
           -f ../testdata/data_2d_char.tif --out file
@@ -1621,7 +1623,7 @@ Examples
 Standard Include Header
 -----------------------
 
-.. code-block:: cpp
+.. hidden-code-block:: cpp
 
     /*
     * This file is part of rasdaman community.
@@ -1657,7 +1659,7 @@ Standard Include Header
 Standard Include Header (LGPL)
 ------------------------------
 
-.. code-block:: cpp
+.. hidden-code-block:: cpp
 
     /*
     * This file is part of rasdaman community.
@@ -1693,7 +1695,7 @@ Standard Include Header (LGPL)
 Standard Source Headers
 -----------------------
 
-.. code-block:: cpp
+.. hidden-code-block:: cpp
 
     /*
     * This file is part of rasdaman community.
@@ -1729,7 +1731,7 @@ Standard Source Headers
 Standard Source Header (LGPL)
 -----------------------------
 
-.. code-block:: cpp
+.. hidden-code-block:: cpp
 
     /*
     * This file is part of rasdaman community.
@@ -1766,7 +1768,7 @@ Standard Source Header (LGPL)
 Standard Inline Header
 ----------------------
 
-.. code-block:: cpp
+.. hidden-code-block:: cpp
 
     /*
     * This file is part of rasdaman community.
@@ -1803,7 +1805,7 @@ Standard Inline Header
 Standard Script / Make Header
 -----------------------------
 
-.. code-block:: make
+.. hidden-code-block:: make
 
     #
     # MAKEFILE FOR:
@@ -1838,7 +1840,7 @@ Standard Script / Make Header
 Standard Script / Make Header (LGPL)
 ------------------------------------
 
-.. code-block:: cpp
+.. hidden-code-block:: cpp
 
     #
     # MAKEFILE FOR:
@@ -2492,71 +2494,52 @@ WSClient Developer's Documentation
 Introduction
 ------------
 
-WSClient is a frontend Web application which facilitates interactions
-from users to petascope (OGC WCS/WCS-T/WCPS/WMS standards implementation).
-It it built based on AngularJS framework version 1.4 with other libraries
-like CSS Bootstrap and WebWorldWind to make a single page application.
+WSClient is a frontend Web application which facilitates interactions from users
+to petascope (OGC WCS/WCPS/WMS standards implementation). It it based on the
+AngularJS framework version 1.4 with other libraries like CSS Bootstrap and
+WebWorldWind to make a single page application.
 
-When building petascope, WSClient is added to *rasdaman.war*.
-This is then deployed to Tomcat.
-Example of deployed WSClient folder in external Tomcat:
+When building petascope, WSClient is added to *rasdaman.war*, which is then
+deployed to Tomcat. For example, in Tomcat 9 / Ubuntu 18.04 the WSClient can be
+found in this directory:
 
 ::
 
-  /var/lib/tomcat/webapps/rasdaman/WEB-INF/classes/public/WSClient/ 
+  /var/lib/tomcat9/webapps/rasdaman/WEB-INF/classes/public/ows/ 
 
 
 Code
 ----
 
-WSClient uses TypeScript language rather Javascript directly. To compile
-WSClient, developers need to install some dependencies:
+WSClient uses TypeScript rather JavaScript directly. To compile WSClient,
+the following dependencies are necessary:
 
-* *npm* - Node package manger. Example:
+* *npm* - Node package manger:
 
 ::
    
-   sudo yum install npm
+   # CentOS
+   $ sudo yum install npm
+   # Debian / Ubuntu
+   $ sudo apt-get install npm
 
-* *bower* - Used for managing dependencies. Example:
-
-::
-
-   sudo npm install -g bower   
-
-* *Typescript* - Used for compiling .ts files to .js. Example:
+* *tsc* - Used for compiling TypeScript .ts files to JavaScript .js:
 
 ::
 
-   sudo npm install -g tsc
+   $ sudo npm install -g tsc
 
-* *TSD* - Used for retrieving typings.  Example:
-
-::
-
-   sudo npm install -g tsd
-
-
-Once all dependencies are installed, in the source folder of WSClient
-(``application/wcs-client``) run these commands *once*:
+Everytime a new feature/fix is added, one needs to compile from TypeScript to
+JavaScript to work in Web Browsers with the following command in WSClient source
+folder (``application/wcs-client/app``):
 
 ::
   
-   npm install
-   tsd install
-   bower install
+   $ tsc
 
-Then, everytime a new feature/fix is added, one needs to compile
-from TypeScript to Javascript files to work in Web Browsers  with the following
-command in WSClient source folder:
-
-::
-  
-   tsc
-   
-After that, 2 important files in ``application/WSClient/app`` folder
-``main.js`` and ``main.js.map`` are generated which need to be included
-in the patch besides other added/updated files.
+This will generate two important files in ``application/wcs-client/app/ows``:
+``main.js`` and ``main.js.map``. They need to be included in the patch besides 
+other added/updated files.
 
 
 SECORE Developer's Documentation
@@ -2633,10 +2616,3 @@ from http://your.server/def/EPSG/. Example:
      <identifier>http://localhost:8080/def/crs/EPSG/8.9.2</identifier>
      <identifier>http://localhost:8080/def/crs/EPSG/9.4.2</identifier>
   </identifiers>
-
-
-
-
-
-
-
