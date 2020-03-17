@@ -1,0 +1,1 @@
+select encode( marray x in [1:5], y in [6:10] values {x,y}, "csv" )

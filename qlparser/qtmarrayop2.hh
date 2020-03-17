@@ -54,9 +54,10 @@ public:
     /// pair (Identifier, Interval)
     typedef struct
     {
-        std::string       variable;
+        std::string  variable;
         QtOperation *tree;
         ParseInfo    parseInfo;
+        r_Dimension  dimensionOffset;
     } mddIntervalType;
 
     /// list storing pairs (Identifier, Interval)
@@ -66,7 +67,7 @@ public:
     QtMarrayOp2(mddIntervalListType *&aList, QtOperation *&cellExp);
 
     /// destructor
-    virtual ~QtMarrayOp2();
+    virtual ~QtMarrayOp2() = default;
 
     /// optimizing load access
     virtual bool concatenateIntervals();

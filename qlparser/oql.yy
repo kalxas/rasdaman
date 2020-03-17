@@ -4357,29 +4357,27 @@ marray_head:
 mddExp: marray_head VALUES generalExp
 	{
 	  // create a new list and add the element
-	  QtMarrayOp2::mddIntervalListType *dlist = new QtMarrayOp2::mddIntervalListType();
+	  auto *dlist = new QtMarrayOp2::mddIntervalListType();
 	  dlist->push_back(*($1));
 
 	  // concatenate intervals and variable names, then do a domain rewrite
 	  QtMarrayOp2 *qma = new QtMarrayOp2( dlist, $3 );	  	    
-          qma->setOldMarray(true);
-	  qma->rewriteVars( );
+	  qma->setOldMarray(true);
+	  qma->rewriteVars();
 
-          char *stra = strdup( $1->variable.c_str() );
+	  char *stra = strdup( $1->variable.c_str() );
 	  $$ = new QtMarrayOp( stra, $1->tree, qma->getInput());
-          parseQueryTree->addCString(stra);
+	  parseQueryTree->addCString(stra);
 
 	  QueryTree::symtab.exitScope();
 	  mflag = MF_NO_CONTEXT;
 
 	  // release memory
-          while (!(dlist->empty())) 
-          {
-            dlist->erase(dlist->begin());
-          } 
-          delete dlist;
-          delete qma;
-          delete $1;
+	  while (!dlist->empty())
+	  	  dlist->erase(dlist->begin());
+	  delete dlist;
+	  delete qma;
+	  delete $1;
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );	  
 	  FREESTACK($2)
@@ -4387,51 +4385,44 @@ mddExp: marray_head VALUES generalExp
 	| marray_head COMMA ivList VALUES generalExp
 	{	  	            
 	  // create a new list and add the element
-	  QtMarrayOp2::mddIntervalListType *dlist = new QtMarrayOp2::mddIntervalListType();
+	  auto *dlist = new QtMarrayOp2::mddIntervalListType();
 	  dlist->push_back(*($1));
 	  
 	  // concatenate the lists
-	  dlist->insert( 
-	    dlist->end(), 
-	    $3->begin(), 
-	    $3->end()
-	  );
-	  	  	 	  	  	  
+	  dlist->insert(dlist->end(), $3->begin(), $3->end());
+
 	  // concatenate intervals and variable names, then do a domain rewrite
 	  QtMarrayOp2 *qma = new QtMarrayOp2( dlist, $5 );	    
-          qma->setOldMarray(false);
-	  qma->rewriteVars( );
-	  if (!(qma->concatenateIntervals())) 
-	  {	    
-	    // TODO: change error code!
-	    // save the parse error info and stop the parser
-            if ( parseError ) 
-	      delete parseError;
-            parseError = new ParseInfo( 313, ($1->parseInfo).getToken().c_str(),
-                                             ($1->parseInfo).getLineNo(), 
-					     ($1->parseInfo).getColumnNo() );
-	    QueryTree::symtab.exitScope();
-	    mflag = MF_NO_CONTEXT;
+	  qma->setOldMarray(false);
+	  if (!qma->concatenateIntervals())
+	  {
+	  	  // TODO: change error code!
+	  	  // save the parse error info and stop the parser
+	  	  if ( parseError ) 
+	  	  	  delete parseError;
+	  	  parseError = new ParseInfo(313, ($1->parseInfo).getToken().c_str(), ($1->parseInfo).getLineNo(), 
+	  	  ($1->parseInfo).getColumnNo() );
+	  	  QueryTree::symtab.exitScope();
+	  	  mflag = MF_NO_CONTEXT;
 
-	    // release memory
-            while (!(dlist->empty())) 
-            {
-              dlist->erase(dlist->begin());
-            } 
-            delete dlist;
-            delete qma;
-            delete $1;
-	    parseQueryTree->removeDynamicObject( $5 );
-	    FREESTACK($2)	  
-	    FREESTACK($4)
-            YYABORT;
-	  }  	  	  
+	  	  // release memory
+	  	  while (!(dlist->empty()))
+	  	  	  dlist->erase(dlist->begin());
+	  	  delete dlist;
+	  	  delete qma;
+	  	  delete $1;
+	  	  parseQueryTree->removeDynamicObject( $5 );
+	  	  FREESTACK($2)	  
+	  	  FREESTACK($4)
+	  	  YYABORT;
+	  }
+    qma->rewriteVars();
 	  
 	  r_Minterval *dinterval = new r_Minterval(qma->greatDomain);
-	  std::string      *dvariable = new      std::string(qma->greatIterator); 
+	  std::string *dvariable = new std::string(qma->greatIterator); 
 	  parseQueryTree->rewriteDomainObjects(dinterval, dvariable, dlist);
-	  
-          // initialize old good QtMarray with the translated data
+    
+	  // initialize old good QtMarray with the translated data
 	  QtMintervalData *mddIntervalData = new QtMintervalData(*dinterval);
 	  $$ = new QtMarrayOp( dvariable->c_str(), new QtConst(mddIntervalData), qma->getInput());
 //	  $$->setParseInfo( *($1.info) );
@@ -4440,13 +4431,11 @@ mddExp: marray_head VALUES generalExp
 	  mflag = MF_NO_CONTEXT;
 
 	  // release memory
-          while (!(dlist->empty())) 
-          {
-            dlist->erase(dlist->begin());
-          } 
-          delete dlist;
-          delete qma;
-          delete $1;
+	  while (!(dlist->empty())) 
+	  	  dlist->erase(dlist->begin());
+    delete dlist;
+    delete qma;
+    delete $1;
 	  parseQueryTree->removeDynamicObject( $5 );
 	  parseQueryTree->addDynamicObject( $$ );	  
 	  FREESTACK($2)	  
@@ -4466,24 +4455,23 @@ ivList: ivList COMMA iv
 	  // create a new list and add the element
 	  $$ = new QtMarrayOp2::mddIntervalListType();
 	  $$->push_back(*($1));
-          delete $1;
+	  delete $1;
 	};
 			
 iv: marrayVariable IN mintervalList
-//iv: marrayVariable IN generalExp
 	{         
 	  if (!QueryTree::symtab.putSymbol($1.value, 1)) // instead of 1 put the dimensionality
 	  {	    
-	    // save the parse error info and stop the parser
-            if ( parseError ) 
-	      delete parseError;
-            parseError = new ParseInfo( 312, $1.info->getToken().c_str(),
-                                             $1.info->getLineNo(), 
-					     $1.info->getColumnNo() );
-	    parseQueryTree->removeDynamicObject( $3 );
-            FREESTACK($2)
-	    QueryTree::symtab.wipe();
-            YYABORT;
+	  	  // save the parse error info and stop the parser
+	  	  if ( parseError ) 
+	  	  	  delete parseError;
+        parseError = new ParseInfo( 312, $1.info->getToken().c_str(),
+                                         $1.info->getLineNo(), 
+	  	  $1.info->getColumnNo() );
+	  	  parseQueryTree->removeDynamicObject( $3 );
+	  	  FREESTACK($2)
+	  	  QueryTree::symtab.wipe();
+	  	  YYABORT;
 	  }  	  	  
 	  $$ = new QtMarrayOp2::mddIntervalType(); 	  
 	  $$->variable = $1.value; 

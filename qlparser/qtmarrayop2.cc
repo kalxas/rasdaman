@@ -51,100 +51,69 @@ QtMarrayOp2::QtMarrayOp2(mddIntervalListType *&aList, QtOperation *&cellExp)
 {
 }
 
-QtMarrayOp2::~QtMarrayOp2()
-{
-}
-
 bool QtMarrayOp2::concatenateIntervals()
 {
-    QtData *data = NULL;
-
     // check for validity
-    bool eflag = true;
-    mddIntervalListType::const_iterator ii;
-    QtNode::QtOperationList::const_iterator j;
-    QtNode::QtOperationList *ddd = NULL;
-    QtOperation *op1 = NULL;
-    QtOperation *op2 = NULL;
+    bool concatenate = true;
 
-    for (ii = iterators.begin(); ii != iterators.end() ; ii++)
+    for (auto ii = iterators.begin(); ii != iterators.end() ; ii++)
     {
-        ddd = (static_cast<QtMintervalOp *>(ii->tree))->getInputs();
-        for (j = ddd->begin(); j != ddd->end(); j++)
+        auto *ddd = (static_cast<QtMintervalOp *>(ii->tree))->getInputs();
+        for (auto j = ddd->begin(); j != ddd->end(); j++)
         {
             if (static_cast<QtNode *>(*j))
             {
-                if (((static_cast<QtNode *>(*j))->getNodeType() == QtNode::QT_INTERVALOP))
+                auto nodeType = (*j)->getNodeType();
+                if (nodeType == QtNode::QT_INTERVALOP)
                 {
-                    op1 = (static_cast<QtBinaryOperation *>(*j))->getInput1();
-                    if ((static_cast<QtNode *>(op1))->getNodeType() != QtNode::QT_CONST)
-                    {
-                        eflag = false;
-                    }
-                    op2 = (static_cast<QtBinaryOperation *>(*j))->getInput2();
-                    if ((static_cast<QtNode *>(op2))->getNodeType() != QtNode::QT_CONST)
-                    {
-                        eflag = false;
-                    }
+                    auto *binOp = static_cast<QtBinaryOperation *>(*j);
+                    if (binOp->getInput1()->getNodeType() != QtNode::QT_CONST)
+                        concatenate = false;
+                    if (binOp->getInput2()->getNodeType() != QtNode::QT_CONST)
+                        concatenate = false;
                 }
-                else if ((static_cast<QtNode *>(*j))->getNodeType() != QtNode::QT_CONST)
+                else if (nodeType != QtNode::QT_CONST)
                 {
-                    eflag = false;
+                    concatenate = false;
                 }
             }
         }
     }
-    LTRACE << "Validity check completed.";
-    if (eflag)
+    if (concatenate)
     {
-        LTRACE << "eflag is true!";
         // compute total dimension
         LTRACE << "QtMarrayOp2: Dimensions: ";
         greatDimension = 0;
-        mddIntervalListType::const_iterator i;
-        for (i = iterators.begin(); i != iterators.end() ; i++)
+        greatIterator = "";
+        std::vector<r_Sinterval> intervals;
+        for (auto i = iterators.begin(); i != iterators.end() ; i++)
         {
             // evaluate intervals
-            data = (i->tree)->evaluate(0);
-            r_Dimension dimension = (static_cast<QtMintervalData *>(data))->getMintervalData().dimension();
-            LTRACE << dimension << " | ";
-            greatDimension += dimension;
+            QtData *data = (i->tree)->evaluate(0);
+            auto *mintervalData = static_cast<QtMintervalData *>(data);
+            const auto &domain = mintervalData->getMintervalData();
+            LTRACE << i->variable << ": " << domain.dimension();
+            i->dimensionOffset = greatDimension; // used later in rewriteVars / traverse
+            
+            // extend dimension and list of sintervals
+            greatDimension += domain.dimension();
+            for (r_Dimension j = 0; j < domain.dimension(); ++j)
+                intervals.push_back(domain[j]);
+            
+            // update new iterator
+            if (!greatIterator.empty())
+              greatIterator += "_";
+            greatIterator += i->variable;
         }
-        LTRACE << " Total " << greatDimension;
+        LTRACE << "Total: " << greatDimension;
 
         // concatenate the data of the intervals into one big interval
-        LTRACE << "QtMarray2: Domains: ";
         greatDomain = r_Minterval(greatDimension);
-        for (i = iterators.begin(); i != iterators.end() ; i++)
-        {
-            // evaluate intervals
-            data = i->tree->evaluate(0);
-            r_Minterval domain    = (static_cast<QtMintervalData *>(data))->getMintervalData();
-            r_Dimension dimension = domain.dimension();
-            r_Dimension jj;
-            for (jj = 0; jj != dimension; jj++)
-            {
-                r_Sinterval part = domain[jj];
-                greatDomain << part;
-            }
-            LTRACE << domain << " | ";
-        }
-        LTRACE << " Total: " << greatDomain;
-
-        // concatenate the identifier names to one big identifier name
-        LTRACE << "QtMarray2: Iterators: ";
-        greatIterator = string("");
-        string iname("");
-        for (i = iterators.begin(); i != iterators.end() ; i++)
-        {
-            // get iterator name
-            iname = string(i->variable);
-            greatIterator = greatIterator + string(" ") + string(i->variable);
-            LTRACE << i->variable << " | ";
-        }
+        for (const auto &interval: intervals)
+          greatDomain << interval;
+        LTRACE << "QtMarray2 combined domain: " << greatDomain;
     }
-
-    return eflag;
+    return concatenate;
 }
 
 
@@ -153,235 +122,225 @@ void QtMarrayOp2::rewriteVars()
 {
     if (!oldMarray)
     {
-        LTRACE << "concatenateIteratorNames: ";
-        mddIntervalListType::const_iterator i;
         // concatenate the identifier names to one big identifier name
-        LTRACE << "QtMarray2: Iterators: ";
-        greatIterator = string("");
-        string iname("");
-        for (i = iterators.begin(); i != iterators.end() ; i++)
+        greatIterator = "";
+        for (auto i = iterators.begin(); i != iterators.end() ; i++)
         {
-            // get iterator name
-            iname = string(i->variable);
-            greatIterator = greatIterator + string(" ") + string(i->variable);
-            LTRACE << i->variable << " | ";
+            if (!greatIterator.empty())
+              greatIterator += "_";
+            greatIterator += i->variable;
         }
-        LTRACE << " Total: " << greatIterator;
+        LTRACE << "concatenated iterator: " << greatIterator;
     }
     traverse(qtOperation);
 }
 
 void QtMarrayOp2::traverse(QtOperation *&node)
 {
+    if (!node)
+        return;
 
-    if (node != 0)
+    QtOperation *temp = NULL;
+
+    if (node->getNodeType() == QtNode::QT_DOMAIN_OPERATION)
     {
-        QtOperation *temp = NULL;
+        // syntax: domainNode ( dinput [ dmiop ] )
+        auto *domainNode = static_cast<QtDomainOperation *>(node);
 
+        // traverse dmiop
+        QtOperation *dmiop = domainNode->getMintervalOp();
+        temp = dmiop;
+        traverse(temp);
+        dmiop = temp;
+        domainNode->setMintervalOp(dmiop);
 
-        if ((static_cast<QtNode *>(node))->getNodeType() == QtNode::QT_DOMAIN_OPERATION)
+        // if dinput == QtVariable then rewrite it
+        QtOperation *dinput = domainNode->getInput();
+
+        // if not a variable, then recurse
+        if (dinput->getNodeType() != QtNode::QT_MDD_VAR)
         {
-            // syntax: dinput [ dmiop ]
-
-            // traverse dmiop
-            QtOperation *dmiop  = (static_cast<QtDomainOperation *>(node))->getMintervalOp();
-            temp = static_cast<QtOperation *>(dmiop);
+            // traverse dinput
+            temp = dinput;
             traverse(temp);
-            dmiop = temp;
-            (static_cast<QtDomainOperation *>(node))->setMintervalOp(dmiop);
+            dinput = temp;
+            domainNode->setInput(dinput);
 
-            // if dinput == QtVariable then rewrite it
-            QtOperation *dinput = (static_cast<QtDomainOperation *>(node))->getInput();
-
-            // if not a variable, then recurse
-            if ((static_cast<QtNode *>(dinput))->getNodeType() != QtNode::QT_MDD_VAR)
+            // get childs and traverse them
+            auto *childList = node->getChilds(QtNode::QT_DIRECT_CHILDS);
+            for (auto iter = childList->begin(); iter != childList->end(); iter++)
             {
-                // traverse dinput
-                temp = static_cast<QtOperation *>(dinput);
+                temp = static_cast<QtOperation *>(*iter);
                 traverse(temp);
-                dinput = temp;
-                (static_cast<QtDomainOperation *>(node))->setInput(dinput);
-
-                // get childs and traverse them
-                QtNode::QtNodeList *childList = node->getChilds(QtNode::QT_DIRECT_CHILDS);
-                for (QtNode::QtNodeList::iterator iter = childList->begin(); iter != childList->end(); iter++)
+                *iter = temp;
+            }
+            delete childList;
+            childList = NULL;
+        }
+    }
+    else
+    {
+        if (node->getNodeType() == QtNode::QT_MDD_VAR)
+        {
+            auto *varNode = static_cast<QtVariable *>(node);
+            if (QueryTree::symtab.lookupSymbol(varNode->getIteratorName()))
+            {
+                // find index in new marray minterval
+                r_Long index = 0;
+                for (const auto &i: iterators)
+                    if (i.variable == varNode->getIteratorName())
+                        index = r_Long(i.dimensionOffset);
+                if (!oldMarray)
                 {
-                    temp = static_cast<QtOperation *>(*iter);
-                    traverse(temp);
-                    *iter = temp;
-                };
-                delete childList;
-                childList = NULL;
-            };
+                    LTRACE << "marray index variable " << varNode->getIteratorName() 
+                           << " will be replaced with " << greatIterator << "[" << index << "]";
+                    varNode->setIteratorName(greatIterator);
+                }
+                // replace with var[0]
+                auto *dop = new QtDomainOperation(new QtConst(new QtAtomicData(index, sizeof(r_Long))));
+                dop->setInput(varNode);
+                node = dop;
+                parseQueryTree->addDomainObject(dop);
+            }
         }
         else
         {
-
-            if (node->getNodeType() == QtNode::QT_MDD_VAR)
+            // traverse inputs
+            switch (node->getNodeType())
             {
-                if (QueryTree::symtab.lookupSymbol((static_cast<QtVariable *>(node))->getIteratorName()))
-                {
-                    if (!oldMarray)
-                    {
-                        LTRACE << "marray2 var identifier:" << ((QtVariable *)node)->getIteratorName() << " replacing with " << greatIterator;
-                        (static_cast<QtVariable *>(node))->setIteratorName(greatIterator);
-                    };
-                    // replace with var[0]
-                    QtDomainOperation *dop = new QtDomainOperation(new QtConst(new QtAtomicData(0, sizeof(r_Long))) /*new QtPointOp( lop )*/);
-                    dop->setInput(static_cast<QtVariable *>(node));
-                    node = dop;
-                    parseQueryTree->addDomainObject(dop);
-                };
+            /*
+            // with no input
+            case QtNode::QT_UNDEFINED_NODE:
+            case QtNode::QT_MDD_ACCESS:
+            case QtNode::QT_OPERATION_ITERATOR:
+            case QtNode::QT_SELECTION_ITERATOR:
+            case QtNode::QT_JOIN_ITERATOR:
+            case QtNode::QT_UPDATE:
+            case QtNode::QT_INSERT:
+            case QtNode::QT_DELETE:
+            case QtNode::QT_COMMAND:
+            case QtNode::QT_PYRAMID:
+            case QtNode::QT_MDD_VAR:
+            case QtNode::QT_CONST:
+            case QtNode::QT_MDD_STREAM:
+            */
+            // from Unary
+            case QtNode::QT_TANH:
+            case QtNode::QT_TAN:
+            case QtNode::QT_SQRT:
+            case QtNode::QT_SINH:
+            case QtNode::QT_SIN:
+            case QtNode::QT_NOT:
+            case QtNode::QT_LOG:
+            case QtNode::QT_LN:
+            case QtNode::QT_EXP:
+            case QtNode::QT_DOT:
+            case QtNode::QT_COSH:
+            case QtNode::QT_COS:
+            case QtNode::QT_ARCTAN:
+            case QtNode::QT_ARCSIN:
+            case QtNode::QT_ARCCOS:
+            case QtNode::QT_ABS:
+            case QtNode::QT_REALPART:
+            case QtNode::QT_IMAGINARPART:
+            case QtNode::QT_CAST:
+            case QtNode::QT_SDOM:
+            case QtNode::QT_OID:
+            case QtNode::QT_LO:
+            case QtNode::QT_HI:
+         // case QtNode::QT_DOMAIN_OPERATION:
+            case QtNode::QT_CONVERSION:
+            case QtNode::QT_SOME:
+            case QtNode::QT_MINCELLS:
+            case QtNode::QT_MAXCELLS:
+            case QtNode::QT_COUNTCELLS:
+            case QtNode::QT_AVGCELLS:
+            case QtNode::QT_ALL:
+            case QtNode::QT_ADDCELLS:
+            case QtNode::QT_CSE_ROOT:
+            {
+                auto *unaryNode = static_cast<QtUnaryOperation *>(node);
+                QtOperation *uinput = unaryNode->getInput();
+                temp = uinput;
+                traverse(temp);
+                uinput = temp;
+                unaryNode->setInput(uinput);
             }
-            else
+            break;
+
+            // from Binary
+            case QtNode::QT_SHIFT:
+            case QtNode::QT_SCALE:
+            case QtNode::QT_MARRAYOP:
+            case QtNode::QT_INTERVALOP:
+            case QtNode::QT_CONDENSEOP:
+            case QtNode::QT_XOR:
+            case QtNode::QT_PLUS:
+            case QtNode::QT_MAX_BINARY:
+            case QtNode::QT_MIN_BINARY:
+            case QtNode::QT_OR:
+            case QtNode::QT_NOT_EQUAL:
+            case QtNode::QT_MULT:
+            case QtNode::QT_MINUS:
+            case QtNode::QT_LESS_EQUAL:
+            case QtNode::QT_LESS:
+            case QtNode::QT_IS:
+            case QtNode::QT_EQUAL:
+            case QtNode::QT_DIV:
+            case QtNode::QT_INTDIV:
+            case QtNode::QT_MOD:
+            case QtNode::QT_AND:
+            case QtNode::QT_OVERLAY:
+            case QtNode::QT_BIT:
             {
+                auto *binaryNode = static_cast<QtBinaryOperation *>(node);
+                QtOperation *binput1 = binaryNode->getInput1();
+                QtOperation *binput2 = binaryNode->getInput2();
+                QtOperation *temp1 = binput1;
+                QtOperation *temp2 = binput2;
+                traverse(temp1);
+                traverse(temp2);
+                binput1 = temp1;
+                binput2 = temp2;
+                binaryNode->setInput1(binput1);
+                binaryNode->setInput2(binput2);
+            }
+            break;
 
-                // traverse inputs
-                switch ((static_cast<QtNode *>(node))->getNodeType())
-                {
-                /*
-                      // with no input
-                      case QtNode::QT_UNDEFINED_NODE:
-                      case QtNode::QT_MDD_ACCESS:
-                      case QtNode::QT_OPERATION_ITERATOR:
-                      case QtNode::QT_SELECTION_ITERATOR:
-                      case QtNode::QT_JOIN_ITERATOR:
-                      case QtNode::QT_UPDATE:
-                      case QtNode::QT_INSERT:
-                      case QtNode::QT_DELETE:
-                      case QtNode::QT_COMMAND:
-                      case QtNode::QT_PYRAMID:
-                      case QtNode::QT_MDD_VAR:
-                      case QtNode::QT_CONST:
-                      case QtNode::QT_MDD_STREAM:
-                */
-                // from Unary
-                case QtNode::QT_TANH:
-                case QtNode::QT_TAN:
-                case QtNode::QT_SQRT:
-                case QtNode::QT_SINH:
-                case QtNode::QT_SIN:
-                case QtNode::QT_NOT:
-                case QtNode::QT_LOG:
-                case QtNode::QT_LN:
-                case QtNode::QT_EXP:
-                case QtNode::QT_DOT:
-                case QtNode::QT_COSH:
-                case QtNode::QT_COS:
-                case QtNode::QT_ARCTAN:
-                case QtNode::QT_ARCSIN:
-                case QtNode::QT_ARCCOS:
-                case QtNode::QT_ABS:
-                case QtNode::QT_REALPART:
-                case QtNode::QT_IMAGINARPART:
-                case QtNode::QT_CAST:
-                case QtNode::QT_SDOM:
-                case QtNode::QT_OID:
-                case QtNode::QT_LO:
-                case QtNode::QT_HI:
-//    case QtNode::QT_DOMAIN_OPERATION:
-                case QtNode::QT_CONVERSION:
-                case QtNode::QT_SOME:
-                case QtNode::QT_MINCELLS:
-                case QtNode::QT_MAXCELLS:
-                case QtNode::QT_COUNTCELLS:
-                case QtNode::QT_AVGCELLS:
-                case QtNode::QT_ALL:
-                case QtNode::QT_ADDCELLS:
-                case QtNode::QT_CSE_ROOT:
-                {
-                    QtOperation *uinput = (static_cast<QtUnaryOperation *>(node))->getInput();
-
-                    temp = static_cast<QtOperation *>(uinput);
-                    traverse(temp);
-                    uinput = temp;
-
-                    (static_cast<QtUnaryOperation *>(node))->setInput(uinput);
-                };
-                break;
-
-                // from Binary
-                case QtNode::QT_SHIFT:
-                case QtNode::QT_SCALE:
-                case QtNode::QT_MARRAYOP:
-                case QtNode::QT_INTERVALOP:
-                case QtNode::QT_CONDENSEOP:
-                case QtNode::QT_XOR:
-                case QtNode::QT_PLUS:
-                case QtNode::QT_MAX_BINARY:
-                case QtNode::QT_MIN_BINARY:
-                case QtNode::QT_OR:
-                case QtNode::QT_NOT_EQUAL:
-                case QtNode::QT_MULT:
-                case QtNode::QT_MINUS:
-                case QtNode::QT_LESS_EQUAL:
-                case QtNode::QT_LESS:
-                case QtNode::QT_IS:
-                case QtNode::QT_EQUAL:
-                case QtNode::QT_DIV:
-                case QtNode::QT_INTDIV:
-                case QtNode::QT_MOD:
-                case QtNode::QT_AND:
-                case QtNode::QT_OVERLAY:
-                case QtNode::QT_BIT:
-                {
-                    QtOperation *binput1 = (static_cast<QtBinaryOperation *>(node))->getInput1();
-                    QtOperation *binput2 = (static_cast<QtBinaryOperation *>(node))->getInput2();
-
-                    QtOperation *temp1 = 0;
-                    QtOperation *temp2 = 0;
-                    temp1 = static_cast<QtOperation *>(binput1);
-                    temp2 = static_cast<QtOperation *>(binput2);
-                    traverse(temp1);
-                    traverse(temp2);
-                    binput1 = temp1;
-                    binput2 = temp2;
-
-                    (static_cast<QtBinaryOperation *>(node))->setInput1(binput1);
-                    (static_cast<QtBinaryOperation *>(node))->setInput2(binput2);
-                };
-                break;
-
-                // from Nary
-                case QtNode::QT_POINTOP:
-                case QtNode::QT_MINTERVALOP:
-                case QtNode::QT_RANGE_CONSTRUCTOR:
-                case QtNode::QT_CONCAT:
-                {
-                    QtNode::QtOperationList *ninput = (static_cast<QtNaryOperation *>(node))->getInputs();
-
-                    for (QtNode::QtOperationList::iterator iter = ninput->begin(); iter != ninput->end(); iter++)
-                    {
-                        temp = static_cast<QtOperation *>(*iter);
-                        traverse(temp);
-                        *iter = temp;
-                    };
-
-                    (static_cast<QtNaryOperation *>(node))->setInputs(ninput);
-                };
-                break;
-                default:
-                {
-                    // do nothing
-                };
-                break;
-                };
-
-                // get childs and traverse them
-                QtNode::QtNodeList *childList = node->getChilds(QtNode::QT_DIRECT_CHILDS);
-                for (QtNode::QtNodeList::iterator iter = childList->begin(); iter != childList->end(); iter++)
+            // from Nary
+            case QtNode::QT_POINTOP:
+            case QtNode::QT_MINTERVALOP:
+            case QtNode::QT_RANGE_CONSTRUCTOR:
+            case QtNode::QT_CONCAT:
+            {
+                auto *naryNode = static_cast<QtNaryOperation *>(node);
+                QtNode::QtOperationList *ninput = naryNode->getInputs();
+                for (auto iter = ninput->begin(); iter != ninput->end(); iter++)
                 {
                     temp = static_cast<QtOperation *>(*iter);
                     traverse(temp);
                     *iter = temp;
-                };
-                delete childList;
-                childList = NULL;
-            };
-        };
-    };
+                }
+                naryNode->setInputs(ninput);
+            }
+            break;
+            default:
+            {
+                // do nothing
+            }
+            break;
+            }
+
+            // get childs and traverse them
+            QtNode::QtNodeList *childList = node->getChilds(QtNode::QT_DIRECT_CHILDS);
+            for (auto iter = childList->begin(); iter != childList->end(); iter++)
+            {
+                temp = static_cast<QtOperation *>(*iter);
+                traverse(temp);
+                *iter = temp;
+            }
+            delete childList;
+            childList = NULL;
+        }
+    }
 }
-
-
-
-
