@@ -585,6 +585,8 @@ std::string ServerRasNet::getStartProcessCommand()
     ss << "--rsn" << " " << this->getServerId() << " ";
     ss << "--mgrport" << " " << std::to_string(globalConfig->getRasMgrPort()) << " ";
     ss << "--connect" << " " << this->dbHost->getConnectString();
+    // add extra options (following -xp parameter in rasmgr.conf)
+    ss << " " << this->options;
     return ss.str();
 }
 
