@@ -29,6 +29,8 @@ import os
 from rasdapy.db_connector import DBConnector
 from rasdapy.query_executor import QueryExecutor
 from rasdapy.models.result_array import ResultArray
+from rasdapy.query_result import QueryResult
+from rasdapy.cores.utils import encoded_bytes_to_str
 
 SUCCESS = 0
 ERROR = 1
@@ -111,6 +113,7 @@ class Validator:
         self.passwd = args.passwd
 
 
+
 class Main:
     """
     Connect to rasserver and run query then return the result to client
@@ -149,7 +152,8 @@ class Main:
             res_arr = res
 
             # Depend on the output (string, file) to write the result from rasserver
-            self.__handle_result(res_arr)
+            if res_arr is not None:
+                self.__handle_result(res_arr)
         except Exception as e:
             if "error message" in str(e):
                 """ e.g: Error executing query 'select stddev_samp(1f)',
@@ -171,6 +175,12 @@ class Main:
         :param list res_arr: list of result which can be MDDArray or scalar values
         :return: it will print output as string if --out string or write to file if --out file
         """
+
+        if isinstance(res_arr, QueryResult):
+            if res_arr.with_error:
+                sys.stderr.write(res_arr.error_message())
+                return
+
         if self.validator.out == OUTPUT_STRING:
             # Output list of results to console
             self.__handle_result_as_string(res_arr)
@@ -195,7 +205,7 @@ class Main:
         output = "Query result collection has {} element(s): \n".format(res_arr.size)
         if res_arr.size > 0:
             for index, res in enumerate(res_arr):
-                msg = res.decode() if res_arr.is_object else res
+                msg = encoded_bytes_to_str(res) if res_arr.is_object else res
                 output += "  Result {} {}: {}\n".format(res_arr.nature, index + 1, msg)
         print(output.strip())
 

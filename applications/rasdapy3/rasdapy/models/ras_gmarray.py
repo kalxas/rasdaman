@@ -21,19 +21,28 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+from rasdapy.models.minterval import MInterval
+from rasdapy.models.mdd_types import rDataFormat
 
 
 class RasGMArray(object):
+
     """
     This class represents a generic MDD in the sense that it
     is independent of the cell base type. The only information
     available is the length in bytes of the base type.
     """
     DEFAULT_MDD_TYPE = "GreyString"
-    # if type_leng is not specified, consider it is char (1 byte)
+
+    # if type_length is not specified, consider it is char (1 byte)
     DEFAULT_TYPE_LENGTH = 1
 
-    def __init__(self, spatial_domain, type_name, type_length, data, storage_layout):
+    def __init__(self,
+                 spatial_domain=None,
+                 type_name=None,
+                 type_length=DEFAULT_TYPE_LENGTH,
+                 data=None,
+                 storage_layout=None):
         """
         :param MInterval spatial_domain: the domain of this array
         :param str type_name: the name of array's type
@@ -42,11 +51,30 @@ class RasGMArray(object):
         :param byte[] data: the binary data in 1D array
         :param RasStorageLayout: storage layout object to store the tile domain, tile size
         """
-        # e.g: "insert into test_grey3D values $1" -f "/home/rasdaman/tmp/50k.bin" --mdddomain [0:99,0:99,0:4] --mddtype GreyCube
-        # mdddomain (spatial_domain): the domain of inserting marray (e.g: [0:99,0:99,0:4])
-        # mddtype (type_name): the type of inserting marray (e.g: GreyCube)
+
         self.spatial_domain = spatial_domain
         self.type_name = type_name
         self.type_length = type_length
+        self.format = rDataFormat.r_Array
         self.data = data
         self.storage_layout = storage_layout
+
+    @property
+    def data_length(self):
+        return len(self.data)
+
+    def decompose_mdd(self):
+        return self.storage_layout.decompose_mdd(self)
+
+    def __repr__(self):
+        s = f"spatial domain: {str(self.spatial_domain)}\n"
+        s += f"type_name: {self.type_name}\n"
+        s += f"type length: {self.type_length}\n"
+        return s
+
+
+
+
+
+
+

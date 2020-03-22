@@ -398,6 +398,7 @@ def byte_to_char_value(input):
     result = struct.unpack(">b", input)[0]
     return result
 
+
 def str_to_encoded_bytes(input):
     """
     Encode str to bytes with "\0" postfix
@@ -406,6 +407,10 @@ def str_to_encoded_bytes(input):
     """
     result = (str(input) + "\0").encode("iso-8859-1")
     return result
+
+
+def encoded_bytes_to_str(input):
+    return input.decode().rstrip('\x00')
 
 
 def ubytes_to_int(bytes_arr, endianness):

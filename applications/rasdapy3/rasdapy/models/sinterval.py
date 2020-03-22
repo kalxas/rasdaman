@@ -33,6 +33,10 @@ class SInterval(object):
         self.lo = int(lo)
         self.hi = int(hi)
 
+    @property
+    def width(self):
+        return self.hi - self.lo + 1
+
     def __str__(self):
         """
         String representing the sinterval (e.g: 0:250)

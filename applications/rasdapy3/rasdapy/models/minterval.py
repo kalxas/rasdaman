@@ -38,11 +38,63 @@ class MInterval(object):
 
     @property
     def empty(self):
-        return len(self.intervals) == 0
+        return self.cardinality == 0
 
     @property
-    def dim(self):
+    def cardinality(self):
         return len(self.intervals)
+
+    @property
+    def cell_count(self):
+        cell_count = 1
+        for interval in self.intervals:
+            cell_count *= interval.width
+        return cell_count
+
+    def get_extent(self):
+        extent = ()
+        for interval in self.intervals:
+            extent += (interval.width,)
+        return extent
+
+    def cell_point(self, offset):
+        factor = 1
+        for interval in self.intervals:
+            factor *= interval.width
+
+        pt = ()
+        for interval in self.intervals:
+            factor /= interval.width
+            coord = interval.lo + ((offset - (offset % factor)) / factor)
+            pt += (int(coord),)
+            offset %= factor
+
+        return pt
+
+    def cell_offset(self, tuple):
+        """
+        :param tuple: (i, j, k,...) coordinates in all dimensions
+        :return: offset in raw array (memory ordering)
+        """
+        dimensionality = len(tuple)
+
+        offset = 0
+        extent = self.get_extent()
+        for i in range(0, dimensionality-1):
+            interval = self.intervals[i]
+            offset = (offset + (tuple[i] - interval.lo))*extent[i+1]
+
+        i = dimensionality - 1
+        offset += (tuple[i] - self.intervals[i].lo)
+
+        return offset
+
+    @property
+    def shape(self):
+        _shape = []
+        for i in self.intervals:
+            _shape.append(i.hi + 1)
+        return tuple(_shape)
 
     def __str__(self):
         """
@@ -69,3 +121,39 @@ class MInterval(object):
 
         minterval = MInterval(result_arr)
         return minterval
+
+
+    @staticmethod
+    def from_shape(shape):
+        intervals = []
+        for i_max in shape:
+            intervals.append(SInterval(0, i_max - 1))
+        return MInterval(intervals)
+
+
+if __name__ == '__main__':
+    minterval = MInterval.from_str("[0:511, 0:511, 0:253]")
+    ori = (255, 255, 127)
+    offset = minterval.cell_offset(ori)
+    ret = minterval.cell_point(offset)
+    print( ori, offset, ret)
+
+    ori = (0, 0, 0)
+    offset = minterval.cell_offset(ori)
+    ret = minterval.cell_point(offset)
+    print(ori, offset, ret)
+
+    ori = (1, 0, 0)
+    offset = minterval.cell_offset(ori)
+    ret = minterval.cell_point(offset)
+    print(ori, offset, ret)
+
+    ori = (0, 1, 0)
+    offset = minterval.cell_offset(ori)
+    ret = minterval.cell_point(offset)
+    print(ori, offset, ret)
+
+    ori = (0, 0, 1)
+    offset = minterval.cell_offset(ori)
+    ret = minterval.cell_point(offset)
+    print(ori, offset, ret)

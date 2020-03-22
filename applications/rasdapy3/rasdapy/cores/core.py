@@ -31,37 +31,20 @@ to a format (i.e. NumPy) that can be used for performing scientific operations
 on the resultant arrays efficiently on the local machine
 """
 
-import os
-
 import grpc
-from rasdapy.cores.utils import get_md5_string
 
 from rasdapy.cores.utils import StoppableTimeoutThread, \
     get_spatial_domain_from_type_structure, get_type_structure_from_string, \
     convert_binary_data_stream
-
-from rasdapy.cores.exception_factories import ExceptionFactories
-from rasdapy.cores.remote_procedures import rasmgr_close_db, rasmgr_connect, \
-    rasmgr_disconnect, rasmgr_keep_alive, rasmgr_open_db, \
-    rassrvr_abort_transaction, rassrvr_begin_streamed_http_query, \
-    rassrvr_begin_transaction, rassrvr_close_db, rassrvr_commit_transaction, \
-    rassrvr_delete_collection_by_id, \
-    rassrvr_delete_collection_by_name, rassrvr_end_transfer, rassrvr_execute_query, \
-    rassrvr_execute_update_query, rassrvr_get_collection_by_name, rassrvr_get_next_element, rassrvr_get_next_mdd, \
-    rassrvr_get_next_tile, \
-    rassrvr_init_update, \
-    rassrvr_insert_collection, rassrvr_insert_tile, \
-    rassrvr_keep_alive, rassrvr_open_db, \
-    rassrvr_start_insert_trans_mdd
-
+from rasdapy.cores.remote_procedures import *
 from rasdapy.stubs.rasmgr_client_service_pb2_grpc import RasmgrClientServiceStub
 from rasdapy.stubs.client_rassrvr_service_pb2_grpc import ClientRassrvrServiceStub
-
-from rasdapy.models.minterval import MInterval
-from rasdapy.models.ras_gmarray import RasGMArray
-from rasdapy.models.ras_storage_layout import RasStorageLayOut
 from rasdapy.models.result_array import ResultArray
-from rasdapy.cores.utils import int_to_bytes, str_to_encoded_bytes, get_tiling_domain, convert_data_from_bin
+from rasdapy.cores.utils import convert_data_from_bin
+from rasdapy.query_result import QueryResult
+from rasdapy.models.ras_gmarray import RasGMArray
+from rasdapy.models.minterval import MInterval
+from rasdapy.models.mdd_types import rDataFormat
 
 
 
@@ -434,6 +417,7 @@ class Query(object):
         self.query_str = query_str
         self.mdd_constants = None
 
+
     def execute_write_with_file(self):
         """
         Execute a full request query (not only the rasql query from user input) to rasserver which contains
@@ -441,19 +425,23 @@ class Query(object):
         :param str query: a full request query to be sent to rasserver
         :return: response from server
         """
+        qr = QueryResult()
         # Send the request query and get the response from rasserver
         exec_update_query_from_file_resp = rassrvr_begin_streamed_http_query(
                                         self.transaction.database.stub,
                                         self.transaction.database.connection.session.clientUUID,
                                         self.query_str)
 
-        return exec_update_query_from_file_resp
+        qr.from_streamed_response(exec_update_query_from_file_resp)
+        return qr
 
     def execute_update(self):
         """
         Executes the query with write permission and returns back a result
         :return: the resulting status returned by the query
         """
+
+        qr = QueryResult()
         if self.transaction.rw is False:
             raise Exception("Transaction does not have write access")
 
@@ -466,14 +454,16 @@ class Query(object):
             self.query_str)
         if exec_update_query_resp.status == 2 or \
                         exec_update_query_resp.status == 3:
-            error_message = ExceptionFactories.create_error_message(exec_update_query_resp.erroNo, exec_update_query_resp.lineNo,
-                                                                    exec_update_query_resp.colNo, exec_update_query_resp.token)
-            raise Exception("Error executing query '{}', error message '{}'".format(self.query_str, error_message))
+            qr.with_error = True
+            qr.err_no = exec_update_query_resp.erroNo
+            qr.line_no = exec_update_query_resp.lineNo
+            qr.col_no = exec_update_query_resp.colNo
+            qr.token = exec_update_query_resp.token
         if exec_update_query_resp.status == 1:
             raise Exception("Error: Unknown Client")
         if exec_update_query_resp.status > 3:
             raise Exception("Error: Transfer failed")
-        return exec_update_query_resp.status
+        return qr
 
     def execute_read(self):
         """
@@ -525,23 +515,76 @@ class Query(object):
             if mddstatus == 2:
                 raise Exception("getMDDCollection - no transfer or empty collection")
 
-            tilestatus = 2
-            while tilestatus == 2 or tilestatus == 3:
-                tileresp = rassrvr_get_next_tile(self.transaction.database.stub,
-                                                 self.transaction.database.connection.session.clientId)
-                tilestatus = tileresp.status
-                if tilestatus == 4:
-                    raise Exception("rpcGetNextTile - no tile to transfer or empty collection")
-                else:
-                    data = tileresp.data
-                    result_data.append(data)
+            mdd_result = RasGMArray()
+            tilestatus = self._get_mdd_core(mdd_result, mddresp)
+            result_data.append(mdd_result.data)
 
             if tilestatus == 0:
                 break
 
-        # Close connection to server
         rassrvr_end_transfer(self.transaction.database.stub, self.transaction.database.connection.session.clientId)
+
         return result_data
+
+    def _get_mdd_core(self, mdd_result, mdd_resp):
+
+        mdd_result.spatial_domain = MInterval.from_str(mdd_resp.domain)
+        mdd_result.format = mdd_resp.current_format
+        # print(f"full domain {mdd_result.spatial_domain}")
+        tilestatus = 2
+        tileCntr = 0
+        array = b''
+        while tilestatus == 2 or tilestatus == 3:
+            tileresp = rassrvr_get_next_tile(self.transaction.database.stub,
+                                             self.transaction.database.connection.session.clientId)
+            tilestatus = tileresp.status
+            if tilestatus == 4:
+                raise Exception("rpcGetNextTile - no tile to transfer or empty collection")
+
+            if tileCntr == 0:
+                mdd_result.type_length = tileresp.cell_type_length
+            tileCntr += 1
+
+            tile_domain = MInterval.from_str(tileresp.domain)
+            # print(f"tile domain {tile_domain}")
+            if mdd_resp.current_format == rDataFormat.r_Array.value:
+
+                # TODO some stuff of rasnetclientcomm.c not yet implemented
+
+                if tilestatus < 2 and tileCntr == 1 and str(tile_domain) == str(mdd_result.spatial_domain):
+                    # MDD consists of just one tile that is the same size of the mdd
+                    array = tileresp.data
+                else:
+                    # MDD consists of more than one tile or the tile does not cover the whole domain
+                    if tileCntr == 1:
+                        size = mdd_result.spatial_domain.cell_count * mdd_result.type_length
+                        print(f"size is {size}")
+                        array = bytearray(size)
+
+                    # copy tile data into MDD data space (optimized, relying on the internal representation of an MDD )
+                    bloc_cells = tile_domain.intervals[tile_domain.cardinality - 1].width
+                    bloc_size = bloc_cells * mdd_result.type_length
+                    bloc_no = int(tile_domain.cell_count / bloc_cells)
+
+                    tile_offset = 0
+                    for bloc_ctr in range(bloc_no):
+                        offset = mdd_result.spatial_domain.cell_offset( tile_domain.cell_point(bloc_ctr*bloc_cells))* mdd_result.type_length
+                        array[offset:offset+bloc_size] = tileresp.data[tile_offset:tile_offset+bloc_size]
+                        tile_offset += bloc_size
+
+            else:
+                if tileCntr == 1:
+                    array = tileresp.data
+                else:
+                    raise Exception(f"current format {mdd_resp.current_format} not handled so far with tileCntr > 1")
+
+        mdd_result.data = array
+
+        return tilestatus
+
+    def _concat_array_data(self, data, data_len, data_dict, offset):
+        data_dict[offset] = data
+        return offset + data_len
 
     def _get_list_collection(self):
         """
@@ -603,35 +646,134 @@ class Query(object):
 
         return result_arr
 
-    def _send_mdd_constants(self):
-        exec_init_update_resp = rassrvr_init_update(
-            self.transaction.database.stub,
-            self.transaction.database.connection.session.clientId)
-        if exec_init_update_resp.status is not 1:
-            raise Exception(
-                "Error: Transfer Failed. ExecInitUpdate returned with a "
-                "non-zero status: " + str(
-                    exec_init_update_resp.status))
+    def execute(self):
 
-        for mdd in self.mdd_constants:
+        iqr = QueryResult()
+
+        if self.transaction.rw is False:
+            raise Exception("Transaction does not have write access")
+
+        if self.mdd_constants is not None:
+            self._send_mdd_constants()
+
+        for i, param in enumerate(self.mdd_constants):
+            tmp = str(i + 1)
+            self.query_str = self.query_str.replace("$" + tmp, "#MDD" + tmp + "#")
+
+        exec_insert_query_resp = rassrvr_execute_insert_query(
+            self.transaction.database.stub,
+            self.transaction.database.connection.session.clientId,
+            self.query_str
+        )
+
+        if exec_insert_query_resp.status == 0:
+            iqr.elements = self._get_mdd_collection()
+        elif exec_insert_query_resp.status == 1:
+            type_struct = get_type_structure_from_string(exec_insert_query_resp.type_structure)
+            iqr.elements = self._get_element_collection(type_struct)
+        elif exec_insert_query_resp.status == 2:
+            # empty result, should not be treated as default case
+            pass
+        else:
+            print(f"Internal error: RasnetClientComm::executeQuery(): illegal status value {exec_insert_query_resp.status}")
+
+        return iqr
+
+    def _get_element_collection(self, type_struct):
+        rpc_status = 0
+
+        elements = []
+        while rpc_status == 0:
+            resp = rassrvr_get_next_element(
+                self.transaction.database.stub,
+                self.transaction.database.connection.session.clientId
+            )
+
+            rpc_status = resp.status;
+
+            if rpc_status == 2:
+                raise Exception("Error: Transfer failed")
+
+            elements.append(convert_data_from_bin(type_struct['type'], resp.data))
+        rassrvr_end_transfer(
+            self.transaction.database.stub,
+            self.transaction.database.connection.session.clientId
+        )
+
+        return elements
+
+    def _get_mdd_collection(self):
+        mdd_status = 0
+        while  mdd_status == 0:
+            result = rassrvr_get_next_mdd(
+                    self.transaction.database.stub,
+                    self.transaction.database.connection.session.clientId
+            )
+
+            mdd_status == result.status
+
+            if mdd_status == 2:
+                raise Exception("Error: _get_mdd_collection(...) - no transfer collection or empty transfer collection")
+
+            tile_status = 2
+            while tile_status == 2 or tile_status == 3:
+                repl = rassrvr_get_next_tile(
+                    self.transaction.database.stub,
+                    self.transaction.database.connection.session.clientId
+                )
+
+                tile_status == repl.status
+
+                if repl.status == 4:
+                    raise Exception("Error: rassrvr_get_next_tile(...) - no tile to transfer or empty transfer collection")
+
+        rassrvr_end_transfer(
+            self.transaction.database.stub,
+            self.transaction.database.connection.session.clientId
+        )
+
+    def _send_mdd_constants(self):
+
+        for ras_array in self.mdd_constants:
+
+            exec_init_update_resp = rassrvr_init_update(
+                self.transaction.database.stub,
+                self.transaction.database.connection.session.clientId)
+            if exec_init_update_resp.status > 0:
+                raise Exception(
+                    "Error: Transfer Failed. ExecInitUpdate returned with a "
+                    "non-zero status: " + str(
+                        exec_init_update_resp.status))
+
             insert_trans_mdd_resp = rassrvr_start_insert_trans_mdd(
                 self.transaction.database.stub,
                 self.transaction.database.connection.session.clientId,
-                mdd.domain, mdd.type_length, mdd.type_name)
-            if insert_trans_mdd_resp.status is 0:
+                str(ras_array.spatial_domain),
+                ras_array.type_length,
+                ras_array.type_name)
+
+            if insert_trans_mdd_resp.status > 0:
+                raise Exception("Error: Transfer failed")
+
+            mdd_itr = ras_array.decompose_mdd()
+            for mdd in mdd_itr:
                 insert_tile_resp = rassrvr_insert_tile(
                     self.transaction.database.stub,
                     self.transaction.database.connection.session.clientId,
-                    self.transaction.rw,
-                    mdd.domain, mdd.type_length, mdd.current_format,
-                    mdd.storage_format, mdd.data,
+                    0,
+                    str(mdd.spatial_domain),
+                    mdd.type_length,
+                    mdd.format.value,
+                    mdd.storage_layout.format.value,
+                    mdd.data,
                     mdd.data_length)
                 if insert_tile_resp.status > 0:
                     raise Exception("Error: Transfer failed")
-            elif insert_trans_mdd_resp.status is 2:
-                raise Exception("Error: Database Class Undefined")
-            elif insert_trans_mdd_resp.status is 3:
-                raise Exception("Error: Invalid Type")
-            else:
-                raise Exception("Error: Transfer failed")
 
+            end_insert_resp = rassrvr_end_insert_mdd(
+                self.transaction.database.stub,
+                self.transaction.database.connection.session.clientId,
+                False
+            )
+            if end_insert_resp.status > 0:
+                raise Exception("Error: Transfer failed")

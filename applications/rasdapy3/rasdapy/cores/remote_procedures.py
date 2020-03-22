@@ -172,7 +172,7 @@ def rassrvr_insert_tile(stub, cid, persistent, domain, type_len, current_format,
 
 
 def rassrvr_end_insert_mdd(stub, cid, persistence):
-    resp = stub.InsertMDD(make_rassrvr_end_insert_mdd_req(cid, persistence),
+    resp = stub.EndInsertMDD(make_rassrvr_end_insert_mdd_req(cid, persistence),
                           _TIMEOUT_SECONDS)
     if not resp:
         raise Exception("Remote function 'EndInsertMDD' failed")
