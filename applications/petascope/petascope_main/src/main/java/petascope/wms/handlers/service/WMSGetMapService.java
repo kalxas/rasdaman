@@ -1208,7 +1208,7 @@ public class WMSGetMapService {
         
         if (response == null) {
             // Create a transparent image by input width and height parameters
-            String query = " select encode( extend(<[0:0,0:0] 0c>, [0:" + (this.width - 1) + ",0:" + (this.height - 1) + "]) , \"" + this.format + "\", {\\\"nodata\\\": 0}) ";
+            String query = " select encode( extend(<[0:0,0:0] 0c>, [0:" + (this.width - 1) + ",0:" + (this.height - 1) + "]) , \"" + this.format + "\", \"{\\\"nodata\\\": [0]}\") ";
             byte[] bytes = RasUtil.getRasqlResultAsBytes(query);
             response = new Response(Arrays.asList(bytes), this.format, this.layerNames.get(0));
             this.blankTileMap.put(key, response);
