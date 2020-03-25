@@ -955,12 +955,12 @@ run_test()
               get_request_kvp "$SECORE_URL" "$QUERY" "$out" "secore"
               ;;
 
-      select|rasql|nullvalues|subsetting|clipping|rasdapy|rasdapy3)
+      select|rasql|nullvalues|subsetting|clipping|rasdapy3)
 
               QUERY=$(cat "$f")
 
               local RASQL_CMD="$RASQL"
-              [ "$SVC_NAME" = "rasdapy" -o "$SVC_NAME" = "rasdapy3" ] && RASQL_CMD="$PY_RASQL"
+              [ "$SVC_NAME" = "rasdapy3" ] && RASQL_CMD="$PY_RASQL"
               local out_scalar="${out}_scalar"
 
               $RASQL_CMD -q "$QUERY" --out file --outfile "$out" 2> "$err" | grep "  Result " > $out_scalar

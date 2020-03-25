@@ -103,7 +103,6 @@ ingest_data()
 {
   [ $INGEST_DATA -eq 0 ] && return
   [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "clipping" ] && import_rasql_data "$TESTDATA_PATH"
-  [ "$SVC_NAME" == "rasdapy" ] && py_import_rasql_data "$TESTDATA_PATH"
   [ "$SVC_NAME" == "rasdapy3" ] && py_import_rasql_data "$TESTDATA_PATH"
   [ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data "$TESTDATA_PATH"
   [ "$SVC_NAME" == "subsetting" ] && import_subsetting_data "$TESTDATA_PATH"
@@ -138,10 +137,6 @@ trap cleanup SIGINT
 #
 # checks
 #
-if [ "$SVC_NAME" = "rasdapy" -a "$OS_VERSION" = "$OS_UBUNTU1604" ]; then
-  # rasdapy runs with 10s per query on Ubuntu 16.04 for an unknown reason
-  exit $RC_SKIP
-fi
 if [ "$SVC_NAME" = "rasdapy3" ]; then
   # rasql.py doesn't work well on these OS (python3 is not selected properly)
   [ "$OS_NAME" = "ubuntu" ] && [ "$OS_VERSION_NUMBER" -lt 1804 ] && exit $RC_SKIP

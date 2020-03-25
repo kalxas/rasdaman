@@ -22,7 +22,7 @@
 ###################################################################
 
 add_subdirectory(rasql)
-add_subdirectory(rasdapy)
+add_subdirectory(rasdapy3)
 
 if (ENABLE_JAVA)
     add_subdirectory(petascope)
