@@ -148,8 +148,8 @@ uploaded_files_dir_tmp=/tmp/rasdaman/petascope/upload
 # parameter:     max_wms_cache_size
 # purpose:       Specify the maximum amount of memory (in bytes) to use for caching WMS GetMap requests.
 # description:   This setting speeds up repeating WMS operaions over similar area/zoom level. Consider increasing
-                 the parameter if the system has more RAM (but also make sure to correspondingly update the -Xmx option for Tomcat).
-                 The cache evicts last recently used values when it reaches the maximum limit specified here.
+#                the parameter if the system has more RAM (but also make sure to correspondingly update the -Xmx option for Tomcat).
+#                The cache evicts last recently used values when it reaches the maximum limit specified here.
 # need to adapt: yes
 max_wms_cache_size=100000000
 

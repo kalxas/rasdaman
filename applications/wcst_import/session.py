@@ -197,7 +197,6 @@ class Session:
 
         return updated_crs
 
-
     def __get_file_paths(self, paths):
         """"
         Get the list of file paths to be imported
@@ -205,10 +204,12 @@ class Session:
         file_paths = []
         for path in paths:
             path = path.strip()
-            file_paths = file_paths + FileUtil.get_file_paths_by_regex(self.ingredients_dir_path, path)
+            if not path.startswith("/vsi"):
+                file_paths = file_paths + FileUtil.get_file_paths_by_regex(self.ingredients_dir_path, path)
+            else:
+                file_paths.append(path)
 
         return file_paths
-
 
     def parse_input(self, paths):
         """
