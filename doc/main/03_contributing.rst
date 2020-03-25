@@ -1302,6 +1302,93 @@ Insert encoded data
     ...
 
 
+Running tests locally
+=====================
+
+Uploading a patch to the `patchmanager <http://rasdaman.org/patchmanager>`_ will
+automatically trigger a  `jenkins build
+<http://codereview.rasdaman.org/jenkins/>`_ that applies the patch on master
+and runs the systemtest. The jenkins testing is done on several OS in parallel:
+CentOS 7, Ubuntu 16.04 and Ubuntu 18.04.
+
+You can run the systemtest directly on your installation. But sometimes it can
+be useful to replicate the same environment as in the jenkins tests, as the 
+patch may be causing some discrepancies across different OS. The steps below
+show how to replicate the jenkins test on your machine; required dependencies
+are `rasdaman installer <sec-system-install-installer>`_ and `vagrant
+<sec-rasdaman-vagrant>`_.
+
+.. hidden-code-block:: bash
+
+  # get rasdaman installer bootstrap script
+  wget https://download.rasdaman.org/installer/install.sh
+  # download the rasdaman installer in current dir
+  bash install.sh -d && mv /tmp/rasdaman-installer .
+  # in the test directory there are helper scripts and Vagrantfiles for running tests
+  cd rasdaman-installer/test
+
+  # the vm on which to test; can be centos7 or ubuntu1604 as well
+  vm=ubuntu1804
+  # the patch id to be fetched from the patchmanager
+  # download the patch beforehand to find out the id
+  patch_id=4000
+  branch=master
+
+  # run the systemtest; the last argument is the command which will be executed 
+  # in the /vagrant/rasdamaninstaller directory on the VM
+  ./run_vm.sh "$vm" 1 "./ci_test.sh systemtest.toml $branch $patch_id"
+
+  # see local output
+  less "/tmp/rasdamaninstaller_test/$vm.log"
+
+  # see detailed installer output in the vm itself
+  cd "$vm"
+  vagrant ssh
+  less /tmp/rasdaman.install.log
+
+The directory where the Vagrantfile sits is mounted in the VM at path
+``/vagrant``. The ``./run_vm.sh`` script copies the installer in this directory,
+so it's  possible to update the installer code or
+``profiles/test/systemtest.toml`` file to apply a local patch file for example
+instead of specifying a patch id to be downloaded from the patchmanager. After
+such changes, it is necessary to reload the VM in order to get the updated files
+in its ``/vagrant`` dir. This can be done with ``vagrant reload --provision`` in
+the VM directory (where the Vagrantfile is). Example follows below.
+
+.. hidden-code-block:: bash
+
+  cd rasdaman-installer/test
+  vm=ubuntu1804
+  branch=master
+  patch_local="$HOME/patches/mypatch.patch"
+
+  # copy the local patch to the vm dir
+  cp "$patch_local" "$vm/"
+
+  # edit the toml file to set path to the vm patch, or do it with sed:
+  profile="../profiles/test/systemtest.toml"
+  patch_vm="/vagrant/mypatch.patch"
+  sed -i 's|patch = .*|patch = "'"$patch_vm"'"|' "$profile"
+  
+  # reload the vm to make sure the updated profile and the patch appear in /vagrant
+  cd "$vm"
+  ./run.sh reload
+
+  # run the systemtest as usual, just don't specify a $patch_id now 
+  # (we already set a path in the profile)
+  cd ..
+  ./run_vm.sh "$vm" 1 "./ci_test.sh systemtest.toml $branch"
+
+Instead of testing a single VM, it's possible to run the testing in parallel on
+all supported VMs (centos7, ubuntu1604, ubuntu1804). It's similar steps as
+before, except instead of ``./run_vm.sh`` we execute ``./test_installer.sh``;
+the argument is the command which will be executed in the
+``/vagrant/rasdamaninstaller`` directory on each VM:
+
+::
+
+  ./test_installer.sh "./ci_test.sh systemtest.toml $branch $patch_id"
+
 
 .. _code-guide:
 

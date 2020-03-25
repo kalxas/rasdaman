@@ -1498,6 +1498,8 @@ that this installation relies on the OSGeo release cycle and, therefore,
 will usually not reflect the latest software state.
 
 
+.. _sec-rasdaman-vagrant:
+
 rasdaman vagrant boxes
 ----------------------
 
@@ -1514,17 +1516,17 @@ environment with `vagrant <https://www.vagrantup.com/>`__:
 rasdaman is not installed, but all packages needed for building are preinstalled and
 the rasdaman sources can be found in ``/opt/rasdaman/source`` (make sure
 to ``git pull`` to get the latest version). In
-``/opt/rasdaman/third_party`` there is a cmake v3.6 that can be used to
+``/opt/rasdaman/third_party`` there is a cmake that can be used to
 configure and build rasdaman. To build and install rasdaman, you can use
-the `rasdaman installer <https://rasdaman.org/wiki/Installer>`_ or
-:ref:`do it from scratch <sec-system-install>`.
+the `rasdaman installer <sec-system-install-installer>`_ or
+`do it from scratch <sec-system-install>`_.
 
-Here is a sample ``Vagrantfile`` for the Ubuntu 16.04 box:
+Here is a sample ``Vagrantfile`` for the Ubuntu 18.04 box:
 
-.. hidden-code-block:: text
+.. hidden-code-block:: ruby
 
     Vagrant.configure(2) do |config|
-       config.vm.box = "rasdaman/ubuntu1604"
+       config.vm.box = "rasdaman/ubuntu1804"
        config.vm.box_check_update = false
        config.vm.synced_folder ".", "/vagrant", type: "rsync"
        config.vm.provider "virtualbox" do |vb|
@@ -1539,16 +1541,17 @@ Here is a sample ``Vagrantfile`` for the Ubuntu 16.04 box:
        SHELL
     end
 
-To quickly get started (read the `vagrant
-docs <https://www.vagrantup.com/docs/getting-started/>`__ for further
-information):
+To quickly get started:
 
 .. code-block:: text
 
+    $ sudo apt-get install vagrant
     $ cd /location/of/Vagrantfile
     $ vagrant up
     $ vagrant ssh
 
+Check the `vagrant docs <https://www.vagrantup.com/docs/getting-started/>`__ for
+further information.
 
 
 .. _sec-system-install-conf:
