@@ -304,6 +304,8 @@ module wms {
                     query = $(rasdamanXML).find("RasqlTransformFragment").text();
                 }
 
+                query = query.replace(/&amp;lt;/g, "<").replace(/&amp;gt;/g, ">");
+
                 var colorTableType = "";
                 var colorTableDefinition = "";
 

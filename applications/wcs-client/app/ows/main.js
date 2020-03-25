@@ -5322,6 +5322,7 @@ var wms;
                     queryType = "rasqlTransformFragment";
                     query = $(rasdamanXML).find("RasqlTransformFragment").text();
                 }
+                query = query.replace(/&amp;lt;/g, "<").replace(/&amp;gt;/g, ">");
                 var colorTableType = "";
                 var colorTableDefinition = "";
                 if ($(rasdamanXML).find("ColorTableType").text() != "") {
