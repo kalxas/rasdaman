@@ -312,7 +312,7 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
         LERROR << "Domains of the operands are incompatible.";
         LERROR << "areaOp1 " << areaOp1 << " with extent " << areaOp1.get_extent();
         LERROR << "areaOp2 " << areaOp2 << " with extent " << areaOp2.get_extent();
-        throw r_Error(351);
+        throw r_Error(343);
     }
 
     return returnValue;

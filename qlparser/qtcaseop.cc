@@ -446,7 +446,8 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
             LERROR << "Domains of the operands are incompatible.";
             LERROR << "areaOp1 " << areaOp1 << " with extent " << areaOp1.get_extent();
             LERROR << "areaOp2 " << areaOp2 << " with extent " << areaOp2.get_extent();
-            throw r_Error(351);
+            parseInfo.setErrorNo(351);
+            throw parseInfo;
         }        
     }
     for (condIter = conditionList2->begin(); condIter != conditionList2->end(); condIter++)
