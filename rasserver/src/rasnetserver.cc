@@ -70,6 +70,8 @@ void RasnetServer::startRasnetServer()
     builder.RegisterService(rasserverService.get());
     builder.RegisterService(clientServerService.get());
     builder.RegisterService(healthServiceImpl.get());
+    builder.SetMaxReceiveMessageSize(std::numeric_limits<int>::max()); //unlimited -1 not working in grpc version 1.9.1
+    builder.SetMaxSendMessageSize(std::numeric_limits<int>::max()); //unlimited
 
     this->isRunning = true;
     // Finally assemble the server.
