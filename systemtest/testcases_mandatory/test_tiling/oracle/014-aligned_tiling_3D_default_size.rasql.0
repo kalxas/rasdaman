@@ -6,7 +6,7 @@
  "tiling": {
 	"tilingScheme": "aligned",
 	"tileSize": "4194304",
-	"tileConfiguration": "[0:999,0:999,0:0]"",
+	"tileConfiguration": "[0:999,0:999,0:0]",
 	"tileDomains":
 	[
 		"[0:99,0:99,0:0]"

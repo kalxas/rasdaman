@@ -93,6 +93,7 @@
 371^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Retrieval query must start with a SELECT statement.
 372^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.
 373^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unsatisfied MDD constant parameter.
+379^E^Execution error: Printtiles argument is not supported.
 380^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Data type can not be converted to selected data exchange format.
 381^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Error in convertor of the selected data exchange format.
 382^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown conversion format.

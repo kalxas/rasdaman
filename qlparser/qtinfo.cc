@@ -84,8 +84,7 @@ QtInfo::QtInfo(QtVariable *newInput, const char *paramsStr)
         }
         else{
             LERROR << "Error: QtInfo::QtInfo() - printtiles argument is not supported.";
-            parseInfo.setErrorNo(379);
-            throw parseInfo;
+            throw r_Error(379);
         }
         if (printParam != NULL)
         {
@@ -209,7 +208,7 @@ QtInfo::evaluate(QtDataList *inputList)
 
                         if (printTiles == EMBEDDED)
                         {
-                            info << "\",\n\t\"tileDomains\":\n\t[";
+                            info << ",\n\t\"tileDomains\":\n\t[";
                             for (unsigned int i = 0; i < tiles->size(); i++)
                             {
                                 info << "\n\t\t\"" << tiles->at(i)->getDomain() << "\"";
