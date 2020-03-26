@@ -184,9 +184,6 @@ public class UpdateCoverageHandler {
                 if (isLocalFile(fileUrl)) {
                     fileUrl = fileUrl.replace(FILE_PROTOCOL, "");
                     isLocal = true;
-                    if (!fileUrl.contains(":")) {
-                        fileUrl = new File(fileUrl).getAbsolutePath();
-                    }
                 } else {
                     // remote file, get it as bytes
                     bytes = getReplacementValuesFromFileAsBytes(rangeSet);                    

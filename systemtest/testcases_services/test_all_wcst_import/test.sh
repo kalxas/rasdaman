@@ -125,6 +125,7 @@ for test_case in $TEST_DATA/*; do
         # 1.3 replace all the default with the current system configuration from systemtest/util/common.sh
         sed -i "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$recipe_file"
         sed -i "s@SECORE_URL@$SECORE_URL@g" "$recipe_file"
+        sed -i "s@CURRENT_ABSOLUTE_DIR@$test_case@g" "$recipe_file"
     fi
     
     test_case_name=$(basename "$test_case")

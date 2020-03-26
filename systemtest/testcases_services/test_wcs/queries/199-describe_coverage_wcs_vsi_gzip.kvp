@@ -1,0 +1,4 @@
+service=WCS
+&version=2.0.1
+&request=DescribeCoverage
+&coverageId=test_wcps_rgb_gzip
