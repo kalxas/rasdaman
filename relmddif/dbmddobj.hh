@@ -197,6 +197,11 @@ public:
     associate null values with this object
     */
 
+    void setDbDomain(const r_Minterval &domain);
+    /*@Doc:
+    updates the domain of this object in the db
+    */
+
 protected:
     friend class ObjectBroker;
 

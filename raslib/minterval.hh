@@ -246,7 +246,10 @@ public:
     r_Minterval &operator<<(r_Range);
 
     /// getter method for axisNames
-    const std::vector<std::string> &getAxisNames();
+    const std::vector<std::string> &getAxisNames() const ;
+
+    /// setter method for axisNames
+    void setAxisNames(std::vector<std::string> axisNames);
 
     /// default constructor
     r_Minterval();

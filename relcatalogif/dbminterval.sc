@@ -98,6 +98,11 @@ DBMinterval &DBMinterval::operator=(const r_Minterval &old)
     return *this;
 }
 
+void DBMinterval::updateMinterval(const r_Minterval &domain) {
+  r_Minterval::operator=(domain);
+  setModified();
+}
+
 r_Bytes DBMinterval::getMemorySize() const
 {
     return DBObject::getMemorySize() +

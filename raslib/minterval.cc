@@ -220,9 +220,13 @@ r_Minterval::r_Minterval(const char *mIntStr)
     temp = nullptr;
 }
 
-const std::vector<std::string> &r_Minterval::getAxisNames()
+const std::vector<std::string> &r_Minterval::getAxisNames() const
 {
     return axisNames;
+}
+
+void r_Minterval::setAxisNames(std::vector<std::string> newAxisNames) {
+  axisNames = std::move(newAxisNames);
 }
 
 r_Minterval &r_Minterval::operator<<(const r_Sinterval &newInterval)

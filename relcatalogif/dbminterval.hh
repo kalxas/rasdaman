@@ -74,6 +74,8 @@ public:
     replaces only the r_Minterval part of the object
     */
 
+    void updateMinterval(const r_Minterval& domain);
+
     r_Bytes getMemorySize() const override;
     /*@Doc:
     estimates the space taken up by this object with:

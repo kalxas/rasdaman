@@ -343,16 +343,14 @@ void DBMDDObj::readFromDb()
     {
         mddType = static_cast<MDDBaseType *>(ObjectBroker::getObjectByOId(OId(query.nextColumnLong())));
         MDDDomainType *myDomainType= dynamic_cast<MDDDomainType *>(const_cast< MDDBaseType*>(mddType));
+        myDomain = static_cast<DBMinterval *>(ObjectBroker::getObjectByOId(OId(query.nextColumnLong(), OId::DBMINTERVALOID)));
+        //workaround for reading domains persisted with the wrong axis names
         if (myDomainType!=NULL)
         {
-            myDomain = new DBMinterval(*myDomainType->getDomain());
-            query.nextColumnLong();
+            if(myDomain->getAxisNames() != myDomainType->getDomain()->getAxisNames()) {
+                myDomain->setAxisNames(myDomainType->getDomain()->getAxisNames());
+            }
         }
-        else 
-        {
-            myDomain = static_cast<DBMinterval *>(ObjectBroker::getObjectByOId(OId(query.nextColumnLong(), OId::DBMINTERVALOID)));
-        }
-
         myDomain->setCached(true);
         persistentRefCount = query.nextColumnLong();
         objIxId = OId(query.nextColumnLong());
@@ -368,4 +366,10 @@ void DBMDDObj::readFromDb()
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
+}
+
+void
+DBMDDObj::setDbDomain(const r_Minterval& domain)
+{
+    myDomain->updateMinterval(domain);
 }

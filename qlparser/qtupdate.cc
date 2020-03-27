@@ -438,6 +438,8 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
     {
         targetObj->insertTile(static_cast<Tile *>(*retvalIt));
     }
+    //update the db domain to the one computed from the index
+    targetObj->setDbDomain(targetObj->getCurrentDomain());
 }
 
 bool

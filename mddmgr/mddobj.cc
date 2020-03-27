@@ -677,3 +677,7 @@ const CollectionType *MDDObj::getCollType() const
 {
     return collType;
 }
+
+void MDDObj::setDbDomain(const r_Minterval &domain) {
+  myDBMDDObj->setDbDomain(domain);
+}

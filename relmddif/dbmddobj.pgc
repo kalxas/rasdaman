@@ -533,3 +533,9 @@ DBMDDObj::setNullValues(const r_Nullvalues& newNullValues)
   nullValues = new DBNullvalues(newNullValues);
   setModified();
 }
+
+void
+DBMDDObj::setDbDomain(const r_Minterval& domain)
+{
+  myDomain->updateMinterval(domain);
+}

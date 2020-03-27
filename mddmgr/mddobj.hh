@@ -305,6 +305,9 @@ public:
     /// returns pointer to the collection type
     const CollectionType *getCollType() const;
 
+    /// sets the domain in the database
+    void setDbDomain(const r_Minterval &domain);
+
 protected:
 
     /// write nullValues to a given tile...
