@@ -22,9 +22,13 @@
     {
       "description": "merge all bands into a single file",
       "when": "before_ingestion",
-      "cmd": " gdal_merge.py -separate '${file:dir_path}/'*.tif -o '/tmp/${file:name}'",
+      "cmd": " gdalwarp '${file:dir_path}/'*.tif '/tmp/${file:name}' -overwrite",
       "abort_on_error": true,
       "replace_path": ["/tmp/${file:name}"]
-    }
+    }, {
+        "description": "remove moved files.",
+        "when": "after_ingestion",
+        "cmd": "rm -f '/tmp/${file:name}'"
+      }
   ]
 }

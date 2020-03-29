@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-
-
-
-
-
 >
 <wcs:CoverageDescription id="test_pre_hook_merge_3_bands">
 <boundedBy>
@@ -46,22 +41,6 @@ id="test_pre_hook_merge_3_bands-point" srsName="/crs/EPSG/0/32632">
 <swe:field name="Gray">
 <swe:Quantity definition="/dataType/OGC/0/unsignedShort">
 <swe:label>Gray</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="field_2">
-<swe:Quantity definition="/dataType/OGC/0/unsignedShort">
-<swe:label>field_2</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="field_3">
-<swe:Quantity definition="/dataType/OGC/0/unsignedShort">
-<swe:label>field_3</swe:label>
 <swe:description/>
 <swe:uom code="10^0"/>
 <swe:constraint/>

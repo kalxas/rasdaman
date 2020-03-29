@@ -1,5 +1,0 @@
-SERVICE=WCS&
-VERSION=2.0.1&
-REQUEST=GetCoverage&
-COVERAGEID=test_pre_hook_tiles&
-FORMAT=image/png
