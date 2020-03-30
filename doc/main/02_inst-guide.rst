@@ -135,6 +135,9 @@ Notice, though, that the geo service component, petascope, currently still
 relies on a PostgreSQL database; this is planned to be changed in the near
 future.
 
+   .. note::
+        Installing or updating rasdaman from the official packages can be optionally customized with an installation profile (see `installer configuration <sec-system-install-installer-config>`). Prior to installation, make sure that the RAS_INSTALL_PATH environment variable points to the custom profile that you want to use.
+
 .. _sec-system-install-pkgs-deb:
 
 DEB packages
