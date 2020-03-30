@@ -43,8 +43,12 @@ class WCSTImportDaemon(Daemon):
             if not self.running():
                 sys.stderr.write("Pid file was not found\n")
                 sys.exit(1)
-
-            wi.main()
+            try:
+              wi.main()
+            except:
+              # exceptions thrown by wcst_import (e.g. no new files to import)
+              # shouldn't stop the daemon
+              pass
             time.sleep(SLEEP_TIME)
 
 
