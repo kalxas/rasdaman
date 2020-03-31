@@ -262,11 +262,12 @@ function py_import_rasql_data()
 
   log "Importing error collection..."
   # Create a failed test to import data to collection and Rasdapy should not print binary error
-  ERROR_COLLECTION="test_import_error"
-  py_create_coll $ERROR_COLLECTION BoolSet
-  py_insert_into $ERROR_COLLECTION "$TESTDATA_PATH/50k.bin" "" "decode" 2>&1 | grep 'Exception: Error executing query. Reason' > /dev/null
-  check_result "0" $? "Checking expected error"
-  py_drop_colls $ERROR_COLLECTION
+  # TODO
+  #ERROR_COLLECTION="test_import_error"
+  #py_create_coll $ERROR_COLLECTION BoolSet
+  #py_insert_into $ERROR_COLLECTION "$TESTDATA_PATH/50k.bin" "" "decode" 2>&1 | grep 'Exception: Error executing query. Reason' > /dev/null
+  #check_result "0" $? "Checking expected error"
+  #py_drop_colls $ERROR_COLLECTION
 }
 
 #adds the necessary data to the $TEST_OVERLAP collection

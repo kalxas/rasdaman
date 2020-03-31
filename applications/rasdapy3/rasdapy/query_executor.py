@@ -24,9 +24,8 @@
 import os
 from rasdapy.models.ras_gmarray import RasGMArray
 from rasdapy.models.ras_storage_layout import RasStorageLayOut
+from rasdapy.models.ras_gmarray_builder import RasGMArrayBuilder
 from rasdapy.ras_oqlquery import RasOQLQuery
-from rasdapy.cores.utils import get_tiling_domain
-from rasdapy.models.minterval import MInterval
 
 
 class QueryExecutor(object):
@@ -61,28 +60,24 @@ class QueryExecutor(object):
         """
         self.ras_oqlquery.create(query)
         res = self.ras_oqlquery.execute()
-
+        self.ras_oqlquery.reset()
         return res
 
-    def execute_update(self, query, gmarray: RasGMArray):
+    def execute_query(self, query, gmarray: RasGMArray):
         # Then, it can run the query to update collection with MDArray from input file
         self.ras_oqlquery.create(query)
         self.ras_oqlquery.bind(gmarray)
+
         query_result = self.ras_oqlquery.execute()
-
+        self.ras_oqlquery.reset()
         return query_result
 
-    def execute_insert(self, query, gmarray: RasGMArray):
-        # Then, it can run the query to update collection with MDArray from input file
-        self.ras_oqlquery.create(query)
-        self.ras_oqlquery.bind(gmarray)
-
-        query_result = self.ras_oqlquery.insert_query()
-        return query_result
-
-    def execute_update_from_file(self, query, file_path, mdd_domain=None, mdd_type=RasGMArray.DEFAULT_MDD_TYPE,
+    def execute_update_from_file(self, query, file_path,
+                                 mdd_domain=None,
+                                 mdd_type=RasGMArray.DEFAULT_MDD_TYPE,
                                  mdd_type_length=RasGMArray.DEFAULT_TYPE_LENGTH,
-                                 tile_domain=None, tile_size=RasStorageLayOut.DEFAULT_TILE_SIZE):
+                                 tile_domain=None,
+                                 tile_size=RasStorageLayOut.DEFAULT_TILE_SIZE):
         """
         Execute rasql query which needs write permission to insert MDArray from file into collection
         (only used with ***insert into collection values from file($1) -f --mdddomain --mddtype***)
@@ -96,32 +91,9 @@ class QueryExecutor(object):
         :param int tile_size: size of the tile (e.g: 128KB). This is optional as rasql doesn't have parameter for it.
         :return: int oid: newly inserted OID of MDArray in collection
         """
-        if not os.path.isfile(file_path):
-            raise Exception("File {} to be inserted to rasdaman collection does not exist.".format(file_path))
+        gmarray = RasGMArrayBuilder.from_file(file_path, mdd_domain, mdd_type, mdd_type_length, tile_domain, tile_size)
 
-        # The data sent to rasserver is binary file content, not file_path
-        with open(file_path, mode='rb') as file:
-            data = file.read()
+        return self.execute_query(query, gmarray)
 
-        # NOTE: with insert into values decode($1), it doesn't need to specify --mdddomain and --mddtype
-        # but with values $1 it needs to specify these parameters
-        if mdd_domain is None:
-            mdd_domain = "[0:" + str(len(data) - 1) + "]"
-        if mdd_type is None:
-            mdd_type = RasGMArray.DEFAULT_MDD_TYPE
 
-        # Parse str values of mdd_domain and tile_domain to MInterval objects
-        mdd_domain = MInterval.from_str(mdd_domain)
 
-        # tile* are not parameters from "insert into value from file" in rasql client, so calculate it internally
-        if tile_domain is None:
-            dim = len(mdd_domain.intervals)
-            tile_domain = get_tiling_domain(dim, mdd_type_length, tile_size)
-        else:
-            tile_domain = MInterval.from_str(tile_domain)
-
-        # Create helper objects to build POST query string to rasserver
-        storage_layout = RasStorageLayOut(spatial_domain=tile_domain, tile_size=tile_size)
-        gmarray = RasGMArray(mdd_domain, mdd_type, mdd_type_length, data, storage_layout)
-
-        return self.execute_update(query, gmarray)

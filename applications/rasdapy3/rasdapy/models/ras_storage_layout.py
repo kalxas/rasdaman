@@ -48,7 +48,8 @@ class RasStorageLayOut(object):
         self.tile_size = tile_size
 
     def decompose_mdd(self, gm_array):
-        pass
+        # by default no decomposition, return the mdd itself
+        return [gm_array]
 
 
 class BandStorageLayout(RasStorageLayOut):

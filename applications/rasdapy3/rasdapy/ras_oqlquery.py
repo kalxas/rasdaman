@@ -23,6 +23,13 @@
 """
 from rasdapy.models.ras_gmarray import RasGMArray
 from rasdapy.cores.utils import int_to_bytes, str_to_encoded_bytes, get_tiling_domain, convert_data_from_bin
+from enum import Enum
+
+
+class QueryType(Enum):
+    SELECT = 1,
+    INSERT = 2,
+    UPDATE = 3
 
 
 class RasOQLQuery(object):
@@ -30,9 +37,6 @@ class RasOQLQuery(object):
     BIG_ENDIAN = 0
     LITTLE_ENDIAN = 1
 
-    __COMMAND_QUERY_EXEC = 8
-    __COMMAND_UPDATE_QUERY_EXEC = 9
-    __COMMAND_INSERT_QUERY_EXEC = 11
 
     """
     The interface to an OQL query object.
@@ -45,30 +49,6 @@ class RasOQLQuery(object):
         self.db_connector = db_connector
         self.query = None
         self.params = []
-
-    def __get_transfer_encoding(self, gmarray):
-        """
-        Returns a byte array representing the GMArray. This byte array is used for uploading insert into query from file
-        to rasserver.
-        e.g: "insert into test_grey3D values $1" -f "/home/rasdaman/tmp/50k.bin" --mdddomain [0:99,0:99,0:4] --mddtype GreyCube
-        translated to:
-        QueryString=insert into test_rasj values #MDD1#&Endianess=0
-        &NumberOfQueryParameters=1&BinDataSize=414&BinData=GreyImage[0:18,0:18][0:10,0:10]BINARY_DATA_FROM_FILE
-        :param RasGMArray gmarray: containing the information about the marray to be inserted to rasdaman collection
-        :return str result: a binary string to be sent to rasserver for inserting marray from file to rasdaman collection
-        """
-        tmp_arr = [int_to_bytes(1),
-                   str_to_encoded_bytes(gmarray.type_name),
-                   str_to_encoded_bytes(""),
-                   int_to_bytes(gmarray.type_length),
-                   str_to_encoded_bytes(gmarray.spatial_domain),
-                   str_to_encoded_bytes(gmarray.storage_layout.spatial_domain),
-                   str_to_encoded_bytes("||0.0"),
-                   int_to_bytes(len(gmarray.data))]
-        result = b''.join(tmp_arr)
-        result = result + gmarray.data
-
-        return result
 
     def create(self, query):
         """
@@ -83,17 +63,19 @@ class RasOQLQuery(object):
         """
         self.params.append(param)
 
+    def reset(self):
+        self.params = []
+        self.query = None
+
     def execute(self):
         """
         Execute the OQL query
         :return: object depends on the type of query (insert/select/update...)
         """
-        mdd_data = b''
+
         for i, param in enumerate(self.params):
             tmp = str(i + 1)
             if isinstance(param, RasGMArray):
-                # This object contains the necessary informations for updating rasdaman collection from files
-                mdd_data += self.__get_transfer_encoding(param)
                 self.query = self.query.replace("$" + tmp, "#MDD" + tmp + "#")
             else:
                 # no MDD parameter => substitute each occurence of the
@@ -104,44 +86,32 @@ class RasOQLQuery(object):
         # Check what kind of internal helper methods should be used based on rasql query
         tmp_query = self.query.upper()
 
-        if tmp_query.startswith("SELECT") and "INTO" not in tmp_query:
-            # it is select query
-            txn = self.db_connector.db.transaction(rw=False)
-            query = txn.query(self.query)
-            res = query.execute_read()
-            txn.commit()
-
-            return res
-        elif len(mdd_data) > 0:
-            # this one is important for rasserver to handle query properly by command id
-            command_id = self.__COMMAND_INSERT_QUERY_EXEC
-            if tmp_query.startswith("UPDATE"):
-                command_id = self.__COMMAND_UPDATE_QUERY_EXEC
-
-            # it is a write query to insert/update collection with MDD data from file
-            # e.g: "insert into $TEST_SUBSETTING_1D values \$1" -f "$TESTDATA_PATH/101.bin"
-            # --mdddomain "[0:100]" --mddtype GreyString
-            # or:
-            # "update $COLL_NAME as m set m[1,*:*,*:*] assign (double) \$1" -f "$QUERY_SCRIPT_DIR"/400k.bin
-            # --mdddomain [0:499,0:99] --mddtype DoubleImage
-            txn = self.db_connector.db.transaction(rw=True)
-            # the full query to send to rasserver
-            request_query = "Command={}&ClientID={}&QueryString={}&Endianess={}" \
-                            "&NumberOfQueryParameters={}&BinDataSize={}&BinData=".format(
-                                command_id, txn.database.connection.session.clientId, self.query,
-                                self.BIG_ENDIAN, len(self.params), len(mdd_data))
-            request_query = b''.join([request_query.encode(), mdd_data])
-            query = txn.query(request_query)
-            res = query.execute_write_with_file()
-            txn.commit()
-
-            return res
+        if tmp_query.startswith("SELECT ") and "INTO " not in tmp_query:
+            return self.execute_query(QueryType.SELECT)
+        elif tmp_query.startswith("INSERT "):
+            return self.execute_query(QueryType.INSERT)
         else:
-            # it is a write query  (e.g: create collection, drop collection,...)
-            txn = self.db_connector.db.transaction(rw=True)
-            query = txn.query(self.query)
-            res = query.execute_update()
-            txn.commit()
+            return self.execute_query(QueryType.UPDATE)
 
-            return res
+    # oqlquery.cc
+    def execute_query(self, query_type: QueryType):
+
+        txn = self.db_connector.db.transaction(rw=True if query_type != QueryType.SELECT else False)
+
+        query = txn.query(self.query)  # core.Query
+
+        mdd_list = [ras_array for ras_array in self.params if isinstance(ras_array, RasGMArray)]
+        if len(mdd_list) > 0:
+            query.mdd_constants = mdd_list
+
+        res = {
+            QueryType.SELECT: query.execute_read,
+            QueryType.INSERT: query.execute_insert,
+            QueryType.UPDATE: query.execute_update,
+
+        }[query_type]()
+
+        txn.commit()
+
+        return res
 

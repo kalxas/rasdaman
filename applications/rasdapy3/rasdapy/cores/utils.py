@@ -252,7 +252,7 @@ def convert_binary_data_stream(dtype, data):
         # e.g: select sdom(c) from test_mr as c ([0:250,0:210])
         temp = ""
         # strip the [] of the string to parse
-        data = data.decode().rstrip('\x00')
+        data = encoded_bytes_to_str(data)
         temp_array = data[1:-1].split(",")
 
         intervals = []
@@ -270,7 +270,7 @@ def convert_binary_data_stream(dtype, data):
 
     elif base_type == "scalar" and type == "sinterval":
         # e.g: select sdom(c)[0] from test_mr as c
-        temp = data.decode().rstrip('\x00')
+        temp = encoded_bytes_to_str(data)
         # e.g: 0:250
         tmp_array = temp.split(":")
         sinterval = SInterval(tmp_array[0], tmp_array[1])
@@ -397,7 +397,6 @@ def byte_to_char_value(input):
     """
     result = struct.unpack(">b", input)[0]
     return result
-
 
 def str_to_encoded_bytes(input):
     """

@@ -25,7 +25,6 @@
 import argparse
 import sys
 import re
-import os
 from rasdapy.db_connector import DBConnector
 from rasdapy.query_executor import QueryExecutor
 from rasdapy.models.result_array import ResultArray
@@ -43,10 +42,6 @@ RASGUEST = "rasguest"
 
 OUTPUT_STRING = "string"
 OUTPUT_FILE = "file"
-
-# https://github.com/grpc/grpc/issues/17631
-# if 'http_proxy' in os.environ and os.environ['http_proxy'] == '':
-#     del os.environ['http_proxy']
 
 
 class Validator:
@@ -113,7 +108,6 @@ class Validator:
         self.passwd = args.passwd
 
 
-
 class Main:
     """
     Connect to rasserver and run query then return the result to client
@@ -152,8 +146,7 @@ class Main:
             res_arr = res
 
             # Depend on the output (string, file) to write the result from rasserver
-            if res_arr is not None:
-                self.__handle_result(res_arr)
+            self.__handle_result(res_arr)
         except Exception as e:
             if "error message" in str(e):
                 """ e.g: Error executing query 'select stddev_samp(1f)',
@@ -170,17 +163,17 @@ class Main:
             print("rasql done.")
 
     def __handle_result(self, res_arr):
-        """
-        Handle the result of query from rasserver
-        :param list res_arr: list of result which can be MDDArray or scalar values
-        :return: it will print output as string if --out string or write to file if --out file
-        """
 
         if isinstance(res_arr, QueryResult):
             if res_arr.with_error:
                 sys.stderr.write(res_arr.error_message())
                 return
 
+        """
+        Handle the result of query from rasserver
+        :param list res_arr: list of result which can be MDDArray or scalar values
+        :return: it will print output as string if --out string or write to file if --out file
+        """
         if self.validator.out == OUTPUT_STRING:
             # Output list of results to console
             self.__handle_result_as_string(res_arr)
@@ -205,7 +198,7 @@ class Main:
         output = "Query result collection has {} element(s): \n".format(res_arr.size)
         if res_arr.size > 0:
             for index, res in enumerate(res_arr):
-                msg = encoded_bytes_to_str(res) if res_arr.is_object else res
+                msg = res if res_arr.is_object else res
                 output += "  Result {} {}: {}\n".format(res_arr.nature, index + 1, msg)
         print(output.strip())
 

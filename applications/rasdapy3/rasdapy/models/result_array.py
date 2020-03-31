@@ -90,6 +90,8 @@ class ResultArray(object):
             return numpy.float32
         elif self.data_type == "double":
             return numpy.double
+        elif self.data_type == "string":
+            return numpy.str
         else:
             raise Exception("Unknown data type {} to convert to numpy data type ".format(self.data_type))
 

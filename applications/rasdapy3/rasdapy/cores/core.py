@@ -40,7 +40,7 @@ from rasdapy.cores.remote_procedures import *
 from rasdapy.stubs.rasmgr_client_service_pb2_grpc import RasmgrClientServiceStub
 from rasdapy.stubs.client_rassrvr_service_pb2_grpc import ClientRassrvrServiceStub
 from rasdapy.models.result_array import ResultArray
-from rasdapy.cores.utils import convert_data_from_bin
+from rasdapy.cores.utils import convert_data_from_bin, encoded_bytes_to_str
 from rasdapy.query_result import QueryResult
 from rasdapy.models.ras_gmarray import RasGMArray
 from rasdapy.models.minterval import MInterval
@@ -68,7 +68,11 @@ class Connection(object):
         self.port = port
         self.username = username
         self.password = password
-        self.channel = grpc.insecure_channel(f"{hostname}:{port}")
+        options = [
+            ('grpc.max_send_message_length', 100 * 1024 * 1024),
+            ('grpc.max_receive_message_length', 100 * 1024 * 1024)
+        ]
+        self.channel = grpc.insecure_channel(f"{hostname}:{port}", options=options)
         self.stub = RasmgrClientServiceStub(self.channel)
         self.session = None
         self._rasmgr_keep_alive_running = None
@@ -172,7 +176,11 @@ class Database(object):
                                         self.name)
         if self.rasmgr_db.dbSessionId == self.connection.session.clientUUID:
             self.connection._stop_keep_alive()
-        self.channel = grpc.insecure_channel(f"{self.rasmgr_db.serverHostName}:{self.rasmgr_db.port}")
+        options = [
+            ('grpc.max_send_message_length', 100 * 1024 * 1024),
+            ('grpc.max_receive_message_length', 100 * 1024 * 1024)
+        ]
+        self.channel = grpc.insecure_channel(f"{self.rasmgr_db.serverHostName}:{self.rasmgr_db.port}", options=options)
         self.stub = ClientRassrvrServiceStub(self.channel)
         self.rassrvr_db = rassrvr_open_db(self.stub,
                                           self.connection.session.clientId,
@@ -417,8 +425,7 @@ class Query(object):
         self.query_str = query_str
         self.mdd_constants = None
 
-
-    def execute_write_with_file(self):
+    def execute_streamed_http(self):
         """
         Execute a full request query (not only the rasql query from user input) to rasserver which contains
         all the information about the MDD Array from the file to be used to update rasdaman collection.
@@ -446,7 +453,7 @@ class Query(object):
             raise Exception("Transaction does not have write access")
 
         if self.mdd_constants is not None:
-            pass
+            self._send_mdd_constants()
 
         exec_update_query_resp = rassrvr_execute_update_query(
             self.transaction.database.stub,
@@ -465,6 +472,41 @@ class Query(object):
             raise Exception("Error: Transfer failed")
         return qr
 
+    def execute_insert(self):
+
+        qr = QueryResult()
+
+        if self.transaction.rw is False:
+            raise Exception("Transaction does not have write access")
+
+        if self.mdd_constants is not None:
+            self._send_mdd_constants()
+
+        exec_insert_query_resp = rassrvr_execute_insert_query(
+            self.transaction.database.stub,
+            self.transaction.database.connection.session.clientId,
+            self.query_str
+        )
+
+        if exec_insert_query_resp.status == 0:
+            qr.elements = self._get_mdd_collection()
+        elif exec_insert_query_resp.status == 1:
+            type_struct = get_type_structure_from_string(exec_insert_query_resp.type_structure)
+            qr.elements = self._get_element_collection(type_struct)
+        elif exec_insert_query_resp.status == 2:
+            # empty result, should not be treated as default case
+            pass
+        else:
+            print(
+                f"Internal error: RasnetClientComm::executeQuery(): illegal status value {exec_insert_query_resp.status}")
+            qr.with_error = True
+            qr.err_no = exec_insert_query_resp.erroNo
+            qr.line_no = exec_insert_query_resp.lineNo
+            qr.col_no = exec_insert_query_resp.colNo
+            qr.token = exec_insert_query_resp.token
+
+        return qr
+
     def execute_read(self):
         """
         Executes the query with read permission and returns back a result
@@ -481,11 +523,13 @@ class Query(object):
             raise Exception("Error executing query '{}', error message '{}'".format(self.query_str, error_message))
         elif exec_query_resp.status == 0:
 
+            tmp_query = self.query_str.upper()
             # e.g: query: select c from RAS_COLLECTIONNAMES as c
-            if  "RAS_COLLECTIONNAMES" in self.query_str or \
-                "RAS_STRUCT_TYPES" in self.query_str or \
-                "RAS_MARRAY_TYPES" in self.query_str or \
-                "RAS_SET_TYPES" in self.query_str:
+            if "RAS_COLLECTIONNAMES" in tmp_query or \
+                    "RAS_STRUCT_TYPES" in tmp_query or \
+                    "RAS_MARRAY_TYPES" in tmp_query or \
+                    "RAS_SET_TYPES" in tmp_query or \
+                    "DBINFO" in tmp_query:
                 return self._get_list_collection()
 
             # e.g: query: select c + 1 from test_mr as c, select encode(c, "png") from test_mr as c
@@ -495,7 +539,7 @@ class Query(object):
             return self._get_element_result(exec_query_resp)
         elif exec_query_resp.status == 2:
             # Query can return empty collection (e.g: select c from c where all_cells( c > 20 )) which returns empty
-            pass
+            return ResultArray("string") # empty array
         else:
             raise Exception("Unknown status code: " + str(
                 exec_query_resp.status) + " returned by ExecuteQuery")
@@ -591,11 +635,10 @@ class Query(object):
         Return the list of collection names from RASBASE for query (select c from RAS_COLLECTIONNAMES as c)
         :return: list of string collection names
         """
-        arr_temp = self.__get_array_result_mdd()
-        res_array = ResultArray("char")
-        for barr in arr_temp:
-            res_array.add_data(barr)
-        return res_array
+        result_array = ResultArray("string")
+        for r in self.__get_array_result_mdd():
+            result_array.add_data(encoded_bytes_to_str(r))
+        return result_array
 
     def _get_collection_result(self, exec_query_resp):
         """
@@ -646,38 +689,6 @@ class Query(object):
 
         return result_arr
 
-    def execute(self):
-
-        iqr = QueryResult()
-
-        if self.transaction.rw is False:
-            raise Exception("Transaction does not have write access")
-
-        if self.mdd_constants is not None:
-            self._send_mdd_constants()
-
-        for i, param in enumerate(self.mdd_constants):
-            tmp = str(i + 1)
-            self.query_str = self.query_str.replace("$" + tmp, "#MDD" + tmp + "#")
-
-        exec_insert_query_resp = rassrvr_execute_insert_query(
-            self.transaction.database.stub,
-            self.transaction.database.connection.session.clientId,
-            self.query_str
-        )
-
-        if exec_insert_query_resp.status == 0:
-            iqr.elements = self._get_mdd_collection()
-        elif exec_insert_query_resp.status == 1:
-            type_struct = get_type_structure_from_string(exec_insert_query_resp.type_structure)
-            iqr.elements = self._get_element_collection(type_struct)
-        elif exec_insert_query_resp.status == 2:
-            # empty result, should not be treated as default case
-            pass
-        else:
-            print(f"Internal error: RasnetClientComm::executeQuery(): illegal status value {exec_insert_query_resp.status}")
-
-        return iqr
 
     def _get_element_collection(self, type_struct):
         rpc_status = 0
