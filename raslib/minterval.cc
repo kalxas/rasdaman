@@ -394,7 +394,7 @@ const r_Minterval &r_Minterval::operator=(const r_Minterval &minterval)
 
         dimensionality = minterval.dimension();
         streamInitCnt = minterval.streamInitCnt;
-
+        axisNames = minterval.axisNames;
         if (minterval.intervals)
         {
             if (!intervals)

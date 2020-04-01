@@ -90,6 +90,7 @@ class ExceptionFactories:
 "331:Preprocessing error $errorNo in line $lineNo, column $columnNo, token $token: attempt to redefine function.",
 "332:Preprocessing error $errorNo in line $lineNo, column $columnNo, token $token: number of actual arguments for the called function differs from the number of formal arguments.",
 "333:Preprocessing error $errorNo in line $lineNo, column $columnNo, token $token: the called function name is ambiguous, try the full qualified name.",
+"343:Execution error: Spatial domains of the binary induce operands are incompatible.",
 "344:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Subset extends outside the array sdom.",
 "345:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: More axes are provided than defined for the type.",
 "346:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Axes must have unique names.",

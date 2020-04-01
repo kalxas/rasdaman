@@ -65,6 +65,7 @@ rasdaman GmbH.
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/mddtype.hh"
 #include "relcatalogif/mddbasetype.hh"
+#include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/collectiontype.hh"
 
 #include <logging.hh>
@@ -224,7 +225,6 @@ QtInsert::evaluate()
 
         // check if the types of the MDD to be inserted and the target collection are compatible
         bool compatible = false;
-
         const auto *targetBaseType =
             (static_cast<const MDDBaseType *>(targetMDDType))->getBaseType();
         const auto *sourceBaseType =
@@ -343,13 +343,20 @@ QtInsert::evaluate()
             }
             r_Dimension sourceDimension = sourceObj->getDefinitionDomain().dimension();
             r_Minterval tileCfg = getTileConfig(mddConfig, cellSize, sourceDimension);
-
+            auto *trueDomain = dynamic_cast<MDDDomainType*>(const_cast<MDDType*>(targetMDDType) )->getDomain();
+            std::vector<std::string> trueAxisNames;
+            r_Minterval newDomain = sourceObj->getDefinitionDomain();
+            if (trueDomain != NULL)
+            {
+                trueAxisNames =  trueDomain->getAxisNames();
+                tileCfg.setAxisNames(trueAxisNames);
+                newDomain.setAxisNames(trueAxisNames);
+            }
             if (sourceDimension == tileCfg.dimension())
             {
                 tempStorageLayout.setTileConfiguration(tileCfg);
             }
-
-            MDDObj *persMDDObj = new MDDObj(persMDDType, sourceObj->getDefinitionDomain(), oid, tempStorageLayout);
+            MDDObj *persMDDObj = new MDDObj(persMDDType, newDomain, oid, tempStorageLayout);
             persMDDObj->cloneNullValues(sourceObj);
 
             // iterate over source tiles
@@ -357,7 +364,9 @@ QtInsert::evaluate()
             {
                 // create a new persistent tile, copy the transient data, and insert it into the target mdd object
                 Tile *sourceTile = sourceIt->get();
-                Tile *newPersTile = new Tile(sourceTile->getDomain(), persMDDType->getBaseType(),
+                auto namedSrcDomain = sourceTile->getDomain();
+                namedSrcDomain.setAxisNames(trueAxisNames);
+                Tile *newPersTile = new Tile(namedSrcDomain, persMDDType->getBaseType(),
                                              true, sourceTile->getContents(), sourceTile->getSize(), sourceTile->getDataFormat());
                 persMDDObj->insertTile(newPersTile);
 
