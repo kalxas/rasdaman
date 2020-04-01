@@ -29,28 +29,3 @@ tan_halfangle_arg.rasql
 select_pos_independent_wrong_name.rasql
 
 # empty results
-condensers_add_complex.rasql
-condensers_add_cfloat32.rasql
-condensers_add_cfloat64.rasql
-condensers_add_cint16.rasql
-condensers_add_cint32.rasql
-condensers_all_cfloat32.rasql
-condensers_all_cfloat64.rasql
-condensers_all_cint16.rasql
-condensers_all_cint32.rasql
-condensers_avg_cfloat32.rasql
-condensers_avg_cfloat64.rasql
-condensers_avg_cint16.rasql
-condensers_avg_cint32.rasql
-condensers_count_cfloat32.rasql
-condensers_count_cfloat64.rasql
-condensers_count_cint16.rasql
-condensers_count_cint32.rasql
-condensers_some_cfloat32.rasql
-condensers_some_cfloat64.rasql
-condensers_some_cint16.rasql
-condensers_some_cint32.rasql
-dbinfo_printtiles_1.rasql
-dbinfo_printtiles_json.rasql
-dbinfo_printtiles_svg.rasql
-dbinfo.rasql

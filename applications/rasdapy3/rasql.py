@@ -44,6 +44,10 @@ OUTPUT_STRING = "string"
 OUTPUT_FILE = "file"
 
 
+def print_error(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
 class Validator:
     """
     Validate the input parameters from argv which reduced the first parameter (script name)
@@ -154,7 +158,7 @@ class Main:
                 """
                 error_message = re.findall(r"([^']*)'?", str(e), re.M)[-2]
                 # Write error to stderr
-                sys.stderr.write(error_message)
+                print_error(error_message)
             else:
                 raise
         finally:
@@ -166,7 +170,7 @@ class Main:
 
         if isinstance(res_arr, QueryResult):
             if res_arr.with_error:
-                sys.stderr.write(res_arr.error_message())
+                print_error(res_arr.error_message())
                 return
 
         """
@@ -198,7 +202,7 @@ class Main:
         output = "Query result collection has {} element(s): \n".format(res_arr.size)
         if res_arr.size > 0:
             for index, res in enumerate(res_arr):
-                msg = res if res_arr.is_object else res
+                msg = res_arr.to_string(res) if res_arr.is_object else res
                 output += "  Result {} {}: {}\n".format(res_arr.nature, index + 1, msg)
         print(output.strip())
 
@@ -251,7 +255,7 @@ class Main:
             if res_arr.is_object:
                 with open(file_name, "wb") as binary_file:
                     # If it is MDDArray then write the data inside it
-                    binary_file.write(cur_data)
+                    binary_file.write(res_arr.to_binary(cur_data))
             else:
                 with open(file_name, "w") as text_file:
                     output = "  Result {} {}: {}\n".format(res_arr.nature, i + 1, cur_data)

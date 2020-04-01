@@ -118,6 +118,19 @@ class ResultArray(object):
         # by swapped sdom and order='F'
         return array.reshape(tuple(shape_arr))
 
+    def to_string(self, data):
+        if self.data_type == "string":
+            return data
+        else:
+            return data.decode()
+
+    def to_binary(self, data):
+        if self.data_type == "string":
+            return data.encode()
+        else:
+            return data
+
+
 
 
 

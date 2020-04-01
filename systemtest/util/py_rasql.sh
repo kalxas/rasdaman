@@ -206,7 +206,7 @@ function py_import_rasql_data()
   py_check_type CInt32Set
   py_drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT
   py_drop_colls $TEST_CFLOAT32 $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32
-  #py_drop_colls $TEST_OVERLAP $TEST_OVERLAP_3D
+  py_drop_colls $TEST_OVERLAP $TEST_OVERLAP_3D
 
 
   #create the struct_cube_set type
@@ -240,9 +240,8 @@ function py_import_rasql_data()
   py_create_coll $TEST_CFLOAT64 Gauss2Set
   py_create_coll $TEST_CINT16 CInt16Set
   py_create_coll $TEST_CINT32 CInt32Set
-  #py_update doesn't work as expected. ticket 2269
-  #py_create_coll $TEST_OVERLAP GreySet
-  #py_create_coll $TEST_OVERLAP_3D GreySet3
+  py_create_coll $TEST_OVERLAP GreySet
+  py_create_coll $TEST_OVERLAP_3D GreySet3
   py_insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500"
   py_insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500"
   py_insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode" "" "tiling aligned [0:49,0:49] tile size 7500"
@@ -252,13 +251,6 @@ function py_import_rasql_data()
   py_insert_into $TEST_CINT32 "$TESTDATA_PATH/cint32_image.tif" "" "decode"
   #py_add_overlap_data
   $PY_RASQL -q "insert into $TEST_GREY3D values \$1" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
-
-
-  py_insert_into $TEST_CFLOAT32 "$TESTDATA_PATH/cfloat32_image.tif" "" "decode"
-  py_insert_into $TEST_CFLOAT64 "$TESTDATA_PATH/cfloat64_image.tif" "" "decode"
-  py_insert_into $TEST_CINT16 "$TESTDATA_PATH/cint16_image.tif" "" "decode"
-  py_insert_into $TEST_CINT32 "$TESTDATA_PATH/cint32_image.tif" "" "decode"
-
 
   log "Importing error collection..."
   # Create a failed test to import data to collection and Rasdapy should not print binary error
