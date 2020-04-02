@@ -154,11 +154,12 @@ trim_whitespace() {
 keep_backup=0 
 deprecated_settings_exist=1
 
+# NOTE: line is read without leading white spaces
 while read line; do
     line=$(trim_whitespace "$line")
     first_char=${line:0:1} # get first character of the line
 
-    if [[ $first_char != '#' && $first_char != '' ]]; then # if $line starts with # or spaces -> comments so ignore.
+    if [[ "$first_char" != '#' && "$first_char" != '' && "$line" != *" "* ]]; then # if $line contains with # or spaces -> comments so ignore.
 
         # 5.1 Get the old_file setting (setting name) and value (setting value)
         old_setting=$(echo ${line%%=*}) # get the value before the delimiter '=', % is from ending (right to left)
@@ -171,6 +172,7 @@ while read line; do
         new_setting_value="$old_setting=$new_value"
 
         if [[ "$new_value" == "$NULL_VALUE" ]]; then # if no old_file setting value in new_file file
+            log "$old_setting"
             log "'$old_setting_value' is deprecated and appended to the bottom of properties file."
             if [ "$deprecated_settings_exist" == 1 ]; then
                 echo "" >> "$new_file_tmp"
