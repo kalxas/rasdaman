@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -52,7 +52,7 @@ def escape_metadata_dict(metadata_dict):
     :return: an escaped dict
     """
     # NOTE: metadata can contain invalid characters for XML such as: <, >, & then needs to escape them
-    for key, value in metadata_dict.iteritems():
+    for key, value in metadata_dict.items():
         metadata_dict[key] = escape(str(value))
 
     return metadata_dict
@@ -65,10 +65,10 @@ def escape_metadata_nested_dicts(metadata_dict):
     :return: an escaped dict with nested dicts
     """
     # NOTE: metadata can contain invalid characters for XML such as: <, >, & then needs to escape them
-    for key_parent, value_parent in metadata_dict.iteritems():
+    for key_parent, value_parent in metadata_dict.items():
         if type(value_parent) is dict:
             # e.g: "band1": { "key_1": "value_1", "key_2": "value_2" }
-            for key_child, value_child in value_parent.iteritems():
+            for key_child, value_child in value_parent.items():
                 metadata_dict[key_parent][key_child] = escape(str(value_child))
         else:
             # e.g: ${netcdf:variable:lat:metadata}
@@ -102,7 +102,7 @@ def replace_template_by_dict(template, keys_values_dict):
     :return: str
     """
     result = template
-    for key, value in keys_values_dict.iteritems():
+    for key, value in keys_values_dict.items():
         result = result.replace("{{" + str(key) + "}}", str(value))
 
     return result

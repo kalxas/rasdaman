@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -40,7 +40,7 @@ class XMLUtil:
         :rtype str
         """
         result = ""
-        for key, val in dictionary.iteritems():
+        for key, val in dictionary.items():
             result += "<{key}>{val}</{key}>\n".format(key=key, val=val)
         return result
 

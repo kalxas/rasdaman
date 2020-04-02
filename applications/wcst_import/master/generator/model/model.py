@@ -4,10 +4,11 @@ from master.generator.template_processor import TemplateProcessor
 
 
 class Model:
+    __metaclass__ = ABCMeta
+
     """
     All model classes inherit from this base model
     """
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def get_template_name(self):

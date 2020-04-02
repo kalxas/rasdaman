@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:GridCoverage id="test_float_4d"
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="i j" srsDimension="2"
@@ -55,18 +50,18 @@ srsName="/crs/OGC/0/Index4D" uomLabels="GridSpacing GridSpacing">
 </gmlcov:rangeType>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >
+<rasdaman:covMetadata>
+<Title>This is a test file</Title>
 <Project>This is another test file</Project>
+<Creator>This is a test creator file</Creator>
 <bands>
 <value>
-<units>10</units>
-<definition>/dataType/OGC/0/float32</definition>
 <missing_value>NaNf</missing_value>
+<definition>/dataType/OGC/0/float32</definition>
 <description>primitive</description>
+<units>10</units>
 </value>
 </bands>
-<Creator>This is a test creator file</Creator>
-<Title>This is a test file</Title>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

@@ -13,9 +13,9 @@
  * See the GNU  General Public License for more details.
  *
  * You should have received a copy of the GNU  General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ * aint with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -24,7 +24,11 @@
 import datetime
 import functools
 import decimal
-from __builtin__ import staticmethod
+import sys
+if sys.version_info[0] < 3:
+    from __builtin__ import staticmethod
+else:
+    from builtins import staticmethod
 
 from lib.arrow import api as arrow
 from lib.arrow.parser import ParserError
@@ -66,13 +70,13 @@ class DateTimeUtil:
     MILLIS_DAY = MILLIS_HOUR * 24
     MILLIS_WEEK = MILLIS_DAY * 7
 
-    MILLIS_MEAN_JULIAN_YEAR = (long)(MILLIS_DAY * 365.25)
-    MILLIS_MEAN_GREGORIAN_YEAR = (long)(MILLIS_DAY * 365.2425)
-    MILLIS_TROPICAL_YEAR = (long)(MILLIS_DAY * 365.24219)
+    MILLIS_MEAN_JULIAN_YEAR = (int)(MILLIS_DAY * 365.25)
+    MILLIS_MEAN_GREGORIAN_YEAR = (int)(MILLIS_DAY * 365.2425)
+    MILLIS_TROPICAL_YEAR = (int)(MILLIS_DAY * 365.24219)
     MILLIS_YEAR = MILLIS_MEAN_JULIAN_YEAR
     MILLIS_MEAN_JULIAN_MONTH = MILLIS_MEAN_JULIAN_YEAR / 12
     MILLIS_MEAN_GREGORIAN_MONTH = MILLIS_MEAN_GREGORIAN_YEAR / 12
-    MILLIS_SYNODAL_MONTH = (long)(MILLIS_DAY * 29.53059)
+    MILLIS_SYNODAL_MONTH = (int)(MILLIS_DAY * 29.53059)
     MILLIS_MONTH = MILLIS_MEAN_JULIAN_MONTH
 
     """ Time Axis Origin """
@@ -178,7 +182,7 @@ class DateTimeUtil:
         """
         Based on time_uom to return the correct milliseconds (e.g: 1d = 24 * 60 * 60 * 1000 milliseconds)
         :param time_uom: uom of time crs (e.g: ansidate: d, unixtime: s)
-        :return: long
+        :return: int
         """
         # return the uom value in milliseconds
         milli_seconds = self.__UOM_TIME_MAP_CACHE__.get(time_uom)
@@ -193,7 +197,7 @@ class DateTimeUtil:
         :return:
         """
         date_origin = None
-        for key, value in self.__TIME_CRS_MAP_CACHE__.iteritems():
+        for key, value in self.__TIME_CRS_MAP_CACHE__.items():
             # e.g: AnsiDate in crs_uri
             if key in crs_uri:
                 date_origin = value

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -29,6 +29,8 @@ from config_manager import ConfigManager
 from util.log import log
 import re
 from master.error.runtime_exception import RuntimeException
+import stat
+from util.import_util import import_glob
 
 class FileUtil:
 
@@ -51,10 +53,10 @@ class FileUtil:
         :return: list of string
         """
         file_paths = []
-        import glob2 as glob
+        glob = import_glob()
         if not file_path_regex.strip().startswith("/"):
             file_path_regex = current_dir + file_path_regex
-        file_paths = file_paths + glob.glob(file_path_regex)
+        file_paths = file_paths + glob.glob(file_path_regex, recursive = True)
 
         return file_paths
 
@@ -106,8 +108,7 @@ class FileUtil:
                      "wcst_import will ignore this file as \"skip\" is set to true in the ingredient file. Reason: " + str(exception))
         else:
             # Throws the original source of exception(!)
-            type, val, tb = sys.exc_info()
-            raise type, val, tb
+            raise Exception(sys.exc_info()[1]).with_traceback(sys.exc_info()[2])
 
 
     @staticmethod
@@ -181,7 +182,7 @@ class TmpFile:
         wfile = open(ret_path, "w")
         wfile.write(contents)
         wfile.close()
-        os.chmod(ret_path, 0777)
+        os.chmod(ret_path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         return ret_path
 
     def copy_file_to_tmp(self, file_path):
@@ -193,7 +194,7 @@ class TmpFile:
         parts = file_path.split(".")
         ret_path = self.generate_tmp_path(parts[-1])
         shutil.copy(file_path, ret_path)
-        os.chmod(ret_path, 0777)
+        os.chmod(ret_path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         return ret_path
 
 

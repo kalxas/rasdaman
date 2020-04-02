@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -93,7 +93,7 @@ def load_schema():
 
 def validate_ingredients(ingredients):
     """
-    Validates against unkown settings
+    Validates against unknown settings
     """
     jsonschema = import_jsonschema()
     if jsonschema is not None:
@@ -103,7 +103,7 @@ def validate_ingredients(ingredients):
         except NameError:
             pass
         except jsonschema.exceptions.ValidationError as e:
-            log.error("The ingredients file contains unkown option(s): \n" + str(e.message))
+            log.error("The ingredients file contains unknown option(s): \n" + str(e.message))
             exit_error()
 
 def validate():
@@ -127,7 +127,9 @@ def read_ingredients(ingredient_file):
     :rtype: str
     """
     try:
-        raw_content = file(ingredient_file).read()
+        file_contents = open(ingredient_file)
+        raw_content = file_contents.read()
+        file_contents.close()
         # Remove any comments (staring with //) from ingredient file
         lines = raw_content.splitlines()
 

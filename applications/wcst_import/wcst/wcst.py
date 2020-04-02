@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -27,8 +27,13 @@ from collections import OrderedDict
 
 from util.log import log, make_bold
 from util.url_util import validate_and_read_url
+from util.import_util import encode_res, decode_res
 
-import urllib
+import sys
+if sys.version_info[0] < 3:
+    from urllib import urlencode
+else:
+    from urllib.parse import urlencode
 
 
 class WCSTSubset:
@@ -77,7 +82,7 @@ class WCSTRequest:
         params = self._get_request_type_parameters().copy()
         params.update(self.global_params)
         encoded_extra_params = ""
-        for key, value in params.iteritems():
+        for key, value in params.items():
             # We don't send the UpdateCoverage request with subset1=Lat(...)&subset2=Long(...) as they are not valid
             if str(key).startswith("subset"):
                 key = "subset"
@@ -85,13 +90,13 @@ class WCSTRequest:
             tmp_dict = {}
             tmp_dict[key] = value
 
-            encoded_extra_params += "&" + urllib.urlencode(tmp_dict)
+            encoded_extra_params += "&" + urlencode(tmp_dict)
 
         tmp_dict = {self.SERVICE_PARAMETER: self.SERVICE_VALUE,
                     self.VERSION_PARAMETER: self.VERSION_VALUE,
                     self.REQUEST_PARAMETER: self._get_request_type()}
 
-        query_string = urllib.urlencode(tmp_dict) + "&" + encoded_extra_params
+        query_string = urlencode(tmp_dict) + "&" + encoded_extra_params
         return query_string
 
     def add_global_param(self, key, value):
@@ -372,7 +377,7 @@ class WCSTExecutor(WCSTBaseExecutor):
             log.info(service_call)
             return
         try:
-            response = validate_and_read_url(self.base_url, request.get_query_string())
+            response = decode_res(validate_and_read_url(self.base_url, request.get_query_string()))
         except Exception as ex:
             raise WCSTException(404, "Failed reading response from WCS service. "
                                      "Detailed error: {}.".format(str(ex)), service_call)
@@ -391,7 +396,7 @@ class WCSTExecutor(WCSTBaseExecutor):
 
         try:
             if str(response) != "" and str(response) != "None":
-                return response
+                return encode_res(response)
             return ""
         except Exception as ex:
             raise WCSTException(0, "General exception while executing the request: " + str(ex), service_call)

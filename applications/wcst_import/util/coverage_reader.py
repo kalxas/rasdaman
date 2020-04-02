@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -45,6 +45,7 @@ from util.file_util import TmpFile
 from util.gdal_util import GDALGmlUtil
 from util.time_util import DateTimeUtil
 from util.url_util import validate_and_read_url
+from util.import_util import decode_res
 
 
 class CoverageReader():
@@ -89,8 +90,7 @@ class CoverageReader():
         :param root: the xml root
         :rtype: list[RangeTypeField]
         """
-        range_types = map(lambda r: RangeTypeField(r),
-                          root.xpath("//gmlcov:rangeType//swe:field/@name", namespaces=self._get_ns()))
+        range_types = [RangeTypeField(r) for r in root.xpath("//gmlcov:rangeType//swe:field/@name", namespaces=self._get_ns())]
         return range_types
 
     def _get_raster_coords(self, root):
@@ -390,7 +390,7 @@ class CoverageReader():
         if isinstance(slice.data_provider, UrlDataProvider):
             # Do this only for coverages that have more than one axis
             if len(slice.axis_subsets) > 1:
-                contents = validate_and_read_url(slice.data_provider.get_url())
+                contents = decode_res(validate_and_read_url(slice.data_provider.get_url()))
                 file_path = TmpFile().write_to_tmp_file(contents, "tif")
                 return GDALGmlUtil(file_path).get_band_gdal_type()
         return None
@@ -402,7 +402,7 @@ class CoverageReader():
         """
         xmlstr = validate_and_read_url(self._get_description_url())
         # Check if coverage id does not exist in wcs_endpoint by returning an Exception
-        if xmlstr.find("ExceptionReport") != -1:
+        if decode_res(xmlstr).find("ExceptionReport") != -1:
             raise RuntimeException("Could not read the coverage description for coverage id: {} with url: {} ".format(self.coverage_id, self.wcs_url))
         # If coverage id does exist then return its description
         return xmlstr
@@ -413,7 +413,7 @@ class CoverageReader():
         :rtype: Coverage
         """
         try:
-            xmlstr = self.description();
+            xmlstr = self.description()
             root = etree.fromstring(xmlstr)
             crs = self._get_crs(root)
             crs_axes = CRSUtil(crs).get_axes(self.coverage_id)

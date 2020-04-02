@@ -291,8 +291,8 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="
 </INSPIRE>
 </slice>
 </slices>
-<local_metadata_key>value_1</local_metadata_key>
 <AREA_OR_POINT>Area</AREA_OR_POINT>
+<local_metadata_key>value_1</local_metadata_key>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>
@@ -311,7 +311,7 @@ id="test_wcs_metadata_regular_time_series-point" srsName="/crs-compound?1=/crs/O
 <pos>"2012-12-02T20:12:02.000Z" -9.475 112.475</pos>
 </Point>
 </origin>
-<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">2.00697916667 0 0</offsetVector>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">2.006979166666667 0 0</offsetVector>
 <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -1 0</offsetVector>
 <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 1</offsetVector>
 </RectifiedGrid>

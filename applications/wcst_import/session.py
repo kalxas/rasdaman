@@ -15,14 +15,13 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
 import os
-import glob2 as glob
 import time
 from config_manager import ConfigManager
 from master.importer.resumer import Resumer
@@ -32,6 +31,9 @@ from wcst.wcst import WCSTMockExecutor, WCSTExecutor
 from master.error.runtime_exception import RuntimeException
 from util.file_util import FileUtil, File
 from util.list_util import get_null_values
+from util.import_util import import_glob
+
+glob = import_glob()
 
 
 class Session:
@@ -63,7 +65,7 @@ class Session:
             # No "tmp_directory" is configured in ingredient file, then use this default folder to store temp files.
             if not os.path.exists(ConfigManager.tmp_directory):
                 os.makedirs(ConfigManager.tmp_directory)
-                os.chmod(ConfigManager.tmp_directory, 0777)
+                os.chmod(ConfigManager.tmp_directory, 0o777)
             self.tmp_directory = ConfigManager.tmp_directory
         self.crs_resolver = self.__get_crs_resolver_configuration()
         self.default_crs = config['default_crs'] if "default_crs" in config else None
@@ -225,7 +227,7 @@ class Session:
                      "the case, make sure the paths are correct and readable by the importer.")
 
         file_paths.sort()
-        file_obs = map(lambda f: File(f), file_paths)
+        file_obs = [File(f) for f in file_paths]
         return file_obs
 
     def get_wcs_service(self):

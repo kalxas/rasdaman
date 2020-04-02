@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-
-
-
-
-
-
 >
 <wcs:CoverageDescription id="test_ecmwf_fire_4d_color_palette_table_metadata_xml">
 <boundedBy>
@@ -25,36 +19,36 @@ srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/O
 </coverageFunction>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >
-<bands>
-<dc>
-<units>%</units>
-<_FillValue>-9999.0</_FillValue>
-<missing_value>-9999.0</missing_value>
-<grid_type>gaussian</grid_type>
-<title>Drought Code</title>
-</dc>
-</bands>
+<rasdaman:covMetadata>
+<Title>Drought code</Title>
 <colorPaletteTable># Example of color palette table
 30	p200/16	80	-	 	 	 	 	 
 80	-	100	-	 	 	 	 	 
 100	200	0	0	200	255	255	0	 
 200	yellow	300	green</colorPaletteTable>
+<bands>
+<dc>
+<units>%</units>
+<grid_type>gaussian</grid_type>
+<_FillValue>-9999.0</_FillValue>
+<missing_value>-9999.0</missing_value>
+<title>Drought Code</title>
+</dc>
+</bands>
 <axes>
-<Lat>
-<units>degrees_north</units>
-<long_name>latitude</long_name>
-<standard_name>latitude</standard_name>
-<axis>Y</axis>
-</Lat>
 <Lon>
-<units>degrees_east</units>
-<long_name>longitude</long_name>
 <standard_name>longitude</standard_name>
+<long_name>longitude</long_name>
+<units>degrees_east</units>
 <axis>X</axis>
 </Lon>
+<Lat>
+<standard_name>latitude</standard_name>
+<long_name>latitude</long_name>
+<units>degrees_north</units>
+<axis>Y</axis>
+</Lat>
 </axes>
-<Title>Drought code</Title>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

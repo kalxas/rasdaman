@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -118,14 +118,14 @@ class AbstractToCoverageConverter:
         if direct_positions == self.DIRECT_POSITIONS_SLICING:
             return self.COEFFICIENT_SLICING
         else:
-            return map(lambda x: decimal.Decimal(str(x)) - decimal.Decimal(str(direct_positions[0])), direct_positions)
+            return [decimal.Decimal(str(x)) - decimal.Decimal(str(direct_positions[0])) for x in direct_positions]
 
     def _translate_seconds_date_direct_position_to_coefficients(self, origin, direct_positions):
         # just translate 1 -> 1 as origin is 0 (e.g: irregular UnixTime)
         if direct_positions == self.DIRECT_POSITIONS_SLICING:
             return self.COEFFICIENT_SLICING
         else:
-            return map(lambda x: (decimal.Decimal(str(arrow.get(x).float_timestamp)) - decimal.Decimal(str(origin))), direct_positions)
+            return [(decimal.Decimal(str(arrow.get(x).float_timestamp)) - decimal.Decimal(str(origin))) for x in direct_positions]
 
     def _translate_day_date_direct_position_to_coefficients(self, origin, direct_positions):
         # coefficients in AnsiDate (day) -> coefficients in UnixTime (seconds)

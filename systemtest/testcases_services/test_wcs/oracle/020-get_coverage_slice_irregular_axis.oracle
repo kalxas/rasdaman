@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
 id="test_irr_cube_1"
-
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="i j" srsDimension="2"
@@ -79,20 +73,20 @@ id="test_irr_cube_1-point" srsName="/crs/OGC/0/Index3D">
 </gmlcov:rangeType>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >
+<rasdaman:covMetadata>
+<description>This is a test coverage</description>
 <bands>
 <value>
-<units>10</units>
-<definition>/dataType/OGC/0/unsignedShort</definition>
 <valid_min>0</valid_min>
 <valid_max>65535</valid_max>
+<definition>/dataType/OGC/0/unsignedShort</definition>
 <description>primitive</description>
+<units>10</units>
 </value>
 </bands>
 <axes>
 <k/>
 </axes>
-<description>This is a test coverage</description>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

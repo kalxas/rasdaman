@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -388,7 +388,7 @@ class Importer:
         # Transform the axes domains such that only a point is defined.
         # For the first slice we need to import a single point, which will then be updated with the real data
         axes_map = OrderedDict()
-        for axis, grid_axis in self.coverage.get_insert_axes().iteritems():
+        for axis, grid_axis in self.coverage.get_insert_axes().items():
             if axis.coefficient is not None:
                 assert type(axis.coefficient) == list, "Axis coefficients not of type list."
                 assert len(axis.coefficient) > 0, "The list of coefficients is empty."

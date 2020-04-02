@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -177,7 +177,7 @@ class PointPixelAdjuster:
                 grid_points = abs((decimal.Decimal(str(user_axis.interval.high)) - decimal.Decimal(str(user_axis.interval.low)))
                              / decimal.Decimal(str(user_axis.resolution)))
                 # The resolution in ingredient file can have big factor to the calculation, so must take care
-                if abs(decimal.Decimal(str(grid_points), ROUND_UP) - grid_points) > HighPixelAjuster.THRESHOLD:
+                if abs(decimal.Decimal(str(grid_points), decimal.Context(rounding = ROUND_UP)) - grid_points) > HighPixelAjuster.THRESHOLD:
                     log.warning("The computed number of grid points is not an integer for axis " + user_axis.name +
                                 ". This usually indicates that the resolution is not correct.")
 

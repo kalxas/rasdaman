@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
 id="test_wcs_local_metadata_netcdf_in_json"
-
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="Lat Lon ansi forecast"
@@ -96,28 +90,28 @@ id="test_wcs_local_metadata_netcdf_in_json-point" srsName="/crs-compound?1=/crs/
 </gmlcov:rangeType>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >{
+<rasdaman:covMetadata>{
 "bands" : {
 "dc" : {
 "units" : "%",
+"grid_type" : "gaussian",
 "_FillValue" : "-9999.0",
 "missing_value" : "-9999.0",
-"grid_type" : "gaussian",
 "title" : "Drought Code"
 }
 },
 "axes" : {
-"Lat" : {
-"units" : "degrees_north",
-"long_name" : "latitude",
-"standard_name" : "latitude",
-"axis" : "Y"
-},
 "Lon" : {
-"units" : "degrees_east",
-"long_name" : "longitude",
 "standard_name" : "longitude",
+"long_name" : "longitude",
+"units" : "degrees_east",
 "axis" : "X"
+},
+"Lat" : {
+"standard_name" : "latitude",
+"long_name" : "latitude",
+"units" : "degrees_north",
+"axis" : "Y"
 }
 },
 "slices" : {

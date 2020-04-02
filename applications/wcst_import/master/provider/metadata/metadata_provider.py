@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -43,8 +43,8 @@ class MetadataProvider:
         :param boolean: check if want to import a grid coverage
         """
         self.coverage_id = coverage_id
-        self.axes = axes_map.keys()
-        self.grid_axes = axes_map.values()
+        self.axes = list(axes_map.keys())
+        self.grid_axes = list(axes_map.values())
         self.grid_axes.sort()
         self.range_fields = range_fields
         self.axes_map = axes_map
@@ -148,7 +148,7 @@ class MetadataProvider:
             offset_vector = [0] * len(self.grid_axes)
             offset_vector[self._get_axis_position_by_grid(grid_axis)] = grid_axis.resolution
             if self.is_coverage_irregular():
-                coefficient = None if axis.coefficient is None else " ".join(map(lambda x: str(x), axis.coefficient))
+                coefficient = None if axis.coefficient is None else " ".join([str(x) for x in axis.coefficient])
                 offsets.append(OffsetVectorIrregular(self.get_crs(), self.get_axis_labels(), self.get_axis_uom_labels(),
                                                      self.get_no_of_dimensions(), offset_vector, coefficient, grid_axis.label))
             else:
@@ -162,7 +162,7 @@ class MetadataProvider:
         :param GridAxis grid_axis: the grid axis to lookup
         :rtype: Axis
         """
-        for axis, grid in self.axes_map.iteritems():
+        for axis, grid in self.axes_map.items():
             if grid_axis == grid:
                 return axis
 

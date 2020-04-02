@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -40,7 +40,7 @@ def numpy_array_to_list_decimal(numpy_array):
     :rtype: list decimal
     """
     # NOTE: str(list(variable[:])) is *must* to keep all the precision of float values in numpy array
-    output_list = map(decimal.Decimal, str(list(numpy_array))[1:-1].split(","))
+    output_list = list(map(decimal.Decimal, str(list(numpy_array))[1:-1].split(",")))
 
     return output_list
 
@@ -111,7 +111,7 @@ def get_null_values(default_null_values):
     null_values = []
     for value in default_null_values:
         values = str(value).strip().split(",")
-        values = map(lambda x: x.strip(), values)
+        values = [x.strip() for x in values]
         null_values += values
 
     return null_values

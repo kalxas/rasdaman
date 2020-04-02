@@ -15,15 +15,22 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-import urllib, urllib2, base64
+import sys
+if sys.version_info[0] < 3:
+    from urllib2 import Request, urlopen
+else:
+    from urllib.request import Request, urlopen
+
+import urllib, base64
 import ssl
 from master.error.runtime_exception import RuntimeException
+from util.import_util import decode_res
 
 def __encode_quote(url):
     """
@@ -42,9 +49,12 @@ def validate_and_read_url(url, data=None):
     """
     url = __encode_quote(url)
     try:
-        request = urllib2.Request(url)
+        request = Request(url)
         if data is not None:
-            request.add_data(data)
+            if sys.version_info[0] < 3:
+                request.add_data(data)
+            else:
+                request.data = bytes(data, encoding = "ISO-8859-1")
 
         from config_manager import ConfigManager
 
@@ -52,18 +62,18 @@ def validate_and_read_url(url, data=None):
             base64string = base64.b64encode(ConfigManager.user + ":" + ConfigManager.passwd)
             request.add_header("Authorization", "Basic %s" % base64string)
 
-        ret = urllib2.urlopen(request, context=ssl._create_unverified_context())
+        ret = urlopen(request, context = ssl._create_unverified_context())
     except Exception as e:
         raise RuntimeException("Failed opening connection to '{}'. "
                                "Check that the service is up and running."
-                               "Detail error: {}.".format(url, e.read()))
-
+                               "Detail error: {}.".format(url, decode_res(e.read())))
     response = ret.read()
+
     if ret.getcode() != 200:
         raise RuntimeException("Server responded failed for request '{}'."
                                "Detail error: {}.".format(url, response))
 
-    if "<html" in response:
+    if "<html" in decode_res(response):
         raise RuntimeException("Server requests credentials for authentication,"
                                "please provide them (check wcst_import.sh -h for details)")
 
@@ -80,7 +90,7 @@ def url_read_exception(url, exception_message):
     :return: boolean (false: if status is 200 or true if message does exist)
     """
     url = __encode_quote(url)
-    ret = urllib2.urlopen(url, context=ssl._create_unverified_context())
+    ret = urlopen(url, context=ssl._create_unverified_context())
     response = ret.read()
     if ret.getcode() == 200:
         return False

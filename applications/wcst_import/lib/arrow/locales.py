@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import calendar
 import inspect
@@ -141,7 +140,7 @@ class Locale(object):
 
 
     def _name_to_ordinal(self, lst):
-        return dict(map(lambda i: (i[1], i[0] + 1), enumerate(lst[1:])))
+        return dict([(i[1], i[0] + 1) for i in enumerate(lst[1:])])
 
     def _format_timeframe(self, timeframe, delta):
 

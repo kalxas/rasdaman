@@ -32,10 +32,10 @@ srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <local_metadata_key>/home/marta/Desktop/www/file ex/files/grafa/tiff/file_example_TIFF_1MB.tiff</local_metadata_key>
 </slice>
 </slices>
-<TIFFTAG_XRESOLUTION>72.009003</TIFFTAG_XRESOLUTION>
 <AREA_OR_POINT>Area</AREA_OR_POINT>
 <TIFFTAG_DOCUMENTNAME>/home/marta/Desktop/www/file ex/files/grafa/tiff/file_example_TIFF_1MB.tiff</TIFFTAG_DOCUMENTNAME>
 <TIFFTAG_RESOLUTIONUNIT>2 (pixels/inch)</TIFFTAG_RESOLUTIONUNIT>
+<TIFFTAG_XRESOLUTION>72.009003</TIFFTAG_XRESOLUTION>
 <TIFFTAG_YRESOLUTION>72.009003</TIFFTAG_YRESOLUTION>
 </rasdaman:covMetadata>
 </gmlcov:Extension>

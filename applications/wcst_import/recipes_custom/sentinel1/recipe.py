@@ -240,7 +240,7 @@ class Recipe(GeneralCoverageRecipe):
     def _get_importers(self):
         ret = []
         convertors = self._get_convertors()
-        for cov_id, conv in convertors.iteritems():
+        for cov_id, conv in convertors.items():
             coverage_slices = conv.coverage_slices
 
             importer = Importer(conv.resumer, conv.to_coverage(coverage_slices),

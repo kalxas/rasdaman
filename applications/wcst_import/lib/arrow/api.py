@@ -4,7 +4,6 @@ Provides the default implementation of :class:`ArrowFactory <arrow.factory.Arrow
 methods for use as a module API.
 
 '''
-
 from __future__ import absolute_import
 
 from lib.arrow.factory import ArrowFactory

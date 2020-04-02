@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -34,10 +34,11 @@ from util.log import log, make_bold
 from util.file_util import FileUtil
 
 class BaseRecipe:
+    __metaclass__ = ABCMeta
+
     """
     This class represents an abstract
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, session):
         """

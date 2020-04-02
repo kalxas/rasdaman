@@ -167,7 +167,7 @@ elif [[ ! -z "$identity_file_path" ]]; then
     fi
 fi
 
-wcst_import_py_args="python $script -i $ingredients_file"
+wcst_import_py_args="python3 $script -i $ingredients_file"
 add_args "-d" "$daemon_action"
 if [[ "$daemon_flag" == true ]]; then
     add_args "-w" "$watch_interval"

@@ -4,7 +4,6 @@ Provides the :class:`Arrow <arrow.arrow.Arrow>` class, an enhanced ``datetime``
 replacement.
 
 '''
-
 from __future__ import absolute_import
 
 from datetime import datetime, timedelta, tzinfo

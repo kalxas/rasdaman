@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -25,10 +25,11 @@ from abc import ABCMeta, abstractmethod
 
 
 class WMSTRequest:
+    __metaclass__ = ABCMeta
+
     """
     Generic class for WCST requests
     """
-    __metaclass__ = ABCMeta
     SERVICE_PARAMETER = "service"
     SERVICE_VALUE = "WMS"
     VERSION_PARAMETER = "version"
@@ -41,7 +42,7 @@ class WMSTRequest:
         :rtype str
         """
         extra_params = ""
-        for key, value in self._get_request_type_parameters().iteritems():
+        for key, value in self._get_request_type_parameters().items():
             extra_params += "&" + key + "=" + value
         return self.SERVICE_PARAMETER + "=" + self.SERVICE_VALUE + "&" + \
                self.VERSION_PARAMETER + "=" + self.VERSION_VALUE + "&" + \

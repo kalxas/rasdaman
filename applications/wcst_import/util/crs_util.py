@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -25,14 +25,18 @@ import re
 from collections import OrderedDict
 
 from lxml import etree
-import urlparse
+import sys
+if sys.version_info[0] < 3:
+    import urlparse
+else:
+    import urllib.parse as urlparse
 
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
-from url_util import validate_and_read_url
+from .url_util import validate_and_read_url
 from util.coverage_util import CoverageUtil
 from util.log import log
-from time_util import DateTimeUtil
+from .time_util import DateTimeUtil
 
 
 class CRSAxis:
@@ -267,7 +271,7 @@ class CRSUtil:
 
         # Case 2: Coverage not exist, but in ingredient file for general recipes, it contains configuration for "Lat Long" axes
         if axes_configurations is not None:
-            for key, value in axes_configurations.iteritems():
+            for key, value in axes_configurations.items():
                 CRSUtil.coverage_axis_labels.append(key)
 
                 for crs_axis in crs_axes:

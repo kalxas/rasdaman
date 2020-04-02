@@ -18,7 +18,7 @@ class Daemon(object):
 				pid = self.get_pid()
 				os.kill(pid, 0)
 				self._status = True
-			except OSError, e:
+			except OSError as e:
 				if e.errno == errno.ESRCH:
 					# if the pid doesn't exist, neither should the pidfile
 					if os.path.isfile(self._pidfile):
@@ -34,7 +34,7 @@ class Daemon(object):
 		try:
 			pid = int(open(self._pidfile).read())
 			return pid
-		except IOError, e:
+		except IOError as e:
 			sys.stderr.write("Failed to read pid file: %s\n" % str(e))
 
 	def running(self):
@@ -48,7 +48,7 @@ class Daemon(object):
 			#  parent process
 			if (pid != 0):
 				os._exit(0)
-		except OSError, e:
+		except OSError as e:
 			sys.stderr.write("Failed to create a child process: %s\n" % str(e))
 			sys.exit(1)
 
@@ -62,7 +62,7 @@ class Daemon(object):
 			#  parent process
 			if (pid != 0):
 				os._exit(0)
-		except OSError, e:
+		except OSError as e:
 			sys.stderr.write("Failed to create a child process: %s\n" % str(e))
 			sys.exit(1)
 

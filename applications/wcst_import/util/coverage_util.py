@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -25,8 +25,8 @@
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
 from session import Session
-from util.url_util import validate_and_read_url
-from util.url_util import url_read_exception
+from util.url_util import validate_and_read_url, url_read_exception
+from util.import_util import decode_res
 from lxml import etree
 
 
@@ -80,7 +80,7 @@ class CoverageUtil:
         Return axes labels as a list
         :rtype list[str]
         """
-        response = self.__describe_coverage()
+        response = decode_res(self.__describe_coverage())
         return response.split("axisLabels=\"")[1].split('"')[0].split(" ")
 
     def get_axes_lower_bounds(self):

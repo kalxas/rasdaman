@@ -5,7 +5,6 @@ providing factory methods for common :class:`Arrow <arrow.arrow.Arrow>`
 construction scenarios.
 
 """
-
 from __future__ import absolute_import
 
 from lib.arrow import Arrow

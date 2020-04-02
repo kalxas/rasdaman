@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -23,6 +23,7 @@
 """
 from master.error.runtime_exception import RuntimeException
 from util.log import log
+import sys
 
 """
   Utilities to import optional dependencies and throw proper exceptions for user to install these missing libraries. 
@@ -39,7 +40,7 @@ def import_numpy():
     try:
         import numpy
     except ImportError as e:
-        raise RuntimeException("Numpy package is not installed, please install it first (sudo pip install numpy)."
+        raise RuntimeException("Numpy package is not installed, please install it first (sudo pip3 install numpy)."
                                "Reason: {}.".format(e))
 
 
@@ -53,7 +54,7 @@ def import_pygrib():
             import pygrib
             imported_pygrib = pygrib
         except ImportError as e:
-            raise RuntimeException("Cannot import GRIB data, please install pygrib first (sudo pip install pygrib). "
+            raise RuntimeException("Cannot import GRIB data, please install pygrib first (sudo pip3 install pygrib). "
                                    "Reason: {}.".format(e))
 
     return imported_pygrib
@@ -70,7 +71,7 @@ def import_netcdf4():
             imported_netcdf = netCDF4
         except ImportError as e:
             raise RuntimeException("Cannot import netCDF data, please install netCDF4 first \
-                                    (yum install netcdf4-python, or apt-get install python-netcdf, or apt-get install python-netcdf4)."
+                                    (sudo pip3 install netCDF4)."
                                    "Reason: {}.".format(e))
 
     return imported_netcdf
@@ -85,5 +86,38 @@ def import_jsonschema():
         return jsonschema
     except ImportError:
          log.warning("The jsonschema package is not installed, ingredient file validation will be skipped. \
-          To enable validation please install jsonschema (sudo pip install jsonschema)")
+          To enable validation please install jsonschema (sudo pip3 install jsonschema)")
          pass
+
+
+def encode_res(data):
+    """
+    Encoding of data according to python version
+    """
+    if sys.version_info[0] < 3:
+        return data
+    return bytes(data, encoding = "ISO-8859-1")
+
+def decode_res(data):
+    """
+    Decoding of data according to python version
+    """
+    if sys.version_info[0] < 3:
+        return data
+    return data.decode("ISO-8859-1")
+
+def import_glob():
+    """
+    Importing glob according to python version
+    """
+    try:
+        if sys.version_info[0] < 3:
+            import glob2 as glob
+        else:
+            import glob
+        return glob
+    except ImportError:
+        log.warning("The glob package is not installed, ingredient file validation will be skipped. \
+        To enable validation please install glob (sudo pip3 install glob)")
+        pass
+    

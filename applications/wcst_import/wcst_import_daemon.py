@@ -65,23 +65,23 @@ if __name__ == "__main__":
     daemon = WCSTImportDaemon(PIDFILE, os.devnull, LOGFILE, LOGFILE);
 
     if "start" == daemon_action:
-        print "Starting wcst_import daemon ..."
+        print("Starting wcst_import daemon ...")
         SLEEP_TIME = daemon_watch
         daemon.start()
     elif "stop" == daemon_action:
-        print "Stopping wcst_import daemon ..."
+        print("Stopping wcst_import daemon ...")
         daemon.stop()
     elif "restart" == daemon_action:
-        print "Restarting  wcst_import daemon ..."
+        print("Restarting  wcst_import daemon ...")
         SLEEP_TIME = daemon_watch
         daemon.restart()
     elif "status" == daemon_action:
         if daemon.running():
             pid = daemon.get_pid()
-            print "wcst_import daemon is running as pid {}".format(pid)
+            print("wcst_import daemon is running as pid {}".format(pid))
         else:
-            print "wcst_import daemon is not running."
+            print("wcst_import daemon is not running.")
     else:
-        print "Unknown daemon action {}".format(daemon_action)
+        print("Unknown daemon action {}".format(daemon_action))
         sys.exit(2)
 

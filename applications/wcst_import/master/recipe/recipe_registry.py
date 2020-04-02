@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -25,7 +25,6 @@
 import os
 import sys
 import subprocess
-import glob2
 from threading import Thread
 from time import sleep
 
@@ -42,6 +41,9 @@ from util.reflection_util import ReflectionUtil
 from recipes.general_coverage.recipe import Recipe as GeneralRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from recipes.virtual_coverage.recipe import Recipe as virtual_coverage_recipe
+from util.import_util import import_glob
+
+glob = import_glob()
 
 class RecipeRegistry:
     def __init__(self):
@@ -139,7 +141,7 @@ class RecipeRegistry:
                 if replace_path_template is not None:
                     # Evaluate replace path expression to get a valid file input path
                     replace_path = self.sentence_evaluator.evaluate(replace_path_template, evaluator_slice)
-                    tmp_files = glob2.glob(replace_path)
+                    tmp_files = glob.glob(replace_path, recursive=True)
                     for tmp_file in tmp_files:
                         if not isinstance(file, FilePair):
                             # The first replacement (must keep original input file path)
@@ -166,7 +168,7 @@ class RecipeRegistry:
         recipe.describe()
 
         if session.blocking and not session.is_automated():
-            raw_input("Press Enter to Continue...: ")
+            input("Press Enter to Continue...: ")
 
         log.title("\nRunning")
 
@@ -207,7 +209,7 @@ class RecipeRegistry:
                 if number_of_files > 10:
                     number_of_files = 10
                 log.info("Collected first " + str(number_of_files) + " files: "
-                         + str(map(lambda f: str(f), session.get_files()[:10])) + "...")
+                         + str([str(f) for f in session.get_files()[:10]]) + "...")
 
             log.title("\nValidation")
             recipe.validate()

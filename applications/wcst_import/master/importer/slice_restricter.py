@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2015 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -90,8 +90,8 @@ class SliceRestricter:
             low = DateTimeUtil(restriction['low'])
             high = DateTimeUtil(restriction['high'])
         else:
-            if type(restriction['low']) not in [int, float, long] and type(restriction['high']) not in [int, float,
-                                                                                                        long]:
+            if type(restriction['low']) not in [int, float, int] and type(restriction['high']) not in [int, float,
+                                                                                                        int]:
                 raise RuntimeException("You provided a non-numeric restriction interval" + str(
                     restriction) + " without providing a type for it. Please check the correct syntax for non-numeric intervals.")
             low = restriction['low']

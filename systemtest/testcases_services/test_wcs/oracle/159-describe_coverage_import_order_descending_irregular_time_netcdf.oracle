@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-
-
-
-
-
-
 >
 <wcs:CoverageDescription id="test_import_order_descending_irregular_time_netcdf">
 <boundedBy>
@@ -24,30 +18,30 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="
 </coverageFunction>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >
+<rasdaman:covMetadata>
+<Title>This is a test coverage</Title>
 <bands>
 <LAI>
-<_FillValue>-1.0</_FillValue>
-<grid_mapping>crs</grid_mapping>
-<scale_factor>1.0</scale_factor>
-<FORTRAN_format>G10.6</FORTRAN_format>
-<valid_range>[ 0.  7.]</valid_range>
-<long_name>Leaf Area Index</long_name>
 <units>m2/m2</units>
+<long_name>Leaf Area Index</long_name>
+<_FillValue>-1.0</_FillValue>
 <missing_value>-1.0</missing_value>
+<valid_range>[0.7.]</valid_range>
+<scale_factor>1.0</scale_factor>
+<grid_mapping>crs</grid_mapping>
+<FORTRAN_format>G10.6</FORTRAN_format>
 </LAI>
 </bands>
 <axes>
-<Lat>
-<units>degrees_north</units>
-<long_name>latitude</long_name>
-</Lat>
 <Lon>
 <units>degrees_east</units>
 <long_name>longitude</long_name>
 </Lon>
+<Lat>
+<units>degrees_north</units>
+<long_name>latitude</long_name>
+</Lat>
 </axes>
-<Title>This is a test coverage</Title>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

@@ -32,7 +32,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 <pos>"2017-01-01T00:00:00.000Z" 101000 459950</pos>
 </Point>
 </origin>
-<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0.0208333333333 0 0</offsetVector>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0.020833333333333332 0 0</offsetVector>
 <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -1000 0</offsetVector>
 <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 1000</offsetVector>
 </RectifiedGrid>
