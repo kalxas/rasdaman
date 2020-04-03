@@ -27,12 +27,13 @@ cmake_policy(SET CMP0012 NEW)
 cmake_policy(SET CMP0009 NEW)
 cmake_policy(SET CMP0048 NEW)
 
-project(rasdaman VERSION 10.0.0 LANGUAGES C CXX)
+# sets variables: GIT_TAG / VERSION_FULL (v10.0.0-beta1), GIT_HASH (g0bdff5675), 
+#                 VERSION (10.0.0), VERSION_PRE (beta1)
+#                 SEMVER (9.8.1+g0bdff5675.20200404004358)
+include(cmake/VersionFromGit.cmake)
+version_from_git(LOG ON TIMESTAMP "%Y%m%d%H%M%S")
 
-# No rebuild dependency when make install
-# https://cmake.org/Wiki/CMake_Useful_Variables#Various_Options
-set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
-set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
+project(rasdaman VERSION ${VERSION} LANGUAGES C CXX)
 
 ################################################################################
 # CMake configuration options
@@ -42,6 +43,11 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 # When find_package(X) is called, the module path is search of a FindX.cmake
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
+
+# No rebuild dependency when make install
+# https://cmake.org/Wiki/CMake_Useful_Variables#Various_Options
+set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
 set(CMAKE_VERBOSE_OUTPUT OFF CACHE BOOL 
     "Enable this if you need detailed output from the make process.")

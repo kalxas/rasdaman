@@ -34,19 +34,20 @@
 #  2) etc/petascope.properties should be present, and the metadata_user should
 #     have appropriate write rights in postgres.
 
-PROG=`basename $0`
+PROG=$(basename "$0")
 
-CODE_OK=0
-CODE_FAIL=255
+VERSION="@VERSION_FULL@"
 
-# petascope settings file
 SETTINGS="@sysconfdir@/petascope.properties"
-
+WCST_IMPORT="@bindir@/wcst_import.sh"
 # petascope updateN.sql scripts and demo examples
 SCRIPT_DIR="@pkgdatadir@/petascope"
-
 # input file directory (coverage files + recipe files .template.json)
 DATA_DIRECTORY=$SCRIPT_DIR/petascope_insertdemo_data
+DEFAULT_SERVICE_ENDPOINT="http://localhost:8080"
+
+RC_OK=0
+RC_ERROR=1
 
 # ------------------------------------------------------------------------------
 # functions
@@ -55,48 +56,26 @@ DATA_DIRECTORY=$SCRIPT_DIR/petascope_insertdemo_data
 #
 # logging
 #
-log() {
-  echo "$PROG: $*"
-}
-logn() {
-  echo -n "$PROG: $*"
-}
-error() {
-  echo "$PROG: $*" >&2
-  echo "$PROG: exiting." >&2
-  exit $CODE_FAIL
-}
-
-
+log()  { echo "$PROG: $*"; }
+logn() { printf "%s" "$PROG: $*"; }
+error(){ echo "$PROG: $*" >&2; exit $RC_ERROR; }
+check(){ [ $? ] && echo "ok." || echo "failed."; }
 
 usage()
 {
-  local usage="
+cat <<EOF
   Usage: $PROG [OPTION]...
 
   Description:
-    Inserts sample demo data into petascope.
+    Insert sample demo data into rasdaman.
 
   Options:
+    -s, --service-endpoint
+     specify the service endpoint (default: $DEFAULT_SERVICE_ENDPOINT)
     -h, --help
      display this help and exit
-    -s, --service-endpoint
-     specify the service endpoint (default: http://localhost:8080)
-  "
-
-  echo "$usage"
+EOF
   exit $RC_OK
-}
-
-# Read the property of a value by input key from input properties file
-get_property_value()
-{
-    # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
-    # $2 is the key of a property in this file which needs to get the value of this key.
-    local properties_file="$1"
-    local key="$2"
-    # only grep key=value line not commented line (e.g: #key=value)
-    grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
 }
 
 #
@@ -104,22 +83,15 @@ get_property_value()
 #
 import_all_coverages()
 {
-  log "Starting to ingest example coverages to petascope..."
-  for DATA in $DATA_DIRECTORY/*; do
+  log "importing sample coverages into rasdaman $VERSION..."
+  log "petascope service endpoint: $PETASCOPE_URL"
+  log "secore service endpoint: $SECORE_URL"
 
-    # 1.1 Get the recipe file template
-    RECIPE_TEMPLATE_FILE=$(find $DATA -type f -name "*.template.json")
-
-    # 1.2 Get the coverage id from recipe file
-    COVERAGE_ID=$(grep -Po '"coverage_id":.*?[^\\]",' $RECIPE_TEMPLATE_FILE | awk -F'"' '{print $4}')
-
-    # 1.3 Import coverage_id
-    import_coverage $COVERAGE_ID $DATA $RECIPE_TEMPLATE_FILE
+  for DATA in "$DATA_DIRECTORY"/*; do
+    RECIPE_TEMPLATE_FILE=$(find "$DATA" -type f -name "*.template.json")
+    COVERAGE_ID=$(grep -Po '"coverage_id":.*?[^\\]",' "$RECIPE_TEMPLATE_FILE" | awk -F'"' '{print $4}')
+    import_coverage "$COVERAGE_ID" "$DATA" "$RECIPE_TEMPLATE_FILE"
   done
-
-  log "All coverages are imported correctly. Done."
-  log "Ok."
-  exit $CODE_OK
 }
 
 #
@@ -130,32 +102,18 @@ import_coverage()
   COVERAGE_ID="$1"
   DATA_FOLDER_PATH="$2" # coverage directory
   RECIPE_TEMPLATE_FILE="$3"
-
-  # START
-
-  # 1. Insert coverage by WCS
-
-  # 1.1 Copy file from template.json to ingest.json
   RECIPE_FILE="/tmp/ingest.json"
-  cp "$RECIPE_TEMPLATE_FILE" "$RECIPE_FILE"
 
-  sed -i "s|DATA_FOLDER_PATH|$DATA_FOLDER_PATH|g" "$RECIPE_FILE"
+  sed -e "s|DATA_FOLDER_PATH|$DATA_FOLDER_PATH|g" \
+      -e "s|PETASCOPE_URL|$PETASCOPE_URL|g" \
+      -e "s|SECORE_URL|$SECORE_URL|g" \
+      "$RECIPE_TEMPLATE_FILE" > "$RECIPE_FILE"
 
-  # 1.2 Replace PETASCOPE_URL and SECORE_URL in petascope_insertdemo.template.json
-  sed -i "s|PETASCOPE_URL|$PETASCOPE_URL|g" "$RECIPE_FILE"
-  sed -i "s|SECORE_URL|$SECORE_URL|g" "$RECIPE_FILE"
+  logn "  importing coverage $COVERAGE_ID (detail output in /tmp/$COVERAGE_ID.log)... "
+  "$WCST_IMPORT" "$RECIPE_FILE" > "/tmp/$COVERAGE_ID.log" 2>&1
+  check
 
-  # 1.3 Run wcst_import with petascope_insertdemo.json recipe
-  logn "Ingesting $COVERAGE_ID to petascope by wcst_import..."
-  "@bindir@/wcst_import.sh" $RECIPE_FILE
-  echo "Done."
-
-  # 1.4 Remove tmp $RECIPE_FILE
-  logn "Cleaning temporary file..."
-  if [ -f "$RECIPE_FILE" ]; then
-     rm "$RECIPE_FILE"
-  fi
-  echo "Done."
+  rm -f "$RECIPE_FILE"
 }
 
 # ------------------------------------------------------------------------------
@@ -170,38 +128,31 @@ import_coverage()
 # ----------------------------------------------------------------------------
 # parse command-line options
 # ----------------------------------------------------------------------------
-SERVICE_ENDPOINT=http://localhost:8080
 
-SECORE_URL=$(get_property_value "$SETTINGS" "secore_urls")
-
-if [ -n "$SECORE_URL" ]; then
-  SECORE_URL=$SERVICE_ENDPOINT/def
-fi
-
+SERVICE_ENDPOINT="$DEFAULT_SERVICE_ENDPOINT"
 option=
 for i in "$@"; do
   if [ -n "$option" ]; then
     case $option in
-      -s|--service-endpoint*)
-        SERVICE_ENDPOINT="$i";;
-      *) error "unknown option: $option";;
+      -s|--service-endpoint*) SERVICE_ENDPOINT="$i";;
+      *)                      error "unknown option: $option";;
     esac
     option=""
   else
     option=""
     case $i in
-      -h|--help*)     usage;;
-      *)              option="$i";;
+      -h|--help*) usage;;
+      *)          option="$i";;
     esac
   fi
 done
 
-# petascope, secore URL
-PETASCOPE_URL=$SERVICE_ENDPOINT/rasdaman/ows
+PETASCOPE_URL="$SERVICE_ENDPOINT/rasdaman/ows"
 
-log "Petascope service endpoint is: "$PETASCOPE_URL
-log "Secore service endpoint is: "$SECORE_URL
-
-echo -e
+SECORE_URL=$(grep "^secore_urls=" "$SETTINGS" | sed -e 's/.*=//' -e 's/^[ \t]*//')
+[ -z "$SECORE_URL" ] && SECORE_URL="$SERVICE_ENDPOINT/def"
 
 import_all_coverages
+
+log "done."
+exit $RC_OK

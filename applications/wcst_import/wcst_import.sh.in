@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # *
 # * This file is part of rasdaman community.
 # *
@@ -15,67 +15,77 @@
 # * You should have received a copy of the GNU  General Public License
 # * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 # *
-# * Copyright 2003 - 2019 Peter Baumann / rasdaman GmbH.
+# * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
 # *
 # * For more information please see <http://www.rasdaman.org>
 # * or contact Peter Baumann via <baumann@rasdaman.com>.
 # *
-#
-# Call the wcst_import.py from the share directory
+
+PROG=$(basename "$0")
+
+VERSION="@VERSION_FULL@"
+WCST_IMPORT_PY_SCRIPT="@WCST_IMPORT_PY_SCRIPT@"
+WCST_IMPORT_DAEMON_PY_SCRIPT="@WCST_IMPORT_DAEMON_PY_SCRIPT@"
+# env variable used by session.py
 export PETASCOPE_PROPERTIES_PATH="@CONF_DIR@/petascope.properties"
 
 RC_OK=0
+RC_ERROR=1
 
 daemon_flag=false
 watch_flag=false
-
 watch_interval=3600
-
 user=""
 passwd=""
 identity_file_path=""
 
+# logging
+log()  { echo "$PROG: $*"; }
+logn() { printf "%s" "$PROG: $*"; }
+error(){ echo "$PROG: $*" >&2; exit $RC_ERROR; }
+
 # check if optional arguments are not empty then concatenate them
-add_args() {
+add_args()
+{
     arg_key="$1"
     arg_val="$2"
     # e.g: argv_val="stop", arg="-d"
 
-    if [[ ! -z "$arg_val" ]]; then
+    if [ -n "$arg_val" ]; then
         wcst_import_py_args="$wcst_import_py_args $arg_key $arg_val"
     fi
 }
 
+# print optional error, and usage directions
 usage()
 {
-  local usage="
+  [ -n "$1" ] && echo "$PROG: $*"
+  cat <<EOF
+
 Usage: $PROG [OPTION] <ingredients_file>
 
-wcst_import.sh is a tool for importing data into petascope via WCS-T (example: http://rasdaman.org/wiki/WCSTImportGuide).
+wcst_import.sh is a tool for importing data into petascope via WCS-T.
 
 Options:
+  -d, --daemon <command>
+    run as daemon; <command> must be one of start, stop, status, or restart.
+  -w, --watch [ <interval> ]
+    the daemon (-d) waits for <interval> seconds before checking the ingredients 
+    file for new data; by default the interval is 3600 (1 hour).
+  -i, --identity-file
+    specify a file from which credentials of a valid petascope user are read;
+    the credentials must be specified in the file as username:password
+  -u, --user <username>
+    specify a valid user for the petascope endpoint; the password will be
+    asked interactively by wcst_import.sh
   -q, --quiet
     suppress regular output
+  --version
+    print version
   -h, --help
     display this help and exit
-  -d, --daemon
-    run wcst_import.sh as daemon
-    usage: -d|--daemon start|stop|status|restart
-  -w, --watch [interval (seconds)]
-    the daemon waits for [interval] seconds before checking the ingredients file for new data
-    [interval] must be a positive number; by default the interval is 3600 (1 hour)
+EOF
 
-    usage: wcst_import <ingredients_file> --daemon start|restart --watch [interval]
-"
-
-   local -r usage="$usage
-  -i, --identity-file
-    selects a file from which the identity (username:password) of an user with qualified priviledges of the petascope endpoint is read
-  -u, --user USER_NAME
-    input identity of username and password of an user with qualified priviledges of the petascope endpoint in interactive mode
-"
-
-  echo "$usage"
   exit $RC_OK
 }
 
@@ -85,98 +95,79 @@ Options:
 quiet=false 
 while [ "$1" != "" ]; do
     case $1 in
-      -h|--help)     usage;;
-      -q|--quiet)   quiet=true;;
-      -d|--daemon)
-        daemon_flag=true
-        shift
-        daemon_action="$1";;
-      -w|--watch)
-        watch_flag=true
-        shift
-        watch_interval=$1;;
-
-      -i|--identity-file)
-        # Credentials stored in a text file (username:password)
-        shift
-        identity_file_path=$(readlink -f "$1");;
-      -u|--user)
-        shift
-        # Interactive mode, input password afterwards
-        user="$1";;
-
-      *) ingredients_file=$(readlink -f "$1");;
+      -h|--help)          usage;;
+      -q|--quiet)         quiet=true;;
+      -d|--daemon)        shift; daemon_flag=true; daemon_action="$1";;
+      -w|--watch)         shift; watch_flag=true; watch_interval=$1;;
+      -i|--identity-file) shift; identity_file_path=$(readlink -f "$1");;
+      -u|--user)          shift; user="$1";;
+      --version)          echo "$PROG $VERSION"; exit $RC_OK;;
+      *)                  ingredients_file=$(readlink -f "$1");;
     esac
     shift
 done
 
-if [[ "$ingredients_file" == "" ]]; then
-  usage
-fi
+[ "$ingredients_file" = "" ] && usage "no ingredients file specified."
 
-if ! [[ $watch_interval =~ ^[\0-9]*\.?[0-9]+$  && (( watch_interval > 0)) ]]; then
-  usage
-fi
+case $watch_interval in
+    ''|*[!0-9]*) usage "invalid watch interval specified: $watch_interval";;
+    *)           [ "$watch_interval" -gt 0 ] || usage "please specify a positive watch interval.";;
+esac
 
-if [[ "$watch_flag" == true && "$daemon_flag" == false ]]; then
+if [ "$watch_flag" = true ] && [ "$daemon_flag" = false ]; then
   daemon_action='start'
   daemon_flag=true
 fi
 
 # check if the daemon is active for this ingredients_file
-if ps aux | grep -E -v "grep|wcst_import.sh" | grep python | grep $ingredients_file > /dev/null
-then
+if ps aux | grep -E -v "grep|wcst_import.sh" | grep python | grep "$ingredients_file" > /dev/null; then
   daemon_is_active=true
 else
   daemon_is_active=false
 fi
 
-# Do not allow gdal to create auxiliary file as it can have no permission to do it in input data folders
+# Prevent gdal from creating auxiliary files as it may not have permissions in data folders
 export GDAL_PAM_ENABLED=NO
 
-script=@WCST_IMPORT_DAEMON_PY_SCRIPT@
-if [[ "$daemon_flag" == false ]]; then
-  if [[ "$daemon_is_active" == true ]]; then
-    echo "A working or daemon instance for this ingredients file is already running; please stop it first."
-    echo "In case of daemon, usage: -d|--daemon stop"
+if [ "$daemon_flag" = false ]; then
+  if [ "$daemon_is_active" = true ]; then
+    echo "$PROG: an instance for this ingredients file is already running, please stop it first; in case of daemon use --daemon stop"
     exit $RC_OK
   fi
-  script=@WCST_IMPORT_PY_SCRIPT@
+  script="$WCST_IMPORT_PY_SCRIPT"
+else
+  script="$WCST_IMPORT_DAEMON_PY_SCRIPT"
 fi
 
-
-if [[ ! -z "$user" ]]; then
-    echo "Please type password for user '$user':"
-    read -s passwd
-elif [[ ! -z "$identity_file_path" ]]; then
-    if [[ ! -f "$identity_file_path" ]]; then
-        echo "Identity file '$identity_file_path' does not exist"
-        exit $RC_ERROR
+if [ -n "$user" ]; then
+    echo "$PROG: please type password for user '$user':"
+    stty_orig=$(stty -g)
+    stty -echo
+    read -r passwd
+    stty "$stty_orig"
+elif [ -n "$identity_file_path" ]; then
+    if [ ! -f "$identity_file_path" ]; then
+        error "identity file '$identity_file_path' does not exist"
     fi
-    if [[ ! -r "$identity_file_path" ]]; then
-        echo "Identity file '$identity_file_path' cannot be read"
-        exit $RC_ERROR
+    if [ ! -r "$identity_file_path" ]; then
+        error "identity file '$identity_file_path' cannot be read"
     fi
 
     user=$(awk -F: '{ print $1 }' "$identity_file_path")
     passwd=$(awk -F: '{ print $2 }' "$identity_file_path")
-
-    if [ -z "$user" -o -z "$passwd" ]; then
-        echo "Cannot parse username or password from the identity file '$identity_file_path'. The format must be username:password."
-        exit $RC_ERROR
+    if [ -z "$user" ] || [ -z "$passwd" ]; then
+        error "cannot parse username or password from the identity file '$identity_file_path'; expected format username:password."
     fi
 fi
 
 wcst_import_py_args="python3 $script -i $ingredients_file"
 add_args "-d" "$daemon_action"
-if [[ "$daemon_flag" == true ]]; then
-    add_args "-w" "$watch_interval"
-fi
+[ "$daemon_flag" = true ] && add_args "-w" "$watch_interval"
 add_args "--user" "$user"
 add_args "--passwd" "$passwd"
 
-if [[ "$quiet" == true ]]; then
-    eval "$wcst_import_py_args" 2>&1 > /dev/null
+if [ "$quiet" = true ]; then
+    eval "$wcst_import_py_args" > /dev/null 2>&1
 else
     eval "$wcst_import_py_args"
 fi

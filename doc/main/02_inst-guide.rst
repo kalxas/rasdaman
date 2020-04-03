@@ -136,7 +136,11 @@ relies on a PostgreSQL database; this is planned to be changed in the near
 future.
 
    .. note::
-        Installing or updating rasdaman from the official packages can be optionally customized with an installation profile (see `installer configuration <sec-system-install-installer-config>`). Prior to installation, make sure that the RAS_INSTALL_PATH environment variable points to the custom profile that you want to use.
+        Installing or updating rasdaman from the official packages can be optionally 
+        customized with an installation profile (see `installer configuration 
+        <sec-system-install-installer-config>`). Prior to installation, make sure that 
+        the RAS_INSTALL_PATH environment variable points to the custom profile that you 
+        want to use.
 
 .. _sec-system-install-pkgs-deb:
 
@@ -243,7 +247,7 @@ Installation
     http://localhost:8080/rasdaman/ows
 
 7. You will find the rasdaman installation under ``/opt/rasdaman/``; 
-   `rasdaman.war` and `def.war` are installed in ``/var/lib/tomcat9/webapps`` 
+   ``rasdaman.war`` and ``def.war`` are installed in ``/var/lib/tomcat9/webapps`` 
    (or tomcat8).
 
 8. If SELinux is running then likely some extra configuration is needed to
@@ -424,7 +428,7 @@ by simply editing a JSON file.
 
 Currently, the following distributions are supported:
 
--  Debian (9)
+-  Debian (9, 10)
 -  Ubuntu (16.04, 18.04)
 -  CentOS (7)
 
@@ -681,7 +685,7 @@ Install Required Packages
 
 **general libraries:**
 
-* *libssl-dev*, *libncurses5-dev*, *libedit-dev*, *libboost-dev* (v1.48+),
+* *libssl-dev*, *libedit-dev*, *libreadline-dev*, *libboost-dev* (v1.48+), 
   *libffi-dev* -- required for various system tasks
 * *libgdal-dev* -- required for data format support (TIFF, JPEG, PNG, `etc.
   <https://gdal.org/drivers/raster/index.html>`_)
@@ -701,14 +705,14 @@ Install Required Packages
 
 **optional packages:**
 
-* *libhdf4g-dev* -- required for HDF4 support
 * *libnetcdf-dev*, *python-netcdf4* -- required for NetCDF support
-* *libgrib-api-dev*, *libgrib2c-dev*, *python-grib* - for GRIB data support
+* *libeccodes-dev*, *libgrib2c-dev* -- for GRIB data support
+* *libhdf4-dev* -- required for HDF4 support
 * *libtiff-dev*, *libjpeg-dev*, *ligpng-dev* - internal encoder/decoder 
   implementations for TIFF, JPEG, or PNG formants.
 * *libdw-dev* / *elfutils-devel* -- for segfault stacktraces, useful in development
 * *sphinx*, *sphinx_rtd_theme*, *latexmk*, *texlive* -- main HTML / PDF documentation
-* *doxygen* -- required for C++ API documentation
+* *doxygen* -- generate C++ API documentation
 * *r-base*, *r-base-dev* -- required for :ref:`sec-rrasdaman-install`, an R package
   providing database interface for rasdaman
 * *performance boosters and additional service components* offered by
@@ -719,14 +723,16 @@ Install Required Packages
 * `Tomcat <http://tomcat.apache.org/>`_ (or another suitable servlet
   container) -- required for running the petascope and SECORE Java web
   applications, unless they are configured to start in standalone mode
-* *python-dateutil python-lxml python-pip python-gdal
-  python-glob2 python-magic netcdf4-python* (required by :ref:`wcst_import
-  <data-import>`, a tool for importing geo-referenced data into rasdaman / 
-  petascope)
+* *python3* -- Python 3.6+ to run `wcst_import <data-import>`, a tool for  
+  importing geo-referenced data into rasdaman / petascope
+* *python3-pip*, *python3-setuptools*, *python3-wheel* -- required to install 
+  Python dependencies for wcst_import
+* *python-dateutil*, *lxml*, *numpy*, *netCDF4*, *GDAL*, *pygrib*, *jsonschema*
+  -- Python 3 dependencies for wcst_import, best installed with pip3
 
 
 Installation commands for the packages is depending on the platform
-used, here is a guidance for some of the most frequently asked for.
+used, here is a guidance for some of the most frequently used.
 
 CentOS 7
 ~~~~~~~~
@@ -735,135 +741,112 @@ CentOS 7
 
     # To build rasdaman
     $ sudo yum install \
-      git make libtool autoconf bison flex flex-devel git curl \
-      gcc gcc-c++ unzip boost-devel libstdc++-static boost-static \
-      libtfiff-devel gdal-devel zlib-devel libedit-devel readline-devel \
-      netcdf-devel postgresql-devel sqlite-devel elfutils-devel \
-      openssl-devel grib_api-devel hdf-devel libxml2-devel \
-      java-1.8.0-openjdk java-1.8.0-openjdk-devel maven ant gdal-java
+      make libtool autoconf bison flex flex-devel git curl gcc gcc-c++ unzip \
+      boost-devel libstdc++-static boost-static libtiff-devel zlib-devel \
+      libedit-devel readline-devel libpng-devel netcdf-devel postgresql-devel \
+      eccodes-devel hdf-devel sqlite-devel openssl-devel libxml2-devel elfutils-devel
+    # To build Java components
+    $ sudo yum install java-1.8.0-openjdk-devel maven ant
+
     # CMake needs to be manually downloaded and installed as the system 
     # provided version is too outdated.
 
     # To generate HTML documentation
     $ sudo pip install sphinx sphinx_rtd_theme
     # To generate PDF documentation (in addition to above)
-    $ sudo yum install latexmk texlive-cm texlive-ec texlive-ucs texlive-cmap \
+    $ sudo yum install python-pip texlive-cm texlive-ec texlive-ucs \
       texlive-metafont-bin texlive-fncychap texlive-pdftex-def texlive-fancyhdr \
       texlive-titlesec texlive-framed texlive-wrapfig texlive-parskip \
-      texlive-upquote texlive-ifluatex texlive-makeindex-bin texlive-times \
-      texlive-courier texlive-helvetic texlive-dvips
+      texlive-upquote texlive-ifluatex texlive-cmap texlive-makeindex-bin \
+      texlive-times texlive-courier texlive-dvips texlive-helvetic latexmk
     # To generate C++ API documentation
     $ sudo yum install doxygen
 
     # To run rasdaman
     $ sudo yum install \
-      postgresql-server postgresql-contrib sqlite zlib elfutils \
-      gdal netcdf libtiff libedit readline openssl gcc python-devel \
-      python-dateutil python-magic which python-lxml python-pip \
-      python-setuptools grib_api gdal-python pyproj netcdf4-python hdf \
-      grib_api-devel gdal-java sysvinit-tools libxml2 tomcat
+      postgresql-server postgresql-contrib sqlite zlib elfutils netcdf libtiff \
+      libedit readline openssl libxml2 which python3-devel python3-pip \
+      python3-setuptools python3-wheel eccodes hdf sysvinit-tools
+    # To run Java components
+    $ sudo yum install java-1.8.0-openjdk tomcat
 
     # To run wcst_import.sh
-    $ sudo pip install glob2 pygrib grpcio
+    $ sudo pip3 install numpy GDAL==1.11.2 netCDF4==1.2.7 pygrib \
+      jsonschema python-dateutil lxml
 
-Debian 9
-~~~~~~~~
+Debian 9 / Ubuntu 16.04
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. hidden-code-block:: bash
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake cmake bison flex git g++ unzip pkg-config \
-      libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev \
-      libedit-dev libreadline-dev libecpg-dev libdw-dev libssl1.0-dev \
-      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl \
-      openjdk-8-jdk maven ant libgdal-java
+      apt-get install make libtool gawk autoconf automake bison flex git g++ \
+      unzip libpng-dev libjpeg-dev libboost-filesystem-dev libboost-thread-dev \
+      libboost-system-dev libtiff-dev libgdal-dev zlib1g-dev libffi-dev \
+      libboost-dev libnetcdf-dev libedit-dev libreadline-dev libdw-dev \
+      libsqlite3-dev libgrib2c-dev curl libssl-dev libgrib-api-dev
+    # To build Java components
+    $ sudo apt-get install default-jdk-headless maven ant libgdal-java
+
+    # CMake needs to be manually downloaded and installed as the system 
+    # provided version is too outdated.
 
     # To generate HTML documentation
     $ sudo pip install sphinx sphinx_rtd_theme
     # To generate PDF documentation (in addition to above)
     $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
-      texlive-latex-extra texlive-fonts-recommended 
+      texlive-fonts-recommended texlive-latex-extra 
     # To generate C++ API documentation
     $ sudo apt-get install --no-install-recommends doxygen
 
     # To run rasdaman
     $ sudo apt-get install \
-      postgresql postgresql-contrib sqlite3 zlib1g libssl1.0.2 \
-      gdal-bin python-dev debianutils libdw1 python-dateutil python-lxml \
-      python-grib python-pip python-gdal libnetcdf-dev netcdf-bin \
-      libecpg6 libedit-dev python-netcdf4 libreadline-dev \
-      openjdk-8-jre libgdal-java tomcat8
+      postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils \
+      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel 
+      libreadline-dev libssl1.0.0 libgrib-api-dev libpython3-dev
+    # To run Java components
+    $ sudo apt-get install default-jre-headless libgdal-java tomcat8
 
-    # To run wcst_import.sh
-    $ sudo pip install glob2 netcdf grpcio
+    # To run wcst_import.sh; not it is best to install Python 3.6 instead of the
+    # system-provided Python 3.5
+    $ sudo pip3 install numpy GDAL==1.11.2 netCDF4==1.2.7 pygrib==1.9.9 \
+      jsonschema python-dateutil lxml glob2
 
-Ubuntu 16.04
-~~~~~~~~~~~~
-
-.. hidden-code-block:: bash
-
-    # To build rasdaman
-    $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake cmake bison flex git g++ unzip pkg-config \
-      libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev \
-      libedit-dev libreadline-dev libecpg-dev libdw-dev \
-      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl \
-      openjdk-8-jdk maven ant libgdal-java
-
-    # To generate HTML documentation
-    $ sudo pip install sphinx sphinx_rtd_theme
-    # To generate PDF documentation (in addition to above)
-    $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
-      texlive-latex-extra texlive-fonts-recommended 
-    # To generate C++ API documentation
-    $ sudo apt-get install --no-install-recommends doxygen
-
-    # To run rasdaman
-    $ sudo apt-get install \
-      postgresql postgresql-contrib sqlite3 zlib1g libdw1 \
-      gdal-bin python-dev debianutils python-dateutil python-lxml \
-      python-grib python-pip python-gdal libnetcdf-dev netcdf-bin \
-      libecpg6 libedit-dev python-netcdf4 libreadline-dev \
-      openjdk-8-jre libgdal-java tomcat8
-
-    # To run wcst_import.sh
-    $ sudo pip install glob2 grpcio
-
-Ubuntu 18.04 / Debian 10
+Debian 10 / Ubuntu 18.04
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. hidden-code-block:: bash
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake cmake bison flex git g++ unzip pkg-config \
-      libboost-filesystem-dev libboost-thread-dev libboost-system-dev libboost-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libssl-dev \
-      libedit-dev libreadline-dev libecpg-dev libdw-dev \
-      libsqlite3-dev libeccodes-dev libgrib2c-dev curl \
-      openjdk-9-jdk maven ant libgdal-java
+      install make libtool gawk autoconf automake bison flex git g++ unzip \
+      libpng-dev libjpeg-dev libboost-filesystem-dev libboost-thread-dev \
+      libboost-system-dev libboost-dev libtiff-dev libgdal-dev zlib1g-dev \
+      libffi-dev libnetcdf-dev libedit-dev libreadline-dev libdw-dev \
+      libsqlite3-dev libgrib2c-dev curl libssl-dev libeccodes-dev cmake ccache
+    # To build Java components
+    $ sudo apt-get install default-jdk-headless maven ant libgdal-java
 
     # To generate HTML documentation
     $ sudo pip install sphinx sphinx_rtd_theme
     # To generate PDF documentation (in addition to above)
     $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
-      texlive-latex-extra texlive-fonts-recommended 
+      texlive-fonts-recommended texlive-latex-extra 
     # To generate C++ API documentation
     $ sudo apt-get install --no-install-recommends doxygen
 
     # To run rasdaman
     $ sudo apt-get install \
-      postgresql postgresql-contrib sqlite3 zlib1g libssl1.1 \
-      gdal-bin python-dev debianutils python-dateutil python-lxml \
-      python-pip libdw1 python-gdal libnetcdf-dev netcdf-bin \
-      libecpg6 libedit-dev python-netcdf4 libreadline-dev libeccodes0 \
-      openjdk-9-jre libgdal-java tomcat9
+      postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils \
+      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel \
+      libreadline-dev libssl1.1 libeccodes0 libpython3-dev
+    # To run Java components
+    $ sudo apt-get install default-jre-headless libgdal-java tomcat9
 
-    # To run wcst_import.sh
-    $ sudo pip install glob2 pygrib grpcio
+    # To run wcst_import.sh; not it is best to install Python 3.6 instead of the
+    # system-provided Python 3.5
+    $ sudo pip3 install numpy GDAL netCDF4 pygrib jsonschema python-dateutil lxml
 
 
 .. _sec-download-install:

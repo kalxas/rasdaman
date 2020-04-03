@@ -720,18 +720,15 @@ specifies null values: ::
 Query Execution with rasql
 **************************
 
-The rasdaman toolkit offers essentially three ways to communicate with a
+The rasdaman toolkit offers essentially a couple of ways to communicate with a
 database through queries:
-
--  By writing a C++ or Java application that uses the rasdaman APIs,
-   raslib or rasj, resp. (see the rasdaman API guides).
-
--  By writing queries using the GUI-based rview tool which allows to
-   visualize results in a large variety of display modes (see the
-   rasdaman rview Guide).
 
 -  By submitting queries via command line using rasql; this tool is
    covered in this section.
+
+-  By writing a C++, Java, or Python application that uses the rasdaman APIs
+   (raslib, rasj, or rasdapy3 respectively). See the rasdaman API guides for
+   further details.
 
 The rasql tool accepts a query string (which can be parametrised as
 explained in the API guides), sends it to the server for evaluation, and

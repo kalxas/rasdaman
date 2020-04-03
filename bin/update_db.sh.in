@@ -39,7 +39,9 @@
 #  2) User running the script must have write access in PostgreSQL
 #  3) share/rasdaman/db_updates should contain the SQL update scripts
 
-PROG=$(basename $0)
+PROG=$(basename "$0")
+
+VERSION="@VERSION_FULL@"
 
 export RC_OK=0
 export RC_ERROR=255
@@ -64,15 +66,17 @@ export DBCONN=@dbconn@
 #
 # logging
 #
-log()  { echo "$PROG: $@"; }
-logn() { echo -n "$PROG: $@"; }
-error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
-check(){ [ $? -eq 0 ] && echo "ok." || echo "failed."; }
+log()  { echo "$PROG: $*"; }
+logn() { printf "%s" "$PROG: $*"; }
+error(){ echo "$PROG: $*" >&2; exit $RC_ERROR; }
+check(){ [ $? ] && echo "ok." || echo "failed."; }
 checkerr() { [ $? -eq 0 ] && echo "ok." || error "failed, exiting."; }
 
 #
 # checks
 #
+
+log "upgrading database schema of rasdaman $VERSION"
 
 if [ ! -d "$SCRIPT_DIR" ]; then
   error "SQL update script directory not found: $SCRIPT_DIR"
@@ -135,10 +139,9 @@ if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
   #
   # insert the database updates
   #
-  echo
-  log "executing updates:"
   updated=0
   while [ -f "$SCRIPT_DIR/update$counter.sql" ]; do
+    [ $updated -eq 0 ] && log "executing updates:"
     logn "  update $counter... "
           # Note for future .sql files: do not add manual BEGIN/COMMIT transactions, they are handled by psql
     $PSQL --set ON_ERROR_STOP=on --single-transaction -f "$SCRIPT_DIR/update$counter.sql" > "$last_log" 2>&1
@@ -195,8 +198,6 @@ else
   #
   # insert the database updates
   #
-  echo
-  log "executing updates:"
   updated=0
   while [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" -o -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; do
 
@@ -209,6 +210,7 @@ else
       checkerr
     fi
 
+    [ $updated -eq 0 ] && log "executing updates:"
     logn "  update $counter... "
     if [ -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; then
       sh "$SCRIPT_DIR/update${counter}-sqlite.sh"
@@ -233,7 +235,7 @@ else
     $SQLITE "update $RAS_DBUPDATE set UpdateNumber=$counter where UpdateType='$DB_TYPE'" > "$last_log" 2>&1
     log "updated database to update $((counter-1))"
   else
-    log "database already up-to-date, nothing to update."
+    log "database already up-to-date."
   fi
 
 fi
@@ -243,6 +245,5 @@ rm -f "$last_log"
 #
 # done
 #
-echo
-log "done, exiting."
+log "done."
 exit $RC_OK

@@ -28,7 +28,7 @@
 #       stop_rasdaman.sh
 #
 # DESCRIPTION
-#    This script terminates rasdaman.
+#    This script stops rasdaman.
 #    First, all server processes are terminated. Then, the server
 #    manager (rasmgr) is shut down.
 #    To log in to the server, the external variable $RASLOGIN is expected to hold
@@ -36,7 +36,7 @@
 #    made to login as rasadmin/rasadmin. If this fails, no servers are stopped at all.
 #
 # BE CAREFUL
-#    By terminating rasdaman, all open transactions are aborted,
+#    By stopping rasdaman, all open transactions are aborted,
 #    and their contents will be irretrievably lost!
 #
 # PRECONDITIONS
@@ -47,6 +47,8 @@
 # --- CONSTANTS -----------------------------------------------------
 
 PROG=$(basename "$0")
+
+VERSION="@VERSION_FULL@"
 
 RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
@@ -164,7 +166,7 @@ stop_embedded()
                 local pid="$(ps -Ao pid,args | grep "[^]]$war_path/$war_file_name\b" | awk '{print $1}' 2> /dev/null)"
                 if [ -n "$pid" ]; then
                     kill -9 "$pid"
-                    log "embedded $app_name terminated on port $server_port."
+                    log "embedded $app_name stopped on port $server_port."
                 else
                     log "$app_name is not running."
                 fi
@@ -193,7 +195,7 @@ usage()
 Stop the rasdaman server if it is currently running.
 
 Usage:
-  stop_rasdaman.sh [OPTION]...
+  $PROG [OPTION]...
 
 Options:
   --service <svc>       stop a particular service <svc> only; allowed values 
@@ -264,9 +266,9 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
     ps -Ao pid,args | grep "[^]]$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 || \
       { log "rasdaman is already down, nothing to do."; exit $RC_OK; }
 
-    log "terminating rasdaman server complex... "
+    log "stopping rasdaman $VERSION... "
 
-    logn "  terminating rasserver processes... "
+    logn "  stopping rasserver processes... "
     "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x down srv -all -kill
     check
     wait_for_process_to_shutdown "$rasserver_bin" 10 "port $RASMGR_PORT"

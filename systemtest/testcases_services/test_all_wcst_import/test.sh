@@ -28,7 +28,7 @@
 ################################################################################
 
 # get script name
-PROG=$( basename $0 )
+PROG=$(basename "$0")
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
@@ -55,15 +55,14 @@ OUTPUT_DIR="$SCRIPT_DIR/output"
 
 # Check if coverage ID should be deleted or keep for other test cases (by folder name "contains")
 COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms" "tmp" "custom_recipe")
+
 keep_coverage_by_folder_name() {
-    for FOLDER_NAME in "${COVERAGE_FOLDER_LIST[@]}"
-    do
+    for FOLDER_NAME in "${COVERAGE_FOLDER_LIST[@]}"; do
         # if folder name contains the pattern, then will not remove the coverageID of recipe file which is inside this folder
-        if [[ "$1" =~ "$FOLDER_NAME" ]]; then
+        if [[ "$1" =~ $FOLDER_NAME ]]; then
             return 0
         fi
     done
-
     return 1
 }
 
@@ -87,7 +86,7 @@ run_wcst_import() {
     local wcst_import_log="$test_cases_output_dir/wcst_import.log"
 
     local ingredient_file="$2"
-    wcst_import.sh "$ingredient_file" -q >> "$wcst_import_log" 2>&1
+    wcst_import.sh "$ingredient_file" > "$wcst_import_log" 2>&1
 }
 
 # Check if petascope is deployed (imported from util/petascope.sh)
@@ -101,17 +100,17 @@ total_test_no=$(ls -ld "$TEST_DATA"/* | wc -l)
 curr_test_no=0
 
 # 1. Iterate folders in test data
-for test_case in $TEST_DATA/*; do
+for test_case in "$TEST_DATA"/*; do
 
     test_case_name=$(basename "$test_case")
-    curr_test_no=$(($curr_test_no + 1))
+    curr_test_no=$((curr_test_no + 1))
     status="$ST_PASS"
 
     start_timer
 
     # each folder is a coverage with image files and recipe
     # 1.1 get the recipe in $test_case directory (NOTE: -L to find in symbolic directory)
-    recipe_file_template=$(find -L $test_case -type f -name "*.template.json")
+    recipe_file_template=$(find -L "$test_case" -type f -name "*.template.json")
     if [ -z "$recipe_file_template" ]; then
         log "Test case '$test_case' is obsolete, removing."
         rm -rf "$test_case"
@@ -128,20 +127,21 @@ for test_case in $TEST_DATA/*; do
         sed -i "s@SECORE_URL@$SECORE_URL@g" "$recipe_file"
         sed -i "s@CURRENT_ABSOLUTE_DIR@$test_case@g" "$recipe_file"
     fi
+
+    # Get coverage id from ingest.json
+    COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' "$recipe_file" | awk -F'"' '{print $4}')
     
     mkdir -p "$OUTPUT_DIR/$test_case_name/"
 
     # 1.2.1 If test case name is "collection_exists" then need to import a test collection in rasdaman before
-    if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-        rasql -q "CREATE COLLECTION $COLLECTION_NAME RGBSet" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
-    fi
+    [ "$test_case_name" = "$COLLECTION_EXISTS" ] && create_coll "$COLLECTION_NAME" RGBSet > /dev/null 2>&1
 
     # 1.4 execute wcst_import with $recipe_file
-    if [[ "$test_case" == *"error_"* ]]; then
+    if [[ "$test_case" == *error_* ]]; then
         # This test returns error, then check with test.oracle
-        outputError=`wcst_import.sh $recipe_file -q`
+        outputError=$(wcst_import.sh "$recipe_file" 2>&1)
 	    echo "$outputError" > "$OUTPUT_DIR/$test_case_name/test.output"
-        oracleError=`cat $test_case/test.oracle`
+        oracleError=$(cat "$test_case/test.oracle")
 
         # 1.5 check if output contains the error message from test.oracle
         if [[ "$outputError" == *"$oracleError"* ]]; then
@@ -151,7 +151,7 @@ for test_case in $TEST_DATA/*; do
             write_to_failed_log "$test_case" "Error output is different from oracle output."            
         fi
 
-    elif [[ "$test_case_name" == "wcs_extract" && "$OS_VERSION" = $OS_UBUNTU1604 ]]; then
+    elif [[ "$test_case_name" == "wcs_extract" && "$OS_VERSION" = "$OS_UBUNTU1604" ]]; then
         # Test `wcs_extract` is skipped because it fails on ubuntu 16.04
         status="$ST_PASS"
 
@@ -179,9 +179,6 @@ for test_case in $TEST_DATA/*; do
                 # It is a mock import, nothing has been ingested
                 continue
             fi
-            
-            # 2.4 Get coverage id from ingest.json
-            COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $recipe_file | awk -F'"' '{print $4}')
 
             # Check if the folder name is in unwanted delete coverage IDs list
             keep_coverage_by_folder_name "$test_case_name"
@@ -204,13 +201,11 @@ for test_case in $TEST_DATA/*; do
     fi
 
     # 2.7.1 remove created collection in rasdaman
-    if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-        rasql -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
-    fi
+    [ "$test_case_name" = "$COLLECTION_EXISTS" ] && drop_colls "$COLLECTION_NAME"
 
     stop_timer
 
-    get_return_code $status
+    get_return_code "$status"
     update_result
 
     # print result of this test case
@@ -221,7 +216,7 @@ done
 
 # Finally, copy result log file of these testcases to output directory
 # Iterate folders in test data
-for test_case in $TEST_DATA/*; do
+for test_case in "$TEST_DATA"/*; do
     test_case_name=$(basename "$test_case")
     mv "$test_case/ingest.json.log" "$OUTPUT_DIR/$test_case_name/" 2> /dev/null
 done

@@ -35,18 +35,32 @@
 #######################################################################
 
 
+
+# --- global defines --------------------------------------------------
+
+# script name
+PROG=$(basename "$0")
+
+VERSION="@VERSION_FULL@"
+
+# database to be used
+DB=RASBASE
+
+# shorthand: rasql parameters
+RASQL_ARGS="--server $HOST --port $PORT --database $DB --user $USER --passwd $PASSWD"
+
 # --- parameter evaluation --------------------------------------------
 
 if [ $# != 5 ]
 then
-	echo "Usage: $0 host port imagedir user passwd"
-	echo "   host        host name of rasdaman server"
-	echo "   port        port where rasdaman server listens (usually: 7001)"
-	echo "   imagedir    source image directory"
-	echo "   user        rasdaman database login name (needs write access)"
-	echo "   passwd      rasdaman password"
-	echo "Example: $0 localhost 7001 @pkgdatadir@examples/images rasadmin rasadmin"
-	exit 1
+    echo "Usage: $PROG host port imagedir user passwd"
+    echo "   host        host name of rasdaman server"
+    echo "   port        port where rasdaman server listens (usually: 7001)"
+    echo "   imagedir    source image directory"
+    echo "   user        rasdaman database login name (needs write access)"
+    echo "   passwd      rasdaman password"
+    echo "Example: $PROG localhost 7001 @pkgdatadir@examples/images rasadmin rasadmin"
+    exit 1
 fi
 
     HOST=$1
@@ -55,21 +69,9 @@ IMAGEDIR=$3
     USER=$4
   PASSWD=$5
 
-
-# --- global defines --------------------------------------------------
-
-# script name
-PROG=$(basename $0)
-
-# database to be used
-DB=RASBASE
-
-# shorthand: rasql parameters
-RASQL_ARGS="--server $HOST --port $PORT --database $DB --user $USER --passwd $PASSWD"
-
 # --- check prerequisites ---------------------------------------------
 
-echo "$PROG: rasdaman demo data insert script"
+echo "$PROG: rasdaman demo data insert script $VERSION"
 echo "$PROG: using host $HOST, image directory $IMAGEDIR, and user/passwd $USER/$PASSWD"
 
 # --- evaluate cmd line parameters ------------------------------------
@@ -82,7 +84,7 @@ else
 fi
 
 # does $IMAGEDIR point to a good directory?
-if [ ! -d $IMAGEDIR ]; then
+if [ ! -d "$IMAGEDIR" ]; then
 	echo "$PROG: Illegal package path $IMAGEDIR."
 	exit 1
 fi

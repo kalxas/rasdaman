@@ -32,9 +32,9 @@
 # --- constants & routines
 
 # script name
-PROG=$(basename $0)
+PROG=$(basename "$0")
 
-VERSION=@RMANVERSION@
+VERSION="@VERSION_FULL@"
 
 # script return codes
 RC_OK=0
@@ -54,9 +54,9 @@ DATABASE_NAME=RASBASE
 
 DBCONN="@dbconn@"
 
-log()  { echo "$PROG: $@"; }
-logn() { echo -n "$PROG: $@"; }
-error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
+log()  { echo "$PROG: $*"; }
+logn() { printf "%s" "$PROG: $*"; }
+error(){ echo "$PROG: $*" >&2; exit $RC_ERROR; }
 check(){ [ $? ] && echo "ok." || echo "failed."; }
 
 execute_query() {
@@ -64,13 +64,13 @@ execute_query() {
     error "failed executing query: $1"
 }
 
-log "creating database, rasdaman v$VERSION on base DBMS $BASEDBMS"
+log "creating database, rasdaman $VERSION on base DBMS $BASEDBMS"
 
 # --- checking preconditions
 
 # - Can I find utilities?
 if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
-    psql --help 2>&1 1>/dev/null || \
+    psql --help 1>/dev/null 2>&1 || \
         error "Error: cannot find psql - PostgreSQL not installed or PATH variable does not contain PostgreSQL path?"
 fi
 

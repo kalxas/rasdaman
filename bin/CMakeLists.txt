@@ -43,12 +43,6 @@ set(libdir "${LIB_DIR}/")
 set(java_server ${JAVA_SERVER})
 set(petascopedb ${PETASCOPEDB})
 
-# Get the hostname of the current machine and save it to the hostname variable
-# The hostname variable is used in the scripts.
-execute_process(COMMAND hostname
-        OUTPUT_VARIABLE hostname
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 configure_file(start_rasdaman.sh.in "${CMAKE_CURRENT_BINARY_DIR}/start_rasdaman.sh" @ONLY)
 configure_file(stop_rasdaman.sh.in "${CMAKE_CURRENT_BINARY_DIR}/stop_rasdaman.sh" @ONLY)
 configure_file(create_db.sh.in "${CMAKE_CURRENT_BINARY_DIR}/create_db.sh" @ONLY)

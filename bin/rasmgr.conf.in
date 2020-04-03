@@ -33,7 +33,7 @@
 # - do not edit while rasmgr is running, may be overwritten!
 # - see Installation Guide for a complete list of options
 #
-# Copyright (c) 2018 rasdaman GmbH
+# Copyright (c) 2020 rasdaman GmbH
 #
 # ----------------------------------------------------------------------------
 
@@ -57,15 +57,17 @@ define db RASBASE -dbh rasdaman_host
 
 # define a rasdaman database server process with name N1
 # parameters:
-#	-host h		name of the host machine the server runs on
-#			(cf: man 1 hostname)
+#	-host h		name of the host machine the server runs on. By default it is
+#			set to localhost (127.0.0.1) which enables client access only from the 
+#			same machine on which the server is running. To allow remote access,
+#			update to a remotely accessible domain or IP address.
 #	-type t		communication protocol type is t
 #			(one of: 'r' for RPC, 'h' for HTTP, 'n' for RNP);
 #			recommended: use 'n', all others are deprecated
-# 	-port p		port number for contacting this server is p
+#	-port p		port number for contacting this server is p
 #			(rasmgr by default uses 7001, so you may simply count up)
 #	-dbh d		use database host d (see "define dbh" for allowed names)
-define srv N1 -host @hostname@ -type n -port 7002 -dbh rasdaman_host
+define srv N1 -host 127.0.0.1 -type n -port 7002 -dbh rasdaman_host
 
 # change settings for this server
 # parameters:
@@ -84,28 +86,28 @@ change srv N1 -countdown 10000 -autorestart on -xp --timeout 300
 
 # more server definitions, following the above pattern; add any number you want.
 # Parameters can be adjusted individually, but be sure to avoid a clash in the ports.
-define srv N2 -host @hostname@ -type n -port 7003 -dbh rasdaman_host
+define srv N2 -host 127.0.0.1 -type n -port 7003 -dbh rasdaman_host
 change srv N2 -countdown 100000 -autorestart on -xp --timeout 300
 
-define srv N3 -host @hostname@ -type n -port 7004 -dbh rasdaman_host
+define srv N3 -host 127.0.0.1 -type n -port 7004 -dbh rasdaman_host
 change srv N3 -countdown 100000 -autorestart on -xp --timeout 300
 
-define srv N4 -host @hostname@ -type n -port 7005 -dbh rasdaman_host
+define srv N4 -host 127.0.0.1 -type n -port 7005 -dbh rasdaman_host
 change srv N4 -countdown 100000 -autorestart on -xp --timeout 300
 
-define srv N5 -host @hostname@ -type n -port 7006 -dbh rasdaman_host
+define srv N5 -host 127.0.0.1 -type n -port 7006 -dbh rasdaman_host
 change srv N5 -countdown 100000 -autorestart on -xp --timeout 300
 
-define srv N6 -host @hostname@ -type n -port 7007 -dbh rasdaman_host
+define srv N6 -host 127.0.0.1 -type n -port 7007 -dbh rasdaman_host
 change srv N6 -countdown 100000 -autorestart on -xp --timeout 300
 
-define srv N7 -host @hostname@ -type n -port 7008 -dbh rasdaman_host
+define srv N7 -host 127.0.0.1 -type n -port 7008 -dbh rasdaman_host
 change srv N7 -countdown 100000 -autorestart on -xp --timeout 300
 
-define srv N8 -host @hostname@ -type n -port 7009 -dbh rasdaman_host
+define srv N8 -host 127.0.0.1 -type n -port 7009 -dbh rasdaman_host
 change srv N8 -countdown 100000 -autorestart on -xp --timeout 300
 
-define srv N9 -host @hostname@ -type n -port 7010 -dbh rasdaman_host
+define srv N9 -host 127.0.0.1 -type n -port 7010 -dbh rasdaman_host
 change srv N9 -countdown 100000 -autorestart on -xp --timeout 300
 
 # end of rasmgr.conf

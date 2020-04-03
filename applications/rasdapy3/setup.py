@@ -48,13 +48,13 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.0',
+    version='10.0b1',
 
     description='Python3 interface to rasdaman',
     long_description=long_description,
 
     # The project's main homepage.
-    url='http://rasdaman.org/browser/applications/rasdapy',
+    url='https://rasdaman.org/browser/applications/rasdapy3',
 
     # Author details
     author='Bang Pham Huu',

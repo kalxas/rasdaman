@@ -1854,27 +1854,40 @@ Syntax ::
     (CASE condExpI RETURN resultExpI)*
     DEFAULT RETURN resultExpDefault
 
-where condExp and resultExp are either scalar returning expressions, or coverage returning expressions. 
+where condExp and resultExp are either scalar returning expressions, or coverage
+returning expressions. 
 
 Constrains:
 
 * all condition expressions must return either boolean values or boolean coverages
 * all result expressions must return either scalar values, or coverages
 * the domain of all condition expressions must be the same
-* the domain of all result expressions must be the same (that means same extent, resolution/direct positions, crs)
+* the domain of all result expressions must be the same (that means same extent, 
+  resolution/direct positions, crs)
 
 Evaluation rules:
 
-If the result expressions return scalar values, the returned scalar value on a branch is used in places where the condition expression on that branch evaluates to True.
-If the result expressions return coverages, the values of the returned coverage on a branch are copied in the result coverage in all places where the condition coverage on that branch contains pixels with value True.   
+If the result expressions return scalar values, the returned scalar value on a
+branch is used in places where the condition expression on that branch evaluates
+to True. If the result expressions return coverages, the values of the returned
+coverage on a branch are copied in the result coverage in all places where the
+condition coverage on that branch contains pixels with value True.   
 
-The conditions of the statement are evaluated in a manner similar to the IF-THEN-ELSE statement in programming languages such as Java or C++. This implies that the conditions must be specified by order of generality, starting with the least general and ending with the default result, which is the most general one. A less general condition specified after a more general condition will be ignored, as the expression meeting the less general expression will have had already met the more general condition.
+The conditions of the statement are evaluated in a manner similar to the
+IF-THEN-ELSE statement in programming languages such as Java or C++. This
+implies that the conditions must be specified by order of generality, starting
+with the least general and ending with the default result, which is the most
+general one. A less general condition specified after a more general condition
+will be ignored, as the expression meeting the less general expression will have
+had already met the more general condition.
 
 Furthermore, the following hold:
 
 * domainSet(result) = domainSet(condExp1)
 * metadata(result) = metadata(condExp1)
-* rangeType(result) = rangeType(resultExp1). In case resultExp1 is a scalar, the result range type is the range type describing the coverage containing the single pixel resultExp1. 
+* rangeType(result) = rangeType(resultExp1). In case resultExp1 is a scalar, the 
+  result range type is the range type describing the coverage containing the 
+  single pixel resultExp1. 
 
 Examples
 
@@ -1886,7 +1899,10 @@ Examples
     case $c < 30 return {red: 255; green: 0; blue: 0}
     default return {red: 0; green: 0; black: 0}
 
-The above example assigns blue to all pixels in the $c coverage having a value less than 10, green to the ones having values at least equal to 10, but less than 20, red to the ones having values at least equal to 20 but less than 30 and black to all other pixels.
+The above example assigns blue to all pixels in the $c coverage having a value
+less than 10, green to the ones having values at least equal to 10, but less
+than 20, red to the ones having values at least equal to 20 but less than 30 and
+black to all other pixels.
 
 ::
 
@@ -1894,7 +1910,8 @@ The above example assigns blue to all pixels in the $c coverage having a value l
     case $c > 0 return log($c)
     default return 0
 
-The above example computes log of all positive values in $c, and assigns 0 to the remaining ones.
+The above example computes log of all positive values in $c, and assigns 0 to
+the remaining ones.
 
 ::
 
@@ -1904,7 +1921,11 @@ The above example computes log of all positive values in $c, and assigns 0 to th
     case $c < 30 return $c * {red: 255; green: 0; blue: 0}
     default return {red: 0; green: 0; black: 0}
 
-The above example assigns blue:255 multiplied by the original pixel value to all pixels in the $c coverage having a value less than 10, green:255 multiplied by the original pixel value to the ones having values at least equal to 10, but less than 20, red:255 multiplied by the original pixel value to the ones having values at least equal to 20 but less than 30 and black to all other pixels.
+The above example assigns blue:255 multiplied by the original pixel value to all
+pixels in the $c coverage having a value less than 10, green:255 multiplied by
+the original pixel value to the ones having values at least equal to 10, but
+less than 20, red:255 multiplied by the original pixel value to the ones having
+values at least equal to 20 but less than 30 and black to all other pixels.
 
 .. _data-import:
 

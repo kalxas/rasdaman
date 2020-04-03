@@ -48,5 +48,5 @@ diff -b "$out".tmp "$oracle".tmp > /dev/null 2>&1
 
 rc=$?
 cp "$out".tmp "$out" # for post-test manual verifications
-#rm -f "$out".tmp* "$oracle".tmp*
+rm -f "$out".tmp* "$oracle".tmp*
 exit $rc

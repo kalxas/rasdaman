@@ -1864,7 +1864,6 @@ write log output to ``/dev/null``.
 .. code-block:: shell
 
     $ export RMANCLIENTOPT="-timeout 5 -l /dev/null"
-    $ rview
 
 The Example Programs
 ====================

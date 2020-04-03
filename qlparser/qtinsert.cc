@@ -367,7 +367,8 @@ QtInsert::evaluate()
                 auto namedSrcDomain = sourceTile->getDomain();
                 namedSrcDomain.setAxisNames(trueAxisNames);
                 Tile *newPersTile = new Tile(namedSrcDomain, persMDDType->getBaseType(),
-                                             true, sourceTile->getContents(), sourceTile->getSize(), sourceTile->getDataFormat());
+                                             true, sourceTile->getContents(),
+                                             sourceTile->getSize(), sourceTile->getDataFormat());
                 persMDDObj->insertTile(newPersTile);
 
                 // newPersTile takes ownership of the contents of sourceTile,

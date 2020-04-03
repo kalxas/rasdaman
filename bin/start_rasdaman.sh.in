@@ -51,6 +51,8 @@
 
 PROG=$(basename "$0")
 
+VERSION="@VERSION_FULL@"
+
 RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
 RC_HELP=2
@@ -232,7 +234,7 @@ for i in "$@"; do
               secore)    start_embedded_secore=true;;
               *)         error "Value for option $option must be core|petascope|secore. Given: $i";;
             esac
-        elif [ "$option" = "--port" -o "$option" = "-p" ]; then
+        elif [ "$option" = "--port" ] || [ "$option" = "-p" ]; then
             set_rasmgr_port "$i"
         fi
         option=""
@@ -270,7 +272,7 @@ if [ "$start_rasmgr_rasservers" = true ]; then
     # clear previous log file
     rm -f nohup.out
 
-    log "starting rasdaman server complex..."
+    log "starting rasdaman $VERSION..."
 
     # start rasdaman server manager as demon; log will go into nohup.out
     # the manager is started in quiet mode
