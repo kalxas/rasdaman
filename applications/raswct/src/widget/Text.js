@@ -66,6 +66,13 @@ FlancheJs.defineClass('Rj.widget.Text', {
         this.$label = submitText;
         this._refresh();
       }
+    },
+    submitButton: {
+      value: true,
+      set  : function (submitButton) {
+        this.$submitButton = submitButton;
+        this._refresh();
+      }
     }
   },
 
@@ -81,14 +88,16 @@ FlancheJs.defineClass('Rj.widget.Text', {
       var htmlStr = '<form id="form-horizontal' + id + '"><div class="control-group">';
       htmlStr += this._createLabel();
       htmlStr += this._createTextArea();
-      htmlStr += this._createSubmitButton();
-      htmlStr += "</div></form>"
-      this._addSubmitListener();
+      if (this.getSubmitButton()) {
+        htmlStr += this._createSubmitButton();
+      }
+      htmlStr += "</div></form>";
 
 
       //render the html
       this.fireEvent('beforerender');
       jQuery('#' + id).html(htmlStr);
+      this._addSubmitListener();
       this.fireEvent('afterrender');
     },
 
@@ -125,8 +134,8 @@ FlancheJs.defineClass('Rj.widget.Text', {
      */
     createSubmitButton:function () {
       var id = _.getId(this.getSelector());
-      var htmlStr = '<input class="' + this._genericClasses + ' raswct-widget-text-submit btn" type = "submit" value = "' +
-        this.getSubmitText() + '" id = "textarea-' + id + '-submit" />';
+      var htmlStr = '<button class="' + this._genericClasses + ' raswct-widget-text-submit btn btn-primary" type = "submit" value = "' +
+        this.getSubmitText() + '" id = "textarea-' + id + '-submit" >'+this.getSubmitText()+'</button>';
       return htmlStr;
     },
 
@@ -136,9 +145,11 @@ FlancheJs.defineClass('Rj.widget.Text', {
     addSubmitListener:function () {
       var id = _.getId(this.getSelector());
       var self = this;
-      jQuery("#textarea-" + id + '-submit').click(function (event) {
-        this.setValue(jQuery("#textarea-" + id).val());
+      jQuery("#textarea-" + id + '-submit').off('click.raswct');
+      jQuery("#textarea-" + id + '-submit').on('click.raswct', function (event) {
         event.preventDefault();
+        self.setValue(jQuery("#textarea-" + id).val());
+        self.fireEvent("submitted", self.getValue());
       })
     },
 

@@ -13,26 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003-2016 Peter Baumann /
-# rasdaman GmbH.
+# Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 ###################################################################
 
-add_subdirectory(rasql)
-add_subdirectory(rasdapy3)
-add_subdirectory(rasql-web-console)
+set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+set(RASQL_SHARE_DIR "${SHARE_DATA_DIR}/www/rasql-web-console")
 
-if (ENABLE_JAVA)
-    add_subdirectory(petascope)
-    add_subdirectory(raswct)
-    add_subdirectory(secore)
-    add_subdirectory(wcst_import)
-
-    if (ENABLE_R)
-        add_subdirectory(RRasdaman)
-    endif (ENABLE_R)
-endif (ENABLE_JAVA)
-
+# Copy rasql-web-console to (e.g: /opt/rasdaman/share/rasdaman/www/rasql-web-console)
+install(DIRECTORY "${SRC_DIR}"
+        DESTINATION "${RASQL_SHARE_DIR}")

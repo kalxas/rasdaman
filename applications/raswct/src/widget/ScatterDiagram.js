@@ -74,7 +74,8 @@ FlancheJs.defineClass('Rj.widget.ScatterDiagram', {
           xoffset : 12,
           yoffset : 12
         },
-        seriesColors  : this._getSeriesColors()
+        seriesColors  : this._getSeriesColors(),
+        series: this._getSeriesNames()
 
       };
       return cfg;

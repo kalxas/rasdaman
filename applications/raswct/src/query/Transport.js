@@ -67,6 +67,18 @@ FlancheJs.defineClass("Rj.query.Transport", {
         this.getBinary() + "__" +
         JSON.stringify(this.getParams());
       return _.stringToHashCode(str);
+    },
+
+    toString: function(){
+      var str = this.getServiceHttpMethod().toUpperCase() + " " +
+        this.getServiceUrl() + "?";
+      var params = this.getParams();
+      var paramsStr = [];
+      for(var index in params){
+        paramsStr.push(index + "=" + params[index]);
+      }
+      str += paramsStr.join("&");
+      return str;
     }
   },
 

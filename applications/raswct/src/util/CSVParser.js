@@ -55,14 +55,12 @@ FlancheJs.defineClass("Rj.util.CSVParser", {
     },
 
     toNativeJsArray:function () {
-      // Support result in both CSV and JSON (only 1D now for diagram widget)
-      // e.g: diagram>>SELECT encode(c[1888,369,1:12] + 273.15, "json") FROM AvgLandTemp AS c   
       csvArray = this._csvString.replace("{", "")
         .replace("}", "")
-        .replace("[", "")
-        .replace("]", "")
         .replace('"', "")
-         // Replace space by "," to draw data from querying 1 point in multibands coverage (e.g: "30 40 50" as result)
+        .replace("[", "") 
+        .replace("]", "") 
+        // Replace space by "," to draw data from querying 1 point in multibands coverage (e.g: "30 40 50" as result)
         .replace(/ /g, ",")
         .split(",")
         .map(this._elementParser);

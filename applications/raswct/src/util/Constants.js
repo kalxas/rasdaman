@@ -40,7 +40,7 @@ FlancheJs.defineClass("Rj.util.Constants", {
     serviceErrorMessage:"The request was unsuccessful. The server detected an error. Server Response: ",
     ajaxErrorMessage              :"The ajax request failed. Please contact a developer",
     textRows : 5,
-    textCols : 15,
+    textCols : 200,
     textSubmitTex : 'Submit',
     wcpsQueryPlaceHolder: "{RaswctQueryPlaceholder}",
     templates                          :{
@@ -107,7 +107,7 @@ FlancheJs.defineClass("Rj.util.Constants", {
     toolTipAdjust: {},
     toolTipPlace: "bottom",
     toolTipMouse: false,
-    toolTipDelay: 1000,
+    toolTipDelay: 10,
     dataSeriesColors: [ 
     '#0000AA', '#00AA00', '#AA0000', '#A0A0A0', '#CCBBAA',
     '#26e000', '#2fe300', '#37e700', '#45ea00', '#51ef00',

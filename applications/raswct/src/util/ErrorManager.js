@@ -50,20 +50,19 @@ FlancheJs.defineClass("Rj.util._ErrorManager", {
         return;
       }
       if (throwable) {
-        Rj.util.NotificationManager.alert(Rj.util.Constants.errorMessageTitle, errorMsg,
-          Rj.util.Constants.errorMessageButtonText, "raswct-error-message");
+        Rj.util.NotificationManager.alert(Rj.util.Constants.errorMessageTitle, errorMsg, "error");
         throw Error(errorMsg);
       }
       else {
         this._consoleErr(errorMsg);
       }
     },
-    reportWarning:function (errorMsg, ui) {
+    reportWarning:function (errorMsg) {
       if (!this.getWarnings()) {
         return;
       }
-      Rj.util.NotificationManager.alert(errorMsg);
-      this._consoleWarn(err);
+      Rj.util.NotificationManager.alert("Warning", errorMsg, "warning");
+      this._consoleWarn(errorMsg);
     }
   },
 

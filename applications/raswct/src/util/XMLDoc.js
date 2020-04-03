@@ -38,7 +38,7 @@ FlancheJs.defineClass("Rj.util.XMLDoc", {
     }
     else {
       var parser = new DOMParser();
-      resXml = parser.parseFromString(xml, "application/xml");
+      resXml = $.parseXML(xml);
     }
     this.setXmlDoc(resXml);
     this._setup();

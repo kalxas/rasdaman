@@ -49,6 +49,6 @@ FlancheJs.defineClass('Rj.widget.HorizontalSlider', {
   },
 
   statics : {
-    HorizontalDefaultHeight : 10
+    HorizontalDefaultHeight : 5
   }
 })

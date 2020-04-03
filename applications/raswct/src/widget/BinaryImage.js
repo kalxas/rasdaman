@@ -40,7 +40,9 @@ FlancheJs.defineClass("Rj.widget.BinaryImage", {
    * @param {ArrayBuffer} arrayBufData - The data stream.
    */
   init: function(selector, format, arrayBufData){
-    this._generateBase64Data(arrayBufData)
+    if(_.exists(arrayBufData)){
+      this._generateBase64Data(arrayBufData)
+    }
     this._format = format;
     Rj.widget.BinaryImage.prototype.parent.call(this, selector);
   },
@@ -60,8 +62,8 @@ FlancheJs.defineClass("Rj.widget.BinaryImage", {
         this._refresh();
       }
     },
-    binaryData : {
-      value : null,
+    binaryData: {
+      value: null,
       set : function(data){
         this.$binaryData = data;
         this._generateBase64Data(this.$binaryData);
@@ -73,7 +75,7 @@ FlancheJs.defineClass("Rj.widget.BinaryImage", {
   internals: {
     base64Data: null,
     format    : null,
-    generateBase64Data : function(arrayBufferData){
+    generateBase64Data: function(arrayBufferData){
       this._base64Data = _.arrayBufferToBase64(arrayBufferData);
     },
     render    : function(){
@@ -87,6 +89,7 @@ FlancheJs.defineClass("Rj.widget.BinaryImage", {
       }
       style += '"';
       this.fireEvent("beforerender");
+      
       jQuery("#" + id).append('<img src="data:' + this._format + ';base64,' + this._base64Data + '" ' + style + ' />');
       this.fireEvent("afterrender");
     }

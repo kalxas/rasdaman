@@ -28,21 +28,22 @@
  * @version 3.0.0
  */
 
+// TODO: needs to be updated to use local storage (https://www.w3schools.com/jsref/prop_win_localstorage.asp)
 FlancheJs.defineClass("Rj.util._CacheEngine", {
 
   init: function(){
-    this._storage = Lawnchair({name: Rj.util._CacheEngine.MainKey}, function(e){
-      //Nothing to do, we just want to initialize the database
-    });
+    this._storage = null;
   },
 
   methods: {
     set: function(key, value){
+      return;
       var serializedValue = this._serialize(value)
       this._storage.save({key: key, value: serializedValue});
     },
 
     get: function(key, callback){
+      return;
       var self = this;
       this._storage.get(key, function(keyVal){
         var unserializedValue = null;
@@ -54,14 +55,17 @@ FlancheJs.defineClass("Rj.util._CacheEngine", {
     },
 
     exists : function(key, callback){
+      return false;
       this._storage.exists(key, callback);
     },
 
     remove: function(key){
+      return;
       this._storage.remove(key);
     },
 
     clearCache: function(){
+      return;
       this._storage.nuke();
     }
   },

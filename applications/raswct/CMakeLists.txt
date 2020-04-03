@@ -25,6 +25,7 @@ set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(BIN "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 set(LIB "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 set(INSTALL_DIR "${SHARE_DATA_DIR}/raswct")
+set(RASQL_SHARE_DIR "${SHARE_DATA_DIR}/www/rasql-web-console")
 
 set(BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/build")
 set(BUILD_IMG_DIR "${BUILD_DIR}/img")
@@ -33,9 +34,7 @@ set(BUILD_IMG_DIR "${BUILD_DIR}/img")
 file(MAKE_DIRECTORY ${BUILD_DIR})
 file(MAKE_DIRECTORY ${BUILD_IMG_DIR})
 
-set(CSS_SOURCES "${LIB}/Dojo/dojo.css"
-        "${LIB}/jqPlot/jquery.jqplot.css"
-        "${LIB}/jqTip/jqtip.css"
+set(CSS_SOURCES "${LIB}/jqPlot/jquery.jqplot.css"
         "${LIB}/openlayers/style.css"
         "${LIB}/Gauges/css/jgauge.css"
         "${LIB}/TwitterBootstrap/bootstrap.css"
@@ -44,11 +43,11 @@ set(CSS_SOURCES "${LIB}/Dojo/dojo.css"
 
 set(LIB_SOURCES "${LIB}/Flanche/FlancheJs.js"
         "${LIB}/Underscore/underscore.min.js"
-        "${LIB}/LawnChair/lawnchair.min.js"
         "${LIB}/jQuery/jQuery.min.js"
-        "${LIB}/Dojo/dojo.js"
-        "${LIB}/jQuery/jQueryRotate.min.js"
-        "${LIB}/jqTip/jqTip.min.js"
+        "${LIB}/TwitterBootstrap/Bootstrap.js"
+        "${LIB}/EarthServer/EarthServerGenericClient.js"
+        "${LIB}/X3DOM/x3dom.js"
+        "${LIB}/jqueryui/jquery.ui.js"
         "${LIB}/openlayers/OpenLayers.js"
         "${LIB}/jqPlot/jquery.jqplot.min.js"
         "${LIB}/jqPlot/plugins/jqplot.canvasAxisLabelRenderer.min.js"
@@ -113,6 +112,8 @@ set(SRC_SOURCES "${SRC}/util/GlobalState.js"
         "${SRC}/widget/LinearDiagram.js"
         "${SRC}/widget/ScatterDiagram.js"
         "${SRC}/widget/Map.js"
+        "${SRC}/util/BinderManager.js"
+        "${SRC}/util/Binders.js"
         "${SRC}/widget/Led.js")
 
 # Get all the images in the bin directory
@@ -177,3 +178,11 @@ add_custom_target(raswct ALL
 
 install(DIRECTORY "${BUILD_DIR}/"
         DESTINATION ${INSTALL_DIR})
+
+install(FILES     "${BUILD_DIR}/raswct.css"
+        DESTINATION "${RASQL_SHARE_DIR}/css")
+
+install(FILES   "${BUILD_DIR}/raswct.js"
+                "${BUILD_DIR}/raswct_src.js"
+                "${BUILD_DIR}/raswct_lib.js"
+        DESTINATION "${RASQL_SHARE_DIR}/js")

@@ -37,9 +37,9 @@
    */
   var queryToInputWidget = function(query, widget, queryVariable){
     query.setVariable(queryVariable, widget.getValue());
-//    if(query.isReady()){
-//      query.evaluate();
-//    }
+   if(query.isReady()){
+     query.evaluate();
+   }
     widget.addListener(internalListenerName, "valuechanged", function(value){
       query.setVariable(queryVariable, value);
       if(query.isReady()){
@@ -183,4 +183,6 @@
    * LinearDiagram changed by WCPSQuery
    */
   Rj.util.BinderManager.setBinder('Rj.widget.LinearDiagram', 'Rj.query.WCPSQuery', DiagramToQuery);
+  Rj.util.BinderManager.setBinder('Rj.widget.AreaDiagram', 'Rj.query.WCPSQuery', DiagramToQuery);
+  Rj.util.BinderManager.setBinder('Rj.widget.ScatterDiagram', 'Rj.query.WCPSQuery', DiagramToQuery);
 })()

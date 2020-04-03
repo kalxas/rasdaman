@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Rasql Console</title>
+    <link href="css/codemirror.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/raswct.css" rel="stylesheet" type="text/css" />
+    <script src="js/codemirror.min.js" type="text/javascript"></script>
+    <script src="js/codemirror-sql.min.js" type="text/javascript"></script>
+    <link href="css/demo.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div id="container" class="container">
+        <div class="row">
+            <div id="output" class="span12">
+                <p>
+                    <span class="label label-info">you@rasql>Status</span> Welcome to the interactive rasql console. Type your query in the textbox below and
+                    press Execute to test it.
+                    <br>
+                    The output of the query can be visualized with a widget by writing the query as <span class="label label-success">widget>>query</span>.
+                    <br>
+                    Various <a target="_blank" href="https://doc.rasdaman.org/10_dev-guide-raswct.html#widget-namespace">widgets</a> are available, with the most commonly-used being:
+                    <ul>
+                        <li><i>image</i> to visualize a 2D image result, e.g. <span class="label label-success">image>>select encode(..., "jpeg") from ...</span></li>
+                        <li><i>diagram</i> on csv encoded data, e.g. <span class="label label-success">diagram(type=area,width=300)>>select encode(..., "csv") from ...</span></li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+        <div class="query-row row">
+            <div id="query" class="span11"></div>
+        </div>
+        <div class="row">
+            <div class="span4 input-prepend">
+                <span class="add-on">Example</span>
+                <select id="query-populate" style="width: 535px;">
+                    <option value="0">Show collection dbinfo()</option>
+                    <option value="1">Show collection spatial domain sdom()</option>
+                    <option value="2">Selecting a single value</option>
+                    <option value="3">3D->1D subset</option>
+                    <option value="4">3D->2D subset</option>
+                </select>
+
+                <button id="run" class="btn btn-primary" style="margin-left: 5vh;">
+                    Execute
+                </button>
+            </div>
+
+            <!--
+        <div class="span4 input-prepend">
+            <span class="add-on">Rasdaman</span>
+            <select id="rasdaman-type">
+                <option value="9090">Community</option>
+            </select>
+        </div> -->
+        </div>
+    </div>
+
+    <script src="js/raswct.js" type="text/javascript"></script>
+    <script type="text/javascript" src="config.js"></script>
+    <script src="js/demo.js" type="text/javascript"></script>
+</body>
+
+</html>

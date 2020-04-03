@@ -58,6 +58,9 @@ FlancheJs.defineTrait("Rj.query.Executable", {
   properties: {
     cached: {
       value: false
+    }, 
+    callbackReturnedValue: {
+      value: false
     }
   },
 
@@ -94,19 +97,24 @@ FlancheJs.defineTrait("Rj.query.Executable", {
     evaluateRaw: function(transport, callback){
       var self = this;
       var xhr = new XMLHttpRequest();
-      xhr.open(transport.getServiceHttpMethod(), transport.getServiceUrl());
+      var serviceUrl = transport.getServiceUrl();
+      // Rasql Servlet is sent with GET request and parameters need to be added in query string
+      if (transport.getServiceHttpMethod() == "get") {
+          serviceUrl += transport.getParams().request;       
+      }
+      xhr.open(transport.getServiceHttpMethod(), serviceUrl);
       if (transport.getBinary()){
         xhr.responseType = "arraybuffer";
       }
       xhr.onreadystatechange = function(){
-        if(xhr.httpStatus == 404){
+        if(xhr.status == 404){
           Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceUnavailableErrorMessage, true);
         }
-        else if(xhr.httpStatus == 500){
+        else if(xhr.status == 500){
           Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceErrorMessage + xhr.response, true)
         }
         else{
-          self._handleCallback(callback, xhr.response, xhr.httpStatus);     
+          self._handleCallback(callback, xhr.response, xhr.status);     
         }
       };
       xhr.send(transport.getParams().request);   
@@ -114,8 +122,15 @@ FlancheJs.defineTrait("Rj.query.Executable", {
 
     handleCallback: function(callback, response, httpStatus){
       //if a callback is provided return response to it
+      var self = this;
       if(_.exists(callback)){
-        callback.call(this, response, httpStatus);
+        if(response == null){
+          callback.call(this, response, httpStatus);
+        } else if(response != "" && self.$callbackReturnedValue == false){
+            callback.call(this, response, httpStatus);
+            // Don't callback anymore when it already returned value
+            self.$callbackReturnedValue = true;
+        }
       }
       //otherwise call all registered callbacks
       else{

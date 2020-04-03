@@ -48,7 +48,7 @@ FlancheJs.defineClass('Rj.widget.VerticalSlider', {
   },
 
   statics : {
-    VerticalDefaultWidth: 10
+    VerticalDefaultWidth: 5
   }
 
 })

@@ -30,93 +30,113 @@
 
 FlancheJs.defineClass('Rj.widget.ToolTip', {
 
-  extends : Rj.widget._OutputWidget,
+  extends: Rj.widget._OutputWidget,
 
-  init : function(selector){
+  init: function(selector){
     Rj.widget.ToolTip.prototype.parent.call(this, selector);
   },
 
-  properties : {
+  properties: {
     value   : {
-      value : Rj.util.Constants.toolTipValue,
-      set   : function(value){
+      value: Rj.util.Constants.toolTipValue,
+      set  : function(value){
         this.$value = value;
-        if(this._tip){
-          this._tip.qtip('option', 'content.text', this.getPretext() + value);
-        }
+        jQuery("#" + _.getId(this.getSelector())).tooltipster('update', this._getActualContent());
         this.fireEvent("valuechanged", value);
       }
     },
-    pretext : {
-      value : Rj.util.Constants.toolTipPretext,
-      set   : function(pretext){
-        this.$pretext = pretext;
+    preText : {
+      value: Rj.util.Constants.toolTipPretext,
+      set  : function(pretext){
+        this.$preText = pretext;
         this._refresh();
       }
     },
-    postext : {
-      value : Rj.util.Constants.toolTipPostext,
-      set   : function(postext){
-        this.$postext = postext;
+    postText: {
+      value: Rj.util.Constants.toolTipPostext,
+      set  : function(postext){
+        this.$postText = postext;
         this._refresh();
       }
     },
     adjust  : {
-      value : {},
-      set   : function(adjust){
+      value: {},
+      set  : function(adjust){
         this.$adjust = adjust;
         this._refresh();
       }
     },
     place   : {
-      value : Rj.util.Constants.toolTipPlace,
-      set   : function(place){
+      value: Rj.util.Constants.toolTipPlace,
+      set  : function(place){
         this.$place = place;
         this._refresh();
       }
     },
     mouse   : {
-      value : Rj.util.Constants.toolTipMouse,
-      set   : function(mouse){
+      value: Rj.util.Constants.toolTipMouse,
+      set  : function(mouse){
         this.$mouse = mouse;
         this._refresh();
       }
     },
     delay   : {
-      value : Rj.util.Constants.toolTipDelay,
-      set   : function(delay){
+      value: Rj.util.Constants.toolTipDelay,
+      set  : function(delay){
         this.$delay = delay;
         this._refresh();
+      }
+    },
+
+    duration: {
+      value: 1000,
+      set  : function (duration) {
+        this.$duration = duration;
+        this._refresh();
+
       }
     }
   },
 
-  internals : {
-    tip : null,
-
-    render : function(){
-      this.fireEvent("beforerender");
+  methods: {
+    show: function () {
       var id = _.getId(this.getSelector());
-      this._tip = $('#' + id);
-      var target = this.getMouse() ? 'mouse' : $('#' + id);
-      this._tip.qtip({
-        content  : this.getPretext() + this.getValue() + this.getPostext(),
-        position : {
-          my     : this.getPlace() + ' center',
-          at     : 'top center',
-          target : target,
-          adjust : this.getAdjust()
-        },
-        hide     : {
-          delay : this.getDelay()
-        },
-        style    : 'qtip-shadow'
-      });
+      $("#" + id).tooltipster('show');
+    },
+
+    hide: function(){
+      var id = _.getId(this.getSelector());
+      $("#" + id).tooltipster('hide');
+    }
+  },
+
+  internals: {
+    tip: null,
+
+    render: function () {
+      this.fireEvent("beforerender");
+      var $tooltipHolder = jQuery("#" + _.getId(this.getSelector()));
+      $tooltipHolder.attr('title', this._getActualContent())
+      $tooltipHolder.tooltipster({
+        content             : this._getActualContent(),
+        delay               : this.getDelay(),
+        position            : this.getPlace(),
+        interactive         : true,
+        interactiveTolerance: this.getDuration(),
+        speed               : 1,
+        theme : '.tooltipster-shadow'
+      })
       this.fireEvent("afterrender");
     },
 
-    clear: function(){
-      this._qtip = null;
+    clear: function () {
+      var id = _.getId(this.getSelector());
+      $("#" + id).tooltipster("destroy");
+    },
+
+    getActualContent: function () {
+      return this.getPreText() + this.getValue() + this.getPostText()
+
     }
   }
 })

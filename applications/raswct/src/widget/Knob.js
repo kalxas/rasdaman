@@ -80,12 +80,15 @@ FlancheJs.defineClass("Rj.widget.Knob", {
   },
 
   internals: {
+    oldvalue: undefined,
+    docListenerInitialized: false,
 
     /**
      * @override Rj.widget.BaseWidget.render
      */
     render: function(){
       this.fireEvent('beforerender');
+      this._oldvalue = this.getValue();
       var id = _.getId(this.getSelector());
       var self = this;
       var colors = Rj.util.Constants.knobColors;
@@ -138,19 +141,22 @@ FlancheJs.defineClass("Rj.widget.Knob", {
           }
           lastNum = numBars;
           colorBars.removeClass('active').slice(0, numBars).addClass('active');
-          self._setValue(value);
-          //set value when releasing
-//          $("#" + id).mouseup(function(){
-//            self._setValue(value);
-//          })
+          self.$value=value;
         }
       });
+      if(!this._docListenerInitialized){
+        $(this.getSelector()).on("mouseup.raswct",function(){
+          if(self._oldvalue != self.getValue()){
+            self.fireEvent("valuechanged", self.getValue());
+          }
+        })
+       this._docListenerInitialized = true;
+      }
       self.fireEvent('afterrender');
     },
 
     setValue: function(value){
       this.$value = value;
-      this.fireEvent("valuechanged", this.getValue());
     }
   }
 

@@ -150,13 +150,19 @@ _.mixin({
    * @return {String} the id of the elements
    */
   getId: function(selector){
-    var id = jQuery(selector).attr('id');
-    if(!id){
-      var id = "rj-" + Rj.util.GlobalState.selectorIdCounter.toString();
-      Rj.util.GlobalState.selectorIdCounter += 1;
-      jQuery(selector).attr('id', id);
+    var $elems = jQuery(selector);
+    var ids = [];
+    for(var i = 0; i < $elems.length; i++){
+      var $elem = jQuery($elems[i]);
+      var id = $elem.attr('id');
+      if(!id){
+        id = "rj-" + Rj.util.GlobalState.selectorIdCounter.toString();
+        Rj.util.GlobalState.selectorIdCounter += 1;
+        $elem.attr('id', id);
+      }
+      ids.push(id);
     }
-    return id;
+    return ids.length === 1 ? ids[0] : ids;
   },
 
   /**
@@ -166,25 +172,6 @@ _.mixin({
    * needs to be manually set.
    */
   getToolkitPath: function(){
-    if(_.exists(window.RASWCT_PATH)){
-      return window.RASWCT_PATH;
-    }
-    else{
-      if(_.exists(Rj.util.GlobalState.RASWCT_PATH)){
-        return Rj.util.GlobalState.RASWCT_PATH;
-      }
-      var scripts = document.getElementsByTagName('script');
-      var path;
-      $(scripts).each(function(){
-        if($(this).attr('src').match('raswct.js')){
-          var src = $(this).attr('src');
-          path = src.replace('raswct.js', '');
-          return false;
-        }
-      })
-      Rj.util.GlobalState.RASWCT_PATH = path;
-      return path;
-    }
   },
 
   arrayBufferToBase64: function(arrayBuffer){
