@@ -236,4 +236,11 @@ sed -i "s/^# *$oldLine/# $newLine/g" "$new_file_tmp"
 # ---------------------------------------------
 #6 Remove old_file properties file and rename new_file.tmp to the original file
 rm -f "$old_file" && mv "$new_file_tmp" "$old_file" # rename new_file.tmp to old file.
+
+if cmp -s "$old_file" "$old_bak"; then
+    # remove the temp backup file as it is as same as the updated properties file
+    log "Removing backup file $old_bak as it is as same as $old_file properties file..."
+    rm -rf "$old_bak"
+fi
+
 log "Done, updating existing properties completed."
