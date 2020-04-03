@@ -1,0 +1,1 @@
+SERVICE=WCS&VERSION=2.1.0&REQUEST=GetCoverage&COVERAGEID=test_irr_cube_2&SUBSET=E(75042.72735943)&SUBSET=N(5094865.557938452)&FORMAT=application/gml+xml&outputType=GeneralGridCoverage

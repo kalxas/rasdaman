@@ -60,9 +60,11 @@ public class RangeTypeService {
     private AllowedValues buildAllowedValues(RangeField rangeField) {
         List<String> intervals = new ArrayList<>();
         
-        for (AllowedValue allowedValue : rangeField.getAllowedValues()) {
-            String values = allowedValue.getValues();
-            intervals.add(values);
+        if (rangeField.getAllowedValues() != null) {
+            for (AllowedValue allowedValue : rangeField.getAllowedValues()) {
+                String values = allowedValue.getValues();
+                intervals.add(values);
+            }
         }
         
         AllowedValues allowedValues = new AllowedValues(intervals);
@@ -132,10 +134,11 @@ public class RangeTypeService {
     /**
      * Build RangeType for GMLCore.
      */
-    public RangeType buildRangeType(String rangeTypePrefixXML, String rangeTypeNamespaceXML, WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
+    public RangeType buildRangeType(String rangeTypePrefixXML, String rangeTypeElementName,
+                                    String rangeTypeNamespaceXML, WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
         DataRecord dataRecord = this.buildDataRecord(wcpsCoverageMetadata);
         
-        RangeType rangeType = new RangeType(rangeTypePrefixXML, rangeTypeNamespaceXML, dataRecord);
+        RangeType rangeType = new RangeType(rangeTypePrefixXML, rangeTypeElementName, rangeTypeNamespaceXML, dataRecord);
         return rangeType;
     }
 }

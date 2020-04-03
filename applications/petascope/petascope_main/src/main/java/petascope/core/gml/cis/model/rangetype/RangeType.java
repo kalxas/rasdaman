@@ -22,7 +22,6 @@
 package petascope.core.gml.cis.model.rangetype;
 
 import nu.xom.Element;
-import static petascope.core.XMLSymbols.LABEL_RANGE_TYPE;
 import petascope.core.gml.ISerializeToXMElement;
 import petascope.util.XMLUtil;
 
@@ -41,11 +40,13 @@ public class RangeType implements ISerializeToXMElement {
     
     private DataRecord dataRecord;
     private String xmlPrefix;
+    private String rangeTypeElementName;
     private String xmlNamespace;
 
-    public RangeType(String xmlPrefix, String xmlNamespace, DataRecord dataRecord) {
+    public RangeType(String xmlPrefix, String rangeTypeElementName, String xmlNamespace, DataRecord dataRecord) {
         this.dataRecord = dataRecord;
         this.xmlPrefix = xmlPrefix;
+        this.rangeTypeElementName = rangeTypeElementName;
         this.xmlNamespace = xmlNamespace;
     }
 
@@ -61,7 +62,7 @@ public class RangeType implements ISerializeToXMElement {
     public Element serializeToXMLElement() {
         
         // for CIS 1.0, prefix is gmlcov:rangeType, for CIS 1.1, prefix is cis11:rangeType
-        Element rangeTypeElement = new Element(XMLUtil.createXMLLabel(this.xmlPrefix, LABEL_RANGE_TYPE), this.xmlNamespace);
+        Element rangeTypeElement = new Element(XMLUtil.createXMLLabel(this.xmlPrefix, this.rangeTypeElementName), this.xmlNamespace);
         Element dataRecordElement = this.dataRecord.serializeToXMLElement();
         rangeTypeElement.appendChild(dataRecordElement);
         

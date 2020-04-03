@@ -25,8 +25,8 @@ import java.util.List;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import static petascope.core.XMLSymbols.ATT_AXIS_LABEL;
-import static petascope.core.XMLSymbols.ATT_LOWER_BOUND;
-import static petascope.core.XMLSymbols.LABEL_INDEX_AXIS;
+import static petascope.core.XMLSymbols.ATT_UOM_LABEL;
+import static petascope.core.XMLSymbols.LABEL_IRREGULAR_AXIS;
 import static petascope.core.XMLSymbols.LABEL_IRREGULAR_AXIS_COEFFICIENT;
 import static petascope.core.XMLSymbols.PREFIX_CIS11;
 import petascope.core.gml.ISerializeToXMElement;
@@ -85,12 +85,12 @@ public class IrregularAxis implements ISerializeToXMElement {
     
     @Override
     public Element serializeToXMLElement() throws PetascopeException, SecoreException {
-        Element irregularAxisElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_INDEX_AXIS), NAMESPACE_CIS_11);
+        Element irregularAxisElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_IRREGULAR_AXIS), NAMESPACE_CIS_11);
         
         Attribute axisLabelAttribute = new Attribute(ATT_AXIS_LABEL, NAMESPACE_CIS_11);
         axisLabelAttribute.setValue(this.axisLabel);
         
-        Attribute uomLabelAttribute = new Attribute(ATT_LOWER_BOUND, NAMESPACE_CIS_11);
+        Attribute uomLabelAttribute = new Attribute(ATT_UOM_LABEL, NAMESPACE_CIS_11);
         uomLabelAttribute.setValue(this.uomLabel);
         
         irregularAxisElement.addAttribute(axisLabelAttribute);

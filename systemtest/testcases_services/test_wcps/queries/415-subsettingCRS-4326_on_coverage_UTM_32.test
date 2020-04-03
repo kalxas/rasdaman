@@ -1,0 +1,4 @@
+for c in (test_subsetting_crs_xy) return encode(crsTransform(
+c[E:"http://localhost:8080/def/crs/EPSG/0/4326"(8:8.5),
+  N:"http://localhost:8080/def/crs/EPSG/0/4326"(51.5:52.2495367342)] / 15, 
+{ N:"http://localhost:8080/def/crs/EPSG/0/4326", E:"http://localhost:8080/def/crs/EPSG/0/4326"}, {}), "image/png", "nodata=0")

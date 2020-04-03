@@ -23,7 +23,7 @@ package petascope.core.gml.cis11.model.rangeset;
 
 import nu.xom.Element;
 import static petascope.core.XMLSymbols.LABEL_CIS11_VALUE;
-import static petascope.core.XMLSymbols.LABEL_RANGE_SET;
+import static petascope.core.XMLSymbols.LABEL_DATABLOCK;
 import static petascope.core.XMLSymbols.NAMESPACE_GML;
 import static petascope.core.XMLSymbols.PREFIX_CIS11;
 import static petascope.core.XMLSymbols.PREFIX_GML;
@@ -64,7 +64,7 @@ public class DataBlockCIS11 implements ISerializeToXMElement {
 
     @Override
     public Element serializeToXMLElement() throws PetascopeException {
-        Element dataBlockElement = new Element(XMLUtil.createXMLLabel(PREFIX_GML, LABEL_RANGE_SET), NAMESPACE_GML);
+        Element dataBlockElement = new Element(XMLUtil.createXMLLabel(PREFIX_GML, LABEL_DATABLOCK), NAMESPACE_GML);
         
         String[] values = this.pixelValues.split(",");
         

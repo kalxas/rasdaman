@@ -1,40 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions
+<cis11:GeneralGridCoverage id="test_irr_cube_2"
 >
-<wcs:CoverageDescription id="test_irr_cube_2">
-<cis11:Envelope axisLabels="ansi E N" srsDimension="3" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
+<cis11:Envelope axisLabels="ansi" srsDimension="1" srsName="/crs/OGC/0/AnsiDate">
 <cis11:AxisExtent axisLabel="ansi"
 lowerBound="2008-01-01T02:01:20.000Z" uomLabel="d" upperBound="2008-01-08T00:02:58.000Z"/>
-<cis11:AxisExtent axisLabel="E" lowerBound="75042.72735943"
-uomLabel="metre" upperBound="705042.72735943"/>
-<cis11:AxisExtent axisLabel="N"
-lowerBound="5094865.557938452" uomLabel="metre" upperBound="5454865.557938452"/>
 </cis11:Envelope>
-<wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
 <coverageFunction>
 <GridFunction>
-<sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-<startPoint>0 0 0</startPoint>
+<sequenceRule axisOrder="+1">Linear</sequenceRule>
+<startPoint>0</startPoint>
 </GridFunction>
 </coverageFunction>
 <cis11:DomainSet>
-<cis11:GeneralGrid axisLabels="ansi E N" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-<cis11:RegularAxis axisLabel="E"
-lowerBound="75042.72735943" resolution="10000"
-uomLabel="metre" upperBound="705042.72735943"/>
-<cis11:RegularAxis axisLabel="N"
-lowerBound="5094865.557938452" resolution="-10000"
-uomLabel="metre" upperBound="5454865.557938452"/>
+<cis11:GeneralGrid axisLabels="ansi" srsName="/crs/OGC/0/AnsiDate">
 <cis11:IrregularAxis axisLabel="ansi" uomLabel="d">
 <cis11:C>"2008-01-01T02:01:20.000Z"</cis11:C>
 <cis11:C>"2008-01-03T23:59:55.000Z"</cis11:C>
 <cis11:C>"2008-01-05T01:58:30.000Z"</cis11:C>
 <cis11:C>"2008-01-08T00:02:58.000Z"</cis11:C>
 </cis11:IrregularAxis>
-<cis11:GridLimits axisLabels="i j k" srsName="/crs/OGC/0/Index3D">
+<cis11:GridLimits axisLabels="i" srsName="/crs/OGC/0/Index1D">
 <cis11:IndexAxis axisLabel="i" lowerBound="0" upperBound="3"/>
-<cis11:IndexAxis axisLabel="j" lowerBound="0" upperBound="62"/>
-<cis11:IndexAxis axisLabel="k" lowerBound="0" upperBound="35"/>
 </cis11:GridLimits>
 </cis11:GeneralGrid>
 </cis11:DomainSet>
@@ -68,12 +54,15 @@ uomLabel="metre" upperBound="5454865.557938452"/>
 </swe:field>
 </swe:DataRecord>
 </cis11:RangeType>
+<RangeSet>
+<DataBlock>
+<cis11:V>9.697354 4.181835</cis11:V>
+<cis11:V>9.697354 4.181835</cis11:V>
+<cis11:V>9.697354 4.181835</cis11:V>
+<cis11:V>9.697354 4.181835</cis11:V>
+</DataBlock>
+</RangeSet>
 <cis11:metadata>
 <CoverageMetadata/>
 </cis11:metadata>
-<wcs:ServiceParameters>
-<wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>
-<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-</wcs:ServiceParameters>
-</wcs:CoverageDescription>
-</wcs:CoverageDescriptions>
+</cis11:GeneralGridCoverage>

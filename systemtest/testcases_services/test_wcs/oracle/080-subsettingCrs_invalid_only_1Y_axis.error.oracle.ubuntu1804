@@ -2,6 +2,6 @@
 <ows:ExceptionReport version="2.0.1"
 >
 <ows:Exception exceptionCode="InvalidSubsetting">
-<ows:ExceptionText>slicing '1257186.1813579707' is not within coverage's geo bounds '5094865.557938452:5454865.557938452' for axis 'N'.</ows:ExceptionText>
+<ows:ExceptionText>slicing '1257251.5207550738' is not within coverage's geo bounds '5094865.557938452:5454865.557938452' for axis 'N'.</ows:ExceptionText>
 </ows:Exception>
 </ows:ExceptionReport>

@@ -27,6 +27,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static petascope.core.XMLSymbols.LABEL_GRID_COVERAGE;
+import static petascope.core.XMLSymbols.LABEL_RANGE_TYPE;
 import static petascope.core.XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE;
 import static petascope.core.XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;
 import static petascope.core.XMLSymbols.NAMESPACE_GMLCOV;
@@ -348,7 +349,7 @@ public class GMLCoreCIS10Builder {
         CoverageFunction coverageFunction = this.coverageFunctionService.buildCoverageFunction(wcpsCoverageMetadata);
         Metadata metadata = new Metadata(this.coverageMetadataService.getMetadataContent(wcpsCoverageMetadata));
         DomainSet domainSet = this.buildDomainSet(wcpsCoverageMetadata);
-        RangeType rangeType = this.rangeTypeService.buildRangeType(PREFIX_GMLCOV, NAMESPACE_GMLCOV, wcpsCoverageMetadata);
+        RangeType rangeType = this.rangeTypeService.buildRangeType(PREFIX_GMLCOV, LABEL_RANGE_TYPE, NAMESPACE_GMLCOV, wcpsCoverageMetadata);
         
         GMLCoreCIS10 gmlCore = new GMLCoreCIS10(boundedBy, coverageFunction, metadata, domainSet, rangeType);
 

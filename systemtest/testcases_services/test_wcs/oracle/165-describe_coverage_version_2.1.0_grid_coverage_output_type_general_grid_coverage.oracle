@@ -15,19 +15,19 @@ uomLabel="GridSpacing" upperBound="40"/>
 <startPoint>0 0</startPoint>
 </GridFunction>
 </coverageFunction>
-<cis11:domainSet>
-<cis11:generalGrid axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-<cis11:regularAxis axisLabel="i" lowerBound="0"
+<cis11:DomainSet>
+<cis11:GeneralGrid axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+<cis11:RegularAxis axisLabel="i" lowerBound="0"
 resolution="1" uomLabel="GridSpacing" upperBound="60"/>
-<cis11:regularAxis axisLabel="j" lowerBound="0"
+<cis11:RegularAxis axisLabel="j" lowerBound="0"
 resolution="-1" uomLabel="GridSpacing" upperBound="40"/>
-<cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-<cis11:indexAxis axisLabel="i" lowerBound="0" upperBound="59"/>
-<cis11:indexAxis axisLabel="j" lowerBound="0" upperBound="39"/>
-</cis11:gridLimits>
-</cis11:generalGrid>
-</cis11:domainSet>
-<cis11:rangeType>
+<cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+<cis11:IndexAxis axisLabel="i" lowerBound="0" upperBound="59"/>
+<cis11:IndexAxis axisLabel="j" lowerBound="0" upperBound="39"/>
+</cis11:GridLimits>
+</cis11:GeneralGrid>
+</cis11:DomainSet>
+<cis11:RangeType>
 <swe:DataRecord>
 <swe:field name="value">
 <swe:Quantity definition="/dataType/OGC/0/unsignedByte">
@@ -38,7 +38,7 @@ resolution="-1" uomLabel="GridSpacing" upperBound="40"/>
 </swe:Quantity>
 </swe:field>
 </swe:DataRecord>
-</cis11:rangeType>
+</cis11:RangeType>
 <cis11:metadata>{
 "resolution" : "1"
 }</cis11:metadata>

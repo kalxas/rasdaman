@@ -230,15 +230,8 @@ public class WcpsCoverageMetadataGeneralService {
             // Transform from sourceCrs to targetCrs and change the values of List subsets (only when targetCrs is different from soureCrs)
             List<BigDecimal> xyMin = null, xyMax  = null;
             try {
-                boolean xyOrder = metadata.isXYOrder() && CrsUtil.isXYAxesOrder(subsettingCrs);
-                boolean yxOrder = !metadata.isXYOrder() && !CrsUtil.isXYAxesOrder(subsettingCrs);
-                if (xyOrder || yxOrder) {
-                    xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {xMin, yMin});
-                    xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {xMax, yMax});                
-                } else {
-                    xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {yMin, xMin});
-                    xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {yMax, xMax}); 
-                }
+                xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {xMin, yMin});
+                xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[] {xMax, yMax});                
             } catch (Exception ex) {
                 String bboxStr = "xmin=" + xMin + "," + "ymin=" + yMin + ","
                                + "xmax=" + xMax + "," + "ymax=" + yMax;
@@ -996,8 +989,13 @@ public class WcpsCoverageMetadataGeneralService {
             // slicing geo parsed subset (add/substract epsilon as the coordinate from crs transform can be approximately)
             if ((geoParsedSubset.getSlicingCoordinate().add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(lowerLimit) < 0)
                 || (geoParsedSubset.getSlicingCoordinate().subtract(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(upperLimit) > 0)) {
-
-                subset = new ParsedSubset<>(((WcpsSliceSubsetDimension)subsetDimension).getBound());
+                
+                // If the subset is datetime format
+                if (axis.getLowerGeoBoundRepresentation().contains("\"")) {
+                    subset = new ParsedSubset<>(((WcpsSliceSubsetDimension)subsetDimension).getBound());
+                } else {
+                    subset = new ParsedSubset<>(geoParsedSubset.getSlicingCoordinate().toPlainString());
+                }
             }
         } else {
             String originalLowerBound = ((WcpsTrimSubsetDimension)subsetDimension).getLowerBound();
@@ -1007,7 +1005,12 @@ public class WcpsCoverageMetadataGeneralService {
             if ((geoParsedSubset.getLowerLimit().add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(lowerLimit) < 0)                    
                 || (geoParsedSubset.getUpperLimit().subtract(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(upperLimit) > 0)) {
                 
-                subset = new ParsedSubset<>(originalLowerBound, originalUpperBound);
+                // If the subset is datetime format
+                if (axis.getLowerGeoBoundRepresentation().contains("\"")) {
+                    subset = new ParsedSubset<>(originalLowerBound, originalUpperBound);
+                } else {
+                    subset = new ParsedSubset<>(geoParsedSubset.getLowerLimit().toPlainString(), geoParsedSubset.getUpperLimit().toPlainString());
+                }
             } else if ((geoParsedSubset.getLowerLimit().compareTo(upperLimit) > 0)
                     || (geoParsedSubset.getUpperLimit().compareTo(lowerLimit) < 0)) {
                 throw new InvalidSubsettingException(axisName, originalLowerBound, originalUpperBound);

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:GridCoverage id="temp"
+>
+<boundedBy>
+<Envelope axisLabels="t" srsDimension="1"
+srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
+<lowerCorner>0</lowerCorner>
+<upperCorner>4</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<Grid dimension="1" id="temp-grid">
+<limits>
+<GridEnvelope>
+<low>0</low>
+<high>4</high>
+</GridEnvelope>
+</limits>
+<axisLabels>t</axisLabels>
+</Grid>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">0,0,0,0,0</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+1">Linear</sequenceRule>
+<startPoint>0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="band1">
+<swe:Quantity definition="/dataType/OGC/0/float64">
+<swe:label>band1</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
+</gmlcov:GridCoverage>

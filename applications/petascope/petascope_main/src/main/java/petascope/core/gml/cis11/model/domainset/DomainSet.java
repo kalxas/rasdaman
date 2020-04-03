@@ -22,7 +22,7 @@
 package petascope.core.gml.cis11.model.domainset;
 
 import nu.xom.Element;
-import static petascope.core.XMLSymbols.LABEL_DOMAIN_SET;
+import static petascope.core.XMLSymbols.LABEL_DOMAIN_SET_CIS11;
 import static petascope.core.XMLSymbols.PREFIX_CIS11;
 import petascope.core.gml.ISerializeToXMElement;
 import petascope.exceptions.PetascopeException;
@@ -71,7 +71,7 @@ public class DomainSet implements ISerializeToXMElement {
     @Override
     public Element serializeToXMLElement() throws PetascopeException, SecoreException {
         
-        Element domainSetElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_DOMAIN_SET), NAMESPACE_CIS_11);
+        Element domainSetElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_DOMAIN_SET_CIS11), NAMESPACE_CIS_11);
         
         Element generalGridElement = this.generalGrid.serializeToXMLElement();
         domainSetElement.appendChild(generalGridElement);

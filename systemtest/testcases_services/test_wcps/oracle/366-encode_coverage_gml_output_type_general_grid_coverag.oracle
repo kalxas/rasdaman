@@ -13,20 +13,20 @@ uomLabel="metre" upperBound="5094865.557938452"/>
 <startPoint>-1 35</startPoint>
 </GridFunction>
 </coverageFunction>
-<cis11:domainSet>
-<cis11:generalGrid axisLabels="E N" srsName="/crs/EPSG/0/32633">
-<cis11:regularAxis axisLabel="E" lowerBound="75042.72735943"
+<cis11:DomainSet>
+<cis11:GeneralGrid axisLabels="E N" srsName="/crs/EPSG/0/32633">
+<cis11:RegularAxis axisLabel="E" lowerBound="75042.72735943"
 resolution="10000" uomLabel="metre" upperBound="75042.72735943"/>
-<cis11:regularAxis axisLabel="N"
+<cis11:RegularAxis axisLabel="N"
 lowerBound="5094865.557938452" resolution="-10000"
 uomLabel="metre" upperBound="5094865.557938452"/>
-<cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-<cis11:indexAxis axisLabel="i" lowerBound="-1" upperBound="-1"/>
-<cis11:indexAxis axisLabel="j" lowerBound="35" upperBound="35"/>
-</cis11:gridLimits>
-</cis11:generalGrid>
-</cis11:domainSet>
-<cis11:rangeType>
+<cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+<cis11:IndexAxis axisLabel="i" lowerBound="-1" upperBound="-1"/>
+<cis11:IndexAxis axisLabel="j" lowerBound="35" upperBound="35"/>
+</cis11:GridLimits>
+</cis11:GeneralGrid>
+</cis11:DomainSet>
+<cis11:RangeType>
 <swe:DataRecord>
 <swe:field name="b1">
 <swe:Quantity definition="/dataType/OGC/0/float32">
@@ -55,12 +55,12 @@ uomLabel="metre" upperBound="5094865.557938452"/>
 </swe:Quantity>
 </swe:field>
 </swe:DataRecord>
-</cis11:rangeType>
-<rangeSet>
-<rangeSet>
+</cis11:RangeType>
+<RangeSet>
+<DataBlock>
 <cis11:V>9.697354 4.181835</cis11:V>
-</rangeSet>
-</rangeSet>
+</DataBlock>
+</RangeSet>
 <cis11:metadata>
 <CoverageMetadata/>
 </cis11:metadata>

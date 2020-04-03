@@ -122,18 +122,19 @@ public interface XMLSymbols {
     String LABEL_DIMENSION_TRIM = "DimensionTrim";
     String LABEL_DIMENSION_SLICE = "DimensionSlice";
     String LABEL_DOMAIN_SET = "domainSet";
+    String LABEL_DOMAIN_SET_CIS11 = "DomainSet";
     String LABEL_ENVELOPE = "Envelope";
-    String LABEL_INDEX_AXIS = "indexAxis";
+    String LABEL_INDEX_AXIS = "IndexAxis";
     String LABEL_FILE = "File";
     String LABEL_FILE_REFERENCE = "fileReference";
     String LABEL_FILE_STRUCTURE = "fileStructure";
     String LABEL_FORMAT = "format";
-    String LABEL_GENERAL_GRID = "generalGrid";
+    String LABEL_GENERAL_GRID = "GeneralGrid";
     String LABEL_GRID_ENVELOPE = "GridEnvelope";
     String LABEL_GRID_FUNCTION = "GridFunction";
-    String LABEL_IRREGULAR_AXIS = "irregularAxis";
+    String LABEL_IRREGULAR_AXIS = "IrregularAxis";
     String LABEL_LIMITS = "limits";
-    String LABEL_GRID_LIMITS = "gridLimits";
+    String LABEL_GRID_LIMITS = "GridLimits";
     String LABEL_LOWER_CORNER_ASSOCIATE_ROLE = "LowerCorner";
     String LABEL_UPPER_CORNER_ASSOCIATE_ROLE = "UpperCorner";
     String LABEL_LOWER_CORNER = "lowerCorner";
@@ -142,7 +143,7 @@ public interface XMLSymbols {
     String LABEL_NATIVE_FORMAT = "nativeFormat";
     String LABEL_PROCESSCOVERAGE_REQUEST = "ProcessCoveragesRequest";
     String LABEL_RANGE_SET = "rangeSet";
-    String LABEL_REGULAR_AXIS = "regularAxis";
+    String LABEL_REGULAR_AXIS = "RegularAxis";
     String LABEL_RANGE_PARAMETERS = "rangeParameters";
     String LABEL_SLICE_POINT = "SlicePoint";
     String LABEL_SRS_DIMENSION = "srsDimension";
@@ -251,6 +252,7 @@ public interface XMLSymbols {
 
     // gml:rangeSet from wcst_import
     String LABEL_RANGESET = "rangeSet";
+    String LABEL_RANGESET_CIS11 = "RangeSet";
     
     // There are 3 types of WCPS in XML POST request (abstract, OGC abstract and XML syntax)
     // so determine which type of request by the name of root element and the child element
@@ -355,6 +357,7 @@ public interface XMLSymbols {
     String LABEL_MULTISURFACE_COVERAGE = "GridCoverage";
     String LABEL_MULTISOLID_COVERAGE = "GridCoverage";
     String LABEL_RANGE_TYPE = "rangeType";
+    String LABEL_RANGE_TYPE_CIS11 = "RangeType";
     String LABEL_RECTIFIED_GRID = "RectifiedGrid";
     String LABEL_GRID = "Grid";
     String LABEL_GENERAL_GRID_COVERAGE = "GeneralGridCoverage";

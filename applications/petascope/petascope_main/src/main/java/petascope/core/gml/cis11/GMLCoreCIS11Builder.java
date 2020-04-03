@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static petascope.core.XMLSymbols.LABEL_RANGE_TYPE_CIS11;
 import static petascope.core.XMLSymbols.PREFIX_CIS11;
 import petascope.core.gml.cis.model.coveragefunction.CoverageFunction;
 import petascope.core.gml.cis.model.coveragefunction.CoverageFunctionService;
@@ -199,7 +200,7 @@ public class GMLCoreCIS11Builder {
         
         Envelope envelope = this.buildEnvelope(wcpsCoverageMetadata);
         CoverageFunction coverageFunction = this.coverageFunctionService.buildCoverageFunction(wcpsCoverageMetadata);
-        RangeType rangeType = this.rangeTypeService.buildRangeType(PREFIX_CIS11, NAMESPACE_CIS_11, wcpsCoverageMetadata);
+        RangeType rangeType = this.rangeTypeService.buildRangeType(PREFIX_CIS11, LABEL_RANGE_TYPE_CIS11, NAMESPACE_CIS_11, wcpsCoverageMetadata);
         DomainSet domainSet = this.buildDomainSet(wcpsCoverageMetadata);
         Metadata metadata = new Metadata(this.coverageMetadataService.getMetadataContent(wcpsCoverageMetadata));
         
