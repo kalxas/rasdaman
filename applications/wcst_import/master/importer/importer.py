@@ -353,13 +353,8 @@ class Importer:
                                              self.coverage.range_fields, self._get_update_crs(slice, self.coverage.crs),
                                              slice.local_metadata, self.grid_coverage)
         data_provider = slice.data_provider
-
-        if ConfigManager.mock:
-            gml_obj = Mediator(metadata_provider, data_provider).get_gml_file()
-        else:
-            gml_obj = Mediator(metadata_provider, data_provider).get_gml_str()
-
-        return gml_obj
+        mediator = Mediator(metadata_provider, data_provider)
+        return mediator.get_gml_file() if ConfigManager.mock else mediator.get_gml_str()
 
     def _get_update_axes(self, slice):
         """
@@ -399,7 +394,6 @@ class Importer:
         metadata_provider = MetadataProvider(self.coverage.coverage_id, axes_map,
                                              self.coverage.range_fields, self.coverage.crs, self.coverage.metadata,
                                              self.grid_coverage)
-
         tuple_list = []
 
         # Tuple list for InsertCoverage request should be created from null values if they exist
@@ -414,13 +408,8 @@ class Importer:
             tuple_list.append(insert_value)
 
         data_provider = TupleListDataProvider(",".join(tuple_list))
-
-        if ConfigManager.mock:
-            gml_obj = Mediator(metadata_provider, data_provider).get_gml_file()
-        else:
-            gml_obj = Mediator(metadata_provider, data_provider).get_gml_str()
-
-        return gml_obj
+        mediator = Mediator(metadata_provider, data_provider)
+        return mediator.get_gml_file() if ConfigManager.mock else mediator.get_gml_str()
 
     def _generate_initial_gml_inistu(self):
         """

@@ -146,19 +146,28 @@ class XMLExtraMetadataSerializer(ExtraMetadataSerializer):
 
         if not self.KEY_LOCAL_METADATA in result_dict:
             # Serializing global metadata attributes dict
+
+            last_keys = [self.KEY_BANDS, self.KEY_AXES]
+            # 1. handle keys not in last_keys
             for key, value in result_dict.items():
-                if key == self.KEY_BANDS or key == self.KEY_AXES:
-                    # each band of bands is a dictionary of keys, values for band's metadata
-                    result = "<" + key + ">"
-                    for band_key, band_attributes in value.items():
-                        result += "<" + self.__xml_key(band_key) + ">"
-                        for band_attribute_key, band_attribute_value in band_attributes.items():
-                            result += "<{0}>{1}</{0}>".format(self.__xml_key(band_attribute_key), band_attribute_value)
-                        result += "</" + self.__xml_key(band_key) + ">"
-                    result += "</" + key + ">"
-                    xml_return.append(result)
-                else:
+                if key not in last_keys:
                     xml_return.append("<{0}>{1}</{0}>".format(self.__xml_key(key), value))
+
+            # 2. handle these keys finally, to prevent random serialization order
+            for key in last_keys:
+                if not key in result_dict:
+                    continue
+                value = result_dict[key]
+                # each band of bands is a dictionary of keys, values for band's metadata
+                result = "<" + key + ">"
+                for band_key, band_attributes in value.items():
+                    band_el = self.__xml_key(band_key)
+                    result += "<" + band_el + ">"
+                    for band_attribute_key, band_attribute_value in band_attributes.items():
+                        result += "<{0}>{1}</{0}>".format(self.__xml_key(band_attribute_key), band_attribute_value)
+                    result += "</" + band_el + ">"
+                result += "</" + key + ">"
+                xml_return.append(result)
         else:
             # Serializing local metadata attributes dict
             for key, value in result_dict[self.KEY_LOCAL_METADATA].items():

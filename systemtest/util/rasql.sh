@@ -122,7 +122,7 @@ function check_type()
 function drop_colls()
 {
   check_rasdaman
-  for c in $*; do
+  for c in "$@"; do
     $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$c\b" > /dev/null
     if [ $? -eq 0 ]; then
       $RASQL -q "drop collection $c" > /dev/null
@@ -139,9 +139,10 @@ function drop_colls()
 #
 function drop_types()
 {
-  $RASQL "drop type $1" > /dev/null
-  $RASQL "drop type $2" > /dev/null
-  [ -n "$3" ] && $RASQL "drop type $3" > /dev/null
+  local t=
+  for t in "$@"; do
+    $RASQL --quiet -q "drop type $t"
+  done
 }
 
 

@@ -61,20 +61,18 @@ class Mediator:
         :rtype: GMLCoverage
         """
         # ReferenceableGridCoverage
+        cov_metadata = CoverageMetadata(self.metadata_provider.extra_metadata)
         if self.metadata_provider.is_coverage_irregular():
             return ReferenceableGridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
-                                             self._get_domain_set(), self._get_range_set(), self._get_range_type(),
-                                             CoverageMetadata(self.metadata_provider.extra_metadata))
+                                             self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata)
         # GridCoverage
         elif self.metadata_provider.is_grid_coverage():
             return GridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
-                                         self._get_domain_set(), self._get_range_set(), self._get_range_type(),
-                                         CoverageMetadata(self.metadata_provider.extra_metadata))
+                                self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata)
         # RectifiedGridCoverage
         else:
             return RectifiedGridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
-                                         self._get_domain_set(), self._get_range_set(), self._get_range_type(),
-                                         CoverageMetadata(self.metadata_provider.extra_metadata))
+                                         self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata)
 
     def get_gml_str(self):
         """

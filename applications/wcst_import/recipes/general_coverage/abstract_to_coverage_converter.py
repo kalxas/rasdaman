@@ -297,13 +297,12 @@ class AbstractToCoverageConverter:
         global_extra_metadata_collector = ExtraGlobalMetadataCollector(
                                                  self.sentence_evaluator,
                                                  ExtraGlobalMetadataIngredientInformation(self.global_metadata_fields,
-                                                                                    self.bands_metadata_fields,
-                                                                                    self.axes_metadata_fields),
+                                                                                          self.bands_metadata_fields,
+                                                                                          self.axes_metadata_fields),
                                                  ExtraMetadataEntry(self.evaluator_slice, metadata_entry_subsets))
 
         global_extra_metadata = global_extra_metadata_collector.collect()
         metadata_str = serializer.serialize(global_extra_metadata)
-
         return metadata_str
 
     def _generate_local_metadata(self, axis_subsets, evaluator_slice):
