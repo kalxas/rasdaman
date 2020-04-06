@@ -95,7 +95,7 @@ public interface KVPSymbols {
     String KEY_PIXEL_DATA_TYPE = "pixelDataType";
     String KEY_TILING = "tiling";
     String KEY_LEVEL = "level";
-
+    
     // WCPS
     String VALUE_PROCESS_COVERAGES = "ProcessCoverages";
     String KEY_QUERY = "query";

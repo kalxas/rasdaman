@@ -79,7 +79,7 @@ public abstract class Coverage implements Serializable {
 
     @Column(name = "coverage_id")
     // this is the id of coverage (or coverage name)
-    private String coverageId;
+    protected String coverageId;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = CoverageFunction.COLUMN_ID)
@@ -88,7 +88,7 @@ public abstract class Coverage implements Serializable {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = Envelope.COLUMN_ID)
     // persist this object before persist the container object (i.e: it needs the PK of the cascading to make the FK)    
-    private Envelope envelope;
+    protected Envelope envelope;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = DomainSet.COLUMN_ID)
@@ -110,14 +110,33 @@ public abstract class Coverage implements Serializable {
 
     @Column(name = "coverage_type")
     // To determine coverage is: GridCoverage, RectifiedGridCoverage, ReferenceableGridCoverage
-    private String coverageType;
+    protected String coverageType;
     
     @Transient
     // Store the calculated size of coverage in bytes for overview
-    private long coverageSizeInBytes;
+    protected long coverageSizeInBytes;
 
     public Coverage() {
 
+    }
+    
+    public Coverage(String coverageId, String coverageType, Envelope envelope, long coverageSizeInBytes) {
+        this.coverageType = coverageType;
+        this.coverageId = coverageId;
+        this.envelope = envelope;
+        this.coverageSizeInBytes = coverageSizeInBytes;
+    }
+
+    public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, 
+                    Envelope envelope, DomainSet domainSet, RangeType rangeType, RasdamanRangeSet rasdamanRangeSet, String metadata) {
+        this.coverageId = coverageId;
+        this.envelope = envelope;
+        this.domainSet = domainSet;
+        this.rasdamanRangeSet = rasdamanRangeSet;
+        this.rangeType = rangeType;
+        this.metadata = metadata;
+        this.coverageType = coverageType;
+        this.coverageSizeInBytes = coverageSizeInBytes;
     }
 
     public long getId() {

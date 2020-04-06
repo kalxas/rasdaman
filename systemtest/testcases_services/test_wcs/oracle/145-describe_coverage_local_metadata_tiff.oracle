@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-
-
-
-
-
-
 >
 <wcs:CoverageDescription id="test_wcs_local_metadata_tiff">
 <boundedBy>
@@ -24,9 +18,7 @@ srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="
 </coverageFunction>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >
-<bands/>
-<axes/>
+<rasdaman:covMetadata>
 <slices>
 <slice>
 <boundedBy>

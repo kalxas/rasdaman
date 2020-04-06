@@ -44,11 +44,14 @@ public class RasdamanGribUpdater extends RasdamanUpdater {
      * @param shiftDomain the domain with which the array stored in the file must be shifted.
      */
     public RasdamanGribUpdater(String affectedCollectionName, String affectedDomain,
-                               String rangeParameters, String shiftDomain) {
+                               String rangeParameters, String shiftDomain, String username, String password) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedDomain = affectedDomain;
         this.rangeParameters = rangeParameters;
         this.shiftDomain = shiftDomain;
+        
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -63,7 +66,7 @@ public class RasdamanGribUpdater extends RasdamanUpdater {
                              .replace("$domain", affectedDomain)
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$gribMessages", rangeParameters);
-        RasUtil.executeUpdateFileStatement(queryString);
+        RasUtil.executeUpdateFileStatement(queryString, this.username, this.password);
     }
     
     @Override
@@ -77,7 +80,7 @@ public class RasdamanGribUpdater extends RasdamanUpdater {
                              .replace("$domain", affectedDomain)
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$gribMessages", rangeParameters);
-        RasUtil.executeUpdateBytesStatement(queryString, bytes);
+        RasUtil.executeUpdateBytesStatement(queryString, bytes, this.username, this.password);
     }
 
     // sample query

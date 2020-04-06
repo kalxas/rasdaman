@@ -130,14 +130,15 @@ public class NetCDFParametersService {
         for (Axis axis : axes) {
             Map<String, String> axesMetadataMap = null;
             
-            // Axes's metadata exists in coverage's metadata
-            for (Map.Entry<String, Map<String, String>> axisAttribute : axesMetadata.getAxesAttributesMap().entrySet()) {
-                if (axis.getLabel().equals(axisAttribute.getKey())) {
-                    axesMetadataMap = axisAttribute.getValue();
-                    break;
+            if (axesMetadata != null) {
+                // Axes's metadata exists in coverage's metadata
+                for (Map.Entry<String, Map<String, String>> axisAttribute : axesMetadata.getAxesAttributesMap().entrySet()) {
+                    if (axis.getLabel().equals(axisAttribute.getKey())) {
+                        axesMetadataMap = axisAttribute.getValue();
+                        break;
+                    }
                 }
             }
-            
             DimensionVariableMetadata dimensionVariableMetadata = new DimensionVariableMetadata(axesMetadataMap);
             dimensionVariables.add(new DimensionVariable<>(RangeField.DATA_TYPE, this.buildPoisitionData(covName, axis), axis.getLabel(), dimensionVariableMetadata));
         }
@@ -162,11 +163,13 @@ public class NetCDFParametersService {
         for (RangeField band : bands) {            
             Map<String, String> bandsMetadataMap = null;
             
-            // Bands's metadata exists in coverage's metadata
-            for (Map.Entry<String, Map<String, String>> bandAttribute : bandsMetadata.getBandsAttributesMap().entrySet()) {
-                if (band.getName().equals(bandAttribute.getKey())) {
-                    bandsMetadataMap = bandAttribute.getValue();
-                    break;
+            if (bandsMetadata != null) {
+                // Bands's metadata exists in coverage's metadata
+                for (Map.Entry<String, Map<String, String>> bandAttribute : bandsMetadata.getBandsAttributesMap().entrySet()) {
+                    if (band.getName().equals(bandAttribute.getKey())) {
+                        bandsMetadataMap = bandAttribute.getValue();
+                        break;
+                    }
                 }
             }
             

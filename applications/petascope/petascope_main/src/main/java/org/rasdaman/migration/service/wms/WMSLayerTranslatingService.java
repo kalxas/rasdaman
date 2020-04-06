@@ -150,7 +150,7 @@ public class WMSLayerTranslatingService {
             style.setTitle(legacyStyle.getTitle());
             style.setStyleAbstract(legacyStyle.getStyleAbstract());
             // Rasql fragment for the style to apply on a collection and result is a 2D image
-            style.setRasqlQueryTransformFragment(legacyStyle.getRasqlQueryTransformer());
+            style.setRasqlQueryFragment(legacyStyle.getRasqlQueryTransformer());
 
             styles.add(style);
         }

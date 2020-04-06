@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_mr"
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="i j" srsDimension="2"
@@ -58,8 +53,8 @@ id="test_mr-point" srsName="/crs/OGC/0/Index2D">
 </gmlcov:rangeType>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >{
-"resolution": "1"
+<rasdaman:covMetadata>{
+"resolution" : "1"
 }</rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

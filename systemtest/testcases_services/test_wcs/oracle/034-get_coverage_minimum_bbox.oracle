@@ -58,9 +58,6 @@ id="test_eobstest-point" srsName="/crs/EPSG/0/4326">
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<Title>This is a test file</Title>
-<Project>This is another test file</Project>
-<Creator>This is a test creator file</Creator>
 <bands>
 <tg>
 <long_name>mean temperature</long_name>
@@ -82,6 +79,9 @@ id="test_eobstest-point" srsName="/crs/EPSG/0/4326">
 <standard_name>longitude</standard_name>
 </Lon>
 </axes>
+<Title>This is a test file</Title>
+<Project>This is another test file</Project>
+<Creator>This is a test creator file</Creator>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

@@ -19,7 +19,7 @@ srsName="/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>{
-"resolution": "1"
+"resolution" : "1"
 }</rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

@@ -24,6 +24,7 @@ package petascope.wcst.handlers;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.TreeMap;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeoAxis;
@@ -68,11 +69,14 @@ public class InsertScaleLevelHandler {
     public Response handle(InsertScaleLevelRequest request) throws PetascopeException, SecoreException {
         log.debug("Handling coverage's scale level insertion...");
         
+        String username = ConfigManager.RASDAMAN_ADMIN_USER;
+        String password = ConfigManager.RASDAMAN_ADMIN_PASS;
+        
         String coverageId = request.getCoverageId();
         BigDecimal level = request.getLevel();
         
         // First, create an empty rasdaman downscaled collection
-        this.pyramidService.insertScaleLevel(coverageId, level);
+        this.pyramidService.insertScaleLevel(coverageId, level, username, password);
         
         try {
             // Then, populate the data for it (it does not matter coverage has full data or just 1 MDD point data)
@@ -99,11 +103,11 @@ public class InsertScaleLevelHandler {
                 i++;
             }
             
-            this.pyramidService.updateScaleLevel(coverageId, level, gridDomainsPairsMap);
+            this.pyramidService.updateScaleLevel(coverageId, level, gridDomainsPairsMap, username, password);
         } catch (Exception ex) {
             log.error("Error updating scale level for coverage '" + coverageId + "' with level '" + level + "'. Reason: " + ex.getMessage(), ex);
             // If error occurred when updating data to downscaled collection, delete this collection.
-            this.pyramidService.deleteScaleLevel(coverageId, level);
+            this.pyramidService.deleteScaleLevel(coverageId, level, username, password);
         }
         
         Response response = new Response();

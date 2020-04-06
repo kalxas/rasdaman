@@ -51,4 +51,13 @@ public class RegularAxis extends GeoAxis implements Serializable {
     
     public static final String TABLE_NAME = "regular_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
+    
+    public RegularAxis() {
+        
+    }
+
+    public RegularAxis(String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution) {
+        super(axisLabel, uomLabel, srsName, lowerBound, upperBound, resolution);
+    }
+    
 }

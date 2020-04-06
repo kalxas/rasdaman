@@ -16,7 +16,13 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels=
 <startPoint>0 0 0</startPoint>
 </GridFunction>
 </coverageFunction>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 <domainSet>
 <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_2-grid">
 <limits>

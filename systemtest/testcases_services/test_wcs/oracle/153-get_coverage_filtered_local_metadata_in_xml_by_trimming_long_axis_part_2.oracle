@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage
 id="test_wcs_local_metadata_tiff_map_mosaic"
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="Lat Lon" srsDimension="2"
@@ -59,9 +54,7 @@ id="test_wcs_local_metadata_tiff_map_mosaic-point" srsName="/crs/EPSG/0/4326">
 </gmlcov:rangeType>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >
-<bands/>
-<axes/>
+<rasdaman:covMetadata>
 <slices>
 <slice>
 <boundedBy>

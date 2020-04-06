@@ -55,8 +55,6 @@ id="test_wcs_local_metadata_from_xml_files-point" srsName="/crs/EPSG/0/4326">
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<bands/>
-<axes/>
 <slices>
 <slice>
 <boundedBy>

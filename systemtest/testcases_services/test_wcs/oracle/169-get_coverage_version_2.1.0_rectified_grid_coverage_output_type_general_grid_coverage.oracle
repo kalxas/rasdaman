@@ -2,9 +2,9 @@
 <cis11:GeneralGridCoverage id="test_mean_summer_airtemp"
 >
 <cis11:Envelope axisLabels="Lat Lon" srsDimension="2" srsName="/crs/EPSG/0/4326">
-<cis11:axisExtent axisLabel="Lat"
+<cis11:AxisExtent axisLabel="Lat"
 lowerBound="-44.474999999999987" uomLabel="degree" upperBound="-43.974999999999987"/>
-<cis11:axisExtent axisLabel="Lon" lowerBound="111.975"
+<cis11:AxisExtent axisLabel="Lon" lowerBound="111.975"
 uomLabel="degree" upperBound="112.475"/>
 </cis11:Envelope>
 <coverageFunction>
@@ -43,5 +43,7 @@ resolution="0.5" uomLabel="degree" upperBound="112.475"/>
 <cis11:V>0</cis11:V>
 </rangeSet>
 </rangeSet>
-<cis11:metadata/>
+<cis11:metadata>
+<CoverageMetadata/>
+</cis11:metadata>
 </cis11:GeneralGridCoverage>

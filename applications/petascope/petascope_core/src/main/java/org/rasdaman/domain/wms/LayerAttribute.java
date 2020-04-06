@@ -97,6 +97,16 @@ public class LayerAttribute implements Serializable {
     // 0: WMS can produce map of arbitrary height nonzero, nonzero: value is fixed for the height.
     @Column
     private int fixedHeight = 0;
+    
+    public LayerAttribute(int queryable, int cascaded, int opaque, int noSubsets, int fixedWidth, int fixedHeight) {
+        this.queryable = queryable;
+        this.cascaded = cascaded;
+        this.opaque = opaque;
+        this.noSubsets = noSubsets;
+        this.fixedWidth = fixedWidth;
+        this.fixedHeight = fixedHeight;
+    }
+    
 
     public int getQueryable() {
         return queryable;

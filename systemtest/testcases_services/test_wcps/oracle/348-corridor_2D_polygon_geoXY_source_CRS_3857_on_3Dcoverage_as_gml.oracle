@@ -4,8 +4,8 @@
 <boundedBy>
 <Envelope axisLabels="i Lat Lon" srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326" uomLabels="GridSpacing degree degree">
-<lowerCorner>0 24.999999999981721288122571422718465328216552734375 39.9999999999915161197350244037806987762451171875</lowerCorner>
-<upperCorner>4 29.99999999996595079210237599909305572509765625 45.0000000000241442421611282043159008026123046875</upperCorner>
+<lowerCorner>0 24.99999999998172 39.999999999991516</lowerCorner>
+<upperCorner>4 29.99999999996595 45.000000000024144</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -20,7 +20,7 @@ srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326" uomLabels="G
 <origin>
 <Point
 id="test_eobstest-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326">
-<pos>0.5 29.74999999996595079210237599909305572509765625 40.2499999999915161197350244037806987762451171875</pos>
+<pos>0.5 29.74999999996595 40.249999999991516</pos>
 </Point>
 </origin>
 <offsetVector srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326">1 0 0</offsetVector>
@@ -60,9 +60,6 @@ id="test_eobstest-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<Title>This is a test file</Title>
-<Project>This is another test file</Project>
-<Creator>This is a test creator file</Creator>
 <bands>
 <tg>
 <long_name>mean temperature</long_name>
@@ -84,6 +81,9 @@ id="test_eobstest-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/
 <standard_name>longitude</standard_name>
 </Lon>
 </axes>
+<Title>This is a test file</Title>
+<Project>This is another test file</Project>
+<Creator>This is a test creator file</Creator>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

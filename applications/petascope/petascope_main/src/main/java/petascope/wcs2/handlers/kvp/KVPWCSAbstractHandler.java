@@ -46,11 +46,31 @@ public abstract class KVPWCSAbstractHandler implements IKVPHandler {
     /**
      * Overrided by subclass to check if parameter is not valid in the request.
      */
-    protected void validateParameters(Map<String, String[]> kvpParameters, Set<String> validParameters) throws WCSException {
+    public static void validateParameters(Map<String, String[]> kvpParameters, Set<String> validParameters) throws WCSException {
         for (String key : kvpParameters.keySet()) {
             if (!validParameters.contains(key.toLowerCase())) {
                 throw new WCSException(ExceptionCode.InvalidRequest, "Parameter '" + key + "' is not valid in request.");
             }
+        }
+    }
+    
+    /**
+     * Check if the request contains all required parameters (no more / no less other parameters).
+     */
+    public static void validateAllRequiredParameters(Map<String, String[]> kvpParameters, Set<String> validParameters) throws PetascopeException {
+    
+        if (kvpParameters.size() != validParameters.size()) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                                        "Number of input parameters '" + kvpParameters.size() + "' does not match with"
+                                      + " number of required parameters '" + validParameters.size() + "' for the request.");
+        }
+
+        int i = 0;
+        for (String key : kvpParameters.keySet()) {
+            if (!validParameters.contains(key.toLowerCase())) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest, "Parameter '" + key + "' is not valid in request.");
+            }
+            i++;
         }
     }
     

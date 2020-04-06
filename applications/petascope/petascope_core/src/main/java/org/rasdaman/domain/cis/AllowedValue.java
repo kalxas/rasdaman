@@ -58,6 +58,10 @@ public class AllowedValue implements Serializable {
 
     }
 
+    public AllowedValue(String values) {
+        this.values = values;
+    }
+
     public long getId() {
         return id;
     }

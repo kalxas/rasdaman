@@ -22,6 +22,7 @@
 package petascope.wcst.handlers;
 
 import java.math.BigDecimal;
+import org.rasdaman.config.ConfigManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,11 +58,14 @@ public class DeleteScaleLevelHandler {
     public Response handle(DeleteScaleLevelRequest request) throws PetascopeException, SecoreException {
         log.debug("Handling coverage's scale level delete...");
         
+        String username = ConfigManager.RASDAMAN_ADMIN_USER;
+        String password = ConfigManager.RASDAMAN_ADMIN_PASS;
+        
         String coverageId = request.getCoverageId();
         BigDecimal level = request.getLevel();
         
         // First delete rasdaman downscaled collection
-        this.pyramidService.deleteScaleLevel(coverageId, level);
+        this.pyramidService.deleteScaleLevel(coverageId, level, username, password);
         
         // Also remove GetMap requests from cache for this layer
         wmsGetMapCachingService.removeLayerGetMapInCache(coverageId);

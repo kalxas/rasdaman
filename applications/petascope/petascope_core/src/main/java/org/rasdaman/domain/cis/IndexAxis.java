@@ -70,6 +70,16 @@ public class IndexAxis extends Axis implements Serializable {
 
     }
 
+    public IndexAxis(String axisLabel, String srsName, String uomLabel, Long lowerBound, Long upperBound, int axisOrder) {
+        super(axisLabel, uomLabel, srsName);
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        this.axisOrder = axisOrder;
+    }
+    
+    
+
+
     public Long getLowerBound() {
         return lowerBound;
     }

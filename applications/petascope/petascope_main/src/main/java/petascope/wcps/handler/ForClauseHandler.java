@@ -23,14 +23,18 @@ package petascope.wcps.handler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.wcps.exception.processing.CoverageReadingException;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -48,28 +52,32 @@ public class ForClauseHandler {
 
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
-    
     @Autowired
     private CoverageRepositoryService coverageRepostioryService;
+    @Autowired
+    private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ForClauseHandler.class);
 
-    public WcpsResult handle(String coverageIterator, List<String> coverageNames) {
+    public WcpsResult handle(String coverageIterator, List<String> coverageIds) {
         
         List<String> rasdamanCollectionNames = new ArrayList<>();
         
         //add the mapping in the coverageRegistry
-        for (String coverageName : coverageNames) {
+        for (String coverageId : coverageIds) {
             Coverage coverage;
             try {
-                coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coverageName);
-            } catch (PetascopeException ex) {
-                throw new CoverageReadingException(coverageName, ex.getExceptionText(), ex);
+                coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coverageId);
+            } catch (Exception ex) {
+                throw new CoverageReadingException(coverageId, ex.getMessage(), ex);
             }
             String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
-            rasdamanCollectionNames.add(rasdamanCollectionName);
-            coverageAliasRegistry.addCoverageMapping(coverageIterator, coverageName, rasdamanCollectionName);
+            if (rasdamanCollectionName != null) {
+                rasdamanCollectionNames.add(rasdamanCollectionName);
+            }
+            coverageAliasRegistry.addCoverageMapping(coverageIterator, coverageId, rasdamanCollectionName);
         }
+        
         String translatedCoverageIterator = coverageIterator;
         //if the coverageVariable starts with $, remove it to make it valid rasql
         if (coverageIterator.startsWith(COVERAGE_VARIABLE_PREFIX)) {
@@ -78,17 +86,19 @@ public class ForClauseHandler {
 
         // when coverageNames has size() > 0 then it is multipart and it will be handle in RasqlRewriteMultipartQueriesService
         // Then need to get only the first coverageName to create a rasql first.
-        String template = "";
-        if (coverageNames.size() > 1) {
+        String rasql = "";
+        if (coverageIds.size() > 1) {
             // Multipart query
-            template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                               .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
-        } else {            
-            template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                               .replace("$collectionName", rasdamanCollectionNames.get(0));
+            rasql = TEMPLATE.replace("$iterator", translatedCoverageIterator)
+                            .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
+        } else {
+            if (rasdamanCollectionNames.size() > 0) {
+                rasql = TEMPLATE.replace("$iterator", translatedCoverageIterator)
+                                .replace("$collectionName", rasdamanCollectionNames.get(0));
+            }
         }
         //metadata is loaded in the return clause, no meta needed here
-        WcpsResult result = new WcpsResult(null, template);
+        WcpsResult result = new WcpsResult(null, rasql);
         return result;
     }
 

@@ -82,7 +82,6 @@ id="test_irr_cube_1-point" srsName="/crs/OGC/0/Index3D">
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<description>This is a test coverage</description>
 <bands>
 <value>
 <valid_min>0</valid_min>
@@ -95,6 +94,7 @@ id="test_irr_cube_1-point" srsName="/crs/OGC/0/Index3D">
 <axes>
 <k/>
 </axes>
+<description>This is a test coverage</description>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

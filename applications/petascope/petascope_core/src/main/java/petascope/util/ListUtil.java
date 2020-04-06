@@ -128,8 +128,8 @@ public class ListUtil {
      * @return A String of the ListElements separated by c.
      */
     public static List<String> stol(String s, String c) {
-        List<String> l = new LinkedList<String>();
-        if (s == null) {
+        List<String> l = new LinkedList<>();
+        if (s == null || s.isEmpty()) {
             return l;
         }
         s = s.replaceAll(" *, *", c);

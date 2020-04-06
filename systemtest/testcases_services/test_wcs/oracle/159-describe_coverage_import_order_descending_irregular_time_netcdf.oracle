@@ -19,7 +19,6 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<Title>This is a test coverage</Title>
 <bands>
 <LAI>
 <units>m2/m2</units>
@@ -42,6 +41,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="
 <long_name>latitude</long_name>
 </Lat>
 </axes>
+<Title>This is a test coverage</Title>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

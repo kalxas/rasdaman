@@ -23,6 +23,7 @@ package petascope.wcst.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.domain.wms.Layer;
@@ -65,6 +66,9 @@ public class DeleteCoverageHandler {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DeleteCoverageHandler.class);
 
     public Response handle(DeleteCoverageRequest request) throws PetascopeException, SecoreException {
+        
+        String username = ConfigManager.RASDAMAN_ADMIN_USER;
+        String password = ConfigManager.RASDAMAN_ADMIN_PASS;
 
         // List of coverageIds to be deleted
         List<String> coverageIds = request.getCoverageIds();
@@ -77,19 +81,22 @@ public class DeleteCoverageHandler {
 
         //delete all of them
         for (Coverage coverage : coverages) {
-            String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
 
-            // first, try to delete the rasdaman collection.
-            try {
-                this.deleteFromRasdaman(collectionName);
-            } catch (RasdamanException e) {
-                log.error("Cannot delete collection: " + collectionName + ", error: ", e);
-                // NOTE: If cannot delete collection for some reason (e.g: collection does not exist), it should not throw exception as it cannot delete coverage's metadata
+            String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
+            
+            if (collectionName != null) {
+                // first, try to delete the rasdaman collection.
+                try {
+                    this.deleteFromRasdaman(collectionName, username, password);
+                } catch (RasdamanException e) {
+                    log.error("Cannot delete collection: " + collectionName + ", error: ", e);
+                    // NOTE: If cannot delete collection for some reason (e.g: collection does not exist), it should not throw exception as it cannot delete coverage's metadata
+                }
             }
             
             // then, try to delete all associated downscaled collection
             try {
-                this.deleteAssociatedScaleLevelFromRasdaman(coverage);
+                this.deleteAssociatedScaleLevelFromRasdaman(coverage, username, password);
             } catch (Exception ex) {
                 // NOTE: If cannot delete collection for some reason (e.g: collection does not exist), it should not throw exception as it cannot delete coverage's metadata
                 log.error("Cannot delete associated scale levels with collection '" + collectionName +"'. Reason: " + ex.getMessage());
@@ -163,17 +170,17 @@ public class DeleteCoverageHandler {
      * @param coverage
      * @throws RasdamanException
      */
-    private void deleteFromRasdaman(String collectionName) throws RasdamanException, PetascopeException {
-        RasUtil.deleteFromRasdaman(collectionName);
+    private void deleteFromRasdaman(String collectionName, String username, String password) throws RasdamanException, PetascopeException {
+        RasUtil.deleteFromRasdaman(collectionName, username, password);
     }
     
     /**
      * Delete all associated scale level collections of this input coverage.
      */
-    private void deleteAssociatedScaleLevelFromRasdaman(Coverage coverage) throws RasdamanException, PetascopeException {
+    private void deleteAssociatedScaleLevelFromRasdaman(Coverage coverage, String username, String password) throws RasdamanException, PetascopeException {
         for (RasdamanDownscaledCollection rasdamanScaleDownCollection : coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
             String collectionName = rasdamanScaleDownCollection.getCollectionName();
-            RasUtil.deleteFromRasdaman(collectionName);
+            RasUtil.deleteFromRasdaman(collectionName, username, password);
         }
     }
 

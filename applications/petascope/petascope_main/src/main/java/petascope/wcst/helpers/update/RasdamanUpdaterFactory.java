@@ -40,24 +40,25 @@ public class RasdamanUpdaterFactory {
     public RasdamanUpdaterFactory() {
     }
 
-    public RasdamanUpdater getUpdater(String collectionName, String domain, String values, String shiftDomain) {
-        return new RasdamanValuesUpdater(collectionName, domain, values, shiftDomain);
+    public RasdamanUpdater getUpdater(String collectionName, String domain, String values, String shiftDomain, String username, String password) {
+        return new RasdamanValuesUpdater(collectionName, domain, values, shiftDomain, username, password);
     }
 
     public RasdamanUpdater getUpdater(String collectionName, String domain, String filePath, String mimeType,
-                                      String shiftDomain, String rangeParameters, boolean updateFilePath) throws IOException {
+                                      String shiftDomain, String rangeParameters, String username, String password,
+                                      boolean updateFilePath) throws IOException {
         
         // Add the filePaths to the rangeParameters json string
         if (updateFilePath) {
             rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, filePath);
         }
-        
-        if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {            
-            return new RasdamanGribUpdater(collectionName, domain, rangeParameters, shiftDomain);
+
+        if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {
+            return new RasdamanGribUpdater(collectionName, domain, rangeParameters, shiftDomain, username, password);
         } else if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.NETCDF_MIMETYPE)) {
-            return new RasdamanNetcdfUpdater(collectionName, domain, shiftDomain, rangeParameters);
+            return new RasdamanNetcdfUpdater(collectionName, domain, shiftDomain, rangeParameters, username, password);
         } else {
-            return new RasdamanGdalDecodeUpdater(collectionName, domain, shiftDomain, rangeParameters);
+            return new RasdamanGdalDecodeUpdater(collectionName, domain, shiftDomain, rangeParameters, username, password);
         }
     }
     

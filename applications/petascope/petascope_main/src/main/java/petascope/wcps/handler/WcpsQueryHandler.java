@@ -23,6 +23,7 @@ package petascope.wcps.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import static petascope.wcps.handler.ForClauseListHandler.FROM;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.result.WcpsResult;
@@ -48,18 +49,21 @@ public class WcpsQueryHandler {
      * Invoked in case collection names should be updated in the rasql FROM clause
      */
     public String getUpdatedForClauseListRasql() {
-        String rasql = FROM + " " + this.coverageAliasRegistry.getRasqlFromClause();
+        String rasql = this.coverageAliasRegistry.getRasqlFromClause();
+        if (!rasql.trim().isEmpty()) {
+            rasql = FROM + " " + rasql;
+        }
         return rasql;
     }
 
-    public WcpsResult handle(WcpsResult forClauseList, WcpsResult whereClause, WcpsResult returnClause) {
+    public WcpsResult handle(WcpsResult forClauseList, WcpsResult whereClause, WcpsResult returnClause) throws PetascopeException {
         //SELECT c1+c2
         String rasql = returnClause.getRasql();
 
         //FROM cov1 as c1, cov2 as c2
         String updatedRasql = this.getUpdatedForClauseListRasql();
         rasql = rasql.concat(updatedRasql);
-
+        
         //append where if exists
         if (whereClause != null) {
             rasql = rasql.concat(whereClause.getRasql());

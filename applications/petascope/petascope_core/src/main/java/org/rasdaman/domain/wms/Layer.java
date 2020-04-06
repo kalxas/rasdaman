@@ -164,6 +164,21 @@ public class Layer implements Serializable {
     @JoinColumn(name = DataURL.COLUMN_ID)
     private DataURL dataURL;
 
+    // Constructor with mandatory parameters for WMS layer
+    public Layer(String name, String title, String layerAbstract, LayerAttribute layerAttribute,
+                 List<Style> styles, List<String> crss, 
+                 EXGeographicBoundingBox exGeographicBoundingBox, List<BoundingBox> boundingBoxes, List<Dimension> dimensions) {
+        this.name = name;
+        this.title = title;
+        this.layerAbstract = layerAbstract;
+        this.layerAttribute = layerAttribute;
+        this.styles = styles;
+        this.crss = crss;
+        this.exGeographicBoundingBox = exGeographicBoundingBox;
+        this.boundingBoxes = boundingBoxes;
+        this.dimensions = dimensions;
+    }
+
     public int getParent_id() {
         return parent_id;
     }

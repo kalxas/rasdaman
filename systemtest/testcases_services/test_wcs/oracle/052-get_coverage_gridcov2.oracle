@@ -51,9 +51,6 @@ srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<Title>This is a test file</Title>
-<Project>This is another test file</Project>
-<Creator>This is a test creator file</Creator>
 <bands>
 <value>
 <missing_value>NaN</missing_value>
@@ -62,6 +59,9 @@ srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
 <units>10</units>
 </value>
 </bands>
+<Title>This is a test file</Title>
+<Project>This is another test file</Project>
+<Creator>This is a test creator file</Creator>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

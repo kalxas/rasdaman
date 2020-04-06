@@ -16,7 +16,13 @@ srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <startPoint>0 0</startPoint>
 </GridFunction>
 </coverageFunction>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 <domainSet>
 <RectifiedGrid dimension="2" id="test_wcs_default_multiple_null_values-grid">
 <limits>

@@ -36,11 +36,14 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
     String rangeParameters;
 
     public RasdamanNetcdfUpdater(String affectedCollectionName, String affectedDomain,
-                                 String shiftDomain, String rangeParameters) {
+                                 String shiftDomain, String rangeParameters, String username, String password) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedDomain = affectedDomain;
         this.shiftDomain = shiftDomain;
         this.rangeParameters = rangeParameters;
+        
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -55,7 +58,7 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
                              .replace("$domain", affectedDomain)
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$rangeParams", rangeParameters);
-        RasUtil.executeUpdateFileStatement(queryString);
+        RasUtil.executeUpdateFileStatement(queryString, this.username, this.password);
     }
     
     
@@ -71,7 +74,7 @@ public class RasdamanNetcdfUpdater extends RasdamanUpdater {
                              .replace("$domain", affectedDomain)
                              .replace("$shiftDomain", shiftDomain)
                              .replace("$rangeParams", rangeParameters);
-        RasUtil.executeUpdateBytesStatement(queryString, bytes);
+        RasUtil.executeUpdateBytesStatement(queryString, bytes, this.username, this.password);
     }
 
     // sample query

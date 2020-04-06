@@ -82,7 +82,6 @@ id="test_wms_4d_ecmwf_fire_netcdf-point" srsName="/crs-compound?1=/crs/OGC/0/Ind
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<Title>Drought code</Title>
 <bands>
 <dc>
 <units>%</units>
@@ -106,6 +105,7 @@ id="test_wms_4d_ecmwf_fire_netcdf-point" srsName="/crs-compound?1=/crs/OGC/0/Ind
 <axis>Y</axis>
 </Lat>
 </axes>
+<Title>Drought code</Title>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

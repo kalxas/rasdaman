@@ -40,7 +40,6 @@ import petascope.util.MIMEUtil;
 import petascope.wcps.encodeparameters.model.GeoReference;
 import petascope.wcps.encodeparameters.service.GeoReferenceService;
 import petascope.wcps.encodeparameters.service.SerializationEncodingService;
-import petascope.wcps.exception.processing.EncodingCoverageMetadataIsNullException;
 import petascope.wcps.exception.processing.InvalidJsonDeserializationException;
 import petascope.wcps.exception.processing.InvalidNumberOfNodataValuesException;
 import petascope.wcps.exception.processing.MetadataSerializationException;
@@ -140,7 +139,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
             GeoReference geoReference = geoReferenceService.buildGeoReference(metadata);
 
             String jsonOutput = "";
-
+            
             // Check if extra params is in old style or new JSON style
             if (JSONUtil.isJsonValid(extraParams)) {
                 // extra params is new JSON style

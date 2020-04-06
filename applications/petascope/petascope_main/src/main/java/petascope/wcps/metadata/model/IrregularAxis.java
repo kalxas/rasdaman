@@ -54,7 +54,6 @@ public class IrregularAxis extends Axis {
             String axisType, String axisUoM,
             int rasdamanOrder, BigDecimal origin, BigDecimal resolution, List<BigDecimal> directPositions, NumericSubset originalGeoBounds) {
         super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution, originalGeoBounds);
-
         this.directPositions = directPositions;
 
     }

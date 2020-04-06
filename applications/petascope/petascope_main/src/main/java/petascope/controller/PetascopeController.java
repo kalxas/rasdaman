@@ -141,8 +141,7 @@ public class PetascopeController extends AbstractController {
      * Return WSClient page with some extra parameters if needed 
      */
     private Response returnWSClientPage() throws IOException {        
-        String wsclientHtmlContent = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/ows/index.html"));
-        
+        String wsclientHtmlContent = IOUtils.toString(this.getClass().getResourceAsStream("/public/ows/index.html"));
         byte[] bytes = wsclientHtmlContent.getBytes();
         Response response = new Response(Arrays.asList(bytes), "text/html");
         return response;

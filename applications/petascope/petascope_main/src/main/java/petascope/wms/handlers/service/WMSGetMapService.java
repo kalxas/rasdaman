@@ -502,7 +502,7 @@ public class WMSGetMapService {
                 if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
                     // wcpsQueryFragment
                     collectionExpression = this.buildCoverageExpressionByWCPSQueryFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
-                } else if (!StringUtils.isEmpty(style.getRasqlQueryTransformFragment())) {
+                } else if (!StringUtils.isEmpty(style.getRasqlQueryFragment())) {
                     // rasqlTransformFragment                
                     collectionExpression = this.buildCoverageExpressionByRasqlTransformFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
                 }
@@ -1086,7 +1086,7 @@ public class WMSGetMapService {
     private String buildCoverageExpressionByRasqlTransformFragment(Map<String, String> iteratorsMap, String layerName,
                                                                    String styleName, String gridSpatialDomain) throws PetascopeException {
         Style style = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName);
-        String rasqlQueryFragment = style.getRasqlQueryTransformFragment();
+        String rasqlQueryFragment = style.getRasqlQueryFragment();
         String rasqlQueryFragmentUpdated = this.updateStyleQueryByLayerIterators(RASQL_FRAGMENT_TYPE, iteratorsMap, layerName, rasqlQueryFragment);
         String collectionExpression = rasqlQueryFragmentUpdated;
         

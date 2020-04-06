@@ -32,6 +32,7 @@ import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.CollectionAliasRegistry;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
@@ -58,6 +59,8 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
     private SubsetParsingService subsetParsingService;
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
+    @Autowired
+    private CollectionAliasRegistry collectionAliasRegistry;
     
     public static final String OPERATOR = "domain subset";
 
@@ -66,7 +69,6 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
 
         String rasql = coverageExpression.getRasql();
-        String template = TEMPLATE.replace("$covExp", rasql);
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
@@ -81,15 +83,18 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
 
         // Only apply subsets if subset dimensions have numeric bounds.
         List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(terminalSubsetDimensions, metadata.getAxes());
-
+        
+        String rasqlResult = rasql;
+        
         // Update the coverage expression metadata with the new subsets
         wcpsCoverageMetadataService.applySubsets(true, metadata, subsetDimensions, numericSubsets);
 
         // now the metadata contains the correct geo and rasdaman subsets
         // NOTE: if subset dimension has "$" as axis iterator, just keep it and don't translate it to numeric as numeric subset.
         String dimensionIntervals = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(),
-                                                                                 expressionSubsetDimensions);
-        String rasqlSubset = template.replace("$dimensionIntervalList", dimensionIntervals);
+                                                                             expressionSubsetDimensions);
+        String temp = TEMPLATE.replace("$covExp", rasql);
+        rasqlResult = temp.replace("$dimensionIntervalList", dimensionIntervals);
         
         // NOTE: DimensionIntervalList with Trim expression can contain slicing as well (e.g: c[t(0), Lat(0:20), Long(30)])
         // then the slicing axis also need to be removed from coverage metadata.
@@ -106,7 +111,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         // Update coverag's native CRS after subsetting (e.g: 3D -> 2D, then CRS=compound?time&4326 -> 4326)
         metadata.updateCrsUri();
         
-        WcpsResult result = new WcpsResult(metadata, rasqlSubset);
+        WcpsResult result = new WcpsResult(metadata, rasqlResult, this.collectionAliasRegistry);
         return result;
     }
 

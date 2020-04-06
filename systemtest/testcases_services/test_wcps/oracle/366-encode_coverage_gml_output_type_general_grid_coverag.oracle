@@ -2,9 +2,9 @@
 <cis11:GeneralGridCoverage id="test_irr_cube_2"
 >
 <cis11:Envelope axisLabels="E N" srsDimension="2" srsName="/crs/EPSG/0/32633">
-<cis11:axisExtent axisLabel="E" lowerBound="75042.72735943"
+<cis11:AxisExtent axisLabel="E" lowerBound="75042.72735943"
 uomLabel="metre" upperBound="75042.72735943"/>
-<cis11:axisExtent axisLabel="N" lowerBound="5094865.557938452"
+<cis11:AxisExtent axisLabel="N" lowerBound="5094865.557938452"
 uomLabel="metre" upperBound="5094865.557938452"/>
 </cis11:Envelope>
 <coverageFunction>
@@ -61,5 +61,7 @@ uomLabel="metre" upperBound="5094865.557938452"/>
 <cis11:V>9.697354 4.181835</cis11:V>
 </rangeSet>
 </rangeSet>
-<cis11:metadata/>
+<cis11:metadata>
+<CoverageMetadata/>
+</cis11:metadata>
 </cis11:GeneralGridCoverage>

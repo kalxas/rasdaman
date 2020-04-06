@@ -494,7 +494,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         String styleAbstractStr = style.getStyleAbstract();
         
         // Rasdaman's abstract for the style (non-standard)
-        String rasqlQueryFragment = style.getRasqlQueryTransformFragment();
+        String rasqlQueryFragment = style.getRasqlQueryFragment();
         String wcpsQueryFragment = style.getWcpsQueryFragment();
         Byte colorTableTypeCode = style.getColorTableType();
         String colorTableType = null;

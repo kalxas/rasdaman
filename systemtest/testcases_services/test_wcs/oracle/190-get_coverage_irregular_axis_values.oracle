@@ -103,52 +103,52 @@ id="test_wcs_deep_rain_irregular_axis_coefficients-point" srsName="/crs-compound
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>{
-"CDI": "Climate Data Interface version 1.9.6 (http://mpimet.mpg.de/cdi)",
-"Conventions": "CF-1.6",
-"history": "Fri Oct 25 09:22:41 2019: ncks -d x,1,2 -d y,1,2 cde20170901.00.m01.nc test.nc\nFri Oct 25 09:17:30 2019: cdo -O -f nc4 setgrid,/home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/test/gridneu.dat /home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/test/split/r.grib2 /home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/cde201709-201711/cde20170901.00.m01.nc",
-"institution": "Deutscher Wetterdienst",
-"CDO": "Climate Data Operators version 1.9.6 (http://mpimet.mpg.de/cdo)",
-"NCO": "netCDF Operators version 4.7.5 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)",
-"bands": {
-"r": {
-"standard_name": "relative_humidity",
-"long_name": "Relative humidity",
-"units": "%",
-"param": "1.1.0",
-"grid_mapping": "rotated_pole",
-"coordinates": "rlat rlon",
-"realization": "1",
-"ensemble_members": "20",
-"forecast_init_type": "192"
+"bands" : {
+"r" : {
+"standard_name" : "relative_humidity",
+"long_name" : "Relative humidity",
+"units" : "%",
+"param" : "1.1.0",
+"grid_mapping" : "rotated_pole",
+"coordinates" : "rlat rlon",
+"realization" : "1",
+"ensemble_members" : "20",
+"forecast_init_type" : "192"
 }
 },
-"axes": {
-"forecast_hour": {
-"standard_name": "time",
-"units": "hours since 2017-9-1 00:00:00",
-"calendar": "proleptic_gregorian",
-"axis": "T"
+"axes" : {
+"forecast_hour" : {
+"standard_name" : "time",
+"units" : "hours since 2017-9-1 00:00:00",
+"calendar" : "proleptic_gregorian",
+"axis" : "T"
 },
-"isobaric": {
-"standard_name": "air_pressure",
-"long_name": "pressure",
-"units": "Pa",
-"positive": "down",
-"axis": "Z"
+"isobaric" : {
+"standard_name" : "air_pressure",
+"long_name" : "pressure",
+"units" : "Pa",
+"positive" : "down",
+"axis" : "Z"
 },
-"Lat": {
-"standard_name": "latitude",
-"long_name": "latitude in rotated pole grid",
-"units": "degrees",
-"_CoordinateAxisType": "Lat"
+"Lat" : {
+"standard_name" : "latitude",
+"long_name" : "latitude in rotated pole grid",
+"units" : "degrees",
+"_CoordinateAxisType" : "Lat"
 },
-"Lon": {
-"standard_name": "longitude",
-"long_name": "longitude in rotated pole grid",
-"units": "degrees",
-"_CoordinateAxisType": "Lon"
+"Lon" : {
+"standard_name" : "longitude",
+"long_name" : "longitude in rotated pole grid",
+"units" : "degrees",
+"_CoordinateAxisType" : "Lon"
 }
-}
+},
+"CDI" : "Climate Data Interface version 1.9.6 (http://mpimet.mpg.de/cdi)",
+"Conventions" : "CF-1.6",
+"history" : "Fri Oct 25 09:22:41 2019: ncks -d x,1,2 -d y,1,2 cde20170901.00.m01.nc test.nc\nFri Oct 25 09:17:30 2019: cdo -O -f nc4 setgrid,/home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/test/gridneu.dat /home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/test/split/r.grib2 /home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/cde201709-201711/cde20170901.00.m01.nc",
+"institution" : "Deutscher Wetterdienst",
+"CDO" : "Climate Data Operators version 1.9.6 (http://mpimet.mpg.de/cdo)",
+"NCO" : "netCDF Operators version 4.7.5 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)"
 }</rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

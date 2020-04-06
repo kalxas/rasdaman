@@ -211,7 +211,7 @@ public class RasUtil {
     /**
      * Deletes an array from rasdaman.
      */
-    public static void deleteFromRasdaman(String collectionName) throws RasdamanException, PetascopeException {
+    public static void deleteFromRasdaman(String collectionName, String username, String password) throws RasdamanException, PetascopeException {
         String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         //check if there are other objects left in the collection
@@ -222,7 +222,7 @@ public class RasUtil {
             //no object left, delete the collection so that the name can be reused in the future
             log.info("No objects left in the collection, dropping the collection so the name can be reused in the future.");
             executeRasqlQuery(TEMPLATE_DROP_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName), 
-                               ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+                              username, password, true);
         }
     }
 
@@ -245,7 +245,7 @@ public class RasUtil {
      * INSERT INTO test_AverageTemperature_2 VALUES <[0:0,0:0,0:0] {0c, 0c, 0c}> TILING ALIGNED [0:1000,0:1000,0:2] tile size 4194304
      */
     public static void initializeMDD(int numberOfDimensions, int numberOfBands, 
-            String collectionType, String tileSetting, String collectionName) throws PetascopeException {
+            String collectionType, String tileSetting, String collectionName, String username, String password) throws PetascopeException {
 
         List<String> domainsTmp = new ArrayList<>();
         
@@ -269,20 +269,20 @@ public class RasUtil {
 
         // e.g: 3 dimensions and 3 bands: <[0:0,0:0,0:0] {0c,0c,0c}>
         String values = "<[" + domainValue + "] " + multibandValue + ">";
-        RasUtil.executeInsertStatement(collectionName, values, tileSetting);
+        RasUtil.executeInsertStatement(collectionName, values, tileSetting, username, password);
     }
     
     /**
      * Update data from a source Rasdaman collection with grid subsets on a downscaled Rasdaman collection with grid subets.
      */
     public static void updateDownscaledCollectionFromSourceCollection(String sourceAffectedDomain, 
-            String targetAffectedDomain, String sourceCollectionName, String targetDownscaledCollectionName) throws PetascopeException {
+            String targetAffectedDomain, String sourceCollectionName, String targetDownscaledCollectionName, String username, String password) throws PetascopeException {
         
         // e.g: update test_mr1 as c set c[*:*,*:*] assign scale(d[*:*,*:*], [0:20,0:30]) from test_mr as d
         String rasqlQuery = "UPDATE " + targetDownscaledCollectionName + " as d SET d" + targetAffectedDomain 
                      + " ASSIGN SCALE(c" + sourceAffectedDomain + ", " + targetAffectedDomain + ")"
                      + " FROM " + sourceCollectionName + " as c";
-        RasUtil.executeRasqlQuery(rasqlQuery, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, Boolean.TRUE);
+        RasUtil.executeRasqlQuery(rasqlQuery, username, password, Boolean.TRUE);
     }
 
     /**
@@ -291,23 +291,23 @@ public class RasUtil {
      * 0:500, 0:500]"
      *
      */
-    public static void executeInsertStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
+    public static void executeInsertStatement(String collectionName, String values, String tiling, String username, String password) throws RasdamanException, PetascopeException {
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
                 .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
-        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        executeRasqlQuery(query, username, password, true);
     }
 
     /**
      * Insert an image to an existing collection by decoding file
      */
     public static void executeInsertFileStatement(String collectionName, String filePath, String mime,
-                                                  String tiling) throws RasdamanException, IOException, PetascopeException {
+                                                  String tiling, String username, String password) throws RasdamanException, IOException, PetascopeException {
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
 
         query = ConfigManager.RASDAMAN_BIN_PATH + RASQL
-                + " --user " + ConfigManager.RASDAMAN_ADMIN_USER + " --passwd " + ConfigManager.RASDAMAN_ADMIN_PASS + " -q "
+                + " --user " + username + " --passwd " + password + " -q "
                 + "'" + TEMPLATE_INSERT_DECODE_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         log.info("Executing " + query);
 
@@ -363,12 +363,12 @@ public class RasUtil {
      * @param query
      * @throws RasdamanException
      */
-    public static void executeUpdateFileStatement(String query) throws PetascopeException {
+    public static void executeUpdateFileStatement(String query, String username, String password) throws PetascopeException {
         // This needs to run with open transaction and rasadmin permission
-        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        executeRasqlQuery(query, username, password, true);
     }
     
-    public static void executeUpdateBytesStatement(String query, byte[] bytes) throws PetascopeException {
+    public static void executeUpdateBytesStatement(String query, byte[] bytes, String username, String password) throws PetascopeException {
         RasGMArray rasGMArray;
         try {
             rasGMArray = createRasGMArray(bytes);
@@ -377,7 +377,7 @@ public class RasUtil {
                                          "Cannot create RasGMArray from an array of bytes. Reason: " + ex.getMessage(), ex);
         }
         
-        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true, rasGMArray);
+        executeRasqlQuery(query, username, password, true, rasGMArray);
     }
 
     /**

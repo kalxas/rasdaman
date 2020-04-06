@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import org.rasdaman.config.ConfigManager;
@@ -137,6 +138,8 @@ import static petascope.core.XMLSymbols.PREFIX_RASDAMAN;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_20_GET_CAPABILITIES;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_21_GET_CAPABILITIES;
 import petascope.util.BigDecimalUtil;
+import petascope.util.ras.RasUtil;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 
 /**
  * Class to represent result of WCS GetCapabilities request.
@@ -150,7 +153,9 @@ public class GMLGetCapabilitiesBuilder {
     private CoverageRepositoryService persistedCoverageService;
     @Autowired
     private OWSMetadataRepostioryService persistedOwsServiceMetadataService;
-
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    
     // WCS ows:profiles (i.e: the supported extensions for:) 
     // EncodeFormatExtensions
     private static final String GML_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml";
@@ -622,6 +627,7 @@ public class GMLGetCapabilitiesBuilder {
      * Build wcs:Content element
      */
     private Element buildContentsElement(String version) throws PetascopeException, SecoreException {
+
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
         List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllCoveragesBasicMetatata();
         this.persistedCoverageService.createAllCoveragesExtents();
@@ -715,8 +721,10 @@ public class GMLGetCapabilitiesBuilder {
 
         // Downscaled collection levels of a coverage if exist
         List<String> downscaledCollectionLevels = new ArrayList<>();
-        for (RasdamanDownscaledCollection rasdamanDownscaledCollection : coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
-            downscaledCollectionLevels.add(rasdamanDownscaledCollection.getLevel().toPlainString());
+        if (coverage.getRasdamanRangeSet() != null) {
+            for (RasdamanDownscaledCollection rasdamanDownscaledCollection : coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
+                downscaledCollectionLevels.add(rasdamanDownscaledCollection.getLevel().toPlainString());
+            }
         }
         
         if (downscaledCollectionLevels.size() > 0) {
@@ -771,7 +779,7 @@ public class GMLGetCapabilitiesBuilder {
             return NAMESPACE_WCS_21;
         }
     }
-    
+       
     public Element serializeToXMLElement(String version) throws PetascopeException, SecoreException {
         
         OwsServiceMetadata owsServiceMetadata = this.persistedOwsServiceMetadataService.read();

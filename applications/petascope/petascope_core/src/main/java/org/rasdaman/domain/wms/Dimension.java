@@ -76,18 +76,6 @@ public class Dimension implements Serializable {
     @Column(name = COLUMN_ID)
     private long id;
 
-    public Dimension() {
-
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     // Table C.1 - Contents of a dimension element 
     // One, Mandatory (dimension name)
     @Column(name = "name")
@@ -136,7 +124,26 @@ public class Dimension implements Serializable {
     @Lob
     @Column(name = "extent")
     private String extent;
+    
+    public Dimension() {
 
+    }
+    
+    // Constructor with mandatory parameters
+    public Dimension(String name, String units, String extent) {
+        this.name = name;
+        this.units = units;
+        this.extent = extent;
+    }
+    
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+    
     public String getName() {
         return name;
     }

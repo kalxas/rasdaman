@@ -32,7 +32,7 @@ import petascope.exceptions.PetascopeException;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class RasdamanFileInserter implements RasdamanInserter {
+public class RasdamanFileInserter extends AbstractRasdamanInserter {
 
     String collectionName;
     String filePath;
@@ -46,15 +46,18 @@ public class RasdamanFileInserter implements RasdamanInserter {
      * @param mimetype: the mime type of the file.
      * @param tiling: the tiling scheme in rasql synax.
      */
-    public RasdamanFileInserter(String collectionName, String filePath, String mimetype, String tiling) {
+    public RasdamanFileInserter(String collectionName, String filePath, String mimetype, String tiling, String username, String password) {
         this.collectionName = collectionName;
         this.filePath = filePath;
         this.mimetype = mimetype;
         this.tiling = tiling;
+        
+        this.username = username;
+        this.password = password;
     }
 
     @Override
     public void insert() throws RasdamanException, IOException, PetascopeException {
-        RasUtil.executeInsertFileStatement(collectionName, filePath, mimetype, tiling);
+        RasUtil.executeInsertFileStatement(collectionName, filePath, mimetype, tiling, username, password);
     }
 }

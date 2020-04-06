@@ -62,6 +62,11 @@ public class Field implements Serializable {
     public Field() {
 
     }
+
+    public Field(String name, Quantity quantity) {
+        this.name = name;
+        this.quantity = quantity;
+    }
     
     public long getId() {
         return id;

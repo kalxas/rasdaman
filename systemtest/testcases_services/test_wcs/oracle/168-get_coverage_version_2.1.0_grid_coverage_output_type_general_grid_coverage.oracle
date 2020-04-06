@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cis11:GeneralGridCoverage id="test_mr"
-
-
-
-
-
 >
 <cis11:Envelope axisLabels="i j" srsDimension="2" srsName="/crs/OGC/0/Index2D">
-<cis11:axisExtent axisLabel="i" lowerBound="0"
+<cis11:AxisExtent axisLabel="i" lowerBound="0"
 uomLabel="GridSpacing" upperBound="10"/>
-<cis11:axisExtent axisLabel="j" lowerBound="0"
+<cis11:AxisExtent axisLabel="j" lowerBound="0"
 uomLabel="GridSpacing" upperBound="10"/>
 </cis11:Envelope>
 <coverageFunction>
@@ -147,6 +142,6 @@ resolution="-1" uomLabel="GridSpacing" upperBound="10"/>
 </rangeSet>
 </rangeSet>
 <cis11:metadata>{
-"resolution": "1"
+"resolution" : "1"
 }</cis11:metadata>
 </cis11:GeneralGridCoverage>

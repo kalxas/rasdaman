@@ -22,14 +22,15 @@
 package petascope.wcps.metadata.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
-import petascope.exceptions.PetascopeException;
 import petascope.util.ListUtil;
 import static petascope.wcps.handler.ForClauseHandler.AS;
 
@@ -44,6 +45,9 @@ import static petascope.wcps.handler.ForClauseHandler.AS;
 // Create a new instance of this bean for each request (so it will not use the old object with stored data)
 @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class CoverageAliasRegistry {
+    
+    @Autowired
+    private CollectionAliasRegistry collectionAliasRegistry;
 
     // NOTE: a coverage variable can be alias for multiple coverage names
     private LinkedHashMap<String, List<Pair<String, String>>> coverageMappings = new LinkedHashMap<>();
@@ -159,18 +163,45 @@ public class CoverageAliasRegistry {
             String coverageIterator = entry.getKey();
             List<String> tmpList = new ArrayList<>();
             for (Pair<String, String> pair : entry.getValue()) {
-                // e.g: test_mean_summer_airtemp as c, not test_mean_summer_airtemp as $c                
-                tmpList.add(pair.snd + " " + AS + " " + coverageIterator.replace("$", ""));
+                // e.g: test_mean_summer_airtemp as c, not test_mean_summer_airtemp as $c
+                if (pair.snd != null) {
+                    tmpList.add(pair.snd + " " + AS + " " + coverageIterator.replace("$", ""));
+                }
             }
             
             // e.g: test_mean_summer_airtemp as c
-            String tmpOuput = ListUtil.join(tmpList, ", ");
-            list.add(tmpOuput);            
+            if (tmpList.size() > 0) {
+                String tmpOuput = ListUtil.join(tmpList, ", ");
+                list.add(tmpOuput);
+            }
         }
         
+        for (Map.Entry<String, String> entry : this.collectionAliasRegistry.getAliasMap().entrySet()) {
+            // e.g: utm31 as c0
+            String clause = entry.getValue() + " " + AS + " " + entry.getKey();
+            list.add(clause);
+        }
+         
         // test_mean_summer_airtemp as c, test_mean_summer_airtemp as d
         String output = ListUtil.join(list, ", ");
         
         return output;
-    }    
+    } 
+    
+    /**
+     * Return the map of coverage Ids -> coverage alias
+     * e.g: test_mean_summer_airtemp -> $c
+     */
+    public Map<String, String> getCoverageAliasMap() {
+        Map<String, String> map = new HashMap<>();
+        for (Map.Entry<String, List<Pair<String, String>>> entry : this.coverageMappings.entrySet()) {
+            String alias = entry.getKey();
+            for (Pair<String, String> pair : entry.getValue()) {
+                String coverageId = pair.fst;
+                map.put(coverageId, alias.replace("$", ""));
+            }
+        }
+        
+        return map;
+    }
 }

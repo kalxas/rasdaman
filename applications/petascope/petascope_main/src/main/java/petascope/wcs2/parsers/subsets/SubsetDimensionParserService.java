@@ -42,6 +42,10 @@ public class SubsetDimensionParserService {
      */
     public static List<AbstractSubsetDimension> parseSubsets(String[] subsets) throws WCSException {
         List<AbstractSubsetDimension> subsetDimensions = new ArrayList<>();
+        if (subsets == null) {
+            return subsetDimensions;
+        }
+        
         for (String subset : subsets) {
             // e.g: E,http://...../4326 or E
             String dimensionTmp = subset.trim().split("\\(")[0];

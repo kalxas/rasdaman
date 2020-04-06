@@ -20,12 +20,6 @@ srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/O
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<Title>Drought code</Title>
-<colorPaletteTable># Example of color palette table
-30	p200/16	80	-	 	 	 	 	 
-80	-	100	-	 	 	 	 	 
-100	200	0	0	200	255	255	0	 
-200	yellow	300	green</colorPaletteTable>
 <bands>
 <dc>
 <units>%</units>
@@ -49,6 +43,12 @@ srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/O
 <axis>Y</axis>
 </Lat>
 </axes>
+<Title>Drought code</Title>
+<colorPaletteTable># Example of color palette table
+30	p200/16	80	-	 	 	 	 	 
+80	-	100	-	 	 	 	 	 
+100	200	0	0	200	255	255	0	 
+200	yellow	300	green</colorPaletteTable>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

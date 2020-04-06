@@ -50,7 +50,6 @@ public class LocalMetadataChild {
         this.localMetadataAttributesMap.put(key, value);
     }
 
-    
     public LocalMetadataChild() {
         this.localMetadataAttributesMap = new LinkedHashMap<>();
         this.boundedBy = new BoundedBy();

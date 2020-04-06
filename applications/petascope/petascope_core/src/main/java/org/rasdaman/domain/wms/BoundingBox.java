@@ -73,6 +73,14 @@ public class BoundingBox implements Serializable {
     public BoundingBox() {
 
     }
+
+    public BoundingBox(String crs, String xmin, String ymin, String xmax, String ymax) {
+        this.crs = crs;
+        this.xmin = xmin;
+        this.ymin = ymin;
+        this.xmax = xmax;
+        this.ymax = ymax;
+    }
     
     public BoundingBox(BigDecimal xMin, BigDecimal yMin, BigDecimal xMax, BigDecimal yMax) {
         this.setXMin(xMin);

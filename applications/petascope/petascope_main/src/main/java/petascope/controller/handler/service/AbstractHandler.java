@@ -55,7 +55,7 @@ public abstract class AbstractHandler {
      * @param kvpParameters
      * @return
      */
-    protected String getQueryString(Map<String, String[]> kvpParameters) {
+    public static String getQueryString(Map<String, String[]> kvpParameters) {
         String queryString = "";
         // Build the queryString from parameters map for the old parsers
         for (Map.Entry<String, String[]> entry : kvpParameters.entrySet()) {

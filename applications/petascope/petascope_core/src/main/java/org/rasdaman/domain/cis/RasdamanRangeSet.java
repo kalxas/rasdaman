@@ -66,10 +66,18 @@ public class RasdamanRangeSet implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
     @OrderColumn
     @JoinColumn(name = RasdamanRangeSet.COLUMN_ID)
-    private List<RasdamanDownscaledCollection> rasdamanDownscaledCollections;
+    private List<RasdamanDownscaledCollection> rasdamanDownscaledCollections = new ArrayList<>();
 
     public RasdamanRangeSet() {
         
+    }
+
+    public RasdamanRangeSet(String collectionName, String collectionType, String mddType, String tiling, List<RasdamanDownscaledCollection> rasdamanDownscaledCollections) {
+        this.collectionName = collectionName;
+        this.collectionType = collectionType;
+        this.mddType = mddType;
+        this.tiling = tiling;
+        this.rasdamanDownscaledCollections = rasdamanDownscaledCollections;
     }
 
     public long getId() {

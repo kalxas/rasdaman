@@ -16,7 +16,13 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="
 <startPoint>0 0 0</startPoint>
 </GridFunction>
 </coverageFunction>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 <domainSet>
 <RectifiedGrid dimension="3" id="test_wcs_multiple_null_values_9_bands-grid">
 <limits>

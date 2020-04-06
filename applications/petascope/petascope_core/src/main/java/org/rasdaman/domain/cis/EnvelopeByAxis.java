@@ -22,10 +22,12 @@
 package org.rasdaman.domain.cis;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.List;
+import java.util.Map;
 import org.rasdaman.config.ConfigManager;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -71,6 +73,13 @@ public class EnvelopeByAxis implements Serializable {
 
     public EnvelopeByAxis() {
 
+    }
+
+    public EnvelopeByAxis(String srsName, int srsDimension, String axisLabels, List<AxisExtent> axisExtents) {
+        this.srsName = srsName;
+        this.srsDimension = srsDimension;
+        this.axisLabels = axisLabels;
+        this.axisExtents = axisExtents;
     }
 
     public long getId() {
@@ -214,5 +223,19 @@ public class EnvelopeByAxis implements Serializable {
         }
 
         return upperCorner.trim();
+    }
+    
+    /**
+     * e.g: return Lat -> Y, Long -> X type
+     */
+    public Map<String, String> getAxisLabelsTypesMap() throws PetascopeException, SecoreException {
+        Map<String, String> map = new LinkedHashMap<>();
+        
+        for (int i = 0; i < this.axisExtents.size(); i++) {
+            String axisType = CrsUtil.getAxisTypeByIndex(this.srsName, i);
+            map.put(this.axisExtents.get(i).getAxisLabel(), axisType);
+        }
+        
+        return map;
     }
 }

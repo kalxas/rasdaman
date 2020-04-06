@@ -32,7 +32,6 @@ import static petascope.core.XMLSymbols.NAMESPACE_RASDAMAN;
 import static petascope.core.XMLSymbols.PREFIX_GMLCOV;
 import static petascope.core.XMLSymbols.PREFIX_RASDAMAN;
 import petascope.core.gml.ISerializeToXMElement;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.XMLUtil;
 

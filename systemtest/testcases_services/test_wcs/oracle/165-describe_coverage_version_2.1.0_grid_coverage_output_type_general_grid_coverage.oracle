@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions
-
-
-
-
-
-
 >
 <wcs:CoverageDescription id="test_mr">
 <cis11:Envelope axisLabels="i j" srsDimension="2" srsName="/crs/OGC/0/Index2D">
-<cis11:axisExtent axisLabel="i" lowerBound="0"
+<cis11:AxisExtent axisLabel="i" lowerBound="0"
 uomLabel="GridSpacing" upperBound="60"/>
-<cis11:axisExtent axisLabel="j" lowerBound="0"
+<cis11:AxisExtent axisLabel="j" lowerBound="0"
 uomLabel="GridSpacing" upperBound="40"/>
 </cis11:Envelope>
 <wcs:CoverageId>test_mr</wcs:CoverageId>
@@ -46,7 +40,7 @@ resolution="-1" uomLabel="GridSpacing" upperBound="40"/>
 </swe:DataRecord>
 </cis11:rangeType>
 <cis11:metadata>{
-"resolution": "1"
+"resolution" : "1"
 }</cis11:metadata>
 <wcs:ServiceParameters>
 <wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>

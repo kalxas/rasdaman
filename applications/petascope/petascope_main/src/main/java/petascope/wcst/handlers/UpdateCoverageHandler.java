@@ -29,14 +29,13 @@ package petascope.wcst.handlers;
 
 import petascope.core.Pair;
 import petascope.core.XMLSymbols;
-import petascope.core.gml.cis10.GMLParserService;
+import petascope.core.gml.cis10.GMLCIS10ParserService;
 import petascope.util.CrsUtil;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.PetascopeException;
 import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.ParsingException;
 import org.slf4j.LoggerFactory;
 import petascope.util.*;
 import petascope.util.ras.TypeResolverUtil;
@@ -60,9 +59,9 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
 import nu.xom.Elements;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.Axis;
 import org.rasdaman.domain.cis.AxisExtent;
@@ -76,11 +75,12 @@ import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
-import petascope.core.gml.cis10.GeneralGridCoverageGMLService;
+import petascope.core.gml.cis.service.GMLCISParserService;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
 import petascope.core.gml.metadata.service.CoverageMetadataService;
 import static petascope.core.service.CrsComputerService.GRID_POINT_EPSILON_WCPS;
+import petascope.exceptions.ExceptionCode;
 import petascope.service.PyramidService;
 
 import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
@@ -98,7 +98,7 @@ public class UpdateCoverageHandler {
     @Autowired
     private CoverageRepositoryService persistedCoverageService;
     @Autowired
-    private GeneralGridCoverageGMLService generalGridCoverageGMLService;
+    private GMLCISParserService gmlCISParserService;
     @Autowired
     private RasdamanUpdaterFactory rasdamanUpdaterFactory;
     @Autowired
@@ -109,7 +109,9 @@ public class UpdateCoverageHandler {
     private PyramidService pyramidService;
     @Autowired
     private CoverageMetadataService coverageMetadataService;
-    
+    @Autowired
+    private CoverageRepositoryService coverageRepostioryService;
+   
     private static final String FILE_PROTOCOL = "file://";
 
     /**
@@ -117,11 +119,6 @@ public class UpdateCoverageHandler {
      *
      * @param request the update coverage request.
      * @return empty response.
-     * @throws petascope.wcst.exceptions.WCSTCoverageParameterNotFound
-     * @throws petascope.wcst.exceptions.WCSTInvalidXML
-     * @throws PetascopeException
-     * @throws WCSException
-     * @throws SecoreException
      */
     public Response handle(UpdateCoverageRequest request)
             throws WCSTCoverageParameterNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
@@ -130,113 +127,128 @@ public class UpdateCoverageHandler {
         Coverage currentCoverage = persistedCoverageService.readCoverageByIdFromDatabase(request.getCoverageId());
         String coverageId = request.getCoverageId();
 
-        String affectedCollectionName = currentCoverage.getRasdamanRangeSet().getCollectionName();
-
         String gmlInputCoverage = getGmlCoverageFromRequest(request);
-        List<AbstractSubsetDimension> dimensionSubsets = request.getSubsets();
-
+        Document gmlInputCoverageDocument;
         try {
-            Document gmlInputCoverageDocument = XMLUtil.buildDocument(null, gmlInputCoverage);
-            // Build input Coverage object from GML document (each slice is a input coverage) to update the persisted coverage
-            Coverage inputCoverage = generalGridCoverageGMLService.buildCoverage(gmlInputCoverageDocument);
-            
-            // Shift the domains for regular axes if necessary in case they are overlapping 
-            // with current imported domains by an odd float numbers (i.e: they are not aligned).
-            this.shiftRegularAxesByOffsets(currentCoverage, dimensionSubsets, inputCoverage);
-            
-            //validation
-            UpdateCoverageValidator updateCoverageValidator = new UpdateCoverageValidator(currentCoverage, inputCoverage,
-                    dimensionSubsets, request.getRangeComponent());
-            updateCoverageValidator.validate();
-
-            //handle subset coefficients if necessary for coverage with irregular axis
-            Pair<String, Integer> expandedAxisDimensionPair = handleSubsetCoefficients(request, currentCoverage, dimensionSubsets, inputCoverage);
-
-            //handle cell values
-            Element rangeSet = GMLParserService.parseRangeSet(gmlInputCoverageDocument.getRootElement());
-
-            TreeMap<Integer, Pair<Boolean, String>> gridDomainsPairsMap = getPixelIndicesByCoordinate(currentCoverage, dimensionSubsets);
-            String affectedDomain = getAffectedDomain(currentCoverage, dimensionSubsets, gridDomainsPairsMap);
-
-            // Only support GeneralGridCoverage now
-            List<IndexAxis> inputIndexAxes = ((GeneralGridCoverage) inputCoverage).getIndexAxes();
-
-            // NOTE: need to validate the grid domains from input coverage slice 
-            // and the output grid domains which is calculated from the subsets with exising coverage
-            gridDomainsValidator.validate(inputIndexAxes, affectedDomain);
-
-            String shiftDomain = getShiftDomain(inputCoverage, currentCoverage, gridDomainsPairsMap);
-            RasdamanUpdater updater;
-
-            Elements dataBlockElements = rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK,
-                    XMLSymbols.NAMESPACE_GML);
-            if (dataBlockElements.size() != 0) {
-                //tuple list given explicitly
-                String values = getReplacementValuesFromTupleList(currentCoverage, rangeSet, request.getPixelDataType());
-                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedDomain, values, shiftDomain);                
-                updater.updateWithFile();                
-            } else {
-                //tuple list given as file
-                //retrieve the file, if needed
-                boolean isLocal = false;
-                byte[] bytes = null;
-                String fileUrl = GMLParserService.parseFilePath(rangeSet);
-                if (isLocalFile(fileUrl)) {
-                    fileUrl = fileUrl.replace(FILE_PROTOCOL, "");
-                    isLocal = true;
-                } else {
-                    // remote file, get it as bytes
-                    bytes = getReplacementValuesFromFileAsBytes(rangeSet);                    
-                }
-                String mimetype = GMLParserService.parseMimeType(rangeSet);
-                // e.g: netCDF test_eobstest: "{"variables": ["tg"]}",
-                String rangeParameters = GMLParserService.parseRangeParameters(rangeSet);
-
-                //process the range parameters
-                RangeParametersConvertor convertor = rangeParametersConvertorFactory.getConvertor(mimetype, rangeParameters, currentCoverage);
-                String decodeParameters = convertor.toRasdamanDecodeParameters();
-
-                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName,
-                                                            affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters, isLocal);
-                
-                if (isLocal) {
-                    updater.updateWithFile();
-                } else {
-                    updater.updateWithBytes(bytes);                    
-                }
-            }
-            
-            // After updating rasdaman collection, we need to update current coverage with new geo, grid domains
-            updateGeoDomains(currentCoverage, inputCoverage, dimensionSubsets);
-            updateAxisExtents(currentCoverage);
-            updateGridDomains(currentCoverage, gridDomainsPairsMap, expandedAxisDimensionPair);
-            
-            // If coverage has downscaled collections, then update these collections from current input data by subsets
-            for (RasdamanDownscaledCollection rasdamanDownscaledCollection : currentCoverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
-                BigDecimal level = rasdamanDownscaledCollection.getLevel();
-                
-                this.pyramidService.updateScaleLevel(coverageId, level, gridDomainsPairsMap);
-            }
-
-            // Since version 9.7, WCST_Import can add local metadata from slice (input file) to coverage's metadata in Petascope.
-            this.addLocalMetadataToCoverageMetadata(inputCoverage, currentCoverage);
-            
-            // Now, we can persist the updated current coverage from input slice
-            persistedCoverageService.save(currentCoverage);
-        } catch (IOException e) {
-            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
-            throw new WCSTCoverageParameterNotFound();
-        } catch (ParsingException e) {
-            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
-            throw new WCSTInvalidXML(e.getMessage());
-        } catch (PetascopeException e) {
-            throw e;
+            gmlInputCoverageDocument = XMLUtil.buildDocument(null, gmlInputCoverage);
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                            "Cannot parse the input GML from UpdateCoverage request to XML document. Reason: " + ex.getMessage(), ex);
         }
+        // Build input Coverage object from GML document (each slice is a input coverage) to update the persisted coverage
+        Coverage inputCoverage = gmlCISParserService.parseDocumentToCoverage(gmlInputCoverageDocument);
+
+	try {
+            this.handleUpdateCoverageRequest(request, currentCoverage, inputCoverage, gmlInputCoverageDocument);
+	} catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError,
+		                     "Cannot handle UpdateCoverage request. Reason: " + ex.getMessage(), ex);
+	}
+        
+        // Now, we can persist the updated current coverage from input slice
+        persistedCoverageService.save(currentCoverage);
 
         Response response = new Response();
         response.setCoverageID(coverageId);
         
         return response;
+    }
+    
+    /**
+     * Handle update coverage request from GML to rasdaman collection
+     */
+    private void handleUpdateCoverageRequest(UpdateCoverageRequest request, 
+                                             Coverage currentCoverage, 
+                                             Coverage inputCoverage, Document gmlInputCoverageDocument) 
+            throws PetascopeException, SecoreException, IOException {
+        
+        String affectedCollectionName = currentCoverage.getRasdamanRangeSet().getCollectionName();
+        
+        List<AbstractSubsetDimension> dimensionSubsets = request.getSubsets();
+
+        // Shift the domains for regular axes if necessary in case they are overlapping 
+        // with current imported domains by an odd float numbers (i.e: they are not aligned).
+        this.shiftRegularAxesByOffsets(currentCoverage, dimensionSubsets, inputCoverage);
+
+        //validation
+        UpdateCoverageValidator updateCoverageValidator = new UpdateCoverageValidator(currentCoverage, inputCoverage,
+                dimensionSubsets, request.getRangeComponent());
+        updateCoverageValidator.validate();
+
+        //handle subset coefficients if necessary for coverage with irregular axis
+        Pair<String, Integer> expandedAxisDimensionPair = handleSubsetCoefficients(request, currentCoverage, dimensionSubsets, inputCoverage);
+
+        //handle cell values
+        Element rangeSet = GMLCIS10ParserService.parseRangeSet(gmlInputCoverageDocument.getRootElement());
+
+        TreeMap<Integer, Pair<Boolean, String>> gridDomainsPairsMap = getPixelIndicesByCoordinate(currentCoverage, dimensionSubsets);
+        String affectedDomain = getAffectedDomain(currentCoverage, dimensionSubsets, gridDomainsPairsMap);
+
+        // Only support GeneralGridCoverage now
+        List<IndexAxis> inputIndexAxes = ((GeneralGridCoverage) inputCoverage).getIndexAxes();
+
+        // NOTE: need to validate the grid domains from input coverage slice 
+        // and the output grid domains which is calculated from the subsets with exising coverage
+        gridDomainsValidator.validate(inputIndexAxes, affectedDomain);
+
+        String shiftDomain = getShiftDomain(inputCoverage, currentCoverage, gridDomainsPairsMap);
+        RasdamanUpdater updater;
+        
+        String username = ConfigManager.RASDAMAN_ADMIN_USER;
+        String password = ConfigManager.RASDAMAN_ADMIN_PASS;
+
+        Elements dataBlockElements = rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK,
+                XMLSymbols.NAMESPACE_GML);
+        if (dataBlockElements.size() != 0) {
+            //tuple list given explicitly
+            String values = getReplacementValuesFromTupleList(currentCoverage, rangeSet, request.getPixelDataType());
+            updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedDomain, values, shiftDomain, username, password);                
+            updater.updateWithFile();                
+        } else {
+            //tuple list given as file
+            //retrieve the file, if needed
+            boolean isLocal = false;
+            byte[] bytes = null;
+            String fileUrl = GMLCIS10ParserService.parseFilePath(rangeSet);
+            if (isLocalFile(fileUrl)) {
+                fileUrl = fileUrl.replace(FILE_PROTOCOL, "");
+                isLocal = true;
+            } else {
+                // remote file, get it as bytes
+                bytes = getReplacementValuesFromFileAsBytes(rangeSet);
+            }
+            String mimetype = GMLCIS10ParserService.parseMimeType(rangeSet);
+            // e.g: netCDF test_eobstest: "{"variables": ["tg"]}",
+            String rangeParameters = GMLCIS10ParserService.parseRangeParameters(rangeSet);
+
+            //process the range parameters
+            RangeParametersConvertor convertor = rangeParametersConvertorFactory.getConvertor(mimetype, rangeParameters, currentCoverage);
+            String decodeParameters = convertor.toRasdamanDecodeParameters();
+
+                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName,
+                                                            affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters, username, password,
+							    isLocal);
+            if (isLocal) {
+                updater.updateWithFile();
+            } else {
+                updater.updateWithBytes(bytes);                    
+            }
+        }
+
+        // After updating rasdaman collection, we need to update current coverage with new geo, grid domains
+        updateGeoDomains(currentCoverage, inputCoverage, dimensionSubsets);
+        updateAxisExtents(currentCoverage);
+        updateGridDomains(currentCoverage, gridDomainsPairsMap, expandedAxisDimensionPair);
+
+        // If coverage has downscaled collections, then update these collections from current input data by subsets
+        for (RasdamanDownscaledCollection rasdamanDownscaledCollection : currentCoverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
+            BigDecimal level = rasdamanDownscaledCollection.getLevel();
+
+            this.pyramidService.updateScaleLevel(currentCoverage.getCoverageId(), level, gridDomainsPairsMap, username, password);
+        }
+
+        // Since version 9.7, WCST_Import can add local metadata from slice (input file) to coverage's metadata in Petascope.
+        this.addLocalMetadataToCoverageMetadata(inputCoverage, currentCoverage);
     }
     
     /**
@@ -913,14 +925,14 @@ public class UpdateCoverageHandler {
      * @throws PetascopeException
      */
     private String getReplacementValuesFromTupleList(Coverage coverage, Element rangeSet, String pixelDataType) throws PetascopeException {
-        Element dataBlock = GMLParserService.parseDataBlock(rangeSet);
+        Element dataBlock = GMLCIS10ParserService.parseDataBlock(rangeSet);
         String collectionName = coverage.getCoverageId();
         Pair<String, List<String>> collectionType = TypeResolverUtil.guessCollectionType(collectionName, coverage.getNumberOfBands(), coverage.getNumberOfDimensions(),
                 coverage.getAllUniqueNullValues(), pixelDataType);
 
         // Only support GeneralGridCoverage now
         List<IndexAxis> indexAxes = ((GeneralGridCoverage) coverage).getIndexAxes();
-        String values = GMLParserService.parseGMLTupleList(dataBlock, indexAxes, collectionType.snd);
+        String values = GMLCIS10ParserService.parseGMLTupleList(dataBlock, indexAxes, collectionType.snd);
 
         return values;
     }
@@ -936,7 +948,7 @@ public class UpdateCoverageHandler {
      */
     private File getReplacementValuesFromFile(Element rangeSet) throws IOException, WCSException, PetascopeException {
         //tuple list given as file
-        String fileUrl = GMLParserService.parseFilePath(rangeSet);
+        String fileUrl = GMLCIS10ParserService.parseFilePath(rangeSet);
         //save in a temporary file to pass to gdal and rasdaman
         File tmpFile = RemoteCoverageUtil.copyFileLocally(fileUrl);
 
@@ -949,7 +961,7 @@ public class UpdateCoverageHandler {
      */
     private byte[] getReplacementValuesFromFileAsBytes(Element rangeSet) throws IOException, WCSException, PetascopeException {
         //tuple list given as file
-        String fileUrl = GMLParserService.parseFilePath(rangeSet);
+        String fileUrl = GMLCIS10ParserService.parseFilePath(rangeSet);
         //save in a temporary file to pass to gdal and rasdaman
         byte[] bytes = RemoteCoverageUtil.getBytesFromRemoteFile(fileUrl);
 

@@ -253,8 +253,6 @@ public abstract class AbstractController {
                     }
                 }
             }
-
-            validateRequiredParameters(kvpParameters);
         }
 
         return kvpParameters;
@@ -302,35 +300,23 @@ public abstract class AbstractController {
     }
 
     /**
-     * Validate all the strict requirement parameters.
-     */
-    private static void validateRequiredParameters(Map<String, String[]> kvpParameters) throws PetascopeException {
-        // Do some check requirements
-        String[] service = kvpParameters.get(KVPSymbols.KEY_SERVICE);
-        String[] version = kvpParameters.get(KVPSymbols.KEY_VERSION);
-        String[] request = kvpParameters.get(KVPSymbols.KEY_REQUEST);
-
-        if (service == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing required parameter: " + KVPSymbols.KEY_SERVICE + ".");
-        } else if (version == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing required parameter: " + KVPSymbols.KEY_VERSION + ".");
-        } else if (request == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing required parameter: " + KVPSymbols.KEY_REQUEST + ".");
-        }
-    }
-
-    /**
      * Parse the POST request body from the input HTTP request
      */
     protected String getPOSTRequestBody(HttpServletRequest httpServletRequest) throws IOException {
-        String requestBody;
+        String requestBody = "";
         if (httpServletRequest.getQueryString() != null) {
             // case 1: POST a file with a KVP request to server (e.g: rasql post file to server to import)    
             // or POST a KVP request (as same as GET a KVP request)
             requestBody = httpServletRequest.getQueryString();
-        } else {
+        }
+        
+        if (httpServletRequest.getReader() != null) {
             // case 2: a POST XML, SOAP body
-            requestBody = IOUtils.toString(httpServletRequest.getReader());
+            if (requestBody.isEmpty()) {
+                requestBody = IOUtils.toString(httpServletRequest.getReader());
+            } else {
+                requestBody += "&" + IOUtils.toString(httpServletRequest.getReader());
+            }
         }
         return requestBody;
     }
@@ -525,8 +511,25 @@ public abstract class AbstractController {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
                     "Cannot find value from KVP parameters map for key parameter, given: " + key + ".");
         }
+        
+        if (values[0].contains(",")) {
+            values = values[0].split(",");
+        }
 
         return values;
+    }
+    
+    /**
+     * Return the single value of a key in KVP parameters
+     */
+    public static String getValueByKey(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
+        String[] values = kvpParameters.get(key);
+        if (values == null) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    "Cannot find value from KVP parameters map for key parameter, given: " + key + ".");
+        }
+        
+        return values[0].trim();
     }
 }
 

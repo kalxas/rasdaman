@@ -51,11 +51,14 @@ public class RasdamanValuesUpdater extends RasdamanUpdater {
      * @param values the values clause in the rasdaman update operation.
      * @param shiftDomain the domain with which the rasdaman array in the values clause must be shifted.
      */
-    public RasdamanValuesUpdater(String affectedCollectionName, String affectedDomain, String values, String shiftDomain) {
+    public RasdamanValuesUpdater(String affectedCollectionName, String affectedDomain, String values, String shiftDomain, String username, String password) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedDomain = affectedDomain;
         this.values = values;
         this.shiftDomain = shiftDomain;
+        
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -64,7 +67,7 @@ public class RasdamanValuesUpdater extends RasdamanUpdater {
                              .replace("$domain", affectedDomain)
                              .replace("$values", values)
                              .replace("$shiftDomain", shiftDomain);
-        RasUtil.executeRasqlQuery(queryString, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true, null);
+        RasUtil.executeRasqlQuery(queryString, this.username, this.password, true);
     }
 
     private static final String UPDATE_TEMPLATE_VALUES = "UPDATE $collection SET $collection$domain ASSIGN shift($values, $shiftDomain)";

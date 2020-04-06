@@ -67,5 +67,11 @@ id="test_sf-point" srsName="/crs/EPSG/0/32610">
 </swe:field>
 </swe:DataRecord>
 </gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

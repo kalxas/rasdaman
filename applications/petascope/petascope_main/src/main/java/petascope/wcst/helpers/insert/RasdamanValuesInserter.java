@@ -32,7 +32,7 @@ import petascope.util.ras.RasUtil;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class RasdamanValuesInserter implements RasdamanInserter {
+public class RasdamanValuesInserter extends AbstractRasdamanInserter {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(RasdamanValuesInserter.class);
 
@@ -48,18 +48,21 @@ public class RasdamanValuesInserter implements RasdamanInserter {
      * @param values: the values clause in rasdaman format.
      * @param tiling: the tiling clause in rasdaman format.
      */
-    public RasdamanValuesInserter(String collectionName, String collectionType, String values, String tiling) {
+    public RasdamanValuesInserter(String collectionName, String collectionType, String values, String tiling, String userName, String passWord) {
         this.collectionName = collectionName;
         this.collectionType = collectionType;
         this.values = values;
         this.tiling = tiling;
+        
+        this.username = userName;
+        this.password = passWord;
     }
 
     @Override
     public void insert() throws RasdamanException, PetascopeException {
         try {
-            // insert the values
-            RasUtil.executeInsertStatement(collectionName, values, tiling);
+            //insert the values
+            RasUtil.executeInsertStatement(collectionName, values, tiling, username, password);
         } catch (RasdamanException ex) {
             log.error("Rasdaman error when inserting into collection " + collectionName + ". Error message: " + ex.getMessage());
             throw ex;

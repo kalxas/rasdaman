@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
 id="test_irr_cube_2"
-
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="i E N" srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633" uomLabels="GridSpacing metre metre">
-<lowerCorner>0 85086.2621804103837348520755767822265625 5115586.534250616095960140228271484375</lowerCorner>
-<upperCorner>7 110304.9939391745137982070446014404296875 5194341.2000885047018527984619140625</upperCorner>
+<lowerCorner>0 85086.26218041038 5115586.534250616</lowerCorner>
+<upperCorner>7 110304.99393917451 5194341.200088505</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -27,7 +21,7 @@ srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633" uomLabels="
 <gmlrgrid:origin>
 <Point
 id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633">
-<pos>0.5 90086.2621804103837348520755767822265625 5189341.2000885047018527984619140625</pos>
+<pos>0.5 90086.26218041038 5189341.200088505</pos>
 </Point>
 </gmlrgrid:origin>
 <gmlrgrid:generalGridAxis>
@@ -98,5 +92,11 @@ id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/cr
 </swe:field>
 </swe:DataRecord>
 </gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

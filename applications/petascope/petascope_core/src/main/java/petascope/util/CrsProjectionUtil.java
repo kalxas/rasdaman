@@ -34,11 +34,11 @@ import org.gdal.osr.CoordinateTransformation;
 import org.gdal.osr.SpatialReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.BoundingBox;
 import petascope.exceptions.WCSException;
 import petascope.core.GeoTransform;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 
 /**
  * This class will provide utility method for projecting interval in
@@ -53,6 +53,40 @@ public class CrsProjectionUtil {
     // caches SpatialReference objects, as computing them is relatively expensive
     // cf. https://gdal.org/java/org/gdal/osr/SpatialReference.html#ImportFromEPSG-int-
     private static Map<Integer, SpatialReference> srMap = new HashMap<>();
+    
+    /**
+     * Transform a Geo XY axes bounding box from sourceCRS to targetCRS
+     */
+    public static BoundingBox transform(String sourceCRS, String targetCRS, BoundingBox bbox) throws PetascopeException {
+        double[] minGeoCoordinates = new double[2];
+        minGeoCoordinates[0] = bbox.getXMin().doubleValue();
+        minGeoCoordinates[1] = bbox.getYMin().doubleValue();
+        List<BigDecimal> projectedMinGeoCoordinates = transform(sourceCRS, targetCRS, minGeoCoordinates);
+        
+        double[] maxGeoCoordinates = new double[2];
+        maxGeoCoordinates[0] = bbox.getXMax().doubleValue();
+        maxGeoCoordinates[1] = bbox.getYMax().doubleValue();
+        
+        List<BigDecimal> projectedMaxGeoCoordinates = transform(sourceCRS, targetCRS, maxGeoCoordinates);
+        
+        BigDecimal minX = projectedMinGeoCoordinates.get(0), 
+                   minY = projectedMinGeoCoordinates.get(1),
+                   maxX = projectedMaxGeoCoordinates.get(0),
+                   maxY = projectedMaxGeoCoordinates.get(1);
+        
+        if (projectedMinGeoCoordinates.get(0).compareTo(projectedMaxGeoCoordinates.get(0)) > 0) {
+            minX = projectedMaxGeoCoordinates.get(0);
+            maxX = projectedMinGeoCoordinates.get(0);
+        }
+        if (projectedMinGeoCoordinates.get(1).compareTo(projectedMaxGeoCoordinates.get(1)) > 0) {
+            minY = projectedMaxGeoCoordinates.get(1);
+            maxY = projectedMinGeoCoordinates.get(1);
+        }
+        
+        BoundingBox projectedBBox = new BoundingBox(minX, minY, maxX, maxY);
+        
+        return projectedBBox;
+    }
 
     /**
      * Transform a XY values from sourceCRS to targetCRS (e.g: Long Lat (EPSG:4326) to ESPG:3857).
@@ -89,7 +123,7 @@ public class CrsProjectionUtil {
                         "Failed reprojecting XY coordinates '" + Arrays.toString(sourceCoords) + 
                                 "' from sourceCrs '" + sourceCrs + "' to targetCRS '" + targetCrs + ", result is " + value);
             }
-            ret.add(new BigDecimal(value));
+            ret.add(new BigDecimal(value.toString()));
         }
         return ret;
     }
@@ -110,7 +144,7 @@ public class CrsProjectionUtil {
      * 
      * No file should be created and GDAL only needs to calculate this GeoTransform object quickly.
      */
-    public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGT, String targetCRS) throws PetascopeException, SecoreException {
+    public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGT, String targetCRS) throws PetascopeException {
         
         // Source extents
         Dataset sourceDS = gdal.GetDriverByName("VRT").Create("", sourceGT.getGridWidth(), sourceGT.getGridHeight());
@@ -150,6 +184,20 @@ public class CrsProjectionUtil {
         targetGT.setGridHeight(targetDS.GetRasterYSize());
 
         return targetGT;
+    }
+    
+    /**
+     * Transform a Gdal GeoTransform object to target CRS and get output's Bounding Box.
+     */
+    public static BoundingBox transform(GeoTransform sourceGT, String targetCRS) throws PetascopeException {
+        GeoTransform targetGT = getGeoTransformInTargetCRS(sourceGT, targetCRS);
+        BigDecimal xmin = new BigDecimal(String.valueOf(targetGT.getUpperLeftGeoX()));
+        BigDecimal ymin = new BigDecimal(String.valueOf(targetGT.getUpperLeftGeoY() - Math.abs(targetGT.getGeoYResolution()) * targetGT.getGridHeight()));
+        BigDecimal xmax = new BigDecimal(String.valueOf(targetGT.getUpperLeftGeoX() + targetGT.getGeoXResolution() * targetGT.getGridWidth()));
+        BigDecimal ymax = new BigDecimal(String.valueOf(targetGT.getUpperLeftGeoY()));
+        
+        BoundingBox bbox = new BoundingBox(xmin, ymin, xmax, ymax);
+        return bbox;
     }
         
     /**

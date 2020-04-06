@@ -3,11 +3,11 @@
 >
 <wcs:CoverageDescription id="test_irr_cube_2">
 <cis11:Envelope axisLabels="ansi E N" srsDimension="3" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-<cis11:axisExtent axisLabel="ansi"
+<cis11:AxisExtent axisLabel="ansi"
 lowerBound="2008-01-01T02:01:20.000Z" uomLabel="d" upperBound="2008-01-08T00:02:58.000Z"/>
-<cis11:axisExtent axisLabel="E" lowerBound="75042.72735943"
+<cis11:AxisExtent axisLabel="E" lowerBound="75042.72735943"
 uomLabel="metre" upperBound="705042.72735943"/>
-<cis11:axisExtent axisLabel="N"
+<cis11:AxisExtent axisLabel="N"
 lowerBound="5094865.557938452" uomLabel="metre" upperBound="5454865.557938452"/>
 </cis11:Envelope>
 <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
@@ -68,7 +68,9 @@ uomLabel="metre" upperBound="5454865.557938452"/>
 </swe:field>
 </swe:DataRecord>
 </cis11:rangeType>
-<cis11:metadata/>
+<cis11:metadata>
+<CoverageMetadata/>
+</cis11:metadata>
 <wcs:ServiceParameters>
 <wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>
 <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>

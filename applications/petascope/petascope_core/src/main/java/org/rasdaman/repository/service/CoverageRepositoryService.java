@@ -367,8 +367,10 @@ public class CoverageRepositoryService {
             if (!coveragesCacheMap.containsKey(coverageId)) {
                 try {
                     this.readCoverageBasicMetadataFromDatabase(coverageId, coverageType);
-                } catch (PetascopeException ex) {
-                    log.warn("Cannot read basic metadata for coverage '" + coverageId + "'. Reason: " + ex.getExceptionText(), ex);
+
+                } catch (Exception ex) {
+                    throw new PetascopeException(ExceptionCode.InternalSqlError,
+                                                 "Cannot read coverage basic metadata '" + coverageId + "' from database. Reason: " + ex.getMessage(), ex);
                 }
             }
         }

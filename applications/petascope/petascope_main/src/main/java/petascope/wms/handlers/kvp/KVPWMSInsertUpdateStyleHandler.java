@@ -147,9 +147,9 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         // A style must have a value for wcpsQueryFragment or rasqlTransformFragment
         if (kvpParameters.get(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT) != null) {
             style.setWcpsQueryFragment(kvpParameters.get(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT)[0]);
-            style.setRasqlQueryTransformFragment(null);
+            style.setRasqlQueryFragment(null);
         } else if (kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT) != null) {
-            style.setRasqlQueryTransformFragment(kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT)[0]);
+            style.setRasqlQueryFragment(kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT)[0]);
             style.setWcpsQueryFragment(null);
         }
         

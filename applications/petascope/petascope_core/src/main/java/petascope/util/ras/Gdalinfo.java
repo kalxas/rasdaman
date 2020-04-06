@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 
 /**
@@ -41,10 +43,8 @@ public class Gdalinfo {
      * given by gdalinfo.
      *
      * @param filePath the path to the file
-     * @return
-     * @throws IOException
      */
-    public static Pair<Integer, ArrayList<String>> getDimensionAndTypes(String filePath) throws IOException, WCSException {
+    public static Pair<Integer, ArrayList<String>> getDimensionAndTypes(String filePath) throws PetascopeException {
         log.trace("Reading gdal info output for " + filePath);
         Integer dimensions = 0;
         ArrayList<String> bandTypes = new ArrayList<String>();
@@ -67,9 +67,8 @@ public class Gdalinfo {
                     bandTypes.add(parseBandType(currentLine));
                 }
             }
-        } catch (IOException e) {
-            log.error("Failed retrieving gdalinfo for file: " + e.getMessage());
-            throw e;
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Failed retrieving gdalinfo for file. Reason: " + ex.getMessage(), ex);
         }
         log.trace("Got " + dimensions + " dimensions and " + bandTypes.toString() + " band types.");
         

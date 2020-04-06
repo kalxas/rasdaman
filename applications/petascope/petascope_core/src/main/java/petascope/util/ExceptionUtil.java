@@ -23,7 +23,10 @@ package petascope.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import org.apache.commons.io.IOUtils;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
@@ -76,9 +79,9 @@ public class ExceptionUtil {
         // NOTE: all kind of exceptions will use the WCS exception report, except WMS uses a different kind of XML structure.
         String exceptionText = Templates.getTemplate(Templates.GENERAL_WCS_EXCEPTION_REPORT);
 
-        String exceptionCodeName;
-        String detailMessage;
-        int httpCode;
+        String exceptionCodeName = "";
+        String detailMessage = "";
+        int httpCode = SC_INTERNAL_SERVER_ERROR;
 
         if (ex instanceof WCSException) {
             ExceptionCode exceptionCode = ((WCSException) ex).getExceptionCode();
@@ -107,6 +110,17 @@ public class ExceptionUtil {
             exceptionCodeName = exceptionCode.getExceptionCodeName();
             httpCode = exceptionCode.getHttpErrorCode();
             detailMessage = ((PetascopeException) ex).getExceptionText();
+        } else if (ex instanceof ServletException) {
+            if (ex.getMessage().contains("Missing basic authentication header")) {
+                exceptionCodeName = ExceptionCode.AccessDenied.getExceptionCodeName();
+                detailMessage = ex.getMessage();
+                httpCode = SC_NOT_FOUND;
+            } else {
+                ExceptionCode exceptionCode = ExceptionCode.InvalidRequest;
+                exceptionCodeName = ExceptionCode.InvalidRequest.getExceptionCodeName();
+                httpCode = exceptionCode.getHttpErrorCode();
+                detailMessage = ex.getMessage();
+            }
         } else {
             // Other kinds of exception, also needs to wrap in a XML exception report
             exceptionCodeName = ExceptionCode.InternalComponentError.getExceptionCodeName();

@@ -92,5 +92,11 @@ id="test_time_irregular_coefficients_subset-point" srsName="/crs-compound?1=/crs
 </swe:field>
 </swe:DataRecord>
 </gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

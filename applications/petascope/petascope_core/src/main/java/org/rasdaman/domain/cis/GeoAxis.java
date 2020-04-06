@@ -65,6 +65,13 @@ public class GeoAxis extends Axis implements Serializable {
 
     }
 
+    public GeoAxis(String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution) {
+        super(axisLabel, uomLabel, srsName);
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        this.resolution = resolution;
+    }
+
     public BigDecimal getResolution() {
         return new BigDecimal(resolution);
     }

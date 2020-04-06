@@ -84,5 +84,11 @@ id="test_irr_cube_2-point" srsName="/crs/EPSG/0/32633">
 </swe:field>
 </swe:DataRecord>
 </gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

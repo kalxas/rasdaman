@@ -32,13 +32,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import nu.xom.Element;
-import org.apache.commons.lang3.StringUtils;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
-import petascope.core.XMLSymbols;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.util.XMLUtil;
 
 /**
  *
@@ -151,6 +147,19 @@ public class Style implements Serializable {
     @Lob
     private String colorTableDefinition;
 
+    // Constructor with mandatory parameters for a style
+    public Style(String name, String title, String styleAbstract, 
+                 String rasqlQueryTransformFragment, String wcpsQueryFragment,
+                 Byte colorTableType, String colorTableDefinition) {
+        this.name = name;
+        this.title = title;
+        this.styleAbstract = styleAbstract;
+        this.rasqlQueryTransformFragment = rasqlQueryTransformFragment;
+        this.wcpsQueryFragment = wcpsQueryFragment;
+        this.colorTableType = colorTableType;
+        this.colorTableDefinition = colorTableDefinition;
+    }
+    
     public String getName() {
         return name;
     }
@@ -183,12 +192,12 @@ public class Style implements Serializable {
         this.legendURL = legendURL;
     }
 
-    public String getRasqlQueryTransformFragment() {
+    public String getRasqlQueryFragment() {
         return rasqlQueryTransformFragment;
     }
 
-    public void setRasqlQueryTransformFragment(String rasqlQueryTransformFragment) {
-        this.rasqlQueryTransformFragment = rasqlQueryTransformFragment;
+    public void setRasqlQueryFragment(String rasqlQueryFragment) {
+        this.rasqlQueryTransformFragment = rasqlQueryFragment;
     }
 
     public String getWcpsQueryFragment() {

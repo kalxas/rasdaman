@@ -23,6 +23,7 @@ package petascope.wcps.result;
 
 import petascope.util.MIMEUtil;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.CollectionAliasRegistry;
 import petascope.wcps.subset_axis.model.DimensionIntervalList;
 
 /**
@@ -38,6 +39,8 @@ public class WcpsResult extends VisitorResult {
     
     private DimensionIntervalList dimensionIntervalList;
     
+    private CollectionAliasRegistry collectionAliasRegistry;
+    
     // if result of encode(clip(c, linestring()) with coordinates, "csv/json") then needs to translate
     // grid to geo coordinates from result of rasql ("grid_x1 grid_y1 value1", "grid_x2 grid_y2 value2", ...)
     private boolean withCoordinates;
@@ -45,6 +48,12 @@ public class WcpsResult extends VisitorResult {
     public WcpsResult(WcpsCoverageMetadata metadata, String rasql) {
         this.rasql = rasql;
         this.metadata = metadata;
+    }
+    
+    public WcpsResult(WcpsCoverageMetadata metadata, String rasql, CollectionAliasRegistry collectionAliasRegistry) {
+        this.rasql = rasql;
+        this.metadata = metadata;
+        this.collectionAliasRegistry = collectionAliasRegistry;
     }
     
     public WcpsResult(DimensionIntervalList dimensionIntervalList) {
@@ -78,6 +87,10 @@ public class WcpsResult extends VisitorResult {
 
     public void setDimensionIntervalList(DimensionIntervalList dimensionIntervalList) {
         this.dimensionIntervalList = dimensionIntervalList;
+    }
+    
+    public CollectionAliasRegistry getCollectionAliasRegistry() {
+        return this.collectionAliasRegistry;
     }
 
     // rasql query can be encode in multiple types (e.g: tiff, png, csv,...)

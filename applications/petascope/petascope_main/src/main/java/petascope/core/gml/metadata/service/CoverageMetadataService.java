@@ -61,28 +61,18 @@ public class CoverageMetadataService {
      * Get the metadata content of WCPS coverage metadata object.
      */
     public String getMetadataContent(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
+        
+        CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
+
         String metadataStr = "";
         
-        // GMLCOV metadata
         String originalCoverageMetadataStr = wcpsCoverageMetadata.getMetadata();
-        if (originalCoverageMetadataStr == null || originalCoverageMetadataStr.isEmpty()) {
-            return metadataStr;
-        }
-
-        metadataStr = originalCoverageMetadataStr;
-        // NOTE: as coverage can contain list of LocalMetadataChild and it was filtered when doing subsetting, so
-        // cannot just use original coverage's metadata.
-        CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
-        
-        if (!coverageMetadata.getLocalMetadata().getLocalMetadataChildList().isEmpty()) {
-            //  Only serializing when coverage contains some LocalMetadataChild elements.
-            if (XMLUtil.containsXMLContent(originalCoverageMetadataStr)) {
-                // coverage's metadata is in XML
-                metadataStr = this.serializeCoverageMetadataInXML(coverageMetadata);
-            } else {
-                // coverage's metadata is in JSON
-                metadataStr = this.serializeCoverageMetadataInJSON(coverageMetadata);
-            }
+        if (originalCoverageMetadataStr.isEmpty() || XMLUtil.containsXMLContent(originalCoverageMetadataStr)) {
+            // coverage's metadata is in XML
+            metadataStr = this.serializeCoverageMetadataInXML(coverageMetadata);
+        } else {
+            // coverage's metadata is in JSON
+            metadataStr = this.serializeCoverageMetadataInJSON(coverageMetadata);
         }
         
         return XMLUtil.unescapeXML(metadataStr);
@@ -93,6 +83,7 @@ public class CoverageMetadataService {
      * Serialize CoverageMetadata object to JSON string to be persisted inside database.
      */
     public String serializeCoverageMetadataInJSON(CoverageMetadata coverageMetadata) throws PetascopeException {
+        coverageMetadata.stripEmptyProperties();
         String output = "";
         output = JSONUtil.serializeObjectToJSONString(coverageMetadata);
         
@@ -103,6 +94,8 @@ public class CoverageMetadataService {
      * Serialize CoverageMetadata object to XML string to be persisted inside database.
      */
     public String serializeCoverageMetadataInXML(CoverageMetadata coverageMetadata) throws PetascopeException {
+        coverageMetadata.stripEmptyProperties();
+        
         String output = "";
         try {
             output = XMLUtil.serializeObjectToXMLString(coverageMetadata);

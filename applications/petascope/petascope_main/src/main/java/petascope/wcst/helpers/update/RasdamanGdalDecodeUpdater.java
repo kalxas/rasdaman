@@ -43,11 +43,14 @@ public class RasdamanGdalDecodeUpdater extends RasdamanUpdater {
      * @param affectedDomain the rasdaman domain over which the update is executed.
      * @param shiftDomain the domain with which the array stored in the file must be shifted.
      */
-    public RasdamanGdalDecodeUpdater(String affectedCollectionName, String affectedDomain, String shiftDomain, String rangeParameters) {
+    public RasdamanGdalDecodeUpdater(String affectedCollectionName, String affectedDomain, String shiftDomain, String rangeParameters, String username, String password) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedDomain = affectedDomain;
         this.shiftDomain = shiftDomain;
         this.rangeParameters = rangeParameters;
+        
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class RasdamanGdalDecodeUpdater extends RasdamanUpdater {
                              .replace("$rangeParams", rangeParameters)
                              .replace("$shiftDomain", shiftDomain);
         
-        RasUtil.executeUpdateFileStatement(queryString);
+        RasUtil.executeUpdateFileStatement(queryString, this.username, this.password);
     }
     
     @Override
@@ -77,7 +80,7 @@ public class RasdamanGdalDecodeUpdater extends RasdamanUpdater {
                              .replace("$rangeParams", rangeParameters)
                              .replace("$shiftDomain", shiftDomain);
         
-        RasUtil.executeUpdateBytesStatement(queryString, bytes);
+        RasUtil.executeUpdateBytesStatement(queryString, bytes, this.username, this.password);
     }
 
     // sample query:

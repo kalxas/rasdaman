@@ -25,9 +25,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.rasdaman.domain.cis.NilValue;
 import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes;
@@ -38,6 +40,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.service.AxesOrderComparator;
 import petascope.wcps.metadata.service.CrsUtility;
@@ -53,24 +56,27 @@ public class WcpsCoverageMetadata {
     
     CoverageMetadataService coverageMetadataService = new CoverageMetadataService();
 
-    private final String coverageName;   
+    protected String coverageName;   
     // NOTE: rasdaman collection name can be different from coverageName (in case of import a coverageName which is duplicate to an existing collectionName)
     // then coverage will create a new collectionName_datetime to store data.
-    private String rasdamanCollectionName;
-    private String coverageType;
+    protected String rasdamanCollectionName;
+    protected String coverageType;
     // List of axes after coverage expression (it will be stripped when there is a slicing expression, 
     // e.g: c[Lat(20)] then output axes are Long and t with c is a 3D coverages (CRS: EPSG:4326&AnsiDate)
-    private List<Axis> axes;
-    private String crsUri;
-    private List<RangeField> rangeFields;
-    private List<NilValue> nilValues;
-    private final String metadata;
-    private final CoverageMetadata coverageMetadata;
+
+    protected List<Axis> axes;
+    protected String crsUri;
+    // use in crsTransform()
+    protected String outputCrsUri;
+    protected List<RangeField> rangeFields;
+    protected List<NilValue> nilValues;
+    protected String metadata;
+    protected CoverageMetadata coverageMetadata;
     
     // NOTE: By default, original axes are the coverage's axes persisted in database and not used anywhere (use axes instead!)
     // But in case WCPS coverage changes completely e.g: clip(c, linestring()) from 2D geo coverage -> 1D grid coverage
     // Then, axes are changed to contain only 1D grid axis and original axes is updated to previous axes (geo coverage).
-    private final List<Axis> originalAxes;
+    protected List<Axis> originalAxes;
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(WcpsCoverageMetadata.class);
     
@@ -102,7 +108,9 @@ public class WcpsCoverageMetadata {
         }
         
         try {
-            covMetadata.getLocalMetadata().buildEnvelopeSubsetsForChildList(axes);
+            if (covMetadata.getLocalMetadata() != null) {
+                covMetadata.getLocalMetadata().buildEnvelopeSubsetsForChildList(axes);
+            }
         } catch (PetascopeException ex) {
             log.warn("Cannot build envelope subsets from coverage's local metadata. Reason: " + ex.getMessage(), ex);
         }
@@ -288,7 +296,7 @@ public class WcpsCoverageMetadata {
     public List<RangeField> getRangeFields() {
         return this.rangeFields;
     }
-    
+
     public boolean axisExists(String axisName) {
         for (Axis axis : this.axes) {
             if (axis.getLabel().equals(axisName)) {
@@ -513,5 +521,36 @@ public class WcpsCoverageMetadata {
         String indexCRS = CrsUtility.createIndexNDCrsUri(axes);
         
         return indexCRS;
+    }
+    
+    /**
+     * Get current grid domains of coverage with rasdaman oder.
+     */
+    public String getGridDomainsRepresentation() {
+        List<Axis> gridAxes = this.getSortedAxesByGridOrder();
+        List<String> temp = new ArrayList<>();
+        for (Axis axis : gridAxes) {
+            temp.add(axis.getGridBounds().getStringRepresentation());
+        }
+        
+        String result = "[" + ListUtil.join(temp, ",") + "]";
+        return result;
+    }
+    
+    /**
+     * Check if coverage is sliced on X or Y axis.
+     */
+    public boolean isSlicingOnXYAxis() {
+        if (this.getXYAxes().size() > 0) {
+            Axis axisX = this.getXYAxes().get(0);
+            Axis axisY = this.getXYAxes().get(1);
+            
+            if ((axisX.getGridBounds() instanceof NumericSlicing)
+                || (axisY.getGridBounds() instanceof NumericSlicing)) {
+                return true;
+            }            
+        }
+        
+        return false;
     }
 }

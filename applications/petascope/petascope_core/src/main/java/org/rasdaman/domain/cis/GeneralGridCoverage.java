@@ -27,7 +27,6 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import petascope.core.AxisTypes;
-import petascope.core.CrsDefinition;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -53,6 +52,11 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
 
     }
 
+    public GeneralGridCoverage(String coverageId, String coverageType, long coverageSizeInBytes, 
+                               Envelope envelope, DomainSet domainSet, RangeType rangeType, RasdamanRangeSet rasdamanRangeSet, String metadata) {
+        super(coverageId, coverageType, coverageSizeInBytes, envelope, domainSet, rangeType, rasdamanRangeSet, metadata);
+    }
+    
     // DomainSet here is GeneralGridDomainSet
     // Helper Methods
     /**
@@ -103,7 +107,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      */
     public IndexAxis getIndexAxisByName(String axisLabel) {
         for (IndexAxis indexAxis : this.getIndexAxes()) {
-            if (indexAxis.getAxisLabel().equals(axisLabel)) {
+            if (CrsUtil.axisLabelsMatch(indexAxis.getAxisLabel(), axisLabel)) {
                 return indexAxis;
             }
         }
@@ -131,6 +135,15 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
 
         return null;
     }
+    
+    /**
+     * Check if coverage contains an axis label
+     */
+    public boolean containsGeoAxisName(String axisLabel) {
+        GeoAxis geoAxis = this.getGeoAxisByName(axisLabel);
+        
+        return geoAxis != null;
+    }
 
     /**
      * Return the geo axis by it's name from the list of geo axes
@@ -141,7 +154,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
     public GeoAxis getGeoAxisByName(String axisLabel) {
         List<GeoAxis> geoAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGeoAxes();
         for (GeoAxis geoAxis : geoAxes) {
-            if (geoAxis.getAxisLabel().equals(axisLabel)) {
+            if (CrsUtil.axisLabelsMatch(geoAxis.getAxisLabel(), axisLabel)) {
                 return geoAxis;
             }
         }

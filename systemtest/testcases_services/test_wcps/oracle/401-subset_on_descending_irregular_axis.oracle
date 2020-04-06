@@ -90,5 +90,11 @@ id="test_AverageChloro-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-
 </swe:field>
 </swe:DataRecord>
 </gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

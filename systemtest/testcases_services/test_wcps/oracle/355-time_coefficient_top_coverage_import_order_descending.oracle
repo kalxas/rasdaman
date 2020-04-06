@@ -57,7 +57,6 @@ id="test_append_prepend_irregular_coverage_slice-point" srsName="">
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<Title>This is a test coverage</Title>
 <bands>
 <LAI>
 <units>m2/m2</units>
@@ -80,6 +79,7 @@ id="test_append_prepend_irregular_coverage_slice-point" srsName="">
 <long_name>latitude</long_name>
 </Lat>
 </axes>
+<Title>This is a test coverage</Title>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

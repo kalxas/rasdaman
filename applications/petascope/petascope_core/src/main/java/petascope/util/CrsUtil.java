@@ -682,6 +682,22 @@ public class CrsUtil {
 
         return axesLabels;
     }
+    
+    
+    /**
+     * Return a map of axis labels and their types
+     * e.g: Lat -> Y, Long -> X
+     */
+    public static Map<String, String> getAxisLabelsTypesMap(String singleCrsURI) throws PetascopeException, SecoreException {
+        CrsDefinition crsDef = CrsUtil.getCrsDefinition(singleCrsURI);
+        
+        Map<String, String> map = new HashMap<>();
+        for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) { 
+            map.put(crsAxis.getAbbreviation(), crsAxis.getType());
+        }
+        
+        return map;
+    }
 
     // Overload for single URI
     public static List<String> getAxesLabels(String singleCrsUri) throws PetascopeException, SecoreException {
@@ -945,6 +961,41 @@ public class CrsUtil {
     }
     
     /**
+     * From a map of axis labels and types (e.g: {"Lat": -> Y, "Lon" -> X}
+     * return the axis type of an aixs label (e.g: "Long")
+     */
+    public static String getAxisTypeFromMap(Map<String, String> axisLabelsTypesMap, String axisLabel) throws PetascopeException {
+        String axisType = axisLabelsTypesMap.get(axisLabel);
+        
+        if (axisType == null) {
+            if (axisLabel.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85)) {
+                axisType = axisLabelsTypesMap.get(LONGITUDE_AXIS_LABEL_EPGS_VERSION_0);
+            }
+            
+            if (axisType == null) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                                            "Axis label '" + axisLabel + "' does not exist in the map of axis labels and types");
+            }
+        }
+        
+        return axisType;
+    }
+    
+    /**
+     * Check if 2 CRSs are matched
+     * e.g: http://opengis.net/def/OGC/0/AnsiDate
+     * and  http://localhost:8080/def/crs/OGC/O/AnsiDate?axis-label="d"
+     * 
+     * are equivalent
+     */
+    public static boolean crsURIsMatch(String crsURI1, String crsURI2) {
+        String strippedCRS1 = CrsUtil.CrsUri.toDbRepresentation(crsURI1).split("\\?")[0];
+        String strippedCRS2 = CrsUtil.CrsUri.toDbRepresentation(crsURI2).split("\\?")[0];
+        
+        return strippedCRS1.equals(strippedCRS2);        
+    }
+    
+    /**
      * Return true if aixs labels have same name ("Long" or "Lon" is also accepted).
      */
     public static boolean axisLabelsMatch(String axisLabel1, String axisLabel2) {
@@ -994,6 +1045,25 @@ public class CrsUtil {
      */
     public static boolean isXYAxis(String axisType) {
         return isXAxis(axisType) || isYAxis(axisType);
+    }
+    
+    /**
+     * Return X and Y crs axes from a CRS URI.
+     * NOTE: The axes order is dependent from the CRS definition.
+     * e.g: EPSG:4326 returns Lat, Long axes (YX order)
+     *      EPSG:32632 returns E, N (XY order)
+     */
+    public static List<CrsDefinition.Axis> getXYAxes(String crsURI) throws PetascopeException, SecoreException {
+        List<CrsDefinition.Axis> axes = CrsUtil.getCrsDefinition(crsURI).getAxes();
+        List<CrsDefinition.Axis> results = new ArrayList<>();
+        
+        for (CrsDefinition.Axis axis : axes) {
+            if (isXAxis(axis.getType()) || isYAxis(axis.getType())) {
+                results.add(axis);
+            } 
+        }
+        
+        return results;        
     }
 
     /**

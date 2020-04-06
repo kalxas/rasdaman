@@ -96,6 +96,16 @@ public class Quantity implements Serializable {
 
     }
 
+    public Quantity(String definition, String description, List<AllowedValue> allowedValues, List<NilValue> nilValues, Uom uom, String dataType) {
+        this.definition = definition;
+        this.description = description;
+        this.allowedValues = allowedValues;
+        this.nilValues = nilValues;
+        this.uom = uom;
+        this.dataType = dataType;
+    }
+    
+
     public long getId() {
         return id;
     }

@@ -31,6 +31,10 @@ import petascope.exceptions.PetascopeException;
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public abstract class RasdamanUpdater {
+    
+    // Rasdaman user credentials
+    protected String username;
+    protected String password;
 
     /**
      * Updates rasdaman data.

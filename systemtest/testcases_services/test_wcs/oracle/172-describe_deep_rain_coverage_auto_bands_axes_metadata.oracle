@@ -19,13 +19,6 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D&amp;3=/crs
 <gmlcov:metadata>
 <gmlcov:Extension>
 <rasdaman:covMetadata>
-<CDI>Climate Data Interface version 1.9.5 (http://mpimet.mpg.de/cdi)</CDI>
-<Conventions>CF-1.6</Conventions>
-<history>Thu Jan 31 11:39:32 2019: ncks -d rlat,-5.0,-4.95 -d rlon,-5.0,-4.90 cosmo_test1.nc input.nc
-Wed Jan 30 11:08:32 2019: cdo -f nc copy download cosmo_test1.nc</history>
-<institution>Deutscher Wetterdienst</institution>
-<CDO>Climate Data Operators version 1.9.5 (http://mpimet.mpg.de/cdo)</CDO>
-<NCO>4.4.4</NCO>
 <bands>
 <var11>
 <table>2</table>
@@ -62,6 +55,13 @@ Wed Jan 30 11:08:32 2019: cdo -f nc copy download cosmo_test1.nc</history>
 <axis>Z</axis>
 </i>
 </axes>
+<CDI>Climate Data Interface version 1.9.5 (http://mpimet.mpg.de/cdi)</CDI>
+<Conventions>CF-1.6</Conventions>
+<history>Thu Jan 31 11:39:32 2019: ncks -d rlat,-5.0,-4.95 -d rlon,-5.0,-4.90 cosmo_test1.nc input.nc
+Wed Jan 30 11:08:32 2019: cdo -f nc copy download cosmo_test1.nc</history>
+<institution>Deutscher Wetterdienst</institution>
+<CDO>Climate Data Operators version 1.9.5 (http://mpimet.mpg.de/cdo)</CDO>
+<NCO>4.4.4</NCO>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>

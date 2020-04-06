@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
 id="test_irr_cube_2"
-
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="i" srsDimension="1"
@@ -82,5 +76,11 @@ id="test_irr_cube_2-point" srsName="/crs/OGC/0/Index1D">
 </swe:field>
 </swe:DataRecord>
 </gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

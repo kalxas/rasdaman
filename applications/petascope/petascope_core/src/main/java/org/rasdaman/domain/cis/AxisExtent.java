@@ -77,12 +77,14 @@ public class AxisExtent implements Serializable {
     public AxisExtent() {
 
     }
-
-    public AxisExtent(String axisLabel, String uomLabel, String lowerBound, String upperBound) {
+    
+    public AxisExtent(String axisLabel, String srsName, String uomLabel, String lowerBound, String upperBound, BigDecimal resolution) {
         this.axisLabel = axisLabel;
-        this.lowerBound = lowerBound;
+        this.srsName = srsName;
         this.uomLabel = uomLabel;
+        this.lowerBound = lowerBound;        
         this.upperBound = upperBound;
+        this.resolution = resolution;
     }
 
     public long getId() {

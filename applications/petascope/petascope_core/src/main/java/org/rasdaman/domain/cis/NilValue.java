@@ -21,7 +21,6 @@
  */
 package org.rasdaman.domain.cis;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import javax.persistence.*;
 import nu.xom.Attribute;
@@ -80,7 +79,6 @@ public class NilValue implements Serializable {
         this.reason = reason;
     }
 
-    @JsonIgnore
     // no serialize this value as JSON extra parameters
     public long getId() {
         return id;

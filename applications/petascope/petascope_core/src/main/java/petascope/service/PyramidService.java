@@ -71,7 +71,7 @@ public class PyramidService {
      * Create an empty rasdaman collection with pattern: collectionName_level
      * (e.g: test_mean_summer_airtemp_2)
      */
-    public void insertScaleLevel(String coverageId, BigDecimal level) throws PetascopeException, SecoreException {
+    public void insertScaleLevel(String coverageId, BigDecimal level, String username, String password) throws PetascopeException, SecoreException {
 
         Coverage coverage = coverageRepostioryService.readCoverageByIdFromDatabase(coverageId);
 
@@ -96,7 +96,7 @@ public class PyramidService {
             String tileSetting = coverage.getRasdamanRangeSet().getTiling();
 
             // Instantiate 1 first 1 point MDD in this empty downscaled collection to be ready to update data later
-            RasUtil.initializeMDD(numberOfDimensions, numberOfBands, collectionType, tileSetting, scaledCollectionName);
+            RasUtil.initializeMDD(numberOfDimensions, numberOfBands, collectionType, tileSetting, scaledCollectionName, username, password);
 
             // Finally, add this newly created downscaled collection to coverage's list of downscaled rasdaman collections.
             coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections().add(rasdamanScaleDownCollection);
@@ -118,7 +118,7 @@ public class PyramidService {
      * 
      * NOTE: input geoDomains will be divided to have good size enough for updating to downscaled collection.
      */
-    public void updateScaleLevel(String coverageId, BigDecimal level, TreeMap<Integer, Pair<Boolean, String>> gridDomainsPairsMap) throws PetascopeException, SecoreException {
+    public void updateScaleLevel(String coverageId, BigDecimal level, TreeMap<Integer, Pair<Boolean, String>> gridDomainsPairsMap, String username, String password) throws PetascopeException, SecoreException {
 
         Coverage coverage = coverageRepostioryService.readCoverageByIdFromDatabase(coverageId);
         String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
@@ -182,7 +182,7 @@ public class PyramidService {
         }
         
         // Now, separate the (big) grid domains on source collection properly and select these suitable spatial domains to update on target downscaled collections
-        this.updateScaleLevelByGridDomains(sourceCollectionName, targetDownscaledCollectionName, sourceAffectedDomains, targetDownscaledRatio);
+        this.updateScaleLevelByGridDomains(sourceCollectionName, targetDownscaledCollectionName, sourceAffectedDomains, targetDownscaledRatio, username, password);
     }
     
     /**
@@ -281,7 +281,7 @@ public class PyramidService {
      * - select c[2, 0:200, 0:150] -> d[2, 0:100, 0:75]
      */
     private void updateScaleLevelByGridDomains(String sourceCollectionName, String targetDownscaledCollectionName, 
-                                               List<Pair<Boolean, String>> sourceAffectedDomains, BigDecimal targetDownscaledRatio) throws PetascopeException {
+                                               List<Pair<Boolean, String>> sourceAffectedDomains, BigDecimal targetDownscaledRatio, String username, String password) throws PetascopeException {
         
         List<List<String>> calculatedSourceAffectedDomainsList = new ArrayList<>();
         List<List<String>> calculatedTargetAffectedDomainsList = new ArrayList<>();
@@ -320,7 +320,7 @@ public class PyramidService {
             String sourceAffectedDomain = sourceAffectedDomainsList.get(i).toString();
             String targetAffectedDomain = targetAffectedDomainsList.get(i).toString();
 
-            RasUtil.updateDownscaledCollectionFromSourceCollection(sourceAffectedDomain, targetAffectedDomain, sourceCollectionName, targetDownscaledCollectionName);
+            RasUtil.updateDownscaledCollectionFromSourceCollection(sourceAffectedDomain, targetAffectedDomain, sourceCollectionName, targetDownscaledCollectionName, username, password);
         }
     }
     
@@ -362,7 +362,7 @@ public class PyramidService {
      * Delete a downscaled rasdaman collection which associated with a WCS
      * coverage.
      */
-    public void deleteScaleLevel(String coverageId, BigDecimal level) throws PetascopeException, SecoreException {
+    public void deleteScaleLevel(String coverageId, BigDecimal level, String username, String password) throws PetascopeException, SecoreException {
 
         Coverage coverage = coverageRepostioryService.readCoverageByIdFromDatabase(coverageId);
         String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
@@ -376,7 +376,7 @@ public class PyramidService {
 
         log.info("Dropping downscaled rasdaman collection '" + downscaledCollectionName + "'.");
         try {
-            RasUtil.deleteFromRasdaman(downscaledCollectionName);
+            RasUtil.deleteFromRasdaman(downscaledCollectionName, username, password);
         } catch (RasdamanException ex) {
             if (!ex.getMessage().contains("collection name does not exist")) {
                 throw ex;

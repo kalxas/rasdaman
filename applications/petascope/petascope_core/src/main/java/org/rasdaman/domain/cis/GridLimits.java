@@ -22,8 +22,11 @@
 package org.rasdaman.domain.cis;
 
 import java.io.Serializable;
+import static java.util.Collections.list;
+import java.util.LinkedHashMap;
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  * CIS 1.1
@@ -63,6 +66,11 @@ public class GridLimits implements Serializable {
     public GridLimits() {
 
     }
+    
+    public GridLimits(String srsName, List<IndexAxis> indexAxes) {
+        this.srsName = srsName;
+        this.indexAxes = indexAxes;
+    }
 
     public long getId() {
         return id;
@@ -96,12 +104,28 @@ public class GridLimits implements Serializable {
      * @return 
      */
     public IndexAxis getIndexAxisByLabel(String axisLabel) {
-        for (IndexAxis indexAxis:this.indexAxes) {
+        for (IndexAxis indexAxis : this.indexAxes) {
             if (indexAxis.getAxisLabel().equals(axisLabel)) {
                 return indexAxis;
             }
         }
         
         return null;
+    }
+    
+    /**
+     * Return the map of axis labels and rasdaman grid orders
+     * e.g: {X -> 0, Y -> 1}
+     */
+    public Map<String, Integer> getGridAxisOrders(Map<String, String> axisLabelsTypesMap) {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        
+        for (IndexAxis indexAxis : this.indexAxes) {
+            // e.g: Lat -> Y, Long -> X axis type
+            String axisType = axisLabelsTypesMap.get(indexAxis.getAxisLabel());
+            map.put(axisType, indexAxis.getAxisOrder());
+        }
+        
+        return map;
     }
 }

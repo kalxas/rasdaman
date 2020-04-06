@@ -75,6 +75,14 @@ public class EXGeographicBoundingBox implements Serializable {
 
     }
 
+    // Min, Max Long and Min, Max Lat
+    public EXGeographicBoundingBox(String westBoundLongitude, String eastBoundLongitude, String southBoundLatitude, String northBoundLatitude) {
+        this.westBoundLongitude = westBoundLongitude;
+        this.eastBoundLongitude = eastBoundLongitude;
+        this.southBoundLatitude = southBoundLatitude;
+        this.northBoundLatitude = northBoundLatitude;
+    }
+
     public long getId() {
         return id;
     }

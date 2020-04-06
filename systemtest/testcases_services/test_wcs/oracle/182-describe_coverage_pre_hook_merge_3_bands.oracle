@@ -16,7 +16,13 @@ srsName="/crs/EPSG/0/32632" uomLabels="metre metre">
 <startPoint>0 0</startPoint>
 </GridFunction>
 </coverageFunction>
-<gmlcov:metadata/>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<CoverageMetadata/>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 <domainSet>
 <RectifiedGrid dimension="2" id="test_pre_hook_merge_3_bands-grid">
 <limits>

@@ -3,9 +3,9 @@
 >
 <wcs:CoverageDescription id="test_mean_summer_airtemp">
 <cis11:Envelope axisLabels="Lat Lon" srsDimension="2" srsName="/crs/EPSG/0/4326">
-<cis11:axisExtent axisLabel="Lat"
+<cis11:AxisExtent axisLabel="Lat"
 lowerBound="-44.474999999999987" uomLabel="degree" upperBound="-8.974999999999987"/>
-<cis11:axisExtent axisLabel="Lon" lowerBound="111.975"
+<cis11:AxisExtent axisLabel="Lon" lowerBound="111.975"
 uomLabel="degree" upperBound="156.475"/>
 </cis11:Envelope>
 <wcs:CoverageId>test_mean_summer_airtemp</wcs:CoverageId>
@@ -40,7 +40,9 @@ resolution="0.5" uomLabel="degree" upperBound="156.475"/>
 </swe:field>
 </swe:DataRecord>
 </cis11:rangeType>
-<cis11:metadata/>
+<cis11:metadata>
+<CoverageMetadata/>
+</cis11:metadata>
 <wcs:ServiceParameters>
 <wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>
 <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>

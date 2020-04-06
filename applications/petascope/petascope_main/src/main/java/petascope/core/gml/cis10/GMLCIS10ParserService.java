@@ -23,20 +23,33 @@ package petascope.core.gml.cis10;
 
 import java.math.BigDecimal;
 import java.util.*;
+import nu.xom.Document;
 
 import nu.xom.Element;
 import nu.xom.Elements;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.domain.cis.AllowedValue;
+import org.rasdaman.domain.cis.Axis;
+import org.rasdaman.domain.cis.AxisExtent;
+import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.DataRecord;
+import org.rasdaman.domain.cis.Envelope;
+import org.rasdaman.domain.cis.EnvelopeByAxis;
 import org.rasdaman.domain.cis.Field;
+import org.rasdaman.domain.cis.GeneralGrid;
+import org.rasdaman.domain.cis.GeneralGridCoverage;
+import org.rasdaman.domain.cis.GeneralGridDomainSet;
 import org.rasdaman.domain.cis.GeoAxis;
+import org.rasdaman.domain.cis.GridLimits;
 import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.domain.cis.Quantity;
+import org.rasdaman.domain.cis.RangeType;
 import org.rasdaman.domain.cis.RegularAxis;
 import org.rasdaman.domain.cis.Uom;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -57,7 +70,6 @@ import petascope.wcst.exceptions.WCSTMissingLowerCorner;
 import petascope.wcst.exceptions.WCSTMissingPoint;
 import petascope.wcst.exceptions.WCSTMissingPos;
 import petascope.wcst.exceptions.WCSTMissingUpperCorner;
-import petascope.wcst.exceptions.WCSTUnsupportedCoverageTypeException;
 import petascope.wcst.exceptions.WCSTWrongInervalFormat;
 import petascope.wcst.exceptions.WCSTWrongNumberOfDataBlockElements;
 import petascope.wcst.exceptions.WCSTWrongNumberOfFileElements;
@@ -70,6 +82,10 @@ import petascope.util.CrsUtil;
 import petascope.core.Pair;
 import petascope.util.StringUtil;
 import petascope.core.XMLSymbols;
+import static petascope.core.XMLSymbols.LABEL_GRID_COVERAGE;
+import static petascope.core.XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE;
+import static petascope.core.XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;
+import petascope.core.gml.cis.AbstractGMLCISParserService;
 import petascope.util.ListUtil;
 import static petascope.util.ras.TypeResolverUtil.R_Abb_Float;
 
@@ -78,39 +94,159 @@ import static petascope.util.ras.TypeResolverUtil.R_Abb_Float;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class GMLParserService {
+@Service
+public class GMLCIS10ParserService extends AbstractGMLCISParserService {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(GMLParserService.class);
-
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(GMLCIS10ParserService.class);
+    
+    public GMLCIS10ParserService() {
+        this.supportedCoverageTypes.addAll(Arrays.asList(LABEL_GRID_COVERAGE, 
+                                                         LABEL_RECTIFIED_GRID_COVERAGE,
+                                                         LABEL_REFERENCEABLE_GRID_COVERAGE));
+    }
+    
     /**
-     * Return the coverage type from wcst_import
-     *
-     * @param root
-     * @return
-     * @throws WCSTUnsupportedCoverageTypeException
+     * Parse a GML Document in CIS 1.0 to a Coverage
      */
-    public static String parseCoverageType(Element root) throws WCSTUnsupportedCoverageTypeException {
-        String rootName = root.getLocalName();
-        if (rootName.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-            return XMLSymbols.LABEL_GRID_COVERAGE;
-        } else if (rootName.equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)) {
-            return XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE;
-        } else if (rootName.equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
-            return XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;
-        } else {
-            log.error("Unsupported coverage type: " + rootName);
-            throw new WCSTUnsupportedCoverageTypeException(rootName);
+    @Override
+    public GeneralGridCoverage parse(Document gmlCoverageDocument) throws PetascopeException, SecoreException {
+        GeneralGridCoverage coverage = new GeneralGridCoverage();
+        Element rootElement = gmlCoverageDocument.getRootElement();
+
+        // coverage id
+        String coverageId = rootElement.getAttributeValue(XMLSymbols.ATT_ID, XMLSymbols.NAMESPACE_GML);
+        coverage.setCoverageId(coverageId);
+        // coverage type
+        String coverageType = rootElement.getLocalName();
+        coverage.setCoverageType(coverageType);
+        // coverage extra metadata
+        String extraMetadata = this.parseExtraMetadata(rootElement);
+        coverage.setMetadata(extraMetadata.trim());
+                
+        // coverage compundCrs
+        String srsName = this.parseSrsName(rootElement);
+        
+        // + Build DomainSet element        
+        Element domainSetElement = this.parseDomainSet(rootElement);
+        // from the domain set extract the grid type
+        Element gridTypeElement = this.parseGridType(domainSetElement);
+        // Grid domains (cellDomainElements)
+        List<IndexAxis> indexAxes = this.parseIndexAxes(gridTypeElement);
+        GridLimits gridLimits = this.createGridLimits(indexAxes);
+        // Geo domains (DomainElements)
+        List<GeoAxis> geoAxes = this.parseGeoAxes(rootElement);
+        // Build GeneralGrid object containing geoAxes, indexAxes and compound Crs from all geoAxes
+        GeneralGrid generalGrid = this.createGeneralGrid(srsName, geoAxes, gridLimits);
+        // coverage origin
+        String origin = this.parseCoverageOrigin(gridTypeElement);
+        GeneralGridDomainSet domainSet = new GeneralGridDomainSet(generalGrid);
+        domainSet.setOrigin(origin);
+        // DomainSet object
+        coverage.setDomainSet(domainSet);
+
+        // + Build Envelope element which contains List<AxisExtent> from geoAxes
+        EnvelopeByAxis envelopeByAxis = this.createEnvelopeByAxis(generalGrid);
+        Envelope envelope = new Envelope();
+        envelope.setEnvelopeByAxis(envelopeByAxis);
+        coverage.setEnvelope(envelope);
+
+        // + Build RangeType element
+        List<Field> fields = this.parseFields(rootElement);
+        DataRecord dataRecord = new DataRecord();
+        dataRecord.setFields(fields);
+        // RangeType object
+        RangeType rangeType = new RangeType();
+        rangeType.setDataRecord(dataRecord);
+        coverage.setRangeType(rangeType);
+
+        return coverage;
+    }
+    
+    /**
+     * Create a general grid for DomainSet object
+     */
+    private GeneralGrid createGeneralGrid(String srsName, List<GeoAxis> geoAxes, GridLimits gridLimits) {
+        GeneralGrid generalGrid = new GeneralGrid();
+
+        generalGrid.setSrsName(srsName);
+        generalGrid.setGeoAxes(geoAxes);
+        generalGrid.setGridLimits(gridLimits);
+
+        return generalGrid;
+    }
+    
+    /**
+     * Create GridLimits object from indexAxes
+     */
+    private GridLimits createGridLimits(List<IndexAxis> indexAxes) {
+
+        int dimensions = indexAxes.size();
+        // Create IndexCRS (indexND) from the number of axes (2 axes -> Index2D)
+        String indexCrs = CrsUtil.OPENGIS_INDEX_URI.replace("$N", String.valueOf(dimensions));
+
+        GridLimits gridLimits = new GridLimits();
+        gridLimits.setIndexAxes(indexAxes);
+        gridLimits.setSrsName(indexCrs);
+
+        return gridLimits;
+    }
+    
+    /**
+     *
+     * Create the EnvelopeByAxis object from List of geoAxis which was parsed in
+     * creating DomainElement object
+     */
+    private EnvelopeByAxis createEnvelopeByAxis(GeneralGrid generalGrid) throws PetascopeException, SecoreException {
+        EnvelopeByAxis envelopeByAxis = new EnvelopeByAxis();
+        envelopeByAxis.setSrsName(generalGrid.getSrsName());
+        int numberOfDimensions = generalGrid.getGeoAxes().size();
+        envelopeByAxis.setSrsDimension(numberOfDimensions);
+
+        List<AxisExtent> axesExtent = new ArrayList<>();
+
+        for (int i = 0; i < numberOfDimensions; i++) {
+            // Regular, Irregular
+            Axis axis = generalGrid.getGeoAxes().get(i);
+            AxisExtent axisExtent = new AxisExtent();
+            axisExtent.setAxisLabel(axis.getAxisLabel());
+            axisExtent.setSrsName(axis.getSrsName());
+
+            String lowerBound = null;
+            String upperBound = null;
+            BigDecimal resolution = null;
+            String uom = null;
+            if (axis.getClass().equals(RegularAxis.class)) {
+                lowerBound = ((RegularAxis) axis).getLowerBound();
+                upperBound = ((RegularAxis) axis).getUpperBound();
+                resolution = ((RegularAxis) axis).getResolution();
+                uom = ((RegularAxis) axis).getUomLabel();
+            } else if (axis.getClass().equals(IrregularAxis.class)) {
+                lowerBound = ((IrregularAxis) axis).getLowerBound();
+                upperBound = ((IrregularAxis) axis).getUpperBound();
+                resolution = ((IrregularAxis) axis).getResolution();
+                uom = ((IrregularAxis) axis).getUomLabel();
+            }
+
+            axisExtent.setLowerBound(lowerBound);
+            axisExtent.setUpperBound(upperBound);
+            axisExtent.setResolution(resolution);
+            axisExtent.setUomLabel(uom);
+
+            axesExtent.add(axisExtent);
         }
+
+        envelopeByAxis.setAxisExtents(axesExtent);
+        // Create the envelope axis labels from the name of geo axes
+        envelopeByAxis.setAxisLabels(envelopeByAxis.getAxisLabelsRepresentation());
+
+        return envelopeByAxis;
     }
 
     /**
      * Parse the boundedBy element (only one) from a GMLCov.
      *
-     * @param rootElement
-     * @return
-     * @throws petascope.wcst.exceptions.WCSTMissingBoundedBy
      */
-    public static Element parseBoundedBy(Element rootElement) throws WCSTMissingBoundedBy {
+    private Element parseBoundedBy(Element rootElement) throws WCSTMissingBoundedBy {
         Elements boundedBy = rootElement.getChildElements(XMLSymbols.LABEL_BOUNDEDBY, XMLSymbols.NAMESPACE_GML);
         if (boundedBy.size() != 1) {
             throw new WCSTMissingBoundedBy();
@@ -129,11 +265,8 @@ public class GMLParserService {
      * <upperCorner>-8.975 156.275</upperCorner>
      * </Envelope>
      *
-     * @param boundedByElement
-     * @return
-     * @throws petascope.wcst.exceptions.WCSTMissingEnvelope
      */
-    public static Element parseEnvelope(Element boundedByElement) throws WCSTMissingEnvelope {
+    private Element parseEnvelope(Element boundedByElement) throws WCSTMissingEnvelope {
         Elements envelope = boundedByElement.getChildElements(XMLSymbols.LABEL_ENVELOPE, XMLSymbols.NAMESPACE_GML);
 
         if (envelope.size() != 1) {
@@ -146,12 +279,8 @@ public class GMLParserService {
     /**
      * Parse the domainSet from a coverage in GML format. The element is needed
      * to further distinguish between grid types.
-     *
-     * @param rootElement: the root of the coverage in GML format
-     * @return the domainSet element
-     * @throws WCSTMissingDomainSet
      */
-    public static Element parseDomainSet(Element rootElement) throws WCSTMissingDomainSet {
+    private Element parseDomainSet(Element rootElement) throws WCSTMissingDomainSet {
         Elements domainSet = rootElement.getChildElements(XMLSymbols.LABEL_DOMAIN_SET, XMLSymbols.NAMESPACE_GML);
         if (domainSet.size() != 1) {
             throw new WCSTMissingDomainSet();
@@ -162,12 +291,8 @@ public class GMLParserService {
     /**
      * Parses the element which determines the grid type of a coverage in GML
      * format.
-     *
-     * @param domainSetElement
-     * @return the element determining the grid type
-     * @throws petascope.wcst.exceptions.WCSTMissingGridType
      */
-    public static Element parseGridType(Element domainSetElement) throws WCSTMissingGridType {
+    private Element parseGridType(Element domainSetElement) throws WCSTMissingGridType {
         Elements gridType = domainSetElement.getChildElements();
         if (gridType.size() != 1) {
             throw new WCSTMissingGridType();
@@ -180,14 +305,8 @@ public class GMLParserService {
      * GML format
      *
      * @param rectifiedGridElement: the rectified grid element from GML
-     * @return ArrayList of cellDomainElements
-     * @throws petascope.wcst.exceptions.WCSTMissingLimits
-     * @throws petascope.wcst.exceptions.WCSTMissingGridEnvelope
-     * @throws petascope.wcst.exceptions.WCSTMissingLow
-     * @throws petascope.wcst.exceptions.WCSTMissingHigh
-     * @throws petascope.wcst.exceptions.WCSTLowHighDifferentSizes
      */
-    public static List<IndexAxis> parseIndexAxes(Element rectifiedGridElement)
+    private List<IndexAxis> parseIndexAxes(Element rectifiedGridElement)
             throws WCSTMissingLimits, WCSTMissingGridEnvelope, WCSTMissingLow,
             WCSTMissingHigh, WCSTLowHighDifferentSizes {
         //get the grid limits
@@ -243,14 +362,8 @@ public class GMLParserService {
      * Parses the geo origin from a coverage in GML format e.g:  <pos>29.95 24.95
      * "1980-12-01T12:00:00+00:00"</pos>
      *
-     * @param gridTypeElement
-     * @return
-     * @throws petascope.wcst.exceptions.WCSTMissingGridOrigin
-     * @throws petascope.wcst.exceptions.WCSTMissingPoint
-     * @throws petascope.wcst.exceptions.WCSTMissingPos
-     * @throws petascope.exceptions.WCSException
      */
-    public static String parseCoverageOrigin(Element gridTypeElement)
+    private String parseCoverageOrigin(Element gridTypeElement)
             throws WCSTMissingGridOrigin, WCSTMissingPoint, WCSTMissingPos, PetascopeException {
         //get the origin element
         Elements origin = gridTypeElement.getChildElements(XMLSymbols.LABEL_ORIGIN, XMLSymbols.NAMESPACE_GML);
@@ -282,16 +395,8 @@ public class GMLParserService {
     /**
      * Parses the compoundCRS from GML coverage and return list of uom for geo
      * axis order
-     *
-     * @param axisLabel
-     * @param envelopeElement
-     * @return URI -> uom of the input axis
-     * @throws petascope.wcst.exceptions.WCSTMissingBoundedBy
-     * @throws petascope.wcst.exceptions.WCSTMissingEnvelope
-     * @throws WCSException
-     * @throws petascope.exceptions.SecoreException
      */
-    public static Pair<String, String> parseCrsUom(int crsAxisIndex, String axisLabel, Element envelopeElement)
+    private Pair<String, String> parseCrsUom(int crsAxisIndex, String axisLabel, Element envelopeElement)
             throws WCSTMissingBoundedBy, WCSTMissingEnvelope, PetascopeException, SecoreException {
 
         String srsNames = envelopeElement.getAttributeValue(XMLSymbols.ATT_SRS_NAME);
@@ -322,14 +427,8 @@ public class GMLParserService {
      * Return the Map of geoAxesLabel and parsed geo domains (lowerBound,
      * upperBound) from <boundedBy> element
      *
-     * @param rootElement
-     * @return
-     * @throws petascope.wcst.exceptions.WCSTMissingBoundedBy
-     * @throws petascope.wcst.exceptions.WCSTMissingEnvelope
-     * @throws petascope.wcst.exceptions.WCSTMissingLowerCorner
-     * @throws petascope.wcst.exceptions.WCSTMissingUpperCorner
      */
-    public static Map<String, Pair<String, String>> parseLowerUpperBounds(Element rootElement) throws WCSTMissingBoundedBy, WCSTMissingEnvelope, WCSTMissingLowerCorner, WCSTMissingUpperCorner {
+    private Map<String, Pair<String, String>> parseLowerUpperBounds(Element rootElement) throws WCSTMissingBoundedBy, WCSTMissingEnvelope, WCSTMissingLowerCorner, WCSTMissingUpperCorner {
         // e.g: geo order is  axisLabels="Lat Long t"
         // bounds: 25.00 -40.50 "1949-12-31T12:00:00+00:00"
         // then Lat -> 25, Long -> -40.50, t -> "1949-12-31T12:00:00+00:00"
@@ -378,20 +477,8 @@ public class GMLParserService {
      *
      * @param rootElement
      * @return
-     * @throws petascope.wcst.exceptions.WCSTMissingDomainSet
-     * @throws petascope.wcst.exceptions.WCSTMissingBoundedBy
-     * @throws petascope.wcst.exceptions.WCSTMissingEnvelope
-     * @throws petascope.wcst.exceptions.WCSTMissingGridType
-     * @throws petascope.wcst.exceptions.WCSTMissingLowerCorner
-     * @throws petascope.wcst.exceptions.WCSTMissingUpperCorner
-     * @throws petascope.wcst.exceptions.WCSTMissingLimits
-     * @throws petascope.wcst.exceptions.WCSTMissingGridEnvelope
-     * @throws petascope.wcst.exceptions.WCSTMissingLow
-     * @throws petascope.wcst.exceptions.WCSTMissingHigh
-     * @throws petascope.wcst.exceptions.WCSTLowHighDifferentSizes
-     * @throws petascope.exceptions.SecoreException
      */
-    public static List<GeoAxis> parseGeoAxes(Element rootElement) throws WCSTMissingDomainSet, WCSTMissingBoundedBy,
+    private List<GeoAxis> parseGeoAxes(Element rootElement) throws WCSTMissingDomainSet, WCSTMissingBoundedBy,
             WCSTMissingEnvelope, WCSTMissingGridType, WCSTMissingLowerCorner, WCSTMissingUpperCorner, WCSTMissingLimits,
             WCSTMissingGridEnvelope, WCSTMissingLow, WCSTMissingHigh, WCSTLowHighDifferentSizes, PetascopeException, SecoreException {
         List<GeoAxis> geoAxes = new ArrayList<>();
@@ -474,7 +561,7 @@ public class GMLParserService {
      * grid.
      * @return map of axisOrder => list of coefficients.
      */
-    public static Map<Integer, List<BigDecimal>> parseAxesCoefficients(Element gridTypeElement) {
+    private Map<Integer, List<BigDecimal>> parseAxesCoefficients(Element gridTypeElement) {
         Map<Integer, List<BigDecimal>> result = new LinkedHashMap<>();
 
         //in case coefficients exist, update them
@@ -511,7 +598,7 @@ public class GMLParserService {
      * Return list of offset vectors (resolutions) from GridCoverage,
      * RectifiedGridCoverage or ReferenceableGridCoverage
      */
-    public static List<BigDecimal> parseOffsetVectors(Element gridTypeElement) {
+    private List<BigDecimal> parseOffsetVectors(Element gridTypeElement) {
         List<BigDecimal> offsetVectors = new ArrayList<>();
 
         Elements offsetVectorElements = null;
@@ -575,7 +662,7 @@ public class GMLParserService {
      * ...
      * </RangeType>
      */
-    public static List<Field> parseFields(Element rootElement) throws PetascopeException {
+    private List<Field> parseFields(Element rootElement) throws PetascopeException {
         //get the rangeType Element
         Elements rangeTypeElements = rootElement.getChildElements(XMLSymbols.LABEL_RANGE_TYPE, XMLSymbols.NAMESPACE_GMLCOV);
         if (rangeTypeElements.size() != 1) {
@@ -627,7 +714,7 @@ public class GMLParserService {
      * format
      * @return a Quantity object
      */
-    public static Quantity parseSweQuantity(Element quantityElement) throws WCSTWrongInervalFormat, WCSException {
+    private Quantity parseSweQuantity(Element quantityElement) throws WCSTWrongInervalFormat, WCSException {
         String description = null;
         String definitionUri = null;
         String uomCode = null;
@@ -684,7 +771,7 @@ public class GMLParserService {
      * Rasdaman supports only integers or intervals formed of integers as nil
      * values values.
      */
-    private static void validateNilValue(String nilValue) throws WCSTInvalidNilValueException {
+    private void validateNilValue(String nilValue) throws WCSTInvalidNilValueException {
         if (!"".equals(nilValue)) {
             //for intervals, split after :
             String[] parts = nilValue.split(":");
@@ -913,7 +1000,7 @@ public class GMLParserService {
     /**
      * Parses gml:metadata elements.
      */
-    public static String parseExtraMetadata(Element root) {
+    private String parseExtraMetadata(Element root) {
         String ret = "";
         Elements metadata = root.getChildElements(XMLSymbols.LABEL_METADATA, XMLSymbols.NAMESPACE_GMLCOV);
         if (metadata.size() > 0 && metadata.get(0).getChildCount() > 0) {
@@ -931,9 +1018,9 @@ public class GMLParserService {
     /**
      * Parses the compound crs from list of geo axes CRSs
      */
-    public static String parseSrsName(Element rootElement) throws WCSTMissingBoundedBy, WCSTMissingEnvelope {
-        Element boundedByElement = GMLParserService.parseBoundedBy(rootElement);
-        Element envelopeElement = GMLParserService.parseEnvelope(boundedByElement);
+    private String parseSrsName(Element rootElement) throws WCSTMissingBoundedBy, WCSTMissingEnvelope {
+        Element boundedByElement = this.parseBoundedBy(rootElement);
+        Element envelopeElement = this.parseEnvelope(boundedByElement);
         String srsName = envelopeElement.getAttributeValue(XMLSymbols.ATT_SRS_NAME);
 
         return srsName;

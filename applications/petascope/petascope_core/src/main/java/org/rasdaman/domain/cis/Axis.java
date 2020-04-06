@@ -51,6 +51,16 @@ public abstract class Axis implements Serializable {
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String srsName;
     
+    public Axis() {
+        
+    }
+
+    public Axis(String axisLabel, String uomLabel, String srsName) {
+        this.axisLabel = axisLabel;
+        this.uomLabel = uomLabel;
+        this.srsName = srsName;
+    }
+    
     public long getId() {
         return id;
     }

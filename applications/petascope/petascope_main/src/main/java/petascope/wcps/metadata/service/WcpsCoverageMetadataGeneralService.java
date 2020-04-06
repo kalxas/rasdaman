@@ -396,6 +396,10 @@ public class WcpsCoverageMetadataGeneralService {
      */
     public void filterCoverageLocalMetadata(WcpsCoverageMetadata wcpsCoverageMetadata, List<Subset> inputSubsets) {
         
+        if (wcpsCoverageMetadata.getCoverageMetadata().getLocalMetadata() == null) {
+            return;
+        }
+        
         List<LocalMetadataChild> localMetadataChildList = wcpsCoverageMetadata.getCoverageMetadata().getLocalMetadata().getLocalMetadataChildList();
         ListIterator<LocalMetadataChild> iter = localMetadataChildList.listIterator();
 
@@ -528,7 +532,7 @@ public class WcpsCoverageMetadataGeneralService {
         String crsURI = CrsUtil.OPENGIS_INDEX_ND_PATTERN.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, String.valueOf(index + 1));
         CrsDefinition crsDefinition = null;
         Axis axis = new RegularAxis(axisLabel, gridBounds, gridBounds, gridBounds, crsURI, 
-                                    crsDefinition, axisType, axisUoM, index, gridBounds.getLowerLimit(), scalarResolution);
+                                    crsDefinition, axisType, axisUoM, index, gridBounds.getLowerLimit(), scalarResolution, gridBounds);
         return axis;
     }
     
@@ -628,7 +632,7 @@ public class WcpsCoverageMetadataGeneralService {
             BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
 
             Axis axis = new RegularAxis(label, geoBounds, originalGridBounds, gridBounds, crsUri,
-                    crsDefinition, axisType, axisUoM, axesCounter, origin, scalarResolution);
+                    crsDefinition, axisType, axisUoM, axesCounter, origin, scalarResolution, geoBounds);
             axesCounter++;
             axes.add(axis);
         }

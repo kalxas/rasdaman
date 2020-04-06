@@ -384,7 +384,7 @@ public class CrsComputerService {
     // NOTE: for WCPS, the most important value is a correct axis's resolution, then the formular to translate geo bounds to grid bounds will be correct.
     // The epsilon to adjust grid bounds for WCPS is really small as this is not used in almost cases, 
     // only in rare cases when the result should be shifted (e.g: 1.0000000000000000000011111 -> 1)
-    public static final BigDecimal GRID_POINT_EPSILON_WCPS = new BigDecimal("0.000000001");
+    public static final BigDecimal GRID_POINT_EPSILON_WCPS = new BigDecimal("0.00001");
     
     private final String axisName;
     private final String crsName;

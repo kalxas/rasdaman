@@ -21,9 +21,9 @@
  */
 package petascope.wcst.helpers.insert;
 
+import java.io.IOException;
 import petascope.rasdaman.exceptions.RasdamanException;
 
-import java.io.IOException;
 import petascope.exceptions.PetascopeException;
 
 /**
@@ -31,11 +31,14 @@ import petascope.exceptions.PetascopeException;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public interface RasdamanInserter {
+public abstract class AbstractRasdamanInserter {
+    
+    // Rasdaman user credentials
+    protected String username;
+    protected String password;
 
     /**
      * Inserts data into rasdaman.
-     * @return the oid of the affected array.
      */
-    public void insert() throws RasdamanException, IOException, PetascopeException;
+    public abstract void insert() throws IOException, RasdamanException, PetascopeException;
 }

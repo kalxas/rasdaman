@@ -73,6 +73,12 @@ public class RangeType implements Serializable {
 
     }
 
+    public RangeType(DataRecord dataRecord, InterpolationRestriction interpolationRestriction) {
+        this.dataRecord = dataRecord;
+        this.interpolationRestriction = interpolationRestriction;
+    }
+    
+
     public long getId() {
         return id;
     }

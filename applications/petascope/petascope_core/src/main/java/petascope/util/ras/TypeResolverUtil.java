@@ -53,7 +53,7 @@ public class TypeResolverUtil {
      * @return the rasdaman collection type
      * @throws IOException
      */
-    public static String guessCollectionTypeFromFile(String collectionName, String filePath, int dimension, List<NilValue> nullValues) throws IOException, PetascopeException {
+    public static String guessCollectionTypeFromFile(String collectionName, String filePath, int dimension, List<NilValue> nullValues) throws PetascopeException {
         Pair<Integer, ArrayList<String>> dimTypes = Gdalinfo.getDimensionAndTypes(filePath);
         
         return guessCollectionType(collectionName, dimension, dimTypes.snd, nullValues);

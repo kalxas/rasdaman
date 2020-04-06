@@ -24,9 +24,6 @@ package petascope.wcps.metadata.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.rasdaman.domain.cis.*;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
@@ -86,7 +83,9 @@ public class WcpsCoverageMetadataTranslator {
      */
     public WcpsCoverageMetadata create(String coverageId) throws PetascopeException, SecoreException {
         // Only supports GeneralGridCoverage now
+        
         Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(coverageId);
+        
         List<GeoAxis> geoAxes = ((GeneralGridCoverage) coverage).getGeoAxes();
         List<IndexAxis> indexAxes = ((GeneralGridCoverage) coverage).getIndexAxes();
 

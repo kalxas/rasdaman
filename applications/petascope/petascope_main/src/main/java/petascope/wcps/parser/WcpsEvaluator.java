@@ -280,7 +280,11 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         VisitorResult returnClause = visit(ctx.returnClause());
         VisitorResult result = null;
         if (returnClause instanceof WcpsResult) {
-            result = wcpsQueryHandler.handle(forClauseList, whereClause, (WcpsResult) returnClause);
+            try {
+                result = wcpsQueryHandler.handle(forClauseList, whereClause, (WcpsResult) returnClause);
+            } catch (PetascopeException ex) {
+                throw new WCPSException("Error processing WCPS query. Reason: " + ex.getExceptionText(), ex);
+            }
         } else {
             result = (WcpsMetadataResult) returnClause;
         }        

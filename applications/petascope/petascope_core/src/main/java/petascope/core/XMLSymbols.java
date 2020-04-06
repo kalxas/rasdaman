@@ -105,10 +105,12 @@ public interface XMLSymbols {
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // wcs/gml    
-    String LABEL_AXIS_EXTENT = "axisExtent";
+    String LABEL_AXIS_EXTENT = "AxisExtent";
     String LABEL_BOUNDEDBY = "boundedBy";
+    String LABEL_BASIC_COVERAGE = "BasicCoverage";
     String LABEL_CAPABILITIES = "Capabilities";
     String LABEL_COVERAGE_ID = "CoverageId";
+    String LABEL_COVERAGE_TYPE = "CoverageType";
     String LABEL_COVERAGE_SUBTYPE = "CoverageSubtype";
     String LABEL_COVERAGE_SUBTYPE_PARENT = "CoverageSubtypeParent";
     String LABEL_COVERAGE_DESCRIPTIONS = "CoverageDescriptions";
@@ -223,6 +225,7 @@ public interface XMLSymbols {
     String LABEL_GENERAL_GRID_AXIS = "GeneralGridAxis";
     String LABEL_GRID_AXES_SPANNED = "gridAxesSpanned";
     String LABEL_METADATA = "metadata";
+    String LABEL_METADATA_CIS11 = "Metadata";
     // wcs scaling extension
     String LABEL_SCALING = "Scaling";
     String LABEL_SCALEBYFACTOR = "ScaleByFactor";
@@ -271,6 +274,7 @@ public interface XMLSymbols {
     // Rasdaman
     String LABEL_CUSTOMIZED_METADATA = "Metadata";
     String LABEL_CUSTOMIZED_METADATA_LOCATION = "location";
+    String LABEL_CUSTOMIZED_METADATA_SOURCE_COVERAGE_IDS = "sourceCoverageIds";
     String LABEL_CUSTOMIZED_METADATA_HOSTNAME = "hostname";
     String LABEL_CUSTOMIZED_METADATA_PETASCOPE_ENDPOINT = "endpoint";
     String LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES = "sizeInBytes";
@@ -421,6 +425,8 @@ public interface XMLSymbols {
     String LABEL_WMS_COLOR_TABLE = "ColorTable";
     String LABEL_WMS_COLOR_TABLE_TYPE = "ColorTableType";
     String LABEL_WMS_COLOR_TABLE_DEFINITION = "ColorTableDefinition";
+    
+
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

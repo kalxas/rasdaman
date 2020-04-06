@@ -67,20 +67,38 @@ public class BoundingBox {
         return this.ymax;
     }
 
-    public void setXmin(BigDecimal xmin) {
+    public void setXMin(BigDecimal xmin) {
         this.xmin = xmin;
     }
 
-    public void setYmin(BigDecimal ymin) {
+    public void setYMin(BigDecimal ymin) {
         this.ymin = ymin;
     }
 
-    public void setXmax(BigDecimal xmax) {
+    public void setXMax(BigDecimal xmax) {
         this.xmax = xmax;
     }
 
-    public void setYmax(BigDecimal ymax) {
+    public void setYMax(BigDecimal ymax) {
         this.ymax = ymax;
+    }
+    
+    public String toString() {
+        return "xmin=" + this.xmin.toPlainString() + ", ymin=" + this.ymin.toPlainString()
+                + ", xmax=" + this.xmax.toPlainString() + ", ymax=" + this.ymax.toPlainString();
+    }
+    
+    /**
+     * In case it is needed to swap X for Y bounds.
+     */
+    public void swapXYOrder() {
+        BigDecimal temp = new BigDecimal(this.xmin.toPlainString());
+        this.xmin = new BigDecimal(this.ymin.toPlainString());
+        this.ymin = temp;
+        
+        temp = new BigDecimal(this.xmax.toPlainString());
+        this.xmax = new BigDecimal(this.ymax.toPlainString());
+        this.ymax = temp;
     }
     
     private BigDecimal xmin;

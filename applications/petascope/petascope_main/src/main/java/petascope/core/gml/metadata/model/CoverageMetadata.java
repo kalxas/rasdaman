@@ -26,9 +26,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import petascope.core.XMLSymbols;
 import petascope.wcps.encodeparameters.model.AxesMetadata;
 import petascope.wcps.encodeparameters.model.BandsMetadata;
 /**
@@ -64,6 +64,22 @@ public class CoverageMetadata {
         this.bandsMetadata = new BandsMetadata();
         this.axesMetadata = new AxesMetadata();
         this.localMetadata = new LocalMetadata();
+    }
+    
+    /**
+     * If this object contains empty properties objects, then they should be stripped
+     * to not show in the result if serialization
+     */
+    public void stripEmptyProperties() {
+        if (this.axesMetadata != null && this.axesMetadata.getAxesAttributesMap().isEmpty()) {
+            this.setAxesMetadata(null);
+        }
+        if (this.bandsMetadata != null && this.bandsMetadata.getBandsAttributesMap().isEmpty()) {
+            this.setBandsMetadata(null);
+        }
+        if (this.localMetadata != null && this.localMetadata.getLocalMetadataChildList().isEmpty()) {
+            this.setLocalMetadata(null);
+        }
     }
 
     @JsonAnyGetter
@@ -101,10 +117,12 @@ public class CoverageMetadata {
     */
     public boolean containLocalMetadataInList(LocalMetadataChild localMetadata) {
         boolean elementExist = false;
-        for (LocalMetadataChild element : this.localMetadata.getLocalMetadataChildList()) {
-            if (element.getBoundedBy().getEnvelope().equals(localMetadata.getBoundedBy().getEnvelope())) {
-                elementExist = true;
-                break;
+        if (this.localMetadata != null) {
+            for (LocalMetadataChild element : this.localMetadata.getLocalMetadataChildList()) {
+                if (element.getBoundedBy().getEnvelope().equals(localMetadata.getBoundedBy().getEnvelope())) {
+                    elementExist = true;
+                    break;
+                }
             }
         }
         
@@ -115,7 +133,9 @@ public class CoverageMetadata {
      * Add a new localMetadata to list of local metadata root.
      */
     public void addLocalMetadataToList(LocalMetadataChild localMetadata) {
-        this.localMetadata.getLocalMetadataChildList().add(localMetadata);
+        if (this.localMetadata != null) {
+            this.localMetadata.getLocalMetadataChildList().add(localMetadata);
+        }
     }
     
     /**
@@ -129,22 +149,24 @@ public class CoverageMetadata {
         Map<String, String> resultMap = new LinkedHashMap<>();
         resultMap.putAll(this.globalMetadataAttributesMap);
         
-        // Iterate keys, values in LocalMetadataChild list to aggreate them by keys
-        for (LocalMetadataChild localMetadataChild : this.localMetadata.getLocalMetadataChildList()) {
-            for (Entry<String, String> entry : localMetadataChild.getLocalMetadataAttributesMap().entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                
-                if (!resultMap.containsKey(key)) {
-                    resultMap.put(key, value);
-                } else {
-                    // Concatenate values to same key
-                    String concatedValue = resultMap.get(key);
-                    concatedValue = concatedValue + "," + value;
-                    resultMap.put(key, concatedValue);
+        if (this.localMetadata != null) {
+            // Iterate keys, values in LocalMetadataChild list to aggreate them by keys
+            for (LocalMetadataChild localMetadataChild : this.localMetadata.getLocalMetadataChildList()) {
+                for (Entry<String, String> entry : localMetadataChild.getLocalMetadataAttributesMap().entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+
+                    if (!resultMap.containsKey(key)) {
+                        resultMap.put(key, value);
+                    } else {
+                        // Concatenate values to same key
+                        String concatedValue = resultMap.get(key);
+                        concatedValue = concatedValue + "," + value;
+                        resultMap.put(key, concatedValue);
+                    }
                 }
             }
-         }
+        }
         
         return resultMap;
     }
