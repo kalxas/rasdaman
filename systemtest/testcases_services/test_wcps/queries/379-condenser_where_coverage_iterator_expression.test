@@ -1,4 +1,4 @@
-for $c in (test_mean_summer_airtemp) return encode( 
+for $c in (test_mean_summer_airtemp) return encode(
    condense min
    over     $ts t(0:9)
    where ($ts > 1 or $ts > 3 ) and ($ts > 5 and $ts > 7) and ($ts < avg($c))

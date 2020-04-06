@@ -42,12 +42,7 @@
 PROG=$(basename "$0")
 
 VERSION="@VERSION_FULL@"
-
-# database to be used
-DB=RASBASE
-
-# shorthand: rasql parameters
-RASQL_ARGS="--server $HOST --port $PORT --database $DB --user $USER --passwd $PASSWD"
+RASQL="@bindir@rasql"
 
 # --- parameter evaluation --------------------------------------------
 
@@ -76,31 +71,33 @@ echo "$PROG: using host $HOST, image directory $IMAGEDIR, and user/passwd $USER/
 
 # --- evaluate cmd line parameters ------------------------------------
 
-if [ -f @bindir@rasql ]; then
-	RASQL="@bindir@rasql"
-else
-	echo "$PROG: Error: rasql not found, please install rasdaman first."
+# database to be used
+DB=RASBASE
+
+# shorthand: rasql parameters
+RASQL_ARGS="--server $HOST --port $PORT --database $DB --user $USER --passwd $PASSWD"
+
+if [ ! -f "$RASQL" ]; then
+	echo "$PROG: rasql not found: $RASQL"
 	exit 1
 fi
-
-# does $IMAGEDIR point to a good directory?
 if [ ! -d "$IMAGEDIR" ]; then
-	echo "$PROG: Illegal package path $IMAGEDIR."
+	echo "$PROG: data directory not found: $IMAGEDIR"
 	exit 1
 fi
 
 coll_names=$($RASQL $RASQL_ARGS -q 'select c from RAS_COLLECTIONNAMES as c' --out string 2>&1)
 if [ $? -ne 0 ]; then
-    echo "$PROG: Error: failed executing a query with rasql, please install and start rasdaman first."
+    echo "$PROG: failed executing a query with rasql, please install and start rasdaman first."
     exit 1
 fi
 coll_names=$(echo "$coll_names" | strings)
 
 ingest()
 {
-    local coll_name="$1"
-    local coll_type="$2"
-    local data_files="$3"
+    coll_name="$1"
+    coll_type="$2"
+    data_files="$3"
 
     echo -n "$PROG: ingesting $coll_name... "
     echo "$coll_names" | grep -q -E "\b$coll_name\b"
@@ -126,6 +123,3 @@ ingest mr2 GreySet "$IMAGEDIR/mr_1.pgm"
 ingest rgb RGBSet "$IMAGEDIR/anthur.ppm"
 
 echo "$PROG: done."
-
-# end of rasdaman_insertdemo.sh
-
