@@ -53,9 +53,7 @@
 				var a, b, deg, tmp,
 					rad2deg = 180/Math.PI;
 				
-				knob.on('mousemove.rem touchmove.rem',function(e){
-					
-					e = (e.originalEvent.touches) ? e.originalEvent.touches[0] : e;
+				knob.on('mousemove.rem',function(e){
 					
 					a = center.y - e.pageY;
 					b = center.x - e.pageX;
@@ -99,12 +97,12 @@
 					lastDeg = tmp;
 		
 					knobTop.css('transform','rotate('+(currentDeg)+'deg)');
-					options.turn(currentDeg/359);
+					options.turn(currentDeg/360);
 				});
 			
-				doc.on('mouseup.rem  touchend.rem',function(){
-					knob.off('.rem');
-					doc.off('.rem');
+				doc.on('mouseup.rem',function(){
+					knob.off('mousemove.rem');
+					doc.off('mouseup.rem');
 					
 					// Saving the current rotation
 					rotation = currentDeg;

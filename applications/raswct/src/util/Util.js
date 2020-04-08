@@ -130,7 +130,6 @@ _.mixin({
     else{
       //some request arrived already
       var timeDiff = arrivalTime - Rj.util.GlobalState.RjRequestTime;
-      console.log(timeDiff, Rj.util.ConfigManager.getRequestDelay()-timeDiff);
       if(timeDiff >= Rj.util.ConfigManager.getRequestDelay()){
         request.send(newCfg.dataToSend);
         Rj.util.GlobalState.RjRequestTime = arrivalTime;
@@ -145,7 +144,8 @@ _.mixin({
   },
   /**
    * Returns the id of a DOM Element. If the element does not
-   * have an id, one will be generated for it
+   * have an id, one will be generated for it.
+   * If the selector will match more than one element, each of the elements will get an id and an array
    * @param {String} selector any jQuery compatible selector expression
    * @return {String} the id of the elements
    */
