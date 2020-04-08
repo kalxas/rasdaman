@@ -53,10 +53,22 @@ class FileUtil:
         :return: list of string
         """
         file_paths = []
-        glob = import_glob()
-        if not file_path_regex.strip().startswith("/"):
-            file_path_regex = current_dir + file_path_regex
-        file_paths = file_paths + glob.glob(file_path_regex, recursive = True)
+
+        # If the input file is actually a regex pattern then glob can be used
+        if "*" in file_path_regex or "?" in file_path_regex\
+            or ".." in file_path_regex:
+            glob = import_glob()
+            if not file_path_regex.strip().startswith("/"):
+                file_path_regex = current_dir + file_path_regex
+
+            file_paths = file_paths + glob.glob(file_path_regex, recursive=True)
+        else:
+            # non regex file path
+            if "/" not in file_path_regex:
+                # only file name is listed
+                file_path_regex = current_dir + "/" + file_path_regex
+
+            file_paths.append(file_path_regex)
 
         return file_paths
 

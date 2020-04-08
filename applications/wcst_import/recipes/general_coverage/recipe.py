@@ -62,10 +62,6 @@ class Recipe(BaseRecipe):
         self.importer = None
         self.resumer = Resumer(self.session.get_coverage_id())
 
-        validator = GDALValidator(self.session.files)
-        if ConfigManager.skip:
-            self.session.files = validator.get_valid_files()
-
     def validate(self):
         """
         Implementation of the base recipe validate method

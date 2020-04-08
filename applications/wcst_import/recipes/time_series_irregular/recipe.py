@@ -68,9 +68,6 @@ class Recipe(BaseRecipe):
             self.options['coverage']['slicer'] = {}
             self.options['coverage']['slicer']['type'] = GdalToCoverageConverter.RECIPE_TYPE
 
-        validator = GDALValidator(self.session.files)
-        if ConfigManager.skip:
-            self.session.files = validator.get_valid_files()
 
     def validate(self):
         super(Recipe, self).validate()
