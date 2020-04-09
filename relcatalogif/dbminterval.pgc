@@ -38,53 +38,58 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "dbminterval.hh"
+#include <string>
 
 EXEC SQL include "../reladminif/sqlglobals.h";
 
 DBMinterval::DBMinterval()
-    :   r_Minterval(),
-        DBObject()
+    :   DBObject(),
+        r_Minterval()
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
 DBMinterval::DBMinterval(const OId& id)
-    :   r_Minterval(),
-        DBObject(id)
+    :   DBObject(id),   
+        r_Minterval()
+        
 {
     objecttype = OId::DBMINTERVALOID;
     readFromDb();
 }
 
 DBMinterval::DBMinterval(r_Dimension dim)
-    :   r_Minterval(dim),
-        DBObject()
+    :   DBObject(),
+        r_Minterval(dim)
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
 DBMinterval::DBMinterval(const char* dom)
-    :   r_Minterval((char*)dom),
-        DBObject()
+    :   DBObject(),
+        r_Minterval((const char*)dom)
+        
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
 DBMinterval::DBMinterval(const DBMinterval& old)
-    :   r_Minterval(old),
-        DBObject(old)
+    :   DBObject(old),
+        r_Minterval(old)
+        
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
 DBMinterval::DBMinterval(const r_Minterval& old)
-    :   r_Minterval(old),
-        DBObject()
+    :   DBObject(),
+        r_Minterval(old)
+        
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const r_Minterval& old, const std::vector<std::string> *axisNames2)
+DBMinterval::DBMinterval(const r_Minterval& old, const std::vector<std::string> &axisNames2)
     : DBObject(), r_Minterval(old, axisNames2)
 {
     objecttype = OId::DBMINTERVALOID;
@@ -125,14 +130,14 @@ void
 DBMinterval::insertInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
-        long    domainid;
-        long    count;
-        long    low;
-        short   lowind;
-        long    high;
-        short   highind;
-        long    dimension;
-        char*   axisName;
+        long            domainid;
+        unsigned long   count;
+        long            low;
+        short           lowind;
+        long            high;
+        short           highind;
+        long            dimension;
+        char*           axisName;
     EXEC SQL END DECLARE SECTION;
 
     domainid = myOId.getCounter();
@@ -145,7 +150,7 @@ DBMinterval::insertInDb()
         check("DBMinterval::insertInDb() INSERT INTO RAS_DOMAINS");
         generateException();
     }
-
+    std::string axisName1;
     for (count = 0; count < dimensionality; count++)
     {
         if (intervals[count].is_low_fixed())
@@ -176,7 +181,7 @@ DBMinterval::insertInDb()
             axisName1 = axisNames.at(count);
         }
 
-        axisName = axisName1.c_str();
+        axisName = const_cast<char*>(axisName1.c_str());
         EXEC SQL INSERT INTO RAS_DOMAINVALUES   ( DomainId, DimensionCount, AxisName, Low, High)
             VALUES    ( :domainid, :count, :axisName, :low INDICATOR :lowind, :high INDICATOR :highind);
 
@@ -218,8 +223,8 @@ DBMinterval::updateInDb()
         //insert more rows in RAS_DOMAINVALUES
         for (count1 = dimension1; count1 < dimensionality; count1++)
         {
-            std::string axisName = "d" + std::to_string(count);
-            axisName1 = axisName.c_str();
+            std::string axisName = "d" + std::to_string(count1);
+            axisName1 = const_cast<char*>(axisName.c_str());
             EXEC SQL INSERT INTO RAS_DOMAINVALUES   ( DomainId, DimensionCount, AxisName)
             VALUES  ( :domainid1, :count1, :axisName1);
             if (SQLCODE != SQLOK)
@@ -341,7 +346,7 @@ DBMinterval::readFromDb()
         long        high3;
         short       highind3;
         long        dimension3;
-        std::string axisname3;
+        char        axisname3[VARCHAR_MAXLEN];
     EXEC SQL END DECLARE SECTION;
 
     domainid3 = myOId.getCounter();
@@ -379,14 +384,14 @@ DBMinterval::readFromDb()
             check("DBMinterval::readFromDb() SELECT FROM RAS_DOMAINVALUES");
             generateException();
         }
-
-        if (!axisname3)
+        std::string axisNameTmp(axisname3);
+        if (axisNameTmp.length() != 0)
         {
-            axisNames.push_back(axisname3);
+            axisNames.push_back(axisNameTmp);
         }
         else
         {
-            axisNames.push_back("d" + std::to_string(count));
+            axisNames.push_back("d" + std::to_string(count3));
         }
         if (!lowind3)
         {
@@ -410,3 +415,8 @@ DBMinterval::readFromDb()
     DBObject::readFromDb();
 }
 
+
+void DBMinterval::updateMinterval(const r_Minterval &domain) {
+  r_Minterval::operator=(domain);
+  setModified();
+}

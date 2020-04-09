@@ -45,6 +45,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include "reladminif/objectbroker.hh"
 #include "relcatalogif/collectiontype.hh"
 #include <logging.hh>
+#define SQLITE_NOTFOUND    12 
 
 DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
     :   DBNamedObject(id, name),

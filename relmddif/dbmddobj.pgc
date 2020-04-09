@@ -54,12 +54,12 @@ rasdaman GmbH.
 
 DBMDDObj::DBMDDObj()
     :   DBObject(),
-        myDomain(NULL),
-        objIxId(),
-        mddType(NULL),
         persistentRefCount(0),
+        mddType(NULL),
+        myDomain(NULL),
         nullValues(NULL),
-        storageLayoutId(new DBStorageLayout())
+        storageLayoutId(new DBStorageLayout()),
+        objIxId()
 {
     objecttype = OId::MDDOID;
     myDomain = new DBMinterval();
@@ -69,12 +69,12 @@ DBMDDObj::DBMDDObj()
 
 DBMDDObj::DBMDDObj(const OId& id)
     :   DBObject(id),
-        myDomain(NULL),
-        objIxId(),
         persistentRefCount(0),
         mddType(NULL),
+        myDomain(NULL),
         nullValues(NULL),
-        storageLayoutId(0LL)
+        storageLayoutId(0LL),
+        objIxId()
 {
     objecttype = OId::MDDOID;
     readFromDb();
@@ -86,12 +86,12 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
                     const DBStorageLayoutId& newSL,
                     const OId& newOId)
     :   DBObject(),
-        objIxId(newObjIx.getOId()),
-        mddType(newMDDType),
         persistentRefCount(0),
-        storageLayoutId(newSL),
+        mddType(newMDDType),
+        myDomain(NULL),
         nullValues(NULL),
-        myDomain(NULL)
+        storageLayoutId(newSL),
+        objIxId(newObjIx.getOId())
 {
     objecttype = OId::MDDOID;
     EXEC SQL BEGIN DECLARE SECTION;
@@ -112,7 +112,7 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
     if (SQLCODE != SQLNODATAFOUND)
     {
         ((DBObjectId)newObjIx)->setPersistent(false);
-        ((DBObject*)newSL.ptr())->setPersistent(false);
+        ((DBObject*)const_cast<DBStorageLayout*>(newSL.ptr()))->setPersistent(false);
         if (SQLCODE == SQLOK)
         {
             LTRACE << "OId is already there";
@@ -138,12 +138,12 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
 
 DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType, const r_Minterval& domain, const DBObjectId& newObjIx, const DBStorageLayoutId& newSL)
     :   DBObject(),
-        objIxId(newObjIx),
-        mddType(NULL),
         persistentRefCount(0),
-        storageLayoutId(newSL),
+        mddType(NULL),
+        myDomain(NULL),
         nullValues(NULL),
-        myDomain(NULL)
+        storageLayoutId(newSL),
+        objIxId(newObjIx)
 {
     objecttype = OId::MDDOID;
     myDomain = new DBMinterval(domain);
@@ -268,7 +268,7 @@ void
 DBMDDObj::printStatus(unsigned int level, std::ostream& stream) const
 {
     DBObject::printStatus(level, stream);
-    stream << *myDomain << endl;
+    stream << *myDomain << std::endl;
     mddType->printStatus(level + 1, stream);
     DBObjectId testIx(objIxId);
     if (!testIx.is_null())

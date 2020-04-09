@@ -369,8 +369,8 @@ BLOBTile::kill(const OId& target, unsigned int range)
         EXEC SQL BEGIN DECLARE SECTION;
     #endif NOTYET
     */
-    long indbmyOId5;
-    long indbmyOId6;
+    long indbmyOId5 = 0;
+    long indbmyOId6 = 0;
     long blobId;    // blob tuple primary key
     Oid blobOid;    // blob oid "ptr"
     /*

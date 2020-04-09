@@ -94,13 +94,13 @@ DBHierIndex::insertInDb()
     r_Bytes headersize = sizeof(header);
 	
     //number of bytes for bounds for "size" entries and mydomain
-    r_Bytes boundssize = sizeof(r_Range) * (size2 + 1) * dimension2;
+    r_Bytes boundssize = (r_Bytes)(sizeof(r_Range) * ((r_Bytes)size2 + 1) * (r_Bytes)dimension2);
     //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof(char) * (size2 + 1) * dimension2;
+    r_Bytes fixessize = sizeof(char) * ((r_Bytes)size2 + 1) * (r_Bytes)dimension2;
     //number of bytes for ids of entries
-    r_Bytes idssize = sizeof(OId::OIdCounter) * size2;
+    r_Bytes idssize = sizeof(OId::OIdCounter) * (r_Bytes)size2;
     //number of bytes for types of entries
-    r_Bytes typessize = sizeof(char) * size2;
+    r_Bytes typessize = sizeof(char) * (r_Bytes)size2;
     //number of bytes for the dynamic data, plus 1 starter byte (see below)
     r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
@@ -202,7 +202,7 @@ DBHierIndex::insertInDb()
         LERROR << "DBHierIndex::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
-    else if (loResult != completesize)      // did not get all
+    else if ((r_Bytes)loResult != completesize)      // did not get all
     {
         LTRACE << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << completesize << " bytes";
         generateException();
@@ -308,7 +308,7 @@ DBHierIndex::readFromDb()
     dimension1    = atoi( PQgetvalue( pgResult, 0, 1 ) ); // extract value #2 from result
     parentid1     = atoll( PQgetvalue( pgResult, 0, 2 ) ); // extract value #3 from result
     indexsubtype1 = atoi( PQgetvalue( pgResult, 0, 3 ) ); // extract value #4 from result
-    blobOid       = atoi( PQgetvalue( pgResult, 0, 4 ) ); // extract value #5 from result
+    blobOid       = (Oid)atoi( PQgetvalue( pgResult, 0, 4 ) ); // extract value #5 from result
     PQclear( pgResult );
 
     // (2) --- fill variables and buffers
@@ -326,12 +326,12 @@ DBHierIndex::readFromDb()
     LDEBUG << "lo_lseek() end";
     int bytesToDo = lo_lseek( pgConn, fd, 0, SEEK_END );    // determine blob size; FIXME: more efficient method??
 
-    char* blobbuffer = (char*)mymalloc(bytesToDo);
+    char* blobbuffer = (char*)mymalloc((r_Bytes)bytesToDo);
 
     LDEBUG << "lo_lseek() start";
     (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
     LDEBUG << "lo_read() for " << bytesToDo << " bytes";   // read blob
-    int loResult = lo_read( pgConn, fd, blobbuffer, bytesToDo );
+    int loResult = lo_read( pgConn, fd, blobbuffer, (r_Bytes)bytesToDo );
     if (loResult < 0)
     {
         LERROR << "DBHierIndex::readFromDb() cannot read blob, error: " << pgResult;
@@ -350,37 +350,37 @@ DBHierIndex::readFromDb()
     LDEBUG << "blobbuffer[0]: "<<blobbuffer[0];
     if (blobbuffer[0] == 13) { // old format
         blobformat = 8;
-        idssize = sizeof(int) * size1;
-		newidssize = sizeof(OId::OIdCounter) * size1;		
+        idssize = sizeof(int) * (r_Bytes)size1;
+		newidssize = sizeof(OId::OIdCounter) * (r_Bytes)size1;		
         //number of bytes for types of entries
         //number of bytes for bounds for "size" entries and mydomain
-        boundssize = sizeof(int) * (size1 + 1) * dimension1;
-        newboundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
+        boundssize = sizeof(int) * ((r_Bytes)size1 + 1) * (r_Bytes)dimension1;
+        newboundssize = sizeof(r_Range) * ((r_Bytes)size1 + 1) * (r_Bytes)dimension1;
         headersize = 1;
     } else {
         headersize = 8;
-        memcpy(&header, &blobbuffer[0], headersize);
+        memcpy(&header, &blobbuffer[0], (r_Bytes)headersize);
         if (header == 1009) {
             blobformat = 9;
-            idssize = sizeof(OId::OIdCounter) * size1;
-            boundssize = sizeof(int) * (size1 + 1) * dimension1;
-            newboundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
+            idssize = sizeof(OId::OIdCounter) * (r_Bytes)size1;
+            boundssize = sizeof(int) * ((r_Bytes)size1 + 1) * (r_Bytes)dimension1;
+            newboundssize = sizeof(r_Range) * ((r_Bytes)size1 + 1) * (r_Bytes)dimension1;
         } else {
             blobformat = 10;
-            idssize = sizeof(OId::OIdCounter) * size1;
+            idssize = sizeof(OId::OIdCounter) * (r_Bytes)size1;
             //number of bytes for types of entries
-            boundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
+            boundssize = sizeof(r_Range) * ((r_Bytes)size1 + 1) * (r_Bytes)dimension1;
         }
     }
     
     LDEBUG << "blobformat: " << blobformat;
 
     //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof(char) * (size1 + 1) * dimension1;
+    r_Bytes fixessize = sizeof(char) * ((r_Bytes)size1 + 1) * (r_Bytes)dimension1;
     //number of bytes for types of entries
-    r_Bytes typessize = sizeof(char) * size1;
+    r_Bytes typessize = sizeof(char) * (r_Bytes)size1;
     //number of bytes for the dynamic data 
-    r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
+    r_Bytes completesize = (r_Bytes)headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
     LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size1 << " dimension=" << dimension1;
 
@@ -432,7 +432,7 @@ DBHierIndex::readFromDb()
         LTRACE << "BLOB (" << myOId << ") read: want to read (" << bytesToDo << " bytes, but got " << loResult << " bytes";
         throw r_Error( r_Error::r_Error_LimitsMismatch );
     }
-    else if (completesize != bytesToDo)             // this because I don't trust computations
+    else if (completesize != (r_Bytes)bytesToDo)             // this because I don't trust computations
     {
         LTRACE << "BLOB (" << myOId << ") read: xcompletesize=" << completesize << ", but bytesToDo=" << bytesToDo;
         throw r_Error( r_Error::r_Error_LimitsMismatch );
@@ -456,7 +456,7 @@ DBHierIndex::readFromDb()
 
     if (blobformat <= 9) { // for blobformat 8 and 9 were only 
         memcpy(oldlowerboundsbuf, &completebuffer[headersize], boundssize);
-        memcpy(oldupperboundsbuf, &completebuffer[boundssize + headersize], boundssize);
+        memcpy(oldupperboundsbuf, &completebuffer[boundssize + (r_Bytes)headersize], boundssize);
         // we need to copy all values over
         for (long i = 0; i < (size1 + 1) * dimension1; i++) {
             lowerboundsbuf[i] = (r_Range) oldlowerboundsbuf[i];
@@ -464,14 +464,14 @@ DBHierIndex::readFromDb()
         }
     } else {
         lowerboundsbuf = (r_Range*) &completebuffer[headersize];
-        upperboundsbuf = (r_Range*) &completebuffer[boundssize + headersize];
+        upperboundsbuf = (r_Range*) &completebuffer[boundssize + (r_Bytes)headersize];
     }
     
-    lowerfixedbuf = &completebuffer[boundssize * 2 + headersize];
-    upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + headersize];
+    lowerfixedbuf = &completebuffer[boundssize * 2 + (r_Bytes)headersize];
+    upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + (r_Bytes)headersize];
 
     if (blobformat == 8) {
-        memcpy(oldentryidsbuf, &completebuffer[boundssize * 2 + fixessize * 2 + headersize], idssize);
+        memcpy(oldentryidsbuf, &completebuffer[boundssize * 2 + fixessize * 2 + (r_Bytes)headersize], idssize);
         // we need to copy all values over
         for (long i = 0; i < size1; i++) {
             entryidsbuf[i] = (OId::OIdCounter) oldentryidsbuf[i];
@@ -480,12 +480,12 @@ DBHierIndex::readFromDb()
        /* HST
         memcpy(entryidsbuf,    &completebuffer[boundssize * 2 + fixessize * 2 + headersize], idssize);
         */
-        lowerfixedbuf = &completebuffer[boundssize * 2 + headersize];
-        upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + headersize];
-        entryidsbuf = (OId::OIdCounter*) &completebuffer[boundssize * 2 + fixessize * 2 + headersize];
+        lowerfixedbuf = &completebuffer[boundssize * 2 + (r_Bytes)headersize];
+        upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + (r_Bytes)headersize];
+        entryidsbuf = (OId::OIdCounter*) &completebuffer[boundssize * 2 + fixessize * 2 + (r_Bytes)headersize];
     }
 	
-    entrytypesbuf = &completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize];
+    entrytypesbuf = &completebuffer[boundssize * 2 + fixessize * 2 + idssize + (r_Bytes)headersize];
     // now all dynamic data is in its private buffer
 	/* HST
     free (completebuffer);
@@ -569,7 +569,7 @@ DBHierIndex::updateInDb()
     id4 = myOId;
     indexsubtype4 = _isNode;
     dimension4 = myDomain.dimension();
-    size4 = myKeyObjects.size();
+    size4 = (long)myKeyObjects.size();
     if (parent.getType() == OId::INVALID)
         parentid4 = 0;
     else
@@ -580,13 +580,13 @@ DBHierIndex::updateInDb()
     r_Bytes headersize = sizeof(header);
 	
     //number of bytes for bounds for "size" entries and mydomain
-    r_Bytes boundssize = sizeof(r_Range) * (size4 + 1) * dimension4;
+    r_Bytes boundssize = sizeof(r_Range) * ((r_Bytes)size4 + 1) * (r_Bytes)dimension4;
     //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof(char) * (size4 + 1) * dimension4;
+    r_Bytes fixessize = sizeof(char) * ((r_Bytes)size4 + 1) * (r_Bytes)dimension4;
     //number of bytes for ids of entries
-    r_Bytes idssize = sizeof(OId::OIdCounter) * size4;
+    r_Bytes idssize = sizeof(OId::OIdCounter) * (r_Bytes)size4;
     //number of bytes for types of entries
-    r_Bytes typessize = sizeof(char) * size4;
+    r_Bytes typessize = sizeof(char) * (r_Bytes)size4;
     //number of bytes for the dynamic data; 1 starter byte!
     r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
@@ -651,7 +651,7 @@ DBHierIndex::updateInDb()
         LERROR << "DBHierIndex::updateInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
-    else if (loResult != completesize)      // did not get all
+    else if ((r_Bytes)loResult != completesize)      // did not get all
     {
         LTRACE << "BLOB (" << myOId << ") update: wrote " << loResult << " instead of " << completesize << " bytes";
         generateException();
@@ -761,7 +761,7 @@ DBHierIndex::deleteFromDb()
         PQclear( pgResult );
         generateException();
     }
-    blobOid = atoi( PQgetvalue( pgResult, 0, 0 ) ); // extract value from result
+    blobOid = (Oid)atoi( PQgetvalue( pgResult, 0, 0 ) ); // extract value from result
     PQclear( pgResult );
 
     // (2) --- delete blob

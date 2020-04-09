@@ -97,6 +97,7 @@ This diplays cli errors.
 #endif
 
 #ifdef BASEDB_PGSQL
+#include <ecpglib.h>
 
 #include "ecpgerrno.h"  // PgSQL error codes
 // const int  SQLNULLFETCHED = -1405;   unused

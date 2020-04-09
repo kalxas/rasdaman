@@ -45,8 +45,8 @@ EXEC SQL include sqlglobals.h;
 #include <logging.hh>
 
 extern char globalConnectId[256];
-extern char globalDbUser[255];
-extern char globalDbPasswd[255];
+extern char globalDbUser[256];
+extern char globalDbPasswd[256];
 
 const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN]="PostgreSQL";
 

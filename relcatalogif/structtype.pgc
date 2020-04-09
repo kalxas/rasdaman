@@ -55,7 +55,9 @@ StructType::insertInDb()
         unsigned int count;
     EXEC SQL END DECLARE SECTION;
 
-    (void) strncpy( structtypename, const_cast<char*>(getTypeName()), (size_t) sizeof(structtypename) );
+    //(void) strncpy( structtypename, const_cast<char*>(getTypeName()), (size_t) sizeof(structtypename) );
+    snprintf(structtypename,sizeof(structtypename),"%s",getTypeName());
+
     structtypeid = myOId.getCounter();
 
     LDEBUG << "EXEC SQL INSERT INTO RAS_BASETYPENAMES ( BaseTypeId, BaseTypeName) VALUES ( " << structtypeid << ", " << structtypename << ")";
@@ -69,7 +71,9 @@ StructType::insertInDb()
 
     for (count = 0; count < getNumElems(); count++)
     {
-        (void) strncpy( elementname, const_cast<char*>(getElemName(count)), (size_t) sizeof(elementname) );
+        //(void) strncpy( elementname, const_cast<char*>(getElemName(count)), (size_t) sizeof(elementname) );
+        snprintf(elementname,sizeof(elementname),"%s",getElemName(count));
+
         //should not be necessary because of TypeFactory::addType()
         DBObject* obj = (DBObject*)const_cast<BaseType*>(getElemType(count));
 
@@ -185,6 +189,7 @@ StructType::readFromDb()
             break;
         }
         LTRACE << count << ". contenttypeid is " << elementtypeid1 << " elementname is " << elementname1;
+      
         addElementPriv((char*)elementname1, (BaseType*)ObjectBroker::getObjectByOId(OId(elementtypeid1)));
         count++;
     }

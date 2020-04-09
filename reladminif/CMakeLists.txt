@@ -22,11 +22,10 @@
 ###################################################################
 
 set(COMPILED_SQL_SOURCES_COMMON "")
-CompileEmbeddedSQL(sqlerror ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-    COMPILED_SQL_SOURCES_COMMON)
+
 add_library(reladminif_common
     ${COMPILED_SQL_SOURCES_COMMON}
-    sqlerror.hh
+    
     sqlitewrapper.hh sqlitewrapper.cc
     )
 target_link_libraries(reladminif_common
@@ -47,6 +46,7 @@ set(EMBEDDED_SQL_SOURCES
     objectbroker
     oidif
     transactionif
+    sqlerror
     )
 
 set(COMPILED_SQL_SOURCES "")
@@ -67,6 +67,7 @@ add_library(reladminif
     destroyable.hh
     eoid.hh eoid.cc
     externs.h
+    sqlerror.hh
     lists.h
     objectbroker.hh objectbrokercommon.cc
     oidif.hh oidifcommon.cc

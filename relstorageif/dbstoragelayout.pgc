@@ -88,59 +88,59 @@ void
 DBStorageLayout::printStatus(unsigned int level, std::ostream& stream) const
 {
     char* indent = new char[level*2 +1];
-    for (int j = 0; j < level*2 ; j++)
+    for (unsigned  int j = 0; j < level*2 ; j++)
         indent[j] = ' ';
     indent[level*2] = '\0';
 
     stream << indent;
-    stream << "DBStorageLayout:" << endl;
+    stream << "DBStorageLayout:" << std::endl;
     if (supportsTileSize())
         stream << "\tTileSize\t\t\t:";
     else
         stream << "\tTileSize (Def.)\t\t\t:";
-    stream << getTileSize() << endl;
+    stream << getTileSize() << std::endl;
     stream << indent;
     if (supportsPCTMin())
         stream << "\tPCTMin\t\t:";
     else
         stream << "\tPCTMin (Def.)\t\t\t:";
-    stream << getPCTMin() << endl;
+    stream << getPCTMin() << std::endl;
     stream << indent;
     if (supportsPCTMax())
         stream << "\tPCTMax\t\t:";
     else
         stream << "\tPCTMax (Def.)\t\t\t:";
-    stream << getPCTMax() << endl;
+    stream << getPCTMax() << std::endl;
     stream << indent;
     if (supportsIndexSize())
         stream << "\tIndexSize\t\t:";
     else
         stream << "\tIndexSize (Def.)\t\t:";
-    stream << getIndexSize() << endl;
+    stream << getIndexSize() << std::endl;
     stream << indent;
     if (supportsIndexType())
         stream << "\tIndexType\t\t\t:";
     else
         stream << "\tIndexType (Def.)\t\t:";
-    stream << getIndexType() << endl;
+    stream << getIndexType() << std::endl;
     stream << indent;
     if (supportsTilingScheme())
         stream << "\tTilingScheme\t\t\t:";
     else
         stream << "\tTilingScheme (Def.)\t\t:";
-    stream << getTilingScheme() << endl;
+    stream << getTilingScheme() << std::endl;
     stream << indent;
     if (supportsTileConfiguration())
         stream << "\tTileConfiguration\t\t:";
     else
         stream << "\tTileConfiguration (Def.)\t:";
-    stream << getTileConfiguration() << endl;
+    stream << getTileConfiguration() << std::endl;
     stream << indent;
     if (supportsDataFormat())
         stream << "\tDataFormat\t\t\t:";
     else
         stream << "\tDataFormat (Def.)\t\t:";
-    stream << getDataFormat() << endl;
+    stream << getDataFormat() << std::endl;
     stream << indent;
 
     delete[] indent;
@@ -332,11 +332,11 @@ DBStorageLayout::readFromDb()
         long    storageid1;
         long    domainid1;
         short   domainid1ind;
-        long    tilesize1;
+        unsigned long    tilesize1;
         short   tilesize1ind;
-        long    pctmin1;
+        unsigned long    pctmin1;
         short   pctmin1ind;
-        long    pctmax1;
+        unsigned long    pctmax1;
         short   pctmax1ind;
         long    indexsize1;
         short   indexsize1ind;
@@ -484,11 +484,11 @@ DBStorageLayout::insertInDb()
         long    storageid2;
         long    domainid2;
         short   domainid2ind;
-        long    tilesize2;
+        unsigned long    tilesize2;
         short   tilesize2ind;
-        long    pctmin2;
+        unsigned long    pctmin2;
         short   pctmin2ind;
-        long    pctmax2;
+        unsigned long    pctmax2;
         short   pctmax2ind;
         long    indexsize2;
         short   indexsize2ind;

@@ -107,7 +107,7 @@ DBNullvalues::insertInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    nullvalueid;
-        long    count;
+        unsigned long    count;
         double  low;
         short   lowind;
         double  high;
@@ -142,7 +142,7 @@ DBNullvalues::updateInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    nullvalueid1;
-        long    count1;
+        unsigned long    count1;
         double  low1;
         double  high1;
         short   lowind1;
@@ -247,7 +247,7 @@ DBNullvalues::readFromDb()
         if (lowind3)
             low3 = std::numeric_limits<double>::quiet_NaN();
         if (highind3)
-            highind3 = std::numeric_limits<double>::quiet_NaN();
+            high3 = std::numeric_limits<double>::quiet_NaN();
         nullvalues.emplace_back(low3, high3);
     }
     

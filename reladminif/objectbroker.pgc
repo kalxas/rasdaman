@@ -429,6 +429,7 @@ ObjectBroker::getOIdOfStructType(const char* name)
         throw r_Error(TYPENAMEISTOOLONG);
     }
     (void) strncpy( structname, const_cast<char*>(name), (size_t) sizeof(structname) );
+    snprintf(structname,sizeof(structname),"%s",name);
 
     LDEBUG << "EXEC SQL SELECT BaseTypeId INTO :structoid FROM RAS_BASETYPENAMES WHERE BaseTypeName = " << structname;
     EXEC SQL SELECT BaseTypeId
@@ -473,7 +474,9 @@ ObjectBroker::getOIdOfMDDSet(const char* name)
     {
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy( collname, const_cast<char*>(name), (size_t) sizeof(collname) );
+    //(void) strncpy( collname, const_cast<char*>(name), (size_t) sizeof(collname) );
+    //collname[sizeof(collname)-1]=0;
+    snprintf(collname,sizeof(collname),"%s",name);
 
     LDEBUG << "EXEC SQL SELECT MDDCollId INTO :colloid FROM RAS_MDDCOLLNAMES WHERE MDDCollName = " << collname;
     EXEC SQL SELECT MDDCollId
@@ -790,7 +793,7 @@ ObjectBroker::getAllStructTypes()
         short   maxbuiltin;
     EXEC SQL END DECLARE SECTION;
 
-    maxbuiltin = TypeFactory::MaxBuiltInId;
+    //maxbuiltin = TypeFactory::MaxBuiltInId;
 
     LDEBUG << "EXEC SQL DECLARE structcursor CURSOR FOR SELECT BaseTypeId FROM RAS_BASETYPENAMES ORDER BY BaseTypeId";
     EXEC SQL DECLARE structcursor CURSOR FOR

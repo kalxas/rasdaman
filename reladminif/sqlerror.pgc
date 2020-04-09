@@ -46,6 +46,10 @@ rasdaman GmbH.
 
 #include "sqlerror.hh"
 #include "externs.h"
+// PG stuff:
+#include "libpq-fe.h"       /* C interface to PgSQL */
+#include "libpq/libpq-fs.h" /* large object (lo) api */
+
 
 #include "raslib/error.hh"
 #include <logging.hh>
