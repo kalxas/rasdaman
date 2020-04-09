@@ -41,7 +41,7 @@ using namespace std;
 // if nothing can be freed & allocated, give up & throw exception
 void *mymalloc(size_t size)
 {
-    void *ret = aligned_alloc(RAS_MEMORY_ALIGNMENT, size);
+    void *ret = malloc(size);
     if (ret != (void *)NULL)
     {
         // success, return

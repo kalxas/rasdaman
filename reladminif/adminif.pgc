@@ -53,9 +53,9 @@ const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN]="PostgreSQL";
 AdminIf::AdminIf(bool createDb)
 {
     EXEC SQL BEGIN DECLARE SECTION;
-        char    id[STRING_MAXLEN];
-        char    user[STRING_MAXLEN];
-        char    passwd[STRING_MAXLEN];
+        char    id[257];
+        char    user[257];
+        char    passwd[257];
     EXEC SQL END DECLARE SECTION;
 
     strncpy((char *)&id, globalConnectId, sizeof(id)-1);

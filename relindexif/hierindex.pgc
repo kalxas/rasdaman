@@ -338,10 +338,10 @@ DBHierIndex::readFromDb()
         throw r_Error( r_Error::r_Error_BaseDBMSFailed );
     }
   
-    r_Bytes idssize; 	
-    r_Bytes newidssize;
-	r_Bytes boundssize;
-    r_Bytes newboundssize;
+    r_Bytes idssize = 0; 	
+    r_Bytes newidssize = 0;
+	r_Bytes boundssize = 0;
+    r_Bytes newboundssize = 0;
     
     // blobformat == 8: old format, contains 13 in first byte
     // blobformat == 9: OIDcounter is now long, but r_Range is still int
@@ -393,15 +393,15 @@ DBHierIndex::readFromDb()
     char* upperfixedbuf = (char*)mymalloc(fixessize);
     char* lowerfixedbuf = (char*)mymalloc(fixessize);
 */
-    OId::OIdCounter* entryidsbuf;
-    r_Range* upperboundsbuf;
-    r_Range* lowerboundsbuf;
-    char* upperfixedbuf;
-    char* lowerfixedbuf;
+    OId::OIdCounter* entryidsbuf = NULL;
+    r_Range* upperboundsbuf = NULL;
+    r_Range* lowerboundsbuf = NULL;
+    char* upperfixedbuf = NULL;
+    char* lowerfixedbuf = NULL;
 
-    int* oldupperboundsbuf;
-    int* oldlowerboundsbuf;
-    unsigned int* oldentryidsbuf;
+    int* oldupperboundsbuf = NULL;
+    int* oldlowerboundsbuf = NULL;
+    unsigned int* oldentryidsbuf = NULL;
 
     if (blobformat == 8) {
         // old entries need to be allocated because the data is not aligned

@@ -351,7 +351,7 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
     png_byte* row = NULL, *rowPtr = NULL;
     const unsigned char* src = NULL, *srcPtr = NULL;
 
-    row = new png_byte[((bps * spp * static_cast<int>(width) + 7) >> 3)];
+    row = new png_byte[((static_cast<size_t>(bps * spp) * width + 7) >> 3u)];
     src = (const unsigned char*)(desc.src);
 
     for (j = 0; j < height; j++)

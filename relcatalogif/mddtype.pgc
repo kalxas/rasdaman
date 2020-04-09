@@ -70,7 +70,7 @@ MDDType::insertInDb()
     EXEC SQL END DECLARE SECTION;
 
     mddtypeid = 0;
-    (void) strncpy( mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename) );
+    (void) strncpy( mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename)-1 );
     mddtypeid = myOId.getCounter();
     EXEC SQL INSERT INTO RAS_MDDTYPES ( MDDTypeOId, MDDTypeName)
        VALUES   ( :mddtypeid, :mddtypename);

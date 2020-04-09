@@ -54,7 +54,7 @@ OId::initialize()
     nextoid = 0;
     for (unsigned int i = 1; i < maxCounter; i++)
     {
-        (void) strncpy( name, const_cast<char*>(counterNames[i]), sizeof(name) );
+        (void) strncpy( name, const_cast<char*>(counterNames[i]), sizeof(name)-1 );
 
         LDEBUG << "EXEC SQL SELECT NextValue INTO :nextoid FROM RAS_COUNTERS WHERE CounterName = " << name;
         EXEC SQL SELECT NextValue INTO :nextoid
@@ -102,7 +102,7 @@ OId::deinitialize()
             for (unsigned int i = 1; i < maxCounter; i++)
             {
                 nextoid1 = *counterIds[i];
-                (void) strncpy( name2, const_cast<char*>(counterNames[i]), sizeof(name2) );
+                (void) strncpy( name2, const_cast<char*>(counterNames[i]), sizeof(name2)-1 );
 
                 LTRACE << "setting " << name2 << " to " << nextoid1;
                 LDEBUG << "EXEC SQL UPDATE RAS_COUNTERS SET NextValue = " << nextoid1 << " WHERE CounterName = " << name2;
