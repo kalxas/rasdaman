@@ -14,8 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann /
- rasdaman GmbH.
+ * Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -37,15 +36,10 @@ module rasdaman {
 
             var validationResult = this.validateResult(errorHandlingService, command, mimeType);
             if (command.widgetConfiguration == null) {
-                // if mimeType is text then return raw data
-                if (mimeType == "" || mimeType == "application/json" || mimeType == "text/csv" || mimeType == "text/xml" || mimeType == "text/plain" || mimeType == "application/gml+xml") {
-                    return new RawWCPSResult(command, data);
-                } else {
-                    // if mimeType is image/binary file then download file
-                    var blob = new Blob([data], {type: "application/octet-stream"});
-                    saveAs(blob, fileName);
-                    return null;
-                }
+                // if there is no widget configuration then download the result
+                var blob = new Blob([data], {type: "application/octet-stream"});
+                saveAs(blob, fileName);
+                return null;
             } else if (command.widgetConfiguration.type == "diagram") {
                 // validate result for diagram widget (only 1D encoding in csv, json is supported)
                 if (validationResult == null) {
@@ -64,6 +58,13 @@ module rasdaman {
                 // valid result to display in WebWorldWind as 2D png, jpeg
                 if (validationResult == null) {
                     return new WebWorldWindWCPSResult(command, data);
+                } else {
+                    return new NotificationWCPSResult(command, validationResult);
+                }
+            } else if (command.widgetConfiguration.type == "text") {
+                // valid result to display as text
+                if (validationResult == null) {
+                    return new RawWCPSResult(command, data);
                 } else {
                     return new NotificationWCPSResult(command, validationResult);
                 }

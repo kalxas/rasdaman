@@ -30,7 +30,7 @@ Folder structure:
 		|---- common: Contains utility classes used all over the code.
 		|	  |
 		|	  |---- directives: Contains Angular directives that have a general scope.
-		  |
+		|
 		|---- components: Contains AngularJS components. The WCS specification was used as a
 		|				  starting point for splitting the application in independent components.
 		|---- models: Contains Typescript classes that model the WCS domain.

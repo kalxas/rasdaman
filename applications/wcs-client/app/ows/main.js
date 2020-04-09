@@ -1,13 +1,8 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -15,11 +10,10 @@ var rasdaman;
         var Exception = (function (_super) {
             __extends(Exception, _super);
             function Exception(message) {
-                var _this = _super.call(this, message) || this;
-                _this.name = "Exception";
-                _this.message = message;
-                _this.stack = new Error().stack;
-                return _this;
+                _super.call(this, message);
+                this.name = "Exception";
+                this.message = message;
+                this.stack = (new Error()).stack;
             }
             Exception.prototype.toString = function () {
                 return this.name + ": " + this.message;
@@ -36,7 +30,7 @@ var rasdaman;
         var InvalidAttributeNameException = (function (_super) {
             __extends(InvalidAttributeNameException, _super);
             function InvalidAttributeNameException(attributeName) {
-                return _super.call(this, "The attribute \"" + attributeName + "\" does not exist on this element.") || this;
+                _super.call(this, "The attribute \"" + attributeName + "\" does not exist on this element.");
             }
             return InvalidAttributeNameException;
         }(common.Exception));
@@ -50,7 +44,7 @@ var rasdaman;
         var InvalidElementNameException = (function (_super) {
             __extends(InvalidElementNameException, _super);
             function InvalidElementNameException(elementName) {
-                return _super.call(this, "The child element \"" + elementName + "\" does not exist on this element.") || this;
+                _super.call(this, "The child element \"" + elementName + "\" does not exist on this element.");
             }
             return InvalidElementNameException;
         }(common.Exception));
@@ -64,9 +58,8 @@ var rasdaman;
         var LogicException = (function (_super) {
             __extends(LogicException, _super);
             function LogicException(message) {
-                var _this = _super.call(this, message) || this;
-                _this.name = "LogicException";
-                return _this;
+                _super.call(this, message);
+                this.name = "LogicException";
             }
             return LogicException;
         }(common.Exception));
@@ -80,9 +73,8 @@ var rasdaman;
         var NotImplementedException = (function (_super) {
             __extends(NotImplementedException, _super);
             function NotImplementedException() {
-                var _this = _super.call(this, "The method was not implemented.") || this;
-                _this.name = "NotImplementedException";
-                return _this;
+                _super.call(this, "The method was not implemented.");
+                this.name = "NotImplementedException";
             }
             return NotImplementedException;
         }(common.Exception));
@@ -96,9 +88,8 @@ var rasdaman;
         var IllegalArgumentException = (function (_super) {
             __extends(IllegalArgumentException, _super);
             function IllegalArgumentException(message) {
-                var _this = _super.call(this, message) || this;
-                _this.name = "IllegalArgumentException";
-                return _this;
+                _super.call(this, message);
+                this.name = "IllegalArgumentException";
             }
             return IllegalArgumentException;
         }(common.Exception));
@@ -180,12 +171,12 @@ var rasdaman;
 (function (rasdaman) {
     var common;
     (function (common) {
-        var ResponseDocumentType;
         (function (ResponseDocumentType) {
             ResponseDocumentType[ResponseDocumentType["XML"] = 1] = "XML";
             ResponseDocumentType[ResponseDocumentType["SOAP"] = 2] = "SOAP";
             ResponseDocumentType[ResponseDocumentType["JSON"] = 3] = "JSON";
-        })(ResponseDocumentType = common.ResponseDocumentType || (common.ResponseDocumentType = {}));
+        })(common.ResponseDocumentType || (common.ResponseDocumentType = {}));
+        var ResponseDocumentType = common.ResponseDocumentType;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -681,23 +672,22 @@ var ows;
         function ServiceIdentification(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this = _super.call(this, source) || this;
-            _this.serviceType = new ows.Code(source.getChildAsSerializedObject("ServiceType"));
-            _this.serviceTypeVersion = [];
+            _super.call(this, source);
+            this.serviceType = new ows.Code(source.getChildAsSerializedObject("ServiceType"));
+            this.serviceTypeVersion = [];
             source.getChildrenAsSerializedObjects("ows:ServiceTypeVersion").forEach(function (s) {
                 _this.serviceTypeVersion.push(s.getValueAsString());
             });
-            _this.profile = [];
+            this.profile = [];
             source.getChildrenAsSerializedObjects("ows:Profile").forEach(function (s) {
                 _this.profile.push(s.getValueAsString());
             });
             if (source.doesElementExist("ows:Fees")) {
-                _this.fees = source.getChildAsSerializedObject("ows:Fees").getValueAsString();
+                this.fees = source.getChildAsSerializedObject("ows:Fees").getValueAsString();
             }
             if (source.doesElementExist("ows:AccessConstraints")) {
-                _this.accessConstraints = source.getChildAsSerializedObject("ows:AccessConstraints").getValueAsString();
+                this.accessConstraints = source.getChildAsSerializedObject("ows:AccessConstraints").getValueAsString();
             }
-            return _this;
         }
         return ServiceIdentification;
     }(ows.Description));
@@ -774,10 +764,8 @@ var ows;
     var ServiceContact = (function (_super) {
         __extends(ServiceContact, _super);
         function ServiceContact(source) {
-            var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this = _super.call(this, source) || this;
-            return _this;
+            _super.call(this, source);
         }
         return ServiceContact;
     }(ows.ResponsiblePartySubset));
@@ -817,13 +805,13 @@ var ows;
     var RequestMethod = (function (_super) {
         __extends(RequestMethod, _super);
         function RequestMethod(source) {
-            var _this = _super.call(this, source) || this;
+            var _this = this;
+            _super.call(this, source);
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.constraint = [];
+            this.constraint = [];
             source.getChildrenAsSerializedObjects("ows:Constraint").forEach(function (o) {
                 _this.constraint.push(new ows.Constraint(o));
             });
-            return _this;
         }
         return RequestMethod;
     }(ows.OnlineResource));
@@ -834,9 +822,8 @@ var ows;
     var Get = (function (_super) {
         __extends(Get, _super);
         function Get(source) {
-            var _this = _super.call(this, source) || this;
+            _super.call(this, source);
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            return _this;
         }
         return Get;
     }(ows.RequestMethod));
@@ -847,9 +834,8 @@ var ows;
     var Post = (function (_super) {
         __extends(Post, _super);
         function Post(source) {
-            var _this = _super.call(this, source) || this;
+            _super.call(this, source);
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            return _this;
         }
         return Post;
     }(ows.RequestMethod));
@@ -1160,32 +1146,31 @@ var wcs;
     var CoverageSummary = (function (_super) {
         __extends(CoverageSummary, _super);
         function CoverageSummary(source) {
-            var _this = _super.call(this, source) || this;
+            _super.call(this, source);
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.displayFootprint = null;
-            _this.importedType = "local";
-            _this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
-            _this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
+            this.displayFootprint = null;
+            this.importedType = "local";
+            this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
             var childElement = "wcs:CoverageSubtypeParent";
             if (source.doesElementExist(childElement)) {
-                _this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject(childElement));
+                this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject(childElement));
             }
             childElement = "ows:WGS84BoundingBox";
             if (source.doesElementExist(childElement)) {
-                _this.wgs84BoundingBox = new ows.WGS84BoundingBox(source.getChildAsSerializedObject(childElement));
+                this.wgs84BoundingBox = new ows.WGS84BoundingBox(source.getChildAsSerializedObject(childElement));
             }
             childElement = "ows:BoundingBox";
             if (source.doesElementExist(childElement)) {
-                _this.boundingBox = new ows.BoundingBox(source.getChildAsSerializedObject(childElement));
+                this.boundingBox = new ows.BoundingBox(source.getChildAsSerializedObject(childElement));
             }
             childElement = "ows:Metadata";
             if (source.doesElementExist(childElement)) {
-                _this.customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
-                if (_this.customizedMetadata.hostname != null) {
-                    _this.importedType = "remote";
+                this.customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
+                if (this.customizedMetadata.hostname != null) {
+                    this.importedType = "remote";
                 }
             }
-            return _this;
         }
         return CoverageSummary;
     }(ows.Description));
@@ -1196,9 +1181,10 @@ var wcs;
     var Contents = (function (_super) {
         __extends(Contents, _super);
         function Contents(source) {
-            var _this = _super.call(this, source) || this;
+            var _this = this;
+            _super.call(this, source);
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.coverageSummaries = [];
+            this.coverageSummaries = [];
             var totalLocalCoverageSizesInBytes = 0;
             var totalRemoteCoverageSizesInBytes = 0;
             var totalCoverageSizesInBytes = 0;
@@ -1221,13 +1207,12 @@ var wcs;
                 }
             });
             totalCoverageSizesInBytes += totalLocalCoverageSizesInBytes + totalRemoteCoverageSizesInBytes;
-            _this.totalLocalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalCoverageSizesInBytes);
-            _this.totalRemoteCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteCoverageSizesInBytes);
-            _this.totalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalCoverageSizesInBytes);
+            this.totalLocalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalCoverageSizesInBytes);
+            this.totalRemoteCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteCoverageSizesInBytes);
+            this.totalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalCoverageSizesInBytes);
             if (source.doesElementExist("wcs:Extension")) {
-                _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs:Extension"));
+                this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs:Extension"));
             }
-            return _this;
         }
         return Contents;
     }(ows.ContentsBase));
@@ -1238,15 +1223,14 @@ var wcs;
     var Capabilities = (function (_super) {
         __extends(Capabilities, _super);
         function Capabilities(source) {
-            var _this = _super.call(this, source) || this;
+            _super.call(this, source);
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("wcs:ServiceMetadata")) {
-                _this.serviceMetadata = new wcs.ServiceMetadata(source.getChildAsSerializedObject("wcs:ServiceMetadata"));
+                this.serviceMetadata = new wcs.ServiceMetadata(source.getChildAsSerializedObject("wcs:ServiceMetadata"));
             }
             if (source.doesElementExist("wcs:Contents")) {
-                _this.contents = new wcs.Contents(source.getChildAsSerializedObject("wcs:Contents"));
+                this.contents = new wcs.Contents(source.getChildAsSerializedObject("wcs:Contents"));
             }
-            return _this;
         }
         return Capabilities;
     }(ows.CapabilitiesBase));
@@ -1375,9 +1359,8 @@ var gml;
     var EnvelopeWithTimePeriod = (function (_super) {
         __extends(EnvelopeWithTimePeriod, _super);
         function EnvelopeWithTimePeriod(source) {
-            var _this = _super.call(this, source) || this;
+            _super.call(this, source);
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            return _this;
         }
         return EnvelopeWithTimePeriod;
     }(gml.Envelope));
@@ -1457,9 +1440,8 @@ var gml;
     var GridCoverage = (function (_super) {
         __extends(GridCoverage, _super);
         function GridCoverage(source) {
-            var _this = _super.call(this, source) || this;
-            _this.currentSource = source.getChildAsSerializedObject("gml:Grid");
-            return _this;
+            _super.call(this, source);
+            this.currentSource = source.getChildAsSerializedObject("gml:Grid");
         }
         GridCoverage.prototype.parseAxisTypesAndOffsetVectors = function () {
             var numberOfDimensions = this.currentSource.getAttributeAsNumber("dimension");
@@ -1477,9 +1459,8 @@ var gml;
     var RectifiedGridCoverage = (function (_super) {
         __extends(RectifiedGridCoverage, _super);
         function RectifiedGridCoverage(source) {
-            var _this = _super.call(this, source) || this;
-            _this.currentSource = source.getChildAsSerializedObject("gml:RectifiedGrid");
-            return _this;
+            _super.call(this, source);
+            this.currentSource = source.getChildAsSerializedObject("gml:RectifiedGrid");
         }
         RectifiedGridCoverage.prototype.parseAxisTypesAndOffsetVectors = function () {
             var _this = this;
@@ -1503,9 +1484,8 @@ var gml;
     var ReferenceableGridCoverage = (function (_super) {
         __extends(ReferenceableGridCoverage, _super);
         function ReferenceableGridCoverage(source) {
-            var _this = _super.call(this, source) || this;
-            _this.currentSource = source.getChildAsSerializedObject("gmlrgrid:ReferenceableGridByVectors");
-            return _this;
+            _super.call(this, source);
+            this.currentSource = source.getChildAsSerializedObject("gmlrgrid:ReferenceableGridByVectors");
         }
         ReferenceableGridCoverage.prototype.parseAxisTypesAndOffsetVectors = function () {
             var _this = this;
@@ -1808,12 +1788,11 @@ var wcs;
     var DescribeCoverage = (function (_super) {
         __extends(DescribeCoverage, _super);
         function DescribeCoverage(coverageIds) {
-            var _this = _super.call(this) || this;
+            _super.call(this);
             if (!coverageIds.length) {
                 throw new rasdaman.common.IllegalArgumentException("coverageIds");
             }
-            _this.coverageId = angular.copy(coverageIds);
-            return _this;
+            this.coverageId = angular.copy(coverageIds);
         }
         DescribeCoverage.prototype.toKVP = function () {
             var serialization = _super.prototype.toKVP.call(this);
@@ -1843,13 +1822,12 @@ var wcs;
     var DimensionSlice = (function (_super) {
         __extends(DimensionSlice, _super);
         function DimensionSlice(dimension, slicePoint) {
-            var _this = _super.call(this, dimension) || this;
-            _this.slicePoint = slicePoint;
-            _this.sliceIrrNotValid = false;
-            _this.sliceRegularNotValid = false;
-            _this.typeOfSliceNotValidDate = false;
-            _this.typeOfSliceNotValidNumber = false;
-            return _this;
+            _super.call(this, dimension);
+            this.slicePoint = slicePoint;
+            this.sliceIrrNotValid = false;
+            this.sliceRegularNotValid = false;
+            this.typeOfSliceNotValidDate = false;
+            this.typeOfSliceNotValidNumber = false;
         }
         DimensionSlice.prototype.toKVP = function () {
             return this.dimension + "(" + this.slicePoint + ")";
@@ -1863,17 +1841,16 @@ var wcs;
     var DimensionTrim = (function (_super) {
         __extends(DimensionTrim, _super);
         function DimensionTrim(dimension, trimLow, trimHigh) {
-            var _this = _super.call(this, dimension) || this;
-            _this.trimLow = trimLow;
-            _this.trimHigh = trimHigh;
-            _this.trimHighNotValid = false;
-            _this.trimLowNotValid = false;
-            _this.trimLowerUpperBoundNotInOrder = false;
-            _this.typeOfTrimLowerNotValidDate = false;
-            _this.typeOfTrimLowerNotValidNumber = false;
-            _this.typeOfTrimUpperNotValidDate = false;
-            _this.typeOfTrimUpperNotValidNumber = false;
-            return _this;
+            _super.call(this, dimension);
+            this.trimLow = trimLow;
+            this.trimHigh = trimHigh;
+            this.trimHighNotValid = false;
+            this.trimLowNotValid = false;
+            this.trimLowerUpperBoundNotInOrder = false;
+            this.typeOfTrimLowerNotValidDate = false;
+            this.typeOfTrimLowerNotValidNumber = false;
+            this.typeOfTrimUpperNotValidDate = false;
+            this.typeOfTrimUpperNotValidNumber = false;
         }
         DimensionTrim.prototype.toKVP = function () {
             return this.dimension + "(" + this.trimLow + "," + this.trimHigh + ")";
@@ -1887,10 +1864,9 @@ var wcs;
     var GetCapabilities = (function (_super) {
         __extends(GetCapabilities, _super);
         function GetCapabilities() {
-            var _this = _super.call(this) || this;
-            _this.service = "WCS";
-            _this.acceptVersions = ["2.0.1"];
-            return _this;
+            _super.call(this);
+            this.service = "WCS";
+            this.acceptVersions = ["2.0.1"];
         }
         GetCapabilities.prototype.toKVP = function () {
             return "&SERVICE=" + this.service +
@@ -1952,15 +1928,15 @@ var wcs;
     var GetCoverage = (function (_super) {
         __extends(GetCoverage, _super);
         function GetCoverage(coverageId, dimensionSubset, format, mediaType) {
-            var _this = _super.call(this) || this;
-            _this.coverageId = coverageId;
-            _this.dimensionSubset = [];
+            var _this = this;
+            _super.call(this);
+            this.coverageId = coverageId;
+            this.dimensionSubset = [];
             dimensionSubset.forEach(function (o) {
                 _this.dimensionSubset.push(o);
             });
-            _this.format = format;
-            _this.mediaType = mediaType;
-            return _this;
+            this.format = format;
+            this.mediaType = mediaType;
         }
         GetCoverage.prototype.toKVP = function () {
             var serialization = _super.prototype.toKVP.call(this);
@@ -2017,14 +1993,13 @@ var wcs;
     var ProcessCoverages = (function (_super) {
         __extends(ProcessCoverages, _super);
         function ProcessCoverages(query, extraParams) {
-            var _this = _super.call(this) || this;
+            _super.call(this);
             rasdaman.common.ArgumentValidator.isNotNull(query, "query");
             rasdaman.common.ArgumentValidator.isNotNull(extraParams, "extraParams");
             rasdaman.common.ArgumentValidator.isArray(extraParams, "extraParams");
-            _this.request = "ProcessCoverages";
-            _this.query = query;
-            _this.extraParameters = angular.copy(extraParams);
-            return _this;
+            this.request = "ProcessCoverages";
+            this.query = query;
+            this.extraParameters = angular.copy(extraParams);
         }
         ProcessCoverages.prototype.toKVP = function () {
             var serializedParams = "";
@@ -2062,9 +2037,8 @@ var wcs;
     var RangeComponent = (function (_super) {
         __extends(RangeComponent, _super);
         function RangeComponent(rangeComponent) {
-            var _this = _super.call(this) || this;
-            _this.rangeComponent = rangeComponent;
-            return _this;
+            _super.call(this);
+            this.rangeComponent = rangeComponent;
         }
         RangeComponent.prototype.toKVP = function () {
             return this.rangeComponent;
@@ -2078,10 +2052,9 @@ var wcs;
     var RangeInterval = (function (_super) {
         __extends(RangeInterval, _super);
         function RangeInterval(startComponent, endComponent) {
-            var _this = _super.call(this) || this;
-            _this.startComponent = startComponent;
-            _this.endComponent = endComponent;
-            return _this;
+            _super.call(this);
+            this.startComponent = startComponent;
+            this.endComponent = endComponent;
         }
         RangeInterval.prototype.toKVP = function () {
             return this.startComponent.toKVP() + ":" + this.endComponent.toKVP();
@@ -2095,12 +2068,11 @@ var wcs;
     var ScaleByFactor = (function (_super) {
         __extends(ScaleByFactor, _super);
         function ScaleByFactor(scaleFactor) {
-            var _this = _super.call(this) || this;
+            _super.call(this);
             if (scaleFactor < 0) {
                 throw new rasdaman.common.IllegalArgumentException("ScaleFactor must be positive.");
             }
-            _this.scaleFactor = scaleFactor;
-            return _this;
+            this.scaleFactor = scaleFactor;
         }
         ScaleByFactor.prototype.toKVP = function () {
             return "&SCALEFACTOR=" + this.scaleFactor;
@@ -2131,9 +2103,8 @@ var wcs;
     var ScaleAxesByFactor = (function (_super) {
         __extends(ScaleAxesByFactor, _super);
         function ScaleAxesByFactor(scaleAxis) {
-            var _this = _super.call(this) || this;
-            _this.scaleAxis = angular.copy(scaleAxis);
-            return _this;
+            _super.call(this);
+            this.scaleAxis = angular.copy(scaleAxis);
         }
         ScaleAxesByFactor.prototype.toKVP = function () {
             var serializedAxes = [];
@@ -2168,9 +2139,8 @@ var wcs;
     var ScaleToSize = (function (_super) {
         __extends(ScaleToSize, _super);
         function ScaleToSize(targetAxisSize) {
-            var _this = _super.call(this) || this;
-            _this.targetAxisSize = angular.copy(targetAxisSize);
-            return _this;
+            _super.call(this);
+            this.targetAxisSize = angular.copy(targetAxisSize);
         }
         ScaleToSize.prototype.toKVP = function () {
             var targetAxesSize = [];
@@ -2203,9 +2173,8 @@ var wcs;
     var ScaleToExtent = (function (_super) {
         __extends(ScaleToExtent, _super);
         function ScaleToExtent(targetAxisExtent) {
-            var _this = _super.call(this) || this;
-            _this.targetAxisExtent = angular.copy(targetAxisExtent);
-            return _this;
+            _super.call(this);
+            this.targetAxisExtent = angular.copy(targetAxisExtent);
         }
         ScaleToExtent.prototype.toKVP = function () {
             var serializedAxes = [];
@@ -2415,7 +2384,7 @@ var rasdaman;
         ErrorHandlingService.prototype.handleError = function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
+                args[_i - 0] = arguments[_i];
             }
             if (args.length == 1) {
                 var errorInformation = args[0];
@@ -2873,10 +2842,9 @@ var rasdaman;
     var BAWmsLayer = (function (_super) {
         __extends(BAWmsLayer, _super);
         function BAWmsLayer(config, timeString, authorizationHeader) {
-            var _this = _super.call(this, config, timeString) || this;
-            _this.authorizationHeader = "";
-            _this.authorizationHeader = authorizationHeader;
-            return _this;
+            _super.call(this, config, timeString);
+            this.authorizationHeader = "";
+            this.authorizationHeader = authorizationHeader;
         }
         BAWmsLayer.prototype.retrieveTileImage = function (dc, tile, suppressRedraw) {
             if (this.currentRetrievals.indexOf(tile.imagePath) < 0) {
@@ -3215,7 +3183,7 @@ var rasdaman;
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
+                    args[_i - 0] = arguments[_i];
                 }
                 if (!$scope.wcsServerEndpoint) {
                     alertService.error("The entered WCS endpoint is invalid.");
@@ -3235,7 +3203,7 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     $scope.capabilitiesDocument = null;
                     $scope.capabilities = null;
@@ -3244,7 +3212,8 @@ var rasdaman;
                     $scope.isServiceProviderOpen = false;
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })["finally"](function () {
+                })
+                    .finally(function () {
                     $scope.wcsStateInformation.serverCapabilities = $scope.capabilities;
                 });
             };
@@ -3333,7 +3302,7 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
                     $log.error(args);
@@ -3392,12 +3361,13 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     $scope.coverageDescription = null;
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })["finally"](function () {
+                })
+                    .finally(function () {
                     $scope.wcsStateInformation.selectedCoverageDescription = $scope.coverageDescription;
                 });
             };
@@ -3461,7 +3431,7 @@ var rasdaman;
                     _this.wcsService.deleteCoverage($scope.idOfCoverageToDelete).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         _this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
                         $rootScope.$broadcast("reloadWCSServerCapabilities", true);
@@ -3469,11 +3439,11 @@ var rasdaman;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         _this.errorHandlingService.handleError(args);
                         _this.$log.error(args);
-                    })["finally"](function () {
+                    }).finally(function () {
                         $scope.requestInProgress = false;
                     });
                 }
@@ -3516,7 +3486,7 @@ var rasdaman;
                     _this.wcsService.insertCoverage($scope.urlOfCoverageToInsert, $scope.useGeneratedCoverageId).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         _this.alertService.success("Successfully inserted coverage.");
                         _this.$log.info(args);
@@ -3524,11 +3494,11 @@ var rasdaman;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         _this.errorHandlingService.handleError(args);
                         _this.$log.error(args);
-                    })["finally"](function () {
+                    }).finally(function () {
                         $scope.requestInProgress = false;
                     });
                 }
@@ -3629,7 +3599,7 @@ var rasdaman;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         $scope.core.requestUrl = null;
                         alertService.error("Failed to execute GetCoverage operation in HTTP GET.");
@@ -4056,9 +4026,8 @@ var rasdaman;
     var RawWCPSResult = (function (_super) {
         __extends(RawWCPSResult, _super);
         function RawWCPSResult(command, data) {
-            var _this = _super.call(this, command) || this;
-            _this.data = data.toString();
-            return _this;
+            _super.call(this, command);
+            this.data = data.toString();
         }
         return RawWCPSResult;
     }(rasdaman.WCPSQueryResult));
@@ -4069,10 +4038,9 @@ var rasdaman;
     var ImageWCPSResult = (function (_super) {
         __extends(ImageWCPSResult, _super);
         function ImageWCPSResult(command, rawImageData) {
-            var _this = _super.call(this, command) || this;
-            _this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
-            _this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
-            return _this;
+            _super.call(this, command);
+            this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
+            this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
         }
         return ImageWCPSResult;
     }(rasdaman.WCPSQueryResult));
@@ -4083,12 +4051,12 @@ var rasdaman;
     var DiagramWCPSResult = (function (_super) {
         __extends(DiagramWCPSResult, _super);
         function DiagramWCPSResult(command, data) {
-            var _this = _super.call(this, command) || this;
+            _super.call(this, command);
             var diagramType = "lineChart";
             if (command.widgetConfiguration.parameters && command.widgetConfiguration.parameters.type) {
                 diagramType = command.widgetConfiguration.parameters.type;
             }
-            _this.diagramOptions = {
+            this.diagramOptions = {
                 chart: {
                     type: diagramType,
                     height: 300,
@@ -4127,12 +4095,11 @@ var rasdaman;
                     y: rawData[i]
                 });
             }
-            _this.diagramData = [
+            this.diagramData = [
                 {
                     values: processedValues
                 }
             ];
-            return _this;
         }
         return DiagramWCPSResult;
     }(rasdaman.WCPSQueryResult));
@@ -4143,20 +4110,19 @@ var rasdaman;
     var WebWorldWindWCPSResult = (function (_super) {
         __extends(WebWorldWindWCPSResult, _super);
         function WebWorldWindWCPSResult(command, rawImageData) {
-            var _this = _super.call(this, command) || this;
-            _this.minLat = -90;
-            _this.minLong = -180;
-            _this.maxLat = 90;
-            _this.maxLong = 180;
-            _this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
-            _this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
+            _super.call(this, command);
+            this.minLat = -90;
+            this.minLong = -180;
+            this.maxLat = 90;
+            this.maxLong = 180;
+            this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
+            this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
             if (command.widgetParameters.length > 0) {
-                _this.minLat = parseFloat(command.widgetParameters[0]);
-                _this.minLong = parseFloat(command.widgetParameters[1]);
-                _this.maxLat = parseFloat(command.widgetParameters[2]);
-                _this.maxLong = parseFloat(command.widgetParameters[3]);
+                this.minLat = parseFloat(command.widgetParameters[0]);
+                this.minLong = parseFloat(command.widgetParameters[1]);
+                this.maxLat = parseFloat(command.widgetParameters[2]);
+                this.maxLong = parseFloat(command.widgetParameters[3]);
             }
-            return _this;
         }
         return WebWorldWindWCPSResult;
     }(rasdaman.WCPSQueryResult));
@@ -4167,9 +4133,8 @@ var rasdaman;
     var NotificationWCPSResult = (function (_super) {
         __extends(NotificationWCPSResult, _super);
         function NotificationWCPSResult(command, data) {
-            var _this = _super.call(this, command) || this;
-            _this.data = data.toString();
-            return _this;
+            _super.call(this, command);
+            this.data = data.toString();
         }
         return NotificationWCPSResult;
     }(rasdaman.WCPSQueryResult));
@@ -4183,14 +4148,9 @@ var rasdaman;
         WCPSResultFactory.getResult = function (errorHandlingService, command, data, mimeType, fileName) {
             var validationResult = this.validateResult(errorHandlingService, command, mimeType);
             if (command.widgetConfiguration == null) {
-                if (mimeType == "" || mimeType == "application/json" || mimeType == "text/csv" || mimeType == "text/xml" || mimeType == "text/plain" || mimeType == "application/gml+xml") {
-                    return new rasdaman.RawWCPSResult(command, data);
-                }
-                else {
-                    var blob = new Blob([data], { type: "application/octet-stream" });
-                    saveAs(blob, fileName);
-                    return null;
-                }
+                var blob = new Blob([data], { type: "application/octet-stream" });
+                saveAs(blob, fileName);
+                return null;
             }
             else if (command.widgetConfiguration.type == "diagram") {
                 if (validationResult == null) {
@@ -4211,6 +4171,14 @@ var rasdaman;
             else if (command.widgetConfiguration.type == "wwd") {
                 if (validationResult == null) {
                     return new rasdaman.WebWorldWindWCPSResult(command, data);
+                }
+                else {
+                    return new rasdaman.NotificationWCPSResult(command, validationResult);
+                }
+            }
+            else if (command.widgetConfiguration.type == "text") {
+                if (validationResult == null) {
+                    return new rasdaman.RawWCPSResult(command, data);
                 }
                 else {
                     return new rasdaman.NotificationWCPSResult(command, validationResult);
@@ -4360,7 +4328,7 @@ var rasdaman;
                         }, function () {
                             var args = [];
                             for (var _i = 0; _i < arguments.length; _i++) {
-                                args[_i] = arguments[_i];
+                                args[_i - 0] = arguments[_i];
                             }
                             if (args[0].data instanceof ArrayBuffer) {
                                 var decoder = new TextDecoder("utf-8");
@@ -4369,7 +4337,8 @@ var rasdaman;
                             errorHandlingService.handleError(args);
                             $log.error(args);
                             $scope.editorData.push(new rasdaman.NotificationWCPSResult(command, "Cannot execute the requested WCPS query, error '" + args[0].data + "'."));
-                        })["finally"](function () {
+                        })
+                            .finally(function () {
                             $scope.editorData[indexOfResults].finished = true;
                             $interval.cancel(waitingForResultsPromise);
                         });
@@ -5086,7 +5055,7 @@ var rasdaman;
             $scope.login = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
+                    args[_i - 0] = arguments[_i];
                 }
                 $rootScope.homeLoggedIn = false;
                 $scope.displayError = false;
@@ -5587,7 +5556,7 @@ var rasdaman;
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
+                    args[_i - 0] = arguments[_i];
                 }
                 if (!$scope.wmsServerEndpoint) {
                     alertService.error("The entered WMS endpoint is invalid.");
@@ -5612,7 +5581,7 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     $scope.capabilitiesDocument = null;
                     $scope.capabilities = null;
@@ -5621,7 +5590,8 @@ var rasdaman;
                     $scope.isServiceProviderOpen = false;
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })["finally"](function () {
+                })
+                    .finally(function () {
                     $scope.wmsStateInformation.serverCapabilities = $scope.capabilities;
                 });
             };
@@ -5712,7 +5682,7 @@ var rasdaman;
                         }, function () {
                             var args = [];
                             for (var _i = 0; _i < arguments.length; _i++) {
-                                args[_i] = arguments[_i];
+                                args[_i - 0] = arguments[_i];
                             }
                             errorHandlingService.handleError(args);
                             $log.error(args);
@@ -5853,13 +5823,13 @@ var rasdaman;
                     $("#longSlider").slider('values', [0, numberStepsLong]);
                 }
                 var sufixSlider = "d";
-                var _loop_1 = function () {
-                    $("<div />", { "class": "containerSliders", id: "containerSlider" + j + sufixSlider })
+                var _loop_1 = function() {
+                    $("<div />", { class: "containerSliders", id: "containerSlider" + j + sufixSlider })
                         .appendTo($("#sliders"));
-                    $("<label />", { "class": "sliderLabel", id: "label" + j + sufixSlider })
+                    $("<label />", { class: "sliderLabel", id: "label" + j + sufixSlider })
                         .appendTo($("#containerSlider" + j + sufixSlider));
                     $("#label" + j + sufixSlider).text($scope.layer.layerDimensions[j].name + ':');
-                    $("<div />", { "class": "slider", id: "slider" + j + sufixSlider })
+                    $("<div />", { class: "slider", id: "slider" + j + sufixSlider })
                         .appendTo($("#containerSlider" + j + sufixSlider));
                     var sliderId = "#slider" + j + sufixSlider;
                     $(function () {
@@ -5928,17 +5898,17 @@ var rasdaman;
                     wmsService.insertLayerDownscaledCollectionLevelRequest(insertLayerDownscaledCollectionLevel).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         alertService.success("Successfully insert downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                         $scope.wmsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         errorHandlingService.handleError(args);
-                    })["finally"](function () {
+                    }).finally(function () {
                     });
                 }
             };
@@ -5947,17 +5917,17 @@ var rasdaman;
                 wmsService.deleteLayerDownscaledCollectionLevelRequest(deleteLayerDownscaledCollectionLevel).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     alertService.success("Successfully delete downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                     $scope.wmsStateInformation.reloadServerCapabilities = true;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                })["finally"](function () {
+                }).finally(function () {
                 });
             };
             function selectOptionsChange() {
@@ -6060,17 +6030,17 @@ var rasdaman;
                     wmsService.updateLayerStyleRequest(updateLayerStyle).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         alertService.success("Successfully update style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                         $scope.wmsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         errorHandlingService.handleError(args);
-                    })["finally"](function () {
+                    }).finally(function () {
                     });
                 }
             };
@@ -6090,17 +6060,17 @@ var rasdaman;
                     wmsService.insertLayerStyleRequest(insertLayerStyle).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         alertService.success("Successfully insert style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                         $scope.wmsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
+                            args[_i - 0] = arguments[_i];
                         }
                         errorHandlingService.handleError(args);
-                    })["finally"](function () {
+                    }).finally(function () {
                     });
                 }
             };
@@ -6109,17 +6079,17 @@ var rasdaman;
                 wmsService.deleteLayerStyleRequest(deleteLayerStyle).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     alertService.success("Successfully delete style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                     $scope.wmsStateInformation.reloadServerCapabilities = true;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                })["finally"](function () {
+                }).finally(function () {
                 });
             };
         }
@@ -6249,12 +6219,12 @@ var rasdaman;
             $scope.login = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
+                    args[_i - 0] = arguments[_i];
                 }
                 adminService.login($scope.credential).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     alertService.success("Successfully logged in.");
                     $rootScope.adminStateInformation.loggedIn = true;
@@ -6262,10 +6232,10 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                })["finally"](function () {
+                }).finally(function () {
                 });
             };
         }
@@ -6303,7 +6273,7 @@ var rasdaman;
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
+                    args[_i - 0] = arguments[_i];
                 }
                 var capabilitiesRequest = new wcs.GetCapabilities();
                 wcsService.getServerCapabilities(capabilitiesRequest)
@@ -6331,57 +6301,58 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })["finally"](function () {
+                })
+                    .finally(function () {
                 });
             };
             $scope.updateServiceIdentification = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
+                    args[_i - 0] = arguments[_i];
                 }
                 adminService.updateServiceIdentification($scope.serviceIdentification).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     alertService.success("Successfully update Service Identifcation to Petascope database.");
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                })["finally"](function () {
+                }).finally(function () {
                 });
             };
             $scope.updateServiceProvider = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
+                    args[_i - 0] = arguments[_i];
                 }
                 adminService.updateServiceProvider($scope.serviceProvider).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     alertService.success("Successfully update Service Provider to Petascope database.");
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
+                        args[_i - 0] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                })["finally"](function () {
+                }).finally(function () {
                 });
             };
             $scope.logOut = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
+                    args[_i - 0] = arguments[_i];
                 }
                 adminService.persitLoggedOut();
                 $rootScope.adminStateInformation.loggedIn = false;
