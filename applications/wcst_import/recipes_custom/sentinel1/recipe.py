@@ -210,8 +210,16 @@ class Recipe(GeneralCoverageRecipe):
         """
         From the first file of input file, detect its EPSG code for XY axes
         """
-        gdal_ds = GDALGmlUtil(self.session.get_files()[0].get_filepath())
-        self.epsg_xy_crs = gdal_ds.get_crs()
+        for file in self.session.get_files():
+            try:
+                gdal_ds = GDALGmlUtil(file.get_filepath())
+                self.epsg_xy_crs = gdal_ds.get_crs()
+                break
+            except Exception as e:
+                if ConfigManager.skip == True:
+                    pass
+                else:
+                    raise e
 
     def __get_epsg_xy_axes_labels(self):
         """

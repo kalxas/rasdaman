@@ -225,20 +225,28 @@ class Recipe(BaseRecipe):
         else:
             if self.options['coverage']['slicer']['type'] == GdalToCoverageConverter.RECIPE_TYPE:
                 # If gdal does not specify bands in ingredient file, just fetch all bands from first file
-                first_file = self.session.get_files()[0]
-                gdal_util = GDALGmlUtil(first_file)
-                gdal_fields = gdal_util.get_fields_range_type()
+                for file in self.session.get_files():
+                    try:
+                        gdal_util = GDALGmlUtil(file)
+                        gdal_fields = gdal_util.get_fields_range_type()
 
-                ret_bands = []
-                for field in gdal_fields:
-                    ret_bands.append(UserBand(
-                        field.field_name,
-                        field.field_name,
-                        None,
-                        None,
-                        None,
-                        field.nill_values
-                    ))
+                        ret_bands = []
+                        for field in gdal_fields:
+                            ret_bands.append(UserBand(
+                                field.field_name,
+                                field.field_name,
+                                None,
+                                None,
+                                None,
+                                field.nill_values
+                            ))
+                        break
+                    except Exception as e:
+                        if ConfigManager.skip == True:
+                            pass
+                        else:
+                            raise e
+
                 return ret_bands
             else:
                 raise RuntimeError("'bands' must be specified in ingredient file for netCDF/GRIB recipes.")
@@ -342,7 +350,7 @@ class Recipe(BaseRecipe):
 
         return user_axes
 
-    def __add_color_palette_table_to_global_metadata(self, metadata_dict):
+    def __add_color_palette_table_to_global_metadata(self, metadata_dict, file_path):
         """
         If colorPaletteTable is added in ingredient file, then add it to coverage's global metadata
         """
@@ -359,7 +367,7 @@ class Recipe(BaseRecipe):
                                                         " in general recipe with slicer's type: gdal.")
                     elif value == "auto":
                         # Get colorPaletteTable automatically from first file
-                        gdal_dataset = GDALGmlUtil(self.session.get_files()[0])
+                        gdal_dataset = GDALGmlUtil(file_path)
                         color_palette_table = gdal_dataset.get_color_table()
                     else:
                         # file_path can be relative path or full path
@@ -375,7 +383,7 @@ class Recipe(BaseRecipe):
                                 color_palette_table = file_reader.read()
             elif supported_recipe:
                 # If colorPaletteTable is not mentioned in the ingredient, automatically fetch it
-                gdal_dataset = GDALGmlUtil(self.session.get_files()[0])
+                gdal_dataset = GDALGmlUtil(file_path)
                 color_palette_table = gdal_dataset.get_color_table()
 
             if color_palette_table is not None:
@@ -386,38 +394,45 @@ class Recipe(BaseRecipe):
         Returns the global metadata fields
         :rtype: dict
         """
-        file_path = self.session.get_files()[0].filepath
 
         if "coverage" in self.options and "metadata" in self.options['coverage']:
 
-            if "global" in self.options['coverage']['metadata']:
-                global_metadata = self.options['coverage']['metadata']['global']
+            for file_path in self.session.get_files():
+                try:
+                    if "global" in self.options['coverage']['metadata']:
+                        global_metadata = self.options['coverage']['metadata']['global']
 
-                # global_metadata is manually defined with { ... some values }
-                if type(global_metadata) is dict:
-                    metadata_dict = self.options['coverage']['metadata']['global']
-                else:
-                    # global metadata is defined with "a string"
-                    if global_metadata != "auto":
-                        raise RuntimeException("No valid global metadata attribute for gdal slicer could be found, "
-                                               "given: " + global_metadata)
+                        # global_metadata is manually defined with { ... some values }
+                        if type(global_metadata) is dict:
+                            metadata_dict = self.options['coverage']['metadata']['global']
+                        else:
+                            # global metadata is defined with "a string"
+                            if global_metadata != "auto":
+                                raise RuntimeException("No valid global metadata attribute for gdal slicer could be found, "
+                                                       "given: " + global_metadata)
+                            else:
+                                # global metadata is defined with auto, then parse the metadata from the first file to a dict
+                                if self.options['coverage']['slicer']['type'] == "gdal":
+                                    metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path)
+                                elif self.options['coverage']['slicer']['type'] == "netcdf":
+                                    metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
                     else:
-                        # global metadata is defined with auto, then parse the metadata from the first file to a dict
+                        # global is not specified in ingredient file, it is considered as "global": "auto"
                         if self.options['coverage']['slicer']['type'] == "gdal":
                             metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path)
                         elif self.options['coverage']['slicer']['type'] == "netcdf":
                             metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
-            else:
-                # global is not specified in ingredient file, it is considered as "global": "auto"
-                if self.options['coverage']['slicer']['type'] == "gdal":
-                    metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path)
-                elif self.options['coverage']['slicer']['type'] == "netcdf":
-                    metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
 
-            self.__add_color_palette_table_to_global_metadata(metadata_dict)
+                    self.__add_color_palette_table_to_global_metadata(metadata_dict, file_path)
 
-            result = escape_metadata_dict(metadata_dict)
-            return result
+                    result = escape_metadata_dict(metadata_dict)
+                    return result
+                except Exception as e:
+                    if ConfigManager.skip == True:
+                        # Error with opening the first file, then try with another file as skip is true
+                        pass
+                    else:
+                        raise e
 
         return {}
 
@@ -473,36 +488,42 @@ class Recipe(BaseRecipe):
         # a list of user defined bands
         user_bands = self._read_bands()
 
-        file_path = self.session.get_files()[0].filepath
-
-        # Just fetch all metadata for user specified bands
-        bands_metadata = NetcdfToCoverageConverter.parse_netcdf_bands_metadata(file_path, user_bands)
-
         if "metadata" in self.options['coverage']:
-            if "bands" in self.options['coverage']['metadata']:
-                # a dictionary of user defined bands' metadata
-                bands_metadata_configured = self.options['coverage']['metadata']['bands']
+            for file in self.session.get_files():
+                try:
+                    file_path = file.filepath
+                    # Just fetch all metadata for user specified bands
+                    bands_metadata = NetcdfToCoverageConverter.parse_netcdf_bands_metadata(file_path, user_bands)
 
-                if bands_metadata_configured != "auto":
+                    if "bands" in self.options['coverage']['metadata']:
+                        # a dictionary of user defined bands' metadata
+                        bands_metadata_configured = self.options['coverage']['metadata']['bands']
 
-                    # validate if band's name does exist in list of user defined bands
-                    for band, band_attributes in bands_metadata_configured.items():
-                        exist = False
-                        for user_band in user_bands:
+                        if bands_metadata_configured != "auto":
 
-                            if str(band) == str(user_band.name):
-                                # Metadata for 1 band is configured manually in ingredient file
-                                if band_attributes != "auto":
-                                    bands_metadata[band] = band_attributes
+                            # validate if band's name does exist in list of user defined bands
+                            for band, band_attributes in bands_metadata_configured.items():
+                                exist = False
+                                for user_band in user_bands:
 
-                                exist = True
-                                break
+                                    if str(band) == str(user_band.name):
+                                        # Metadata for 1 band is configured manually in ingredient file
+                                        if band_attributes != "auto":
+                                            bands_metadata[band] = band_attributes
 
-                        if exist is False:
-                            raise RuntimeException(
-                                "Band's metadata with name: '" + band + "' does not exist in user defined bands.")
+                                        exist = True
+                                        break
 
-            return escape_metadata_nested_dicts(bands_metadata)
+                                if exist is False:
+                                    raise RuntimeException(
+                                        "Band's metadata with name: '" + band + "' does not exist in user defined bands.")
+
+                    return escape_metadata_nested_dicts(bands_metadata)
+                except Exception as e:
+                    if ConfigManager.skip == True:
+                        pass
+                    else:
+                        raise e
 
         return {}
 
@@ -560,37 +581,44 @@ class Recipe(BaseRecipe):
         crs = self._resolve_crs(self.options['coverage']['crs'])
         user_axes = self._read_axes(crs)
 
-        file_path = self.session.get_files()[0].filepath
-        crs_axes_configured_dict = self.options['coverage']['slicer']['axes']
+        for file in self.session.get_files():
+            try:
+                file_path = file.filepath
+                crs_axes_configured_dict = self.options['coverage']['slicer']['axes']
 
-        # Just fetch all metadata for user specified axes
-        axes_metadata = NetcdfToCoverageConverter.parse_netcdf_axes_metadata(file_path, crs_axes_configured_dict)
+                # Just fetch all metadata for user specified axes
+                axes_metadata = NetcdfToCoverageConverter.parse_netcdf_axes_metadata(file_path, crs_axes_configured_dict)
 
-        if "metadata" in self.options['coverage']:
-            if "axes" in self.options['coverage']['metadata']:
-                # a dictionary of user defined axes' metadata
-                axes_metadata_configured = self.options['coverage']['metadata']['axes']
+                if "metadata" in self.options['coverage']:
+                    if "axes" in self.options['coverage']['metadata']:
+                        # a dictionary of user defined axes' metadata
+                        axes_metadata_configured = self.options['coverage']['metadata']['axes']
 
-                if axes_metadata_configured != "auto":
+                        if axes_metadata_configured != "auto":
 
-                    # validate if axis's name does exist in list of user defined axes
-                    for axis, axis_attributes in axes_metadata_configured.items():
-                        exist = False
-                        for user_axis in user_axes:
+                            # validate if axis's name does exist in list of user defined axes
+                            for axis, axis_attributes in axes_metadata_configured.items():
+                                exist = False
+                                for user_axis in user_axes:
 
-                            if str(axis) == str(user_axis.name):
-                                # Metadata for 1 axis is configured manually in ingredient file
-                                if axis_attributes != "auto":
-                                    axes_metadata[axis] = axis_attributes
+                                    if str(axis) == str(user_axis.name):
+                                        # Metadata for 1 axis is configured manually in ingredient file
+                                        if axis_attributes != "auto":
+                                            axes_metadata[axis] = axis_attributes
 
-                                exist = True
-                                break
+                                        exist = True
+                                        break
 
-                        if exist is False:
-                            raise RuntimeException(
-                                "Metadata of axis with name '" + axis + "' does not exist in user defined bands.")
+                                if exist is False:
+                                    raise RuntimeException(
+                                        "Metadata of axis with name '" + axis + "' does not exist in user defined bands.")
 
-            return escape_metadata_nested_dicts(axes_metadata)
+                    return escape_metadata_nested_dicts(axes_metadata)
+            except Exception as e:
+                if ConfigManager.skip == True:
+                    pass
+                else:
+                    raise e
 
         return {}
 

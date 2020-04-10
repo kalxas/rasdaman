@@ -21,6 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+from config_manager import ConfigManager
 from master.error.validate_exception import RecipeValidationException
 from master.helper.gdal_axis_filler import GdalAxisFiller
 from master.helper.gdal_range_fields_generator import GdalRangeFieldsGenerator
@@ -90,7 +91,16 @@ class Recipe(BaseRecipe):
 
     def _get_coverage(self):
         # Get the crs of one of the images using a GDAL helper class. We are assuming all images have the same CRS
-        gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
+        for file in self.session.get_files():
+            try:
+                file_path = file.get_filepath()
+                gdal_dataset = GDALGmlUtil(file_path)
+                break
+            except Exception as e:
+                if ConfigManager.skip == True:
+                    pass
+                else:
+                    raise e
         # Get the crs of the coverage by compounding the two crses
         crs = CRSUtil.get_compound_crs([gdal_dataset.get_crs(), self.options['time_crs']])
         fields = GdalRangeFieldsGenerator(gdal_dataset).get_range_fields()

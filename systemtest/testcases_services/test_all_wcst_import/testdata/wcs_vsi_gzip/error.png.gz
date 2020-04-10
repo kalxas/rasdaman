@@ -1,18 +1,16 @@
 {
   "config": {
-    "service_url": "PETASCOPE_URL",
+    "service_url": "http://localhost:8082/rasdaman/ows",
     "tmp_directory": "/tmp/",
-    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "default_crs": "http://localhost:8080/def/crs/EPSG/0/4326",
     "mock": false,
     "automated": true,
-    "skip": true,
     "track_files": false
   },
   "input": {
     "coverage_id": "test_wcps_rgb_gzip",
     "paths": [
-      "/vsigzip/CURRENT_ABSOLUTE_DIR/error.png.gz",
-      "/vsigzip/CURRENT_ABSOLUTE_DIR/rgb.png.gz"
+      "/vsigzip//home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_vsi_gzip/rgb.png.gz"
     ]
   },
   "recipe": {
