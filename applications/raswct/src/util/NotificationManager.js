@@ -43,7 +43,8 @@ FlancheJs.defineClass("Rj.util._NotificationManager", {
         icon   : 'icon-envelope',
         styling: 'bootstrap',
         type   : cfg.type || 'info',
-        delay  : cfg.delay || 2000
+        delay  : 7000,
+        hide: true
       })
     },
 
@@ -55,7 +56,9 @@ FlancheJs.defineClass("Rj.util._NotificationManager", {
         type   : type,
         hide   : false,
         icon   : 'icon-exclamation-sign',
-        styling: 'bootstrap'
+        styling: 'bootstrap',
+        delay  : 7000,
+        hide: true
       });
     }
   }

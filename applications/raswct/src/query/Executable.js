@@ -107,10 +107,10 @@ FlancheJs.defineTrait("Rj.query.Executable", {
         xhr.responseType = "arraybuffer";
       }
       xhr.onreadystatechange = function(){
-        if(xhr.status == 404){
+        if(xhr.status == 404 && xhr.readyState == 4){
           Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceUnavailableErrorMessage, true);
         }
-        else if(xhr.status == 500){
+        else if(xhr.status == 500 && xhr.readyState == 4){
           Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceErrorMessage + xhr.response, true)
         }
         else{
