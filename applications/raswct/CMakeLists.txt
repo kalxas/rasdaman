@@ -114,7 +114,8 @@ set(SRC_SOURCES "${SRC}/util/GlobalState.js"
         "${SRC}/widget/Map.js"
         "${SRC}/util/BinderManager.js"
         "${SRC}/util/Binders.js"
-        "${SRC}/widget/Led.js")
+        "${SRC}/widget/Led.js"
+        "${SRC}/widget/RasqlConsole.js")
 
 # Get all the images in the bin directory
 

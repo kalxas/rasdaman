@@ -17,7 +17,7 @@
             <div id="output" class="span12">
                 <p>
                     <span class="label label-info">you@rasql>Status</span> Welcome to the interactive rasql console. Type your query in the textbox below and
-                    press Execute to test it.
+                    press <span class="label label-primary">Execute</span> to test it.
                     <br>
                     The output of the query can be visualized with a widget by writing the query as <span class="label label-success">widget>>query</span>.
                     <br>
@@ -25,7 +25,9 @@
                     <ul>
                         <li><i>image</i> to visualize a 2D image result, e.g. <span class="label label-success">image>>select encode(..., "jpeg") from ...</span></li>
                         <li><i>diagram</i> on csv encoded data, e.g. <span class="label label-success">diagram(type=area,width=300)>>select encode(..., "csv") from ...</span></li>
+                        <li><i>text</i> to visualize a text result, e.g. <span class="label label-success">text>>select dbinfo(...) from ...</span></li>
                     </ul>
+                    Without using a widget the result would be downloaded.
                 </p>
             </div>
         </div>
@@ -58,8 +60,9 @@
         </div>
     </div>
 
-    <script src="js/raswct.js" type="text/javascript"></script>
     <script type="text/javascript" src="config.js"></script>
+    <script src="js/raswct.js" type="text/javascript"></script>
+    <script src="js/fileSaver.js" type="text/javascript"></script>
     <script src="js/demo.js" type="text/javascript"></script>
 </body>
 

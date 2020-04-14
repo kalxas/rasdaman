@@ -313,3 +313,7 @@ margin-bottom: 0.5vh;
     background: #fff;
     /* margin-top: -15px; */
 }
+
+.label-primary {
+    background-color: #006dcc;
+}
