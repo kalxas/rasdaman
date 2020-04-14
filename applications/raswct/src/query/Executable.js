@@ -114,19 +114,19 @@ FlancheJs.defineTrait("Rj.query.Executable", {
           Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceErrorMessage + xhr.response, true)
         }
         else{
-          self._handleCallback(callback, xhr.response, xhr.status);     
+          self._handleCallback(callback, xhr.response, xhr.status, xhr.readyState);     
         }
       };
       xhr.send(transport.getParams().request);   
     },
 
-    handleCallback: function(callback, response, httpStatus){
+    handleCallback: function(callback, response, httpStatus, readyState) {
       //if a callback is provided return response to it
       var self = this;
       if(_.exists(callback)){
         if(response == null){
           callback.call(this, response, httpStatus);
-        } else if(response != "" && self.$callbackReturnedValue == false){
+        } else if(readyState == 4 && self.$callbackReturnedValue == false){
             callback.call(this, response, httpStatus);
             // Don't callback anymore when it already returned value
             self.$callbackReturnedValue = true;
