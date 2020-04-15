@@ -29,10 +29,11 @@ import petascope.exceptions.ExceptionCode;
  */
 public class IncompatibleAxesNumberException extends WCPSException {
 
-    public IncompatibleAxesNumberException(String firstCovName, String secondCovName, int firstCovAxes, int secondCovAxes) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE_BINARY_COVERAGE_EXPRESSION.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
-              .replace("$firstCovAxes", String.valueOf(firstCovAxes))
-              .replace("$secondCovAxes", String.valueOf(secondCovAxes)));
+    public IncompatibleAxesNumberException(String firstCovName, String secondCovName, Integer firstCovAxes, Integer secondCovAxes) {
+        super(ExceptionCode.WcpsError, ERROR_TEMPLATE_BINARY_COVERAGE_EXPRESSION.replace("$firstCov", firstCovName)
+                                                                                .replace("$secondCov", secondCovName)
+                                                                                .replace("$numberOfAxes1", firstCovAxes.toString())
+                                                                                .replace("$numberOfAxes2", secondCovAxes.toString()));
     }
     
     public IncompatibleAxesNumberException(String coverageName, int coverageAxes, int dimensionsIntervalsAxes) {
@@ -42,7 +43,7 @@ public class IncompatibleAxesNumberException extends WCPSException {
     }
 
     // e.g: coverage_1 + coverage_2
-    public static final String ERROR_TEMPLATE_BINARY_COVERAGE_EXPRESSION = "Coverages '$firstCov' ('$firstCovAxes' axes) and '$secondCov' ('$secondCovAxes' axes) don't have the same number of axes.";
+    public static final String ERROR_TEMPLATE_BINARY_COVERAGE_EXPRESSION = "Number of axes of coverages '$firstCov' and '$secondCov' are incompatible, given: $numberOfAxes1 and $numberOfAxes2 axes.";
     // e.g: scale(coverage_1, {imageCrsdomain(coverage_2))
     public static final String ERROR_TEMPLATE_SCALE_OR_EXTEND_EXPRESSION = "Coverage '$coverageName' ('$coverageAxes' axes) "
                                                                          + "does not have the same number of axes as input scale/extend dimensions intervals ('$dimensionsIntervalsAxes' axes).";

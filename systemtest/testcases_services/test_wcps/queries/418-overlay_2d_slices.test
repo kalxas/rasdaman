@@ -1,0 +1,3 @@
+for c in (test_eobstest),
+    d in (test_eobstest)
+  return encode(c[t("1949-12-31T12")] overlay d[t("1949-12-31T12")], "png")

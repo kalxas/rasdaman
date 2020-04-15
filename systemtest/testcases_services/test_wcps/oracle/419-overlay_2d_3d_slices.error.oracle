@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+>
+<ows:Exception exceptionCode="WcpsError">
+<ows:ExceptionText>Number of axes of coverages 'test_eobstest' and 'test_eobstest' are incompatible, given: 3 and 2 axes.</ows:ExceptionText>
+</ows:Exception>
+</ows:ExceptionReport>

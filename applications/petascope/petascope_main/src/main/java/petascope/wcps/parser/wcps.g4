@@ -377,8 +377,6 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionConstructorLabel
                   | coverageExpression coverageArithmeticOperator coverageExpression
                     #CoverageExpressionArithmeticLabel
-                  | coverageExpression OVERLAY coverageExpression
-                    #CoverageExpressionOverlayLabel
                   | coverageExpression numericalComparissonOperator coverageExpression
                     #CoverageExpressionComparissonLabel
                   | coverageVariableName
@@ -460,7 +458,9 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                   | scalarExpression
                     #CoverageExpressionScalarLabel
   		          | coverageExpression IS (NOT)? NULL
-		            #CoverageIsNullExpression;
+		            #CoverageIsNullExpression
+                  | coverageExpression OVERLAY coverageExpression
+                    #CoverageExpressionOverlayLabel;
 /**
  * Example:
  *   $c1 AND $c2

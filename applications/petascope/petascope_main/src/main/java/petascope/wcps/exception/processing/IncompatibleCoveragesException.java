@@ -33,8 +33,8 @@ public class IncompatibleCoveragesException extends WCPSException {
 
     public IncompatibleCoveragesException(String firstCovName, String secondCovName, String errorMessage) {
         super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
-              .replace("$erroMessage", errorMessage));
+              .replace("$errorMessage", errorMessage));
     }
 
-    public static final String ERROR_TEMPLATE = "Coverages '$firstCov' ('$firstCovAxes' axes) and '$secondCov' ('$secondCovAxes' axes) are not compatible. Reason: $erroMessage.";
+    public static final String ERROR_TEMPLATE = "Axes of coverages '$firstCov' and '$secondCov' are not compatible. Reason: $errorMessage.";
 }

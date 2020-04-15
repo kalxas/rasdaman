@@ -3755,9 +3755,9 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionOverlayLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(614);
-						if (!(34 >= _localctx._p)) throw new FailedPredicateException(this, "34 >= $_p");
+						if (!(1 >= _localctx._p)) throw new FailedPredicateException(this, "1 >= $_p");
 						setState(615); match(OVERLAY);
-						setState(616); coverageExpression(35);
+						setState(616); coverageExpression(2);
 						}
 						break;
 
@@ -3788,7 +3788,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionComparissonLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(625);
-						if (!(33 >= _localctx._p)) throw new FailedPredicateException(this, "33 >= $_p");
+						if (!(34 >= _localctx._p)) throw new FailedPredicateException(this, "34 >= $_p");
 						setState(626); numericalComparissonOperator();
 						setState(627); coverageExpression(0);
 						}
@@ -3799,7 +3799,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionShorthandSliceLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(629);
-						if (!(29 >= _localctx._p)) throw new FailedPredicateException(this, "29 >= $_p");
+						if (!(30 >= _localctx._p)) throw new FailedPredicateException(this, "30 >= $_p");
 						setState(630); match(LEFT_BRACKET);
 						setState(631); dimensionPointList();
 						setState(632); match(RIGHT_BRACKET);
@@ -3811,7 +3811,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionShorthandSubsetLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(634);
-						if (!(27 >= _localctx._p)) throw new FailedPredicateException(this, "27 >= $_p");
+						if (!(28 >= _localctx._p)) throw new FailedPredicateException(this, "28 >= $_p");
 						setState(635); match(LEFT_BRACKET);
 						setState(636); dimensionIntervalList();
 						setState(637); match(RIGHT_BRACKET);
@@ -3823,7 +3823,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageXpressionShortHandSubsetWithLetClauseVariableLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(639);
-						if (!(26 >= _localctx._p)) throw new FailedPredicateException(this, "26 >= $_p");
+						if (!(27 >= _localctx._p)) throw new FailedPredicateException(this, "27 >= $_p");
 						setState(640); match(LEFT_BRACKET);
 						setState(641); coverageVariableName();
 						setState(642); match(RIGHT_BRACKET);
@@ -3835,7 +3835,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionRangeSubsettingLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(644);
-						if (!(16 >= _localctx._p)) throw new FailedPredicateException(this, "16 >= $_p");
+						if (!(17 >= _localctx._p)) throw new FailedPredicateException(this, "17 >= $_p");
 						setState(645); match(DOT);
 						setState(646); fieldName();
 						}
@@ -3846,7 +3846,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageIsNullExpressionContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(647);
-						if (!(1 >= _localctx._p)) throw new FailedPredicateException(this, "1 >= $_p");
+						if (!(2 >= _localctx._p)) throw new FailedPredicateException(this, "2 >= $_p");
 						setState(648); match(IS);
 						setState(650);
 						_la = _input.LA(1);
@@ -7495,23 +7495,23 @@ public class wcpsParser extends Parser {
 	}
 	private boolean coverageExpression_sempred(CoverageExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
-		case 3: return 34 >= _localctx._p;
+		case 3: return 1 >= _localctx._p;
 
 		case 4: return 38 >= _localctx._p;
 
 		case 5: return 35 >= _localctx._p;
 
-		case 6: return 33 >= _localctx._p;
+		case 6: return 34 >= _localctx._p;
 
-		case 7: return 29 >= _localctx._p;
+		case 7: return 30 >= _localctx._p;
 
-		case 8: return 27 >= _localctx._p;
+		case 8: return 28 >= _localctx._p;
 
-		case 9: return 26 >= _localctx._p;
+		case 9: return 27 >= _localctx._p;
 
-		case 10: return 16 >= _localctx._p;
+		case 10: return 17 >= _localctx._p;
 
-		case 11: return 1 >= _localctx._p;
+		case 11: return 2 >= _localctx._p;
 		}
 		return true;
 	}
