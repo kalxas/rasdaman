@@ -36,8 +36,9 @@ add_custom_target(check
         DEPENDS run_test.sh
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Running system tests."
-        VERBATIM)
+        VERBATIM )
 
 file(GLOB_RECURSE TEST_FILES_TO_CLEAN *.log failed_cases output)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${TEST_FILES_TO_CLEAN}")
+

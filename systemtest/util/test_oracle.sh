@@ -141,6 +141,7 @@ if [ "$SVC_NAME" = "rasdapy3" ]; then
   # rasql.py doesn't work well on these OS (python3 is not selected properly)
   [ "$OS_NAME" = "ubuntu" ] && [ "$OS_VERSION_NUMBER" -lt 1804 ] && exit $RC_SKIP
   [ "$OS_NAME" = "centos" ] && [ "$OS_VERSION_NUMBER" -lt 8 ] && exit $RC_SKIP
+  [ "$BASEDB" = "pgsql" ] && log "rasdapy3 is not stable with pgsql" && exit $RC_SKIP
 fi
 
 check_curl

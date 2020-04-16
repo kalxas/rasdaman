@@ -72,8 +72,8 @@ PGconn *pgConn = NULL;
 #include "adminif.hh"
 
 extern char globalConnectId[256];
-extern char globalDbUser[256];
-extern char globalDbPasswd[256];
+//extern char globalDbUser[256];
+//extern char globalDbPasswd[256];
 
 // size of ARCHITECTURE attribute in RAS_ADMIN:
 #define SIZE_ARCH_RASADMIN 20
@@ -115,11 +115,11 @@ DatabaseIf::connect()
     EXEC SQL END DECLARE SECTION;
 
     strcpy((char *)&id, globalConnectId);
-    strcpy((char *)&user, globalDbUser);
-    strcpy((char *)&passwd, globalDbPasswd);
+    //strcpy((char *)&user, globalDbUser);
+    //strcpy((char *)&passwd, globalDbPasswd);
 
     //LDEBUG <<"user " << globalDbUser << ", pass: " << globalDbPasswd;
-
+    /*
     if (strlen(globalDbUser) > 0)
     {
         if (strlen(globalDbPasswd) > 0)
@@ -137,7 +137,9 @@ DatabaseIf::connect()
     {
         LDEBUG << "EXEC SQL CONNECT TO " << id;
         EXEC SQL CONNECT TO :id AS rasdaConn;       // "AS" param must be same as down in ECPGget_connection()
-    }
+    }*/
+    LDEBUG << "EXEC SQL CONNECT TO " << id;
+    EXEC SQL CONNECT TO :id AS rasdaConn;       // "AS" param must be same as down in ECPGget_connection()
     if (SQLCODE != SQLOK)
     {
         check("DatabaseIf::connect() CONNECT");
@@ -169,7 +171,7 @@ DatabaseIf::connect()
         strncpy(parsed_dbname,globalConnectId,sizeof(parsed_dbname) - 1);
     }
     
-
+    /*
     if (strlen(globalDbUser) > 0)
     {
         if (strlen(globalDbPasswd) > 0)
@@ -181,6 +183,9 @@ DatabaseIf::connect()
     {
         pgConn = PQsetdb(parsed_host,NULL,NULL,NULL,parsed_dbname);
     }
+    */
+    pgConn = PQsetdb(parsed_host,NULL,NULL,NULL,parsed_dbname);
+
     if (parsed_host != NULL) { free (parsed_host); }
     if (pgConn == NULL || PQstatus(pgConn) == CONNECTION_BAD)
     {

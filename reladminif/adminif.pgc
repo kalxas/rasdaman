@@ -45,8 +45,8 @@ EXEC SQL include sqlglobals.h;
 #include <logging.hh>
 
 extern char globalConnectId[256];
-extern char globalDbUser[256];
-extern char globalDbPasswd[256];
+//extern char globalDbUser[256];
+//extern char globalDbPasswd[256];
 
 const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN]="PostgreSQL";
 
@@ -54,12 +54,13 @@ AdminIf::AdminIf(bool createDb)
 {
     EXEC SQL BEGIN DECLARE SECTION;
         char    id[257];
-        char    user[257];
-        char    passwd[257];
+        //char    user[257];
+        //char    passwd[257];
     EXEC SQL END DECLARE SECTION;
 
     strncpy((char *)&id, globalConnectId, sizeof(id)-1);
 
+    /*
     //Check if a user and password has been provided for connection
     if ( strlen(globalDbUser) > 0 )
     {
@@ -78,10 +79,12 @@ AdminIf::AdminIf(bool createDb)
     }
     else
     {
-        LDEBUG << "EXEC SQL CONNECT TO " << id;
-        EXEC SQL CONNECT TO :id;
+    LDEBUG << "EXEC SQL CONNECT TO " << id;
+    EXEC SQL CONNECT TO :id;
     }
-
+    */
+    LDEBUG << "EXEC SQL CONNECT TO " << id;
+    EXEC SQL CONNECT TO :id;
     if (check("AdminIf Connect\0"))
     {
         validConnection = false;

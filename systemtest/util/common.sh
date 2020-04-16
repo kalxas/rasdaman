@@ -63,6 +63,7 @@ export DB_DIR="/tmp/rasdb"
 export LOG_DIR="$RMANHOME/log"
 export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 
+
 # -------------------
 # script return codes
 #

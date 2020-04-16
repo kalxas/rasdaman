@@ -81,6 +81,13 @@ TEST_REGULAR=test_regular
 TEST_ALIGNED=test_aligned
 
 # ------------------------------------------------------------------------------
+# check database
+if [ "$BASEDB" = "pgsql" ]; then
+  # test backwords only works with sqlite
+  echo "Test Backwards only runs with SQLite selected as database."
+  exit $RC_SKIP
+  
+fi
 # test dependencies
 #
 check_postgres

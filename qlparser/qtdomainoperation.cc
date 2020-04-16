@@ -84,6 +84,8 @@ QtDomainOperation::QtDomainOperation(QtOperation *mintOp, std::vector<std::strin
     if (mintervalOp)
     {
         mintervalOp->setParent(this);
+        axisNamesCorrect = NULL;
+
     }
 }
 
@@ -104,7 +106,7 @@ QtDomainOperation::~QtDomainOperation()
     delete mintervalOp;
     if (namedAxisFlag)
     {
-        delete axisNamesCorrect;
+        if (axisNamesCorrect != NULL) delete axisNamesCorrect;
         axisNamesCorrect = NULL;
     }
 

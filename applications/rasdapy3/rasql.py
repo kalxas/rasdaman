@@ -128,11 +128,12 @@ class Main:
         # self.query = 'select {33.0, 33.5}'
         # open connection to rasserver
         self.db_connector.open()
-
         try:
             tmp = self.validator.query.lower().strip()
+            print(self.validator.query)
             if tmp.startswith("select") and "into" not in tmp:
                 """ e.g: select c from RAS_COLLECTIONNAMES as c"""
+                
                 res = self.query_executor.execute_read(self.validator.query)
             elif self.validator.file:
                 # insert or update with file
