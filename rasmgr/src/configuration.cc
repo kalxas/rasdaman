@@ -31,6 +31,8 @@
 #include "../../include/globals.hh"
 #include "configuration.hh"
 #include "constants.hh"
+#include "version.h"
+#include "config.h"
 
 namespace rasmgr
 {
@@ -138,6 +140,7 @@ bool Configuration::parseCommandLineParameters(int argc, char **argv)
 
 void Configuration::printHelp()
 {
+    std::cout << "rasmgr: rasdaman server " << RMANVERSION << " on base DBMS " << BASEDBSTRING << "."<<std::endl;
     std::cout << "Usage: rasmgr [options]" << std::endl;
     std::cout << "Options:" << std::endl;
     this->cmlInter.printHelp();

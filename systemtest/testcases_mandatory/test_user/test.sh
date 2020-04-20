@@ -92,6 +92,8 @@ PASSWD_NONEX=nonex
 TESTCOLL=AuthentTestCollection
 TESTCOLL_TYPE=GreySet
 
+log()   { echo -e "$@" | tee -a "$LOG"; }
+
 # --- ACTION --------------------------------------------------------
 
 # save old log if present
@@ -101,13 +103,13 @@ then
         mv $LOG $SAVELOG
 fi
 
-echo $PROG: testing rasdaman authentication at `date` | tee $LOG
+log "$PROG: testing rasdaman authentication at `date`" 
 
 # set default return code
 RC=$RC_OK
 
 # good cases
-echo $INDENT good cases | tee -a $LOG
+log "$INDENT good cases"
 echo $INDENT $INDENT write
 ( rasql --quiet -q "create collection $TESTCOLL $TESTCOLL_TYPE" --user $USER_RW --passwd $PASSWD_RW \
         || (export RC=$?; echo Fatal $ERROR, exit code $RC) ) | tee -a $LOG
@@ -135,7 +137,7 @@ echo $INDENT $INDENT set up test env for subsequent cases
 echo $INDENT good cases done. | tee -a $LOG
 
 # bad cases
-echo $INDENT bad cases | tee -a $LOG
+log "$INDENT bad cases"
 echo $INDENT $INDENT nonex login
 ( rasql --quiet -q "select a[1,1] from $TESTCOLL as a" --user $USER_NONEX --passwd $PASSWD_NONEX \
         || (export RC=$?; echo Recognized bad case, exit code $RC) ) | tee -a $LOG
@@ -151,7 +153,7 @@ echo $INDENT $INDENT wrong passwd
         || (export RC=$?; echo Recognized bad case, exit code $RC) ) | tee -a $LOG
 ( rasql --quiet -q "update $TESTCOLL as m set m[1:1,1:1] assign marray x in [1:1,1:1] values 42c" --user $USER_RW --passwd $PASSWD_RO \
         || (export RC=$?; echo Recognized bad case, exit code $RC) ) | tee -a $LOG
-echo $INDENT bad cases done. | tee -a $LOG
+log "$INDENT bad cases done." 
 
 echo $INDENT cleanup: 
 ( rasql --quiet -q "drop collection $TESTCOLL" --user $USER_RW --passwd $PASSWD_RW \

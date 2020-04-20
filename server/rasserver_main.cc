@@ -150,19 +150,19 @@ int main(int argc, char** argv)
 
     if (configuration.isRasserver())
     {
-        LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS " << BASEDBSTRING << ".";
-        LINFO << " Copyright 2003-2018 Peter Baumann / rasdaman GmbH. \n"
-              << " Rasdaman community is free software: you can redistribute it and/or modify "
-              << "it under the terms of the GNU General Public License as published by "
-              << "the Free Software Foundation, either version 3 of the License, or "
-              << "(at your option) any later version. \n"
-              << " Rasdaman community is distributed in the hope that it will be useful, "
-              << "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-              << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-              << "GNU General Public License for more details.";
-        LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.\n";
+    LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS " << BASEDBSTRING << ".";
+    LINFO << " Copyright 2003-2018 Peter Baumann / rasdaman GmbH. \n"
+          << " Rasdaman community is free software: you can redistribute it and/or modify "
+          << "it under the terms of the GNU General Public License as published by "
+          << "the Free Software Foundation, either version 3 of the License, or "
+          << "(at your option) any later version. \n"
+          << " Rasdaman community is distributed in the hope that it will be useful, "
+          << "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+          << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+          << "GNU General Public License for more details.";
+    LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.\n";
     }
-
+    
     if (!initialize())
     {
         LERROR << "Error during initialization, aborted.";
@@ -192,7 +192,7 @@ int main(int argc, char** argv)
             LDEBUG << "run direct server...";
             common::LogConfiguration logConf(CONFDIR, CLIENT_LOG_CONF);
             logConf.configClientLogging(configuration.isQuietLogOn());
-
+            LINFO <<" rasdaman direct query tool, rasdaman " << RMANVERSION << " on base DBMS " << BASEDBSTRING << "."<<endl;
             if (configuration.hasQueryString())
             {
                 rasserver::directql::openDatabase();

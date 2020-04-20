@@ -24,6 +24,7 @@ rasdaman GmbH.
 using namespace std;
 
 #include "config.h"
+#include "version.h"
 #include "rasserver_config.hh"
 #include "globals.hh"   // DEFAULT_PORT, LOGDIR, LOG_SUFFIX
 
@@ -254,7 +255,6 @@ void Configuration::checkParameters()
 
     // at this point the logging can be initialized
     initLogFiles();
-
     if (cmlFile->isPresent())
         fileName = cmlFile->getValueAsString();
 
@@ -347,6 +347,8 @@ void Configuration::checkParameters()
 void Configuration::printHelp()
 {
     CommandLineParser& cmlInter  = CommandLineParser::getInstance();
+
+    cout << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS " << BASEDBSTRING << "."<<endl;
     cout << "Usage:   rasserver [options]" << endl;
     cout << "Options:" << endl;
     cmlInter.printHelp();

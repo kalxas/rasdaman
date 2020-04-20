@@ -22,6 +22,8 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 
 PROG=$(basename $0)
+VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
 
 log()   { echo -e "$PROG: $@"; }
 error() { log "$@; exiting."; exit 1; }
@@ -34,9 +36,10 @@ BIN_DIR="@BIN_DIR@"
 
 PATH=$BIN_DIR:$PATH
 
-log="test.log"
-rm -f "$log"
+logf="test.log"
+rm -f "$logf"
 
+log "rasdaman $VERSION build $BUILD";
 ret=0
 
 for test_case in $TEST_SEQUENCE; do

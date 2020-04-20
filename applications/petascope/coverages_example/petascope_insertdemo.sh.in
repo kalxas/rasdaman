@@ -35,8 +35,8 @@
 #     have appropriate write rights in postgres.
 
 PROG=$(basename "$0")
-
 VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
 
 SETTINGS="@sysconfdir@/petascope.properties"
 WCST_IMPORT="@bindir@/wcst_import.sh"
@@ -120,6 +120,10 @@ import_coverage()
 # work
 # ------------------------------------------------------------------------------
 
+#
+# log starting message
+#
+log "rasdaman $VERSION build $BUILD";
 #
 # import all coverages example
 #

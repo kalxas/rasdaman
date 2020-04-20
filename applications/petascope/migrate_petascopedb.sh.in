@@ -43,6 +43,8 @@
 
 readonly MYNAME=$(basename $0)
 
+VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
 readonly RC_OK=0
 readonly RC_ERROR=1
 
@@ -59,14 +61,14 @@ error() {
 readonly LOG_FILE="@LOG_DIR@/petascope-migration.log"
 readonly PROPERTIES_FILE="@CONF_DIR@/petascope.properties"
 
+log "rasdaman $VERSION build $BUILD";
+
 # This jar file is generated from the petascope_migration application
 readonly PETASCOPE_WAR="@WAR_DIR@/rasdaman.war"
 if [ ! -f "$PETASCOPE_WAR" ]; then
     error "Cannot find the migration application '$PETASCOPE_WAR'."
 fi
-
 log "Using configuration file '$PROPERTIES_FILE'."
-
 read -p "$MYNAME: Start the migration process [Y/n]? " -n 1 -r
 echo -e ""
 if [[ $REPLY =~ ^[Yy]$ ]] || [[ "$REPLY" = "" ]]; then

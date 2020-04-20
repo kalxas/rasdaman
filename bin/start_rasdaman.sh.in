@@ -50,8 +50,8 @@
 # --- CONSTANTS -----------------------------------------------------
 
 PROG=$(basename "$0")
-
 VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
 
 RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
@@ -218,6 +218,8 @@ set_all_options()
     start_all_services=$1
 }
 
+log "starting rasdaman $VERSION build $BUILD...";
+
 set_all_options true
 
 servers=""
@@ -272,7 +274,6 @@ if [ "$start_rasmgr_rasservers" = true ]; then
     # clear previous log file
     rm -f nohup.out
 
-    log "starting rasdaman $VERSION..."
 
     # start rasdaman server manager as demon; log will go into nohup.out
     # the manager is started in quiet mode

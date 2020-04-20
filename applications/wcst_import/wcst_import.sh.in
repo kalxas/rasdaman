@@ -22,8 +22,9 @@
 # *
 
 PROG=$(basename "$0")
-
 VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
+
 WCST_IMPORT_PY_SCRIPT="@WCST_IMPORT_PY_SCRIPT@"
 WCST_IMPORT_DAEMON_PY_SCRIPT="@WCST_IMPORT_DAEMON_PY_SCRIPT@"
 # env variable used by session.py
@@ -61,9 +62,8 @@ usage()
 {
   [ -n "$1" ] && echo "$PROG: $*"
   cat <<EOF
-
+rasdaman $VERSION build $BUILD
 Usage: $PROG [OPTION] <ingredients_file>
-
 wcst_import.sh is a tool for importing data into petascope via WCS-T.
 
 Options:
@@ -101,11 +101,14 @@ while [ "$1" != "" ]; do
       -w|--watch)         shift; watch_flag=true; watch_interval=$1;;
       -i|--identity-file) shift; identity_file_path=$(readlink -f "$1");;
       -u|--user)          shift; user="$1";;
-      --version)          echo "$PROG $VERSION"; exit $RC_OK;;
       *)                  ingredients_file=$(readlink -f "$1");;
     esac
     shift
 done
+
+if [ "$quiet" = false ]; then
+    log "rasdaman $VERSION build $BUILD";
+fi
 
 [ "$ingredients_file" = "" ] && usage "no ingredients file specified."
 

@@ -39,7 +39,6 @@ RASMG_PORT = 7001
 RASBASE = "RASBASE"
 RASGUEST = "rasguest"
 
-
 OUTPUT_STRING = "string"
 OUTPUT_FILE = "file"
 

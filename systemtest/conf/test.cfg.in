@@ -55,6 +55,9 @@ export HAVE_HDF=@HAVE_HDF@
 export HAVE_GRIB=@HAVE_GRIB@
 export HAVE_NETCDF=@HAVE_NETCDF@
 
+export RASDAMAN_VERSION=@VERSION_FULL@
+export BUILD_VERSION=@GIT_HASH@
+export BUILD_TYPE=@CMAKE_BUILD_TYPE@
 # ------------------------------------------------------------------------------
 # petascope connection details
 #

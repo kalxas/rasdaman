@@ -33,6 +33,9 @@
 # get script name
 PROG=$( basename "$0" )
 
+VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
+
 # Day/Month/Year Hour:Minute:Second
 getDateTime() {
 	echo $(date '+%d/%m/%Y %H:%M:%S')
@@ -67,7 +70,7 @@ stop_rasdaman() {
 start_rasdaman() {
 	start_rasdaman.sh
 }
-
+log "rasdaman $VERSION build $BUILD";
 #
 # restart rasdaman with service
 #
@@ -127,7 +130,6 @@ check_version_os() {
 		exit 1
 	fi
 }
-
 
 #
 # Check rasdaman version (Community or Enterprise)

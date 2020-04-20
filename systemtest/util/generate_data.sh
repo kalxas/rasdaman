@@ -39,6 +39,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 usage()
 {
 cat <<EOF
+$PROG 
 Generate an array (at given file path) encoded in given format, sdom and values in each cell.
 
 Usage: ./generate_data.sh <result_file_path> <format> <sdom> <cell_values>

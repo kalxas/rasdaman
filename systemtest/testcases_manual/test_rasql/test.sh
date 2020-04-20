@@ -33,11 +33,13 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-. ../../conf/test.cfg
+. "$SCRIPT_DIR"/../../conf/test.cfg
 
 OUTPUTS_DIR=outputs
 mkdir -p "$OUTPUTS_DIR"
-LOG_FILE="$OUTPUTS_DIR/test.log"
+LOG_FILE="$SCRIPT_DIR/test.log"
+
+log()   { echo -e "$PROG: $@" | tee -a "$LOG_FILE"; }
 
 pushd "$SCRIPT_DIR" > /dev/null
 

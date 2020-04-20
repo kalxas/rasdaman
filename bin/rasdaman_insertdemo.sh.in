@@ -40,11 +40,13 @@
 
 # script name
 PROG=$(basename "$0")
-
 VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
+
 RASQL="@bindir@rasql"
 
 # --- parameter evaluation --------------------------------------------
+echo "$PROG: rasdaman $VERSION build $BUILD";
 
 if [ $# != 5 ]
 then
@@ -65,8 +67,6 @@ IMAGEDIR=$3
   PASSWD=$5
 
 # --- check prerequisites ---------------------------------------------
-
-echo "$PROG: rasdaman demo data insert script $VERSION"
 echo "$PROG: using host $HOST, image directory $IMAGEDIR, and user/passwd $USER/$PASSWD"
 
 # --- evaluate cmd line parameters ------------------------------------

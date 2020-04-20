@@ -49,6 +49,7 @@
 PROG=$(basename "$0")
 
 VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
 
 RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
@@ -192,6 +193,8 @@ set_rasmgr_port()
 usage()
 {
     cat <<EOF
+rasdaman $VERSION build $BUILD
+
 Stop the rasdaman server if it is currently running.
 
 Usage:
@@ -266,7 +269,7 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
     ps -Ao pid,args | grep "[^]]$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 || \
       { log "rasdaman is already down, nothing to do."; exit $RC_OK; }
 
-    log "stopping rasdaman $VERSION... "
+    log "stopping rasdaman $VERSION build $BUILD... "
 
     logn "  stopping rasserver processes... "
     "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x down srv -all -kill
