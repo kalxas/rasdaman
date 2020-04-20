@@ -545,7 +545,7 @@ module rasdaman {
                 $("#colorTableDefinitionStyleFileInput").change(function() {                 
                     const reader = new FileReader();
                     reader.onload = function fileReadCompleted() {
-                        $("#styleColorTableDefinition").val(reader.result);
+                        $("#styleColorTableDefinition").val(reader.result as string);
                     };
                     reader.readAsText(this.files[0]);
                 });

@@ -1,18 +1,23 @@
 Instructions for maintainers:
 
-The WCS-Client was implemented using Typescript which compiles to raw Javascript. Typescript was chosen to improve maintainability and the speed of development.
-In order to continue the development you must install:
-1. NodeJS and NPM - Used for installing Bower, Typescript and TSD
-2. Typescript - Used for compiling *.ts files to *.js
+The WCS-Client uses TypeScript rather JavaScript directly. To compile the WCS-Client, the following dependencies are necessary:
+ - npm - Node package manger:
+    # CentOS
+      $ sudo yum install npm
+    # Debian / Ubuntu
+      $ sudo apt-get install npm
+ - tsc - Used for compiling TypeScript .ts files to JavaScript .js:
+    $ sudo npm install -g typescript
 
+Everytime a new feature/fix is added, one needs to compile from TypeScript to JavaScript to work in Web Browsers with the following command in the WCS-Client source folder (application/wcs-client):
 
-In order to build the code :
-1. Install NodeJS and NPM
-2. Install TypeScript from npm: sudo npm install -g tsc.
-3. Run tsc in the root directory of the project to compile the *.ts files. This will create main.js and main.js.map.
+$ tsc
 
-Commit to the repository any updated assets. Please do not forget to update the .gitignore.
+OR
 
+$ make
+
+This will generate two important files in application/wcs-client/app/ows: main.js and main.js.map. They need to be included in the patch besides other added/updated files.
 
 Folder structure:
 - app: Contains the application's source code.

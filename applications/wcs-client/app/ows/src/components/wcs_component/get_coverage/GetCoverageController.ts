@@ -54,7 +54,7 @@ module rasdaman {
             $scope.isGlobeOpen = false;
             $scope.isGetCoverageHideGlobe = true;
 
-            $scope.isCoverageIdValid = ()=> {
+            $scope.isCoverageIdValid = function():boolean {
                 if ($scope.wcsStateInformation.serverCapabilities) {
                     var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummaries;
                     for (var i = 0; i < coverageSummaries.length; ++i) {
@@ -646,7 +646,7 @@ module rasdaman {
         availableCoverageIds:string[];
         coverageCustomizedMetadatasDict:any;
         selectedCoverageId:string;
-        isCoverageIdValid():void;
+        isCoverageIdValid():boolean;
 
         coverageDescription:wcs.CoverageDescription;
         // GET, POST
