@@ -6111,6 +6111,207 @@ they are in double quotes to distinguish them from the grammar parentheses
     identifier : [a-zA-Z_] [a-zA-Z0-9_]*
 
 
+*****************************
+Appendix B: Reserved keywords
+*****************************
+
+This appendix presents the list of all tokens that CANNOT be used as variable names in rasql.
+
+.. list-table::
+
+    * - //.*	
+      - --.*                  
+      - complex               
+      - re                    
+      - im                    
+    * - struct                
+      - fastscale             
+      - members               
+      - add                   
+      - alter                 
+    * - list                                          
+      - select                
+      - from                  
+      - where                 
+      - as                    
+    * - restrict              
+      - to                    
+      - extend                
+      - by                    
+      - project               
+    * - near                  
+      - bilinear              
+      - cubic                 
+      - cubicspline           
+      - lanczos               
+    * - average               
+      - mode                  
+      - med                   
+      - q1                    
+      - q3                    
+    * - at                                     
+      - dimension                              
+      - all_cell|all_cells                   
+      - some_cell|some_cells                 
+      - count_cell|count_cells               
+    * - add_cell|add_cells                   
+      - avg_cell|avg_cells                   
+      - min_cell|min_cells                   
+      - max_cell|max_cells                   
+      - var_pop                                
+    * - var_samp                               
+      - stddev_pop                              
+      - stddev_samp                            
+      - sdom                                   
+      - over                                   
+    * - overlay                                
+      - using                                  
+      - lo                                     
+      - hi                                     
+      - concat                                 
+    * - along                                  
+      - case                                   
+      - when                                   
+      - then                                   
+      - else                                   
+    * - end                                    
+      - insert                              
+      - into                                
+      - values                              
+      - delete                              
+    * - drop                                
+      - create                              
+      - collection                          
+      - type                                
+      - update                                 
+    * - set                                    
+      - assign                                 
+      - in                                     
+      - marray                                 
+      - mdarray                                
+    * - condense                               
+      - null                                   
+      - commit                                 
+      - oid                                    
+      - shift
+    * - clip
+      - subspace                               
+      - multipolygon                           
+      - projection                             
+      - polygon                                
+    * - curtain                                
+      - corridor                               
+      - linestring                             
+      - coordinates                            
+      - multilinestring                        
+    * - discrete                               
+      - range                                  
+      - scale
+      - dbinfo
+      - version
+    * - div                                     
+      - mod
+      - is                                     
+      - not                                    
+      - sqrt                                   
+    * - tiff                                   
+      - bmp                                    
+      - hdf                                    
+      - netcdf                                 
+      - jpeg                                   
+    * - csv                                    
+      - png                                    
+      - vff                                    
+      - tor                                    
+      - dem                                    
+    * - encode                                 
+      - decode                                 
+      - inv_tiff                               
+      - inv_bmp                                
+      - inv_hdf                                
+    * - inv_netcdf                             
+      - inv_jpeg                               
+      - inv_csv                                
+      - inv_png                                
+      - inv_vff                                
+    * - inv_tor                                
+      - inv_dem                                
+      - inv_grib                               
+      - abs                                    
+      - exp                                    
+    * - pow                                    
+      - power                                  
+      - log                                    
+      - ln                                     
+      - sin                                    
+    * - cos                                    
+      - tan                                    
+      - sinh                                   
+      - cosh                                   
+      - tanh                                   
+    * - arcsin                                 
+      - asin                                   
+      - arccos                                 
+      - acos                                   
+      - arctan                                 
+    * - atan                                   
+      - index                 
+      - rc_index              
+      - tc_index              
+      - a_index               
+    * - d_index               
+      - rd_index              
+      - rpt_index             
+      - rrpt_index            
+      - it_index              
+    * - auto                  
+      - tiling                
+      - aligned               
+      - regular               
+      - directional           
+    * - with                  
+      - subtiling             
+      - no_limit              
+      - regroup               
+      - regroup_and_subtiling 
+    * - area                  
+      - of                    
+      - interest              
+      - statistic             
+      - tile                  
+    * - size                  
+      - border                
+      - threshold             
+      - unsigned                
+      - bool                    
+    * - char                    
+      - octet                   
+      - short                   
+      - ushort                  
+      - long                    
+    * - ulong                   
+      - float                   
+      - double                  
+      - CFloat32                
+      - CFloat64                
+    * - CInt16                  
+      - CInt32                  
+      - nan                     
+      - nanf                    
+      - inf                     
+    * - inff                    
+      - max                                    
+      - min                                    
+      - bit                                    
+      - and                                    
+    * - or                                     
+      - xor                                    
+      -                                       
+      -                                       
+      -                                       
+                                     
+
+
 .. [2]
    memory usage is one byte per pixel
 
