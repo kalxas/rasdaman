@@ -4,9 +4,7 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "outFile": "app/ows/main.js",
-    "sourceMap": true,
-    "lib": ["es6", "dom", "es2017"],
-    "target": "es6"
+    "sourceMap": true
   },
   "exclude": [
     "node_modules"
