@@ -20,15 +20,13 @@
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isAvailableLayersOpen">
                     <uib-accordion-heading>
-                        Available layers
-                                        ( Total volume: {{capabilities.totalLayerSizes}} 
-                                        <span ng-show="capabilities.showLayerLocationsColumn"> 
-                                            - Local volume: {{capabilities.totalLocalLayerSizes}} 
-                                            - Remote volume: {{capabilities.totalRemoteLayerSizes}} 
-                                        </span>                        
-                                        )  
-                                        <i class="pull-right glyphicon"
-                                               ng-class="{'glyphicon-chevron-down': isAvailableLayersOpen, 'glyphicon-chevron-right': !isAvailableLayersOpen}"></i>
+                        {{capabilities.numberOfLayers}} layers available, total volume {{capabilities.totalLayerSizes}}.
+                        <span ng-show="capabilities.showLayerLocationsColumn">
+                            - Local volume {{capabilities.totalLocalLayerSizes}}
+                            - Remote volume {{capabilities.totalRemoteLayerSizes}}
+                        </span>                        
+                        <i class="pull-right glyphicon"
+                                ng-class="{'glyphicon-chevron-down': isAvailableLayersOpen, 'glyphicon-chevron-right': !isAvailableLayersOpen}"></i>
                     </uib-accordion-heading>
 
                     <section st-table="layers" st-safe-src="capabilities.layers">

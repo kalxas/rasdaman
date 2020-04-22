@@ -42,6 +42,7 @@ module wms {
         public totalLocalLayerSizes:String;
         public totalRemoteLayerSizes:String;
         public totalLayerSizes:String;
+        public numberOfLayers:String;
 
         // source is the JSON object parsed from gmlDocument (a full XML result of WMS GetCapabilities request)
         public constructor(source:rasdaman.common.ISerializedObject, gmlDocument:string) {
@@ -150,7 +151,8 @@ module wms {
                 // Convert Bytes to GBs for total sizes of layers
                 this.totalLocalLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalLayerSizesInBytes);
                 this.totalRemoteLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteLayerSizesInBytes);
-                this.totalLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLayerSizesInBytes);                
+                this.totalLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLayerSizesInBytes);
+                this.numberOfLayers = layerObjs.length.toString();
             }
         }
 

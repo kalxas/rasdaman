@@ -1227,6 +1227,7 @@ var wcs;
             _this.totalLocalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalCoverageSizesInBytes);
             _this.totalRemoteCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteCoverageSizesInBytes);
             _this.totalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalCoverageSizesInBytes);
+            _this.numberOfCoverages = source.getChildrenAsSerializedObjects("wcs:CoverageSummary").length.toString();
             if (source.doesElementExist("wcs:Extension")) {
                 _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs:Extension"));
             }
@@ -4974,6 +4975,7 @@ var wms;
                 this.totalLocalLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalLayerSizesInBytes_1);
                 this.totalRemoteLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteLayerSizesInBytes_1);
                 this.totalLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLayerSizesInBytes);
+                this.numberOfLayers = layerObjs.length.toString();
             }
         }
         Capabilities.prototype.parseLayerCustomizedMetadata = function (source) {

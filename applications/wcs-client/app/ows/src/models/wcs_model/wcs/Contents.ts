@@ -40,6 +40,7 @@ module wcs {
         public totalLocalCoverageSizes:String;
         public totalRemoteCoverageSizes:String;
         public totalCoverageSizes:String;
+        public numberOfCoverages:String;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             super(source);
@@ -80,6 +81,7 @@ module wcs {
             this.totalLocalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalCoverageSizesInBytes);
             this.totalRemoteCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteCoverageSizesInBytes);
             this.totalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalCoverageSizesInBytes);
+            this.numberOfCoverages = source.getChildrenAsSerializedObjects("wcs:CoverageSummary").length.toString();
 
             if (source.doesElementExist("wcs:Extension")) {
                 this.extension = new Extension(source.getChildAsSerializedObject("wcs:Extension"));
