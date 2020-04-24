@@ -238,7 +238,7 @@ for i in "$@"; do
             set_rasmgr_port "$i"
         fi
         option=""
-    else
+    elif [ -n "$i" ]; then
         option=""
         case $i in
           --service)      option="$i";;

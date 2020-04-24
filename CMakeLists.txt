@@ -624,7 +624,7 @@ include_directories(${CMAKE_BINARY_DIR})
 # 3rd party packages
 SET(Boost_USE_STATIC_LIBS ON)
 SET(Boost_USE_STATIC_RUNTIME ON)
-SET(Boost_NO_BOOST_CMAKE ON)
+SET(Boost_NO_BOOST_CMAKE ON) # needed for Boost 1.70+
 #add_definitions(-DBOOST_ALL_NO_LIB)
 find_package(Boost REQUIRED COMPONENTS thread system filesystem)
 find_package(AWK REQUIRED)
