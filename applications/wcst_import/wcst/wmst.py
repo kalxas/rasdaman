@@ -22,6 +22,7 @@
  *
 """
 from abc import ABCMeta, abstractmethod
+from collections import OrderedDict
 
 
 class WMSTRequest:
@@ -43,7 +44,8 @@ class WMSTRequest:
         """
         extra_params = ""
         for key, value in self._get_request_type_parameters().items():
-            extra_params += "&" + key + "=" + value
+            if value is not None:
+                extra_params += "&" + key + "=" + str(value)
         return self.SERVICE_PARAMETER + "=" + self.SERVICE_VALUE + "&" + \
                self.VERSION_PARAMETER + "=" + self.VERSION_VALUE + "&" + \
                self.REQUEST_PARAMETER + "=" + self._get_request_type() + extra_params
@@ -98,17 +100,13 @@ class WMSTGetCapabilities(WMSTRequest):
     __REQUEST_TYPE = "GetCapabilities"
 
 
-class WMSTFromWCSInsertRequest(WMSTRequest):
-    def __init__(self, wcs_coverage_id, with_pyramids):
-        """
-        Class to insert a new wcs coverage into a WMS layer. This is not a standard way in OGC but a custom method in the
-        WMS service offered by rasdaman to allow for automatic insertion
-        Constructor for the class
+class WMSTDescribeLayer(WMSTRequest):
 
-        :param str wcs_coverage_id: the coverage id to be used as a layer
+    def __init__(self, layer_name):
         """
-        self.wcs_coverage_id = wcs_coverage_id
-        self.with_pyramids = with_pyramids
+        Class to request DescribeLayer
+        """
+        self.layer_name = layer_name
 
     def _get_request_type(self):
         """
@@ -122,15 +120,49 @@ class WMSTFromWCSInsertRequest(WMSTRequest):
         Returns the request specific parameters
         :rtype dict
         """
-        ret = {
-            self.__COVERAGE_ID_PARAMETER: self.wcs_coverage_id,
-            self.__WITH_PYRAMIDS_PARAMETER: str(self.with_pyramids)
-        }
+        ret = OrderedDict()
+        ret[self.__LAYER_NAME] = self.layer_name
+
+        return ret
+
+    __REQUEST_TYPE = "DescribeLayer"
+    __LAYER_NAME = "layer"
+
+
+class WMSTFromWCSInsertRequest(WMSTRequest):
+    def __init__(self, wcs_coverage_id, with_pyramids, black_listed=None):
+        """
+        Class to insert a new wcs coverage into a WMS layer. This is not a standard way in OGC but a custom method in the
+        WMS service offered by rasdaman to allow for automatic insertion
+        Constructor for the class
+
+        :param str wcs_coverage_id: the coverage id to be used as a layer
+        """
+        self.wcs_coverage_id = wcs_coverage_id
+        self.with_pyramids = with_pyramids
+        self.black_listed = black_listed
+
+    def _get_request_type(self):
+        """
+        Returns the request type
+        :rtype str
+        """
+        return self.__REQUEST_TYPE
+
+    def _get_request_type_parameters(self):
+        """
+        Returns the request specific parameters
+        :rtype dict
+        """
+        ret = OrderedDict()
+        ret[self.__COVERAGE_ID_PARAMETER] = self.wcs_coverage_id
+        ret[self.__BLACK_LISTED] = self.black_listed
+
         return ret
 
     __REQUEST_TYPE = "InsertWCSLayer"
     __COVERAGE_ID_PARAMETER = "wcsCoverageId"
-    __WITH_PYRAMIDS_PARAMETER = "withPyramids"
+    __BLACK_LISTED = "blackListed"
 
 
 class WMSTFromWCSUpdateRequest(WMSTRequest):
@@ -157,15 +189,13 @@ class WMSTFromWCSUpdateRequest(WMSTRequest):
         Returns the request specific parameters
         :rtype dict
         """
-        ret = {
-            self.__COVERAGE_ID_PARAMETER: self.wcs_coverage_id,
-            self.__WITH_PYRAMIDS_PARAMETER: str(self.with_pyramids)
-        }
+        ret = OrderedDict()
+        ret[self.__COVERAGE_ID_PARAMETER] = self.wcs_coverage_id
+
         return ret
 
     __REQUEST_TYPE = "UpdateWCSLayer"
     __COVERAGE_ID_PARAMETER = "wcsCoverageId"
-    __WITH_PYRAMIDS_PARAMETER = "withPyramids"
 
 
 class WMSTFromWCSDeleteRequest(WMSTRequest):
@@ -197,9 +227,9 @@ class WMSTFromWCSDeleteRequest(WMSTRequest):
         Returns the request specific parameters
         :rtype dict
         """
-        ret = {
-            self.__COVERAGE_ID_PARAMETER: self.wcs_coverage_id
-        }
+        ret = OrderedDict()
+        ret[self.__COVERAGE_ID_PARAMETER] = self.wcs_coverage_id
+
         return ret
 
     __REQUEST_TYPE = "DeleteWCSLayer"

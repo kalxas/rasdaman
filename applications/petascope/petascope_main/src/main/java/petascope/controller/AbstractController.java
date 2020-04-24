@@ -226,9 +226,9 @@ public abstract class AbstractController {
 
         // e.g: Rasql servlet does not contains these requirement parameters
         if (kvpParameters.get(KVPSymbols.KEY_SERVICE) != null) {
-            String service = getValuesByKey(kvpParameters, KVPSymbols.KEY_SERVICE)[0];
-            String request = getValuesByKey(kvpParameters, KVPSymbols.KEY_REQUEST)[0];
-            String versions[] = kvpParameters.get(KVPSymbols.KEY_VERSION);
+            String service = getValueByKey(kvpParameters, KVPSymbols.KEY_SERVICE);
+            String request = getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_REQUEST);
+            String versions[] = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
 
             // NOTE: WMS allows version is null, so just use the latest WMS version
             if (service.equals(KVPSymbols.WMS_SERVICE) && versions == null) {
@@ -509,7 +509,24 @@ public abstract class AbstractController {
         String[] values = kvpParameters.get(key);
         if (values == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
-                    "Cannot find value from KVP parameters map for key parameter, given: " + key + ".");
+                    "Cannot find value from KVP parameters map for key: " + key + ".");
+        }
+        
+        if (values[0].contains(",")) {
+            values = values[0].split(",");
+        }
+
+        return values;
+    }
+    
+    /**
+     * Return the single value of a key in KVP parameters
+     * It is ok if the value is null 
+     */
+    public static String[] getValuesByKeyAllowNull(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
+        String[] values = kvpParameters.get(key);
+        if (values == null) {
+            return values;
         }
         
         if (values[0].contains(",")) {
@@ -526,7 +543,20 @@ public abstract class AbstractController {
         String[] values = kvpParameters.get(key);
         if (values == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
-                    "Cannot find value from KVP parameters map for key parameter, given: " + key + ".");
+                    "Cannot find value from KVP parameters map for key: " + key + ".");
+        }
+        
+        return values[0].trim();
+    }
+    
+    /**
+     * Return the single value of a key in KVP parameters
+     * It is ok if the value is null 
+     */
+    public static String getValueByKeyAllowNull(Map<String, String[]> kvpParameters, String key) {
+        String[] values = kvpParameters.get(key);
+        if (values == null) {
+            return null;
         }
         
         return values[0].trim();

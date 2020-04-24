@@ -37,12 +37,13 @@
                                     <th st-sort="coverageId" colspan="2">Coverage ID</th>
                                     <th>Coverage subtype</th>
                                     <th ng-show="capabilities.contents.showCoverageLocationsColumn == true">Coverage location</th>
-                                    <th ng-show="capabilities.contents.showCoverageSizesColumn == true">Coverage size</th>
+                                    <th ng-show="capabilities.contents.showCoverageSizesColumn == true">Coverage size</th>                                    
                                     <th>Display footprints</th>
+                                    <th ng-show="capabilities.contents.showBlackListedColumn == true">Blacklisted</th>
                                 </tr>
                                 <tr>
-                                    <th colspan="6"><input st-search="coverageId" class="form-control"
-                                                        placeholder="Search coverage by ID ..." type="text"/></th>
+                                    <td colspan=100%><input st-search="coverageId" class="form-control"
+                                                        placeholder="Search coverage by ID ..." type="text"/></td>
                                 </tr>
 
                             </thead>
@@ -50,17 +51,30 @@
                                 <tr ng-repeat="coverageSummary in coverageSummaries">
                                     <td colspan="2"><a ng-click='describeCoverage(coverageSummary.coverageId);'>{{coverageSummary.coverageId}}</a>
                                     </td>
+
                                     <td>{{coverageSummary.coverageSubtype}}</td>
+
                                     <td ng-show="capabilities.contents.showCoverageLocationsColumn == true">
                                         <a href="{{coverageSummary.customizedMetadata.petascopeEndPoint}}">{{coverageSummary.customizedMetadata.hostname}}</a>
                                     </td>
+
                                     <td ng-show="capabilities.contents.showCoverageSizesColumn == true">
                                         {{coverageSummary.customizedMetadata.coverageSize}}
                                     </td>
-                                    <td><input type="checkbox" ng-model="coverageSummary.displayFootprint" ng-hide="coverageSummary.displayFootprint === null"
+
+                                    <td>
+                                        <input type="checkbox" ng-model="coverageSummary.displayFootprint" ng-hide="coverageSummary.displayFootprint === null"
                                             ng-change="displayFootprintOnGlobe(coverageSummary.coverageId)"
                                             onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left" title="Show/Hide this coverage's footprint on globe."/>
                                     </td>
+
+                                    <td ng-show="capabilities.contents.showBlackListedColumn == true">
+                                        <input type="checkbox" ng-model="coverageSummary.customizedMetadata.isBlackedList"                                               
+                                            ng-change="handleBlackListOneCoverage(coverageSummary.coverageId)"
+                                            onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 
+                                            data-placement="left" title="If checked, this coverage is not shown to other users, except petascope admin user in the Capabilities document."/>
+                                    </td>
+
                                 </tr>
                             </tbody>
                             <tfoot>
@@ -81,6 +95,28 @@
                                             <input type="checkbox" id="wcsDisplayAllFootprintsCheckbox" title="Load all coverages's footprints on globe from all pages." 
                                             ng-model="showAllFootprints.isChecked" ng-change="displayAllFootprintsOnGlobe(showAllFootprints.isChecked)"
                                             onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">&nbsp;Display all footprints</input>
+
+                                            <!-- black list-->
+                                            <button ng-show="adminUserLoggedIn == true"
+                                                type="button" class="btn btn-danger" id="btnBlackListAllCoverages"
+                                                title="Blacklist all coverages, only petascope admin user can see them in the Capabilities document."
+                                                onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 
+                                                data-placement="left"
+                                                
+                                                ng-click="handleBlackListAllCoverages()">
+                                                Blacklist all
+                                            </button>
+
+                                            <!-- white list-->
+                                            <button ng-show="adminUserLoggedIn == true"
+                                                type="button" class="btn btn-warning" id="btnWhiteListAllCoverages"
+                                                title="Whitelist all coverages, any one can see them from in the Capabilities document."
+                                                onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 
+                                                data-placement="left"
+                                                
+                                                ng-click="handleWhiteListAllCoverages()">
+                                                Whitelist all
+                                            </button>
                                            
                                         </div>
                                     </td>

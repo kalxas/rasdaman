@@ -112,38 +112,46 @@
     <script src="ows/assets/components/angular-nvd3/dist/angular-nvd3.min.js"></script>
 
     <script src="ows/assets/components/angular-ui-codemirror/ui-codemirror.min.js"></script>
+    <script src="config.js"></script>
     <script src="ows/main.js"></script>
 
     <script>
-        // Based on the idea: https://stackoverflow.com/a/18988012/2028440 to detect any running Ajax requests
+        var pathArray = window.location.href.split( '/' );
+        var protocol = pathArray[0];
+        var host = pathArray[2];
+        var currentDomain = protocol + '//' + host;
+
+        var isLocalRequest = function(url) {
+          if(!url.startsWith("http") || url.startsWith(currentDomain)){
+            return true;
+          }
+          return false;
+        }
+
         var s_ajaxListener = new Object();
         s_ajaxListener.tempOpen = XMLHttpRequest.prototype.open;
         s_ajaxListener.tempSend = XMLHttpRequest.prototype.send;
 
         var numberOfRequests = 0;
 
-        XMLHttpRequest.prototype.open = function(a, b) {
+        XMLHttpRequest.prototype.open = function(method, url) {
             // An ajax request is sent
-            if (numberOfRequests == 0) {
+            if (numberOfRequests == 0 && isLocalRequest(url)) {
                 $("#loader").show();
             }
-
-            numberOfRequests++;
 
             s_ajaxListener.tempOpen.apply(this, arguments);
         }
 
-        XMLHttpRequest.prototype.send = function(a, b) {            
+        XMLHttpRequest.prototype.send = function(method, url) {         
             s_ajaxListener.tempSend.apply(this, arguments);
 
             this.onreadystatechange = function() {
                 // An ajax request is finished (successful or failed)
-                if (this.readyState === 4) {                    
+                if (this.readyState === 4 && isLocalRequest(this.responseURL)) {                    
                     numberOfRequests--;
-
                     if (numberOfRequests <= 1) {
                         $("#loader").hide();
-
                         numberOfRequests = 0;
                     }
                 }

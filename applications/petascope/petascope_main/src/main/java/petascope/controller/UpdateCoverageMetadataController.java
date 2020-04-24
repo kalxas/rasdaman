@@ -21,6 +21,7 @@
  */
 package petascope.controller;
 
+import org.rasdaman.AuthenticationService;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,11 +29,11 @@ import java.nio.file.Paths;
 import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import static org.rasdaman.config.ConfigManager.OWS;
+import org.rasdaman.config.ConfigManager;
+import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
@@ -58,16 +59,20 @@ public class UpdateCoverageMetadataController extends AbstractController {
 
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
-
-    @RequestMapping(value = OWS + "/UpdateCoverageMetadata", method = RequestMethod.POST)
-    protected void handlePost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+    
+    @RequestMapping(value = OWS_ADMIN + "/UpdateCoverageMetadata", method = RequestMethod.POST)
+    protected void handlePost(HttpServletRequest httpServletRequest) throws Exception {
         Pair<String, String> pair = null;
-        try {
-            pair = this.parsePostRequest(httpServletRequest, httpServletResponse);
+        try {           
+            // Only Petascope admin user can update coverage's metadata
+            AuthenticationService.validatePetascopeAdminUser(httpServletRequest);
+            
+            pair = this.parsePostRequest(httpServletRequest);
 
             Coverage coverage = this.coverageRepositoryService.readCoverageByIdFromDatabase(pair.fst);
             String newMetadata = FileUtils.readFileToString(new File(pair.snd));
-            coverage.setMetadata(newMetadata);            
+            
+            coverage.setMetadata(newMetadata.trim());            
             this.coverageRepositoryService.save(coverage);
             
             log.info("Updated metadata for coverage '" + pair.fst + "' from posted metadata text file.");
@@ -83,7 +88,7 @@ public class UpdateCoverageMetadataController extends AbstractController {
      * Parse and validate post request to get coverageId and a stored file path
      * from uploaded file to server.
      */
-    private Pair<String, String> parsePostRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+    private Pair<String, String> parsePostRequest(HttpServletRequest httpServletRequest)
             throws IOException, ServletException, PetascopeException {
         String storedFilePath = null;
         String coverageId = null;

@@ -20,7 +20,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/// <reference path="../../../assets/typings/tsd.d.ts"/>
+///<reference path="../../../assets/typings/tsd.d.ts"/>
 ///<reference path="../../_all.ts"/>
 
 module rasdaman {
@@ -77,10 +77,12 @@ module rasdaman {
             return result;
         }
 
-        // Get an encoded basic authentication string from username and password
-        public getEncodedBasicAuthencationString(username:string, password:string):string {
-            var result = "Basic " + btoa(username + ":" + password);
-            return result;
+        // Create a basic authentication header from username and password
+        public createBasicAuthenticationHeaderByHeader(headers:{}, username:string, password:string):{} { 
+            var tempHeaders = this.getEncodedBasicAuthencationString(username, password);            
+            headers = (<any>Object).assign(tempHeaders, headers);
+
+            return headers;
         }
 
         // Create a basic authentication header from username and password
@@ -91,5 +93,10 @@ module rasdaman {
             return headers;
         }
 
+        // Get an encoded basic authentication string from username and password
+        private getEncodedBasicAuthencationString(username:string, password:string):string {
+            var result = "Basic " + btoa(username + ":" + password);
+            return result;
+        }
     }
 }

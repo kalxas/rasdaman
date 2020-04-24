@@ -36,6 +36,7 @@ class ConfigManager:
     tmp_directory = "/tmp/rasdaman_wcst_import"
     mock = True
     insitu = False
+    black_listed = False
     automated = False
     default_null_values = []
     root_url = "file://"

@@ -23,7 +23,6 @@ package petascope.controller.handler.service;
 
 import java.io.IOException;
 import java.util.Map;
-import org.rasdaman.config.ConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
@@ -33,6 +32,7 @@ import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.WMSException;
 import petascope.wms.handlers.kvp.KVPWMSDeleteStyleHandler;
+import petascope.wms.handlers.kvp.KVPWMSDescribeLayerHandler;
 import petascope.wms.handlers.kvp.KVPWMSGetCapabilitiesHandler;
 import petascope.wms.handlers.kvp.KVPWMSGetMapHandler;
 import petascope.wms.handlers.kvp.KVPWMSInsertUpdateStyleHandler;
@@ -55,6 +55,8 @@ public class KVPWMSServiceHandler extends AbstractHandler {
     @Autowired
     private KVPWMSDeleteStyleHandler deleteStyleHandler;
     @Autowired
+    private KVPWMSDescribeLayerHandler describeLayerHandler;
+    @Autowired
     private KVPWMSGetMapHandler getMapHandler;
 
     public KVPWMSServiceHandler() {
@@ -64,6 +66,7 @@ public class KVPWMSServiceHandler extends AbstractHandler {
         requestServices.add(KVPSymbols.VALUE_GET_CAPABILITIES);
         requestServices.add(KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER);
         requestServices.add(KVPSymbols.VALUE_WMS_UPDATE_WCS_LAYER);
+        requestServices.add(KVPSymbols.VALUE_WMS_DESCRIBE_LAYER);
         requestServices.add(KVPSymbols.VALUE_WMS_INSERT_STYLE);
         requestServices.add(KVPSymbols.VALUE_WMS_UPDATE_STYLE);
         requestServices.add(KVPSymbols.VALUE_WMS_DELETE_STYLE);
@@ -92,6 +95,9 @@ public class KVPWMSServiceHandler extends AbstractHandler {
         } else if (requestService.equals(KVPSymbols.VALUE_WMS_GET_MAP)) {
             // GetMap
             response = getMapHandler.handle(kvpParameters);
+        } else if (requestService.equals(KVPSymbols.VALUE_WMS_DESCRIBE_LAYER)) {
+            // DescribeLayer
+            response = describeLayerHandler.handle(kvpParameters);
         }
 
         return response;

@@ -64,6 +64,23 @@ public class WMSRepostioryService {
 
     // Cache all the metadata for WMS layers
     public static final Map<String, Layer> layersCacheMap = new ConcurrentSkipListMap<>();
+    
+    /**
+     * Check if a layer already exists from local loaded cache map
+     */
+    public boolean isInLocalCache(String layerName) throws PetascopeException {
+        if (layersCacheMap.isEmpty()) {
+            for (String layerNameTmp : this.readAllLocalLayerNames()) {
+                this.readLayerByNameFromCache(layerNameTmp);
+            }
+        }
+        
+        if (!layersCacheMap.containsKey(layerName)) {
+            return false;
+        }
+        
+        return true;
+    }
 
 
     /**
@@ -149,8 +166,6 @@ public class WMSRepostioryService {
 
     /**
      * Save a WMS Layer object to persistent database
-     *
-     * @param layer
      */
     public void saveLayer(Layer layer) {
         this.layerRepository.save(layer);
@@ -166,8 +181,6 @@ public class WMSRepostioryService {
 
     /**
      * Delete a WMS Layer object to persistent database
-     *
-     * @param layer
      */
     public void deleteLayer(Layer layer) {
         this.layerRepository.delete(layer);
@@ -177,13 +190,11 @@ public class WMSRepostioryService {
         entityManager.flush();
         entityManager.clear();
 
-        log.debug("WMS Layer: " + layer.getName() + "is removed from database.");
+        log.debug("WMS Layer: " + layer.getName() + " is removed from database.");
     }
 
     /**
      * Delete a WMS Style object to persistent database
-     *
-     * @param style
      */
     public void saveStyle(Style style) {
         this.styleRepository.save(style);
@@ -191,13 +202,11 @@ public class WMSRepostioryService {
         entityManager.flush();
         entityManager.clear();
 
-        log.debug("WMS Style: " + style.getName() + "is persited to database.");
+        log.debug("WMS Style: " + style.getName() + " is persited to database.");
     }
 
     /**
      * Delete a WMS Style object to persistent database
-     *
-     * @param style
      */
     public void deleteStyle(Style style) {
 
@@ -206,15 +215,12 @@ public class WMSRepostioryService {
         entityManager.flush();
         entityManager.clear();
 
-        log.debug("WMS Style: " + style.getName() + "is removed from database.");
+        log.debug("WMS Style: " + style.getName() + " is removed from database.");
     }
 
     // For migration only
     /**
      * Check if layer name already migrated in new database
-     *
-     * @param legacyWMSLayerName
-     * @return
      */
     public boolean layerNameExist(String legacyWMSLayerName) {
         Layer layer = this.layerRepository.findOneByName(legacyWMSLayerName);
@@ -224,9 +230,8 @@ public class WMSRepostioryService {
     
     /**
      * Fetch all the layer names from wms13 layer table
-     * @return 
      */
-    public List<String> readAllLayerNames() {
+    public List<String> readAllLocalLayerNames() {
         List<String> layerNames = layerRepository.readAllLayerNames();
         
         return layerNames;

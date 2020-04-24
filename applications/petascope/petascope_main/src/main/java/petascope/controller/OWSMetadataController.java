@@ -21,12 +21,11 @@
  */
 package petascope.controller;
 
+import org.rasdaman.AuthenticationService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,6 @@ import petascope.exceptions.WMSException;
 import petascope.util.ListUtil;
 import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
 import org.springframework.web.bind.annotation.RestController;
-import petascope.exceptions.ExceptionCode;
 
 /**
  * Controller to handle request to Admin page to update OWS Service metadata
@@ -47,9 +45,9 @@ import petascope.exceptions.ExceptionCode;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @RestController
-public class OWSAdminController extends AbstractController {
+public class OWSMetadataController extends AbstractController {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(OWSAdminController.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(OWSMetadataController.class);
 
     @Autowired
     OWSMetadataRepostioryService owsMetadataRepostioryService;
@@ -57,35 +55,11 @@ public class OWSAdminController extends AbstractController {
     private static final String UPDATE_SERVICE_IDENTIFICATION = "UpdateServiceIdentification";
     private static final String UPDATE_SERVICE_PROVIDER = "UpdateServiceProvider";
 
-    /**
-     * Only process non-login request if user logged in.
-     */
-    private void validateSession(HttpServletRequest httpServletRequest) throws PetascopeException {
-        // NOTE: for Ajax request from client (AngularJS), without "withCredentials: true" for IRequestConfig, Java Servlet will create a new session
-        // and this check will always fail.
-        if (httpServletRequest.getSession().getAttribute(USERNAME) == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Session does not exist, please login first.");
-        }
-    }
-     
-    @RequestMapping(OWS_ADMIN + "/Login")
-    public void handleOWSLogin(HttpServletRequest httpServletRequest, HttpSession session) throws Exception {
-        String postBody = this.getPOSTRequestBody(httpServletRequest);     
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        
-        String username = kvpParameters.get(USERNAME)[0];
-        String password = kvpParameters.get(PASSWORD)[0];
-        if (!(username.equals(ConfigManager.PETASCOPE_ADMIN_USERNAME) && password.equals(ConfigManager.PETASCOPE_ADMIN_PASSWORD))) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Petascope admin username or password is not valid.");
-        } else {
-           session.setAttribute(USERNAME, username);
-        }
-        httpServletRequest.getSession().setAttribute(USERNAME, true);
-    }
-    
     @RequestMapping(OWS_ADMIN + "/" + UPDATE_SERVICE_IDENTIFICATION)
     public void handleOWSUpdateServiceIdentification(HttpServletRequest httpServletRequest) throws Exception {
-        this.validateSession(httpServletRequest);
+        
+        // Only Petascope admin user can update coverage's metadata
+        AuthenticationService.validatePetascopeAdminUser(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);     
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -101,7 +75,9 @@ public class OWSAdminController extends AbstractController {
     
     @RequestMapping(OWS_ADMIN + "/" + UPDATE_SERVICE_PROVIDER)
     public void handleOWSUpdateServiceProvider(HttpServletRequest httpServletRequest) throws Exception {
-        this.validateSession(httpServletRequest);
+        
+        // Only Petascope admin user can update coverage's metadata
+        AuthenticationService.validatePetascopeAdminUser(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);     
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);

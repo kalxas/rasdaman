@@ -22,6 +22,9 @@
                 "insitu": {
                     "type": "boolean"
                 },
+                "black_listed": {
+                    "type": "boolean"
+                },
                 "mock": {
                     "type": "boolean"
                 },

@@ -109,6 +109,21 @@ public class CoverageRepositoryService {
     public CoverageRepositoryService() {
 
     }
+    
+    /**
+     * Check if a coverage already exists from local loaded cache map
+     */
+    public boolean isInLocalCache(String coverageId) throws PetascopeException {
+        if (coveragesCacheMap.isEmpty()) {
+            this.readAllLocalCoveragesBasicMetatata();
+        }
+        
+        if (!coveragesCacheMap.containsKey(coverageId)) {
+            return false;
+        }
+        
+        return true;
+    }
 
     /**
      * This method is used *only* when read coverage metadata to get another
@@ -142,20 +157,27 @@ public class CoverageRepositoryService {
     /**
      * Only read basic coverages's metadata from cache. Used when starting web
      * application as it should not query the whole coverages's metadata.
-     *
-     * @param coverageId
-     * @return
      */
     public Coverage readCoverageBasicMetadataByIdFromCache(String coverageId) throws PetascopeException {
-        if (coveragesCacheMap.isEmpty()) {
-            this.readAllCoveragesBasicMetatata();
-        }
         
         Coverage coverage = null;
+        
+        if (coveragesCacheMap.isEmpty()) {            
+            this.readAllLocalCoveragesBasicMetatata();
+        }
+        
         if (coveragesCacheMap.get(coverageId) != null) {
             coverage = coveragesCacheMap.get(coverageId).fst;
+        } else {
+            // NOTE: if the cache map doesn't contain the coverage for some reason
+            // then try again (this happened for WMS GetCapabitilies requests from wsclient when pestascope starts and throws coverage not found)
+            coverage = this.readCoverageFullMetadataByIdFromCache(coverageId);
         }
-
+        
+        if (coverage == null) {
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage: " + coverageId + " does not exist.");
+        }
+        
         return coverage;
     }
 
@@ -172,7 +194,7 @@ public class CoverageRepositoryService {
         
         // This happens when Petascope starts and user sends a WCPS query to a coverage instead of WCS GetCapabilities
         if (coveragesCacheMap.isEmpty()) {
-            this.readAllCoveragesBasicMetatata();
+            this.readAllLocalCoveragesBasicMetatata();
         }
         
         long start = System.currentTimeMillis();
@@ -355,7 +377,7 @@ public class CoverageRepositoryService {
      *
      * @return List<Pair<Coverage, Boolean>>
      */
-    public List<Pair<Coverage, Boolean>> readAllCoveragesBasicMetatata() throws PetascopeException {        
+    public List<Pair<Coverage, Boolean>> readAllLocalCoveragesBasicMetatata() throws PetascopeException {        
         long start = System.currentTimeMillis();
 
         List<Pair<Coverage, Boolean>> coverages = new ArrayList<>();
@@ -527,10 +549,23 @@ public class CoverageRepositoryService {
     }
 
     /**
-     * Update or Insert a new Coverage to database
+     * Add a new coverage to database
+     */
+    public void add(Coverage coverage) throws PetascopeException {
+        String coverageId = coverage.getCoverageId();
+        if (isInLocalCache(coverageId)) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Coverage '" + coverageId  + "' already exists in database.");
+        } else {
+            // add the new coverage to the database
+            this.save(coverage);
+        }        
+    }
+
+    /**
+     * Persit a coverage to database if it is new or existing coverage
      */
     @Transactional
-    public Coverage save(Coverage coverage) throws PetascopeException {
+    public void save(Coverage coverage) throws PetascopeException {
         String coverageId = coverage.getCoverageId();
         // NOTE: Don't save coverage with fixed CRS (e.g: http://localhost:8080/def/crs/epsg/0/4326)
         // it must use a string placeholder so when setting up Petascope with a different SECORE endpoint, it will replace the placeholder
@@ -562,8 +597,6 @@ public class CoverageRepositoryService {
         }
 
         log.debug("Coverage '" + coverageId + "' is persisted in database.");
-
-        return coverage;
     }
 
     /**
@@ -665,11 +698,9 @@ public class CoverageRepositoryService {
     }
 
     /**
-     * Just fetch all the coverage Ids in a list.
-     *
-     * @return
+     * Just fetch all the coverage Ids in a list from local database
      */
-    public List<String> readAllCoverageIds() {
+    public List<String> readAllLocalCoverageIds() {
         List<String> coverageIds = this.coverageRepository.readAllCoverageIds();
 
         return coverageIds;

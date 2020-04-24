@@ -179,8 +179,10 @@ class CRSUtil:
         :param dict{ axis1(dict), axis2(dict),... }: dictionary of configurations from ingredient file
         :rtype: list[CRSAxis]
         """
-        # update crs_axes if necessary for EPSG:4326
-        CRSUtil.update_lon_axis_to_epsg_version_85_if_needed(coverage_id, self.axes, axes_configurations)
+        # e.g: in case of sentinel 1 customized recipe with coverage_id: test_S1_GRD_${modebeam}_${polarisation}
+        if "${" not in coverage_id:
+            # update crs_axes if necessary for EPSG:4326
+            CRSUtil.update_lon_axis_to_epsg_version_85_if_needed(coverage_id, self.axes, axes_configurations)
 
         return self.axes
 

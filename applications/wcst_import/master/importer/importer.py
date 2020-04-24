@@ -41,10 +41,11 @@ from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.metadata_provider import MetadataProvider
 from util.coverage_util import CoverageUtil
 from util.file_util import File
+from util.import_util import decode_res
 from util.log import log, prepend_time
 from util.string_util import strip_trailing_zeros
 from wcst.wcst import WCSTInsertRequest, WCSTInsertScaleLevelsRequest, WCSTUpdateRequest, WCSTSubset
-from wcst.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest
+from wcst.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest, WMSTDescribeLayer
 from wcst.wmst import WMSTGetCapabilities
 from util.crs_util import CRSUtil
 from util.time_util import DateTimeUtil
@@ -277,10 +278,10 @@ class Importer:
 
         if ConfigManager.mock:
             request = WCSTInsertRequest(gml_obj.get_url(), False, self.coverage.pixel_data_type,
-                                        self.coverage.tiling, executor.insitu, None)
+                                        self.coverage.tiling, executor.insitu, None, ConfigManager.black_listed)
         else:
             request = WCSTInsertRequest(None, False, self.coverage.pixel_data_type,
-                                        self.coverage.tiling, executor.insitu, gml_obj)
+                                        self.coverage.tiling, executor.insitu, gml_obj, ConfigManager.black_listed)
 
         current_insitu_value = executor.insitu
         executor.insitu = None
@@ -430,18 +431,21 @@ class Importer:
         Inserts or Update the coverage into the wms service
         """
         try:
-            # First check from WMS GetCapabilities if layer name (coverage id) existed
-            request = WMSTGetCapabilities()
-            response = ConfigManager.executor.execute(request)
-
-            root_element = etree.fromstring(response)
-            namespace = {"wms": "http://www.opengis.net/wms"}
-            exist = root_element.xpath("//wms:Capability/wms:Layer/wms:Layer/wms:Name/text()='"
-                                       + self.coverage.coverage_id + "'", namespaces=namespace)
+            # First check if layer exists or not
+            request = WMSTDescribeLayer(self.coverage.coverage_id)
+            layer_exist = True
+            try:
+                response = ConfigManager.executor.execute(request)
+            except Exception as ex:
+                if not "LayerNotFound" in str(ex):
+                    raise ex
+                else:
+                    # Layer not found
+                    layer_exist = False
 
             # WMS layer does not exist, just insert new WMS layer from imported coverage
-            if exist is False:
-                request = WMSTFromWCSInsertRequest(self.coverage.coverage_id, False)
+            if layer_exist is False:
+                request = WMSTFromWCSInsertRequest(self.coverage.coverage_id, False, ConfigManager.black_listed)
             else:
                 # WMS layer existed, update WMS layer from updated coverage
                 request = WMSTFromWCSUpdateRequest(self.coverage.coverage_id, False)

@@ -59,10 +59,10 @@ module rasdaman {
             $scope.isServiceProviderOpen = false;
             $scope.isCapabilitiesDocumentOpen = false;
 
-            $scope.displayCoveragesDropdownItems = [{"name": "Display all coverages", "value":""},
-                                            {"name": "Display local coverages", "value":"local"},
-                                            {"name": "Display remote coverages", "value":"remote"}
-                                           ];
+            $scope.displayCoveragesDropdownItems = [{"name": "Display all coverages", "value": ""},
+                                                    {"name": "Display local coverages", "value": "local"},
+                                                    {"name": "Display remote coverages", "value": "remote"}
+                                                ];
             $scope.selectedDisplayCoveragesByTypeDropdown = "all";                               
                             
             $scope.coveragesExtents = [];
@@ -75,6 +75,17 @@ module rasdaman {
             $scope.wcsServerEndpoint = settings.wcsEndpoint;
             // To init the Globe on this canvas           
             var canvasId = "wcsCanvasGetCapabilities";
+
+            // When petascope admin user logged in, show the blacklist / whitelist buttons
+            $rootScope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
+                if (newValue) {
+                    // Admin logged in
+                    $scope.adminUserLoggedIn = true;
+                } else {
+                    // Admin logged out
+                    $scope.adminUserLoggedIn = false;
+                }
+            });
 
             // NOTE: not all coverages could be loaded as geo-referenced, only possible coverages will have checkboxes nearby coveargeId
             $scope.initCheckboxesForCoverageIds = () => {
@@ -92,7 +103,7 @@ module rasdaman {
             }
 
             // Return a coverage's summary by coverageId
-            $scope.getCoverageSummaryByCoverageId = (coverageId:string) => {
+            $scope.getCoverageSummaryByCoverageId = (coverageId:string):wcs.CoverageSummary => {
                 // all coverages
                 var coverageSummaryArray = $scope.capabilities.contents.coverageSummaries;
                 for (var i = 0; i < coverageSummaryArray.length; i++) {
@@ -131,6 +142,78 @@ module rasdaman {
                         }                        
                     }
                 }                
+            }
+
+            // If a coverage is checked as blacklist, no one, except petascope admin user can see it from GetCapabilities
+            $scope.handleBlackListOneCoverage = (coverageId:string) => {
+                var status = $scope.getCoverageSummaryByCoverageId(coverageId).customizedMetadata.isBlackedList;
+                if (status == true) {
+                    // coverage is added to blacklist
+
+                    this.wcsService.blackListOneCoverage(coverageId).then(
+                        (...args:any[]) => {
+                            this.alertService.success("Blacklisted coverage <b>" + coverageId + "</b>");
+                        }, (...args:any[]) => {
+                            this.errorHandlingService.handleError(args);
+                            this.$log.error(args);
+                        }).finally(function () {
+
+                        });
+
+                } else {
+                    // coverage is removed from blacklist (whitelisted)
+                    
+                    this.wcsService.whiteListOneCoverage(coverageId).then(
+                        (...args:any[]) => {
+                            this.alertService.success("Whitelisted coverage <b>" + coverageId + "</b>");
+                        }, (...args:any[]) => {
+                            this.errorHandlingService.handleError(args);
+                            this.$log.error(args);
+                        }).finally(function () {
+
+                        });
+                }
+            }
+
+            // Handle black list all coverages button
+            $scope.handleBlackListAllCoverages = () => {
+
+                this.wcsService.blackListAllCoverages().then(
+                    (...args:any[]) => {
+                        this.alertService.success("Blacklisted <b>all coverages</b>");
+
+                        // Check all checkboxes in blacklist column
+                        var coverageSummaryArray = $scope.capabilities.contents.coverageSummaries;
+                        for (var i = 0; i < coverageSummaryArray.length; i++) {
+                            coverageSummaryArray[i].customizedMetadata.isBlackedList = true;
+                        }
+                    }, (...args:any[]) => {
+                        this.errorHandlingService.handleError(args);
+                        this.$log.error(args);
+                    }).finally(function () {
+
+                    });
+                
+            }
+
+            // Handle white list all coverages button
+            $scope.handleWhiteListAllCoverages = () => {
+
+                this.wcsService.whiteListAllCoverages().then(
+                    (...args:any[]) => {
+                        this.alertService.success("Whitelisted <b>all coverages</b>");
+
+                        // Uncheck all checkboxes in blacklist column
+                        var coverageSummaryArray = $scope.capabilities.contents.coverageSummaries;
+                        for (var i = 0; i < coverageSummaryArray.length; i++) {
+                            coverageSummaryArray[i].customizedMetadata.isBlackedList = false;
+                        }
+                    }, (...args:any[]) => {
+                        this.errorHandlingService.handleError(args);
+                        this.$log.error(args);
+                    }).finally(function () {
+
+                    });
             }
 
             // rootScope broadcasts an event to all children controllers
@@ -261,6 +344,7 @@ module rasdaman {
         rowPerPageSmartTable:number;
 
         showAllFootprints:any;
+        adminUserLoggedIn:boolean;
 
         parseCoveragesExtents():void;
 
@@ -269,10 +353,17 @@ module rasdaman {
         // Load all the coverages's extents on globe from all pages
         displayAllFootprintsOnGlobe(status:boolean):void;
 
+        // Blacklist / whitelist a specific coverage when admin changes on the checkbox for it
+        handleBlackListOneCoverage(coverageId:string):void;
+
+        // Handle blacklist / whiltelist all coverages buttons' events
+        handleBlackListAllCoverages():void;
+        handleWhiteListAllCoverages():void;
+
         getServerCapabilities():void;
 	
 	    initCheckboxesForCoverageIds():void;
-        getCoverageSummaryByCoverageId(coverageId):{displayFootprint:boolean};
+        getCoverageSummaryByCoverageId(coverageId):wcs.CoverageSummary;
 	
     }
 

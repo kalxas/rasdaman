@@ -45,21 +45,22 @@ class CoverageUtil:
         :rtype bool
         """
         try:
-            # Check if coverage exists in WCS GetCapabilities result
-            service_call = self.wcs_service + "?service=WCS&request=GetCapabilities&acceptVersions=" + \
-                           Session.get_WCS_VERSION_SUPPORTED()
-            response = validate_and_read_url(service_call)
+            # Check if coverage exists in WCS DescribeCoverage result
+            service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
+                           Session.get_WCS_VERSION_SUPPORTED() \
+                           + "&coverageId=" + self.coverage_id
 
-            root = etree.fromstring(response)
-            coverage_id_elements = root.xpath("//*[local-name() = 'CoverageId']")
-            # Iterate all <CoverageId> elements to check coverageId exists already
-            for element in coverage_id_elements:
-                if self.coverage_id == element.text:
-                    return True
+            response = validate_and_read_url(service_call)
+            if decode_res(response).strip() != "":
+                return True
             return False
         except Exception as ex:
-            raise RuntimeException("Could not check if the coverage exists. "                                   
+            if not "NoSuchCoverage" in str(ex):
+                raise RuntimeException("Could not check if the coverage exists. "
                                    "Detail error: {}".format(str(ex)))
+            else:
+                # coverage doesn't exist
+                return False
 
     def __describe_coverage(self):
         """

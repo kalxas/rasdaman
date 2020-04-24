@@ -115,6 +115,7 @@ public interface KVPSymbols {
     // Not standard request (only Rasdaman supports)    
     String VALUE_WMS_INSERT_WCS_LAYER = "InsertWCSLayer";
     String VALUE_WMS_UPDATE_WCS_LAYER = "UpdateWCSLayer";
+    String VALUE_WMS_DESCRIBE_LAYER = "DescribeLayer";
     String VALUE_WMS_INSERT_STYLE = "InsertStyle";
     String VALUE_WMS_UPDATE_STYLE = "UpdateStyle";
     String VALUE_WMS_DELETE_STYLE = "DeleteStyle";

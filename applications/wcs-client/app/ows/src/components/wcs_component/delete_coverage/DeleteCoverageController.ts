@@ -76,16 +76,18 @@ module rasdaman {
                 if ($scope.requestInProgress) {
                     this.alertService.error("Cannot delete a coverage while another delete request is in progress.");
                 } else if (!isCoverageIdValid($scope.idOfCoverageToDelete)) {
-                    this.alertService.error("The coverage ID <b>" + $scope.idOfCoverageToDelete + "</b> is not valid.");
+                    this.alertService.error("The coverage <b>" + $scope.idOfCoverageToDelete + "</b> is not valid.");
                 } else {
                     $scope.requestInProgress = true;
 
                     this.wcsService.deleteCoverage($scope.idOfCoverageToDelete).then(
                         (...args:any[])=> {
-                            this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
+                            this.alertService.success("Deleted coverage <b>" + $scope.idOfCoverageToDelete + "</b>");
 
                             // Reload GetCapabilities in children controllers
+                            // reload WCS
                             $rootScope.$broadcast("reloadWCSServerCapabilities", true);
+                            // reload WMS
                             $rootScope.$broadcast("reloadWMSServerCapabilities", true);
                         }, (...args:any[])=> {
                             this.errorHandlingService.handleError(args);

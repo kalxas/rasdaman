@@ -28,7 +28,8 @@ module rasdaman {
     export class WMSService {
         public static $inject = ["$http", "$q", "rasdaman.WMSSettingsService", "rasdaman.WCSSettingsService", 
                                  "rasdaman.common.SerializedObjectFactory", "$window",
-                                 "rasdaman.CredentialService"];
+                                 "rasdaman.CredentialService",
+                                 "rasdaman.AdminService"];
 
         public constructor(private $http:angular.IHttpService,
                            private $q:angular.IQService,
@@ -36,7 +37,8 @@ module rasdaman {
                            private wcsSettings:rasdaman.WCSSettingsService,
                            private serializedObjectFactory:rasdaman.common.SerializedObjectFactory,
                            private $window:angular.IWindowService,
-                           private credentialService:rasdaman.CredentialService) {
+                           private credentialService:rasdaman.CredentialService,
+                           private adminService:rasdaman.AdminService) {
         }
 
 
@@ -44,11 +46,18 @@ module rasdaman {
             var result = this.$q.defer();
             var self = this;
 
-            var currentHeaders = {};
+            var requestHeaders = {};
+            var credentials:login.Credential = this.adminService.getPersistedAdminUserCredentials();
+            if (credentials != null) {
+                // If petascope admin user logged in, then use its credentials for GetCapabilities intead to view blacklisted coverages
+                requestHeaders = this.adminService.getAuthentcationHeaders();
+            } else {
+                requestHeaders = this.credentialService.createRequestHeader(this.settings.wmsEndpoint, {});
+            }
 
             var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
             this.$http.get(requestUrl, {
-                    headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
+                    headers: requestHeaders
                 }).then(function (data:any) {
                     try {
                         var gmlDocument = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
@@ -183,6 +192,82 @@ module rasdaman {
                     } catch (err) {
                         result.reject(err);
                     }
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+        // --------------- black list
+
+        // Set a layer to the blacklist
+        public blackListOneLayer(layerName:string):angular.IPromise<any> {
+            var result = this.$q.defer();
+            
+            var requestUrl = this.settings.wmsEndpoint + "/admin?request=BlackList&layerName=" + layerName;
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+
+            this.$http.get(requestUrl, {
+                    headers: requestHeaders
+                }).then(function (data:any) {
+                    result.resolve(data);
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+        // Set all layers to the blacklist
+        public blackListAllLayers():angular.IPromise<any> {
+            var result = this.$q.defer();
+            
+            var requestUrl = this.settings.wmsEndpoint + "/admin?request=BlackListAllLayers";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+
+            this.$http.get(requestUrl, {
+                    headers: requestHeaders
+                }).then(function (data:any) {
+                    result.resolve(data);
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+        // --------------- white list
+
+        // Remove a layer from the whitelist
+        public whiteListOneLayer(layerName:string):angular.IPromise<any> {
+            var result = this.$q.defer();
+          
+            var requestUrl = this.settings.wmsEndpoint + "/admin?request=WhiteList&layerName=" + layerName;
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+
+            this.$http.get(requestUrl, {
+                    headers: requestHeaders
+                }).then(function (data:any) {
+                    result.resolve(data);
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+        // Remove all layers from the blacklist
+        public whiteListAllLayers():angular.IPromise<any> {
+            var result = this.$q.defer();
+            
+            var requestUrl = this.settings.wmsEndpoint + "/admin?request=WhiteListAllLayers";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+
+            this.$http.get(requestUrl, {
+                    headers: requestHeaders
+                }).then(function (data:any) {
+                    result.resolve(data);
                 }, function (error) {
                     result.reject(error);
                 });

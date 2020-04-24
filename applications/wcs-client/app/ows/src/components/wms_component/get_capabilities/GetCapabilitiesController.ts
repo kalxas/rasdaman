@@ -50,7 +50,8 @@ module rasdaman {
                            private wmsService:rasdaman.WMSService,                           
                            private alertService:any,
                            private errorHandlingService:ErrorHandlingService,
-                           private webWorldWindService:rasdaman.WebWorldWindService) {
+                           private webWorldWindService:rasdaman.WebWorldWindService,
+                           private adminService:rasdaman.AdminService) {
             $scope.isAvailableLayersOpen = false;            
             $scope.isServiceIdentificationOpen = false;
             $scope.isServiceProviderOpen = false;
@@ -64,32 +65,54 @@ module rasdaman {
             // to know which page are selected
             var currentPageNumber = 1;
 
-            $scope.displayLayersDropdownItems = [{"name": "Display all layers", "value":""},
-                                                 {"name": "Display local layers", "value":"local"},
-                                                 {"name": "Display remote layers", "value":"remote"}
+            $scope.displayLayersDropdownItems = [{"name": "Display all layers", "value": ""},
+                                                 {"name": "Display local layers", "value": "local"},
+                                                 {"name": "Display remote layers", "value": "remote"}
                                                 ];
             
             $scope.display = true;
             $scope.showAllFootprints = {isChecked: false};
 
+            // When petascope admin user logged in, show the blacklist / whitelist buttons
+            $rootScope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
+                if (newValue) {
+                    // Admin logged in
+                    $scope.adminUserLoggedIn = true;
+                } else {
+                    // Admin logged out
+                    $scope.adminUserLoggedIn = false;
+                }
+            });
+
             // From the WMS's EX_GeographicBoundingBox
             // NOTE: not like WCS, all layers can be display on the globe as they are geo-referenced.            
-            $scope.initCheckboxesForCoverageIds = () => {
-                // all coverages
+            $scope.initCheckboxesForLayerNames = () => {
+                // all layers
                 var layerArray = $scope.capabilities.layers;
                 for (var i = 0; i < layerArray.length; i++) {                        
                     layerArray[i].displayFootprint = false;
                 }                     
             }
 
+            // Return a layer object by a name
+            $scope.getLayerByName = (layerName:string):wms.Layer => {
+                var layerArray = $scope.capabilities.layers;
+                for (var i = 0; i < layerArray.length; i++) {                        
+                    if (layerArray[i].name == layerName) {
+                        return layerArray[i];
+                    }
+                }
+
+                return null;
+            }
 
             // If a coverage can be displayed on globe, user can show/hide it's footprint by changing checkbox of current page
-            $scope.displayFootprintOnGlobe = (coverageId:string)=> {     
+            $scope.displayFootprintOnGlobe = (coverageId:string) => {     
                 webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);                
             }
 
-            // Load/Unload all coverages's extents on globe
-            $scope.displayAllFootprintsOnGlobe = (status:boolean)=> {
+            // Load/Unload all layers's extents on globe
+            $scope.displayAllFootprintsOnGlobe = (status:boolean) => {
                 // Array of coverageExtents belong to WMS layers                
                 if (status == true) {
                     // load all unloaded footprints from all pages on globe                    
@@ -114,6 +137,76 @@ module rasdaman {
                         }
                     }
                 }
+            }
+
+            // If a layer is checked as blacklist, no one, except petascope admin user can see it from GetCapabilities
+            $scope.handleBlackListOneLayer = (layerName:string) => {
+                                
+                var status = $scope.getLayerByName(layerName).customizedMetadata.isBlackedList;
+                if (status == true) {
+                    // layer is added to blacklist
+
+                    this.wmsService.blackListOneLayer(layerName).then(
+                        (...args:any[])=> {
+                            this.alertService.success("Blacklisted layer <b>" + layerName + "</b>");
+                        }, (...args:any[])=> {
+                            this.errorHandlingService.handleError(args);
+                            this.$log.error(args);
+                        }).finally(function () {
+
+                        });
+
+                } else {
+                    // layer is removed from blacklist (whitelisted)
+                    
+                    this.wmsService.whiteListOneLayer(layerName).then(
+                        (...args:any[])=> {
+                            this.alertService.success("Whitelisted layer <b>" + layerName + "</b>");
+                        }, (...args:any[])=> {
+                            this.errorHandlingService.handleError(args);
+                            this.$log.error(args);
+                        }).finally(function () {
+
+                        });
+                }
+            }
+
+            // Handle black list all layers button
+            $scope.handleBlackListAllLayers = () => {
+
+                this.wmsService.blackListAllLayers().then(
+                    (...args:any[]) => {
+                        this.alertService.success("Blacklisted <b>all layers</b>");
+
+                        // Check all checkboxes in blacklist column
+                        for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                            $scope.capabilities.layers[i].customizedMetadata.isBlackedList = true;
+                        }
+                    }, (...args:any[]) => {
+                        this.errorHandlingService.handleError(args);
+                        this.$log.error(args);
+                    }).finally(function () {
+
+                    });
+            }
+
+            // Handle white list all layers button
+            $scope.handleWhiteListAllLayers = () => {
+
+                this.wmsService.whiteListAllLayers().then(
+                    (...args:any[]) => {
+                        this.alertService.success("Whitelisted <b>all layers</b>");
+
+                        // Uncheck all checkboxes in blacklist column
+                        for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                            $scope.capabilities.layers[i].customizedMetadata.isBlackedList = false;
+                        }
+                    }, (...args:any[]) => {
+                        this.errorHandlingService.handleError(args);
+                        this.$log.error(args);
+                    }).finally(function () {
+
+                    });                    
             }
 
             // rootScope broadcasts an event to all children controllers
@@ -167,7 +260,7 @@ module rasdaman {
                                                         
                             // NOTE: WMS already has the EX_GeographicBoundingBox element of each layer from GetCapabilities request.
                             // But, WMS still needs to convert the EX_GeographicBoundingBox the same outcome (CoverageExtent) to be displayable on globe.                            
-                            $scope.initCheckboxesForCoverageIds();
+                            $scope.initCheckboxesForLayerNames();
                             
                             var coverageExtentArray = [];
 
@@ -207,18 +300,30 @@ module rasdaman {
         isServiceIdentificationOpen:boolean;
         isServiceProviderOpen:boolean;
         isCapabilitiesDocumentOpen:boolean;
-        
-        // Show/Hide the checked coverage extent on globe of current page
-        displayFootprintOnGlobe(coverageId:string):void;
 
-        // Load all the coverages's extents on globe from all pages
+        adminUserLoggedIn:boolean;
+
+        // return a correspondent layer by a name
+        getLayerByName(layerName:string):wms.Layer;
+        
+        // Show/Hide the checked layer's extent on globe of current page
+        displayFootprintOnGlobe(layerName:string):void;
+
+        // Load all the layers's extents on globe from all pages
         displayAllFootprints(status:boolean):void;
+
+        // Blacklist / whitelist a specific layer when admin changes on the checkbox for it
+        handleBlackListOneLayer(layerName:string):void;
+
+        // Handle blacklist / whiltelist all layers buttons' events
+        handleBlackListAllLayers():void;
+        handleWhiteListAllLayers():void;
 
         getServerCapabilities():void;
 	
         display:boolean; 
         
-        initCheckboxesForCoverageIds():void;
+        initCheckboxesForLayerNames():void;
         displayAllFootprintsOnGlobe(status:boolean):void;
         pageChanged(newPage: any):void;
     }

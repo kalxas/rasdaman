@@ -83,20 +83,21 @@ class WCSTRequest:
         params.update(self.global_params)
         encoded_extra_params = ""
         for key, value in params.items():
-            # We don't send the UpdateCoverage request with subset1=Lat(...)&subset2=Long(...) as they are not valid
-            if str(key).startswith("subset"):
-                key = "subset"
+            if value is not None:
+                # We don't send the UpdateCoverage request with subset1=Lat(...)&subset2=Long(...) as they are not valid
+                if str(key).startswith("subset"):
+                    key = "subset"
 
-            tmp_dict = {}
-            tmp_dict[key] = value
+                tmp_dict = {}
+                tmp_dict[key] = value
 
-            encoded_extra_params += "&" + urlencode(tmp_dict)
+                encoded_extra_params += "&" + urlencode(tmp_dict)
 
         tmp_dict = {self.SERVICE_PARAMETER: self.SERVICE_VALUE,
                     self.VERSION_PARAMETER: self.VERSION_VALUE,
                     self.REQUEST_PARAMETER: self._get_request_type()}
 
-        query_string = urlencode(tmp_dict) + "&" + encoded_extra_params
+        query_string = urlencode(tmp_dict) + encoded_extra_params
         return query_string
 
     def add_global_param(self, key, value):
@@ -125,7 +126,8 @@ class WCSTRequest:
 
 
 class WCSTInsertRequest(WCSTRequest):
-    def __init__(self, coverage_ref, generate_id=False, pixel_data_type=None, tiling=None, insitu=None, coverage=None):
+    def __init__(self, coverage_ref, generate_id=False, pixel_data_type=None, tiling=None, insitu=None, coverage=None,
+                 black_listed=None):
         """
         Class to represent WCST insert requests
 
@@ -141,6 +143,7 @@ class WCSTInsertRequest(WCSTRequest):
         self.tiling = tiling
         self.insitu = insitu
         self.coverage = coverage
+        self.black_listed = black_listed
 
     def _get_request_type(self):
         """
@@ -168,6 +171,9 @@ class WCSTInsertRequest(WCSTRequest):
         if self.coverage_ref is not None:
             request_kvp[self.__COVERAGE_REF_PARAMETER] = self.coverage_ref
 
+        if self.black_listed is not None:
+            request_kvp[self.__BLACK_LISTED] = self.black_listed
+
         return request_kvp
 
     __GENERATE_ID_TRUE_VALUE = "new"
@@ -178,6 +184,7 @@ class WCSTInsertRequest(WCSTRequest):
     __PIXEL_DATA_TYPE_PARAMETER = "pixelDataType"
     __TILING_PARAMETER = "tiling"
     __REQUEST_TYPE = "InsertCoverage"
+    __BLACK_LISTED = "blackListed"
 
 
 class WCSTInsertScaleLevelsRequest(WCSTRequest):

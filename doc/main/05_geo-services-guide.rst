@@ -1454,7 +1454,7 @@ coverage's metadata.
    This feature only exists in WSClient: **OGC WCS > Describe Coverage tab**
    when one is already **logged in** with petascope admin user in **Admin tab**.
 
-The endpoint for this feature in petascope is **http://your-server/rasdaman/ows/UpdateCoverageMetadata**
+The endpoint for this feature in petascope is **http://your-server/rasdaman/ows/admin/UpdateCoverageMetadata**
 which requires "multipart/form-data" POST requests. The request should contain 2 parts: the first part
 is coverageId to update, the second part is a path to a text file to be uploaded to server.
 
@@ -2112,9 +2112,6 @@ Some options are commonly applicable to all recipes.
   resolution is small enough to affect the precision of the transformation from
   domain coordinates to grid coordinates. To allow for corrections that will
   make the import possible, set this parameter to ``true``.
-
-* ``insitu`` - Set to ``true`` to *register* files in-situ, rather than ingest
-  them in rasdaman. Note: only applicable to rasdaman enterprise.
 
 
 **recipes/options section**

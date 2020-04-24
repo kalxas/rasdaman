@@ -20,57 +20,65 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+/// <reference path="../../../assets/typings/tsd.d.ts"/>
 /// <reference path="../../common/_common.ts"/>
 /// <reference path="../../models/login/_login.ts"/>
 /// <reference path="../wcs_component/settings/SettingsService.ts"/>
 
 module rasdaman {
     export class AdminService {
-        public static $inject = ["$http", "$rootScope", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        public static $inject = ["$http", "$q", "rasdaman.WCSSettingsService",                                
+                                "rasdaman.CredentialService"];
 
         public constructor(private $http:angular.IHttpService,
-                           private $rootScope:angular.IRootScopeService,
                            private $q:angular.IQService,
                            private settings:rasdaman.WCSSettingsService,
-                           private serializedObjectFactory:rasdaman.common.SerializedObjectFactory,
-                           private $window:angular.IWindowService) {        
-        }
+                           private credentialService:rasdaman.CredentialService) {
 
-        // Mark as petascope admin user logged in
-        public persitLoggedIn = () => {
-            window.localStorage.setItem("adminLoggedIn", "true");
+        }
+     
+        // After login succesfully, persist petauser admin credentials to local storage to reuse
+        public persitAdminUserCredentials = (credentials:login.Credential) => {            
+            window.localStorage.setItem("petascopeAdminUserCredentials", credentials.toString());
         }
 
         // Mark as petascope admin user logged out
         public persitLoggedOut = () => {    
-            window.localStorage.removeItem("adminLoggedIn");
+            window.localStorage.removeItem("petascopeAdminUserCredentials");
         }
 
         // Check if petascope admin user logged in
-        public checkLoggedIn = () => {            
-            let tmp = window.localStorage.getItem("adminLoggedIn");
-            return tmp != null;
-        }        
+        public getPersistedAdminUserCredentials = ():login.Credential => {            
+            let persistedCredentialsString = window.localStorage.getItem("petascopeAdminUserCredentials");
+            if (persistedCredentialsString != null) {
+                var credentials:login.Credential = login.Credential.fromString(persistedCredentialsString);
+                return credentials;
+            }
+
+            // petascope admin user didn't login yet
+            return null;
+        }
+
+        // Fetch the stored petascope admin user credentials from local storage
+        // and create a basic authentication headers for them
+        public getAuthentcationHeaders = ():{} => {
+            var credentials:login.Credential = this.getPersistedAdminUserCredentials();
+            var headers = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
+
+            return headers;
+        }
 
         // Login
 
-        public login(credential:login.Credential):angular.IPromise<any> {
+        public login(inputCredentials:login.Credential):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.wcsEndpoint + "/admin/Login";
-
-            var request:angular.IRequestConfig = {
-                method: 'POST',
-                url: requestUrl,
-                //Removed the transformResponse to prevent angular from parsing non-JSON objects.
-                transformResponse: null,                
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                data: credential.toKVP()
-            };
-
+            var requestUrl = this.settings.wcsEndpoint + "/admin/CheckPetascopeAdminUserCredentials";            
+            var success = false;
             // send request to Petascope and get response (headers and contents)
-            this.$http(request).then(function (data:any) {
-                this.adminLoggedIn = true;
-                result.resolve(data);
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createBasicAuthenticationHeader(inputCredentials.username, inputCredentials.password)
+            }).then(function (data:any) {
+                result.resolve(inputCredentials);
             }, function (error) {
                 result.reject(error);
             });
@@ -85,14 +93,15 @@ module rasdaman {
             var result = this.$q.defer();                                               
             var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceIdentification";
 
+            var credentials = this.getPersistedAdminUserCredentials();
+            var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
+
             var request:angular.IRequestConfig = {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
                 transformResponse: null,                
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                // NOTE: Without this property value, Petascope will create new session for each request and the logged in user session doesn't exist -> invalid request.
-                withCredentials: true,
+                headers: requestHeaders,
                 data: serviceIdentification.toKVP()
             };
 
@@ -110,14 +119,15 @@ module rasdaman {
             var result = this.$q.defer();                                               
             var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceProvider";
 
+            var credentials = this.getPersistedAdminUserCredentials();
+            var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
+
             var request:angular.IRequestConfig = {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
                 transformResponse: null,        
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},        
-                // NOTE: Without this property value, Petascope will create new session for each request and the logged in user session doesn't exist -> invalid request.
-                withCredentials: true,
+                headers: requestHeaders,        
                 data: serviceProvider.toKVP()
             };
 

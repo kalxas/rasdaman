@@ -29,7 +29,8 @@ module rasdaman {
 
         public static $inject = ["$http", "$q", "rasdaman.WCSSettingsService", 
                                  "rasdaman.common.SerializedObjectFactory", "$window",
-                                 "rasdaman.CredentialService", "$state"];
+                                 "rasdaman.CredentialService", "$state",
+                                 "rasdaman.AdminService"];
 
         public constructor(private $http:angular.IHttpService,
                            private $q:angular.IQService,
@@ -37,7 +38,8 @@ module rasdaman {
                            private serializedObjectFactory:rasdaman.common.SerializedObjectFactory,
                            private $window:angular.IWindowService,
                            private credentialService:rasdaman.CredentialService,
-                           private $state:any) {
+                           private $state:any,
+                           private adminService:rasdaman.AdminService) {
         }
 
 
@@ -45,11 +47,18 @@ module rasdaman {
             var result = this.$q.defer();
             var self = this;
 
-            var currentHeaders = {};
+            var requestHeaders = {};
+            var credentials:login.Credential = this.adminService.getPersistedAdminUserCredentials();
+            if (credentials != null) {
+                // If petascope admin user logged in, then use its credentials for GetCapabilities intead to view blacklisted coverages
+                requestHeaders = this.adminService.getAuthentcationHeaders();
+            } else {
+                requestHeaders = this.credentialService.createRequestHeader(this.settings.wcsEndpoint, {});
+            }
 
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
             this.$http.get(requestUrl, {
-                    headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+                    headers: requestHeaders
                 }).then(function (data:any) {
                     try {
                         var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
@@ -216,19 +225,17 @@ module rasdaman {
         // Update coverage's metadata from a text file (formData is FormData object containing the file to be uploaded)
         public updateCoverageMetadata(formData):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.wcsEndpoint + "/UpdateCoverageMetadata"; 
+            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateCoverageMetadata"; 
             
-            // NOTE: must set to undefined, otherwise it will have error in tomcat as it cannot parse uploaded file from multipart/form-data
-            var currentHeaders = {'Content-Type': undefined};            
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            requestHeaders["Content-Type"] = undefined;
 
             var request:angular.IRequestConfig = {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
                 transformResponse: null,                
-                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders),
-                // NOTE: Without this property value, Petascope will create new session for each request and the logged in user session doesn't exist -> invalid request.
-                withCredentials: true,
+                headers: requestHeaders,
                 data: formData
             };
 
@@ -241,5 +248,83 @@ module rasdaman {
 
             return result.promise;
         }    
+
+        // --------------- black list
+
+        // Set a coverage id to the blacklist
+        public blackListOneCoverage(coverageId:string[]):angular.IPromise<any> {
+            var result = this.$q.defer();
+            
+            var requestUrl = this.settings.wcsEndpoint + "/admin?request=BlackList&coverageId=" + coverageId;
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+
+            this.$http.get(requestUrl, {
+                    headers: requestHeaders
+                }).then(function (data:any) {
+                    result.resolve(data);
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+        // Set all coverages to the blacklist
+        public blackListAllCoverages():angular.IPromise<any> {
+            var result = this.$q.defer();
+            
+            var requestUrl = this.settings.wcsEndpoint + "/admin?request=BlackListAllCoverages";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+
+            this.$http.get(requestUrl, {
+                    headers: requestHeaders
+                }).then(function (data:any) {
+                    result.resolve(data);
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+        // --------------- white list
+
+        // Remove a coverage from the whitelist
+        public whiteListOneCoverage(coverageId:string):angular.IPromise<any> {
+            var result = this.$q.defer();
+          
+            var requestUrl = this.settings.wcsEndpoint + "/admin?request=WhiteList&coverageId=" + coverageId;
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+
+            this.$http.get(requestUrl, {
+                    headers: requestHeaders
+                }).then(function (data:any) {
+                    result.resolve(data);
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+        // Remove all coverages from the blacklist
+        public whiteListAllCoverages():angular.IPromise<any> {
+            var result = this.$q.defer();
+            
+            var requestUrl = this.settings.wcsEndpoint + "/admin?request=WhiteListAllCoverages";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+
+            this.$http.get(requestUrl, {
+                    headers: requestHeaders
+                }).then(function (data:any) {
+                    result.resolve(data);
+                }, function (error) {
+                    result.reject(error);
+                });
+
+            return result.promise;
+        }
+
+
     }
 }

@@ -150,9 +150,11 @@ public class InsertCoverageHandler {
                 if (tempCoverage != null) {
                     throw new WCSTDuplicatedCoverageId(coverage.getCoverageId());
                 }
-            } catch (PetascopeException exception) {
-                if (exception.getExceptionCode().equals(ExceptionCode.NoSuchCoverage)) {
+            } catch (PetascopeException ex) {
+                if (ex.getExceptionCode().equals(ExceptionCode.NoSuchCoverage)) {
                     // Coverage does not exist, good to insert new one
+                } else {
+                    throw ex;
                 }
             }
 

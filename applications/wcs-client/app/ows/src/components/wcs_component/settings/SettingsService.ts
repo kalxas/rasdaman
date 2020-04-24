@@ -36,9 +36,9 @@ module rasdaman {
 
         public wcsFullEndpoint:string;
 
-        public constructor($window:angular.IWindowService) {  
+        public constructor($window:angular.IWindowService) {              
             // In case of Petascope is deployed to an URI without /rasdaman/ows
-            this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");           
+            this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             
             // In case of only WSClient is deployed to external web server (e.g: Tomcat) and this Tomcat has Petascope
             // This is used for development only.
@@ -57,7 +57,7 @@ module rasdaman {
             
             if (!this.wcsEndpoint.endsWith("ows")) {
                 this.wcsEndpoint = this.wcsEndpoint + "ows";
-            }
+            }            
             
             this.contextPath = this.wcsEndpoint.replace("/rasdaman/ows", "/rasdaman");
         }

@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1078,7 +1075,18 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             this.parseCoverageLocation(source);
             this.parseCoverageSizeInBytes(source);
+            this.parseBlackListed(source);
         }
+        CustomizedMetadata.prototype.parseBlackListed = function (source) {
+            var childElement = "rasdaman:blackListed";
+            if (source.doesElementExist(childElement)) {
+                var blackListedElement = source.getChildAsSerializedObject(childElement);
+                this.isBlackedList = blackListedElement.getValueAsBool();
+            }
+            else {
+                this.isBlackedList = null;
+            }
+        };
         CustomizedMetadata.prototype.parseCoverageLocation = function (source) {
             var childElement = "rasdaman:location";
             if (source.doesElementExist(childElement)) {
@@ -1220,6 +1228,9 @@ var wcs;
                         else {
                             totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
                         }
+                    }
+                    if (coverageSummary.customizedMetadata.isBlackedList != null) {
+                        _this.showBlackListedColumn = true;
                     }
                 }
             });
@@ -2249,7 +2260,7 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WCSService = (function () {
-        function WCSService($http, $q, settings, serializedObjectFactory, $window, credentialService, $state) {
+        function WCSService($http, $q, settings, serializedObjectFactory, $window, credentialService, $state, adminService) {
             this.$http = $http;
             this.$q = $q;
             this.settings = settings;
@@ -2257,14 +2268,22 @@ var rasdaman;
             this.$window = $window;
             this.credentialService = credentialService;
             this.$state = $state;
+            this.adminService = adminService;
         }
         WCSService.prototype.getServerCapabilities = function (request) {
             var result = this.$q.defer();
             var self = this;
-            var currentHeaders = {};
+            var requestHeaders = {};
+            var credentials = this.adminService.getPersistedAdminUserCredentials();
+            if (credentials != null) {
+                requestHeaders = this.adminService.getAuthentcationHeaders();
+            }
+            else {
+                requestHeaders = this.credentialService.createRequestHeader(this.settings.wcsEndpoint, {});
+            }
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
             this.$http.get(requestUrl, {
-                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+                headers: requestHeaders
             }).then(function (data) {
                 try {
                     var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
@@ -2384,14 +2403,14 @@ var rasdaman;
         };
         WCSService.prototype.updateCoverageMetadata = function (formData) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/UpdateCoverageMetadata";
-            var currentHeaders = { 'Content-Type': undefined };
+            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateCoverageMetadata";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            requestHeaders["Content-Type"] = undefined;
             var request = {
                 method: 'POST',
                 url: requestUrl,
                 transformResponse: null,
-                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders),
-                withCredentials: true,
+                headers: requestHeaders,
                 data: formData
             };
             this.$http(request).then(function (data) {
@@ -2401,9 +2420,62 @@ var rasdaman;
             });
             return result.promise;
         };
+        WCSService.prototype.blackListOneCoverage = function (coverageId) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint + "/admin?request=BlackList&coverageId=" + coverageId;
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            this.$http.get(requestUrl, {
+                headers: requestHeaders
+            }).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WCSService.prototype.blackListAllCoverages = function () {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint + "/admin?request=BlackListAllCoverages";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            this.$http.get(requestUrl, {
+                headers: requestHeaders
+            }).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WCSService.prototype.whiteListOneCoverage = function (coverageId) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint + "/admin?request=WhiteList&coverageId=" + coverageId;
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            this.$http.get(requestUrl, {
+                headers: requestHeaders
+            }).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WCSService.prototype.whiteListAllCoverages = function () {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint + "/admin?request=WhiteListAllCoverages";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            this.$http.get(requestUrl, {
+                headers: requestHeaders
+            }).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
         WCSService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService",
             "rasdaman.common.SerializedObjectFactory", "$window",
-            "rasdaman.CredentialService", "$state"];
+            "rasdaman.CredentialService", "$state",
+            "rasdaman.AdminService"];
         return WCSService;
     }());
     rasdaman.WCSService = WCSService;
@@ -2487,14 +2559,19 @@ var rasdaman;
             }
             return result;
         };
-        CredentialService.prototype.getEncodedBasicAuthencationString = function (username, password) {
-            var result = "Basic " + btoa(username + ":" + password);
-            return result;
+        CredentialService.prototype.createBasicAuthenticationHeaderByHeader = function (headers, username, password) {
+            var tempHeaders = this.getEncodedBasicAuthencationString(username, password);
+            headers = Object.assign(tempHeaders, headers);
+            return headers;
         };
         CredentialService.prototype.createBasicAuthenticationHeader = function (username, password) {
             var headers = {};
             headers["Authorization"] = this.getEncodedBasicAuthencationString(username, password);
             return headers;
+        };
+        CredentialService.prototype.getEncodedBasicAuthencationString = function (username, password) {
+            var result = "Basic " + btoa(username + ":" + password);
+            return result;
         };
         return CredentialService;
     }());
@@ -3005,15 +3082,19 @@ var rasdaman;
             this.$scope = $scope;
             this.initializeTabs($scope);
             $scope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
-                if (newValue == true) {
+                if (oldValue == true || newValue == true) {
                     if ($scope.isSupportWCST) {
                         $scope.wcsInsertCoverageTab.disabled = false;
                         $scope.wcsDeleteCoverageTab.disabled = false;
+                        $rootScope.$broadcast("reloadWCSServerCapabilities", true);
+                        $rootScope.$broadcast("reloadWMSServerCapabilities", true);
                     }
                 }
                 else {
                     $scope.wcsInsertCoverageTab.disabled = true;
                     $scope.wcsDeleteCoverageTab.disabled = true;
+                    $rootScope.$broadcast("reloadWCSServerCapabilities", true);
+                    $rootScope.$broadcast("reloadWMSServerCapabilities", true);
                 }
             });
             $scope.$watch("wcsStateInformation.serverCapabilities", function (newValue, oldValue) {
@@ -3108,6 +3189,7 @@ var rasdaman;
 (function (rasdaman) {
     var WCSGetCapabilitiesController = (function () {
         function WCSGetCapabilitiesController($scope, $rootScope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
+            var _this = this;
             this.$scope = $scope;
             this.$rootScope = $rootScope;
             this.$log = $log;
@@ -3131,6 +3213,14 @@ var rasdaman;
             $scope.rowPerPageSmartTable = 10;
             $scope.wcsServerEndpoint = settings.wcsEndpoint;
             var canvasId = "wcsCanvasGetCapabilities";
+            $rootScope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
+                if (newValue) {
+                    $scope.adminUserLoggedIn = true;
+                }
+                else {
+                    $scope.adminUserLoggedIn = false;
+                }
+            });
             $scope.initCheckboxesForCoverageIds = function () {
                 var coverageSummaryArray = $scope.capabilities.contents.coverageSummaries;
                 for (var i = 0; i < coverageSummaryArray.length; i++) {
@@ -3172,6 +3262,85 @@ var rasdaman;
                         }
                     }
                 }
+            };
+            $scope.handleBlackListOneCoverage = function (coverageId) {
+                var status = $scope.getCoverageSummaryByCoverageId(coverageId).customizedMetadata.isBlackedList;
+                if (status == true) {
+                    _this.wcsService.blackListOneCoverage(coverageId).then(function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        _this.alertService.success("Blacklisted coverage <b>" + coverageId + "</b>");
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        _this.errorHandlingService.handleError(args);
+                        _this.$log.error(args);
+                    })["finally"](function () {
+                    });
+                }
+                else {
+                    _this.wcsService.whiteListOneCoverage(coverageId).then(function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        _this.alertService.success("Whitelisted coverage <b>" + coverageId + "</b>");
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        _this.errorHandlingService.handleError(args);
+                        _this.$log.error(args);
+                    })["finally"](function () {
+                    });
+                }
+            };
+            $scope.handleBlackListAllCoverages = function () {
+                _this.wcsService.blackListAllCoverages().then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    _this.alertService.success("Blacklisted <b>all coverages</b>");
+                    var coverageSummaryArray = $scope.capabilities.contents.coverageSummaries;
+                    for (var i = 0; i < coverageSummaryArray.length; i++) {
+                        coverageSummaryArray[i].customizedMetadata.isBlackedList = true;
+                    }
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    _this.errorHandlingService.handleError(args);
+                    _this.$log.error(args);
+                })["finally"](function () {
+                });
+            };
+            $scope.handleWhiteListAllCoverages = function () {
+                _this.wcsService.whiteListAllCoverages().then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    _this.alertService.success("Whitelisted <b>all coverages</b>");
+                    var coverageSummaryArray = $scope.capabilities.contents.coverageSummaries;
+                    for (var i = 0; i < coverageSummaryArray.length; i++) {
+                        coverageSummaryArray[i].customizedMetadata.isBlackedList = false;
+                    }
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    _this.errorHandlingService.handleError(args);
+                    _this.$log.error(args);
+                })["finally"](function () {
+                });
             };
             $scope.$on("reloadWCSServerCapabilities", function (event, b) {
                 $scope.getServerCapabilities();
@@ -3458,7 +3627,7 @@ var rasdaman;
                     _this.alertService.error("Cannot delete a coverage while another delete request is in progress.");
                 }
                 else if (!isCoverageIdValid($scope.idOfCoverageToDelete)) {
-                    _this.alertService.error("The coverage ID <b>" + $scope.idOfCoverageToDelete + "</b> is not valid.");
+                    _this.alertService.error("The coverage <b>" + $scope.idOfCoverageToDelete + "</b> is not valid.");
                 }
                 else {
                     $scope.requestInProgress = true;
@@ -3467,7 +3636,7 @@ var rasdaman;
                         for (var _i = 0; _i < arguments.length; _i++) {
                             args[_i] = arguments[_i];
                         }
-                        _this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
+                        _this.alertService.success("Deleted coverage <b>" + $scope.idOfCoverageToDelete + "</b>");
                         $rootScope.$broadcast("reloadWCSServerCapabilities", true);
                         $rootScope.$broadcast("reloadWMSServerCapabilities", true);
                     }, function () {
@@ -4955,6 +5124,9 @@ var wms;
                         else {
                             totalRemoteLayerSizesInBytes_1 += customizedMetadata.remoteCoverageSizeInBytes;
                         }
+                        if (customizedMetadata.isBlackedList != null) {
+                            _this.showBlackListedColumn = true;
+                        }
                     }
                     var crs = obj.getChildAsSerializedObject("CRS").getValueAsString();
                     var exBBox = obj.getChildAsSerializedObject("EX_GeographicBoundingBox");
@@ -5393,7 +5565,7 @@ var wms;
 var rasdaman;
 (function (rasdaman) {
     var WMSService = (function () {
-        function WMSService($http, $q, settings, wcsSettings, serializedObjectFactory, $window, credentialService) {
+        function WMSService($http, $q, settings, wcsSettings, serializedObjectFactory, $window, credentialService, adminService) {
             this.$http = $http;
             this.$q = $q;
             this.settings = settings;
@@ -5401,14 +5573,22 @@ var rasdaman;
             this.serializedObjectFactory = serializedObjectFactory;
             this.$window = $window;
             this.credentialService = credentialService;
+            this.adminService = adminService;
         }
         WMSService.prototype.getServerCapabilities = function (request) {
             var result = this.$q.defer();
             var self = this;
-            var currentHeaders = {};
+            var requestHeaders = {};
+            var credentials = this.adminService.getPersistedAdminUserCredentials();
+            if (credentials != null) {
+                requestHeaders = this.adminService.getAuthentcationHeaders();
+            }
+            else {
+                requestHeaders = this.credentialService.createRequestHeader(this.settings.wmsEndpoint, {});
+            }
             var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
             this.$http.get(requestUrl, {
-                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
+                headers: requestHeaders
             }).then(function (data) {
                 try {
                     var gmlDocument = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
@@ -5515,9 +5695,62 @@ var rasdaman;
             });
             return result.promise;
         };
+        WMSService.prototype.blackListOneLayer = function (layerName) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wmsEndpoint + "/admin?request=BlackList&layerName=" + layerName;
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            this.$http.get(requestUrl, {
+                headers: requestHeaders
+            }).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.prototype.blackListAllLayers = function () {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wmsEndpoint + "/admin?request=BlackListAllLayers";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            this.$http.get(requestUrl, {
+                headers: requestHeaders
+            }).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.prototype.whiteListOneLayer = function (layerName) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wmsEndpoint + "/admin?request=WhiteList&layerName=" + layerName;
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            this.$http.get(requestUrl, {
+                headers: requestHeaders
+            }).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.prototype.whiteListAllLayers = function () {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wmsEndpoint + "/admin?request=WhiteListAllLayers";
+            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            this.$http.get(requestUrl, {
+                headers: requestHeaders
+            }).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
         WMSService.$inject = ["$http", "$q", "rasdaman.WMSSettingsService", "rasdaman.WCSSettingsService",
             "rasdaman.common.SerializedObjectFactory", "$window",
-            "rasdaman.CredentialService"];
+            "rasdaman.CredentialService",
+            "rasdaman.AdminService"];
         return WMSService;
     }());
     rasdaman.WMSService = WMSService;
@@ -5525,7 +5758,8 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WMSGetCapabilitiesController = (function () {
-        function WMSGetCapabilitiesController($rootScope, $scope, $log, settings, wmsService, alertService, errorHandlingService, webWorldWindService) {
+        function WMSGetCapabilitiesController($rootScope, $scope, $log, settings, wmsService, alertService, errorHandlingService, webWorldWindService, adminService) {
+            var _this = this;
             this.$rootScope = $rootScope;
             this.$scope = $scope;
             this.$log = $log;
@@ -5534,6 +5768,7 @@ var rasdaman;
             this.alertService = alertService;
             this.errorHandlingService = errorHandlingService;
             this.webWorldWindService = webWorldWindService;
+            this.adminService = adminService;
             $scope.isAvailableLayersOpen = false;
             $scope.isServiceIdentificationOpen = false;
             $scope.isServiceProviderOpen = false;
@@ -5548,11 +5783,28 @@ var rasdaman;
             ];
             $scope.display = true;
             $scope.showAllFootprints = { isChecked: false };
-            $scope.initCheckboxesForCoverageIds = function () {
+            $rootScope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
+                if (newValue) {
+                    $scope.adminUserLoggedIn = true;
+                }
+                else {
+                    $scope.adminUserLoggedIn = false;
+                }
+            });
+            $scope.initCheckboxesForLayerNames = function () {
                 var layerArray = $scope.capabilities.layers;
                 for (var i = 0; i < layerArray.length; i++) {
                     layerArray[i].displayFootprint = false;
                 }
+            };
+            $scope.getLayerByName = function (layerName) {
+                var layerArray = $scope.capabilities.layers;
+                for (var i = 0; i < layerArray.length; i++) {
+                    if (layerArray[i].name == layerName) {
+                        return layerArray[i];
+                    }
+                }
+                return null;
             };
             $scope.displayFootprintOnGlobe = function (coverageId) {
                 webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
@@ -5578,6 +5830,83 @@ var rasdaman;
                         }
                     }
                 }
+            };
+            $scope.handleBlackListOneLayer = function (layerName) {
+                var status = $scope.getLayerByName(layerName).customizedMetadata.isBlackedList;
+                if (status == true) {
+                    _this.wmsService.blackListOneLayer(layerName).then(function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        _this.alertService.success("Blacklisted layer <b>" + layerName + "</b>");
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        _this.errorHandlingService.handleError(args);
+                        _this.$log.error(args);
+                    })["finally"](function () {
+                    });
+                }
+                else {
+                    _this.wmsService.whiteListOneLayer(layerName).then(function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        _this.alertService.success("Whitelisted layer <b>" + layerName + "</b>");
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        _this.errorHandlingService.handleError(args);
+                        _this.$log.error(args);
+                    })["finally"](function () {
+                    });
+                }
+            };
+            $scope.handleBlackListAllLayers = function () {
+                _this.wmsService.blackListAllLayers().then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    _this.alertService.success("Blacklisted <b>all layers</b>");
+                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                        $scope.capabilities.layers[i].customizedMetadata.isBlackedList = true;
+                    }
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    _this.errorHandlingService.handleError(args);
+                    _this.$log.error(args);
+                })["finally"](function () {
+                });
+            };
+            $scope.handleWhiteListAllLayers = function () {
+                _this.wmsService.whiteListAllLayers().then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    _this.alertService.success("Whitelisted <b>all layers</b>");
+                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                        $scope.capabilities.layers[i].customizedMetadata.isBlackedList = false;
+                    }
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    _this.errorHandlingService.handleError(args);
+                    _this.$log.error(args);
+                })["finally"](function () {
+                });
             };
             $scope.$on("reloadWMSServerCapabilities", function (event, b) {
                 $scope.getServerCapabilities();
@@ -5611,7 +5940,7 @@ var rasdaman;
                     $scope.isAvailableLayersOpen = true;
                     $scope.isServiceIdentificationOpen = true;
                     $scope.isServiceProviderOpen = true;
-                    $scope.initCheckboxesForCoverageIds();
+                    $scope.initCheckboxesForLayerNames();
                     var coverageExtentArray = [];
                     for (var i = 0; i < $scope.capabilities.layers.length; i++) {
                         coverageExtentArray.push($scope.capabilities.layers[i].coverageExtent);
@@ -6157,6 +6486,15 @@ var login;
             return "username=" + this.username +
                 "&password=" + this.password;
         };
+        Credential.prototype.toString = function () {
+            return this.username + ":" + this.password;
+        };
+        Credential.fromString = function (input) {
+            var tmp = input.split(":");
+            var username = tmp[0];
+            var password = tmp[1];
+            return new Credential(username, password);
+        };
         return Credential;
     }());
     login.Credential = Credential;
@@ -6164,37 +6502,40 @@ var login;
 var rasdaman;
 (function (rasdaman) {
     var AdminService = (function () {
-        function AdminService($http, $rootScope, $q, settings, serializedObjectFactory, $window) {
+        function AdminService($http, $q, settings, credentialService) {
+            var _this = this;
             this.$http = $http;
-            this.$rootScope = $rootScope;
             this.$q = $q;
             this.settings = settings;
-            this.serializedObjectFactory = serializedObjectFactory;
-            this.$window = $window;
-            this.persitLoggedIn = function () {
-                window.localStorage.setItem("adminLoggedIn", "true");
+            this.credentialService = credentialService;
+            this.persitAdminUserCredentials = function (credentials) {
+                window.localStorage.setItem("petascopeAdminUserCredentials", credentials.toString());
             };
             this.persitLoggedOut = function () {
-                window.localStorage.removeItem("adminLoggedIn");
+                window.localStorage.removeItem("petascopeAdminUserCredentials");
             };
-            this.checkLoggedIn = function () {
-                var tmp = window.localStorage.getItem("adminLoggedIn");
-                return tmp != null;
+            this.getPersistedAdminUserCredentials = function () {
+                var persistedCredentialsString = window.localStorage.getItem("petascopeAdminUserCredentials");
+                if (persistedCredentialsString != null) {
+                    var credentials = login.Credential.fromString(persistedCredentialsString);
+                    return credentials;
+                }
+                return null;
+            };
+            this.getAuthentcationHeaders = function () {
+                var credentials = _this.getPersistedAdminUserCredentials();
+                var headers = _this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
+                return headers;
             };
         }
-        AdminService.prototype.login = function (credential) {
+        AdminService.prototype.login = function (inputCredentials) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin/Login";
-            var request = {
-                method: 'POST',
-                url: requestUrl,
-                transformResponse: null,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: credential.toKVP()
-            };
-            this.$http(request).then(function (data) {
-                this.adminLoggedIn = true;
-                result.resolve(data);
+            var requestUrl = this.settings.wcsEndpoint + "/admin/CheckPetascopeAdminUserCredentials";
+            var success = false;
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createBasicAuthenticationHeader(inputCredentials.username, inputCredentials.password)
+            }).then(function (data) {
+                result.resolve(inputCredentials);
             }, function (error) {
                 result.reject(error);
             });
@@ -6203,12 +6544,13 @@ var rasdaman;
         AdminService.prototype.updateServiceIdentification = function (serviceIdentification) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceIdentification";
+            var credentials = this.getPersistedAdminUserCredentials();
+            var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
             var request = {
                 method: 'POST',
                 url: requestUrl,
                 transformResponse: null,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                withCredentials: true,
+                headers: requestHeaders,
                 data: serviceIdentification.toKVP()
             };
             this.$http(request).then(function (data) {
@@ -6221,12 +6563,13 @@ var rasdaman;
         AdminService.prototype.updateServiceProvider = function (serviceProvider) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceProvider";
+            var credentials = this.getPersistedAdminUserCredentials();
+            var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
             var request = {
                 method: 'POST',
                 url: requestUrl,
                 transformResponse: null,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                withCredentials: true,
+                headers: requestHeaders,
                 data: serviceProvider.toKVP()
             };
             this.$http(request).then(function (data) {
@@ -6236,7 +6579,8 @@ var rasdaman;
             });
             return result.promise;
         };
-        AdminService.$inject = ["$http", "$rootScope", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        AdminService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService",
+            "rasdaman.CredentialService"];
         return AdminService;
     }());
     rasdaman.AdminService = AdminService;
@@ -6253,20 +6597,26 @@ var rasdaman;
             this.alertService = alertService;
             this.errorHandlingService = errorHandlingService;
             $scope.credential = new login.Credential("", "");
-            $rootScope.adminStateInformation.loggedIn = adminService.checkLoggedIn();
+            var persitedAdminUserCredentials = adminService.getPersistedAdminUserCredentials();
+            if (persitedAdminUserCredentials != null) {
+                adminService.login(persitedAdminUserCredentials).then(function (data) {
+                    $rootScope.adminStateInformation.loggedIn = true;
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                });
+            }
             $scope.login = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                adminService.login($scope.credential).then(function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
+                adminService.login($scope.credential).then(function (data) {
                     alertService.success("Successfully logged in.");
                     $rootScope.adminStateInformation.loggedIn = true;
-                    adminService.persitLoggedIn();
+                    adminService.persitAdminUserCredentials(data);
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {

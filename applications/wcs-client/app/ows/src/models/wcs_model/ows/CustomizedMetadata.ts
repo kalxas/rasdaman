@@ -33,12 +33,29 @@ module ows {
         public coverageSize:String;
         public localCoverageSizeInBytes:number;
         public remoteCoverageSizeInBytes:number;
+        public isBlackedList:boolean;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
             this.parseCoverageLocation(source);
             this.parseCoverageSizeInBytes(source);
+            this.parseBlackListed(source);
+        }
+
+        /**
+         * If rasdaman:blackListed exists, then get it as true or false
+         * 
+         * <rasdaman:blackListed>true</rasdaman:blackListed>
+         */
+        private parseBlackListed(source:rasdaman.common.ISerializedObject):void {
+            let childElement = "rasdaman:blackListed";
+            if (source.doesElementExist(childElement)) {
+                let blackListedElement = source.getChildAsSerializedObject(childElement);
+                this.isBlackedList = blackListedElement.getValueAsBool();
+            } else {
+                this.isBlackedList = null;
+            }
         }
 
         /**

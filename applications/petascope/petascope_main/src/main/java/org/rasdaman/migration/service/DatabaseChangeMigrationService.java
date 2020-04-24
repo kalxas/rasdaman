@@ -124,7 +124,7 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
     @Override
     protected void saveAllCoverages() throws Exception {
         List<String> sourceCoverageIds = this.readAllCoverageIds();
-        List<String> targetCoverageIds = coverageRepostioryService.readAllCoverageIds();
+        List<String> targetCoverageIds = coverageRepostioryService.readAllLocalCoverageIds();
 
         log.info("Migrating coverages...");
         int totalCoverages = sourceCoverageIds.size();
@@ -170,7 +170,7 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
     @Override
     protected void saveWMSLayers() throws Exception {
         List<String> sourceWmsLayerNames = this.readAllLayerNames();
-        List<String> targetWmsLayerNames = wmsRepostioryService.readAllLayerNames();
+        List<String> targetWmsLayerNames = wmsRepostioryService.readAllLocalLayerNames();
         
         int totalLayers = sourceWmsLayerNames.size();
 

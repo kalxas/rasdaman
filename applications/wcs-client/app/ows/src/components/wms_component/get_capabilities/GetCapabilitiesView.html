@@ -34,10 +34,11 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th colspan=55% st-sort="name">Layer name</th>
-                                    <th colspan=15% ng-show="capabilities.showLayerLocationsColumn == true">Layer location</th>
-                                    <th colspan=15% ng-show="capabilities.showLayerSizesColumn == true">Layer size</th>
-                                    <th colspan=15% style="width: 15%;">Display footprints</th>
+                                    <th st-sort="name">Layer name</th>
+                                    <th ng-show="capabilities.showLayerLocationsColumn == true">Layer location</th>
+                                    <th ng-show="capabilities.showLayerSizesColumn == true">Layer size</th>
+                                    <th style="width: 15%;">Display footprints</th>
+                                    <th ng-show="capabilities.showBlackListedColumn == true">Blacklisted</th>
                                 </tr>
                                 <tr>
                                     <td colspan=100%><input st-search="name" class="form-control"
@@ -47,17 +48,28 @@
                             </thead>
                             <tbody>                            
                                 <tr ng-repeat="layer in layers">                                
-                                    <td colspan=55%><a ng-click='describeLayer(layer.name);'>{{layer.name}}</a></td>
-                                    <td colspan=15% ng-show="capabilities.showLayerLocationsColumn == true">
+                                    <td><a ng-click='describeLayer(layer.name);'>{{layer.name}}</a></td>
+
+                                    <td ng-show="capabilities.showLayerLocationsColumn == true">
                                             <a href="{{layer.customizedMetadata.petascopeEndPoint}}">{{layer.customizedMetadata.hostname}}</a>
                                     </td>
-                                    <td colspan=15% ng-show="capabilities.showLayerSizesColumn == true">
+
+                                    <td ng-show="capabilities.showLayerSizesColumn == true">
                                         {{layer.customizedMetadata.coverageSize}}
                                     </td>
-                                    <td colspan=15%><input type="checkbox" ng-model="layer.displayFootprint"
+
+                                    <td><input type="checkbox" ng-model="layer.displayFootprint"
                                         ng-change="displayFootprintOnGlobe(layer.name)"
                                         onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left" title="Show/Hide this layer's footprint on globe."/>                                    
-                                    </td>                            
+                                    </td>   
+                                    
+                                    <td ng-show="capabilities.showBlackListedColumn == true">
+                                        <input type="checkbox" ng-model="layer.customizedMetadata.isBlackedList"                                               
+                                            ng-change="handleBlackListOneLayer(layer.name)"
+                                            onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 
+                                            data-placement="left" title="If checked, this layer is not shown to other users, except petascope admin user in the Capabilities document."/>
+                                    </td>
+
                                 </tr>
                             </tbody>
                             <tfoot>
@@ -78,7 +90,33 @@
                                             <!-- NOTE: checkbox under accordion does not work with ng-model=boolean, it needs to be a object's property to allow uncheck dynamically-->
                                             <input type="checkbox" id="wmsDisplayAllFootprintsCheckbox" title="Load all layers's footprints on globe from all pages." 
                                                 ng-model="showAllFootprints.isChecked" ng-change="displayAllFootprintsOnGlobe(showAllFootprints.isChecked)"
-                                                onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">&nbsp; Display all footprints</input>
+                                                onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">&nbsp; Display all footprints                                                
+                                            </input>
+
+                                            <!-- black list-->
+                                            <button type="button" 
+                                                ng-show="adminUserLoggedIn == true"
+                                                class="btn btn-danger" id="btnBlackListAllCoverages"
+                                                title="Blacklist all layers, only petascope admin user can see them in the Capabilities document."
+                                                onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 
+                                                data-placement="left"
+                                                
+                                                ng-click="handleBlackListAllLayers()">
+                                                Blacklist all
+                                            </button>
+
+                                            <!-- white list-->
+                                            <button type="button" 
+                                                ng-show="adminUserLoggedIn == true"
+                                                class="btn btn-warning" id="btnWhiteListAllCoverages"
+                                                title="Whitelist all layers, any one can see them in the Capabilities document."
+                                                onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 
+                                                data-placement="left"
+                                                
+                                                ng-click="handleWhiteListAllLayers()">
+                                                Whitelist all
+                                            </button>
+
                                         </div>
                                     </td>
                                 </tr>

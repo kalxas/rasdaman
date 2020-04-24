@@ -36,6 +36,9 @@ module wcs {
 
         // If 1 coverage has size then this column is added to WCS GetCapabilities coverages table
         public showCoverageSizesColumn:boolean;
+
+        // If 1 coverage has blackListed element then this column is added to WCS GetCapabilities coverages table
+        public showBlackListedColumn:boolean;
         
         public totalLocalCoverageSizes:String;
         public totalRemoteCoverageSizes:String;
@@ -59,10 +62,12 @@ module wcs {
 
                 if (coverageSummary.customizedMetadata != null) {
 
+                    // location element exists (only in case of federation)
                     if (coverageSummary.customizedMetadata.hostname != null) {
                         this.showCoverageLocationsColumn = true;
                     }
 
+                    // sizeInBytes element exists
                     if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
                         this.showCoverageSizesColumn = true;
 
@@ -71,6 +76,11 @@ module wcs {
                         } else {
                             totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
                         }                        
+                    }
+
+                    // blackListed element exists
+                    if (coverageSummary.customizedMetadata.isBlackedList != null) {
+                        this.showBlackListedColumn = true;
                     }
                 }
             });

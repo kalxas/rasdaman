@@ -38,6 +38,8 @@ module wms {
         // If at least 1 coverage is remote then show Layer location in WMS GetCapabilities layers table
         public showLayerLocationsColumn:boolean;
         public showLayerSizesColumn:boolean;
+        // If a layer is blacklisted, only petascope admin user can see it from GetCapabilities
+        public showBlackListedColumn:boolean;
 
         public totalLocalLayerSizes:String;
         public totalRemoteLayerSizes:String;
@@ -118,6 +120,10 @@ module wms {
                         } else {
                             totalRemoteLayerSizesInBytes += customizedMetadata.remoteCoverageSizeInBytes;
                         }     
+
+                        if (customizedMetadata.isBlackedList != null) {
+                            this.showBlackListedColumn = true;
+                        }
                     }
                     
                     // native CRS of layer

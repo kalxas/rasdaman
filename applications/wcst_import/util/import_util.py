@@ -102,7 +102,7 @@ def decode_res(data):
     """
     Decoding of data according to python version
     """
-    if sys.version_info[0] < 3:
+    if sys.version_info[0] < 3 or isinstance(data, str):
         return data
     return data.decode("ISO-8859-1")
 
@@ -120,4 +120,3 @@ def import_glob():
         log.warning("The glob package is not installed, ingredient file validation will be skipped. \
         To enable validation please install glob (sudo pip3 install glob)")
         pass
-    

@@ -77,6 +77,7 @@ class Session:
         self.root_url = self.root_url.strip()
 
         self.insitu = config['insitu'] if "insitu" in config else None
+        self.black_listed = config["black_listed"] if "black_listed" in config else None
         self.default_null_values = config['default_null_values'] if "default_null_values" in config else []
         self.mock = False if "mock" not in config else bool(self.config["mock"])
         # By default, analyze all files then import (blocking import mode). With non_blocking_import mode, analyze and import each file separately.
@@ -130,6 +131,7 @@ class Session:
         ConfigManager.default_crs = self.default_crs
         ConfigManager.default_null_values = get_null_values(self.default_null_values)
         ConfigManager.insitu = self.insitu
+        ConfigManager.black_listed = self.black_listed
         ConfigManager.mock = self.mock
         ConfigManager.tmp_directory = self.tmp_directory if self.tmp_directory[-1] == "/" else self.tmp_directory + "/"
         ConfigManager.root_url = self.root_url

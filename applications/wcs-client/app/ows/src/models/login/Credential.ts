@@ -34,5 +34,21 @@ module login {
             return "username=" + this.username +
                 "&password=" + this.password;
         }
+
+        public toString():string {
+            return this.username + ":" + this.password;
+        }
+
+        /**
+         * Convert a persisted username:password in local storage to an object         
+         */
+        public static fromString(input:string):Credential {
+            // e.g: username:password
+            var tmp:string[] = input.split(":");
+            var username:string = tmp[0];
+            var password:string = tmp[1];
+
+            return new Credential(username, password);    
+        }
     }
 }

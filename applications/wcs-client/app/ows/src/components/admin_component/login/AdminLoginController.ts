@@ -49,18 +49,29 @@ module rasdaman {
 
             $scope.credential = new login.Credential("", "");
 
-            // Check if petascope admin user logged in
-            $rootScope.adminStateInformation.loggedIn = adminService.checkLoggedIn();
+            // When opening web page, check if there are stored credentials for petascope admin user
+            var persitedAdminUserCredentials = adminService.getPersistedAdminUserCredentials();
+            if (persitedAdminUserCredentials != null) {
+                adminService.login(persitedAdminUserCredentials).then(
+                    (data:any) => {
+                        // Stored credentials for petascope admin user still correct
+                        // no need to show petascope admin user login form                        
+                        $rootScope.adminStateInformation.loggedIn = true;
+                    },  (...args:any[])=> {
+                        
+                    }
+                )
+            }
 
-            // Login with Petascope admin credential
+            // Login with Petascope admin credentials by clicking on button on admin's tab: login form
             $scope.login = (...args: any[])=> {
                 adminService.login($scope.credential).then(
-                    (...args:any[])=> {
+                    (data:any) => {
                         alertService.success("Successfully logged in.");
                         $rootScope.adminStateInformation.loggedIn = true;
                     
                         // store to local storage as admin logged in
-                        adminService.persitLoggedIn();
+                        adminService.persitAdminUserCredentials(data);
                        
                     }, (...args:any[])=> {
                         errorHandlingService.handleError(args);                            

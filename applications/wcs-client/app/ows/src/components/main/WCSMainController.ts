@@ -41,15 +41,27 @@ module rasdaman {
             
 
             // NOTE: When petascope admin user logged in, then show Insert and Delete Coverage tabs in WCS tab
-            $scope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean) => {
-                if (newValue == true) {
+            $scope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean) => {                
+                if (oldValue == true || newValue == true) {
                     if ($scope.isSupportWCST) {
+                        // petascope admin logged in
                         $scope.wcsInsertCoverageTab.disabled = false;
                         $scope.wcsDeleteCoverageTab.disabled = false;
+
+                        // reload WCS to show all coverages
+                        $rootScope.$broadcast("reloadWCSServerCapabilities", true);
+                        // reload WMS to show all layers
+                        $rootScope.$broadcast("reloadWMSServerCapabilities", true);
                     }
                 } else {
+                    // petascope admin logged out
                     $scope.wcsInsertCoverageTab.disabled = true;
                     $scope.wcsDeleteCoverageTab.disabled = true;     
+
+                    // reload WCS to show only non-blacklisted coverages
+                    $rootScope.$broadcast("reloadWCSServerCapabilities", true);
+                    // reload WMS to show only non-blacklisted layers
+                    $rootScope.$broadcast("reloadWMSServerCapabilities", true);
                 }
             });
 
