@@ -387,7 +387,7 @@ class CoverageReader():
         :param Slice slice: slice
         :rtype: str
         """
-        if isinstance(slice.data_provider, UrlDataProvider):
+        if not ConfigManager.mock and isinstance(slice.data_provider, UrlDataProvider):
             # Do this only for coverages that have more than one axis
             if len(slice.axis_subsets) > 1:
                 contents = decode_res(validate_and_read_url(slice.data_provider.get_url()))
