@@ -33,7 +33,7 @@ class ConfigManager:
     wcs_service = "http://localhost:8080/rasdaman/ows"
     crs_resolver = ""
     default_crs = "http://localhost:8080/def/OGC/0/Index2D"
-    tmp_directory = "/tmp/rasdaman_wcst_import"
+    tmp_directory = "/tmp/rasdaman_wcst_import/"
     mock = True
     insitu = False
     black_listed = False

@@ -1,7 +1,6 @@
 {
   "config": {
     "service_url": "PETASCOPE_URL",
-    "tmp_directory": "/tmp/",
     "default_crs": "SECORE_URL/crs/EPSG/0/4326",
     "mock": false,
     "automated": true,

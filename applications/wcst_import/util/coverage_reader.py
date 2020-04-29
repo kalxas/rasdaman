@@ -22,6 +22,7 @@
  *
 """
 from lxml import etree
+import os
 
 import itertools
 
@@ -392,7 +393,7 @@ class CoverageReader():
             if len(slice.axis_subsets) > 1:
                 contents = decode_res(validate_and_read_url(slice.data_provider.get_url()))
                 file_path = TmpFile().write_to_tmp_file(contents, "tif")
-                return GDALGmlUtil(file_path).get_band_gdal_type()
+                return GDALGmlUtil(file_path).get_band_gdal_type(), file_path
         return None
 
     def description(self):
@@ -426,14 +427,16 @@ class CoverageReader():
             coverage_axes = self._get_coverage_axes(geo_coords, raster_coords, origin, crs_axes, resolutions)
             intervals = self._get_intervals(coverage_axes, self.partitioning_scheme)
             slices = self._get_slices(coverage_axes, intervals)
-            pixel_data_type = self._get_data_type(slices[0])
+            pixel_data_type, generated_file_path = self._get_data_type(slices[0])
             coverage = Coverage(coverage_id, slices, range_type, crs, pixel_data_type)
             self.coverage = coverage
         except IOError as e:
+            os.remove(generated_file_path)
             raise RuntimeException(
                 "Could not read the coverage description for url: " + self._get_description_url() +
                 ". Check that the url is accessible and try again. More details: " + str(e))
         except XMLSyntaxError as e:
+            os.remove(generated_file_path)
             raise RuntimeException("Could not decode the xml description for url " + self._get_description_url() +
                                    ". Check that the url is correct and try again. More details: " + str(e))
 
