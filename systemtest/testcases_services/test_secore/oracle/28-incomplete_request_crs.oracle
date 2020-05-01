@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<identifiers   >
- <identifier>/crs/AUTO</identifier>
- <identifier>/crs/EPSG</identifier>
- <identifier>/crs/OGC</identifier>
+<identifiers  >
+<identifier>/crs/AUTO</identifier>
+<identifier>/crs/OGC</identifier>
+<identifier>/crs/EPSG</identifier>
 </identifiers>

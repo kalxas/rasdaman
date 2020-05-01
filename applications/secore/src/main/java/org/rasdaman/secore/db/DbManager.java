@@ -23,11 +23,16 @@ package org.rasdaman.secore.db;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -95,10 +100,72 @@ public class DbManager {
      * pair (versionNumber, collectionNumber)  (e.g: 8.5, gml_8.5)
      * and full path to XML dictionary files. (e.g: .../ect/gml/$VERSION/GmlDictionary.xml)
      */
-    public static final Map<DbCollection, String> collections = new HashMap<DbCollection, String>();
-    private TreeSet<String> supportedGMLCollectionVersions = new TreeSet<>();
+    public static Map<DbCollection, String> collections;
+    private TreeSet<String> supportedGMLCollectionVersions;
+    
+    /**
+     * Append zeros to this format number1.number2.number3
+     * for an input number, e.g: 0 -> 0.0.0, 8.5 -> 8.5.0
+     */
+    private String appendZeros(String version) {
+        String[] temp1 = version.split("\\.");
+        if (temp1.length == 1) {
+            return version + ".0.0";
+        } else if (temp1.length == 2) {
+            return version + ".0";
+        }
+        
+        return version;
+    }
+    
+    Comparator<String> sortByNumbersSet = new Comparator<String>() {
+        @Override
+        public int compare(String version1, String version2) {
+            return compareTwoVersionNumbers(version1, version2);
+        }
+    };
+    
+    Comparator<DbCollection> sortByNumbersMap = new Comparator<DbCollection>() {
+        @Override
+        public int compare(DbCollection obj1, DbCollection obj2) {
+            
+            String version1 = obj1.getVersionNumber();
+            if (version1.equals(createGMLCollectionName(FIX_GML_VERSION_ALIAS))) {
+                // e.g: gml_0
+                return -1;
+            }
+            
+            String version2 = obj2.getVersionNumber();
+            return compareTwoVersionNumbers(version1, version2);
+        }
+    };
+    
+    private int compareTwoVersionNumbers(String version1, String version2) {
+        version1 = appendZeros(version1);
+        version2 = appendZeros(version2);
+
+        String[] temp1 = version1.split("\\.");
+        String[] temp2 = version2.split("\\.");
+
+        // e.: 9.8.9 and 9.8.11
+        for (int i = 0; i < temp1.length; i++) {
+            int value1 = new Integer(temp1[i]);
+            int value2 = new Integer(temp2[i]);
+
+            if (value1 < value2) {
+                return -1;
+            } else if (value1 > value2) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
     
     private DbManager() throws SecoreException {
+        
+        this.collections = new TreeMap<DbCollection, String>(sortByNumbersMap);
+        this.supportedGMLCollectionVersions = new TreeSet<>(sortByNumbersSet);
         
         boolean hasFixVersion = false;
         boolean hasUserDBFile = false;

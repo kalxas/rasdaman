@@ -58,16 +58,29 @@ public class BaseX implements Database {
     private Context context;
     // collection name -> absolute path to initalization file
     private java.util.Set<DbCollection> collections;
+    
+    /**
+     * Return the target GML file to be loaded by a collection name (e.g: gml_0)
+     */
+    private String getGMLFile(Map<DbCollection, String> collectionsMap, DbCollection dbCollection) {
+        for (Map.Entry<DbCollection, String> entry : collectionsMap.entrySet()) {
+            if (entry.getKey().getCollectionName().equals(dbCollection.getCollectionName())) {
+                return entry.getValue();
+            }
+        }
+        
+        return null;
+    }
 
     /**
      * (versionNumber, collectionName) and XML files path e.g: (8.5, gml_8.5)
      * and ".../ect/gml/8.5/GmlDictionar.xml")
      *
-     * @param collections
+     * @param collectionsMap
      * @throws org.rasdaman.secore.util.SecoreException
      */
-    public BaseX(Map<DbCollection, String> collections) throws SecoreException {
-        this.collections = collections.keySet();
+    public BaseX(Map<DbCollection, String> collectionsMap) throws SecoreException {
+        this.collections = collectionsMap.keySet();
         
         // determine configuration directory in which to put the database
         String secoreDbDir = IOUtil.getSecoreDbDir();
@@ -81,9 +94,9 @@ public class BaseX implements Database {
         context = new Context();
 
         // Iterate all the versions which can be initialized
-        for (DbCollection collection : this.collections) {
+        for (DbCollection dbCollection : this.collections) {
             // Get the collection name to create database name (e.g: gml_862)
-            String collectionName = collection.getCollectionName();
+            String collectionName = dbCollection.getCollectionName();
             try {
                 new Set("CREATEFILTER", "*" + XML_EXTENSION).execute(context);
                 // Create a database from collection name (e.g: gml_862)
@@ -96,11 +109,11 @@ public class BaseX implements Database {
                 try {
                     log.info("Initializing database " + collectionName);
                     // Get the xml file path from collection.
-                    String xmlFile = collections.get(collection);
+                    String xmlFile = this.getGMLFile(collectionsMap, dbCollection);
                     // Read xml file content and set to a string
                     String xml = IOUtil.fileToString(xmlFile);
                     // e.g: 8.5, 0, gml_0
-                    String versionNumber = collection.getVersionNumber();
+                    String versionNumber = dbCollection.getVersionNumber();
 
                     // NOTE: only Gml version 0 has key "gml_0" as same as value "gml_0"
                     if (versionNumber.contains(DbManager.EPSG_DB)) {

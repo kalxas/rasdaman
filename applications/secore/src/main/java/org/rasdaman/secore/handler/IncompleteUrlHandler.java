@@ -186,15 +186,18 @@ public class IncompleteUrlHandler extends AbstractHandler {
             List<String> subsetURIs = new ArrayList(Arrays.asList(res.replace("\n", " ").split(" ")));
             // remove empty elements "" from list
             subsetURIs.removeAll(Arrays.asList("", null));
-            Set<String> children = new TreeSet<>(subsetURIs);
             // e.g: http://localhost:8080/def, then we only need the domain:port and urlTmp is the requested URI (e.g: /def/crs/)
             String requestUri = ConfigManager.getInstance().getServiceUrl().replaceAll("/" + WEB_APPLICATION_NAME + "/?", "").replaceAll("^/", "")
                     + urlTmp.replace(VERSION_NUMBER, versionNumberParam);
 
             StringBuilder childrenURIs = new StringBuilder("");
+            List<String> addedItems = new ArrayList<>();
             // create the sublevel URIs
-            for (String child : children) {
-                childrenURIs.append(" <" + IDENTIFIER_LABEL + ">" + requestUri + child + "</" + IDENTIFIER_LABEL + ">\n");
+            for (String child : subsetURIs) {
+                if (!addedItems.contains(child)) {
+                    childrenURIs.append(" <" + IDENTIFIER_LABEL + ">" + requestUri + child + "</" + IDENTIFIER_LABEL + ">\n");
+                    addedItems.add(child);
+                }
             }
 
             String response = "<" + IDENTIFIERS_LABEL + " at='" + XMLUtil.escapeXmlPredefinedEntities(request.getReplacedURLPrefixRequest())
