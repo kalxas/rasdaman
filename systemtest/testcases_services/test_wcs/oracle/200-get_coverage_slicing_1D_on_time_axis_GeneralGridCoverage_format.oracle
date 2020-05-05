@@ -62,7 +62,5 @@ lowerBound="2008-01-01T02:01:20.000Z" uomLabel="d" upperBound="2008-01-08T00:02:
 <cis11:V>9.697354 4.181835</cis11:V>
 </DataBlock>
 </RangeSet>
-<cis11:metadata>
-<CoverageMetadata/>
-</cis11:metadata>
+<cis11:metadata/>
 </cis11:GeneralGridCoverage>

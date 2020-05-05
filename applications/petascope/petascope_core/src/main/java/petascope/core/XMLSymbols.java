@@ -429,7 +429,11 @@ public interface XMLSymbols {
     String LABEL_WMS_COLOR_TABLE_TYPE = "ColorTableType";
     String LABEL_WMS_COLOR_TABLE_DEFINITION = "ColorTableDefinition";
     
-
+    // CIS 1.1
+    // -- partitoned coverage
+    String LABEL_PARTITION_SET = "PartitionSet";
+    String LABEL_PARTITION = "Partition";
+    String LABEL_COVERAGE_REF = "CoverageRef";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

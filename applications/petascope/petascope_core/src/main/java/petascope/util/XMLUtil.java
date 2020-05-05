@@ -1424,7 +1424,7 @@ public class XMLUtil {
      * A simple check that input contains XML content (the XML does not need to start with valid XML header elements)
      */
     public static boolean containsXMLContent(String input) {
-        return input.startsWith("<") && input.endsWith(">");
+        return input.startsWith("<");
     }
     
     /**

@@ -21,9 +21,12 @@
  */
 package petascope.wcst.helpers.update;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import petascope.exceptions.PetascopeException;
+import petascope.util.StringUtil;
 
 /**
  * Interface for updating rasdaman data.
@@ -64,5 +67,32 @@ public abstract class RasdamanUpdater {
         }
         
         return true;        
+    }
+
+    protected String translateToOrigin(String rasqlDomain) {
+        String[] dims = rasqlDomain.replace("[", "").replace("]", "").split(",");
+        String result = "[";
+        int dimCounter = 0;
+        for (String dim: dims) {
+            if(dim.contains(":")) {
+                String[] parts = dim.split(":");
+                if(parts.length == 2) {
+                    int low = Integer.parseInt(parts[0].trim());
+                    int high = Integer.parseInt(parts[1].trim());
+                    result += "0:" + String.valueOf(high - low);
+                }
+                else {
+                    result += dim;
+                }
+            }
+            else {
+                result += dim;
+            }
+            if (dimCounter < dims.length - 1) {
+                result += ",";
+            }
+            dimCounter++;
+        }
+        return result + "]";
     }
 }

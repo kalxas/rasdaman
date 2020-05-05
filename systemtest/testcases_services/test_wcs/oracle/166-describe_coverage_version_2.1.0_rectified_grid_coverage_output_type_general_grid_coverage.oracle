@@ -40,9 +40,7 @@ resolution="0.5" uomLabel="degree" upperBound="156.475"/>
 </swe:field>
 </swe:DataRecord>
 </cis11:RangeType>
-<cis11:metadata>
-<CoverageMetadata/>
-</cis11:metadata>
+<cis11:metadata/>
 <wcs:ServiceParameters>
 <wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>
 <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>

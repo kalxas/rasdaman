@@ -66,13 +66,19 @@ public class CoverageMetadataService {
 
         String metadataStr = "";
         
-        String originalCoverageMetadataStr = wcpsCoverageMetadata.getMetadata();
-        if (originalCoverageMetadataStr.isEmpty() || XMLUtil.containsXMLContent(originalCoverageMetadataStr)) {
-            // coverage's metadata is in XML
-            metadataStr = this.serializeCoverageMetadataInXML(coverageMetadata);
+        if (coverageMetadata.isIsNotDeserializable()) {
+            // In this case, coverage's metadata is not possible to deserialize to CoverageMetadata object
+            // then just return what it persisted in database
+            metadataStr = wcpsCoverageMetadata.getMetadata();
         } else {
-            // coverage's metadata is in JSON
-            metadataStr = this.serializeCoverageMetadataInJSON(coverageMetadata);
+            String originalCoverageMetadataStr = wcpsCoverageMetadata.getMetadata();
+            if (originalCoverageMetadataStr.isEmpty() || XMLUtil.containsXMLContent(originalCoverageMetadataStr)) {
+                // coverage's metadata is in XML
+                metadataStr = this.serializeCoverageMetadataInXML(coverageMetadata);
+            } else {
+                // coverage's metadata is in JSON
+                metadataStr = this.serializeCoverageMetadataInJSON(coverageMetadata);
+            }
         }
         
         return XMLUtil.unescapeXML(metadataStr);

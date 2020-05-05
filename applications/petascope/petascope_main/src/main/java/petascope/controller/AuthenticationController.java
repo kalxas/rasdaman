@@ -71,7 +71,7 @@ public class AuthenticationController extends AbstractController {
         Response response = new Response(Arrays.asList("".getBytes()), MIMEUtil.MIME_TEXT);
         this.writeResponseResult(response);
         
-    }    
+    }
     
     @Override
     protected void handleGet(HttpServletRequest httpServletRequest) throws Exception {

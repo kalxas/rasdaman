@@ -121,6 +121,7 @@ public interface KVPSymbols {
     String VALUE_WMS_DELETE_STYLE = "DeleteStyle";
     String VALUE_WMS_GET_MAP = "GetMap";
     String KEY_WMS_LAYER = "layer";
+    String KEY_WMS_LAYER_NAME = "layerName";
     String KEY_WMS_STYLE = "style";
     String KEY_WMS_NAME = "name";
     String KEY_WMS_TITLE = "title";

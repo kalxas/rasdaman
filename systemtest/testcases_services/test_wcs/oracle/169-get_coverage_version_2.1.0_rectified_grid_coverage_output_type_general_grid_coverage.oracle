@@ -43,7 +43,5 @@ resolution="0.5" uomLabel="degree" upperBound="112.475"/>
 <cis11:V>0</cis11:V>
 </DataBlock>
 </RangeSet>
-<cis11:metadata>
-<CoverageMetadata/>
-</cis11:metadata>
+<cis11:metadata/>
 </cis11:GeneralGridCoverage>

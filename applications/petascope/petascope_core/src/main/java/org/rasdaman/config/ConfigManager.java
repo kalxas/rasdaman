@@ -152,6 +152,10 @@ public class ConfigManager {
 
     /* ***** SECORE configuration ***** */
     public static List<String> SECORE_URLS;
+
+    /* ***** AJP connector configuration for embedded tomcat ***** */
+    public static int EMBEDDED_AJP_PORT = 0;
+
     
     // NOTE: When Petascope imports multiple coverages in different CRSs (e.g: Sentinel 2 UTM zones),
     // it will take long time to ask SECORE when it sends multiple CRS requests to SECORE.
@@ -221,6 +225,9 @@ public class ConfigManager {
     // Deprecated property used for backwards compatibility
     private static final String DEPRECATED_KEY_DISABLE_WRITE_OPERATIONS = "disable_write_operations";
     
+    /* ***** Connector configurations for embedded tomcat ***** */
+    private static final String KEY_EMBEDDED_AJP_PORT = "ajp.port";
+
     /* ***** LOG4J configuration ***** */
     // from petascope.properties used for log4j
     private static final String KEY_LOG_FILE_PATH = "log4j.appender.rollingFile.File";
@@ -433,6 +440,13 @@ public class ConfigManager {
                 STATIC_HTML_DIR_PATH = "";
             }
         }
+        
+        /* ***** AJP connector configuration for embedded tomcat ***** */
+        String ajpPort = getOptionalPropertyValue(KEY_EMBEDDED_AJP_PORT, "").trim();
+        if (!ajpPort.isEmpty()) {
+            EMBEDDED_AJP_PORT = new Integer(ajpPort);
+        }
+ 
     }
     
     private void initRasdamanSettings() throws PetascopeException {

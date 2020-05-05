@@ -82,7 +82,6 @@ public class WMSRepostioryService {
         return true;
     }
 
-
     /**
      *
      * Read persisted OwsServiceMetadata from cache. NOTE: only used when read
@@ -219,6 +218,7 @@ public class WMSRepostioryService {
     }
 
     // For migration only
+    
     /**
      * Check if layer name already migrated in new database
      */

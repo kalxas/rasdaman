@@ -51,11 +51,5 @@ id="test_mean_summer_airtemp-point" srsName="/crs/EPSG/0/4326">
 </swe:field>
 </swe:DataRecord>
 </gmlcov:rangeType>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<CoverageMetadata/>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:metadata/>
 </gmlcov:RectifiedGridCoverage>

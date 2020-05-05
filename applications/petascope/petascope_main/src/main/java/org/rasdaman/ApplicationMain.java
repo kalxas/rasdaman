@@ -22,10 +22,16 @@
 package org.rasdaman;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.gdal.gdal.gdal;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
@@ -213,6 +219,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
     private void postInit() {
         
         loadGdalLibrary();
+        initTrustAllSSL();
 
         if (MIGRATE && AbstractController.startException == null) {
             log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + 
@@ -321,5 +328,39 @@ public class ApplicationMain extends SpringBootServletInitializer {
                 System.exit(ExitCode.FAILURE.getExitCode());
             }
         }
+    }
+   
+    /**
+     * Make rasfed to trust any SSL certificate. 
+     * NOTE: It has problem with connecting to HTTPS with certificate trusting.
+     */
+    private static void initTrustAllSSL() {
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] {
+            new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+
+                public void checkClientTrusted(
+                        java.security.cert.X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(
+                        java.security.cert.X509Certificate[] certs, String authType) {
+                }
+            }
+        };
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (GeneralSecurityException ex) {
+            log.warn("Cannot initialize all SSL trusting. "
+                    + "Rasfed may not be able to connect to remote petascope via HTTPS protocol.", ex);
+        }
+
     }
 }

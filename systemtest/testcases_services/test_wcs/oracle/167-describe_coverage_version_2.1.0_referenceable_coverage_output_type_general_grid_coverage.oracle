@@ -68,9 +68,7 @@ uomLabel="metre" upperBound="5454865.557938452"/>
 </swe:field>
 </swe:DataRecord>
 </cis11:RangeType>
-<cis11:metadata>
-<CoverageMetadata/>
-</cis11:metadata>
+<cis11:metadata/>
 <wcs:ServiceParameters>
 <wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>
 <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>

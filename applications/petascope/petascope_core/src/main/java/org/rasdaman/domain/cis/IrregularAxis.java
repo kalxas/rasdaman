@@ -91,6 +91,11 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     public IrregularAxis() {
 
     }
+
+    public IrregularAxis(List<String> directPositions, String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution) {
+        super(axisLabel, uomLabel, srsName, lowerBound, upperBound, resolution);
+        this.directPositions = directPositions;
+    }
     
     public List<String> getDirectPositions() {
         return this.directPositions;

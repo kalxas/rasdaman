@@ -18,7 +18,10 @@ srsName="/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
 </coverageFunction>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata>{ }</rasdaman:covMetadata>
+<rasdaman:covMetadata>{
+"resolution": "1",
+"slices": "[]"
+}</rasdaman:covMetadata>
 </gmlcov:Extension>
 </gmlcov:metadata>
 <domainSet>

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -110,6 +111,28 @@ public class CoverageMetadata {
 
     public void setLocalMetadata(LocalMetadata localMetadata) {
         this.localMetadata = localMetadata;
+    }
+
+    /**
+    * If coverage's metadata is not deserializable by Jackson, then 
+    * result of DescribeCoverage or GetCoverage in GML should use the persisted metadata string in database
+    * instead of empty
+    */
+    @JsonIgnore
+    public boolean isIsNotDeserializable() {
+        if (this.globalMetadataAttributesMap.isEmpty() && 
+            this.axesMetadata == null && this.bandsMetadata == null && this.localMetadata == null) {
+            return true;
+        } else {
+            if (this.axesMetadata != null && this.bandsMetadata != null && this.localMetadata != null) {
+                if (this.axesMetadata.getAxesAttributesMap().isEmpty() && this.bandsMetadata.getBandsAttributesMap().isEmpty()
+                    && this.localMetadata.getLocalMetadataChildList().isEmpty() && this.globalMetadataAttributesMap.isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
     
     /**

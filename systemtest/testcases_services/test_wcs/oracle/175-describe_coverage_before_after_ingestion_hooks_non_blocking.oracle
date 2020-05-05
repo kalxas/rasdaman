@@ -16,13 +16,7 @@ srsName="/crs/EPSG/0/32615" uomLabels="metre metre">
 <startPoint>0 0</startPoint>
 </GridFunction>
 </coverageFunction>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<CoverageMetadata/>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:metadata/>
 <domainSet>
 <RectifiedGrid dimension="2" id="test_before_after_hooks_non_blocking-grid">
 <limits>

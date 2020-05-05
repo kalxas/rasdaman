@@ -26,6 +26,7 @@ import petascope.core.response.Response;
 import java.util.Map;
 import java.util.Set;
 import nu.xom.Element;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
@@ -57,7 +58,11 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
 
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
-    protected static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, KEY_COVERAGEID, KEY_OUTPUT_TYPE);
+    @Autowired
+    private CoverageRepositoryService coverageRepositoryService;
+    
+    protected static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, 
+                                                                                  KEY_COVERAGEID, KEY_OUTPUT_TYPE);
 
     @Override
     public void validate(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
@@ -77,7 +82,6 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
         // DecribeCoverage can contain multiple coverageIds (e.g: coverageIds=test_mr,test_irr_cube_2)
         String[] coverageIds = kvpParameters.get(KEY_COVERAGEID)[0].split(",");
         String outputType = this.getKVPValue(kvpParameters, KEY_OUTPUT_TYPE);
-        
         if (outputType != null && !outputType.equalsIgnoreCase(VALUE_GENERAL_GRID_COVERAGE)) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, "GET KVP value for key '" + KEY_OUTPUT_TYPE + "' is not valid. Given: '" + outputType + "'.");
         }
@@ -90,10 +94,9 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
 
         Element coverageDescriptionsElement = this.gmlWCSRequestResultBuilder.buildDescribeCoverageResult(outputType, Arrays.asList(coverageIds));
         String result = coverageDescriptionsElement.toXML();
-        
+
         result = XMLUtil.formatXML(result);
 
         return new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_GML, coverageIds[0]);
     }
-
 }

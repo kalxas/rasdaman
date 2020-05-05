@@ -43,11 +43,5 @@ srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
 </swe:field>
 </swe:DataRecord>
 </gmlcov:rangeType>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<CoverageMetadata/>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:metadata/>
 </gmlcov:GridCoverage>

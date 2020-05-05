@@ -16,13 +16,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/
 <startPoint>0 0 0</startPoint>
 </GridFunction>
 </coverageFunction>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<CoverageMetadata/>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:metadata/>
 <domainSet>
 <RectifiedGrid dimension="3" id="test_time3d-grid">
 <limits>

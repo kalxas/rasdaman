@@ -177,7 +177,7 @@ public class CoverageRepositoryService {
         if (coverage == null) {
             throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage: " + coverageId + " does not exist.");
         }
-        
+
         return coverage;
     }
 
@@ -547,7 +547,7 @@ public class CoverageRepositoryService {
             }
         }
     }
-
+    
     /**
      * Add a new coverage to database
      */
