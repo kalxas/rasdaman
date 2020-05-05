@@ -135,6 +135,9 @@ applications/petascope/src/main/resources/log4j.properties
 applications/rasdapy/rasdapy/cores/exception_factories.py
 java/src/main/java/rasj/global/RasErrorTexts.java
 
+applications/rasdapy3/dist/
+applications/rasdapy3/rasdapy3.egg-info/
+
 compile
 /applications/petascope/dist/
 wcps.tokens
