@@ -34,7 +34,9 @@ from util.file_util import FileUtil, TmpFile
 from config_manager import ConfigManager
 from util.xml_util import XMLUtil
 from wcst.wcst import WCSTInsertRequest, WCSTUpdateRequest
-
+from util.url_util import validate_and_read_url
+import xml.etree.ElementTree as ET
+import re
 
 class Recipe(BaseRecipe):
 
@@ -53,7 +55,7 @@ class Recipe(BaseRecipe):
 
         self.coverage_id = self.session.get_input()["coverage_id"]
         self.resumer = Resumer(self.coverage_id)
-        self.source_coverage_ids = self.session.get_input()["source_coverage_ids"]
+        self.source_coverage_ids = self.parse_source_coverage_ids(self.session.get_input()["source_coverage_ids"])
         self.envelope = self.options["envelope"]
         self.srs_name = XMLUtil.escape(self.envelope["srsName"])
         # array of axis
@@ -85,6 +87,38 @@ class Recipe(BaseRecipe):
 
     def status(self):
         pass
+
+    def parse_source_coverage_ids(self, input_source_coverage_ids):
+        """
+        Source coverage ids is a list which contains full coverage id or coverage ids defined by regex
+        :param list[string] input_source_coverage_ids: source of coverage ids in the ingredients file
+        :return: list[string]: a list of concrete coverage ids without regex
+        """
+        gml = validate_and_read_url(ConfigManager.wcs_service + "?service=WCS&version=2.0.1&request=GetCapabilities")
+
+        tree = ET.ElementTree(ET.fromstring(gml))
+        namespaces = {'wcs': 'http://www.opengis.net/wcs/2.0'}
+        elements = tree.findall(".//wcs:CoverageId", namespaces)
+
+        # all available coverage ids which server provides
+        current_coverage_ids = []
+
+        for element in elements:
+            current_coverage_ids.append(element.text)
+
+        result_coverage_ids = []
+
+        for coverage_id_pattern in input_source_coverage_ids:
+            if "*" in coverage_id_pattern or "?" in coverage_id_pattern:
+                # coverage id by regex (e.g: test_*)
+                for coverage_id in current_coverage_ids:
+                    if re.match(coverage_id_pattern, coverage_id):
+                        result_coverage_ids.append(coverage_id)
+            else:
+                # concrete coverage id (e.g: test_cov1)
+                result_coverage_ids.append(coverage_id_pattern)
+
+        return result_coverage_ids
 
     def __insert_coverage_request(self):
         """
