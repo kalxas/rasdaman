@@ -880,7 +880,10 @@ r_Conv_DEM::convertTo(const char* options, const r_Range*)
         }
 
         // close & remove file, if not done previously
-        fclose(pFile);
+        if (pFile)
+        {
+            fclose(pFile);
+        }
         pFile = NULL;
         remove(pTempFileName);
 
