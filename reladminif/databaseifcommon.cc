@@ -32,11 +32,6 @@ rasdaman GmbH.
 #include <ostream>              // for operator<<, std::endl, ostream, basic_ostream
 #include <stdlib.h>             // for free
 #include <string.h>             // for strdup
-#ifdef __APPLE__
-#include <sys/malloc.h>
-#else
-#include <malloc.h>
-#endif
 
 #ifdef SPARC
 #define RASARCHITECTURE "SPARC"

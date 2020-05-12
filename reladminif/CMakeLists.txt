@@ -25,7 +25,6 @@ set(COMPILED_SQL_SOURCES_COMMON "")
 
 add_library(reladminif_common
     ${COMPILED_SQL_SOURCES_COMMON}
-    
     sqlitewrapper.hh sqlitewrapper.cc
     )
 target_link_libraries(reladminif_common
@@ -67,7 +66,6 @@ add_library(reladminif
     destroyable.hh
     eoid.hh eoid.cc
     externs.h
-    sqlerror.hh
     lists.h
     objectbroker.hh objectbrokercommon.cc
     oidif.hh oidifcommon.cc

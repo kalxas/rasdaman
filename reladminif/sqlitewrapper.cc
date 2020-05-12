@@ -49,7 +49,7 @@ sqlite3 *sqliteConn = NULL;
 SQLiteQuery::SQLiteQuery(char q[]) :
     stmt(nullptr), query(q), columnCounter(0)
 {
-    LDEBUG << "SQL query: " << query;
+    LTRACE << "SQL query: " << query;
     if (sqliteConn)
     {
         sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
@@ -72,7 +72,7 @@ SQLiteQuery::SQLiteQuery(const char *format, ...)
     vsnprintf(tmpQuery.get(), QUERY_MAXLEN, format, args);
     va_end(args);
     query = std::string(tmpQuery.get());
-    LDEBUG << "SQL query: " << query;
+    LTRACE << "SQL query: " << query;
 
     if (sqliteConn)
     {
@@ -164,7 +164,7 @@ void SQLiteQuery::execute(int fail)
 
 void SQLiteQuery::execute(const char *q)
 {
-    LDEBUG << "SQL query: " << q;
+    LTRACE << "SQL query: " << q;
     if (sqliteConn)
     {
         sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
@@ -188,7 +188,7 @@ void SQLiteQuery::executeWithParams(const char *format, ...)
     va_end(args);
 
     const auto *q = qtmp.get();
-    LDEBUG << "SQL query: " << q;
+    LTRACE << "SQL query: " << q;
 
     if (sqliteConn)
     {

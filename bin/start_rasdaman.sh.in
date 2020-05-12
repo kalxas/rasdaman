@@ -144,8 +144,12 @@ set_rasmgr_port()
       ''|*[!0-9]*)  error "Invalid port specified: $1; expected a positive number <= 65535.";;
       *)            RASMGR_PORT="$1";;
     esac
-    [ $RASMGR_PORT -gt 0 -a $RASMGR_PORT -lt 65535 ] || \
+    [ "$RASMGR_PORT" -gt 0 -a "$RASMGR_PORT" -lt 65535 ] || \
         error "Invalid port specified: $1; expected a positive number <= 65535."
+}
+
+get_rasmgr_process() {
+    ps -Ao user,pid,args | grep -E "^$USER +[[:digit:]]+ +$rasmgr_bin --port $RASMGR_PORT"
 }
 
 #------ start embedded petascope/secore if needed --------------------------
@@ -268,8 +272,10 @@ cd "$log_path" || error "$log_path not found."
 if [ "$start_rasmgr_rasservers" = true ]; then
 
     # check if rasmgr is already running first of all
-    ps -Ao pid,args | grep "[^]]$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
-      { log "rasdaman is currently running, nothing to do."; exit $RC_OK; }
+    if get_rasmgr_process > /dev/null; then
+        log "rasdaman is currently running, nothing to do."
+        exit $RC_OK
+    fi
 
     # clear previous log file
     rm -f nohup.out
