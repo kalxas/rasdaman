@@ -602,6 +602,21 @@ rm -f $f*
 
 drop_colls test_tmp
 
+################## test update GDAL wrong domain###############################
+log ----- update with wrong domain decoded GDAL ------
+create_coll test_update  "FloatSet"
+f="subset.nc:area"
+$RASQL -q 'INSERT INTO test_update VALUES <[0:0,0:0] 0f> TILING ALIGNED [0:1023, 0:1023]'  > /dev/null
+log "inserting data into test_update... ok."
+outf=update_error
+touch $TESTDATA_PATH/$outf.txt
+$RASQL -q 'UPDATE test_update SET test_update[0:2,0:2] ASSIGN decode(<[0:0] 1c>, "GDAL", "{\"variables\":[0],\"filePaths\":[\"NETCDF:'${TESTDATA_PATH}'/'${f}'\"]}")'  2>&1 > /dev/null | grep "rasdaman error" > $TESTDATA_PATH/$outf.txt
+log "trying to update the test_update... ok."
+cmp $TESTDATA_PATH/$outf.txt $ORACLE_PATH/$outf.oracle > /dev/null
+check_result 0 $? "input and output match"
+rm -f $TESTDATA_PATH/$outf.txt
+drop_colls test_update
+
 # ------------------------------------------------------------------------------
 # test summary
 #

@@ -550,20 +550,6 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target
                     delete nextTuple;
                     nextTuple = NULL;
 
-                    // delete the operands
-                    if (target)
-                    {
-                        target->deleteRef();
-                    }
-                    if (domainData)
-                    {
-                        domainData->deleteRef();
-                    }
-                    if (source)
-                    {
-                        source->deleteRef();
-                    }
-
                     parseInfo.setErrorNo(967);
                     throw parseInfo;
                 }
