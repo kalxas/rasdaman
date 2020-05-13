@@ -295,6 +295,7 @@ public class InsertCoverageHandler {
         rasdamanRangeSet.setCollectionType(rasCollectionType);
         String mddType = TypeResolverUtil.getMddTypeForCollectionType(rasCollectionType);
         rasdamanRangeSet.setMddType(mddType);
+        rasdamanRangeSet.setTiling(tiling);
 
         // rasdaman collection was created add this to coverage
         coverage.setRasdamanRangeSet(rasdamanRangeSet);

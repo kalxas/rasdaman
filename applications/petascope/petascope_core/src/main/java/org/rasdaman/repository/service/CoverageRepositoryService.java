@@ -213,7 +213,9 @@ public class CoverageRepositoryService {
         long coverageSize = this.calculateCoverageSizeInBytes(coverage);
         coverage.setCoverageSizeInBytes(coverageSize);
         this.addRasdamanDataTypesForRangeQuantities(coverage);
-        this.addRasdamanTilingConfiguration(coverage);
+        if (coverage.getRasdamanRangeSet().getTiling() == null) {
+            this.addRasdamanTilingConfiguration(coverage);
+        }
         
         // NOTE: without it, after coverage's crs is replaced from $SECORE_URL$ to localhost:8080 (from petascope.properties)
         // with a DescribeCoverage request, after the replacement, 
