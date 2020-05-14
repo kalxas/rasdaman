@@ -781,7 +781,7 @@ Debian 9 / Ubuntu 16.04
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      apt-get install make libtool gawk autoconf automake bison flex git g++ \
+      make libtool gawk autoconf automake bison flex git g++ \
       unzip libpng-dev libjpeg-dev libboost-filesystem-dev libboost-thread-dev \
       libboost-system-dev libtiff-dev libgdal-dev zlib1g-dev libffi-dev \
       libboost-dev libnetcdf-dev libedit-dev libreadline-dev libdw-dev \
@@ -820,7 +820,7 @@ Debian 10 / Ubuntu 18.04
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      install make libtool gawk autoconf automake bison flex git g++ unzip \
+      make libtool gawk autoconf automake bison flex git g++ unzip \
       libpng-dev libjpeg-dev libboost-filesystem-dev libboost-thread-dev \
       libboost-system-dev libboost-dev libtiff-dev libgdal-dev zlib1g-dev \
       libffi-dev libnetcdf-dev libedit-dev libreadline-dev libdw-dev \

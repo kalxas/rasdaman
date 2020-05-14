@@ -786,3 +786,22 @@ terminal. Examples with ``curl`` follow.
     curl "http://ows.rasdaman.org/rasdaman/ows" --out test.png --data-urlencode \
     'service=WCS&version=2.0.1&request=ProcessCoverages&query=\
     for c in (mean_summer_airtemp) return encode(c, "png")'
+
+Rasql Web Console
+-----------------
+
+The rasql web console is installed by rasdaman in ``$RMANHOME/share/rasdaman/www/rasql-web-console``. 
+It requires petascope to be running in the background in order to execute queries.
+
+Various widgets are available, with the most commonly-used being:
+
+- ``image`` to visualize a 2D image result, e.g. ``image>>select encode(..., "jpeg") from ...``
+- ``diagram`` on csv encoded data, e.g. ``diagram(type=area,width=300)>>select encode(..., "csv") from ...``
+- ``text`` to visualize a text result, e.g. ``text>>select dbinfo(...) from ...``
+
+Without using a widget the result is downloaded.
+
+.. figure:: media/cheatsheets/rasql-web-console-example.png
+   :align: center
+
+   Example of a 2D image result.
