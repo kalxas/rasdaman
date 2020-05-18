@@ -537,8 +537,8 @@ public class CoverageRepositoryService {
                     }
                     
                     boundingBox = new BoundingBox(lonMin, latMin, lonMax, latMax);
-                } catch (PetascopeException ex) {
-                    log.warn("Cannot create extent for coverage '" + coverageId + "', error from crs transform '" + ex.getExceptionText() + "'.");
+                } catch (Exception ex) {
+                    log.warn("Cannot create extent for coverage '" + coverageId + "', error from crs transform '" + ex.getMessage() + "'.");
                     this.problemCoveragesExtentsCache.add(coverageId);
                 }
             }

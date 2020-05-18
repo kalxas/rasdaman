@@ -38,6 +38,19 @@ from util.url_util import validate_and_read_url
 import xml.etree.ElementTree as ET
 import re
 
+# Valid characters for coverage ids
+legal_characters = r'\w+$'
+r = re.compile(legal_characters)
+
+
+def is_regex(test_string):
+    """
+    Check if a coverage id contains regex characters (e.g: .,*,...)
+    :param str test_string: coverage id string
+    """
+    return not re.match(r, test_string)
+
+
 class Recipe(BaseRecipe):
 
     RECIPE_NAME = "virtual_coverage"
@@ -109,7 +122,7 @@ class Recipe(BaseRecipe):
         result_coverage_ids = []
 
         for coverage_id_pattern in input_source_coverage_ids:
-            if "*" in coverage_id_pattern or "?" in coverage_id_pattern:
+            if is_regex(coverage_id_pattern):
                 # coverage id by regex (e.g: test_*)
                 for coverage_id in current_coverage_ids:
                     if re.match(coverage_id_pattern, coverage_id):
