@@ -73,7 +73,7 @@ class Recipe(BaseRecipe):
         self.srs_name = XMLUtil.escape(self.envelope["srsName"])
         # array of axis
         self.axes = self.envelope["axis"]
-        self.import_wms = self.options["wms_import"]
+        self.import_wms = self.options["wms_import"] if "wms_import" in self.options else None
 
     def __raise_exception(self, missing_option):
         """
