@@ -5,7 +5,7 @@ id="test_irr_cube_2"
 <boundedBy>
 <Envelope axisLabels="E N" srsDimension="2"
 srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
-<lowerCorner>95042.72735943 5094865.557938452</lowerCorner>
+<lowerCorner>95042.72735943 5104865.557938452</lowerCorner>
 <upperCorner>105042.72735943 5124865.557938452</upperCorner>
 </Envelope>
 </boundedBy>
@@ -14,7 +14,7 @@ srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
 <limits>
 <GridEnvelope>
 <low>2 33</low>
-<high>2 35</high>
+<high>2 34</high>
 </GridEnvelope>
 </limits>
 <axisLabels>E N</axisLabels>
@@ -45,7 +45,7 @@ id="test_irr_cube_2-point" srsName="/crs/EPSG/0/32633">
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">8.850337 4.168553,8.714869 4.170761,8.644511 4.172546</tupleList>
+<tupleList cs=" " ts=",">8.850337 4.168553,8.714869 4.170761</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>

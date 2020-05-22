@@ -5,8 +5,8 @@ id="test_irr_cube_2"
 <boundedBy>
 <Envelope axisLabels="E N" srsDimension="2"
 srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
-<lowerCorner>75042.72735943 5094865.557938452</lowerCorner>
-<upperCorner>105042.72735943 5124865.557938452</upperCorner>
+<lowerCorner>75042.72735943 5104865.557938452</lowerCorner>
+<upperCorner>95042.72735943 5124865.557938452</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>

@@ -12,8 +12,8 @@ srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&
 <RectifiedGrid dimension="3" id="test_eobstest-grid">
 <limits>
 <GridEnvelope>
-<low>19 19 1</low>
-<high>28 28 2</high>
+<low>10 10 1</low>
+<high>19 19 2</high>
 </GridEnvelope>
 </limits>
 <axisLabels>Lat Lon t</axisLabels>
@@ -37,7 +37,7 @@ id="test_eobstest-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OG
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+2 +1 +3">Linear</sequenceRule>
-<startPoint>19 19 1</startPoint>
+<startPoint>10 10 1</startPoint>
 </GridFunction>
 </coverageFunction>
 <gmlcov:rangeType>

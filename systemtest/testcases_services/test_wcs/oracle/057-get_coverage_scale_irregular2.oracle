@@ -5,8 +5,8 @@ id="test_irr_cube_2"
 <boundedBy>
 <Envelope axisLabels="ansi E N" srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre metre">
-<lowerCorner>"2008-01-01T02:01:20.000Z" 75042.72735943 5094865.557938452</lowerCorner>
-<upperCorner>"2008-01-08T00:02:58.000Z" 95042.72735943 5114865.557938452</upperCorner>
+<lowerCorner>"2008-01-01T02:01:20.000Z" 75042.72735943 5104865.557938452</lowerCorner>
+<upperCorner>"2008-01-08T00:02:58.000Z" 85042.72735943 5114865.557938452</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -14,7 +14,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels=
 <limits>
 <GridEnvelope>
 <low>0 0 34</low>
-<high>3 2 35</high>
+<high>3 0 34</high>
 </GridEnvelope>
 </limits>
 <axisLabels>ansi E N</axisLabels>
@@ -53,7 +53,7 @@ id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/c
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">9.63844 4.179067,9.697354 4.181835,9.63844 4.179067,9.697354 4.181835,9.060192 4.173973,9.039942 4.17602,9.63844 4.179067,9.697354 4.181835,9.63844 4.179067,9.697354 4.181835,9.060192 4.173973,9.039942 4.17602,9.63844 4.179067,9.697354 4.181835,9.63844 4.179067,9.697354 4.181835,9.060192 4.173973,9.039942 4.17602,9.63844 4.179067,9.697354 4.181835,9.63844 4.179067,9.697354 4.181835,9.060192 4.173973,9.039942 4.17602</tupleList>
+<tupleList cs=" " ts=",">9.63844 4.179067,9.63844 4.179067,9.63844 4.179067,9.63844 4.179067</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>

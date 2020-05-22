@@ -95,7 +95,7 @@
 
                                             <!-- black list-->
                                             <button type="button" 
-                                                ng-show="adminUserLoggedIn == true"
+                                                ng-show="adminUserLoggedIn == true && capabilities.showBlackListedColumn == true"
                                                 class="btn btn-danger" id="btnBlackListAllCoverages"
                                                 title="Blacklist all layers, only petascope admin user can see them in the Capabilities document."
                                                 onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 
@@ -107,7 +107,7 @@
 
                                             <!-- white list-->
                                             <button type="button" 
-                                                ng-show="adminUserLoggedIn == true"
+                                                ng-show="adminUserLoggedIn == true && capabilities.showBlackListedColumn == true"
                                                 class="btn btn-warning" id="btnWhiteListAllCoverages"
                                                 title="Whitelist all layers, any one can see them in the Capabilities document."
                                                 onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 

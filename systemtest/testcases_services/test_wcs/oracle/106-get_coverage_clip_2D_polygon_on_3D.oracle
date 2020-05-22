@@ -5,8 +5,8 @@ id="test_irr_cube_2"
 <boundedBy>
 <Envelope axisLabels="ansi E" srsDimension="2"
 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre">
-<lowerCorner>"2008-01-01T02:01:20.000Z" 75042.7273594</lowerCorner>
-<upperCorner>"2008-01-08T00:02:58.000Z" 705042.727359</upperCorner>
+<lowerCorner>"2008-01-01T02:01:20.000Z" 75042.72735943</lowerCorner>
+<upperCorner>"2008-01-08T00:02:58.000Z" 705042.72735943</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -21,7 +21,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels=
 <gmlrgrid:origin>
 <Point
 id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-<pos>"2008-01-01T02:01:20.000Z" 80042.7273594</pos>
+<pos>"2008-01-01T02:01:20.000Z" 80042.72735943</pos>
 </Point>
 </gmlrgrid:origin>
 <gmlrgrid:generalGridAxis>

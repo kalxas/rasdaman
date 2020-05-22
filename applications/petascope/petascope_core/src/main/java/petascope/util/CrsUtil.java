@@ -887,6 +887,7 @@ public class CrsUtil {
 
     /**
      * Utility to get the epsg code from CRS URI
+     * e.g: http://opengis.net/def/crs/EPSG/0/4326 -> EPSG:4326
      */
     public static String getEPSGCode(String crs) {
         return EPSG_AUTH + ":" + getCode(crs);
@@ -911,7 +912,8 @@ public class CrsUtil {
     }
     
     /**
-     * Ultility to get the code from CRS (e.g: EPSG:4326 -> 4326).
+     * Ultility to get the code from CRS (e.g: "EPSG:4326" -> 4326).
+     * or ("http://opengis.net/def/crs/EPSG/0/4326" -> 4326)
      */
     public static int getEpsgCodeAsInt(String crs) throws PetascopeException {
         String code = CrsUtil.getCode(crs);

@@ -374,8 +374,17 @@ public class SubsetParsingService {
         if (geoUpperBound.compareTo(geoLowerBound) < 0) {
             geoUpperBound = geoLowerBound;
         }
-        if (gridUpperBound.compareTo(gridLowerBound) < 0) {
-            gridLowerBound = gridUpperBound;
+        
+        if (gridLowerBound.compareTo(axis.getOriginalGridBounds().getLowerLimit()) < 0) {
+            gridLowerBound = axis.getOriginalGridBounds().getLowerLimit();
+        }
+        
+        if (gridLowerBound.compareTo(axis.getOriginalGridBounds().getUpperLimit()) > 0) {
+            gridLowerBound = axis.getOriginalGridBounds().getUpperLimit();
+        }
+        
+        if (gridLowerBound.compareTo(gridUpperBound) > 0) {
+            gridUpperBound = gridLowerBound;
         }
 
         // after fitting, set the correct bounds to axis

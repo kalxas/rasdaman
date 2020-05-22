@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <ServiceExceptionReport version="1.3.0"  >
 <ServiceException code="InternalError">
-Catched an unexpected error 'Coverage 'THIS_LAYER_DOES_NOT_EXIST' does not exist in persistent database.' when processing WMS request.
+Catched an unexpected error 'Coverage 'THIS_LAYER_DOES_NOT_EXIST' does not exist.' when processing WMS request.
 </ServiceException>
 </ServiceExceptionReport>

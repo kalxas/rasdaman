@@ -13,8 +13,8 @@ srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
 <gmlrgrid:ReferenceableGridByVectors dimension="2" gmlrgrid:id="test_irr_cube_2-grid">
 <limits>
 <GridEnvelope>
-<low>-2 70</low>
-<high>-2 70</high>
+<low>0 70</low>
+<high>0 70</high>
 </GridEnvelope>
 </limits>
 <axisLabels>E N</axisLabels>
@@ -51,7 +51,7 @@ id="test_irr_cube_2-point" srsName="/crs/EPSG/0/32633">
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>-2 70</startPoint>
+<startPoint>0 70</startPoint>
 </GridFunction>
 </coverageFunction>
 <gmlcov:rangeType>

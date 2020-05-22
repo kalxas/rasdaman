@@ -5,8 +5,8 @@ id="test_irr_cube_2"
 <boundedBy>
 <Envelope axisLabels="i E N" srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633" uomLabels="GridSpacing metre metre">
-<lowerCorner>0 85086.26224015577 5115586.53424624</lowerCorner>
-<upperCorner>7 110304.99398005207 5194341.200083238</upperCorner>
+<lowerCorner>0 85042.72735943 5114865.557938452</lowerCorner>
+<upperCorner>7 115042.72735943 5194865.557938452</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -21,7 +21,7 @@ srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633" uomLabels="
 <gmlrgrid:origin>
 <Point
 id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633">
-<pos>0.5 90086.26224015577 5189341.200083238</pos>
+<pos>0.5 90042.72735943 5189865.557938452</pos>
 </Point>
 </gmlrgrid:origin>
 <gmlrgrid:generalGridAxis>

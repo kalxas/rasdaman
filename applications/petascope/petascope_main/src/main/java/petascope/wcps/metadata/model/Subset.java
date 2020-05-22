@@ -26,7 +26,7 @@ package petascope.wcps.metadata.model;
  */
 public class Subset {
 
-    private final NumericSubset numericSubset;
+    private NumericSubset numericSubset;
     private final String crs;
     private final String axisName;
 
@@ -34,6 +34,10 @@ public class Subset {
         this.numericSubset = numericSubset;
         this.crs = crs;
         this.axisName = axisName;
+    }
+    
+    public void setNumericSubset(NumericSubset numericSubset) {
+        this.numericSubset = numericSubset;
     }
 
     public NumericSubset getNumericSubset() {

@@ -97,7 +97,7 @@
                                             onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">&nbsp;Display all footprints</input>
 
                                             <!-- black list-->
-                                            <button ng-show="adminUserLoggedIn == true"
+                                            <button ng-show="adminUserLoggedIn == true && capabilities.contents.showBlackListedColumn == true"
                                                 type="button" class="btn btn-danger" id="btnBlackListAllCoverages"
                                                 title="Blacklist all coverages, only petascope admin user can see them in the Capabilities document."
                                                 onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 
@@ -108,7 +108,7 @@
                                             </button>
 
                                             <!-- white list-->
-                                            <button ng-show="adminUserLoggedIn == true"
+                                            <button ng-show="adminUserLoggedIn == true && capabilities.contents.showBlackListedColumn == true"
                                                 type="button" class="btn btn-warning" id="btnWhiteListAllCoverages"
                                                 title="Whitelist all coverages, any one can see them from in the Capabilities document."
                                                 onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" 

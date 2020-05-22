@@ -4,8 +4,8 @@
 <boundedBy>
 <Envelope axisLabels="i Lat Lon" srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326" uomLabels="GridSpacing degree degree">
-<lowerCorner>0 24.99999999998172 39.999999999991516</lowerCorner>
-<upperCorner>4 29.99999999996595 45.000000000024144</upperCorner>
+<lowerCorner>0 25 40</lowerCorner>
+<upperCorner>4 30 45</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -20,7 +20,7 @@ srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326" uomLabels="G
 <origin>
 <Point
 id="test_eobstest-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326">
-<pos>0.5 29.74999999996595 40.249999999991516</pos>
+<pos>0.5 29.75 40.25</pos>
 </Point>
 </origin>
 <offsetVector srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326">1 0 0</offsetVector>

@@ -10,7 +10,7 @@ uomLabel="metre" upperBound="5094865.557938452"/>
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>-1 35</startPoint>
+<startPoint>0 35</startPoint>
 </GridFunction>
 </coverageFunction>
 <cis11:DomainSet>
@@ -21,7 +21,7 @@ resolution="10000" uomLabel="metre" upperBound="75042.72735943"/>
 lowerBound="5094865.557938452" resolution="-10000"
 uomLabel="metre" upperBound="5094865.557938452"/>
 <cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-<cis11:IndexAxis axisLabel="i" lowerBound="-1" upperBound="-1"/>
+<cis11:IndexAxis axisLabel="i" lowerBound="0" upperBound="0"/>
 <cis11:IndexAxis axisLabel="j" lowerBound="35" upperBound="35"/>
 </cis11:GridLimits>
 </cis11:GeneralGrid>

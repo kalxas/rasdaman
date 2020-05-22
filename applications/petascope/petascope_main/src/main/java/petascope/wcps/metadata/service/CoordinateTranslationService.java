@@ -27,10 +27,13 @@ import petascope.wcps.metadata.model.ParsedSubset;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import org.springframework.stereotype.Service;
+import petascope.core.BoundingBox;
+import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.core.service.CrsComputerService;
 import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IrreguarAxisCoefficientNotFoundException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.RegularAxis;
@@ -46,6 +49,116 @@ import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
  */
 @Service
 public class CoordinateTranslationService {
+    
+    private final BigDecimal GDAL_EPSILON_MIN = new BigDecimal("0.001");
+    private final BigDecimal GDAL_EPSILON_MAX = new BigDecimal("0.5");
+    
+    /**
+     * From a geo bounds for X axis (e.g: lon1:lon2]
+     * return the grid bound and number of grid pixel
+     */
+    private Pair<BigDecimal, BigDecimal> calculateGridXBounds(GeoTransform adfGeoTransform, BigDecimal geoXMin, BigDecimal geoXMax) {
+        BigDecimal gridXMin = BigDecimalUtil.divide(geoXMin.subtract(adfGeoTransform.getUpperLeftGeoXDecimal()), adfGeoTransform.getGeoXResolutionDecimal());
+        BigDecimal numberOfXPixels = BigDecimalUtil.divide(geoXMax.subtract(geoXMin), adfGeoTransform.getGeoXResolutionDecimal());
+        
+        // Default nearest neighbor
+        gridXMin = gridXMin.add(GDAL_EPSILON_MIN).setScale(0, RoundingMode.FLOOR);
+        numberOfXPixels = numberOfXPixels.add(GDAL_EPSILON_MAX).setScale(0, RoundingMode.FLOOR);
+        
+        return new Pair<>(gridXMin, numberOfXPixels);
+    }
+    
+    /**
+     * From a geo bounds for Y axis (e.g: lat1:lat2]
+     * return the grid bound and number of grid pixel
+     */
+    private Pair<BigDecimal, BigDecimal> calculateGridYBounds(GeoTransform adfGeoTransform, BigDecimal geoYMin, BigDecimal geoYMax) {
+        BigDecimal gridYMin = BigDecimalUtil.divide(geoYMax.subtract(adfGeoTransform.getUpperLeftGeoYDecimal()), adfGeoTransform.getGeoYResolutionDecimal());
+        BigDecimal numberOfYPixels = BigDecimalUtil.divide(geoYMin.subtract(geoYMax), adfGeoTransform.getGeoYResolutionDecimal());
+        
+        // Default nearest neighbor
+        gridYMin = gridYMin.add(GDAL_EPSILON_MIN).setScale(0, RoundingMode.FLOOR);
+        numberOfYPixels = numberOfYPixels.add(GDAL_EPSILON_MAX).setScale(0, RoundingMode.FLOOR);
+        
+        return new Pair<>(gridYMin, numberOfYPixels);
+    }
+    
+    /**
+     * Get a pair of lower:upper bounds for geo and grid by geo trimming subset of X axis
+     * as gdal_translate -projwin
+     */
+    public Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> calculateGeoGridXBounds(Axis axisX, GeoTransform adfGeoTransform, 
+                                                                                      BigDecimal geoXMin, BigDecimal geoXMax) {
+        Pair<BigDecimal, BigDecimal> gridPair = this.calculateGridXBounds(adfGeoTransform, geoXMin, geoXMax);
+        
+        BigDecimal dfOXSize = gridPair.snd.subtract(GDAL_EPSILON_MIN).setScale(0, RoundingMode.CEILING);
+        BigDecimal gridXMin = gridPair.fst;
+        BigDecimal gridXMax = gridXMin.add(dfOXSize).subtract(BigDecimal.ONE);
+        
+        gridXMin = gridXMin.add(axisX.getOriginalGridBounds().getLowerLimit());
+        gridXMax = gridXMax.add(axisX.getOriginalGridBounds().getLowerLimit());
+        
+        BigDecimal updatedGeoXMin = adfGeoTransform.getUpperLeftGeoXDecimal().add(gridPair.fst.multiply(adfGeoTransform.getGeoXResolutionDecimal()));
+        BigDecimal updatedGeoXMax = updatedGeoXMin.add(adfGeoTransform.getGeoXResolutionDecimal().multiply(dfOXSize));
+        
+        ParsedSubset<Long> gridSubset = new ParsedSubset<>(gridXMin.longValue(), gridXMax.longValue());
+        ParsedSubset<BigDecimal> geoSubset = new ParsedSubset<>(updatedGeoXMin, updatedGeoXMax);
+        
+        return new Pair<>(geoSubset, gridSubset);
+    }
+    
+    /**
+     * Get a pair of lower:upper bounds for geo and grid by geo trimming subset of Y axis
+     * as gdal_translate -projwin
+     */
+    public Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> calculateGeoGridYBounds(Axis axisY, GeoTransform adfGeoTransform, 
+                                                                                      BigDecimal geoYMin, BigDecimal geoYMax) {
+        Pair<BigDecimal, BigDecimal> gridPair = this.calculateGridYBounds(adfGeoTransform, geoYMin, geoYMax);
+        
+        BigDecimal dfOYSize = gridPair.snd.subtract(GDAL_EPSILON_MIN).setScale(0, RoundingMode.CEILING);
+        BigDecimal gridYMin = gridPair.fst;
+        BigDecimal gridYMax = gridYMin.add(dfOYSize).subtract(BigDecimal.ONE);
+        
+        gridYMin = gridYMin.add(axisY.getOriginalGridBounds().getLowerLimit());
+        gridYMax = gridYMax.add(axisY.getOriginalGridBounds().getLowerLimit());
+        
+        BigDecimal updatedGeoYMax = adfGeoTransform.getUpperLeftGeoYDecimal().add(gridPair.fst.multiply(adfGeoTransform.getGeoYResolutionDecimal()));
+        BigDecimal updatedGeoYMin = updatedGeoYMax.add(adfGeoTransform.getGeoYResolutionDecimal().multiply(dfOYSize));
+        
+        ParsedSubset<Long> gridSubset = new ParsedSubset<>(gridYMin.longValue(), gridYMax.longValue());
+        ParsedSubset<BigDecimal> geoSubset = new ParsedSubset<>(updatedGeoYMin, updatedGeoYMax);
+        
+        return new Pair<>(geoSubset, gridSubset);
+    }
+    
+     /**
+     * From a geo XY bounding box with geo bounds calculates a grid XY bounding box with grid bounds.
+     */
+    public BoundingBox calculageGridXYBoundingBox(Axis axisX, Axis axisY, BoundingBox intersectGeoBBoxNativeCRS) throws PetascopeException {
+        
+        int epsgCode = CrsUtil.getEpsgCodeAsInt(axisX.getNativeCrsUri());
+        
+        // axis X
+        int gridWidth = axisX.getTotalNumberOfGridPixels();
+
+        GeoTransform adfGeoTransformX = new GeoTransform(epsgCode, axisX.getGeoBounds().getLowerLimit().doubleValue(), 0,
+                                                         gridWidth, 0, axisX.getResolution().doubleValue(), 0);
+        Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = this.calculateGeoGridXBounds(axisX, adfGeoTransformX,
+                                                                                                intersectGeoBBoxNativeCRS.getXMin(), intersectGeoBBoxNativeCRS.getXMax());
+        // axis Y
+        int gridHeight = axisY.getTotalNumberOfGridPixels();
+
+        GeoTransform adfGeoTransformY = new GeoTransform(epsgCode, 0, axisY.getGeoBounds().getUpperLimit().doubleValue(),
+                                                         0, gridHeight, 0, axisY.getResolution().doubleValue());
+        Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = this.calculateGeoGridYBounds(axisY, adfGeoTransformY,
+                                                                                                intersectGeoBBoxNativeCRS.getYMin(), intersectGeoBBoxNativeCRS.getYMax());
+        
+        BoundingBox gridBBox = new BoundingBox(new BigDecimal(pairX.snd.getLowerLimit().toString()), new BigDecimal(pairY.snd.getLowerLimit().toString()),
+                                               new BigDecimal(pairX.snd.getUpperLimit().toString()), new BigDecimal(pairY.snd.getUpperLimit().toString()));
+        
+        return gridBBox;
+        
+    }
     
     /**
      * Translate a geo subset on an axis to grid subset accordingly.

@@ -205,11 +205,11 @@ public class CoverageRepositoryService {
         log.debug("Time to read coverage '" + coverageId + "' from database is " + String.valueOf(end - start) + " ms.");
 
         if (coverage == null) {
-            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + coverageId + "' does not exist in persistent database.");
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + coverageId + "' does not exist.");
         }
-        
+  
         log.debug("Coverage '" + coverageId + "' is read from database.");
-        
+
         long coverageSize = this.calculateCoverageSizeInBytes(coverage);
         coverage.setCoverageSizeInBytes(coverageSize);
         this.addRasdamanDataTypesForRangeQuantities(coverage);

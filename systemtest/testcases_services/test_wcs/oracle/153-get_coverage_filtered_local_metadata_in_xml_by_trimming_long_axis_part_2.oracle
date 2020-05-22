@@ -6,7 +6,7 @@ id="test_wcs_local_metadata_tiff_map_mosaic"
 <Envelope axisLabels="Lat Lon" srsDimension="2"
 srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <lowerCorner>-44.975 130.975</lowerCorner>
-<upperCorner>-8.975 133.975</upperCorner>
+<upperCorner>-8.975 132.975</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -14,7 +14,7 @@ srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <limits>
 <GridEnvelope>
 <low>0 19</low>
-<high>35 21</high>
+<high>35 20</high>
 </GridEnvelope>
 </limits>
 <axisLabels>Lat Lon</axisLabels>
@@ -31,7 +31,7 @@ id="test_wcs_local_metadata_tiff_map_mosaic-point" srsName="/crs/EPSG/0/4326">
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">0,0,0,91,90,84,95,75,47,46,47,51,57,91,121,121,137,132,126,115,101,96,111,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,92,84,64,71,68,47,40,34,36,44,81,120,126,143,136,131,122,113,110,117,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,97,86,67,54,54,41,31,26,22,27,61,115,132,131,136,135,125,123,125,116,0,0,0,0,0,0,0,0,0,0,0,0,0</tupleList>
+<tupleList cs=" " ts=",">0,0,0,91,90,84,95,75,47,46,47,51,57,91,121,121,137,132,126,115,101,96,111,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,92,84,64,71,68,47,40,34,36,44,81,120,126,143,136,131,122,113,110,117,0,0,0,0,0,0,0,0,0,0,0,0,0</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>

@@ -236,7 +236,7 @@ public abstract class Axis<T> {
      */
     public boolean isXYGeoreferencedAxis() {
         if (this.axisType.equals(AxisTypes.X_AXIS) || this.axisType.equals(AxisTypes.Y_AXIS)) {
-            if (!(CrsUtil.isGridCrs(this.nativeCrsUri) && CrsUtil.isIndexCrs(this.nativeCrsUri))) {
+            if (!(CrsUtil.isGridCrs(this.nativeCrsUri) || CrsUtil.isIndexCrs(this.nativeCrsUri))) {
                 return true;
             }
         }
@@ -263,6 +263,15 @@ public abstract class Axis<T> {
     public boolean isElevationAxis() {
         return this.axisType.equals(AxisTypes.HEIGHT_AXIS) 
             || this.axisType.equals(AxisTypes.DEPTH_AXIS);
+    }
+    
+    /**
+     * Return the total pixels by: grid_max - grid_min + 1
+     * e.g: [0:20] -> 21 pixels
+     */
+    public int getTotalNumberOfGridPixels() {
+        int result = this.gridBounds.getUpperLimit().subtract(this.gridBounds.getLowerLimit()).add(BigDecimal.ONE).intValue();
+        return result;
     }
     
     /**

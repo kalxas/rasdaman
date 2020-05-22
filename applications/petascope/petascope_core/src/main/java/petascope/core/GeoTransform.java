@@ -21,6 +21,9 @@
  */
 package petascope.core;
 
+import java.math.BigDecimal;
+import org.gdal.gdal.Dataset;
+
 /**
  * A class that contains the necessary values for a 2D geo-referenced coverage in a source CRS which
  * can be used to estimate the geo, grid domains and XY axes' resolutions in a target CRS.
@@ -62,6 +65,24 @@ public class GeoTransform {
         this.geoXResolution = geoXResolution;
         this.geoYResolution = geoYResolution;
     }
+    
+    /**
+     * Create a GeoTransform object from a Gdal dataset
+     */
+    public GeoTransform(Dataset dataset) {
+        // upperLeftGeoX, resX, 0, upperLeftGeoY, 0, resY
+        double[] gdalValues = dataset.GetGeoTransform();
+        int width = dataset.GetRasterXSize();
+        int height = dataset.GetRasterYSize();
+        this.gridWidth = width;
+        this.gridHeight = height;
+        
+        this.upperLeftGeoX = gdalValues[0];
+        this.upperLeftGeoY = gdalValues[3];
+        
+        this.geoXResolution = gdalValues[1];
+        this.geoYResolution = gdalValues[5];
+    }        
 
     public int getEPSGCode() {
         return epsgCode;
@@ -74,6 +95,10 @@ public class GeoTransform {
     public double getUpperLeftGeoX() {
         return upperLeftGeoX;
     }
+    
+    public BigDecimal getUpperLeftGeoXDecimal() {
+        return new BigDecimal(String.valueOf(this.upperLeftGeoX));
+    }
 
     public void setUpperLeftGeoX(double upperLeftGeoX) {
         this.upperLeftGeoX = upperLeftGeoX;
@@ -81,6 +106,10 @@ public class GeoTransform {
 
     public double getUpperLeftGeoY() {
         return upperLeftGeoY;
+    }
+    
+    public BigDecimal getUpperLeftGeoYDecimal() {
+        return new BigDecimal(String.valueOf(this.upperLeftGeoY));
     }
 
     public void setUpperLeftGeoY(double upperLeftGeoY) {
@@ -106,6 +135,10 @@ public class GeoTransform {
     public double getGeoXResolution() {
         return geoXResolution;
     }
+    
+    public BigDecimal getGeoXResolutionDecimal() {
+        return new BigDecimal(String.valueOf(this.geoXResolution));
+    }
 
     public void setGeoXResolution(double geoXResolution) {
         this.geoXResolution = geoXResolution;
@@ -114,15 +147,38 @@ public class GeoTransform {
     public double getGeoYResolution() {
         return geoYResolution;
     }
+    
+    public BigDecimal getGeoYResolutionDecimal() {
+        return new BigDecimal(String.valueOf(this.geoYResolution));
+    }
 
     public void setGeoYResolution(double geoYResolution) {
         this.geoYResolution = geoYResolution;
     }
     
+    /**
+     * Return the GDAL format for geo transform:
+     * UpplerLeftX, resX, 0, UpperLeftY, 0, resY.
+     * e.g: 699960.0, 60.0, 0.0, 5900040.0, 0.0, -60.0
+     */
+    public String toGdalString() {
+        return upperLeftGeoX + ", " + geoXResolution + ", 0, " + upperLeftGeoY + ", 0, " + geoYResolution;
+    }
+    
+    public double getLowerRightGeoX() {
+        double result = this.upperLeftGeoX + gridWidth * geoXResolution;
+        return result;
+    }
+    
+    public double getLowerRightGeoY() {
+        double result = this.upperLeftGeoY + gridHeight * geoYResolution;
+        return result;
+    }
+    
     @Override
     public String toString() {
-        String output = "epsgCode:" + epsgCode + ", upperLeftGeoX:" + upperLeftGeoX 
-                + ", upperLeftGeoY:" + upperLeftGeoY + ", width:" + gridWidth
+        String output = "epsgCode:" + epsgCode + ", xMin:" + upperLeftGeoX  + ", yMin: " + this.getLowerRightGeoY()
+                + ", xMax:" + this.getLowerRightGeoX() + ", yMax: " + upperLeftGeoY + ", width:" + gridWidth
                 + ", height:" + gridHeight + ", geoXResolution:" + geoXResolution + ", geoYResolution:" + geoYResolution;
         return output;
     }

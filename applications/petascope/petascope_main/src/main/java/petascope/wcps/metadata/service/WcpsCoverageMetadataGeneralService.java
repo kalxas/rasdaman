@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
 import petascope.core.AxisTypes;
+import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.core.gml.metadata.model.Envelope;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
@@ -713,22 +714,61 @@ public class WcpsCoverageMetadataGeneralService {
      */
     private void translateTrimmingGeoToGridSubset(Axis axis, WcpsSubsetDimension subsetDimension, Subset numericSubset,
             NumericTrimming unAppliedNumericSubset, NumericTrimming unTranslatedNumericSubset) throws PetascopeException {
+        
         BigDecimal geoDomainMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
         BigDecimal geoDomainMax = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit();
         BigDecimal gridDomainMin = ((NumericTrimming) axis.getGridBounds()).getLowerLimit();
         BigDecimal gridDomainMax = ((NumericTrimming) axis.getGridBounds()).getUpperLimit();
-
+            
         BigDecimal lowerLimit = ((NumericTrimming) numericSubset.getNumericSubset()).getLowerLimit();
         BigDecimal upperLimit = ((NumericTrimming) numericSubset.getNumericSubset()).getUpperLimit();
 
         // Apply the subset on the unAppliedNumericSubset
         unAppliedNumericSubset.setLowerLimit(lowerLimit);
         unAppliedNumericSubset.setUpperLimit(upperLimit);
+        
+        ParsedSubset<BigDecimal> parsedSubset = null;
+        ParsedSubset<Long> translatedSubset = null;
+        
+        BigDecimal geoDistance = upperLimit.subtract(lowerLimit);
+        BigDecimal halfGeoResolution = BigDecimalUtil.divide(axis.getResolution(), new BigDecimal("2")).abs();
+        // NOTE: gdal_translate doesn't allow to subset by projwin with less than half grid pixel
+        boolean lessThanHalfPixel = geoDistance.compareTo(halfGeoResolution) < 0;
+        
+        if (axis.isXYGeoreferencedAxis() && !lessThanHalfPixel) {
+            String epsgCode = CrsUtil.getEPSGCode(axis.getNativeCrsUri());
+            // e.g: 4326
+            int code = CrsUtil.getEpsgCodeAsInt(epsgCode);
+            // e.g: [0:4] = 4 - 0 + 1 = 5 pixels
+            int numberOfGridPixels = gridDomainMax.subtract(gridDomainMin).intValue() + 1;
 
-        ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(lowerLimit, upperLimit);
-        // store the translated grid bounds from the subsets
-        ParsedSubset<Long> translatedSubset = translateGeoToGridCoordinates(subsetDimension, parsedSubset, axis,
-                geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
+            if (axis.isXAxis()) {
+                // axis X
+                
+                GeoTransform adfGeoTransform = new GeoTransform(code, geoDomainMin.doubleValue(), 0, numberOfGridPixels, 0, axis.getResolution().doubleValue(), 0);
+                Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = coordinateTranslationService.calculateGeoGridXBounds(axis, adfGeoTransform, lowerLimit, upperLimit);
+                parsedSubset = pairX.fst;
+                translatedSubset = pairX.snd;
+                
+                axis.setGeoBounds(new NumericTrimming(parsedSubset.getLowerLimit(), parsedSubset.getUpperLimit()));
+            } else if (axis.isYAxis()) {
+                // axis Y
+            
+                GeoTransform adfGeoTransform = new GeoTransform(code, 0, geoDomainMax.doubleValue(), 0, numberOfGridPixels, 0, axis.getResolution().doubleValue());
+                Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = coordinateTranslationService.calculateGeoGridYBounds(axis, adfGeoTransform, lowerLimit, upperLimit);
+                parsedSubset = pairY.fst;
+                translatedSubset = pairY.snd;
+                
+                axis.setGeoBounds(new NumericTrimming(parsedSubset.getLowerLimit(), parsedSubset.getUpperLimit()));
+            }
+        } else {
+            // other axis type
+            
+            parsedSubset = new ParsedSubset<>(lowerLimit, upperLimit);
+            // store the translated grid bounds from the subsets
+            translatedSubset = translateGeoToGridCoordinates(subsetDimension, parsedSubset, axis,
+                    geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
+        }
 
         // Set the correct translated grid parsed subset to axis
         unTranslatedNumericSubset.setLowerLimit(new BigDecimal(translatedSubset.getLowerLimit().toString()));

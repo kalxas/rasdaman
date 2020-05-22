@@ -4,8 +4,8 @@
 <boundedBy>
 <Envelope axisLabels="Lat Lon" srsDimension="2"
 srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
-<lowerCorner>-13.474999999999987 129.975</lowerCorner>
-<upperCorner>-11.974999999999987 131.475</upperCorner>
+<lowerCorner>-12.974999999999987 129.975</lowerCorner>
+<upperCorner>-11.974999999999987 130.975</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -13,7 +13,7 @@ srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <limits>
 <GridEnvelope>
 <low>6 36</low>
-<high>8 38</high>
+<high>7 37</high>
 </GridEnvelope>
 </limits>
 <axisLabels>Lat Lon</axisLabels>
@@ -30,7 +30,7 @@ id="test_mean_summer_airtemp-point" srsName="/crs/EPSG/0/4326">
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">0,0,86,7,100,89,108,91,90</tupleList>
+<tupleList cs=" " ts=",">0,0,7,100</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>
