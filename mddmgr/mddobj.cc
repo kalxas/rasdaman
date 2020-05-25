@@ -564,10 +564,10 @@ std::string MDDObj::getArrayInfo(bool printTiles) const
 }
 
 template <class T>
-void fillTile(r_Range fillValArg, size_t cellCount, char *startPointArg)
+void fillTile(T fillValArg, size_t cellCount, char *startPointArg)
 {
     T *startPoint = reinterpret_cast<T *>(startPointArg);
-    std::fill(startPoint, startPoint + cellCount, static_cast<T>(fillValArg));
+    std::fill(startPoint, startPoint + cellCount, fillValArg);
 }
 
 void
@@ -598,7 +598,7 @@ MDDObj::fillSinglebandTileWithNullvalues(char *resDataPtr, size_t cellCount, Typ
 
     MAKE_SWITCH_TYPEENUM(cellType, T,
          CODE( // case T:
-             fillTile<T>(nullValue, cellCount, resDataPtr);
+             fillTile<T>(static_cast<T>(nullValue), cellCount, resDataPtr);
          ),
          CODE( // default:
              LDEBUG << "Unknown base type: " << this->getCellType()->getName();

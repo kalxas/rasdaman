@@ -5322,10 +5322,11 @@ OpUpdateLong::OpUpdateLong(const BaseType *newResType, const BaseType *newOpType
 void
 OpUpdateLong::operator()(char *res, const char *op)
 {
-    auto opVal = *(const r_Long *)(op + opOff);
-    if (!isNull(opVal))
+    using T = r_Long;
+    auto opVal = *(const T *)(op + opOff);
+    if (!isNull(opVal) || isNull(*(T *)(res + resOff)))
     {
-        *(r_Long *)(res + resOff) = opVal;
+        *reinterpret_cast<T*>(res + resOff) = opVal;
     }
 }
 
@@ -5339,10 +5340,11 @@ OpUpdateULong::OpUpdateULong(const BaseType *newResType, const BaseType *newOpTy
 void
 OpUpdateULong::operator()(char *res, const char *op)
 {
-    auto opVal = *(const r_ULong *)(op + opOff);
-    if (!isNull(opVal))
+    using T = r_ULong;
+    auto opVal = *(const T *)(op + opOff);
+    if (!isNull(opVal) || isNull(*(T *)(res + resOff)))
     {
-        *reinterpret_cast<r_ULong *>(res + resOff) = opVal;
+        *reinterpret_cast<T*>(res + resOff) = opVal;
     }
 }
 
@@ -5356,10 +5358,11 @@ OpUpdateFloat::OpUpdateFloat(const BaseType *newResType, const BaseType *newOpTy
 void
 OpUpdateFloat::operator()(char *res, const char *op)
 {
-    auto opVal = *(const r_Float *)(op + opOff);
-    if (!isNull(opVal))
+    using T = r_Float;
+    auto opVal = *(const T *)(op + opOff);
+    if (!isNull(opVal) || isNull(*(T *)(res + resOff)))
     {
-        *(r_Float *)(res + resOff) = opVal;
+        *reinterpret_cast<T*>(res + resOff) = opVal;
     }
 }
 
@@ -5373,10 +5376,11 @@ OpUpdateDouble::OpUpdateDouble(const BaseType *newResType, const BaseType *newOp
 void
 OpUpdateDouble::operator()(char *res, const char *op)
 {
-    auto opVal = *(const r_Double *)(op + opOff);
-    if (!isNull(opVal))
+    using T = r_Double;
+    auto opVal = *(const T *)(op + opOff);
+    if (!isNull(opVal) || isNull(*(T *)(res + resOff)))
     {
-        *(r_Double *)(res + resOff) = opVal;
+        *reinterpret_cast<T*>(res + resOff) = opVal;
     }
 }
 
