@@ -34,8 +34,11 @@ set(BUILD_IMG_DIR "${BUILD_DIR}/img")
 file(MAKE_DIRECTORY ${BUILD_DIR})
 file(MAKE_DIRECTORY ${BUILD_IMG_DIR})
 
-set(CSS_SOURCES "${LIB}/jqPlot/jquery.jqplot.css"
+set(CSS_SOURCES "${LIB}/jqueryui/css/style.css"
+        "${LIB}/jqueryui/css/jquery.pnotify.default.css"
+        "${LIB}/X3DOM/style.css"
         "${LIB}/openlayers/style.css"
+        "${LIB}/jqueryui/css/jquery-ui-bootstrap.css"
         "${LIB}/Gauges/css/jgauge.css"
         "${LIB}/TwitterBootstrap/bootstrap.css"
         "${LIB}/Gauges/css/styles.css"

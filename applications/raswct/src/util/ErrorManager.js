@@ -69,7 +69,7 @@ FlancheJs.defineClass("Rj.util._ErrorManager", {
   internals:{
     consoleErr:function (err) {
       if (_.exists(window.console)) {
-        console.error(err)
+        console.error(err);
       }
     },
 

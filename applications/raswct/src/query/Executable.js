@@ -104,14 +104,18 @@ FlancheJs.defineTrait("Rj.query.Executable", {
       }
       xhr.open(transport.getServiceHttpMethod(), serviceUrl);
       if (transport.getBinary()){
-        xhr.responseType = "arraybuffer";
+        xhr.responseType = "text";
       }
       xhr.onreadystatechange = function(){
         if(xhr.status == 404 && xhr.readyState == 4){
           Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceUnavailableErrorMessage, true);
         }
         else if(xhr.status == 500 && xhr.readyState == 4){
-          Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceErrorMessage + xhr.response, true)
+          // Parsing the error text from the XML result
+          var response = String(xhr.response);
+          response = response.substring(response.indexOf("<ows:ExceptionText>") + 19);
+          response = response.substring(response.indexOf("</ows:ExceptionText>"), 0);
+          Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceErrorMessage + response, true);
         }
         else{
           self._handleCallback(callback, xhr.response, xhr.status, xhr.readyState);     
