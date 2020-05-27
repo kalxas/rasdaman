@@ -1129,11 +1129,11 @@ The following directories are used by the script:
 - ``outputs`` - results of evaluating tests in queries are saved in this 
   directory. For rasql queries two file types are saved:
 
-    1. any file outputs (produced by rasql as ``--out file`` is specified) in 
-       ``template_name.file*`` files
+    1. any file outputs (produced by rasql as ``--out file`` is specified) 
+       in ``template name.file*`` files
 
-    2. stdout, stderr, and exit code from running the program in a 
-       ``template_name`` file
+    2. stdout, stderr, and exit code from running the program in a
+       ``template name`` file
 
 - ``oracles`` - similar structure as ``outputs`` directory, it contains
   the expected files against which the outputs are compared.

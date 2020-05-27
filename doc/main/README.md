@@ -14,7 +14,7 @@ This directory contains the rasdaman documentation in reStructuredText format.
 
 *Ubuntu 16.04*
 
-- `apt install python-pip doxygen latexmk texlive-latex-base texlive-latex-extra texlive-fonts-recommended --no-install-recommends`
+- `sudo apt install python-pip doxygen latexmk texlive-latex-base texlive-latex-extra texlive-fonts-recommended --no-install-recommends`
 - `sudo pip install -U sphinx sphinx_rtd_theme`
 
 ### Build the docs
