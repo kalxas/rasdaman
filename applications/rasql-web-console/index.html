@@ -10,6 +10,7 @@
     <script src="js/codemirror-sql.min.js" type="text/javascript"></script>
     <link href="css/demo.css" rel="stylesheet" type="text/css" />
     <link href="css/font-awesome/font-awesome.css" rel="stylesheet" />
+    <script src="js/queries.json" type="text/javascript"></script>
 </head>
 
 <body>
@@ -39,11 +40,8 @@
             <div class="span4 input-prepend">
                 <span class="add-on">Example</span>
                 <select id="query-populate" style="width: 535px;">
-                    <option value="0">Show collection dbinfo()</option>
-                    <option value="1">Show collection spatial domain sdom()</option>
-                    <option value="2">Selecting a single value</option>
-                    <option value="3">3D->1D subset</option>
-                    <option value="4">3D->2D subset</option>
+                    <option value="">--Select a query to execute--</option>
+                    <!-- options are added in demo.js -->
                 </select>
 
                 <button id="run" class="btn btn-primary" style="margin-left: 5vh;">

@@ -1,0 +1,25 @@
+var queriesJSON = {
+"queries": [
+    {
+        "description": "Retrieve metadata of mr as text",
+        "query": `text>>SELECT dbinfo(m) FROM mr AS m`
+    },
+    {
+        "description": "Evaluate the spatial domain of mr as text",
+        "query": `text>>SELECT sdom(m) FROM mr AS m`
+    },
+    {
+        "description": "Retrieve data from mr as text",
+        "query": `text>>SELECT c[18,50] FROM mr AS c`
+    },
+    {
+        "description": "Encode data from mr as CSV to show as a diagram",
+        "query": `diagram>>SELECT encode(c[25,35], "csv") FROM mr AS c`
+    },
+    {
+        "description": "Encode data from mr as PNG to show as an image",
+        "query": `image>>SELECT encode(c[*:*,*:*], "PNG") FROM mr AS c`
+    }
+]
+}
+    

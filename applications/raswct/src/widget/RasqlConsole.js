@@ -22,6 +22,18 @@
 
 var ENDPOINT = PETASCOPE_ENDPOINT.replace("rasdaman/ows", "rasdaman/rasql");
 
+// Load queries from queries.json to example queries dropdown.
+var populateQueriesDropdown = function() {
+
+    var queries = queriesJSON.queries;
+    queries.forEach(function(queryObj) {
+        var option = $("<option></option>").attr("value", queryObj.query).text(queryObj.description);
+        $("#query-populate").append(option);
+    });
+}
+
+populateQueriesDropdown();
+
 Rj.util.ConfigManager.setRasdamanServiceUrl({
     // rasql servlet
     serviceUrl: ENDPOINT,
@@ -139,7 +151,6 @@ var diagramBinder = function (widget, query) {
 Rj.util.BinderManager.setBinder('Rj.widget.LinearDiagram', 'Rj.widget.Rasql', diagramBinder);
 Rj.util.BinderManager.setBinder('Rj.widget.AreaDiagram', 'Rj.widget.Rasql', diagramBinder);
 Rj.util.BinderManager.setBinder('Rj.widget.ScatterDiagram', 'Rj.widget.Rasql', diagramBinder);
-
 Rj.util.BinderManager.setBinder('Rj.widget.BinaryImage', 'Rj.widget.Rasql', function (widget, query) {
     query.evaluate(function (response) {
         checkForErrors(response, false, query)
@@ -197,6 +208,11 @@ function formatRasdamanString(result) {
     }
 }
 
+// Scroll to bottom of Output console
+function scrollToBottomOfOutputConsole() {
+    var objDiv = $("#output");
+    objDiv.scrollTop(objDiv.prop("scrollHeight"));
+}
 
  /**
  * 
@@ -220,23 +236,9 @@ FlancheJs.defineClass("Rj.widget.RasqlConsole", {
         addQuerySelectorListener: function () {
             var self = this;
             $("#query-populate").change(function () {
-                // Edit queries bellow
-                var val = $(this).val();
-                if (val == 0) {
-                    self._editor.setValue('text>>SELECT dbinfo(m) FROM mr AS m')
-                }
-                if (val == 1) {
-                    self._editor.setValue('text>>SELECT sdom(m) FROM mr AS m')
-                }
-                else if (val == 2) {
-                    self._editor.setValue('text>>SELECT c[18,50] FROM mr AS c');
-                }
-                else if (val == 3) {
-                    self._editor.setValue('diagram>>SELECT encode(c[25,35], "csv") FROM mr AS c');
-                }
-                else if (val == 4) {
-                    self._editor.setValue('image>>SELECT encode(c[*:*,*:*], "PNG") FROM mr AS c');
-                }
+                var query = $(this).val();
+		        // Add Rasql queries here for Execute
+                self._editor.setValue(query);
             });
         },
 
@@ -254,7 +256,7 @@ FlancheJs.defineClass("Rj.widget.RasqlConsole", {
                 lineNumbers: true,
                 mode: 'text/rasql'
             });
-            this._editor.setValue('text>>SELECT dbinfo(m) FROM mr AS m');
+            this._editor.setValue('');
         },
 
 
@@ -293,7 +295,7 @@ FlancheJs.defineClass("Rj.widget.RasqlConsole", {
             var interval = setInterval(function () {
                 time += 10;
                 $("#" + id).html("Executing Query. <span class='label label-warning'>" + formatTime(time) + "</span> passed. Please wait...")
-                $('#output').scrollTop("2000000")
+                scrollToBottomOfOutputConsole();
             }, 10);
             window.onerror = function () {
                 clearInterval(interval);
@@ -355,7 +357,7 @@ FlancheJs.defineClass("Rj.widget.RasqlConsole", {
             $("#" + id + " img").on('load', function () {
                 clearInterval(interval);
                 setTimeout(function () {
-                    $('#output').scrollTop("2000000")
+                    scrollToBottomOfOutputConsole();
                 }, 200);
             });
             $("#" + id + " img").on('error', function () {
@@ -388,7 +390,7 @@ FlancheJs.defineClass("Rj.widget.RasqlConsole", {
                 self.appendToOutput(query, data, "Query");
                 clearInterval(interval);
                 setTimeout(function () {
-                    $('#output').scrollTop("2000000")
+                    scrollToBottomOfOutputConsole();
                 }, 200);
             });
         },
@@ -420,7 +422,7 @@ FlancheJs.defineClass("Rj.widget.RasqlConsole", {
                     self.appendToOutput(query, "Downloading...", "Query");
                     clearInterval(interval);
                     setTimeout(function () {
-                        $('#output').scrollTop("2000000")
+                        scrollToBottomOfOutputConsole();
                     }, 200);
                 }
             });
@@ -442,7 +444,7 @@ FlancheJs.defineClass("Rj.widget.RasqlConsole", {
                     ("<br> <span class='label label-info'>Result:</span><br><span style=\"white-space: pre-wrap;\">" + value + "</span>")
                     : ""
                 ) + "</p>");
-            $('#output').scrollTop("200000000000");
+            scrollToBottomOfOutputConsole();
         }
     }
 });
