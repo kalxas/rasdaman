@@ -30,6 +30,7 @@ In rasdaman, focus is on multi-dimensional gridded ("raster") coverages.
 
 In rasdaman, the OGC standards WMS, WCS, and WCPS are supported, being reference implementation for WCS.
 These APIs serve different purposes:
+
 - WMS delivers a 2D map as a visual image, suitable for consunmption by humans
 - WCS delivers n-D data, suitable for further processing and analysis
 - WCPS performs flexible server-side processing, filtering, analytics, and fusion on coverages.
@@ -37,15 +38,16 @@ These APIs serve different purposes:
 These coverage data and service concepts are summarized briefly below;
 for specific details on coordinate reference system handling see also :ref:`CRS definition management <crs-def-management>`.
 Ample material is also available on the Web for familiarization with coverages (best consult in this sequence):
-- `hands-on demos <https://standards.rasdaman.org>`_ for multi-dimensional coverage services provided by `Jacobs University <https://www.jacobs-university.de/lsis>`;
-- a series of `webinars and tutorial slides <https://www.earthserver.xyz/webinars>`_ provided by `EarthServer <https://www.earthserver.xyz>`;
-- a `range of background information <http://myogc.org/go/coveragesDWG>`_ on these standards provided by OGC;
+
+- `hands-on demos <https://standards.rasdaman.org>`_ for multi-dimensional coverage services provided by `Jacobs University <https://www.jacobs-university.de/lsis>`_;
+- a series of `webinars and tutorial slides <https://www.earthserver.xyz/webinars>`_ provided by `EarthServer <https://www.earthserver.xyz>`_;
+- a `range of background information <http://myogc.org/go/coveragesDWG>`_ on these standards provided by `OGC <http://www.opengeospatial.org>`_;
 - the official standards documents maintained by `OGC <http://www.opengeospatial.org>`_:
 
- - `WCS 2.0.1 <https://portal.opengeospatial.org/files/09-110r4>`_
- - `WCS-T 2.0 <http://docs.opengeospatial.org/is/13-057r1/13-057r1.html>`_
- - `WCPS 1.0 <https://portal.opengeospatial.org/files/08-059r4>`_
- - `WMS 1.3.0 <http://portal.opengeospatial.org/files/?artifact_id=4756&passcode=4hy072w9zerhjyfbqfhq>`_
+ * `WCS 2.0.1 <https://portal.opengeospatial.org/files/09-110r4>`_
+ * `WCS-T 2.0 <http://docs.opengeospatial.org/is/13-057r1/13-057r1.html>`_
+ * `WCPS 1.0 <https://portal.opengeospatial.org/files/08-059r4>`_
+ * `WMS 1.3.0 <http://portal.opengeospatial.org/files/?artifact_id=4756&passcode=4hy072w9zerhjyfbqfhq>`_
 
 
 Coverage Data
@@ -106,8 +108,8 @@ Capabilities documents for OGC WMS and WCS, respectively:
     http://123.456.789.1:8080/rasdaman/ows?SERVICE=WCS&REQUEST=GetCapabilities&VERSION=2.0.1
 
 
-Coverage Implementation Schema (CIS)
-====================================
+OGC Coverage Implementation Schema (CIS)
+========================================
 
 A coverage consists mainly of:
 
@@ -603,8 +605,8 @@ will be updated from the local XML file at ``/home/rasdaman/Downloads/test_metad
                "http://localhost:8080/rasdaman/ows/admin/UpdateCoverageMetadata"
 
 
-Web Coverage Processing Service (WCPS)
-======================================
+OGC Web Coverage Processing Service (WCPS)
+==========================================
 
 The OGC Web Coverage Processing Service (WCPS) standard defines a
 protocol-independent language for the extraction, processing, analysis,
@@ -980,8 +982,8 @@ proprietary parameter ``outputType`` in the ``encode()`` function.
                       "{\"outputType\":\"GeneralGridCoverage\"}" ) 
 
 
-Web Map Service (WMS)
-=====================
+OGC Web Map Service (WMS)
+=========================
 
 The OGC Web Map Service (WMS) standard provides a simple HTTP interface
 for requesting overlays of geo-registered map images, ready for display.
