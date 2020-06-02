@@ -343,11 +343,12 @@ QtInsert::evaluate()
             }
             r_Dimension sourceDimension = sourceObj->getDefinitionDomain().dimension();
             r_Minterval tileCfg = getTileConfig(mddConfig, cellSize, sourceDimension);
-            auto *trueDomain = dynamic_cast<MDDDomainType*>(const_cast<MDDType*>(targetMDDType) )->getDomain();
             std::vector<std::string> trueAxisNames;
             r_Minterval newDomain = sourceObj->getDefinitionDomain();
-            if (trueDomain != NULL)
+            const auto *mddDomainType = dynamic_cast<const MDDDomainType*>(targetMDDType);
+            if (mddDomainType != NULL)
             {
+                const auto *trueDomain = mddDomainType->getDomain();
                 trueAxisNames =  trueDomain->getAxisNames();
                 tileCfg.setAxisNames(trueAxisNames);
                 newDomain.setAxisNames(trueAxisNames);
