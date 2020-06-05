@@ -202,11 +202,16 @@ QtDomainOperation::setInput(QtOperation *inputOld, QtOperation *inputNew)
 
 
 void
-QtDomainOperation::optimizeLoad(QtTrimList *trimList)
-{
+QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *intervals)
+{   
+    //here is the only place where we have other domainsm they are dimension by dimesnion presented in newTrimList elems
+    //however, they are disregarded immediately, and that causes normal execution
+    //we want to compare whether that domain fits into domain of the MDD
+    //problem is how to get MDD domain here or how to get this somewhere else
+    //idea: maybe pass current domain to the function declared in input class, and check it from within
     // test, if there is already a specification for that dimension
     bool trimming = false;
-
+    r_Minterval   domain;
     if (mintervalOp)
     {
         // pass optimization to minterval tree
@@ -222,7 +227,13 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
         {
             if (operand->getDataType() == QT_MINTERVAL)
             {
-                r_Minterval   domain    = (static_cast<QtMintervalData *>(operand))->getMintervalData();
+                domain    = (static_cast<QtMintervalData *>(operand))->getMintervalData();
+
+                if (intervals != nullptr)
+                {
+                    intervals->push_back(domain);
+                }
+
                 auto trimFlags = std::unique_ptr<vector<bool>>(
                     new vector<bool>(*((static_cast<QtMintervalData *>(operand))->getTrimFlags())));
 
@@ -274,8 +285,14 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
 
     // pass optimization process to the input tree
     if (input)
-    {
-        input->optimizeLoad(trimList);
+    {   
+        if (input->getNodeType() == QT_DOMAIN_OPERATION)
+        {
+            static_cast<QtDomainOperation*>(input)->optimizeLoad(trimList, intervals);
+        }
+        else{
+            input->optimizeLoad(trimList);
+        }
     }
 
     // Eliminate node QtDomainOperation if only trimming occurs.
@@ -565,6 +582,9 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     throw parseInfo;
                 }
             }
+            vector<r_Minterval> *intervals;
+            intervals = new vector<r_Minterval>();
+            intervals->push_back(domain);
 
             if (dynamicMintervalExpression)
             {
@@ -584,7 +604,15 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 }
 
                 // pass optimization process to the input tree
-                input->optimizeLoad(trimList);
+
+                if (input->getNodeType() == QT_DOMAIN_OPERATION)
+                {
+                    static_cast<QtDomainOperation*>(input)->optimizeLoad(trimList, intervals);
+                }
+                else
+                {
+                    input->optimizeLoad(trimList);
+                }
             }
 
             //  get operand data
@@ -619,24 +647,44 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             if (currentMDDObj)
             {
                 r_Minterval currentDomain = currentMDDObj->getCurrentDomain();
-                if (!domain.inside_of(currentDomain))
+                for (std::vector<r_Minterval>::reverse_iterator it = intervals->rbegin();it != intervals->rend(); ++it)
                 {
-                    if (!domain.intersects_with(currentDomain))
+                    if (it == intervals->rbegin())
                     {
-                        LERROR << "Subset domain " << domain << " does not intersect with the spatial domain of MDD" << currentDomain;
-                        parseInfo.setErrorNo(356);
-                        throw parseInfo; 
+                        if (!it->inside_of(currentDomain))
+                        {
+                            if (!it->intersects_with(currentDomain))
+                            {
+                                LERROR << "Subset domain " << *it << " does not intersect with the spatial domain of MDD" << currentDomain;
+                                parseInfo.setErrorNo(356);
+                                throw parseInfo; 
+                            }
+                            else
+                            {
+                                LERROR << "Subset domain " << *it << " extends outside of the spatial domain of MDD" << currentDomain;
+                                parseInfo.setErrorNo(344);
+                                throw parseInfo; 
+                            }
+                        }
                     }
-                    else
-                    {
-                        LERROR << "Subset domain " << domain << " extends outside of the spatial domain of MDD" << currentDomain;
-                        parseInfo.setErrorNo(344);
-                        throw parseInfo; 
+                    else {
+                        if (!it->inside_of(*(it-1)))
+                        {
+                            if (!it->intersects_with(*(it-1)))
+                            {
+                                LERROR << "Subset domain " << *it << " does not intersect with the previous subset of MDD" << *(it-1);
+                                parseInfo.setErrorNo(356);
+                                throw parseInfo; 
+                            }
+                            else
+                            {
+                                LERROR << "Subset domain " << *it << " extends outside of the previous subset of MDD" << *(it-1);
+                                parseInfo.setErrorNo(344);
+                                throw parseInfo; 
+                            }
+                        }  
                     }
-                    
-                    
                 }
-
                 bool trimming   = false;
                 bool projection = false;
                 nullValues = currentMDDObj->getNullValues();

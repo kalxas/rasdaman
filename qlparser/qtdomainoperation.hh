@@ -66,7 +66,8 @@ public:
     virtual void setInput(QtOperation *inputOld, QtOperation *inputNew);
 
     /// optimizing load access
-    void optimizeLoad(QtTrimList *trimList);
+    using QtUnaryOperation::optimizeLoad;
+    void optimizeLoad(QtTrimList *trimList, std::vector<r_Minterval> *trimIntervals);
 
     /// evaluates the node
     QtData *evaluate(QtDataList *inputList);
@@ -107,6 +108,7 @@ private:
     bool namedAxisFlag;
     std::vector<std::string> *axisNames;
     std::vector<std::string> *axisNamesCorrect;
+
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
