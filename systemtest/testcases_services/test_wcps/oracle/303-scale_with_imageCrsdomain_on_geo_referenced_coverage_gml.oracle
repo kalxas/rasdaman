@@ -12,31 +12,31 @@ srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <RectifiedGrid dimension="2" id="test_mean_summer_airtemp-grid">
 <limits>
 <GridEnvelope>
-<low>22 16</low>
-<high>22 16</high>
+<low>20 16</low>
+<high>21 17</high>
 </GridEnvelope>
 </limits>
 <axisLabels>Lat Lon</axisLabels>
 <origin>
 <Point
 id="test_mean_summer_airtemp-point" srsName="/crs/EPSG/0/4326">
-<pos>-26.724999999999987 134.225</pos>
+<pos>-17.849999999999987 123.1</pos>
 </Point>
 </origin>
-<offsetVector srsName="/crs/EPSG/0/4326">-35.5 0</offsetVector>
-<offsetVector srsName="/crs/EPSG/0/4326">0 44.5</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/4326">-17.75 0</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/4326">0 22.25</offsetVector>
 </RectifiedGrid>
 </domainSet>
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">0</tupleList>
+<tupleList cs=" " ts=",">0,0,0,137</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-<startPoint>22 16</startPoint>
+<startPoint>20 16</startPoint>
 </GridFunction>
 </coverageFunction>
 <gmlcov:rangeType>

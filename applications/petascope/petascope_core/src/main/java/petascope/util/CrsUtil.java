@@ -503,6 +503,13 @@ public class CrsUtil {
         }
         return false;
     }
+    
+    /**
+     * Simple check if CRS URI is EPSG
+     */
+    public static boolean isEPSGCrs(String axisCrs) {
+        return axisCrs.contains(EPSG_AUTH);
+    }
 
     /**
      * Check if axisCrs of coverage is IndexCRS (IndexND)

@@ -74,6 +74,13 @@ public class LocalMetadata {
      */
     public void buildEnvelopeSubsetsForChildList(List<Axis> axes) throws PetascopeException {
         
+        if (this.localMetadataChildList.size() > 0) {
+            Envelope firstEnvelope = this.localMetadataChildList.get(0).getBoundedBy().getEnvelope();
+            if (firstEnvelope.getNumerOfAxes() != axes.size()) {
+                return;
+            }
+        }
+        
         for (LocalMetadataChild localMetadataChild : this.localMetadataChildList) {
             Envelope envelope = localMetadataChild.getBoundedBy().getEnvelope();
             envelope.buildNumericSubsets(axes);

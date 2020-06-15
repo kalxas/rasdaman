@@ -1,1 +1,1 @@
-for c in (test_irr_cube_2) return encode( c[ansi("2008-01-01T02:01:20.000Z"), E(75042.72735943:75042.72735943), N(5094865.55794:5094865.55794)], "gml", "{\"outputType\":\"GeneralGridCoverage\"}")
+for c in (test_irr_cube_2) return encode( c[ansi("2008-01-01T02:01:20.000Z"), E(75042.72735943:85042.72735943), N(5094865.55794:5099865.55794)], "gml", "{\"outputType\":\"GeneralGridCoverage\"}")

@@ -1,2 +1,2 @@
 for $c in (test_mr)
-   return (max($c[i(50:50),j(40:40)]) = 1)
+   return (max($c[i(50:51),j(39:40)]) = 1)

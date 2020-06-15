@@ -186,12 +186,27 @@ public class WcpsCoverageMetadata {
     }
     
     /**
+     * Get geo order for input axis
+     */
+    public int getAxisGeoOrder(String axisName) {
+        int i = 0;
+        for (Axis axis : this.axes) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisName)) {
+                return i;
+            }
+            
+            i++;
+        }
+        throw new CoverageAxisNotFoundExeption(axisName);
+    }
+    
+    /**
      * Get grid order (rasdaman order) for input axis
      */
     public int getAxisGridOrder(String axisName) {
         List<Axis> axesTmp = this.getSortedAxesByGridOrder();
         for (int i = 0; i < axesTmp.size(); i++) {
-            if (axesTmp.get(i).getLabel().equals(axisName)) {
+            if (CrsUtil.axisLabelsMatch(axesTmp.get(i).getLabel(), axisName)) {
                 return i;
             }
         }

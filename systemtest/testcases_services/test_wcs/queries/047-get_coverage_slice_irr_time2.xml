@@ -9,7 +9,7 @@
   <wcs:DimensionTrim>
     <wcs:Dimension>E</wcs:Dimension>
     <wcs:TrimLow>100000</wcs:TrimLow>
-    <wcs:TrimHigh>100666</wcs:TrimHigh>
+    <wcs:TrimHigh>106666</wcs:TrimHigh>
   </wcs:DimensionTrim>
   <wcs:DimensionTrim>
     <wcs:Dimension>N</wcs:Dimension>

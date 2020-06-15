@@ -13,7 +13,7 @@
   <wcs:DimensionTrim>
     <wcs:Dimension>Long</wcs:Dimension>
     <wcs:TrimLow>40</wcs:TrimLow>
-    <wcs:TrimHigh>40.1</wcs:TrimHigh>
+    <wcs:TrimHigh>40.5</wcs:TrimHigh>
   </wcs:DimensionTrim>
   <wcs:DimensionSlice>
     <wcs:Dimension>t</wcs:Dimension>

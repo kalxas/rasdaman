@@ -3,26 +3,26 @@
 >
 <cis11:Envelope axisLabels="Lat Lon" srsDimension="2" srsName="/crs/EPSG/0/4326">
 <cis11:AxisExtent axisLabel="Lat"
-lowerBound="-44.474999999999987" uomLabel="degree" upperBound="-43.974999999999987"/>
+lowerBound="-43.974999999999987" uomLabel="degree" upperBound="-42.974999999999987"/>
 <cis11:AxisExtent axisLabel="Lon" lowerBound="111.975"
-uomLabel="degree" upperBound="112.475"/>
+uomLabel="degree" upperBound="112.975"/>
 </cis11:Envelope>
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-<startPoint>70 0</startPoint>
+<startPoint>68 0</startPoint>
 </GridFunction>
 </coverageFunction>
 <cis11:DomainSet>
 <cis11:GeneralGrid axisLabels="Lat Lon" srsName="/crs/EPSG/0/4326">
 <cis11:RegularAxis axisLabel="Lat"
-lowerBound="-44.474999999999987" resolution="-0.5"
-uomLabel="degree" upperBound="-43.974999999999987"/>
+lowerBound="-43.974999999999987" resolution="-0.5"
+uomLabel="degree" upperBound="-42.974999999999987"/>
 <cis11:RegularAxis axisLabel="Lon" lowerBound="111.975"
-resolution="0.5" uomLabel="degree" upperBound="112.475"/>
+resolution="0.5" uomLabel="degree" upperBound="112.975"/>
 <cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-<cis11:IndexAxis axisLabel="i" lowerBound="70" upperBound="70"/>
-<cis11:IndexAxis axisLabel="j" lowerBound="0" upperBound="0"/>
+<cis11:IndexAxis axisLabel="i" lowerBound="68" upperBound="69"/>
+<cis11:IndexAxis axisLabel="j" lowerBound="0" upperBound="1"/>
 </cis11:GridLimits>
 </cis11:GeneralGrid>
 </cis11:DomainSet>
@@ -40,6 +40,9 @@ resolution="0.5" uomLabel="degree" upperBound="112.475"/>
 </cis11:RangeType>
 <RangeSet>
 <DataBlock>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
 <cis11:V>0</cis11:V>
 </DataBlock>
 </RangeSet>

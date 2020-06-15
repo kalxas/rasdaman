@@ -5,7 +5,7 @@
 <Envelope axisLabels="Lat Lon" srsDimension="2"
 srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <lowerCorner>25.5 40</lowerCorner>
-<upperCorner>30 40</upperCorner>
+<upperCorner>30 40.5</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -13,7 +13,7 @@ srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <limits>
 <GridEnvelope>
 <low>20 0</low>
-<high>29 0</high>
+<high>29 1</high>
 </GridEnvelope>
 </limits>
 <axisLabels>Lat Lon</axisLabels>
@@ -30,7 +30,7 @@ id="test_eobstest-point" srsName="/crs/EPSG/0/4326">
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">-9999,-9999,-9999,478,296,138,-3,-437,-726,-851</tupleList>
+<tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999,-9999,478,523,296,283,138,134,-3,-50,-437,-509,-726,-896,-851,-1000</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>

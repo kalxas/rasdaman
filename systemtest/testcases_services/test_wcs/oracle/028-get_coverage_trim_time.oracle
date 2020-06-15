@@ -4,8 +4,8 @@
 <boundedBy>
 <Envelope axisLabels="t" srsDimension="1"
 srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="d">
-<lowerCorner>"1950-01-01T00:00:00.000Z"</lowerCorner>
-<upperCorner>"1950-01-05T00:00:00.000Z"</upperCorner>
+<lowerCorner>"1949-12-31T12:00:00.000Z"</lowerCorner>
+<upperCorner>"1950-01-04T12:00:00.000Z"</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -13,14 +13,14 @@ srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="d">
 <limits>
 <GridEnvelope>
 <low>0</low>
-<high>4</high>
+<high>3</high>
 </GridEnvelope>
 </limits>
 <axisLabels>t</axisLabels>
 <origin>
 <Point
 id="test_eobstest-point" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
-<pos>"1950-01-01T12:00:00.000Z"</pos>
+<pos>"1950-01-01T00:00:00.000Z"</pos>
 </Point>
 </origin>
 <offsetVector srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">1</offsetVector>
@@ -29,7 +29,7 @@ id="test_eobstest-point" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999</tupleList>
+<tupleList cs=" " ts=",">-9999,-9999,-9999,-9999</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>

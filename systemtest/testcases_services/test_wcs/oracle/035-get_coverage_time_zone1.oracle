@@ -5,15 +5,15 @@
 <Envelope axisLabels="t" srsDimension="1"
 srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="d">
 <lowerCorner>"1950-01-01T12:00:00.000Z"</lowerCorner>
-<upperCorner>"1950-01-01T12:00:00.000Z"</upperCorner>
+<upperCorner>"1950-01-02T12:00:00.000Z"</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
 <RectifiedGrid dimension="1" id="test_eobstest-grid">
 <limits>
 <GridEnvelope>
-<low>0</low>
-<high>0</high>
+<low>1</low>
+<high>1</high>
 </GridEnvelope>
 </limits>
 <axisLabels>t</axisLabels>
@@ -35,7 +35,7 @@ id="test_eobstest-point" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+1">Linear</sequenceRule>
-<startPoint>0</startPoint>
+<startPoint>1</startPoint>
 </GridFunction>
 </coverageFunction>
 <gmlcov:rangeType>

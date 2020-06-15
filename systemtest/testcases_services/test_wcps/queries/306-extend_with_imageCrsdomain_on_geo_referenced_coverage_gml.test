@@ -1,1 +1,1 @@
-for $c in (test_eobstest) return encode(extend( $c[t:"CRS:1"(1)],  {imageCrsdomain($c[t:"CRS:1"(1), Lat(25:30), Long(40:40)]) }), "application/gml+xml", "nodata=0" )
+for $c in (test_eobstest) return encode(extend( $c[t:"CRS:1"(1)],  {imageCrsdomain($c[t:"CRS:1"(1), Lat(25:30), Long(40:41)]) }), "application/gml+xml", "nodata=0" )

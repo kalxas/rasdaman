@@ -1,2 +1,2 @@
 for $c in ( test_mr )
-return encode($c[i(20),j(30:30)] , "text/csv" )
+return encode($c[i(20),j(30:30.5)] , "text/csv" )

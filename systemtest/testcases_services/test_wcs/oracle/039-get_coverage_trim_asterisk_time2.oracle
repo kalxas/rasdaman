@@ -5,7 +5,7 @@
 <Envelope axisLabels="t" srsDimension="1"
 srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="d">
 <lowerCorner>"1949-12-31T12:00:00.000Z"</lowerCorner>
-<upperCorner>"1950-01-05T00:00:00.000Z"</upperCorner>
+<upperCorner>"1950-01-05T12:00:00.000Z"</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>

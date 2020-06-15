@@ -3,9 +3,9 @@
 >
 <cis11:Envelope axisLabels="E N" srsDimension="2" srsName="/crs/EPSG/0/32633">
 <cis11:AxisExtent axisLabel="E" lowerBound="75042.72735943"
-uomLabel="metre" upperBound="75042.72735943"/>
+uomLabel="metre" upperBound="85042.72735943"/>
 <cis11:AxisExtent axisLabel="N" lowerBound="5094865.557938452"
-uomLabel="metre" upperBound="5094865.557938452"/>
+uomLabel="metre" upperBound="5104865.557938452"/>
 </cis11:Envelope>
 <coverageFunction>
 <GridFunction>
@@ -16,10 +16,10 @@ uomLabel="metre" upperBound="5094865.557938452"/>
 <cis11:DomainSet>
 <cis11:GeneralGrid axisLabels="E N" srsName="/crs/EPSG/0/32633">
 <cis11:RegularAxis axisLabel="E" lowerBound="75042.72735943"
-resolution="10000" uomLabel="metre" upperBound="75042.72735943"/>
+resolution="10000" uomLabel="metre" upperBound="85042.72735943"/>
 <cis11:RegularAxis axisLabel="N"
 lowerBound="5094865.557938452" resolution="-10000"
-uomLabel="metre" upperBound="5094865.557938452"/>
+uomLabel="metre" upperBound="5104865.557938452"/>
 <cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
 <cis11:IndexAxis axisLabel="i" lowerBound="0" upperBound="0"/>
 <cis11:IndexAxis axisLabel="j" lowerBound="35" upperBound="35"/>

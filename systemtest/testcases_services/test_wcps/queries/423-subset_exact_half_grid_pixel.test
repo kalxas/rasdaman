@@ -1,0 +1,4 @@
+for c in ( test_mean_summer_airtemp )
+  return encode(  
+            c[Lat(-44:-42.5), Long(111.975:112.475)],
+  "tiff")

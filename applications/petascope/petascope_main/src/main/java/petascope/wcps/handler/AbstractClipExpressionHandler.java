@@ -23,21 +23,19 @@ package petascope.wcps.handler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import petascope.core.BoundingBox;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import petascope.util.ras.RasUtil;
-import petascope.wcps.exception.processing.InvalidCoordinatesForClippingException;
 import petascope.wcps.exception.processing.WcpsRasqlException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSlicing;
@@ -46,6 +44,7 @@ import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.CoordinateTranslationService;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
@@ -70,6 +69,8 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
     protected SubsetParsingService subsetParsingService;
     @Autowired
     protected CoverageAliasRegistry coverageAliasRegistry;
+    @Autowired
+    CoordinateTranslationService coordinateTranslationService;
 
     public static final String OPERATOR = "clip";
     
@@ -150,7 +151,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
         int i = 0;
         
         for (String axisName : axisNames) {
-            if (axisName.equals(name)) {
+            if (CrsUtil.axisLabelsMatch(axisName, name)) {
                 return i;
             }
             
@@ -158,6 +159,180 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
         }
         
         return -1;
+    }
+    
+    /**
+     * For example if WKT is a polygon over XY axes, then return the rectangle which contains this polygon
+     * and get geo min/max for XY axes.
+     */
+    private BoundingBox getConvexHullXYBoundingBox(WcpsCoverageMetadata metadata, 
+                                                   String[] geoPoints, List<String> axisNames, String wktCRS) throws PetascopeException {
+        if (!metadata.hasXYAxes()) {
+            return null;
+        }
+        List<Axis> axes = metadata.getXYAxes();
+        Axis axisX = axes.get(0);
+        Axis axisY = axes.get(1);
+        int geoCoordinateXOrder = this.getAxisOrder(axisNames, axisX.getLabel());
+        int geoCoordinateYOrder = this.getAxisOrder(axisNames, axisY.getLabel());
+        
+        if (geoCoordinateXOrder == -1 || geoCoordinateYOrder == -1) {
+            return null;
+        }
+        
+        BigDecimal xmin = null, ymin = null, xmax = null, ymax = null;        
+        
+        for (String geoPoint : geoPoints) {
+            // e.g: 10 20
+            String[] geoCoordinateArray = geoPoint.split(" ");
+            
+            BigDecimal geoCoordinateX = null;
+            BigDecimal geoCoordinateY = null;
+            String valueX = geoCoordinateArray[geoCoordinateXOrder];
+            String valueY = geoCoordinateArray[geoCoordinateYOrder];
+            
+            try {
+                geoCoordinateX = new BigDecimal(valueX);
+            } catch (Exception ex) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest, "Coordinate of X axis is not valid number for clipping, given: " + valueX);
+            }
+            
+            try {
+                geoCoordinateY = new BigDecimal(valueY);
+            } catch (Exception ex) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest, "Coordinate of Y axis is not valid number for clipping, given: " + valueY);
+            }
+            
+            if (xmin == null) {
+                xmin = geoCoordinateX;
+                xmax = geoCoordinateX;
+                
+                ymin = geoCoordinateY;
+                ymax = geoCoordinateY;
+            } else {
+                if (geoCoordinateX.compareTo(xmin) < 0) {
+                    xmin = new BigDecimal(geoCoordinateX.toPlainString());
+                }
+                if (geoCoordinateX.compareTo(xmax) > 0) {
+                    xmax = new BigDecimal(geoCoordinateX.toPlainString());
+                }
+                
+                if (geoCoordinateY.compareTo(ymin) < 0) {
+                    ymin = new BigDecimal(geoCoordinateY.toPlainString());
+                }
+                if (geoCoordinateY.compareTo(ymax) > 0) {
+                    ymax = new BigDecimal(geoCoordinateY.toPlainString());
+                }
+            }
+        }
+        
+        if (wktCRS != null) {
+            // Reproject the bbox from input CRS to native CRS of coverage
+            Subset subsetX = new Subset(new NumericTrimming(xmin, xmax), wktCRS, axisX.getLabel());
+            Subset subsetY = new Subset(new NumericTrimming(ymin, ymax), wktCRS, axisY.getLabel());
+
+            List<Subset> subsets = new ArrayList<>();
+            subsets.add(subsetX);
+            subsets.add(subsetY);
+            
+            this.wcpsCoverageMetadataGeneralService.transformSubsettingCrsXYSubsets(metadata, subsets);
+            
+            xmin = subsets.get(0).getNumericSubset().getLowerLimit();
+            xmax = subsets.get(0).getNumericSubset().getUpperLimit();
+            
+            ymin = subsets.get(1).getNumericSubset().getLowerLimit();
+            ymax = subsets.get(1).getNumericSubset().getUpperLimit();
+        }
+        
+        return new BoundingBox(xmin, ymin, xmax, ymax);
+    }
+    
+    /**
+     * Translate the XY geo coordinates as slicing coordinates in clip() operator correctly
+     * based on the convex hull of input WKT and calculated result of subset trimming
+     * from XY min and max of convex hull.
+     */
+    private Pair<String, String> calculateXYGridBounds(Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds, 
+                                                     WcpsCoverageMetadata metadata,
+                                                     String[] geoCoordinateArray,
+                                                     List<Subset> subsets,
+                                                     BoundingBox convexHullXYBBox) throws PetascopeException {
+        Axis axisX = metadata.getXYAxes().get(0);
+        Axis axisY = metadata.getXYAxes().get(1);
+        BigDecimal newGeoCoordinateX = subsets.get(0).getNumericSubset().getLowerLimit();
+        BigDecimal newGeoCoordinateY = subsets.get(1).getNumericSubset().getLowerLimit();
+
+        // Update the geo bounds for clipped output coverage
+        if (metadata.isXYOrder()) {
+            // XY Axes order                    
+            this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
+            this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
+        } else {
+            // YX Axes order
+            this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
+            this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
+        }
+
+        Pair<BoundingBox, BoundingBox> bboxesPair = this.coordinateTranslationService.calculateGridGeoXYBoundingBoxes(axisX, axisY, convexHullXYBBox);
+        BoundingBox adjustedConvexHullGeoXYBBox = bboxesPair.fst;
+        BoundingBox adjustedConvexHullGridXYBBox = bboxesPair.snd;
+
+        BigDecimal lowerBoundX = newGeoCoordinateX;
+        BigDecimal upperBoundX = lowerBoundX;
+        BigDecimal lowerBoundY = newGeoCoordinateY;
+        BigDecimal upperBoundY = lowerBoundY;
+
+        if (lowerBoundX.compareTo(adjustedConvexHullGeoXYBBox.getXMin()) < 0) {
+            lowerBoundX = adjustedConvexHullGeoXYBBox.getXMin();
+        }
+
+        if (lowerBoundX.compareTo(adjustedConvexHullGeoXYBBox.getXMax()) > 0) {
+            lowerBoundX = adjustedConvexHullGeoXYBBox.getXMax();
+        }
+
+        if (lowerBoundX.compareTo(upperBoundX) > 0) {
+            upperBoundX = lowerBoundX;
+        }
+
+        if (lowerBoundY.compareTo(adjustedConvexHullGeoXYBBox.getYMin()) < 0) {
+            lowerBoundY = adjustedConvexHullGeoXYBBox.getYMin();
+        }
+
+        if (lowerBoundY.compareTo(adjustedConvexHullGeoXYBBox.getYMax()) > 0) {
+            lowerBoundY = adjustedConvexHullGeoXYBBox.getYMax();
+        }
+
+        if (lowerBoundY.compareTo(upperBoundY) > 0) {
+            upperBoundY = lowerBoundY;
+        }
+
+
+        BoundingBox geoBBox = new BoundingBox(lowerBoundX, lowerBoundY,
+                                              upperBoundX, upperBoundY);
+        BoundingBox gridBBox = this.coordinateTranslationService.calculageGridXYBoundingBox(axisX, axisY, geoBBox);
+
+        BigDecimal boundX = gridBBox.getXMin();
+
+        if (boundX.compareTo(adjustedConvexHullGridXYBBox.getXMin()) < 0) {
+            boundX = adjustedConvexHullGridXYBBox.getXMin();
+        }
+        if (boundX.compareTo(adjustedConvexHullGridXYBBox.getXMax()) > 0) {
+            boundX = adjustedConvexHullGridXYBBox.getXMax();
+        }
+
+        BigDecimal boundY = gridBBox.getYMin();
+
+        if (boundY.compareTo(adjustedConvexHullGridXYBBox.getYMin()) < 0) {
+            boundY = adjustedConvexHullGridXYBBox.getYMin();
+        }
+        if (boundY.compareTo(adjustedConvexHullGridXYBBox.getYMax()) > 0) {
+            boundY = adjustedConvexHullGridXYBBox.getYMax();
+        }
+        
+        boundX = axisX.getGridBounds().getLowerLimit().add(boundX);
+        boundY = axisY.getGridBounds().getLowerLimit().add(boundY);
+        
+        return new Pair<>(boundX.toPlainString(), boundY.toPlainString());
     }
 
     /**
@@ -172,8 +347,10 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      * input CRS to coverage's native XY axes CRS.
      * @return A string representing translated coordinates in grid-axes order
      */
-    protected String translateGeoToGridCoorinates( Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds, WcpsCoverageMetadata metadata, List<String> axisNames, 
-                                                  String[] geoCoordinateArray, String wktCRS) throws PetascopeException {
+    protected String translateGeoToGridCoorinates(Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds, 
+                                                  WcpsCoverageMetadata metadata, List<String> axisNames, 
+                                                  String[] geoCoordinateArray, String wktCRS,
+                                                  BoundingBox convexHullXYBBox) throws PetascopeException {
         int geoCoordinateXOrder = -1;
         int geoCoordinateYOrder = -1;
         
@@ -241,25 +418,11 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                 // Transform from subsettingCRS of WKT to native coverage CRS if necessary
                 this.wcpsCoverageMetadataGeneralService.transformSubsettingCrsXYSubsets(metadata, subsets);
 
-                BigDecimal newGeoCoordinateX = subsets.get(0).getNumericSubset().getLowerLimit();
-                BigDecimal newGeoCoordinateY = subsets.get(1).getNumericSubset().getLowerLimit();
+                Pair<String, String> boundsPair = this.calculateXYGridBounds(clippedCoverageAxesGeoBounds, metadata, 
+                                                                             geoCoordinateArray, subsets, convexHullXYBBox);
 
-                // Update the geo bounds for clipped output coverage
-                if (metadata.isXYOrder()) {
-                    // XY Axes order                    
-                    this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
-                    this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
-                } else {
-                    // YX Axes order
-                    this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
-                    this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
-                }
-
-                // Now, translate coordinate for XY axes normally
-                String gridCoordinateX = this.translateGeoToGridPointCoordinate(axisX, newGeoCoordinateX);
-                String gridCoordinateY = this.translateGeoToGridPointCoordinate(axisY, newGeoCoordinateY);
-                translatedGridCoordinates.add(new Pair<>(gridCoordinateX, axisX.getRasdamanOrder()));
-                translatedGridCoordinates.add(new Pair<>(gridCoordinateY, axisY.getRasdamanOrder()));
+                translatedGridCoordinates.add(new Pair<>(boundsPair.fst, axisX.getRasdamanOrder()));
+                translatedGridCoordinates.add(new Pair<>(boundsPair.snd, axisY.getRasdamanOrder()));
                 i++;
             }
         }
@@ -349,13 +512,19 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
         for (String axisName : clippedCoverageAxesGeoBounds.keySet()) {            
             BigDecimal minBound = clippedCoverageAxesGeoBounds.get(axisName).fst;
             BigDecimal maxBound = clippedCoverageAxesGeoBounds.get(axisName).snd;
-            NumericSubset numericSubset = new NumericTrimming(minBound, maxBound);
+
             Axis axis = metadata.getAxisByName(axisName);
 
+            NumericSubset numericSubset = null;
+            if (minBound.equals(maxBound)) {
+                numericSubset = new NumericSlicing(minBound);
+                subsetDimensions.add(new WcpsSliceSubsetDimension(axisName, axis.getNativeCrsUri(), minBound.toPlainString()));
+            } else {
+                subsetDimensions.add(new WcpsTrimSubsetDimension(axisName, axis.getNativeCrsUri(), minBound.toPlainString(), maxBound.toPlainString()));
+                numericSubset = new NumericTrimming(minBound, maxBound);
+            }
             Subset subset = new Subset(numericSubset, axis.getNativeCrsUri(), axis.getLabel());
             numericSubsets.add(subset);
-            
-            subsetDimensions.add(new WcpsTrimSubsetDimension(axisName, axis.getNativeCrsUri(), minBound.toPlainString(), maxBound.toPlainString()));
         }
         
         // Update clipped coverage expression with the new subsets from WKT shape
@@ -387,6 +556,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                 WKTCompoundPoint wktCompoundPoint = wktCompoundPoints.getWKTCompoundPoints().get(j);
                 // e.g: geoPoints[0] = 20.5 30.5 "2008-01-01T02:01:20.000Z", geoPoints[1] = 40.5 50.5 "2008-01-03T23:59:55.000Z"
                 String[] geoPoints = wktCompoundPoint.getPoint().split(",");
+                BoundingBox convexHullXYBBox = this.getConvexHullXYBoundingBox(metadata, geoPoints, axisNames, wktCRS);
                 List<String> translatedGeoPointsList = new ArrayList<>();
 
                 String previousTranslatedGridPointCoordinates = "";
@@ -402,7 +572,9 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                         // e.g: clip(c, POLYGON((...)) ) or clip(c, POLYGON((...)), "http://opengis.net/def/crs/EPSG/0/3857")
                         // then need to translate geo coordinates in WKT to grid coordinates accordingly
                         // This is the tranlsated grid coordinates in grid-axes order to query in rasql
-                        translatedGridPointCoordinates = this.translateGeoToGridCoorinates(clippedCoverageAxesGeoBounds, metadata, axisNames, geoPointCoordinates, wktCRS);
+                        translatedGridPointCoordinates = this.translateGeoToGridCoorinates(clippedCoverageAxesGeoBounds, metadata,
+                                                                                           axisNames, geoPointCoordinates, wktCRS,
+                                                                                           convexHullXYBBox);
                     }
                     if (!previousTranslatedGridPointCoordinates.equals(translatedGridPointCoordinates)) {
                         // NOTE: don't add the duplicate grid coordinates to Rasql as they are redundant and cause significant slow in rasserver
@@ -410,6 +582,11 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                         translatedGeoPointsList.add(translatedGridPointCoordinates);
                     }
                     previousTranslatedGridPointCoordinates = translatedGridPointCoordinates;
+                }
+                
+                if (translatedGeoPointsList.size() == 1) {
+                    String firstValue = translatedGeoPointsList.get(0);
+                    translatedGeoPointsList.add(firstValue);
                 }
                 // e.g: 20 30 40,30 40 50,60 70 80
                 String translatedGeoPoints = ListUtil.join(translatedGeoPointsList, ",");

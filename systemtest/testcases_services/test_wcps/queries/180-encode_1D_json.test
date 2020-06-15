@@ -1,1 +1,1 @@
-for c in (test_mean_summer_airtemp) return encode(c[Lat(-44.474999999999987), Long(111.975:111.975)], "json")
+for c in (test_mean_summer_airtemp) return encode(c[Lat(-44.474999999999987), Long(111.975:112.975)], "json")

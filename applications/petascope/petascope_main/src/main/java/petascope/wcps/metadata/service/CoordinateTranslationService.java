@@ -131,12 +131,15 @@ public class CoordinateTranslationService {
         return new Pair<>(geoSubset, gridSubset);
     }
     
-     /**
-     * From a geo XY bounding box with geo bounds calculates a grid XY bounding box with grid bounds.
+    /**
+     * Return a pair of geo / grid bboxes as same as gdal from an input bbox on XY axes
      */
-    public BoundingBox calculageGridXYBoundingBox(Axis axisX, Axis axisY, BoundingBox intersectGeoBBoxNativeCRS) throws PetascopeException {
+    public Pair<BoundingBox, BoundingBox> calculateGridGeoXYBoundingBoxes(Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
+        int epsgCode = -1;
         
-        int epsgCode = CrsUtil.getEpsgCodeAsInt(axisX.getNativeCrsUri());
+        if (!CrsUtil.isIndexCrs(axisX.getNativeCrsUri())) {
+            epsgCode = CrsUtil.getEpsgCodeAsInt(axisX.getNativeCrsUri());
+        }
         
         // axis X
         int gridWidth = axisX.getTotalNumberOfGridPixels();
@@ -144,20 +147,47 @@ public class CoordinateTranslationService {
         GeoTransform adfGeoTransformX = new GeoTransform(epsgCode, axisX.getGeoBounds().getLowerLimit().doubleValue(), 0,
                                                          gridWidth, 0, axisX.getResolution().doubleValue(), 0);
         Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = this.calculateGeoGridXBounds(axisX, adfGeoTransformX,
-                                                                                                intersectGeoBBoxNativeCRS.getXMin(), intersectGeoBBoxNativeCRS.getXMax());
+                                                                                                inputBBoxNativeCRS.getXMin(), inputBBoxNativeCRS.getXMax());
+        
         // axis Y
         int gridHeight = axisY.getTotalNumberOfGridPixels();
 
         GeoTransform adfGeoTransformY = new GeoTransform(epsgCode, 0, axisY.getGeoBounds().getUpperLimit().doubleValue(),
                                                          0, gridHeight, 0, axisY.getResolution().doubleValue());
         Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = this.calculateGeoGridYBounds(axisY, adfGeoTransformY,
-                                                                                                intersectGeoBBoxNativeCRS.getYMin(), intersectGeoBBoxNativeCRS.getYMax());
+                                                                                                inputBBoxNativeCRS.getYMin(), inputBBoxNativeCRS.getYMax());
+        
+        BoundingBox geoBBox = new BoundingBox(new BigDecimal(pairX.fst.getLowerLimit().toString()), new BigDecimal(pairY.fst.getLowerLimit().toString()),
+                                               new BigDecimal(pairX.fst.getUpperLimit().toString()), new BigDecimal(pairY.fst.getUpperLimit().toString()));
         
         BoundingBox gridBBox = new BoundingBox(new BigDecimal(pairX.snd.getLowerLimit().toString()), new BigDecimal(pairY.snd.getLowerLimit().toString()),
                                                new BigDecimal(pairX.snd.getUpperLimit().toString()), new BigDecimal(pairY.snd.getUpperLimit().toString()));
         
-        return gridBBox;
         
+        if (gridBBox.getXMin().compareTo(gridBBox.getXMax()) > 0) {
+            gridBBox.setXMax(new BigDecimal(gridBBox.getXMin().toPlainString()));
+        }
+        if (gridBBox.getYMin().compareTo(gridBBox.getYMax()) > 0) {
+            gridBBox.setYMax(new BigDecimal(gridBBox.getYMax().toPlainString()));
+        }
+        
+        return new Pair<>(geoBBox, gridBBox);
+    }
+    
+    /**
+     * From a geo XY bounding box with geo bounds calculates an adjusted XY bounding box with geo bounds.
+     */
+    public BoundingBox calculageGeoXYBoundingBox(Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
+        BoundingBox geoBBox = this.calculateGridGeoXYBoundingBoxes(axisX, axisY, inputBBoxNativeCRS).fst;
+        return geoBBox;
+    }
+    
+     /**
+     * From a geo XY bounding box with geo bounds calculates a grid XY bounding box with grid bounds.
+     */
+    public BoundingBox calculageGridXYBoundingBox(Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
+        BoundingBox gridBBox = this.calculateGridGeoXYBoundingBoxes(axisX, axisY, inputBBoxNativeCRS).snd;
+        return gridBBox;
     }
     
     /**

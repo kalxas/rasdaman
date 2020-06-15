@@ -5,7 +5,7 @@
 <Envelope axisLabels="i" srsDimension="1"
 srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
 <lowerCorner>0</lowerCorner>
-<upperCorner>56</upperCorner>
+<upperCorner>53</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -13,7 +13,7 @@ srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
 <limits>
 <GridEnvelope>
 <low>0</low>
-<high>56</high>
+<high>53</high>
 </GridEnvelope>
 </limits>
 <axisLabels>i</axisLabels>
@@ -29,7 +29,7 @@ id="test_wms_4326-point" srsName="/crs/OGC/0/Index1D">
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">87,84,85,93,87,92,98,100,100,109,116,121,126,132,113,120,107,95,71,82,92,98,112,113,114,125,130,117,118,135,146,171,206,221,214,198,178,192,160,181,182,185,175,168,162,156,157,145,125,132,126,121,109,97,99,74,81</tupleList>
+<tupleList cs=" " ts=",">87,84,85,93,87,92,98,100,100,109,116,121,126,115,113,98,107,95,71,82,85,98,101,113,121,125,125,126,141,151,182,219,228,209,194,170,181,182,184,175,168,162,161,157,145,125,132,126,121,109,97,99,74,81</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>

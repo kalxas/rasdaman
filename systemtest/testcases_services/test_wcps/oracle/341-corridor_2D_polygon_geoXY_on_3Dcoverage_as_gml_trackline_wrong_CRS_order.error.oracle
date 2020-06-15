@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.1.0"
-    
-      >
-    <ows:Exception exceptionCode="UnknownError">
-        <ows:ExceptionText>Error processing clip() operator expression. Reason: CRS of axis 'Lat' is not type datetime, given: '/crs/EPSG/0/4326'.</ows:ExceptionText>
-    </ows:Exception>
+>
+<ows:Exception exceptionCode="UnknownError">
+<ows:ExceptionText>Error processing clip() operator expression. Reason: Coordinate of Y axis is not valid number for clipping, given: "1950-01-01"</ows:ExceptionText>
+</ows:Exception>
 </ows:ExceptionReport>

@@ -1,1 +1,1 @@
-for c in (test_mr) return encode( bit( c[i(40:40),j(40:40)], 1 ), "csv" )
+for c in (test_mr) return encode( bit( c[i(40:41),j(39:40)], 1 ), "csv" )

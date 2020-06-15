@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
 import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.Subset;
@@ -122,6 +121,15 @@ public class Envelope {
     public List<Subset> getEnvelopeSubsets() {
         return envelopeSubsets;
     }
+    
+    /**
+     * Return the number of axes in coverage's metadata
+     */
+    @JsonIgnore
+    public int getNumerOfAxes() {
+        return this.axisLabels.split(" ").length;
+    }
+    
     
     @Override
     public boolean equals(Object obj) {

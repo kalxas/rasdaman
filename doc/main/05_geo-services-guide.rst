@@ -285,6 +285,74 @@ See `example queries <http://rasdaman.org/browser/systemtest/testcases_services/
 in the WCS systemtest which send KVP (key value pairs) GET request and XML POST
 request to Petascope.
 
+Subsetting behavior
+-------------------
+
+In general, subsetting in petascope behaves similarly to subsetting in gdal,
+with a couple of deviations necessary for n-D. Specifically, subsetting
+follows the next rules:
+
+- Slicing (``geoPoint``): the grid slice with index corresponding to the requested slicing
+  geo point is returned. This is computed as follows:
+
+  .. code-block:: text
+
+     gridIndex = floor((geoPoint - minGeoLowerBound) / axisResolution)
+
+- Trimming (``geoLowerBound``:``geoUpperBound``): the lower bound of the grid interval
+  is determined as in the case of slicing. The number of returned grid points follows gdal:
+
+  .. code-block:: text
+   
+     + If axis resolution is positive (e.g: ``Long`` axis):
+          gridLowerBound = floor((geoLowerBound - minGeoLowerBound) / axisResolution)
+          numberOfGridPixels = floor(((geoUpperBound - geoLowerBound) / axisResolution) + 0.5)
+          gridUpperBound = gridLowerBound + numberOfGridPixels - 1
+
+     + If axis resolution is negative (e.g: ``Lat`` axis):
+          gridLowerBound = floor((geoUpperBound - maxGeoLowerBound) / axisResolution)
+          numberOfGridPixels = floor((geoLowerBound - geoUpperBound) / axisResolution) + 0.5)
+          gridUpperBound = gridLowerBound + numberOfGridPixels - 1
+
+  .. NOTE::
+
+     If a trimming subset on an axis with: 
+
+        (geoUpperBound - geoLowerBound) / axisResolution < 0.5
+
+     then, lower grid bound is translated by the slicing formula and upper grid bound is
+     set to lower grid bound.
+
+For example: a 2D coverage has ``Long`` (X) and ``Lat`` (Y) axes with CRS ``EPSG:4326``.
+The resolution for axis ``Long`` is: ``10`` and the resolution for axis ``Lat`` is: ``-10``.
+The geo bounds of axis ``Long`` are: ``[0:180]`` and the geo bounds
+of axis ``Lat`` are ``[0:90]``.
+
+- Calculate **slicing** on ``Long`` axis by geo coordinates to grid coordinates:
+
+  .. code-block:: text
+
+      - Long(0):          returns [0]
+      - Long(9):          returns [0]
+      - Long(10):         returns [1]
+      - Long(15):         returns [1]
+      - Long(20):         returns [2]
+      - Long(40):         returns [4]
+      - Long(49.99999):   returns [4]
+      - Long(50.0):       returns [5]
+
+- Calculate **trimming** on ``Long`` axis by geo coordinates to grid coordinates:
+
+  .. code-block:: text
+  
+      - Long(0:5):         returns [0:0]
+      - Long(0:10):        returns [0:0]
+      - Long(0:14.999):    returns [0:0]
+      - Long(0:15):        returns [0:1]
+      - Long(0:24.999):    returns [0:1]
+      - Long(0:25.0):      returns [0:2]
+      - Long(9,11): returns [0:0]
+
 CIS 1.0 to 1.1 Transformation
 -----------------------------
 

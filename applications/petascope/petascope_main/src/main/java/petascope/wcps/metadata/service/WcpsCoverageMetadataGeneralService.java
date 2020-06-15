@@ -735,14 +735,19 @@ public class WcpsCoverageMetadataGeneralService {
         // NOTE: gdal_translate doesn't allow to subset by projwin with less than half grid pixel
         boolean lessThanHalfPixel = geoDistance.compareTo(halfGeoResolution) < 0;
         
-        if (axis.isXYGeoreferencedAxis() && !lessThanHalfPixel) {
-            String epsgCode = CrsUtil.getEPSGCode(axis.getNativeCrsUri());
-            // e.g: 4326
-            int code = CrsUtil.getEpsgCodeAsInt(epsgCode);
+        if (axis instanceof RegularAxis && !lessThanHalfPixel) {
+            
+            // e.g: 4326 from EPSG:4326
+            int code = 0;
+            if (CrsUtil.isEPSGCrs(axis.getNativeCrsUri())) {
+                String epsgCode = CrsUtil.getEPSGCode(axis.getNativeCrsUri());
+                code = CrsUtil.getEpsgCodeAsInt(epsgCode);
+            }
+            
             // e.g: [0:4] = 4 - 0 + 1 = 5 pixels
             int numberOfGridPixels = gridDomainMax.subtract(gridDomainMin).intValue() + 1;
 
-            if (axis.isXAxis()) {
+            if (axis.getResolution().compareTo(BigDecimal.ZERO) > 0) {
                 // axis X
                 
                 GeoTransform adfGeoTransform = new GeoTransform(code, geoDomainMin.doubleValue(), 0, numberOfGridPixels, 0, axis.getResolution().doubleValue(), 0);
@@ -751,7 +756,7 @@ public class WcpsCoverageMetadataGeneralService {
                 translatedSubset = pairX.snd;
                 
                 axis.setGeoBounds(new NumericTrimming(parsedSubset.getLowerLimit(), parsedSubset.getUpperLimit()));
-            } else if (axis.isYAxis()) {
+            } else if (axis.getResolution().compareTo(BigDecimal.ZERO) < 0) {
                 // axis Y
             
                 GeoTransform adfGeoTransform = new GeoTransform(code, 0, geoDomainMax.doubleValue(), 0, numberOfGridPixels, 0, axis.getResolution().doubleValue());
@@ -768,6 +773,14 @@ public class WcpsCoverageMetadataGeneralService {
             // store the translated grid bounds from the subsets
             translatedSubset = translateGeoToGridCoordinates(subsetDimension, parsedSubset, axis,
                     geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
+            
+            if (lessThanHalfPixel) {
+                // e.g: Axis Long with geo resolution: 10, geo min bound = 0
+                // Long(9,11) returns grid intervals[0,1], but the distance 11-9 = 2 < half grid resolution: 10 / 2
+                // Then, grid lower bound = grid upper bound                
+                translatedSubset.setUpperLimit(translatedSubset.getLowerLimit());
+                parsedSubset.setUpperLimit(lowerLimit);
+            }
         }
 
         // Set the correct translated grid parsed subset to axis

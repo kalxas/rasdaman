@@ -4,7 +4,7 @@
 <boundedBy>
 <Envelope axisLabels="t" srsDimension="1"
 srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="d">
-<lowerCorner>"1950-01-05T00:00:00.000Z"</lowerCorner>
+<lowerCorner>"1950-01-04T12:00:00.000Z"</lowerCorner>
 <upperCorner>"1950-01-06T12:00:00.000Z"</upperCorner>
 </Envelope>
 </boundedBy>
@@ -20,7 +20,7 @@ srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="d">
 <origin>
 <Point
 id="test_eobstest-point" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
-<pos>"1950-01-05T12:00:00.000Z"</pos>
+<pos>"1950-01-05T00:00:00.000Z"</pos>
 </Point>
 </origin>
 <offsetVector srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">1</offsetVector>

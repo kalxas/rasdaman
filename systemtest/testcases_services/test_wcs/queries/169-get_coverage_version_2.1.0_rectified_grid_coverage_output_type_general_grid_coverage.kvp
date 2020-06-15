@@ -1,7 +1,7 @@
 service=WCS&
 version=2.1.0&
 request=GetCoverage&
-subset=Lat(-44.475, -44.375)&
-subset=Long(111.975, 111.995)&
+subset=Lat(-44.475, -43.375)&
+subset=Long(111.975, 112.995)&
 coverageId=test_mean_summer_airtemp&
 outputType=GeneralGridCoverage

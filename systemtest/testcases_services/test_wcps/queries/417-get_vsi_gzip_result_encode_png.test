@@ -1,0 +1,1 @@
+for c in (test_wcps_rgb_gzip) return encode(c[j(0:40), i(60:80)], "png")
