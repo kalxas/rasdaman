@@ -5010,7 +5010,8 @@ array cells are affected the spatial domain of the replacement
 expression on the right-hand side of the ``set`` clause. Pixel locations are
 matched pairwise according to the arrays' spatial domains. Therefore, to
 appropriately position the replacement array, application of the ``shift()``
-function (see :ref:`sec-shift`) can be necessary.
+function (see :ref:`sec-shift`) can be necessary; for more details and practical
+examples continue to :ref:`sec-update-partial`.
 
 As a rule, the spatial domain of the righthand side expression must be
 equal to or a subset of the database array's spatial domain.
@@ -5018,6 +5019,8 @@ equal to or a subset of the database array's spatial domain.
 Cell values contained in the update null set will *not* overwrite existing
 cell values which are not null. The update null set is taken from the source
 MDD if it is not empty, otherwise it will be taken from the target MDD.
+
+.. _sec-update-syntax:
 
 **Syntax**
 
@@ -5119,6 +5122,141 @@ The example below updates target collection ``mr2`` with data from ``rgb``
     set a assign b[ 0:150, 50:200 ].red
     from rgb as b
 
+
+.. _sec-update-partial:
+
+Partial Updates
+---------------
+
+Often very large data files need to be inserted in rasdaman, which don't fit in
+main memory. One way to insert such a large file is to split it into smaller
+parts, and then import each part one by one via partial updates, until the
+initial image is reconstructed in rasdaman.
+
+This is done in two steps: initializing an MDD in a collection, and inserting
+each part in this MDD.
+
+Initialization
+^^^^^^^^^^^^^^
+
+Updates replace an area in a target MDD object with the data from a source MDD
+object, so first the target MDD object needs to be initialized in a collection.
+To initialize an MDD object it's sufficient to insert an MDD object of size 1 (a
+single point) to the collection:
+
+::
+
+    insert into Coll
+    values marray it in [0:0,0:0,...] values 0
+
+Note that the MDD constructed with the marray constructor should match the type
+of Coll (dimension and base type). If the dimension of the data matches the Coll
+dimensions (e.g. both are 3D),  then inserting some part of the data would work
+as well. Otherwise, if data is 2D and Coll is 3D for example, it is necessary to
+initialize an array in the above way.
+
+Updates
+^^^^^^^
+
+After we have an MDD initialized in the collection, we can continue with
+updating it with the individual parts using the update statement in rasql.
+
+Refering to the `update statement syntax <sec-update-syntax>`__, ``mddExp`` can
+be any expression that results in an MDD object M, like an marray construct, a
+format conversion function, etc. The position where M will be placed in the
+target MDD (``collIterator``) is determined by the spatial domain of M. When
+importing data in some format via the decode function, by default the resulting
+MDD has an sdom of ``[0:width,0:height,..]``, which will place M at ``[0,0,..]``
+in the target MDD. In order to place it in a different position, the spatial
+domain of M has to be explicitly set with the shift function in the query. For
+example:
+
+::
+
+  update Coll as c set c
+  assign shift(decode($1),[100,100])
+
+The update statement allows one to dynamically expand MDDs (up to the limits of
+the MDD type if any have been specified), so it's not necessary to fully
+materialize an MDD.
+
+When the MDD is first initialized with:
+
+::
+
+    insert into Coll
+    values marray it in [0:0,0:0,...] values 0
+
+it has a spatial domain of ``[0:0,0:0,...]`` and only one point is materialized
+in the database. Updating this MDD later on, further expands the spatial domain
+if the source array M extends outside the sdom of target array T.
+
+Example: 3D timeseries
+^^^^^^^^^^^^^^^^^^^^^^
+
+Create a 3D collection first for arrays of type float: ::
+
+    create collection Coll FloatSet3
+
+Initialize an array with a single cell in the collection: ::
+
+    insert into Coll
+    values marray it in [0:0,0:0,0:0] values 0f
+
+Update array with data at the first time slice: ::
+
+    update Coll as c set c[0,*:*,*:*]
+    assign decode($1)
+
+Update array with data at the second time slice, but shift spatially to 
+``[10,1]``: ::
+
+    update Coll as c set c[1,*:*,*:*]
+    assign shift( decode($1), [10,1] )
+
+And so on.
+
+Example: 3D cube of multiple 3D arrays
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this case we build a 3D cube by concatenating multiple smaller 3D cubes along
+a certain dimension, i.e. build a 3D mosaic.
+
+Create the 3D collection first (suppose it's for arrays of type float): ::
+
+    create collection Coll FloatSet3
+
+Initialize an array with a single cell in the collection: ::
+
+    insert into Coll
+    values marray it in [0:0,0:0,0:0] values 0f
+
+Update array with the first cube, which has itself sdom ``[0:3,0:100,0:100]``: ::
+
+    update Coll as c set c[0:3,0:100,0:100]
+    assign decode($1, "netcdf")
+
+After this Coll has sdom ``[0:3,0:100,0:100]``.
+
+Update array with the second cube, which has itself sdom ``[0:5,0:100,0:100]``;
+note that now we want to place this one on top of the first one with respect to
+the first dimension, so its origin must be shifted by 5 so that its sdom will be
+in effect ``[5:10,0:100,0:100]``: ::
+
+    update Coll as c set c[5:10,0:100,0:100]
+    assign shift(decode($1, "netcdf"), [5,0,0])
+
+The sdom of Coll is now ``[0:10,0:100,0:100]``.
+
+Update array with the third cube, which has itself sdom ``[0:2,0:100,0:100]``;
+note that now we want to place this one next to the first two with respect to
+the second dimension and a bit higher by 5 pixels, so that its sdom will be in
+effect ``[5:7,100:200,0:100]``: ::
+
+    update Coll as c set c[5:7,100:200,0:100]
+    assign shift(decode($1, "netcdf"), [5,100,0])
+
+The sdom of Coll is now ``[0:10,100:200,0:100]``.
 
 .. _sec-delete:
 

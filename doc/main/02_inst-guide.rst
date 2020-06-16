@@ -771,8 +771,14 @@ CentOS 7
     $ sudo yum install java-1.8.0-openjdk tomcat
 
     # To run wcst_import.sh
-    $ sudo pip3 install numpy GDAL==1.11.2 netCDF4==1.2.7 pygrib \
-      jsonschema python-dateutil lxml
+    $ sudo pip3 install jsonschema python-dateutil lxml \
+      pyproj pygrib numpy netCDF4==1.2.7 pygrib
+
+    # To run rasdapy
+    $ pip3 install --user grpcio==1.9.0 protobuf==3.6.1
+
+    # To run systemtest
+    $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
 
 Debian 9 / Ubuntu 16.04
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -808,10 +814,14 @@ Debian 9 / Ubuntu 16.04
     # To run Java components
     $ sudo apt-get install default-jre-headless libgdal-java tomcat8
 
-    # To run wcst_import.sh; not it is best to install Python 3.6 instead of the
-    # system-provided Python 3.5
-    $ sudo pip3 install numpy GDAL==1.11.2 netCDF4==1.2.7 pygrib==1.9.9 \
-      jsonschema python-dateutil lxml glob2
+    # To run wcst_import.sh; it is recommended to install Python 3.6
+    $ sudo pip3 install jsonschema python-dateutil lxml \
+      pyproj numpy netCDF4==1.2.7 GDAL==1.11.2 pygrib==1.9.9
+    # To run rasdapy
+    $ pip3 install --user grpcio==1.9.0 protobuf==3.6.1
+
+    # To run systemtest
+    $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
 
 Debian 10 / Ubuntu 18.04
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -820,16 +830,16 @@ Debian 10 / Ubuntu 18.04
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake bison flex git g++ unzip \
-      libpng-dev libjpeg-dev libboost-filesystem-dev libboost-thread-dev \
-      libboost-system-dev libboost-dev libtiff-dev libgdal-dev zlib1g-dev \
-      libffi-dev libnetcdf-dev libedit-dev libreadline-dev libdw-dev \
-      libsqlite3-dev libgrib2c-dev curl libssl-dev libeccodes-dev cmake ccache
+      make libtool gawk autoconf automake bison flex git g++ unzip libpng-dev 
+      libjpeg-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev 
+      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-devlibnetcdf-dev 
+      libedit-dev libreadline-dev libdw-dev libsqlite3-dev libgrib2c-dev curl 
+      libssl-dev libeccodes-dev cmake ccache
     # To build Java components
     $ sudo apt-get install default-jdk-headless maven ant libgdal-java
 
     # To generate HTML documentation
-    $ sudo pip install sphinx sphinx_rtd_theme
+    $ pip3 install --user sphinx sphinx_rtd_theme
     # To generate PDF documentation (in addition to above)
     $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
       texlive-fonts-recommended texlive-latex-extra 
@@ -838,15 +848,20 @@ Debian 10 / Ubuntu 18.04
 
     # To run rasdaman
     $ sudo apt-get install \
-      postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils \
-      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel \
-      libreadline-dev libssl1.1 libeccodes0 libpython3-dev
+      postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils 
+      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel 
+      libreadline-dev libssl1.1 libeccodes0
     # To run Java components
     $ sudo apt-get install default-jre-headless libgdal-java tomcat9
 
-    # To run wcst_import.sh; not it is best to install Python 3.6 instead of the
-    # system-provided Python 3.5
-    $ sudo pip3 install numpy GDAL netCDF4 pygrib jsonschema python-dateutil lxml
+    # To run wcst_import.sh; it is recommended to install Python 3.6
+    $ pip3 install --user jsonschema python-dateutil lxml \
+      pyproj pygrib numpy netCDF4==1.2.7 GDAL==2.2.3
+    # To run rasdapy
+    $ pip3 install --user grpcio==1.9.0 protobuf==3.6.1
+
+    # To run systemtest
+    $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
 
 
 .. _sec-download-install:
@@ -898,7 +913,7 @@ case, then install the missing packages and retry configuration. The ``..``
 indicates the path to the rasdaman source tree, which is now the parent
 directory of the ``build`` directory in which the ``cmake`` command is executed.
 
-The general format of invoking ``cmake`` on the command-line is as follows:
+The general *format* of invoking ``cmake`` on the command-line is as follows: ::
 
     $ cmake /path/to/rasdaman/sources [ -D<option>... ]
 
