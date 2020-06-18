@@ -45,8 +45,9 @@ public class NoData {
         this.nilValues = nilValues;
         for (NilValue nilValue:nilValues) {
             if (nilValue.getValue() != null) {
-                // NOTE: rasql does not support parsing NaN as float number yet.
-                if (!nilValue.getValue().equalsIgnoreCase(NO_DATA_NAN)) {
+                // NOTE: rasql does not support parsing NaN as float number or null values as interval (e.g: 9.96921e+35:*) yet.
+                if (!(nilValue.getValue().equalsIgnoreCase(NO_DATA_NAN) 
+                    || nilValue.getValue().contains(":"))) {
                     this.nodataValues.add(new BigDecimal(nilValue.getValue()));
                 }
             }

@@ -5,10 +5,10 @@
     "mock": false,
     "automated": true,
     "track_files": false,
-    "default_null_values": ["9.96921e+35:*"]
+    "default_null_values": ["9.96921e+35:*", 9.96921e+36]
   },
   "input": {
-    "coverage_id": "test_float32_asterisk_as_null_values",
+    "coverage_id": "test_float32_asterisk_as_null_values_interval",
     "paths": [
       "*.tiff"
     ]

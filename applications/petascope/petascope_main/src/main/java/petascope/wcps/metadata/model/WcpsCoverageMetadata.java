@@ -449,12 +449,12 @@ public class WcpsCoverageMetadata {
      */
     public List<NilValue> getNodata() {
         List<NilValue> nodataValues = new ArrayList<>();
-        for (RangeField rangeField : this.rangeFields) {
-            // NOTE: current only support 1 range with 1 no data value
-            if (rangeField.getNodata().size() > 0) {
-                nodataValues.add(rangeField.getNodata().get(0));
-            }
+        
+        // NOTE: null values are the same for all bands
+        for (NilValue nilValue : this.rangeFields.get(0).getNodata()) {
+            nodataValues.add(nilValue);
         }
+        
         return nodataValues;
     }
 

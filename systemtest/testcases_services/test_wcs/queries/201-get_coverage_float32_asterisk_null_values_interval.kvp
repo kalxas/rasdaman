@@ -1,0 +1,1 @@
+SERVICE=WCS&VERSION=2.1.0&REQUEST=GetCoverage&COVERAGEID=test_float32_asterisk_as_null_values_interval&FORMAT=image/tiff

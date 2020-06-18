@@ -1559,9 +1559,17 @@ Some options are commonly applicable to all recipes.
   parameter should be an array containing the desired null value either as a
   closed interval ``low:high`` or single values. E.g. for a coverage with 3 bands
 
+  .. NOTE::
+
+     If you specify a null value interval (e.g: ``"9.96921e+35:*"``) in ``wcst_import.sh``, 
+     note that during encode it will not be preserved in the encoded result
+     like tiff because null value intervals are not supported by most formats. 
+     In this case it is recommended to specify in addition a non-interval null value, 
+     which will be used for encode.
+
   .. hidden-code-block:: json
 
-      "default_null_values": [ "9995:9999", "10000:*", 3.14 ],
+      "default_null_values": [ 9.96921e+36, "9.96921e+35:*" ],
 
   Note, if set this parameter will override the null/nodata values present in
   the input files.

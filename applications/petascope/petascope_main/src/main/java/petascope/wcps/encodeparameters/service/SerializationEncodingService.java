@@ -137,10 +137,8 @@ public class SerializationEncodingService {
             jsonExtraParams.setDimensions(new Dimensions(netCDFExtraParams.getDimensions()));
             jsonExtraParams.setVariables(new Variables(netCDFExtraParams.getVariables()));
         }
-        
-        if (hasNoData) {
-            jsonExtraParams.setNoData(new NoData(wcpsCoverageMetadata.getNodata()));
-        }
+
+        jsonExtraParams.setNoData(new NoData(wcpsCoverageMetadata.getNodata()));
         
         // Extra metadata of coverage
         CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
