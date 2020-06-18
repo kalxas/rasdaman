@@ -1561,7 +1561,7 @@ Some options are commonly applicable to all recipes.
 
   .. hidden-code-block:: json
 
-      "default_null_values": [ "9995:9999", "-9, -10, -87", 3.14 ],
+      "default_null_values": [ "9995:9999", "10000:*", 3.14 ],
 
   Note, if set this parameter will override the null/nodata values present in
   the input files.

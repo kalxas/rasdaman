@@ -1,0 +1,48 @@
+{
+  "config": {
+	"service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "default_null_values": ["9.96921e+35:*"]
+  },
+  "input": {
+    "coverage_id": "test_float32_asterisk_as_null_values",
+    "paths": [
+      "*.tiff"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+        "coverage": {
+          "crs": "EPSG/0/4326",
+          "metadata": {
+            "type": "xml",
+            "global": "auto"
+          },
+          "slicer": {
+            "type": "gdal",
+
+            "axes": {
+
+              "Long": {
+                "min": "${gdal:minX}",
+                "max": "${gdal:maxX}",
+                "gridOrder": 0,
+                "resolution": "${gdal:resolutionX}"
+              },
+              "Lat": {
+                "min": "${gdal:minY}",
+                "max": "${gdal:maxY}",
+                "gridOrder": 1,
+                "resolution": "${gdal:resolutionY}"
+              }
+          }
+        }      
+      },
+      "tiling": "ALIGNED [0:366, 0:500]"
+    }
+  }
+}

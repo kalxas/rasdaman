@@ -360,17 +360,23 @@ class AbstractToCoverageConverter:
                 # null_value could be 9999 (gdal), "9999", or "'9999'" (netcdf, grib) so remove the redundant quotes
                 nil_value = str(nil_value).replace("'", "")
 
-                # e.g: test_float_4d contains a missing_value as "NaNf"
-                if "-nan" in nil_value.lower():
-                    nil_value = "-NaN"
-                if "nan" in nil_value.lower():
-                    nil_value = "NaN"
+                # nill value can be single (e.g: "-9999") or interval (e.g: "-9999:-9998")
+                values = nil_value.split(":")
+                valid_values = []
 
-                if is_number(nil_value):
-                    range_nils.append(RangeTypeNilValue(band.nilReason, nil_value))
-                else:
-                    # nilValue is invalid number
-                    raise RuntimeException("NilValue of band: {} must be a number.".format(nil_value))
+                for value in values:
+                    if "-nan" in value.lower():
+                        value = "-NaN"
+                    if "nan" in value.lower():
+                        value = "NaN"
+
+                    if not(value == "*" or is_number(value)):
+                        # nilValue is invalid number
+                        raise RuntimeException("NilValue of band: {} is not valid.".format(nil_value))
+
+                    valid_values.append(value)
+
+                range_nils.append(RangeTypeNilValue(band.nilReason, ":".join(valid_values)))
 
             return range_nils
         else:

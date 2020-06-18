@@ -768,8 +768,7 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
     }
 
     /**
-     * Rasdaman supports only integers or intervals formed of integers as nil
-     * values values.
+     * Rasdaman supports number ("3") or interval of numbers ("3:5" or "3:*") as null value
      */
     private void validateNilValue(String nilValue) throws WCSTInvalidNilValueException {
         if (!"".equals(nilValue)) {
@@ -777,13 +776,13 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
             String[] parts = nilValue.split(":");
             //each part has to be an integer
             for (String part : parts) {
-                if (!containsNaN(part)) {
+                if (!(containsNaN(part) || containsUnlimitedNullValue(part))) {
                     try {
                         new Float(part);
                     } catch (NumberFormatException ex) {
                         throw new WCSTInvalidNilValueException(nilValue);
                     }
-                    }
+                }
             }
         }
     }
@@ -996,6 +995,13 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
     private static boolean containsNaNf(String point) {
         return StringUtils.containsIgnoreCase(point, NANF_NULL_VALUE);
     }
+    
+    /**
+     * Check if input string contains "*"
+     */
+    private static boolean containsUnlimitedNullValue(String point) {
+        return StringUtils.contains(point, UNLIMITED_NULL_VALUE);
+    }
 
     /**
      * Parses gml:metadata elements.
@@ -1030,6 +1036,7 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
     private static final String DEFAULT_NO_OFFSET_VECTOR = "0";
     private static final String NAN_NULL_VALUE = "NaN";
     private static final String NANF_NULL_VALUE = "NaNf";
+    private static final String UNLIMITED_NULL_VALUE = "*";
     private static final String DEFAULT_TS = " ";
     private static final String DEFAULT_CS = ",";
     private static final String TOKEN_INTERVAL = "%tokenInterval%";
