@@ -332,7 +332,7 @@ public class ConfigManager {
         String result = null;
         
         if (props.containsKey(key)) {
-            result = props.getProperty(key);
+            result = props.getProperty(key).trim();
         } else {
             throw new PetascopeException(ExceptionCode.MissingPropertyKey, "Property key '" + key + " is not found in petascope.properties file.");
         }
