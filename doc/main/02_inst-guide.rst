@@ -174,6 +174,10 @@ Installation
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic stable" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
+        # For ubuntu 20.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb focal stable" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
+
     - **testing:** updated more frequently with beta releases, so aimed for
       feature testing in non-critical installations.
 
@@ -185,6 +189,10 @@ Installation
 
         # For ubuntu 18.04
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic testing" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
+
+        # For ubuntu 20.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb focal testing" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
     - **nightly:** updated nightly, so that they have the latest patches.
@@ -199,6 +207,10 @@ Installation
 
         # For ubuntu 18.04
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic nightly" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
+
+        # For ubuntu 20.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb focal nightly" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
 3. rasdaman can be installed now: ::
@@ -823,8 +835,8 @@ Debian 9 / Ubuntu 16.04
     # To run systemtest
     $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
 
-Debian 10 / Ubuntu 18.04
-~~~~~~~~~~~~~~~~~~~~~~~~
+Debian 10 / Ubuntu 18.04 / Ubuntu 20.04
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. hidden-code-block:: bash
 
