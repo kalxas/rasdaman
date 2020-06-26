@@ -257,8 +257,8 @@ public class CrsProjectionUtil {
         // Run a quick command to warp VRT file to target CRS with given geo XY axes' resolutions
         String command = "gdalwarp -overwrite -t_srs EPSG_CODE -tr RES_X RES_Y -tap VRT_FILE -of VRT VRT_WARPED_FILE"
                             .replace("EPSG_CODE", targetEPSGCode)
-                            .replace("RES_X", targetCRSGeoXResolution.toPlainString())
-                            .replace("RES_Y", targetCRSGeoYResolution.toPlainString())
+                            .replace("RES_X", targetCRSGeoXResolution.abs().toPlainString())
+                            .replace("RES_Y", targetCRSGeoYResolution.abs().toPlainString())
                             .replace("VRT_FILE", tempVRTFile.getAbsolutePath())
                             .replace("VRT_WARPED_FILE", tempWarpedVRTFile.getAbsolutePath());
         
