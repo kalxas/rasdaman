@@ -34,6 +34,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
+import org.gdal.gdal.gdal;
 import static org.rasdaman.config.VersionManager.SECORE_VERSION;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,6 +233,8 @@ public class ConfigManager {
     // from petascope.properties used for log4j
     private static final String KEY_LOG_FILE_PATH = "log4j.appender.rollingFile.File";
     
+    public static byte GDAL_JAVA_VERSION = 0;
+    
     /* ***** Demo web pages ***** */
     // Used only when one wants to add web pages demo (e.g: Earthlook) to be served by Petascope
     private static final String KEY_STATIC_HTML_DIR_PATH = "static_html_dir_path";
@@ -306,6 +309,8 @@ public class ConfigManager {
         validateLogFilePath();
 
         printStartupMessage();
+        
+        GDAL_JAVA_VERSION = Byte.parseByte(gdal.VersionInfo().substring(0, 1));
     }
     
     /**

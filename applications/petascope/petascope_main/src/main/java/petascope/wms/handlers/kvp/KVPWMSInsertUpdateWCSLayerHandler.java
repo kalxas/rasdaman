@@ -86,7 +86,7 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
 
     // It is the same as WGS:84 except the order (WGS:84 is Long, Lat) and WCS only allows to add CRS in EPSG:4326 order (Lat, Long)
     private static final String DEFAULT_CRS_CODE = "4326";
-    private static final String DEFAULT_CRS_URI = "http://www.opengis.net/def/crs/EPSG/0/4326";
+    private static final String DEFAULT_EPSG_CRS = "EPSG:4326";
 
     public KVPWMSInsertUpdateWCSLayerHandler() {
 
@@ -238,7 +238,7 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         if (!crs.equals(DEFAULT_CRS_CODE)) {
             // Need to transform from native CRS of XY geo axes (e.g: EPSG:3857) to EPSG:4326
             String sourceCrs = xyAxes.get(0).getNativeCrsUri();
-            String targetCrs = DEFAULT_CRS_URI;
+            String targetCrs = CrsUtil.getEPSGFullUri(DEFAULT_EPSG_CRS);
             List<BigDecimal> minValues = null, maxValues = null;
             try {
                 // min geo bounds

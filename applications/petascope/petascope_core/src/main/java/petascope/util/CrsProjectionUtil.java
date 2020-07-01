@@ -41,11 +41,14 @@ import org.gdal.osr.SpatialReference;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
+import petascope.core.CrsDefinition;
 import petascope.exceptions.WCSException;
 import petascope.core.GeoTransform;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 
 /**
  * This class will provide utility method for projecting interval in
@@ -79,6 +82,9 @@ public class CrsProjectionUtil {
         // e.g: 4326, 32633
         int sourceCode = CrsUtil.getEpsgCodeAsInt(sourceCrs);
         int targetCode = CrsUtil.getEpsgCodeAsInt(targetCrs);
+        
+        // In case the input CRS is YX axes order with GDAL version >= 3
+        double[] adjustedSourceCoords = adjustCoordinatesByGdalVersion(sourceCoords, sourceCrs);
 
         // Use gdal native library to transform the coordinates from source crs to target crs
         CoordinateTransformation coordTrans = CoordinateTransformation.CreateCoordinateTransformation(
@@ -88,13 +94,16 @@ public class CrsProjectionUtil {
                     "Failed creating coordinate transformation from " + sourceCrs + " to " + targetCrs);
         }
         // This will returns 3 values, translated X, translated Y and another value which is not used
-        double[] transCoords = coordTrans.TransformPoint(sourceCoords[0], sourceCoords[1]);
+        double[] translatedCoords = coordTrans.TransformPoint(adjustedSourceCoords[0], adjustedSourceCoords[1]);
+        
+        // In case the output CRS is YX axes order with GDAL version >= 3
+        double[] adjustedTranslatedCoords = adjustCoordinatesByGdalVersion(translatedCoords, targetCrs);
 
         List<BigDecimal> ret = new ArrayList<>(sourceCoords.length);
         // NOTE: projection can return NaN which means cannot reproject from sourceCRS to targetCRS
         // e.g: EPSG:3577 (75042.7273594 5094865.55794) to EPSG:4326
-        for (int i = 0; i < transCoords.length - 1; i++) {
-            Double value = transCoords[i];
+        for (int i = 0; i < adjustedTranslatedCoords.length; i++) {
+            Double value = adjustedTranslatedCoords[i];
             if (Double.isNaN(value) || Double.isInfinite(value)) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError, 
                         "Failed reprojecting XY coordinates '" + Arrays.toString(sourceCoords) + 
@@ -303,5 +312,33 @@ public class CrsProjectionUtil {
             return false;
         }
         return true;
+    }
+    
+    /**
+     * Check if given CRS is XY order (e.g: EPSG:3857) or YX order (e.g: EPG:4326)
+     */
+    private static boolean isXYAxesOrder(String crs) throws PetascopeException {    
+        CrsDefinition crsDefinition = null;
+        try {
+            crsDefinition = CrsUtil.getCrsDefinition(crs); // x, y, t,...
+        } catch (SecoreException ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Cannot get the definition for CRS '" + crs + "'. Reason: " + ex.getMessage(), ex);
+        }
+        
+        return crsDefinition.getAxes().get(0).getType().equals(AxisTypes.X_AXIS);        
+    }
+    
+    /**
+     * NOTE: from GDAL 3, it regards the axes orders in the EPSG CRS definition (e.g: EPSG:4326 with YX axes order).
+     * Previous versions are always with XY axes orders for any EPSG CRSs.
+     */
+    private static double[] adjustCoordinatesByGdalVersion(double[] coordinates, String crs) throws PetascopeException {        
+        if (ConfigManager.GDAL_JAVA_VERSION < 3 || isXYAxesOrder(crs)) {          
+            return coordinates;
+        } else {
+           // gdal version 3 and input coordinates (YX axes order), then need to flip the coordinates
+           double[] adjustedCoordinates = new double[] {coordinates[1], coordinates[0]};
+           return adjustedCoordinates;
+        }
     }
 }
