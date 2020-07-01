@@ -1,0 +1,1 @@
+for c in (test_nullvalues_no_update_map_mosaic) return encode(clip(c[Lat(-10:30), Long(30:50)], POLYGON((-7.5 37.1, 9.3 63.8, 14.2 45.3)) ), "tiff") 

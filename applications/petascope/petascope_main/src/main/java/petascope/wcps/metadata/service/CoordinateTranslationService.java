@@ -95,8 +95,8 @@ public class CoordinateTranslationService {
         BigDecimal gridXMin = gridPair.fst;
         BigDecimal gridXMax = gridXMin.add(dfOXSize).subtract(BigDecimal.ONE);
         
-        gridXMin = gridXMin.add(axisX.getOriginalGridBounds().getLowerLimit());
-        gridXMax = gridXMax.add(axisX.getOriginalGridBounds().getLowerLimit());
+        gridXMin = gridXMin.add(axisX.getGridBounds().getLowerLimit());
+        gridXMax = gridXMax.add(axisX.getGridBounds().getLowerLimit());
         
         BigDecimal updatedGeoXMin = adfGeoTransform.getUpperLeftGeoXDecimal().add(gridPair.fst.multiply(adfGeoTransform.getGeoXResolutionDecimal()));
         BigDecimal updatedGeoXMax = updatedGeoXMin.add(adfGeoTransform.getGeoXResolutionDecimal().multiply(dfOXSize));
@@ -119,8 +119,8 @@ public class CoordinateTranslationService {
         BigDecimal gridYMin = gridPair.fst;
         BigDecimal gridYMax = gridYMin.add(dfOYSize).subtract(BigDecimal.ONE);
         
-        gridYMin = gridYMin.add(axisY.getOriginalGridBounds().getLowerLimit());
-        gridYMax = gridYMax.add(axisY.getOriginalGridBounds().getLowerLimit());
+        gridYMin = gridYMin.add(axisY.getGridBounds().getLowerLimit());
+        gridYMax = gridYMax.add(axisY.getGridBounds().getLowerLimit());
         
         BigDecimal updatedGeoYMax = adfGeoTransform.getUpperLeftGeoYDecimal().add(gridPair.fst.multiply(adfGeoTransform.getGeoYResolutionDecimal()));
         BigDecimal updatedGeoYMin = updatedGeoYMax.add(adfGeoTransform.getGeoYResolutionDecimal().multiply(dfOYSize));

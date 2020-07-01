@@ -12,8 +12,8 @@ srsName="/crs/EPSG/0/3857" uomLabels="metre metre">
 <RectifiedGrid dimension="2" id="test_wcs_eomap_clip_polygon_10m-grid">
 <limits>
 <GridEnvelope>
-<low>0 0</low>
-<high>0 0</high>
+<low>30 30</low>
+<high>30 30</high>
 </GridEnvelope>
 </limits>
 <axisLabels>X Y</axisLabels>
@@ -36,7 +36,7 @@ id="test_wcs_eomap_clip_polygon_10m-point" srsName="/crs/EPSG/0/3857">
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>0 0</startPoint>
+<startPoint>30 30</startPoint>
 </GridFunction>
 </coverageFunction>
 <gmlcov:rangeType>

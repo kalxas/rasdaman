@@ -257,6 +257,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                                                      String[] geoCoordinateArray,
                                                      List<Subset> subsets,
                                                      BoundingBox convexHullXYBBox) throws PetascopeException {
+        // The bbox of this one is wrong
         Axis axisX = metadata.getXYAxes().get(0);
         Axis axisY = metadata.getXYAxes().get(1);
         BigDecimal newGeoCoordinateX = subsets.get(0).getNumericSubset().getLowerLimit();
@@ -328,9 +329,6 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
         if (boundY.compareTo(adjustedConvexHullGridXYBBox.getYMax()) > 0) {
             boundY = adjustedConvexHullGridXYBBox.getYMax();
         }
-        
-        boundX = axisX.getGridBounds().getLowerLimit().add(boundX);
-        boundY = axisY.getGridBounds().getLowerLimit().add(boundY);
         
         return new Pair<>(boundX.toPlainString(), boundY.toPlainString());
     }
