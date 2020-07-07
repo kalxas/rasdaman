@@ -59,7 +59,7 @@ RC_ERROR=1
 log()  { echo "$PROG: $*"; }
 logn() { printf "%s" "$PROG: $*"; }
 error(){ echo "$PROG: $*" >&2; exit $RC_ERROR; }
-check(){ [ $? ] && echo "ok." || echo "failed."; }
+check(){ if [ "$1" -eq 0 ]; then echo "ok."; else echo "failed."; RESULT="$RC_ERROR"; fi }
 
 usage()
 {
@@ -111,7 +111,7 @@ import_coverage()
 
   logn "  importing coverage $COVERAGE_ID (detail output in /tmp/$COVERAGE_ID.log)... "
   "$WCST_IMPORT" "$RECIPE_FILE" > "/tmp/$COVERAGE_ID.log" 2>&1
-  check
+  check $?
 
   rm -f "$RECIPE_FILE"
 }
@@ -159,4 +159,4 @@ SECORE_URL=$(grep "^secore_urls=" "$SETTINGS" | sed -e 's/.*=//' -e 's/^[ \t]*//
 import_all_coverages
 
 log "done."
-exit $RC_OK
+exit $RESULT
