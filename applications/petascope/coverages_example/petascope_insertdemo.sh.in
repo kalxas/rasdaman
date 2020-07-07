@@ -48,6 +48,7 @@ DEFAULT_SERVICE_ENDPOINT="http://localhost:8080"
 
 RC_OK=0
 RC_ERROR=1
+RESULT=$RC_OK
 
 # ------------------------------------------------------------------------------
 # functions

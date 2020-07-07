@@ -39,7 +39,7 @@
 #  2) User running the script must have write access in PostgreSQL
 #  3) share/rasdaman/db_updates should contain the SQL update scripts
 
-PROG=$(basename "$0")
+PROG="$(basename "$0")"
 
 VERSION="@VERSION_FULL@"
 BUILD="@GIT_HASH@"
@@ -48,17 +48,18 @@ export RC_OK=0
 export RC_ERROR=255
 
 # updateN.sql scripts
-export SCRIPT_DIR=@pkgdatadir@/db_updates
+export SCRIPT_DIR="@pkgdatadir@/db_updates"
+export CONF_DIR="@CONF_DIR@"
 
 # table storing the current database update number
 export RAS_DBUPDATE=ras_dbupdates
 export DB_TYPE=rc
 
-export BASEDBMS=@basedbms@
+export BASEDBMS="@basedbms@"
 export BASEDBMS_SQLITE=sqlite
 export BASEDBMS_PGSQL=pgsql
 
-export DBCONN=@dbconn@
+export DBCONN="@dbconn@"
 
 # ------------------------------------------------------------------------------
 # functions
@@ -77,7 +78,7 @@ checkerr() { [ $? -eq 0 ] && echo "ok." || error "failed, exiting."; }
 # checks
 #
 
-log "upgrading database schema of rasdaman $VERSION build $BUILD";
+log "upgrading database schema of rasdaman $VERSION build $BUILD"
 
 if [ ! -d "$SCRIPT_DIR" ]; then
   error "SQL update script directory not found: $SCRIPT_DIR"
