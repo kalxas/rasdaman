@@ -105,7 +105,7 @@ public class BaseX implements Database {
                 log.info("Database connection to " + collectionName + " successfully opened.");
 
             } catch (BaseXException ex) {
-                log.debug("The database " + collectionName + " doesn't seem to exist");
+                log.debug("The database " + collectionName + " doesn't seem to exist. Reason: " + ex.getMessage());
                 try {
                     log.info("Initializing database " + collectionName);
                     // Get the xml file path from collection.

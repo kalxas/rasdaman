@@ -61,6 +61,20 @@ export BASEDBMS_PGSQL=pgsql
 
 export DBCONN="@dbconn@"
 
+RASMGR_CONF="@CMAKE_INSTALL_PREFIX@/etc/rasmgr.conf"
+RASDB="$(grep define '$RASMGR_CONF' | grep connect | awk '{ print $5 }')"
+
+if [ -n "$RASDB" ]; then
+   export DBCONN="$RASDB"
+fi
+
+if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
+    if [ -f "$RASDB" ]; then
+        export DBCONN="$RASDB"
+    fi
+fi
+
+
 # ------------------------------------------------------------------------------
 # functions
 # ------------------------------------------------------------------------------

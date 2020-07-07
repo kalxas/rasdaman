@@ -171,8 +171,8 @@ public class IOUtil {
         String ret = "";
         try {
             ret = new Scanner(new File(file), UTF8).useDelimiter("\\A").next();
-        } catch (FileNotFoundException ex) {
-            log.error("File " + file + " not found.", ex);
+        } catch (Exception ex) {
+            log.error("File " + file + " not found. Reason: " + ex.getMessage(), ex);
         }
         return ret;
     }
