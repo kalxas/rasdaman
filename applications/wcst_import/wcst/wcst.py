@@ -184,7 +184,7 @@ class WCSTInsertRequest(WCSTRequest):
     __PIXEL_DATA_TYPE_PARAMETER = "pixelDataType"
     __TILING_PARAMETER = "tiling"
     __REQUEST_TYPE = "InsertCoverage"
-    __BLACK_LISTED = "blackListed"
+    __BLACK_LISTED = "BLACKLISTED"
 
 
 class WCSTInsertScaleLevelsRequest(WCSTRequest):

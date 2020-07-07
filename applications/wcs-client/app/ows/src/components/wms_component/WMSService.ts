@@ -205,7 +205,7 @@ module rasdaman {
         public blackListOneLayer(layerName:string):angular.IPromise<any> {
             var result = this.$q.defer();
             
-            var requestUrl = this.settings.wmsEndpoint + "/admin?request=BlackList&layerName=" + layerName;
+            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=BlackList&LAYERS=" + layerName;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
 
             this.$http.get(requestUrl, {
@@ -223,7 +223,7 @@ module rasdaman {
         public blackListAllLayers():angular.IPromise<any> {
             var result = this.$q.defer();
             
-            var requestUrl = this.settings.wmsEndpoint + "/admin?request=BlackListAllLayers";
+            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=BlackListAll";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
 
             this.$http.get(requestUrl, {
@@ -243,7 +243,7 @@ module rasdaman {
         public whiteListOneLayer(layerName:string):angular.IPromise<any> {
             var result = this.$q.defer();
           
-            var requestUrl = this.settings.wmsEndpoint + "/admin?request=WhiteList&layerName=" + layerName;
+            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=WhiteList&LAYERS=" + layerName;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
 
             this.$http.get(requestUrl, {
@@ -261,7 +261,7 @@ module rasdaman {
         public whiteListAllLayers():angular.IPromise<any> {
             var result = this.$q.defer();
             
-            var requestUrl = this.settings.wmsEndpoint + "/admin?request=WhiteListAllLayers";
+            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=WhiteListAll";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
 
             this.$http.get(requestUrl, {

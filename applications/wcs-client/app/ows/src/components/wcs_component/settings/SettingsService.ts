@@ -35,6 +35,7 @@ module rasdaman {
         public defaultContextPath:string;
 
         public wcsFullEndpoint:string;
+        public adminEndpoint:string;
 
         public constructor($window:angular.IWindowService) {              
             // In case of Petascope is deployed to an URI without /rasdaman/ows
@@ -60,6 +61,7 @@ module rasdaman {
             }            
             
             this.contextPath = this.wcsEndpoint.replace("/rasdaman/ows", "/rasdaman");
+            this.adminEndpoint = this.contextPath + "/admin";
         }
     }
 }

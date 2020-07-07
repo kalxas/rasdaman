@@ -225,7 +225,7 @@ module rasdaman {
         // Update coverage's metadata from a text file (formData is FormData object containing the file to be uploaded)
         public updateCoverageMetadata(formData):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateCoverageMetadata"; 
+            var requestUrl = this.settings.adminEndpoint + "/UpdateCoverageMetadata"; 
             
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             requestHeaders["Content-Type"] = undefined;
@@ -255,7 +255,7 @@ module rasdaman {
         public blackListOneCoverage(coverageId:string[]):angular.IPromise<any> {
             var result = this.$q.defer();
             
-            var requestUrl = this.settings.wcsEndpoint + "/admin?request=BlackList&coverageId=" + coverageId;
+            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=BlackList&coverageId=" + coverageId;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
 
             this.$http.get(requestUrl, {
@@ -273,7 +273,7 @@ module rasdaman {
         public blackListAllCoverages():angular.IPromise<any> {
             var result = this.$q.defer();
             
-            var requestUrl = this.settings.wcsEndpoint + "/admin?request=BlackListAllCoverages";
+            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=BlackListAll";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
 
             this.$http.get(requestUrl, {
@@ -293,7 +293,7 @@ module rasdaman {
         public whiteListOneCoverage(coverageId:string):angular.IPromise<any> {
             var result = this.$q.defer();
           
-            var requestUrl = this.settings.wcsEndpoint + "/admin?request=WhiteList&coverageId=" + coverageId;
+            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=WhiteList&coverageId=" + coverageId;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
 
             this.$http.get(requestUrl, {
@@ -311,7 +311,7 @@ module rasdaman {
         public whiteListAllCoverages():angular.IPromise<any> {
             var result = this.$q.defer();
             
-            var requestUrl = this.settings.wcsEndpoint + "/admin?request=WhiteListAllCoverages";
+            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=WhiteListAll";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
 
             this.$http.get(requestUrl, {

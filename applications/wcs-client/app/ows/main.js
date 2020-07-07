@@ -2251,6 +2251,7 @@ var rasdaman;
                 this.wcsEndpoint = this.wcsEndpoint + "ows";
             }
             this.contextPath = this.wcsEndpoint.replace("/rasdaman/ows", "/rasdaman");
+            this.adminEndpoint = this.contextPath + "/admin";
         };
         WCSSettingsService.$inject = ["$window"];
         return WCSSettingsService;
@@ -2403,7 +2404,7 @@ var rasdaman;
         };
         WCSService.prototype.updateCoverageMetadata = function (formData) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateCoverageMetadata";
+            var requestUrl = this.settings.adminEndpoint + "/UpdateCoverageMetadata";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             requestHeaders["Content-Type"] = undefined;
             var request = {
@@ -2422,7 +2423,7 @@ var rasdaman;
         };
         WCSService.prototype.blackListOneCoverage = function (coverageId) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin?request=BlackList&coverageId=" + coverageId;
+            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=BlackList&coverageId=" + coverageId;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -2435,7 +2436,7 @@ var rasdaman;
         };
         WCSService.prototype.blackListAllCoverages = function () {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin?request=BlackListAllCoverages";
+            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=BlackListAll";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -2448,7 +2449,7 @@ var rasdaman;
         };
         WCSService.prototype.whiteListOneCoverage = function (coverageId) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin?request=WhiteList&coverageId=" + coverageId;
+            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=WhiteList&coverageId=" + coverageId;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -2461,7 +2462,7 @@ var rasdaman;
         };
         WCSService.prototype.whiteListAllCoverages = function () {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin?request=WhiteListAllCoverages";
+            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=WhiteListAll";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -5697,7 +5698,7 @@ var rasdaman;
         };
         WMSService.prototype.blackListOneLayer = function (layerName) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wmsEndpoint + "/admin?request=BlackList&layerName=" + layerName;
+            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=BlackList&LAYERS=" + layerName;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -5710,7 +5711,7 @@ var rasdaman;
         };
         WMSService.prototype.blackListAllLayers = function () {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wmsEndpoint + "/admin?request=BlackListAllLayers";
+            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=BlackListAll";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -5723,7 +5724,7 @@ var rasdaman;
         };
         WMSService.prototype.whiteListOneLayer = function (layerName) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wmsEndpoint + "/admin?request=WhiteList&layerName=" + layerName;
+            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=WhiteList&LAYERS=" + layerName;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -5736,7 +5737,7 @@ var rasdaman;
         };
         WMSService.prototype.whiteListAllLayers = function () {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wmsEndpoint + "/admin?request=WhiteListAllLayers";
+            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=WhiteListAll";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -6530,7 +6531,7 @@ var rasdaman;
         }
         AdminService.prototype.login = function (inputCredentials) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin/CheckPetascopeAdminUserCredentials";
+            var requestUrl = this.settings.adminEndpoint + "/CheckPetascopeAdminUserCredentials";
             var success = false;
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createBasicAuthenticationHeader(inputCredentials.username, inputCredentials.password)
@@ -6543,7 +6544,7 @@ var rasdaman;
         };
         AdminService.prototype.updateServiceIdentification = function (serviceIdentification) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceIdentification";
+            var requestUrl = this.settings.adminEndpoint + "/UpdateServiceIdentification";
             var credentials = this.getPersistedAdminUserCredentials();
             var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
             var request = {
@@ -6562,7 +6563,7 @@ var rasdaman;
         };
         AdminService.prototype.updateServiceProvider = function (serviceProvider) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceProvider";
+            var requestUrl = this.settings.adminEndpoint + "/UpdateServiceProvider";
             var credentials = this.getPersistedAdminUserCredentials();
             var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
             var request = {

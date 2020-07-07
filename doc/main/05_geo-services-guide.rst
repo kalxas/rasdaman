@@ -1366,7 +1366,7 @@ a particular style of an existing WMS layer. ::
     http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
         &REQUEST=DeleteStyle
         &LAYER=dessert_area
-        &STYLE=FireMarkup
+        &NAME=FireMarkup
 
 
 Testing a WMS Setup

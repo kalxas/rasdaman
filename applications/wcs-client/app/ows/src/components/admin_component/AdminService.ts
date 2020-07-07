@@ -72,7 +72,7 @@ module rasdaman {
 
         public login(inputCredentials:login.Credential):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.wcsEndpoint + "/admin/CheckPetascopeAdminUserCredentials";            
+            var requestUrl = this.settings.adminEndpoint + "/CheckPetascopeAdminUserCredentials";            
             var success = false;
             // send request to Petascope and get response (headers and contents)
             this.$http.get(requestUrl, {
@@ -91,7 +91,7 @@ module rasdaman {
 
         public updateServiceIdentification(serviceIdentification:admin.ServiceIdentification):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceIdentification";
+            var requestUrl = this.settings.adminEndpoint + "/UpdateServiceIdentification";
 
             var credentials = this.getPersistedAdminUserCredentials();
             var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
@@ -117,7 +117,7 @@ module rasdaman {
         
         public updateServiceProvider(serviceProvider:admin.ServiceProvider):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceProvider";
+            var requestUrl = this.settings.adminEndpoint + "/UpdateServiceProvider";
 
             var credentials = this.getPersistedAdminUserCredentials();
             var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);

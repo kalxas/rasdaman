@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.rasdaman.config.ConfigManager;
-import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
+import static org.rasdaman.config.ConfigManager.ADMIN;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.core.Pair;
@@ -52,7 +52,7 @@ public class AuthenticationController extends AbstractController {
     /**
      * Check if the credentials are valid of petascope admin user to login in wsclient's admin tab.
      */
-    @RequestMapping(OWS_ADMIN + "/" + CHECK_PETASCOPE_ADMIN_USER_CREDENTIALS_REQUEST)
+    @RequestMapping(ADMIN + "/" + CHECK_PETASCOPE_ADMIN_USER_CREDENTIALS_REQUEST)
     private void handleCheckPetascopeAdminUserCredentials(HttpServletRequest httpServletRequest) throws PetascopeException, IOException {
         Pair<String, String> resultPair = AuthenticationService.getBasicAuthUsernamePassword(httpServletRequest);
         

@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.rasdaman.config.ConfigManager;
+import static org.rasdaman.config.ConfigManager.ADMIN;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.slf4j.LoggerFactory;
@@ -36,8 +38,24 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
 import petascope.util.ListUtil;
-import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
 import org.springframework.web.bind.annotation.RestController;
+import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ABSTRACT;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ADMINISTRATIVE_AREA;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_CITY;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_CONTACT_INSTRUCTIONS;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_COUNTRY;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_EMAIL;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_FACSIMILE_PHONE;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_HOURS_OF_SERVICE;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_INDIVIDUAL_NAME;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_POSITION_NAME;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_POSTAL_CODE;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_PROVIDER_NAME;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_PROVIDER_SITE;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ROLE;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_SERVICE_TITLE;
+import static petascope.core.KVPSymbols.KEY_OWS_METADATA_VOICE_PHONE;
 
 /**
  * Controller to handle request to Admin page to update OWS Service metadata
@@ -55,60 +73,114 @@ public class OWSMetadataController extends AbstractController {
     private static final String UPDATE_SERVICE_IDENTIFICATION = "UpdateServiceIdentification";
     private static final String UPDATE_SERVICE_PROVIDER = "UpdateServiceProvider";
 
-    @RequestMapping(OWS_ADMIN + "/" + UPDATE_SERVICE_IDENTIFICATION)
+    @RequestMapping(ADMIN + "/" + UPDATE_SERVICE_IDENTIFICATION)
     public void handleOWSUpdateServiceIdentification(HttpServletRequest httpServletRequest) throws Exception {
-        
+
         // Only Petascope admin user can update coverage's metadata
         AuthenticationService.validatePetascopeAdminUser(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);     
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        
         OwsServiceMetadata owsServiceMetadata = owsMetadataRepostioryService.read();
-        log.debug("Updating Service Identification");
-        owsServiceMetadata.getServiceIdentification().setServiceTitle(kvpParameters.get("serviceTitle")[0]);
-        owsServiceMetadata.getServiceIdentification().setServiceAbstract(kvpParameters.get("abstract")[0]);    
+        
+        String serviceTitleValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_SERVICE_TITLE);
+        if (serviceTitleValue != null) {
+            owsServiceMetadata.getServiceIdentification().setServiceTitle(serviceTitleValue);
+        }
+        
+        String abstractValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_ABSTRACT);
+        if (abstractValue != null) {
+            owsServiceMetadata.getServiceIdentification().setServiceAbstract(abstractValue);  
+        }
         
         // Update the new submitted values to ows service metadata object
-        owsMetadataRepostioryService.save(owsServiceMetadata);            
-        log.debug("OWS Service metadata is updated in database from input Service Identification.");
+        owsMetadataRepostioryService.save(owsServiceMetadata);
+        
+        log.info("OWS Service metadata is updated in database from input Service Identification.");
     }
     
-    @RequestMapping(OWS_ADMIN + "/" + UPDATE_SERVICE_PROVIDER)
+    @RequestMapping(ADMIN + "/" + UPDATE_SERVICE_PROVIDER)
     public void handleOWSUpdateServiceProvider(HttpServletRequest httpServletRequest) throws Exception {
-        
+
         // Only Petascope admin user can update coverage's metadata
         AuthenticationService.validatePetascopeAdminUser(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);     
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        
         OwsServiceMetadata owsServiceMetadata = owsMetadataRepostioryService.read();
-        log.debug("Updating Service Provider");
-                
-        owsServiceMetadata.getServiceProvider().setProviderName(kvpParameters.get("providerName")[0]);
-        owsServiceMetadata.getServiceProvider().setProviderSite(kvpParameters.get("providerSite")[0]);
 
-        owsServiceMetadata.getServiceProvider().getServiceContact().setIndividualName(kvpParameters.get("individualName")[0]);
-        owsServiceMetadata.getServiceProvider().getServiceContact().setPositionName(kvpParameters.get("positionName")[0]);
-        owsServiceMetadata.getServiceProvider().getServiceContact().setRole(kvpParameters.get("role")[0]);
+        String providerNameValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_PROVIDER_NAME);
+        if (providerNameValue != null) {
+            owsServiceMetadata.getServiceProvider().setProviderName(providerNameValue);
+        }
+        String providerSiteValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_PROVIDER_SITE);
+        if (providerSiteValue != null) {
+            owsServiceMetadata.getServiceProvider().setProviderSite(providerSiteValue);
+        }
 
-        List<String> emails = ListUtil.valuesToList(kvpParameters.get("email"));
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setElectronicMailAddresses(emails);
+        String individualNameValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_INDIVIDUAL_NAME);
+        if (individualNameValue != null) {
+            owsServiceMetadata.getServiceProvider().getServiceContact().setIndividualName(individualNameValue);
+        }
+        String positionNameValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_POSITION_NAME);
+        if (positionNameValue != null) {
+            owsServiceMetadata.getServiceProvider().getServiceContact().setPositionName(positionNameValue);
+        }
+        String roleValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_ROLE);
+        owsServiceMetadata.getServiceProvider().getServiceContact().setRole(roleValue);
 
-        List<String> voicePhones = ListUtil.valuesToList(kvpParameters.get("voicePhone"));
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setVoicePhones(voicePhones);
-        List<String> facsimilePhones = ListUtil.valuesToList(kvpParameters.get("facsimilePhone"));
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setFacsimilePhone(facsimilePhones);
+        String emailValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_EMAIL);
+        if (emailValue != null) {
+            List<String> emails = ListUtil.valuesToList(emailValue);
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setElectronicMailAddresses(emails);
+        }
 
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setHoursOfService(kvpParameters.get("hoursOfService")[0]);
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setContactInstructions(kvpParameters.get("contactInstructions")[0]);
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setCity(kvpParameters.get("city")[0]);
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setAdministrativeArea(kvpParameters.get("administrativeArea")[0]);
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setPostalCode(kvpParameters.get("postalCode")[0]);
-        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setCountry(kvpParameters.get("country")[0]);   
+        String voicePhoneValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_VOICE_PHONE);
+        if (voicePhoneValue != null) {
+            List<String> voicePhones = ListUtil.valuesToList(voicePhoneValue);
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setVoicePhones(voicePhones);
+        }
+        String facsimilePhoneValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_FACSIMILE_PHONE);
+        if (facsimilePhoneValue != null) {
+            List<String> facsimilePhones = ListUtil.valuesToList(kvpParameters.get("facsimilePhone"));
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setFacsimilePhone(facsimilePhones);
+        }
+
+        String hourseOfServiceValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_HOURS_OF_SERVICE);
+        if (hourseOfServiceValue != null) {
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setHoursOfService(hourseOfServiceValue);
+        }
+        
+        String contactInstructionsValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_CONTACT_INSTRUCTIONS);
+        if (contactInstructionsValue != null) {
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setContactInstructions(contactInstructionsValue);
+        }
+        
+        String cityValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_CITY);
+        if (cityValue != null) {
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setCity(cityValue);
+        }
+        
+        String administrativeAreaValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_ADMINISTRATIVE_AREA);
+        if (administrativeAreaValue != null) {
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setAdministrativeArea(administrativeAreaValue);
+        }
+        
+        String postalCodeValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_POSTAL_CODE);
+        if (postalCodeValue != null) {
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setPostalCode(postalCodeValue);
+        }
+        
+        String countryValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_COUNTRY);
+        if (countryValue != null) {
+            owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setCountry(countryValue);   
+        }
         
         // Update the new submitted values to ows service metadata object
         owsMetadataRepostioryService.save(owsServiceMetadata);            
-        log.debug("OWS Service metadata is updated in database from input Service Provider.");
+        log.info("OWS Service metadata is updated in database from input Service Provider.");
     }
 
     @Override

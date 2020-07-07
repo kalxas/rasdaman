@@ -131,7 +131,7 @@ public class CoverageMetadata {
                 }
             }
         }
-        
+
         return false;
     }
     

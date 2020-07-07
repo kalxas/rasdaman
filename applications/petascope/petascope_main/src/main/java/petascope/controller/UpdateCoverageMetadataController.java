@@ -33,6 +33,7 @@ import javax.servlet.http.Part;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.rasdaman.config.ConfigManager;
+import static org.rasdaman.config.ConfigManager.ADMIN;
 import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
@@ -60,7 +61,7 @@ public class UpdateCoverageMetadataController extends AbstractController {
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
     
-    @RequestMapping(value = OWS_ADMIN + "/UpdateCoverageMetadata", method = RequestMethod.POST)
+    @RequestMapping(value = ADMIN + "/UpdateCoverageMetadata", method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest) throws Exception {
         Pair<String, String> pair = null;
         try {           

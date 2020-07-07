@@ -178,4 +178,23 @@ public interface KVPSymbols {
 
     // WCS mutlipart
     String VALUE_MULTIPART_RELATED = "multipart/related";
+
+    // OWS metadata (ServiceIdentification and ServiceProvider) in GetCapabilities response
+    String KEY_OWS_METADATA_SERVICE_TITLE = "serviceTitle";
+    String KEY_OWS_METADATA_ABSTRACT = "abstract";
+    
+    String KEY_OWS_METADATA_PROVIDER_NAME = "providerName";
+    String KEY_OWS_METADATA_PROVIDER_SITE = "providerSite";
+    String KEY_OWS_METADATA_INDIVIDUAL_NAME = "individualName";
+    String KEY_OWS_METADATA_POSITION_NAME = "positionName";
+    String KEY_OWS_METADATA_ROLE = "role";    
+    String KEY_OWS_METADATA_EMAIL = "email";
+    String KEY_OWS_METADATA_VOICE_PHONE = "voicePhone";
+    String KEY_OWS_METADATA_FACSIMILE_PHONE = "facsimilePhone";
+    String KEY_OWS_METADATA_HOURS_OF_SERVICE = "hoursOfService";
+    String KEY_OWS_METADATA_CONTACT_INSTRUCTIONS = "contactInstructions";
+    String KEY_OWS_METADATA_CITY = "city";
+    String KEY_OWS_METADATA_ADMINISTRATIVE_AREA = "administrativeArea";
+    String KEY_OWS_METADATA_POSTAL_CODE = "postalCode";
+    String KEY_OWS_METADATA_COUNTRY = "country";
 }
