@@ -64,7 +64,7 @@ class Recipe(GeneralCoverageRecipe):
     VAR_POLARISATION = '${polarisation}'
 
     # 1 tiff file contains 1 band
-    BAND = UserBand("0", "Grey", "", "", "", [0], "")
+    BAND = UserBand("0", "Grey", "", "", "", [], "")
 
     DEFAULT_PRODUCT = "GRD"
     SLC_PRODUCT = "SLC"
@@ -333,7 +333,10 @@ class Recipe(GeneralCoverageRecipe):
         bands_metadata_fields = {}
         axis_metadata_fields = {}
 
-        default_null_values = [self.DEFAULT_NULL_VALUE]
+        default_null_values = []
+
+        if self.product == self.DEFAULT_PRODUCT:
+            default_null_values = [self.DEFAULT_NULL_VALUE]
 
         return GdalToCoverageConverter(self.resumer,
                                        default_null_values,
