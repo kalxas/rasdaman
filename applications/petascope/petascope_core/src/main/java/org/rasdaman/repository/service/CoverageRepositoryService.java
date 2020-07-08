@@ -124,6 +124,18 @@ public class CoverageRepositoryService {
         
         return true;
     }
+    
+    /**
+     * Check if a coverage id exists in the cache
+     */
+    public boolean isInCache(String coverageId) throws PetascopeException {
+        if (isInLocalCache(coverageId)) {
+            return true;
+        }
+        
+        
+        return false;
+    }
 
     /**
      * This method is used *only* when read coverage metadata to get another

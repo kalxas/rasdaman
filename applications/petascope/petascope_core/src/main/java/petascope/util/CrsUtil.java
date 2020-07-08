@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import nu.xom.Attribute;
@@ -1019,11 +1020,14 @@ public class CrsUtil {
     /**
      * Check if CRS definition is XY axes order (e.g: EPSG:3857) or YX axes order (e.g: EPSG:4326)
      * @param uri URL to CRS definition from SECORE
-     * @throws petascope.exceptions.PetascopeException
-     * @throws petascope.exceptions.SecoreException
      */
-    public static boolean isXYAxesOrder(String uri) throws PetascopeException, SecoreException {
-        List<CrsDefinition.Axis> axes = CrsUtil.getCrsDefinition(uri).getAxes();
+    public static boolean isXYAxesOrder(String uri) throws PetascopeException {
+        List<CrsDefinition.Axis> axes = new ArrayList<>();
+        try {
+            axes = CrsUtil.getCrsDefinition(uri).getAxes();
+        } catch (SecoreException ex) {
+            throw new PetascopeException(ExceptionCode.SecoreError, "Cannot get CRS definition from URI: '" + uri + "'. Reason: " + ex.getExceptionText(), ex);
+        }
         if (axes.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS does not contain any axis, given '" + uri + "'.");
         } else if (axes.get(0).getType().equals(AxisTypes.Y_AXIS)) {

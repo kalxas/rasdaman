@@ -28,4 +28,6 @@ tan_halfangle_arg.rasql
 #error message is returned in a wrong format
 select_pos_independent_wrong_name.rasql
 
+overlap_3d.rasql
+overlap.rasql
 # empty results

@@ -602,10 +602,12 @@ prepare_gdal_file()
   local tmpf="$1.tmp"
   # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
   # here we compare the metadata and statistic values on output and oracle files directly
+  # $p removes the first different lines of gdalinfo output until "Size is"
   gdalinfo -approx_stats "$1" 2> /dev/null | sed -n \
-    -e '/Size is/,$p' "$tmpf" \
-    -e '/TOWGS84\[/d' "$tmpf" \
-    -e '/fileReferenceHistory/d' > "$tmpf"
+         -e '/Size is/,$p' > "$tmpf"
+  sed -i -e '/TOWGS84\[/d' \
+         -e '/fileReferenceHistory/d' \
+         "$tmpf"
 
   rm -f "$1.aux.xml" "$1" && mv "$tmpf" "$1"
 }

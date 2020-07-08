@@ -30,6 +30,7 @@ import petascope.core.BoundingBox;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
@@ -162,6 +163,17 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
     }
     
     /**
+     * Check if petascope needs to sawp XY coordinates from input WKT
+     */
+    private boolean needToSwapXYCoordinates(String wktCRS, String axisXNativeCRS) throws PetascopeException {
+       return (wktCRS != null && !CrsUtil.isGridCrs(wktCRS) && 
+                ( (CrsUtil.isXYAxesOrder(wktCRS) && !CrsUtil.isXYAxesOrder(axisXNativeCRS))
+                  || (!CrsUtil.isXYAxesOrder(wktCRS) && CrsUtil.isXYAxesOrder(axisXNativeCRS) )
+                )
+            );            
+    }
+    
+    /**
      * For example if WKT is a polygon over XY axes, then return the rectangle which contains this polygon
      * and get geo min/max for XY axes.
      */
@@ -190,6 +202,12 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
             BigDecimal geoCoordinateY = null;
             String valueX = geoCoordinateArray[geoCoordinateXOrder];
             String valueY = geoCoordinateArray[geoCoordinateYOrder];
+            
+            if (needToSwapXYCoordinates(wktCRS, axisX.getNativeCrsUri())) {
+                String tmp = valueX;
+                valueX = valueY;
+                valueY = tmp;
+            }
             
             try {
                 geoCoordinateX = new BigDecimal(valueX);
@@ -243,6 +261,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
             ymin = subsets.get(1).getNumericSubset().getLowerLimit();
             ymax = subsets.get(1).getNumericSubset().getUpperLimit();
         }
+        
         
         return new BoundingBox(xmin, ymin, xmax, ymax);
     }
@@ -362,9 +381,9 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
             boolean hasYAxisInWKT = false;
             
             for (String axisName : axisNames) {
-                if (axisName.equals(axisX.getLabel())) {
+                if (CrsUtil.axisLabelsMatch(axisName, axisX.getLabel())) {
                     hasXAxisInWKT = true;
-                } else if (axisName.equals(axisY.getLabel())) {
+                } else if (CrsUtil.axisLabelsMatch(axisName, axisY.getLabel())) {
                     hasYAxisInWKT = true;
                 }
                 if (hasXAxisInWKT && hasYAxisInWKT) {
@@ -400,6 +419,13 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
 
                 String geoCoordinateX = geoCoordinateArray[geoCoordinateXOrder];
                 String geoCoordinateY = geoCoordinateArray[geoCoordinateYOrder];
+                
+                if (needToSwapXYCoordinates(wktCRS, axisX.getNativeCrsUri())) {
+                    String tmp = geoCoordinateX;
+                    geoCoordinateX = geoCoordinateY;
+                    geoCoordinateY = tmp;
+                }
+                
                 BigDecimal numericGeoCoordinateX = this.getNumericGeoCoordinate(metadata, axisX, geoCoordinateX);
                 BigDecimal numericGeoCoordinateY = this.getNumericGeoCoordinate(metadata, axisY, geoCoordinateY);
                 // (e.g: WKT in EPSG:4326, native coverage XY axes is EPSG:3857, then XY coordinates in WKT are translated to EPSG:3857)

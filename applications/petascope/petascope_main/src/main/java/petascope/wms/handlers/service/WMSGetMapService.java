@@ -1138,7 +1138,7 @@ public class WMSGetMapService {
             }
             
             // e.g: axis iterator $px, $py only in WCPS query fragment, they are not coverage iterators
-            if (this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(iterator.replace(FRAGMENT_ITERATOR_PREFIX, "")) != null) {
+            if (this.coverageRepositoryService.isInCache(iterator.replace(FRAGMENT_ITERATOR_PREFIX, ""))) {
                 matcher.appendReplacement(stringBuffer, iterator.replace(iterator,  replacement).replace(FRAGMENT_ITERATOR_PREFIX, "\\" + FRAGMENT_ITERATOR_PREFIX));
             
                 // e.g: $Sentinel2_B4 -> $co, $Sentinel2_B8 -> $c1

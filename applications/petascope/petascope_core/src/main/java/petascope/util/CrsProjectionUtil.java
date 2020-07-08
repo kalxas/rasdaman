@@ -318,6 +318,10 @@ public class CrsProjectionUtil {
      * Check if given CRS is XY order (e.g: EPSG:3857) or YX order (e.g: EPG:4326)
      */
     private static boolean isXYAxesOrder(String crs) throws PetascopeException {    
+        if (crs.contains(CrsUtil.EPSG_AUTH + ":")) {
+            // e.g: EPSG:4326, then
+            crs = CrsUtil.getEPSGFullUri(crs);
+        }
         CrsDefinition crsDefinition = null;
         try {
             crsDefinition = CrsUtil.getCrsDefinition(crs); // x, y, t,...

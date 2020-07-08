@@ -1,2 +1,2 @@
-service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_world_temp&format=image/png&
-subset=Lon(0,30000000)&subsettingCrs=http://localhost:8080/def/crs/EPSG/0/3857
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mean_summer_airtemp&format=image/png&
+subset=Lon(12576319.4724,13689514.3803)&subsettingCrs=http://localhost:8080/def/crs/EPSG/0/3857
