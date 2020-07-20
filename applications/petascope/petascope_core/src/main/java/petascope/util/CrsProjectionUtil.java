@@ -165,6 +165,11 @@ public class CrsProjectionUtil {
      */
     public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGT, String targetCRS) throws PetascopeException {
         
+        if (CrsUtil.getEpsgCodeAsInt(targetCRS) == sourceGT.getEPSGCode()) {
+            // Same CRS, no need to reproject
+            return sourceGT;
+        }
+        
         // Source extents
         Dataset sourceDS = gdal.GetDriverByName("VRT").Create("", sourceGT.getGridWidth(), sourceGT.getGridHeight());
         // e.g: test_mean_summer_airtemp ([111.9750000, 0.05, 0, -8.9750000, 0, -0.05])

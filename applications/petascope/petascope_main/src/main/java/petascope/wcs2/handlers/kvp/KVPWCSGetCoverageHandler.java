@@ -30,8 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import petascope.core.response.Response;
-import petascope.core.service.ResponseService;
+import petascope.controller.AbstractController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -55,7 +54,10 @@ import static petascope.core.KVPSymbols.KEY_SUBSET;
 import static petascope.core.KVPSymbols.KEY_SUBSETTING_CRS;
 import static petascope.core.KVPSymbols.KEY_VERSION;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
+import petascope.core.response.Response;
+import petascope.core.service.ResponseService;
 import petascope.exceptions.WMSException;
+import petascope.util.CrsUtil;
 import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
@@ -107,6 +109,12 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
                                                                       KEY_FORMAT, KEY_CLIP,
                                                                       KEY_MEDIATYPE,
                                                                       KEY_OUTPUT_TYPE);
+    protected static Set<String> UNIQUE_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, KEY_COVERAGEID,
+                                                                                    KEY_SUBSETTING_CRS, KEY_OUTPUT_CRS,
+                                                                                    KEY_INTERPOLATION,
+                                                                                    KEY_FORMAT, KEY_CLIP,
+                                                                                    KEY_MEDIATYPE,
+                                                                                    KEY_OUTPUT_TYPE);
     
     public static final String ENCODE_FORMAT = "$encodeFormat";
     public static final String RANGE_NAME = ".$rangeName";
@@ -127,6 +135,8 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
         
         this.validateParameters(kvpParameters, VALID_PARAMETERS);        
         this.validateCoverageConversionCIS11(kvpParameters);
+        this.validateUniqueParameters(kvpParameters, UNIQUE_PARAMETERS);
+        
     }
 
     @Override
@@ -228,11 +238,27 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
             WcpsCoverageMetadata wcpsCoverageMetadata, List<AbstractSubsetDimension> subsetDimensions, String interpolationType) throws WCSException {
 
         // Crs Extension: Translate from the input CRS (subsettingCrs) to native CRS (XYAxes's Crs)
-        String subsettingCrs = kvpParameters.get(KVPSymbols.KEY_SUBSETTING_CRS) != null
-                ? kvpParameters.get(KVPSymbols.KEY_SUBSETTING_CRS)[0] : null;
+        String subsettingCrs = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_SUBSETTING_CRS);
         // Translate from 2D geo-referenced coverage nativeCRS to outputCrs
-        String outputCrs = kvpParameters.get(KVPSymbols.KEY_OUTPUT_CRS) != null
-                ? kvpParameters.get(KVPSymbols.KEY_OUTPUT_CRS)[0] : null;
+        String outputCrs = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_OUTPUT_CRS);
+        
+        // Then validate if these CRSs are good
+        try {
+            if (subsettingCrs != null) {
+                CrsUtil.getCrsDefinition(subsettingCrs);
+            }
+        } catch (Exception ex) {
+            throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
+                                   "Given subsettingCRS '" + subsettingCrs + "' is not valid. Reason: " + ex.getMessage(), ex);
+        }
+        try {
+            if (outputCrs != null) {
+                CrsUtil.getCrsDefinition(outputCrs);
+            }
+        } catch (Exception ex) {
+            throw new WCSException(ExceptionCode.OutputCrsNotSupported,
+                                   "Given outputCRS '" + outputCrs + "' is not valid. Reason: " + ex.getMessage(), ex);
+        }
 
         List<String> intervals = new ArrayList<>();
         for (AbstractSubsetDimension subsetDimension : subsetDimensions) {

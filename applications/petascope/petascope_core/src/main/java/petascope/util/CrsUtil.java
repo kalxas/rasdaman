@@ -76,8 +76,10 @@ public class CrsUtil {
 
     // NOTE: accept any URI format, but ask to SECORE: flattened definitions, less recursion.
     public static final String OPENGIS_URI_PREFIX = "http://www.opengis.net";
+    public static final String DEFAULT_EPSG_VERSION = "8.5";
     public static final String OPENGIS_INDEX_URI = OPENGIS_URI_PREFIX + "/def/crs/OGC/0/Index$ND";
     public static final String OPENGIS_EPSG_URI = OPENGIS_URI_PREFIX + "/def/crs/EPSG/0/";
+    public static final String OPENGIS_EPSG_URI_DEFAULT_VERSION = OPENGIS_URI_PREFIX + "/def/crs/EPSG/" + DEFAULT_EPSG_VERSION + "/";
     private static final String HTTP_URL_PATTERN = "(http|https)://.*/";
     private static final String HTTP_PREFIX = "http://";
 
@@ -119,7 +121,7 @@ public class CrsUtil {
     public static final String EPSG_ALL_CRS = CrsUtil.getResolverUri() + "/crs/EPSG/0";
     // e.g: <identifier>http://localhost:8080/def/crs/EPSG/0/4326</identifier>
     public static final String SECORE_IDENTIFIER_PATTERN = "<identifier>(.+?)</identifier>";
-
+    
 
     /* CACHES: avoid EPSG db and SECORE redundant access */
     private static Map<String, CrsDefinition> parsedCRSs = new HashMap<String, CrsDefinition>();        // CRS definitions
@@ -230,6 +232,9 @@ public class CrsUtil {
 
         // Remove any possible slicing suffixes:
         givenCrsUri = givenCrsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "").trim();
+        // NOTE: as opengis.net/def/crs/EPSG/0 now is not SECORE anymore (without fully resolved CRS definition),
+        // it will use the default version instead
+        givenCrsUri = givenCrsUri.replace(OPENGIS_EPSG_URI, OPENGIS_EPSG_URI_DEFAULT_VERSION);
 
         // Check first if the definition is already in cache:
         if (CrsUri.isCached(givenCrsUri)) {

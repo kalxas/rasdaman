@@ -21,8 +21,6 @@
  */
 package petascope.wcs2.handlers.kvp;
 
-import java.io.File;
-import java.io.IOException;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.metadata.service.RasqlRewriteMultipartQueriesService;
 import petascope.exceptions.WCSException;

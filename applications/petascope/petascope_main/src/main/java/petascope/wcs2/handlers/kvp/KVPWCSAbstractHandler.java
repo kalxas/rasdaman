@@ -65,12 +65,22 @@ public abstract class KVPWCSAbstractHandler implements IKVPHandler {
                                       + " number of required parameters '" + validParameters.size() + "' for the request.");
         }
 
-        int i = 0;
         for (String key : kvpParameters.keySet()) {
             if (!validParameters.contains(key.toLowerCase())) {
                 throw new PetascopeException(ExceptionCode.InvalidRequest, "Parameter '" + key + "' is not valid in request.");
             }
-            i++;
+        }
+    }
+    
+    /**
+     * Check if request contains more than one parameters for unique parameter (e.g: request=GetMap&subsettingCRS=...&subsetingCRS=... is invalid)
+     */
+    public static void validateUniqueParameters(Map<String, String[]> kvpParameters, Set<String> uniqueParameters) throws PetascopeException {
+        for (String key : uniqueParameters) {
+            String[] tmps = kvpParameters.get(key);
+            if (tmps != null && tmps.length > 1) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest, "Parameter '" + key + "' is duplicate in request.");
+            }
         }
     }
     

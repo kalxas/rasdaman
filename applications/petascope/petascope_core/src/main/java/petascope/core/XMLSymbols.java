@@ -66,7 +66,7 @@ public interface XMLSymbols {
     String PREFIX_RASDAMAN = "rasdaman";
     String PREFIX_XLINK = "xlink";
     // Used in CRS-Extensions
-    String PREFIX_WCS_CRS = "wcscrs";
+    String PREFIX_CRS = "crs";
     String PREFIX_PROCESS_COVERAGE = "proc";
     String PREFIX_INT = "int"; // wcs interpolation
 
@@ -90,7 +90,7 @@ public interface XMLSymbols {
     String NAMESPACE_WSDL = "http://schemas.xmlsoap.org/wsdl/";
     String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
-    String NAMESPACE_WCS_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
+    String NAMESPACE_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
     String NAMESPACE_PROCESS_COVERAGE = "http://www.opengis.net/wcs/processing/2.0";
     String NAMESPACE_INTERPOLATION = "http://www.opengis.net/wcs/interpolation/1.0";
 

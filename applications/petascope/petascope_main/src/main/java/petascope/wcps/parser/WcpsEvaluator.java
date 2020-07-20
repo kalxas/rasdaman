@@ -673,7 +673,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             result = crsTransformHandler.handle(coverageExpression, axisCrss, interpolationType);
         } catch (PetascopeException | SecoreException ex) {
             String errorMessage = "Error processing crsTransform() operator expression. Reason: " + ex.getMessage();
-            throw new WCPSException(errorMessage, ex);
+            ExceptionCode exceptionCode = null;
+            if (ex instanceof PetascopeException) {
+                exceptionCode = ((PetascopeException)ex).getExceptionCode();
+            } else if (ex instanceof SecoreException) {
+                exceptionCode = ((SecoreException)ex).getExceptionCode();
+            }
+            throw new WCPSException(exceptionCode, errorMessage, ex);
         }
         return result;
 

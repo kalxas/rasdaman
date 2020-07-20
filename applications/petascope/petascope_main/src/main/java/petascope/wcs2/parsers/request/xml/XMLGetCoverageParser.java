@@ -276,6 +276,15 @@ public class XMLGetCoverageParser extends XMLAbstractParser {
             } else {
                 Element globalInterpolationElement = childElements.get(0);
                 String interpolationValue = globalInterpolationElement.getValue();
+                if (interpolationValue.isEmpty()) {
+                    // NOTE: this is used for OGC CITE interpolation test with this request
+                    /*
+                        <int:Interpolation>
+                            <int:InterpolationMethod interpolationMethod="http://www.opengis.net/def/interpolation/OGC/1.0/nearest-neighbor" />
+                        </int:Interpolation>                    
+                    */
+                    interpolationValue = globalInterpolationElement.getAttributeValue("interpolationMethod");
+                }
                 if (!GMLGetCapabilitiesBuilder.SUPPORTED_INTERPOLATIONS.contains(interpolationValue)) {
                     throw new WCSException(ExceptionCode.InterpolationMethodNotSupported, "Received interpolation URL: " + interpolationValue + " is not supported.");
                 } else {

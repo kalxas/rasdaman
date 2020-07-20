@@ -4,8 +4,8 @@
 <boundedBy>
 <Envelope axisLabels="E N" srsDimension="2"
 srsName="/crs/EPSG/0/32610" uomLabels="metre metre">
-<lowerCorner>542859.682243879768066108226776123046875 4175169.477475077845156192779541015625</lowerCorner>
-<upperCorner>553861.639562107971869409084320068359375 4186171.4347933060489594936370849609375</upperCorner>
+<lowerCorner>542859.6822438798 4175169.477475078</lowerCorner>
+<upperCorner>553861.639562108 4186171.434793306</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -20,11 +20,11 @@ srsName="/crs/EPSG/0/32610" uomLabels="metre metre">
 <origin>
 <Point
 id="test_sf-point" srsName="/crs/EPSG/0/32610">
-<pos>543959.877975702588400963577441871166229248046875 4185071.239061483228624638286419212818145751953125</pos>
+<pos>543959.8779757026185 4185071.2390614831815</pos>
 </Point>
 </origin>
-<offsetVector srsName="/crs/EPSG/0/32610">2200.39146364564066971070133149623870849609375 0</offsetVector>
-<offsetVector srsName="/crs/EPSG/0/32610">0 -2200.39146364564066971070133149623870849609375</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/32610">2200.391463645637 0</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/32610">0 -2200.391463645637</offsetVector>
 </RectifiedGrid>
 </domainSet>
 <rangeSet>

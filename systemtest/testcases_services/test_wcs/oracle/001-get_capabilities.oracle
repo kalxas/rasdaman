@@ -126,6 +126,9 @@
 <int:InterpolationSupported>/interpolation/OGC/1.0/q1</int:InterpolationSupported>
 <int:InterpolationSupported>/interpolation/OGC/1.0/q3</int:InterpolationSupported>
 </int:InterpolationMetadata>
+<crs:CrsMetadata>
+<crs:crsSupported>/crs/EPSG/0/4326</crs:crsSupported>
+</crs:CrsMetadata>
 </wcs:Extension>
 </wcs:ServiceMetadata>
 <wcs:Contents>

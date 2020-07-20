@@ -485,7 +485,7 @@ public abstract class AbstractController {
                 }
 
                 if (parametersMap.get(key) == null) {
-                    parametersMap.put(key, new String[]{value});
+                    parametersMap.put(key.toLowerCase(), new String[]{value});
                 } else {
                     String[] values = parametersMap.get(key);
                     String[] newValues = new String[values.length + 1];
@@ -494,7 +494,7 @@ public abstract class AbstractController {
                     }
                     newValues[values.length] = value;
 
-                    parametersMap.put(key, newValues);
+                    parametersMap.put(key.toLowerCase(), newValues);
                 }
             }
         }
@@ -506,7 +506,7 @@ public abstract class AbstractController {
      * Return the single value of a key in KVP parameters
      */
     public static String[] getValuesByKey(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
-        String[] values = kvpParameters.get(key);
+        String[] values = kvpParameters.get(key.toLowerCase());
         if (values == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
                     "Cannot find value from KVP parameters map for key: " + key + ".");
@@ -524,7 +524,7 @@ public abstract class AbstractController {
      * It is ok if the value is null 
      */
     public static String[] getValuesByKeyAllowNull(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
-        String[] values = kvpParameters.get(key);
+        String[] values = kvpParameters.get(key.toLowerCase());
         if (values == null) {
             return values;
         }
@@ -540,7 +540,7 @@ public abstract class AbstractController {
      * Return the single value of a key in KVP parameters
      */
     public static String getValueByKey(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
-        String[] values = kvpParameters.get(key);
+        String[] values = kvpParameters.get(key.toLowerCase());
         if (values == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
                     "Cannot find value from KVP parameters map for key: " + key + ".");
@@ -554,7 +554,7 @@ public abstract class AbstractController {
      * It is ok if the value is null 
      */
     public static String getValueByKeyAllowNull(Map<String, String[]> kvpParameters, String key) {
-        String[] values = kvpParameters.get(key);
+        String[] values = kvpParameters.get(key.toLowerCase());
         if (values == null) {
             return null;
         }

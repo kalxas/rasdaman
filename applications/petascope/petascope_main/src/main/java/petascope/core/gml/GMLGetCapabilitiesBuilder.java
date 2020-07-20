@@ -75,6 +75,8 @@ import static petascope.core.XMLSymbols.LABEL_COUNTRY;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_ID;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUMMARY;
+import static petascope.core.XMLSymbols.LABEL_CRS_METADATA;
+import static petascope.core.XMLSymbols.LABEL_CRS_SUPPORTED;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_DOWNSCALED_COLLECTION_LEVELS;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES;
@@ -123,12 +125,10 @@ import static petascope.core.XMLSymbols.LABEL_WGS84_BOUNDING_BOX;
 import static petascope.core.XMLSymbols.NAMESPACE_INTERPOLATION;
 import static petascope.core.XMLSymbols.NAMESPACE_OWS;
 import static petascope.core.XMLSymbols.NAMESPACE_RASDAMAN;
-import static petascope.core.XMLSymbols.NAMESPACE_WCS_CRS;
 import static petascope.core.XMLSymbols.NAMESPACE_XLINK;
 import static petascope.core.XMLSymbols.PREFIX_INT;
 import static petascope.core.XMLSymbols.PREFIX_OWS;
 import static petascope.core.XMLSymbols.PREFIX_WCS;
-import static petascope.core.XMLSymbols.PREFIX_WCS_CRS;
 import static petascope.core.XMLSymbols.PREFIX_XLINK;
 import static petascope.core.XMLSymbols.VALUE_CONSTRAINT_POST_ENCODING_SOAP;
 import static petascope.core.XMLSymbols.VALUE_CONSTRAINT_POST_ENCODING_XML;
@@ -138,8 +138,8 @@ import static petascope.core.XMLSymbols.PREFIX_RASDAMAN;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_20_GET_CAPABILITIES;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_21_GET_CAPABILITIES;
 import petascope.util.BigDecimalUtil;
-import petascope.util.ras.RasUtil;
-import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
+import static petascope.core.XMLSymbols.PREFIX_CRS;
+import static petascope.core.XMLSymbols.NAMESPACE_CRS;
 
 /**
  * Class to represent result of WCS GetCapabilities request.
@@ -189,6 +189,7 @@ public class GMLGetCapabilitiesBuilder {
     private static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
 
     // Interpoltation Extension
+    private static final String OGC_CITE_INTEPOLATION_NEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/nearest-neighbor";
     private static final String INTERPOLATION_NEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/near";
     private static final String INTERPOLATION_BILINEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/bilinear";
     private static final String INTERPOLATION_CUBIC = "http://www.opengis.net/def/interpolation/OGC/1.0/cubic";
@@ -201,15 +202,26 @@ public class GMLGetCapabilitiesBuilder {
     private static final String INTERPOLATION_MED = "http://www.opengis.net/def/interpolation/OGC/1.0/med";
     private static final String INTERPOLATION_Q1 = "http://www.opengis.net/def/interpolation/OGC/1.0/q1";
     private static final String INTERPOLATION_Q3 = "http://www.opengis.net/def/interpolation/OGC/1.0/q3";
+    
+    public static List<String> SUPPORTED_INTERPOLATIONS = null;
+    // This one lists the EPSG CRSs for WCS CRS extension as it can be very long, so just list one popular CRS
+    private static final String CRS_EPSG_4326 = "http://www.opengis.net/def/crs/EPSG/0/4326";
+    private static List<String> SUPPORTED_CRSS = ListUtil.valuesToList(CRS_EPSG_4326);
 
     // Singleton object to store all the extensions (profiles) of WCS
     private static List<String> profiles;
-
-    public static final List<String> SUPPORTED_INTERPOLATIONS = ListUtil.valuesToList(INTERPOLATION_NEAR, INTERPOLATION_BILINEAR,
-                                                                        INTERPOLATION_CUBIC, INTERPOLATION_CUBICSPLINE, INTERPOLATION_LANCZOS,
-                                                                        INTERPOLATION_AVERAGE, INTERPOLATION_MODE, INTERPOLATION_MAX,
-                                                                        INTERPOLATION_MIN, INTERPOLATION_MED, INTERPOLATION_Q1, INTERPOLATION_Q3
-                                                                        );
+    
+    static {
+        if (ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+            SUPPORTED_INTERPOLATIONS = ListUtil.valuesToList(OGC_CITE_INTEPOLATION_NEAR);
+        } else {
+            SUPPORTED_INTERPOLATIONS = ListUtil.valuesToList(INTERPOLATION_NEAR, INTERPOLATION_BILINEAR,
+                                                            INTERPOLATION_CUBIC, INTERPOLATION_CUBICSPLINE, INTERPOLATION_LANCZOS,
+                                                            INTERPOLATION_AVERAGE, INTERPOLATION_MODE, INTERPOLATION_MAX,
+                                                            INTERPOLATION_MIN, INTERPOLATION_MED, INTERPOLATION_Q1, INTERPOLATION_Q3
+                                                            );
+        }
+    }
 
     /**
      * Return the list of supported WCS extension (profiles)
@@ -619,6 +631,18 @@ public class GMLGetCapabilitiesBuilder {
             interpolationSupportedElement.appendChild(interpolationType);
             interpolationMetadataElement.appendChild(interpolationSupportedElement);
         }
+        
+        // <crs:CrsMetadata>
+        Element crsMetadataElement = new Element(XMLUtil.createXMLLabel(PREFIX_CRS, LABEL_CRS_METADATA), NAMESPACE_CRS);
+        wcsExtensionElement.appendChild(crsMetadataElement);
+        
+        // 1.2 Children elements of crs:CrsMetadata element
+        for (String crs : SUPPORTED_CRSS) {
+            // <crs:crsSupported>
+            Element crsSupportedElement = new Element(XMLUtil.createXMLLabel(PREFIX_CRS, LABEL_CRS_SUPPORTED), NAMESPACE_CRS);
+            crsSupportedElement.appendChild(crs);
+            crsMetadataElement.appendChild(crsSupportedElement);
+        }
 
         return wcsExtensionElement;
     }
@@ -806,7 +830,7 @@ public class GMLGetCapabilitiesBuilder {
         
         // Adding some specific XML namespaces of only WCS GetCapabilities request
         xmlNameSpacesMap.put(PREFIX_INT, NAMESPACE_INTERPOLATION);
-        xmlNameSpacesMap.put(PREFIX_WCS_CRS, NAMESPACE_WCS_CRS);
+        xmlNameSpacesMap.put(PREFIX_CRS, NAMESPACE_CRS);
         
         XMLUtil.addXMLNameSpacesOnRootElement(xmlNameSpacesMap, capabilitiesElement);      
         XMLUtil.addXMLSchemaLocationsOnRootElement(schemaLocations, capabilitiesElement);

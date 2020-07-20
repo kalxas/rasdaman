@@ -2,6 +2,6 @@
 <ows:ExceptionReport version="2.0.1"
 >
 <ows:Exception exceptionCode="InvalidRequest">
-<ows:ExceptionText>Parameter 'EXTRA_PARAM' is not valid in request.</ows:ExceptionText>
+<ows:ExceptionText>Parameter 'extra_param' is not valid in request.</ows:ExceptionText>
 </ows:Exception>
 </ows:ExceptionReport>
