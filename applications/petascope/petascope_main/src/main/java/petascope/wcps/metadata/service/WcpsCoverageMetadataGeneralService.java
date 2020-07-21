@@ -49,6 +49,7 @@ import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.core.gml.metadata.model.Envelope;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
+import petascope.exceptions.ExceptionCode;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
@@ -663,7 +664,7 @@ public class WcpsCoverageMetadataGeneralService {
         }
 
         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(lowerLimit, upperLimit);
-
+        
         // Check if trim (lo > high)
         if (lowerLimit.compareTo(upperLimit) > 0) {
             String lowerBound = ((WcpsTrimSubsetDimension)subsetDimension).getLowerBound();
@@ -977,6 +978,63 @@ public class WcpsCoverageMetadataGeneralService {
                                                                                       gridDomainMin, gridDomainMax, geoDomainMin, irregularAxis);
         }
         return translatedSubset;
+    }
+    
+    /**
+     * Make sure the input WCPS metadata object doesn't have larger geo/grid bounds for XY axes from original geo/grid bboxes
+     */
+    public void adjustXYGeoGridBounds(WcpsCoverageMetadata wcpsCoverageMetadata) {
+        
+        if (wcpsCoverageMetadata.hasXYAxes()) {
+        
+            List<Axis> inputXYAxes = wcpsCoverageMetadata.getXYAxes();
+            Axis axisX = inputXYAxes.get(0);
+            Axis axisY = inputXYAxes.get(1);
+
+            NumericTrimming subsetGeoX = new NumericTrimming(axisX.getGeoBounds().getLowerLimit(), axisX.getGeoBounds().getUpperLimit());
+            NumericTrimming subsetGeoY = new NumericTrimming(axisY.getGeoBounds().getLowerLimit(), axisY.getGeoBounds().getUpperLimit());
+
+            NumericTrimming subsetGridX = new NumericTrimming(axisX.getGridBounds().getLowerLimit(), axisX.getGridBounds().getUpperLimit());
+            NumericTrimming subsetGridY = new NumericTrimming(axisY.getGridBounds().getLowerLimit(), axisY.getGridBounds().getUpperLimit());
+
+            // -- geo lower bounds
+            if (axisX.getGeoBounds().getLowerLimit().compareTo(axisX.getOriginalGeoBounds().getLowerLimit()) < 0) {
+                subsetGeoX.setLowerLimit(axisX.getOriginalGeoBounds().getLowerLimit());
+            }
+            if (axisY.getGeoBounds().getLowerLimit().compareTo(axisY.getOriginalGeoBounds().getLowerLimit()) < 0) {
+                subsetGeoY.setLowerLimit(axisY.getOriginalGeoBounds().getLowerLimit());
+            }
+
+            // geo upper bounds
+            if (axisX.getGeoBounds().getUpperLimit().compareTo(axisX.getOriginalGeoBounds().getUpperLimit()) > 0) {
+                subsetGeoX.setUpperLimit(axisX.getOriginalGeoBounds().getUpperLimit());
+            }
+            if (axisY.getGeoBounds().getUpperLimit().compareTo(axisY.getOriginalGeoBounds().getUpperLimit()) > 0) {
+                subsetGeoY.setUpperLimit(axisY.getOriginalGeoBounds().getUpperLimit());
+            }
+                       
+            // -- grid lower bounds
+            if (axisX.getGridBounds().getLowerLimit().compareTo(axisX.getOriginalGridBounds().getLowerLimit()) < 0) {
+                subsetGridX.setLowerLimit(axisX.getOriginalGridBounds().getLowerLimit());
+            }
+            if (axisY.getGridBounds().getLowerLimit().compareTo(axisY.getOriginalGridBounds().getLowerLimit()) < 0) {
+                subsetGridY.setLowerLimit(axisY.getOriginalGridBounds().getLowerLimit());
+            }
+
+            // grid upper bounds
+            if (axisX.getGridBounds().getUpperLimit().compareTo(axisX.getOriginalGridBounds().getUpperLimit()) > 0) {
+                subsetGridX.setUpperLimit(axisX.getOriginalGridBounds().getUpperLimit());
+            }
+            if (axisY.getGridBounds().getUpperLimit().compareTo(axisY.getOriginalGridBounds().getUpperLimit()) > 0) {
+                subsetGridY.setUpperLimit(axisY.getOriginalGridBounds().getUpperLimit());
+            }
+            
+            axisX.setGeoBounds(subsetGeoX);
+            axisX.setGridBounds(subsetGridX);
+
+            axisY.setGeoBounds(subsetGeoY);
+            axisY.setGridBounds(subsetGridY);
+        }
     }
 
     /**

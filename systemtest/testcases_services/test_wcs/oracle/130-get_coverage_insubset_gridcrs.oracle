@@ -13,7 +13,7 @@ srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
 <limits>
 <GridEnvelope>
 <low>30 50</low>
-<high>30 50</high>
+<high>31 51</high>
 </GridEnvelope>
 </limits>
 <axisLabels>Lat Lon</axisLabels>

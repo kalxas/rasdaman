@@ -190,7 +190,7 @@ public class PyramidService {
      * based on the input width / height.
      */
     private BigDecimal calculateSuitableDownscaledLevelForAxis(List<RasdamanDownscaledCollection> rasdamanDownscaledCollections, 
-                                                               GeoAxis geoAxis, Pair<BigDecimal, BigDecimal> geoSubset, int outputGridDomain) throws PetascopeException, SecoreException {
+                                                               GeoAxis geoAxis, Pair<BigDecimal, BigDecimal> geoSubset, int outputGridDomain) throws PetascopeException {
         
         int numberOfDownscaledCollections = rasdamanDownscaledCollections.size();
 
@@ -234,7 +234,7 @@ public class PyramidService {
      */
     public BigDecimal getDownscaledLevel(Coverage coverage, Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY, 
                                          int width, int height) 
-                      throws PetascopeException, SecoreException {
+                      throws PetascopeException {
         List<RasdamanDownscaledCollection> rasdamanDownscaledCollections = coverage.getRasdamanRangeSet().getAllPossibleRasdamanDownscaledCollections();
         // By default it is the highest downscaled level with lowest image resolution.
         int numberOfDownscaledCollections = rasdamanDownscaledCollections.size();

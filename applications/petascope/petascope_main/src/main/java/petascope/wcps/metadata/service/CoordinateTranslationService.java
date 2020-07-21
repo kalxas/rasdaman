@@ -160,9 +160,9 @@ public class CoordinateTranslationService {
         BoundingBox geoBBox = new BoundingBox(new BigDecimal(pairX.fst.getLowerLimit().toString()), new BigDecimal(pairY.fst.getLowerLimit().toString()),
                                                new BigDecimal(pairX.fst.getUpperLimit().toString()), new BigDecimal(pairY.fst.getUpperLimit().toString()));
         
+        
         BoundingBox gridBBox = new BoundingBox(new BigDecimal(pairX.snd.getLowerLimit().toString()), new BigDecimal(pairY.snd.getLowerLimit().toString()),
                                                new BigDecimal(pairX.snd.getUpperLimit().toString()), new BigDecimal(pairY.snd.getUpperLimit().toString()));
-        
         
         if (gridBBox.getXMin().compareTo(gridBBox.getXMax()) > 0) {
             gridBBox.setXMax(new BigDecimal(gridBBox.getXMin().toPlainString()));

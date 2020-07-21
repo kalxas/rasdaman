@@ -33,6 +33,7 @@ import java.util.Set;
 import org.rasdaman.domain.cis.NilValue;
 import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes;
+import petascope.core.BoundingBox;
 import petascope.core.Pair;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.service.CoverageMetadataService;
@@ -390,6 +391,20 @@ public class WcpsCoverageMetadata {
 
         return new ArrayList<>(map.values());
     }
+    
+    /**
+     * Return axis which is not X or Y type
+     */
+    public List<Axis> getNonXYAxes() {
+        List<Axis> nonXYAxes = new ArrayList<>(); 
+        for (Axis axis : this.axes) {
+            if (!(axis.getAxisType().equals(AxisTypes.X_AXIS) || axis.getAxisType().equals(AxisTypes.Y_AXIS))) {
+                nonXYAxes.add(axis);
+            }
+        }
+        
+        return nonXYAxes;
+    }
 
     /**
      * Get the geo-reference CRS which is used for X, Y axes only
@@ -567,5 +582,54 @@ public class WcpsCoverageMetadata {
         }
         
         return false;
+    }
+    
+    /**
+     * Return a BoundingBox object with original lower/upper bounds 
+     * on XY axes of a coverage.
+     */
+    public BoundingBox getOrginalGeoXYBoundingBox() {
+        List<Axis> xyAxes = this.getXYAxes();
+        Axis axisX = xyAxes.get(0);
+        Axis axisY = xyAxes.get(1);
+        
+        BoundingBox bbox = new BoundingBox(axisX.getOriginalGeoBounds().getLowerLimit(), axisY.getOriginalGeoBounds().getLowerLimit(),
+                                           axisX.getOriginalGeoBounds().getUpperLimit(), axisY.getOriginalGeoBounds().getUpperLimit());
+        
+        return bbox;
+    }
+    
+    /**
+     * Return the original grid bounding box for XY axes
+     */
+    public BoundingBox getOriginalGridXYBoundingBox() {
+        List<Axis> xyAxes = this.getXYAxes();
+        Axis axisX = xyAxes.get(0);
+        Axis axisY = xyAxes.get(1);
+        
+        BoundingBox bbox = new BoundingBox(axisX.getOriginalGridBounds().getLowerLimit(), axisY.getOriginalGridBounds().getLowerLimit(),
+                                           axisX.getOriginalGridBounds().getUpperLimit(), axisY.getOriginalGridBounds().getUpperLimit());
+        
+        return bbox;
+    }
+    
+    /**
+     * Check if this object has invalid geo /grid domains
+     */
+    public boolean isValidXYGeoGridDomains() {
+        if (this.hasXYAxes()) {
+            Axis axisX = this.getXYAxes().get(0);
+            Axis axisY = this.getXYAxes().get(1);
+            
+            if ((axisX.getGeoBounds().getLowerLimit().compareTo(axisX.getGeoBounds().getUpperLimit()) > 0)
+                || (axisY.getGeoBounds().getLowerLimit().compareTo(axisY.getGeoBounds().getUpperLimit()) > 0)
+                || (axisX.getGridBounds().getLowerLimit().compareTo(axisX.getGridBounds().getUpperLimit()) > 0)
+                || (axisY.getGridBounds().getLowerLimit().compareTo(axisY.getGridBounds().getUpperLimit()) > 0)
+                ) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

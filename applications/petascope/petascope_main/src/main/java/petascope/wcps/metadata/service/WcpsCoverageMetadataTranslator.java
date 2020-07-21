@@ -136,25 +136,27 @@ public class WcpsCoverageMetadataTranslator {
      * Update geo-referenced axis's geo bounds and grid bounds by downscaled level.
      */
     private void updateAxisBounds(Axis axis, Pair<BigDecimal, BigDecimal> geoSubsetPair, BigDecimal downscaledLevel) {
-        BigDecimal scaleRatio = BigDecimalUtil.divide(BigDecimal.ONE, downscaledLevel);
-        BigDecimal axisResolutionTmp = axis.getResolution().multiply(downscaledLevel);
+        if (downscaledLevel.compareTo(BigDecimal.ONE) > 0) {
+            BigDecimal scaleRatio = BigDecimalUtil.divide(BigDecimal.ONE, downscaledLevel);
+            BigDecimal axisResolutionTmp = axis.getResolution().multiply(downscaledLevel);
 
-        BigDecimal newGridLowerBound = new BigDecimal(axis.getGridBounds().getLowerLimit().multiply(scaleRatio).longValue());
-        BigDecimal newGridUpperBound = new BigDecimal(axis.getGridBounds().getUpperLimit().multiply(scaleRatio).longValue());
-        BigDecimal newAxisResolution = axisResolutionTmp;
-        axis.setResolution(newAxisResolution);
+            BigDecimal newGridLowerBound = new BigDecimal(axis.getGridBounds().getLowerLimit().multiply(scaleRatio).longValue());
+            BigDecimal newGridUpperBound = new BigDecimal(axis.getGridBounds().getUpperLimit().multiply(scaleRatio).longValue());
+            BigDecimal newAxisResolution = axisResolutionTmp;
+            axis.setResolution(newAxisResolution);
 
-        NumericSubset newOriginalGridBounds = new NumericTrimming(newGridLowerBound, newGridUpperBound);
-        axis.setOriginalGridBounds(newOriginalGridBounds);
-        
-        ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(geoSubsetPair.fst, geoSubsetPair.snd);
-        ParsedSubset<Long> gridSubset = coordinateTranslationService.geoToGridForRegularAxis(parsedSubset, 
-                                                                        axis.getGeoBounds().getLowerLimit(), axis.getGeoBounds().getUpperLimit(), 
-                                                                        newAxisResolution, newGridLowerBound);
-        NumericSubset geoSubset = new NumericTrimming(geoSubsetPair.fst, geoSubsetPair.snd);
-        axis.setGeoBounds(geoSubset);
-        NumericSubset gridBound = new NumericTrimming(new BigDecimal(gridSubset.getLowerLimit().toString()), new BigDecimal(gridSubset.getUpperLimit().toString()));
-        axis.setGridBounds(gridBound);
+            NumericSubset newOriginalGridBounds = new NumericTrimming(newGridLowerBound, newGridUpperBound);
+            axis.setOriginalGridBounds(newOriginalGridBounds);
+
+            ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(geoSubsetPair.fst, geoSubsetPair.snd);
+            ParsedSubset<Long> gridSubset = coordinateTranslationService.geoToGridForRegularAxis(parsedSubset, 
+                                                                            axis.getGeoBounds().getLowerLimit(), axis.getGeoBounds().getUpperLimit(), 
+                                                                            newAxisResolution, newGridLowerBound);
+            NumericSubset geoSubset = new NumericTrimming(geoSubsetPair.fst, geoSubsetPair.snd);
+            axis.setGeoBounds(geoSubset);
+            NumericSubset gridBound = new NumericTrimming(new BigDecimal(gridSubset.getLowerLimit().toString()), new BigDecimal(gridSubset.getUpperLimit().toString()));
+            axis.setGridBounds(gridBound);
+        }
     }
     
     /**
@@ -244,7 +246,7 @@ public class WcpsCoverageMetadataTranslator {
      * NOTE: It needs to select a suitable downscaled collection based on geo XY subsets to help reduce the time to process Rasql on lower resolution collection.
      */
     public WcpsCoverageMetadata createForDownscaledLevelByGeoXYSubsets(WcpsCoverageMetadata metadata, 
-            Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY, Integer width, Integer height) throws PetascopeException, SecoreException {
+            Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY, Integer width, Integer height) throws PetascopeException {
         
         Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(metadata.getCoverageName());
         

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <ServiceExceptionReport version="1.3.0"  >
 <ServiceException code="InternalError">
-Catched an unexpected error 'Cannot find axis iterator with alias '$THIS_LAYER_DOES_NOT_EXIST'.' when processing WMS request.
+Failed when processing WMS request: Cannot find axis iterator with alias '$THIS_LAYER_DOES_NOT_EXIST'.
 </ServiceException>
 </ServiceExceptionReport>

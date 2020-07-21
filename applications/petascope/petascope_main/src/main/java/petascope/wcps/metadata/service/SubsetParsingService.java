@@ -389,7 +389,6 @@ public class SubsetParsingService {
 
         // after fitting, set the correct bounds to axis
         axis.setGeoBounds(new NumericTrimming(geoLowerBound, geoUpperBound));
-        axis.setGridBounds(new NumericTrimming(gridLowerBound, gridUpperBound));
     }
 
     /**

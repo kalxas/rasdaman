@@ -14,7 +14,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels=
 <limits>
 <GridEnvelope>
 <low>0 0 0</low>
-<high>3 0 1</high>
+<high>3 1 2</high>
 </GridEnvelope>
 </limits>
 <axisLabels>ansi E N</axisLabels>

@@ -722,7 +722,7 @@ public class CrsUtil {
      * e.g: CRS is AnsiDate&EPSG:4326 (3 Axes: time, Lat, Long)
      * and index is 2 (axis Long) then axis type will be X (from EPSG:4326 CRS definition).
      */
-    public static String getAxisTypeByIndex(String coverageCRS, int axisIndex) throws PetascopeException, SecoreException {
+    public static String getAxisTypeByIndex(String coverageCRS, int axisIndex) throws PetascopeException {
         List<String> crss = CrsUri.decomposeUri(coverageCRS);
         
         String axisType = AxisTypes.UNKNOWN;
@@ -730,7 +730,13 @@ public class CrsUtil {
         int i = 0;
         
         for (String crs : crss) {
-            CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crs);
+            CrsDefinition crsDefinition = null;
+            try {
+                crsDefinition = CrsUtil.getCrsDefinition(crs);
+            } catch (SecoreException ex) {
+                throw new PetascopeException(ExceptionCode.SecoreError, 
+                                            "Cannot get definition for CRS '" + crs + "'. Reason: " + ex.getExceptionText(), ex);
+            }
             
             if (axisIndex < i + crsDefinition.getAxes().size()) {
                 int normalizedIndex = axisIndex - i;
@@ -1023,10 +1029,21 @@ public class CrsUtil {
     }
     
     /**
+     * Check if input string contains EPSG:CODE pattern (e.g: EPSG:4326)
+     */
+    public static boolean isEPSGIdentifier(String input) {
+        return input.contains(EPSG_AUTH + ":");
+    }
+    
+    /**
      * Check if CRS definition is XY axes order (e.g: EPSG:3857) or YX axes order (e.g: EPSG:4326)
      * @param uri URL to CRS definition from SECORE
      */
     public static boolean isXYAxesOrder(String uri) throws PetascopeException {
+        if (isEPSGIdentifier(uri)) {
+            // e.g: EPSG:4326
+            uri = getEPSGFullUri(uri);
+        }
         List<CrsDefinition.Axis> axes = new ArrayList<>();
         try {
             axes = CrsUtil.getCrsDefinition(uri).getAxes();
@@ -1073,12 +1090,14 @@ public class CrsUtil {
      */
     public static List<CrsDefinition.Axis> getXYAxes(String crsURI) throws PetascopeException, SecoreException {
         List<CrsDefinition.Axis> axes = CrsUtil.getCrsDefinition(crsURI).getAxes();
-        List<CrsDefinition.Axis> results = new ArrayList<>();
+        List<CrsDefinition.Axis> results = Arrays.asList(null, null);
         
         for (CrsDefinition.Axis axis : axes) {
-            if (isXAxis(axis.getType()) || isYAxis(axis.getType())) {
-                results.add(axis);
-            } 
+            if (isXAxis(axis.getType())) {
+                results.set(0, axis);
+            } else if (isYAxis(axis.getType())) {
+                results.set(1, axis);
+            }
         }
         
         return results;        

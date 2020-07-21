@@ -55,7 +55,9 @@ public class CollectionAliasRegistry {
     }
 
     public void add(String aliasName, String rasdamanCollectionName) {
-        this.update(aliasName, rasdamanCollectionName);
+        if (aliasName != null && rasdamanCollectionName != null) {
+            this.update(aliasName, rasdamanCollectionName);
+        }
     }
 
     /**

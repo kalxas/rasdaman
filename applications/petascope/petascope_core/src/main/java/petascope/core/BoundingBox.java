@@ -89,6 +89,13 @@ public class BoundingBox {
     }
     
     /**
+     * return xmin,ymin,xmax,ymax representation
+     */
+    public String getRepresentation() {
+        return "\"" + this.xmin.toPlainString() + "," + this.ymin.toPlainString() + "," + this.xmax.toPlainString() + "," + this.ymax.toPlainString() + "\"";
+    }
+    
+    /**
      * In case it is needed to swap X for Y bounds.
      */
     public void swapXYOrder() {
@@ -99,6 +106,30 @@ public class BoundingBox {
         temp = new BigDecimal(this.xmax.toPlainString());
         this.xmax = new BigDecimal(this.ymax.toPlainString());
         this.ymax = temp;
+    }
+    
+    /**
+     * Parse a string representation, e.g: xmin,ymin,xmax,ymax to a BoundingBox object
+     */
+    public static BoundingBox parse(String representation) {
+        String[] values = representation.split(",");
+        return new BoundingBox(new BigDecimal(values[0]), new BigDecimal(values[1]), new BigDecimal(values[2]), new BigDecimal(values[3]));
+    }
+    
+    /**
+     * Check if this BBox intersects an input BBox on X or Y axis
+     *       xmin,ymin,xmax,ymax          xmin,ymin,xmax,ymax
+     * e.g: [-20, 20,  40,  50] intersects [-10, 30,  30,  40]
+     */
+    public boolean intersectsXorYAxis(BoundingBox inputBBox) {
+        boolean matchX = (this.xmin.compareTo(inputBBox.getXMin()) <= 0 && this.xmax.compareTo(inputBBox.getXMin()) >= 0)
+                       || (this.xmin.compareTo(inputBBox.getXMax()) <= 0 && this.xmax.compareTo(inputBBox.getXMax()) >= 0);
+        
+        boolean matchY = (this.ymin.compareTo(inputBBox.getYMin()) <= 0 && this.ymax.compareTo(inputBBox.getYMin()) >= 0)
+                       || (this.ymin.compareTo(inputBBox.getYMax()) <= 0 && this.ymax.compareTo(inputBBox.getYMax()) >= 0);
+        
+        return matchX || matchY;
+        
     }
     
     private BigDecimal xmin;

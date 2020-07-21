@@ -21,7 +21,7 @@
  */
 package petascope.wcps.handler;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +32,13 @@ import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps.metadata.service.CollectionAliasRegistry;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.DimensionIntervalList;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.metadata.service.CollectionAliasRegistry;
 
 /**
  * Translation class for slice/trim expression in wcps.  <code>
@@ -62,9 +62,15 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
     @Autowired
     private CollectionAliasRegistry collectionAliasRegistry;
     
+    
     public static final String OPERATOR = "domain subset";
-
+    
     public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException {
+        WcpsResult wcpsResult = this.handle(coverageExpression, dimensionIntervalList, true);
+        return wcpsResult;
+    }
+
+    public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList, boolean checkBounds) throws PetascopeException {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
 
@@ -72,7 +78,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
-
+        
         // Validate axis name before doing other processes.
         validateSubsets(metadata, subsetDimensions);
 
@@ -87,7 +93,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         String rasqlResult = rasql;
         
         // Update the coverage expression metadata with the new subsets
-        wcpsCoverageMetadataService.applySubsets(true, metadata, subsetDimensions, numericSubsets);
+        wcpsCoverageMetadataService.applySubsets(checkBounds, metadata, subsetDimensions, numericSubsets);
 
         // now the metadata contains the correct geo and rasdaman subsets
         // NOTE: if subset dimension has "$" as axis iterator, just keep it and don't translate it to numeric as numeric subset.
@@ -123,22 +129,27 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
      */
     private void validateSubsets(WcpsCoverageMetadata metadata, List<WcpsSubsetDimension> subsetDimensions) {
         String axisName = null;
-        for (WcpsSubsetDimension subset : subsetDimensions) {
-            axisName = subset.getAxisName();
-            boolean isExist = false;
+        Iterator<WcpsSubsetDimension> iterator = subsetDimensions.iterator();
+        
+        while (iterator.hasNext()) {
+            WcpsSubsetDimension wcpsSubsetDimension = iterator.next();
+            axisName = wcpsSubsetDimension.getAxisName();
+            
+            boolean exist = false;
+            
             for (Axis axis : metadata.getAxes()) {
                 if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisName)) {
-                    isExist = true;
+                    exist = true;
                     break;
                 }
             }
 
-            if (!isExist) {
+            if (!exist) {
                 // subset does not contains valid axis name
                 throw new CoverageAxisNotFoundExeption(axisName);
             }
         }
     }
-
+    
     private final String TEMPLATE = "$covExp[$dimensionIntervalList]";
 }

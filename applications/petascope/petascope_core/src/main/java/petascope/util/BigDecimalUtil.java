@@ -82,6 +82,17 @@ public class BigDecimalUtil {
         }
         return bdOut;
     }
+    
+    /**
+     * e.: 1 to 1.0
+     */
+    public static BigDecimal addTrailingZero(BigDecimal bigDecimal) {
+        if (!bigDecimal.toPlainString().contains(".")) {
+            return new BigDecimal(bigDecimal.toPlainString() + ".0");
+        }
+        
+        return bigDecimal;
+    }
 
     /**
      * Computes the division between two BigDecimals with the specified max significant figures.

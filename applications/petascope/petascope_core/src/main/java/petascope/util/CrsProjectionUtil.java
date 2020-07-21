@@ -320,29 +320,11 @@ public class CrsProjectionUtil {
     }
     
     /**
-     * Check if given CRS is XY order (e.g: EPSG:3857) or YX order (e.g: EPG:4326)
-     */
-    private static boolean isXYAxesOrder(String crs) throws PetascopeException {    
-        if (crs.contains(CrsUtil.EPSG_AUTH + ":")) {
-            // e.g: EPSG:4326, then
-            crs = CrsUtil.getEPSGFullUri(crs);
-        }
-        CrsDefinition crsDefinition = null;
-        try {
-            crsDefinition = CrsUtil.getCrsDefinition(crs); // x, y, t,...
-        } catch (SecoreException ex) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError, "Cannot get the definition for CRS '" + crs + "'. Reason: " + ex.getMessage(), ex);
-        }
-        
-        return crsDefinition.getAxes().get(0).getType().equals(AxisTypes.X_AXIS);        
-    }
-    
-    /**
      * NOTE: from GDAL 3, it regards the axes orders in the EPSG CRS definition (e.g: EPSG:4326 with YX axes order).
      * Previous versions are always with XY axes orders for any EPSG CRSs.
      */
     private static double[] adjustCoordinatesByGdalVersion(double[] coordinates, String crs) throws PetascopeException {        
-        if (ConfigManager.GDAL_JAVA_VERSION < 3 || isXYAxesOrder(crs)) {          
+        if (ConfigManager.GDAL_JAVA_VERSION < 3 || CrsUtil.isXYAxesOrder(crs)) {          
             return coordinates;
         } else {
            // gdal version 3 and input coordinates (YX axes order), then need to flip the coordinates

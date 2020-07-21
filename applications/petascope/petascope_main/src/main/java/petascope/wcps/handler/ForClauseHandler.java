@@ -23,18 +23,13 @@ package petascope.wcps.handler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
-import petascope.wcps.exception.processing.CoverageReadingException;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
-import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -54,23 +49,16 @@ public class ForClauseHandler {
     private CoverageAliasRegistry coverageAliasRegistry;
     @Autowired
     private CoverageRepositoryService coverageRepostioryService;
-    @Autowired
-    private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ForClauseHandler.class);
 
-    public WcpsResult handle(String coverageIterator, List<String> coverageIds) {
+    public WcpsResult handle(String coverageIterator, List<String> coverageIds) throws PetascopeException {
         
         List<String> rasdamanCollectionNames = new ArrayList<>();
         
         //add the mapping in the coverageRegistry
         for (String coverageId : coverageIds) {
-            Coverage coverage;
-            try {
-                coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coverageId);
-            } catch (Exception ex) {
-                throw new CoverageReadingException(coverageId, ex.getMessage(), ex);
-            }
+            Coverage coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coverageId);
             String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
             if (rasdamanCollectionName != null) {
                 rasdamanCollectionNames.add(rasdamanCollectionName);

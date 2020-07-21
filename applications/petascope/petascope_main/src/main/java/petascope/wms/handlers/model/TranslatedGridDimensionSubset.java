@@ -24,7 +24,6 @@ package petascope.wms.handlers.model;
 import java.util.ArrayList;
 import java.util.List;
 import petascope.wcps.metadata.model.ParsedSubset;
-import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 
 /**
  * A model object to store the translated grid dimension (of an axis)
@@ -34,18 +33,13 @@ import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
  */
 public class TranslatedGridDimensionSubset {
     
-    // Rasdaman axis order
-    private final int gridAxisOrder;
-    // For X,Y axis, e.g: [10:20, 0:5] means [10:20, 0:5], but for other dimension (e.g: [*:*, *:*, 0:5]) means
-    // [*:*, *:*, 0] overlay [*:*, *:*, 1] overlay [*:*, *:*, 2] overlay [*:*, *:*, 3] overlay [*:*, *:*, 4] overlay [*:*, *:*, 5]
-    private final boolean isNonXYAxis;
+    private String axisLabel;
     
-    // List of translated grid domains on axis (e.g: 0:2, 3:5, 6, 10:12)
+    // List of translated grid domains as slicing points (e.g: 0,1,2,3 for interval [0:3])
     private final List<String> gridBounds = new ArrayList<>();
     
-    public TranslatedGridDimensionSubset(int gridAxisOrder, boolean isNonXYAxis, List<ParsedSubset<Long>> gridBounds) {
-        this.gridAxisOrder = gridAxisOrder;
-        this.isNonXYAxis = isNonXYAxis;
+    public TranslatedGridDimensionSubset(String axisLabel, List<ParsedSubset<Long>> gridBounds) {
+        this.axisLabel = axisLabel;
         this.createGridBounds(gridBounds);
     }
     
@@ -56,35 +50,25 @@ public class TranslatedGridDimensionSubset {
     private void createGridBounds(List<ParsedSubset<Long>> inputGridBounds) {
         for (ParsedSubset<Long> parsedSubset : inputGridBounds) {
             String value;
-            if (isNonXYAxis) {
-                // e.g: time, dim_pressure axis...
-                if (parsedSubset.getLowerLimit().equals(parsedSubset.getUpperLimit())) {
-                    // slicing
-                    value = parsedSubset.getLowerLimit().toString();
-                    this.gridBounds.add(value);
-                } else {
-                    for (Long i = parsedSubset.getLowerLimit(); i <= parsedSubset.getUpperLimit(); i++) {
-                        // also slicing
-                        value = i.toString();
-                        this.gridBounds.add(value);
-                    }
-                }
-            } else {
-                // X, Y axes, it is always trimming
-                value = parsedSubset.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedSubset.getUpperLimit();
+            // e.g: time, dim_pressure axis...
+            if (parsedSubset.getLowerLimit().equals(parsedSubset.getUpperLimit())) {
+                // slicing
+                value = parsedSubset.getLowerLimit().toString();
                 this.gridBounds.add(value);
+            } else {
+                for (Long i = parsedSubset.getLowerLimit(); i <= parsedSubset.getUpperLimit(); i++) {
+                    // also slicing
+                    value = i.toString();
+                    this.gridBounds.add(value);
+                }
             }
         }
     }
 
-    public int getGridAxisOrder() {
-        return gridAxisOrder;
-    }
 
-    public boolean isIsNonXYAxis() {
-        return isNonXYAxis;
+    public String getAxisLabel() {
+        return axisLabel;
     }
-    
     public List<String> getGridBounds() {
         return gridBounds;
     }

@@ -301,7 +301,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             coverageNamesStr.add(coverageNames.get(i).getText());
         }
 
-        WcpsResult result = forClauseHandler.handle(ctx.coverageVariableName().getText(), coverageNamesStr);
+        WcpsResult result;
+        try {
+            result = forClauseHandler.handle(ctx.coverageVariableName().getText(), coverageNamesStr);
+        } catch (PetascopeException ex) {
+            throw new WCPSException("Error processing WCPS query. Reason: " + ex.getExceptionText(), ex);
+        }
+        
         return result;
     }
 

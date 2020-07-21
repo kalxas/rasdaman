@@ -58,13 +58,13 @@ public class TranslateColorTableService {
     /**
      * Translate a style's color table definition to rasdaman ColorMap format as extra parameter     
      */
-    public static void translate(byte colorTableTypeCode, String colorTableDefinition, JsonExtraParams jsonExtraParams) throws PetascopeException {
+    public static void translate(Byte colorTableTypeCode, String colorTableDefinition, JsonExtraParams jsonExtraParams) throws PetascopeException {
         try {
-            if (colorTableTypeCode == Style.ColorTableType.ColorMap.getTypeCode()) {
+            if (colorTableTypeCode.equals(Style.ColorTableType.ColorMap.getTypeCode())) {
                 handleRasdamanColorMap(colorTableDefinition, jsonExtraParams);
-            } else if (colorTableTypeCode == Style.ColorTableType.GDAL.getTypeCode()) {
+            } else if (colorTableTypeCode.equals(Style.ColorTableType.GDAL.getTypeCode())) {
                 handleGDALFormat(colorTableDefinition, jsonExtraParams);
-            } else if (colorTableTypeCode == Style.ColorTableType.SLD.getTypeCode()) {
+            } else if (colorTableTypeCode.equals(Style.ColorTableType.SLD.getTypeCode())) {
                 handleSLDFormat(colorTableDefinition, jsonExtraParams);
             }
         } catch (Exception ex) {

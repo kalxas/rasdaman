@@ -463,7 +463,7 @@ public abstract class AbstractController {
                 if (keyValue.isEmpty()) {
                     continue;
                 }
-                String key = null, value = null;
+                String key = null, value = "";
                 // e.g: request=DescribeCoverage
                 if (keyValue.contains("=")) {
                     // e.g: it only splits the first occurence (query=select c from (test_mr) encode(c, "nodata=200") is still a key=value)

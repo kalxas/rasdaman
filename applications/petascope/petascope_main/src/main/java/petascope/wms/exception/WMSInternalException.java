@@ -48,5 +48,5 @@ public class WMSInternalException extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InternalError";
-    private static final String ERROR_MESSAGE = "Catched an unexpected error '$errorMessage' when processing WMS request.";
+    private static final String ERROR_MESSAGE = "Failed when processing WMS request: $errorMessage";
 }

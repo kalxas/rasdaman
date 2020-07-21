@@ -22,6 +22,7 @@
 package org.rasdaman.domain.cis;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -192,5 +193,22 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
         }
         
         return null;        
+    }
+    
+    /**
+     * Return list of non XY geo axes
+     */
+    public List<GeoAxis> getNonXYGeoAxes() throws PetascopeException, SecoreException {
+        Pair<GeoAxis, GeoAxis> xyGeoAxesPair = this.getXYGeoAxes();
+        
+        List<GeoAxis> nonXYGeoAxes = new ArrayList<>();
+        for (GeoAxis axis : this.getGeoAxes()) {
+            if (!(axis.getAxisLabel().equals(xyGeoAxesPair.fst.getAxisLabel())
+                || axis.getAxisLabel().equals(xyGeoAxesPair.snd.getAxisLabel()))) {
+                nonXYGeoAxes.add(axis);
+            }
+        } 
+        
+        return nonXYGeoAxes;
     }
 }
