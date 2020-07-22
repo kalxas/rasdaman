@@ -71,11 +71,14 @@ module wcs {
                     if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
                         this.showCoverageSizesColumn = true;
 
-                        if (coverageSummary.customizedMetadata.hostname === undefined) {
-                            totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
-                        } else {
-                            totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
-                        }                        
+                        // NOTE: don't count the size of virtual coverages
+                        if (!coverageSummary.isVirtualCoverage) {
+                            if (coverageSummary.customizedMetadata.hostname === undefined) {
+                                totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
+                            } else {
+                                totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
+                            }
+                        }
                     }
 
                     // blackListed element exists

@@ -28,8 +28,11 @@ module wcs {
      * Extend this class so that it fully complies with the OGC WCS specification if the need arises.
      */
     export class CoverageSubtypeParent {
-        public constructor(source:rasdaman.common.ISerializedObject) {
 
+        public coverageSubType: string;
+
+        public constructor(source:rasdaman.common.ISerializedObject) {
+            this.coverageSubType = source.getChildAsSerializedObject("CoverageSubtype").getValueAsString();    
         }
     }
 }

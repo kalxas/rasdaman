@@ -1161,6 +1161,7 @@ var wcs;
 (function (wcs) {
     var CoverageSubtypeParent = (function () {
         function CoverageSubtypeParent(source) {
+            this.coverageSubType = source.getChildAsSerializedObject("CoverageSubtype").getValueAsString();
         }
         return CoverageSubtypeParent;
     }());
@@ -1180,6 +1181,7 @@ var wcs;
             var childElement = "wcs:CoverageSubtypeParent";
             if (source.doesElementExist(childElement)) {
                 _this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject(childElement));
+                console.log(_this.coverageSubtypeParent);
             }
             childElement = "ows:WGS84BoundingBox";
             if (source.doesElementExist(childElement)) {
@@ -1195,6 +1197,9 @@ var wcs;
                 if (_this.customizedMetadata.hostname != null) {
                     _this.importedType = "remote";
                 }
+            }
+            if (_this.coverageSubtypeParent != null && _this.coverageSubtypeParent.coverageSubType === "VirtualCoverage") {
+                _this.isVirtualCoverage = true;
             }
             return _this;
         }
@@ -1222,11 +1227,13 @@ var wcs;
                     }
                     if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
                         _this.showCoverageSizesColumn = true;
-                        if (coverageSummary.customizedMetadata.hostname === undefined) {
-                            totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
-                        }
-                        else {
-                            totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
+                        if (!coverageSummary.isVirtualCoverage) {
+                            if (coverageSummary.customizedMetadata.hostname === undefined) {
+                                totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
+                            }
+                            else {
+                                totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
+                            }
                         }
                     }
                     if (coverageSummary.customizedMetadata.isBlackedList != null) {

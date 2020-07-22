@@ -34,6 +34,7 @@ module wcs {
         public boundingBox:ows.BoundingBox;
         public customizedMetadata:ows.CustomizedMetadata;
         public displayFootprint:boolean;
+        public isVirtualCoverage:boolean;
 
         // Default coverage imported as local
         public importedType:String;
@@ -54,6 +55,7 @@ module wcs {
             let childElement = "wcs:CoverageSubtypeParent";
             if (source.doesElementExist(childElement)) {
                 this.coverageSubtypeParent = new CoverageSubtypeParent(source.getChildAsSerializedObject(childElement));
+                console.log(this.coverageSubtypeParent);
             }
 
             childElement = "ows:WGS84BoundingBox";
@@ -74,6 +76,10 @@ module wcs {
                     // Coverage imported remotely
                     this.importedType = "remote";
                 }
+            }
+
+            if (this.coverageSubtypeParent != null && this.coverageSubtypeParent.coverageSubType === "VirtualCoverage") {
+                this.isVirtualCoverage = true;
             }
         }
     }
