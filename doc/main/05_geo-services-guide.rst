@@ -870,6 +870,27 @@ the extent  of ``Lat`` to a value that preserves the ratio in the output result:
    return
      encode( scale( $c, { Long:"CRS:1"(0:160) } ), "image/png" )
 
+Implicitly add full domains in scale() for unspecified non X/Y axes in WCPS
+---------------------------------------------------------------------------
+
+The ``scale()`` function in WCPS will implicitly add the full domains
+of unspecified non X/Y axes of a given coverage in the scales' domain intervals.
+In other words, unspecified non X/Y axes will not be scaled.
+
+For example in this query below, if a coverage is 3D and one only
+specified ``X (E)`` and ``Y (N)`` axes as scale's domain intervals,
+then the ``time`` axis's domains will be added implicitly in petascope.
+
+.. hidden-code-block:: text
+
+   for $c in (test_irr_cube_2)
+   return encode(
+                 scale(
+                       $c[ansi("2008-01-01T02:01:20":"2008-01-08T00:02:58")] ,  
+                       { E:"CRS:1"(0:20), N:"CRS:1"(0:10) }
+                      )
+                , "json" )
+
 
 Automatic domain extraction
 ---------------------------

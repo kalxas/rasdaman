@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.1.0"
-
->
-<ows:Exception exceptionCode="WcpsError">
-<ows:ExceptionText>Coverage 'test_eobstest' ('3' axes) does not have the same number of axes as input scale/extend dimensions intervals ('1' axes).</ows:ExceptionText>
-</ows:Exception>
+    xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+    xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode(SCALE(c, [0:5,0:7,0:10]), "png" , "{\"geoReference\":{\"crs\":\"EPSG:4326\",\"bbox\":{\"xmin\":40,\"ymin\":25,\"xmax\":60,\"ymax\":40,\"representation\":\"\\"40,25,60,40\\"\"}},\"metadata\":{\"Title\":\"This is a test file\",\"Project\":\"This is another test file\",\"Creator\":\"This is a test creator file\"},\"nodata\":[-9999]}") FROM test_eobstest AS c'. Reason: Execution error 381 in line 1, column 8, near token encode: Error in convertor of the selected data exchange format.</ows:ExceptionText>
+    </ows:Exception>
 </ows:ExceptionReport>

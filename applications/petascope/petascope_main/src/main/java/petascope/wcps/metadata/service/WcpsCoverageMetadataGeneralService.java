@@ -49,15 +49,12 @@ import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.core.gml.metadata.model.Envelope;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
-import petascope.exceptions.ExceptionCode;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IncompatibleCoveragesException;
 import petascope.wcps.exception.processing.InvalidBoundingBoxInCrsTransformException;
-import petascope.wcps.exception.processing.InvalidNonRegularAxisTypeAsScaleDimensionException;
 import petascope.wcps.exception.processing.InvalidSubsettingException;
-import petascope.wcps.exception.processing.NotIdenticalCrsInCrsTransformException;
 import petascope.wcps.exception.processing.OutOfBoundsSubsettingException;
 import static petascope.wcps.exception.processing.OutOfBoundsSubsettingException.GEO_TYPE;
 import static petascope.wcps.exception.processing.OutOfBoundsSubsettingException.GRID_TYPE;
@@ -102,9 +99,18 @@ public class WcpsCoverageMetadataGeneralService {
                 // e.g: Long axis
                 axis.setResolution(newOffsetVector);
             }
-        } else {
-            // Cannot scale an irregular axis as the result cannot match 1:1 between geo direct positions and grid pixels.
-            throw new InvalidNonRegularAxisTypeAsScaleDimensionException(axis.getLabel());
+        } else if (axis instanceof IrregularAxis) {
+            // @TODO: use this directPositions from the grid value temporarily until the coefficients of irregular axis
+            // are calculated properly in http://rasdaman.org/ticket/1842
+            int lowerBound = axis.getGridBounds().getLowerLimit().intValue();
+            int upperBound = axis.getGridBounds().getUpperLimit().intValue();
+            
+            List<BigDecimal> directPositions = new ArrayList<>();
+            for (int i = lowerBound; i <= upperBound; i++) {
+                directPositions.add(new BigDecimal(i));
+            }
+            
+            ((IrregularAxis)axis).setDirectPositions(directPositions);
         }
     }
 

@@ -1,0 +1,7 @@
+for $c in (test_irr_cube_2)
+
+return encode(
+   scale(
+         $c[ansi:"CRS:1"(0:1)] ,  
+         {E:"CRS:1"(0:2) }
+        ), "json" )

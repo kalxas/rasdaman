@@ -33,6 +33,7 @@ import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -111,10 +112,32 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
         List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(subsetDimensions, metadata.getAxes());
         
-        if (!metadata.containsOnlyXYAxes() && (metadata.getAxes().size() != numericSubsets.size())) {
-            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), numericSubsets.size());
-        } else if (numericSubsets.size() == 1) {
+        if (this.processXOrYAxisImplicitly(metadata, numericSubsets, coverageExpression)) {
             this.handleScaleWithOnlyXorYAxis(coverageExpression, numericSubsets);
+        }
+        
+        // Then, check if any non-XY axes from coverage which are not specified from the scale() interval
+        // will be added implitcily to the scale domains interval
+        List<Axis> nonXYAxes = metadata.getNonXYAxes();
+        for (Axis axis : nonXYAxes) {
+            boolean exists = false;
+            for (Subset inputSubset : numericSubsets) {
+                if (CrsUtil.axisLabelsMatch(axis.getLabel(), inputSubset.getAxisName())) {
+                    exists = true;
+                    break;
+                }
+            }
+            
+            // Axis is not specified in the domain intervals for scale()
+            if (!exists) {
+                BigDecimal geoLowerBound = axis.getGeoBounds().getLowerLimit();
+                BigDecimal geoUpperBound = axis.getGeoBounds().getUpperLimit();
+                
+                numericSubsets.add(new Subset(new NumericTrimming(geoLowerBound, geoUpperBound), axis.getNativeCrsUri(), axis.getLabel()));
+                subsetDimensions.add(new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), 
+                                                                 geoLowerBound.toPlainString(),
+                                                                 geoUpperBound.toPlainString()));
+            }
         }
         
         for (Axis axis : metadata.getAxes()) {
@@ -178,6 +201,38 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         }
         
         return new WcpsResult(metadata, rasql);
+    }
+    
+    /**
+     * Check if the coverage contains X and Y axes, but one only specifies
+     * X or Y axis for scale()
+     */
+    private boolean processXOrYAxisImplicitly(WcpsCoverageMetadata metadata, List<Subset> numericSubsets, WcpsResult coverageExpression) {
+        if (metadata.hasXYAxes()) {
+            // NOTE: in case 
+            Axis axisX = metadata.getXYAxes().get(0);
+            Axis axisY = metadata.getXYAxes().get(1);
+            List<Boolean> hasXYAxes = new ArrayList<>();
+            
+            for (Subset subset : numericSubsets) {
+                if (CrsUtil.axisLabelsMatch(subset.getAxisName(), axisX.getLabel())
+                    || CrsUtil.axisLabelsMatch(subset.getAxisName(), axisY.getLabel())) {
+                    hasXYAxes.add(true);
+                }
+                
+                if (hasXYAxes.size() == 2) {
+                    break;
+                }
+            }
+            
+            // Coverage has X and Y axes, but user only specifies one of X or Y for the scale(), then the domain for the other axis
+            // will be determined from the specified X/Y axis.
+            if (hasXYAxes.size() == 1) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     //in case we will need to handle scale with a factor, use a method such as below
