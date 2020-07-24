@@ -54,8 +54,8 @@ class Recipe(GeneralCoverageRecipe):
 
     # Sentinel 1 tiff pattern
     # e.g: s1b-iw-grd-vh-20190324t164346-20190324t164411-015499-01d0a6-002.tiff
-    GRD_FILE_PATTERN = "(.*)-(.*)-grd-(.*)-(.*)-(.*)-(.*)-(.*)-(.*).tiff"
-    SLC_FILE_PATTERN = "(.*)-(.*)-slc-(.*)-(.*)-(.*)-(.*)-(.*)-(.*).tiff"
+    GRD_FILE_PATTERN = "(.*)-(.*)-grd-(.*)-(.*)-(.*)-(.*)-(.*)-(.*).(.*)"
+    SLC_FILE_PATTERN = "(.*)-(.*)-slc-(.*)-(.*)-(.*)-(.*)-(.*)-(.*).(.*)"
     grd_pattern = re.compile(GRD_FILE_PATTERN)
     slc_pattern = re.compile(SLC_FILE_PATTERN)
 
