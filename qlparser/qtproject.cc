@@ -339,6 +339,13 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     GDALDatasetPtr dstDs(nullptr, deleteGDALDataset);
     if (!out.bounds.empty())
     {
+        // verify bounds are > 0
+        if (out.width <= 0 || out.height <= 0)
+        {
+            LERROR << "Reason: Projection output must have width/height > 0.";
+            throw r_Error(r_Error::r_Error_InvalidProjectionResultGridExtents);
+        }
+
         // output bounds are set, use GDALReprojectImage in this case
         dstDs.reset(driver->Create("mem_out", out.width, out.height, ni, gBandType, NULL));
         dstDs->SetGeoTransform(out.gt);

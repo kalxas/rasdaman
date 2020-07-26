@@ -59,6 +59,9 @@ using namespace std;
 #define RC_ERROR    (-1)
 
 extern AccessControl accessControl;
+#ifdef RMANDEBUG
+extern int RManDebug;
+#endif
 
 // TODO remove these global variables at some point, used in servercomm.cc
 unsigned long maxTransferBufferSize = 4000000;

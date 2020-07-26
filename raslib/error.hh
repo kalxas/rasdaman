@@ -118,6 +118,7 @@ public:
                 r_Error_RuntimeProjectionError,
                 r_Error_InvalidSourceCRS,
                 r_Error_InvalidTargetCRS,
+                r_Error_InvalidProjectionResultGridExtents,
                 r_Error_FileTileStructureInconsistent,
                 r_Error_RasFedMessageParsingFailed,
 

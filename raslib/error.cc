@@ -227,6 +227,9 @@ r_Error::setErrorTextOnKind()
     case r_Error_InvalidTargetCRS:
         errorText = "Cannot use target coordinate reference system, as reported by GDAL library";
         break;
+    case r_Error_InvalidProjectionResultGridExtents:
+        errorText = "Projection output must have width/height > 0.";
+        break;
     case r_Error_FileTileStructureInconsistent:
         errorText = "Structure of file tile is inconsistent with the original read one";
         break;
