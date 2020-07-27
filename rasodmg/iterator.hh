@@ -46,7 +46,7 @@ rasdaman GmbH.
   which the iteration is defined.
   When an iterator is constructed, it is either initialized with
   another iterator or is set to null. When an iterator is constructed
-  via the {\tt create_iterator()} method defined in \Ref{r_Collection},
+  via the <tt>create_iterator()</tt> method defined in \Ref{r_Collection},
   the iterator is initailized to point to the first element, if there
   is one.
 */
@@ -62,11 +62,11 @@ public:
     r_Iterator() = default;
     /// copy constructor
     r_Iterator(const r_Iterator<T> &iter);
-    /// constructor getting the collection on which to iterate (used for {\tt r_Collection::create_iterator()})
+    /// constructor getting the collection on which to iterate (used for <tt>r_Collection::create_iterator()</tt>)
     r_Iterator(r_Collection<T> &source, int removed_objects = 0);
     /**
       Creates an iterator which points to the first element of the element collection. If
-      {\tt removed_objects} ist set to 1, the iterator points to the first element of
+      <tt>removed_objects</tt> ist set to 1, the iterator points to the first element of
       the list containing the removed objects (for internal use).
     */
 
@@ -88,7 +88,7 @@ public:
     void reset(int removed_objects = 0);
     /**
       Resets the iterator to point to the first element of the element collection. If
-      {\tt removed_objects} ist set to 1, the iterator points to the first element of
+      <tt>removed_objects</tt> ist set to 1, the iterator points to the first element of
       the list containing the removed objects (for internal use).
     */
 

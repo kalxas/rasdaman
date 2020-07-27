@@ -80,7 +80,7 @@ public:
     /// optimizing load access
     virtual void optimizeLoad(QtTrimList *trimList);
     /**
-      The method deletes the given {\tt trimList} and passes the {\tt optimizeLoad}
+      The method deletes the given <tt> trimList</tt> and passes the <tt> optimizeLoad</tt>
       message with empty triming lists to its input trees.
     */
 
@@ -106,9 +106,9 @@ protected:
 
     /**
       The method checks if the input branches are valid. Then it passes the evaluate message to its two
-      operands with the {\tt inputList} as argument. The returned results are provided through the arguments
-      {\tt operand1} and {\tt operand2} called by reference. The method returns {\tt true} if the operands are
-      valid, otherwise {\tt false}.
+      operands with the <tt> inputList</tt> as argument. The returned results are provided through the arguments
+      <tt> operand1</tt> and <tt> operand2</tt> called by reference. The method returns <tt> true</tt> if the operands are
+      valid, otherwise <tt> false</tt>.
     */
 
     /// operation trees

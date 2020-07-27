@@ -55,8 +55,8 @@ class r_Transaction;
   is independent of the cell base type. The only information
   available is the length in bytes of the base type.
   More specific MDDs including base type information for more
-  type safety are represented by the template subclass \Ref{r_Marray}.
-  Class \Ref{r_Marray} provides a constructor to convert to the base
+  type safety are represented by the template subclass r_Marray.
+  Class r_Marray provides a constructor to convert to the base
   type specific class.
 */
 
@@ -74,8 +74,8 @@ public:
               r_Transaction *transaction = NULL, bool initialize = true);
     /**
       If a storage layout pointer is provided, the object refered to is
-      taken and memory control moves to the \Ref{r_GMarray} class.
-      The user has to take care, that each creation of \Ref{r_GMarray}
+      taken and memory control moves to the r_GMarray class.
+      The user has to take care, that each creation of r_GMarray
       objects get a new storage layout object.
       r_Error is throw if the storage layout does not fit the type length or the dimension of the init domain and when the dimension of the domain is 0 (uninitialised).
     */

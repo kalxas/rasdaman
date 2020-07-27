@@ -40,7 +40,7 @@ rasdaman GmbH.
 /*@Doc:
 
   The class implements a set container. It inherits most of the
-  functionality from {\tt r_Collection}. The set can not have
+  functionality from \c r_Collection. The set can not have
   any duplicates and it is not ordered.
 
 */
@@ -63,8 +63,8 @@ public:
     /// inserts an element at the beginning (no duplicates)
     virtual void insert_element(const T &element, int no_modification = 0);
     /**
-      The method inserts an element into the collection. If {\tt no_modification}
-      is set, the {\tt mark_modified()} method of r_Object is not invoked and, therefore,
+      The method inserts an element into the collection. If \c no_modification
+      is set, the \c mark_modified() method of r_Object is not invoked and, therefore,
       a modification will not be recognized at the commit point.
     */
 

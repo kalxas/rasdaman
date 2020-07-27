@@ -88,7 +88,7 @@ public:
 
     /// Returns inputs
     QtONCStreamList *getStreamInputs();
-    /// exchange the stream input {\tt oldInput} with {\tt newInput}
+    /// exchange the stream input <tt>oldInput</tt> with <tt>newInput</tt>
     void setStreamInput(QtONCStream *oldInput, QtONCStream *newInput);
     ///
     //inline virtual void setParents();

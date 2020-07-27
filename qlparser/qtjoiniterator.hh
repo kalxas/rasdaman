@@ -94,8 +94,8 @@ private:
     bool outputStreamIsEmpty;
     /** The output stream is empty if at least one of the input streams is empty.
         In that case, the cross product has no elements. This is indicated
-    by the variable {\tt outputStreamIsEmpty} which is set in the method
-    {\tt open()}.
+    by the variable <tt>outputStreamIsEmpty</tt> which is set in the method
+    <tt>open()</tt>.
     */
 
     /// pointer to a copy of the last passed tuple

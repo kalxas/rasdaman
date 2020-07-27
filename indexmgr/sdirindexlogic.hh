@@ -49,19 +49,19 @@ class IndexDS;
     It can be used as index on tiles of MDD objects.
     A directory index consists solely of the current domain and
     a list of entries, one for each interval object (for instance, a tile).
-    Interval objects must not overlap, since {\tt SDirIndexLogic} optimizes access
+    Interval objects must not overlap, since <tt>SDirIndexLogic</tt> optimizes access
     based on the assumption that entries don't overlap. Entries are
     sorted by the lower vertice.
     Each entry contains the interval domain and a reference to the object
     itself.
 
     SDirIndexLogic implements the higher level index functionality and uses the
-    functionality of {\tt IndexDS} to do the operations.
+    functionality of <tt>IndexDS</tt> to do the operations.
 
-    This way, {\tt SDirIndexLogic} can be used for both persistent or
+    This way, <tt>SDirIndexLogic</tt> can be used for both persistent or
     main memory indexes, tiles index or intermediate nodes of a multidimensional
-    index, etc, by defining appropriate {\tt IndexDS} classes. Examples are
-    {\tt TransDirIx} and {\tt DBHierIndex}, for transient and persistent
+    index, etc, by defining appropriate <tt>IndexDS</tt> classes. Examples are
+    <tt>TransDirIx</tt> and <tt>DBHierIndex</tt>, for transient and persistent
     indexes, respectively.A
 
     The logic classes are stack based for performance and memory reasons -> everything is static.
@@ -85,7 +85,7 @@ public:
     /*@Doc:
         Search the index for a search region.
         Determines all the tiles in the index which intersect a given
-        search interval (given by {\tt searchInter}).
+        search interval (given by <tt>searchInter</tt>).
         The memory space allocated by this function for the contents
         of the keyobjects in the returned vector (only) must be released
         afterwards by the caller.

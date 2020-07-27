@@ -34,10 +34,10 @@ class QtData;  // forward declaration of a subclass of QtOperation
 
 /*@Doc:
 
-QtOperation defines a method {\tt evaluate()} getting a tuple of {\tt QtData} and returning
-a {\tt QtData} element. Every subclass has to redefine this method to compute its specific
-operation. Therefore, it takes its inputs which are also of type {\tt QtOperation}, and
-invokes the {\tt evaluate()} method again. The results are used as operands and the
+QtOperation defines a method <tt>evaluate()</tt> getting a tuple of <tt>QtData</tt> and returning
+a <tt>QtData</tt> element. Every subclass has to redefine this method to compute its specific
+operation. Therefore, it takes its inputs which are also of type <tt>QtOperation</tt>, and
+invokes the <tt>evaluate()</tt> method again. The results are used as operands and the
 computed value is returned.
 
 */
@@ -63,9 +63,9 @@ public:
     virtual QtData *evaluate(QtDataList *inputList);
 
     /**
-      The method takes the {\tt inputList} to compute the result of the node which is returned in the end.
-      The semantics is that elements of the {\tt inputList} are not allowed to be used as a result because
-      the {\tt inputList} is freed by the caller. If this is needed, they have to be copied.
+      The method takes the <tt>inputList</tt> to compute the result of the node which is returned in the end.
+      The semantics is that elements of the <tt>inputList</tt> are not allowed to be used as a result because
+      the <tt>inputList</tt> is freed by the caller. If this is needed, they have to be copied.
     */
 
     /// optimizing load access

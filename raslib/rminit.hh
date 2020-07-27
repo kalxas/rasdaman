@@ -48,9 +48,9 @@ const unsigned int RPC_TIMEOUT = 3;
 
 /*@Doc:
 
-  Class {\tt RMInit} is supposed to be instantiated just once. The scope
+  Class <tt>RMInit</tt> is supposed to be instantiated just once. The scope
   of this instance is equal to the program scope (global variable)
-  and therefore lifetime of the {\tt RMInit} instance and the application
+  and therefore lifetime of the <tt>RMInit</tt> instance and the application
   are the same. The constructor is used to allocate ressources needed
   during the whole application and the destructor cleans up memory at
   the end of the application.
@@ -115,10 +115,10 @@ private:
     /// check the option string for the occurance of an option and return its value if available
     int checkOptionString(const char *optString, const char *option, char *&value);
     /**
-      The method searches for an option of type {\tt -option value } in the option string specified.
+      The method searches for an option of type <tt>-option value </tt> in the option string specified.
       It returns 1 if the option is in the string, otherwise 0. If a value is given for the option
-      to check, it is returned by the reference pointer {\tt value}. The value has to freed using
-      {\tt delete[] value} after it is not needed anymore.
+      to check, it is returned by the reference pointer <tt>value</tt>. The value has to freed using
+      <tt>delete[] value</tt> after it is not needed anymore.
     */
 
     /// type of application can either be 'S' for server or 'C' for client

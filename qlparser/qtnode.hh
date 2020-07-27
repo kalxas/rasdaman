@@ -220,11 +220,11 @@ public:
     /// return childs of the node
     virtual QtNodeList *getChilds(QtChildType flag);
     /**
-      The method allows different retrieval of the subtree nodes. Dependent on the content of {\tt flag}
+      The method allows different retrieval of the subtree nodes. Dependent on the content of <tt>flag</tt>
       one of the following semantics is used:
-      {\tt DIRECT_CHILDS} - A list of all direct child nodes of the current node is returned.
-      {\tt LEAF_NODES   } - A list of all leaf nodes of the subtree with the current node as root is returned.
-      {\tt ALL_NODES    } - A list of all nodes of the subtree with the current node as root is returned.
+      <tt>DIRECT_CHILDS</tt> - A list of all direct child nodes of the current node is returned.
+      <tt>LEAF_NODES   </tt> - A list of all leaf nodes of the subtree with the current node as root is returned.
+      <tt>ALL_NODES    </tt> - A list of all nodes of the subtree with the current node as root is returned.
       The nodes in the result list have a special order. Every node comes before its parent node in
       the result list.
     */
@@ -232,7 +232,7 @@ public:
     /// return childs of a certain class
     QtNodeList *getChild(const QtNodeType node, QtChildType flag = QT_DIRECT_CHILDS);
     /**
-      The method allows to specify the class of childs to be considered according to method {\tt getChilds}.
+      The method allows to specify the class of childs to be considered according to method <tt>getChilds</tt>.
       By default, just direct childs are considered
     */
 
@@ -241,8 +241,8 @@ public:
 
     /**
       The method checks, if the two nodes have an equal meaning in a subtree.
-      {\tt equalMeaning()} depends on the type of the node and the information in the node.
-      For unary and binary operators the method {\tt equalMeaning()} is invoked on the input nodes.
+      <tt>equalMeaning()</tt> depends on the type of the node and the information in the node.
+      For unary and binary operators the method <tt>equalMeaning()</tt> is invoked on the input nodes.
     */
 
     /// creates a unique name for a common subexpression
@@ -301,7 +301,7 @@ public:
     /**
       {\em Load Optimization}
       The method is invoked through the whole query tree. The information of
-      every triming and projection node is collected and stored in a {\tt QtTrimList}
+      every triming and projection node is collected and stored in a <tt>QtTrimList</tt>
       structure which is passed down. While collecting the information consistency
       of the data is checked. At the leafs, which are load operations, the structure
       is converted to a minterval object and stored in the leaf node.
@@ -394,12 +394,12 @@ private:
  The class encapsulates type information. It additionally
  can hold a name in order to be identifyable in a list.
 
- The type is specified by {\tt dataType} and {\tt type}.
+ The type is specified by <tt>dataType</tt> and <tt>type</tt>.
  This is necessary because not all types are supported by
- subclasses of \Ref{Type}, e.g. not all types are persistent ones.
+ subclasses of Type, e.g. not all types are persistent ones.
 
  In case of QT_MDD and QT_COMPLEX, further type information
- can be optained from {\tt type}.
+ can be optained from <tt>type</tt>.
 
 */
 
@@ -467,7 +467,7 @@ private:
 
 /**
 
- The class encapsulates a tuple of \Ref{QtTypeElement}
+ The class encapsulates a tuple of QtTypeElement
  objects.
 
 */

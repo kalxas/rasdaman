@@ -51,8 +51,8 @@ class r_Set;
 
 /*@Doc:
 
-    The {\tt r_Storage_Layout} class is used to express the storage options
-    for {\tt r_Marray} objects. This is the superclass of different storage
+    The <tt>r_Storage_Layout</tt> class is used to express the storage options
+    for <tt>r_Marray</tt> objects. This is the superclass of different storage
     layout classes which may be used for different types of storage layout
     schemes. It is also used directly by the rasdaman client for
     default storage layout, i.e., for the storage layout for objects for
@@ -120,7 +120,7 @@ protected:
 
 //@ManMemo: Module: {\bf rasodmg }
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Storage_Layout}.
+  Output stream operator for objects of type <tt>const</tt> r_Storage_Layout.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Storage_Layout &sl);
 

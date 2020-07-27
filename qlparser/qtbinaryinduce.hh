@@ -61,7 +61,7 @@ public:
              const r_Point &offset12, const r_Point &offset21, const r_Minterval &areaOp1,
              const BaseType *resultBaseType, BinaryOp *myOp, bool fullTiles, unsigned int &capturedErrCode);
     /**
-      The method carries out the binary induce operation specified by {\tt operation} on the two operands. For
+      The method carries out the binary induce operation specified by <tt>operation</tt> on the two operands. For
       the result, a new transient MDD object is created and returned. In the end, the MDD objects of the operands
       are freed.
     */
@@ -73,7 +73,7 @@ protected:
     /// computes an unary induce operation with one MDD object and a scalar value either being atomic or complex constant
     QtData *computeUnaryMDDOp(QtMDD *operand1, QtScalarData *operand2, const BaseType *resultBaseType, int scalarPos = 1);
     /**
-      The method carries out the unary induce operation specified by {\tt operation} on the two operands. {\tt scalarPos }
+      The method carries out the unary induce operation specified by <tt>operation</tt> on the two operands. <tt>scalarPos </tt>
       determines if the scalar value is the first (=1, default) or the second (=2) operand in the operation. For
       the result, a new transient MDD object is created and returned. In the end, the MDD object of the first operand
       is freed.
@@ -82,7 +82,7 @@ protected:
     /// computes a binary operation on two scalar objects
     QtData *computeBinaryOp(QtScalarData *operand1, QtScalarData *operand2, const BaseType *resultBaseType);
     /**
-      The method carries out the binary operation specified by {\tt operation} on the two operands.
+      The method carries out the binary operation specified by <tt>operation</tt> on the two operands.
     */
 
 //  private:

@@ -72,6 +72,7 @@ public:
     /**
      * Get a copy of the user with the given name
      * @param userName
+     * @param out_user
      * @return TRUE if there was a user with this name, FALSE otherwise
      */
     virtual bool tryGetUser(const std::string &userName, std::shared_ptr<User> &out_user);

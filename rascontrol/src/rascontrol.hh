@@ -43,7 +43,7 @@ public:
     /**
      * @brief RasControl Initialize a new instance of the RasControl class.
      * @param config
-     * @param userCredentials
+     * @param userCredentials1
      */
     RasControl(RasControlConfig &config, const UserCredentials &userCredentials1);
 

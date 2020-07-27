@@ -71,7 +71,7 @@ public:
     virtual void optimizeLoad(QtTrimList *trimList);
 
     /**
-      The method passes the given {\tt trimList} list to its input tree.
+      The method passes the given <tt>trimList</tt> list to its input tree.
     */
 
     /// debugging method

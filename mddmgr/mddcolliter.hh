@@ -52,7 +52,7 @@ class MDDCollIter;
     collection) between creation of an iterator for it and the execution of
     other operations on the iterator, the behavior of the istent Iterator
     is undefined.
-    The {\tt MDDColl::createIterator()} for the object to be scanned should
+    The <tt>MDDColl::createIterator()</tt> for the object to be scanned should
     be used to create a new iterator object.
 */
 

@@ -76,7 +76,7 @@ public:
     /// constructor getting the rasmgr name
     r_Database(const char *name);
     /**
-      One error situations can occur which raise an exception of type \Ref{r_Error} with
+      One error situations can occur which raise an exception of type r_Error with
       one of the following kinds:
       r_Error_NameInvalid     && Name is NULL.\\
     */
@@ -87,10 +87,11 @@ public:
     /// open a database
     void open(const char *database_name, access_status status = read_write);
     /**
-      The method opens the database specified with {\tt database_name}. Several error
-      situations can occur which raise an exception of type \Ref{r_Error} with
+      The method opens the database specified with <tt>database_name</tt>. Several error
+      situations can occur which raise an exception of type r_Error with
       one of the following kinds:
 
+      \latexonly
       \begin{tabular}{lll}
       r_Error_HostInvalid     && Host can not be found.\\
       r_Error_ServerInvalid   && Server can not be found.\\
@@ -100,6 +101,7 @@ public:
       r_Error_TransferFailed  && Other communication problem. \\
       r_Error_NameInvalid     && Name is NULL.\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// close a database
@@ -109,8 +111,8 @@ public:
     void create(const char *name);
     /**
       This method works only if a server host name has been specified with
-      {\tt set_servername()}.
-      One of error situations can occur will raise an exception of type \Ref{r_Error} with
+      <tt>set_servername()</tt>.
+      One of error situations can occur will raise an exception of type r_Error with
       one of the following kinds:
       r_Error_NameInvalid     && Name is NULL.\\
     */
@@ -119,8 +121,8 @@ public:
     void destroy(const char *name);
     /**
      This method works only if a server host name has been specified with
-     {\tt set_servername()}.
-     One of error situations can occur will raise an exception of type \Ref{r_Error} with
+     <tt>set_servername()</tt>.
+     One of error situations can occur will raise an exception of type r_Error with
      one of the following kinds:
      r_Error_NameInvalid     && Name is NULL.\\
     */
@@ -128,14 +130,14 @@ public:
     /// set the server name
     void set_servername(const char *name, int port = DEFAULT_PORT);
     /**
-      One of error situations can occur will raise an exception of type \Ref{r_Error} with
+      One of error situations can occur will raise an exception of type r_Error with
       one of the following kinds:
       r_Error_NameInvalid     && Name is NULL.\\
     */
     /// set the user name and password
     void set_useridentification(const char *name, const char *plain_pass);
     /**
-      One of error situations can occur will raise an exception of type \Ref{r_Error} with
+      One of error situations can occur will raise an exception of type r_Error with
       one of the following kinds:
       r_Error_NameInvalid     && Name is NULL.\\
     */
@@ -146,10 +148,10 @@ public:
     /// give a name to an object (signature is not ODMG conformant because of compiler bug)
     void set_object_name(r_Object &obj, const char *name);
     /**
-      The method gives the {\tt name} to the object {\tt obj}. The name is used for
+      The method gives the <tt>name</tt> to the object <tt>obj</tt>. The name is used for
       further retrieval of the object. Right now, names can just be given to sets
-      of type {\tt r_Set}.
-      One of error situations can occur will raise an exception of type \Ref{r_Error} with
+      of type <tt>r_Set</tt>.
+      One of error situations can occur will raise an exception of type r_Error with
       one of the following kinds:
       r_Error_NameInvalid     && Name is NULL.\\
     */
@@ -158,50 +160,56 @@ public:
     r_Ref_Any lookup_object(const char *name) const
     ;
     /**
-      The method looks up an object with {\tt name}. Right now, just objects of type \Ref{r_Set} are
+      The method looks up an object with <tt>name</tt>. Right now, just objects of type r_Set are
       allowed. Error kinds:
 
+      \latexonly
       \begin{tabular}{lll}
       r_Error_ClientUnknown       && Client is not known by the server (earlier communication problems).\\
       r_Error_DatabaseClosed      && Database is not open. \\
       r_Error_TransactionNotOpen  && No transaction is active. \\
-      r_Error_ObjectUnknown       && The object with {\tt name} is not in the database.\\
+      r_Error_ObjectUnknown       && The object with <tt>name</tt> is not in the database.\\
       r_Error_TransferFailed      && Other communication problem. \\
       r_Error_NameInvalid     && Name is NULL.\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// lookup objects by oids in a database (must be called within open database and running transaction)
     r_Ref_Any lookup_object(const r_OId &oid) const
     ;
     /**
-      The method looks up an object with {\tt oid}. Right now, just objects of type \Ref{r_Set} and
-      \Ref{r_GMarray} are allowed.
+      The method looks up an object with <tt>oid</tt>. Right now, just objects of type r_Set and
+      r_GMarray are allowed.
 
       Error kinds:
+      \latexonly
       \begin{tabular}{lll}
       r_Error_ClientUnknown       && Client is not known by the server (earlier communication problems).\\
       r_Error_DatabaseClosed      && Database is not open. \\
       r_Error_TransactionNotOpen  && No transaction is active. \\
-      r_Error_ObjectUnknown       && The object with {\tt oid} is not in the database.\\
+      r_Error_ObjectUnknown       && The object with <tt>oid</tt> is not in the database.\\
       r_Error_TransferFailed      && Other communication problem. \\
       \end{tabular}
+      \endlatexonly
     */
 
     r_Type *get_type_schema(const char *typeName, type_schema typetype);
     /**
-      The method looks up the type structure with {\tt typeName} as its name.  typetype is 1 for marray and 2 for collection.
+      The method looks up the type structure with <tt>typeName</tt> as its name.  typetype is 1 for marray and 2 for collection.
 
       Error kinds:
+      \latexonly
       \begin{tabular}{lll}
       r_Error_ClientUnknown       && Client is not known by the server (earlier communication problems).\\
       r_Error_DatabaseClosed      && Database is not open. \\
       r_Error_TransactionNotOpen  && No transaction is active. \\
-      r_Error_ObjectUnknown       && The object with {\tt typeName} is not in the database.\\
+      r_Error_ObjectUnknown       && The object with <tt>typeName</tt> is not in the database.\\
       r_Error_TransferFailed      && Other communication problem. \\
       r_Error_TypeInvalid         && The typetype is neither 1 nor 2. \\
       r_Error_NameInvalid         && The typeName is neither NULL or is a "\0". \\
       \end{tabular}
+      \endlatexonly
     */
 
 
@@ -213,11 +221,13 @@ public:
       this client with the server.
 
       Error kinds:
+      \latexonly
       \begin{tabular}{lll}
       r_Error_ClientUnknown       && Client is not known by the server\\
       r_Error_DatabaseClosed      && Database is not open\\
       r_Error_FeatureNotSupported && Unsupported transfer format\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// set the storage format for newly created MDD for this client

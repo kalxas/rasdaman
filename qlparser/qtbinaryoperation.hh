@@ -78,7 +78,7 @@ public:
     /// optimizing load access
     virtual void optimizeLoad(QtTrimList *trimList);
     /**
-      The method deletes the given {\tt trimList} and passes the {\tt optimizeLoad}
+      The method deletes the given <tt> trimList</tt> and passes the <tt> optimizeLoad</tt>
       message with empty triming lists to its input trees. The method is rewritten
       by some subclasses.
     */
@@ -108,18 +108,18 @@ protected:
     bool getOperands(QtDataList *inputList, QtData *&operand1, QtData *&operand2);
     /**
       The method checks if the input branches are valid. Then it passes the evaluate message to its two
-      operands with the {\tt inputList} as argument. The returned results are provided through the arguments
-      {\tt operand1} and {\tt operand2} called by reference. The method returns {\tt true} it the operands are
-      valid, otherwise {\tt false}.
+      operands with the <tt> inputList</tt> as argument. The returned results are provided through the arguments
+      <tt> operand1</tt> and <tt> operand2</tt> called by reference. The method returns <tt> true</tt> it the operands are
+      valid, otherwise <tt> false</tt>.
     */
 
     /// method for testing and evaluating the input branches
     bool getOperand(QtDataList *inputList, QtData *&operand1, int number);
     /**
       The method checks if the by number specified input branch si valid. Then it passes the evaluate message to the
-      operand with the {\tt inputList} as argument. The returned result are provided through the argument
-      {\tt operand} called by reference. The method returns {\tt true} it the operand is
-      valid, otherwise {\tt false}.
+      operand with the <tt> inputList</tt> as argument. The returned result are provided through the argument
+      <tt> operand</tt> called by reference. The method returns <tt> true</tt> it the operand is
+      valid, otherwise <tt> false</tt>.
     */
 
     /// first operation operand

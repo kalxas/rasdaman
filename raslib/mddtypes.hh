@@ -56,37 +56,39 @@ using r_Range = long long;
 using r_Dimension = unsigned int;
 
 /**
+  \latexonly
   \begin{tabular}{ll}
-  {\tt r_Array}              && no compression, row-major memory representation\\
+  <tt>r_Array</tt>              && no compression, row-major memory representation\\
 
-  {\tt r_TIFF}               && TIFF format (see r_Conv_TIFF)\\
-  {\tt r_JPEG}               && JPEG format (see r_Conv_JPEG)\\
-  {\tt r_JP2}                && JPEG2000 format (see r_Conv_JP2)\\
-  {\tt r_HDF}                && HDF  format (see r_Conv_HDF)\\
-  {\tt r_PNG}                && PNG  format (see r_Conv_PNG)\\
-  {\tt r_BMP}                && BMP  format (see r_Conv_BMP)\\
-  {\tt r_PPM}                && PPM  format (see r_Conv_PPM)\\
-  {\tt r_DEM}                && DEM  format (see r_Conv_DEM)\\
-  {\tt r_ECW}                && ECW  format (see r_Conv_ECW)\\
-  {\tt r_NITF}               && NITF  format (see r_Conv_NITF)\\
-  {\tt r_NETCDF}             && NETCDF  format (see r_Conv_NETCDF)\\
-  {\tt r_GRIB}               && GRIB  format (see r_Conv_GRIB)\\
-  {\tt r_GDAL}               && GDAL supported format (see r_Conv_GDAL)\\
+  <tt>r_TIFF</tt>               && TIFF format (see r_Conv_TIFF)\\
+  <tt>r_JPEG</tt>               && JPEG format (see r_Conv_JPEG)\\
+  <tt>r_JP2</tt>                && JPEG2000 format (see r_Conv_JP2)\\
+  <tt>r_HDF</tt>                && HDF  format (see r_Conv_HDF)\\
+  <tt>r_PNG</tt>                && PNG  format (see r_Conv_PNG)\\
+  <tt>r_BMP</tt>                && BMP  format (see r_Conv_BMP)\\
+  <tt>r_PPM</tt>                && PPM  format (see r_Conv_PPM)\\
+  <tt>r_DEM</tt>                && DEM  format (see r_Conv_DEM)\\
+  <tt>r_ECW</tt>                && ECW  format (see r_Conv_ECW)\\
+  <tt>r_NITF</tt>               && NITF  format (see r_Conv_NITF)\\
+  <tt>r_NETCDF</tt>             && NETCDF  format (see r_Conv_NETCDF)\\
+  <tt>r_GRIB</tt>               && GRIB  format (see r_Conv_GRIB)\\
+  <tt>r_GDAL</tt>               && GDAL supported format (see r_Conv_GDAL)\\
 
-  {\tt r_Auto_Compression}   && automatic compression\\
-  {\tt r_ZLib}               && ZLIB compresion  (see r_Tile_Comp_RLE)\\
-  {\tt r_Pack_Bits}          && Packbits rle compresion  (see r_Tile_Comp_Packbits)\\
-  {\tt r RLE}                && RLE compression  (see r_Tile_Comp_RLE)\\
-  {\tt r_Wavelet_Haar}       && Haar Wavelet compression  (see r_Haar_Wavelet_Compression)\\
-  {\tt r_Wavelet_Daubechies} && Daubechies 4-tap Wavelet compression  (see r_Daubechies_Wavelet_Compression)\\
-  {\tt r_Sep_ZLib}           && ZLIB compression, compress base types separately  (see r_Tile_Separate_ZLIB)\\
-  {\tt r_Sep_RLE}            && RLE compression, compress base types separately  (see r_Tile_Separate_RLE)\\
-  {\tt r_Wavelet_Daub#n}     && Daubechies n-tap Wavelet compression, n=6,8,...,18,20  (see r_Ortho_Wavelet_Factory)\\
-  {\tt r_Wavelet_Least#n}    && Least asymmetric n-tap Wavelet comp., n=8,10,...,18,20  (see r_Ortho_Wavelet_Factory)\\
-  {\tt r_Wavelet_Coiflet#n}  && Coiflet n-tap Wavelet compression, n=6,12,18,24,30  (see r_Ortho_Wavelet_Factory)\\
-  {\tt r_Wavelet_QHaar}      && Lossy Haar Wavelet compression  (see r_Haar_QWavelet_Compression)\\
+  <tt>r_Auto_Compression</tt>   && automatic compression\\
+  <tt>r_ZLib</tt>               && ZLIB compresion  (see r_Tile_Comp_RLE)\\
+  <tt>r_Pack_Bits</tt>          && Packbits rle compresion  (see r_Tile_Comp_Packbits)\\
+  <tt>r RLE</tt>                && RLE compression  (see r_Tile_Comp_RLE)\\
+  <tt>r_Wavelet_Haar</tt>       && Haar Wavelet compression  (see r_Haar_Wavelet_Compression)\\
+  <tt>r_Wavelet_Daubechies</tt> && Daubechies 4-tap Wavelet compression  (see r_Daubechies_Wavelet_Compression)\\
+  <tt>r_Sep_ZLib</tt>           && ZLIB compression, compress base types separately  (see r_Tile_Separate_ZLIB)\\
+  <tt>r_Sep_RLE</tt>            && RLE compression, compress base types separately  (see r_Tile_Separate_RLE)\\
+  <tt>r_Wavelet_Daub#n</tt>     && Daubechies n-tap Wavelet compression, n=6,8,...,18,20  (see r_Ortho_Wavelet_Factory)\\
+  <tt>r_Wavelet_Least#n</tt>    && Least asymmetric n-tap Wavelet comp., n=8,10,...,18,20  (see r_Ortho_Wavelet_Factory)\\
+  <tt>r_Wavelet_Coiflet#n</tt>  && Coiflet n-tap Wavelet compression, n=6,12,18,24,30  (see r_Ortho_Wavelet_Factory)\\
+  <tt>r_Wavelet_QHaar</tt>      && Lossy Haar Wavelet compression  (see r_Haar_QWavelet_Compression)\\
 
   \end{tabular}
+  \endlatexonly
 */
 enum r_Data_Format
 {
@@ -139,7 +141,7 @@ enum r_Data_Format
     r_Data_Format_NUMBER
 };
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    The names of all data types, to avoid redundant storage and inconsistencies.
    The variable name convention is the prefix `format_name_` followed by the name
@@ -197,22 +199,22 @@ extern const char *format_name_gdal;
 
 extern const char *all_data_format_names[r_Data_Format_NUMBER];
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    Get a data format name for a data format
 */
 const char *get_name_from_data_format(r_Data_Format fmt);
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
   Get a data format for a data format name
 */
 r_Data_Format get_data_format_from_name(const char *name);
 
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
-  Output stream operator for objects of type {\tt const} r_Data_Format.
+  Output stream operator for objects of type <tt>const</tt> r_Data_Format.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Data_Format &d);
 
@@ -228,21 +230,21 @@ extern const char *scale_function_name_bitaggregation;
 
 extern const char *all_scale_function_names[r_Scale_Function_NUMBER];
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    Get a scale function name for a scale  function
 */
 const char *get_name_from_scale_function(r_Scale_Function func);
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
   Get a scale function from a scale function name
 */
 r_Scale_Function get_scale_function_from_name(const char *name);
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
-  Output stream operator for objects of type {\tt const} r_Scale_Function.
+  Output stream operator for objects of type <tt>const</tt> r_Scale_Function.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Scale_Function &d);
 
@@ -262,7 +264,7 @@ enum r_Index_Type
 
 extern std::ostream &operator<<(std::ostream &in, r_Index_Type type);
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    The names of all index type, to avoid redundant storage and inconsistencies.
    The variable name convention is the prefix index_name_ followed by the name
@@ -282,13 +284,13 @@ extern const char *index_name_regcomputed;
 
 extern const char *all_index_type_names[r_Index_Type_NUMBER];
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    Get a index type name for a index type
 */
 const char *get_name_from_index_type(r_Index_Type it);
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    Get a index type  for a index type name
 */
@@ -297,6 +299,7 @@ r_Index_Type get_index_type_from_name(const char *name);
 /**
     Tiling of the object:
 
+    \latexonly
     \begin{tabular}{ll}
     r_NoTiling       && no tiling is done unless the object is too big;
                         in that case, tiling is done along the first direction only;
@@ -309,6 +312,7 @@ r_Index_Type get_index_type_from_name(const char *name);
     r_DirectionalTiling && directional tiling \\
     r_SizeTiling    && tiles have a size smaller than the specified size
     \end{tabular}
+    \endlatexonly
 */
 enum r_Tiling_Scheme
 {
@@ -322,7 +326,7 @@ enum r_Tiling_Scheme
     r_Tiling_Scheme_NUMBER = 7
 };
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    The names of all tiling schems, to avoid redundant storage and inconsistencies.
    The variable name convention is the prefix tiling_name_ followed by the name
@@ -342,39 +346,41 @@ extern const char *tiling_name_sizetiling;
 
 extern const char *all_tiling_scheme_names[r_Tiling_Scheme_NUMBER];
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    Get a tiling scheme name for a tiling scheme
 */
 const char *get_name_from_tiling_scheme(r_Tiling_Scheme ts);
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
    Get a tiling scheme for a tiling scheme name
 */
 r_Tiling_Scheme get_tiling_scheme_from_name(const char *name);
 
-//@ManMemo: Module: {\bf raslib}
+//@ManMemo: Module: <b>raslib</b>
 /**
-  Output stream operator for objects of type {\tt const} r_Tiling_Scheme.
+  Output stream operator for objects of type <tt>const</tt> r_Tiling_Scheme.
 */
 extern std::ostream &operator<<(std::ostream &in, r_Tiling_Scheme type);
 
 /**
 Clustering of the tiles according to:
 
+\latexonly
 \begin{tabular}{lll}
 r_Insertion_Order_Clustering    && the order of insertion of the tiles \\
 r_Coords_Order_Clustering       &&  the coordinates of the tiles \\
 r_Index_Cluster_Clustering      && the index structure \\
 r_Based_Cluster_Stat_Clustering && statistics about access to the object
 \end{tabular}
+\endlatexonly
 
-There is the additional {\bf PathCluster} mode, where clustering is
+There is the additional <b>PathCluster</b> mode, where clustering is
 done according to a path of access to areas of interest.
-The {\tt PathCluster} mode is indicated by setting the {\tt pathCluster}
-attribute and a non - null value of the {\tt areasInterest}.
-This mode is not an alternative mode in {\tt ClusteringScheme} because
+The <tt>PathCluster</tt> mode is indicated by setting the <tt>pathCluster</tt>
+attribute and a non - null value of the <tt>areasInterest</tt>.
+This mode is not an alternative mode in <tt>ClusteringScheme</tt> because
 it is compatible with the other modes.
 */
 enum r_Clustering_Scheme

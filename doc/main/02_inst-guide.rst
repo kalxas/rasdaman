@@ -746,6 +746,18 @@ Install Required Packages
 Installation commands for the packages is depending on the platform
 used, here is a guidance for some of the most frequently used.
 
+.. note::
+  When installing the GDAL Python bindings with ``pip3 install --user GDAL==...``,
+  it is possible to come across an error similar to 
+  ``cpl_port.h: No such file or directory``. To fix it, search for cpl_port.h
+  on your system, e.g. ``find / -name cpl_port.h``; normally it will be in 
+  ``/usr/include/gdal``. Then retry the same pip3 command installing *only* GDAL,
+  with additional ``--global-option`` arguments: ::
+  
+    $ pip3 install --user --global-option=build_ext \
+                          --global-option="-I/usr/include/gdal" GDAL==...
+
+
 CentOS 7
 ~~~~~~~~
 
@@ -821,7 +833,7 @@ Debian 9 / Ubuntu 16.04
     # To run rasdaman
     $ sudo apt-get install \
       postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils \
-      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel 
+      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel \
       libreadline-dev libssl1.0.0 libgrib-api-dev libpython3-dev
     # To run Java components
     $ sudo apt-get install default-jre-headless libgdal-java tomcat8
@@ -842,10 +854,10 @@ Debian 10 / Ubuntu 18.04 / Ubuntu 20.04
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake bison flex git g++ unzip libpng-dev 
-      libjpeg-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev 
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-devlibnetcdf-dev 
-      libedit-dev libreadline-dev libdw-dev libsqlite3-dev libgrib2c-dev curl 
+      make libtool gawk autoconf automake bison flex git g++ unzip libpng-dev \
+      libjpeg-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
+      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-devlibnetcdf-dev \
+      libedit-dev libreadline-dev libdw-dev libsqlite3-dev libgrib2c-dev curl \
       libssl-dev libeccodes-dev cmake ccache
     # To build Java components
     $ sudo apt-get install default-jdk-headless maven ant libgdal-java
@@ -860,8 +872,8 @@ Debian 10 / Ubuntu 18.04 / Ubuntu 20.04
 
     # To run rasdaman
     $ sudo apt-get install \
-      postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils 
-      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel 
+      postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils \
+      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel \
       libreadline-dev libssl1.1 libeccodes0
     # To run Java components
     $ sudo apt-get install default-jre-headless libgdal-java tomcat9

@@ -43,7 +43,7 @@ rasdaman GmbH.
 /*@Doc:
   This class implements the "Directional Tiling" tiling method. In this
   method the decomposition is done along certain directions of the
-  multi-dimensional cube. The user uses {\tt r_Dir_Decompose} to inform
+  multi-dimensional cube. The user uses <tt>r_Dir_Decompose</tt> to inform
   the system on how the decomposition is done in each dimension.
 */
 
@@ -76,7 +76,7 @@ public:
     The user has to give the number of dimensions of the space and the
     decomposition wanted for that space. Note that the number of elements of
     decomp must be the same as the number of dimensions of the space.
-    See {\tt r_Dir_Decompose} for details on how to indicate a decomposition.
+    See <tt>r_Dir_Decompose</tt> for details on how to indicate a decomposition.
     SubTiling indicates if subtiling should occur inside the blocks specified
     by the user.
     Throws an exception when the decomp.size is not equal to the specified

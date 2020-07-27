@@ -110,7 +110,7 @@ public:
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for enum of type {\tt const} \Ref{r_Minterval}.
+  Output stream operator for enum of type <tt>const</tt> r_Minterval.
   */
 extern std::ostream &operator<<(std::ostream &s, r_Endian::r_Endianness &e);
 

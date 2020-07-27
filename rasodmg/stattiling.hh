@@ -48,7 +48,7 @@ class r_Stat_Tiling;
 /*@Doc:
 
   This class represents an access pattern to a certain object.
-  {\tt r_Stat_Tiling} receives a list of this objects so that
+  \c r_Stat_Tiling receives a list of this objects so that
   an appropriate tiling can be defined.
 */
 
@@ -124,7 +124,7 @@ extern std::ostream &operator<<(std::ostream &os, const r_Access &access);
   accesses that must take place so that an areas is considered of interest
   when performing tiling and also the tilesize.
 
-  A call to {\tt update_stat_information} should be made prior to performing
+  A call to \c update_stat_information should be made prior to performing
   tiling so that the static information about the accesses to the object
   can be updated and the tiling operation prepared.
 */

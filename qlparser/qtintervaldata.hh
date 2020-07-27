@@ -64,7 +64,7 @@ public:
     ///
     //@}
 
-    /// returns {\tt QT_INTERVAL}
+    /// returns <tt>QT_INTERVAL</tt>
     virtual QtDataType getDataType() const;
 
     /// compares data content

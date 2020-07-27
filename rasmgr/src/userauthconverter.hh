@@ -44,6 +44,7 @@ public:
      * @brief tryGetOldFormatAuthenticationData Will try to read the given authentication file.
      * If the reading is successful, it returns the data stored in the file.
      * @param oldFilePath
+     * @param out_userManagerData
      * @return TRUE if the file represents authentication file stored in the old format, FALSE otherwise.
      */
     static bool tryGetOldFormatAuthData(const std::string &oldFilePath, UserMgrProto &out_userManagerData);

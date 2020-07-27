@@ -106,34 +106,34 @@ public:
 
     MDDObj(const MDDBaseType *mddType, const r_Minterval &domain);
     /**
-        Creates a new transient MDD object with definition domain {\tt domain } and type (\tt mddType).
+        Creates a new transient MDD object with definition domain <tt>domain </tt> and type <tt>mddType</tt>.
         The newly created object has no tiles.
     */
     MDDObj(const MDDBaseType *mddType, const r_Minterval &domain,
            r_Nullvalues *newNullValues);
     /**
-        Creates a new transient MDD object with definition domain {\tt domain },
-       type (\tt mddType) and null values
+        Creates a new transient MDD object with definition domain <tt>domain </tt>,
+       type <tt>mddType</tt> and null values
        newNullValues.
         The newly created object has no tiles.
     */
 
-    /// Creates a new persistent MDD object using preallocated OId {\ttnewOId}.
+    /// Creates a new persistent MDD object using preallocated OId <tt>newOId</tt>.
     MDDObj(const MDDBaseType *mddType, const r_Minterval &domain,
            const OId &newOId, const StorageLayout &ms);
     /**
-        Creates a new persistent MDD object with definition domaini {\tt domain}
-       and type (\tt mddType).
+        Creates a new persistent MDD object with definition domaini <tt>domain</tt>
+       and type <tt>mddType</tt>.
         The newly created object has no tiles.
-        {\ttnewOId } must have been previously allocated with {\tt OIdIf::allocateOId() }
+        <tt>newOId </tt> must have been previously allocated with <tt>OIdIf::allocateOId() </tt>
         Throws an exception if the object already exists or if the OId is not valid.
     */
 
     MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId &newOId);
     /**
-        Creates a new persistent MDD object with definition domaini {\tt domain} and type (\tt mddType).
+        Creates a new persistent MDD object with definition domaini <tt>domain</tt> and type <tt>mddType</tt>.
         The newly created object has no tiles.
-        {\ttnewOId } must have been previously allocated with {\tt OIdIf::allocateOId() }
+        <tt>newOId </tt> must have been previously allocated with <tt>OIdIf::allocateOId() </tt>
         Throws an exception if the object already exists or if the OId is not valid.
         This should only be used  by mdds that contain file tiles
     */
@@ -144,7 +144,7 @@ public:
         Throws an exception if the object does not exists.
     */
 
-    /// Opens an existent persistent MDD object which has the OIdi {\tt givenOId }
+    /// Opens an existent persistent MDD object which has the OIdi <tt>givenOId </tt>
     MDDObj(const OId &givenOId);
     /**
         Throws an exception if the object does not exists.
@@ -153,8 +153,8 @@ public:
     ///
     MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const StorageLayout &ms);
     /**
-        Creates a new persistent MDD object with definition domain {\tt domain}, 
-        storage layout {\tt ms} and type {\tt mddType}.
+        Creates a new persistent MDD object with definition domain <tt>domain</tt>, 
+        storage layout <tt>ms</tt> and type <tt>mddType</tt>.
         The newly created object has no tiles.
     */
 
@@ -230,7 +230,7 @@ public:
         The returned vector but not the tiles must be freed by the caller.
     */
 
-    /// Gets the cell with coordinates {\tt searchPoint} in the MDD.
+    /// Gets the cell with coordinates <tt>searchPoint</tt> in the MDD.
     const char *pointQuery(const r_Point &searchPoint) const;
     /**
         Returns null pointer if cell doesnt exist in the object.

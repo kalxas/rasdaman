@@ -561,6 +561,76 @@ C++ Guidelines
 
 The rasdaman system is implemented in C++ 11; below are some guidelines.
 
+.. _cpp-ide:
+
+IDE
+===
+
+Developing C++ code is no doubt a much better experience with good IDE support.
+Below we give some guidelines.
+
+Qt Creator
+----------
+
+Qt Creator is very well suited for hacking on rasdaman: it's free and 
+open-source, very fast and low on resource usage compared to alternatives, has
+built-in debugging support, code formatter, and other useful features.
+
+Below you see a video that walks through setting up Qt Creator on Ubuntu 18.04.
+A short transcript:
+
+- install Qt Creator with ``sudo apt install qtcreator``
+
+- start Qt Creator
+
+- we assume rasdaman was cloned into ``~/rasdaman``, and create a build dir
+  at ``~/rasdaman-build``
+
+  - run CMake to configure the build, see ref:`sec-system-install` for more info
+
+  - note: it is recommended to create the build directory outside the source
+    tree, to avoid confusing the IDE with build artefacts
+
+- go to ``File -> Open File or Project`` in Qt Creator, navigate to the rasdaman
+  source tree and select ``CMakeLists.txt``
+
+- this will lead to importing the ``~/rasdaman-build`` directory from which 
+  Qt Creator will figure out the build configuration; for development we 
+  normally want a Debug config
+
+- with that the rasdaman project is now ready for development in Qt Creator
+
+- some of the features are then shown in the video:
+
+  - start building rasdaman (same as ``make``) from within Qt Creator with ``Ctrl+B``
+
+  - navigate to a file with ``Ctrl+k`` (there are a lot more options for quick 
+    navigation)
+
+  - ``Ctrl+left mouse click`` leads to the declaration of a symbol
+
+  - ``F4`` will switch between header and source files
+
+  - in ``Projects (left sidebar) -> Run`` you can configure the executable to be
+    executed when running the project; normally we want this to be rasserver,
+    and we specify the arguments like the query to be executed by rasserver
+
+  - ``F5`` will then start the debugger on the configured executable; you can
+    set up breakpoints as usual to stop the debugger at certain locations or
+    conditions
+
+.. the conditional below is needed as Latex cannot embed the gif into a pdf
+
+.. only:: html
+
+  .. figure:: https://doc.rasdaman.org/_images/setup_qtcreator.gif
+
+    Setup Qt Creator for rasdaman development. Right click -> View Image to see
+    the video in full resolution in your browser.
+
+.. only:: latex
+
+  Video: https://doc.rasdaman.org/_images/setup_qtcreator.gif
 
 .. _cpp-debugging:
 

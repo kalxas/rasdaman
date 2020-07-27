@@ -64,7 +64,7 @@ public:
     /// virtual destructor
     virtual ~QLMarrayOp();
 
-    /// operator that carries out the cell expression on point {\tt p}.
+    /// operator that carries out the cell expression on point <tt>p</tt>.
     virtual void operator()(char *result, const r_Point &p);
 
 private:
@@ -109,7 +109,7 @@ public:
     /// virtual destructor
     virtual ~QLCondenseOp();
 
-    /// operator that carries out the cell expression on point {\tt p}.
+    /// operator that carries out the cell expression on point <tt>p</tt>.
     virtual void operator()(const r_Point &p);
 
 private:
@@ -141,10 +141,10 @@ public:
                         std::vector<QtData *> *dataList,
                         Ops::OpType op, const BaseType *newResBaseType, const BaseType *cellBaseType, std::string iteratorName);
 
-    /// operator that carries out the cell expression on point {\tt p}.
+    /// operator that carries out the cell expression on point <tt>p</tt>.
     virtual void operator()(const r_Point &p);
 
-    /// executes general condense operation {\tt myOp} in area {\tt areaOp} (const)
+    /// executes general condense operation <tt>myOp</tt> in area <tt>areaOp</tt> (const)
     static QtMDD *execGenCondenseInducedOp(QLInducedCondenseOp *myOp, const r_Minterval &areaOp);
 
     /// getter for the accumulated value

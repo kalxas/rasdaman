@@ -94,7 +94,7 @@ public:
     // quick hack function used when stopping server to abort transaction and close db
     static void abortEveryThingNow();
 
-    /// print server status with client table content to {\tt s}
+    /// print server status with client table content to \c s
     virtual void printServerStatus();
 
     // -----------------------------------------------------------------------------------------
@@ -105,24 +105,29 @@ public:
     /// open database
     virtual unsigned short openDB(unsigned long callingClientId, const char *dbName, const char *userName);
     /**
-      The method opens the database with {\tt dbName}. The return value means the following:
+      The method opens the database with \c dbName. The return value means the following:
 
+      \latexonly
+      \latexonly
       \begin{tabular}{lll}
       0 && database successfully opened\\
       1 && client context not found\\
       2 && database does not exist\\
       3 && database is already open\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// close current database
     virtual unsigned short closeDB(unsigned long callingClientId);
     /**
       The return value has the following meaning:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// create a database
@@ -140,41 +145,49 @@ public:
     virtual unsigned short beginTA(unsigned long callingClientId, unsigned short readOnly = 0);
     /**
       The return value has the following meaning:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && other transaction already active\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// commit current transaction
     virtual unsigned short commitTA(unsigned long callingClientId);
     /**
       The return value has the following meaning:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// abort current transaction
     virtual unsigned short abortTA(unsigned long callingClientId);
     /**
       The return value has the following meaning:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// is transaction open currently?
     virtual bool isTAOpen(unsigned long callingClientId);
     /**
       The return value has the following meaning:
+      \latexonly
       \begin{tabular}{lll}
       true && a transaction is open\\
       false && no transaction is open\\
       \end{tabular}
+      \endlatexonly
     */
 
     // -----------------------------------------------------------------------------------------
@@ -182,7 +195,7 @@ public:
     // -----------------------------------------------------------------------------------------
 
     ///
-    /// executes a retrieval query and prepares the result for transfer with \Ref{getNextMDD}.
+    /// executes a retrieval query and prepares the result for transfer with getNextMDD.
     virtual unsigned short
     executeQuery(unsigned long callingClientId, const char *query, ExecuteQueryRes &returnStructure,
                  bool insert = false);
@@ -194,6 +207,7 @@ public:
       query is an insert query (if true), otherwise a regular select query.
 
       Return values
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful - result collection holds MDD elements\\
       1 && operation was successful - result collection holds non-MDD elements\\
@@ -202,24 +216,29 @@ public:
       4 && parse errror\\
       5 && execution error\\
       \end{tabular}
+      \endlatexonly
 
       Communication protocol (return value = 0)
+      \latexonly
       \begin{tabular}{lll}
-      \Ref{executeQuery} && \\
-      ->                 && \Ref{getNextMDD} \\
-                         && ->               && \Ref{getNextTile} \\
+      executeQuery && \\
+      ->                 && getNextMDD \\
+                         && ->               && getNextTile \\
                          &&                  && : \\
                          && :\\
-      \Ref{endTransfer} \\
+      endTransfer \\
       \end{tabular}
+      \endlatexonly
 
       Communication protocol (return value = 1)
+      \latexonly
       \begin{tabular}{lll}
-      \Ref{executeQuery} && \\
-      ->                 && \Ref{getNextElement} \\
+      executeQuery && \\
+      ->                 && getNextElement \\
                          && :\\
-      \Ref{endTransfer} \\
+      endTransfer \\
       \end{tabular}
+      \endlatexonly
     */
 
     ///
@@ -227,23 +246,27 @@ public:
     virtual unsigned short initExecuteUpdate(unsigned long callingClientId);
     /**
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       \end{tabular}
+      \endlatexonly
 
       Communication protocol
+      \latexonly
       \begin{tabular}{lll}
-      \Ref{initExecuteUpdate} && \\
-      ->                      && \Ref{startInsertTransMDD} \\
-                              && ->                        && \Ref{insertTile} \\
+      initExecuteUpdate && \\
+      ->                      && startInsertTransMDD \\
+                              && ->                        && insertTile \\
                               &&                           && :\\
-                              && \Ref{endInsertMDD}\\
+                              && endInsertMDD\\
                               && :\\
-      \Ref{executeUpdate}     && \\
+      executeUpdate     && \\
       \end{tabular}
+      \endlatexonly
 
-      Note: Method \Ref{executeUpdate} can be invoked without the \Ref{initExecuteUpdate}
+      Note: Method executeUpdate can be invoked without the initExecuteUpdate
             prolog in case of no constant MDD objects.
     */
 
@@ -257,12 +280,14 @@ public:
       query itself represented as a string.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && parse errror\\
       3 && execution error\\
       \end{tabular}
+      \endlatexonly
     */
 
     // insert query returning results
@@ -275,6 +300,7 @@ public:
       query itself represented as a string.
 
       Return values
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful - result collection holds MDD elements\\
       1 && operation was successful - result collection holds non-MDD elements\\
@@ -283,24 +309,29 @@ public:
       4 && parse errror\\
       5 && execution error\\
       \end{tabular}
+      \endlatexonly
 
       Communication protocol (return value = 0)
+      \latexonly
       \begin{tabular}{lll}
-      \Ref{executeQuery} && \\
-      ->                 && \Ref{getNextMDD} \\
-                         && ->               && \Ref{getNextTile} \\
+      executeQuery && \\
+      ->                 && getNextMDD \\
+                         && ->               && getNextTile \\
                          &&                  && : \\
                          && :\\
-      \Ref{endTransfer} \\
+      endTransfer \\
       \end{tabular}
+      \endlatexonly
 
       Communication protocol (return value = 1)
+      \latexonly
       \begin{tabular}{lll}
-      \Ref{executeQuery} && \\
-      ->                 && \Ref{getNextElement} \\
+      executeQuery && \\
+      ->                 && getNextElement \\
                          && :\\
-      \Ref{endTransfer} \\
+      endTransfer \\
       \end{tabular}
+      \endlatexonly
     */
 
     // -----------------------------------------------------------------------------------------
@@ -312,20 +343,23 @@ public:
             const char *collName, r_Minterval &domain,
             unsigned long typeLength, const char *typeName, r_OId &oid);
     /**
-      Creates an object for tile based transfer with method \Ref{insertTile} to be
+      Creates an object for tile based transfer with method insertTile to be
       inserted into the specified MDD collection.
 
       Parameters
+      \latexonly
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt collName}         && name of the collection to insert the MDD object\\
-      {\tt domain}           && spatial domain\\
-      {\tt typeLength}       && size of base type in bytes\\
-      {\tt typeName}         && type structure as string representation\\
-      {\tt oid}              && object identifier\\
+      \c callingClientId  && unique client id of the calling client\\
+      \c collName         && name of the collection to insert the MDD object\\
+      \c domain           && spatial domain\\
+      \c typeLength       && size of base type in bytes\\
+      \c typeName         && type structure as string representation\\
+      \c oid              && object identifier\\
       \end{tabular}
+      \endlatexonly
 
       Return values
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
@@ -335,14 +369,17 @@ public:
       5 && collection does not exist\\
       6 && creation of persistent object failed\\
       \end{tabular}
+      \endlatexonly
 
       Communication protocol
+      \latexonly
       \begin{tabular}{lll}
-      \Ref{startInsertPersMDD} && \\
-      ->                       && \Ref{insertTile} \\
+      startInsertPersMDD && \\
+      ->                       && insertTile \\
                                && :\\
-      \Ref{endInsertMDD} && \\
+      endInsertMDD && \\
       \end{tabular}
+      \endlatexonly
     */
 
     ///
@@ -351,21 +388,23 @@ public:
             r_Minterval &domain,
             unsigned long typeLength, const char *typeName);
     /**
-      Creates an object for tile based transfer with method \Ref{insertTile}.
+      Creates an object for tile based transfer with method insertTile.
 
       The first parameter is the unique client id for which the MDD should be created.
       The second parameter is the
       name of the collection to insert the MDD object. The third parameter holds the
-      spatial domain of the following MDD object and {\tt typeLength} specifies the size of
+      spatial domain of the following MDD object and \c typeLength specifies the size of
       the base type in bytes. The last one gives the type structure as string representation.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && MDD type name not found\\
       3 && MDD and its type are incompatible\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// finishes the MDD creation and inserts the MDD into the collection
@@ -373,10 +412,12 @@ public:
                                         int isPersistent);
     /**
       Parameters
+      \latexonly
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt isPersistent}     && determines wheather it is a persistent or a transient MDD\\
+      \c callingClientId  && unique client id of the calling client\\
+      \c isPersistent     && determines wheather it is a persistent or a transient MDD\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// insert a tile into a persistent MDD object
@@ -386,20 +427,24 @@ public:
       Splits (if tileSize != NULL) and inserts a tile into the current MDD object.
 
       Parameters
+      \latexonly
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt isPersistent}     && determines wheather it is a persistent or a transient tile\\
-      {\tt rpcMarray}        && RPC representation of the tile\\
-      {\tt tileSize}         && r_Minterval specifying the tile-size\\
+      \c callingClientId  && unique client id of the calling client\\
+      \c isPersistent     && determines wheather it is a persistent or a transient tile\\
+      \c rpcMarray        && RPC representation of the tile\\
+      \c tileSize         && r_Minterval specifying the tile-size\\
       \end{tabular}
+      \endlatexonly
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && base type name of inserting tile is not supported\\
       3 && base type does not match MDD type\\
       \end{tabular}
+      \endlatexonly
     */
 
     // -----------------------------------------------------------------------------------------
@@ -414,16 +459,18 @@ public:
     /**
       The Method gets the domain of the next MDD of the actual transfer collection.
       The first parameter is the unique client id. The second parameter returns the
-      domain of the MDD to be transfered. {\tt typeName} returns the name of the
+      domain of the MDD to be transfered. \c typeName returns the name of the
       MDD type and its structure.
-      Transfer of MDD data is tile-based using the method \Ref{getNextTile}.
+      Transfer of MDD data is tile-based using the method getNextTile.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful, at least one MDD is left in the transfer collection\\
       1 && nothing left in the transfer collection\\
       2 && client context not found, no tiles in the MDD object, no actual transfer collection \\
       \end{tabular}
+      \endlatexonly
     */
 
     /**
@@ -442,11 +489,13 @@ public:
       the size of the buffer.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful, at least one element is left in the transfer collection\\
       1 && operation succesful, nothing left in the transfer collection\\
       2 && client context not found, no tiles in the MDD object, no actual transfer collection \\
       \end{tabular}
+      \endlatexonly
     */
 
     /// get next tile of the actual MDD of the actual transfer collection
@@ -460,6 +509,7 @@ public:
       use this method.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful, no further MDDs are left\\
       1 && operation was successful, at least one MDD is left in the transfer collection\\
@@ -468,8 +518,10 @@ public:
       4 && client context not found, no tiles in the MDD object, no actual transfer collection \\
         && or nothing left in the collection\\
       \end{tabular}
+      \endlatexonly
 
       Examples of valid return value chains:
+      \latexonly
       \begin{itemize}
       \item To be transferred: 1 MDD consisting of 1 tile (which is too large)\\
       \begin{verbatim}
@@ -496,6 +548,7 @@ public:
       A              B                        C
       \end{verbatim}
       \end{itemize}
+      \endlatexonly
     */
 
     /// process the client's alive signal
@@ -504,10 +557,12 @@ public:
       The method terminates a transfer session and releases all transfer structures.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successfull\\
       1 && client context not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     // -----------------------------------------------------------------------------------------
@@ -522,14 +577,17 @@ public:
       Creates a new MDD collection.
 
       Parameters
+      \latexonly
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt collName}         && name of the collection to be created\\
-      {\tt typeName}         && name of the collection type\\
-      {\tt oid}              && object identifier\\
+      \c callingClientId  && unique client id of the calling client\\
+      \c collName         && name of the collection to be created\\
+      \c typeName         && name of the collection type\\
+      \c oid              && object identifier\\
       \end{tabular}
+      \endlatexonly
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
@@ -537,6 +595,7 @@ public:
       3 && collection name exists already in the db\\
       4 && failed to create due to some other error
       \end{tabular}
+      \endlatexonly
     */
 
     ///
@@ -549,26 +608,30 @@ public:
       name for the collection to be deleted.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && collection with name does not exist\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// delete object by oid
     virtual unsigned short deleteObjByOId(unsigned long callingClientId, r_OId &oid);
     /**
-      Deletes the object with {\tt oid}.
+      Deletes the object with \c oid.
       The first parameter is the unique client id for which the object should be
       deleted.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && object with oid does not exist\\
       \end{tabular}
+      \endlatexonly
     */
 
     ///
@@ -576,10 +639,11 @@ public:
     virtual unsigned short removeObjFromColl(unsigned long callingClientId,
             const char *collName, r_OId &oid);
     /**
-      The method removes the object with {\\t oid} from collection with {\tt collName}.
+      The method removes the object with {\\t oid} from collection with \c collName.
       The first parameter is the unique client id for which the object should be removed.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
@@ -587,6 +651,7 @@ public:
       3 && specified object does not exist in the collection\\
       4 && general error\\
       \end{tabular}
+      \endlatexonly
     */
 
     // -----------------------------------------------------------------------------------------
@@ -605,25 +670,29 @@ public:
       Prepares an MDD collection for transfer with getNextMDD().
 
       Parameters
+      \latexonly
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt collName}         && name of the collection to be got\\
-      {\tt typeName}         && returns name of the collection type\\
-      {\tt typeStructure}    && returns structure of the collection type\\
-      {\tt oid}              && returns oid of the collection\\
+      \c callingClientId  && unique client id of the calling client\\
+      \c collName         && name of the collection to be got\\
+      \c typeName         && returns name of the collection type\\
+      \c typeStructure    && returns structure of the collection type\\
+      \c oid              && returns oid of the collection\\
       \end{tabular}
+      \endlatexonly
 
       The first parameter is the unique client id. The second parameter is the
-      name of the collection to get. {\tt typeName} returns the name of the
-      collection type and {\tt typeStructure} its type structure.
+      name of the collection to get. \c typeName returns the name of the
+      collection type and \c typeStructure its type structure.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful - collection has some elements\\
       1 && operation was successful - collection has no elements\\
       2 && collection is not known\\
       3 && client context not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// prepare an MDD collection for transfer with getNextMDD()
@@ -633,24 +702,28 @@ public:
       ATTENTION: This function is not used at the moment. It hast
       to be adapted to transferData.
 
-      Prepares an MDD collection for transfer with \Ref{getNextMDD}.
+      Prepares an MDD collection for transfer with getNextMDD.
 
       Parameters
+      \latexonly
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt oid}              && oid of the collection to be got\\
-      {\tt typeName}         && returns name of the collection type\\
-      {\tt typeStructure}    && returns structure of the collection type\\
-      {\tt collName}         && returns name of collection\\
+      \c callingClientId  && unique client id of the calling client\\
+      \c oid              && oid of the collection to be got\\
+      \c typeName         && returns name of the collection type\\
+      \c typeStructure    && returns structure of the collection type\\
+      \c collName         && returns name of collection\\
       \end{tabular}
+      \endlatexonly
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful - collection has some elements\\
       1 && operation was successful - collection has no elements\\
       2 && collection is not known\\
       3 && client context not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// gets oids of the collection specified by name
@@ -659,26 +732,30 @@ public:
             char *&typeName, char *&typeStructure, r_OId &oid,
             RPCOIdEntry *&oidTable, unsigned int &oidTableSize);
     /**
-      Gets the collection of oids of the collection with {\tt collName}.
+      Gets the collection of oids of the collection with \c collName.
 
       Parameters
+      \latexonly
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt collName}         && name of the collection to be got\\
-      {\tt typeName}         && returns name of the collection type\\
-      {\tt typeStructure}    && returns structure of the collection type\\
-      {\tt oid}              && returns object identifier\\
-      {\tt oidTable}         && returns an array of pointers to oids\\
-      {\tt oidTableSize}     && returns the no of elements in the table\\
+      \c callingClientId  && unique client id of the calling client\\
+      \c collName         && name of the collection to be got\\
+      \c typeName         && returns name of the collection type\\
+      \c typeStructure    && returns structure of the collection type\\
+      \c oid              && returns object identifier\\
+      \c oidTable         && returns an array of pointers to oids\\
+      \c oidTableSize     && returns the no of elements in the table\\
       \end{tabular}
+      \endlatexonly
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful - collection has some elements\\
       1 && operation was successful - collection has no elements\\
       2 && collection is not known\\
       3 && client context not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// gets oids of the collection specified by name
@@ -686,26 +763,30 @@ public:
                                             r_OId &oid, char *&typeName, char *&typeStructure,
                                             RPCOIdEntry *&oidTable, unsigned int &oidTableSize, char *&collName);
     /**
-      Gets the collection of oids of the collection with {\tt collName}.
+      Gets the collection of oids of the collection with \c collName.
 
       Parameters
+      \latexonly
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt oid}              && oid of the collection to be got\\
-      {\tt typeName}         && returns name of the collection type\\
-      {\tt typeStructure}    && returns structure of the collection type\\
-      {\tt oidTable}         && returns an array of pointers to oids\\
-      {\tt oidTableSize}     && returns the no of elements in the table\\
-      {\tt collName}         && returns name of collection\\
+      \c callingClientId  && unique client id of the calling client\\
+      \c oid              && oid of the collection to be got\\
+      \c typeName         && returns name of the collection type\\
+      \c typeStructure    && returns structure of the collection type\\
+      \c oidTable         && returns an array of pointers to oids\\
+      \c oidTableSize     && returns the no of elements in the table\\
+      \c collName         && returns name of collection\\
       \end{tabular}
+      \endlatexonly
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful - collection has some elements\\
       1 && operation was successful - collection has no elements\\
       2 && collection is not known\\
       3 && client context not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// get an MDD by OId
@@ -713,27 +794,31 @@ public:
                                        r_OId &oid, r_Minterval &mddDomain,
                                        char *&typeName, char *&typeStructure, unsigned short &currentFormat);
     /**
-      The Method gets an MDD by OId {\tt oid}. If the MDD is found, it is initialized as transfer
-      object and can be picked up by \Ref{getNextTile} calls (tile-based transfer).
+      The Method gets an MDD by OId \c oid. If the MDD is found, it is initialized as transfer
+      object and can be picked up by getNextTile calls (tile-based transfer).
 
       Additionally, the method returns domain, type name, and type structure of the found MDD
       object by reference parameters.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && object with this oid not found\\
       3 && object has no tiles
       \end{tabular}
+      \endlatexonly
 
       Communication protocol
+      \latexonly
       \begin{tabular}{lll}
-      \Ref{getMDDByOId} \\
-      ->                && \Ref{getNextTile} \\
+      getMDDByOId \\
+      ->                && getNextTile \\
                         && : \\
-      \Ref{endTransfer} \\
+      endTransfer \\
       \end{tabular}
+      \endlatexonly
     */
 
     // -----------------------------------------------------------------------------------------
@@ -745,47 +830,53 @@ public:
     virtual unsigned short getNewOId(unsigned long callingClientId,
                                      unsigned short objType, r_OId &oid);
     /**
-      Creates a new oid and gives it back by the refernce parameter {\tt oid}.
-      {\tt objType} determines the type of object for which that oid is allocated. The folowing
+      Creates a new oid and gives it back by the refernce parameter \c oid.
+      \c objType determines the type of object for which that oid is allocated. The folowing
       values are supported: 1 = MDD,  2 = Collection.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && error while creating oid\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// get type of object by oid
     virtual unsigned short getObjectType(unsigned long callingClientId,
                                          r_OId &oid, unsigned short &objType);
     /**
-      Determines the type of the object indicated by {\tt oid}. The type is returned by the
-      reference parameter {\tt objType}. The folowing types are supported: 1 = MDD,  2 = Collection.
+      Determines the type of the object indicated by \c oid. The type is returned by the
+      reference parameter \c objType. The folowing types are supported: 1 = MDD,  2 = Collection.
 
       Return values:
+      \latexonly
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
       2 && oid not found\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// get type structure of a type name
     virtual unsigned short getTypeStructure(unsigned long callingClientId,
                                             const char *typeName, unsigned short typeType, char *&typeStructure);
     /**
-      Determines the type structure of the type specified by {\tt typeName}. The type
+      Determines the type structure of the type specified by \c typeName. The type
     either can be a set type (typeType=1), an mdd type (typeType=2), or a base type
     (typeType = 3).
 
            Return values:
+           \latexonly
            \begin{tabular}{lll}
            0 && operation was successful\\
            1 && client context not found\\
            2 && type name not found\\
            \end{tabular}
+           \endlatexonly
          */
 
     /// set the data format used for transferring data to the client
@@ -796,11 +887,13 @@ public:
     format which is of type r_Data_Format.
 
     Return values:
+    \latexonly
     \begin{tabular}{lll}
     0 && operation was successful\\
     1 && client context not found\\
     2 && unknown or unsupported data format\\
     \end{tabular}
+    \endlatexonly
          */
 
     /// set the data format for storing data into the database

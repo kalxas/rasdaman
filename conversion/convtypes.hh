@@ -29,6 +29,7 @@ rasdaman GmbH.
    relevant for DEFs. The values and what they correspond to are listed
    below (the types below the line are for HDF, netCDF, etc.):
 
+   \latexonly
    \begin{tabular}{ll}
    ctype_void && No type, used for errors\\
    ctype_bool && bool\\
@@ -51,6 +52,7 @@ rasdaman GmbH.
    ctype_cint16 && short complex \\
    ctype_cint32 && long complex
    \end{tabular}
+   \endlatexonly
  */
 enum convert_type_e
 {

@@ -22,7 +22,7 @@ rasdaman GmbH.
 */
 /************************************************************************
  *
-= *
+ *
  * PURPOSE:
  *
  *
@@ -57,12 +57,13 @@ before using a persistence capable class.
 
 {\bf Example}
 
-{\tt AdminIf* myAdmin = AdminIf::instance();}
+\code{.cpp}
+AdminIf* myAdmin = AdminIf::instance();
 
 ...
 
-{\tt delete myAdmin;}
-
+delete myAdmin;
+\endcode
 */
 
 const int SYSTEMNAME_MAXLEN = 256;

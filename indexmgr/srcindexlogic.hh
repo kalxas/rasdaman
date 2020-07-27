@@ -87,7 +87,7 @@ public:
     /*@Doc:
         Search the index for a search region.
         Determines all the tiles in the index which intersect a given
-        search interval (given by {\tt searchInter}).
+        search interval (given by <tt>searchInter</tt>).
         The memory space allocated by this function for the contents
         of the keyobjects in the returned vector (only) must be released
         afterwards by the caller.

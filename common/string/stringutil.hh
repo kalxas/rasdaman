@@ -20,7 +20,7 @@ class StringUtil {
    * @param delimitor the separator to split on
    * @param results a container in which the results can be deposited
    */
-  static void explode(std::string containserStr, const std::string &delimitor, std::vector<std::string> &results);
+  static void explode(std::string containerStr, const std::string &delimitor, std::vector<std::string> &results);
 
   static std::string toLowerCase(std::string s);
 
@@ -29,28 +29,28 @@ class StringUtil {
   /**
    * Capitalizes the string, i.e. makes first letter uppercase
    */
-  static std::string capitalize(std::string str);
+  static std::string capitalize(std::string s);
   
   /**
   * Trims all space characters from the left of the string
   * @param s the string to be trimmed
   * @return the trimmed string
   */
-  static std::string trimLeft(const std::string &str);
+  static std::string trimLeft(const std::string &s);
 
   /**
   * Trims all space characters from the right of the string
   * @param s the string to be trimmed
   * @return the trimmed string
   */
-  static std::string trimRight(const std::string &str);
+  static std::string trimRight(const std::string &s);
 
   /**
   * Trims all space characters from both left and right of the string.
   * @param s the string to be trimmed
   * @return the trimmed string
   */
-  static std::string trim(const std::string &str);
+  static std::string trim(const std::string &s);
 
   /**
    * Check if a string s starts with string prefix, ignoring whitespace 

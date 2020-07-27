@@ -131,7 +131,7 @@ public:
     /// optimizing load access
     virtual void optimizeLoad(QtTrimList *trimList);
     /**
-      The method deletes the given {\tt trimList} and passes the {\tt optimizeLoad}
+      The method deletes the given <tt>trimList</tt> and passes the <tt>optimizeLoad</tt>
       message with empty triming list to its operand tree.
 
       Optimization process enters a new MDD area.

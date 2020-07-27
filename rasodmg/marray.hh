@@ -65,8 +65,8 @@ public:
     r_Marray(const r_Minterval &, r_Storage_Layout *stl = 0);
     /**
       If a storage layout pointer is provided, the object refered to is
-      taken and memory control moves to the \Ref{r_Marray} class.
-      The user has to take care, that each creation of \Ref{r_Marray}
+      taken and memory control moves to the r_Marray class.
+      The user has to take care, that each creation of r_Marray
       objects get a new storage layout object.
     */
 
@@ -74,8 +74,8 @@ public:
     r_Marray(const r_Minterval &, const T &, r_Storage_Layout *stl = 0);
     /**
       If a storage layout pointer is provided, the object refered to is
-      taken and memory control moves to the \Ref{r_Marray} class.
-      The user has to take care, that each creation of \Ref{r_Marray}
+      taken and memory control moves to the r_Marray class.
+      The user has to take care, that each creation of r_Marray
       objects get a new storage layout object.
     */
 
@@ -83,8 +83,8 @@ public:
     r_Marray(const r_Minterval &, r_InitFunction, r_Storage_Layout *stl = 0);
     /**
       If a storage layout pointer is provided, the object refered to is
-      taken and memory control moves to the \Ref{r_Marray} class.
-      The user has to take care, that each creation of \Ref{r_Marray}
+      taken and memory control moves to the r_Marray class.
+      The user has to take care, that each creation of r_Marray
       objects get a new storage layout object.
     */
 
@@ -94,10 +94,10 @@ public:
     /// constructor getting an object of type r_GMarray
     r_Marray(r_GMarray &);
     /*
-      This constructor is used for converting general \Ref{r_GMarray} objects
-      to cell type safe \Ref{r_Marray} objects. Care has to be taken because
-      the memory of the \Ref{r_GMarray} can not be used anymore; it is passed
-      to the \Ref{r_Marray<T>} object.
+      This constructor is used for converting general r_GMarray objects
+      to cell type safe r_Marray objects. Care has to be taken because
+      the memory of the r_GMarray can not be used anymore; it is passed
+      to the r_Marray<T> object.
     */
 
     /// destructor

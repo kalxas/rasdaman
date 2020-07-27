@@ -56,11 +56,11 @@ rasdaman GmbH.
   Supported parameters are
 
   \begin{tabular}{lcl}
-  {\tt comptype} && string && compression type (see below)\\
-  {\tt quality} && int && quality parameter (JPEG)\\
-  {\tt bpp} && int && override number of bits per p (if not set in the tiff)\\
-  {\tt bps} && int && override number of bits per s (if not set in the tiff)\\
-  {\tt depth} && int && override number of colors in the mdd\\
+  <tt>comptype</tt> && string && compression type (see below)\\
+  <tt>quality</tt> && int && quality parameter (JPEG)\\
+  <tt>bpp</tt> && int && override number of bits per p (if not set in the tiff)\\
+  <tt>bps</tt> && int && override number of bits per s (if not set in the tiff)\\
+  <tt>depth</tt> && int && override number of colors in the mdd\\
   \end{tabular}
 
   The compression type defaults to lzw, but it may be one of the
@@ -69,28 +69,28 @@ rasdaman GmbH.
   valid for specific colour depths):
 
   \begin{tabular}{ll}
-  {\tt none}\\
-  {\tt ccittrle}\\
-  {\tt ccittfax3}\\
-  {\tt ccittfax4}\\
-  {\tt lzw}\\
-  {\tt ojpeg}\\
-  {\tt jpeg}\\
-  {\tt next}\\
-  {\tt ccittrlew}\\
-  {\tt packbits}\\
-  {\tt thunderscan}\\
-  {\tt pixarfilm}\\
-  {\tt pixarlog}\\
-  {\tt deflate}\\
-  {\tt dcs}\\
-  {\tt jbig}\\
-  {\tt sgilog} && Not Linux\\
-  {\tt sgilog24} && Not Linux\\
-  {\tt it8ctpad} && Not Linux\\
-  {\tt it8lw} && Not Linux\\
-  {\tt it8mp} && Not Linux\\
-  {\tt it8bl} && Not Linux\\
+  <tt>none</tt>\\
+  <tt>ccittrle</tt>\\
+  <tt>ccittfax3</tt>\\
+  <tt>ccittfax4</tt>\\
+  <tt>lzw</tt>\\
+  <tt>ojpeg</tt>\\
+  <tt>jpeg</tt>\\
+  <tt>next</tt>\\
+  <tt>ccittrlew</tt>\\
+  <tt>packbits</tt>\\
+  <tt>thunderscan</tt>\\
+  <tt>pixarfilm</tt>\\
+  <tt>pixarlog</tt>\\
+  <tt>deflate</tt>\\
+  <tt>dcs</tt>\\
+  <tt>jbig</tt>\\
+  <tt>sgilog</tt> && Not Linux\\
+  <tt>sgilog24</tt> && Not Linux\\
+  <tt>it8ctpad</tt> && Not Linux\\
+  <tt>it8lw</tt> && Not Linux\\
+  <tt>it8mp</tt> && Not Linux\\
+  <tt>it8bl</tt> && Not Linux\\
   \end{tabular}
 
   For more information refer to the TIFFlib manual pages.

@@ -80,7 +80,7 @@ public:
     /// destructor
     ~HttpServer() override = default;
 
-    /// print server status to {\tt s}
+    /// print server status to \c s
     void printServerStatus() override;
     
     /// provided for temporary compatibility with the encoding of the java interface
@@ -98,7 +98,7 @@ public:
        HTTP. The length of the result is returned. The first parameter is
        the unique client id for which the query should be executed. The
        second parameter The third parameter is the query itself represented
-       as a string. {\tt result} will contain a pointer to the result as
+       as a string. \c result will contain a pointer to the result as
        needed for HTTP transfer. This pointer has to be freed by the caller
        using free.
 

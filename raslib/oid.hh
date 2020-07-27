@@ -101,7 +101,7 @@ private:
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Oid}.
+  Output stream operator for objects of type <tt>const</tt> r_Oid.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_OId &oid);
 

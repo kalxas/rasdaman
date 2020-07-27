@@ -109,6 +109,7 @@ public:
     /// returns type of data represented by the QtData object
     virtual QtDataType getDataType() const = 0;
     /**
+      \latexonly
       \begin{tabular}{lll}
       QtMDD&&QT_MDD\\
       QtAtomicData&&QT_BOOL\\
@@ -125,6 +126,7 @@ public:
       QtMinterval&&QT_MINTERVAL\\
       QtPoint&&QT_POINT\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// returns a null-terminated string describing the type structure

@@ -37,7 +37,7 @@ rasdaman GmbH.
 /*@Doc:
 
 This class has just QtNot as subclass which represents the not operations
-{\tt MDD<Bool> -> MDD<Bool>} and {\tt MDD<Int>  -> MDD<Int>}.
+<tt>MDD<Bool> -> MDD<Bool></tt> and <tt>MDD<Int>  -> MDD<Int></tt>.
 
 */
 
@@ -58,15 +58,15 @@ protected:
     bool getOperand(QtDataList *inputList, QtData *&operand);
     /**
       The method checks if the input branch is valid. Then it passes the evaluate message to its
-      operand with the {\tt inputList} as argument. The returned result is provided through the argument
-      {\tt operand} called by reference. The method returns {\tt true} it the operand is
-      valid, otherwise {\tt false}.
+      operand with the <tt>inputList</tt> as argument. The returned result is provided through the argument
+      <tt>operand</tt> called by reference. The method returns <tt>true</tt> it the operand is
+      valid, otherwise <tt>false</tt>.
     */
 
     /// computes an unary induce operation with one MDD object
     QtData *computeUnaryMDDOp(QtMDD *operand, const BaseType *resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0, double param = 0.0);
     /**
-      The method carries out the unary induce operation specified by {\tt operation} on the operand. For
+      The method carries out the unary induce operation specified by <tt>operation</tt> on the operand. For
       the result, a new transient MDD object is created and returned. In the end, the MDD object of the operand
       is freed.
     */
@@ -74,7 +74,7 @@ protected:
     /// computes an unary induce operation with one MDD object
     QtData *computeUnaryOp(QtScalarData *operand, const BaseType *resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0, double param = 0.0);
     /**
-      The method carries out the unary operation specified by {\tt operation} on the operand.
+      The method carries out the unary operation specified by <tt>operation</tt> on the operand.
     */
 
 private:
@@ -100,7 +100,7 @@ public:
     QtData *evaluate(QtDataList *inputList);
 
     /**
-      The method invokes the evaluate method of its superclass {\tt QtUnaryInduce} with the not
+      The method invokes the evaluate method of its superclass <tt>QtUnaryInduce</tt> with the not
       operation as an additional argument to compute the result of the node.
     */
 
@@ -139,7 +139,7 @@ public:
     QtData *evaluate(QtDataList *inputList);
 
     /**
-      The method invokes the evaluate method of its superclass {\tt QtUnaryInduce} with the not
+      The method invokes the evaluate method of its superclass <tt>QtUnaryInduce</tt> with the not
       operation as an additional argument to compute the result of the node.
     */
 
@@ -186,7 +186,7 @@ public:
     /// method for evaluating the node
     QtData *evaluate(QtDataList *inputList);
     /**
-      The method invokes the evaluate method of its superclass {\tt QtUnaryInduce} with the not
+      The method invokes the evaluate method of its superclass <tt>QtUnaryInduce</tt> with the not
       operation as an additional argument to compute the result of the node.
     */
 

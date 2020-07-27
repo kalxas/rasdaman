@@ -147,7 +147,7 @@ protected:
     
     void initializeLogicStructure();
     /**
-        {\tt actualDBIx} and {\tt cellBaseType} must be already correctly set.
+        <tt>actualDBIx</tt> and <tt>cellBaseType</tt> must be already correctly set.
         The function pointers are set according to the index type.
     */
 
@@ -163,7 +163,7 @@ protected:
 
     std::vector<std::shared_ptr<Tile>> lastAccessTiles;
     /*@Doc:
-        Internal cache of {\tt Tile}s accessed the last time.
+        Internal cache of <tt>Tile</tt>s accessed the last time.
         Contents change everytime there is an insert, an intersect, a getTiles
         or a poin query, in the following way:
         - insert: cache invalid, last Access is put to empty interval,

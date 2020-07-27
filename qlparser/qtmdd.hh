@@ -39,10 +39,10 @@ class CollectionType;
 
 /*@Doc:
 
-  The class encapsulates a pointer to an object of type {\tt MDDObj}.
-  Its purpose is to have the {\tt MDDObj} object available as a descendant
-  of class {\tt QtData}. The class does not care of the memory management
-  of the {\tt MDDObj} object.
+  The class encapsulates a pointer to an object of type <tt>MDDObj</tt>.
+  Its purpose is to have the <tt>MDDObj</tt> object available as a descendant
+  of class <tt>QtData</tt>. The class does not care of the memory management
+  of the <tt>MDDObj</tt> object.
 
   Note: The attribute lifetime of the superclass QtData ist set implicit
   in the constructor functions!
@@ -110,7 +110,7 @@ public:
     /// returns size of one cell in bytes
     unsigned long getCellSize() const;
 
-    /// returns {\tt QT_MDD}
+    /// returns <tt>QT_MDD</tt>
     virtual QtDataType getDataType() const;
 
     /// compares data content

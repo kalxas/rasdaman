@@ -83,8 +83,8 @@ public:
     /// inserts an alement at the beginning
     virtual void insert_element(const T &element, int no_modification = 0);
     /**
-      The method inserts an element into the collection. If {\tt no_modification}
-      is set, the {\tt mark_modified()} method of r_Object is not invoked and, therefore,
+      The method inserts an element into the collection. If <tt>no_modification</tt>
+      is set, the <tt>mark_modified()</tt> method of r_Object is not invoked and, therefore,
       a modification will not be recognized at the commit point.
     */
     /// removes an element

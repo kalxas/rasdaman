@@ -117,10 +117,10 @@ public:
 
     /*@Doc:
       The method evaluates a retrieval tree and returns the result collection. For this purpose,
-      first, the {\tt open()} message is sent to the root node of the tree. Then {\tt next()}
+      first, the <tt>open()</tt> message is sent to the root node of the tree. Then <tt>next()</tt>
       is invoked on the root node which, each time, returns one element of the result
       collection. It indicates the end of the evaluation process through returning a null pointer.
-      At the end, {\tt close()} is called to clean up the ressources. If errors occur, various exceptions
+      At the end, <tt>close()</tt> is called to clean up the ressources. If errors occur, various exceptions
       are thrown.
     */
 

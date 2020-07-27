@@ -66,37 +66,37 @@ class MDDObj;
    MDDObjs which belong to it. In the future, more functions will be provided
    to allow selected releasing or keeping of MDD objects in an MDDColl.
 
-   {\bf Example }
+   <b>Example</b>
 
-   {\tt MDDObj* accessedObj; }
+   <tt>MDDObj* accessedObj; </tt>
 
-   {\tt MDDColl* mddObjsColl; }
+   <tt>MDDColl* mddObjsColl; </tt>
 
-   {\tt mddObjsColl = new ... }
+   <tt>mddObjsColl = new ... </tt>
 
-   {\tt    // Initialize mddObjsColl to a PersMDDColl or TransMDDColl. }
+   <tt>// Initialize mddObjsColl to a PersMDDColl or TransMDDColl. </tt>
 
-   {\tt MDDCollIter* objsIt = mddObjsColl->createIterator(); }
+   <tt>MDDCollIter* objsIt = mddObjsColl->createIterator(); </tt>
 
-   {\tt for(int i = 1 ; objsIt->notDone(); i++, objsIt->advance()) }
+   <tt>for(int i = 1 ; objsIt->notDone(); i++, objsIt->advance()) </tt>
 
-   {\tt \{  }
+   <tt>\{  </tt>
 
-   {\tt accessedObj = objsIt->getElement(); }
+   <tt>accessedObj = objsIt->getElement(); </tt>
 
-   {\tt ...}
+   <tt>...</tt>
 
-   {\tt } }
+   <tt></tt> }
 
-   {\tt delete objsIt; // Deallocate iterator. }
+   <tt>delete objsIt; // Deallocate iterator. </tt>
 
-   {\tt ... // Here accessedObj may be used. }
+   <tt>... // Here accessedObj may be used. </tt>
 
-   {\tt mddObjsColl->releaseAll(); }
+   <tt>mddObjsColl->releaseAll(); </tt>
 
-   {\bf {\tt ... // In this part accessedObj is no longer valid. } }
+   {\bf <tt>... // In this part accessedObj is no longer valid. </tt> }
 
-   {\tt delete mddObjsColl; }
+   <tt>delete mddObjsColl; </tt>
 */
 
 class MDDColl

@@ -68,7 +68,7 @@ public:
 
     virtual r_Minterval getObjectDomain(unsigned int pos) const = 0;
     /*@Doc:
-        Returns the (assigned) domain for the object in position {\ttpos}.
+        Returns the (assigned) domain for the object in position <tt>pos</tt>.
         The object domain is always a assigned domain, because we do not read the
         domain from the entries (blobtiles do not store one).
         At some point this of course makes storing the assigned domain obsolete

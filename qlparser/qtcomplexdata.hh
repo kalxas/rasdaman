@@ -45,17 +45,17 @@ rasdaman GmbH.
 class QtComplexData : public QtScalarData
 {
 public:
-    /// list of \Ref{QtScalarData} objects
+    /// list of QtScalarData objects
     typedef std::list<QtScalarData *> QtScalarDataList;
 
     /// default constructor
     QtComplexData();
 
-    /// constructor getting a pointer to a list of \Ref{QtScalarData} objects
+    /// constructor getting a pointer to a list of QtScalarData objects
     QtComplexData(QtScalarDataList *&scalarDataList);
     /**
-      Construct an object with \Ref{QtScalarData} elements of the list and
-      destroy the list afterwards. {\ttscalarDataList} is set to zero.
+      Construct an object with QtScalarData elements of the list and
+      destroy the list afterwards. <tt>scalarDataList</tt> is set to zero.
     */
 
     /// copy constructor

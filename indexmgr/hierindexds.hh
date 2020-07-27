@@ -36,17 +36,12 @@ rasdaman GmbH.
 #include "indexmgr/indexds.hh"
 
 /**
- *  @file hierindexds.hh
- *
  *  @ingroup indexmgr
  *
- *
- * @Doc:
  *  Interface class for Data Structure classes of Hierarchical Indexes.
  *  Classes which wish to use the RPTreeIndexLogic must implement this
  *  class.
 */
-
 class HierIndexDS : public IndexDS
 {
 public:

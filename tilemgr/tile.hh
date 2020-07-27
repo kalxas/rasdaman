@@ -92,15 +92,15 @@ public:
 
     Tile(const r_Minterval &newDom, const BaseType *newType, DBTileId newBLOBTile);
     /*Doc
-      Constructs a new Tile with basetype {\tt newType} and spatial
-      domain {\tt newDom}. Its contents are stored in \Ref{BLOBTile}
-      {\tt newBLOBTile}. The contents are potentially compressed.
+      Constructs a new Tile with basetype \c newType and spatial
+      domain \c newDom. Its contents are stored in \Ref{BLOBTile}
+      \c newBLOBTile. The contents are potentially compressed.
     */
     Tile(const Tile &tile);
-    /// constructs a TransTile joined out of the Tiles in {\tt tilesVec}.
+    /// constructs a TransTile joined out of the Tiles in \c tilesVec.
     Tile(std::vector<Tile *> *tilesVec);
     /*@Doc:
-      Constructs a new Tile out of the vector {\tt tilesVec}
+      Constructs a new Tile out of the vector \c tilesVec
       containing pointers to tiles. The Tile created has the
       closure of the domains of all tiles in the vector as it's domain
       and the same base type. The tiles should not overlap and must have
@@ -110,48 +110,48 @@ public:
       resulting Tile is by default uncompressed.
     */
     /*@ManMemo:
-      constructs a Tile with the domain {\tt resDom}
-      and the contents joined out of the Tiles in {\tt tilesVec}.
+      constructs a Tile with the domain \c resDom
+      and the contents joined out of the Tiles in \c tilesVec.
     */
     template <typename TilePtr>
     Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom);
     /*@Doc:
-      Constructs a new Tile out of the vector {\tt tilesVec}
+      Constructs a new Tile out of the vector \c tilesVec
       containing pointers to tiles. The contents which fall in the area
-      {\tt resDom} are copied into the new Tile. The Tile
-      created has the domain {\tt resDom} and the same base type as the
-      Tiles in {\tt tilesVec}. The tiles should not overlap and must
+      \c resDom are copied into the new Tile. The Tile
+      created has the domain \c resDom and the same base type as the
+      Tiles in \c tilesVec. The tiles should not overlap and must
       have the same basetype and dimension. Non filled areas in the
       created tile are of undefined value. The memory of the tiles and
-      the vector has to be freed by the caller. Every tile in {\tt
-      tilesVec} has to overlap with {\tt resDom}.
+      the vector has to be freed by the caller. Every tile in \c tilesVec 
+      has to overlap with \c resDom.
     */
-    /// constructs Tile as projection of {\tt projTile}.
+    /// constructs Tile as projection of \c projTile.
     Tile(const Tile *projTile, const r_Minterval &projDom,
          const std::set<r_Dimension, std::less<r_Dimension>> *projDim);
     /*@Doc:
-      Constructs a new Tile out of the projection of Tile {\tt
-      projTile} with the dimensions given in {\tt projDim} projected
+      Constructs a new Tile out of the projection of Tile \c
+      projTile with the dimensions given in \c projDim projected
       away (zero based dimension counting!). Only the area specified in
-      projDom is used for the new Tile. {\tt projDom} must have the
-      same dimension as the domain of {\tt projTile}. Dimensions
+      projDom is used for the new Tile. \c projDom must have the
+      same dimension as the domain of \c projTile. Dimensions
       projected away must have the coordinate to be projected at
       as domain, e.g. 28:28.
     */
-    /*@ManMemo: constructs a Tile with base type {\tt newType} and
-            spatial domain {\tt newDom}. */
+    /*@ManMemo: constructs a Tile with base type \c newType and
+            spatial domain \c newDom. */
     Tile(const r_Minterval &newDom, const BaseType *newType,
          r_Data_Format newFormat = r_Array);
     /*@Doc
       The contents are undefined! This constructor should usually not
       be used.
     */
-    /// constructs a Tile with contents {\tt newCells}.
+    /// constructs a Tile with contents \c newCells.
     Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershipOfNewCells,
          char *newCells, r_Bytes newSize, r_Data_Format newFormat);
     /*Doc
-      Constructs a new Tile with basetype {\tt newType} and spatial
-      domain {\tt newDom}. The char array {\tt newCells} contains the
+      Constructs a new Tile with basetype \c newType and spatial
+      domain \c newDom. The char array \c newCells contains the
       potentially compressed contents of the new Tile. The memory for
       the cells is managed by Tile and has to be allocated with
       malloc(). If newSize is 0, it is assumed to be uncompressed contents,
@@ -162,8 +162,8 @@ public:
     Tile(const r_Minterval &newDom, const BaseType *newType,
          const char *newCells, r_Bytes newSize, r_Data_Format newFormat);
     /*Doc
-      Constructs a new Tile with basetype {\tt newType} and spatial
-      domain {\tt newDom}. The char array {\tt newCells} contains the
+      Constructs a new Tile with basetype \c newType and spatial
+      domain \c newDom. The char array \c newCells contains the
       potentially compressed contents of the new Tile. 'bool' is used only,
       for making the difference between this constructor and the upper one.
       This one doesn't delete the passed data!
@@ -224,7 +224,7 @@ public:
     void printStatus(unsigned int level, std::ostream &stream) const;
     /*@Doc:
        Prints the contents of the Tile on stream. Prints every cell in
-       the Tile with the {\tt printCell} function of the \Ref{BaseType}.
+       the Tile with the \c printCell function of the \Ref{BaseType}.
        For dimensionality > 1, 2D-slices are printed with an empty line
        in between. These 2D slices cover the lowest 2 indices (0 and 1).
     */
@@ -234,15 +234,15 @@ public:
     /// splits tile in vector of tiles of smaller size.
     std::vector<Tile *> *splitTile(r_Minterval resDom, int storageDomain = 0);
     /*@Doc:
-       The Tile is split into subtiles with the same extent as {\tt
-       resDom}. The storage domain (pers. or transient) of the subtiles is
-       defined by {\tt storageDomain}. If it is null (default value) they
+       The Tile is split into subtiles with the same extent as \c
+       resDom. The storage domain (pers. or transient) of the subtiles is
+       defined by \c storageDomain. If it is null (default value) they
        have the same type (\Ref{TransTile} resp. \Ref{Tile}) as self.
-       If {\tt storageDomain} is 1, they are persistent, if {\tt storageDomain}
+       If \c storageDomain is 1, they are persistent, if \c storageDomain
        has a value other than 0 or 1, they are made transient.
        The algoritm starts with the smallest
        coordinate in each dimension, so that if the Tile does not divide
-       into Tiles of extent {\tt resDom}, the last Tiles in each
+       into Tiles of extent \c resDom, the last Tiles in each
        dimension may be smaller. The Tiles returned as pointers have to
        be freed by the caller!
     */
@@ -253,8 +253,8 @@ public:
     /// carries out condense function (const)
     char *execCondenseOp(CondenseOp *myOp, const r_Minterval &areaOp);
     /*@Doc:
-      The condense function {\tt myOp} is applied to all cells of self in
-      the area {\tt areaOp}. The result is stored in myOp which also
+      The condense function \c myOp is applied to all cells of self in
+      the area \c areaOp. The result is stored in myOp which also
       gives the start value for the condense operation. The return value
       is a pointer to a member of myOp, so it gets invalid if myOp is
       deleted! For further information on condense operations see \Ref{Ops}.
@@ -264,9 +264,9 @@ public:
     /// carries out unary function with self as result.
     void execUnaryOp(UnaryOp *myOp, const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp);
     /*@Doc:
-      The unary function {\tt myOp} is applied to all cells of the tile
-      {\tt opTile} in the area {\tt areaOp}. The result of the
-      operation is stored in self in the area {\tt areaRes}. The areas
+      The unary function \c myOp is applied to all cells of the tile
+      \c opTile in the area \c areaOp. The result of the
+      operation is stored in self in the area \c areaRes. The areas
       must have the same extent, but may differ in an offset.
     */
 
@@ -275,10 +275,10 @@ public:
                       const Tile *op1Tile, const r_Minterval &areaOp1,
                       const Tile *op2Tile, const r_Minterval &areaOp2);
     /*@Doc:
-      The binary function {\tt myOp} is applied to all cells of the tiles
-      {\tt op1Tile} and {\tt op2Tile} in the respective areas. The
-      result of the operation is stored in self in the area {\tt
-      areaRes}. The areas must have the same extent for all tiles. but
+      The binary function \c myOp is applied to all cells of the tiles
+      \c op1Tile and \c op2Tile in the respective areas. The
+      result of the operation is stored in self in the area \c
+      areaRes. The areas must have the same extent for all tiles. but
       may differ in an offset vector.
     */
 
@@ -287,40 +287,40 @@ public:
                              const Tile *opTile, const r_Minterval &areaOp,
                              const char *cell, int constPos = 1);
     /*@Doc:
-      The binary function {\tt op} is applied to all cells of the tile
-      {\tt op1Tile} and the constant {\tt cell} in the area {\tt
-      areaOp}. If {\tt constPos} is 1, then {\tt const op cell} is
-      carried out; if it is 2, then {\tt cell op const} is carried out.
-      The result of the operations is stored in self in the area {\tt
-      areaRes}. {\tt areaOp} and {\tt areaRes} must have the same
+      The binary function \c op is applied to all cells of the tile
+      \c op1Tile and the constant \c cell in the area \c
+      areaOp. If \c constPos is 1, then \c const op cell is
+      carried out; if it is 2, then \c cell op const is carried out.
+      The result of the operations is stored in self in the area \c
+      areaRes. \c areaOp and \c areaRes must have the same
       extent, but may differ in an offset.
     */
 
 
-    /// fills tile in area {\tt areaRes} using MarrayOp {\tt myOp}.
+    /// fills tile in area \c areaRes using MarrayOp \c myOp.
     virtual void execMarrayOp(MarrayOp *myOp, const r_Minterval &areaRes, const r_Minterval &areaOp);
     /*@Doc:
-      {\tt myOp} maps a point to a value. It is important that the base
+      \c myOp maps a point to a value. It is important that the base
       type specified it the same as the tile has.
     */
 
-    /// executes general condense operation {\tt myOp} in area {\tt areaOp} (const)
+    /// executes general condense operation \c myOp in area \c areaOp (const)
     static char *execGenCondenseOp(GenCondenseOp *myOp, const r_Minterval &areaOp);
     /*@Doc:
-      {\tt myOp} maps a point to a value. The return values has the resType
-      defined in {\tt myOp}. The tile is not accessed (static function),
+      \c myOp maps a point to a value. The return values has the resType
+      defined in \c myOp. The tile is not accessed (static function),
       the function is defined here to be located together with the other
       operation execution functions.
     */
     /// executes scaling operation.
     virtual void execScaleOp(const Tile *opTile, const r_Minterval &areaOp);
     /*@Doc:
-      The tile {\tt opTile} is scaled down in each dimension by the
-      corresponding element in vector {\tt scaleFactors}. The result
+      The tile \c opTile is scaled down in each dimension by the
+      corresponding element in vector \c scaleFactors. The result
       is stored in the tile on which the operation is called. Scaling
       is done by using a nearest neighbour algorithm based on
-      {\tt origin} as the point where the scaling process started.
-      {\tt opTile} has to have the same dimensionality as the result
+      \c origin as the point where the scaling process started.
+      \c opTile has to have the same dimensionality as the result
       tile and scaleFactors has to have a corresponding number of
       elements.
     */
@@ -334,10 +334,10 @@ public:
 
     /*@Doc:
       Return result domain in areaScaled if scaling using the factors in
-      scaleFactors would be applied in area {\tt areaOp} with the scaling
-      factors specified in {\tt scaleFactors}. If the tile would become
+      scaleFactors would be applied in area \c areaOp with the scaling
+      factors specified in \c scaleFactors. If the tile would become
       completely empty, false is returned. This can then be used to create
-      a temporary tile for the result on which the {\tt execScaleOp}
+      a temporary tile for the result on which the \c execScaleOp
       function can be called.
     */
 

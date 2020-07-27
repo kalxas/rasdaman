@@ -130,7 +130,7 @@ public:
     /// the tile data converted into the transfer format, if required
     void *encodedData{0};
     unsigned long encodedSize{0};
-    /// bytes remaining to transfer from tile if it is larger than {\tt maxTransferBufferSize}). used in getNextTile
+    /// bytes remaining to transfer from tile if it is larger than \c maxTransferBufferSize. used in getNextTile
     unsigned long bytesToTransfer{0};
     /// for establishing the compression ratio
     unsigned long totalRawSize{0};

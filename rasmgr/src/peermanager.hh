@@ -64,6 +64,7 @@ public:
     /**
      * @brief defineInPeer Create a new InPeer and insert it into the list of InPeers if a InPeer with the same time doesn't exist.
      * @param peerHostName The name of the host on which the peer is running
+     * @param port
      * @throws An exception is thrown if an InPeer with the same name exists
      */
     virtual void defineOutPeer(const std::string &peerHostName, const std::uint32_t port);

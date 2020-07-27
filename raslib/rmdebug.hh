@@ -92,28 +92,28 @@ extern int RManBenchmark;
 #define RMTIMER(class, func)
 #endif
 
-//@ManMemo: Module: {\bf raslib}.
+//@ManMemo: Module: <b>raslib</b>.
 
 /*@Doc:
 RMDebug is not strictly part of RasLib. It is a class used for
 generating debug output if compiling with RMANDEBUG defined. One way
 of using it is to put the following at the beginning of a function:
 
-{\tt RMDebug localRMDebug = RMDebug("className", "functionName",
-"moduleName", __FILE__, __LINE__");}
+<tt>RMDebug localRMDebug = RMDebug("className", "functionName",
+"moduleName", __FILE__, __LINE__");</tt>
 
 This can be patched in automatically by a modified funchead.pl script.
 
-{\bf Functionality}
+<b>Functionality</b>
 
 Debug output printing class name, function name, module name, file
 name and line number given as parameters to the constructor is
 created, whenever the constructor is called. The destructor
-outputs class name and function name. If the static members {\tt
-debugModules} or {\tt debugClasses} are set, then only modules
-which are mentioned in the array of strings {\tt debugModules} or
-classes which are mentioned {\tt debugClasses} give debug output.
-{\tt debugModules} and {\tt debugClasses} can either be read from
+outputs class name and function name. If the static members <tt>debugModules</tt> 
+or <tt>debugClasses</tt> are set, then only modules
+which are mentioned in the array of strings <tt>debugModules</tt> or
+classes which are mentioned <tt>debugClasses</tt> give debug output.
+<tt>debugModules</tt> and <tt>debugClasses</tt> can either be read from
 files named "rmdbmodules" and "rmdbclasses" or from the environment
 variables RMDBGMODULES and RMDBGCLASSES. The environment variables
 override the files. The contents of the files / variables are the
@@ -122,11 +122,11 @@ newlines, ...). In the case of the modules each modulename may
 be followed by ",<dbgLevel>" to set the debug level for that
 module explizitly, otherwise the default is used.
 
-{\bf Interdependencies}
+<b>Interdependencies</b>
 
 If only certain modules or classes are to be debugged, RMDebug
 has to be initialized in {\Ref RMInit}. This is done by reading
-the files {\tt rmdbmodules} and {\tt rmdbclasses}. The files
+the files <tt>rmdbmodules</tt> and <tt>rmdbclasses</tt>. The files
 should contain names of modules resp. classes to be debugged, each
 (including the last one!) followed by end of line. */
 
@@ -218,7 +218,7 @@ private:
     /// loads a file containing text and returns a 0-terminated string
     static char *loadTextFile(const char *name);
     /*@Doc:
-       If {\tt debugModules} or {\tt debugClasses} is set, checks
+       If <tt>debugModules</tt> or <tt>debugClasses</tt> is set, checks
        if myModule or myClass is in the corresponding array.
     */
 
@@ -238,13 +238,13 @@ private:
     int myDebugLevel;
     /// debugging on for this class?
     int myDebugOn;
-    /// number of strings in {\tt debugModules}.
+    /// number of strings in <tt>debugModules</tt>.
     static int numDebugModules;
     /// array with pointers into names of modules to be debugged.
     static char **debugModules;
     /// names of modules to be debugged.
     static char *debugModulesText;
-    /// number of strings in {\tt debugClasses}.
+    /// number of strings in <tt>debugClasses</tt>.
     static int numDebugClasses;
     /// array with pointers into names of classes to be debugged.
     static char **debugClasses;
@@ -258,34 +258,33 @@ private:
     static int allModuleLevels[];
 };
 
-///Module: {\bf raslib}.
+///Module: <b>raslib</b>.
 
 /**
 RMTimer is not strictly part of RasLib. It is a class used for taking
 timing measurements if configuring with --benchmark-enabled. One way
 of using it is to put the following at the beginning of a function:
 
-{\tt RMTIMER("className", "functionName");}
+<tt>RMTIMER("className", "functionName");</tt>
 
 If RMANBENCHMARK is defined this is expanded to:
 
-{\tt RMTimer localRMTimer = RMTimer("className", "functionName");}
+<tt>RMTimer localRMTimer = RMTimer("className", "functionName");</tt>
 
 Time is taken between this line and exiting the block where this line
 was. For more elaborate timing measurements an RMTimer object can be
 used directly. All timing information is stored in the object, so
 multiple RMTimer objects can be used at the same time.
 
-If output is generated on RMInit::bmOut depends on the flag {\tt
-output} and the benchmark level. Output is generated if {\tt output}
-is TRUE and {\tt bmLevel} is lower than the global benchmark level
-stored in RManBenchmark. The flag {\tt output} can be changed with
-setOutput(). The function start() sets {\tt output} to TRUE, stop()
-sets {\tt output} to FALSE.
+If output is generated on RMInit::bmOut depends on the flag <tt>output</tt> and the benchmark level. Output is generated if <tt>output</tt>
+is TRUE and <tt>bmLevel</tt> is lower than the global benchmark level
+stored in RManBenchmark. The flag <tt>output</tt> can be changed with
+setOutput(). The function start() sets <tt>output</tt> to TRUE, stop()
+sets <tt>output</tt> to FALSE.
 
-{\bf Important}: If a RMTimer is used as a static variable, it must be
+<b>Important</b>: If a RMTimer is used as a static variable, it must be
 ensured that no output is generated in the destructor either by
-calling stop() or by manually setting {\tt output} to FALSE using
+calling stop() or by manually setting <tt>output</tt> to FALSE using
 setOutput() before termination of the program. The reason is that
 potentially RMInit::bmOut may be destructed before the RMTimer
 destructor is called possibly causing a crash.
@@ -356,7 +355,7 @@ private:
     /// aux function to determine clock time elapsed so far.
     void fetchTime();
 };
-///Module: {\bf raslib}.
+///Module: <b>raslib</b>.
 
 /**
 Objects of this class increment the indent level of RMDebug at construction time and decrease this level at destruction time.

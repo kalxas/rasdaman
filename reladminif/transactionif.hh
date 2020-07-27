@@ -45,7 +45,7 @@ public:
     void begin(DatabaseIf *currBase, bool readOnly = false);
     /*@Doc:
     begin a TA.
-    By default, the TA started is a write TA. If {\tt readOnly} is set to 1,
+    By default, the TA started is a write TA. If \c readOnly is set to 1,
     the TA will be read only.
     */
 
@@ -81,7 +81,7 @@ private:
     begin a TA. Internal usage only.
     This function does not work if the appropriate initializations have'nt
     been done. For that reason, it is only appropriate for internal usage.
-    By default, the TA started is a write TA. If {\tt readOnly} is set to 1,
+    By default, the TA started is a write TA. If \c readOnly is set to 1,
     the TA will be read only.
     benchmark timers are started.
     */

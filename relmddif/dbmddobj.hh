@@ -58,7 +58,6 @@ class DBNullvalues;
  */
 /**
   * \defgroup Relmddifs Relmddif Classes
-  * \ingroup Relmddifs
   */
 class DBMDDObj : public DBObject
 {

@@ -60,7 +60,7 @@ public:
     /// optimizing load access
     virtual void optimizeLoad(QtTrimList *trimList);
     /**
-      The method deletes the given {\tt trimList} and passes the {\tt optimizeLoad}
+      The method deletes the given <tt>trimList</tt> and passes the <tt>optimizeLoad</tt>
       message with empty triming list to its operand tree.
 
       Optimization process enters a new MDD area.
@@ -97,7 +97,7 @@ private:
 
 /*@Doc:
 
-  The class represents the specialized condenser {\tt some_cells()} in the query tree.
+  The class represents the specialized condenser <tt>some_cells()</tt> in the query tree.
 
 */
 
@@ -133,7 +133,7 @@ private:
 
 /*@Doc:
 
-  The class represents the specialized condenser {\tt all_cells()} in the query tree.
+  The class represents the specialized condenser <tt>all_cells()</tt> in the query tree.
 
 */
 
@@ -169,7 +169,7 @@ private:
 
 /*@Doc:
 
-  The class represents the specialized condenser {\tt count_cells()} in the query tree.
+  The class represents the specialized condenser <tt>count_cells()</tt> in the query tree.
 
 */
 
@@ -204,7 +204,7 @@ private:
 
 /*@Doc:
 
-  The class represents the specialized condenser {\tt add_cells()} in the query tree.
+  The class represents the specialized condenser <tt>add_cells()</tt> in the query tree.
 
 */
 
@@ -239,7 +239,7 @@ private:
 
 /*@Doc:
 
-  The class represents the specialized condenser {\tt avg_cells()} in the query tree.
+  The class represents the specialized condenser <tt>avg_cells()</tt> in the query tree.
 
 */
 
@@ -274,7 +274,7 @@ private:
 
 /*@Doc:
 
-  The class represents the specialized condenser {\tt min_cells()} in the query tree.
+  The class represents the specialized condenser <tt>min_cells()</tt> in the query tree.
 
 */
 
@@ -309,7 +309,7 @@ private:
 
 /*@Doc:
 
-  The class represents the specialized condenser {\tt max_cells()} in the query tree.
+  The class represents the specialized condenser <tt>max_cells()</tt> in the query tree.
 
 */
 
@@ -344,7 +344,7 @@ private:
 
 /*@Doc:
 
-  The class represents the specialized condenser {\tt var_pop()} in the query tree.
+  The class represents the specialized condenser <tt>var_pop()</tt> in the query tree.
 
 */
 

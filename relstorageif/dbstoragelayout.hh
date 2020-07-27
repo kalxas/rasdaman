@@ -48,7 +48,6 @@ using DBStorageLayoutId = DBRef<DBStorageLayout>;
 */
 /**
   * \defgroup Relstorageifs Relstorageif Classes
-  * \ingroup Relstorageifs
   */
 class DBStorageLayout : public DBObject
 {

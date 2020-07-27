@@ -56,14 +56,14 @@ using std::string;
   Supported parameters are
 
   \begin{tabular}{lcl}
-  {\tt flipx}  && int    && flip image flag on x axis, default 0\\
-  {\tt flipy}  && int    && flip image flag on y axis, default 1\\
-  {\tt startx} && double && start value on x axis \\
-  {\tt endx}   && double && end value on x axis \\
-  {\tt resx}   && double && resolution on x axis \\
-  {\tt starty} && double && start value on y axis \\
-  {\tt endy}   && double && end value on y axis \\
-  {\tt resy}   && double && resolution on y axis \\
+  <tt>flipx</tt>  && int    && flip image flag on x axis, default 0\\
+  <tt>flipy</tt>  && int    && flip image flag on y axis, default 1\\
+  <tt>startx</tt> && double && start value on x axis \\
+  <tt>endx</tt>   && double && end value on x axis \\
+  <tt>resx</tt>   && double && resolution on x axis \\
+  <tt>starty</tt> && double && start value on y axis \\
+  <tt>endy</tt>   && double && end value on y axis \\
+  <tt>resy</tt>   && double && resolution on y axis \\
   \end{tabular}
 
   The "flipx" parameter is a flag for mirroring the image on x axis.

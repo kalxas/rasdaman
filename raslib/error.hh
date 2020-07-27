@@ -28,21 +28,21 @@ rasdaman GmbH.
 
 /*@Doc:
 
- This class implements partially the \Ref{r_Error} class of the
+ This class implements partially the r_Error class of the
  C++ binding of ODMG-93 v.1.2. It extends exception
  handling through deriving special classes for MDD specific
  errors.
 
- In future, \Ref{r_Error} should be derived from the class exception
+ In future, r_Error should be derived from the class exception
  defined in the C++ standard.
 
  The class allows the specification of an error number. The error number
  is used as an index to a generic textual description of the error which
- is read by {\tt setErrorTextOnNumber()}. Error text is loaded from a
- text file by the friend method {\tt initTextTable()} which has to be
+ is read by <tt>setErrorTextOnNumber()</tt>. Error text is loaded from a
+ text file by the friend method <tt>initTextTable()</tt> which has to be
  invoked at the beginning of the application. The table can be freed again
- using {\tt freeTextTable()}.
- The parameters in the generic text are substituted using {\tt setTextParameter()}.
+ using <tt>freeTextTable()</tt>.
+ The parameters in the generic text are substituted using <tt>setTextParameter()</tt>.
 
  If no error number is specified, the error kind is used as error text.
 
@@ -50,7 +50,7 @@ rasdaman GmbH.
  creation because the error text is initialized only in the constructor. Therefore,
  just read methods for error parameters are supported.
 
- A standard error text file is read by {\tt initTextTable()}. The location and file
+ A standard error text file is read by <tt>initTextTable()</tt>. The location and file
  name expected is defined here. Ideally all programs using this mechanism should
  include error.hh to use the same settings.
 */
@@ -241,7 +241,7 @@ public:
 
 /**
  * result is no cell, e.g. if the cast operator for casting to the base type
- * of class \Ref{r_Marray} is invoked on an object which is not 'zero-dimensional'.
+ * of class r_Marray is invoked on an object which is not 'zero-dimensional'.
  */
 class r_Eno_cell : public r_Error
 {

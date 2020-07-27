@@ -43,8 +43,8 @@ class r_Base_Type;
 
 /*@Doc:
 
- Class \Ref{r_Scalar} represents a scalar type value which
- is either \Ref{r_Primitive} or \Ref{r_Structure}.
+ Class r_Scalar represents a scalar type value which
+ is either r_Primitive or r_Structure.
 
 */
 
@@ -74,7 +74,7 @@ protected:
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Scalar}.
+  Output stream operator for objects of type <tt>const</tt> r_Scalar.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Scalar &obj);
 

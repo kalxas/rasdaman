@@ -44,7 +44,7 @@ class r_Primitive;
 class r_Structure;
 class r_Transaction;
 
-//@ManMemo: Module: {\bf rasodmg}
+//@ManMemo: Module: <b>rasodmg</b>
 
 /**
   The class r_Ref_Any is defined to support a reference to any
@@ -73,7 +73,7 @@ public:
     /// constructor for creating a reference with an oid
     r_Ref_Any(const r_OId &initOId, r_Transaction *ta = NULL);
     /**
-      Dereferencing the self object results in loading the object with {\tt initOId}.
+      Dereferencing the self object results in loading the object with <tt>initOId</tt>.
     */
 
     /// constructor getting a pointer to a persistent capable object
@@ -180,13 +180,13 @@ private:
 
 
 
-//@ManMemo: Module: {\bf rasodmg}
+//@ManMemo: Module: <b>rasodmg</b>
 
 /**
   References of type r_Ref in many respects behave like
   C++ pointers but provide an additional mechanism that guarantees
   integrity in references to persistent objects. r_Ref
-  implements a so called {\bf smart pointer} which behaves like
+  implements a so called <b>smart pointer</b> which behaves like
   a C++ pointer but can do additional things in time of dereferencing
   the pointer. In case that no valid memory pointer is available,
   which means that the object is not present, and an oid is existing,
@@ -210,7 +210,7 @@ public:
     /// constructor for creating a reference with an oid
     r_Ref(const r_OId &initOId, r_Transaction *ta = NULL);
     /**
-      Dereferencing the self object results in loading the object with {\tt initOId}.
+      Dereferencing the self object results in loading the object with <tt>initOId</tt>.
     */
 
     /// copy constructor

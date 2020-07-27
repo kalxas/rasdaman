@@ -47,10 +47,10 @@ rasdaman GmbH.
 /*@Doc:
 
  The spatial domain of an MDD is represented by an object
- of class \Ref{r_Minterval}. It specifies lower and upper bound
+ of class r_Minterval. It specifies lower and upper bound
  of the point set for each dimension of an MDD. Internally,
  the class is realized through an array of intervals of type
- \Ref{r_Sinterval}.
+ r_Sinterval.
 
  For the operations union, difference, and intersection the
  dimensionalties of the operands must be equal, otherwise an
@@ -60,7 +60,7 @@ rasdaman GmbH.
     | ...  fixed bound \\
     * ...  open bound
 
- \begin{verbatim}
+ \code
 
  class   orientation       union    difference  intersection
  -----------------------------------------------------------
@@ -219,14 +219,14 @@ rasdaman GmbH.
   52     *-a-*             a        error       a
          *-b-*
 
- \end{verbatim}
+ \endcode
 
  Attention: The difference operation has to be reconsidered in future
  concerning a discrete interpretation of the intervals.
 
  The closure operation defines an interval which is the smallest
  interval containing the two operands.
- The method {\tt intersects_with()} returns 0 in the error cases of the
+ The method <tt>intersects_with()</tt> returns 0 in the error cases of the
  intersection operation and 1 otherwise.
 */
 class r_Minterval
@@ -309,7 +309,7 @@ public:
     throws r_Edim_mismatch when dimensions do not match
     */
 
-    //@Man: Split into multiple smaller mintervals
+    // Split into multiple smaller mintervals
     //@{
     ///
     std::vector<r_Minterval> split_equal(int n);
@@ -378,7 +378,7 @@ public:
      +-------------+
     */
 
-    //@Man: Methods for translation:
+    // Methods for translation:
     //@{
     /// translates this by a point.
     r_Minterval &reverse_translate(const r_Point &);
@@ -413,7 +413,7 @@ public:
 
     //*****************************************
 
-    //@Man: Methods for scaling:
+    // Methods for scaling:
     //@{
     /// scales this by a factor.
     r_Minterval &scale(const double &);
@@ -439,7 +439,7 @@ public:
 
     //*****************************************
 
-    //@Man: Methods/Operators for the union operation:
+    // Methods/Operators for the union operation:
     //@{
     ///
     r_Minterval &union_of(const r_Minterval &, const r_Minterval &);
@@ -458,7 +458,7 @@ public:
     ///
     //@}
 
-    //@Man: Methods/Operators for the difference operation:
+    // Methods/Operators for the difference operation:
     //@{
     ///
     r_Minterval &difference_of(const r_Minterval &, const r_Minterval &);
@@ -477,7 +477,7 @@ public:
     ///
     //@}
 
-    //@Man: Methods/Operators for the intersection operation:
+    // Methods/Operators for the intersection operation:
     //@{
     ///
     r_Minterval &intersection_of(const r_Minterval &, const r_Minterval &);
@@ -496,7 +496,7 @@ public:
     ///
     //@}
 
-    //@Man: Methods/Operators for the closure operation:
+    // Methods/Operators for the closure operation:
     //@{
     ///
     r_Minterval &closure_of(const r_Minterval &, const r_Minterval &);
@@ -509,11 +509,11 @@ public:
     ///
     //@}
 
-    ///@Man: Mthods/Operators for checking whether one interval is within another
+    /// Methods/Operators for checking whether one interval is within another
     //@{
     bool inside_of(const r_Minterval &) const;
     //@}
-    //@Man: Methods/Operators for dimension-specific operations involving projections:
+    // Methods/Operators for dimension-specific operations involving projections:
     //@{
     /// the vector of projection dimensions cannot have more values than this->dimensionality
     /// this should really be called "trim_wrt_slice" because the result dimension is this->dimensionality
@@ -531,14 +531,14 @@ public:
     /// gives back the string representation
     char *get_string_representation() const;
     /**
-      The string representation delivered by this method is allocated using {\tt malloc()} and
-      has to be free using {\tt free()} in the end. It can be used to construct a {\tt r_Minterval}
+      The string representation delivered by this method is allocated using <tt>malloc()</tt> and
+      has to be free using <tt>free()</tt> in the end. It can be used to construct a <tt>r_Minterval</tt>
       again with a special constructor provided. The string representation is build using
-      {\tt print_status()}.
+      <tt>print_status()</tt>.
     */
 
     /**
-     * If you want the output of {\tt get_string_representation()},
+     * If you want the output of <tt>get_string_representation()</tt>,
      * but you do not want to worry about memory allocation/deallocation.
      */
     std::string to_string() const;
@@ -549,7 +549,7 @@ public:
      */
     std::string get_named_axis_string_representation() const;
 
-    //@Man: Methods for internal use only:
+    // Methods for internal use only:
     //@{
     /// calculate number of cells
     r_Area cell_count() const;
@@ -593,7 +593,7 @@ protected:
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Minterval}.
+  Output stream operator for objects of type <tt>const</tt> r_Minterval.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Minterval &d);
 extern std::ostream &operator<<(std::ostream &s, const std::vector<r_Minterval> &d);

@@ -50,25 +50,29 @@ public:
     /// constructor getting signed integer data
     QtAtomicData(r_Long value, unsigned short byteLength);
     /**
-      The value for {\tt byteLength} specifies the type of the constant.
+      The value for <tt>byteLength</tt> specifies the type of the constant.
 
+      \latexonly
       \begin{tabular}{lll}
       1 && OCTET\\
       2 && SHORT\\
       4 && LONG\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// constructor getting unsigned integer data
     QtAtomicData(r_ULong value, unsigned short byteLength);
     /**
-      The value for {\tt byteLength} specifies the type of the constant.
+      The value for <tt>byteLength</tt> specifies the type of the constant.
 
+      \latexonly
       \begin{tabular}{lll}
       1 && CHAR\\
       2 && USHORT\\
       4 && ULONG\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// constructor getting boolean data
@@ -77,12 +81,14 @@ public:
     /// constructor getting float data
     QtAtomicData(double value, unsigned short byteLength);
     /**
-      The value for {\tt byteLength} specifies the type of the constant.
+      The value for <tt>byteLength</tt> specifies the type of the constant.
 
+      \latexonly
       \begin{tabular}{lll}
       4 && FLOAT\\
       8 && DOUBLE\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// constructor getting complex data

@@ -35,7 +35,7 @@ rasdaman GmbH.
 
 /*@Doc:
 
- The class serves as a carrier for a {\tt QtData} object
+ The class serves as a carrier for a <tt> QtData</tt> object
  and, additionally, provides functionality necessary in
  the query tree.
 
@@ -47,7 +47,7 @@ public:
     /// constructor getting a pointer to the data object
     QtConst(QtData *newDataObj);
     /**
-      Lifetime of {\tt newDataObj} is managed by this class from now on.
+      Lifetime of <tt> newDataObj</tt> is managed by this class from now on.
     */
 
     /// virtual destructor

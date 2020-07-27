@@ -45,7 +45,7 @@ class r_Primitive_Type;
 
 /*@Doc:
 
- Class \Ref{r_Primitive} represents a primitive (atomic) type value.
+ Class r_Primitive represents a primitive (atomic) type value.
 */
 class r_Primitive : public r_Scalar
 {
@@ -104,7 +104,7 @@ protected:
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Primitive}.
+  Output stream operator for objects of type <tt>const</tt> r_Primitive.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Primitive &obj);
 

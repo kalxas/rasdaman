@@ -216,7 +216,7 @@
 
  The closure operation defines an interval which is the smallest
  interval containing the two operands.
- The method {\tt intersects_with()} returns 0 in the error cases of the
+ The method <tt>intersects_with()</tt> returns 0 in the error cases of the
  intersection operation and 1 otherwise.
 
 */
@@ -233,7 +233,7 @@ public:
     /// constructor for an interval with fixed bounds
     r_Sinterval(r_Range low, r_Range high);
 
-    //@Man: Constructors for intervals with at least one open bound.
+    // Constructors for intervals with at least one open bound.
     //@{
     ///
     r_Sinterval(char, r_Range high);
@@ -254,7 +254,7 @@ public:
     /// non equal operator - negation of equal operator
     bool operator!=(const r_Sinterval &) const;
 
-    //@Man: Read/Write methods:
+    // Read/Write methods:
     //@{
     ///
     r_Range low() const;
@@ -294,7 +294,7 @@ public:
     /// determines if the self interval intersects with the delivered one
     bool intersects_with(const r_Sinterval &) const;
 
-    //@Man: Methods/Operators for the union operation:
+    // Methods/Operators for the union operation:
     //@{
     ///
     r_Sinterval &union_of(const r_Sinterval &, const r_Sinterval &);
@@ -309,7 +309,7 @@ public:
     ///
     //@}
 
-    //@Man: Methods/Operators for the difference operation:
+    // Methods/Operators for the difference operation:
     //@{
     ///
     r_Sinterval &difference_of(const r_Sinterval &, const r_Sinterval &);
@@ -324,7 +324,7 @@ public:
     ///
     //@}
 
-    //@Man: Methods/Operators for the intersection operation:
+    // Methods/Operators for the intersection operation:
     //@{
     ///
     r_Sinterval &intersection_of(const r_Sinterval &, const r_Sinterval &);
@@ -339,12 +339,12 @@ public:
     ///
     //@}
 
-    ///@Man: Mthods/Operators for checking whether one interval is within another
+    /// Mthods/Operators for checking whether one interval is within another
     //@{
     bool inside_of(const r_Sinterval &) const;
     //@}
 
-    //@Man: Methods/Operators for the closure operation:
+    // Methods/Operators for the closure operation:
     //@{
     ///
     r_Sinterval &closure_of(const r_Sinterval &, const r_Sinterval &);
@@ -361,13 +361,13 @@ public:
     /// gives back the string representation
     char *get_string_representation() const;
     /**
-      The string representation delivered by this method is allocated using {\tt malloc()} and
-      has to be free unsing {\tt free()} in the end. It can be used to construct a {\tt r_Sinterval}
+      The string representation delivered by this method is allocated using <tt>malloc()</tt> and
+      has to be free unsing <tt>free()</tt> in the end. It can be used to construct a <tt>r_Sinterval</tt>
       again with a special constructor provided. The string representation is build using
-      {\tt print_status()}.
+      <tt>print_status()</tt>.
     */
 
-    //@Man: Methods for internal use only:
+    // Methods for internal use only:
     //@{
     /// calculate the size of the storage space occupied
     r_Bytes get_storage_size() const;
@@ -375,7 +375,7 @@ public:
     //@}
 
 private:
-    //@Man: Calculation methods for the operations:
+    // Calculation methods for the operations:
     //@{
     ///
     r_Sinterval calc_union(const r_Sinterval &a, const r_Sinterval &b) const;
@@ -392,7 +392,7 @@ private:
     /// compute the class of the two operands
     int classify(const r_Sinterval &a, const r_Sinterval &b) const;
 
-    //@Man: Attributes storing the bounds:
+    // Attributes storing the bounds:
     //@{
     ///
     r_Range lower_bound{0};
@@ -401,7 +401,7 @@ private:
     ///
     //@}
 
-    //@Man: Attributes specifying wheter the lower/upper bound is fixed or not:
+    // Attributes specifying wheter the lower/upper bound is fixed or not:
     //@{
     ///
     bool low_fixed{false};
@@ -413,7 +413,7 @@ private:
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const r_Sinterval}.
+  Output stream operator for objects of type <tt>const r_Sinterval</tt>.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Sinterval &d);
 

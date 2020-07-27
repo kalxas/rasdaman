@@ -53,7 +53,7 @@ public:
     executes baseDBMSClose() if it is still connected.
     */
    
-    /// opens database with name {\tt dbName}.
+    /// opens database with name \c dbName.
     void open(const char *dbName);
     /*@Doc:
         Precondition: not opened, not connected, db exists
@@ -95,7 +95,7 @@ public:
     /*@Doc:
         Precondition: not open, not connected, db exists
         Postcondition: not open, not connected, db does not exist
-        destroys an existing database with name {\tt dbName}.
+        destroys an existing database with name \c dbName.
         Database must not be open in order to be destroyed.
         A transaction must not be opened.
         Returns -1 if database does not exist.

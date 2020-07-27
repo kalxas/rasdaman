@@ -52,7 +52,7 @@ class r_Type;
 
   {\bf Attention: }Right now, just the classes \Ref{r_Set} and \Ref{r_Marray}
   inherit from \Ref{r_Object} which, therefore, are the only persistent
-  capable classes. In fact, just objects of type {\tt r_Set<r_Ref<r_Marray<...>>>}
+  capable classes. In fact, just objects of type <tt>r_Set<r_Ref<r_Marray<...>>></tt>
   can be made persitent right now.
 
 */
@@ -69,16 +69,16 @@ public:
     /// constructor getting objType
     r_Object(unsigned short objType, r_Transaction *transaction = NULL);
     /**
-      {\tt objType} specifies the type of the object (1=Marray, 2=Collection).
-      {\tt transaction} the transaction object under which this object is registered. Internal casting to void is necesarry due to circural referencing.
+      <tt>objType</tt> specifies the type of the object (1=Marray, 2=Collection).
+      <tt>transaction</tt> the transaction object under which this object is registered. Internal casting to void is necesarry due to circural referencing.
       This is needed for oid allocation and propably dropped in future.
     */
 
     /// copy constructor
     r_Object(const r_Object &, unsigned short objType = 0, r_Transaction *transaction = NULL);
     /**
-      {\tt objType} specifies the type of the object (1=Marray, 2=Collection).
-      {\tt transaction} the transaction object under which this object is registered. Internal casting to void is necesarry due to circural referencing.
+      <tt>objType</tt> specifies the type of the object (1=Marray, 2=Collection).
+      <tt>transaction</tt> the transaction object under which this object is registered. Internal casting to void is necesarry due to circural referencing.
       This is needed for oid allocation and propably dropped in future.
     */
 
@@ -108,8 +108,8 @@ public:
       name is made persistent, an error occurs while committing the
       transaction.
 
-      NOTE: This method is updated. Use {\tt void* operator new( size_t size,
-      r_Database *database, const char* type_name )} instead.
+      NOTE: This method is updated. Use <tt>void* operator new( size_t size,
+      r_Database *database, const char* type_name )</tt> instead.
     */
 
     /// set object type by name

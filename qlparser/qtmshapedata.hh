@@ -79,7 +79,7 @@ public:
     ///
     //@}
 
-    /// returns {\tt QT_MShape}
+    /// returns <tt>QT_MShape</tt>
     virtual QtDataType getDataType() const;
 
     /// compares data content

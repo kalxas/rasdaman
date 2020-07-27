@@ -134,14 +134,14 @@ public:
     /// gives back the string representation
     char *get_string_representation() const;
     /**
-      The string representation delivered by this method is allocated using {\tt malloc()} and
-      has to be free using {\tt free()} in the end. It can be used to construct a {\tt r_Point}
+      The string representation delivered by this method is allocated using <tt> malloc()</tt> and
+      has to be free using <tt> free()</tt> in the end. It can be used to construct a <tt> r_Point</tt>
       again with a special constructor provided. The string representation is build using
-      {\tt print_status()}.
+      <tt> print_status()</tt>.
     */
 
     /**
-     * If you want the output of {\tt get_string_representation()},
+     * If you want the output of <tt> get_string_representation()</tt>,
      * but you do not want to worry about memory allocation/deallocation.
      */
     std::string to_string() const;

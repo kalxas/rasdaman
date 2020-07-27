@@ -51,8 +51,8 @@ class r_Minterval;
 
 /*@Doc:
 
-  The {\tt r_Tiling} class is used to specify in which way the tiling is done
-  by the system. The core method that does that is called {\tt decomposeMDD()}
+  The \c r_Tiling class is used to specify in which way the tiling is done
+  by the system. The core method that does that is called \c decomposeMDD()
   and must be implemented by all derived classes. It takes an object that
   hasn't yet been split and divides it into tiles. Each derived class
   implements a diferent decomposition method.

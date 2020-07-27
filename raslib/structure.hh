@@ -43,7 +43,7 @@ class r_Structure_Type;
 
 /*@Doc:
 
- Class \Ref{r_Structure} represents a structured value.
+ Class r_Structure represents a structured value.
 
 */
 
@@ -100,7 +100,7 @@ private:
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Structure}.
+  Output stream operator for objects of type <tt>const</tt> r_Structure.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Structure &oid);
 #endif

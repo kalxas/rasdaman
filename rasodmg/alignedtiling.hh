@@ -42,8 +42,8 @@ class r_Aligned_Tiling;
 
 /*@Doc:
 
-    The {\tt r_Aligned_Tiling} class is used to express the options
-    for aligned tiling of {\tt r_Marray} objects.
+    The \c r_Aligned_Tiling class is used to express the options
+    for aligned tiling of \c r_Marray objects.
 
     The following options may be set:
 
@@ -51,31 +51,31 @@ class r_Aligned_Tiling;
     \item {\bf Tile configuration}
 
          describes which format tiles should have. The tile configuration
-     is expressed using a multidimensional interval {\tt r_Minterval}.
+     is expressed using a multidimensional interval \c r_Minterval.
      This interval should have null lower limits and
      must have the same dimensionality as that of the
      objects to which it is to be applied. Its lengths along each
      direction are interpreted relative to the others.
 
-     For example, if tile configuration is {\tt[ 0:9, 0:9, 0:19]}, tiles
+     For example, if tile configuration is <tt>[ 0:9, 0:9, 0:19]</tt>, tiles
      will be three dimensional arrays with two sides of equal length and
      double that length along the third direction.
 
      If a fixed tile is required, tile configuration and
      tile size should be set in such a way that the size of a tile
      with the given configuration is equal to the specified tile size.
-     For example, if the tile configuration is {\tt [ 0:29, 0:39, 0:59]}
+     For example, if the tile configuration is <tt>[ 0:29, 0:39, 0:59]</tt>
      and cell size is 2, then the tile size should be set to
      144000. This will also result in more efficient computation of
      the tiling since the given tile configuration is used unchanged if
 
-       {\tt 90% * tile_size < size of tile_config  < tile_size}
+       <tt> 90% * tile_size < size of tile_config  < tile_size</tt>
 
      (i.e., no computation is necessary). This applies equally to tile
      configurations with non-fixed limits.
 
      Tiles with non-fixed limits are used to express preferential
-     directions for tiling. For example, {\tt [ 0:9 , 0:* ]} expresses that
+     directions for tiling. For example, <tt> [ 0:9 , 0:* ]</tt> expresses that
      tiles should be done along the first direction, i.e., they
      should have domains :
 
@@ -136,7 +136,7 @@ public:
     std::string get_string_representation() const;
     /**
       The string representation delivered by this method is allocated using
-      {\tt malloc()} and has to be freed using {\tt free()} in the end.
+      <tt> malloc()</tt> and has to be freed using <tt>free()</tt> in the end.
     */
 
     /// writes the state of the object to the specified stream
@@ -153,19 +153,19 @@ public:
        Determines the individual tiles domains for aligned tiling,
        using the options expressed in this object.
        Takes into account the tile size and the tile configuration,
-       as well as the cell size given by {\ttcell_size}.
+       as well as the cell size given by <tt>cell_size</tt>.
 
        Returns the domain for tiles in such a way that the tile
-       configuration is as close to {\tttile_config} set in this object and
-       the size is lower than {\tt tile_size}.
+       configuration is as close to <tt>tile_config</tt> set in this object and
+       the size is lower than <tt>tile_size</tt>.
 
        The origin of the returned interval is the same as that from
-       {\ttthis->tile_config}.
+       <tt>this->tile_config</tt>.
 
-       The data to partition has domain {\tt dom } and cells with size
-       {\tt cell_size}.
-       To be used before splitting a tile with domain {\tt dom} (typically,
-       containing all the cells belonging to an {\ttr_Marray} object).
+       The data to partition has domain <tt>dom </tt> and cells with size
+       <tt>cell_size</tt>.
+       To be used before splitting a tile with domain <tt>dom</tt> (typically,
+       containing all the cells belonging to an <tt>r_Marray</tt> object).
     */
 
 protected:
@@ -184,8 +184,8 @@ protected:
 
 /*@Doc:
 
-    The {\tt r_Default_Tiling} class is used to express the default tiling
-    of {\tt r_Marray} objects. According to this algorithm, tiles are divided
+    The <tt>r_Default_Tiling</tt> class is used to express the default tiling
+    of <tt>r_Marray</tt> objects. According to this algorithm, tiles are divided
     into equal sized multidimensional blocks qith equal lengths along
     all directions of the spatial domain.
 

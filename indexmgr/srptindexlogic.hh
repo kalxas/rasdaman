@@ -72,7 +72,7 @@ public:
     /*@Doc:
         Search the index for a search region.
         Determines all the tiles in the index which intersect a given
-        search interval (given by {\tt searchInter}).
+        search interval (given by <tt>searchInter</tt>).
     */
 
     static void containPointQuery(const IndexDS *ixDS, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl);
@@ -93,8 +93,8 @@ public:
         Recursive function which does the real job.
         The return value is 1 if the current node was split, 0 otherwise. This is
         used internally by the algorithm (?really - better not touch it?).
-        In {\tt leafNodes2Split}, the set of overflowed leaf nodes is returned.
-        It should be passed to {\tt splitNodes()}.
+        In <tt>leafNodes2Split</tt>, the set of overflowed leaf nodes is returned.
+        It should be passed to <tt>splitNodes()</tt>.
     */
 
 private:
@@ -126,8 +126,8 @@ private:
                           const StorageLayout &sl);
     /*@Doc:
         Splits a leaf node
-        {\tt n1} has the entries which intersect (leafNodeDomain and  x(axis) <= value),
-        {\tt n2 } the ones intersecting (leafNodeDomain and x(axis) > value).
+        <tt>n1</tt> has the entries which intersect (leafNodeDomain and  x(axis) <= value),
+        <tt>n2 </tt> the ones intersecting (leafNodeDomain and x(axis) > value).
         The keyvec holds the tiles which will be inserted into the 2 new leafs.
         The domain is the complete assigned domain of both leafs.  It will be divided into 2 parts
         based on axis and value.  Then the tiles are assigned to the leaf that covers them - or both.
@@ -156,7 +156,7 @@ private:
                                    r_Range &value,
                                    const HierIndexDS *node);
     /*@Doc:
-        Calculates the optimal partition for this node Partition is returned in {\tt axis}, {\tt value}.
+        Calculates the optimal partition for this node Partition is returned in <tt>axis</tt>, <tt>value</tt>.
         This is the most problematic stuff because it depends on the order of insertion.
         The index nodes are not optimally filled.  But you know: we are the fastest anyway ; )
     */
@@ -167,9 +167,9 @@ private:
     /*@Doc:
         Caluculates the distribution of entries for a given partition
         Used by calculate partition.
-        Calculates resulting distribution of children of a node {\ttnode} if
-        it is split at axis = value. Distributions are returned in {\ttdist1}
-        (percentage of nodes intersecting  x(axis) <= value) and {\ttdist2}
+        Calculates resulting distribution of children of a node <tt>node</tt> if
+        it is split at axis = value. Distributions are returned in <tt>dist1</tt>
+        (percentage of nodes intersecting  x(axis) <= value) and <tt>dist2</tt>
         (percentage of nodes intersecting  x(axis) > value).
     */
 

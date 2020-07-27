@@ -74,7 +74,7 @@ public:
     ///
     //@}
 
-    /// returns {\tt QT_POINT}
+    /// returns <tt>QT_POINT</tt>
     virtual QtDataType getDataType() const;
 
     /// compares data content

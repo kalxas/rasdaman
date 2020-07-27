@@ -40,8 +40,8 @@ rasdaman GmbH.
 
 /*@Doc:
 
-  The {\tt r_Dir_Decompose} class is used to specify a decomposition on
-  an n-dimensional cube (for use in {\tt r_Dir_Tiling}). For instance, to
+  The <tt>r_Dir_Decompose</tt> class is used to specify a decomposition on
+  an n-dimensional cube (for use in <tt>r_Dir_Tiling</tt>). For instance, to
   specify a tiling restriction on a dimension with the form: [0, 2, 4, 5],
   the following code would apply:
 

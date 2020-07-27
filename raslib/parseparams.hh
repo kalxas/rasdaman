@@ -56,11 +56,13 @@ public:
     /**
        Possible parameter types and their corresponding C types are
 
+       \latexonly
        \begin{tabular}{ll}
        param_type_int && int\\
        param_type_double && double\\
        param_type_string && char*\\
        \end{tabular}
+       \endlatexonly
     */
 
     r_Parse_Params(void) = default;
@@ -109,7 +111,7 @@ protected:
 
 //@ManMemo: Module: {\bf raslib}
 /**
-  Output stream operator for objects of type {\tt const} \Ref{r_Parse_Params::parse_param_type}.
+  Output stream operator for objects of type <tt>const</tt> r_Parse_Params::parse_param_type.
   */
 extern std::ostream &operator<<(std::ostream &s, const r_Parse_Params::parse_param_type &d);
 

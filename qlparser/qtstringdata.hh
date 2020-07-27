@@ -58,7 +58,7 @@ public:
     ///
     //@}
 
-    /// returns {\tt QT_STRING}
+    /// returns <tt>QT_STRING</tt>
     virtual QtDataType getDataType() const;
 
     /// compares data content

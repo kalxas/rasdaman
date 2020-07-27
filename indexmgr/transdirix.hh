@@ -65,7 +65,7 @@ public:
     TransDirIx(r_Dimension dim);
     /*@Doc:
     Creates a new transient index for an object with dimensionality
-    {\tt dim}.
+    <tt>dim</tt>.
     */
 
     void printStatus(unsigned int level, std::ostream &stream) const override;
@@ -74,11 +74,11 @@ protected:
 
     void insertObject(const KeyObject &newKeyObject, unsigned int pos) override;
     /*@Doc:
-    Inserts a new tile in the index at position {\tt pos}, which must be
-    between 0 and {\tt getNumberElems()} (that is, {\tt pos } is
-    interpreted as an index in the new list. If {\tt pos} is getNumberElems(),
+    Inserts a new tile in the index at position <tt>pos</tt>, which must be
+    between 0 and <tt>getNumberElems()</tt> (that is, <tt>pos </tt> is
+    interpreted as an index in the new list. If <tt>pos</tt> is getNumberElems(),
     the element is put at the end of the list. All elements at following
-    positions are shifted to the right. The new tile to insert ({\tt newKeyObject})
+    positions are shifted to the right. The new tile to insert (<tt>newKeyObject</tt>)
     must be transient (of type TransKeyObject). The current domain is updated.
     */
 
@@ -139,7 +139,7 @@ protected:
 private:
     r_Minterval currDomain;
     /**
-    Always set automatically to the MBR of the tiles in {\tt tiles}.
+    Always set automatically to the MBR of the tiles in <tt>tiles</tt>.
     If the number of tiles is zero, the currDomain is invalid (may have any
     values). All methods dealing with the currDomain must then check whether
     the object has tiles in order to operate on the currDomain.

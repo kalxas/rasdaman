@@ -79,7 +79,7 @@ public:
       mode is specified, no write operations are allowed within the transaction
       anymore.
       If any write operation occurs in read_only mode, the exception r_Error with
-      kind {\tt r_Error_TransactionReadOnly} will be raised and the transaction will
+      kind <tt>r_Error_TransactionReadOnly</tt> will be raised and the transaction will
       be aborted.
       In order to achieve maximal performance, read-only transactions should be used
       whenever posssible, i.e., when no update operations occur within this transaction.
@@ -92,12 +92,14 @@ public:
       in the database.
       While committing, the following errors can occur:
 
+      \latexonly
       \begin{tabular}{lll}
       r_Error_TransferFailed && Server communication problem.\\
       r_Error_ObjectUnknown && Name of object is unknown.\\
       r_Error_DatabaseClassUndefined && Type name of object not known by the database.\\
       r_Error_CollectionElementTypeMismatch && Collection and MDD type mismatch.\\
       \end{tabular}
+      \endlatexonly
     */
 
     /// abort transaction and forget changes within transaction

@@ -59,7 +59,7 @@ class r_GMarray;
  the same time preserving their respective types. If any of the
  #$i# are not followed by a right operant construction argument at
  the point \Ref{r_oql_execute} is called, a \Ref{r_Error} exception object
- of kind {\tt r_Error_QueryParameterCountInvalid} is thrown.
+ of kind <tt>r_Error_QueryParameterCountInvalid</tt> is thrown.
  Once a query has been executed via \Ref{r_oql_execute}, the arguments
  associated with the #$i# parameters are cleared and new arguments
  must be supplied.
@@ -70,7 +70,7 @@ class r_GMarray;
  performed.
 
  The stream operators raise a \Ref{r_Error} exception of type
- {\tt r_Error_QueryParameterCountInvalid} if the number of arguments is
+ <tt>r_Error_QueryParameterCountInvalid</tt> if the number of arguments is
  exceeded.
 
 */
@@ -173,14 +173,14 @@ private:
 
 /*@Doc:
   The free standing function \Ref{r_oql_execute} is called to execute a retrieval query.
-  The first parameter, {\tt query}, is a reference to a \Ref{r_OQL_Query} object specifying
-  the query to execute. The second parameter, {\tt result}, is used for returning the
-  result of the query. The query result is of type {\tt r_Set< r_Ref_Any >}.
+  The first parameter, <tt>query</tt>, is a reference to a \Ref{r_OQL_Query} object specifying
+  the query to execute. The second parameter, <tt>result</tt>, is used for returning the
+  result of the query. The query result is of type <tt>r_Set< r_Ref_Any ></tt>.
   Important: If the transaction parameter is not provided this function is not thread-safe.
 
   If the function is not called within the scope of an opened database, a \Ref{r_Error}
-  exception of kind {\tt r_Error_DatabaseClosed} is raised. If it is called outside any
-  transaction, the exception is of kind {\tt r_Error_TransactionNotOpen}.
+  exception of kind <tt>r_Error_DatabaseClosed</tt> is raised. If it is called outside any
+  transaction, the exception is of kind <tt>r_Error_TransactionNotOpen</tt>.
 
   A complete list of all possible error kinds is given by the following table.
 
@@ -191,7 +191,7 @@ private:
   r_Error_QueryParameterCountInvalid && At least one of the query parameters is not supplied with a value.\\
   r_Error_TransferFailed             && Other communication problem. \\
   r_Error_QueryExecutionFailed       && The execution of the query failed (further information is available
-  in an error object of type {\tt r_Equery_execution}).\\
+  in an error object of type <tt>r_Equery_execution</tt>).\\
   r_Error_TypeInvalid                && Result base type doesn't match the template type. \\
   \end{tabular}
 */
@@ -203,7 +203,7 @@ void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, r_Transaction *
 
 /*@Doc:
   The funcetion is used to execute retrieval queries with the result set being
-  of type {\tt r_Set< r_Ref< r_GMarray > >}. The function is supported for
+  of type <tt>r_Set< r_Ref< r_GMarray > ></tt>. The function is supported for
   compatibility reasons only. We suggest to use the general function
   \Ref{r_oql_execute} able to maintain query results of any type.
   Important: If the transaction parameter is not provided this function is not thread-safe.
@@ -213,16 +213,16 @@ void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref<r_GMarray>> &result, r_Transa
 /*@Doc:
   The free standing function \Ref{r_oql_execute} is called to execute an insert query
   that returns the OID that has been inserted.
-  The first parameter, {\tt query}, is a reference to a \Ref{r_OQL_Query} object specifying
-  the query to execute. The second parameter, {\tt result}, is used for returning the
-  result of the query. The query result is of type {\tt r_Set< r_Ref_Any >}.
+  The first parameter, <tt>query</tt>, is a reference to a \Ref{r_OQL_Query} object specifying
+  the query to execute. The second parameter, <tt>result</tt>, is used for returning the
+  result of the query. The query result is of type <tt>r_Set< r_Ref_Any ></tt>.
   The third parameter is a dummy parameter, it is used to differentiate from retrieval queries.
   The function used the same return values as the retrieval function above.
   Important: If the transaction parameter is not provided this function is not thread-safe.
 
   If the function is not called within the scope of an opened database, a \Ref{r_Error}
-  exception of kind {\tt r_Error_DatabaseClosed} is raised. If it is called outside any
-  transaction, the exception is of kind {\tt r_Error_TransactionNotOpen}.
+  exception of kind <tt>r_Error_DatabaseClosed</tt> is raised. If it is called outside any
+  transaction, the exception is of kind <tt>r_Error_TransactionNotOpen</tt>.
 */
 
 void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Transaction *transaction = NULL);
@@ -233,13 +233,13 @@ void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Tr
 /*@Doc:
   The free standing function \Ref{r_oql_execute} is called to execute an update / delete query.
   It is also used by older ( < v9.1 ) clients for insert queries.
-  The first parameter, {\tt query}, is a reference to a \Ref{r_OQL_Query} object specifying
+  The first parameter, <tt>query</tt>, is a reference to a \Ref{r_OQL_Query} object specifying
   the query to execute.
   Important: If the transaction parameter is not provided this function is not thread-safe.
 
   If the function is not called within the scope of an opened database, a \Ref{r_Error}
-  exception of kind {\tt r_Error_DatabaseClosed} is raised. If it is called outside any
-  transaction, the exception is of kind {\tt r_Error_TransactionNotOpen}.
+  exception of kind <tt>r_Error_DatabaseClosed</tt> is raised. If it is called outside any
+  transaction, the exception is of kind <tt>r_Error_TransactionNotOpen</tt>.
 
   A complete list of all possible error kinds is given by the following table.
 
@@ -250,7 +250,7 @@ void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Tr
   r_Error_QueryParameterCountInvalid && At least one of the query parameters is not supplied with a value.\\
   r_Error_TransferFailed             && Other communication problem. \\
   r_Error_QueryExecutionFailed       && The execution of the query failed (further information is available
-  in an error object of type {\tt r_Equery_execution}).\\
+  in an error object of type <tt>r_Equery_execution</tt>).\\
   \end{tabular}
 */
 

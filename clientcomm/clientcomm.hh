@@ -182,16 +182,16 @@ public:
     /// triggers an alive signal
     virtual void triggerAliveSignal() = 0;
     /**
-      First, it sets the switch {\tt aliveSignalRemaining} saying that an alive signal
-      should be send to the server. Then it calls {\tt sendAliveSignal()} to send it
+      First, it sets the switch <tt>aliveSignalRemaining</tt> saying that an alive signal
+      should be send to the server. Then it calls <tt>sendAliveSignal()</tt> to send it
       immediately if possible.
     */
 
     /// send an alive signal if necessary and possible
     virtual void sendAliveSignal() = 0;
     /**
-      Sends an alive signal to the server if the switch {\tt aliveSignalRemaining} is
-      set and no other RPC is active. If a signal can be sent, {\tt aliveSignalRemaining}
+      Sends an alive signal to the server if the switch <tt>aliveSignalRemaining</tt> is
+      set and no other RPC is active. If a signal can be sent, <tt>aliveSignalRemaining</tt>
       is set to 0 again.
     */
 
