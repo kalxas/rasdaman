@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 
 /**
@@ -63,19 +64,19 @@ public class WMSRepostioryService {
     private static final Logger log = LoggerFactory.getLogger(WMSRepostioryService.class);
 
     // Cache all the metadata for WMS layers
-    public static final Map<String, Layer> layersCacheMap = new ConcurrentSkipListMap<>();
+    public static final Map<String, Layer> localLayersCacheMap = new ConcurrentSkipListMap<>();
     
     /**
      * Check if a layer already exists from local loaded cache map
      */
     public boolean isInLocalCache(String layerName) throws PetascopeException {
-        if (layersCacheMap.isEmpty()) {
+        if (localLayersCacheMap.isEmpty()) {
             for (String layerNameTmp : this.readAllLocalLayerNames()) {
                 this.readLayerByNameFromCache(layerNameTmp);
             }
         }
         
-        if (!layersCacheMap.containsKey(layerName)) {
+        if (!localLayersCacheMap.containsKey(layerName)) {
             return false;
         }
         
@@ -83,47 +84,64 @@ public class WMSRepostioryService {
     }
 
     /**
-     *
+     * Validate if layer exist in local
+     */
+    public void validateInLocalCache(String layerName) throws PetascopeException {
+        if (!this.isInLocalCache(layerName)) {
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Layer '" + layerName + "' does not exist in local.");
+        }
+    }
+
+    /**
      * Read persisted OwsServiceMetadata from cache. NOTE: only used when read
      * layer's metadata to GetMap, not for updating or deleting as it will have
      * error in Hibernate (Constraint violation with cached object)
-     *
-     * @param layerName
-     * @return
      */
     public Layer readLayerByNameFromCache(String layerName) throws PetascopeException {
+        Layer layer = null;
+
         // Check if layer already cached        
-        Layer layer = layersCacheMap.get(layerName);
+        layer = localLayersCacheMap.get(layerName);
         if (layer == null) {
-            layer = this.readLayerByNameFromDatabase(layerName);
+            try {
+                layer = this.readLayerByNameFromDatabase(layerName);
+            } catch (PetascopeException ex) {
+                throw ex;
+            }
         }
 
         return layer;
     }
 
     /**
+    * Read the layer from the local cache
+    */
+    public Layer readLayerByNameFromLocalCache(String layerName) {
+        Layer layer = this.localLayersCacheMap.get(layerName);
+        return layer;
+    }
+
+    /**
      *
-     * Read persisted OwsServiceMetadata from database. NOTE: used only when
+     * Read persisted Layer from database. NOTE: used only when
      * update/insert/delete layer.
      *
-     * @param layerName
-     * @return
      */
     public Layer readLayerByNameFromDatabase(String layerName) throws PetascopeException {
         
         // This happens when Petascope starts and user sends a WMS GetMap query to a coverage instead of WMS GetCapabilities
-        if (layersCacheMap.isEmpty()) {
+        if (localLayersCacheMap.isEmpty()) {
             this.readAllLayers();
         }
 
         Layer layer = this.layerRepository.findOneByName(layerName);
         if (layer == null) {
-            return null;
+            throw new PetascopeException(ExceptionCode.NoSuchLayer, "Layer '" + layer + "' does not exist in local.");
         }
-
+        
         // put to cache        
-        layersCacheMap.put(layerName, layer);
-
+        localLayersCacheMap.put(layerName, layer);
+        
         log.debug("WMS Layer: " + layerName + " is read from database.");
 
         return layer;
@@ -149,15 +167,15 @@ public class WMSRepostioryService {
      */
     public List<Layer> readAllLocalLayers() throws PetascopeException {
         List<Layer> layers = new ArrayList<>();
-        if (layersCacheMap.isEmpty()) {
+        if (localLayersCacheMap.isEmpty()) {
             for (Layer layer : this.layerRepository.findAll()) {
                 layers.add(layer);
-                layersCacheMap.put(layer.getName(), layer);
+                localLayersCacheMap.put(layer.getName(), layer);
             }
 
             log.debug("Read all persistent WMS layers from database.");
         } else {
-            layers = new ArrayList<>(layersCacheMap.values());
+            layers = new ArrayList<>(localLayersCacheMap.values());
         }
 
         return layers;
@@ -170,7 +188,7 @@ public class WMSRepostioryService {
         this.layerRepository.save(layer);
 
         // add to WMS layers cache if it does not exist or update the existing one        
-        layersCacheMap.put(layer.getName(), layer);
+        localLayersCacheMap.put(layer.getName(), layer);
         
         entityManager.flush();
         entityManager.clear();
@@ -184,7 +202,7 @@ public class WMSRepostioryService {
     public void deleteLayer(Layer layer) {
         this.layerRepository.delete(layer);
         // remove layer from cache
-        layersCacheMap.remove(layer.getName());
+        localLayersCacheMap.remove(layer.getName());
 
         entityManager.flush();
         entityManager.clear();

@@ -142,22 +142,23 @@ public class CoverageRepositoryService {
      * data not from database. If using it to update an input coverage metadata,
      * it will have problem with Hibernate Cascade all.
      *
-     * @param coverageId
-     * @return
-     * @throws petascope.exceptions.PetascopeException
      */
     public Coverage readCoverageFullMetadataByIdFromCache(String coverageId) throws PetascopeException {
-        Pair<Coverage, Boolean> coveragePair = coveragesCacheMap.get(coverageId);
         Coverage coverage = null;
+
+        Pair<Coverage, Boolean> coveragePair = coveragesCacheMap.get(coverageId);
+        
         // Check if coverage is already cached
         if (coveragePair == null) {
-            // If coverage is not cached then read it from database
-            coverage = this.readCoverageByIdFromDatabase(coverageId);
-            coveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
+            // If coverage is not cached then read full coverage from database
+            try {
+                coverage = this.readCoverageByIdFromDatabase(coverageId);
+            } catch (PetascopeException ex) {
+		throw ex;
+            }
         } else if (coveragePair.snd == false) {
-            // If coverage just contains basic metadata, then read it from database
+            // If coverage just contains basic metadata, then read full coverage from database
             coverage = this.readCoverageByIdFromDatabase(coverageId);
-            coveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
         } else {
             // Coverage already exists in the cache.
             coverage = coveragePair.fst;
@@ -192,18 +193,13 @@ public class CoverageRepositoryService {
 
         return coverage;
     }
-
+    
     /**
      * Read a persisted coverage from database by coverage_id (coverage_name).
      * NOTE: used only to insert/update/delete a coverage metadata from database
      * as it is not loaded from cache to avoid error with Hibernate cascade.
-     *
-     * @param coverageId
-     * @return
-     * @throws petascope.exceptions.PetascopeException
      */
     public Coverage readCoverageByIdFromDatabase(String coverageId) throws PetascopeException {
-        
         // This happens when Petascope starts and user sends a WCPS query to a coverage instead of WCS GetCapabilities
         if (coveragesCacheMap.isEmpty()) {
             this.readAllLocalCoveragesBasicMetatata();
@@ -215,19 +211,22 @@ public class CoverageRepositoryService {
         
         long end = System.currentTimeMillis();
         log.debug("Time to read coverage '" + coverageId + "' from database is " + String.valueOf(end - start) + " ms.");
-
+        
         if (coverage == null) {
             throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + coverageId + "' does not exist.");
-        }
-  
-        log.debug("Coverage '" + coverageId + "' is read from database.");
+        } else {
+            log.debug("Coverage '" + coverageId + "' is read from database.");
 
-        long coverageSize = this.calculateCoverageSizeInBytes(coverage);
-        coverage.setCoverageSizeInBytes(coverageSize);
-        this.addRasdamanDataTypesForRangeQuantities(coverage);
-        if (coverage.getRasdamanRangeSet().getTiling() == null) {
-            this.addRasdamanTilingConfiguration(coverage);
+            long coverageSize = this.calculateCoverageSizeInBytes(coverage);
+            coverage.setCoverageSizeInBytes(coverageSize);
+            this.addRasdamanDataTypesForRangeQuantities(coverage);
+
+            if (coverage.getRasdamanRangeSet().getTiling() == null) {
+                this.addRasdamanTilingConfiguration(coverage);
+            }
         }
+        
+        coveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
         
         // NOTE: without it, after coverage's crs is replaced from $SECORE_URL$ to localhost:8080 (from petascope.properties)
         // with a DescribeCoverage request, after the replacement, 
