@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions 
+>
+<wcs:CoverageDescription id="test_wcs_non_ascii_character">
+<boundedBy>
+<Envelope
+axisLabels="timeeeeeeeeeeeeeee laaaaaaaaaaaaaaat longgggggggggggggg"
+srsDimension="3"
+srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
+<lowerCorner>"2003-01-01T00:00:00.000Z" 20.99999811002785515320334262 -167.9999988873435326842837274</lowerCorner>
+<upperCorner>"2003-01-01T00:00:00.000Z" 21.99999888997214484679665738 -166.0000011126564673157162726</upperCorner>
+</Envelope>
+</boundedBy>
+<wcs:CoverageId>test_wcs_non_ascii_character</wcs:CoverageId>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
+<startPoint>0 0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>
+<bands>
+<LAI>
+<units>m2/m2</units>
+<long_name>Leaf Area Index</long_name>
+<_FillValue>-1.0</_FillValue>
+<missing_value>-1.0</missing_value>
+<valid_range>[0.7.]</valid_range>
+<scale_factor>1.0</scale_factor>
+<grid_mapping>crs</grid_mapping>
+<FORTRAN_format>G10.6</FORTRAN_format>
+</LAI>
+</bands>
+<axes>
+<longgggggggggggggg>
+<units>degrees_east</units>
+<long_name>longitude</long_name>
+</longgggggggggggggg>
+<laaaaaaaaaaaaaaat>
+<units>degrees_north</units>
+<long_name>latitude</long_name>
+</laaaaaaaaaaaaaaat>
+</axes>
+<Title>This is a test coverage 1</Title>
+<test>{'Band_1': {'name': 'coastal aerosol', 'central Wavelength': '0.443 ü ö ä Ä Ü Ö ß µm'}}</test>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_non_ascii_character-grid">
+<limits>
+<GridEnvelope>
+<low>0 0 0</low>
+<high>0 359 719</high>
+</GridEnvelope>
+</limits>
+<axisLabels>timeeeeeeeeeeeeeee laaaaaaaaaaaaaaat longgggggggggggggg</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_wcs_non_ascii_character-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
+<pos>"2003-01-01T00:00:00.000Z" 21.9986099999999999999999999983845 -167.9986100000000000000000000008345</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">1 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>"2003-01-01T00:00:00.000Z"</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>timeeeeeeeeeeeeeee</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -0.002777779944289693593314763231 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>laaaaaaaaaaaaaaat</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 0.002777774687065368567454798331</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>longgggggggggggggg</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="LAI">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>LAI</swe:label>
+<swe:description>Leaf Area Index</swe:description>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<wcs:ServiceParameters>
+<wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+</wcs:ServiceParameters>
+</wcs:CoverageDescription>
+</wcs:CoverageDescriptions>
