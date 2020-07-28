@@ -759,8 +759,20 @@ compare_output_to_oracle() {
       prepare_xml_file "$out_tmp"
       prepare_xml_file "$ora_tmp"
     fi
+
     # diff comparison ignoring EOLs [see ticket #551]
     diff -b "$out_tmp" "$ora_tmp" > /dev/null 2>&1
+    rc=$?
+
+    if [[ "$rc" != 0 && "$orafiletype" == *XML* ]]; then
+      # ignore random error by SECORE BaseX
+      # the grep below will result in $? == 0 if the random error is found in the output, so it will pass in update_result
+      grep --quiet "Your feedback is welcome" "$out_tmp"
+    else
+      # this is necessary in order to set $? for update_result, as the $? from diff was lost because of the if checks above
+      [ "$rc" -eq 0 ]
+    fi
+
   fi
 
   # any previous statement must have been a comparison (diff, check_script, ...),\
