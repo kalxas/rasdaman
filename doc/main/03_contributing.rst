@@ -1460,6 +1460,54 @@ the argument is the command which will be executed in the
   ./test_installer.sh "./ci_test.sh systemtest.toml $branch $patch_id"
 
 
+Check Jenkin's log files
+========================
+
+When you upload a patch to the `patchmanager <https://rasdaman.org/patchmanager>`, 
+the systemtest is automatically executed on several different
+virtual machines (VM) on Jenkins. If a patch failed on a VM, Jenkins will send
+an email to the patch's author, for example: the patch below failed
+on ``Ubuntu 16.04 VM`` with build number ``3439``:
+
+  .. IMAGE:: media/contributing/09-jenkins-email.jpg
+    :align: center
+
+Then, one needs to access to Jenkins at the link in the email
+(``http://codereview.rasdaman.org/jenkins/job/test-patch/ws/``)
+and choose the failed ``Ubuntu 16.04 VM``:
+
+  .. IMAGE:: media/contributing/10-jenkins-vms.jpg
+    :align: center
+
+Then, select the ``logs`` folder:
+
+  .. IMAGE:: media/contributing/11-jenkins-logs.jpg
+    :align: center
+
+And download the compressed file with the failed build number ``3439``
+to the local system:
+
+  .. IMAGE:: media/contributing/12-jenkins-download-log.jpg
+    :align: center
+
+Open the downloaded file (``build3439.tar.gz``) and check ``rasdaman.install.log`` file:
+
+  .. IMAGE:: media/contributing/13-jenkins-open-log-file.jpg
+    :align: center
+
+Search for ``Fail`` test cases in ``rasdaman.install.log`` file, e.g:
+
+  .. IMAGE:: media/contributing/14-jenkins-failed-tests.jpg
+    :align: center
+
+Then, check the ouput of these failed tests in ``test_output.tar.gz``
+compressed file, inside ``build3439.tar.gz`` file to compare the
+differences between oracle files and output files:
+
+  .. IMAGE:: media/contributing/15-jenkins-check-output.jpg
+    :align: center
+
+
 .. _code-guide:
 
 *******************
@@ -2634,6 +2682,76 @@ For instance: send this request in Web Browser with deployed petascope in Tomcat
 Then you can set a debug in class ``petascope.controller.PetascopeController``
 of **petascope-main** application, then follow all following classes when debugging
 to understand how the request is handled inside petascope.
+
+Development & Debugging
+^^^^^^^^^^^^^^^^^^^^^^^
+
+After one has downloaded rasdaman source code and compiled it successfully
+(see :ref:`detail <sec-download-install>`), petascope can be ready
+to run for debugging.
+
+In the below examples, `NetBeans IDE <https://netbeans.org/community/releases/82/install.html>`_
+version 8.2 will be used for demonstration. Rasdaman's source code
+
+- Open NetBeans IDE and locate the source code of petascope from
+  the rasdaman's downloaded source:
+
+  .. IMAGE:: media/contributing/01-debug-open-netbeans.jpg
+    :align: center
+
+- Select two petascope sub-projects: ``petascope_core`` and ``petascope_main``:
+
+  .. IMAGE:: media/contributing/02-debug-select-petascope-projects.jpg
+    :align: center
+
+  After that, these projects should display on the left panel:
+
+  .. IMAGE:: media/contributing/03-debug-display-petascope-projects.jpg
+    :align: center
+
+- Next, change directory on terminal to ``petascope_main`` source code location:
+  
+  .. code-block:: text
+
+     cd applications/petascope/petascope_main
+
+- Then, run petascope application as a **standalone web application**
+  with **embedded Tomcat** and Tomcat will listen on port ``5005`` for debugging.
+  Petascope will start at the port configured in ``/opt/rasdaman/etc/petascope.properties``,
+  key: ``server.port``, e.g: port ``8090``.
+
+  .. code-block:: text
+
+     mvn spring-boot:run -Drun.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+
+- Next, attach the debugger from NetBeans IDE to embedded Tomcat:
+  
+  .. IMAGE:: media/contributing/04-debug-attach-debugger.jpg
+    :align: center
+
+- Input the port ``5005`` which was used to start embedded Tomcat above:
+
+  .. IMAGE:: media/contributing/05-debug-add-port-for-debugger.jpg
+    :align: center
+
+- After that, NetBeans will show the panel with control buttons for debugging:
+
+  .. IMAGE:: media/contributing/06-debug-panel-buttons.jpg
+    :align: center
+
+- Add a test break point by clicking on the number in the middle panel,
+  for example: in ``petascope-main`` project, class ``PetascopeController``,
+  line ``154``:
+
+  .. IMAGE:: media/contributing/07-debug-add-breakpoint.jpg
+    :align: center
+
+- Then, open this embedded petascope endpoint ``http://localhost:8090/rasdaman/ows``
+  on web browser and see NetBeans stops petascope application at the 
+  selected line above for inspecting and debugging:
+
+  .. IMAGE:: media/contributing/08-debug-inspect-at-break-point.jpg
+    :align: center
 
 Warnings
 ^^^^^^^^

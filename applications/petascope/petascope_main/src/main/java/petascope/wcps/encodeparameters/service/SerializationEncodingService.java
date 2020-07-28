@@ -257,7 +257,7 @@ public class SerializationEncodingService {
     private void addTransposeToExtraParams(WcpsCoverageMetadata metadata, JsonExtraParams jsonExtraParams) throws PetascopeException {
         String coverageId = metadata.getCoverageName();
         // NOTE: with coverage constructor inside WCPS query, it doesn't have rasdaman collection, so do nothing in this case.
-        if (this.coverageRepostioryService.coveragesCacheMap.get(coverageId) != null) {
+        if (this.coverageRepostioryService.isInCache(coverageId)) {
             // e.g: geo order is Lat, Long check if grid order is also Lat, Long. If it is then need to add transpose
             Axis firstAxis = metadata.getAxes().get(0);
             int firstGridAxisOrder = firstAxis.getRasdamanOrder();
