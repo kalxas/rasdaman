@@ -26,6 +26,7 @@ import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.net.ssl.HttpsURLConnection;
@@ -60,6 +61,9 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 import static org.rasdaman.config.ConfigManager.STATIC_HTML_DIR_PATH;
+import org.rasdaman.repository.service.CoverageRepositoryService;
+import org.rasdaman.repository.service.WMSRepostioryService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This class initializes the petascope properties and runs the application as jar file.
@@ -101,6 +105,11 @@ public class ApplicationMain extends SpringBootServletInitializer {
     // Spring finds all the subclass of AbstractMigrationService and injects to the list
     @Resource
     List<AbstractMigrationService> migrationServices;
+    
+    @Autowired
+    private CoverageRepositoryService coverageRepositoryService;
+    @Autowired
+    private WMSRepostioryService wmsRepostioryService;
 
     /**
      * Invoked when running Petascope (rasdaman.war) only in an external servlet container. 
@@ -257,6 +266,44 @@ public class ApplicationMain extends SpringBootServletInitializer {
             log.info("petascopedb migrated successfully.");
             System.exit(ExitCode.SUCCESS.getExitCode());
         }
+        
+        this.loadCoveragesToCaches(this.coverageRepositoryService);
+        this.loadLayersToCaches(this.wmsRepostioryService);
+    }
+    
+    /**
+     * Run this background proces to load coverages to caches when petascope start
+     */
+    private void loadCoveragesToCaches(final CoverageRepositoryService coverageRepositoryService) {
+        Runnable runnable = new Runnable() {
+            public void run() {
+                try {
+                    log.debug("Load coverages to caches ...");
+                    coverageRepositoryService.readAllLocalCoveragesBasicMetatata();
+                    coverageRepositoryService.createAllCoveragesExtents();
+                } catch (Exception ex) {
+                    log.error("Cannot read local coverages to caches. Reason: " + ex.getMessage(), ex);
+                }
+            }
+        };
+        new Thread(runnable).start();
+    }
+    
+    /**
+     * Run this background proces to load layers to caches when petascope start
+     */
+    private void loadLayersToCaches(final WMSRepostioryService wmsRepostioryService) {
+        Runnable runnable = new Runnable() {
+            public void run() {
+                try {
+                    log.debug("Load layers to caches ...");
+                    wmsRepostioryService.readAllLocalLayers();
+                } catch (PetascopeException ex) {
+                    log.error("Cannot read local layers to caches. Reason: " + ex.getMessage(), ex);
+                }
+            }
+        };
+        new Thread(runnable).start();
     }
 
     /**

@@ -175,11 +175,11 @@ public class CoverageRepositoryService {
         
         Coverage coverage = null;
         
-        if (coveragesCacheMap.isEmpty()) {            
+        if (coveragesCacheMap.isEmpty()) {
             this.readAllLocalCoveragesBasicMetatata();
         }
         
-        if (coveragesCacheMap.get(coverageId) != null) {
+        if (coveragesCacheMap.containsKey(coverageId)) {
             coverage = coveragesCacheMap.get(coverageId).fst;
         } else {
             // NOTE: if the cache map doesn't contain the coverage for some reason

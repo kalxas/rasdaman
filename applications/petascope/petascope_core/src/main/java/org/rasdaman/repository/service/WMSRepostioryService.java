@@ -134,16 +134,20 @@ public class WMSRepostioryService {
             this.readAllLayers();
         }
 
+        final long start = System.currentTimeMillis();
+        
         Layer layer = this.layerRepository.findOneByName(layerName);
         if (layer == null) {
             throw new PetascopeException(ExceptionCode.NoSuchLayer, "Layer '" + layer + "' does not exist in local.");
         }
         
+        final long end = System.currentTimeMillis();
+        final long totalTime = end - start;
+        log.debug("Time to read WMS layer " + layerName + " from local database is: " + String.valueOf(totalTime) + " ms.");
+        
         // put to cache        
         localLayersCacheMap.put(layerName, layer);
         
-        log.debug("WMS Layer: " + layerName + " is read from database.");
-
         return layer;
     }
 
@@ -167,6 +171,8 @@ public class WMSRepostioryService {
      */
     public List<Layer> readAllLocalLayers() throws PetascopeException {
         List<Layer> layers = new ArrayList<>();
+        
+        final long start = System.currentTimeMillis();
         if (localLayersCacheMap.isEmpty()) {
             for (Layer layer : this.layerRepository.findAll()) {
                 layers.add(layer);
@@ -177,6 +183,10 @@ public class WMSRepostioryService {
         } else {
             layers = new ArrayList<>(localLayersCacheMap.values());
         }
+        
+        final long end = System.currentTimeMillis();
+        final long totalTime = end - start;
+        log.debug("Time to read all WMS layers from local database is: " + String.valueOf(totalTime) + " ms.");
 
         return layers;
     }

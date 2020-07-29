@@ -335,19 +335,21 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     private String buildLayers() throws WMSLayerNotExistException, PetascopeException {
         // All WMS layers
         List<Layer> layers = this.wmsRepostioryService.readAllLayers();
+        
         // to build layerElements
         List<Element> layerElements = new ArrayList<>();
         for (Layer layer : layers) {
             Element layerElement = this.buildLayerElement(layer);
+            
             layerElements.add(layerElement);
         }
 
-        String result = "";
+        StringBuilder sb = new StringBuilder();
         for (Element layerElement : layerElements) {
-            result = result + layerElement.toXML();
+            sb.append(layerElement.toXML());
         }
 
-        return result;
+        return sb.toString();
     }
 
     /**
@@ -420,14 +422,13 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         layerElement.appendChild(bboxRepresentation);
 
         // Dimension (Current not support yet)
-        // @TODO: it should support this feature for > 2D coverages with Time, Elevation or another dimensions
         if (layer.getDimensions().size() > 0) {
-            String dimensions = "";
+            StringBuilder dimensions = new StringBuilder();
             for (Dimension dimension : layer.getDimensions()) {
-                dimensions = dimensions + dimension.getRepresentation();
+                dimensions.append(dimension.getRepresentation());
             }
 
-            layerElement.appendChild(dimensions);
+            layerElement.appendChild(dimensions.toString());
         }
 
         // Each layer contains zero or multiple styles (by default, style is as same as layer).
@@ -446,12 +447,12 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      * @return
      */
     private String buildStyles(List<Style> styles) throws PetascopeException {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (Style style : styles) {
-            result = result + this.getRepresentation(style);
+            result.append(this.getRepresentation(style));
         }
 
-        return result;
+        return result.toString();
     }
     
     /**
