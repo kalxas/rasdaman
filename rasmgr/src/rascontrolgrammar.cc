@@ -43,7 +43,7 @@ void RasControlGrammar::parse(const std::string &reqMessage)
     token = strtok(token, " \r\n\t\0");
     while (token)
     {
-        if (token[0] == '#')
+        if (token[0] == '#' && this->tokens.empty())
         {
             break;    // done, disregard comment til end of line
         }
@@ -854,7 +854,7 @@ std::string RasControlGrammar::changeUserCmd()
         changeUser.set_n_passwd(newPasswd);
     }
 
-    const auto &rights = getValueOptionalFlag(_rightsLit);
+    const auto &rights = getValueOptionalFlag(_rightsLit, true);
     if (rights == "-")
     {
         changeUser.set_n_config_rights(false);
@@ -1424,7 +1424,7 @@ RCErrorMissingParam::RCErrorMissingParam(const std::string &what)
 
 std::string RCErrorMissingParam::getString()
 {
-    return "Missing parameter '" + pcc + "'.";
+    return "Missing argument for option '" + pcc + "'.";
 }
 
 RCErrorIncorNumberValue::RCErrorIncorNumberValue(const std::string &what)
