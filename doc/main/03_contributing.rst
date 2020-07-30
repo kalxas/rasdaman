@@ -1460,8 +1460,8 @@ the argument is the command which will be executed in the
   ./test_installer.sh "./ci_test.sh systemtest.toml $branch $patch_id"
 
 
-Check Jenkin's log files
-========================
+Check Jenkins log files
+=======================
 
 When you upload a patch to the `patchmanager <https://rasdaman.org/patchmanager>`, 
 the systemtest is automatically executed on several different
@@ -1472,25 +1472,26 @@ on ``Ubuntu 16.04 VM`` with build number ``3439``:
   .. IMAGE:: media/contributing/09-jenkins-email.jpg
     :align: center
 
-Then, one needs to access to Jenkins at the link in the email
+Then, one needs to access Jenkins at the link in the email
 (``http://codereview.rasdaman.org/jenkins/job/test-patch/ws/``)
-and choose the failed ``Ubuntu 16.04 VM``:
+and click on the failed ``Ubuntu 16.04 VM``:
 
   .. IMAGE:: media/contributing/10-jenkins-vms.jpg
     :align: center
 
-Then, select the ``logs`` folder:
+Select the ``logs`` folder:
 
   .. IMAGE:: media/contributing/11-jenkins-logs.jpg
     :align: center
 
-And download the compressed file with the failed build number ``3439``
+and download the compressed file with the failed build number ``3439``
 to the local system:
 
   .. IMAGE:: media/contributing/12-jenkins-download-log.jpg
     :align: center
 
-Open the downloaded file (``build3439.tar.gz``) and check ``rasdaman.install.log`` file:
+Extract the downloaded archive (``build3439.tar.gz``) and check the
+``rasdaman.install.log`` file:
 
   .. IMAGE:: media/contributing/13-jenkins-open-log-file.jpg
     :align: center
@@ -1500,9 +1501,9 @@ Search for ``Fail`` test cases in ``rasdaman.install.log`` file, e.g:
   .. IMAGE:: media/contributing/14-jenkins-failed-tests.jpg
     :align: center
 
-Then, check the ouput of these failed tests in ``test_output.tar.gz``
-compressed file, inside ``build3439.tar.gz`` file to compare the
-differences between oracle files and output files:
+Then, check the ouput of these failed tests in ``test_output.tar.gz`` archive
+which is in ``build3439.tar.gz`` to compare the differences between oracle files
+and output files:
 
   .. IMAGE:: media/contributing/15-jenkins-check-output.jpg
     :align: center
@@ -2606,8 +2607,8 @@ in quicker development of petascope. Petascope can now start as an embedded
 web application with an internal embedded Tomcat (i.e: 
 no need to deploy to external Tomcat).
 
-Code
-----
+Code organization
+-----------------
 
 Petascope is divided in 3 applications:
 
@@ -2625,7 +2626,7 @@ Petascope is divided in 3 applications:
   it can also migrates petascopedb from Postgresql to another DBMS like H2 or HSQLDB.
 
 Database migration
-^^^^^^^^^^^^^^^^^^
+------------------
 
 To support different kinds of databases, we use ​**Liquibase**, which creates
 the changes for each update in XML and uses that to generate the SQL statements
@@ -2635,7 +2636,7 @@ the `​liquibase.properties <http://rasdaman.org/browser/applications/petascope
 
 
 CRS management
-^^^^^^^^^^^^^^
+--------------
 
 Petascope relies on a **SECORE Coordinate Reference System (CRS)** resolver
 that can provide proper metadata on a coverage's native CRS. One can either
@@ -2670,7 +2671,7 @@ The **CrsUtil** class serves several purposes:
   are equivalent despite their different URI identifier.
 
 Testing
-^^^^^^^
+-------
 
 The `​systemtest/testcase_services <http://rasdaman.org/browser/systemtest/testcases_services>`_
 covers all the possible cases for WCS, WCPS, WMS and WCS-T. The easiest way
@@ -2684,52 +2685,53 @@ of **petascope-main** application, then follow all following classes when debugg
 to understand how the request is handled inside petascope.
 
 Development & Debugging
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
 After one has downloaded rasdaman source code and compiled it successfully
-(see :ref:`detail <sec-download-install>`), petascope can be ready
-to run for debugging.
+(see :ref:`detail <sec-download-install>`), you can load the petascope code in
+an IDE like NetBeans and run/debug it during development.
 
 In the below examples, `NetBeans IDE <https://netbeans.org/community/releases/82/install.html>`_
-version 8.2 will be used for demonstration. Rasdaman's source code
+version 8.2 will be used for demonstration.
 
-- Open NetBeans IDE and locate the source code of petascope from
-  the rasdaman's downloaded source:
+- Open the NetBeans IDE and locate the source code of petascope from
+  the rasdaman source tree in ``applications/petascope``:
 
   .. IMAGE:: media/contributing/01-debug-open-netbeans.jpg
     :align: center
 
-- Select two petascope sub-projects: ``petascope_core`` and ``petascope_main``:
+- Select the two petascope sub-projects: ``petascope_core`` and ``petascope_main``:
 
   .. IMAGE:: media/contributing/02-debug-select-petascope-projects.jpg
     :align: center
 
-  After that, these projects should display on the left panel:
+  Now the projects should display on the left panel:
 
   .. IMAGE:: media/contributing/03-debug-display-petascope-projects.jpg
     :align: center
 
 - Next, change directory on terminal to ``petascope_main`` source code location:
   
-  .. code-block:: text
+  .. code-block:: shell
 
      cd applications/petascope/petascope_main
 
-- Then, run petascope application as a **standalone web application**
-  with **embedded Tomcat** and Tomcat will listen on port ``5005`` for debugging.
-  Petascope will start at the port configured in ``/opt/rasdaman/etc/petascope.properties``,
-  key: ``server.port``, e.g: port ``8090``.
+- Run petascope application as a **standalone web application**
+  with **embedded Tomcat** and Tomcat will listen on port ``5005`` for
+  *debugging*. Petascope will start at the port configured in 
+  ``/opt/rasdaman/etc/petascope.properties``, setting ``server.port``
+  (e.g ``8090``).
 
-  .. code-block:: text
+  .. code-block:: shell
 
      mvn spring-boot:run -Drun.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 
-- Next, attach the debugger from NetBeans IDE to embedded Tomcat:
+- Next, attach the debugger from NetBeans to the embedded Tomcat:
   
   .. IMAGE:: media/contributing/04-debug-attach-debugger.jpg
     :align: center
 
-- Input the port ``5005`` which was used to start embedded Tomcat above:
+- Input the debugging port ``5005`` which was used to start embedded Tomcat above:
 
   .. IMAGE:: media/contributing/05-debug-add-port-for-debugger.jpg
     :align: center
@@ -2753,8 +2755,11 @@ version 8.2 will be used for demonstration. Rasdaman's source code
   .. IMAGE:: media/contributing/08-debug-inspect-at-break-point.jpg
     :align: center
 
+- Furthermore, you can step with the debugger, see variable values, continue
+  execution, etc.
+
 Warnings
-^^^^^^^^
+--------
 
 Don't create ``BigDecimal`` directly from a ``double`` variable,
 rather from ``double.toString()``.
