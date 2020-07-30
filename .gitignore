@@ -268,3 +268,4 @@ systemtest/testcases_manual/test_rasql/outputs
 # generated from conf.py.in
 doc/main/conf.py
 doc/main/_build
+__pycache__

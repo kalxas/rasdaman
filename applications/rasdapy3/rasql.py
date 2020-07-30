@@ -130,7 +130,6 @@ class Main:
         self.db_connector.open()
         try:
             tmp = self.validator.query.lower().strip()
-            print(self.validator.query)
             if tmp.startswith("select") and "into" not in tmp:
                 """ e.g: select c from RAS_COLLECTIONNAMES as c"""
                 

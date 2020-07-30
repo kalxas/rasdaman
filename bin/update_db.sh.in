@@ -61,17 +61,17 @@ export BASEDBMS_PGSQL=pgsql
 
 export DBCONN="@dbconn@"
 
+# try to get the db connection from rasmgr.conf if possible
 RASMGR_CONF="@CMAKE_INSTALL_PREFIX@/etc/rasmgr.conf"
-RASDB="$(grep define '$RASMGR_CONF' | grep connect | awk '{ print $5 }')"
-
+RASDB="$(grep define "$RASMGR_CONF" | grep connect | awk '{ print $5 }')"
 if [ -n "$RASDB" ]; then
-   export DBCONN="$RASDB"
-fi
-
-if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
-    if [ -f "$RASDB" ]; then
-        export DBCONN="$RASDB"
-    fi
+  if [ "$BASEDBMS" = "$BASEDBMS_SQLITE" ]; then
+    # if basedb is sqlite, update dbconn only if it is a filepath that exists
+    [ -f "$RASDB" ] && export DBCONN="$RASDB"
+  else
+    # other db types (e.g. pgsql)
+    export DBCONN="$RASDB"
+  fi
 fi
 
 
