@@ -1463,7 +1463,7 @@ the argument is the command which will be executed in the
 Check Jenkins log files
 =======================
 
-When you upload a patch to the `patchmanager <https://rasdaman.org/patchmanager>`, 
+When you upload a patch to the `patchmanager <https://rasdaman.org/patchmanager>`__, 
 the systemtest is automatically executed on several different
 virtual machines (VM) on Jenkins. If a patch failed on a VM, Jenkins will send
 an email to the patch's author, for example: the patch below failed

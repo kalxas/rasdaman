@@ -1225,6 +1225,7 @@ ras­da­man is up and running and prepared for data definition, data
 import and retrieval, and any other suitable task.
 
 
+.. _sec-initialize-geo-services:
 
 Initialize geo service support
 ------------------------------
@@ -1672,6 +1673,25 @@ Since v9.8, to stop a specific service the
 ``--service (core | secore | petascope )`` option can be used. Since v10.0 
 the rasmgr port can be specified with ``-p, --port``. 
 Check ``-h, --help`` for all details.
+
+**migrate_petascopedb.sh**
+
+This script is used to migrate coverages imported by wcst_import, OWS Service 
+metadata and WMS 1.3 layers. For more details see 
+:ref:`petascope-database-connection` and :ref:`sec-initialize-geo-services`.
+
+There are 2 types of migration:
+
+1. Migrate petascopedb v9.4 or older to a newer rasdaman version. After the 
+   migration, the old petascopedb is backed up at petascope_94_backup.
+
+2. Migrate petascopedb v9.5 or newer to a different database name or 
+   different database (e.g. PostgreSQL to HSQLDB).
+
+.. note::
+  The petascope web application must not be running (e.g in Tomcat) while 
+  migrating to a different database (type 2 above) to protect the existing 
+  data integrity.
 
 Configuration files
 ===================
