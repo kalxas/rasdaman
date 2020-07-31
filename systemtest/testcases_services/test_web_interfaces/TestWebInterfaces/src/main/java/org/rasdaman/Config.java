@@ -85,7 +85,7 @@ public class Config {
     /**
      * Wait milliseconds after clicking button to get result
      */
-    public static final int TIME_TO_WAIT_BEFORE_CLICK = 1500;
+    public static final int TIME_TO_WAIT_BEFORE_CLICK = 4000;
 
     /**
      * Wait milliseconds before taking the image of web page as test result
