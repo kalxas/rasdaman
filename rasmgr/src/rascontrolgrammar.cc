@@ -43,6 +43,8 @@ void RasControlGrammar::parse(const std::string &reqMessage)
     token = strtok(token, " \r\n\t\0");
     while (token)
     {
+        // If we are evaluating the first token of the reqMessage and the first character is
+        // '#' then we will stop reading reqMessage because it is a comment.
         if (token[0] == '#' && this->tokens.empty())
         {
             break;    // done, disregard comment til end of line
@@ -1071,16 +1073,18 @@ std::string RasControlGrammar::helpCommand()
 
 std::string RasControlGrammar::helpHelp()
 {
-    return "Help for rascontrol command language\r\n"
+    return "Help for rascontrol commands\r\n"
+           "\r\n"
            "rasdaman uses the following terms:\r\n"
-           "  host (server host)    - a computer running a RasManager (rasmgr), with or without currently active servers\r\n"
+           "  host (server host)    - a computer running rasmgr, with or without currently active servers\r\n"
            "  srv  (server)         - the rasdaman server (rasserver)\r\n"
-           "  dbh  (data base host) - a computer running the database software\r\n"
+           "  dbh  (data base host) - a computer running the database backend for rasdaman (RASBASE)\r\n"
            "  db   (database)       - the rasdaman database, hosted by the underlying database instance\r\n"
            "  user                  - a person registered by rasdaman through user name and password\r\n"
-           "  inpeer                - a peer which can forward client requests to the current RasManager\r\n"
-           "  outpeer               - a peer to which the current RasManager can forward client requests\r\n"
-           "\r\nThe rascontrol utility allows to configure and do run-time administration work for the rasdaman system\r\n"
+           "  inpeer                - a peer which can forward client requests to the current rasmgr\r\n"
+           "  outpeer               - a peer to which the current rasmgr can forward client requests\r\n"
+           "\r\n"
+           "The rascontrol utility allows to configure and do run-time administration of rasdaman\r\n"
            "Commands:\r\n"
            "   >help       ...this help\r\n"
            "   >exit       ...exit rascontrol\r\n"
@@ -1091,26 +1095,26 @@ std::string RasControlGrammar::helpHelp()
            "   >remove     ...remove an object\r\n"
            "   >change     ...change parameters of objects\r\n"
            "   >save       ...make changes permanent\r\n"
-           "Type 'help command' to get specific information about command\r\n";
+           "\r\n"
+           "Type 'help COMMAND' to get specific information about COMMAND, e.g. 'help define'.\r\n";
 }
 
 std::string RasControlGrammar::listHelp()
 {
-    return "   The list command:\r\n"
-           "list srv [ s | -host h | -all ] [-p] \r\n"
-           "       - list information about 'server s' or 'all servers on host h' or 'all defined servers' (default)\r\n"
+    return "  The list command allows to list information about rasdaman:\r\n"
+           "list srv [ S | -host H | -all ] [-p]\r\n"
+           "       - list information about 'server S' or 'all servers on host H' or 'all defined servers' (default)\r\n"
            "         '-p' prints configuration information; default: runtime status information\r\n"
            "list host\r\n"
            "       - list information about server hosts\r\n"
            "list dbh\r\n"
            "       - list information about database hosts\r\n"
-           "list db [ d | -dbh h | -all ] \r\n"
-           "       - list information about 'database s' or all 'databases on database host h' or 'all defined databases'\r\n"
+           "list db [ D | -dbh DBH | -all ] \r\n"
+           "       - list information about 'database D' or all 'databases on database host DBH' or 'all defined databases'\r\n"
            "list user [ -rights]\r\n"
-           "       - list the defined users\r\n"
-           "         '-rights' additionally lists each user's rights\r\n"
+           "       - list the defined users; -rights' additionally lists each user's rights\r\n"
            "list version\r\n"
-           "       - list version information"
+           "       - list rasdaman version"
            "list inpeer\r\n"
            "       - list information about inpeers\r\n"
            "list outpeer\r\n"
@@ -1120,98 +1124,101 @@ std::string RasControlGrammar::listHelp()
 std::string RasControlGrammar::defineHelp()
 {
     return "  The define command:\r\n"
-           "define dbh 'dbhname' -connect 'connectstring'\r\n"
-           "       - define database host with symbolic name 'dbhname'\r\n"
-           "         'connectstring' is the string used to connect a client to the underlying database instance\r\n"
-           "         (example: user/passwd@hostaddress)\r\n"
-           "define db 'dbname' -dbh 'dbhname'\r\n"
-           "       - define database 'dbname' on database host 'dbhname'\r\n"
-           "         ('dbname' is not a symbolic name, it is the real name of the rasdaman database)\r\n"
-           "define host 'hostname' -net 'netaddress' [-port 'portnumber']\r\n"
-           "       - define server host with symbolic name 'hostname', located at address 'netaddress:portnumber'\r\n"
-           "         ('portnumber' defaults to " STRINGIFY(DEFAULT_PORT) ")\r\n"
-           "define srv 'srvname' -host 'hostname' -dbh 'dbhname' -type 'servertype' -port 'portnumber' \r\n"
-           "                                [-autorestart on|off] [-countdown 'number'] [-xp 'options']\r\n"
-           "       - define server with symbolic name 'srvname' on server host 'hostname' connected to database host 'dbhname'\r\n"
-           "         'servertype' can be 'r' (RPC) or 'h' (HTTP) or 'n' (RNP)\r\n"
-           "         'portnumber' is the IP port number for HTTP servers / the 'prognum' for RPC/RNP servers\r\n"
+           "define dbh DBH -connect DBCONN\r\n"
+           "       - define database host with symbolic name DBH\r\n"
+           "         DBCONN is the string used to connect rasdaman to the underlying database backend\r\n"
+           "         (example: /opt/rasdaman/data/RASBASE)\r\n"
+           "define db DB -dbh DBH\r\n"
+           "       - define database DB on database host DBH\r\n"
+           "         (DB is not a symbolic name, it is the real name of the rasdaman database)\r\n"
+           "define host H -net ADDR [-port PORT]\r\n"
+           "       - define server host with symbolic name H, located at address 'ADDR:PORT'\r\n"
+           "         (PORT defaults to " STRINGIFY(DEFAULT_PORT) ")\r\n"
+           "define srv S -host H -dbh DBH -type STYPE -port PORT \r\n"
+           "                     [-autorestart on|off] [-countdown COUNT] [-xp OPTS]\r\n"
+           "       - define server with symbolic name S on server host H connected to database host DBH\r\n"
+           "         -type is ignored (historically, STYPE could be 'r' = RPC or 'h' = HTTP or 'n' = RNP)\r\n"
+           "         -port specifies the PORT number on which the server listens\r\n"
            "         -autorestart (default: on): the server will autorestart after an unexpected termination\r\n"
-           "         -countdown 'number' (default: 1000): the server will be restarted after 'number' transactions\r\n"
-           "         -xp 'options': extra parameter string 'options' that will be passed to the server at startup \r\n"
-           "          (default: \"\", see documentation for valid 'options')\r\n"
+           "         -countdown COUNT (default: 10000): the server will be restarted after COUNT transactions\r\n"
+           "         -xp OPTS: extra parameter string OPTS that will be passed to the rasserver at startup\r\n"
+           "          (see rasserver documentation for valid options)\r\n"
            "          this option has to be the last, because anything after it and until end of line is considered to be 'options'\r\n"
-           "define user 'username' [-passwd 'password'] [-rights 'rightsstring']\r\n"
-           "       - define user account with symbolic name 'username'\r\n"
-           "         'password' defaults to 'username' (use the raspasswd utility to change)\r\n"
-           "         -rights 'rightsstring': the rights granted to the user (default: none; see documentation for valid rights)\r\n"
-           "define inpeer 'hostname'\r\n"
-           "       - define inpeer with the host name 'hostname'\r\n"
-           "define outpeer 'hostname' [-port 'portnumber']\r\n"
-           "       - define outpeer with the host name 'hostname'\r\n"
-           "         ('portnumber' defaults to  " STRINGIFY(DEFAULT_PORT) ")\r\n";
+           "define user USERNAME [-passwd PASSWORD] [-rights RIGHTS]\r\n"
+           "       - define user account with symbolic name USERNAME\r\n"
+           "         PASSWORD defaults to USERNAME if not specified\r\n"
+           "         RIGHTS specifies the rights granted to the user (default: none; see documentation for valid rights)\r\n"
+           "define inpeer H\r\n"
+           "       - define inpeer with the host name H\r\n"
+           "define outpeer H [-port PORT]\r\n"
+           "       - define outpeer with the host name H\r\n"
+           "         (PORT defaults to  " STRINGIFY(DEFAULT_PORT) ")\r\n";
 }
 
 std::string RasControlGrammar::removeHelp()
 {
-    return "   The remove command:\r\n"
-           "remove dbh 'dbhname'\r\n"
-           "       - remove database host 'dbhname'\r\n"
-           "remove db 'dbname' -dbh 'dbhname'\r\n"
-           "       - remove database 'dbname' from database host 'dbhname'\r\n"
+    return "  The remove command:\r\n"
+           "remove dbh DBH\r\n"
+           "       - remove database host DBH\r\n"
+           "remove db DB -dbh DBH\r\n"
+           "       - remove database DB from database host DBH\r\n"
            "         (the database itself is not deleted, only the name is removed from the config tables)\r\n"
-           "remove host 'hostname' \r\n"
-           "       - remove server host 'hostname'\r\n"
-           "remove srv 'srvname'\r\n"
-           "       - remove server 'srvname'\r\n"
-           "remove user 'username'\r\n"
-           "       - remove the user 'username'\r\n"
-           "remove inpeer 'hostname'\r\n"
-           "       - remove inpeer with host name 'hostname'\r\n"
-           "remove outpeer 'hostname'\r\n"
-           "       - remove outpeer with host name 'hostname'\r\n";
+           "remove host H\r\n"
+           "       - remove server host H\r\n"
+           "remove srv S\r\n"
+           "       - remove server named S\r\n"
+           "remove user USERNAME\r\n"
+           "       - remove the user named USERNAME\r\n"
+           "remove inpeer H\r\n"
+           "       - remove inpeer with host name H\r\n"
+           "remove outpeer H\r\n"
+           "       - remove outpeer with host name H\r\n";
 }
 
 std::string RasControlGrammar::changeHelp()
 {
-    return "   The change command:\r\n"
-           "change dbh 'dbhname' [-name 'newname'] [-connect 'newconnectstring']\r\n"
-           "change db 'dbname' [-name 'newname']\r\n"
-           "change host 'hostname' [-name 'newname'] [-net 'newnetaddress'] [-port 'newportnumber']\r\n"
-           "change srv 'servername' [-name 'newname'][-dbh 'newdbhname'] [-type 'newservertype'] [-port 'newportnumber'] [-autorestart on|off] [-countdown 'newnumber'] [-xp 'newoptions']\r\n"
-           "change user 'username' [-name 'newname'] [-passwd 'newpasswd] [-rights 'rightsstring']\r\n"
-           "       - see the help for the define command for option description\r\n";
+    return "  The change command:\r\n"
+           "change dbh DBH [-name NEWDBH] [-connect NEWCONN]\r\n"
+           "change db DB   [-name NEWDB]\r\n"
+           "change host H  [-name NEWH] [-net NEWADDR] [-port NEWPORT]\r\n"
+           "change srv S   [-name NEWS][-dbh NEWDBH] [-type NEWSTYPE] [-port NEWPORT]\r\n"
+           "               [-autorestart on|off] [-countdown NEWCOUNT] [-xp NEWOPTS]\r\n"
+           "change user U  [-name NEWUSERNAME] [-passwd NEWPASSWD] [-rights NEWRIGHTS]\r\n"
+           "\r\n"
+           "       See 'help define' for option description.\r\n";
 }
 
 std::string RasControlGrammar::upHelp()
 {
-    return "   The up command:\r\n"
-           "up srv [ s | -host h | -all]\r\n"
-           "       - start 'server s' or 'all servers on host h' or 'all defined servers'\r\n";
+    return "  The up command:\r\n"
+           "up srv [ S | -host H | -all]\r\n"
+           "       - start 'server S' or 'all servers on host H' or 'all defined servers'\r\n";
 }
 
 std::string RasControlGrammar::downHelp()
 {
-    return "   The down command:\r\n"
-           "down srv [ s | -host h | -all] [ -force] [-kill]\r\n"
-           "       - stops 'server s' or 'all started servers on host h' or 'all started servers'\r\n"
-           "         -force: stops the 'server s' without waiting to complete the current transaction (using SIGTERM)\r\n"
-           "         -kill:  instantly stops the 'server s' (using SIGKILL)\r\n"
+    return "  The down command:\r\n"
+           "down srv [ S | -host H | -all] [ -force] [-kill]\r\n"
+           "       - stops 'server S' or 'all started servers on host H' or 'all started servers'\r\n"
+           "         -force: stops the 'server S' without waiting to complete the current transaction (using SIGTERM)\r\n"
+           "         -kill:  instantly stops the 'server S' (using SIGKILL)\r\n"
            "          (without -force or -kill the server completes the current transaction and exits)\r\n"
-           "down host [ h | -all]\r\n"
-           "       - stops the rasmgr on 'host h' or all started rasmgr\r\n";
+           "down host [ H | -all]\r\n"
+           "       - stops the rasmgr on 'host H' or all started rasmgrs\r\n";
 }
 
 std::string RasControlGrammar::saveHelp()
 {
-    return "   The save command\r\n"
+    return "  The save command\r\n"
            "save\r\n"
            "    - saves the current configuration information\r\n"
-           "      (upon changes the files will be saved automatically to rescue files next to the config files when exiting rasmgr)\r\n";
+           "      (upon changes the files will be saved automatically to rescue "
+           "       files next to the config files when exiting rasmgr)\r\n";
 }
 
 std::string RasControlGrammar::exitHelp()
 {
-    return "   The exit command\r\n"
+    return "  The exit command\r\n"
            "exit | quit | bye\r\n"
            "    - finish this rascontrol session\r\n";
 }

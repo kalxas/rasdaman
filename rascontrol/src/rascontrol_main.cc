@@ -70,17 +70,17 @@ int main(int argc, char **argv)
         if (!config.isQuietMode())
         {
             std::cout << "rascontrol: rasdaman server remote control utility. rasdaman " << RMANVERSION << "." << std::endl;
-            std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
-                      << "Rasdaman community is free software: you can redistribute it and/or modify "
+            std::cout << "Copyright (c) 2003-2020 Peter Baumann rasdaman GmbH.\n"
+                      "Rasdaman community is free software: you can redistribute it and/or modify "
                       "it under the terms of the GNU General Public License as published by "
                       "the Free Software Foundation, either version 3 of the License, or "
-                      "(at your option) any later version. \n"
+                      "(at your option) any later version.\n"
                       "Rasdaman community is distributed in the hope that it will be useful, "
                       "but WITHOUT ANY WARRANTY; without even the implied warranty of "
                       "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-                      "GNU General Public License for more details. \n\n";
-            std::cout << "This software contains software which is in the public domain:" << std::endl;
-            std::cout << "- openssl 0.96c (C) 1998-2002 The OpenSSL Project, (C) 1995-1998 Eric A. Young, Tim J. Hudson" << std::endl;
+                      "GNU General Public License for more details.\n\n"
+                      "This software contains software which is in the public domain:\n"
+                      "- openssl 0.96c (C) 1998-2002 The OpenSSL Project, (C) 1995-1998 Eric A. Young, Tim J. Hudson\n" << std::endl;
         }
 
         if (config.isHelpRequested())
