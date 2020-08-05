@@ -35,6 +35,7 @@ import petascope.core.service.CrsComputerService;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IrreguarAxisCoefficientNotFoundException;
+import petascope.wcps.exception.processing.IrregularAxisTrimmingCoefficientNotFoundException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
@@ -357,6 +358,13 @@ public class CoordinateTranslationService {
         
         // Return the grid indices of the lower and upper coefficients in an irregular axis
         Pair<Long, Long> gridIndicePair = irregularAxis.getGridIndices(lowerCoefficient, upperCoefficient);
+        if (gridIndicePair.fst > gridIndicePair.snd) {
+            if (irregularAxis.isTimeAxis()) {
+                    originalLowerBound = "\"" + originalLowerBound + "\"";
+                    originalUpperBound = "\"" + originalUpperBound + "\"";
+                }
+            throw new IrregularAxisTrimmingCoefficientNotFoundException(irregularAxis.getLabel(), originalLowerBound, originalUpperBound);
+        }
         Pair<Long, Long> gridBoundsPair = irregularAxis.calculateGridBoundsByZeroCoefficientIndex(gridIndicePair.fst, gridIndicePair.snd);
 
         return new ParsedSubset(gridBoundsPair.fst, gridBoundsPair.snd);

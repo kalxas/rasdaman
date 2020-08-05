@@ -33,6 +33,7 @@ import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.BigDecimalUtil;
 import petascope.util.TimeUtil;
+import petascope.wcps.exception.processing.IrregularAxisTrimmingCoefficientNotFoundException;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
@@ -194,12 +195,6 @@ public class IrregularAxis extends Axis {
 
             i++;
         }
-        
-        if (minIndex > maxIndex) {
-            // it happens when the subset=(20,10) in irregular axis.
-            String errorMessage = "Input lower bound '" + minInput + "' is greater than upper bound '" + maxInput + "' in direct positions list of irregular axis '" + this.getLabel() + "'";
-            throw new PetascopeException(ExceptionCode.RuntimeError, errorMessage);
-        }
 
         Pair<Long, Long> gridBoundsPair = new Pair<>(minIndex, maxIndex);
         return gridBoundsPair;
@@ -209,13 +204,13 @@ public class IrregularAxis extends Axis {
      * Get all the coefficients from the list of directPositions which greater
      * than minInput and less than maxInput
      *
-     * @param minInput
-     * @param maxInput
-     * @return
      */
     public List<BigDecimal> getAllCoefficientsInInterval(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
         // Find the min and max grid incides in the List of directPositions
         Pair<Long, Long> gridIndices = this.getGridIndices(minInput, maxInput);
+        if (gridIndices.fst.compareTo(gridIndices.snd) > 0) {
+            throw new IrregularAxisTrimmingCoefficientNotFoundException(this.getLabel(), minInput.toPlainString(), maxInput.toPlainString());
+        }
         List<BigDecimal> coefficients = new ArrayList<>();
         
         for (Long i = gridIndices.fst; i <= gridIndices.snd; i++) {
