@@ -1,0 +1,12 @@
+for $red in (test_eobstest)
+   return
+      encode(
+         scale(
+            extend(             
+               { red: (unsigned char) $red[t("1949-12-31T12:00:00.000Z")]; green: (unsigned char)0; blue: (unsigned char)0 },
+               { Lat(35:75), Long(-20:40) }
+            ),
+            { Long:"CRS:1"(0:10), Lat:"CRS:1"(0:10) }
+         ),
+         "image/png"
+      )

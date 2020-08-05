@@ -231,7 +231,9 @@ public class SubsetParsingService {
         // Normally subsettingCrs will be null or empty (e.g: Lat(20:30) not Lat:"http://.../4269(20:30)")
         // then it is nativeCrs of axis
         if (sourceCrs == null || sourceCrs.equals("")) {
-            sourceCrs = axis.getNativeCrsUri();
+            if (axis != null) {
+                sourceCrs = axis.getNativeCrsUri();
+            }
         }
 
         BigDecimal lowerBound = null;
