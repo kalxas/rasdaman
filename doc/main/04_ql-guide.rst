@@ -6008,6 +6008,16 @@ The following URL sends a query request to a fictitious server www.acme.com:
         &username=rasguest
         &password=rasguest
 
+Since v10, this servlet endpoint can accept the credentials
+for ``username:password`` in basic authentication headers and ``POST`` protocol,
+for example using ``curl`` tool:
+
+.. code-block:: text
+
+    curl -u rasguest:rasguest
+         -d 'query=select 1 + 15 from test_mr as c' 
+         'http://localhost:8080/rasdaman/rasql'
+
 
 .. _sec-resp-format:
 

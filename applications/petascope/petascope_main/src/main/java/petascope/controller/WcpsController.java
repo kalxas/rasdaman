@@ -69,7 +69,6 @@ public class WcpsController extends AbstractController {
     protected void handlePost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
         String postBody = this.getPOSTRequestBody(httpServletRequest); 
         // @TODO: it only allows to post WCPS in abstract syntax (i.e: text) now
-        postBody = URLDecoder.decode(postBody, "utf-8");
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         this.requestDispatcher(httpServletRequest, kvpParameters);
     }

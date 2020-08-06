@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import liquibase.util.StringUtils;
+import org.rasdaman.AuthenticationService;
+import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.RASQL;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
@@ -36,7 +39,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import petascope.controller.handler.service.KVPRasqlServiceHandler;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_PASSWORD;
 import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
+import static petascope.core.KVPSymbols.KEY_USERNAME;
+import petascope.core.Pair;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -61,7 +67,15 @@ public class RasqlController extends AbstractController {
     protected void handlePost(HttpServletRequest httpServletRequest, 
                               HttpServletResponse httpServletResponse,
             @RequestParam(value = KVPSymbols.KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedMultipartFile) throws Exception {
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
+        
+        Map<String, String[]> kvpParameters = null;
+        
+        if (httpServletRequest.getQueryString() != null) {
+            kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
+        } else {
+            String postBody = this.getPOSTRequestBody(httpServletRequest);
+            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        }
 
         // A file is uploaded e.g: with WCS clipping extension and WKT text is big string in a text file
         String uploadedFilePath = null;
@@ -83,6 +97,15 @@ public class RasqlController extends AbstractController {
 
     @Override
     protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException, Exception {
+        
+        Pair<String, String> resultPair = AuthenticationService.getBasicAuthUsernamePassword(httpServletRequest);
+        if (!kvpParameters.containsKey(KEY_USERNAME) && !kvpParameters.containsKey(KEY_PASSWORD)) {
+            if (resultPair != null) {
+                // In case username and password are missing from KVP pairs, then check if they exist in the basic authentication header as well
+                kvpParameters.put(KEY_USERNAME, new String[] {resultPair.fst});
+                kvpParameters.put(KEY_PASSWORD, new String[] {resultPair.snd});
+            }
+        }
   
         if (startException != null) {
             throwStartException();
