@@ -65,6 +65,7 @@ public interface RasConstants {
     public static final String RASQL_WHEN              = "when";
     public static final String RASQL_WHERE             = "where";
     public static final String RASQL_BOUND_SEPARATION = ":";
+    public static final String RASQL_INTERVAL_SEPARATION = ",";
     public static final String RASQL_OPEN_SUBSETS = "[";
     public static final String RASQL_CLOSE_SUBSETS = "]";
 }

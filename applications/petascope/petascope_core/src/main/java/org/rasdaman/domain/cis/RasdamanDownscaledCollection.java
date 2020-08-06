@@ -54,7 +54,7 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
     private String collectionName;
     
     @Column(name = "level")
-    private BigDecimal level;
+    private String level;
 
     public RasdamanDownscaledCollection() {
 
@@ -62,7 +62,7 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
 
     public RasdamanDownscaledCollection(String collectionName, BigDecimal level) {
         this.collectionName = collectionName;
-        this.level = BigDecimalUtil.stripDecimalZeros(level);
+        this.level = BigDecimalUtil.stripDecimalZeros(level).toPlainString();
     }
 
     public long getId() {
@@ -82,11 +82,11 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
     }
 
     public BigDecimal getLevel() {
-        return BigDecimalUtil.stripDecimalZeros(level);
+        return BigDecimalUtil.stripDecimalZeros(new BigDecimal(level));
     }
 
     public void setLevel(BigDecimal level) {
-        this.level = BigDecimalUtil.stripDecimalZeros(level);
+        this.level = BigDecimalUtil.stripDecimalZeros(level).toPlainString();
     }
 
     @Override
@@ -100,14 +100,14 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
         }
         RasdamanDownscaledCollection obj = (RasdamanDownscaledCollection) o;
         return obj.getCollectionName().equals(this.collectionName)
-                && BigDecimalUtil.stripDecimalZeros(obj.getLevel()).equals(this.level);
+                && BigDecimalUtil.stripDecimalZeros(obj.getLevel()).equals(new BigDecimal(this.level));
     }
     
     @Override
     public int hashCode() {
         int result = 17;
         result = 31 * result + this.getCollectionName().hashCode();
-        result = 31 * result + this.level.intValue();
+        result = 31 * result + new BigDecimal(this.level).intValue();
         
         return result;
     }
@@ -115,7 +115,7 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
     @Override
     public int compareTo(RasdamanDownscaledCollection inputObject) {
         BigDecimal inputLevel = inputObject.getLevel();
-        int result = this.level.subtract(inputLevel).intValue();
+        int result = new BigDecimal(this.level).subtract(inputLevel).intValue();
         return result;
     }
 }

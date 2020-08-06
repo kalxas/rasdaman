@@ -501,6 +501,17 @@ public class RasUtil {
         
         return tiling;
     }
+    
+    /**
+     * Get the sdom information of a rasdaman collection
+     * e.g: return 0:20,0:30
+     */
+    public static String retrieveSdomInfo(String collectionName) throws PetascopeException {
+        String query = "select sdom(c) from " + collectionName + " as c";
+        String sdomResult = new RasQueryResult(RasUtil.executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, false)).toString().replace("[", "").replace("]", "");
+        
+        return sdomResult;
+    }
 
     private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
     private static final String TOKEN_COLLECTION_TYPE = "%collectionType%";

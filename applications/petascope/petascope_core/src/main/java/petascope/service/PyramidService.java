@@ -45,6 +45,7 @@ import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.ras.RasUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import static petascope.util.ras.RasConstants.RASQL_INTERVAL_SEPARATION;
 
 /**
  * Utility class to create downscaled collections for input WCS Coverage on
@@ -124,8 +125,8 @@ public class PyramidService {
         String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
         String targetDownscaledCollectionName = this.createDownscaledCollectionName(collectionName, level);
 
-        RasdamanDownscaledCollection rasdamanScaleDownCollection = new RasdamanDownscaledCollection(targetDownscaledCollectionName, level);
-        if (!coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections().contains(rasdamanScaleDownCollection)) {
+        RasdamanDownscaledCollection targetRasdamanDownscaledCollection = new RasdamanDownscaledCollection(targetDownscaledCollectionName, level);
+        if (!coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections().contains(targetRasdamanDownscaledCollection)) {
             throw new PetascopeException(ExceptionCode.CollectionDoesNotExist,
                     "A downscaled collection of coverage '" + coverageId + "' with level '" + level + "' does not exist to update.");
         }
@@ -135,14 +136,14 @@ public class PyramidService {
         BigDecimal targetLevel = level;
         
         // Default, use the original collection (e.g: test_mean_summer_airtemp to be source of updating test_mean_summer_airtemp_2 collection)
-        String sourceCollectionName = collectionName;
+        String sourceDownscaledCollectionName = collectionName;
         // Get the downscaled collection with highest level but is lower than input level
-        RasdamanDownscaledCollection sourceScaleDownCollection = coverage.getRasdamanRangeSet().getRasdamanDownscaledCollectionAsSourceCollection(level);
-        if (sourceScaleDownCollection != null) {
+        RasdamanDownscaledCollection sourceRasdamanDownscaledCollection = coverage.getRasdamanRangeSet().getRasdamanDownscaledCollectionAsSourceCollection(level);
+        if (sourceRasdamanDownscaledCollection != null) {
             // There is a downscaled collection to be source collection 
             // (e.g: test_mean_summer_airtemp_3 to be source of updating test_mean_summer_airtemp_6 collection)
-            sourceCollectionName = sourceScaleDownCollection.getCollectionName();
-            sourceLevel = sourceScaleDownCollection.getLevel();
+            sourceLevel = sourceRasdamanDownscaledCollection.getLevel();
+            sourceDownscaledCollectionName = sourceRasdamanDownscaledCollection.getCollectionName();
         }
         
         // e.g: to create a new downscaled collection, level 2
@@ -174,15 +175,16 @@ public class PyramidService {
                 Long sourceUpperBound = (gridUpperBound.multiply(sourceDownscaledRatio)).longValue();
                 String sourceAffectedDomain = sourceLowerBound + RASQL_BOUND_SEPARATION + sourceUpperBound;
                 sourceAffectedDomains.add(new Pair<>(true, sourceAffectedDomain));
+                
             } else {
                 // Other types of axis (time, elevation,...)
-                String affectedDomain =gridLowerBound + RASQL_BOUND_SEPARATION + gridUpperBound;
+                String affectedDomain = gridLowerBound + RASQL_BOUND_SEPARATION + gridUpperBound;
                 sourceAffectedDomains.add(new Pair<>(false, affectedDomain));
             }
         }
         
         // Now, separate the (big) grid domains on source collection properly and select these suitable spatial domains to update on target downscaled collections
-        this.updateScaleLevelByGridDomains(sourceCollectionName, targetDownscaledCollectionName, sourceAffectedDomains, targetDownscaledRatio, username, password);
+        this.updateScaleLevelByGridDomains(sourceDownscaledCollectionName, targetDownscaledCollectionName, sourceAffectedDomains, targetDownscaledRatio, username, password);
     }
     
     /**
@@ -280,11 +282,15 @@ public class PyramidService {
      * - select c[1, 0:200, 0:150] -> d[1, 0:100, 0:75]
      * - select c[2, 0:200, 0:150] -> d[2, 0:100, 0:75]
      */
-    private void updateScaleLevelByGridDomains(String sourceCollectionName, String targetDownscaledCollectionName, 
+    private void updateScaleLevelByGridDomains(String sourceDownscaledCollectionName, String targetDownscaledCollectionName, 
                                                List<Pair<Boolean, String>> sourceAffectedDomains, BigDecimal targetDownscaledRatio, String username, String password) throws PetascopeException {
         
         List<List<String>> calculatedSourceAffectedDomainsList = new ArrayList<>();
         List<List<String>> calculatedTargetAffectedDomainsList = new ArrayList<>();
+        
+        String sdomSourceRasdamanDownscaledCollection = RasUtil.retrieveSdomInfo(sourceDownscaledCollectionName);
+        // e.g: 0:0,0:20,0:30
+        String[] gridIntervals = sdomSourceRasdamanDownscaledCollection.split(RASQL_INTERVAL_SEPARATION);
         
         for (int i = 0; i < sourceAffectedDomains.size(); i++) {
             Pair<Boolean, String> sourceAffectedDomainPair = sourceAffectedDomains.get(i);
@@ -295,14 +301,16 @@ public class PyramidService {
             List<String> calculatedSourceAffectedDomains = new ArrayList<>();
             List<String> calculatedTargetAffectedDomains = new ArrayList<>();
             
+            long upperBoundGridAxis = Long.valueOf(gridIntervals[i].split(RASQL_BOUND_SEPARATION)[1]);
+            
             if (isXYAxis) {
-                // NOTE: XY axes select with wider spatial domains (e.g: 0:1999)
-                Pair<List<String>, List<String>> separatedPair = this.separateGridDomainByValue(sourceAffectedDomain, MAX_SELECT_GRID_WIDTH_HEIGHT_AXIS, targetDownscaledRatio);
+                Pair<List<String>, List<String>> separatedPair = this.separateGridDomainByValue(sourceAffectedDomain, MAX_SELECT_GRID_WIDTH_HEIGHT_AXIS, upperBoundGridAxis, targetDownscaledRatio);
                 calculatedSourceAffectedDomains = separatedPair.fst;
                 calculatedTargetAffectedDomains = separatedPair.snd;
+                
             } else {
                 // NOTE: non XY axes select with only 1 pixel (e.g: 0:0, 1:1,...)
-                Pair<List<String>, List<String>> separatedPair = this.separateGridDomainByValue(sourceAffectedDomain, MAX_SELECT_GRID_OTHER_AXIS, BigDecimal.ONE);
+                Pair<List<String>, List<String>> separatedPair = this.separateGridDomainByValue(sourceAffectedDomain, MAX_SELECT_GRID_OTHER_AXIS, upperBoundGridAxis, BigDecimal.ONE);
                 calculatedSourceAffectedDomains = separatedPair.fst;
                 calculatedTargetAffectedDomains = separatedPair.snd;
             }
@@ -320,7 +328,8 @@ public class PyramidService {
             String sourceAffectedDomain = sourceAffectedDomainsList.get(i).toString();
             String targetAffectedDomain = targetAffectedDomainsList.get(i).toString();
 
-            RasUtil.updateDownscaledCollectionFromSourceCollection(sourceAffectedDomain, targetAffectedDomain, sourceCollectionName, targetDownscaledCollectionName, username, password);
+            RasUtil.updateDownscaledCollectionFromSourceCollection(sourceAffectedDomain, targetAffectedDomain, sourceDownscaledCollectionName,
+                                                                   targetDownscaledCollectionName, username, password);
         }
     }
     
@@ -328,16 +337,19 @@ public class PyramidService {
      * Separate a grid domain equally by a value. e.g: 0:20 and value is 5, 
      * result will be: 0:4,5:9,10:14,15:19,20:20
      */
-    private Pair<List<String>, List<String>> separateGridDomainByValue(String gridDomain, Long maxSourceValue, BigDecimal targetDownscaledRatio) {
+    private Pair<List<String>, List<String>> separateGridDomainByValue(String gridDomain, long upperValueForSeperation, long upperBoundGridAxis, BigDecimal targetDownscaledRatio) {
         List<String> sourceSeparatedResults = new ArrayList<>();
         List<String> targetSeparatedResults = new ArrayList<>();
         
-        Long lowerBound = new Long(gridDomain.split(RASQL_BOUND_SEPARATION)[0]);
-        Long upperBound = new Long(gridDomain.split(RASQL_BOUND_SEPARATION)[1]);
+        long lowerBound = new Long(gridDomain.split(RASQL_BOUND_SEPARATION)[0]);
+        long upperBound = new Long(gridDomain.split(RASQL_BOUND_SEPARATION)[1]);
         
         // e:g: domain: 0:20
         while (lowerBound <= upperBound) {
-            Long temp = lowerBound + maxSourceValue - 1;
+            Long temp = lowerBound + upperValueForSeperation - 1;       
+            if (temp < lowerBound) {
+                temp = lowerBound;
+            }
 
             // e.g: value = 5, first is: 0:4
             String sourceResult = lowerBound + RASQL_BOUND_SEPARATION + temp;
@@ -345,7 +357,12 @@ public class PyramidService {
                                 + RASQL_BOUND_SEPARATION + new BigDecimal(temp).multiply(targetDownscaledRatio).longValue();
             if (temp >= upperBound) {
                 // e.g: value = 5, last is 20:20
-                sourceResult = lowerBound + RASQL_BOUND_SEPARATION + upperBound;
+                long tempUpperBound = upperBound;
+                // NOTE: cannot select out of upper grid bound of source downscaled collection for an axis
+                if (upperBound > upperBoundGridAxis) {
+                    tempUpperBound = upperBoundGridAxis;
+                }
+                sourceResult = lowerBound + RASQL_BOUND_SEPARATION + tempUpperBound;
                 targetResult = (new BigDecimal(lowerBound).multiply(targetDownscaledRatio)).longValue() 
                                 + RASQL_BOUND_SEPARATION + new BigDecimal(upperBound).multiply(targetDownscaledRatio).longValue();
             }
