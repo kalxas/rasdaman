@@ -227,7 +227,7 @@ std::string RasControl::defineDb(const DefineDb &dbData)
     }
     catch (...)
     {
-        message = this->formatErrorMessage("Removing user failed for an unknown reason.");
+        message = this->formatErrorMessage("Defining a database failed for an unknown reason.");
     }
 
     return message;
@@ -593,7 +593,7 @@ std::string RasControl::helpUser()
     return this->showHelp();
 }
 
-std::string RasControl::defineInpeer(std::string hostName)
+std::string RasControl::defineInpeer(const std::string &hostName)
 {
     std::string message;
 
@@ -615,7 +615,7 @@ std::string RasControl::defineInpeer(std::string hostName)
     return message;
 }
 
-std::string RasControl::removeInpeer(std::string hostName)
+std::string RasControl::removeInpeer(const std::string &hostName)
 {
     std::string message;
 
@@ -681,7 +681,7 @@ std::string RasControl::defineOutpeer(const DefineOutpeer &outpeerData)
     return message;
 }
 
-std::string RasControl::removeOutpeer(std::string hostName)
+std::string RasControl::removeOutpeer(const std::string &hostName)
 {
     std::string message;
 
@@ -877,7 +877,7 @@ std::string RasControl::changeServerGroup(const ChangeServerGroup &groupData)
     return message;
 }
 
-std::string RasControl::removeServerGroup(std::string groupName)
+std::string RasControl::removeServerGroup(const std::string &groupName)
 {
     std::string message = "";
 
@@ -1252,11 +1252,11 @@ void RasControl::stopRasmgrAsync()
     this->rasmanager_->stop();
 }
 
-bool RasControl::hasInfoRights(std::string userName, std::string password)
+bool RasControl::hasInfoRights(const std::string &userName, const std::string &password)
 {
     std::shared_ptr<User> user;
-
-    if (this->userManager_->tryGetUser(userName, user) && user->getPassword() == password)
+    
+    if ((user = authenticateUser(userName, password)) != nullptr)
     {
         return user->getAdminRights().hasInfoRights();
     }
@@ -1266,11 +1266,11 @@ bool RasControl::hasInfoRights(std::string userName, std::string password)
     }
 }
 
-bool RasControl::hasConfigRights(std::string userName, std::string password)
+bool RasControl::hasConfigRights(const std::string &userName, const std::string &password)
 {
     std::shared_ptr<User> user;
-
-    if (this->userManager_->tryGetUser(userName, user) && user->getPassword() == password)
+    
+    if ((user = authenticateUser(userName, password)) != nullptr)
     {
         return user->getAdminRights().hasSystemConfigRights();
     }
@@ -1280,11 +1280,11 @@ bool RasControl::hasConfigRights(std::string userName, std::string password)
     }
 }
 
-bool RasControl::hasUserAdminRights(std::string userName, std::string password)
+bool RasControl::hasUserAdminRights(const std::string &userName, const std::string &password)
 {
     std::shared_ptr<User> user;
-
-    if (this->userManager_->tryGetUser(userName, user) && user->getPassword() == password)
+    
+    if ((user = authenticateUser(userName, password)) != nullptr)
     {
         return user->getAdminRights().hasAccessControlRights();
     }
@@ -1294,11 +1294,11 @@ bool RasControl::hasUserAdminRights(std::string userName, std::string password)
     }
 }
 
-bool RasControl::hasServerAdminRights(std::string userName, std::string password)
+bool RasControl::hasServerAdminRights(const std::string &userName, const std::string &password)
 {
     std::shared_ptr<User> user;
 
-    if (this->userManager_->tryGetUser(userName, user) && user->getPassword() == password)
+    if ((user = authenticateUser(userName, password)) != nullptr)
     {
         return user->getAdminRights().hasServerAdminRights();
     }
@@ -1307,11 +1307,25 @@ bool RasControl::hasServerAdminRights(std::string userName, std::string password
         return false;
     }
 }
-bool RasControl::isValidUser(std::string userName, std::string password)
+bool RasControl::isValidUser(const std::string &userName, const std::string &password)
 {
     std::shared_ptr<User> user;
 
-    return this->userManager_->tryGetUser(userName, user) && user->getPassword() == password ;
+    return this->userManager_->tryGetUser(userName, password, user);
+}
+
+std::shared_ptr<User> RasControl::authenticateUser(const std::string &userName, const std::string &password)
+{
+    std::shared_ptr<User> user;
+
+    if (this->userManager_->tryGetUser(userName, password, user))
+    {
+        return user;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 

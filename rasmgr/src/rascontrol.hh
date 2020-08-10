@@ -38,6 +38,7 @@ class PeerManager;
 class RasManager;
 class ServerManager;
 class UserManager;
+class User;
 
 /**
  * @brief The RasControl class Delegates management commands to the appropriate component of rasmgr.
@@ -72,19 +73,19 @@ public:
     std::string listUser(const ListUser &userData);
     std::string helpUser();
 
-    std::string defineInpeer(std::string hostName);
-    std::string removeInpeer(std::string hostName);
+    std::string defineInpeer(const std::string &hostName);
+    std::string removeInpeer(const std::string &hostName);
     std::string listInpeer();
     std::string helpInpeer();
 
     std::string defineOutpeer(const DefineOutpeer &outpeerData);
-    std::string removeOutpeer(std::string hostName);
+    std::string removeOutpeer(const std::string &hostName);
     std::string listOutpeer();
     std::string helpOutpeer();
 
     std::string defineServerGroup(const DefineServerGroup &groupData);
     std::string changeServerGroup(const ChangeServerGroup &groupData);
-    std::string removeServerGroup(std::string groupName);
+    std::string removeServerGroup(const std::string &groupName);
     std::string listServerGroup(const ListServerGroup &listData);
     std::string helpServerGroup();
 
@@ -107,11 +108,14 @@ public:
     std::string exit();
 
 
-    bool hasInfoRights(std::string userName, std::string password);
-    bool hasConfigRights(std::string userName, std::string password);
-    bool hasUserAdminRights(std::string userName, std::string password);
-    bool hasServerAdminRights(std::string userName, std::string password);
-    bool isValidUser(std::string userName, std::string password);
+    bool hasInfoRights(const std::string &userName, const std::string &password);
+    bool hasConfigRights(const std::string &userName, const std::string &password);
+    bool hasUserAdminRights(const std::string &userName, const std::string &password);
+    bool hasServerAdminRights(const std::string &userName, const std::string &password);
+    bool isValidUser(const std::string &userName, const std::string &password);
+    
+    /// return a User object if userName/password are valid, otherwise nullptr
+    std::shared_ptr<User> authenticateUser(const std::string &userName, const std::string &password);
 private:
     std::shared_ptr<UserManager> userManager_;
     std::shared_ptr<DatabaseHostManager> dbHostManager_;

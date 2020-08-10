@@ -75,6 +75,8 @@ public:
      * @return
      */
     virtual std::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string &dbHostName);
+    
+    virtual std::shared_ptr<DatabaseHost> getDatabaseHost(const std::string &dbHostName);
 
     /**
      * @brief getDatabaseHostList Retrieve a list containing the list of database hosts

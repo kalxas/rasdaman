@@ -123,25 +123,27 @@ TEST_F(ClientManagerTest, connectClient_FailsInexistentUser)
     rasmgr::ClientCredentials badCredentials(badUser, badPassword);
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
 
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _)).WillOnce(Return(false));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _)).WillOnce(Return(false));
 
     //Will fail because the user manager will say that there is no client with those credentials
     ASSERT_THROW(clientManager->connectClient(badCredentials, out_clientId), InexistentUserException);
 }
 
-TEST_F(ClientManagerTest, connectClientBadPassword)
-{
-    std::string badPassword = "badPassword";
-    std::string out_clientId;
+// Fails because tryGetUser now does the password validation, instead of clientManager->connectClient
+//TEST_F(ClientManagerTest, connectClientBadPassword)
+//{
+//    std::string badPassword = "badPassword";
+//    std::string out_clientId;
 
-    // Create credentials with the same user name but with a different password
-    rasmgr::ClientCredentials badCredentials(user->getName(), badPassword);
-    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
+//    // Create credentials with the same user name but with a different password
+//    rasmgr::ClientCredentials badCredentials(user->getName(), badPassword);
+//    UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
 
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _)).WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+//    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+//            .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
-    ASSERT_THROW(clientManager->connectClient(badCredentials, out_clientId), InvalidClientCredentialsException);
-}
+//    ASSERT_THROW(clientManager->connectClient(badCredentials, out_clientId), InvalidClientCredentialsException);
+//}
 
 TEST_F(ClientManagerTest, connectClientSuccess)
 {
@@ -149,7 +151,8 @@ TEST_F(ClientManagerTest, connectClientSuccess)
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _)).WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+            .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 }
@@ -167,8 +170,8 @@ TEST_F(ClientManagerTest, disconnectClient_Success)
 
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
 
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+    .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     //Will succeed
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
@@ -195,8 +198,8 @@ TEST_F(ClientManagerTest, openClientDbSession_SuccessLocalServerFirstAttempt)
 {
     // Setup the user manager to successfully connect a client
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+        .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     // The ServerManager will return this server when asked for one
     std::shared_ptr<Server> freeServer(new MockRasServer());
@@ -226,8 +229,8 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessLocalServerLastAtt
 {
     // Setup the user manager to successfully connect a client
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+    .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     // The ServerManager will return this server when asked for one
     std::shared_ptr<Server> freeServer(new MockRasServer());
@@ -260,8 +263,8 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessRemoteServer)
 {
     // Setup the user manager to successfully connect a client
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+    .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
     EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _))
@@ -297,8 +300,8 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_FailBecauseNoAvailableSer
 {
     // Setup the user manager to successfully connect a client
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+    .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
     EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _))
@@ -343,8 +346,8 @@ TEST_F(ClientManagerTest, closeClientDbSession_NoOpenSessions)
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+    .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     clientManager->connectClient(credentials, out_clientId);
 
@@ -381,8 +384,8 @@ TEST_F(ClientManagerTest, keepClientAlive_ValidClient)
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+    .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     clientManager->connectClient(credentials, out_clientId);
 
@@ -400,8 +403,8 @@ TEST_F(ClientManagerTest, keepClientAlive_ExpiredClient)
     EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
 
     UserManagerMock& userMgrMock = *std::dynamic_pointer_cast<UserManagerMock>(userManager);
-    EXPECT_CALL(userMgrMock, tryGetUser(_, _))
-    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+    EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
+    .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     clientManager->connectClient(credentials, out_clientId);
 

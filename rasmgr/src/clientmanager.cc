@@ -96,27 +96,22 @@ void ClientManager::connectClient(const ClientCredentials &clientCredentials, st
 
     std::shared_ptr<User> out_user;
 
-    if (this->userManager->tryGetUser(clientCredentials.getUserName(), out_user))
+    if (this->userManager->tryGetUser(clientCredentials.getUserName(), clientCredentials.getPasswordHash(), out_user))
     {
-        if (out_user->getPassword() == clientCredentials.getPasswordHash())
+        //Lock access to this area.
+        boost::unique_lock<boost::shared_mutex> lock(this->clientsMutex);
+        //       dbName Generate a UID for the client
+        do
         {
-            //Lock access to this area.
-            boost::unique_lock<boost::shared_mutex> lock(this->clientsMutex);
-            //       dbName Generate a UID for the client
-            do
-            {
-                out_clientUUID = UUID::generateUUID();
-            }
-            while (this->clients.find(out_clientUUID) != this->clients.end());
-
-            auto client = std::make_shared<Client>(out_clientUUID, out_user, this->config.getClientLifeTime());
-
-            this->clients.insert(std::make_pair(out_clientUUID, client));
+            out_clientUUID = UUID::generateUUID();
         }
-        else
-        {
-            throw InvalidClientCredentialsException();
-        }
+        while (this->clients.find(out_clientUUID) != this->clients.end());
+        
+        out_user->setPassword(clientCredentials.getPasswordHash());
+
+        auto client = std::make_shared<Client>(out_clientUUID, out_user, this->config.getClientLifeTime());
+
+        this->clients.insert(std::make_pair(out_clientUUID, client));
     }
     else
     {

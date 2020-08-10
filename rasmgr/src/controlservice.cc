@@ -22,6 +22,7 @@
 
 #include <logging.hh>
 #include "common/grpc/grpcutils.hh"
+#include "common/exceptions/exception.hh"
 
 #include "controlservice.hh"
 #include "controlcommandexecutor.hh"
@@ -59,10 +60,17 @@ grpc::Status rasmgr::ControlService::ExecuteCommand(__attribute__((unused)) grpc
     }
     catch (std::exception &ex)
     {
+        LERROR << "caught std::exception: " << ex.what();
+        status = common::GrpcUtils::convertExceptionToStatus(ex);
+    }
+    catch (common::Exception &ex)
+    {
+        LERROR << "caught Exception: " << ex.what();
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
+        LERROR << "caught unknown exception";
         status = common::GrpcUtils::convertExceptionToStatus("Command execution failed for an unknown reason.");
     }
 

@@ -73,6 +73,10 @@ public:
      * @param databaseName
      */
     void removeDatabase(const std::string &databaseHostName, const std::string &databaseName);
+    
+    const std::list<std::shared_ptr<Database>> &getDatabases() const;
+    
+    const std::shared_ptr<DatabaseHostManager> &getDbHostManager() const;
 
     /**
      * @brief serializeToProto Serialize the information this object holds in a snapshot.

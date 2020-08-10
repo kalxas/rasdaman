@@ -108,7 +108,7 @@ void RasControl::startInteractiveMode()
 
             command = std::string(commandLine);
 
-            LINFO << "Received command" << command;
+            LINFO << "Received command " << command;
             if (recordHistory)
             {
                 history << command << std::endl;
@@ -136,9 +136,13 @@ void RasControl::startInteractiveMode()
     {
         std::cerr << "Failed to connect to rasmgr. Reason:" << ex.what();
     }
+    catch (common::Exception &ex)
+    {
+        std::cerr << "Command failed: " << ex.what();
+    }
     catch (...)
     {
-        std::cerr << "rascontrol::startInteractiveMode failed for an unknown reason.";
+        std::cerr << "rascontrol failed for an unknown reason.";
     }
 
     if (recordHistory)
@@ -232,9 +236,13 @@ void RasControl::startBatchMode()
     {
         std::cerr << "Failed to connect to rasmgr. Reason:" << ex.what();
     }
+    catch (common::Exception &ex)
+    {
+        std::cerr << "Command failed: " << ex.what();
+    }
     catch (...)
     {
-        std::cerr << "rascontrol::startBatchMode failed for an unknown reason.";
+        std::cerr << "rascontrol failed for an unknown reason.";
     }
 }
 
@@ -258,7 +266,7 @@ void RasControl::startTestLogin()
     }
     catch (...)
     {
-        std::cerr << "rascontrol::startTestLogin failed for an unknown reason.";
+        std::cerr << "rascontrol failed for an unknown reason.";
     }
 }
 }

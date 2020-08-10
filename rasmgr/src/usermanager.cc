@@ -61,7 +61,8 @@ using google::protobuf::io::OstreamOutputStream;
 
 UserManager::UserManager():
     rasmgrAuthFilePath(std::string(CONFDIR) + RASMGR_AUTH_FILE)
-{}
+{
+}
 
 UserManager::~UserManager()
 {}
@@ -69,7 +70,6 @@ UserManager::~UserManager()
 void UserManager::defineUser(const UserProto &userInfo)
 {
     bool duplicate = false;
-    list<std::shared_ptr<User>>::iterator it;
 
     if (!userInfo.has_name() || userInfo.name().empty())
     {
@@ -77,7 +77,7 @@ void UserManager::defineUser(const UserProto &userInfo)
     }
 
     unique_lock<mutex> lock(this->mut);
-    for (it = this->userList.begin(); it != this->userList.end(); ++it)
+    for (auto it = this->userList.begin(); it != this->userList.end(); ++it)
     {
         if ((*it)->getName() == userInfo.name())
         {
@@ -101,11 +101,10 @@ void UserManager::defineUser(const UserProto &userInfo)
 
 void UserManager::changeUser(const std::string &userName, const UserProto &newUserInfo)
 {
-    list<std::shared_ptr<User>>::iterator it;
     bool changed = false;
 
     unique_lock<mutex> lock(this->mut);
-    for (it = this->userList.begin(); it != this->userList.end(); ++it)
+    for (auto it = this->userList.begin(); it != this->userList.end(); ++it)
     {
         if ((*it)->getName() == userName)
         {
@@ -143,11 +142,10 @@ void UserManager::changeUser(const std::string &userName, const UserProto &newUs
 
 void UserManager::removeUser(const std::string &userName)
 {
-    list<std::shared_ptr<User>>::iterator it;
     bool removed = false;
 
     unique_lock<mutex> lock(this->mut);
-    for (it = this->userList.begin(); it != this->userList.end(); ++it)
+    for (auto it = this->userList.begin(); it != this->userList.end(); ++it)
     {
         if ((*it)->getName() == userName)
         {
@@ -163,15 +161,18 @@ void UserManager::removeUser(const std::string &userName)
     }
 }
 
-bool UserManager::tryGetUser(const std::string &userName, std::shared_ptr<User> &out_user)
+bool UserManager::tryGetUser(const std::string &userName, const std::string &passwordHash, std::shared_ptr<User> &out_user)
 {
-    list<std::shared_ptr<User>>::iterator it;
-
     unique_lock<mutex> lock(this->mut);
-    for (it = this->userList.begin(); it != this->userList.end(); ++it)
+    for (auto it = this->userList.begin(); it != this->userList.end(); ++it)
     {
         if ((*it)->getName() == userName)
         {
+            if ((*it)->getPassword() != passwordHash)
+            {
+                LERROR << "Invalid credentials for user " << userName;
+                throw InvalidClientCredentialsException();
+            }
             out_user = (*it);
             return true;
         }
@@ -249,15 +250,17 @@ UserMgrProto UserManager::serializeToProto()
 
     unique_lock<mutex> lock(this->mut);
 
-    for (std::list<shared_ptr<User>>::iterator it = this->
-            userList.begin();
-            it != this->userList.end();
-            ++it)
+    for (auto it = this->userList.begin(); it != this->userList.end(); ++it)
     {
         result.add_users()->CopyFrom(User::serializeToProto(* (*it).get()));
     }
 
     return result;
+}
+
+void UserManager::setDatabaseManager(std::shared_ptr<DatabaseManager> dbManager)
+{
+    this->dbManager_ = dbManager;
 }
 
 bool UserManager::tryLoadUserAuthFromOldFile(const std::string &filePath)

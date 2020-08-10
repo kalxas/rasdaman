@@ -84,15 +84,16 @@ void RasManager::start()
     }
 
     std::shared_ptr<DatabaseHostManager> dbhManager(new DatabaseHostManager());
-    shared_ptr<DatabaseManager> dbManager(new DatabaseManager(dbhManager));
+    std::shared_ptr<DatabaseManager> dbManager(new DatabaseManager(dbhManager));
     std::shared_ptr<rasmgr::UserManager> userManager(new rasmgr::UserManager());
+    userManager->setDatabaseManager(dbManager);
 
     ServerManagerConfig serverMgrConfig;
     std::shared_ptr<ServerFactory> serverFactory(new ServerFactoryRasNet());
     std::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl(dbhManager, serverFactory));
-    shared_ptr<ServerManager> serverManager(new ServerManager(serverMgrConfig,  serverGroupFactory));
+    std::shared_ptr<ServerManager> serverManager(new ServerManager(serverMgrConfig,  serverGroupFactory));
 
-    shared_ptr<PeerManager> peerManager(new PeerManager());
+    std::shared_ptr<PeerManager> peerManager(new PeerManager());
 
     ClientManagerConfig clientManagerConfig;
     std::shared_ptr<ClientManager> clientManager(new ClientManager(clientManagerConfig, userManager, serverManager, peerManager));

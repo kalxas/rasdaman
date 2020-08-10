@@ -177,6 +177,19 @@ std::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(const 
     throw InexistentDbHostException(dbHostName);
 }
 
+std::shared_ptr<DatabaseHost> DatabaseHostManager::getDatabaseHost(const std::string &dbName)
+{
+    unique_lock<mutex> lock(this->mut);
+    for (auto it = this->hostList.begin(); it != this->hostList.end(); ++it)
+    {
+        if ((*it)->ownsDatabase(dbName))
+        {
+            return (*it);
+        }
+    }
+    throw common::RuntimeException("Host containing database " + dbName + " not found.");
+}
+
 std::list<std::shared_ptr<DatabaseHost>> DatabaseHostManager::getDatabaseHostList() const
 {
     return this->hostList;

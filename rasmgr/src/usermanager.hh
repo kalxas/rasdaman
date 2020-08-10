@@ -35,6 +35,8 @@ class UserMgrProto;
 
 class User;
 
+class DatabaseManager;
+
 /**
  * @brief The UserManager class manages the users allowed to use this system.
  */
@@ -75,7 +77,7 @@ public:
      * @param out_user
      * @return TRUE if there was a user with this name, FALSE otherwise
      */
-    virtual bool tryGetUser(const std::string &userName, std::shared_ptr<User> &out_user);
+    virtual bool tryGetUser(const std::string &userName, const std::string &passwordHash, std::shared_ptr<User> &out_user);
 
     /**
      * @brief Save the information stored by the user manager to the RASMGR_AUTH_FILE
@@ -97,10 +99,13 @@ public:
     virtual void loadUserInformation();
 
     virtual UserMgrProto serializeToProto();
+    
+    void setDatabaseManager(std::shared_ptr<DatabaseManager> dbManager);
 
 private:
     const std::string rasmgrAuthFilePath;
     std::list<std::shared_ptr<User>> userList;
+    std::shared_ptr<DatabaseManager> dbManager_;
     std::mutex mut;
 
     bool tryLoadUserAuthFromOldFile(const std::string &filePath);

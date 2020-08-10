@@ -142,6 +142,16 @@ void DatabaseManager::removeDatabase(const std::string &databaseHostName, const 
     }
 }
 
+const std::list<std::shared_ptr<Database> > &DatabaseManager::getDatabases() const
+{
+    return databases;
+}
+
+const std::shared_ptr<DatabaseHostManager> &DatabaseManager::getDbHostManager() const
+{
+    return dbHostManager;
+}
+
 DatabaseMgrProto DatabaseManager::serializeToProto()
 {
     DatabaseMgrProto result;

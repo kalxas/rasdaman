@@ -207,7 +207,7 @@ TEST_F(UserManagerTest, changeUserSucceeds)
 
     //Test that the change was valid.
     std::shared_ptr<User> out_user;
-    ASSERT_TRUE(userManager.tryGetUser(newUserName, out_user));
+    ASSERT_TRUE(userManager.tryGetUser(newUserName, newPassword, out_user));
     ASSERT_EQ(newUserName, out_user->getName());
     ASSERT_EQ(newPassword, out_user->getPassword());
 
@@ -224,7 +224,7 @@ TEST_F(UserManagerTest, tryGetUserFailsWhenUserDoesNotExist)
 {
     std::shared_ptr<User> out_user;
 
-    ASSERT_FALSE(userManager.tryGetUser(userName, out_user));
+    ASSERT_FALSE(userManager.tryGetUser(userName, password, out_user));
 }
 
 TEST_F(UserManagerTest, tryGetUserSucceedsWhenUserExists)
@@ -233,7 +233,7 @@ TEST_F(UserManagerTest, tryGetUserSucceedsWhenUserExists)
     //Define the user
     ASSERT_NO_THROW(userManager.defineUser(createUser()));
 
-    ASSERT_TRUE(userManager.tryGetUser(userName, out_user));
+    ASSERT_TRUE(userManager.tryGetUser(userName, password, out_user));
 
     ASSERT_EQ(userName, out_user->getName());
     ASSERT_EQ(password, out_user->getPassword());
@@ -250,7 +250,7 @@ TEST_F(UserManagerTest, serializeToProto)
 
     proto = userManager.serializeToProto();
     std::shared_ptr<User> out_user;
-    userManager.tryGetUser(userName, out_user);
+    userManager.tryGetUser(userName, password, out_user);
 
     ASSERT_EQ(proto.users(0).DebugString(), User::serializeToProto(*out_user).DebugString());
 }
