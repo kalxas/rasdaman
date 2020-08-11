@@ -346,17 +346,23 @@ Metadata operations
 
 Several functions allow to extract metadata information about a coverage ``C``:
 
-+---------------------------+-----------------------------------------+
-| Metadata function         | Result                                  |
-+===========================+=========================================+
-| imageCrsDomain(C, a)      | Grid (lo, hi) bounds for axis a.        |
-+---------------------------+-----------------------------------------+
-| domain(C, a, c)           | Geo (lo, hi) bounds for axis a in CRS c.|
-+---------------------------+-----------------------------------------+
-| crsSet(C)                 | Set of CRS identifiers.                 |
-+---------------------------+-----------------------------------------+
-| nullSet(C)                | Set of null values.                     |
-+---------------------------+-----------------------------------------+
++---------------------------+----------------------------------------------------+
+| Metadata function         | Result                                             |
++===========================+====================================================+
+| imageCrsDomain(C, a)      | Grid (lo, hi) bounds for axis a                    |
++---------------------------+----------------------------------------------------+
+| imageCrsDomain(C, a).x    | Where x is one of lo or hi                         |      
+|                           | returning the lower and upper bounds respectively  |
++---------------------------+----------------------------------------------------+
+| domain(C, a, c)           | Geo (lo, hi) bounds for axis a in CRS c            |
+|                           | returning the lower and upper bounds respectively  |
++---------------------------+----------------------------------------------------+
+| crsSet(C)                 | Set of CRS identifiers                             |
++---------------------------+----------------------------------------------------+
+| imageCrs(C)               | Return the grid CRS (CRS:1)                        |
++---------------------------+----------------------------------------------------+
+| nullSet(C)                | Set of null values                                 |
++---------------------------+----------------------------------------------------+
 
 
 .. _cheatsheet-wms:
