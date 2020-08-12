@@ -3402,6 +3402,24 @@ The petascope services are configured in file ``$RMANHOME/etc/petascope.properti
 .. NOTE::
    For changes to take effect Tomcat needs to be restarted after editing this file.
 
+
+petascope Security
+------------------
+
+In ``$RMANHOME/etc/petascope.properties``, by default only local IP addresses
+configured by ``allow_write_requests_from`` setting key are allowed to send
+**write requests** to petascope (e.g: `InsertCoverage`, `DeleteCoverage`,...).
+
+Any write requests from a not-listed IP address will be blocked.
+However, if one has petascope admin user credentials, configured by
+``petascope_admin_user`` and ``petascope_admin_pass`` setting keys, 
+then one can send write requests with these credentials via basic authentication
+header. Petascope will accept requests as they come from petascope admin user.
+
+This typical case is used by WSClient, when one has logged in as petascope
+admin user and can send requests to delete a coverage or insert WMS styles
+for a WMS layer.
+
 .. _petascope-database-connection:
 
 Meta Database Connectivity

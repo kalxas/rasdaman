@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.rasdaman.AuthenticationService;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_ENDPOINT_URL;
@@ -193,8 +194,12 @@ public class PetascopeController extends AbstractController {
                     // In case petascope is not proxied by apache
                     sourceIP = httpServletRequest.getRemoteAddr();
                 }
-                                
-                this.validateWriteRequestFromIP(request, sourceIP);
+                 
+                // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
+                // then no need to check if his IP is allowed anymore.
+                if (!AuthenticationService.isPetascopeAdminUser(httpServletRequest)) {
+                    this.validateWriteRequestFromIP(request, sourceIP);
+                }
 
                 // Check if any handlers can handle the request
                 for (AbstractHandler handler : handlers) {
