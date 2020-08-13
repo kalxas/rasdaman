@@ -40,6 +40,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WMSException;
+import petascope.rasdaman.exceptions.RasdamanException;
 
 /**
  * Exception utility class
@@ -82,8 +83,16 @@ public class ExceptionUtil {
         String exceptionCodeName = "";
         String detailMessage = "";
         int httpCode = SC_INTERNAL_SERVER_ERROR;
+        String query = "";
 
-        if (ex instanceof WCSException) {
+        if (ex instanceof RasdamanException) {
+            exceptionText = Templates.getTemplate(Templates.GENERAL_WCS_RASQL_EXCEPTION_REPORT);
+            ExceptionCode exceptionCode = ((PetascopeException) ex).getExceptionCode();
+            exceptionCodeName = exceptionCode.getExceptionCodeName();
+            httpCode = exceptionCode.getHttpErrorCode();
+            detailMessage = ((RasdamanException) ex).getExceptionText();
+            query = ((RasdamanException) ex).getQuery();
+        } else if (ex instanceof WCSException) {
             ExceptionCode exceptionCode = ((WCSException) ex).getExceptionCode();
             exceptionCodeName = exceptionCode.getExceptionCodeName();
             httpCode = exceptionCode.getHttpErrorCode();
@@ -147,6 +156,10 @@ public class ExceptionUtil {
         exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_VERSION_REPLACEMENT, version);
         exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_CODE_REPLACEMENT, exceptionCodeName);
         exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_TEXT_REPLACEMENT, detailMessage);
+        
+        if (query != null) {
+            exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_QUERY_REPLACEMENT, query);
+        }
 
         return new ExceptionReport(exceptionText, httpCode);
     }

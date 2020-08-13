@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.1.0"
-    
-      >
-    <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'delete from test_mr'. Reason: RasManager Error: Access denied, no permission for operation.</ows:ExceptionText>
-    </ows:Exception>
+>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>RasManager Error: Access denied, no permission for operation.</ows:ExceptionText>
+</ows:Exception>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>Failed internal rasql query: delete from test_mr</ows:ExceptionText>
+</ows:Exception>
 </ows:ExceptionReport>

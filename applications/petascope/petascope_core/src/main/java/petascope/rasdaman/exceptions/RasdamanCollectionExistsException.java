@@ -30,9 +30,9 @@ import petascope.exceptions.ExceptionCode;
 public class RasdamanCollectionExistsException extends RasdamanException {
 
     public RasdamanCollectionExistsException(ExceptionCode exceptionCode, String query, Exception ex) {
-        super(exceptionCode, EXCEPTION_TEXT.replace("$query", query), ex);
+        super(exceptionCode, EXCEPTION_TEXT, ex, query);
     }
 
-    public static final String EXCEPTION_TEXT = "Error: collection name exists already, cannot recreate it: $query";
+    public static final String EXCEPTION_TEXT = "Error: collection name already exists";
 
 }

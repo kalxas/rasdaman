@@ -42,6 +42,7 @@ public class Templates {
     // ******* General files *******
     // miscellanea
     public static final String GENERAL_WCS_EXCEPTION_REPORT = "WCS_ExceptionReport";
+    public static final String GENERAL_WCS_RASQL_EXCEPTION_REPORT = "WCS_RASQL_ExceptionReport";
     public static final String GENERAL_WMS_EXCEPTION_REPORT = "WMS_ExceptionReport";
     public static final String GENERAL_SOAP_FAULT = "SOAPFault";
     public static final String GENERAL_SOAP_MESSAGE = "SOAPMessage";
@@ -50,6 +51,7 @@ public class Templates {
     public static final String GENERAL_EXCEPTION_VERSION_REPLACEMENT = "%version%";
     public static final String GENERAL_EXCEPTION_CODE_REPLACEMENT = "%exceptionCode%";
     public static final String GENERAL_EXCEPTION_TEXT_REPLACEMENT = "%exceptionText%";
+    public static final String GENERAL_EXCEPTION_QUERY_REPLACEMENT = "%query%";
     public static final String PETASCOPE_URL = "%PetascopeURL%";
 
     // ******* WCS 2.0.1 files *******
@@ -119,6 +121,7 @@ public class Templates {
         loadGeneralTemplate(GENERAL_SOAP_MESSAGE);
         loadGeneralTemplate(GENERAL_SOAP_FAULT);
         loadGeneralTemplate(GENERAL_WCS_EXCEPTION_REPORT);
+        loadGeneralTemplate(GENERAL_WCS_RASQL_EXCEPTION_REPORT);
         loadGeneralTemplate(GENERAL_WMS_EXCEPTION_REPORT);
 
         // WCS 2.0.1 services

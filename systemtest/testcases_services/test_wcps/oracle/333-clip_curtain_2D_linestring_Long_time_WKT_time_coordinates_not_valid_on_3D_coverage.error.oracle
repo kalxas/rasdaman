@@ -3,6 +3,6 @@
 >
 <ows:Exception exceptionCode="WcpsError">
 <ows:ExceptionText>Error querying rasdaman with rasql 'Select sdom(clip( c,  curtain( projection(2, 0), LINESTRING(-127450 0,-127440 39,-127450 0,-127445 19,-127430 31,-127445 31) ) )) FROM test_eobstest AS c. 
-Reason 'Error evaluating rasdaman query: 'Select sdom(clip( c,  curtain( projection(2, 0), LINESTRING(-127450 0,-127440 39,-127450 0,-127445 19,-127430 31,-127445 31) ) )) FROM test_eobstest AS c'. Reason: Exception: The result is no interval.'.</ows:ExceptionText>
+Reason 'Exception: The result is no interval.'.</ows:ExceptionText>
 </ows:Exception>
 </ows:ExceptionReport>

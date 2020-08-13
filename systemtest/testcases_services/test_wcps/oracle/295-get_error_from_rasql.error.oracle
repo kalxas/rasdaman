@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.1.0"
-    
-      >
-    <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode(c[16,200 / 2], "json" , "{}") FROM test_mean_summer_airtemp AS c'. Reason: Execution error 410 in line 1, column 16, near token [: Operand of point expression must be of type integer.</ows:ExceptionText>
-    </ows:Exception>
+>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>Execution error 410 in line 1, column 16, near token [: Operand of point expression must be of type integer.</ows:ExceptionText>
+</ows:Exception>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>Failed internal rasql query: SELECT encode(c[16,200 / 2], "json" , "{}") FROM test_mean_summer_airtemp AS c</ows:ExceptionText>
+</ows:Exception>
 </ows:ExceptionReport>

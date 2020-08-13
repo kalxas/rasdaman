@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.1.0"
-    
-      >
-    <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode({0,0,0}, "png" ) FROM test_rgb AS c'. Reason: Execution error 380 in line 1, column 8, near token encode: Data type can not be converted to selected data exchange format.</ows:ExceptionText>
-    </ows:Exception>
+>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>Execution error 380 in line 1, column 8, near token encode: Data type can not be converted to selected data exchange format.</ows:ExceptionText>
+</ows:Exception>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>Failed internal rasql query: SELECT encode({0,0,0}, "png" ) FROM test_rgb AS c</ows:ExceptionText>
+</ows:Exception>
 </ows:ExceptionReport>

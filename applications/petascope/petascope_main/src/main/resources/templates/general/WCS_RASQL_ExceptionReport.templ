@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="%version%"
+    xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+    xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ows:Exception exceptionCode="%exceptionCode%">
+        <ows:ExceptionText>%exceptionText%</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="%exceptionCode%">
+        <ows:ExceptionText>Failed internal rasql query: %query%</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

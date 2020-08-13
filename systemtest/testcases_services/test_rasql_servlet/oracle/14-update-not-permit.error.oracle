@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.1.0"
-    
-      >
-    <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'UPDATE test_mr as a set a assign a[0:179,0:54] + 1c'. Reason: RasManager Error: Access denied, no permission for operation.</ows:ExceptionText>
-    </ows:Exception>
+>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>RasManager Error: Access denied, no permission for operation.</ows:ExceptionText>
+</ows:Exception>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>Failed internal rasql query: UPDATE test_mr as a set a assign a[0:179,0:54] + 1c</ows:ExceptionText>
+</ows:Exception>
 </ows:ExceptionReport>

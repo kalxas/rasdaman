@@ -82,7 +82,7 @@ public class RasUtil {
             try {
                 db.close();
             } catch (Exception ex) {
-                throw new RasdamanException("Failed closing rasdaman db connection: " + ex.getMessage());
+                throw new RasdamanException("Failed closing rasdaman db connection: " + ex.getMessage(), null);
             }
         }
     }
@@ -92,7 +92,7 @@ public class RasUtil {
             try {
                 tr.abort();
             } catch (Exception ex) {
-                throw new RasdamanException("Failed closing rasdaman transaction: " + ex.getMessage());
+                throw new RasdamanException("Failed closing rasdaman transaction: " + ex.getMessage(), null);
             }
         }
     }
@@ -142,7 +142,7 @@ public class RasUtil {
                     rw ? Database.OPEN_READ_WRITE : Database.OPEN_READ_ONLY);
         } catch (Exception ex) {
             log.error("Failed opening " + (rw ? "rw" : "ro") + " database connection to rasdaman: " + ex.getMessage());
-            throw new RasdamanException(ExceptionCode.RasdamanUnavailable, ex);
+            throw new RasdamanException(ExceptionCode.RasdamanUnavailable, ex, query);
         }
 
         Transaction tr = null;
@@ -153,7 +153,7 @@ public class RasUtil {
         } catch (Exception ex) {
             log.error("Failed opening " + (rw ? "rw" : "ro") + " transaction to rasdaman: " + ex.getMessage());
             closeDB(db);
-            throw new RasdamanException(ExceptionCode.RasdamanUnavailable, ex);
+            throw new RasdamanException(ExceptionCode.RasdamanUnavailable, ex, query);
         }
         
         OQLQuery q = null;
@@ -168,7 +168,7 @@ public class RasUtil {
             log.error("Failed creating query object: " + ex.getMessage());
             abortTR(tr);
             closeDB(db);
-            throw new RasdamanException(ExceptionCode.InternalComponentError, ex);
+            throw new RasdamanException(ExceptionCode.InternalComponentError, ex, query);
         }
         
         Object ret = null;
@@ -183,7 +183,7 @@ public class RasUtil {
                 throw new RasdamanCollectionDoesNotExistException(ExceptionCode.CollectionDoesNotExist, query, ex);
             } else {
                 throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
-                        "Error evaluating rasdaman query: '" + query + "'. Reason: " + ex.getMessage(), ex);
+                        ex.getMessage(), ex, query);
             }
         } catch (OutOfMemoryError ex) {
             abortTR(tr);
@@ -195,7 +195,7 @@ public class RasUtil {
                 log.warn("Lost connection to rasdaman server.");
             } else {
                 throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, 
-                    "Error evaluating rasdaman query: '" + query + "'. Reason: " + ex.getMessage(), ex);
+                    ex.getMessage(), ex, query);
             }
         } finally {
             closeDB(db);
@@ -314,13 +314,13 @@ public class RasUtil {
         Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
-        String response = "";
+        String errorMessage = "";
         while ((s = stdError.readLine()) != null) {
-            response += s + "\n";
+            errorMessage += s + "\n";
         }
-        if (!response.isEmpty()) {
+        if (!errorMessage.isEmpty()) {
             //error occured
-            throw new RasdamanException(response);
+            throw new RasdamanException(errorMessage, query);
         }
     }
 
@@ -343,13 +343,13 @@ public class RasUtil {
         Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
-        String response = "";
+        String errorMessage = "";
         while ((s = stdError.readLine()) != null) {
-            response += s + "\n";
+            errorMessage += s + "\n";
         }
-        if (!response.isEmpty()) {
+        if (!errorMessage.isEmpty()) {
             //error occured
-            throw new RasdamanException(response);
+            throw new RasdamanException(errorMessage, query);
         }
         
         long end = System.currentTimeMillis();

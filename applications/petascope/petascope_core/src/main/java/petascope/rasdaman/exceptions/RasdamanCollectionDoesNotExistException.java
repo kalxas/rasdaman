@@ -32,9 +32,9 @@ import petascope.exceptions.ExceptionCode;
 public class RasdamanCollectionDoesNotExistException extends RasdamanException {
 
     public RasdamanCollectionDoesNotExistException(ExceptionCode exceptionCode, String query, Exception ex) {
-        super(exceptionCode, EXCEPTION_TEXT.replace("$query", query), ex);
+        super(exceptionCode, EXCEPTION_TEXT, ex, query);
     }
 
-    public static final String EXCEPTION_TEXT = "Error: collection name does not exist in rasql query: $query";
+    public static final String EXCEPTION_TEXT = "Error: collection name does not exist";
 
 }

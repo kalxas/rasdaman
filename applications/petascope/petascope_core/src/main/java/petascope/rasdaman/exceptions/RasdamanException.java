@@ -26,28 +26,36 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 
 public class RasdamanException extends PetascopeException {
+    
+    private String query;
 
-    public RasdamanException(String exceptionText) {
+    public RasdamanException(String exceptionText, String query) {
         this(ExceptionCode.RasdamanError, exceptionText);
     }
 
-    public RasdamanException(String exceptionText, Exception ex) {
-        this(ExceptionCode.RasdamanError, exceptionText, ex);
+    public RasdamanException(String exceptionText, Exception ex, String query) {
+        this(ExceptionCode.RasdamanError, exceptionText, ex, query);
     }
 
-    public RasdamanException(ExceptionCode exceptionCode) {
-        this(exceptionCode, null, null);
+    public RasdamanException(ExceptionCode exceptionCode, String query) {
+        this(exceptionCode, null, null, query);
     }
 
-    public RasdamanException(ExceptionCode exceptionCode, Exception ex) {
-        this(exceptionCode, ex.getLocalizedMessage(), ex);
+    public RasdamanException(ExceptionCode exceptionCode, Exception ex, String query) {
+        this(exceptionCode, ex.getLocalizedMessage(), ex, query);
     }
 
-    public RasdamanException(ExceptionCode exceptionCode, String exceptionText) {
-        this(exceptionCode, exceptionText, null);
+    public RasdamanException(ExceptionCode exceptionCode, String exceptionText, String query) {
+        this(exceptionCode, exceptionText, null, query);
     }
 
-    public RasdamanException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
+    public RasdamanException(ExceptionCode exceptionCode, String exceptionText, Exception ex, String query) {
         super(exceptionCode, exceptionText, ex, ConfigManager.LANGUAGE);
+        this.query = query;
     }
+
+    public String getQuery() {
+        return query;
+    }
+    
 }
