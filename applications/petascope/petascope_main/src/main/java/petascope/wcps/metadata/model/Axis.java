@@ -177,7 +177,7 @@ public abstract class Axis<T> {
             }
         }
 
-        return axisOrigin;
+        return BigDecimalUtil.stripDecimalZeros(axisOrigin);
     }
 
     /**

@@ -21,6 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+import decimal
 from xml.sax.saxutils import escape
 
 def stringify(thing):
@@ -91,7 +92,11 @@ def strip_trailing_zeros(number_str):
     Strip any zeros from number in string (e.g: 111.0 -> 111)
     :param str number_str
     """
-    return number_str.rstrip('0').rstrip('.')
+    if number_str.strip() == '':
+        return number_str
+
+    num = decimal.Decimal(number_str)
+    return str(num.to_integral()) if num == num.to_integral() else str(num.normalize()).lower()
 
 
 def replace_template_by_dict(template, keys_values_dict):

@@ -1,0 +1,6 @@
+service=WCS
+&version=2.0.1
+&request=DescribeCoverage
+&coverageId=test_wcs_scientfic_null_value_with_trailing_zero
+
+
