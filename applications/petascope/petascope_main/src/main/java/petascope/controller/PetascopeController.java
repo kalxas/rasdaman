@@ -59,6 +59,7 @@ import static petascope.core.KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER;
 import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_STYLE;
 import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_WCS_LAYER;
 import petascope.util.ExceptionUtil;
+import static petascope.core.KVPSymbols.VALUE_WMS_DELETE_LAYER;
 
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
@@ -74,6 +75,7 @@ public class PetascopeController extends AbstractController {
     private static final List WRITE_REQUESTS = Arrays.asList(new String[]{ VALUE_INSERT_COVERAGE, VALUE_UPDATE_COVERAGE, VALUE_DELETE_COVERAGE, 
                                                     VALUE_INSERT_SCALE_LEVEL, VALUE_DELETE_SCALE_LEVEL,
                                                     VALUE_WMS_INSERT_WCS_LAYER, VALUE_WMS_UPDATE_WCS_LAYER,
+                                                    VALUE_WMS_DELETE_LAYER,
                                                     VALUE_WMS_INSERT_STYLE, VALUE_WMS_UPDATE_STYLE,
                                                     VALUE_WMS_DELETE_STYLE
                                                    });

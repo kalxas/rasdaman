@@ -138,7 +138,7 @@ public class WMSRepostioryService {
         
         Layer layer = this.layerRepository.findOneByName(layerName);
         if (layer == null) {
-            throw new PetascopeException(ExceptionCode.NoSuchLayer, "Layer '" + layer + "' does not exist in local.");
+            throw new PetascopeException(ExceptionCode.NoSuchLayer, "Layer '" + layerName + "' does not exist in local petascopedb.");
         }
         
         final long end = System.currentTimeMillis();

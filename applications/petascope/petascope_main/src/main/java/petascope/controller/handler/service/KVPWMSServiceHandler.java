@@ -31,6 +31,7 @@ import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.WMSException;
+import petascope.wms.handlers.kvp.KVPWMSDeleteLayerHandler;
 import petascope.wms.handlers.kvp.KVPWMSDeleteStyleHandler;
 import petascope.wms.handlers.kvp.KVPWMSDescribeLayerHandler;
 import petascope.wms.handlers.kvp.KVPWMSGetCapabilitiesHandler;
@@ -53,7 +54,9 @@ public class KVPWMSServiceHandler extends AbstractHandler {
     @Autowired
     private KVPWMSInsertUpdateStyleHandler insertUpdateStyleHandler;
     @Autowired
-    private KVPWMSDeleteStyleHandler deleteStyleHandler;
+    private KVPWMSDeleteLayerHandler deleteLayerHandler;
+    @Autowired
+    private KVPWMSDeleteStyleHandler deleteStyleHandler;    
     @Autowired
     private KVPWMSDescribeLayerHandler describeLayerHandler;
     @Autowired
@@ -69,6 +72,7 @@ public class KVPWMSServiceHandler extends AbstractHandler {
         requestServices.add(KVPSymbols.VALUE_WMS_DESCRIBE_LAYER);
         requestServices.add(KVPSymbols.VALUE_WMS_INSERT_STYLE);
         requestServices.add(KVPSymbols.VALUE_WMS_UPDATE_STYLE);
+        requestServices.add(KVPSymbols.VALUE_WMS_DELETE_LAYER);
         requestServices.add(KVPSymbols.VALUE_WMS_DELETE_STYLE);
         requestServices.add(KVPSymbols.VALUE_WMS_GET_MAP);
     }
@@ -89,6 +93,9 @@ public class KVPWMSServiceHandler extends AbstractHandler {
                 || requestService.equals(KVPSymbols.VALUE_WMS_UPDATE_STYLE)) {
             // InsertStyle or UpdateStyle
             response = insertUpdateStyleHandler.handle(kvpParameters);
+        } else if (requestService.equals(KVPSymbols.VALUE_WMS_DELETE_LAYER)) {
+            // DeleteLayer but not delete coverage
+            response = deleteLayerHandler.handle(kvpParameters);
         } else if (requestService.equals(KVPSymbols.VALUE_WMS_DELETE_STYLE)) {
             // DeleteStyle
             response = deleteStyleHandler.handle(kvpParameters);

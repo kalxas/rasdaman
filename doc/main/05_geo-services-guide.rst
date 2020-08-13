@@ -1213,7 +1213,16 @@ of rasdaman:
             &REQUEST=UpdateWCSLayer
             &WCSCOVERAGEID=MyCoverage
 
-- To remove a layer by :ref:`removing the associated WCS coverage <delete-coverage>`.
+- A layer can be removed either directly with a ``DeleteLayer`` 
+  request (since rasdaman v10.0), or indirectly when deleting a coverage
+  (:ref:`removing the associated WCS coverage <delete-coverage>`). 
+  The ``DeleteLayer`` request is of the form:
+
+.. hidden-code-block:: text
+
+    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
+            &REQUEST=DeleteLayer
+            &LAYER=MyLayer
 
 .. _style-creation:
 
