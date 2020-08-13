@@ -33,16 +33,10 @@ import petascope.wcps.result.WcpsResult;
 /**
  * Translator class for CrsSet of the coverage (e.g list all coverage's axis CRS
  * from crsSet($c))
+
+ * for c in (mean_summer_airtemp) return crsSet(c) return the nativeCRS of the coverage
  *
- * for c in (mr), d in (rgb) return crsSet(c) return:
- * i:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1,
- * j:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1
- *
- * for c in (mean_summer_airtemp) return crsSet(c) return:
- *
- * Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1,
- * Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1
- *
+ * http://localhost:8080/def/crs/EPSG/0/4326
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
@@ -55,18 +49,7 @@ public class CoverageCrsSetHandler extends AbstractOperatorHandler {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
         
-        String result = "";
-        List<String> list = new ArrayList<>();
-        String tmp = "";
-        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
-            // nativeCrs (e.g: mr: Index2D, mean_summer_airtemp: EPSG:4326)
-            tmp = axis.getLabel() + ":" + axis.getNativeCrsUri();
-            // gridCrs (CRS:1)
-            tmp = tmp + " " + CrsUtil.GRID_CRS;
-
-            list.add(tmp);
-        }
-        result = StringUtils.join(list, ",");
+        String result = coverageExpression.getMetadata().getCrsUri();
 
         return new WcpsMetadataResult(coverageExpression.getMetadata(), result.trim());
     }
