@@ -77,22 +77,22 @@ public class RasUtil {
         return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS, false);
     }
     
-    private static void closeDB(Database db) {
+    private static void closeDB(Database db) throws RasdamanException {
         if (db != null) {
             try {
                 db.close();
             } catch (Exception ex) {
-                log.warn("Failed closing rasdaman db connection: " + ex.getMessage());
+                throw new RasdamanException("Failed closing rasdaman db connection: " + ex.getMessage());
             }
         }
     }
     
-    private static void abortTR(Transaction tr) {
+    private static void abortTR(Transaction tr) throws RasdamanException {
         if (tr != null) {
             try {
                 tr.abort();
             } catch (Exception ex) {
-                log.warn("Failed closing rasdaman transaction: " + ex.getMessage());
+                throw new RasdamanException("Failed closing rasdaman transaction: " + ex.getMessage());
             }
         }
     }
