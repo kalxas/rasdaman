@@ -564,6 +564,8 @@ public:
       \end{tabular}
       \endlatexonly
     */
+    
+    virtual void reportExecutionTimes(ClientTblElt *context);
 
     // -----------------------------------------------------------------------------------------
     // Collection mgmt, used by the rasodmg C++ API
@@ -942,6 +944,8 @@ protected:
     static void cleanExecuteQueryRes(ExecuteQueryRes &res);
     /// return type name and type structure of the first transfer element in context
     std::pair<char *, char *> getTypeNameStructure(ClientTblElt *context) const;
+    unsigned short handleExecuteQueryResult(ClientTblElt *context, unsigned short returnValue, 
+                                            ExecuteQueryRes &returnStructure) const;
     unsigned short getTransferCollInfo(
         ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const;
 

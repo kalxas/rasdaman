@@ -122,7 +122,7 @@ public:
     /// timer for recording execution
     common::Stopwatch timer;
     //timer saved for evaluation
-    double evaluationTime =0;
+    double evaluationTime = 0;
     
     /// parameter object
     r_Parse_Params *clientParams{0};

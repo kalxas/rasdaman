@@ -61,8 +61,8 @@ ClientTblElt::~ClientTblElt()
 void
 ClientTblElt::releaseTransferStructures()
 {
-    totalTransferedSize = 0;
-    totalRawSize = 0;
+    //totalTransferedSize = 0;
+    //totalRawSize = 0;
 
     // delete the transfer iterator
     if (transferCollIter)

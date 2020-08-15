@@ -567,6 +567,7 @@ ServerComm::commitTA(unsigned long callingClientId)
             }
             context->transaction.commit();
             transactionActive = 0;
+            reportExecutionTimes(context);
             DBGOK
         }
         catch (r_Error &err)
@@ -607,6 +608,7 @@ ServerComm::abortTA(unsigned long callingClientId)
                 LockManager::Instance()->unlockAllTiles();
             }
             transactionActive = 0;
+            reportExecutionTimes(context);
             DBGOK
         }
         catch (r_Error &err)
@@ -708,6 +710,75 @@ std::pair<char *, char *> ServerComm::getTypeNameStructure(ClientTblElt *context
     return ret;
 }
 
+unsigned short ServerComm::handleExecuteQueryResult(ClientTblElt *context, unsigned short returnValue,
+                                                    ExecuteQueryRes &returnStructure) const
+{
+    assert(context != NULL);
+    static constexpr unsigned short RC_OK_MDD_ELEMENTS = 0;
+    static constexpr unsigned short RC_OK_SCALAR_ELEMENTS = 1;
+    static constexpr unsigned short RC_OK_NO_ELEMENTS = 2;
+    
+    context->evaluationTime = context->timer.elapsedMs();
+    if (returnValue == RC_OK)
+    {
+        if (context->transferData)
+        {
+            // create the transfer iterator
+            context->timer.restart();
+            context->transferDataIter = new vector<QtData *>::iterator;
+            *context->transferDataIter = context->transferData->begin();
+
+            // set typeName and typeStructure of returnStructure
+            if (!context->transferData->empty())
+            {
+                // The type of first result object is used to determine the type of the result collection.
+                QtData *firstElement = **context->transferDataIter;
+                if (!firstElement)
+                {
+                    BLERROR << "Internal error: result object is null.\n";
+                    throw r_Error(10000); // Unexpected internal server error.
+                }
+
+                try
+                {
+                    auto typeNameStructure = getTypeNameStructure(context);
+                    returnStructure.typeName = typeNameStructure.first;
+                    returnStructure.typeStructure = typeNameStructure.second;
+                }
+                catch (...)
+                {
+                    BLERROR << "Error: failed setting type name and structure of result.\n";
+                    throw;
+                }
+
+                // print result feedback; note it's not finalized here, but in endTransfer()
+                BLINFO << "result type '" << returnStructure.typeStructure << "', "
+                       << context->transferData->size() << " element(s)... ";
+#ifdef RASDEBUG
+                BLINFO << "\n"; // more requests will be logged in this case, so add a newline
+#endif
+                // checked in endTransfer() to finalize the print stmt above with transfer size
+                context->reportTransferedSize = true;
+                returnValue = firstElement->getDataType() == QT_MDD
+                              ? RC_OK_MDD_ELEMENTS : RC_OK_SCALAR_ELEMENTS;
+            }
+            else // context->transferData.empty()
+            {
+                BLINFO << "ok, result is empty.\n";
+                returnValue = RC_OK_NO_ELEMENTS;
+                returnStructure.typeName = strdup("");
+                returnStructure.typeStructure = strdup("");
+            }
+        }
+        else // context->transferData == NULL
+        {
+            BLINFO << "ok, result is empty.\n";
+            returnValue = RC_OK_NO_ELEMENTS;
+        }
+    }
+    return returnValue;
+}
+
 bool ServerComm::parseQuery(const char *query)
 {
     beginParseString = const_cast<char *>(query);
@@ -795,65 +866,15 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 RELEASE_ALL_DATA
                 throw;
             }
-            context->evaluationTime = context->timer.elapsedMs();
-            if (returnValue == RC_OK)
+            
+            try
             {
-                if (context->transferData)
-                {
-                    // create the transfer iterator
-                    context->timer.restart();
-                    context->transferDataIter = new vector<QtData *>::iterator;
-                    *context->transferDataIter = context->transferData->begin();
-
-                    // set typeName and typeStructure of returnStructure
-                    if (!context->transferData->empty())
-                    {
-                        // The type of first result object is used to determine the type of the result collection.
-                        QtData *firstElement = **context->transferDataIter;
-                        if (!firstElement)
-                        {
-                            BLERROR << "Internal error: result object is null.\n";
-                            RELEASE_ALL_DATA
-                            throw r_Error(10000); // Unexpected internal server error.
-                        }
-
-                        try
-                        {
-                            auto typeNameStructure = getTypeNameStructure(context);
-                            returnStructure.typeName = typeNameStructure.first;
-                            returnStructure.typeStructure = typeNameStructure.second;
-                        }
-                        catch (...)
-                        {
-                            BLERROR << "Error: failed setting type name and structure of result.\n";
-                            RELEASE_ALL_DATA
-                            throw;
-                        }
-
-                        // print result feedback; note it's not finalized here, but in endTransfer()
-                        BLINFO << "result type '" << returnStructure.typeStructure << "', "
-                               << context->transferData->size() << " element(s)... ";
-#ifdef RASDEBUG
-                        BLINFO << "\n"; // more requests will be logged in this case, so add a newline
-#endif
-                        // checked in endTransfer() to finalize the print stmt above with transfer size
-                        context->reportTransferedSize = true;
-                        returnValue = firstElement->getDataType() == QT_MDD
-                                      ? RC_OK_MDD_ELEMENTS : RC_OK_SCALAR_ELEMENTS;
-                    }
-                    else // context->transferData.empty()
-                    {
-                        BLINFO << "ok, result is empty.\n";
-                        returnValue = RC_OK_NO_ELEMENTS;
-                        returnStructure.typeName = strdup("");
-                        returnStructure.typeStructure = strdup("");
-                    }
-                }
-                else // context->transferData == NULL
-                {
-                    BLINFO << "ok, result is empty.\n";
-                    returnValue = RC_OK_NO_ELEMENTS;
-                }
+                returnValue = handleExecuteQueryResult(context, returnValue, returnStructure);
+            }
+            catch (...)
+            {
+                RELEASE_ALL_DATA
+                throw;
             }
         }
         else
@@ -947,7 +968,8 @@ ServerComm::executeUpdate(unsigned long callingClientId,
     {
         context->totalTransferedSize = 0;
         context->totalRawSize = 0;
-        context->timer = common::Stopwatch();
+        context->timer.restart();
+        context->evaluationTime = 0;
 
         mddConstants = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
         currentClientTblElt = context;        // assign current client table element (temporary)
@@ -975,7 +997,13 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                     delete iter, iter = NULL;
                 }
                 delete updateResult, updateResult = NULL;
-                BLINFO << "ok\n";
+                
+                context->evaluationTime = context->timer.elapsedMs();
+                context->timer.restart();
+                context->reportTransferedSize = true;
+#ifdef RASDEBUG
+                BLINFO << "\n";
+#endif
             }
             catch (ParseInfo &info)
             {
@@ -1005,8 +1033,6 @@ ServerComm::executeUpdate(unsigned long callingClientId,
         {
             HANDLE_PARSING_ERROR
         }
-        context->evaluationTime = context->timer.elapsedMs();
-        context->timer.restart();
         RELEASE_ALL_DATA
     }
     else
@@ -1793,6 +1819,7 @@ ServerComm::getNextTile(unsigned long callingClientId,
                 {
                     statusValue = ST_SMALL_TILE;
                 }
+                
                 context->totalTransferedSize += transferSize;
 
                 (*rpcMarray)->data.confarray_len = static_cast<unsigned int>(transferSize);
@@ -1891,19 +1918,8 @@ ServerComm::endTransfer(unsigned long client)
     ClientTblElt *context = getClientContext(client);
     if (context)
     {
-#ifdef RASDEBUG
-        DBGINFO("ok, evaluation time " << context->evaluationTime 
-                << " ms, transfer time " << context->timer.elapsedMs() 
-                << " ms, transfer size " << context->totalTransferedSize << " bytes.\n");
-#else
-        if (context->reportTransferedSize)
-        {
-            BLINFO << "ok, evaluation time " << context->evaluationTime
-                   <<" ms, transfer time " << context->timer.elapsedMs() 
-                   << " ms, transfer size " << context->totalTransferedSize << " bytes.\n";
-        }
-#endif
         context->releaseTransferStructures();
+        reportExecutionTimes(context);
     }
     else
     {
@@ -1911,6 +1927,29 @@ ServerComm::endTransfer(unsigned long client)
         returnValue = RC_CLIENT_NOT_FOUND;
     }
     return returnValue;
+}
+
+void ServerComm::reportExecutionTimes(ClientTblElt *context)
+{
+    if (context->evaluationTime > 0)
+    {
+#ifdef RASDEBUG
+        DBGINFO("ok, evaluation time " << context->evaluationTime 
+                << " ms, transfer time " << context->timer.elapsedMs() 
+                << " ms, transfer size " << context->totalTransferedSize << " bytes.\n");
+        context->evaluationTime = 0;
+        context->totalTransferedSize = 0;
+#else
+        if (context->reportTransferedSize)
+        {
+            BLINFO << "ok, evaluation time " << context->evaluationTime
+                   <<" ms, transfer time " << context->timer.elapsedMs() 
+                   << " ms, transfer size " << context->totalTransferedSize << " bytes.\n";
+            context->evaluationTime = 0;
+            context->totalTransferedSize = 0;
+        }
+#endif
+    }
 }
 
 // -----------------------------------------------------------------------------------------

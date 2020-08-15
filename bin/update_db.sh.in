@@ -215,15 +215,24 @@ else
   # insert the database updates
   #
   updated=0
-  while [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" -o -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; do
+  while [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" ] || [ -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; do
 
     if [ $updated -eq 0 ]; then
       # no update executed yet, create a backup of the DB first
-      curr_datetime=$(date "+%Y-%m-%d_%H-%M-%S")
-      backup_path="$DBCONN-v$counter.$curr_datetime.bak"
-      logn "  backing up database to $backup_path... "
-      cp "$DBCONN" "$backup_path"
-      checkerr
+
+      # before attempting the backup, check if there is enough disk space for it
+      dbsize=$(stat --format=%s "$DBCONN")
+      avail_diskspace=$(df --output=avail "$DBCONN" | tail -n 1)
+      if [ "$dbsize" -lt "$avail_diskspace" ]; then
+        # proceed with backing up, there is enough disk space
+        curr_datetime=$(date "+%Y-%m-%d_%H-%M-%S")
+        backup_path="$DBCONN-v$counter.$curr_datetime.bak"
+        logn "  backing up database to $backup_path... "
+        cp "$DBCONN" "$backup_path"
+        checkerr
+      else
+        log "warning: the available disk space $avail_diskspace is not sufficient to backup '$DBCONN' of size $dbsize."
+      fi
     fi
 
     [ $updated -eq 0 ] && log "executing updates:"
