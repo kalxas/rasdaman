@@ -21,77 +21,47 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+#include "config.h"
 #include "conversion/convutil.hh"
 #include "conversion/hdfincludes.hh"
 #include "raslib/attribute.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/error.hh"
-#include "config.h"
-
 #include <logging.hh>
+
 #include <sstream>
 #include <string>
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>  // for to_lower
 
 using namespace std;
+using namespace common;
 
-ConvUtil::ConvUtil()
-{
-}
 
 #ifdef HAVE_GDAL
 
+const string ConvUtil::GDAL_KEY_IMAGE_STRUCTURE{"IMAGE_STRUCTURE"};
+const string ConvUtil::GDAL_KEY_PIXELTYPE{"PIXELTYPE"};
+const string ConvUtil::GDAL_VAL_SIGNEDBYTE{"SIGNEDBYTE"};
+
 string ConvUtil::gdalTypeToRasTypeString(GDALDataType dataType)
 {
-    string ret;
     switch (dataType)
     {
-    case GDT_Byte:
-        //r_type::CHAR || r_type::BOOL
-        ret = string("char");
-        break;
-
-    case GDT_UInt16:
-        //r_type::USHORT
-        ret = string("ushort");
-        break;
-    case GDT_Int16:
-        //r_type::SHORT
-        ret = string("short");
-        break;
-    case GDT_UInt32:
-        //r_type::ULONG
-        ret = string("ulong");
-        break;
-    case GDT_Int32:
-        //r_type::LONG
-        ret = string("long");
-        break;
-    case GDT_Float32:
-        //r_type::FLOAT
-        ret = string("float");
-        break;
-    case GDT_Float64:
-        //r_type::DOUBLE
-        ret = string("double");
-        break;
-    case GDT_CFloat32:
-        ret = string("complex");
-        break;
-    case GDT_CFloat64:
-        ret = string("complexd");
-        break;
-    case GDT_CInt16:
-        ret = string("cint16");
-        break;
-    case GDT_CInt32:
-        ret = string("cint32");
-        break;
+    case GDT_Byte:     return "char";
+    case GDT_UInt16:   return "ushort";
+    case GDT_Int16:    return "short";
+    case GDT_UInt32:   return "ulong";
+    case GDT_Int32:    return "long";
+    case GDT_Float32:  return "float";
+    case GDT_Float64:  return "double";
+    case GDT_CFloat32: return "complex";
+    case GDT_CFloat64: return "complexd";
+    case GDT_CInt16:   return "cint16";
+    case GDT_CInt32:   return "cint32";
     default:
-        throw r_Error(r_Error::r_Error_FeatureNotSupported);
-        break;
+        LERROR << "Unable to convert GDAL type " << dataType << " to rasdaman type.";
+        throw r_Error(r_Error::r_Error_Conversion);
     }
-    return ret;
 }
 
 r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& bandIds)
@@ -140,7 +110,7 @@ r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& b
     if (baseType == NULL)
     {
         LERROR << "failed converting GDAL type to rasdaman type.";
-        throw r_Error::r_Error_FeatureNotSupported;
+        throw r_Error(r_Error::r_Error_FeatureNotSupported);
     }
 
     return baseType;
@@ -148,141 +118,80 @@ r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& b
 
 GDALDataType ConvUtil::rasTypeToGdalType(r_Type* rasType)
 {
-    GDALDataType ret = GDT_Unknown;
     switch (rasType->type_id())
     {
-    case r_Type::BOOL:
-        ret = GDT_Byte;
-        break;
-    case r_Type::CHAR:
-        ret = GDT_Byte;
-        break;
-    case r_Type::USHORT:
-        ret = GDT_UInt16;
-        break;
-    case r_Type::SHORT:
-        ret = GDT_Int16;
-        break;
-    case r_Type::ULONG:
-        ret = GDT_UInt32;
-        break;
-    case r_Type::LONG:
-        ret = GDT_Int32;
-        break;
-    case r_Type::FLOAT:
-        ret = GDT_Float32;
-        break;
-    case r_Type::DOUBLE:
-        ret = GDT_Float64;
-        break;
-    case r_Type::COMPLEXTYPE1:
-        ret = GDT_CFloat32;
-        break;
-    case r_Type::COMPLEXTYPE2:
-        ret = GDT_CFloat64;
-        break;
-    case r_Type::CINT16:
-        ret = GDT_CInt16;
-        break;
-    case r_Type::CINT32:
-        ret = GDT_CInt32;
-        break;
+    case r_Type::BOOL:   return GDT_Byte;
+    case r_Type::CHAR:   return GDT_Byte;
+    case r_Type::USHORT: return GDT_UInt16;
+    case r_Type::SHORT:  return GDT_Int16;
+    case r_Type::ULONG:  return GDT_UInt32;
+    case r_Type::LONG:   return GDT_Int32;
+    case r_Type::FLOAT:  return GDT_Float32;
+    case r_Type::DOUBLE: return GDT_Float64;
+    case r_Type::COMPLEXTYPE1: return GDT_CFloat32;
+    case r_Type::COMPLEXTYPE2: return GDT_CFloat64;
+    case r_Type::CINT16: return GDT_CInt16;
+    case r_Type::CINT32: return GDT_CInt32;
     default:
-        LERROR << "Unable to convert rasdaman type " <<
-               rasType->name() << " to GDAL type.";
-        throw r_Error(r_Error::r_Error_General);
+        LERROR << "Unable to convert rasdaman type " << rasType->name() << " to GDAL type.";
+        throw r_Error(r_Error::r_Error_Conversion);
     }
-    return ret;
 }
 #endif // HAVE_GDAL
 
 r_Data_Format
 ConvUtil::getDataFormat(string formatName)
 {
-    r_Data_Format ret = r_Array;
     boost::algorithm::to_lower(formatName);
     if (formatName == "png")
-    {
-        ret = r_PNG;
-    }
+        return r_PNG;
     else if (formatName == "netcdf")
-    {
-        ret = r_NETCDF;
-    }
+        return r_NETCDF;
     else if (formatName == "gtiff" || formatName == "tiff")
-    {
-        ret = r_TIFF;
-    }
+        return r_TIFF;
     else if (formatName == "jpeg")
-    {
-        ret = r_JPEG;
-    }
+        return r_JPEG;
     else if (formatName == "jpeg2000" || formatName == "jp2openjpeg")
-    {
-        ret = r_JP2;
-    }
+        return r_JP2;
     else if (formatName == "nitf")
-    {
-        ret = r_NITF;
-    }
+        return r_NITF;
     else if (formatName == "ecw")
-    {
-        ret = r_ECW;
-    }
+        return r_ECW;
     else if (formatName == "hdf" || formatName == "hdf4" || formatName == "hdf4image" || formatName == "hdf5")
-    {
-        ret = r_HDF;
-    }
+        return r_HDF;
     else if (formatName == "bmp")
-    {
-        ret = r_BMP;
-    }
+        return r_BMP;
     else if (formatName == "csv")
-    {
-        ret = r_CSV;
-    }
+        return r_CSV;
     else if (formatName == "json")
-    {
-        ret = r_JSON;
-    }
+        return r_JSON;
     else if (formatName == "grib")
-    {
-        ret = r_GRIB;
-    }
+        return r_GRIB;
     else if (formatName == "ppm")
-    {
-        ret = r_PPM;
-    }
+        return r_PPM;
     else if (formatName == "dem")
-    {
-        ret = r_DEM;
-    }
-    return ret;
+        return r_DEM;
+    else
+        return r_Array;
 }
 
 size_t ConvUtil::getBandBaseTypeSize(r_Type* type, int bandId)
 {
-    size_t ret = 0;
     if (type->isStructType())
     {
         r_Attribute att = ((r_Structure_Type*) type)->resolve_attribute((unsigned int) bandId);
-        ret = att.type_of().size();
+        return att.type_of().size();
     }
     else
     {
-        ret = ((r_Base_Type*) type)->size();
+        return ((r_Base_Type*) type)->size();
     }
-    return ret;
 }
 
 unsigned int ConvUtil::getNumberOfBands(const r_Type* type)
 {
-    unsigned int ret = 1;
-    if (type->isStructType())
-    {
-        ret = static_cast<const r_Structure_Type*>(type)->count_elements();
-    }
-    return ret;
+    return type->isStructType()
+        ? static_cast<const r_Structure_Type*>(type)->count_elements() : 1;
 }
 
 
@@ -294,52 +203,19 @@ int ConvUtil::ctypeToHdfType(int ctype, int& size)
 
     switch (ctype)
     {
-    case ctype_int8:
-        result = DFNT_CHAR8;
-        size = 1;
-        break;
+    case ctype_int8:   result = DFNT_CHAR8; size = 1; break;
     case ctype_uint8:
     case ctype_char:
-    case ctype_bool:
-        result = DFNT_UCHAR8;
-        size = 1;
-        break;
-    case ctype_int16:
-        result = DFNT_INT16;
-        size = 2;
-        break;
-    case ctype_uint16:
-        result = DFNT_UINT16;
-        size = 2;
-        break;
-    case ctype_int32:
-        result = DFNT_INT32;
-        size = 4;
-        break;
-    case ctype_uint32:
-        result = DFNT_UINT32;
-        size = 4;
-        break;
-    case ctype_int64:
-        result = DFNT_INT64;
-        size = 8;
-        break;
-    case ctype_uint64:
-        result = DFNT_UINT64;
-        size = 8;
-        break;
-    case ctype_float32:
-        result = DFNT_FLOAT32;
-        size = 4;
-        break;
-    case ctype_float64:
-        result = DFNT_FLOAT64;
-        size = 8;
-        break;
-    default:
-        result = 0;
-        size = 1;
-        break;
+    case ctype_bool:   result = DFNT_UCHAR8; size = 1; break;
+    case ctype_int16:  result = DFNT_INT16; size = 2; break;
+    case ctype_uint16: result = DFNT_UINT16; size = 2; break;
+    case ctype_int32:  result = DFNT_INT32; size = 4; break;
+    case ctype_uint32: result = DFNT_UINT32; size = 4; break;
+    case ctype_int64:  result = DFNT_INT64; size = 8; break;
+    case ctype_uint64: result = DFNT_UINT64; size = 8; break;
+    case ctype_float32:result = DFNT_FLOAT32; size = 4; break;
+    case ctype_float64:result = DFNT_FLOAT64; size = 8; break;
+    default:           result = 0; size = 1; break;
     }
     return result;
 }
@@ -350,55 +226,19 @@ int ConvUtil::hdfTypeToCtype(int hdfType, int& size)
 
     switch (hdfType)
     {
-    case DFNT_CHAR8:
-        result = ctype_int8;
-        size = 1;
-        break;
-    case DFNT_UCHAR8:
-        result = ctype_uint8;
-        size = 1;
-        break;
-    case DFNT_INT16:
-        result = ctype_int16;
-        size = 2;
-        break;
-    case DFNT_UINT16:
-        result = ctype_uint16;
-        size = 2;
-        break;
-    case DFNT_INT32:
-        result = ctype_int32;
-        size = 4;
-        break;
-    case DFNT_UINT32:
-        result = ctype_uint32;
-        size = 4;
-        break;
-    case DFNT_INT64:
-        result = ctype_int64;
-        size = 8;
-        break;
-    case DFNT_UINT64:
-        result = ctype_uint64;
-        size = 8;
-        break;
-    case DFNT_FLOAT32:
-        result = ctype_float32;
-        size = 4;
-        break;
-    case DFNT_FLOAT64:
-        result = ctype_float64;
-        size = 8;
-        break;
-    default:
-        result = ctype_void;
-        size = 1;
-        break;
+    case DFNT_CHAR8:  result = ctype_int8; size = 1; break;
+    case DFNT_UCHAR8: result = ctype_uint8; size = 1; break;
+    case DFNT_INT16:  result = ctype_int16; size = 2; break;
+    case DFNT_UINT16: result = ctype_uint16; size = 2; break;
+    case DFNT_INT32:  result = ctype_int32; size = 4; break;
+    case DFNT_UINT32: result = ctype_uint32; size = 4; break;
+    case DFNT_INT64:  result = ctype_int64; size = 8; break;
+    case DFNT_UINT64: result = ctype_uint64; size = 8; break;
+    case DFNT_FLOAT32:result = ctype_float32; size = 4; break;
+    case DFNT_FLOAT64:result = ctype_float64; size = 8; break;
+    default:          result = ctype_void; size = 1; break;
     }
     return result;
 }
 #endif
 
-ConvUtil::~ConvUtil()
-{
-}

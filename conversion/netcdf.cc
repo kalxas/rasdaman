@@ -47,9 +47,6 @@ rasdaman GmbH.
 
 #include "conversion/transpose.hh"
 
-#include "netcdf.hh"
-
-
 #include <logging.hh>
 
 #include <sstream>

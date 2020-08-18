@@ -437,8 +437,10 @@ Tile::execMarrayOp(MarrayOp *myOp, const r_Minterval &areaRes, const r_Minterval
     bool recalc = false;
 
     // iterate over all cells
+//    LINFO << "areaRes: " << areaRes.to_string() << ", areaOp: " << areaOp.to_string();
     while (!done)
     {
+//        LINFO << "pointRes: " << pointRes.to_string() << ", pointOp: " << pointOp.to_string() << ", recalc: " << recalc;
         if (recalc)
         {
             cellRes = getCell(calcOffset(pointRes));

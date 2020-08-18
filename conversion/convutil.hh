@@ -24,10 +24,14 @@ rasdaman GmbH.
 #ifndef CONVUTIL_HH
 #define CONVUTIL_HH
 
+#include "config.h"
 #include "raslib/type.hh"
+#include <raslib/mddtypes.hh>                    // for r_Data_Format
 #include "conversion/gdalincludes.hh"
 #include "conversion/convtypes.hh"
-#include "config.h"
+
+class GDALDataset;
+class GDALRasterBand;
 
 /**
  * Helper class transforming the provided types into rasdaman types.
@@ -35,7 +39,7 @@ rasdaman GmbH.
 class ConvUtil
 {
 public:
-    ConvUtil();
+    ConvUtil() = delete;
 
 #ifdef HAVE_GDAL
 
@@ -85,11 +89,13 @@ public:
      * @return the number of bands in type, 1 if type is primitive, more than 1 if struct.
      */
     static unsigned int getNumberOfBands(const r_Type* type);
-
-    virtual ~ConvUtil();
-
+    
+#ifdef HAVE_GDAL
 private:
-
+    static const std::string GDAL_KEY_IMAGE_STRUCTURE;
+    static const std::string GDAL_KEY_PIXELTYPE;
+    static const std::string GDAL_VAL_SIGNEDBYTE;
+#endif
 };
 
 #endif  /* CONVUTIL_HH */

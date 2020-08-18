@@ -495,13 +495,18 @@ Clipping Examples
 WCS-T
 -----
 
-Currently, WCS-T supports coverages in GML format for importing. The metadata of
+Currently, WCS-T supports importing coverages in GML format. The metadata of
 the coverage is thus explicitly specified, while the raw cell values can be
 stored either explicitly in the GML body, or in an external file linked in the
 GML body, as shown in the examples below. The format of the file storing the
-cell values must be one
-`supported by the GDAL library <http://www.gdal.org/formats_list.html>`_,
-such as TIFF / GeoTIFF, JPEG, JPEG2000, PNG etc.
+cell values must be 
+
+- 2-D data `supported by the GDAL library <http://www.gdal.org/formats_list.html>`_,
+  such as TIFF / GeoTIFF, JPEG / JPEG2000, PNG, etc;
+- n-D data in NetCDF or GRIB format
+
+The coverage metadata must be in XML or JSON format; any other format will lead
+to an error.
 
 In addition to the WCS-T standard parameters petascope supports additional
 proprietary parameters.
@@ -670,7 +675,7 @@ will be updated from the local XML file at ``/home/rasdaman/Downloads/test_metad
    curl --user petauser:PETASCOPE_ADMIN_PASSWORD 
                -F "coverageId=test_mr_metadata" 
                -F "file=@/home/rasdaman/Downloads/test_metadata.xml" 
-               "http://localhost:8080/rasdaman/ows/admin/UpdateCoverageMetadata"
+               "http://localhost:8080/rasdaman/admin/UpdateCoverageMetadata"
 
 
 OGC Web Coverage Processing Service (WCPS)

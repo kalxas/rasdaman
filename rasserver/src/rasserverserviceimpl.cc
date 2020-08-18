@@ -88,7 +88,7 @@ grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(__attribute__ ((un
         const rasnet::service::ClientStatusReq* request, 
         rasnet::service::ClientStatusRepl* response)
 {
-    LDEBUG << "Starting GetClientStatus " << request->clientid();
+    LTRACE << "Starting GetClientStatus " << request->clientid();
 
     if (this->clientManager->isAlive(request->clientid()))
     {
@@ -99,7 +99,7 @@ grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(__attribute__ ((un
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
     }
 
-    LDEBUG << "Finish GetClientStatus of client " << request->clientid();
+    LTRACE << "Finish GetClientStatus of client " << request->clientid();
 
     return grpc::Status::OK;
 }
