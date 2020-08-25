@@ -144,7 +144,7 @@ public class OWSMetadataController extends AbstractController {
         }
         String facsimilePhoneValue = getValueByKeyAllowNull(kvpParameters, KEY_OWS_METADATA_FACSIMILE_PHONE);
         if (facsimilePhoneValue != null) {
-            List<String> facsimilePhones = ListUtil.valuesToList(kvpParameters.get("facsimilePhone"));
+            List<String> facsimilePhones = ListUtil.valuesToList(kvpParameters.get(KEY_OWS_METADATA_FACSIMILE_PHONE));
             owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setFacsimilePhone(facsimilePhones);
         }
 

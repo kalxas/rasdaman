@@ -1221,15 +1221,21 @@ public class WcpsCoverageMetadataGeneralService {
             
             // Check axes' s types must be the same
             for (int i = 0; i < firstMeta.getAxes().size(); i++) {
-                String firstAxisName = firstMeta.getAxes().get(i).getLabel();
-                String firstAxisType = firstMeta.getAxes().get(i).getAxisType();
-                String secondAxisName = secondMeta.getAxes().get(i).getLabel();
-                String secondAxisType = secondMeta.getAxes().get(i).getAxisType();
+                Axis firstAxis = firstMeta.getAxes().get(i);
+                Axis secondAxis = secondMeta.getAxes().get(i);
                 
-                if (!firstAxisType.equals(secondAxisType)) {
-                    String errorMessage = "Axis type is different, given first coverage's axis with name '" + firstAxisName + "', type '" + firstAxisType 
-                                        + "' and second coverage's axis with name '" + secondAxisName + "', type '" + secondAxisType + "'.";
-                    throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
+                String firstAxisName = firstAxis.getLabel();
+                String firstAxisType = firstAxis.getAxisType();
+                String secondAxisName = secondAxis.getLabel();
+                String secondAxisType = secondAxis.getAxisType();
+                
+                if (!(firstAxis.getNativeCrsUri().contains(CrsUtil.INDEX_CRS_PATTERN) 
+                    || secondAxis.getNativeCrsUri().contains(CrsUtil.INDEX_CRS_PATTERN))) {
+                    if (!firstAxisType.equals(secondAxisType)) {
+                        String errorMessage = "Axis type is different, given first coverage's axis with name '" + firstAxisName + "', type '" + firstAxisType 
+                                            + "' and second coverage's axis with name '" + secondAxisName + "', type '" + secondAxisType + "'.";
+                        throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
+                    }
                 }
   
                 // NOTE: dont' check if 2 coverages have same geo axes intervals or geo axes resolutions.

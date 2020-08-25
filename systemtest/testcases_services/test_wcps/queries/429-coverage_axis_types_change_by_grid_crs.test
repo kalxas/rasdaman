@@ -1,0 +1,12 @@
+for c in (test_irr_cube_2)
+
+return encode(
+               c[ansi("2008-01-01T02:01:20.000Z":"2008-01-01T02:01:20.000Z"), E(75042.72735943:75042.72735943), N(5094865.557938452:5094865.557938452)]
+        
+-
+              coverage meanTime
+              over $T t(imageCrsDomain(c[ansi("2008-01-01T02:01:20.000Z":"2008-01-01T02:01:20.000Z")], ansi)),
+              $X x(imageCrsDomain(c[E(75042.72735943:75042.72735943)], E)),
+              $Y y(imageCrsDomain(c[N(5094865.557938452:5094865.557938452)], N)) 
+              values c[ansi($T), E($X), N($Y)]
+               , "json")

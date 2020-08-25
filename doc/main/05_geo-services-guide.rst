@@ -660,7 +660,7 @@ coverage's metadata.
    This WSClient feature is login protected: **OGC WCS > Describe Coverage tab**
    when one is already **logged in** with petascope admin user in **Admin tab**.
 
-The service URL for this feature is ``http://localhost:8080/rasdaman/ows/admin/UpdateCoverageMetadata``
+The service URL for this feature is ``http://localhost:8080/rasdaman/admin/UpdateCoverageMetadata``
 which operates through multipart/form-data POST requests. The request should
 contain 2 parts: the first part is coverageId to update, the second part is a
 path to a local text file to be uploaded to server.
