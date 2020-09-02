@@ -218,7 +218,7 @@ public abstract class AbstractController {
         }
 
         // backwards compatibility for WCPS ows?query="" is ok to handle
-        if (kvpParameters.containsKey(KVPSymbols.KEY_QUERY)) {
+        if (kvpParameters.containsKey(KVPSymbols.KEY_QUERY) && !kvpParameters.containsKey(KVPSymbols.KEY_USERNAME)) {
             kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] {KVPSymbols.WCPS_SERVICE});
             kvpParameters.put(KVPSymbols.KEY_VERSION, supportedWCPSVersions);
             kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_PROCESS_COVERAGES});
