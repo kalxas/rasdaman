@@ -44,6 +44,7 @@ rasdaman GmbH.
 #include "raslib/structure.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/turboqueryresult.hh"
+#include "raslib/miterd.hh"
 #include "mymalloc/mymalloc.h"
 #include "servercomm/rpcif.h"
 
@@ -1171,8 +1172,8 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *th
             else
             {
                 // MDD consists of more than one tile or the tile does not cover the whole domain
-
-                r_Bytes size = mddDomain.cell_count() * marray->get_type_length();
+                const auto tsize = marray->get_type_length();
+                r_Bytes size = mddDomain.cell_count() * tsize;
 
                 if (tileCntr == 1)
                 {
@@ -1189,17 +1190,32 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *th
 
 
                 // copy tile data into MDD data space (optimized, relying on the internal representation of an MDD )
-                char         *mddBlockPtr;
                 char         *tileBlockPtr = tile->get_array();
-                unsigned long blockCells   = static_cast<unsigned long>(tileDomain[tileDomain.dimension() - 1].high() - tileDomain[tileDomain.dimension() - 1].low() + 1);
-                unsigned long blockSize    = blockCells * marray->get_type_length();
-                unsigned long blockNo      = tileDomain.cell_count() / blockCells;
-
-                for (unsigned long blockCtr = 0; blockCtr < blockNo; blockCtr++)
+                unsigned long blockCells   = static_cast<unsigned long>(
+                                                  tileDomain[tileDomain.dimension() - 1].get_extent());
+                unsigned long blockSize    = blockCells * tsize;
+                
+                // these iterators iterate last dimension first, i.e. minimal step size
+                r_Dimension dimRes = mddDomain.dimension();
+                r_Dimension dimOp = tileDomain.dimension();
+                r_MiterDirect resTileIter(static_cast<void *>(marrayData), mddDomain, tileDomain, marray->get_type_length());
+                r_MiterDirect opTileIter(static_cast<void *>(tileBlockPtr), tileDomain, tileDomain, marray->get_type_length());
+            
+            #ifdef RMANBENCHMARK
+                opTimer.resume();
+            #endif
+            
+                while (!resTileIter.isDone())
                 {
-                    mddBlockPtr = marrayData + marray->get_type_length() * mddDomain.cell_offset(tileDomain.cell_point(blockCtr * blockCells));
-                    memcpy(mddBlockPtr, tileBlockPtr, blockSize);
-                    tileBlockPtr += blockSize;
+                    // copy entire line (continuous chunk in last dimension) in one go
+                    memcpy(resTileIter.getData(), opTileIter.getData(), blockSize);
+                    // force overflow of last dimension
+                    resTileIter.id[dimRes - 1].pos += r_Range(blockCells);
+                    opTileIter.id[dimOp - 1].pos += r_Range(blockCells);
+            
+                    // iterate; the last dimension will always overflow now
+                    ++resTileIter;
+                    ++opTileIter;
                 }
 
                 marray->set_array_size(size);
