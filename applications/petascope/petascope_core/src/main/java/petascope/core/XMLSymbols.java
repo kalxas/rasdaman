@@ -280,6 +280,7 @@ public interface XMLSymbols {
     String LABEL_CUSTOMIZED_METADATA_HOSTNAME = "hostname";
     String LABEL_CUSTOMIZED_METADATA_PETASCOPE_ENDPOINT = "endpoint";
     String LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES = "sizeInBytes";
+    String LABEL_CUSTOMIZED_METADATA_AXIS_NAMES_LIST = "axisList";
     String LABEL_CUSTOMIZED_DOWNSCALED_COLLECTION_LEVELS = "downscaledCollectionLevels";
 
     // ows

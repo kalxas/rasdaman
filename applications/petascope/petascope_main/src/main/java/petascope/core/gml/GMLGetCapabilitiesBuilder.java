@@ -49,6 +49,7 @@ import petascope.core.BoundingBox;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
 import petascope.core.Pair;
+import petascope.core.XMLSymbols;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.ListUtil;
@@ -79,6 +80,7 @@ import static petascope.core.XMLSymbols.LABEL_CRS_METADATA;
 import static petascope.core.XMLSymbols.LABEL_CRS_SUPPORTED;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_DOWNSCALED_COLLECTION_LEVELS;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA;
+import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA_AXIS_NAMES_LIST;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES;
 import static petascope.core.XMLSymbols.LABEL_DCP;
 import static petascope.core.XMLSymbols.LABEL_DELIVERY_POINT;
@@ -742,6 +744,11 @@ public class GMLGetCapabilitiesBuilder {
             coverageSizeInBytesElement.appendChild(sizeInBytes.toString());
             metadataElement.appendChild(coverageSizeInBytesElement);
         }
+        
+        // List of axis names
+        Element axisListElement = new Element(XMLUtil.createXMLLabel(PREFIX_RASDAMAN, LABEL_CUSTOMIZED_METADATA_AXIS_NAMES_LIST), NAMESPACE_RASDAMAN);
+        axisListElement.appendChild(coverage.getEnvelope().getEnvelopeByAxis().getAxisNamesRepresentation());
+        metadataElement.appendChild(axisListElement);
 
         // Downscaled collection levels of a coverage if exist
         List<String> downscaledCollectionLevels = new ArrayList<>();

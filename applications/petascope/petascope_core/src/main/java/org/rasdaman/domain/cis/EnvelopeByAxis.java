@@ -22,6 +22,7 @@
 package org.rasdaman.domain.cis;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import javax.persistence.*;
 import javax.persistence.Entity;
@@ -32,6 +33,7 @@ import org.rasdaman.config.ConfigManager;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 
 /**
  * CIS 1.1
@@ -237,5 +239,19 @@ public class EnvelopeByAxis implements Serializable {
         }
         
         return map;
+    }
+    
+    /**
+     * Return the comma separated list of axis names
+     * e.g: Lat,Long,time
+     */
+    public String getAxisNamesRepresentation() {
+        List<String> results = new ArrayList<>();
+        
+        for (AxisExtent axisExtent : this.axisExtents) {
+            results.add(axisExtent.getAxisLabel());
+        }
+        
+        return ListUtil.join(results, ",");
     }
 }
