@@ -59,10 +59,11 @@ def validate_and_read_url(url, data=None):
         from config_manager import ConfigManager
 
         if ConfigManager.user is not None:
-            base64string = base64.b64encode(ConfigManager.user + ":" + ConfigManager.passwd)
+            tmp = (ConfigManager.user + ":" + ConfigManager.passwd).encode("utf-8")
+            base64string = base64.b64encode(tmp).decode("utf-8")
             request.add_header("Authorization", "Basic %s" % base64string)
 
-        ret = urlopen(request, context = ssl._create_unverified_context())
+        ret = urlopen(request, context=ssl._create_unverified_context())
     except Exception as e:
         raise RuntimeException("Failed opening connection to '{}'. "
                                "Check that the service is up and running."

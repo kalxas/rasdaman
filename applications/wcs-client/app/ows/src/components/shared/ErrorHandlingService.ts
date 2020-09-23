@@ -41,6 +41,12 @@ module rasdaman {
                     errorInformation = errorInformation[0];
                 }
 
+                if (!errorInformation.hasOwnProperty("status")) {
+                    // input is only error message, then just display it
+                    this.notificationService.error(errorInformation);
+                    return;
+                }
+
                 if (errorInformation.status == 404 || errorInformation.status == -1) {
                     // No error in data and HTTP code 404 or -1 then, Petascope cannot connect.
                     this.notificationService.error("Cannot connect to petascope, please check if petascope is running.");

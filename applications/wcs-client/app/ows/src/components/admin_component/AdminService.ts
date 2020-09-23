@@ -72,13 +72,17 @@ module rasdaman {
 
         public login(inputCredentials:login.Credential):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.adminEndpoint + "/CheckPetascopeAdminUserCredentials";            
+            var requestUrl = this.settings.contextPath + "/login";            
             var success = false;
             // send request to Petascope and get response (headers and contents)
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createBasicAuthenticationHeader(inputCredentials.username, inputCredentials.password)
-            }).then(function (data:any) {
-                result.resolve(inputCredentials);
+            }).then(function (response:any) {
+                if (response.data.includes("admin")) {
+                    result.resolve(inputCredentials);
+                } else {
+                    result.reject("Given credentials are not valid for admin user.");
+                }
             }, function (error) {
                 result.reject(error);
             });

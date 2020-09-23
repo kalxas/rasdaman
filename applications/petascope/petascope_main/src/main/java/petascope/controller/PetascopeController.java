@@ -197,7 +197,7 @@ public class PetascopeController extends AbstractController {
                  
                 // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
                 // then no need to check if his IP is allowed anymore.
-                if (!AuthenticationService.isPetascopeAdminUser(httpServletRequest)) {
+                if (!AuthenticationService.isAdminUser(httpServletRequest)) {
                     this.validateWriteRequestFromIP(request, sourceIP);
                 }
 

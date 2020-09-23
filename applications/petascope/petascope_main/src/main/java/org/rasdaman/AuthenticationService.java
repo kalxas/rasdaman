@@ -37,15 +37,15 @@ import petascope.exceptions.PetascopeException;
 public class AuthenticationService {
     
     /**
-     * Check if the request is requesting under petascope admin user with basic authentication headers
+     * Check if the request is requesting under admin user with basic authentication headers
      */
-    public static boolean isPetascopeAdminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
+    public static boolean isAdminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
         Pair<String, String> credentialsPair = getBasicAuthUsernamePassword(httpServletRequest);
         
         if (credentialsPair != null) {
             // In case the user requesting with credentials
-            return (credentialsPair.fst.equals(ConfigManager.PETASCOPE_ADMIN_USERNAME)
-                    && credentialsPair.snd.equals(ConfigManager.PETASCOPE_ADMIN_PASSWORD));
+            return isPetascopeAdminUser(credentialsPair.fst, credentialsPair.snd)
+                  || isRasdamanAdminUser(credentialsPair.fst, credentialsPair.snd);
         }
         
         return false;
@@ -75,16 +75,33 @@ public class AuthenticationService {
         
         return result;
     }
-       
+    
     /**
      * Check if user is petascope admin user
      */
     public static void validatePetascopeAdminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
         Pair<String, String> credentialsPair = getBasicAuthUsernamePassword(httpServletRequest);
         if (credentialsPair == null) {
-            throw new PetascopeException(ExceptionCode.AccessDenied, "Missing credentials for petascope admin user in basic authentication headers");
-        } else if (!isPetascopeAdminUser(httpServletRequest)) {
-            throw new PetascopeException(ExceptionCode.AccessDenied, "Invalid credentials for petascope admin user");
+            throw new PetascopeException(ExceptionCode.AccessDenied, "Missing credentials for admin user in basic authentication headers");
+        } else if (!isAdminUser(httpServletRequest)) {
+            throw new PetascopeException(ExceptionCode.AccessDenied, "Invalid credentials for admin user");
         }
+    }
+    
+        
+    /**
+     * Check if given credentials are valid for petascope admin user     
+     */
+    public static boolean isPetascopeAdminUser(String username, String password) {
+        return ConfigManager.PETASCOPE_ADMIN_USERNAME.equals(username) 
+            && ConfigManager.PETASCOPE_ADMIN_PASSWORD.equals(password);
+    }
+    
+    /**
+     * Check if given credentials are valid for rasdaman admin user     
+     */
+    public static boolean isRasdamanAdminUser(String username, String password) {
+        return ConfigManager.RASDAMAN_ADMIN_USER.equals(username) 
+            && ConfigManager.RASDAMAN_ADMIN_PASS.equals(password);
     }
 }

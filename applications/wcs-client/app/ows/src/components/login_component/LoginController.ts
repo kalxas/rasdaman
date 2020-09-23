@@ -66,19 +66,15 @@ module rasdaman {
                 wmsSettingsService.setWMSEndPoint($scope.petascopeEndPoint);                
                 
                 $scope.checkPetascopeEnableAuthentication(wcsSettingsService.contextPath, $scope.credential).then(
-                    (data)=> {
-                        if (JSON.parse(data)) {
-
-                            // Store the credentials to be reused for next requests
-                            var credential = $scope.credential;
-                            credentialService.persitCredential($scope.petascopeEndPoint, credential);                            
-                            
-                            // Change view to WSClient after logging in                            
-                            $rootScope.homeLoggedIn = true;
-                        } else {
-                            // Show the error message
-                            $scope.displayError = true;
-                        }
+                    (response) => {
+                        // response is a list of role names: e,g: admin,write,...
+                        // Store the credentials to be reused for next requests
+                        var credential = $scope.credential;
+                        credentialService.persitCredential($scope.petascopeEndPoint, credential);                            
+                        
+                        // Change view to WSClient after logging in                            
+                        $rootScope.homeLoggedIn = true;
+                        
                     }, (error)=> {
                         errorHandlingService.handleError(error);
                     }
@@ -89,7 +85,7 @@ module rasdaman {
              * Check if login credentials are valid in a Petascope contextPath
              */
             $scope.checkPetascopeEnableAuthentication = function(contextPath:string, credential:login.Credential):angular.IPromise<any> {
-                var requestUrl = contextPath + "/CheckRadamanCredentials";
+                var requestUrl = contextPath + "/login";
                 
                 var result = $q.defer();            
                 

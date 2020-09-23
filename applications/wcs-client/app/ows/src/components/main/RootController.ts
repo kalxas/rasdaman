@@ -96,7 +96,7 @@ module rasdaman {
                     var obj = credentialsDict[settings.wcsEndpoint];
                     if (obj != null) { 
                         var credential = new login.Credential(obj["username"], obj["password"]);                                                
-                        var requestUrl = settings.contextPath + "/CheckRadamanCredentials"; 
+                        var requestUrl = settings.contextPath + "/login"; 
 
                         $http.get(requestUrl, {
                                 headers: credentialService.createBasicAuthenticationHeader(credential.username, credential.password)

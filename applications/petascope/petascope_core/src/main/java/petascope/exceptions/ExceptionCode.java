@@ -183,6 +183,7 @@ public class ExceptionCode {
             "Operation request contains an invalid parameter value", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidPropertyValue = new ExceptionCode("InvalidPropertyValue");
     public static final ExceptionCode InvalidRequest = new ExceptionCode("InvalidRequest", SC_BAD_REQUEST);
+    public static final ExceptionCode InvalidCredentials = new ExceptionCode("InvalidCredentials", "Credentials are invalid.", SC_FORBIDDEN);
     public static final ExceptionCode AccessDenied = new ExceptionCode("AccessDenied", "Access denied, please login first.", SC_BAD_REQUEST);
     public static final ExceptionCode Unauthorized = new ExceptionCode("Unauthorized", "Unauthorized request.", SC_UNAUTHORIZED);
     public static final ExceptionCode InvalidServiceConfiguration = new ExceptionCode("InvalidServiceConfiguration");

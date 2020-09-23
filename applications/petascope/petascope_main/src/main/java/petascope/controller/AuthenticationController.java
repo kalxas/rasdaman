@@ -27,13 +27,14 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.rasdaman.config.ConfigManager;
-import static org.rasdaman.config.ConfigManager.ADMIN;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.core.Pair;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.ras.RasUtil;
 
@@ -45,15 +46,15 @@ import petascope.util.ras.RasUtil;
 @RestController
 public class AuthenticationController extends AbstractController {
     
-    private static final String CHECK_RESULT_TRUE = "true";
-    private static final String CHECK_RESULT_FALSE = "false";
-    private static final String CHECK_PETASCOPE_ADMIN_USER_CREDENTIALS_REQUEST = "CheckPetascopeAdminUserCredentials";
+    // Endpoint to check authentication and return the roles of an user to clients
+    public static final String ROLE_ADMIN = "admin";
+    public static final String LOGIN = "login";
     
     /**
-     * Check if the credentials are valid of petascope admin user to login in wsclient's admin tab.
+     * The client shows a login form and the credentials are validated by petascope to return the roles of the user.
      */
-    @RequestMapping(ADMIN + "/" + CHECK_PETASCOPE_ADMIN_USER_CREDENTIALS_REQUEST)
-    private void handleCheckPetascopeAdminUserCredentials(HttpServletRequest httpServletRequest) throws PetascopeException, IOException {
+    @RequestMapping(value = LOGIN)
+    private void handleLogin(HttpServletRequest httpServletRequest) throws PetascopeException, IOException, Exception {
         Pair<String, String> resultPair = AuthenticationService.getBasicAuthUsernamePassword(httpServletRequest);
         
         if (resultPair == null) {
@@ -62,15 +63,23 @@ public class AuthenticationController extends AbstractController {
         
         String username = resultPair.fst;
         String password = resultPair.snd;
-
-        // Valid credentials for petascope admin user
-        if (!(ConfigManager.PETASCOPE_ADMIN_USERNAME.equals(username)
-            && ConfigManager.PETASCOPE_ADMIN_PASSWORD.equals(password))) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Given credentials for petascope admin user are not valid.");
-        }
-        Response response = new Response(Arrays.asList("".getBytes()), MIMEUtil.MIME_TEXT);
-        this.writeResponseResult(response);
         
+        String result = "";  
+        
+        if (AuthenticationService.isPetascopeAdminUser(username, password)) {
+            result = ROLE_ADMIN;
+        } else {            
+            if (AuthenticationService.isRasdamanAdminUser(username, password)) {
+                result = ROLE_ADMIN;
+            } else {
+                // user does not exist or password is wrong
+                throw new PetascopeException(ExceptionCode.InvalidCredentials);
+            }
+        }
+               
+        
+        Response response = new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_TEXT);
+        this.writeResponseResult(response);
     }
     
     @Override

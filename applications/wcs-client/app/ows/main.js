@@ -2506,6 +2506,10 @@ var rasdaman;
                 if (errorInformation.length == 1) {
                     errorInformation = errorInformation[0];
                 }
+                if (!errorInformation.hasOwnProperty("status")) {
+                    this.notificationService.error(errorInformation);
+                    return;
+                }
                 if (errorInformation.status == 404 || errorInformation.status == -1) {
                     this.notificationService.error("Cannot connect to petascope, please check if petascope is running.");
                 }
@@ -5009,7 +5013,7 @@ var rasdaman;
                     var obj = credentialsDict[settings.wcsEndpoint];
                     if (obj != null) {
                         var credential = new login.Credential(obj["username"], obj["password"]);
-                        var requestUrl = settings.contextPath + "/CheckRadamanCredentials";
+                        var requestUrl = settings.contextPath + "/login";
                         $http.get(requestUrl, {
                             headers: credentialService.createBasicAuthenticationHeader(credential.username, credential.password)
                         }).then(function (dataObj) {
@@ -5280,21 +5284,16 @@ var rasdaman;
                 $scope.displayError = false;
                 wcsSettingsService.setWCSEndPoint($scope.petascopeEndPoint);
                 wmsSettingsService.setWMSEndPoint($scope.petascopeEndPoint);
-                $scope.checkPetascopeEnableAuthentication(wcsSettingsService.contextPath, $scope.credential).then(function (data) {
-                    if (JSON.parse(data)) {
-                        var credential = $scope.credential;
-                        credentialService.persitCredential($scope.petascopeEndPoint, credential);
-                        $rootScope.homeLoggedIn = true;
-                    }
-                    else {
-                        $scope.displayError = true;
-                    }
+                $scope.checkPetascopeEnableAuthentication(wcsSettingsService.contextPath, $scope.credential).then(function (response) {
+                    var credential = $scope.credential;
+                    credentialService.persitCredential($scope.petascopeEndPoint, credential);
+                    $rootScope.homeLoggedIn = true;
                 }, function (error) {
                     errorHandlingService.handleError(error);
                 });
             };
             $scope.checkPetascopeEnableAuthentication = function (contextPath, credential) {
-                var requestUrl = contextPath + "/CheckRadamanCredentials";
+                var requestUrl = contextPath + "/login";
                 var result = $q.defer();
                 $http.get(requestUrl, {
                     headers: credentialService.createBasicAuthenticationHeader(credential.username, credential.password)
@@ -6538,12 +6537,17 @@ var rasdaman;
         }
         AdminService.prototype.login = function (inputCredentials) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.adminEndpoint + "/CheckPetascopeAdminUserCredentials";
+            var requestUrl = this.settings.contextPath + "/login";
             var success = false;
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createBasicAuthenticationHeader(inputCredentials.username, inputCredentials.password)
-            }).then(function (data) {
-                result.resolve(inputCredentials);
+            }).then(function (response) {
+                if (response.data.includes("admin")) {
+                    result.resolve(inputCredentials);
+                }
+                else {
+                    result.reject("Given credentials are not valid for admin user.");
+                }
             }, function (error) {
                 result.reject(error);
             });
