@@ -44,11 +44,11 @@ public:
 #ifdef HAVE_GDAL
 
     /**
-     * Converts the GDALDataType to a literal rasdaman supported type.
-     * @param dataType The GDALDataType of the current raster band.
+     * Extracts the rasdaman supported type from a gdal band.
+     * @param gdalBand The band to extract the type from.
      * @return A literal type supported by rasdaman.
      */
-    static std::string gdalTypeToRasTypeString(GDALDataType dataType);
+    static std::string gdalTypeToRasTypeString(GDALRasterBand* gdalBand);
 
     /**
      * The type decision is made based on the GDALDataType of the bands and of the number of bands.

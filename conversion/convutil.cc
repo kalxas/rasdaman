@@ -43,11 +43,27 @@ const string ConvUtil::GDAL_KEY_IMAGE_STRUCTURE{"IMAGE_STRUCTURE"};
 const string ConvUtil::GDAL_KEY_PIXELTYPE{"PIXELTYPE"};
 const string ConvUtil::GDAL_VAL_SIGNEDBYTE{"SIGNEDBYTE"};
 
-string ConvUtil::gdalTypeToRasTypeString(GDALDataType dataType)
+string ConvUtil::gdalTypeToRasTypeString(GDALRasterBand* gdalBand)
 {
+    auto dataType = gdalBand->GetRasterDataType();
     switch (dataType)
     {
-    case GDT_Byte:     return "char";
+    case GDT_Byte:
+    {
+      // gdal uses type Byte for both signed and unsigned 8 bit integers
+      // check in the metadata if the type is signed
+      const auto *pixelType =
+          gdalBand->GetMetadataItem(GDAL_KEY_PIXELTYPE.c_str(),
+                                    GDAL_KEY_IMAGE_STRUCTURE.c_str());
+      if (pixelType) {
+        if (string{pixelType} == GDAL_VAL_SIGNEDBYTE) {
+          // signed, according to the metadata
+          return "octet";
+        }
+      }
+      // otherwise, it's unsigned
+      return "char";
+    }
     case GDT_UInt16:   return "ushort";
     case GDT_Int16:    return "short";
     case GDT_UInt32:   return "ulong";
@@ -72,8 +88,7 @@ r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& b
     {
         if (poDataset->GetRasterCount())
         {
-            GDALDataType gdalType = poDataset->GetRasterBand(1)->GetRasterDataType();
-            string rasType = gdalTypeToRasTypeString(gdalType);
+            string rasType = gdalTypeToRasTypeString(poDataset->GetRasterBand(1));
             baseType = r_Type::get_any_type(rasType.c_str());
         }
         else
@@ -98,8 +113,7 @@ r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& b
             {
                 destType << ", ";
             }
-            GDALDataType gdalType = poDataset->GetRasterBand(bandId + 1)->GetRasterDataType();
-            string rasType = gdalTypeToRasTypeString(gdalType);
+            string rasType = gdalTypeToRasTypeString(poDataset->GetRasterBand(bandId + 1));
             destType << rasType;
         }
         destType << " }";
