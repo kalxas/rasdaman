@@ -233,6 +233,12 @@ class GDALGmlUtil:
         """
         import osgeo.gdal as gdal
 
+        band1 = self.gdal_dataset.GetRasterBand(1)
+        band1_image_metadata = band1.GetMetadata_List("IMAGE_STRUCTURE")
+        if band1_image_metadata  is not None:
+            if "PIXELTYPE=SIGNEDBYTE" in band1_image_metadata:
+                return "SignedByte"
+
         return gdal.GetDataTypeName(self.gdal_dataset.GetRasterBand(1).DataType)
 
     def get_crs(self):

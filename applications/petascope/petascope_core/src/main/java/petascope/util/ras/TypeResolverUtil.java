@@ -351,6 +351,7 @@ public class TypeResolverUtil {
 
     //gdal base types
     public static final String GDT_Byte = "Byte";
+    public static final String GDT_Signed_Byte = "SignedByte";
     public static final String GDT_UInt16 = "UInt16";
     public static final String GDT_Int16 = "Int16";
     public static final String GDT_CInt16 = "CInt16";
@@ -386,6 +387,7 @@ public class TypeResolverUtil {
 
     static {
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Byte, R_Char);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_Signed_Byte, R_Octet);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_UShort);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int16, R_Short);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt32, R_ULong);
