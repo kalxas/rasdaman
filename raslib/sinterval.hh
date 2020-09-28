@@ -224,148 +224,115 @@
 class r_Sinterval
 {
 public:
+    using BoundType = r_Range;
+    using OffsetType = size_t;
+    
     /// default constructor creates an interval with open bounds
     r_Sinterval() = default;
-
     /// constructor taking string representation (e.g. *:200 )
     r_Sinterval(const char *);
-
     /// constructor for an interval with fixed bounds
     r_Sinterval(r_Range low, r_Range high);
+    /// constructor for a slice (TODO)
+    explicit r_Sinterval(r_Range point);
 
     // Constructors for intervals with at least one open bound.
     //@{
-    ///
     r_Sinterval(char, r_Range high);
-    ///
     r_Sinterval(r_Range low, char);
-    ///
     r_Sinterval(char, char);
-    ///
     //@}
-
-    /// equal operator
+    
+    // Equality comparison
+    //@{
+    /// Two intervals are equal if they have the same lower and upper bound.
     bool operator==(const r_Sinterval &) const;
-
-    /**
-      Two intervals are equal if they have the same lower and upper bound.
-    */
-
     /// non equal operator - negation of equal operator
     bool operator!=(const r_Sinterval &) const;
+    //@}
 
     // Read/Write methods:
     //@{
-    ///
-    r_Range low() const;
-    ///
-    r_Range high() const;
-    ///
-    bool is_low_fixed() const;
-    ///
-    bool is_high_fixed() const;
-
-    ///
+    r_Range low() const noexcept;
+    r_Range high() const noexcept;
+    /// get the size of one dimensional interval as range (high() - low() + 1)
+    OffsetType get_extent() const;
+    /// @return true if lower and upper bounds are fixed
+    bool is_fixed() const noexcept;
+    bool is_low_fixed() const noexcept;
+    bool is_low_unbounded() const noexcept;
+    bool is_high_fixed() const noexcept;
+    bool is_high_unbounded() const noexcept;
+    /// @return TRUE if the interval represents a single point, FALSE otherwise.
+    bool is_slice() const noexcept;
     void set_low(r_Range low);
-    ///
+    void set_low(char) noexcept;
     void set_high(r_Range high);
-    ///
-    void set_low(char);
-    ///
-    void set_high(char);
-
-    /// get the size of one dimensional interval as range.
-    r_Range get_extent() const;
-    /*@Doc:
-      Returns a range with high() - low() + 1 of this interval.
-    */
-
-    ///
+    void set_high(char) noexcept;
     void set_interval(r_Range low, r_Range high);
-    ///
-    void set_interval(char, r_Range high);
-    ///
-    void set_interval(r_Range low, char);
-    ///
-    void set_interval(char, char);
-    ///
+    void set_interval(char, r_Range high) noexcept;
+    void set_interval(r_Range low, char) noexcept;
+    void set_interval(char, char) noexcept;
+    void set_slice() noexcept;
+    
+    /// get distance to lower bound of this interval from o; this interval is
+    /// assumed to be fixed in the lower bound, and o >= this.low()
+    OffsetType get_offset_to(BoundType o) const noexcept;
+    /// get distance to lower bound of this interval from lower bound of o; 
+    /// intervals must be fixed in lower bound, and o.low() >= this.low()
+    OffsetType get_offset_to(const r_Sinterval &o) const noexcept;
+    /// translate this interval by a given offset; assumes that this interval 
+    /// has fixed bounds
+    r_Sinterval translate_by(BoundType offset) const;
     //@}
-
-    /// determines if the self interval intersects with the delivered one
-    bool intersects_with(const r_Sinterval &) const;
 
     // Methods/Operators for the union operation:
     //@{
-    ///
     r_Sinterval &union_of(const r_Sinterval &, const r_Sinterval &);
-    ///
     r_Sinterval &union_with(const r_Sinterval &);
-    ///
     r_Sinterval &operator+=(const r_Sinterval &);
-    ///
     r_Sinterval create_union(const r_Sinterval &) const;
-    ///
     r_Sinterval operator+(const r_Sinterval &) const;
-    ///
+    /// @return true if this interval is inside of
+    bool inside_of(const r_Sinterval &o) const;
     //@}
 
     // Methods/Operators for the difference operation:
     //@{
-    ///
     r_Sinterval &difference_of(const r_Sinterval &, const r_Sinterval &);
-    ///
     r_Sinterval &difference_with(const r_Sinterval &);
-    ///
     r_Sinterval &operator-=(const r_Sinterval &);
-    ///
     r_Sinterval create_difference(const r_Sinterval &) const;
-    ///
     r_Sinterval operator-(const r_Sinterval &) const;
-    ///
     //@}
 
     // Methods/Operators for the intersection operation:
     //@{
-    ///
     r_Sinterval &intersection_of(const r_Sinterval &, const r_Sinterval &);
-    ///
     r_Sinterval &intersection_with(const r_Sinterval &);
-    ///
     r_Sinterval &operator*=(const r_Sinterval &);
-    ///
     r_Sinterval create_intersection(const r_Sinterval &) const;
-    ///
-    r_Sinterval operator*(const r_Sinterval &)const;
-    ///
-    //@}
-
-    /// Mthods/Operators for checking whether one interval is within another
-    //@{
-    bool inside_of(const r_Sinterval &) const;
+    r_Sinterval operator*(const r_Sinterval &) const;
+    /// determines if the self interval intersects with the delivered one
+    bool intersects_with(const r_Sinterval &) const;
     //@}
 
     // Methods/Operators for the closure operation:
     //@{
-    ///
     r_Sinterval &closure_of(const r_Sinterval &, const r_Sinterval &);
-    ///
     r_Sinterval &closure_with(const r_Sinterval &);
-    ///
     r_Sinterval create_closure(const r_Sinterval &) const;
-    ///
     //@}
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s) const;
-
-    /// gives back the string representation
+    
+    /// Returns a string representation of this sinterval as a pointer that
+    /// should eventually be deallocated by the caller with `free()`.
     char *get_string_representation() const;
-    /**
-      The string representation delivered by this method is allocated using <tt>malloc()</tt> and
-      has to be free unsing <tt>free()</tt> in the end. It can be used to construct a <tt>r_Sinterval</tt>
-      again with a special constructor provided. The string representation is build using
-      <tt>print_status()</tt>.
-    */
+    
+    /// Returns a string representation of this sinterval as a string object.
+    std::string to_string() const;
 
     // Methods for internal use only:
     //@{
@@ -377,38 +344,25 @@ public:
 private:
     // Calculation methods for the operations:
     //@{
-    ///
     r_Sinterval calc_union(const r_Sinterval &a, const r_Sinterval &b) const;
-    ///
     r_Sinterval calc_difference(const r_Sinterval &a, const r_Sinterval &b) const;
-    ///
-    r_Sinterval calc_intersection(const r_Sinterval &a,
-                                  const r_Sinterval &b) const;
-    ///
+    r_Sinterval calc_intersection(const r_Sinterval &a, const r_Sinterval &b) const;
     r_Sinterval calc_closure(const r_Sinterval &a, const r_Sinterval &b) const;
-    ///
-    //@}
-
     /// compute the class of the two operands
     int classify(const r_Sinterval &a, const r_Sinterval &b) const;
-
-    // Attributes storing the bounds:
-    //@{
-    ///
-    r_Range lower_bound{0};
-    ///
-    r_Range upper_bound{0};
-    ///
     //@}
 
-    // Attributes specifying wheter the lower/upper bound is fixed or not:
-    //@{
-    ///
+    /// lower bound of the interval; invalid if low_fixed is false
+    r_Range lower_bound{};
+    /// upper bound of the interval; invalid if low_fixed is false
+    r_Range upper_bound{};
+
+    /// true if lower bound is fixed, false if it is '*'
     bool low_fixed{false};
-    ///
+    /// true if upper bound is fixed, false if it is '*'
     bool high_fixed{false};
-    ///
-    //@}
+    /// true if this is a slice rather than an interval; low == upper in this case
+    bool slice{false};
 };
 
 //@ManMemo: Module: {\bf raslib}

@@ -815,7 +815,7 @@ r_Polygon::getMiddle() const
     // Note that the summing up done here is a bit risky since overflows
     // give incorrect results.
 
-    r_Point retVal(2);
+    r_Point retVal{2u};
     double xSum = 0;
     double ySum = 0;
     int pointCount = 0;

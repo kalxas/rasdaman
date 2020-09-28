@@ -109,7 +109,7 @@ QtShift::evaluate(QtDataList *inputList)
         //
 
         QtMDD *qtMDDObj = static_cast<QtMDD *>(operand1);
-        r_Point transPoint(1);
+        r_Point transPoint(1u);
 
         // get transPoint
         if (operand2->getDataType() == QT_POINT)
@@ -1027,7 +1027,7 @@ QtScale::evaluate(QtDataList *inputList)
     MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
     MDDObj *resultMDD = new MDDObj(currentMDDObj->getMDDBaseType(), targetDomain, currentMDDObj->getNullValues());
 
-    auto sourceDomainOrigin = r_Point(scaleVector.size()); // all zero!!
+    auto sourceDomainOrigin = r_Point{r_Dimension(scaleVector.size())}; // all zero!!
 
     // get all tiles
     auto *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());

@@ -81,7 +81,7 @@ public:
 private:
     /// transpose src 2D array of size NxM to dst of size MxN
     template <class baseType>
-    void transpose(baseType* src, baseType* dst, const int N, const int M);
+    void transpose(baseType* src, baseType* dst, const size_t N, const size_t M);
 
 #ifdef HAVE_GRIB
 
@@ -105,7 +105,7 @@ private:
 
     /// check if the message bounds correspond to the bounds given by the format parameters
     void validateMessageDomain(FILE* in, grib_handle* h, int messageIndex,
-                               r_Range messageWidth, r_Range messageHeight, size_t messageArea);
+                               size_t messageWidth, size_t messageHeight, size_t messageArea);
 
     /**
      * Convert a subset of a GRIB message to the right sliceOffset in the rasddaman
@@ -117,7 +117,7 @@ private:
      * @param subsetOffset offset in the nD rasdaman array
      */
     void decodeSubset(char* messageData, r_Minterval messageDomain, r_Minterval targetDomain,
-                      size_t subsetOffset, r_Range subsetWidth, r_Range subsetHeight, size_t subsetArea);
+                      size_t subsetOffset, size_t subsetWidth, size_t subsetHeight, size_t subsetArea);
 
     /// get an r_Minterval object for domain in string representation
     r_Minterval domainStringToMinterval(const  char* domain);

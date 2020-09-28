@@ -79,7 +79,7 @@ void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType)
         data += sliceSize;
     }
     //swap the index assignments in the corresponding r_Minterval
-    dimData.transpose(dim - 2, dim - 1);
+    dimData.swap_dimensions(dim - 2, dim - 1);
 }
 
 void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams)

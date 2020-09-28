@@ -36,11 +36,15 @@
 
 #include <logging.hh>              // for Writer, CFATAL, LOG
 #include <string.h>                // for strdup
+#include <cassert>
 #include <algorithm>               // for max, min
 #include <stdexcept>               // for runtime_error
 #include <string>                  // for basic_string
 
 using namespace std;
+
+using Bound = r_Sinterval::BoundType;
+using Offset = r_Sinterval::OffsetType;
 
 r_Sinterval::r_Sinterval(const char *stringRep)
 {
@@ -88,60 +92,70 @@ r_Sinterval::r_Sinterval(const char *stringRep)
     }
 }
 
-r_Sinterval::r_Sinterval(r_Range newLow, r_Range newHigh)
-    : lower_bound(newLow), upper_bound(newHigh), low_fixed(true), high_fixed(true)
+r_Sinterval::r_Sinterval(r_Range low, r_Range high)
+    : lower_bound(low), upper_bound(high), low_fixed(true), high_fixed(true)
 {
-    if (newLow > newHigh)
+    if (low > high)
     {
         LERROR << "Invalid interval: lower bound (" << lower_bound
-               << ") is greater than the upper bound (" << newHigh << ").";
+               << ") is greater than the upper bound (" << high << ").";
         throw r_Eno_interval();
     }
 }
 
+r_Sinterval::r_Sinterval(r_Range point)
+    : lower_bound(point), upper_bound(point), low_fixed(true), high_fixed(true), slice(true)
+{
+}
+
 r_Sinterval::r_Sinterval(char, r_Range newHigh)
-    : lower_bound(0), upper_bound(newHigh), low_fixed(false), high_fixed(true)
+    : upper_bound(newHigh), high_fixed(true)
 {}
 
 r_Sinterval::r_Sinterval(r_Range newLow, char)
-    : lower_bound(newLow), upper_bound(0), low_fixed(true), high_fixed(false)
+    : lower_bound(newLow), low_fixed(true)
 {}
 
 r_Sinterval::r_Sinterval(char, char)
-    : lower_bound(0), upper_bound(0), low_fixed(false), high_fixed(false)
 {}
 
-bool r_Sinterval::operator==(const r_Sinterval &interval) const
+bool r_Sinterval::operator==(const r_Sinterval &o) const
 {
-    bool returnValue = true;
-    if (low_fixed)
-        returnValue = interval.low_fixed && lower_bound == interval.lower_bound;
-    else
-        returnValue = !interval.low_fixed;    // other is fixed -> false
-    if (returnValue)
+#define BOUNDS_EQUAL(bound, fixed) \
+    (fixed ? (o.fixed && bound == o.bound) : !o.fixed)
+    
+    return BOUNDS_EQUAL(lower_bound, low_fixed) && 
+           BOUNDS_EQUAL(upper_bound, high_fixed) && 
+           slice == o.slice;
+    
+#undef BOUNDS_EQUAL
+}
+
+bool r_Sinterval::operator!=(const r_Sinterval &o) const
+{
+    return !operator==(o);
+}
+
+Offset r_Sinterval::get_extent() const
+{
+    assert(upper_bound >= lower_bound);
+    
+    if (low_fixed && high_fixed)
     {
-        if (high_fixed)
-            returnValue = interval.high_fixed && upper_bound == interval.upper_bound;
-        else
-            returnValue = !interval.high_fixed;
+        return static_cast<Offset>(upper_bound - lower_bound + 1);
     }
-    return returnValue;
-}
-
-bool r_Sinterval::operator!=(const r_Sinterval &interval) const
-{
-    return !operator==(interval);
-}
-
-r_Range r_Sinterval::get_extent() const
-{
-    if (!low_fixed || !high_fixed)
+    else
     {
+        // TODO: eliminate this check into an assert
         LERROR << "Cannot get extent of interval (" << *this
                << ") as lower or upper bounds are not fixed.";
         throw r_Error(INTERVALOPEN);
     }
-    return upper_bound - lower_bound + 1;
+}
+
+bool r_Sinterval::is_fixed() const noexcept
+{
+    return low_fixed && high_fixed;
 }
 
 void r_Sinterval::set_low(r_Range newLow)
@@ -182,7 +196,7 @@ void r_Sinterval::set_interval(r_Range newLow, r_Range newHigh)
     high_fixed = true;
 }
 
-void r_Sinterval::set_interval(char, r_Range newHigh)
+void r_Sinterval::set_interval(char, r_Range newHigh) noexcept
 {
     lower_bound = 0;
     upper_bound = newHigh;
@@ -190,7 +204,7 @@ void r_Sinterval::set_interval(char, r_Range newHigh)
     high_fixed = true;
 }
 
-void r_Sinterval::set_interval(r_Range newLow, char)
+void r_Sinterval::set_interval(r_Range newLow, char) noexcept
 {
     lower_bound = newLow;
     upper_bound = 0;
@@ -198,12 +212,37 @@ void r_Sinterval::set_interval(r_Range newLow, char)
     high_fixed = false;
 }
 
-void r_Sinterval::set_interval(char, char)
+void r_Sinterval::set_interval(char, char) noexcept
 {
     lower_bound = 0;
     upper_bound = 0;
     low_fixed = false;
     high_fixed = false;
+}
+
+void r_Sinterval::set_slice() noexcept
+{
+    slice = true;
+}
+
+Offset r_Sinterval::get_offset_to(r_Sinterval::BoundType o) const noexcept
+{
+    assert(o >= lower_bound);
+    assert(low_fixed);
+    return static_cast<Offset>(o - lower_bound);
+}
+
+Offset r_Sinterval::get_offset_to(const r_Sinterval &o) const noexcept
+{
+    assert(o.is_low_fixed());
+    return get_offset_to(o.low());
+}
+
+r_Sinterval r_Sinterval::translate_by(Bound offset) const
+{
+    assert(low_fixed && high_fixed);
+    return slice ? r_Sinterval(lower_bound + offset)
+                 : r_Sinterval(lower_bound + offset, upper_bound + offset);
 }
 
 bool r_Sinterval::intersects_with(const r_Sinterval &interval) const
@@ -406,6 +445,9 @@ r_Sinterval r_Sinterval::calc_union(const r_Sinterval &a, const r_Sinterval &b) 
         throw r_Eno_interval();
     }
     }
+    
+    if (a.is_slice() && b.is_slice())
+        result.set_slice();
 
     return result;
 }
@@ -583,7 +625,10 @@ r_Sinterval::calc_intersection(const r_Sinterval &a, const r_Sinterval &b) const
         LDEBUG << "Cannot calculate intersection of intervals " << a << " and " << b << ".";
         throw r_Eno_interval();
     }
-
+    
+    if (a.is_slice() || b.is_slice())
+        result.set_slice();
+    
     return result;
 }
 
@@ -910,6 +955,18 @@ char *r_Sinterval::get_string_representation() const
     return strdup(domainStream.str().c_str());
 }
 
+string r_Sinterval::to_string() const
+{
+    std::string ret;
+    ret = low_fixed ? std::to_string(lower_bound) : "*";
+    if (!slice)
+    {
+        ret += ":";
+        ret += high_fixed ? std::to_string(upper_bound) : "*";
+    }
+    return ret;
+}
+
 std::ostream &operator<<(std::ostream &s, const r_Sinterval &d)
 {
     d.print_status(s);
@@ -917,43 +974,57 @@ std::ostream &operator<<(std::ostream &s, const r_Sinterval &d)
 }
 
 r_Range
-r_Sinterval::low() const
+r_Sinterval::low() const noexcept
 {
     return lower_bound;
 }
 
 
 r_Range
-r_Sinterval::high() const
+r_Sinterval::high() const noexcept
 {
     return upper_bound;
 }
 
 
 bool
-r_Sinterval::is_low_fixed() const
+r_Sinterval::is_low_fixed() const noexcept
 {
     return low_fixed;
 }
 
+bool
+r_Sinterval::is_low_unbounded() const noexcept
+{
+    return !low_fixed;
+}
+
 
 bool
-r_Sinterval::is_high_fixed() const
+r_Sinterval::is_high_fixed() const noexcept
 {
     return high_fixed;
 }
 
+bool r_Sinterval::is_high_unbounded() const noexcept
+{
+    return !high_fixed;
+}
+
+bool r_Sinterval::is_slice() const noexcept
+{
+    return slice;
+}
 
 void
-r_Sinterval::set_low(char)
+r_Sinterval::set_low(char) noexcept
 {
     lower_bound  = 0;
     low_fixed = false;
 }
 
-
 void
-r_Sinterval::set_high(char)
+r_Sinterval::set_high(char) noexcept
 {
     upper_bound   = 0;
     high_fixed = false;

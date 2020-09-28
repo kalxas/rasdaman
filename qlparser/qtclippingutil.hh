@@ -122,7 +122,7 @@ std::vector< std::vector< r_PointDouble >> vectorOfPairsWithoutMultiplicity(cons
 std::vector< r_Minterval > vectorOfResultTileDomains(const std::vector<r_Minterval> &bBoxes, const std::vector<r_Dimension> &projectionDims);
 
 //generate a vector of tiles with the given domains and base type, initialized to 0.
-//std::vector<boost::shared_ptr<Tile>> initializeTileVector(const std::vector<r_Minterval>& resTileDomains, const BaseType* resTileBasetype);
+//std::vector<std::shared_ptr<Tile>> initializeTileVector(const std::vector<r_Minterval>& resTileDomains, const BaseType* resTileBasetype);
 
 // takes the result of computeNDBresenhamLine or computeNDBresenhamSegment and an r_Minterval to find the index of the positions of the first and last points in a segment contained within the r_Minterval
 // note: this method assumes that lineSegmentArg exhibits monotonicity

@@ -41,6 +41,8 @@ rasdaman GmbH.
 #include <math.h>
 
 
+using DimType = r_Point::DimType;
+
 using namespace std;
 
 r_PointDouble::r_PointDouble(r_Dimension dim)
@@ -198,7 +200,7 @@ r_PointDouble::operator*(const r_PointDouble &pt) const
 }
 
 r_PointDouble
-r_PointDouble::operator*(const double scalarArg) const
+r_PointDouble::operator*(double scalarArg) const
 {
     r_PointDouble result(points);
     for (size_t it = 0; it < result.dimension(); it++)
@@ -207,6 +209,40 @@ r_PointDouble::operator*(const double scalarArg) const
     }
 
     return result;
+}
+
+r_PointDouble &r_PointDouble::operator+=(const r_PointDouble &a) noexcept(false)
+{
+    if (points.size() != a.dimension())
+        throw r_Edim_mismatch(dimension(), a.dimension());
+    for (DimType i = 0; i < dimension(); ++i)
+      points[i] += a[i];
+    return *this;
+}
+
+r_PointDouble &r_PointDouble::operator-=(const r_PointDouble &a) noexcept(false)
+{
+    if (points.size() != a.dimension())
+        throw r_Edim_mismatch(dimension(), a.dimension());
+    for (DimType i = 0; i < dimension(); ++i)
+      points[i] -= a[i];
+    return *this;
+}
+
+r_PointDouble &r_PointDouble::operator*=(const r_PointDouble &a) noexcept(false)
+{
+    if (points.size() != a.dimension())
+        throw r_Edim_mismatch(dimension(), a.dimension());
+    for (DimType i = 0; i < dimension(); ++i)
+      points[i] *= a[i];
+    return *this;
+}
+
+r_PointDouble &r_PointDouble::operator*=(double a) noexcept
+{
+    for (DimType i = 0; i < dimension(); ++i)
+      points[i] *= a;
+    return *this;
 }
 
 double
@@ -246,7 +282,7 @@ void r_PointDouble::print_status(std::ostream &s) const
 
 r_Point r_PointDouble::toIntPoint() const
 {
-    r_Point returnValue(dimension());
+    r_Point returnValue{static_cast<r_Dimension>(dimension())};
     for (size_t i = 0; i < dimension(); i++)
     {
         returnValue[i] = static_cast<r_Range>(std::round(points[i]));
@@ -254,10 +290,10 @@ r_Point r_PointDouble::toIntPoint() const
     return returnValue;
 }
 
-size_t
+r_Dimension
 r_PointDouble::dimension() const
 {
-    return points.size();
+    return static_cast<r_Dimension>(points.size());
 }
 
 const std::vector<double> &

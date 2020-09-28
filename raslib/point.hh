@@ -48,21 +48,26 @@ rasdaman GmbH.
 class r_Point
 {
 public:
+    // the coordinates underlying type
+    using value_type = r_Range;
+    using DimType = r_Dimension;
+    
     /// default constructor
     r_Point() = default;
     /// constructor getting dimensionality for stream initializing
-    r_Point(r_Dimension);
+    explicit r_Point(r_Dimension);
 
     /// constructor taking string representation (e.g. [ 1, 2, 3])
-    r_Point(char *);
+    explicit r_Point(char *);
 
     //@Man: 'easy-to-use' constructors
     //@{
+    explicit r_Point(r_Range);
     r_Point(r_Range, r_Range);
     r_Point(r_Range, r_Range, r_Range);
     r_Point(r_Range, r_Range, r_Range, r_Range);
     r_Point(r_Range, r_Range, r_Range, r_Range, r_Range);
-    r_Point(const std::vector<r_Range> &pointArg);
+    explicit r_Point(std::vector<r_Range> pointArg);
     //@}
 
     /// copy constructor
@@ -73,16 +78,23 @@ public:
     
     /// stream-input operator for stream initializing
     r_Point &operator<<(r_Range);
-
+    
     /// subscriptor for read access
     r_Range operator[](r_Dimension) const;
     /// subscriptor for write access
     r_Range &operator[](r_Dimension);
+    
+    /// subscriptor for read access with bound-checking
+    r_Range at(r_Dimension) const;
+    /// subscriptor for write access with bound-checking
+    r_Range &at(r_Dimension);
 
     /// assignment: cleanup + copy
     r_Point &operator=(const r_Point &) = default;
 
     /// compares this point with the given point.
+    /// @return -2 if dimensions do not match, -1 if this point is smaller,
+    /// 0 if equal, 1 if greater than p.
     int compare_with(const r_Point &p) const;
     /**
       Returns 0 if this == p, -1 if this < p, 1 if this > p (considering
@@ -116,17 +128,11 @@ public:
     /// vector multiplication with a scalar
     r_Point operator*(const r_Range newElement) const;
 
-    /// create a new r_Point r from the vector argument vecArg where r(i) = this->at(vecArg(i))
-    r_Point indexedMap(const std::vector<r_Dimension> &vecArg) const;
-
-    /// vector dotProduct
-    r_Range dotProduct(const r_Point &r) const;
-
     /// get dimensionality
     r_Dimension dimension() const;
 
     /// get vectorized version of the stored point
-    std::vector<r_Range> getVector() const;
+    std::vector<r_Range> get_coordinates() const;
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s) const;
@@ -144,14 +150,14 @@ public:
      * If you want the output of <tt> get_string_representation()</tt>,
      * but you do not want to worry about memory allocation/deallocation.
      */
-    std::string to_string() const;
+    std::string to_string(bool wkt = false) const;
 
 private:
     void checkDimensionMatch(const r_Point &pt) const;
     
     /// array holding the point coordinates
     std::vector<r_Range> points;
-    size_t streamIndex{0};
+    size_t streamIndex{};
 };
 
 extern std::ostream &operator<<(std::ostream &s, const r_Point &d);

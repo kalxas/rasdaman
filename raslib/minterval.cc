@@ -45,38 +45,34 @@ rasdaman GmbH.
 #include <memory>
 #include <ostream>              // for operator<<, basic_ostream, char_traits
 #include <vector>
+#include <deque>
+
+using BoundType = r_Sinterval::BoundType;
 
 using namespace std;
 
 r_Minterval::r_Minterval(const r_Point &low, const r_Point &high)
 {
-    dimensionality = low.dimension();
-    if (dimensionality != high.dimension())
+    const auto dim = low.dimension();
+    if (dim != high.dimension())
     {
-        throw r_Edim_mismatch(low.dimension(), high.dimension());
+        throw r_Edim_mismatch(dim, high.dimension());
     }
-    std::unique_ptr<r_Sinterval> temp_intervals(new r_Sinterval[ dimensionality ]);
 
-
-    for (r_Dimension i = 0; i < low.dimension(); ++i)
+    intervals.reserve(dim);
+    for (r_Dimension i = 0; i < dim; ++i)
     {
-        r_Sinterval aux;
         if (low[i] > high[i])
         {
             throw r_Elimits_mismatch(low[i], high[i]);
         }
-        aux.set_low(low[i]);
-        aux.set_high(high[i]);
-        temp_intervals.get()[i] = aux;
+        intervals.emplace_back(low[i], high[i]);
     }
-
-    intervals = temp_intervals.release();
 }
 
 r_Minterval::r_Minterval(r_Dimension dim)
-    : intervals(nullptr), dimensionality(dim), streamInitCnt(0)
+    : intervals(dim)
 {
-    intervals = new r_Sinterval[dimensionality];
 }
 
 void r_Minterval::constructorinit(char *mIntStr)
@@ -87,43 +83,30 @@ void r_Minterval::constructorinit(char *mIntStr)
         throw r_Eno_interval();
     }
 
-    char *p = nullptr; // for counting ','
-    // for parsing the string
-    std::istringstream str(mIntStr);
-    char c = 0;
-    r_Sinterval sint;
-    r_Range b = 0; // bound for Sinterval
-
-    if (intervals != nullptr)
-    {
-        delete intervals;
-        intervals = nullptr;
-    }
-
     // calculate dimensionality
-    p = mIntStr;
+    char *p = mIntStr; // for counting ','
+    r_Dimension dimensionality = 1;
     while ((p = strchr(++p, ',')))
     {
         dimensionality++;
     }
 
-    // allocate space for intervals
-    intervals = new r_Sinterval[dimensionality];
-
+    // for parsing the string
+    std::istringstream str(mIntStr);
+    
     // check for left bracket '['
+    char c = 0;
     str >> c;
     if (c != '[')
     {
-        // error, should perhaps raise exception
-        dimensionality = 0;
-        delete[] intervals;
-        intervals = nullptr;
         LERROR << "cannot create minterval from string (" << mIntStr
                << ") that is not of the pattern [a:b,c:d,..].";
         throw r_Eno_interval();
     }
 
     // for each dimension: get sinterval
+    r_Sinterval sint;
+    r_Range b = 0; // bound for Sinterval
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
         // --- evaluate lower bound ------------------------------
@@ -149,10 +132,6 @@ void r_Minterval::constructorinit(char *mIntStr)
         str >> c;
         if (c != ':')
         {
-            // error
-            dimensionality = 0;
-            delete[] intervals;
-            intervals = nullptr;
             LERROR << "cannot create minterval from string (" << mIntStr
                    << ") that is not of the pattern [a:b,c:d,..].";
             throw r_Eno_interval();
@@ -179,45 +158,44 @@ void r_Minterval::constructorinit(char *mIntStr)
         str >> c;
 
         // --- next dimension needs either ',' separator or ']' end tag
-        if ((i != dimensionality - 1 && c != ',') || (i == dimensionality - 1 && c != ']'))
+        if ((i != dimensionality - 1 && c != ',') || 
+            (i == dimensionality - 1 && c != ']'))
         {
-            dimensionality = 0;
-            delete[] intervals;
-            intervals = nullptr;
             LERROR << "cannot create minterval from string (" << mIntStr
                    << ") that is not of the pattern [a:b,c:d,..].";
             throw r_Eno_interval();
         }
 
-        intervals[i] = sint;
-
+        intervals.push_back(sint);
         sint.set_interval('*', '*');
     }
 }
 
 r_Minterval::r_Minterval(char *mIntStr)
-    : intervals(nullptr), dimensionality(1), streamInitCnt(0)
 {
     constructorinit(mIntStr);
 }
 
-r_Minterval::r_Minterval(const char *mIntStr)
-    : intervals(nullptr), dimensionality(1), streamInitCnt(0)
+r_Minterval::r_Minterval(std::vector<r_Sinterval> intervalsArg)
+    : intervals{std::move(intervalsArg)}
 {
-    char *temp = static_cast<char *>(malloc((1 + strlen(mIntStr)) * sizeof(char)));
-    strcpy(temp, mIntStr);
+    assert(!intervals.empty() && "Invalid minterval without sintervals.");
+}
 
+r_Minterval::r_Minterval(const char *mIntStr)
+{
+    char *temp = strdup(mIntStr);
     try
     {
         constructorinit(temp);
         free(temp);
+        temp = nullptr;
     }
     catch (...)
     {
         free(temp);
         throw;
     }
-    temp = nullptr;
 }
 
 const std::vector<std::string> &r_Minterval::getAxisNames() const
@@ -232,7 +210,7 @@ void r_Minterval::setAxisNames(std::vector<std::string> newAxisNames) {
 r_Minterval &r_Minterval::operator<<(const r_Sinterval &newInterval)
 {
     // TODO: should be assert
-    if (streamInitCnt >= dimensionality)
+    if (streamInitCnt >= dimension())
     {
         LERROR << "cannot add interval (" << newInterval << "), domain is already full";
         throw r_Einit_overflow();
@@ -245,7 +223,7 @@ r_Minterval &r_Minterval::operator<<(const r_Sinterval &newInterval)
 r_Minterval &r_Minterval::operator<<(r_Range p)
 {
     // TODO: should be assert
-    if (streamInitCnt >= dimensionality)
+    if (streamInitCnt >= dimension())
     {
         LERROR << "cannot add interval (" << p << ":" << p << "), domain is already full";
         throw r_Einit_overflow();
@@ -255,60 +233,18 @@ r_Minterval &r_Minterval::operator<<(r_Range p)
     return *this;
 }
 
-r_Minterval::r_Minterval()
-    : intervals(nullptr), dimensionality(0), streamInitCnt(0)
+r_Minterval r_Minterval::fromPoint(const r_Point &p)
 {
-}
-
-// cannot use the initialise function because it will crash
-r_Minterval::r_Minterval(const r_Minterval &minterval)
-    : intervals(nullptr), dimensionality(0), streamInitCnt(0)
-{
-    axisNames = minterval.axisNames;
-    dimensionality = minterval.dimensionality;
-    streamInitCnt = minterval.streamInitCnt;
-    if (minterval.intervals)
-    {
-        intervals = new r_Sinterval[dimensionality];
-        for (r_Dimension i = 0; i < dimensionality; i++)
-        {
-            intervals[i] = minterval[i];
-        }
-    }
-}
-
-r_Minterval::r_Minterval(const r_Minterval &minterval, const std::vector<std::string> &axisNames2)
-    : intervals(nullptr), dimensionality(0), axisNames(axisNames2), streamInitCnt(0)
-{
-    dimensionality = minterval.dimensionality;
-    streamInitCnt = minterval.streamInitCnt;
-    if (minterval.intervals)
-    {
-        intervals = new r_Sinterval[dimensionality];
-        for (r_Dimension i = 0; i < dimensionality; i++)
-        {
-            intervals[i] = minterval[i];
-        }
-    }
-}
-
-r_Minterval::~r_Minterval()
-{
-    r_deactivate();
-}
-
-void r_Minterval::r_deactivate()
-{
-    if (intervals)
-    {
-        delete[] intervals;
-        intervals = nullptr;
-    }
+    std::vector<r_Sinterval> axes;
+    axes.reserve(p.dimension());
+    for (DimType i = 0; i < p.dimension(); ++i)
+      axes.emplace_back(p[i]);
+    return r_Minterval{std::move(axes)};
 }
 
 bool r_Minterval::intersects_with(const r_Minterval &minterval) const
 {
-    if (dimensionality != minterval.dimension())
+    if (dimension() != minterval.dimension())
     {
 #ifdef RASDEBUG
         LDEBUG << "cannot check if " << this << " and " << minterval <<
@@ -318,31 +254,34 @@ bool r_Minterval::intersects_with(const r_Minterval &minterval) const
     }
 
     // none of the interval pairs are allowed to be disjoint
-    for (r_Dimension i = 0; i < dimensionality; ++i)
+    for (r_Dimension i = 0; i < dimension(); ++i)
         if (!intervals[i].intersects_with(minterval[i]))
             return false;
 
     return true;
 }
 
-bool r_Minterval::inside_of(const r_Minterval &minterval) const
-{
-    if (dimensionality != minterval.dimension())
-    {
-#ifdef RASDEBUG
-        LDEBUG << "cannot check if " << this << " and " << minterval <<
-               " intersect, mintervals do not share the same dimension.";
-#endif
-        return false;
+bool r_Minterval::touches(const r_Minterval &right) const {
+  assert(is_fixed() && right.is_fixed() && "Domains with invalid bounds.");
+  assert(dimension() == right.dimension());
+
+  if (intersects_with(right)) {
+    for (DimType i = 0; i < dimension(); ++i) {
+      const auto llo = intervals[i].low();
+      const auto lhi = intervals[i].high();
+      const auto rlo = right[i].low();
+      const auto rhi = right[i].high();
+      // touches if no lo/hi is between the lo/hi of the other sdom for all dims
+      if ((llo > rlo && llo < rhi) || (lhi > rlo && lhi < rhi) ||
+          (rlo > llo && rlo < lhi) || (rhi > llo && rhi < lhi) ||
+          (llo == rlo && lhi == rhi)) {
+        ;
+      } else {
+        return true;
+      }
     }
-
-    // none of the interval pairs are allowed to be disjoint
-    for (r_Dimension i = 0; i < dimensionality; ++i)
-        if (!(intervals[i].inside_of(minterval[i]))){
-            return false;
-        }
-
-    return true;
+  }
+  return false;
 }
 
 const r_Sinterval &r_Minterval::at_unsafe(r_Dimension dim) const
@@ -354,97 +293,64 @@ r_Sinterval &r_Minterval::at_unsafe(r_Dimension dim)
     return intervals[dim];
 }
 
-#ifndef OPT_INLINE
+// todo: remove bound checking so that it has same semantics as std::vector
 const r_Sinterval &r_Minterval::operator[](r_Dimension i) const
 {
-    if (i < dimensionality)
+    if (i < dimension())
     {
         return intervals[i];
     }
     else
     {
         LERROR << "interval index " << i << " out of bounds on minterval " << *this;
-        throw r_Eindex_violation(0, dimensionality - 1, i);
+        throw r_Eindex_violation(0, dimension() - 1, i);
     }
 }
 
+// todo: remove bound checking so that it has same semantics as std::vector
 r_Sinterval &r_Minterval::operator[](r_Dimension i)
 {
-    if (i < dimensionality)
+    if (i < dimension())
     {
         return intervals[i];
     }
     else
     {
         LERROR << "interval index " << i << " out of bounds on minterval " << *this;
-        throw r_Eindex_violation(0, dimensionality - 1, i);
+        throw r_Eindex_violation(0, dimension() - 1, i);
     }
 }
-#endif
 
-const r_Minterval &r_Minterval::operator=(const r_Minterval &minterval)
+const r_Sinterval &r_Minterval::at(r_Dimension i) const
 {
-    if (this != &minterval)
+    if (i < dimension())
     {
-        if (intervals && dimensionality != minterval.dimension())
-        {
-            delete[] intervals;
-            intervals = nullptr;
-        }
-
-        dimensionality = minterval.dimension();
-        streamInitCnt = minterval.streamInitCnt;
-        axisNames = minterval.axisNames;
-        if (minterval.intervals)
-        {
-            if (!intervals)
-            {
-                intervals = new r_Sinterval[dimensionality];
-            }
-
-            for (r_Dimension i = 0; i < dimensionality; i++)
-            {
-                intervals[i] = minterval[i];
-            }
-        }
+        return intervals[i];
     }
-
-    return *this;
+    else
+    {
+        LERROR << "interval index " << i << " out of bounds on minterval " << *this;
+        throw r_Eindex_violation(0, dimension() - 1, i);
+    }
 }
 
-bool r_Minterval::operator==(const r_Minterval &mint) const
+r_Sinterval &r_Minterval::at(r_Dimension i)
 {
-    bool returnValue = false;
-
-    if (dimensionality == mint.dimensionality)
+    if (i < dimension())
     {
-        returnValue = true;
-
-        for (r_Dimension i = 0; i < dimensionality && returnValue; i++)
-        {
-            if (intervals[i] != mint[i])
-            {
-                returnValue = false;
-                break;
-            }
-        }
+        return intervals[i];
     }
-
-    return returnValue;
+    else
+    {
+        LERROR << "interval index " << i << " out of bounds on minterval " << *this;
+        throw r_Eindex_violation(0, dimension() - 1, i);
+    }
 }
 
-bool r_Minterval::equal_extents(const r_Minterval &other) const
+bool r_Minterval::operator==(const r_Minterval &o) const
 {
-    if (dimension() == other.dimension())
-    {
-        for (r_Dimension i = 0; i < dimensionality; i++)
-            if (intervals[i].get_extent() != other[i].get_extent())
-            {
-                return false;
-            }
-        return true;
-    }
-    return false;
+    return (dimension() == o.dimension()) &&
+           std::equal(intervals.begin(), intervals.end(), o.intervals.begin());
 }
 
 bool r_Minterval::operator!=(const r_Minterval &mint) const
@@ -452,13 +358,26 @@ bool r_Minterval::operator!=(const r_Minterval &mint) const
     return !operator==(mint);
 }
 
+bool r_Minterval::equal_extents(const r_Minterval &other) const
+{
+    if (dimension() == other.dimension())
+    {
+        for (r_Dimension i = 0; i < dimension(); i++)
+        {
+            if (intervals[i].get_extent() != other[i].get_extent())
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 r_Point r_Minterval::get_origin() const
 {
-
     if (is_origin_fixed())
     {
-        r_Point pt(dimensionality);
-        for (r_Dimension i = 0; i < dimensionality; i++)
+        r_Point pt(dimension());
+        for (r_Dimension i = 0; i < dimension(); i++)
         {
             pt[i] = intervals[i].low();
         }
@@ -475,8 +394,8 @@ r_Point r_Minterval::get_high() const
 {
     if (is_high_fixed())
     {
-        r_Point pt(dimensionality);
-        for (r_Dimension i = 0; i < dimensionality; i++)
+        r_Point pt(dimension());
+        for (r_Dimension i = 0; i < dimension(); i++)
         {
             pt[i] = intervals[i].high();
         }
@@ -493,10 +412,10 @@ r_Point r_Minterval::get_extent() const
 {
     if (is_origin_fixed() && is_high_fixed())
     {
-        r_Point pt(dimensionality);
-        for (r_Dimension i = 0; i < dimensionality; i++)
+        r_Point pt(dimension());
+        for (r_Dimension i = 0; i < dimension(); i++)
         {
-            pt[i] = intervals[i].get_extent();
+            pt[i] = static_cast<r_Range>(intervals[i].get_extent());
         }
         return pt;
     }
@@ -509,11 +428,11 @@ r_Point r_Minterval::get_extent() const
 
 r_Minterval &r_Minterval::reverse_translate(const r_Point &t)
 {
-    if (dimensionality != t.dimension())
+    if (dimension() != t.dimension())
     {
         LERROR << "cannot reverse_translate minterval " << *this
                << " by a point of mismatching dimension " << t;
-        throw (r_Edim_mismatch(dimensionality, t.dimension()));
+        throw (r_Edim_mismatch(dimension(), t.dimension()));
     }
     if (!is_origin_fixed() || !is_high_fixed())
     {
@@ -521,7 +440,7 @@ r_Minterval &r_Minterval::reverse_translate(const r_Point &t)
         throw r_Error(INTERVALOPEN);
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].set_interval(intervals[i].low() - t[i], intervals[i].high() - t[i]);
     }
@@ -531,11 +450,11 @@ r_Minterval &r_Minterval::reverse_translate(const r_Point &t)
 
 r_Minterval &r_Minterval::translate(const r_Point &t)
 {
-    if (dimensionality != t.dimension())
+    if (dimension() != t.dimension())
     {
         LERROR << "cannot translate minterval " << *this
                << " by a point of mismatching dimension " << t;
-        throw (r_Edim_mismatch(dimensionality, t.dimension()));
+        throw (r_Edim_mismatch(dimension(), t.dimension()));
     }
 
     if (!is_origin_fixed() || !is_high_fixed())
@@ -544,7 +463,7 @@ r_Minterval &r_Minterval::translate(const r_Point &t)
         throw r_Error(INTERVALOPEN);
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
         intervals[i].set_interval(intervals[i].low() + t[i],
                                   intervals[i].high() + t[i]);
 
@@ -569,7 +488,7 @@ r_Minterval &r_Minterval::scale(const double &d)
 {
     vector<double> scaleVec;
     // create scale vector
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         scaleVec.push_back(d);
     }
@@ -583,12 +502,12 @@ r_Minterval &r_Minterval::scale(const vector<double> &scaleVec)
     double high = 0., low = 0.;
 
     // if the size of scale vector is different from dimensionality, undefined behaviour
-    if (scaleVec.size() != dimensionality)
+    if (scaleVec.size() != dimension())
     {
-        throw r_Edim_mismatch(scaleVec.size(), dimensionality);
+        throw r_Edim_mismatch(scaleVec.size(), dimension());
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         // do explicit rounding, because the cast down in set_interval doesn't do
         // the good rounding for negative values -- PB 2005-jun-19
@@ -631,6 +550,43 @@ r_Minterval r_Minterval::create_scale(const vector<double> &scaleVec) const
     return result;
 }
 
+std::vector<double> r_Minterval::scale_of(const r_Minterval &op) const
+{
+    const auto &original = *this;
+    assert(original.dimension() == op.dimension());
+  
+    const auto dim = original.dimension();
+    std::vector<double_t> factor(dim);
+  
+    for (DimType i = 0; i < dim; i++) {
+      if (op[i].is_slice()) {
+        factor[i] = double(op[i].low());
+      } else {
+        const auto &interval = original[i];
+        double source = double(interval.get_extent());
+        if (source != 0.0) {
+          double target = double(op[i].get_extent());
+  
+          auto f = target / source;
+          auto low = BoundType(f * double(interval.low()));
+          //correction by 1e-6 to avoid the strange bug when high was a
+          //integer value and floor return value-1(e.g. query 47.ql)
+          auto high = std::max(
+              BoundType(f * (double(interval.high()) + 1) + 0.000001) - 1, low);
+          // apparently the above correction doesn't work for certain big numbers,
+          // e.g. 148290:148290 is scaled to 74145:74144 (invalid) by factor,
+          // so we add a max above to make sure high isn't less than low.
+  
+          if (double(high - low + 1) != target) {
+            f = f + (target - double(high - low + 1)) / source;
+          }
+          factor[i] = f;
+        }
+      }
+    }
+    return factor;
+}
+
 r_Minterval &
 r_Minterval::union_of(const r_Minterval &mint1, const r_Minterval &mint2)
 {
@@ -641,17 +597,12 @@ r_Minterval::union_of(const r_Minterval &mint1, const r_Minterval &mint2)
     }
 
     // cleanup + initializing of this
-    if (dimensionality != mint1.dimension())
+    if (dimension() != mint1.dimension())
     {
-        if (intervals)
-        {
-            delete[] intervals;
-        }
-        dimensionality = mint1.dimension();
-        streamInitCnt = dimensionality;
-        intervals = new r_Sinterval[dimensionality];
+        streamInitCnt = mint1.dimension();
+        intervals = std::vector<r_Sinterval>(mint1.dimension());
     }
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].union_of(mint1[i], mint2[i]);
     }
@@ -661,13 +612,13 @@ r_Minterval::union_of(const r_Minterval &mint1, const r_Minterval &mint2)
 
 r_Minterval &r_Minterval::union_with(const r_Minterval &mint)
 {
-    if (dimensionality != mint.dimension())
+    if (dimension() != mint.dimension())
     {
         LERROR << "cannot create union of mintervals of mismatching dimensions: " << mint << " and " << *this;
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].union_with(mint[i]);
     }
@@ -682,15 +633,15 @@ r_Minterval &r_Minterval::operator+=(const r_Minterval &mint)
 
 r_Minterval r_Minterval::create_union(const r_Minterval &mint) const
 {
-    if (dimensionality != mint.dimension())
+    if (dimension() != mint.dimension())
     {
         LERROR << "cannot create union of mintervals of mismatching dimensions: " << mint << " and " << *this;
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
-    r_Minterval result(dimensionality);
+    r_Minterval result(dimension());
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         result << intervals[i].create_union(mint[i]);
     }
@@ -712,20 +663,13 @@ r_Minterval &r_Minterval::difference_of(const r_Minterval &mint1,
         throw (r_Edim_mismatch(mint1.dimension(), mint2.dimension()));
     }
 
-    if (dimensionality != mint1.dimension())
+    if (dimension() != mint1.dimension())
     {
-        // cleanup + initializing of this
-        if (intervals)
-        {
-            delete[] intervals;
-        }
-
-        dimensionality = mint1.dimension();
-        streamInitCnt = dimensionality;
-        intervals = new r_Sinterval[dimensionality];
+        streamInitCnt = mint1.dimension();
+        intervals = std::vector<r_Sinterval>(mint1.dimension());
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].difference_of(mint1[i], mint2[i]);
     }
@@ -735,13 +679,13 @@ r_Minterval &r_Minterval::difference_of(const r_Minterval &mint1,
 
 r_Minterval &r_Minterval::difference_with(const r_Minterval &mint)
 {
-    if (dimensionality != mint.dimension())
+    if (dimension() != mint.dimension())
     {
         LERROR << "cannot create difference of mintervals of mismatching dimensions: " << mint << " and " << *this;
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].difference_with(mint[i]);
     }
@@ -756,15 +700,15 @@ r_Minterval &r_Minterval::operator-=(const r_Minterval &mint)
 
 r_Minterval r_Minterval::create_difference(const r_Minterval &mint) const
 {
-    if (dimensionality != mint.dimension())
+    if (dimension() != mint.dimension())
     {
         LERROR << "cannot create difference of mintervals of mismatching dimensions: " << mint << " and " << *this;
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
-    r_Minterval result(dimensionality);
+    r_Minterval result(dimension());
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         result << intervals[i].create_difference(mint[i]);
     }
@@ -785,20 +729,13 @@ r_Minterval::intersection_of(const r_Minterval &mint1, const r_Minterval &mint2)
         LERROR << "cannot create intersection of mintervals of mismatching dimensions: " << mint1 << " and " << mint2;
         throw (r_Edim_mismatch(mint1.dimension(), mint2.dimension()));
     }
-    if (dimensionality != mint1.dimension())
+    if (dimension() != mint1.dimension())
     {
-        // cleanup + initializing of this
-        if (intervals)
-        {
-            delete[] intervals;
-        }
-
-        dimensionality = mint1.dimension();
-        streamInitCnt = dimensionality;
-        intervals = new r_Sinterval[dimensionality];
+        streamInitCnt = mint1.dimension();
+        intervals = std::vector<r_Sinterval>(mint1.dimension());
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].intersection_of(mint1[i], mint2[i]);
     }
@@ -807,13 +744,13 @@ r_Minterval::intersection_of(const r_Minterval &mint1, const r_Minterval &mint2)
 
 r_Minterval &r_Minterval::intersection_with(const r_Minterval &mint)
 {
-    if (dimensionality != mint.dimension())
+    if (dimension() != mint.dimension())
     {
         LERROR << "cannot create intersection of mintervals of mismatching dimensions: " << mint << " and " << *this;
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].intersection_with(mint[i]);
     }
@@ -828,15 +765,15 @@ r_Minterval &r_Minterval::operator*=(const r_Minterval &mint)
 
 r_Minterval r_Minterval::create_intersection(const r_Minterval &mint) const
 {
-    if (dimensionality != mint.dimension())
+    if (dimension() != mint.dimension())
     {
         LERROR << "cannot create intersection of mintervals of mismatching dimensions: " << mint << " and " << *this;
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
-    r_Minterval result(dimensionality);
+    r_Minterval result(dimension());
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         result << intervals[i].create_intersection(mint[i]);
     }
@@ -857,20 +794,13 @@ r_Minterval::closure_of(const r_Minterval &mint1, const r_Minterval &mint2)
         LERROR << "cannot create closure of mintervals of mismatching dimensions: " << mint1 << " and " << mint2;
         throw (r_Edim_mismatch(mint1.dimension(), mint2.dimension()));
     }
-    if (mint1.dimension() != dimensionality)
+    if (mint1.dimension() != dimension())
     {
-        // cleanup + initializing of this
-        if (intervals)
-        {
-            delete[] intervals;
-        }
-
-        dimensionality = mint1.dimension();
-        streamInitCnt = dimensionality;
-        intervals = new r_Sinterval[dimensionality];
+        streamInitCnt = mint1.dimension();
+        intervals = std::vector<r_Sinterval>(mint1.dimension());
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].closure_of(mint1[i], mint2[i]);
     }
@@ -880,13 +810,13 @@ r_Minterval::closure_of(const r_Minterval &mint1, const r_Minterval &mint2)
 
 r_Minterval &r_Minterval::closure_with(const r_Minterval &mint)
 {
-    if (dimensionality != mint.dimension())
+    if (dimension() != mint.dimension())
     {
         LERROR << "cannot create closure of mintervals of mismatching dimensions: " << mint << " and " << *this;
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         intervals[i].closure_with(mint[i]);
     }
@@ -896,15 +826,15 @@ r_Minterval &r_Minterval::closure_with(const r_Minterval &mint)
 
 r_Minterval r_Minterval::create_closure(const r_Minterval &mint) const
 {
-    if (dimensionality != mint.dimension())
+    if (dimension() != mint.dimension())
     {
         LERROR << "cannot create closure of mintervals of mismatching dimensions: " << mint << " and " << *this;
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
-    r_Minterval result(dimensionality);
+    r_Minterval result(dimension());
 
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         result << intervals[i].create_closure(mint[i]);
     }
@@ -912,33 +842,82 @@ r_Minterval r_Minterval::create_closure(const r_Minterval &mint) const
     return result;
 }
 
+std::vector<r_Minterval> r_Minterval::extension_of(const r_Minterval &big) const
+{
+    const auto &small = *this;
+    const auto dim = big.dimension();
+    assert(dim == dimension());
+  
+    // if big doesn't contain small then the only result domain is big
+    if (!big.covers(*this))
+      return {big};
+  
+    // left contains intervals [s_low,s_high] (small domain)
+    // right contains intervals [b_low, b_high] (big domain)
+    // result contains domains of the form
+    // { left :: [b_low,s_low-1] :: right , left :: [s_high+1,b_high] :: right }
+    std::vector<r_Minterval> result;
+    std::deque<r_Sinterval> left, right;
+  
+    for (DimType i = 0; i < dim; i++)
+      right.push_back(big[i]);
+  
+    for (DimType i = 0; i < dim; i++) {
+      right.pop_front();
+      if (intervals[i].high() < big[i].high()) {
+        std::vector<r_Sinterval> tmp;
+        tmp.reserve(dim);
+        for (const auto &x: left) tmp.emplace_back(x);
+        tmp.emplace_back(small[i].high() + 1, big[i].high());
+        for (const auto &x: right) tmp.emplace_back(x);
+  
+        result.emplace_back(tmp);
+      }
+      if (small[i].low() > big[i].low()) {
+        std::vector<r_Sinterval> tmp;
+        tmp.reserve(dim);
+        for (const auto &x: left) tmp.emplace_back(x);
+        tmp.emplace_back(big[i].low(), small[i].low() - 1);
+        for (const auto &x: right) tmp.emplace_back(x);
+  
+        result.emplace_back(tmp);
+      }
+      left.push_back(small[i]);
+    }
+  
+    return result;
+}
+
 r_Minterval
 r_Minterval::trim_along_slice(const r_Minterval &mint, const std::vector<r_Dimension> &projDims) const
 {
-    if (dimensionality < mint.dimension())
+    if (dimension() < mint.dimension())
     {
-        LERROR << "r_Minterval:trim_along_slice(" << mint << ") dimensions (" << dimensionality << ") do not coincide";
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        LERROR << "r_Minterval:trim_along_slice(" << mint << ") dimensions (" 
+               << dimension() << ") do not coincide";
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
-    else if (projDims.size() >= dimensionality)
+    else if (projDims.size() >= dimension())
     {
-        LERROR << "r_Minterval:trim_along_slice(" << projDims.size() << ") dimensions (" << dimensionality << ") do not coincide";
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+        LERROR << "r_Minterval:trim_along_slice(" << projDims.size() << ") dimensions (" 
+               << dimension() << ") do not coincide";
+        throw (r_Edim_mismatch(dimension(), mint.dimension()));
     }
 
     for (size_t i = 0; i < projDims.size(); i++)
     {
-        if (projDims[i] >= dimensionality)
+        if (projDims[i] >= dimension())
         {
-            LERROR << "r_Minterval:trim_along_slice(" << projDims[i] << ") dimensions (" << dimensionality << ") do not coincide";
-            throw (r_Edim_mismatch(dimensionality, projDims[i]));
+            LERROR << "r_Minterval:trim_along_slice(" << projDims[i] << ") dimensions (" 
+                   << dimension() << ") do not coincide";
+            throw (r_Edim_mismatch(dimension(), projDims[i]));
         }
     }
 
-    r_Minterval result(dimensionality);
+    r_Minterval result(dimension());
 
     size_t projCtr = 0;
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
         if (projCtr < projDims.size() && projDims[projCtr] == i)
         {
@@ -959,39 +938,29 @@ r_Minterval::trim_along_slice(const r_Minterval &mint, const std::vector<r_Dimen
 r_Minterval
 r_Minterval::project_along_dims(const std::vector<r_Dimension> &projDims) const
 {
-    for (size_t i = 0; i < projDims.size(); i++)
-    {
-        if (projDims[i] >= dimensionality)
-        {
-            LERROR << "r_Minterval:project_along_dims(" << projDims[i] << ") dimensions (" << dimensionality << ") do not coincide";
-            throw (r_Edim_mismatch(dimensionality, projDims[i]));
-        }
-    }
-
     r_Minterval result(projDims.size());
-
-    for (auto projDimIter = projDims.begin(); projDimIter != projDims.end(); projDimIter++)
+    for (auto projDim: projDims)
     {
-        result << intervals[*projDimIter];
+        if (projDim >= dimension())
+        {
+            LERROR << "cannot project axis " << projDim 
+                   << " as it is outside the dimension " << dimension();
+            throw r_Edim_mismatch(dimension(), projDim);
+        }
+        result << intervals[projDim];
     }
-
     return result;
 }
 
 void r_Minterval::print_status(std::ostream &s) const
 {
     s << "[";
-
-    if (dimensionality > 0)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
-        for (r_Dimension i = 0; i < dimensionality - 1; i++)
-        {
-            s << intervals[i] << ",";
-        }
-
-        s << intervals[dimensionality - 1];
+        if (i > 0)
+            s << ",";
+        s << intervals[i];
     }
-
     s << "]";
 }
 
@@ -1011,10 +980,15 @@ char *r_Minterval::get_string_representation() const
 std::string
 r_Minterval::to_string() const
 {
-    char *stringRep = this->get_string_representation();
-    std::string returnValue(stringRep);
-    std::free(stringRep);
-    return returnValue;
+    std::string ret = "[";
+    for (r_Dimension i = 0; i < dimension(); i++)
+    {
+        if (i > 0)
+            ret += ",";
+        ret += intervals[i].to_string();
+    }
+    ret += "]";
+    return ret;
 }
 
 std::string
@@ -1023,23 +997,15 @@ r_Minterval::get_named_axis_string_representation() const
     std::ostringstream ss;
     ss << "[";
 
-    bool isFirst = true;
-
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
-        if (!isFirst)
-        {
+        if (i > 0)
             ss << ",";
-        }
 
-        ss << axisNames.at(i);
+        ss << axisNames[i];
 
         if (intervals[i].is_low_fixed() || intervals[i].is_high_fixed())
-        {
             ss << "(" << intervals[i] << ")";
-        }
-
-        isFirst = false;
     }
 
     ss << "]";
@@ -1049,36 +1015,28 @@ r_Minterval::get_named_axis_string_representation() const
 
 r_Area r_Minterval::cell_count() const
 {
-    r_Area cellCount = 1;
-    if (dimensionality != 0)
-    {
-        r_Point ptExt = get_extent();
-
-        for (r_Dimension i = 0; i < dimensionality; i++)
-        {
-            cellCount *= static_cast<r_Area>(ptExt[i]);
-        }
-    }
-
-    return cellCount;
+    r_Area ret = 1;
+    for (r_Dimension i = 0; i < dimension(); i++)
+        ret *= static_cast<r_Area>(intervals[i].get_extent());
+    return ret;
 }
 
 // offset in cells for linear access of the data element referred by point in the data memory area
 // Lower dimensions are higher valued which means that the highest dimension is stored in a sequence.
 r_Area r_Minterval::cell_offset(const r_Point &point) const
 {
-    if (dimensionality != point.dimension())
+    if (dimension() != point.dimension())
     {
         LERROR << "cannot calculate cell offset, dimension of minterval ("
                << *this << ") does not match dimension of point " << point.dimension() << ".";
-        throw r_Edim_mismatch(point.dimension(), dimensionality);
+        throw r_Edim_mismatch(point.dimension(), dimension());
     }
     r_Range offset = 0;
     r_Point ptExt = get_extent();
 
     // calculate offset
     r_Dimension i = 0;
-    for (i = 0; i < dimensionality - 1; i++)
+    for (i = 0; i < dimension() - 1; i++)
     {
         if (point[i] < intervals[i].low() || point[i] > intervals[i].high())
         {
@@ -1100,17 +1058,17 @@ r_Area r_Minterval::cell_offset(const r_Point &point) const
     return static_cast<r_Area>(offset);
 }
 
-r_Area r_Minterval::efficient_cell_offset(const r_Point &point) const
+r_Area r_Minterval::cell_offset_unsafe(const r_Point &point) const
 {
     r_Area offset = 0;
-    r_Point ptExt = get_extent();
 
     r_Dimension i = 0;
     // calculate offset
-    for (; i < dimensionality - 1; i++)
+    for (; i < dimension() - 1; i++)
     {
-        offset = (offset + static_cast<long long unsigned int>(point[i] - intervals[i].low())) *
-                 static_cast<long long unsigned int>(ptExt[i + 1]);
+        offset = (offset + 
+                  static_cast<long long unsigned int>(point[i] - intervals[i].low())) *
+                 intervals[i + 1].get_extent();
     }
 
     offset += static_cast<long long unsigned int>(point[i] - intervals[i].low());
@@ -1127,25 +1085,16 @@ r_Point r_Minterval::cell_point(r_Area offset) const
 {
     r_Dimension i;
     unsigned int factor = 1;
-    r_Point pt(dimensionality), ptExt;
+    r_Point pt(dimension());
 
-    if (offset >= cell_count())
+    for (i = 0; i < dimension(); i++)
     {
-        LERROR << "cannot get point, offset " << offset << " offset is out of range on domain with " 
-               << cell_count() << " cells.";
-        throw r_Eno_cell();
+        factor *= intervals[i].get_extent();
     }
 
-    ptExt = get_extent();
-
-    for (i = 0; i < dimensionality; i++)
+    for (i = 0; i < dimension(); i++)
     {
-        factor *= ptExt[i];
-    }
-
-    for (i = 0; i < dimensionality; i++)
-    {
-        factor /= ptExt[i];
+        factor /= intervals[i].get_extent();
         pt[i] = intervals[i].low() +
                 static_cast<r_Range>((offset - (offset % factor)) / factor);
         offset %= factor;
@@ -1156,54 +1105,40 @@ r_Point r_Minterval::cell_point(r_Area offset) const
 
 void r_Minterval::delete_dimension(r_Dimension dim)
 {
-    if (dim >= dimensionality)
+    if (dim >= dimension())
     {
         LERROR << "cannot delete dimension " << dim << " from minterval " << *this << ", out of range.";
-        throw r_Eindex_violation(0, dimensionality - 1, dim);
+        throw r_Eindex_violation(0, dimension() - 1, dim);
     }
 
-    dimensionality -= 1;
-    streamInitCnt = dimensionality;
-    auto *newIntervals = new r_Sinterval[dimensionality];
-
-    for (r_Dimension i = 0, j = 0; i < dimensionality; i++, j++)
-    {
-        if (i == dim)
-        {
-            j++;
-        }
-        newIntervals[i] = intervals[j];
-    }
-
-    delete[] intervals;
-
-    intervals = newIntervals;
+    intervals.erase(intervals.begin() + dim);
+    streamInitCnt = dimension();
 }
 
-void r_Minterval::swap_dimensions(r_Dimension d1, r_Dimension d2)
+void r_Minterval::swap_dimensions(r_Dimension a, r_Dimension b)
 {
-    if (d1 >= dimensionality || d2 >= dimensionality)
+    if (a >= dimension())
     {
-        return;
+        LERROR << "cannot swap intervals " << a << " and " << b << " in minterval " << *this << ", out of range.";
+        throw r_Eindex_violation(0, dimension() - 1, a);
     }
-    auto temp = intervals[d1];
-    intervals[d1] = intervals[d2];
-    intervals[d2] = temp;
+    if (b >= dimension())
+    {
+        LERROR << "cannot swap intervals " << a << " and " << b << " in minterval " << *this << ", out of range.";
+        throw r_Eindex_violation(0, dimension() - 1, b);
+    }
+    if (a != b)
+    {
+        r_Sinterval tmp = intervals[a];
+        intervals[a] = intervals[b];
+        intervals[b] = tmp;
+    }
 }
 
 void r_Minterval::add_dimension()
 {
-    dimensionality += 1;
-    streamInitCnt +=1 ;
-    r_Sinterval *newIntervals = new r_Sinterval[dimensionality];
-    for (r_Dimension i = 0; i < dimensionality-1; i++)
-    {
-        newIntervals[i] = intervals[i];
-    }
-    delete []intervals;
-    r_Sinterval newDim = r_Sinterval("*:*");
-    newIntervals[dimensionality-1] = newDim;
-    intervals = newIntervals;
+    streamInitCnt +=1;
+    intervals.emplace_back("*:*");
 }
 void
 r_Minterval::delete_non_trims(const std::vector<bool> &trims)
@@ -1212,7 +1147,7 @@ r_Minterval::delete_non_trims(const std::vector<bool> &trims)
     {
         return;
     }
-    for (r_Dimension i = 0, j = 0; i < dimensionality; ++i)
+    for (r_Dimension i = 0, j = 0; i < dimension(); ++i)
     {
         if (!trims[i])
         {
@@ -1225,24 +1160,19 @@ r_Minterval::delete_non_trims(const std::vector<bool> &trims)
     }
 }
 
-void r_Minterval::transpose(r_Dimension a, r_Dimension b)
+void r_Minterval::delete_slices()
 {
-    if (a >= dimensionality)
-    {
-        LERROR << "cannot transpose intervals " << a << " and " << b << " in minterval " << *this << ", out of range.";
-        throw r_Eindex_violation(0, dimensionality - 1, a);
-    }
-    if (b >= dimensionality)
-    {
-        LERROR << "cannot transpose intervals " << a << " and " << b << " in minterval " << *this << ", out of range.";
-        throw r_Eindex_violation(0, dimensionality - 1, b);
-    }
-    if (a != b)
-    {
-        r_Sinterval tmp = intervals[a];
-        intervals[a] = intervals[b];
-        intervals[b] = tmp;
-    }
+    intervals.erase(
+        std::remove_if(intervals.begin(), intervals.end(),
+                       [](const r_Sinterval& i) { return i.is_slice(); }),
+        intervals.end());
+    streamInitCnt = dimension();
+}
+
+bool r_Minterval::is_point() const noexcept
+{
+    return std::all_of(intervals.begin(), intervals.end(),
+                       [](const r_Sinterval& i) { return i.is_slice(); });
 }
 
 r_Bytes
@@ -1250,12 +1180,53 @@ r_Minterval::get_storage_size() const
 {
     r_Bytes sz = sizeof(r_Sinterval *) + 2 * sizeof(r_Dimension);
 
-    if (dimensionality > 0)
+    if (dimension() > 0)
     {
-        sz += dimensionality * intervals->get_storage_size();
+        sz += dimension() * intervals[0].get_storage_size();
     }
 
     return sz;
+}
+
+bool r_Minterval::compareDomainExtents(const r_Minterval &b) const
+{
+    const auto &a = *this;
+    assert(a.is_fixed() && b.is_fixed() && "Cannot compare mintervals with invalid bounds.");
+    if (a.dimension() != b.dimension())
+        return false;
+    for (DimType i = 0; i < a.dimension(); ++i) {
+      if (a[i].get_extent() != b[i].get_extent())
+          return false;
+    }
+    return true;
+}
+
+r_Minterval r_Minterval::computeDomainOfResult(const r_Minterval &b) const
+{
+    const auto &a = *this;
+    const auto dim = a.dimension();
+    
+    if (dim != b.dimension())
+    {
+        LERROR << "cannot calculate cell offset, dimension of minterval ("
+               << *this << ") does not match dimension of minterval " << b << ".";
+        throw r_Edim_mismatch(dim, b.dimension());
+    }
+  
+    if (a == b) {
+      return a;
+    } else {
+      std::vector<r_Sinterval> ret;
+      ret.reserve(dim);
+      for (DimType i = 0; i < dim; ++i) {
+        if (a[i].get_extent() == b[i].get_extent())
+          ret.emplace_back(0ll, static_cast<BoundType>(a[i].get_extent() - 1));
+        else
+          throw r_Elimits_mismatch(r_Range(a[i].get_extent()), 
+                                   r_Range(b[i].get_extent()));
+      }
+      return r_Minterval{std::move(ret)};
+    }
 }
 
 bool r_Minterval::is_mergeable(const r_Minterval &b) const
@@ -1265,7 +1236,7 @@ bool r_Minterval::is_mergeable(const r_Minterval &b) const
     const r_Minterval &a = *this;
 
     // The blocks must have the same dimensionality to be mergeable
-    if (a.dimensionality != b.dimensionality)
+    if (a.dimension() != b.dimension())
     {
         is_merg = false;
     }
@@ -1275,7 +1246,7 @@ bool r_Minterval::is_mergeable(const r_Minterval &b) const
         int ones_differences = 0;
 
         // For all dimensions
-        for (r_Dimension i = 0; i < dimensionality; i++)
+        for (r_Dimension i = 0; i < dimension(); i++)
         {
             // Diferente origins
             if (a[i].low() != b[i].low())
@@ -1336,12 +1307,12 @@ std::ostream &operator<<(std::ostream &os, const std::vector<r_Minterval> &vec)
     return os;
 }
 
-std::ostream &operator<<(std::ostream &s, const vector<double> &doubleVec)
+std::ostream &operator<<(std::ostream &s, const vector<double> &v)
 {
     vector<double>::const_iterator iter, iterEnd;
 
-    iter = doubleVec.begin();
-    iterEnd = doubleVec.end();
+    iter = v.begin();
+    iterEnd = v.end();
     s << "{";
     while (iter != iterEnd)
     {
@@ -1360,12 +1331,12 @@ std::ostream &operator<<(std::ostream &s, const vector<double> &doubleVec)
 bool r_Minterval::covers(const r_Point &pnt) const
 {
     bool retval = true;
-    if (dimensionality == pnt.dimension())
+    if (dimension() == pnt.dimension())
     {
         for (r_Dimension i = 0; i < pnt.dimension(); i++)
         {
             if ((intervals[i].is_low_fixed() && pnt[i] < intervals[i].low()) ||
-                    (intervals[i].is_high_fixed() && pnt[i] > intervals[i].high()))
+                (intervals[i].is_high_fixed() && pnt[i] > intervals[i].high()))
             {
                 retval = false;
                 break;
@@ -1374,7 +1345,8 @@ bool r_Minterval::covers(const r_Point &pnt) const
     }
     else
     {
-        LERROR << "r_Minterval::covers(" << pnt << ") dimensions do not match";
+        LERROR << "cannot check if minterval " << *this << " covers " << pnt
+               << ", dimensions do not match.";
         retval = false;
     }
 
@@ -1384,9 +1356,9 @@ bool r_Minterval::covers(const r_Point &pnt) const
 bool r_Minterval::covers(const r_Minterval &inter2) const
 {
     bool retval = true;
-    if (dimensionality == inter2.dimension())
+    if (dimension() == inter2.dimension())
     {
-        for (r_Dimension i = 0; i < dimensionality; i++)
+        for (r_Dimension i = 0; i < dimension(); i++)
         {
             // first check if it is low fixed and the other isn't: false
             // both are low fixed
@@ -1406,70 +1378,66 @@ bool r_Minterval::covers(const r_Minterval &inter2) const
     }
     else
     {
-        LERROR << "r_Minterval::covers(" << inter2 << ") dimensions do not match";
+        LERROR << "cannot check if minterval " << *this << " covers " << inter2
+               << ", dimensions do not match.";
         retval = false;
     }
     return retval;
+}
+
+bool r_Minterval::inside_of(const r_Minterval &minterval) const
+{
+    assert(dimension() == minterval.dimension());
+
+    // none of the interval pairs are allowed to be disjoint
+    for (r_Dimension i = 0; i < dimension(); ++i)
+        if (!intervals[i].inside_of(minterval[i]))
+            return false;
+
+    return true;
 }
 
 r_Dimension
 r_Minterval::dimension() const
 {
-    return dimensionality;
+    return static_cast<r_Dimension>(intervals.size());
 }
 
 bool
-r_Minterval::is_origin_fixed() const
+r_Minterval::is_origin_fixed() const noexcept
 {
-    bool retval = true;
-
-    if (!dimensionality)
-    {
-        retval = false;
-    }
-    else
-    {
-        for (r_Dimension i = 0; i < dimensionality; i++)
-        {
-            retval &= intervals[i].is_low_fixed();
-        }
-    }
-
-    return retval;
+    assert(dimension() > 0);
+    
+    for (r_Dimension i = 0; i < dimension(); i++)
+        if (!intervals[i].is_low_fixed())
+            return false;
+    
+    return true;
 }
 
 bool
-r_Minterval::is_high_fixed() const
+r_Minterval::is_high_fixed() const noexcept
 {
-    bool retval = true;
-
-    if (!dimensionality)
-    {
-        //we have an uninitialized interval
-        retval = false;
-    }
-    else
-    {
-        for (r_Dimension i = 0; i < dimensionality; i++)
-        {
-            retval &= intervals[i].is_high_fixed();
-        }
-    }
-
-    return retval;
+    assert(dimension() > 0);
+    
+    for (r_Dimension i = 0; i < dimension(); i++)
+        if (!intervals[i].is_high_fixed())
+            return false;
+    
+    return true;
 }
 
-template <class castType>
-bool
-r_Minterval::within_bounds(const castType point)
+bool r_Minterval::is_fixed() const noexcept
 {
-    for (r_Dimension i = 0; i < dimensionality ; i++)
-    {
-        if ((!intervals[i].is_low_fixed() || point >= intervals[i].low()) && 
-            (!intervals[i].is_high_fixed() || point <= intervals[i].high()))
-        {
-            return true;
-        }
-    }
-    return false;
+    assert(dimension() > 0);
+    
+    for (r_Dimension i = 0; i < dimension(); i++)
+        if (!intervals[i].is_fixed())
+            return false;
+    
+    return true;
+}
+
+bool r_Minterval::is_scalar() const noexcept {
+    return intervals.empty();
 }

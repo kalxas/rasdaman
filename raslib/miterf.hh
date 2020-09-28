@@ -78,8 +78,11 @@ class r_MiterFloat
 {
 public:
     /// Constructor getting the source tile, the source domain and the destination domain
-    r_MiterFloat(r_Bytes srcCellSize, const char* srcTile, const r_Minterval tileDomain,
-                        const r_Minterval &srcDomain, const r_Minterval &destDomain);
+    r_MiterFloat(r_Bytes srcCellSize,
+                 const char* srcTile,
+                 const r_Minterval &tileDomain,
+                 const r_Minterval &srcDomain,
+                 const r_Minterval &destDomain);
     ~r_MiterFloat();
 
     /// iterator reset

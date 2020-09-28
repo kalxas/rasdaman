@@ -348,8 +348,8 @@ pair<unsigned int, unsigned int> r_Conv_GDAL::getImageSize()
         LERROR << "only 2D data can be encoded with GDAL.";
         throw r_Error(r_Error::r_Error_Conversion);
     }
-    r_Range w = desc.srcInterv[0].get_extent();
-    r_Range h = desc.srcInterv[1].get_extent();
+    r_Range w = r_Range(desc.srcInterv[0].get_extent());
+    r_Range h = r_Range(desc.srcInterv[1].get_extent());
     if (w > numeric_limits<int>::max() || h > numeric_limits<int>::max())
     {
         LERROR << "cannot encode array of size " << w << " x " << h << ", " <<
@@ -427,9 +427,10 @@ char* r_Conv_GDAL::decodeImage()
     size_t bandOffset = 0;
     size_t bandSize = 0;
     char* bandCells RAS_ALIGNED = NULL;
+    int bandIndex = 0;
     for (int bandId : bandIds)
     {
-        size_t bandBaseTypeSize = ConvUtil::getBandBaseTypeSize(desc.destType, bandId);
+        size_t bandBaseTypeSize = ConvUtil::getBandBaseTypeSize(desc.destType, bandIndex);
         size_t newBandSize = static_cast<size_t>(width) * static_cast<size_t>(height) * bandBaseTypeSize;
         LTRACE << "allocating band cells of size " << newBandSize;
         bandCells = upsizeBufferIfNeeded(bandCells, bandSize, newBandSize);
@@ -457,6 +458,7 @@ char* r_Conv_GDAL::decodeImage()
 
         decodeBand(bandCells, tileCells + bandOffset, tileBaseTypeSize, width, height, bandType, signedByte);
         bandOffset += bandBaseTypeSize;
+        ++bandIndex;
     }
     // Free resources
     if (bandCells)
@@ -487,7 +489,7 @@ void r_Conv_GDAL::setTargetDomain(bool transpose)
     }
     if (transpose && formatParams.isTranspose())
     {
-        desc.destInterv.transpose(0, 1);
+        desc.destInterv.swap_dimensions(0, 1);
     }
 }
 

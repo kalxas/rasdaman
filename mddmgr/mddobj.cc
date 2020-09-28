@@ -504,7 +504,7 @@ std::string MDDObj::getArrayInfo(bool printTiles) const
 
         if (printTiles)
         {
-            info << "\",\n\t\"tileDomains\":\n\t[";
+            info << ",\n\t\"tileDomains\":\n\t[";
             bool first = true;
             for (const auto &tile : *tiles)
             {

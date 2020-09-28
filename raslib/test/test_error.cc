@@ -35,7 +35,6 @@
  ************************************************************/
 
 #include <iostream>
-#include <malloc.h>
 #include "raslib/error.hh"
 
 #include "raslib/rminit.hh"

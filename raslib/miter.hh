@@ -57,8 +57,8 @@ public:
       as the iterator is used!
     */
     r_Miter(const r_Minterval *newAreaIter,
-                   const r_Minterval *newAreaTile, r_Bytes newCellSize,
-                   const char *newFirstCell);
+            const r_Minterval *newAreaTile, r_Bytes newCellSize,
+            const char *newFirstCell);
     ~r_Miter();
     /// resets iterator to first cell.
     void reset();

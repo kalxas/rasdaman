@@ -89,24 +89,26 @@ function run_transpose_test()
 {
     log ----- png and png GreySet transpose conversion ------
 
+    local out=mr_1_transpose
+
     create_coll test_tmp GreySet
     $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' \
            -f $TESTDATA_PATH/mr_1.png --quiet > /dev/null 2>&1
     $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' \
-           --out file --outfile mr_1 --quiet > /dev/null
+           --out file --outfile $out --quiet > /dev/null
 
     logn "comparing images: "
     if [ -f "$ORACLE_PATH/mr_1.png.checksum" ]; then
-      $GDALINFO mr_1.png | grep 'Checksum' > mr_1.png.result
-      diff $ORACLE_PATH/mr_1.png.checksum mr_1.png.result > /dev/null
+      $GDALINFO $out.* | grep 'Checksum' > $out.result
+      diff $ORACLE_PATH/mr_1.png.checksum $out.result > /dev/null
     else
-      cmp $TESTDATA_PATH/mr_1.png mr_1.png > /dev/null
+      cmp $TESTDATA_PATH/mr_1.png $out* > /dev/null
     fi
 
     check_result 0 $? "input and output match"
 
     drop_colls test_tmp
-    rm -f mr_1*
+    rm -f $out*
 }
 
 # ------------------------------------------------------------------------------
@@ -116,24 +118,26 @@ function run_variables_test()
 {
     log ----- variables test ------
 
+    local out=rgb_variables
+
     create_coll test_tmp GreySet
     $RASQL -q 'insert into test_tmp values decode($1, "GDAL", "{\"variables\": [0]}")' \
            -f $TESTDATA_PATH/rgb.png --quiet > /dev/null 2>&1
     $RASQL -q 'select encode(m, "png", "" ) from test_tmp as m' \
-           --out file --outfile rgb --quiet > /dev/null
+           --out file --outfile $out --quiet > /dev/null
 
     logn "comparing images: "
     if [ -f "$ORACLE_PATH/rgb.png.checksum_2" ]; then
-      $GDALINFO rgb.png | grep 'Checksum' > rgb.png.result
-      diff $ORACLE_PATH/rgb.png.checksum_2 rgb.png.result > /dev/null
+      $GDALINFO $out* | grep 'Checksum' > $out.result
+      diff $ORACLE_PATH/rgb.png.checksum_2 $out.result > /dev/null
     else
-      cmp $TESTDATA_PATH/rgb.png rgb.png > /dev/null
+      cmp $TESTDATA_PATH/rgb.png $out* > /dev/null
     fi
 
     check_result 0 $? "input and output match"
 
     drop_colls test_tmp
-    rm -f rgb*
+    rm -f $out*
 }
 
 # ------------------------------------------------------------------------------
@@ -146,16 +150,18 @@ function run_csv_scalar_test()
     $RASQL -q 'select encode(37, "csv")' --out file --outfile scalar1 > /dev/null 2>&1
 
     logn "comparing csv scalar output with oracle: "
-    cmp $ORACLE_PATH/scalar1.csv.oracle scalar1.csv > /dev/null > /dev/null 2>&1
+    cmp $ORACLE_PATH/scalar1.csv.oracle scalar1.* > /dev/null > /dev/null 2>&1
     check_result 0 $? "input and output match"
+    rm -f scalar1.*
 
     log ----- json scalar encode no-collection test -----
 
     $RASQL -q 'select encode(37, "json")' --out file --outfile scalar1 > /dev/null 2>&1
 
     logn "comparing csv scalar output with oracle: "
-    cmp $ORACLE_PATH/scalar1.json.oracle scalar1.json > /dev/null
+    cmp $ORACLE_PATH/scalar1.json.oracle scalar1.* > /dev/null
     check_result 0 $? "input and output match"
+    rm -f scalar1.*
 
     log ----- csv scalar encode test ------
 #import data
@@ -165,20 +171,21 @@ function run_csv_scalar_test()
     $RASQL -q 'select encode(c[100,100], "csv") from test_tmp as c' --out file --outfile scalar2 --quiet > /dev/null 2>&1
 
     logn "comparing csv scalar output with oracle: "
-    cmp $ORACLE_PATH/scalar2.csv.oracle scalar2.csv > /dev/null
+    cmp $ORACLE_PATH/scalar2.csv.oracle scalar2.* > /dev/null
     check_result 0 $? "input and output match"
+    rm -f scalar2.*
 
     log ----- json scalar encode test ------
 
     $RASQL -q 'select encode(c[100,100], "json") from test_tmp as c' --out file --outfile scalar2 --quiet > /dev/null 2>&1
 
     logn "comparing json scalar output with oracle: "
-    cmp $ORACLE_PATH/scalar2.json.oracle scalar2.json > /dev/null
+    cmp $ORACLE_PATH/scalar2.json.oracle scalar2.* > /dev/null
     check_result 0 $? "input and output match"
+    rm -f scalar2.*
 
 #drop data
     drop_colls test_tmp
-    rm -f scalar*
 }
 
 # ------------------------------------------------------------------------------
@@ -233,15 +240,20 @@ function run_test()
     insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$decodeopts" "$inv_fun" "$rasqlopts"
     export_to_file test_tmp "$f" "$fun" "$encodeopts"
 
+    local out="$f.$ext"
+    if [ ! -f "$f.$ext" ] && [ -f "$f.unknown" ]; then
+      out="$f.unknown"
+    fi
+
     logn "comparing images: "
     if [ -n "$oracle2" -a -f "$ORACLE_PATH/$f.$ext.checksum_$oracle2" ]; then
-      $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
-      diff $ORACLE_PATH/$f.$ext.checksum_$oracle2 $f.$ext.result > /dev/null
+      $GDALINFO $out | grep 'Checksum' > $out.result
+      diff $ORACLE_PATH/$f.$ext.checksum_$oracle2 $out.result > /dev/null
     elif [ -f "$ORACLE_PATH/$f.$ext.checksum" ]; then
-      $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
-      diff $ORACLE_PATH/$f.$ext.checksum $f.$ext.result > /dev/null
+      $GDALINFO $out | grep 'Checksum' > $out.result
+      diff $ORACLE_PATH/$f.$ext.checksum $out.result > /dev/null
     else
-      cmp $TESTDATA_PATH/$f.$ext $f.$ext > /dev/null
+      cmp $TESTDATA_PATH/$f.$ext $out > /dev/null
     fi
     rc=$?
     check_result 0 $rc "input and output match"
@@ -265,7 +277,7 @@ function run_csv_test()
     export_to_file test_tmp "$f" "csv"
 
     logn "comparing images: "
-    cmp $ORACLE_PATH/$f.csv $f.csv > /dev/null
+    cmp $ORACLE_PATH/$f.csv $f.* > /dev/null
     check_result 0 $? "input and output match"
 
     drop_colls test_tmp
@@ -278,6 +290,20 @@ function run_csv_test()
 #
 ################################################################################
 
+################## test update GDAL wrong domain###############################
+log ----- update with wrong domain decoded GDAL ------
+create_coll test_update  "FloatSet"
+f="subset.nc:area"
+$RASQL -q 'INSERT INTO test_update VALUES <[0:0,0:0] 0f> TILING ALIGNED [0:1023, 0:1023]'  > /dev/null
+log "inserting data into test_update... ok."
+outf=update_error
+touch $outf.txt
+$RASQL -q 'UPDATE test_update SET test_update[0:2,0:2] ASSIGN decode(<[0:0] 1c>, "GDAL", "{\"variables\":[0],\"filePaths\":[\"NETCDF:'${TESTDATA_PATH}'/'${f}'\"]}")'  2>&1 > /dev/null | grep "rasdaman error" > $outf.txt
+log "trying to update the test_update... ok."
+cmp $outf.txt $ORACLE_PATH/$outf.oracle > /dev/null
+check_result 0 $? "input and output match"
+rm -f $outf.txt
+drop_colls test_update
 
 ################## test nodata ###############################
 
@@ -285,17 +311,17 @@ create_coll test_tmp RGBSet
 insert_into test_tmp "$TESTDATA_PATH/rgb.png" "" "decode"
 
 $RASQL -q 'select encode(c, "GTiff") from test_tmp as c' --out file --outfile nodata > /dev/null
-res=`gdalinfo nodata.tif | grep "NoData Value=0" | wc -l`
+res=`gdalinfo nodata.* | grep "NoData Value=0" | wc -l`
 check_result 0 $res "default nodata test"
 rm -f nodata*
 
 $RASQL -q 'select encode(c, "GTiff", "nodata=200") from test_tmp as c' --out file --outfile nodata > /dev/null
-res=`gdalinfo nodata.tif | grep "NoData Value=200" | wc -l`
+res=`gdalinfo nodata.* | grep "NoData Value=200" | wc -l`
 check_result 3 $res "custom nodata test"
 rm -f nodata*
 
 $RASQL -q 'select encode(c, "GTiff", "{ \"nodata\": 200 }") from test_tmp as c' --out file --outfile nodata > /dev/null
-res=`gdalinfo nodata.tif | grep "NoData Value=200" | wc -l`
+res=`gdalinfo nodata.* | grep "NoData Value=200" | wc -l`
 check_result 3 $res "custom nodata test"
 rm -f nodata*
 
@@ -312,23 +338,22 @@ rm -f nodata*
 ################## test georeference ###############################
 
 $RASQL -q 'select encode(c, "GTiff", "{ \"nodata\": [200,201,202], \"geoReference\": { \"bbox\": { \"xmin\": 0.5, \"xmax\": 30, \"ymin\": -15, \"ymax\": 50.3}, \"crs\": \"EPSG:4326\" }, \"metadata\": \"metadata test\" }") from test_tmp as c' --out file --outfile geo > /dev/null
-res=`gdalinfo geo.tif | grep "4326" | wc -l`
+res=`gdalinfo geo.* | grep "4326" | wc -l`
 check_result 1 $res "test crs in encode"
-res=`gdalinfo geo.tif | grep "0.5" | wc -l`
+res=`gdalinfo geo.* | grep "0.5" | wc -l`
 check_result 3 $res "test xmin in encode"
-res=`gdalinfo geo.tif | grep "30.0" | wc -l`
+res=`gdalinfo geo.* | grep "30.0" | wc -l`
 check_result 3 $res "test xmax in encode"
-res=`gdalinfo geo.tif | grep "\-15.00" | wc -l`
+res=`gdalinfo geo.* | grep "\-15.00" | wc -l`
 check_result 2 $res "test ymin in encode"
-res=`gdalinfo geo.tif | grep "50.30" | wc -l`
+res=`gdalinfo geo.* | grep "50.30" | wc -l`
 check_result 2 $res "test ymax in encode"
-res=`gdalinfo geo.tif | grep "metadata test" | wc -l`
+res=`gdalinfo geo.* | grep "metadata test" | wc -l`
 check_result 1 $res "test metadata in encode"
-res=`gdalinfo geo.tif | grep "200" | wc -l`
+res=`gdalinfo geo.* | grep "200" | wc -l`
 check_result 4 $res "test nodata values"
-res=`gdalinfo geo.tif | grep "200 201 202" | wc -l`
+res=`gdalinfo geo.* | grep "200 201 202" | wc -l`
 check_result 1 $res "test nodata values"
-
 rm -f geo*
 
 drop_colls test_tmp
@@ -339,17 +364,16 @@ create_coll test_tmp GreySet
 insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "decode"
 
 $RASQL -q 'select encode(c, "GTiff", "{ \"nodata\": 0, \"geoReference\": { \"GCPs\": [ { \"pixel\": 0, \"info\": \"gcp left\", \"line\": 0, \"x\": 15.5, \"y\": 12.3 } ], \"crs\": \"EPSG:4326\" }, \"colorPalette\": { \"paletteInterp\": \"RGB\", \"colorTable\": [[255,0,0], [255,0,0]], \"colorInterp\": [ \"Red\" ] } }") from test_tmp as c' --out file --outfile geo > /dev/null
-res=`gdalinfo geo.tif | grep "4326" | wc -l`
+res=`gdalinfo geo.* | grep "4326" | wc -l`
 check_result 1 $res "test gcp crs in encode"
-res=`gdalinfo geo.tif | grep "Id=1, Info=" | wc -l`
+res=`gdalinfo geo.* | grep "Id=1, Info=" | wc -l`
 check_result 1 $res "test gcp id and info in encode"
-res=`gdalinfo geo.tif | grep '(0,0) -> (15.5,12.3,0)' | wc -l`
+res=`gdalinfo geo.* | grep '(0,0) -> (15.5,12.3,0)' | wc -l`
 check_result 1 $res "test gcp ref in encode"
-res=`gdalinfo geo.tif | grep 'Color Table (RGB with 256 entries)' | wc -l`
+res=`gdalinfo geo.* | grep 'Color Table (RGB with 256 entries)' | wc -l`
 check_result 1 $res "test color table in encode"
-res=`gdalinfo geo.tif | grep "255,0,0" | wc -l`
+res=`gdalinfo geo.* | grep "255,0,0" | wc -l`
 check_result 2 $res "test color entries in encode"
-
 rm -f geo*
 
 drop_colls test_tmp
@@ -447,6 +471,9 @@ drop_colls $COLL
 create_coll $COLL $TYPE
 $RASQL -q "insert into $COLL values marray i in [0:999,0:9999] values 2c" > /dev/null
 $RASQL -q 'select tiff(c) from test_large as c' --out file --quiet
+if [ ! -f $f ] && [ -f rasql_1.unknown ]; then
+  f=rasql_1.unknown
+fi
 if [ -f $f ]; then
   output=`file $f`
   if [ "$output" == "rasql_1.tif: data" ]; then
@@ -500,7 +527,7 @@ else
 
     # cleanup
     drop_colls "$COLL_NAME"
-    rm -f $OUT_GMLJP2
+    rm -f $OUT_GMLJP2 gmljp2.*
 fi
 
 
@@ -565,11 +592,11 @@ $RASQL --quiet -q 'select encode(c[0:9,40:49], "csv", "{ \"transpose\": [0,1] }"
 check_result 0 $? "csv(transpose)"
 
 logn "comparing images: "
-cmp $TESTDATA_PATH/csv_transpose.csv csv_transpose.csv > /dev/null
+cmp $TESTDATA_PATH/csv_transpose.csv csv_transpose.* > /dev/null
 check_result 0 $? "input and output match"
 
 drop_colls test_tmp
-rm -f csv_transpose.csv
+rm -f csv_transpose.*
 
 ############ built-in decode ################
 log ----- built-in decode test -----------------------
@@ -578,7 +605,7 @@ create_coll test_builtin_decode FloatSet3
 f=csv_float3
 $RASQL -q 'insert into test_builtin_decode values decode($1, "CSV", "domain=[0:2,1:2,4:6];basetype=float")' -f $TESTDATA_PATH/$f.csv > /dev/null
 export_to_file test_builtin_decode "$f" "csv"
-cmp $ORACLE_PATH/$f.csv $f.csv > /dev/null
+cmp $ORACLE_PATH/$f.csv $f.* > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*
 drop_colls test_builtin_decode
@@ -590,32 +617,17 @@ create_coll test_tmp "FloatSet3"
 insert_into test_tmp "$TESTDATA_PATH/$f.json" ", \"json\", \"domain=[0:2,1:2,4:6];basetype=float\"" "decode"
 export_to_file test_tmp "$f" "encode" ', "json"'
 logn "comparing images: "
-cmp $ORACLE_PATH/$f.json $f.json > /dev/null
+cmp $ORACLE_PATH/$f.json $f.* > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*
 
 export_to_file test_tmp "$f" "encode" ', "json", ""'
 logn "comparing images: "
-cmp $ORACLE_PATH/$f.json $f.json > /dev/null
+cmp $ORACLE_PATH/$f.json $f.* > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*
 
 drop_colls test_tmp
-
-################## test update GDAL wrong domain###############################
-log ----- update with wrong domain decoded GDAL ------
-create_coll test_update  "FloatSet"
-f="subset.nc:area"
-$RASQL -q 'INSERT INTO test_update VALUES <[0:0,0:0] 0f> TILING ALIGNED [0:1023, 0:1023]'  > /dev/null
-log "inserting data into test_update... ok."
-outf=update_error
-touch $TESTDATA_PATH/$outf.txt
-$RASQL -q 'UPDATE test_update SET test_update[0:2,0:2] ASSIGN decode(<[0:0] 1c>, "GDAL", "{\"variables\":[0],\"filePaths\":[\"NETCDF:'${TESTDATA_PATH}'/'${f}'\"]}")'  2>&1 > /dev/null | grep "rasdaman error" > $TESTDATA_PATH/$outf.txt
-log "trying to update the test_update... ok."
-cmp $TESTDATA_PATH/$outf.txt $ORACLE_PATH/$outf.oracle > /dev/null
-check_result 0 $? "input and output match"
-rm -f $TESTDATA_PATH/$outf.txt
-drop_colls test_update
 
 # ------------------------------------------------------------------------------
 # test summary

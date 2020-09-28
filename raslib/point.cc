@@ -43,24 +43,24 @@ r_Point::r_Point(char *stringRep)
     std::istringstream str(stringRep);
 
     // calculate dimensionality
-    size_t dimensionality = 0;
+    size_t dim = 0;
     char *p = stringRep;
     while ((p = strchr(++p, ',')))
-        dimensionality++;
-    points.reserve(dimensionality);
+        dim++;
+    points.reserve(dim);
     
     char charToken;
     str >> charToken;
     if (charToken != '[')
         throw r_Error(NOPOINT);
     
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    for (r_Dimension i = 0; i < dim; i++)
     {
         r_Range valueToken;
         str >> valueToken;
         points.push_back(valueToken);
 
-        if (i < dimensionality - 1)
+        if (i < dim - 1)
         {
             str >> charToken;
             if (charToken != ',')
@@ -69,7 +69,38 @@ r_Point::r_Point(char *stringRep)
     }
 }
 
-r_Point::r_Point(r_Dimension dim) : points(dim, 0)
+r_Point::r_Point(r_Range p1)
+    : points{p1}, streamIndex{1}
+{
+    
+}
+
+r_Point::r_Point(r_Dimension dim) : points(dim, value_type{})
+{
+}
+
+r_Point::r_Point(r_Range p1, r_Range p2)
+    : points{p1, p2}, streamIndex{2}
+{
+}
+
+r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3)
+    : points{p1, p2, p3}, streamIndex{3}
+{
+}
+
+r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4)
+  : points{p1, p2, p3, p4}, streamIndex{4}
+{
+}
+
+r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5)
+    : points{p1, p2, p3, p4, p5}, streamIndex{5}
+{
+}
+
+r_Point::r_Point(std::vector<r_Range> pointArg) 
+    : points{std::move(pointArg)}, streamIndex{points.size()}
 {
 }
 
@@ -87,38 +118,9 @@ r_Point &r_Point::operator<<(r_Range newElement)
     return *this;
 }
 
-r_Point::r_Point(r_Range p1, r_Range p2) : r_Point(2u)
-{
-    streamIndex = points.size();
-    points[0] = p1; points[1] = p2;
-}
-
-r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3) : r_Point(3u)
-{
-    streamIndex = points.size();
-    points[0] = p1; points[1] = p2; points[2] = p3;
-}
-
-r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4) : r_Point(4u)
-{
-    streamIndex = points.size();
-    points[0] = p1; points[1] = p2; points[2] = p3; points[3] = p4;
-}
-
-r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5) : r_Point(5u)
-{
-    streamIndex = points.size();
-    points[0] = p1; points[1] = p2; points[2] = p3; points[3] = p4; points[4] = p5;
-}
-
-r_Point::r_Point(const std::vector<r_Range> &pointArg) 
-    : points{pointArg}, streamIndex{points.size()}
-{
-}
-
 r_Range r_Point::operator[](r_Dimension i) const
 {
-    if (i < dimension())
+    if (i < points.size())
         return points[i];
     else
     {
@@ -129,7 +131,29 @@ r_Range r_Point::operator[](r_Dimension i) const
 
 r_Range &r_Point::operator[](r_Dimension i)
 {
-    if (i < dimension())
+    if (i < points.size())
+        return points[i];
+    else
+    {
+        LERROR << "dimension (" << i << ") out of bounds (" << points.size() << ")";
+        throw r_Eindex_violation(0ll, static_cast<r_Range>(points.size()) - 1, i);
+    }
+}
+
+r_Range r_Point::at(r_Dimension i) const
+{
+    if (i < points.size())
+        return points[i];
+    else
+    {
+        LERROR << "dimension (" << i << ") out of bounds (" << points.size() << ")";
+        throw r_Eindex_violation(0ll, static_cast<r_Range>(points.size()) - 1, i);
+    }
+}
+
+r_Range &r_Point::at(r_Dimension i)
+{
+    if (i < points.size())
         return points[i];
     else
     {
@@ -223,28 +247,8 @@ r_Point::operator*(const r_Range newElement) const
     return result;
 }
 
-r_Point
-r_Point::indexedMap(const std::vector<r_Dimension> &vecArg) const
-{
-    r_Point retVal(static_cast<r_Dimension>(vecArg.size()));
-    for (size_t i = 0; i < vecArg.size(); i++)
-        retVal[static_cast<r_Dimension>(i)] = points[vecArg[i]];
-    return retVal;
-}
-
-
-r_Range
-r_Point::dotProduct(const r_Point &pt) const
-{
-    checkDimensionMatch(pt);
-    r_Range result = 0;
-    for (r_Dimension i = 0; i < dimension(); i++)
-        result += points[i] * pt[i];
-    return result;
-}
-
 std::vector<r_Range>
-r_Point::getVector() const
+r_Point::get_coordinates() const
 {
     std::vector<r_Range> returnVal;
     returnVal.reserve(dimension());
@@ -256,30 +260,29 @@ r_Point::getVector() const
 void r_Point::print_status(std::ostream &s) const
 {
     s << "[";
-    if (dimension() > 0)
+    for (r_Dimension i = 0; i < dimension(); i++)
     {
-        for (r_Dimension i = 0; i < dimension() - 1; i++)
-            s << points[i] << ",";
-        s << points[dimension() - 1];
+        if (i > 0) s << ",";
+        s << points[i];
     }
     s << "]";
 }
 
 char *r_Point::get_string_representation() const
 {
-    std::ostringstream domainStream;
-    domainStream << (*this);
-    char *returnString = strdup(domainStream.str().c_str());
-    return returnString;
+    auto ret = to_string();
+    return strdup(ret.c_str());
 }
 
 std::string
-r_Point::to_string() const
+r_Point::to_string(bool wkt) const
 {
-    std::ostringstream domainStream;
-    domainStream << (*this);
-    auto returnValue = domainStream.str();
-    return returnValue;
+    std::string ret;
+    for (auto p: points) {
+      if (!ret.empty() && !wkt) ret += ",";
+      ret += std::to_string(p);
+    }
+    return !wkt ? "[" + ret + "]" : ret;
 }
 
 void r_Point::checkDimensionMatch(const r_Point &pt) const

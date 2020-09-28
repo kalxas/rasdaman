@@ -72,7 +72,8 @@ MDDDomainType::MDDDomainType(const char *newTypeName, const BaseType *newBaseTyp
     : MDDBaseType(newTypeName, newBaseType)
 {
     objecttype = OId::MDDDOMTYPEOID;
-    myDomain = new DBMinterval(newDomain, axisNames2);
+    myDomain = new DBMinterval(newDomain);
+    myDomain->setAxisNames(axisNames2);
     myDomain->setCached(true);
     mySubclass = MDDDOMAINTYPE;
 }

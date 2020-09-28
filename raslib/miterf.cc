@@ -36,7 +36,8 @@ const r_Range r_FixedPointNumber::carryPos = 1 << FIXPREC;
 const r_Range r_FixedPointNumber::fracMask = carryPos - 1;
 const double  r_FixedPointNumber::fixOne   = pow(2, static_cast<double>(FIXPREC));
 
-r_MiterFloat::r_MiterFloat(r_Bytes srcCellSize, const char* srcTile, const r_Minterval tileDomain,
+r_MiterFloat::r_MiterFloat(r_Bytes srcCellSize, const char* srcTile,
+                           const r_Minterval &tileDomain,
                            const r_Minterval &srcDomain, const r_Minterval &destDomain)
 {
     dim = srcDomain.dimension();

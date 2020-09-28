@@ -49,7 +49,7 @@ InlineMinterval::InlineMinterval(r_Dimension dim,
     static const char unbounded = '*';
     streamInitCnt = dim;
 
-    for (r_Dimension count = 0; count < dimensionality; count++)
+    for (r_Dimension count = 0; count < dimension(); count++)
     {
         if (!lowerfixed[count])
         {
@@ -103,14 +103,13 @@ InlineMinterval &InlineMinterval::operator=(const r_Minterval &old)
 
 InlineMinterval::~InlineMinterval()
 {
-    delete [] intervals, intervals = NULL;
 }
 
 void InlineMinterval::insertInDb(r_Range *lowerbound, r_Range *upperbound,
                                  char *lowerfixed, char *upperfixed) const
 {
     static const char unbounded = '*';
-    for (r_Dimension count = 0; count < dimensionality; count++)
+    for (r_Dimension count = 0; count < dimension(); count++)
     {
         if (intervals[count].is_low_fixed())
         {

@@ -52,7 +52,7 @@ QtPointOp::QtPointOp(QtOperationList *opList)
 
     if (areAllQtConst)
     {
-        pt = new r_Point(opList->size());
+        pt = new r_Point{r_Dimension(opList->size())};
         size_t i = 0;
         for (auto iter = opList->begin(); iter != opList->end(); iter++, i++)
         {
@@ -106,7 +106,7 @@ QtPointOp::evaluate(QtDataList *inputList)
     //
     // create a QtPointData object and fill it
     //
-    r_Point ptVar(operandList->size());
+    r_Point ptVar{r_Dimension(operandList->size())};
     r_Nullvalues *nullValues = NULL;
     for (auto *data : *operandList)
     {

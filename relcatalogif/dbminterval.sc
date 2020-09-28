@@ -65,12 +65,6 @@ DBMinterval::DBMinterval(const r_Minterval &old)
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const r_Minterval& old, const std::vector<std::string> &axisNames2)
-    : DBObject(), r_Minterval(old, axisNames2)
-{
-    objecttype = OId::DBMINTERVALOID;
-}
-
 DBMinterval::~DBMinterval() noexcept(false)
 {
     validate();
@@ -107,7 +101,7 @@ r_Bytes DBMinterval::getMemorySize() const
 {
     return DBObject::getMemorySize() +
            sizeof(r_Minterval) +
-           dimensionality * (4 + 4 + 1 + 1);
+           dimension() * (4 + 4 + 1 + 1);
 }
 
 void DBMinterval::setBounds(r_Dimension count, std::string &high, std::string &low) const
@@ -139,9 +133,9 @@ void DBMinterval::insertInDb()
 
     SQLiteQuery::executeWithParams(
         "INSERT INTO RAS_DOMAINS ( DomainId, Dimension) VALUES  ( %lld, %d)",
-        domainid, dimensionality);
+        domainid, dimension());
 
-    for (decltype(dimensionality) count = 0; count < dimensionality; count++)
+    for (r_Dimension count = 0; count < dimension(); count++)
     {
         std::string high, low;
         setBounds(count, high, low);
@@ -169,12 +163,12 @@ void DBMinterval::updateInDb()
     const auto domainid = myOId.getCounter();
     auto dimensionInDb = getDimensionInDb();
 
-    if (dimensionInDb != dimensionality)
+    if (dimensionInDb != dimension())
     {
-        if (dimensionInDb < dimensionality)
+        if (dimensionInDb < dimension())
         {
             // insert more rows in RAS_DOMAINVALUES
-            for (r_Dimension count = dimensionInDb; count < dimensionality; count++)
+            for (r_Dimension count = dimensionInDb; count < dimension(); count++)
             {
                 std::string axisName1 = "d" + std::to_string(count);
                 SQLiteQuery::executeWithParams(
@@ -187,13 +181,13 @@ void DBMinterval::updateInDb()
             // delete superfluous dimensions
             SQLiteQuery::executeWithParams(
                 "DELETE FROM RAS_DOMAINVALUES WHERE DomainId = %lld AND DimensionCount > %d",
-                domainid, dimensionality);
+                domainid, dimension());
         }
         SQLiteQuery::executeWithParams(
             "UPDATE RAS_DOMAINS SET Dimension = %d WHERE DomainId = %lld", dimensionInDb, domainid);
     }
 
-    for (r_Dimension count = 0; count < dimensionality; count++)
+    for (r_Dimension count = 0; count < dimension(); count++)
     {
         std::string high, low;
         setBounds(count, high, low);
@@ -230,10 +224,9 @@ void DBMinterval::readFromDb()
 
     const auto domainid = myOId.getCounter();
 
-    dimensionality = getDimensionInDb();
-    delete [] intervals, intervals = new r_Sinterval[dimensionality];
+    auto dimensionality = getDimensionInDb();
+    intervals = std::vector<r_Sinterval>(dimensionality);
 
-    streamInitCnt = dimensionality;
     for (r_Dimension count = 0; count < dimensionality; count++)
     {
         static bool hasAxisNameColumn = checkAxisNameColumn();

@@ -83,7 +83,7 @@ public:
      * @param bandId the band index, 0-based
      * @return the base type size
      */
-    static size_t getBandBaseTypeSize(r_Type* type, int bandId);
+    static size_t getBandBaseTypeSize(const r_Type* type, int bandId);
 
     /**
      * @return the number of bands in type, 1 if type is primitive, more than 1 if struct.

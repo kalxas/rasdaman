@@ -142,7 +142,6 @@ r_GMarray::r_deactivate()
         delete storage_layout;
         storage_layout = 0;
     }
-    domain.r_deactivate();
 }
 
 const char *

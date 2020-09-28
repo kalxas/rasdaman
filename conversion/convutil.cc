@@ -189,16 +189,16 @@ ConvUtil::getDataFormat(string formatName)
         return r_Array;
 }
 
-size_t ConvUtil::getBandBaseTypeSize(r_Type* type, int bandId)
+size_t ConvUtil::getBandBaseTypeSize(const r_Type* type, int bandId)
 {
     if (type->isStructType())
     {
-        r_Attribute att = ((r_Structure_Type*) type)->resolve_attribute((unsigned int) bandId);
+        r_Attribute att = static_cast<const r_Structure_Type*>(type)->resolve_attribute((unsigned int) bandId);
         return att.type_of().size();
     }
     else
     {
-        return ((r_Base_Type*) type)->size();
+        return static_cast<const r_Base_Type*>(type)->size();
     }
 }
 

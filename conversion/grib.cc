@@ -128,16 +128,17 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options)
     r_Dimension dimNo = fullBoundingBox.dimension();
     setTargetDomain(fullBoundingBox);
 
-    r_Range targetWidth = desc.destInterv[dimNo - 2].get_extent();
-    r_Range targetHeight = desc.destInterv[dimNo - 1].get_extent();
-    size_t targetArea = (size_t)(targetWidth * targetHeight);
-    r_Range messageWidth = fullBoundingBox[dimNo - 2].get_extent();
-    r_Range messageHeight = fullBoundingBox[dimNo - 1].get_extent();
-    size_t messageArea = (size_t)(messageWidth * messageHeight);
+    size_t targetWidth = desc.destInterv[dimNo - 2].get_extent();
+    size_t targetHeight = desc.destInterv[dimNo - 1].get_extent();
+    size_t targetArea = targetWidth * targetHeight;
+    size_t messageWidth = fullBoundingBox[dimNo - 2].get_extent();
+    size_t messageHeight = fullBoundingBox[dimNo - 1].get_extent();
+    size_t messageArea = messageWidth * messageHeight;
 
-    LDEBUG << "x size: " << targetWidth << ", y size: " << targetHeight << ", number of values per message: " << targetArea;
+    LDEBUG << "x size: " << targetWidth << ", y size: " << targetHeight 
+           << ", number of values per message: " << targetArea;
 
-    size_t messageSize = (size_t) messageArea * sizeof(double);
+    size_t messageSize = messageArea * sizeof(double);
     unique_ptr<char[]> messageData(new (nothrow) char[messageSize]);
     if (!messageData)
     {
@@ -181,7 +182,7 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options)
 
             size_t sliceOffset = getSliceOffset(desc.destInterv, targetDomain, targetArea);
             err = grib_get_double_array(h, "values", (double*) messageData.get(), &messageArea);
-            VALIDATE_MSG_ERRCODE(err, "failed getting the values in message " << messageIndex);
+            VALIDATE_MSG_ERRCODE(err, "failed getting the values in message " << messageIndex)
             if (subsetSpecified && (targetWidth != messageWidth || targetHeight != messageHeight))
             {
                 decodeSubset(messageData.get(), messageDomain, targetDomain, sliceOffset, targetWidth, targetHeight, targetArea);
@@ -220,7 +221,7 @@ Json::Value r_Conv_GRIB::getMessageDomainsJson()
 
 FILE* r_Conv_GRIB::getFileHandle()
 {
-    size_t srcSize = (size_t)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    size_t srcSize = desc.srcInterv[0].get_extent();
 
     FILE* in = NULL;
     if (formatParams.getFilePaths().empty())
@@ -357,12 +358,12 @@ void r_Conv_GRIB::setTargetDataAndType()
 }
 
 void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageIndex,
-                                        r_Range messageWidth, r_Range messageHeight, size_t messageArea)
+                                        size_t messageWidth, size_t messageHeight, size_t messageArea)
 {
     long x = 0;
     int err = grib_get_long(h, "Ni", &x);
-    VALIDATE_MSG_ERRCODE(err, "failed determining the X size of message " << messageIndex);
-    if (x != messageWidth)
+    VALIDATE_MSG_ERRCODE(err, "failed determining the X size of message " << messageIndex)
+    if (x != long(messageWidth))
     {
         LERROR << "the x grid size of the grib message (Ni) '" << x <<
                "' does not match the x bound specified in the message domains '" << messageWidth << "'";
@@ -373,8 +374,8 @@ void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageInd
 
     long y = 0;
     err = grib_get_long(h, "Nj", &y);
-    VALIDATE_MSG_ERRCODE(err, "failed determining the Y size of message " << messageIndex);
-    if (y != messageHeight)
+    VALIDATE_MSG_ERRCODE(err, "failed determining the Y size of message " << messageIndex)
+    if (y != long(messageHeight))
     {
         LERROR << "the y grid size of the grib message (Nj) '" << y <<
                "' does not match the y bound specified in the message domains '" << messageHeight << "'";
@@ -385,7 +386,7 @@ void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageInd
 
     size_t valuesLen = 0;
     err = grib_get_size(h, "values", &valuesLen);
-    VALIDATE_MSG_ERRCODE(err, "failed determining the number of values in message " << messageIndex);
+    VALIDATE_MSG_ERRCODE(err, "failed determining the number of values in message " << messageIndex)
     if (valuesLen != messageArea)
     {
         LERROR << "the number of values in the grib message '" << valuesLen <<
@@ -397,26 +398,26 @@ void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageInd
 }
 
 void r_Conv_GRIB::decodeSubset(char* messageData, r_Minterval messageDomain, r_Minterval targetDomain,
-                               size_t subsetOffset, r_Range subsetWidth, r_Range subsetHeight, size_t subsetArea)
+                               size_t subsetOffset, size_t subsetWidth, size_t subsetHeight, size_t subsetArea)
 {
     r_Dimension dimNo = targetDomain.dimension();
     // these iterators iterate last dimension first, i.e. minimal step size
-    targetDomain.transpose(dimNo - 1, dimNo - 2);
-    messageDomain.transpose(dimNo - 1, dimNo - 2);
+    targetDomain.swap_dimensions(dimNo - 1, dimNo - 2);
+    messageDomain.swap_dimensions(dimNo - 1, dimNo - 2);
 
     r_MiterDirect resTileIter(static_cast<void*>(desc.dest + subsetOffset), targetDomain, targetDomain, sizeof(double));
     r_MiterDirect opTileIter(static_cast<void*>(messageData), messageDomain, targetDomain, sizeof(double));
 
-    r_Range lastDimExtent = targetDomain[dimNo - 1].get_extent();
+    size_t lastDimExtent = targetDomain[dimNo - 1].get_extent();
     while (!resTileIter.isDone())
     {
         // copy entire line (continuous chunk in last dimension) in one go
         memcpy(const_cast<void*>(resTileIter.getData()),
                opTileIter.getData(),
-               static_cast<size_t>(lastDimExtent) * sizeof(double));
+               lastDimExtent * sizeof(double));
         // force overflow of last dimension
-        resTileIter.id[dimNo - 1].pos += lastDimExtent;
-        opTileIter.id[dimNo - 1].pos += lastDimExtent;
+        resTileIter.id[dimNo - 1].pos += r_Range(lastDimExtent);
+        opTileIter.id[dimNo - 1].pos += r_Range(lastDimExtent);
         // iterate; the last dimension will always overflow now
         ++resTileIter;
         ++opTileIter;
@@ -504,12 +505,12 @@ r_Data_Format r_Conv_GRIB::get_data_format(void) const
 }
 
 template <class baseType>
-void r_Conv_GRIB::transpose(baseType* src, baseType* dst, const int N, const int M)
+void r_Conv_GRIB::transpose(baseType* src, baseType* dst, const size_t N, const size_t M)
 {
-    for (int n = 0; n < N * M; n++)
+    for (size_t n = 0; n < N * M; n++)
     {
-        int i = n / N;
-        int j = n % N;
+        size_t i = n / N;
+        size_t j = n % N;
         dst[n] = src[M * j + i];
     }
 }

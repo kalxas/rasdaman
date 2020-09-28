@@ -85,7 +85,6 @@ QtDomainOperation::QtDomainOperation(QtOperation *mintOp, std::vector<std::strin
     {
         mintervalOp->setParent(this);
         axisNamesCorrect = NULL;
-
     }
 }
 
@@ -361,7 +360,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             }
             else
             {
-                projPoint = r_Point(1);
+                projPoint = r_Point{1u};
 
                 if (indexData->getDataType() == QT_SHORT ||
                         indexData->getDataType() == QT_OCTET ||
@@ -685,6 +684,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                         }  
                     }
                 }
+
                 bool trimming   = false;
                 bool projection = false;
                 nullValues = currentMDDObj->getNullValues();

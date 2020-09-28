@@ -32,14 +32,6 @@
  ************************************************************/
 
 #include <iostream>
-#include <malloc.h>
-
-
-#ifdef EARLY_TEMPLATE
-#define __EXECUTABLE__
-#endif
-
-#include "rasodmg/template_inst.hh"
 #include "raslib/minterval.hh"
 #include "raslib/sinterval.hh"
 

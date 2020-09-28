@@ -106,13 +106,21 @@ public:
     r_PointDouble operator*(const r_PointDouble &vectorArg) const;
 
     /// scalar multiplication
-    r_PointDouble operator*(const double scalarArg) const;
+    r_PointDouble operator*(double scalarArg) const;
+    
+    /**
+     * Same as above but of the form PointA op= PointB; PointA is modified in place.
+     */
+    r_PointDouble &operator+=(const r_PointDouble& a) noexcept(false);
+    r_PointDouble &operator-=(const r_PointDouble& a) noexcept(false);
+    r_PointDouble &operator*=(const r_PointDouble& a) noexcept(false);
+    r_PointDouble &operator*=(double a) noexcept;
 
     /// scalar product
     double dotProduct(const r_PointDouble &r) const;
 
     /// same as std::vector::size()
-    size_t dimension() const;
+    r_Dimension dimension() const;
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s) const;

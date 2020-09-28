@@ -179,10 +179,7 @@ bool QtNaryOperation::getOperands(QtDataList *inputList, QtDataList *&operandLis
         return false;
     }
     if (std::any_of(operationList->begin(), operationList->begin(),
-                    [](QtOperation * op)
-{
-    return op == NULL;
-}))
+                    [](QtOperation * op) { return op == NULL; }))
     {
         LERROR << "At least one operand branch is invalid.";
         return false;

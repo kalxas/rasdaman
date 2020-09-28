@@ -693,7 +693,7 @@ Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval
     r_Dimension dimRes = areaRes.dimension();
     r_Dimension dimOp = areaOp.dimension();
 
-    r_Range width = areaRes[dimRes - 1].get_extent();
+    auto width = areaRes[dimRes - 1].get_extent();
     if (width > areaOp[dimOp - 1].get_extent())
     {
         width = areaOp[dimOp - 1].get_extent();
@@ -722,10 +722,10 @@ Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval
     while (!resTileIter.isDone())
     {
         // copy entire line (continuous chunk in last dimension) in one go
-        memcpy(resTileIter.getData(), opTileIter.getData(), static_cast<size_t>(width) * tsize);
+        memcpy(resTileIter.getData(), opTileIter.getData(), width * tsize);
         // force overflow of last dimension
-        resTileIter.id[dimRes - 1].pos += width;
-        opTileIter.id[dimOp - 1].pos += width;
+        resTileIter.id[dimRes - 1].pos += r_Range(width);
+        opTileIter.id[dimOp - 1].pos += r_Range(width);
 
         // iterate; the last dimension will always overflow now
         ++resTileIter;
@@ -1028,15 +1028,15 @@ void Tile::setContents(char *newContents)
 
 r_Bytes Tile::calcOffset(const r_Point &point) const
 {
-    r_Bytes offset = 0;
-    r_Bytes factor = 1;
+    r_Range offset = 0;
+    r_Range factor = 1;
 
     // calculate offset
     for (auto i = domain.dimension(); i-- > 0;)
     {
-        offset += static_cast<r_Bytes>(point[i] - domain[i].low()) * factor;
-        factor *= static_cast<r_Bytes>(domain[i].get_extent());
+        offset += (point[i] - domain[i].low()) * factor;
+        factor *= domain[i].high() - domain[i].low() + 1;
     }
 
-    return offset;
+    return static_cast<r_Bytes>(offset);
 }

@@ -135,9 +135,9 @@ BoundingBox *computeBoundingBox(const QtMShapeData *mShape)
        Result type is a struct (bounding box defined in the computeutile.hh)
     */
     auto polytope = mShape->getMShapeData();
-    r_PointDouble minPoint(polytope[0].dimension());
-    r_PointDouble maxPoint(polytope[0].dimension());
-    r_PointDouble boundingBoxSize(polytope[0].dimension());
+    r_PointDouble minPoint{r_Dimension(polytope[0].dimension())};
+    r_PointDouble maxPoint{r_Dimension(polytope[0].dimension())};
+    r_PointDouble boundingBoxSize{r_Dimension(polytope[0].dimension())};
 
     for (r_Dimension i = 0; i < polytope[0].dimension(); i++)
     {
@@ -165,10 +165,10 @@ pair<double, bool> isInNSubspace(const r_Point &position, QtMShapeData *mshape)
 
     // compute the inscribed and circumscribed Radiuses
     double inscribedSphereRadius = 0.5;
-    double circumscribedSphereRadius = std::sqrt(midPoint.dimension() * 0.25);
+    double circumscribedSphereRadius = std::sqrt(double(midPoint.dimension()) * 0.25);
 
-    r_PointDouble currentPosition(position);
-    r_PointDouble u_i((*directionVectors)[0].dimension());
+    r_PointDouble currentPosition{position};
+    r_PointDouble u_i{r_Dimension((*directionVectors)[0].dimension())};
     // compute the distance vector to the subspace by performing a projection
     // of the distance to a point in the subspace on the vectors defining the subspace
     // and then subtracting it from the initial distance vector
@@ -176,7 +176,7 @@ pair<double, bool> isInNSubspace(const r_Point &position, QtMShapeData *mshape)
     u_i = currentPosition - midPoint;
     for (size_t j = 0; j < mshape->getDimension(); j++)
     {
-        u_i = u_i - ((*directionVectors)[j] * u_i.dotProduct((*directionVectors)[j]));
+        u_i -= ((*directionVectors)[j] * u_i.dotProduct((*directionVectors)[j]));
     }
 
     // computing distance and checking if we are inside the pixel or not.
@@ -297,7 +297,7 @@ std::pair<int, int> computeStepsToSkip(const r_Point &currentPosition, const r_P
     }
 
     //now we can set the initial offset to be the value of t
-    result.first = std::floor(*someNonzeroCoefficient);
+    result.first = int(std::floor(*someNonzeroCoefficient));
 
     //to get the 2nd value, we need only perform the same trick with a scan ray from the other end
     //(sign change and change of base point), only this time, the solution existence is trivial.
@@ -318,7 +318,10 @@ std::pair<int, int> computeStepsToSkip(const r_Point &currentPosition, const r_P
         }
     }
 
-    result.second = std::max(static_cast<int>(boundingPosition[ boundingPosition.dimension() - 1 ] - std::floor(*someNonzeroCoefficient) - currentPosition[ currentPosition.dimension() - 1 ]), result.first);
+    result.second = std::max(static_cast<int>(
+                                 double(boundingPosition[ boundingPosition.dimension() - 1 ]) - 
+                                 std::floor(*someNonzeroCoefficient) - 
+                                 double(currentPosition[ currentPosition.dimension() - 1 ])), result.first);
 
     return result;
 }
@@ -346,7 +349,7 @@ int computeOffset(const r_Point &extents, const r_Point &pos1, const r_Point &po
 {
     int result = 0;
     r_Point difference = pos2 - pos1;
-    for (size_t i = 0; i < extents.dimension(); i++)
+    for (r_Dimension i = 0; i < extents.dimension(); i++)
     {
         result += extents[i] * difference[i];
     }
@@ -358,11 +361,11 @@ vector<r_Point> computeNDBresenhamLine(QtMShapeData *mshape)
     // segment endpoints -- already checked that the size is 2.
     vector<r_PointDouble> polytopeVertices = mshape->getMShapeData();
     // the dimension -- used for determining loop size below
-    r_Dimension overallDimension = polytopeVertices[0].dimension();
+    r_Dimension overallDimension = r_Dimension(polytopeVertices[0].dimension());
 
     // determine the starting point of the algo -- the lowest wrt lexicographic order.
     // also compute the direction vector associated with the line.
-    r_PointDouble directionVector(overallDimension);
+    r_PointDouble directionVector{overallDimension};
     r_PointDouble *firstPoint = NULL;
     if (polytopeVertices[0] < polytopeVertices[1])
     {
@@ -378,7 +381,7 @@ vector<r_Point> computeNDBresenhamLine(QtMShapeData *mshape)
     // determine std basis vector w/ direction vector's largest coefficient
     r_Dimension iterationDimension = 0;
     double currentMax = directionVector[0];
-    for (size_t i = 1; i < overallDimension; i++)
+    for (r_Dimension i = 1; i < overallDimension; i++)
     {
         if (std::abs(currentMax) < std::abs(directionVector[i]))
         {
@@ -388,20 +391,16 @@ vector<r_Point> computeNDBresenhamLine(QtMShapeData *mshape)
     }
 
     // determine total number of steps in iteration
-    size_t numSteps = std::abs(directionVector[iterationDimension]);
+    size_t numSteps = size_t(std::abs(directionVector[iterationDimension]));
 
     // rescale direction vector s.t. largest coefficient in the std basis is 1
     for (size_t i = 0; i < overallDimension; i++)
-    {
         directionVector[i] /=  std::abs(currentMax);
-    }
 
     //initial error vector:
-    r_PointDouble errorVector(overallDimension);
+    r_PointDouble errorVector{overallDimension};
     for (size_t i = 0; i < overallDimension; i++)
-    {
         errorVector[i] = 0;
-    }
 
 
     // fill output vector with points in lattice which are to be used.
@@ -417,18 +416,18 @@ vector<r_Point> computeNDBresenhamLine(QtMShapeData *mshape)
     nSubspace.reserve(numSteps);
 
     //we append the currentPoint to the result now to simplify the loop later.
-    r_Point currentPoint(overallDimension);
-    for (size_t i = 0; i < overallDimension; i++)
+    r_Point currentPoint{overallDimension};
+    for (r_Dimension i = 0; i < overallDimension; i++)
     {
-        currentPoint[i] = (*firstPoint)[i];
+        currentPoint[i] = r_Range((*firstPoint)[i]);
     }
-    nSubspace.emplace_back(currentPoint);
+    nSubspace.push_back(currentPoint);
 
     for (size_t i = 0; i < numSteps; i++)
     {
-        r_Point nextPoint(overallDimension);
+        r_Point nextPoint{overallDimension};
         //loop over directions, skipping iterationDimension
-        for (size_t j = 0; j < overallDimension; j++)
+        for (r_Dimension j = 0; j < overallDimension; ++j)
         {
             if (j != iterationDimension)
             {
@@ -464,7 +463,7 @@ vector<r_Point> computeNDBresenhamLine(QtMShapeData *mshape)
         //update the current point for next iteration
         currentPoint = nextPoint;
         //append to the vector of solutions
-        nSubspace.emplace_back(currentPoint);
+        nSubspace.push_back(currentPoint);
     }
     return nSubspace;
 }
@@ -549,7 +548,7 @@ vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble> &poly
     // determine std basis vector w/ direction vector's largest coefficient
     r_Dimension iterationDimension = 0;
     double currentMax = directionVector[0];
-    for (size_t i = 1; i < overallDimension; i++)
+    for (r_Dimension i = 1; i < overallDimension; i++)
     {
         if (std::abs(currentMax) < std::abs(directionVector[i]))
         {
@@ -559,20 +558,20 @@ vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble> &poly
     }
 
     // determine total number of steps in iteration
-    size_t numSteps = std::abs(directionVector[iterationDimension]);
+    size_t numSteps = size_t(std::abs(directionVector[iterationDimension]));
     //now we can allocate memory for the result vector.
     //the +1 is for the initial value (for two pixels X & Y, we define k := max_i(dist(proj_i(X), proj_i(Y))).
     //There are k+1 pixels in the result
     nSubspace.reserve(numSteps + 1);
     // rescale direction vector s.t. largest coefficient in the std basis is 1
-    for (size_t i = 0; i < overallDimension; i++)
+    for (r_Dimension i = 0; i < overallDimension; i++)
     {
         directionVector[i] /=  std::abs(currentMax);
     }
 
     //initial error vector:
     r_PointDouble errorVector(overallDimension);
-    for (size_t i = 0; i < overallDimension; i++)
+    for (r_Dimension i = 0; i < overallDimension; i++)
     {
         errorVector[i] = 0;
     }
@@ -592,7 +591,7 @@ vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble> &poly
     {
         r_Point nextPoint(overallDimension);
         //loop over directions, skipping iterationDimension
-        for (size_t j = 0; j < overallDimension; j++)
+        for (r_Dimension j = 0; j < overallDimension; j++)
         {
             if (j != iterationDimension)
             {
@@ -677,7 +676,7 @@ pair< vector< vector< r_Point >>, vector< r_Minterval >>
     bBoxesExtents.reserve(bBoxes.size());
     for (size_t i = 0; i < bBoxes.size(); i ++)
     {
-        bBoxesExtents.emplace_back(bBoxes[i].get_extent().getVector());
+        bBoxesExtents.emplace_back(bBoxes[i].get_extent().get_coordinates());
         longestExtentDims.emplace_back(std::distance(bBoxesExtents[i].begin(),
                                        std::max_element(bBoxesExtents[i].begin(),
                                                bBoxesExtents[i].end())));
@@ -709,7 +708,7 @@ pair< vector< vector< r_Point >>, vector< r_Minterval >>
     vector< r_Minterval > resInt;
     resInt.reserve(1);
     r_Minterval resMint(1);
-    resMint[0] = r_Sinterval((r_Range) 0, static_cast<r_Range>(resPoints[0].size() - 1));
+    resMint[0] = r_Sinterval{0ll, static_cast<r_Range>(resPoints[0].size() - 1)};
     resInt.emplace_back(resMint);
 
     // construct result pair
@@ -739,12 +738,12 @@ std::pair<int, int> endpointsSearch(const r_Minterval &domainArg, const std::vec
         {
             if (isFirstInitialized)
             {
-                startEndIndices.second = i;
+                startEndIndices.second = int(i);
             }
             else
             {
-                startEndIndices.first = i;
-                startEndIndices.second = i;
+                startEndIndices.first = int(i);
+                startEndIndices.second = int(i);
                 isFirstInitialized = true;
             }
         }
@@ -777,7 +776,7 @@ r_Minterval localHull(const std::pair<int, int> &indices, const std::vector<r_Po
     {
         secondIndex = static_cast<size_t>(indices.second);
     }
-    for (size_t i = 0; i < convexHull.dimension(); i++)
+    for (r_Dimension i = 0; i < convexHull.dimension(); i++)
     {
         if (lineSegmentArg[firstIndex][i] <= lineSegmentArg[secondIndex][i])
         {
@@ -820,15 +819,16 @@ r_Sinterval localHullByIndex(const std::pair<int, int> &indices, const std::vect
         secondIndex = static_cast<size_t>(indices.second);
     }
 
-    if (lineSegmentArg[firstIndex][index] <= lineSegmentArg[secondIndex][index])
+    r_Dimension ind{r_Dimension(index)};
+    if (lineSegmentArg[firstIndex][ind] <= lineSegmentArg[secondIndex][ind])
     {
-        convexHull.set_low(lineSegmentArg[firstIndex][index]);
-        convexHull.set_high(lineSegmentArg[secondIndex][index]);
+        convexHull.set_low(lineSegmentArg[firstIndex][ind]);
+        convexHull.set_high(lineSegmentArg[secondIndex][ind]);
     }
     else
     {
-        convexHull.set_low(lineSegmentArg[secondIndex][index]);
-        convexHull.set_high(lineSegmentArg[firstIndex][index]);
+        convexHull.set_low(lineSegmentArg[secondIndex][ind]);
+        convexHull.set_high(lineSegmentArg[firstIndex][ind]);
     }
 
     return convexHull;
@@ -865,7 +865,7 @@ computeProjectedDomain(r_Minterval intersectDom, std::set<r_Dimension, std::less
 r_Point
 computeProjectedPoint(const r_Point &pointOp, const std::vector<r_Dimension> &keptDims)
 {
-    r_Point result(keptDims.size());
+    r_Point result{r_Dimension(keptDims.size())};
     for (auto d : keptDims)
     {
         result << pointOp[d];

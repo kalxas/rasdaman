@@ -139,7 +139,7 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
     r_Minterval domainOfInterest = localHull(std::make_pair<int, int>(-1, -1), bresenhamLine);
 
     // resultDom's r_Sinterval corresponds to the longest extent of domainOfInterestGlobal
-    std::vector<r_Range> bbExtents = (domainOfInterest.get_extent()).getVector();
+    std::vector<r_Range> bbExtents = (domainOfInterest.get_extent()).get_coordinates();
     r_Dimension index = std::distance(bbExtents.begin(), std::max_element(bbExtents.begin(), bbExtents.end()));
 
     // startEndIndicesGlobal keeps track of the segment of the line contained inside areaOp.
@@ -147,7 +147,7 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
 
     // construct the result domain using the largest direction's index.
     // the extent here corresponds to the total number of result points
-    r_Minterval resultDomainGlobal(1);
+    r_Minterval resultDomainGlobal{1u};
     resultDomainGlobal[0] = localHullByIndex(startEndIndicesGlobal, bresenhamLine, index);
 
     //result tile
@@ -165,6 +165,7 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
         {
             // domain of the actual tile
             const r_Minterval &tileDom = (*tileIt)->getDomain();
+            LDEBUG << "resAreaOp: " << resAreaOp << ", tileDom: " << tileDom;
             if (tileDom.intersects_with(resAreaOp))
             {
                 //we first determine which band of values from the BLA result apply to this tile
@@ -177,7 +178,7 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
                 }
 
                 // domain of the result data set.
-                r_Minterval resultDomain(1);
+                r_Minterval resultDomain{1u};
                 resultDomain[0] = localHullByIndex(startEndIndices, bresenhamLine, index);
 
                 // data type size
@@ -189,26 +190,25 @@ QtClipping::extractBresenhamLine(const MDDObj *op,
                 char *resultData = resTile->getContents();
 
                 // compute position in the source char* array for assigning the result tile content
-                char *sourceData = (*tileIt)->getCell(bresenhamLine[static_cast<size_t>(startEndIndices.first)]);
+                const auto &linePos = bresenhamLine[size_t(startEndIndices.first)];
+                LDEBUG << "getting cell for point " << linePos << " from tile " << tileDom;
+                char *sourceData = (*tileIt)->getCell(linePos);
                 // we could insert this at the front of bresenhamLine, but this way is faster as it avoids an O(length of line) computation
                 memcpy(resultData, sourceData, typeSize);
 
                 // take care to avoid double-copying the point in case there is only a single point in this tile
-                if (startEndIndices.second == startEndIndices.first)
+                if (startEndIndices.second != startEndIndices.first)
                 {
-                    // insert Tile in result mdd
-                    resultMDD->insertTile(resTile);
-                    continue;
-                }
-                // loop over bresenhamLine points which are relevant for this tile
-                // and transfer data from source to result tiles.
-                for (size_t i = static_cast<size_t>(startEndIndices.first); i < static_cast<size_t>(startEndIndices.second); i++)
-                {
-                    // move to the next data point to be copied
-                    // complexity O(dimensionality)
-                    sourceData = (*tileIt)->getCell(bresenhamLine[i + 1]);
-                    resultData += (typeSize);
-                    memcpy(resultData, sourceData, typeSize);
+                    // loop over bresenhamLine points which are relevant for this tile
+                    // and transfer data from source to result tiles.
+                    for (size_t i = size_t(startEndIndices.first); i < size_t(startEndIndices.second); i++)
+                    {
+                        // move to the next data point to be copied
+                        // complexity O(dimensionality)
+                        sourceData = (*tileIt)->getCell(bresenhamLine[i + 1]);
+                        resultData += (typeSize);
+                        memcpy(resultData, sourceData, typeSize);
+                    }
                 }
 
                 // insert Tile in result mdd
@@ -453,7 +453,7 @@ QtClipping::extractLinestring(const MDDObj *op,
     bBoxesExtents.reserve(bBoxes.size());
     for (size_t i = 0; i < bBoxes.size(); i ++)
     {
-        bBoxesExtents.emplace_back(bBoxes[i].get_extent().getVector());
+        bBoxesExtents.emplace_back(bBoxes[i].get_extent().get_coordinates());
         longestExtentDims.emplace_back(std::distance(bBoxesExtents[i].begin(),
                                        std::max_element(bBoxesExtents[i].begin(),
                                                bBoxesExtents[i].end())));
@@ -804,7 +804,8 @@ QtClipping::extractCorridor(const MDDObj *op, const r_Minterval &,
     std::vector< r_Minterval > embeddedMaskDomains;
     //embeddedMaskDomains.reserve(static_cast<size_t>(lineStringDomain.get_extent()));
 
-    embeddedMaskDomains = computeMaskEmbedding(lsData.first, convexHull, lineStringDomain.get_extent(), maskDims);
+    embeddedMaskDomains = computeMaskEmbedding(lsData.first, convexHull, 
+                                               r_Range(lineStringDomain.get_extent()), maskDims);
 
     //now, we build the convex hull of all these intervals, and call it the "outer hull"
     r_Minterval outerHull = embeddedMaskDomains[0];
@@ -1556,55 +1557,59 @@ QtClipping::computeMaskEmbedding(
     result.reserve(static_cast<size_t>(outputLength));
 
     r_Point firstPoint = pointListArg[0][0];
-
-    if (!convexHullArg.covers(pointListArg[0][0].indexedMap(maskDims)))
+    
     {
-        LERROR << "The coordinates of the starting point of the linestring do not sit inside the polygon's convex hull.";
-        throw r_Error(MASKNOTALIGNEDWITHLINESTRING);
-    }
-    else
-    {
-        bool firstSeg = true;
-        // iterate over the segments
-        for (auto segIter = pointListArg.begin(); segIter != pointListArg.end(); ++segIter)
+        r_Point indexedMap(static_cast<r_Dimension>(maskDims.size()));
+        for (size_t i = 0; i < maskDims.size(); i++)
+            indexedMap[static_cast<r_Dimension>(i)] = pointListArg[0][0][maskDims[i]];
+        if (!convexHullArg.covers(indexedMap))
         {
-            auto ptIter = segIter->begin();
+            LERROR << "The coordinates of the starting point of the linestring do not sit inside the polygon's convex hull.";
+            throw r_Error(MASKNOTALIGNEDWITHLINESTRING);
+        }
+    }
+    
+    
+    bool firstSeg = true;
+    // iterate over the segments
+    for (auto segIter = pointListArg.begin(); segIter != pointListArg.end(); ++segIter)
+    {
+        auto ptIter = segIter->begin();
 
-            if (!firstSeg)
-            {
-                ptIter++;
-            }
-            else
-            {
-                firstSeg = false;
-            }
+        if (!firstSeg)
+        {
+            ptIter++;
+        }
+        else
+        {
+            firstSeg = false;
+        }
 
-            if (segIter->size() != 1 || firstSeg)
+        if (segIter->size() != 1 || firstSeg)
+        {
+            // iterate over the points in each segment
+            for (; ptIter != segIter->end(); ++ptIter)
             {
-                // iterate over the points in each segment
-                for (; ptIter != segIter->end(); ++ptIter)
+                //find the current slice by translating the convex hull
+                r_Minterval currentSlice(firstPoint.dimension());
+                r_Point translation = *ptIter - firstPoint;
+                for (r_Dimension i = 0; i < firstPoint.dimension(); i++)
                 {
-                    //find the current slice by translating the convex hull
-                    r_Minterval currentSlice(firstPoint.dimension());
-                    r_Point translation = *ptIter - firstPoint;
-                    for (r_Dimension i = 0; i < firstPoint.dimension(); i++)
+                    //translate the convex hull argument along the dimensions it corresponds to (guaranteed to contain the translated point, since convexHullArg contains the first point)
+                    auto it = std::find(maskDims.begin(), maskDims.end(), i);
+                    auto index = std::distance(maskDims.begin(), it);
+                    if (it == maskDims.end())
                     {
-                        //translate the convex hull argument along the dimensions it corresponds to (guaranteed to contain the translated point, since convexHullArg contains the first point)
-                        auto it = std::find(maskDims.begin(), maskDims.end(), i);
-                        auto index = std::distance(maskDims.begin(), it);
-                        if (it == maskDims.end())
-                        {
-                            // the current point location
-                            currentSlice << r_Sinterval((*ptIter)[i], (*ptIter)[i]);
-                        }
-                        else
-                        {
-                            // the current translated bounding box
-                            currentSlice << r_Sinterval(convexHullArg[index].low() + translation[i], convexHullArg[index].high() + translation[i]);
-                        }
+                        // the current point location
+                        currentSlice << r_Sinterval((*ptIter)[i], (*ptIter)[i]);
                     }
-                    result.emplace_back(currentSlice);
+                    else
+                    {
+                        // the current translated bounding box
+                        currentSlice << r_Sinterval(convexHullArg[index].low() + translation[i], convexHullArg[index].high() + translation[i]);
+                    }
                 }
+                result.emplace_back(currentSlice);
             }
         }
     }

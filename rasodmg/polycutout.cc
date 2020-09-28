@@ -289,8 +289,8 @@ void r_PolygonCutOut::setMArray(r_GMarray &myArray)
     imgX = currDomain[0].low();
     imgY = currDomain[1].low();
 
-    imgWidth  = currDomain[0].get_extent();
-    imgHeight = currDomain[1].get_extent();
+    imgWidth  = r_Range(currDomain[0].get_extent());
+    imgHeight = r_Range(currDomain[1].get_extent());
 }
 
 void r_PolygonCutOut::addPolygon(const r_Polygon &p)
