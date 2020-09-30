@@ -2502,11 +2502,10 @@ which is the first date of this week).
 
 .. _band-and-dim-metadata:
 
-**Band and dimension metadata in netCDF**
+**Bands and dimensions metadata in global metadata**
 
 Metadata can be individually specified for each *band* and *axis* in the
-ingredient file. This metadata is automatically added to the result output when
-encoding to netCDF. Example:
+ingredient file. Example:
 
 .. hidden-code-block:: json
 
@@ -2545,21 +2544,44 @@ netCDF files.
 
 * **band** metadata:
 
-  * If ``"bands"`` is set to ``"auto"`` or does not exist under ``"metadata"``
+  * For netCDF: If ``"bands"`` is set to ``"auto"`` or does not exist under ``"metadata"``
     in the ingredient file, all user-specified bands will have metadata which is
-    fetched directly from the netCDF file.
+    fetched directly from the netCDF file. Metadata for 1 band is
+    **collected automatically** if: 1) band is not added. 2) band is set to ``"auto"``.
 
   * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
-    Metadata for 1 band is **collected automatically** if: 1) band is not added.
-    2) band is set to ``"auto"``.
+    Example:
+
+    .. hidden-code-block:: json
+
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "description": "'3-band data.'",
+            "resolution": "'1'"
+          },
+          "bands": {
+            "red": {
+              "metadata1": "metadata_red1",
+              "metadata2": "metadata_red2"
+            },
+            "green": {
+              "metadata3": "metadata_green3",
+              "metadata4": "metadata_green4"
+            }
+          }
+        }
+
 
 * **axis** metadata:
 
-  * If ``"axes"`` is set to ``"auto"`` or does not exist under ``"metadata"``
+  * For netCDF: If ``"axes"`` is set to ``"auto"`` or does not exist under ``"metadata"``
     in the ingredient file, all user-specified axes will have metadata which is
-    fetched directly from the netCDF file. The axis label for variable is detected
-    from the ``min`` or ``max`` value of CRS axis configuration under
-    ``"slicer/axes"`` section. For example:
+    fetched directly from the netCDF file. Metadata for 1 axis is 
+    **collected automatically** if: 1) axis is not added. 2) axis is set
+    to ``"auto"``. 3) axis is set with ``${netcdf:variable:DimensionName:metadata}``.
+    The axis label for variable is detected from the ``min`` or ``max`` value
+    of CRS axis configuration under ``"slicer/axes"`` section. For example:
 
     .. hidden-code-block:: json
 
@@ -2575,8 +2597,26 @@ netCDF files.
          }
 
   * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
-    Metadata for 1 axis is **collected automatically** if: 1) axis is not added. 2) axis
-    is set to ``"auto"``. 3) axis is set with ``${netcdf:variable:DimensionName:metadata}``.
+
+    .. hidden-code-block:: json
+
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "description": "'3-band data.'",
+            "resolution": "'1'"
+          },
+          "axes": {
+            "i": {
+              "metadata_i_1": "metadata_1",
+              "metadata_i_2": "metadata_2"
+            },
+            "j": {
+              "metadata_j_1": "metadata_3"
+            }
+          }
+        }
+
 
 .. _data-import-recipe-wcs_extract:
 
