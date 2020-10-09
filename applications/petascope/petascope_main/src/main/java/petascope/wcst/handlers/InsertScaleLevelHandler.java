@@ -102,6 +102,8 @@ public class InsertScaleLevelHandler {
                 
                 i++;
             }
+            
+            this.pyramidService.updateScaleLevel(coverageId, level, gridDomainsPairsMap, username, password);
         } catch (Exception ex) {
             log.error("Error updating scale level for coverage '" + coverageId + "' with level '" + level + "'. Reason: " + ex.getMessage(), ex);
             // If error occurred when updating data to downscaled collection, delete this collection.
