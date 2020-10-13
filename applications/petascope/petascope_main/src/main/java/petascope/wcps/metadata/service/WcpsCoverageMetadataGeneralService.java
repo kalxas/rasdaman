@@ -1016,23 +1016,69 @@ public class WcpsCoverageMetadataGeneralService {
                 subsetGeoX.setUpperLimit(axisX.getOriginalGeoBounds().getUpperLimit());
             }
             if (axisY.getGeoBounds().getUpperLimit().compareTo(axisY.getOriginalGeoBounds().getUpperLimit()) > 0) {
-                subsetGeoY.setUpperLimit(axisY.getOriginalGeoBounds().getUpperLimit());
+                subsetGeoY.setUpperLimit(axisY.getOriginalGeoBounds().getUpperLimit());         
             }
                        
             // -- grid lower bounds
             if (axisX.getGridBounds().getLowerLimit().compareTo(axisX.getOriginalGridBounds().getLowerLimit()) < 0) {
                 subsetGridX.setLowerLimit(axisX.getOriginalGridBounds().getLowerLimit());
             }
+            if (axisX.getGridBounds().getLowerLimit().compareTo(axisX.getOriginalGridBounds().getUpperLimit()) > 0) {
+                subsetGridX.setLowerLimit(axisX.getOriginalGridBounds().getUpperLimit());
+            }
             if (axisY.getGridBounds().getLowerLimit().compareTo(axisY.getOriginalGridBounds().getLowerLimit()) < 0) {
                 subsetGridY.setLowerLimit(axisY.getOriginalGridBounds().getLowerLimit());
+            }
+            if (axisY.getGridBounds().getLowerLimit().compareTo(axisY.getOriginalGridBounds().getUpperLimit()) > 0) {
+                subsetGridY.setLowerLimit(axisY.getOriginalGridBounds().getUpperLimit());
             }
 
             // grid upper bounds
             if (axisX.getGridBounds().getUpperLimit().compareTo(axisX.getOriginalGridBounds().getUpperLimit()) > 0) {
                 subsetGridX.setUpperLimit(axisX.getOriginalGridBounds().getUpperLimit());
             }
+            if (axisX.getGridBounds().getUpperLimit().compareTo(axisX.getOriginalGridBounds().getLowerLimit()) < 0) {
+                subsetGridX.setUpperLimit(axisX.getOriginalGridBounds().getLowerLimit());
+            }
             if (axisY.getGridBounds().getUpperLimit().compareTo(axisY.getOriginalGridBounds().getUpperLimit()) > 0) {
                 subsetGridY.setUpperLimit(axisY.getOriginalGridBounds().getUpperLimit());
+            }
+            if (axisY.getGridBounds().getUpperLimit().compareTo(axisY.getOriginalGridBounds().getLowerLimit()) < 0) {
+                subsetGridY.setUpperLimit(axisY.getOriginalGridBounds().getLowerLimit());
+            }
+            
+            if (subsetGridX.getLowerLimit().compareTo(subsetGridX.getUpperLimit()) > 0) {
+                subsetGridX.setLowerLimit(subsetGridX.getUpperLimit());
+            }
+            if (subsetGridY.getLowerLimit().compareTo(subsetGridY.getUpperLimit()) > 0) {
+                subsetGridY.setLowerLimit(subsetGridY.getUpperLimit());
+            }
+            
+            // Adjust the geo bounds
+            // axis X
+            if (subsetGridX.getLowerLimit().compareTo(subsetGridX.getUpperLimit()) == 0) {
+                if (subsetGeoX.getLowerLimit().compareTo(axisX.getOriginalGeoBounds().getLowerLimit()) == 0) {
+                    // min geo bound corner
+                    BigDecimal upperBound = subsetGeoX.getLowerLimit().add(axisX.getResolution().abs());
+                    subsetGeoX.setUpperLimit(upperBound);
+                } else if (subsetGeoX.getLowerLimit().compareTo(axisX.getOriginalGeoBounds().getUpperLimit()) == 0) {
+                    // max geo bound corner
+                    BigDecimal lowerBound = subsetGeoX.getLowerLimit().subtract(axisX.getResolution().abs());
+                    subsetGeoX.setLowerLimit(lowerBound);
+                }
+            }
+            
+            // axis Y
+            if (subsetGridY.getLowerLimit().compareTo(subsetGridY.getUpperLimit()) == 0) {
+                if (subsetGeoY.getLowerLimit().compareTo(axisY.getOriginalGeoBounds().getLowerLimit()) == 0) {
+                    // min geo bound corner
+                    BigDecimal upperBound = subsetGeoY.getLowerLimit().add(axisY.getResolution().abs());
+                    subsetGeoY.setUpperLimit(upperBound);
+                } else if (subsetGeoY.getLowerLimit().compareTo(axisY.getOriginalGeoBounds().getUpperLimit()) == 0) {
+                    // max geo bound corner
+                    BigDecimal lowerBound = subsetGeoY.getLowerLimit().subtract(axisY.getResolution().abs());
+                    subsetGeoY.setLowerLimit(lowerBound);
+                }
             }
             
             axisX.setGeoBounds(subsetGeoX);
@@ -1040,6 +1086,7 @@ public class WcpsCoverageMetadataGeneralService {
 
             axisY.setGeoBounds(subsetGeoY);
             axisY.setGridBounds(subsetGridY);
+            
         }
     }
 
