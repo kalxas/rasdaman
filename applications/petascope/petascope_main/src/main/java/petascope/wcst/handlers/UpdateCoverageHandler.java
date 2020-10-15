@@ -145,6 +145,8 @@ public class UpdateCoverageHandler {
 		                     "Cannot handle UpdateCoverage request. Reason: " + ex.getMessage(), ex);
 	}
         
+        persistedCoverageService.createCoverageExtent(currentCoverage);
+        
         // Now, we can persist the updated current coverage from input slice
         persistedCoverageService.save(currentCoverage);
 

@@ -30,6 +30,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import nu.xom.Element;
+import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
 import petascope.core.XMLSymbols;
 import static petascope.core.XMLSymbols.LABEL_WMS_EAST_BOUND_LONGITUDE;
@@ -81,6 +82,13 @@ public class EXGeographicBoundingBox implements Serializable {
         this.eastBoundLongitude = eastBoundLongitude;
         this.southBoundLatitude = southBoundLatitude;
         this.northBoundLatitude = northBoundLatitude;
+    }
+    
+    public EXGeographicBoundingBox(Wgs84BoundingBox wgs84BoundingBox) {
+        this.westBoundLongitude = wgs84BoundingBox.getMinLong().toPlainString();
+        this.eastBoundLongitude = wgs84BoundingBox.getMaxLong().toPlainString();
+        this.southBoundLatitude = wgs84BoundingBox.getMinLat().toPlainString();
+        this.northBoundLatitude = wgs84BoundingBox.getMaxLat().toPlainString();
     }
 
     public long getId() {

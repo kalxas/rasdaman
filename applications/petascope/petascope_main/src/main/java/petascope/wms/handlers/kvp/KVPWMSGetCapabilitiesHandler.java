@@ -37,6 +37,7 @@ import org.rasdaman.domain.owsmetadata.Phone;
 import org.rasdaman.domain.owsmetadata.ServiceIdentification;
 import org.rasdaman.domain.owsmetadata.ServiceProvider;
 import org.rasdaman.domain.wms.Dimension;
+import org.rasdaman.domain.wms.EXGeographicBoundingBox;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.LayerAttribute;
 import org.rasdaman.domain.wms.Style;
@@ -342,7 +343,9 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         for (Layer layer : layers) {
             Element layerElement = this.buildLayerElement(layer);
             
-            layerElements.add(layerElement);
+            if (layerElement != null) {
+                layerElements.add(layerElement);
+            }
         }
 
         StringBuilder sb = new StringBuilder();
@@ -393,8 +396,9 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         abstractElement.appendChild(layerAbstract);
         layerElement.appendChild(abstractElement);
         
+        Coverage coverage = null;
         try {
-            Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layer.getName());
+            coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layer.getName());
             if (coverage != null) {
                 Element customizedMetadataElement = this.wcsGMLGetCapabilitiesBuild.createCustomizedCoverageMetadataElement(coverage);
                 if (customizedMetadataElement != null) {
@@ -405,6 +409,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
             if (ex.getExceptionCode().equals(ExceptionCode.NoSuchCoverage)) {
                 // The associated coverage with the layer was changed, log an warning instead of throwing exception
                 log.warn("Coverage associated with the layer: " + layer.getName() + " doees not exist.");
+                return null;
             }
         }
 
@@ -419,7 +424,9 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         crsElement.appendChild(layer.getCrss().get(0));
         layerElement.appendChild(crsElement);
 
-        // EX_GeographicBoundingBox
+        // EX_GeographicBoundingBox 
+        EXGeographicBoundingBox exGeographicBoundingBox = new EXGeographicBoundingBox(coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox());
+        layer.setExGeographicBoundingBox(exGeographicBoundingBox);
         String exBBoxRepresentation = layer.getExGeographicBoundingBox().getReprenstation();
         layerElement.appendChild(exBBoxRepresentation);
 

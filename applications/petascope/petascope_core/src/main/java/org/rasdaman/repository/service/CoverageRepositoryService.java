@@ -41,8 +41,11 @@ import org.rasdaman.domain.cis.Field;
 import org.rasdaman.domain.cis.GeneralGrid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeneralGridDomainSet;
+import org.rasdaman.domain.cis.GeoAxis;
+import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.Quantity;
 import org.rasdaman.domain.cis.RasdamanRangeSet;
+import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +58,7 @@ import org.rasdaman.repository.interfaces.RasdamanRangeSetRepository;
 import org.springframework.transaction.annotation.Transactional;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
+import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.RasUtil;
@@ -99,12 +103,7 @@ public class CoverageRepositoryService {
      * Store the coverages's extents (only geo-referenced XY axes). First String
      * is minLong, minLat, second String is maxLong, maxLat.
      */
-    public static final Map<String, BoundingBox> coveragesExtentsCacheMap = new ConcurrentHashMap<>();
     public static final String COVERAGES_EXTENT_TARGET_CRS_DEFAULT = "EPSG:4326";
-    
-    // Any geo coverages which cannot project its geo bounding box to EPSG:4326 
-    // will be ignored to not show warn log in petascope.log multiple times
-    public static final Set<String> problemCoveragesExtentsCache = new HashSet<>();
 
     public CoverageRepositoryService() {
 
@@ -433,9 +432,12 @@ public class CoverageRepositoryService {
     public void createAllCoveragesExtents() throws PetascopeException, SecoreException {
         long start = System.currentTimeMillis();
         for (String coverageId : localCoveragesCacheMap.keySet()) {
-            if (!coveragesExtentsCacheMap.containsKey(coverageId)) {
+            Coverage coverage = localCoveragesCacheMap.get(coverageId).fst;
+            if (coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox() == null) {
                 try {
-                    this.createCoverageExtent(coverageId);
+                    coverage = this.readCoverageFullMetadataByIdFromCache(coverageId);
+                    this.createCoverageExtent(coverage);
+                    this.save(coverage);
                 } catch (Exception ex) {
                     log.warn("Cannot create geo extents in EPSG:4326 for coverage '" + coverageId + "'. Reason: " + ex.getMessage(), ex);
                 }
@@ -450,20 +452,14 @@ public class CoverageRepositoryService {
      * Create a coverage's extent by cached coverage's metadata
      * (EnvelopeByAxis). The XY axes' BoundingBox is reprojected to EPSG:4326.
      */
-    public void createCoverageExtent(String coverageId) throws PetascopeException, SecoreException {
-        if (this.problemCoveragesExtentsCache.contains(coverageId)) {
-            // this coverage has problem to create coverage extent, ignore it
-            return;
-        }
+    public void createCoverageExtent(Coverage coverage) throws PetascopeException, SecoreException {
         
-        // Only need a coverage's basic metadata, it is slow to query the whole coverage's metadata
-        Coverage coverage = this.readCoverageBasicMetadataByIdFromCache(coverageId);
         List<AxisExtent> axisExtents = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getAxisExtents();
         boolean foundX = false, foundY = false;
-        BigDecimal xMin = null, yMin = null, xMax = null, yMax = null;
         String xyAxesCRS = null;
         String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
         
+        Wgs84BoundingBox wgs84BoundingBox = null;
         int i = 0;
         for (AxisExtent axisExtent : axisExtents) {
             String axisExtentCrs = axisExtent.getSrsName();
@@ -475,13 +471,9 @@ public class CoverageRepositoryService {
                 String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
                 if (axisType.equals(AxisTypes.X_AXIS)) {
                     foundX = true;
-                    xMin = new BigDecimal(axisExtent.getLowerBound());
-                    xMax = new BigDecimal(axisExtent.getUpperBound());
                     xyAxesCRS = axisExtentCrs;
                 } else if (axisType.equals(AxisTypes.Y_AXIS)) {
                     foundY = true;
-                    yMin = new BigDecimal(axisExtent.getLowerBound());
-                    yMax = new BigDecimal(axisExtent.getUpperBound());
                 }
                 if (foundX && foundY) {
                     break;
@@ -492,72 +484,59 @@ public class CoverageRepositoryService {
         }
 
         // Don't transform the XY extents to EPSG:4326 if it is not EPSG code or it is not at least 2D
-        BoundingBox boundingBox = null;
         if (foundX && foundY && CrsUtil.isValidTransform(xyAxesCRS)) {
-            if (xyAxesCRS.contains(CrsUtil.WGS84_EPSG_CODE)) {
-                // coverage already in EPSG:4326
-                boundingBox = new BoundingBox(xMin, yMin, xMax, yMax);                
-            } else {            
+            Pair<GeoAxis, GeoAxis> xyAxesPair = ((GeneralGridCoverage)coverage).getXYGeoAxes();
+            GeoAxis geoAxisX = xyAxesPair.fst;
+            IndexAxis indexAxisX = ((GeneralGridCoverage)coverage).getIndexAxisByName(geoAxisX.getAxisLabel());
+            GeoAxis geoAxisY = xyAxesPair.snd;
+            IndexAxis indexAxisY = ((GeneralGridCoverage)coverage).getIndexAxisByName(geoAxisY.getAxisLabel());
+            
+            if (CrsUtil.getEPSGCode(xyAxesCRS).equals(COVERAGES_EXTENT_TARGET_CRS_DEFAULT)) {
+                wgs84BoundingBox = new Wgs84BoundingBox(geoAxisX.getLowerBoundNumber(), geoAxisY.getLowerBoundNumber(), 
+                                                        geoAxisX.getUpperBoundNumber(), geoAxisY.getUpperBoundNumber());
+            } else {
                 // coverage in different CRS than EPSG:4326
-                double[] xyMinArray = {xMin.doubleValue(), yMin.doubleValue()};
-                double[] xyMaxArray = {xMax.doubleValue(), yMax.doubleValue()};
-                List<BigDecimal> minLongLatList = null, maxLongLatList = null;
+                int epsgCode = CrsUtil.getEpsgCodeAsInt(xyAxesCRS);
+                int gridWidth = (int)(indexAxisX.getUpperBound() - indexAxisX.getLowerBound() + 1);
+                int gridHigh = (int)(indexAxisY.getUpperBound() - indexAxisY.getLowerBound() + 1);
+                GeoTransform sourceGeoTransform = new GeoTransform(epsgCode, geoAxisX.getLowerBoundNumber().doubleValue(), geoAxisY.getUpperBoundNumber().doubleValue(), 
+                                                                   gridWidth, gridHigh, geoAxisX.getResolution().doubleValue(), geoAxisY.getResolution().doubleValue());
 
                 try {
-                    // NOTE: cannot reproject every kind of EPSG:codes to EPSG:4326, but should not stop application for this.
-                    minLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMinArray);
-                    maxLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMaxArray);
-
-                    // NOTE: EPSG:4326 cannot display outside of coordinates for lat(-90, 90), lon(-180, 180) and it should only contain 5 precisions.                
-                    BigDecimal lonMin = minLongLatList.get(0).setScale(5, BigDecimal.ROUND_HALF_UP);
-                    BigDecimal latMin = minLongLatList.get(1).setScale(5, BigDecimal.ROUND_HALF_UP);
-                    BigDecimal lonMax = maxLongLatList.get(0).setScale(5, BigDecimal.ROUND_HALF_UP);
-                    BigDecimal latMax = maxLongLatList.get(1).setScale(5, BigDecimal.ROUND_HALF_UP);
+                    BoundingBox bbox = CrsProjectionUtil.transform(sourceGeoTransform, COVERAGES_EXTENT_TARGET_CRS_DEFAULT);
+                    BigDecimal lonMin = bbox.getXMin();
+                    BigDecimal latMin = bbox.getYMin();
+                    BigDecimal lonMax = bbox.getXMax();
+                    BigDecimal latMax = bbox.getYMax();
 
                     if (lonMin.compareTo(new BigDecimal("-180")) < 0) {
-                        if (lonMin.compareTo(new BigDecimal("-180.5")) > 0) {
-                            lonMin = new BigDecimal("-180");
-                        } else {
-                            // It is too far from the threshold and basically it is wrong bounding box from input coverage.
-                            return;
-                        }
+                        lonMin = new BigDecimal("-180");
                     }
                     if (latMin.compareTo(new BigDecimal("-90")) < 0) {
-                        if (lonMin.compareTo(new BigDecimal("-90.5")) > 0) {
-                            latMin = new BigDecimal("-90");
-                        } else {
-                            // It is too far from the threshold and basically it is wrong bounding box from input coverage.
-                            return;
-                        }                    
+                        latMin = new BigDecimal("-90");
                     }                
                     if (lonMax.compareTo(new BigDecimal("180")) > 0) {
-                        if (lonMax.compareTo(new BigDecimal("180.5")) < 0) {
-                            lonMax = new BigDecimal("180");
-                        } else {
-                            // It is too far from the threshold and basically it is wrong bounding box from input coverage.
-                            return;
-                        }
+                        lonMax = new BigDecimal("180");
                     }
                     if (latMax.compareTo(new BigDecimal("90")) > 0) {
-                        if (latMax.compareTo(new BigDecimal("90.5")) < 0) {
-                            latMax = new BigDecimal("90");
-                        } else {
-                            // It is too far from the threshold and basically it is wrong bounding box from input coverage.
-                            return;
-                        }
+                        latMax = new BigDecimal("90");
                     }
-                    
-                    boundingBox = new BoundingBox(lonMin, latMin, lonMax, latMax);
+
+                    // Created WGS84 bbox for coverage, then, persist to database
+                    wgs84BoundingBox = new Wgs84BoundingBox(lonMin, latMin, lonMax, latMax);                    
+
                 } catch (Exception ex) {
-                    log.warn("Cannot create extent for coverage '" + coverageId + "', error from crs transform '" + ex.getMessage() + "'.");
-                    this.problemCoveragesExtentsCache.add(coverageId);
+                    log.warn("Cannot create extent for coverage '" + coverage.getCoverageId() + "', error from crs transform '" + ex.getMessage() + "'.");
                 }
             }
-            
-            if (boundingBox != null) {
-                // Transformed is done, put it to cache
-                coveragesExtentsCacheMap.put(coverageId, boundingBox);
-            }
+        }
+        
+        if (coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox() == null) {
+            // If coverage doesn't have WGS84BBox, insert a row to database value
+            coverage.getEnvelope().getEnvelopeByAxis().setWgs84BBox(wgs84BoundingBox);
+        } else {
+            // NOTE: In case coverage has WGS84BBox, update its values to update row to database table instead of inserting a new row
+            coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox().set(wgs84BoundingBox);
         }
     }
     
@@ -580,11 +559,12 @@ public class CoverageRepositoryService {
     @Transactional
     public void save(Coverage coverage) throws PetascopeException {
         String coverageId = coverage.getCoverageId();
+        
         // NOTE: Don't save coverage with fixed CRS (e.g: http://localhost:8080/def/crs/epsg/0/4326)
         // it must use a string placeholder so when setting up Petascope with a different SECORE endpoint, it will replace the placeholder
         // with new SECORE endpoint or otherwise the persisted URL will throw exception as non-existing URL.
         CoverageRepositoryService.removeCrsPrefix(coverage);
-
+        
         long start = System.currentTimeMillis();
         // then it can save (insert/update) the coverage to database
         this.coverageRepository.save(coverage);
@@ -600,15 +580,7 @@ public class CoverageRepositoryService {
         coverage.setCoverageSizeInBytes(coverageSize);
 
         localCoveragesCacheMap.put(coverageId, new Pair(coverage, true));
-        problemCoveragesExtentsCache.remove(coverageId);
         
-        try {
-            // Also insert/update the coverage's extent in cache as the bounding box of XY axes can be extended by WCST_Import.
-            this.createCoverageExtent(coverageId);
-        } catch (SecoreException ex) {
-            log.warn("Cannot create coverage's extent for coverage '" + coverageId + "'. Reason: " + ex.getExceptionText());
-        }
-
         log.debug("Coverage '" + coverageId + "' is persisted in database.");
     }
 
@@ -624,14 +596,10 @@ public class CoverageRepositoryService {
 
         // Remove the cached coverage from cache
         localCoveragesCacheMap.remove(coverageId);
-        // Remove the coverageExtent from cache
-        coveragesExtentsCacheMap.remove(coverageId);
 
         entityManager.flush();
         entityManager.clear();
         
-        problemCoveragesExtentsCache.remove(coverageId);
-
         log.debug("Coverage: " + coverage.getCoverageId() + " is removed from database.");
     }
 
@@ -657,11 +625,13 @@ public class CoverageRepositoryService {
 
         // + Then with geoAxes of GeneralGridDomainSet as only support GeneralGridCoverage now
         DomainSet generalGridDomainSet = ((GeneralGridCoverage) coverage).getDomainSet();
-        GeneralGrid generalGrid = ((GeneralGridDomainSet) generalGridDomainSet).getGeneralGrid();
-        generalGrid.setSrsName(CrsUtil.CrsUri.toDbRepresentation(generalGrid.getSrsName()));
-        for (Axis geoAxis : generalGrid.getGeoAxes()) {
-            strippedCRS = CrsUtil.CrsUri.toDbRepresentation(geoAxis.getSrsName());
-            geoAxis.setSrsName(strippedCRS);
+        if (generalGridDomainSet != null) {
+            GeneralGrid generalGrid = ((GeneralGridDomainSet) generalGridDomainSet).getGeneralGrid();
+            generalGrid.setSrsName(CrsUtil.CrsUri.toDbRepresentation(generalGrid.getSrsName()));
+            for (Axis geoAxis : generalGrid.getGeoAxes()) {
+                strippedCRS = CrsUtil.CrsUri.toDbRepresentation(geoAxis.getSrsName());
+                geoAxis.setSrsName(strippedCRS);
+            }
         }
     }
 

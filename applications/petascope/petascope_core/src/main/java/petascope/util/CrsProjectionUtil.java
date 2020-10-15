@@ -121,6 +121,12 @@ public class CrsProjectionUtil {
     public static BoundingBox transform(GeoTransform sourceGT, String targetCRS) throws PetascopeException {
         GeoTransform targetGT = getGeoTransformInTargetCRS(sourceGT, targetCRS);
         
+        if (Double.isNaN(targetGT.getGeoXResolution()) 
+            || Double.isNaN(targetGT.getGeoYResolution())) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                    "Cannot transform GeoTransform: " + sourceGT.toString() + " to CRS: " + targetCRS + ". Reason: axis X/Y resolution in target GeoTransform is NaN.");
+        }
+        
         BigDecimal xmin = new BigDecimal(String.valueOf(targetGT.getUpperLeftGeoX()));
         BigDecimal ymin = new BigDecimal(String.valueOf(targetGT.getLowerRightGeoY()));
         BigDecimal xmax = new BigDecimal(String.valueOf(targetGT.getLowerRightGeoX()));

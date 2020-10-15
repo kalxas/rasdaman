@@ -22,8 +22,6 @@
 package org.rasdaman.domain.cis;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.*;
 
 /**
@@ -52,7 +50,7 @@ public class Envelope implements Serializable {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = EnvelopeByAxis.COLUMN_ID)
     private EnvelopeByAxis envelopeByAxis;
-
+    
     public Envelope() {
 
     }

@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.GeoTransform;
 import petascope.core.KVPSymbols;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -219,7 +220,7 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
      * @param xyAxes
      * @return
      */
-    private EXGeographicBoundingBox createEXGeographicBoundingBox(List<Axis> xyAxes) throws WCSException, WMSInvalidBoundingBoxInCrsTransformException {
+    private EXGeographicBoundingBox createEXGeographicBoundingBox(List<Axis> xyAxes) throws WCSException, WMSInvalidBoundingBoxInCrsTransformException, PetascopeException {
         EXGeographicBoundingBox exBBox = new EXGeographicBoundingBox();
         String crs = CrsUtil.getCode(xyAxes.get(0).getNativeCrsUri());
 
@@ -236,17 +237,23 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         BigDecimal maxLat = maxGeoBoundY;
 
         if (!crs.equals(DEFAULT_CRS_CODE)) {
-            // Need to transform from native CRS of XY geo axes (e.g: EPSG:3857) to EPSG:4326
             String sourceCrs = xyAxes.get(0).getNativeCrsUri();
+            int epsgCode = CrsUtil.getEpsgCodeAsInt(sourceCrs);
+            
+            Axis axisX = xyAxes.get(0);
+            Axis axisY = xyAxes.get(1);
+            int gridWidth = axisX.getGridBounds().getUpperLimit().subtract(axisX.getGridBounds().getLowerLimit()).intValue() + 1;
+            int gridHeight = axisY.getGridBounds().getUpperLimit().subtract(axisY.getGridBounds().getLowerLimit()).intValue() + 1;
+            
+            GeoTransform geoTransform = new GeoTransform(epsgCode, minGeoBoundX.doubleValue(), maxGeoBoundY.doubleValue(), 
+                                                         gridWidth, gridHeight, axisX.getResolution().doubleValue(), axisY.getResolution().doubleValue());
+            
+            // Need to transform from native CRS of XY geo axes (e.g: EPSG:3857) to EPSG:4326
+            
             String targetCrs = CrsUtil.getEPSGFullUri(DEFAULT_EPSG_CRS);
-            List<BigDecimal> minValues = null, maxValues = null;
+            petascope.core.BoundingBox wgs84bbox;
             try {
-                // min geo bounds
-                double[] minSourceCoordinates = new double[]{minGeoBoundX.doubleValue(), minGeoBoundY.doubleValue()};            
-                minValues = CrsProjectionUtil.transform(sourceCrs, targetCrs, minSourceCoordinates);
-                // max geo bounds
-                double[] maxSourceCoordinates = new double[]{maxGeoBoundX.doubleValue(), maxGeoBoundY.doubleValue()};
-                maxValues = CrsProjectionUtil.transform(sourceCrs, targetCrs, maxSourceCoordinates);
+                wgs84bbox = CrsProjectionUtil.transform(geoTransform, DEFAULT_EPSG_CRS);
             } catch (PetascopeException ex) {
                 String bbox = "xmin=" + minGeoBoundX.doubleValue() + ", ymin=" + minGeoBoundY.doubleValue()
                             + "xmax=" + maxGeoBoundX.doubleValue() + ", ymax=" + maxGeoBoundY.doubleValue();
@@ -254,10 +261,10 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
             }
 
             // Output is EPSG:4326 (but GDAL always show Long, Lat)
-            minLong = minValues.get(0);
-            minLat = minValues.get(1);
-            maxLong = maxValues.get(0);
-            maxLat = maxValues.get(1);
+            minLong = wgs84bbox.getXMin();
+            minLat = wgs84bbox.getYMin();
+            maxLong = wgs84bbox.getXMax();
+            maxLat = wgs84bbox.getYMax();
         }
 
         exBBox.setWestBoundLongitude(minLong);

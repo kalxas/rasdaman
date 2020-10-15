@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.rasdaman.config.VersionManager;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
+import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import petascope.core.BoundingBox;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
@@ -656,7 +657,6 @@ public class GMLGetCapabilitiesBuilder {
 
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
         List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllLocalCoveragesBasicMetatata();
-        this.persistedCoverageService.createAllCoveragesExtents();
 
         // Children elements (list of all imported coverage)
         for (Pair<Coverage, Boolean> coveragePair : importedCoveragePairs) {
@@ -680,7 +680,7 @@ public class GMLGetCapabilitiesBuilder {
             coverageSummaryElement.appendChild(coverageSubTypeElement);
             
             // Optional element for coverage which can reproject to WGS84 CRS
-            Element wgs84BoundingBoxElement = this.createWGS84BoundingBoxElement(coverage.getCoverageId());
+            Element wgs84BoundingBoxElement = this.createWGS84BoundingBoxElement(coverage);
             if (wgs84BoundingBoxElement != null) {
                 coverageSummaryElement.appendChild(wgs84BoundingBoxElement);
             }
@@ -778,8 +778,8 @@ public class GMLGetCapabilitiesBuilder {
      * Create an optional WGS84 bounding box for coverages which have X and Y georeferenced-axes
      * which can project to EPSG:4326 CRS (Long - Lat order)
      */
-    private Element createWGS84BoundingBoxElement(String coverageId) {
-        BoundingBox wgs84BoundingBox = this.persistedCoverageService.coveragesExtentsCacheMap.get(coverageId);
+    private Element createWGS84BoundingBoxElement(Coverage coverage) {
+        Wgs84BoundingBox wgs84BoundingBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
         Element wgs84BoundingBoxElement = null;
         
         if (wgs84BoundingBox != null) {
@@ -787,12 +787,12 @@ public class GMLGetCapabilitiesBuilder {
             wgs84BoundingBoxElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_WGS84_BOUNDING_BOX), NAMESPACE_OWS);
             
             Element lowerCornerElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_LOWER_CORNER_ASSOCIATE_ROLE), NAMESPACE_OWS);
-            String lowerCorner = BigDecimalUtil.stripDecimalZeros(wgs84BoundingBox.getXMin()) + " " + BigDecimalUtil.stripDecimalZeros(wgs84BoundingBox.getYMin());
+            String lowerCorner = wgs84BoundingBox.getMinLong().toPlainString() + " " + wgs84BoundingBox.getMinLat().toPlainString();
             lowerCornerElement.appendChild(lowerCorner);
             wgs84BoundingBoxElement.appendChild(lowerCornerElement);
 
             Element upperCornerElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_UPPER_CORNER_ASSOCIATE_ROLE), NAMESPACE_OWS);
-            String upperCorner = BigDecimalUtil.stripDecimalZeros(wgs84BoundingBox.getXMax()) + " " + BigDecimalUtil.stripDecimalZeros(wgs84BoundingBox.getYMax());
+            String upperCorner = wgs84BoundingBox.getMaxLong().toPlainString() + " " + wgs84BoundingBox.getMaxLat().toPlainString();
             upperCornerElement.appendChild(upperCorner);
             wgs84BoundingBoxElement.appendChild(upperCornerElement);
         }

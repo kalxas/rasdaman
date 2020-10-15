@@ -72,6 +72,10 @@ public class EnvelopeByAxis implements Serializable {
     @JoinColumn(name = EnvelopeByAxis.COLUMN_ID)
     @OrderColumn
     private List<AxisExtent> axisExtents;
+    
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = Wgs84BoundingBox.COLUMN_ID)
+    private Wgs84BoundingBox wgs84BBox;
 
     public EnvelopeByAxis() {
 
@@ -147,6 +151,14 @@ public class EnvelopeByAxis implements Serializable {
     public AxisExtent getAxisExtentByIndex(int index) {
         AxisExtent axisExtent = this.axisExtents.get(index);
         return axisExtent;
+    }
+    
+    public Wgs84BoundingBox getWgs84BBox() {
+        return wgs84BBox;
+    }
+
+    public void setWgs84BBox(Wgs84BoundingBox wgs84BBox) {
+        this.wgs84BBox = wgs84BBox;
     }
 
     /**
