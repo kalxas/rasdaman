@@ -644,6 +644,22 @@ For example: The coverage ``test_mr`` can be deleted as follows:
       &REQUEST=DeleteCoverage
       &COVERAGEID=test_mr
 
+Renaming coverage
+^^^^^^^^^^^^^^^^^
+
+.. _rename-coverage:
+
+The ``UpdateCoverageId`` request allows to update 
+a coverage's id and the associated WMS layer if one exists (v10.0+).
+
+For example, the coverage ``test_mr`` can be renamed to ``test_mr_new`` as follows:
+
+.. code-block:: text
+
+    http://localhost:8080/rasdaman/admin/UpdateCoverageId?
+        COVERAGEID=test_mr
+       &NEWID=test_mr_new
+
 .. _petascope-update-coverage-metadata:
 
 Coverage Metadata Update

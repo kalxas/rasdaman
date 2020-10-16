@@ -199,4 +199,9 @@ public interface KVPSymbols {
     String KEY_OWS_METADATA_ADMINISTRATIVE_AREA = "administrativeArea";
     String KEY_OWS_METADATA_POSTAL_CODE = "postalCode";
     String KEY_OWS_METADATA_COUNTRY = "country";
+    
+    // Update coverage's id by new id
+    String KEY_COVERAGE_ID = "coverageId";
+    String KEY_NEW_ID = "newId";
+    
 }

@@ -244,6 +244,29 @@ public class WMSRepostioryService {
 
         log.debug("WMS Style: " + style.getName() + " is removed from database.");
     }
+    
+    /**
+     * Rename a WMS layer to a new name, e.g: layerA -> layerB
+     */
+    public void updateLayerName(String currentLayerName, String newLayerName) throws PetascopeException {
+        Layer layer = null;
+        try {
+            layer = this.readLayerByNameFromDatabase(currentLayerName);
+        } catch (PetascopeException ex) {
+            if (!ex.getExceptionCode().equals(ExceptionCode.NoSuchLayer)) {
+                throw ex;
+            }
+        }
+        if (layer != null) {
+            layer.setName(newLayerName);
+            
+            this.saveLayer(layer);
+            this.localLayersCacheMap.remove(currentLayerName);
+        
+            log.info("Renamed layer name from: " + currentLayerName + " to: " + newLayerName + ".");
+        }
+    }
+    
 
     // For migration only
     

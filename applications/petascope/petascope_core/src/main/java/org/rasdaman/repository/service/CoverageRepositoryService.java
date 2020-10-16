@@ -661,6 +661,19 @@ public class CoverageRepositoryService {
             geoAxis.setSrsName(addedCRS);
         }
     }
+    
+    /**
+     * Rename a local coverage to a new coverage id, e.g: covA -> covB
+     */
+    public void updateCoverageId(String currentCoverageId, String newCoverageId) throws PetascopeException {
+                // If ok, then update local coverage id and associated lay name if exist
+        Coverage coverage = this.readCoverageByIdFromDatabase(currentCoverageId);
+        coverage.setCoverageId(newCoverageId);
+        this.save(coverage);
+        this.localCoveragesCacheMap.remove(currentCoverageId);
+        
+        log.info("Renamed coverage id from '" + currentCoverageId + "' to '" + newCoverageId + "'.");
+    }
 
     // For migration only
     /**
