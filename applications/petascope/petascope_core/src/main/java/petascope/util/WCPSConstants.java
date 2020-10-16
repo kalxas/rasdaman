@@ -71,6 +71,8 @@ public interface WCPSConstants {
     public static final String MSG_CELLS                        = "cells";
     public static final String MSG_CHAR                         = "char";
     public static final String MSG_CHILD                        = "child";
+    public static final String MSG_COMPLEX_INT16                = "cint16";
+    public static final String MSG_COMPLEX_INT32                = "cint32";
     public static final String MSG_COMPLEX                      = "complex";
     public static final String MSG_COMPLEX2                     = "complex2";
     public static final String MSG_COMPLEX_CONSTANT             = "complexConstant";

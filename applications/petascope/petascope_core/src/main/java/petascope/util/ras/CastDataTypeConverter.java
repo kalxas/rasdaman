@@ -27,6 +27,8 @@ import petascope.util.WCPSConstants;
 import static petascope.util.ras.TypeResolverUtil.R_Boolean;
 import static petascope.util.ras.TypeResolverUtil.R_CFloat32;
 import static petascope.util.ras.TypeResolverUtil.R_CFloat64;
+import static petascope.util.ras.TypeResolverUtil.R_CInt16;
+import static petascope.util.ras.TypeResolverUtil.R_CInt32;
 import static petascope.util.ras.TypeResolverUtil.R_Char;
 import static petascope.util.ras.TypeResolverUtil.R_Double;
 import static petascope.util.ras.TypeResolverUtil.R_Float;
@@ -86,6 +88,11 @@ public class CastDataTypeConverter {
             result = R_Float;
         } else if (result.equals(WCPSConstants.MSG_DOUBLE)) {
             result = R_Double;
+        
+        } else if (result.equals(WCPSConstants.MSG_COMPLEX_INT16)) {
+            result = R_CInt16;
+        } else if (result.equals(WCPSConstants.MSG_COMPLEX_INT32)) {
+            result = R_CInt32;
             
         } else if (result.equals(WCPSConstants.MSG_COMPLEX)) {
             result = R_CFloat32;

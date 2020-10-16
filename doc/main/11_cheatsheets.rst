@@ -341,6 +341,48 @@ Coverage operations
     encode(covExpr, "image/jpeg")
 
 
+Atomic types
+------------
+
+The set of atomic types for Coverage range field data types according to
+OGC WCPS standard. See :ref:`rasdaman atomic types <table-atomic-types>` for
+comparison.
+
+.. _table-atomic-coverage-range-field-types:
+
+.. table:: Coverage atomic range field data types
+
+    +--------------------+------------+------------------------------------------+
+    | **type name**      | **size**   | **description**                          |
+    +====================+============+==========================================+
+    | ``boolean``        | 1 bit      | true (nonzero value), false (zero value) |
+    +--------------------+------------+------------------------------------------+
+    | ``char``           | 8 bit      | signed integer                           |
+    +--------------------+------------+------------------------------------------+
+    | ``unsigned char``  | 8 bit      | unsigned integer                         |
+    +--------------------+------------+------------------------------------------+
+    | ``short``          | 16 bit     | signed integer                           |
+    +--------------------+------------+------------------------------------------+
+    | ``unsigned short`` | 16 bit     | unsigned integer                         |
+    +--------------------+------------+------------------------------------------+
+    | ``int``            | 32 bit     | signed integer                           |
+    +--------------------+------------+------------------------------------------+
+    | ``unsigned int``   | 32 bit     | unsigned integer                         |
+    +--------------------+------------+------------------------------------------+
+    | ``float``          | 32 bit     | single precision floating point          |
+    +--------------------+------------+------------------------------------------+
+    | ``double``         | 64 bit     | double precision floating point          |
+    +--------------------+------------+------------------------------------------+
+    | ``cint16``         | 32 bit     | complex of 16 bit signed integers        |
+    +--------------------+------------+------------------------------------------+
+    | ``cint32``         | 64 bit     | complex of 32 bit signed integers        |
+    +--------------------+------------+------------------------------------------+
+    | ``complex``        | 64 bit     | single precision floating point complex  |
+    +--------------------+------------+------------------------------------------+
+    | ``complex2``       | 128 bit    | double precision floating point complex  |
+    +--------------------+------------+------------------------------------------+
+
+
 Metadata operations
 -------------------
 
