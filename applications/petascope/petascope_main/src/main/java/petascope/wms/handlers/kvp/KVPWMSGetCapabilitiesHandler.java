@@ -52,6 +52,7 @@ import petascope.core.KVPSymbols;
 import petascope.core.Templates;
 import petascope.core.XMLSymbols;
 import petascope.core.gml.GMLGetCapabilitiesBuilder;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.MIMEUtil;
@@ -392,11 +393,18 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         abstractElement.appendChild(layerAbstract);
         layerElement.appendChild(abstractElement);
         
-        Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layer.getName());
-        if (coverage != null) {
-            Element customizedMetadataElement = this.wcsGMLGetCapabilitiesBuild.createCustomizedCoverageMetadataElement(coverage);
-            if (customizedMetadataElement != null) {
-                layerElement.appendChild(customizedMetadataElement);
+        try {
+            Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layer.getName());
+            if (coverage != null) {
+                Element customizedMetadataElement = this.wcsGMLGetCapabilitiesBuild.createCustomizedCoverageMetadataElement(coverage);
+                if (customizedMetadataElement != null) {
+                    layerElement.appendChild(customizedMetadataElement);
+                }
+            }
+        } catch (PetascopeException ex) {
+            if (ex.getExceptionCode().equals(ExceptionCode.NoSuchCoverage)) {
+                // The associated coverage with the layer was changed, log an warning instead of throwing exception
+                log.warn("Coverage associated with the layer: " + layer.getName() + " doees not exist.");
             }
         }
 
