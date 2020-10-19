@@ -62,7 +62,7 @@ export VALGRIND="valgrind --tool=memcheck --leak-check=full --track-origins=yes"
 export DB_DIR="/tmp/rasdb"
 export LOG_DIR="$RMANHOME/log"
 export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
-
+export PETASCOPE_PROPERTIES_FILE="$RMANHOME/etc/petascope.properties"
 
 # -------------------
 # script return codes
@@ -506,6 +506,7 @@ check_failed()
   [ -z "$1" ] && loge_colored_failed failed.
   NUM_FAIL=$(($NUM_FAIL + 1))
   NUM_TOTAL=$(($NUM_TOTAL + 1))
+  return $RC_ERROR
 }
 # this test case is passed (and does not check by the return of $?)
 # if $1 is specified then the test is silent (doesn't print anything)
@@ -514,10 +515,11 @@ check_passed()
   [ -z "$1" ] && loge ok.
   NUM_SUC=$(($NUM_SUC + 1))
   NUM_TOTAL=$(($NUM_TOTAL + 1))
+  return $RC_OK
 }
 # check the result of previously executed command ($? variable)
 # and print failed/ok accordingly + update NUM_* variables
-check() { [ $? -ne 0 ] && check_failed "$1" || check_passed "$1"; }
+check() { if [ $? -ne 0 ]; then check_failed "$1"; else check_passed "$1"; fi }
 
 #
 # Ultilities functions

@@ -97,12 +97,15 @@ function run_transpose_test()
     $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' \
            --out file --outfile $out --quiet > /dev/null
 
+    outfile="$out.png"
+    [ -f "$outfile" ] || outfile="$out.unknown"
+
     logn "comparing images: "
     if [ -f "$ORACLE_PATH/mr_1.png.checksum" ]; then
-      $GDALINFO $out.* | grep 'Checksum' > $out.result
-      diff $ORACLE_PATH/mr_1.png.checksum $out.result > /dev/null
+      $GDALINFO "$outfile" | grep 'Checksum' > "$out.result"
+      diff "$ORACLE_PATH/mr_1.png.checksum" "$out.result" > /dev/null
     else
-      cmp $TESTDATA_PATH/mr_1.png $out* > /dev/null
+      cmp "$TESTDATA_PATH/mr_1.png" "$outfile" > /dev/null
     fi
 
     check_result 0 $? "input and output match"
@@ -126,12 +129,16 @@ function run_variables_test()
     $RASQL -q 'select encode(m, "png", "" ) from test_tmp as m' \
            --out file --outfile $out --quiet > /dev/null
 
+
+    outfile="$out.png"
+    [ -f "$outfile" ] || outfile="$out.unknown"
+
     logn "comparing images: "
     if [ -f "$ORACLE_PATH/rgb.png.checksum_2" ]; then
-      $GDALINFO $out* | grep 'Checksum' > $out.result
-      diff $ORACLE_PATH/rgb.png.checksum_2 $out.result > /dev/null
+      $GDALINFO "$outfile" | grep 'Checksum' > "$out.result"
+      diff "$ORACLE_PATH/rgb.png.checksum_2" "$out.result" > /dev/null
     else
-      cmp $TESTDATA_PATH/rgb.png $out* > /dev/null
+      cmp "$TESTDATA_PATH/rgb.png" "$outfile" > /dev/null
     fi
 
     check_result 0 $? "input and output match"
