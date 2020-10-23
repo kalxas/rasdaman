@@ -2293,6 +2293,40 @@ complicated cases:
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
 
 
+**Using libraries in expressions**
+
+In case, the expression is complex, one can import the python libraries as 
+``statements``in the ingredients file to simplify the calculation. 
+For example, one needs to calculate the lower bound and upper bound
+for the time axis ``ansi`` (starting **days** from ``1978-12-31T12:00:00``).
+This can be done by using the useful modules: ``datetime`` and ``timedelta``
+from python ``datatime`` library.
+
+.. hidden-code-block:: json
+
+              "ansi": {
+                "statements": "from datetime import datetime, timedelta",
+
+                "min": "(datetime(1978,12,31,12,0,0) + timedelta(days=${netcdf:variable:time:min})).strftime(\"%Y-%m-%dT%H:%M\")",
+                "max": "(datetime(1978,12,31,12,0,0) + timedelta(days=${netcdf:variable:time:max})).strftime(\"%Y-%m-%dT%H:%M\")",
+                "directPositions": "[(datetime(1978,12,31,12,0,0) + timedelta(days=x)).strftime(\"%Y-%m-%dT%H:%M\") for x in ${netcdf:variable:time}]",
+                "irregular": true,
+  	            "resolution": "1",
+                "gridOrder": 0,
+                "crsOrder": 0,
+                "type": "ansidate"
+              },
+
+.. NOTE::
+
+    The special utility function ``datetime(date_time_string, format)`` to convert 
+    a string of datetime (e.g: ``"20120101:1200"``)  with an input format 
+    (e.g: ``"YYYYMMDD:HHmm"``) to an ISO date time format will be overridden
+    when ``datetime`` module is imported in ``statements`` setting.
+    In this case, one will use the functionalities from python ``datetime``
+    module instead of parsing and calculating datetime values.
+
+
 **Band's unit of measurement (uom) code for netCDF and GRIB recipes**
 
 * In netCDF recipes you can add *uom* for each band by referencing the metadata

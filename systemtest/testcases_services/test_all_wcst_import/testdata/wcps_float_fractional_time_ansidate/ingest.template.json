@@ -18,7 +18,7 @@
     "name": "general_coverage",
     "options": {
       "coverage": {
-        "crs": "OGC/0/AnsiDate@EPSG/0/4326",
+        "crs": "OGC/0/AnsiDate@EPSG/0/32633",
         "metadata": {
           "type": "xml",
           "global": {
@@ -43,13 +43,13 @@
               "irregular": true,
 	      "dataBound": false
             },
-          "Long": {
+          "E": {
               "min": "${gdal:minX}",
               "max": "${gdal:maxX}",
               "gridOrder": 1,
               "resolution": "${gdal:resolutionX}"
             },
-            "Lat": {
+            "N": {
               "min": "${gdal:minY}",
               "max": "${gdal:maxY}",
               "gridOrder": 2,

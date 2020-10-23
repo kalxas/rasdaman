@@ -263,7 +263,7 @@ public class WMSRepostioryService {
             this.saveLayer(layer);
             this.localLayersCacheMap.remove(currentLayerName);
         
-            log.info("Renamed layer name from: " + currentLayerName + " to: " + newLayerName + ".");
+            log.info("Renamed layer name from '" + currentLayerName + "' to '" + newLayerName + "'.");
         }
     }
     
