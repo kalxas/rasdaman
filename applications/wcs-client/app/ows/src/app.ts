@@ -196,5 +196,6 @@ module rasdaman {
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
         .directive("autocomplete", rasdaman.common.Autocomplete)
-        .directive("scrollToBottom", rasdaman.common.scrollToBottom);
+        .directive("scrollToBottom", rasdaman.common.scrollToBottom)
+        .directive("getFilteredRows", rasdaman.common.getFilteredRows);
 }

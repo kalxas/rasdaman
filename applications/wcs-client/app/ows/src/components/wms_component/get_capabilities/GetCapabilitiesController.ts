@@ -115,26 +115,40 @@ module rasdaman {
             $scope.displayAllFootprintsOnGlobe = (status:boolean) => {
                 // Array of coverageExtents belong to WMS layers                
                 if (status == true) {
-                    // load all unloaded footprints from all pages on globe                    
-                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
-                        var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
-                        var coverageId = coverageExtent.coverageId;
-                        if (coverageExtent.displayFootprint == false) {
-                            // checkbox is checked
-                            $scope.capabilities.layers[i].displayFootprint = true;
-                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+
+                    // Get filtered rows from smart table
+                    var filteredRows = JSON.parse(window.localStorage.getItem('wmsGetCapabilitiesFilteredRows'));
+
+                    $scope.hideAllFootprintsOnGlobe();
+
+                    for (var i = 0; i < filteredRows.length; i++) {
+                        var obj = filteredRows[i];
+                        var layerName = obj["name"];
+                        // load all unloaded footprints from all pages on globe                    
+                        for (var j = 0; j < $scope.capabilities.layers.length; j++) {
+                            var coverageExtent = $scope.capabilities.layers[j].coverageExtent;
+                            var coverageId = coverageExtent.coverageId;
+                            if (layerName == coverageId) {
+                                // checkbox is checked
+                                $scope.capabilities.layers[j].displayFootprint = true;
+                                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                            }
                         }
                     }
                 } else {
                     // unload all loaded footprints from all pages on globe
-                    for (var i = 0; i <  $scope.capabilities.layers.length; i++) {
-                        var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
-                        var coverageId = coverageExtent.coverageId;
-                        if (coverageExtent.displayFootprint == true) {
-                            // checkbox is unchecked
-                            $scope.capabilities.layers[i].displayFootprint = false;
-                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
-                        }
+                    $scope.hideAllFootprintsOnGlobe();
+                }
+            }
+
+            $scope.hideAllFootprintsOnGlobe = () => {
+                for (var i = 0; i <  $scope.capabilities.layers.length; i++) {
+                    var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
+                    var coverageId = coverageExtent.coverageId;
+                    if (coverageExtent.displayFootprint == true) {
+                        // checkbox is unchecked
+                        $scope.capabilities.layers[i].displayFootprint = false;
+                        webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
                     }
                 }
             }

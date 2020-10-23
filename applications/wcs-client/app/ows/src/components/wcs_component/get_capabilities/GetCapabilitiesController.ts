@@ -119,29 +119,43 @@ module rasdaman {
             }
 
             // Load/Unload all coverages's extents on globe
-            $scope.displayAllFootprintsOnGlobe = (status:boolean)=> {
-                
+            $scope.displayAllFootprintsOnGlobe = (status:boolean)=> {                              
+
                 if (status == true) {
-                    // load all unloaded footprints from all pages on globe                    
-                    for (var i = 0; i < $scope.coveragesExtents.length; i++) {
-                        var coverageId = $scope.coveragesExtents[i].coverageId;
-                        if ($scope.coveragesExtents[i].displayFootprint == false) {
-                            // checkbox is checked
-                            $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = true;
-                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
-                        }                     
-                    }                    
+                    // Get filtered rows from smart table
+                    var filteredRows = JSON.parse(window.localStorage.getItem('wcsGetCapabilitiesFilteredRows'));
+                    $scope.hideAllFootprintsOnGlobe();
+
+                    for (var i = 0; i < filteredRows.length; i++) {
+                        var obj = filteredRows[i];
+                        var covId = obj["coverageId"];
+                        // load all unloaded footprints from all pages on globe                    
+                        for (var j = 0; j < $scope.coveragesExtents.length; j++) {                        
+                            var coverageId = $scope.coveragesExtents[j].coverageId;                        
+                            if (covId === coverageId) {
+                                // checkbox is checked
+                                $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = true;
+                                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                                break;
+                            }                     
+                        }                    
+                    }
                 } else {
                     // unload all loaded footprints from all pages on globe
-                    for (var i = 0; i < $scope.coveragesExtents.length; i++) {
-                        var coverageId = $scope.coveragesExtents[i].coverageId;                    
-                        if ($scope.coveragesExtents[i].displayFootprint == true) {
-                            // checkbox is unchecked
-                            $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = false;
-                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
-                        }                        
-                    }
+                    $scope.hideAllFootprintsOnGlobe();
                 }                
+            }
+
+            $scope.hideAllFootprintsOnGlobe = () => {
+                // unload all loaded footprints from all pages on globe
+                for (var i = 0; i < $scope.coveragesExtents.length; i++) {
+                    var coverageId = $scope.coveragesExtents[i].coverageId;                    
+                    if ($scope.coveragesExtents[i].displayFootprint == true) {
+                        // checkbox is unchecked
+                        $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = false;
+                        webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                    }                        
+                }
             }
 
             // If a coverage is checked as blacklist, no one, except petascope admin user can see it from GetCapabilities

@@ -29,7 +29,7 @@
                             ng-class="{'glyphicon-chevron-down': isAvailableCoveragesOpen, 'glyphicon-chevron-right': !isAvailableCoveragesOpen}"></i>
                     </uib-accordion-heading>
 
-                    <section st-table="coverageSummaries" st-safe-src="capabilities.contents.coverageSummaries">
+                    <section st-table="coverageSummaries" get-filtered-rows st-safe-src="capabilities.contents.coverageSummaries">
                         <!-- smart table for pagination http://lorenzofox3.github.io/smart-table-website/ -->
                         <table class="table table-striped">
                             <thead>

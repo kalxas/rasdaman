@@ -512,6 +512,32 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
+    var common;
+    (function (common) {
+        function getFilteredRows($window) {
+            return {
+                require: '^stTable',
+                link: function (scope, element, attr, ctrl) {
+                    scope.$watch(function () {
+                        var obj = ctrl.getFilteredCollection();
+                        if (obj.length > 0) {
+                            var objName = obj[0].constructor.name;
+                            if (objName == "CoverageSummary") {
+                                $window.localStorage.setItem('wcsGetCapabilitiesFilteredRows', JSON.stringify(obj));
+                            }
+                            else if (objName == "Layer") {
+                                $window.localStorage.setItem('wmsGetCapabilitiesFilteredRows', JSON.stringify(obj));
+                            }
+                        }
+                    });
+                }
+            };
+        }
+        common.getFilteredRows = getFilteredRows;
+    })(common = rasdaman.common || (rasdaman.common = {}));
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
     var Constants = (function () {
         function Constants() {
         }
@@ -3257,21 +3283,31 @@ var rasdaman;
             };
             $scope.displayAllFootprintsOnGlobe = function (status) {
                 if (status == true) {
-                    for (var i = 0; i < $scope.coveragesExtents.length; i++) {
-                        var coverageId = $scope.coveragesExtents[i].coverageId;
-                        if ($scope.coveragesExtents[i].displayFootprint == false) {
-                            $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = true;
-                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                    var filteredRows = JSON.parse(window.localStorage.getItem('wcsGetCapabilitiesFilteredRows'));
+                    $scope.hideAllFootprintsOnGlobe();
+                    for (var i = 0; i < filteredRows.length; i++) {
+                        var obj = filteredRows[i];
+                        var covId = obj["coverageId"];
+                        for (var j = 0; j < $scope.coveragesExtents.length; j++) {
+                            var coverageId = $scope.coveragesExtents[j].coverageId;
+                            if (covId === coverageId) {
+                                $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = true;
+                                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                                break;
+                            }
                         }
                     }
                 }
                 else {
-                    for (var i = 0; i < $scope.coveragesExtents.length; i++) {
-                        var coverageId = $scope.coveragesExtents[i].coverageId;
-                        if ($scope.coveragesExtents[i].displayFootprint == true) {
-                            $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = false;
-                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
-                        }
+                    $scope.hideAllFootprintsOnGlobe();
+                }
+            };
+            $scope.hideAllFootprintsOnGlobe = function () {
+                for (var i = 0; i < $scope.coveragesExtents.length; i++) {
+                    var coverageId = $scope.coveragesExtents[i].coverageId;
+                    if ($scope.coveragesExtents[i].displayFootprint == true) {
+                        $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = false;
+                        webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
                     }
                 }
             };
@@ -5818,23 +5854,32 @@ var rasdaman;
             };
             $scope.displayAllFootprintsOnGlobe = function (status) {
                 if (status == true) {
-                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
-                        var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
-                        var coverageId = coverageExtent.coverageId;
-                        if (coverageExtent.displayFootprint == false) {
-                            $scope.capabilities.layers[i].displayFootprint = true;
-                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                    var filteredRows = JSON.parse(window.localStorage.getItem('wmsGetCapabilitiesFilteredRows'));
+                    $scope.hideAllFootprintsOnGlobe();
+                    for (var i = 0; i < filteredRows.length; i++) {
+                        var obj = filteredRows[i];
+                        var layerName = obj["name"];
+                        for (var j = 0; j < $scope.capabilities.layers.length; j++) {
+                            var coverageExtent = $scope.capabilities.layers[j].coverageExtent;
+                            var coverageId = coverageExtent.coverageId;
+                            if (layerName == coverageId) {
+                                $scope.capabilities.layers[j].displayFootprint = true;
+                                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                            }
                         }
                     }
                 }
                 else {
-                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
-                        var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
-                        var coverageId = coverageExtent.coverageId;
-                        if (coverageExtent.displayFootprint == true) {
-                            $scope.capabilities.layers[i].displayFootprint = false;
-                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
-                        }
+                    $scope.hideAllFootprintsOnGlobe();
+                }
+            };
+            $scope.hideAllFootprintsOnGlobe = function () {
+                for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                    var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
+                    var coverageId = coverageExtent.coverageId;
+                    if (coverageExtent.displayFootprint == true) {
+                        $scope.capabilities.layers[i].displayFootprint = false;
+                        webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
                     }
                 }
             };
@@ -6915,7 +6960,8 @@ var rasdaman;
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
         .directive("autocomplete", rasdaman.common.Autocomplete)
-        .directive("scrollToBottom", rasdaman.common.scrollToBottom);
+        .directive("scrollToBottom", rasdaman.common.scrollToBottom)
+        .directive("getFilteredRows", rasdaman.common.getFilteredRows);
 })(rasdaman || (rasdaman = {}));
 var admin;
 (function (admin) {
