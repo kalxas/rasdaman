@@ -2250,6 +2250,9 @@ for a general recipe ingredient file that uses many grib expressions.
 +===========+================================================+==========================================+
 |GRIB Key   |``${grib:KEY}`` where ``KEY`` can be any of the |``${grib:experimentVersionNumber}``       |
 |           |keys contained in the GRIB file                 |                                          |
+|           |``${grib:messagenumber}`` is the special value  |                                          |
+|           |to get the current processed GRIB message index |                                          |
+|           |(starting from 1)                               |                                          |
 +-----------+------------------------------------------------+------------------------------------------+
 
 **File**
