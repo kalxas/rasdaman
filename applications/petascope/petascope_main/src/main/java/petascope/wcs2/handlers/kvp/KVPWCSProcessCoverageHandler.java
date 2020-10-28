@@ -39,7 +39,10 @@ import java.util.Map;
 import java.util.Stack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static petascope.controller.AbstractController.getValueByKeyAllowNull;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_QUERY;
+import static petascope.core.KVPSymbols.KEY_QUERY_SHORT_HAND;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -82,7 +85,11 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         this.validate(kvpParameters);
 
         String coverageID = null;
-        String wcpsQuery = kvpParameters.get(KVPSymbols.KEY_QUERY)[0];
+        String wcpsQuery = getValueByKeyAllowNull(kvpParameters, KEY_QUERY);
+        if (wcpsQuery == null) {
+            wcpsQuery = getValueByKeyAllowNull(kvpParameters, KEY_QUERY_SHORT_HAND);
+        }
+        
         VisitorResult visitorResult = wcpsTranslator.translate(wcpsQuery);
         WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
 

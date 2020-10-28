@@ -25,12 +25,16 @@ import java.io.IOException;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static petascope.controller.AbstractController.getValueByKeyAllowNull;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_QUERY;
+import static petascope.core.KVPSymbols.KEY_QUERY_SHORT_HAND;
 import petascope.wcs2.handlers.kvp.KVPWCSProcessCoverageHandler;
 import petascope.core.response.Response;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
 
 /**
@@ -52,6 +56,12 @@ public class KVPWCPSServiceHandler extends AbstractHandler {
 
     @Override
     public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException, WMSException {
+        if (getValueByKeyAllowNull(kvpParameters, KEY_QUERY) != null
+            && getValueByKeyAllowNull(kvpParameters, KEY_QUERY_SHORT_HAND) != null) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, ""
+                    + "Only one parameter '" + KEY_QUERY + "' or '" + KEY_QUERY_SHORT_HAND + "' is allowed in the ProcessCoverages request.");
+        }
+        
         Response response = this.processCoverageHandler.handle(kvpParameters);
         return response;
     }

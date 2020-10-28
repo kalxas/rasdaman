@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+>
+<ows:Exception exceptionCode="InvalidRequest">
+<ows:ExceptionText>Only one parameter 'query' or 'q' is allowed in the ProcessCoverages request.</ows:ExceptionText>
+</ows:Exception>
+</ows:ExceptionReport>

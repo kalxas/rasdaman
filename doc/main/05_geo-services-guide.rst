@@ -717,6 +717,12 @@ through the following ``ProcessCoverages`` request:
     http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
       &REQUEST=ProcessCoverage&QUERY=<wcps-query>
 
+.. NOTE::
+
+   In v10+, rasdaman supports the ``q`` parameter besides the ``query`` parameter
+   to store a WCPS query. A request must contain only one ``q`` or ``query`` parameter.
+   
+
 Polygon/Raster Clipping
 -----------------------
 

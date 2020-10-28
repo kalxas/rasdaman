@@ -99,6 +99,7 @@ public interface KVPSymbols {
     // WCPS
     String VALUE_PROCESS_COVERAGES = "ProcessCoverages";
     String KEY_QUERY = "query";
+    String KEY_QUERY_SHORT_HAND = "q";
 
     // WCS XML
     // Made up for handling POST XML request
