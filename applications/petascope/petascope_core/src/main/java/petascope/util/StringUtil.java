@@ -42,6 +42,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * String utilities.
@@ -52,6 +53,19 @@ public class StringUtil {
 
     public static final String MIME_URLENCODED = "application/x-www-form-urlencoded";
     public static final String ENCODING_UTF8 = "UTF-8";
+    public static final String DOLLAR_SIGN = "$";
+    public static final String AND_SIGN = "&";
+    public static final String EQUAL_SIGN = "=";
+    public static final String POSITIVE_INTEGER_PATTERN = "^[1-9]\\d*$";
+    // e.g: $1, $2,..
+    public static final Pattern POSITIONAL_PARAMETER_PATTERN = Pattern.compile("\\$[1-9]\\d*");
+    
+    public static final String POST_STRING_CONTENT_TYPE = "application/x-www-form-urlencoded";
+    
+    /**
+     * For coverages created temporarily, used for WCPS decode() from uploaded files
+     */
+    public static final String TEMP_COVERAGE_PREFIX = "WCPS_TEMP_COV";
 
     private static String COMMA = ",";
 
@@ -516,9 +530,25 @@ public class StringUtil {
     }
     
     /**
+     * Replace any non digit and characters to "_"
+     */
+    public static String replaceSpecialCharacters(String input) {
+        String result = input.replaceAll("[^\\dA-Za-z ]", "_");
+        return result;
+    }
+    
+    /**
      * Replace '(' and ')' from input string
      */
     public static String stripParentheses(String input) {
         return input.replace("(", "").replace(")", "");
+    }
+    
+    /**
+     * Given a file path, return a temp coverage id with random suffix from datetime
+     */
+    public static String createTempCoverageId(String filePath) {
+        String coverageId = TEMP_COVERAGE_PREFIX + "_" + StringUtil.addDateTimeSuffix(FilenameUtils.getBaseName(filePath));
+        return coverageId;
     }
 }

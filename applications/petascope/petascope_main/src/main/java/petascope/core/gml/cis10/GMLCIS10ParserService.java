@@ -48,7 +48,9 @@ import org.rasdaman.domain.cis.Quantity;
 import org.rasdaman.domain.cis.RangeType;
 import org.rasdaman.domain.cis.RegularAxis;
 import org.rasdaman.domain.cis.Uom;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
@@ -98,6 +100,9 @@ import static petascope.util.ras.TypeResolverUtil.R_Abb_Float;
 public class GMLCIS10ParserService extends AbstractGMLCISParserService {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GMLCIS10ParserService.class);
+    
+    @Autowired
+    private CoverageRepositoryService coverageRepositoryService;
     
     public GMLCIS10ParserService() {
         this.supportedCoverageTypes.addAll(Arrays.asList(LABEL_GRID_COVERAGE, 
@@ -149,6 +154,9 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
         Envelope envelope = new Envelope();
         envelope.setEnvelopeByAxis(envelopeByAxis);
         coverage.setEnvelope(envelope);
+        
+        // Create the WGS84 BoundingBox for the parsed coverage
+        this.coverageRepositoryService.createCoverageExtent(coverage);
 
         // + Build RangeType element
         List<Field> fields = this.parseFields(rootElement);
@@ -165,7 +173,7 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
     /**
      * Create a general grid for DomainSet object
      */
-    private GeneralGrid createGeneralGrid(String srsName, List<GeoAxis> geoAxes, GridLimits gridLimits) {
+    public GeneralGrid createGeneralGrid(String srsName, List<GeoAxis> geoAxes, GridLimits gridLimits) {
         GeneralGrid generalGrid = new GeneralGrid();
 
         generalGrid.setSrsName(srsName);
@@ -178,7 +186,7 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
     /**
      * Create GridLimits object from indexAxes
      */
-    private GridLimits createGridLimits(List<IndexAxis> indexAxes) {
+    public GridLimits createGridLimits(List<IndexAxis> indexAxes) {
 
         int dimensions = indexAxes.size();
         // Create IndexCRS (indexND) from the number of axes (2 axes -> Index2D)
@@ -196,7 +204,7 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
      * Create the EnvelopeByAxis object from List of geoAxis which was parsed in
      * creating DomainElement object
      */
-    private EnvelopeByAxis createEnvelopeByAxis(GeneralGrid generalGrid) throws PetascopeException, SecoreException {
+    public EnvelopeByAxis createEnvelopeByAxis(GeneralGrid generalGrid) throws PetascopeException, SecoreException {
         EnvelopeByAxis envelopeByAxis = new EnvelopeByAxis();
         envelopeByAxis.setSrsName(generalGrid.getSrsName());
         int numberOfDimensions = generalGrid.getGeoAxes().size();
@@ -238,7 +246,7 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
         envelopeByAxis.setAxisExtents(axesExtent);
         // Create the envelope axis labels from the name of geo axes
         envelopeByAxis.setAxisLabels(envelopeByAxis.getAxisLabelsRepresentation());
-
+        
         return envelopeByAxis;
     }
 

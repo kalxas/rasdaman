@@ -37,14 +37,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
+import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static petascope.controller.AbstractController.getValueByKeyAllowNull;
 import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.KEY_QUERY;
 import static petascope.core.KVPSymbols.KEY_QUERY_SHORT_HAND;
+import petascope.core.Pair;
+import petascope.util.StringUtil;
+import static petascope.util.StringUtil.DOLLAR_SIGN;
+import static petascope.util.StringUtil.POSITIONAL_PARAMETER_PATTERN;
+import petascope.core.service.GdalFileToCoverageTranslatorService;
+import petascope.wcps.metadata.service.TempCoverageRegistry;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
+import petascope.wcst.handlers.InsertCoverageHandler;
 
 /**
  * Handler for the Process Coverages Extension
@@ -65,6 +76,14 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
     private RasqlRewriteMultipartQueriesService rasqlRewriteMultipartQueriesService;
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
+    @Autowired
+    private GdalFileToCoverageTranslatorService gdalFileToCoverageTranslatorService;
+    @Autowired
+    private CoverageRepositoryService coverageRepositoryService;
+    @Autowired
+    private TempCoverageRegistry tempCoverageRegistry;
+    @Autowired
+    private InsertCoverageHandler insertCoverageHandler;
 
     public KVPWCSProcessCoverageHandler() {
     }
@@ -90,32 +109,39 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
             wcpsQuery = getValueByKeyAllowNull(kvpParameters, KEY_QUERY_SHORT_HAND);
         }
         
-        VisitorResult visitorResult = wcpsTranslator.translate(wcpsQuery);
-        WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
-
+        String newWcpsQuery = this.adjustWcpsQueryByPositionalParameters(kvpParameters, wcpsQuery);
+              
+        VisitorResult visitorResult;
         List<byte[]> results = new ArrayList<>();
-        if (visitorResult instanceof WcpsMetadataResult) {
-            results.add(executor.execute(visitorResult));
-        } else {
-            WcpsResult wcpsResult = (WcpsResult) visitorResult;
-            // In case of 0D, metadata is null
-            if (wcpsResult.getMetadata() != null) {
-                coverageID = wcpsResult.getMetadata().getCoverageName();
-            }
-            // create multiple rasql queries from a Rasql query result (if it is multipart)
-            Stack<String> rasqlQueries = rasqlRewriteMultipartQueriesService.rewriteQuery(wcpsResult.getRasql());
-            // Run all the Rasql queries and get result
-            while (!rasqlQueries.isEmpty()) {
-                // Execute multiple Rasql queries with different coverageIDs to get List of byte arrays
-                String rasql = rasqlQueries.pop();
-                ((WcpsResult) visitorResult).setRasql(rasql);
+        
+        try {
+            visitorResult = wcpsTranslator.translate(newWcpsQuery);
+            WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
+
+            if (visitorResult instanceof WcpsMetadataResult) {
                 results.add(executor.execute(visitorResult));
+            } else {
+                WcpsResult wcpsResult = (WcpsResult) visitorResult;
+                // In case of 0D, metadata is null
+                if (wcpsResult.getMetadata() != null) {
+                    coverageID = wcpsResult.getMetadata().getCoverageName();
+                }
+                // create multiple rasql queries from a Rasql query result (if it is multipart)
+                Stack<String> rasqlQueries = rasqlRewriteMultipartQueriesService.rewriteQuery(wcpsResult.getRasql());
+                // Run all the Rasql queries and get result
+                while (!rasqlQueries.isEmpty()) {
+                    // Execute multiple Rasql queries with different coverageIDs to get List of byte arrays
+                    String rasql = rasqlQueries.pop();
+                    ((WcpsResult) visitorResult).setRasql(rasql);
+                    results.add(executor.execute(visitorResult));
+                }
             }
+        } finally {
+            this.coverageAliasRegistry.clear();
+            this.tempCoverageRegistry.clear();
         }
 
         String mimeType = visitorResult.getMimeType();
-        // clear the stored coverages id so next WCPS query in same HTTP request will not use existing ones
-        coverageAliasRegistry.clear();
 
         return new Response(results, mimeType, coverageID);
     }
@@ -142,5 +168,54 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         };
 
         return this.handle(kvpParameters);
+    }
+    
+    
+    /**
+     * Replace the positional parameters with proper values
+     * For example: for $c in (covA), $d in (decode($1)) return $c + $d + $2
+     * -> for $c in (covA), $d in (decode($1)) return $c + $d + 5
+     * with $1 is TMP_COV (created from an uploaded file) and $2=5 (uploaded in query POST body)
+     */
+    private String adjustWcpsQueryByPositionalParameters(Map<String, String[]> kvpParameters, String wcpsQuery) throws PetascopeException, SecoreException {
+        
+        StringBuffer stringBuffer = new StringBuffer();
+        Matcher matcher = POSITIONAL_PARAMETER_PATTERN.matcher(wcpsQuery);
+        while (matcher.find()) {
+            // e.g: $1, $2,...
+            String positionalParameter = matcher.group();
+            String value = getValueByKeyAllowNull(kvpParameters, StringUtil.stripDollarSign(positionalParameter));
+            
+            if (value != null) {            
+                if (value.startsWith(UPLOADED_FILE_DIR_TMP)) {
+                    String filePath = value;
+                    // e.g: $1 -> /tmp/rasdaman_petacope/rasdaman...tif (uploaded file in POST body)
+                    //      $2 -> 5 (uploaded value in POST body)
+                    Coverage coverage = this.gdalFileToCoverageTranslatorService.translate(filePath);
+
+                    // @TODO: until rasdaman works without error with SELECT decode() in rasql, a temp collection will be created for a temp coverage
+                    String decodeExpression = coverage.getRasdamanRangeSet().getDecodeExpression();
+                    this.insertCoverageHandler.insertTempCoverage(coverage, decodeExpression);
+                    // @TODO: a coverage from decode() does not have a rasdaman collection name. 
+                    // It sets this temp collection until the rasql SELECT decode() works fine
+                    coverage.getRasdamanRangeSet().setCollectionName(coverage.getCoverageId());
+
+                    String coverageId = coverage.getCoverageId();
+                    this.coverageRepositoryService.localCoveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
+
+                    // e.g: $1 -> (TEMP_COV_abc_202001010, /tmp/rasdaman_petacope/rasdaman...tif)
+                    this.tempCoverageRegistry.add(positionalParameter, coverageId, value);
+                } else {                
+                    // e.g: replace $2 in query with 5
+                    matcher.appendReplacement(stringBuffer, Matcher.quoteReplacement(value));
+                }
+            }
+                        
+        }
+        
+        matcher.appendTail(stringBuffer);
+        String result = stringBuffer.toString();
+
+        return result;
     }
 }

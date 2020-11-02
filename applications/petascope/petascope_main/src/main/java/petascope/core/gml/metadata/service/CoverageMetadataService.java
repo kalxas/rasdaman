@@ -151,7 +151,7 @@ public class CoverageMetadataService {
      */
     public CoverageMetadata deserializeCoverageMetadata(String metadata) {
         // Don't do anything if metadata is empty as it is not valid XML/JSON
-        if (metadata.isEmpty()) {
+        if (metadata == null || metadata.isEmpty()) {
             return new CoverageMetadata();
         }
         

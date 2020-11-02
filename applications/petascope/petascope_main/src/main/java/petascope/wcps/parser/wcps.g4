@@ -57,12 +57,14 @@ wcpsQuery : (forClauseList)
 forClauseList: FOR (forClause) (COMMA forClause)*
 #ForClauseListLabel;
 
+coverageIdForClause : COVERAGE_VARIABLE_NAME | decodeCoverageExpression;
+
 /**
  * Example:
  * for $c in (cov1)
  */
 forClause:  coverageVariableName IN
-           (LEFT_PARENTHESIS)? COVERAGE_VARIABLE_NAME (COMMA COVERAGE_VARIABLE_NAME)* (RIGHT_PARENTHESIS)?
+           (LEFT_PARENTHESIS)? coverageIdForClause (COMMA coverageIdForClause)* (RIGHT_PARENTHESIS)?
 #ForClauseLabel;
 
 
@@ -344,8 +346,8 @@ describeCoverageExpression: DESCRIBE_COVERAGE LEFT_PARENTHESIS coverageVariableN
 
 domainIntervals: (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (sdomExtraction)?; 
 
-
-extra_params: STRING_LITERAL | EXTRA_PARAMS;
+positionalParamater: POSITIONAL_PARAMETER;
+extraParams: STRING_LITERAL | EXTRA_PARAMS;
 
 /**
  * Example:
@@ -353,7 +355,7 @@ extra_params: STRING_LITERAL | EXTRA_PARAMS;
  * | encode($c, "image/png", "NODATA=0")
  */
 encodedCoverageExpression: ENCODE LEFT_PARENTHESIS
-                           coverageExpression COMMA STRING_LITERAL (COMMA extra_params)?
+                           coverageExpression COMMA STRING_LITERAL (COMMA extraParams)?
                            RIGHT_PARENTHESIS                                                                            #EncodedCoverageExpressionLabel;
 
 /**
@@ -363,7 +365,7 @@ encodedCoverageExpression: ENCODE LEFT_PARENTHESIS
  *   ?!
  */
 decodeCoverageExpression: DECODE LEFT_PARENTHESIS
-                          STRING_LITERAL COMMA STRING_LITERAL (COMMA STRING_LITERAL)*
+                          positionalParamater (COMMA extraParams)?
                           RIGHT_PARENTHESIS                                                                             #DecodedCoverageExpressionLabel;
 
 /**

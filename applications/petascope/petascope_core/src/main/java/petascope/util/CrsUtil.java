@@ -919,6 +919,13 @@ public class CrsUtil {
     public static String getEPSGFullUri(String epsgCode) {
         return EPSG_ALL_CRS + "/" + epsgCode.split(":")[1];
     }
+    
+    /**
+     * e.g: 4326 -> localhost:8080/def/crs/EPSG/0/
+     */
+    public static String getEPSGFullUriByCode(String code) {
+        return EPSG_ALL_CRS + "/" + code;
+    }
  
     /**
      * Ultility to get the code from CRS (e.g: EPSG:4326 -> 4326)

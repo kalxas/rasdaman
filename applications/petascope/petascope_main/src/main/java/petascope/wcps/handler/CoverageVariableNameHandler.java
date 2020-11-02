@@ -73,7 +73,14 @@ public class CoverageVariableNameHandler extends AbstractOperatorHandler {
         } else {
             // coverage does exist, translate the persisted coverage to WcpsCoverageMetadata object
             metadata = wcpsCoverageMetadataTranslator.translate(coverageName);
-            rasql = coverageAlias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
+            
+            if (metadata.getRasdamanCollectionName() != null) {
+                // coverage is persisted in database
+                rasql = coverageAlias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
+            } else {
+                // coverage is created temporarily from uploaded file path
+                rasql = metadata.getDecodedFilePath();
+            }
         }
 
         WcpsResult result = new WcpsResult(metadata, rasql);

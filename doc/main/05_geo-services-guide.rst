@@ -990,6 +990,92 @@ This can readily be used in a subset expression: ::
   return
     encode( $c[ $a ] + $b, "itext/json" )
 
+.. _positional_parameters_in_wcps:
+
+Positional parameter in WCPS
+----------------------------
+
+Since v10+, rasdaman supports positional parameters in WCPS (non-standard).
+Positional parameters allow to reference binary or string values in a WCPS query.
+The binary/string values are specified in a POST request, in addition to the
+WCPS query.
+
+Syntax
+^^^^^^
+
+The syntax for the positional parameter is:
+
+.. code-block:: text
+
+   $POSITIVE_INTEGER e.g: $1, $2,..
+
+The endpoint to send WCPS query by POST with extra values is:
+
+.. code-block:: text
+
+    localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages
+
+with the mandatory parameter ``query`` and optional positional parameters: ``1``, ``2``,...
+The value of a positional parameter can be either **binary file content** 
+or **string value**.
+
+
+.. _positional_parameters_in_wcps_example:
+
+Example
+^^^^^^^
+
+One can use ``curl`` tool as a client to send a WCPS request with 
+**positional parameters** to rasdaman via POST. ``curl`` reads the contents
+of the selected files automatically via file paths with ``@`` parameter.
+
+For example, one wants to combine an existing coverage (``$c`` variable)
+with two temporary covarages (``$d`` and ``$e`` variables) in ``png`` format 
+from positional parameters ``$1``, ``$2`` and ``$3`` respectively :
+
+.. code-block:: text
+
+   curl -s "http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages" \
+   -F 'query=for $c in (existing_coverage), $d in (decode($1)), $e in (decode($2)) return encode(($c + $d + $e)[Lat(0:90), Long(-180:180)], "$3"))' \
+   -F "1=@/home/rasdaman/file1.tiff" \
+   -F "2=@/home/rasdaman/file2.tiff" \
+   -F "3=png" \
+   > ~/Downloads/test.png
+
+
+Decode Operator in WCPS
+-----------------------
+
+Since v10+, rasdaman supports the non-standard ``decode()`` operator
+in WCPS. This feature allows one to combine existing coverages with
+temporary coverages created in memory from input files attached
+in POST request body.
+Since v10+, rasdaman supports the non-standard positional parameters
+
+
+Syntax
+^^^^^^
+
+The syntax for the ``decode()`` operator is:
+
+.. code-block:: text
+
+   decode(${positional_parameter}) 
+
+with ``${positional_parameter)`` refers to the indicated files in the POST request.
+See :ref:`positional parameters in WCPS <positional_parameters_in_wcps>`.
+
+.. NOTE::
+
+    Currently, WCPS ``decode()`` operator supports only 2D geo-referenced
+    files readable by GDAL. One way to check if a file is readable by GDAL is
+    with ``gdalinfo ${file}``. ``netCDF/GRIB`` format is not supported.
+
+Example
+^^^^^^^
+
+See :ref:`example about positional parameters in WCPS <positional_parameters_in_wcps_example>`.
+
 
 Case Distinction
 ----------------

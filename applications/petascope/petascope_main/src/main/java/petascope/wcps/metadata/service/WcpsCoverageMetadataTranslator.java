@@ -110,6 +110,7 @@ public class WcpsCoverageMetadataTranslator {
         WcpsCoverageMetadata wcpsCoverageMetadata = new WcpsCoverageMetadata(coverageId, rasdamanCollectionName,
                                                         coverage.getCoverageType(), axes, crsUri, 
                                                         rangeFields, nilValues, extraMetadata, originalAxes);
+        wcpsCoverageMetadata.setDecodedFilePath(coverage.getRasdamanRangeSet().getDecodeExpression());
 
         return wcpsCoverageMetadata;
     }

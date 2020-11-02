@@ -402,6 +402,22 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitPositionalParamater(@NotNull wcpsParser.PositionalParamaterContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitCoverageIdForClause(@NotNull wcpsParser.CoverageIdForClauseContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitCoverageExpressionScalarLabel(@NotNull wcpsParser.CoverageExpressionScalarLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -491,6 +507,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitBooleanSwitchCaseCombinedExpression(@NotNull wcpsParser.BooleanSwitchCaseCombinedExpressionContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitExtraParams(@NotNull wcpsParser.ExtraParamsContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -731,14 +755,6 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitComplexNumberConstantLabel(@NotNull wcpsParser.ComplexNumberConstantLabelContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 */
-	@Override public T visitExtra_params(@NotNull wcpsParser.Extra_paramsContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -1162,7 +1178,7 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { return visitChildren(ctx); }
+	@Override public T visitExponentialExpressionLabel(@NotNull wcpsParser.ExponentialExpressionLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -1170,7 +1186,7 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitExponentialExpressionLabel(@NotNull wcpsParser.ExponentialExpressionLabelContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}

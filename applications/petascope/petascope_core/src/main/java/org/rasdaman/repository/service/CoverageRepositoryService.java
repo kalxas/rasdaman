@@ -61,6 +61,8 @@ import petascope.core.BoundingBox;
 import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
+import petascope.util.StringUtil;
+import static petascope.util.StringUtil.TEMP_COVERAGE_PREFIX;
 import petascope.util.ras.RasUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
@@ -104,7 +106,7 @@ public class CoverageRepositoryService {
      * is minLong, minLat, second String is maxLong, maxLat.
      */
     public static final String COVERAGES_EXTENT_TARGET_CRS_DEFAULT = "EPSG:4326";
-
+    
     public CoverageRepositoryService() {
 
     }
@@ -559,6 +561,10 @@ public class CoverageRepositoryService {
     @Transactional
     public void save(Coverage coverage) throws PetascopeException {
         String coverageId = coverage.getCoverageId();
+        if (coverageId.startsWith(TEMP_COVERAGE_PREFIX)) {
+            // don't push temp coverage to database
+            return;
+        }
         
         // NOTE: Don't save coverage with fixed CRS (e.g: http://localhost:8080/def/crs/epsg/0/4326)
         // it must use a string placeholder so when setting up Petascope with a different SECORE endpoint, it will replace the placeholder

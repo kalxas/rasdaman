@@ -537,6 +537,28 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitRangeType(@NotNull wcpsParser.RangeTypeContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#positionalParamater}.
+	 * @param ctx the parse tree
+	 */
+	void enterPositionalParamater(@NotNull wcpsParser.PositionalParamaterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#positionalParamater}.
+	 * @param ctx the parse tree
+	 */
+	void exitPositionalParamater(@NotNull wcpsParser.PositionalParamaterContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#coverageIdForClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageIdForClause(@NotNull wcpsParser.CoverageIdForClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#coverageIdForClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageIdForClause(@NotNull wcpsParser.CoverageIdForClauseContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionScalarLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -667,6 +689,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBooleanSwitchCaseCombinedExpression(@NotNull wcpsParser.BooleanSwitchCaseCombinedExpressionContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#extraParams}.
+	 * @param ctx the parse tree
+	 */
+	void enterExtraParams(@NotNull wcpsParser.ExtraParamsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#extraParams}.
+	 * @param ctx the parse tree
+	 */
+	void exitExtraParams(@NotNull wcpsParser.ExtraParamsContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageVariableNameLabel}.
@@ -997,17 +1030,6 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitComplexNumberConstantLabel(@NotNull wcpsParser.ComplexNumberConstantLabelContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link wcpsParser#extra_params}.
-	 * @param ctx the parse tree
-	 */
-	void enterExtra_params(@NotNull wcpsParser.Extra_paramsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#extra_params}.
-	 * @param ctx the parse tree
-	 */
-	void exitExtra_params(@NotNull wcpsParser.Extra_paramsContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#imageCrsDomainExpressionLabel}.
@@ -1582,17 +1604,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCurtainProjectionAxisLabel1(@NotNull wcpsParser.CurtainProjectionAxisLabel1Context ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionClipCorridorLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionClipCorridorLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#ExponentialExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1602,6 +1613,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExponentialExpressionLabel(@NotNull wcpsParser.ExponentialExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionClipCorridorLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionClipCorridorLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#WhereClauseLabel}.

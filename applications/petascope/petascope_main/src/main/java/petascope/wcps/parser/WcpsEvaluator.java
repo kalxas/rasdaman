@@ -110,9 +110,11 @@ import petascope.wcps.handler.ClipCorridorExpressionHandler;
 import petascope.wcps.handler.ClipCurtainExpressionHandler;
 import petascope.wcps.handler.ClipWKTExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
+import petascope.wcps.handler.DecodeCoverageHandler;
 import petascope.wcps.handler.DomainIntervalsHandler;
 import petascope.wcps.handler.LetClauseHandler;
 import petascope.wcps.metadata.model.RangeField;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.LetClauseAliasRegistry;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
@@ -153,6 +155,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     ReturnClauseHandler returnClauseHandler;
     @Autowired private
     EncodeCoverageHandler encodeCoverageHandler;
+    @Autowired private
+    DecodeCoverageHandler decodeCoverageHandler;
     
     @Autowired private
     ClipWKTExpressionHandler clipWKTExpressionHandler;
@@ -294,16 +298,27 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
     @Override
     public VisitorResult visitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx) {
-        List<TerminalNode> coverageNames = ctx.COVERAGE_VARIABLE_NAME();
-        List<String> coverageNamesStr = new ArrayList<>();
-
-        for (int i = 0; i < coverageNames.size(); i++) {
-            coverageNamesStr.add(coverageNames.get(i).getText());
+        
+        List<String> coverageIds = new ArrayList<>();
+        for (wcpsParser.CoverageIdForClauseContext context : ctx.coverageIdForClause()) {
+            if (context.COVERAGE_VARIABLE_NAME() != null) {
+                // coverage Id is persited coverage, e.g: $c in (test_mr)
+                String coverageId = context.COVERAGE_VARIABLE_NAME().getText();
+                coverageIds.add(coverageId);
+            } else if (context.decodeCoverageExpression().getText() != null) {
+                // coverage Id is created from postional parameter (e.g: $c in (decode($1))
+                WcpsResult result = (WcpsResult) visit(context.decodeCoverageExpression());
+                WcpsCoverageMetadata metadata = result.getMetadata();
+                if (metadata != null) {
+                    String coverageId = result.getMetadata().getCoverageName();
+                    coverageIds.add(coverageId);
+                }
+            } 
         }
 
         WcpsResult result;
         try {
-            result = forClauseHandler.handle(ctx.coverageVariableName().getText(), coverageNamesStr);
+            result = forClauseHandler.handle(ctx.coverageVariableName().getText(), coverageIds);
         } catch (PetascopeException ex) {
             throw new WCPSException("Error processing WCPS query. Reason: " + ex.getExceptionText(), ex);
         }
@@ -375,8 +390,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // + Old style: e.g: "nodata=0"
         // + JSON style: e.g: "{\"nodata\": [0]}" -> {"nodata": [0]}
         String extraParams = "";
-        if (ctx.extra_params() != null) {
-            extraParams = StringUtil.stripQuotes(ctx.extra_params().getText()).replace("\\", "");
+        if (ctx.extraParams() != null) {
+            extraParams = StringUtil.stripQuotes(ctx.extraParams().getText()).replace("\\", "");
         }
 
         WcpsResult result = null;
@@ -389,6 +404,26 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         }
         
         // Cannot convert object to JSON
+        return result;
+    }
+    
+    @Override
+    public VisitorResult visitDecodedCoverageExpressionLabel(@NotNull wcpsParser.DecodedCoverageExpressionLabelContext ctx) {
+        // e.g: decode($1, "$2") with $1 is an uploaded file, $2 is an extra parameter
+        String positionalParameter = ctx.positionalParamater().getText();
+        String extraParamters = "";
+        if (ctx.extraParams() != null) {
+            extraParamters = StringUtil.stripQuotes(ctx.extraParams().getText());
+        }
+        
+        WcpsResult result = null;
+        try {
+            result = this.decodeCoverageHandler.handle(positionalParameter, extraParamters);
+        } catch (Exception ex) {
+            String errorMessage = "Error processing decode() operator expression. Reason: " + ex.getMessage();
+            throw new WCPSException(errorMessage, ex);
+        }
+        
         return result;
     }
     

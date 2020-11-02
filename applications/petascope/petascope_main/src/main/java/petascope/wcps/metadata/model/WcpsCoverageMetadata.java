@@ -61,6 +61,8 @@ public class WcpsCoverageMetadata {
     // NOTE: rasdaman collection name can be different from coverageName (in case of import a coverageName which is duplicate to an existing collectionName)
     // then coverage will create a new collectionName_datetime to store data.
     protected String rasdamanCollectionName;
+    // In case a coverage is created temporarily from uploaded file path
+    protected String decodedFilePath;
     protected String coverageType;
     // List of axes after coverage expression (it will be stripped when there is a slicing expression, 
     // e.g: c[Lat(20)] then output axes are Long and t with c is a 3D coverages (CRS: EPSG:4326&AnsiDate)
@@ -305,6 +307,14 @@ public class WcpsCoverageMetadata {
         this.rasdamanCollectionName = rasdamanCollectionName;
     }
 
+    public String getDecodedFilePath() {
+        return decodedFilePath;
+    }
+
+    public void setDecodedFilePath(String decodedFilePath) {
+        this.decodedFilePath = decodedFilePath;
+    }
+    
     public void setRangeFields(List<RangeField> rangeFields) {
         this.rangeFields = rangeFields;
     }

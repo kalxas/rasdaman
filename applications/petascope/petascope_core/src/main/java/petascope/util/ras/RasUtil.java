@@ -177,7 +177,7 @@ public class RasUtil {
             tr.commit();
         } catch (ODMGException ex) {
             abortTR(tr);
-            if (ex.getMessage().contains("CREATE: Collection name exists already.")) {
+            if (ex.getMessage().contains("CREATE: Collection name exists already.") || ex.getMessage().contains("Collection already exists")) {
                 throw new RasdamanCollectionExistsException(ExceptionCode.CollectionExists, query, ex);
             } else if (ex.getMessage().contains("Collection name is unknown.")) {
                 throw new RasdamanCollectionDoesNotExistException(ExceptionCode.CollectionDoesNotExist, query, ex);

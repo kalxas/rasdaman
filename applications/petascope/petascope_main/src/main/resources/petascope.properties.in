@@ -100,7 +100,7 @@ petascope_servlet_url=
 allow_write_requests_from=127.0.0.1
 
 # Server directory where files uploaded by a request will be temporarily stored.
-uploaded_files_dir_tmp=/tmp/rasdaman/petascope/upload
+uploaded_files_dir_tmp=/tmp/rasdaman_petascope/upload
 
 # Maximum amount of memory (in bytes) to use for caching WMS GetMap requests. 
 # This setting speeds up repeating WMS operaions over similar area/zoom level.

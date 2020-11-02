@@ -37,6 +37,7 @@ import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import petascope.util.ListUtil;
 
 /**
  * CIS 1.1
@@ -245,6 +246,19 @@ public abstract class Coverage implements Serializable {
 
         return uniqueNilValues;
     }
+    
+    public List<NilValue> getAllNullValues() {
+        List<NilValue> result = new ArrayList<>();
+
+        List<Field> fields = this.getRangeType().getDataRecord().getFields();
+
+        for (Field field : fields) {
+            Quantity quantity = field.getQuantity();
+            result.addAll(quantity.getNilValuesList());            
+        }
+
+        return result;
+    }
 
     /**
      *
@@ -257,6 +271,23 @@ public abstract class Coverage implements Serializable {
         int numberOfBands = this.getRangeType().getDataRecord().getFields().size();
 
         return numberOfBands;
+    }
+    
+    /**
+     * Return the concatenated string of distinct band types, e.g: Float32,Byte,Int16
+     */
+    public String getPixelDataType() {
+        List<String> list = new ArrayList<>();
+        
+        for (Field field : this.getRangeType().getDataRecord().getFields()) {
+            String bandDataType = field.getQuantity().getDataType();
+            if (bandDataType != null && !list.contains(bandDataType)) {
+                list.add(bandDataType);
+            }
+        }
+        
+        String result = ListUtil.join(list, ",");
+        return result;
     }
 
     /**

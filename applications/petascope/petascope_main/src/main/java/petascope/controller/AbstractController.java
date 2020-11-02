@@ -54,6 +54,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.MIMEUtil;
 import petascope.util.StringUtil;
+import static petascope.util.StringUtil.DOLLAR_SIGN;
 import petascope.util.XMLUtil;
 
 /**
@@ -280,6 +281,8 @@ public abstract class AbstractController {
      * @return the stored file path in server
      */
     protected String storeUploadFileOnServer(String uploadedFileName, byte[] bytes) throws PetascopeException {
+        
+        uploadedFileName = StringUtil.replaceSpecialCharacters(uploadedFileName);
 
         // Check if temp folder exist first
         File folderPath = new File(UPLOADED_FILE_DIR_TMP);
@@ -455,7 +458,7 @@ public abstract class AbstractController {
     /**
      * Parse the KVP parameters to map of keys and values
      */
-    private static Map<String, String[]> parseKVPParameters(String queryString, boolean decoded) throws UnsupportedEncodingException {
+    private static Map<String, String[]> parseKVPParameters(String queryString, boolean decoded) throws UnsupportedEncodingException, PetascopeException {
         Map<String, String[]> parametersMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (!queryString.equals("")) {
             
@@ -484,6 +487,12 @@ public abstract class AbstractController {
                 
                 if (!decoded) {                    
                     value = URLDecoder.decode(value, "utf-8");
+                }
+                
+                if (key.startsWith(DOLLAR_SIGN) && parametersMap.get(key) != null) {
+                    throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                            "Positonal parameter must not be duplicate in the request. "
+                            + "Given parameter '" + key.replace(DOLLAR_SIGN, "") + "'.");
                 }
 
                 if (parametersMap.get(key) == null) {

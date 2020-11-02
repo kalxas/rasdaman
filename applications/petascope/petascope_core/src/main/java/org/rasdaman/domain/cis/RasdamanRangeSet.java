@@ -50,6 +50,11 @@ public class RasdamanRangeSet implements Serializable {
 
     @Column(name = "collection_name")
     private String collectionName;
+    
+    @Transient
+    // In case a coverage is created temporarily from a file path
+    // e.g: decode(<[0:0] 1c>, "GDAL", "{\"filePaths\":[\"/home/rasdaman/test.TIFF\"]}")
+    private String decodeExpression;
 
     @Column(name = "collection_type")
     private String collectionType;
@@ -94,6 +99,14 @@ public class RasdamanRangeSet implements Serializable {
 
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
+    }
+
+    public String getDecodeExpression() {
+        return decodeExpression;
+    }
+
+    public void setDecodeExpression(String decodeExpression) {
+        this.decodeExpression = decodeExpression;
     }
 
     public String getCollectionType() {

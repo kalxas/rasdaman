@@ -641,6 +641,32 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterPositionalParamater(@NotNull wcpsParser.PositionalParamaterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitPositionalParamater(@NotNull wcpsParser.PositionalParamaterContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterCoverageIdForClause(@NotNull wcpsParser.CoverageIdForClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCoverageIdForClause(@NotNull wcpsParser.CoverageIdForClauseContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterCoverageExpressionScalarLabel(@NotNull wcpsParser.CoverageExpressionScalarLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -791,6 +817,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitBooleanSwitchCaseCombinedExpression(@NotNull wcpsParser.BooleanSwitchCaseCombinedExpressionContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterExtraParams(@NotNull wcpsParser.ExtraParamsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitExtraParams(@NotNull wcpsParser.ExtraParamsContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1181,19 +1220,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitComplexNumberConstantLabel(@NotNull wcpsParser.ComplexNumberConstantLabelContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterExtra_params(@NotNull wcpsParser.Extra_paramsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitExtra_params(@NotNull wcpsParser.Extra_paramsContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1876,19 +1902,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterExponentialExpressionLabel(@NotNull wcpsParser.ExponentialExpressionLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1896,6 +1909,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitExponentialExpressionLabel(@NotNull wcpsParser.ExponentialExpressionLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

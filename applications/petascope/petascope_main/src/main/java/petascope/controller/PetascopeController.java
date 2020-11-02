@@ -25,30 +25,29 @@ import java.io.File;
 import petascope.controller.handler.service.AbstractHandler;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.AuthenticationService;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_ENDPOINT_URL;
+import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
-import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
 import static petascope.core.KVPSymbols.VALUE_DELETE_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_DELETE_SCALE_LEVEL;
 import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
@@ -61,6 +60,12 @@ import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_STYLE;
 import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_WCS_LAYER;
 import petascope.util.ExceptionUtil;
 import static petascope.core.KVPSymbols.VALUE_WMS_DELETE_LAYER;
+import static petascope.util.MIMEUtil.MIME_BINARY;
+import static petascope.util.StringUtil.AND_SIGN;
+import static petascope.util.StringUtil.DOLLAR_SIGN;
+import static petascope.util.StringUtil.EQUAL_SIGN;
+import static petascope.util.StringUtil.POSITIVE_INTEGER_PATTERN;
+import static petascope.util.StringUtil.POST_STRING_CONTENT_TYPE;
 
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
@@ -87,25 +92,55 @@ public class PetascopeController extends AbstractController {
     }
     
     @RequestMapping(value = OWS, method = RequestMethod.POST)
-    protected void handlePost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                              @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedMultipartFile) 
+    protected void handlePost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) 
             throws IOException, PetascopeException, WCSException, SecoreException, Exception {
-        String postBody = this.getPOSTRequestBody(httpServletRequest);        
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        // A file is uploaded e.g: with WCS clipping extension and WKT text is big string in a text file
-        String uploadedFilePath = null;
-        if (uploadedMultipartFile != null) {
-            byte[] bytes = this.getUploadedMultipartFileContent(uploadedMultipartFile);
-            uploadedFilePath = this.storeUploadFileOnServer(uploadedMultipartFile.getOriginalFilename(), bytes);
-            kvpParameters.put(KEY_UPLOADED_FILE_VALUE, new String[] {uploadedFilePath});
+
+        Map<String, String[]> kvpParameters;
+        String queryString = httpServletRequest.getQueryString();
+        if (queryString == null) {
+            // in case with POST XML/SOAP string
+            String postBody = this.getPOSTRequestBody(httpServletRequest);
+            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        } else {
+            // in case with POST KVP format
+            
+            String requestContentType = httpServletRequest.getContentType();
+            if (requestContentType.equals(POST_STRING_CONTENT_TYPE)) {
+                // post request without files in body
+                String postBody = this.getPOSTRequestBody(httpServletRequest);
+                kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+            } else {
+                // post request with files in body
+                for (Part part : httpServletRequest.getParts()) {
+                    // e.g: query=for ...
+                    String key = part.getName();
+                    byte[] bytes = IOUtils.toByteArray(part.getInputStream());
+                    
+                    if (part.getContentType() == null) {
+                        // KEY=VALUE as string                        
+                        String value = new String(bytes);
+                        queryString += AND_SIGN + key + EQUAL_SIGN + value;
+                    } else if (part.getContentType().equals(MIME_BINARY)) {
+                        // KEY=Uploaded_File_Content as binary (e.g: $1=/tmp/test.tif)                    
+                        // e.g: /tmp/rasdaman_petascope/rasdaman.1122332.tif
+                        String fileName = part.getSubmittedFileName();
+                        String uploadedFilePath = this.storeUploadFileOnServer(fileName, bytes);
+                        queryString += AND_SIGN + key + EQUAL_SIGN + uploadedFilePath;
+                    }
+                }
+                
+                kvpParameters = this.buildPostRequestKvpParametersMap(queryString);
+            }
+            
         }
+
         this.requestDispatcher(httpServletRequest, kvpParameters);
     }
 
     @RequestMapping(value = OWS + "/", method = RequestMethod.POST)
-    private void handlePostFallBack(HttpServletRequest httpServletRequest, @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) 
+    private void handlePostFallBack(HttpServletRequest httpServletRequest) 
             throws IOException, PetascopeException, WCSException, SecoreException, Exception {
-        this.handlePost(httpServletRequest, injectedHttpServletResponse, uploadedFile);
+        this.handlePost(httpServletRequest, injectedHttpServletResponse);
     }
 
     @RequestMapping(value = OWS, method = RequestMethod.GET)
@@ -227,13 +262,16 @@ public class PetascopeController extends AbstractController {
             ExceptionUtil.handle(version, ex, injectedHttpServletResponse);
         } finally {
              // Here, the uploaded file (if exists) should be removed
-            if (kvpParameters.get(KEY_UPLOADED_FILE_VALUE) != null) {
-                String uploadedFilePath = kvpParameters.get(KEY_UPLOADED_FILE_VALUE)[0];
-                File file = new File(uploadedFilePath);
-                if (file.exists()) {
-                    file.delete();
+            for (String[] values : kvpParameters.values()) {
+                for (String value : values) {
+                    if (value.startsWith(UPLOADED_FILE_DIR_TMP)) {
+                        File file = new File(value);
+                        if (file.exists()) {
+                            file.delete();
+                        }
+                    }
                 }
-            }  
+            }
             
             long end = System.currentTimeMillis();
             long totalTime = end - start;

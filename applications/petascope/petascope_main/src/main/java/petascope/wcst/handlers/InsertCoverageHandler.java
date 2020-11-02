@@ -23,6 +23,7 @@ package petascope.wcst.handlers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +58,8 @@ import petascope.core.Templates;
 import petascope.core.gml.cis.service.GMLCISParserService;
 import petascope.exceptions.ExceptionCode;
 import petascope.rasdaman.exceptions.RasdamanException;
+import petascope.util.ListUtil;
+import petascope.util.ras.RasUtil;
 import static petascope.util.ras.TypeResolverUtil.GDT_Float32;
 import petascope.wcst.exceptions.WCSTCoverageIdNotValid;
 import petascope.wcst.exceptions.WCSTDuplicatedCoverageId;
@@ -301,6 +304,107 @@ public class InsertCoverageHandler {
         coverage.setRasdamanRangeSet(rasdamanRangeSet);
 
         this.updateRasdamanDataTypesForRangeQuantities(coverage, pixelDataType);
+    }
+    
+    /**
+     * Given a temp coverage object, insert it as a temp rasdaman collection
+     * and update the collection from a file path.
+     * 
+     * @decodeExpression: e.g: decode(<[0:0] 1c>, "GDAL", "{\"filePaths\":[\"/home/rasdaman/test.TIFF\"]}")
+     */
+    public void insertTempCoverage(Coverage coverage, String decodeExpression) throws PetascopeException {
+        String collectionName = coverage.getCoverageId();
+        int numberOfDimensions = coverage.getNumberOfDimensions();
+        int numberOfBands = coverage.getNumberOfBands();
+        List<NilValue> bandNullValues = coverage.getAllNullValues();
+        
+        // e.g: Byte (all bands have same data type) or Float32,Int16 (each band has different data type)
+        String pixelDataType = coverage.getPixelDataType();
+        
+        Pair<String, List<String>> collectionTypePair
+                    = TypeResolverUtil.guessCollectionType(coverageId, numberOfBands, numberOfDimensions, bandNullValues, pixelDataType);
+        String rasCollectionType = collectionTypePair.fst;
+        // e.g: c, d, f,...
+        List<String> typeSuffixes = collectionTypePair.snd;
+        
+        // Then, create a temp rasdaman collection for this coverage
+        RasdamanCollectionCreator rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
+        rasdamanCollectionCreator.createCollection();
+        
+        // e.g: <[0:0,0:0,0:0] {9999f,9999f,9999f,9999f,9999f,9999f,9999f,9999f,9999f}>
+        String rasdamanValues = this.createRasdamanInsertNullValuesExpression(numberOfDimensions, bandNullValues, typeSuffixes);
+        RasdamanValuesInserter rasdamanInserter = new RasdamanValuesInserter(collectionName, rasCollectionType, rasdamanValues, null, 
+                                                                             ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
+        rasdamanInserter.insert();
+        
+        // Then, update this test collection from the given file path
+        this.updateTempCollection(coverage, decodeExpression);
+    }
+    
+    /**
+     * Update a temp collection with a decode expression
+     * 
+     * @decodeExpression: e.g: decode(<[0:0] 1c>, "GDAL", "{\"filePaths\":[\"/home/rasdaman/test.TIFF\"]}")
+     */
+    private void updateTempCollection(Coverage coverage, String decodeExpression) throws PetascopeException {
+        final String COLLECTION_NAME = "$COLLECTION_NAME";
+        final String GRID_DOMAINS = "$GRID_DOMAINS";
+        final String TEMPLATE = "UPDATE " + COLLECTION_NAME + " SET " + COLLECTION_NAME + "[" + GRID_DOMAINS + "] ASSIGN " + decodeExpression;
+        
+        List<String> gridDomainsTmp = new ArrayList<>();
+        List<IndexAxis> indexAxes = ((GeneralGridCoverage)coverage).getIndexAxes();
+        for (IndexAxis indexAxis : indexAxes) {
+            String gridDomain = indexAxis.getLowerBound() + ":" + indexAxis.getUpperBound();
+            gridDomainsTmp.add(gridDomain);
+        }
+        
+        String gridDomains = ListUtil.join(gridDomainsTmp, ",");
+        String query = TEMPLATE.replace(COLLECTION_NAME, coverage.getCoverageId())
+                                .replace(GRID_DOMAINS, gridDomains);
+        RasUtil.executeUpdateFileStatement(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);        
+    }
+    
+    /**
+     * Return the INSERT domain with null values and data typ expression
+     * e.g:  <[0:0,0:0,0:0] {-999f,-999f,0s}> for a coverage with 3 axes and 3 bands with different data types and null values
+     * or  <[0:0,0:0] {0c,0c,0c}> for a coverage with 2 axes and 3 bands and same null values
+     */
+    private String createRasdamanInsertNullValuesExpression(int numberOfDimensions, List<NilValue> bandNullValues, List<String> typeSuffixes) {        
+        final String GRID_DOMAINS = "$GRID_DOMAINS";
+        final String DEFAULT_GRID_DOMAIN = "0:0";
+        
+        final String NULL_VALUES = "$NULL_VALUES";
+        final String DEFAUL_NULL_VALUE = "0";
+        final String FLOAT_ZERO_SUFFIX = ".0";
+        final String TEMPLATE = "<[" + GRID_DOMAINS + "] {" + NULL_VALUES + "}>";
+        
+        List<String> gridDomainsTmp = new ArrayList<>();
+        for (int i = 0; i < numberOfDimensions; i++) {
+            gridDomainsTmp.add(DEFAULT_GRID_DOMAIN);
+        }
+        
+        List<String> nullValuesTmp = new ArrayList<>();
+        for (int i = 0; i < typeSuffixes.size(); i++) {
+            String nullValue = DEFAUL_NULL_VALUE;
+            // e.g: c
+            String suffix = typeSuffixes.get(i);
+            if (!bandNullValues.isEmpty()) {
+                nullValue = bandNullValues.get(i).getValue();
+                if (nullValue.endsWith(FLOAT_ZERO_SUFFIX)) {
+                    nullValue = nullValue.replace(FLOAT_ZERO_SUFFIX, "");
+                }
+            }
+            
+            String value = nullValue + suffix;
+            nullValuesTmp.add(value);
+        }
+        
+        String gridDomains = ListUtil.join(gridDomainsTmp, ",");
+        String nullValues = ListUtil.join(nullValuesTmp, ",");
+        
+        String result = TEMPLATE.replace(GRID_DOMAINS, gridDomains)
+                                .replace(NULL_VALUES, nullValues);
+        return result;
     }
     
     /**
