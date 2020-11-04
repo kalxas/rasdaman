@@ -31,6 +31,7 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import org.codehaus.plexus.util.StringUtils;
 
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
@@ -49,6 +50,8 @@ import petascope.core.service.CrsComputerService;
 import petascope.exceptions.PetascopeException;
 
 import static petascope.util.WCPSConstants.MSG_STAR;
+import static petascope.util.ras.RasConstants.RASQL_SELECT;
+import petascope.util.ras.RasUtil;
 import static petascope.wcs2.parsers.subsets.AbstractSubsetDimension.ASTERISK;
 
 /**
@@ -164,7 +167,7 @@ public class SubsetParsingService {
      * @param dimensions
      * @return
      */
-    public List<Subset> convertToRawNumericSubsets(List<WcpsSubsetDimension> dimensions) {
+    public List<Subset> convertToRawNumericSubsets(List<WcpsSubsetDimension> dimensions) throws PetascopeException {
         List<Subset> result = new ArrayList();
         for (WcpsSubsetDimension subsetDimension : dimensions) {
             result.add(convertToRawNumericSubset(subsetDimension));
@@ -178,7 +181,7 @@ public class SubsetParsingService {
      * @param dimension
      * @return
      */
-    public Subset convertToRawNumericSubset(WcpsSubsetDimension dimension) {
+    public Subset convertToRawNumericSubset(WcpsSubsetDimension dimension) throws PetascopeException {
         String axisName = dimension.getAxisName();
         String crs = dimension.getCrs();
         String lowerBound = "0";
@@ -194,6 +197,18 @@ public class SubsetParsingService {
                 if (lowerBound.equals(ASTERISK) || upperBound.equals(ASTERISK)) {
                     throw new InvalidIntervalNumberFormat(lowerBound, upperBound, 
                               "Lower bound or upper bound of axis iterator's interval cannot be '" + ASTERISK + "'.");
+                }
+                
+                if (!StringUtils.isNumeric(lowerBound)) {
+                    // e.g: int(10/5)
+                    String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + lowerBound);
+                    lowerBound = result;
+                }
+                
+                if (!StringUtils.isNumeric(upperBound)) {
+                    // e.g: (long)(10/2) + 5
+                    String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + upperBound);
+                    upperBound = result;
                 }
 
                 // Try to convert bounds to numbers

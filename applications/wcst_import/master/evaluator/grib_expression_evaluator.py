@@ -67,7 +67,7 @@ class GribExpressionEvaluator(ExpressionEvaluator):
             else:
                 # here it uses the Grib Message from grib file to extract variable values
                 # e.g: expression is: dataDate and value for this variable in message 1 is: 19700101
-                if expression in dir(evaluator_slice.get_grib_message()):
+                if hasattr(evaluator_slice.get_grib_message(), expression):
                     resolved_variable = str(getattr(evaluator_slice.get_grib_message(), expression))
                 else:
                     resolved_variable = str(evaluator_slice.get_grib_message()[expression])

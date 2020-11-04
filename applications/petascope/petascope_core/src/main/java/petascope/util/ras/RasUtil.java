@@ -477,6 +477,15 @@ public class RasUtil {
         executeRasqlQuery(rasqlQuery, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
     }
     
+    /**
+     * Execute a rasql query which will return a string
+     */
+    public static String executeQueryToReturnString(String query) throws PetascopeException {
+        String result = new RasQueryResult(executeRasqlQuery(query)).toString();
+        
+        return result;
+    }
+    
      /* Get the tiling information from rasql query of a collection.
      */
     public static String retrieveTilingInfo(String collectionName) throws PetascopeException {

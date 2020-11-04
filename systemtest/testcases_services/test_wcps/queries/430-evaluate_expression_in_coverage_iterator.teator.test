@@ -1,0 +1,3 @@
+for $c in (test_irr_cube_2)
+let $a :=  imageCrsDomain($c,ansi).hi, $b:= ((int)($a / 1.1))
+return encode(coverage cov over $pt t(0:$b) values avg($c[ansi($pt * 1)]),"text/csv")

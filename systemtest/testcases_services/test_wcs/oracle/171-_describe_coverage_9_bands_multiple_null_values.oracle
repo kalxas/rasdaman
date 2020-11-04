@@ -5,8 +5,8 @@
 <boundedBy>
 <Envelope axisLabels="ansi Lat Lon" srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
-<lowerCorner>"2016-12-31T23:45:00.000Z" 100500 459450</lowerCorner>
-<upperCorner>"2017-01-01T00:15:00.000Z" 101500 460450</upperCorner>
+<lowerCorner>"2016-12-31T23:45:00.000Z" 46.045656983145981987 14.475874046078433</lowerCorner>
+<upperCorner>"2017-01-01T00:15:00.000Z" 46.05681770444576 14.487034767378211013</upperCorner>
 </Envelope>
 </boundedBy>
 <wcs:CoverageId>test_wcs_multiple_null_values_9_bands</wcs:CoverageId>
@@ -29,12 +29,12 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="
 <origin>
 <Point
 id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
-<pos>"2017-01-01T00:00:00.000Z" 101000 459950</pos>
+<pos>"2017-01-01T00:00:00.000Z" 46.0512373437958709935 14.4814544067283220065</pos>
 </Point>
 </origin>
 <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0.020833333333333332 0 0</offsetVector>
-<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -1000 0</offsetVector>
-<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 1000</offsetVector>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -0.011160721299778013 0</offsetVector>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 0.011160721299778013</offsetVector>
 </RectifiedGrid>
 </domainSet>
 <gmlcov:rangeType>
