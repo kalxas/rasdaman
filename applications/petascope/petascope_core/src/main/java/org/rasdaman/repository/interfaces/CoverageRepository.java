@@ -50,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface CoverageRepository extends CrudRepository<Coverage, String> {
     Coverage findOneByCoverageId(String coverageId);
     
-    @Query("Select coverageId from Coverage")
+    @Query("Select coverageId from Coverage ORDER by coverageId")
     List<String> readAllCoverageIds();
     
     @Query("Select coverageId, coverageType from Coverage")

@@ -568,6 +568,15 @@ update_result()
   return $rc
 }
 
+prepare_json_file()
+{
+  local json_file="$1"
+  if [ -n "$json_file" -a -f "$json_file" ]; then
+    sed -i -e '/href/d' \
+           "$json_file"
+  fi
+}
+
 # Remove URLs and some prefixes which might break a tests during oracle comparison
 prepare_xml_file()
 {
@@ -685,6 +694,16 @@ delete_coverage() {
 }
 
 # -----------------------------------------------------------------------------
+
+# e.g: https://oapi.rasdaman.org/rasdaman/oapi/collections/mean_summer_airtemp
+get_request_rest() {
+  # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/oapi)
+  # $2 is the request contex path and KVP if any
+  local url="$1"
+  local context=$(echo "$2" | tr -d '\n')
+  curl -s -G -X GET "$url/$context" > "$3" 
+}
+
 # GET KVP request
 get_request_kvp() {
   # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/ows)
@@ -761,6 +780,10 @@ compare_output_to_oracle() {
     elif [[ "$orafiletype" == *XML* ]]; then
       prepare_xml_file "$out_tmp"
       prepare_xml_file "$ora_tmp"
+    elif [[ "$orafiletype" == *JSON* || "$orafiletype" == *ASCII* ]]; then
+      # e.g: for file type is json
+      prepare_json_file "$out_tmp"
+      prepare_json_file "$ora_tmp"
     fi
 
     # diff comparison ignoring EOLs [see ticket #551]
@@ -967,6 +990,9 @@ run_test()
               ;;
 
       wms)    get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
+              ;;
+
+      oapi)   get_request_rest "$PETASCOPE_OAPI" "$QUERY" "$out"
               ;;
 
       secore) QUERY=$(echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g')

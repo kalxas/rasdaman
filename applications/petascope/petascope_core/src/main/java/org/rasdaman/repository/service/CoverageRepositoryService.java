@@ -561,6 +561,7 @@ public class CoverageRepositoryService {
     @Transactional
     public void save(Coverage coverage) throws PetascopeException {
         String coverageId = coverage.getCoverageId();
+        
         if (coverageId.startsWith(TEMP_COVERAGE_PREFIX)) {
             // don't push temp coverage to database
             return;

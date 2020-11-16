@@ -169,7 +169,7 @@ public class InsertCoverageHandler {
             }
             
             // Now can finish the coverage build and persist to database            
-            persistedCoverageService.save(coverage);
+            persistedCoverageService.add(coverage);
             
             result = Templates.getTemplate(Templates.WCS2_WCST_INSERT_COVERAGE_RESPONSE,
                                            new Pair<>(Templates.WCS2_WCST_INSERT_COVERAGE_COVERAGE_ID, coverage.getCoverageId()));

@@ -216,11 +216,8 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
     /**
      * Create a EXGeographicBoundingBox from XY axes. NOTE: it always is WGS:84
      * crs (i.e: Long, Lat order)
-     *
-     * @param xyAxes
-     * @return
      */
-    private EXGeographicBoundingBox createEXGeographicBoundingBox(List<Axis> xyAxes) throws WCSException, WMSInvalidBoundingBoxInCrsTransformException, PetascopeException {
+    public EXGeographicBoundingBox createEXGeographicBoundingBox(List<Axis> xyAxes) throws WCSException, WMSInvalidBoundingBoxInCrsTransformException, PetascopeException {
         EXGeographicBoundingBox exBBox = new EXGeographicBoundingBox();
         String crs = CrsUtil.getCode(xyAxes.get(0).getNativeCrsUri());
 

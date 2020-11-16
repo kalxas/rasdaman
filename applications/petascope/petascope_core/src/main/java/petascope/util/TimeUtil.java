@@ -173,6 +173,20 @@ public class TimeUtil {
         }
         return (millis.getMillis() >= 0);
     }
+    
+    /**
+     * Check if time is within a time interval in ISO format
+     * e.g: "2015-01-02" is within ("2015-01-01":"2015-03-04")
+     */
+    public static boolean isInTimeInterval(String inputTime, String timeLowerBound, String timeUpperBound) {
+        DateTime dateTime = isoFmt.parseDateTime(fix(inputTime));
+        DateTime dateTimeLowerBound = isoFmt.parseDateTime(fix(timeLowerBound));
+        DateTime dateTimeUpperBound = isoFmt.parseDateTime(fix(timeUpperBound));
+        
+        return dateTime.equals(dateTimeLowerBound) 
+              || dateTime.equals(dateTimeUpperBound) 
+              || dateTime.isAfter(dateTimeLowerBound) && dateTime.isBefore(dateTimeUpperBound);
+    }
 
     /**
      * Count how many temporal units (i.e. offset vectors) fit inside a time

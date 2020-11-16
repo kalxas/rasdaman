@@ -77,6 +77,7 @@ public class CrsUtil {
     // NOTE: accept any URI format, but ask to SECORE: flattened definitions, less recursion.
     public static final String OPENGIS_URI_PREFIX = "http://www.opengis.net";
     public static final String DEFAULT_EPSG_VERSION = "8.5";
+    public static final String SECORE_CONTEXT_PATH = "def";
     public static final String OPENGIS_INDEX_URI = OPENGIS_URI_PREFIX + "/def/crs/OGC/0/Index$ND";
     public static final String OPENGIS_EPSG_URI = OPENGIS_URI_PREFIX + "/def/crs/EPSG/0/";
     public static final String OPENGIS_EPSG_URI_DEFAULT_VERSION = OPENGIS_URI_PREFIX + "/def/crs/EPSG/" + DEFAULT_EPSG_VERSION + "/";
@@ -531,6 +532,17 @@ public class CrsUtil {
         }
         return false;
     }
+    
+    /**
+     * e.g: http://localhost:8080/def/crs/EPSG/0/4326
+     * -> http://opengis.net/def/crs/EPSG/0/4326
+     */
+    public static String createOpenGisUrl(String crs) {
+        String tmp = crs.split("/" + SECORE_CONTEXT_PATH)[1];
+        String result = OPENGIS_URI_PREFIX + "/" + SECORE_CONTEXT_PATH + tmp;
+        
+        return result;
+    }
 
     /**
      * Building a XML elements tree from a CRS URI
@@ -936,6 +948,17 @@ public class CrsUtil {
         }
         return CrsUri.getCode(crs);
     }
+
+    /**
+     * e.g: localhost:8080/def/crs/EPSG/0/4326 -> EPSG:4326
+     */
+    public static String getAuthorityCodeFormat(String crs) {
+        String prefix = "/crs/";
+        String[] values = crs.substring(crs.indexOf(prefix), crs.length()).replace(prefix, "").split("/");
+        String result = values[0] + ":" + values[2];
+        return result;
+    }    
+
     
     /**
      * Ultility to get the code from CRS (e.g: "EPSG:4326" -> 4326).

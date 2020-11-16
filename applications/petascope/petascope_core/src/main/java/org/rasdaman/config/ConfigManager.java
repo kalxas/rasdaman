@@ -79,6 +79,8 @@ public class ConfigManager {
     public static final String RASQL = "rasql";
     public static final String OWS_ADMIN = OWS + "/" + "admin";
     public static final String ADMIN = "admin";
+    // context path for OAPI endpoint (e.g: localhost:8080/rasdaman/oapi)
+    public static final String OAPI = "oapi";
     public static final String GET_COVERAGE_EXTENTS = "GetCoveragesExtents";
     
     /* **** Default DMBS for petascope is Postgresql **** */
