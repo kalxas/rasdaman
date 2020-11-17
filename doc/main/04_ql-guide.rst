@@ -4382,7 +4382,6 @@ A cell value not yet addressed, but within the current domain of an MDD
 has a value of zero by definition; this extends in the obvious manner to
 composite cells.
 
-
 *Remark*
 
 Note the limitation to the *current* domain of an MDD. While in the case
@@ -4501,7 +4500,11 @@ Nulls in Aggregation Queries
 In a condense operation, cells containing nulls do not contribute to the
 overall result (in plain words, nulls are ignored).
 
-The scalar value resulting from an aggregation query does not any longer
+If all values are null, then the result is the identity element in this case,
+e.g. ``0`` for ``+``, ``true`` for ``and``, ``false`` for ``or``, max value for 
+``min``, min value for ``max``, ``0`` for ``count_cells``.
+
+The scalar value resulting from an aggregation query does not
 carry a null value set like MDDs do; hence, during further processing it
 is treated as an ordinary value, irrespective of whether it has
 represented a null value in the MDD acting as input to the aggregation
@@ -6012,11 +6015,12 @@ Since v10, this servlet endpoint can accept the credentials
 for ``username:password`` in basic authentication headers and ``POST`` protocol,
 for example using ``curl`` tool:
 
-.. code-block:: text
+.. code-block:: bash
 
     curl -u rasguest:rasguest
          -d 'query=select 1 + 15 from test_mr as c' 
          'http://localhost:8080/rasdaman/rasql'
+
 
 
 .. _sec-resp-format:

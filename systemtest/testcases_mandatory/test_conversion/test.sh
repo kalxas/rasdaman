@@ -281,7 +281,7 @@ function run_csv_test()
 
     create_coll test_tmp $colltype
     insert_into test_tmp "$TESTDATA_PATH/$f.csv" "$decodeopts" "inv_csv"
-    export_to_file test_tmp "$f" "csv"
+    export_to_file test_tmp "$f" "encode" ', "csv"'
 
     logn "comparing images: "
     cmp $ORACLE_PATH/$f.csv $f.* > /dev/null
@@ -569,13 +569,13 @@ run_csv_scalar_test
 log ----- csv with inner_outer order conversion ------
 create_coll test_tmp GreySet
 insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "decode"
-export_to_file test_tmp "mr_1" "csv" ', "order=inner_outer"'
+export_to_file test_tmp "mr_1" "encode" ', "csv", "order=inner_outer"'
 
 logn "comparing images: "
 cmp $TESTDATA_PATH/mr_1_inner_outer.csv mr_1.csv > /dev/null
 check_result 0 $? "input and output match"
 
-export_to_file test_tmp "mr_1" "csv" ', "{ \"formatParameters\": { \"order\": \"inner_outer\" } }"'
+export_to_file test_tmp "mr_1" "encode" ', "csv", "{ \"formatParameters\": { \"order\": \"inner_outer\" } }"'
 
 logn "comparing images: "
 cmp $TESTDATA_PATH/mr_1_inner_outer.csv mr_1.csv > /dev/null
@@ -588,7 +588,7 @@ rm -f mr_1.csv
 log ------- csv with invalid_order conversion --------
 create_coll test_tmp GreySet
 insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "decode"
-$RASQL --quiet -q "select csv(c, \"order=invalid_order\") from test_tmp as c" --out file --outfile "csv" 2>&1 | grep -F -q "242"
+$RASQL --quiet -q "select encode(c, \"csv\", \"order=invalid_order\") from test_tmp as c" --out file --outfile "csv" 2>&1 | grep -F -q "242"
 check_result 0 $? "invalid_order"
 
 rm -f mr_1.csv
@@ -611,7 +611,7 @@ drop_colls test_builtin_decode
 create_coll test_builtin_decode FloatSet3
 f=csv_float3
 $RASQL -q 'insert into test_builtin_decode values decode($1, "CSV", "domain=[0:2,1:2,4:6];basetype=float")' -f $TESTDATA_PATH/$f.csv > /dev/null
-export_to_file test_builtin_decode "$f" "csv"
+export_to_file test_builtin_decode "$f" "encode" ', "csv"'
 cmp $ORACLE_PATH/$f.csv $f.* > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*

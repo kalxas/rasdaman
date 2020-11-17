@@ -100,8 +100,8 @@ check_type GreySet
 # function for resetting the "old" database to the expected initial state
 function reset_db()
 {
-  rm -r $OLDDBDIR/version_9.6/
-  cp -r $OLDDBDIR/version_9.6.backup/ $OLDDBDIR/version_9.6/
+  rm -r "$OLDDBDIR/version_9.6/"
+  cp -r "$OLDDBDIR/version_9.6.backup/" "$OLDDBDIR/version_9.6/"
 }
 
 # ------------------------------------------------------------------------------
@@ -114,56 +114,63 @@ function run_test()
   local q_id="$1"
   local f=""
 
-  if [ $2 = "dbinfo" ]; then
+  if [ "$2" = "dbinfo" ]; then
     f="tmp.unknown"
   fi
 
   if [ $2 = "select" ]; then
     f="tmp.json"
+    ff="tmp.unknown"
   fi
 
   grep "$q_id" "$KNOWN_FAILS" &> /dev/null
   local known_fail=$?
 
 # in case the select query fails
-  if [ ! -e "$f" ]; then
+  if [ ! -e "$f" -a ! -e "$ff" ]; then
     if [ $known_fail -ne 0 ]; then
       log "Failed executing select query."
-      NUM_FAIL=$(($NUM_FAIL + 1))
+      NUM_FAIL=$((NUM_FAIL + 1))
     else
       log "Failed executing select query. Case is a known fail: skipping test."
     fi
-    NUM_TOTAL=$(($NUM_TOTAL + 1))
+    NUM_TOTAL=$((NUM_TOTAL + 1))
     log_failed "----------------------------------------------------------------------"
     log_failed "$q_id"
     return
   fi
 
+  [ -f "$f" ] && mv "$f" "$q_id"
+  [ -f "$ff" ] && mv "$ff" "$q_id"
+
   if [ $# -gt 1 ]; then
-    sed -i '/oid/d' $f
-    sed -i '/baseType/d' $f
+    sed -i -e '/oid/d' -e '/baseType/d' "$q_id"
   fi
-  mv $f $q_id
+
   if [ ! -f "$ORACLE_PATH/$q_id" ]; then
     cp "$q_id" "$ORACLE_PATH/$q_id" > /dev/null
   fi
 
   # Compare the result byte by byte with the expected result in oracle folder
-  mv $q_id "$OUTPUT_PATH"
-  cmp $ORACLE_PATH/$q_id "$OUTPUT_PATH/$q_id" > /dev/null
+  mv "$q_id" "$OUTPUT_PATH"
+  out="$OUTPUT_PATH/tmp_output"
+  ora="$OUTPUT_PATH/tmp_oracle"
+  tr ',' ' ' < "$OUTPUT_PATH/$q_id" > "$out"
+  tr ',' ' ' < "$ORACLE_PATH/$q_id" > "$ora"
+  diff -q --ignore-trailing-space "$out" "$ora" > /dev/null
   local rc=$?
 
   if [ $known_fail -ne 0 ]; then
     if [ $rc -ne 0 ]; then
       #Test failed,  not skipped
-      NUM_FAIL=$(($NUM_FAIL + 1))
+      NUM_FAIL=$((NUM_FAIL + 1))
       log "TEST FAILED: $q_id"
       log_failed "TEST FAILED: $q_id"
       log_failed "    Result of query contains error." 
     else
       #Test successful, not skipped.
       log "TEST PASSED: $q_id"
-      NUM_SUC=$(($NUM_SUC + 1))
+      NUM_SUC=$((NUM_SUC + 1))
     fi
   else
     #we still check if it is fixed
@@ -177,7 +184,7 @@ function run_test()
     fi
   fi
   #Regardless, we add to the total # tests run
-  NUM_TOTAL=$(($NUM_TOTAL + 1))
+  NUM_TOTAL=$((NUM_TOTAL + 1))
 }
 
 function try_update
@@ -193,10 +200,10 @@ function try_update
     if [ $rc -ne 0 ]; then
       log_failed "Failed executing update query: $q_id"
       log_failed "    Update query throws an error."
-      NUM_FAIL=$(($NUM_FAIL + 1))
+      NUM_FAIL=$((NUM_FAIL + 1))
     else
       log "Update query successful."
-      NUM_SUC=$(($NUM_SUC + 1))
+      NUM_SUC=$((NUM_SUC + 1))
     fi
   else
     if [ $rc -ne 0 ]; then
@@ -204,26 +211,26 @@ function try_update
       log_failed "    Update query throws an error."
     else
       log "KNOWN FAIL PASSED: $q_id"
-      NUM_SUC=$(($NUM_SUC + 1))
+      NUM_SUC=$((NUM_SUC + 1))
     fi
   fi
 
-  NUM_TOTAL=$(($NUM_TOTAL + 1))
+  NUM_TOTAL=$((NUM_TOTAL + 1))
   return $rc
 }
 
 # ------------------------------------------------------------------------------
 # backup db state
 #
-cp -r $OLDDBDIR/version_9.6/ $OLDDBDIR/version_9.6.backup/
+cp -r "$OLDDBDIR/version_9.6/" "$OLDDBDIR/version_9.6.backup/"
 
 # ------------------------------------------------------------------------------
 # test by queries
 #
   	
-rm -f tmp.unknown tmp.csv $FAILED_LOG_FILE
+rm -f tmp.unknown tmp.csv "$FAILED_LOG_FILE"
 # Query by query for extracting some aspects of tested data
-for i in $QUERY_PATH/*.directql; do
+for i in "$QUERY_PATH"/*.directql; do
 
   # Send query in query folder.
   Q_ID=`basename $i`
@@ -252,8 +259,8 @@ for i in $QUERY_PATH/*.directql; do
     try_update "$QUERY" "$q_id"
     if [ $? -ne 0 ]; then
       log "Skipping the select and dbinfo tests for $q_id."
-      NUM_TOTAL=$(($NUM_TOTAL + 2))  
-      counter=$(($counter+1))
+      NUM_TOTAL=$((NUM_TOTAL + 2))  
+      counter=$((counter+1))
       QUERY=""    
       continue
     fi
@@ -265,14 +272,14 @@ for i in $QUERY_PATH/*.directql; do
     fi
 
     # test result contents
-    $DIRECTQL -q "select encode(c, \"json\") from $coll_name as c" --out file --outfile tmp > /dev/null
+    $DIRECTQL -q "select encode(c, \"json\") from $coll_name as c" --out file --outfile tmp > /dev/null 2>&1 | grep -v 'using default'
     run_test "$q_id.json" "select"
 
     # test dbinfo for tile structure
-    $DIRECTQL -q "select dbinfo(c, \"printtiles=1\") from $coll_name as c" --out file --outfile tmp > /dev/null
+    $DIRECTQL -q "select dbinfo(c, \"printtiles=1\") from $coll_name as c" --out file --outfile tmp > /dev/null 2>&1 | grep -v 'using default'
     run_test "$q_id" "dbinfo"
 
-    counter=$(($counter+1))
+    counter=$((counter+1))
     QUERY=""
   done < "$i"
 
@@ -283,7 +290,7 @@ done
 
 #reset current db, drop backup db, and reset environment variables
 reset_db
-rm -r -f $OLDDBDIR/version_9.6.backup/
+rm -r -f "$OLDDBDIR/version_9.6.backup/"
 
 # ------------------------------------------------------------------------------
 # test summary

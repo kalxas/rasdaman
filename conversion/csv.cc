@@ -148,10 +148,10 @@ const char* r_Conv_CSV::printValue(std::stringstream& f, const r_Base_Type& type
 
 const char* r_Conv_CSV::printStructValue(std::stringstream& f, const char* val)
 {
-    r_Structure_Type* st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
     f << STRUCT_DELIMITER_OPEN;
     bool addDelimiter = false;
-    for (const auto& att : static_cast<const r_Structure_Type*>(desc.srcType)->getAttributes())
+    const r_Structure_Type* st = static_cast<const r_Structure_Type*>(desc.srcType);
+    for (const auto& att : st->getAttributes())
     {
         if (addDelimiter)
         {
@@ -215,7 +215,7 @@ const char* r_Conv_CSV::printPrimitiveValue(std::stringstream& f, const r_Base_T
     return val;
 }
 
-void r_Conv_CSV::printArray(std::stringstream& f, int* dims, size_t* offsets, int dim,
+void r_Conv_CSV::printArray(std::stringstream& f, long* dims, size_t* offsets, int dim,
                             const char* ptr, const r_Base_Type& type)
 {
     size_t typeSize = type.size();
@@ -226,7 +226,7 @@ void r_Conv_CSV::printArray(std::stringstream& f, int* dims, size_t* offsets, in
     }
     else
     {
-        for (int i = 0; i < dims[0]; ptr += offsets[0] * typeSize, ++i)
+        for (long i = 0; i < dims[0]; ptr += offsets[0] * typeSize, ++i)
         {
             if (dim == 1)
             {
@@ -506,31 +506,32 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options, const r_Range* nullValue
     // if selected, transposes rasdaman data before converting to csv
     if (formatParams.isTranspose())
     {
-        transpose(const_cast<char*>(desc.src), desc.srcInterv, desc.srcType, formatParams.getTranspose());
+        transpose(const_cast<char*>(desc.src), desc.srcInterv, desc.srcType, 
+                  formatParams.getTranspose());
     }
 
     std::stringstream csvtemp;
 
-    unsigned long rank, i;
-    rank = desc.srcInterv.dimension();
-
-    vector<int> dimsizes(rank);
-    vector<size_t> offsets(rank); // offsets describe how many data cells are between
-    // values of the same dimension slice
+    unsigned long rank = desc.srcInterv.dimension();
+    // if rank is 0 then we want to allocate at least one value in the below vectors,
+    // otherwise we get memory error for scalars with 0 dimension
+    auto rankSize = rank > 0 ? rank : rank+1;
+    vector<long> dimsizes(rankSize);
+    // offsets describe how many data cells are between values of the same dimension slice
+    vector<size_t> offsets(rankSize);
 
     if (rank > 0)
     {
-        for (i = 0; i < rank; i++)
+        for (r_Dimension i = 0; i < rank; i++)
         {
-            dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
+            dimsizes[i] = static_cast<long>(desc.srcInterv[i].get_extent());
         }
 
         offsets[rank - 1] = 1;
 
-        for (i = rank - 1; i > 0; --i)
+        for (unsigned long i = rank - 1; i > 0; --i)
         {
-            size_t dimSize = static_cast<size_t>(dimsizes[i]);
-            offsets[i - 1] = offsets[i] * dimSize;
+            offsets[i - 1] = offsets[i] * static_cast<size_t>(dimsizes[i]);
         }
 
         if (order == r_Conv_CSV::INNER_OUTER)
@@ -566,7 +567,8 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options, const r_Range* nullValue
     int stringsize = str.length();
 
     desc.destInterv = r_Minterval(1);
-    desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(stringsize) - 1);
+    desc.destInterv << r_Sinterval(static_cast<r_Range>(0),
+                                   static_cast<r_Range>(stringsize) - 1);
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(stringsize)))) == NULL)
     {

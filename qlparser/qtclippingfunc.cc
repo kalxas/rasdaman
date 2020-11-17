@@ -531,7 +531,7 @@ QtClipping::extractLinestring(const MDDObj *op,
                     {
                         for (size_t ii = 0; ii < dim; ++ii)
                         {
-                            *((r_Long *) resData) = pt[ii];
+                            *reinterpret_cast<r_Long *>(resData) = pt[ii];
                             resData += sizeof(r_Long);
                         }
                     }

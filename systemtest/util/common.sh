@@ -565,6 +565,7 @@ update_result()
     NUM_SUC=$(($NUM_SUC + 1))
   fi
   NUM_TOTAL=$(($NUM_TOTAL + 1))
+  return $rc
 }
 
 # Remove URLs and some prefixes which might break a tests during oracle comparison

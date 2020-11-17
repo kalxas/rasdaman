@@ -121,7 +121,7 @@ inline int typeSize(TypeEnum type)
 /// return the type which is greater in terms of size.
 inline TypeEnum greaterType(TypeEnum type1, TypeEnum type2)
 {
-    static char rank[STRUCT] = {};
+    static char rank[INVALID_TYPE] = {};
     static bool rankInitialized = false;
     if (!rankInitialized)
     {

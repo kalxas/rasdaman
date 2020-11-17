@@ -102,7 +102,7 @@ private:
     //     dims  - array describing how many elements are in each dimension
     //     offsets - array describing memory offset between values in each dimension
     //     dim   - number of dimensions
-    void printArray(std::stringstream& f, int* dims, size_t* offsets, int dim, const char* val,
+    void printArray(std::stringstream& f, long* dims, size_t* offsets, int dim, const char* val,
                     const r_Base_Type& type);
 
     void processEncodeOptions(const std::string& options);
