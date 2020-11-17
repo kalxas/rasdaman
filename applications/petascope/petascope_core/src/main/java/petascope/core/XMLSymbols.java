@@ -526,6 +526,8 @@ public interface XMLSymbols {
     // Predefined entities' names
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    String PREDEFINED_XML_DECLARATION_BEGIN = "<?";
+    String PREDEFINED_XML_DECLARATION_END = "?>";
     String PREDEFINED_ENTITY_AMPERSAND = "amp";
     String PREDEFINED_ENTITY_APOSTROPHE = "apos";
     String PREDEFINED_ENTITY_LESSTHAN_SIGN = "lt";

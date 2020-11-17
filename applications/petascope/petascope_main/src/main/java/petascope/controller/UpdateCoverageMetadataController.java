@@ -32,9 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.ADMIN;
-import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
@@ -46,6 +44,7 @@ import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.StringUtil;
+import petascope.util.XMLUtil;
 
 /**
  *
@@ -72,6 +71,7 @@ public class UpdateCoverageMetadataController extends AbstractController {
 
             Coverage coverage = this.coverageRepositoryService.readCoverageByIdFromDatabase(pair.fst);
             String newMetadata = FileUtils.readFileToString(new File(pair.snd));
+            newMetadata = XMLUtil.stripXMLDeclaration(newMetadata);
             
             coverage.setMetadata(newMetadata.trim());            
             this.coverageRepositoryService.save(coverage);

@@ -1616,7 +1616,7 @@ var gmlcov;
     var Extension = (function () {
         function Extension(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            var childElementTag = "rasdaman:covMetadata";
+            var childElementTag = "gmlcov:Extension";
             if (source.doesElementExist(childElementTag)) {
                 this.covMetadata = new gmlcov.CovMetadata(source.getChildAsSerializedObject(childElementTag));
             }
@@ -3565,6 +3565,9 @@ var rasdaman;
                 var parser = new DOMParser();
                 var xmlDoc = parser.parseFromString($scope.rawCoverageDescription, "text/xml");
                 var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
+                if (elements.length == 0) {
+                    elements = xmlDoc.getElementsByTagName("gmlcov:Extension");
+                }
                 if (elements.length > 0) {
                     $scope.metadata = elements[0].innerHTML;
                     for (var i = 0; i < $scope.metadata.length; i++) {

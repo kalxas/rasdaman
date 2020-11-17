@@ -157,6 +157,10 @@ module rasdaman {
                 var xmlDoc = parser.parseFromString($scope.rawCoverageDescription, "text/xml");
 
                 var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
+                if (elements.length == 0) {
+                    // In case coverage's metadata is not created by wcst_import (e.g: INSPIRE metadata)
+                    elements = xmlDoc.getElementsByTagName("gmlcov:Extension");
+                }
                 if (elements.length > 0) {
                     $scope.metadata = elements[0].innerHTML;
 

@@ -42,7 +42,6 @@ import petascope.core.XMLSymbols;
 import com.eaio.uuid.UUID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -105,6 +104,9 @@ import petascope.exceptions.WCSException;
 import static petascope.core.XMLSymbols.ATT_SERVICE;
 import static petascope.core.XMLSymbols.ATT_VERSION;
 import static petascope.core.XMLSymbols.NAMESPACE_XSI;
+import static petascope.core.XMLSymbols.PREDEFINED_XML_DECLARATION_BEGIN;
+import static petascope.core.XMLSymbols.PREDEFINED_XML_DECLARATION_END;
+import static petascope.core.XMLSymbols.PREFIX_XMLNS;
 import static petascope.core.XMLSymbols.PREFIX_XSI;
 
 /**
@@ -1495,5 +1497,39 @@ public class XMLUtil {
         String result = StringUtils.replace(input, "&lt;", "<");
         result = StringUtils.replace(result, "&gt;", ">");
         return result;        
+    }
+    
+    /**
+     * Strip xml declaration <?xml version="1.0" encoding="UTF-8"?>
+     * from an input xml string
+     */
+    public static String stripXMLDeclaration(String xml) {
+        xml = xml.trim();
+        String result = xml;
+        
+        if (xml.startsWith(PREDEFINED_XML_DECLARATION_BEGIN)) {
+            int index = xml.indexOf(PREDEFINED_XML_DECLARATION_END);
+            result = xml.substring(index + 2, xml.length());
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Check if an input XML string has a namespace at root element
+     */
+    public static boolean hasXMLNameSpaceAtRootElement(String xml) {
+        int firstIndex = xml.indexOf("<");
+        if (firstIndex == -1) {
+            // metadata is not XML string
+            return false;
+        }
+        
+        int lastIndex = xml.indexOf(">");
+        
+        // e.g: <ns:x xmlns:ns="http://..." ...>
+        String subset = xml.substring(firstIndex, lastIndex);
+       
+        return subset.contains(PREFIX_XMLNS);
     }
 }

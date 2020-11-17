@@ -21,9 +21,7 @@
  */
 package petascope.core.gml.cis10.model.metadata;
 
-import java.io.IOException;
 import nu.xom.Element;
-import nu.xom.ParsingException;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_METADATA;
 import static petascope.core.XMLSymbols.LABEL_EXTENSION;
 import static petascope.core.XMLSymbols.LABEL_METADATA;
@@ -31,6 +29,7 @@ import static petascope.core.XMLSymbols.NAMESPACE_GMLCOV;
 import static petascope.core.XMLSymbols.NAMESPACE_RASDAMAN;
 import static petascope.core.XMLSymbols.PREFIX_GMLCOV;
 import static petascope.core.XMLSymbols.PREFIX_RASDAMAN;
+import static petascope.core.XMLSymbols.PREFIX_XMLNS;
 import petascope.core.gml.ISerializeToXMElement;
 import petascope.exceptions.PetascopeException;
 import petascope.util.XMLUtil;
@@ -64,9 +63,19 @@ public class Metadata implements ISerializeToXMElement {
             Element gmlExtensionElement = new Element(XMLUtil.createXMLLabel(PREFIX_GMLCOV, LABEL_EXTENSION), NAMESPACE_GMLCOV);
             metadataElement.appendChild(gmlExtensionElement);
             
-            String covMetadataXML = XMLUtil.createXMLString(NAMESPACE_RASDAMAN, PREFIX_RASDAMAN, LABEL_COVERAGE_METADATA, metadata); 
-            // This is a wrapper element only
-            Element covMetadateElement = XMLUtil.parseXmlFragment(covMetadataXML);
+            Element covMetadateElement = null;
+            metadata = XMLUtil.stripXMLDeclaration(metadata);
+            
+            if (XMLUtil.hasXMLNameSpaceAtRootElement(metadata)) {
+                // metadata has its own namspaces, e.g: INSPIRE, don't add rasdaman:covMetadata wrapper element
+                covMetadateElement = XMLUtil.parseXmlFragment(metadata);
+            } else {
+                // metadata doesn't have its own namespaces (metadata from wcst_import), then it needs to add rasdaman:covMetadata wrapper element
+                // to be valid from CIS 1.0 metadata schema validation
+                String covMetadataXML = XMLUtil.createXMLString(NAMESPACE_RASDAMAN, PREFIX_RASDAMAN, LABEL_COVERAGE_METADATA, metadata);
+                covMetadateElement = XMLUtil.parseXmlFragment(covMetadataXML);
+            }
+            
             gmlExtensionElement.appendChild(covMetadateElement);
         }
         

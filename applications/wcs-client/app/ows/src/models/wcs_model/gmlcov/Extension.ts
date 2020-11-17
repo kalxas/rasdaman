@@ -30,7 +30,7 @@ module gmlcov {
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            let childElementTag = "rasdaman:covMetadata";
+            let childElementTag = "gmlcov:Extension";
 
             if (source.doesElementExist(childElementTag)) {
                 this.covMetadata = new CovMetadata(source.getChildAsSerializedObject(childElementTag));
