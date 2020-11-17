@@ -53,6 +53,7 @@ public class StringUtil {
 
     public static final String MIME_URLENCODED = "application/x-www-form-urlencoded";
     public static final String ENCODING_UTF8 = "UTF-8";
+    
     public static final String DOLLAR_SIGN = "$";
     public static final String AND_SIGN = "&";
     public static final String EQUAL_SIGN = "=";
@@ -530,8 +531,8 @@ public class StringUtil {
     }
     
     /**
-     * Replace any non digit and characters to "_"
-     */
+    * Replace any non digit and characters to "_"
+    */
     public static String replaceSpecialCharacters(String input) {
         String result = input.replaceAll("[^\\dA-Za-z ]", "_");
         return result;

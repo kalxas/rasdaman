@@ -105,7 +105,7 @@ public class PetascopeController extends AbstractController {
             // in case with POST KVP format
             
             String requestContentType = httpServletRequest.getContentType();
-            if (requestContentType.equals(POST_STRING_CONTENT_TYPE)) {
+            if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)) {
                 // post request without files in body
                 String postBody = this.getPOSTRequestBody(httpServletRequest);
                 kvpParameters = this.buildPostRequestKvpParametersMap(postBody);

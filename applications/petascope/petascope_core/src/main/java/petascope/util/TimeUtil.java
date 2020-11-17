@@ -345,6 +345,15 @@ public class TimeUtil {
         }
         return isoDateTimes;
     }
+    
+    /**
+     * Parse a datetime string by a valid datetime pattern.
+     * e.g: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ISO 8601 datetime format
+     */
+    public static DateTime parseDateTimeByPattern(String inputDateTime) throws PetascopeException {
+        DateTime dateTime = isoFmt.parseDateTime(fix(inputDateTime));
+        return dateTime;
+    }
 
     /**
      * Get the number of milliseconds fitting in the provided UoM (UCUM

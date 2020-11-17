@@ -114,18 +114,21 @@ public class UpdateCoverageMetadataController extends AbstractController {
 
                     storedFilePath = this.storeUploadFileOnServer(fileName, bytes);
                     String mimeType = Files.probeContentType(Paths.get(storedFilePath));
-                    String[] requiredMimeType = {"text", "xml", "json"};
                     
-                    boolean isValid = false;
-                    for (String type : requiredMimeType) {
-                        if (mimeType.contains(type)) {
-                            isValid = true;
-                            break;
+                    if (mimeType != null) {
+                        String[] requiredMimeType = {"text", "xml", "json"};
+
+                        boolean isValid = false;
+                        for (String type : requiredMimeType) {
+                            if (mimeType.contains(type)) {
+                                isValid = true;
+                                break;
+                            }
                         }
-                    }
-                    
-                    if (!isValid) {
-                        throw new PetascopeException(ExceptionCode.InvalidRequest, "Uploaded metadata file must be XML/JSON format. Given: '" + mimeType + "'.");
+
+                        if (!isValid) {
+                            throw new PetascopeException(ExceptionCode.InvalidRequest, "Uploaded metadata file must be XML/JSON format. Given: '" + mimeType + "'.");
+                        }
                     }
                 }
 
