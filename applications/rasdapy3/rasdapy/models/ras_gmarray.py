@@ -63,6 +63,10 @@ class RasGMArray(object):
     def data_length(self):
         return len(self.data)
 
+    @property
+    def byte_size(self):
+        return self.spatial_domain.cell_count*self.type_length
+
     def decompose_mdd(self):
         return self.storage_layout.decompose_mdd(self)
 

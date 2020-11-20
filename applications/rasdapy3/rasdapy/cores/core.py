@@ -33,6 +33,7 @@ on the resultant arrays efficiently on the local machine
 
 import grpc
 
+
 from rasdapy.cores.utils import StoppableTimeoutThread, \
     get_spatial_domain_from_type_structure, get_type_structure_from_string, \
     convert_binary_data_stream
@@ -45,6 +46,7 @@ from rasdapy.query_result import QueryResult
 from rasdapy.models.ras_gmarray import RasGMArray
 from rasdapy.models.minterval import MInterval
 from rasdapy.models.mdd_types import rDataFormat
+from rasdapy.models.tile_assigner import TileAssigner
 
 
 
@@ -559,9 +561,8 @@ class Query(object):
             if mddstatus == 2:
                 raise Exception("getMDDCollection - no transfer or empty collection")
 
-            mdd_result = RasGMArray()
-            tilestatus = self._get_mdd_core(mdd_result, mddresp)
-            result_data.append(mdd_result.data)
+            tilestatus, array = self._get_mdd_core(mddresp)
+            result_data.append(array)
 
             if tilestatus == 0:
                 break
@@ -570,65 +571,113 @@ class Query(object):
 
         return result_data
 
-    def _get_mdd_core(self, mdd_result, mdd_resp):
+    def _get_mdd_core(self, mdd_resp):
 
-        mdd_result.spatial_domain = MInterval.from_str(mdd_resp.domain)
-        mdd_result.format = mdd_resp.current_format
-        # print(f"full domain {mdd_result.spatial_domain}")
-        tilestatus = 2
-        tileCntr = 0
-        array = b''
-        while tilestatus == 2 or tilestatus == 3:
+        if mdd_resp.current_format != rDataFormat.r_Array.value:
+            # So far, for other format than binary array, only one tile is used.
+            tileresp = rassrvr_get_next_tile(self.transaction.database.stub,
+                                             self.transaction.database.connection.session.clientId)
+            tile_status = tileresp.status
+            if tile_status == 3:
+                raise Exception(f"multipart format {mdd_resp.current_format} is not handled")
+
+            if tile_status == 4:
+                raise Exception("rpcGetNextTile - no tile to transfer or empty collection")
+            return tile_status, tileresp.data
+
+        # At that point, we try to read a binary array.
+
+        mdd_result = None
+        tile_idx = 0
+        tile_assigner = None
+
+        read_size = 0
+
+        tile_status = 2  # call get_next_tile at least once
+        while tile_status == 2 or tile_status == 3:
+            tileresp = rassrvr_get_next_tile(self.transaction.database.stub,
+                                             self.transaction.database.connection.session.clientId)
+            tile_status = tileresp.status
+            if tile_status == 4:
+                raise Exception("rpcGetNextTile - no tile to transfer or empty collection")
+
+            if mdd_result is None:
+                mdd_result = RasGMArray(
+                    spatial_domain=MInterval.from_str(mdd_resp.domain),
+                    type_length=tileresp.cell_type_length)
+                #print(f"full domain {mdd_result.spatial_domain} with format {mdd_result.format}")
+                #print(f"need to read {mdd_result.byte_size} bytes")
+
+            tile_idx += 1
+            #print(f"tile {tile_idx}")
+
+            # Creates current tile array
+            mdd_tile = RasGMArray(
+                spatial_domain=MInterval.from_str(tileresp.domain),
+                type_length=mdd_result.type_length
+            )
+
+            if tile_status == 3:
+                tile_status = self.read_tile_by_parts(mdd_tile, tileresp.data)
+            else:
+                mdd_tile.data = tileresp.data
+
+            # At that point, data array of the mdd_tile should be complete for its spatial_domain
+
+            read_size += len(mdd_tile.data)
+            #print(f"read {read_size} bytes so far")
+            #print(f"tile domain {mdd_tile.spatial_domain}")
+
+            if tile_status < 2 and tile_idx == 1 and str(mdd_tile.spatial_domain) == str(mdd_result.spatial_domain):
+                # MDD consists of just one tile that is the same size of the mdd
+                mdd_result.data = mdd_tile.data
+            else:
+                # MDD consists of more than one tile or the tile does not cover the whole domain
+                if tile_idx == 1:
+                    mdd_result.data = bytearray(mdd_result.byte_size)
+                    tile_assigner = TileAssigner(mdd_result)
+                    tile_assigner.start()
+
+                # copy tile data into global MDD data space
+                # optimized, relying on the internal representation of an MDD
+                tile_assigner.add_tile(mdd_tile)
+
+        if tile_assigner is not None:
+            tile_assigner.go_on = False
+            tile_assigner.join()
+
+        return tile_status, mdd_result.data
+
+
+    def read_tile_by_parts(self, mdd_tile, data):
+        """
+        When the tile itself is send by parts, direct assembly of all parts in
+        the mdd_tile
+        :param mdd_tile: The mdd_tile to put parts into
+        :param data: the first data array from the first part
+        :return:
+        """
+        mdd_tile.data = bytearray(mdd_tile.byte_size)
+
+        # first part
+        bloc_size = len(data)
+        mdd_tile.data[0:bloc_size] = data
+        offset = bloc_size
+
+        # read remaining parts
+        tilestatus = 3
+        while tilestatus == 3:
             tileresp = rassrvr_get_next_tile(self.transaction.database.stub,
                                              self.transaction.database.connection.session.clientId)
             tilestatus = tileresp.status
             if tilestatus == 4:
                 raise Exception("rpcGetNextTile - no tile to transfer or empty collection")
-
-            if tileCntr == 0:
-                mdd_result.type_length = tileresp.cell_type_length
-            tileCntr += 1
-
-            tile_domain = MInterval.from_str(tileresp.domain)
-            # print(f"tile domain {tile_domain}")
-            if mdd_resp.current_format == rDataFormat.r_Array.value:
-
-                # TODO some stuff of rasnetclientcomm.c not yet implemented
-
-                if tilestatus < 2 and tileCntr == 1 and str(tile_domain) == str(mdd_result.spatial_domain):
-                    # MDD consists of just one tile that is the same size of the mdd
-                    array = tileresp.data
-                else:
-                    # MDD consists of more than one tile or the tile does not cover the whole domain
-                    if tileCntr == 1:
-                        size = mdd_result.spatial_domain.cell_count * mdd_result.type_length
-                        print(f"size is {size}")
-                        array = bytearray(size)
-
-                    # copy tile data into MDD data space (optimized, relying on the internal representation of an MDD )
-                    bloc_cells = tile_domain.intervals[tile_domain.cardinality - 1].width
-                    bloc_size = bloc_cells * mdd_result.type_length
-                    bloc_no = int(tile_domain.cell_count / bloc_cells)
-
-                    tile_offset = 0
-                    for bloc_ctr in range(bloc_no):
-                        offset = mdd_result.spatial_domain.cell_offset( tile_domain.cell_point(bloc_ctr*bloc_cells))* mdd_result.type_length
-                        array[offset:offset+bloc_size] = tileresp.data[tile_offset:tile_offset+bloc_size]
-                        tile_offset += bloc_size
-
-            else:
-                if tileCntr == 1:
-                    array = tileresp.data
-                else:
-                    raise Exception(f"current format {mdd_resp.current_format} not handled so far with tileCntr > 1")
-
-        mdd_result.data = array
+            bloc_size = len(tileresp.data)
+            mdd_tile.data[offset:offset+bloc_size] = tileresp.data
+            offset += bloc_size
 
         return tilestatus
 
-    def _concat_array_data(self, data, data_len, data_dict, offset):
-        data_dict[offset] = data
-        return offset + data_len
 
     def _get_list_collection(self):
         """

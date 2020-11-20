@@ -122,7 +122,11 @@ class ResultArray(object):
         if self.data_type == "string":
             return data
         else:
-            return data.decode()
+            try:
+                msg = data.decode()
+            except UnicodeDecodeError:
+                msg = data
+            return msg
 
     def to_binary(self, data):
         if self.data_type == "string":

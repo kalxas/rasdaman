@@ -96,7 +96,7 @@ class BandStorageLayout(RasStorageLayOut):
 
         bytes_incr = gm_array.type_length
         for i in range(1, len(mintervals)):
-            bytes_incr *= mintervals[i].width
+            bytes_incr *= mintervals[i].extent
         return bytes_incr
 
 
@@ -107,7 +107,7 @@ class BandMDDIterator:
         self.bytes_incr = BandStorageLayout.get_hyper_plane_bytesize(gm_array)
 
         self.barray = bytearray(gm_array.data)
-        self.bytes_size = self.storage_intervals[0].width * self.bytes_incr
+        self.bytes_size = self.storage_intervals[0].extent * self.bytes_incr
 
         self.offset = 0
         self.lo = self.storage_intervals[0].lo
@@ -120,8 +120,8 @@ class BandMDDIterator:
             ras_array = self._create_ras_array(self.bytes_size)
             yield ras_array
             self.offset += self.bytes_size
-            self.lo += self.storage_intervals[0].width
-            self.hi += self.storage_intervals[0].width
+            self.lo += self.storage_intervals[0].extent
+            self.hi += self.storage_intervals[0].extent
 
         remaining_size = self.gm_array.data_length - self.offset
         if remaining_size > 0:

@@ -27,8 +27,8 @@ class FilesMDDIterator:
         full_size = len(barray)
         print("fullsize", full_size)
         n_iter = full_size // RasStorageLayOut.DEFAULT_TILE_SIZE + 1
-        y_width = self.storage_intervals[1].width // n_iter
-        step_size = y_width * self.storage_intervals[2].width * itemsize
+        y_width = self.storage_intervals[1].extent // n_iter
+        step_size = y_width * self.storage_intervals[2].extent * itemsize
 
         offset = 0
         lo = self.storage_intervals[1].lo
