@@ -3768,6 +3768,7 @@ rasdaman community is OGC WCS reference implementation and supports the followin
   - Class grid-regular
   - Class grid-irregular
   - Class gml-coverage
+  - Class json-coverage
   - Class other-format-coverage
 
 - OGC WCS

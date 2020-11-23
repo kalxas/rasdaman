@@ -19,29 +19,39 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.oapi.handlers.model;
+package petascope.core.json.cis11.model.rangetype;
 
 /**
- * @author Vlad Merticariu <v.merticariu@jacobs-university.de>
+ *
+ * Class to represent nilValue element in JSON CIS 1.1. e.g:
+ * 
+ * <swe:nilValue reason="http://www.opengis.net/def/nil/OGC/0/BelowDetectionRange">-INF</swe:nilValue>
+ * 
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
-import com.fasterxml.jackson.annotation.JsonRawValue;
+public class NilValue {
+    
+    private String reason;
+    private String value;
 
-public class DataBlock {
-    private String type = "VDataBlockType";
-    private String values;
-
-    public DataBlock(String values) {
-        this.type = type;
-        this.values = values;
+    public NilValue(String reason, String value) {
+        this.reason = reason;
+        this.value = value;
     }
 
-    public String getType() {
-        return type;
+    public String getReason() {
+        return reason;
     }
 
-    @JsonRawValue
-    public String getValues() {
-        return values;
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

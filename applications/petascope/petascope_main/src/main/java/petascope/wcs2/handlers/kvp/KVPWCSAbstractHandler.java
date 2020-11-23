@@ -34,6 +34,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.ihandlers.kvp.IKVPHandler;
 import static petascope.util.MIMEUtil.MIME_GML;
+import static petascope.util.MIMEUtil.MIME_JSON;
 
 /**
  * Abstract class for WCS Handlers (GetCapabilities, DescribeCoverage,
@@ -118,13 +119,25 @@ public abstract class KVPWCSAbstractHandler implements IKVPHandler {
                 }
                 
                 String outputFormat = this.getKVPValue(kvpParameters, KEY_FORMAT);
-                if (outputFormat != null && !outputFormat.equalsIgnoreCase(MIME_GML)) {
+                if (outputFormat != null && !this.isValidGeneralGridCoverageFormat(outputFormat) ) {
                     throw new PetascopeException(ExceptionCode.InvalidRequest, 
                             "GET KVP '" + KEY_OUTPUT_TYPE + "=" + VALUE_GENERAL_GRID_COVERAGE + "'"
-                          + " is only valid if output format is '" + MIME_GML + "', given: '" + outputFormat + "'.");
+                          + " is only valid if output format is '" + MIME_GML + "' or '" + MIME_JSON + "', given: '" + outputFormat + "'.");
                 }
             }
         }
+    }
+    
+    /**
+     * Check if output format is gml / json
+     */
+    private boolean isValidGeneralGridCoverageFormat(String outputFormat) {
+        // e.g: application/gml
+        boolean fullMIME = outputFormat.equalsIgnoreCase(MIME_GML) || outputFormat.equalsIgnoreCase(MIME_JSON);
+        // e.g: json
+        boolean shorthandMIME = MIME_GML.contains(outputFormat.toLowerCase()) || MIME_JSON.contains(outputFormat.toLowerCase());
+        
+        return fullMIME || shorthandMIME;
     }
         
 }

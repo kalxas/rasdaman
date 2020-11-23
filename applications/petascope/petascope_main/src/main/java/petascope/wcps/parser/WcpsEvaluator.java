@@ -385,13 +385,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitEncodedCoverageExpressionLabel(@NotNull wcpsParser.EncodedCoverageExpressionLabelContext ctx) {
         WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
         // e.g: tiff
-        String formatType = StringUtil.stripQuotes(ctx.STRING_LITERAL().getText());
+        String formatType = StringUtil.stripFirstAndLastQuotes(ctx.STRING_LITERAL().getText());
         // NOTE: extraParam here can be:
         // + Old style: e.g: "nodata=0"
         // + JSON style: e.g: "{\"nodata\": [0]}" -> {"nodata": [0]}
         String extraParams = "";
         if (ctx.extraParams() != null) {
-            extraParams = StringUtil.stripQuotes(ctx.extraParams().getText()).replace("\\", "");
+            extraParams = StringUtil.stripFirstAndLastQuotes(ctx.extraParams().getText()).replace("\\", "");
         }
 
         WcpsResult result = null;
@@ -413,7 +413,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         String positionalParameter = ctx.positionalParamater().getText();
         String extraParamters = "";
         if (ctx.extraParams() != null) {
-            extraParamters = StringUtil.stripQuotes(ctx.extraParams().getText());
+            extraParamters = StringUtil.stripFirstAndLastQuotes(ctx.extraParams().getText());
         }
         
         WcpsResult result = null;
@@ -543,7 +543,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // NOTE: This one is optional parameter, if specified, XY coordinates in WKT will be translated from this CRS to coverage's native CRS for XY axes.
         String wktCRS = null;
         if (ctx.crsName() != null) {
-            wktCRS = StringUtil.stripQuotes(ctx.crsName().getText());
+            wktCRS = StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
         }        
         
         // Optional parameter for encoding in JSON/CSV to show grid coordinates and their values (e.g: "x1 y1 value1", "x2 y2 value2", ...)
@@ -602,7 +602,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // NOTE: This one is optional parameter, if specified, XY coordinates in WKT will be translated from this CRS to coverage's native CRS for XY axes.
         String wktCRS = null;
         if (ctx.crsName() != null) {
-            wktCRS = StringUtil.stripQuotes(ctx.crsName().getText());
+            wktCRS = StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
         }     
         
         WcpsResult result = null;
@@ -671,7 +671,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // NOTE: This one is optional parameter, if specified, XY coordinates in WKT will be translated from this CRS to coverage's native CRS for XY axes.
         String wktCRS = null;
         if (ctx.crsName() != null) {
-            wktCRS = StringUtil.stripQuotes(ctx.crsName().getText());
+            wktCRS = StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
         }     
         
         WcpsResult result = null;
@@ -698,10 +698,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         // { Axis_CRS_1 , Axis_CRS_2 } (e.g: Lat:"http://localhost:8080/def/crs/EPSG/0/4326")
         wcpsParser.DimensionCrsElementLabelContext crsX = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(1);
-        axisCrss.put(crsX.axisName().getText(), StringUtil.stripQuotes(crsX.crsName().getText()));
+        axisCrss.put(crsX.axisName().getText(), StringUtil.stripFirstAndLastQuotes(crsX.crsName().getText()));
 
         wcpsParser.DimensionCrsElementLabelContext crsY = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(3);
-        axisCrss.put(crsY.axisName().getText(), StringUtil.stripQuotes(crsY.crsName().getText()));
+        axisCrss.put(crsY.axisName().getText(), StringUtil.stripFirstAndLastQuotes(crsY.crsName().getText()));
         
         String interpolationType = null;
 
@@ -1730,7 +1730,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         String axisName = ctx.axisName().getText();
         String crs = null;
         if (ctx.crsName() != null) {
-            crs = StringUtil.stripQuotes(ctx.crsName().getText());
+            crs = StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
         }
         
         VisitorResult visitorResult = visit(ctx.coverageExpression());
@@ -1815,7 +1815,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // axisName (COLON crsName)?  LEFT_PARENTHESIS   coverageExpression   RIGHT_PARENTHESIS
         // e.g: i(0)
         String bound = ((WcpsResult)visit(ctx.coverageExpression())).getRasql();
-        String crs = ctx.crsName() == null ? "" : StringUtil.stripQuotes(ctx.crsName().getText());
+        String crs = ctx.crsName() == null ? "" : StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
 
         WcpsSliceSubsetDimension sliceSubsetDimension = null;
   
@@ -1836,7 +1836,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             String rawUpperBound = ((WcpsResult)visit(ctx.coverageExpression(1))).getRasql();
             String crs = null;
             if (ctx.crsName() != null) {
-                crs = StringUtil.stripQuotes(ctx.crsName().getText());
+                crs = StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
             }
             if (ctx.axisName() == null) {
                 throw new InvalidAxisNameException("No axis given");

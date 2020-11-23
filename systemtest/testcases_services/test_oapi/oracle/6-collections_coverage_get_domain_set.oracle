@@ -1,0 +1,39 @@
+{
+  "type" : "DomainSetType",
+  "generalGrid" : {
+    "type" : "GeneralGridCoverageType",
+    "srsName" : "http://localhost:8080/def/crs/EPSG/0/4326",
+    "axisLabels" : [ "Lat", "Lon" ],
+    "axis" : [ {
+      "type" : "RegularAxisType",
+      "axisLabel" : "Lat",
+      "lowerBound" : -44.474999999999987,
+      "upperBound" : -8.974999999999987,
+      "uomLabel" : "degree",
+      "resolution" : -0.5
+    }, {
+      "type" : "RegularAxisType",
+      "axisLabel" : "Lon",
+      "lowerBound" : 111.975,
+      "upperBound" : 156.475,
+      "uomLabel" : "degree",
+      "resolution" : 0.5
+    } ],
+    "gridLimits" : {
+      "type" : "GridLimitsType",
+      "srsName" : "http://www.opengis.net/def/crs/OGC/0/Index2D",
+      "axisLabels" : [ "i", "j" ],
+      "axis" : [ {
+        "type" : "IndexAxisType",
+        "axisLabel" : "i",
+        "lowerBound" : 0,
+        "upperBound" : 70
+      }, {
+        "type" : "IndexAxisType",
+        "axisLabel" : "j",
+        "lowerBound" : 0,
+        "upperBound" : 88
+      } ]
+    }
+  }
+}

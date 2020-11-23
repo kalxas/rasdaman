@@ -1,0 +1,12 @@
+{
+  "type" : "DataRecordType",
+  "field" : [ {
+    "type" : "QuantityType",
+    "name" : "Gray",
+    "defintion" : "ogcType:unsignedByte",
+    "uom" : {
+      "type" : "UnitReference",
+      "code" : "10^0"
+    }
+  } ]
+}

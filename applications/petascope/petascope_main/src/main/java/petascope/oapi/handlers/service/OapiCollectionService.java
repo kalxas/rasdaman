@@ -137,8 +137,8 @@ public class OapiCollectionService {
         List<List<String>> temporalValues = new ArrayList<>();
         for (Axis axis : coverage.getAxes()) {
             if (axis.isTimeAxis()) {
-                String lowerBound = StringUtil.stripQuotes(axis.getLowerGeoBoundRepresentation());
-                String upperBound = StringUtil.stripQuotes(axis.getUpperGeoBoundRepresentation());
+                String lowerBound = StringUtil.stripFirstAndLastQuotes(axis.getLowerGeoBoundRepresentation());
+                String upperBound = StringUtil.stripFirstAndLastQuotes(axis.getUpperGeoBoundRepresentation());
                 
                 List<String> values = Arrays.asList(lowerBound, upperBound);
                 

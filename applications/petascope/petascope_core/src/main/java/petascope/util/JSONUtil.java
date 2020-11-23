@@ -75,8 +75,6 @@ public class JSONUtil {
      * Serialize a JSON object to a string.
      */
     private static String serializeObjectToString(Object obj) throws PetascopeException {
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         String json;
         try {
             json = objectMapper.writeValueAsString(obj);

@@ -21,6 +21,7 @@
  */
 package petascope.oapi.handlers.service;
 
+import java.util.Arrays;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,8 @@ import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
 import petascope.oapi.handlers.model.HttpErrorResponse;
 import petascope.util.JSONUtil;
+import petascope.util.MIMEUtil;
+import static petascope.util.MIMEUtil.MIME_JSON;
 
 /**
  * Class to return the response entity for OAPI requests
@@ -46,43 +49,18 @@ public class OapiResultService {
     /**
      * Return the result in JSON format
      */
-    public ResponseEntity getJsonResponse(Object object) throws PetascopeException {
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+    public Response getJsonResponse(Object object) throws PetascopeException {
         String objectRepresentation = JSONUtil.serializeObjectToJSONString(object);
-        return new ResponseEntity(objectRepresentation, httpHeaders, HttpStatus.OK);
+        return new Response(Arrays.asList(objectRepresentation.getBytes()), MIME_JSON);
     }
     
     /**
      * Return the error result in JSON format
      */
-    public ResponseEntity getJsonErrorResponse(HttpStatus httpStatus, String errorMessage) throws PetascopeException {
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+    public Response getJsonErrorResponse(HttpStatus httpStatus, String errorMessage) throws PetascopeException {
         HttpErrorResponse httpErrorResponse = new HttpErrorResponse(httpStatus, errorMessage);
         String objectRepresentation = JSONUtil.serializeObjectToJSONString(httpErrorResponse);
-        return new ResponseEntity(objectRepresentation, httpHeaders, HttpStatus.OK);
-    }
-    
-    /**
-     * Return the result in text / binary format
-     */
-    public ResponseEntity getDataResponse(Response response) {
-        if (response.getDatas().size() == 0) {
-            // empty response
-            return ResponseEntity.ok("");
-        } else if (response.getDatas().size() == 1) {
-            // 1 response
-            final HttpHeaders httpHeaders = new HttpHeaders();
-            String mediaType = "text/plain";
-            if (!response.getFormatType().isEmpty()) {
-                mediaType = response.getFormatType();
-            }
-            
-            httpHeaders.setContentType(MediaType.parseMediaType(mediaType));
-            return new ResponseEntity(response.getDatas().get(0), httpHeaders, HttpStatus.OK);
-        } else {
-            //multipart, not supported currently
-            return new ResponseEntity("Multipart not yet supported", HttpStatus.NOT_IMPLEMENTED);
-        }
+        return new Response(Arrays.asList(objectRepresentation.getBytes()), MIME_JSON, HttpStatus.OK.value());
     }
     
 }

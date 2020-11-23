@@ -22,6 +22,8 @@
 package petascope.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static petascope.controller.AbstractController.buildGetRequestKvpParametersMap;
 import static petascope.controller.AbstractController.getValueByKeyAllowNull;
 import static petascope.controller.AbstractController.getValuesByKeyAllowNull;
+import petascope.core.json.cis11.model.metadata.Metadata;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -47,6 +50,7 @@ import petascope.exceptions.WMSException;
 import petascope.oapi.handlers.service.OapiHandlersService;
 import petascope.oapi.handlers.service.OapiResultService;
 import petascope.oapi.handlers.service.OapiSubsetParsingService;
+import static petascope.util.MIMEUtil.MIME_JSON;
 
 /**
  * Controller to handle OAPI coverage requests, see OAPI PDF document on https://github.com/opengeospatial/ogc_api_coverages/blob/master/
@@ -55,7 +59,7 @@ import petascope.oapi.handlers.service.OapiSubsetParsingService;
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 @RestController
-public class OapiController {
+public class OapiController extends AbstractController {
     
     private static org.slf4j.Logger log = LoggerFactory.getLogger(OapiController.class);
     
@@ -113,15 +117,17 @@ public class OapiController {
      * e.g: https://oapi.rasdaman.org/rasdaman/oapi (7.3.1. API landing page), see: Landing Page Response Schema
      */
     @RequestMapping(path = OAPI)
-    public ResponseEntity getLandingPage(HttpServletRequest httpServletRequest) throws PetascopeException, JsonProcessingException {
+    public void getLandingPage(HttpServletRequest httpServletRequest) throws PetascopeException, JsonProcessingException, IOException {
         this.setBaseURL(httpServletRequest);
         
         try {
-            return this.oapiResultService.getJsonResponse(oapiHandlersService.getLandingPageResult(BASE_URL));
+            Response response = this.oapiResultService.getJsonResponse(oapiHandlersService.getLandingPageResult(BASE_URL));
+            this.writeResponseResult(response);
         } catch (Exception ex) {
             String errorMessage = "Error returning landing page. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
-            return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            Response response = this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            this.writeResponseResult(response);
         }
     }
 
@@ -130,7 +136,7 @@ public class OapiController {
      * e.g: https://oapi.rasdaman.org/rasdaman/oapi/wcps?Q=for c in (mean_summer_airtemp) return encode(c, "png")
      */
     @RequestMapping(path = WCPS_CONTEXT_PATH)
-    public ResponseEntity getProcessingWcpsResult(HttpServletRequest httpServletRequest) throws Exception {
+    public void getProcessingWcpsResult(HttpServletRequest httpServletRequest) throws Exception {
         
         this.setBaseURL(httpServletRequest);
         
@@ -138,15 +144,18 @@ public class OapiController {
         String query = getValueByKeyAllowNull(kvpParameters, QUERY_PARAM);
         
         if (query == null) {
-            return new ResponseEntity("Query parameter '" + QUERY_PARAM.toUpperCase() + "' is missing.", HttpStatus.BAD_REQUEST);
+            String errorMessage = "Query parameter '" + QUERY_PARAM.toUpperCase() + "' is missing.";
+            Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.BAD_REQUEST.value());
+            this.writeResponseResult(response);
         } else {
             try {
                 Response response = oapiHandlersService.executeWcpsQuery(kvpParameters);
-                return this.oapiResultService.getDataResponse(response);
+                this.writeResponseResult(response);
             } catch (Exception ex) {
                 String errorMessage = "Error processing WCPS query. Reason: " + ex.getMessage();
                 log.error(errorMessage, ex);
-                return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+                Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.INTERNAL_SERVER_ERROR.value());
+                this.writeResponseResult(response);
             }
         }
     }
@@ -164,18 +173,20 @@ public class OapiController {
      * The collections array property contains the list of object (e.g: https://oapi.rasdaman.org/rasdaman/oapi/collections/mean_summer_airtemp)
      */
     @RequestMapping(path = COLLECTIONS_CONTEXT_PATH)
-    public ResponseEntity getCollections(HttpServletRequest request,
+    public void getCollections(HttpServletRequest request,
                                          @RequestParam(value = "bbox", required = false) String bbox,
                                          @RequestParam(value = "datetime", required = false) String datetime,
-                                         HttpServletRequest httpServletRequest) throws PetascopeException, SecoreException, WMSException {
+                                         HttpServletRequest httpServletRequest) throws PetascopeException, SecoreException, WMSException, IOException {
         this.setBaseURL(httpServletRequest);
         
         try {
-            return this.oapiResultService.getJsonResponse(oapiHandlersService.getCollectionsResult(BASE_URL, bbox, datetime));
+            Response response = this.oapiResultService.getJsonResponse(oapiHandlersService.getCollectionsResult(BASE_URL, bbox, datetime));
+            this.writeResponseResult(response);            
         } catch (Exception ex) {
             String errorMessage = "Error returning list of coverages. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
-            return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.INTERNAL_SERVER_ERROR.value());
+            this.writeResponseResult(response);
         }
     }
 
@@ -185,16 +196,18 @@ public class OapiController {
      * e,g: https://oapi.rasdaman.org/rasdaman/oapi/collections/mean_summer_airtemp (7.4.2. Collection Information -> Collection Information Resource Example)
      */
     @RequestMapping(path = COVERAGE_ID_CONTEXT_PATH)
-    public ResponseEntity getCoverageInformation(@PathVariable String coverageId,
-                                                 HttpServletRequest httpServletRequest) throws PetascopeException {
+    public void getCoverageInformation(@PathVariable String coverageId,
+                                                 HttpServletRequest httpServletRequest) throws PetascopeException, IOException {
         this.setBaseURL(httpServletRequest);
         
         try {
-            return this.oapiResultService.getJsonResponse(oapiHandlersService.getCollectionInformationResult(coverageId, BASE_URL));
+            Response response = this.oapiResultService.getJsonResponse(oapiHandlersService.getCollectionInformationResult(coverageId, BASE_URL));
+            this.writeResponseResult(response);
         } catch (Exception ex) {
             String errorMessage = "Error returning coverage information. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
-            return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.INTERNAL_SERVER_ERROR.value());
+            this.writeResponseResult(response);
         }
     }
 
@@ -205,7 +218,7 @@ public class OapiController {
      * e.g: https://oapi.rasdaman.org/rasdaman/oapi/collections/S2_FALSE_COLOR_84/coverage?subset=Lat(51.9:52.1),Long(-4.1:-3.9),ansi("2018-11-14")&f=gml
      */
     @RequestMapping(path = COVERAGE_CONTEXT_PATH, method = RequestMethod.GET)
-    public ResponseEntity getCoverageObject(@PathVariable String coverageId,
+    public void getCoverageObject(@PathVariable String coverageId,
                                             HttpServletRequest httpServletRequest)
             throws PetascopeException, SecoreException, WMSException, JsonProcessingException, Exception {
         
@@ -218,11 +231,12 @@ public class OapiController {
         String[] parsedSubsets = this.opaiParsingService.parseGetCoverageSubsets(inputSubsets);
         try {
             Response response = oapiHandlersService.getCoverageSubsetResult(coverageId, parsedSubsets, outputFormat);
-            return this.oapiResultService.getDataResponse(response);
+            this.writeResponseResult(response);
         } catch (Exception ex) {
             String errorMessage = "Error returning coverage data. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
-            return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.INTERNAL_SERVER_ERROR.value());
+            this.writeResponseResult(response);
         }
     }
     
@@ -232,18 +246,20 @@ public class OapiController {
      * e.g: https://oapi.rasdaman.org/rasdaman/oapi/collections/mean_summer_airtemp/coverage/domainset
      */
     @RequestMapping(path = COVERAGE_DOMAIN_SET_CONTEXT_PATH, method = RequestMethod.GET)
-    public ResponseEntity getDomainSet(@PathVariable String coverageId,
-                                       HttpServletRequest httpServletRequest) throws PetascopeException {
+    public void getDomainSet(@PathVariable String coverageId,
+                                       HttpServletRequest httpServletRequest) throws PetascopeException, IOException {
         
         this.setBaseURL(httpServletRequest);
         
         try {
-            Object domainSet = oapiHandlersService.getCIS11GmlCoreResult(coverageId).getDomainSet();
-            return this.oapiResultService.getJsonResponse(domainSet);
+            Object domainSet = oapiHandlersService.getJSONCoreCIS11Result(coverageId).getDomainSet();
+            Response response = this.oapiResultService.getJsonResponse(domainSet);
+            this.writeResponseResult(response);
         } catch (Exception ex) {
             String errorMessage = "Error returning coverage's domainset. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
-            return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.INTERNAL_SERVER_ERROR.value());
+            this.writeResponseResult(response);
         }
     }
     
@@ -254,17 +270,19 @@ public class OapiController {
      *
      */
     @RequestMapping(path = COVERAGE_RANGE_TYPE_CONTEXT_PATH)
-    public ResponseEntity getRangeType(@PathVariable String coverageId, HttpServletRequest httpServletRequest) throws PetascopeException {
+    public void getRangeType(@PathVariable String coverageId, HttpServletRequest httpServletRequest) throws PetascopeException, IOException {
         
         this.setBaseURL(httpServletRequest);
         
         try {
-            Object rangeType = oapiHandlersService.getCIS11GmlCoreResult(coverageId).getRangeType();
-            return this.oapiResultService.getJsonResponse(rangeType);
+            Object rangeType = oapiHandlersService.getJSONCoreCIS11Result(coverageId).getRangeType();
+            Response response = this.oapiResultService.getJsonResponse(rangeType);
+            this.writeResponseResult(response);
         } catch (Exception ex) {
             String errorMessage = "Error returning coverage's rangetype. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
-            return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.INTERNAL_SERVER_ERROR.value());
+            this.writeResponseResult(response);
         }
     }
 
@@ -274,7 +292,7 @@ public class OapiController {
      * e.g: https://oapi.rasdaman.org/rasdaman/oapi/collections/mean_summer_airtemp/coverage/rangeset     
      */
     @RequestMapping(path = COVERAGE_RANGE_SET_CONTEXT_PATH, method = RequestMethod.GET)
-    public ResponseEntity getRangeSet(@PathVariable String coverageId,
+    public void getRangeSet(@PathVariable String coverageId,
                                       HttpServletRequest httpServletRequest)
             throws Exception {
         
@@ -285,11 +303,13 @@ public class OapiController {
         String[] parsedSubsets = this.opaiParsingService.parseGetCoverageSubsets(inputSubsets);
         try {
             Object rangeSet = oapiHandlersService.getCoverageRangeSetResult(coverageId, parsedSubsets);
-            return this.oapiResultService.getJsonResponse(rangeSet);
+            Response response = this.oapiResultService.getJsonResponse(rangeSet);
+            this.writeResponseResult(response);
         } catch (Exception ex) {
             String errorMessage = "Error returning coverage's rangeset. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
-            return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.INTERNAL_SERVER_ERROR.value());
+            this.writeResponseResult(response);
         }
     }
 
@@ -300,18 +320,25 @@ public class OapiController {
      * e.g: https://oapi.rasdaman.org/rasdaman/oapi/collections/S2_FALSE_COLOR_84/coverage/metadata
      */
     @RequestMapping(path = COVERAGE_METADATA_CONTEXT_PATH)
-    public ResponseEntity getMetadata(@PathVariable String coverageId, 
-                                      HttpServletRequest httpServletRequest) throws PetascopeException {
+    public void getMetadata(@PathVariable String coverageId, 
+                                      HttpServletRequest httpServletRequest) throws PetascopeException, IOException {
         
         this.setBaseURL(httpServletRequest);
         
         try {
-            Object metadata = oapiHandlersService.getCIS11GmlCoreResult(coverageId).getMetadata();
-            return this.oapiResultService.getJsonResponse(metadata);
+            Object metadata = oapiHandlersService.getJSONCoreCIS11Result(coverageId).getMetadata();
+            if (metadata != null) {
+                Response response = this.oapiResultService.getJsonResponse(metadata);
+                this.writeResponseResult(response);
+            } else {
+                Response response = this.oapiResultService.getJsonResponse(new Metadata(null));
+                this.writeResponseResult(response);
+            }
         } catch (Exception ex) {
             String errorMessage = "Error returning coverage's metadata. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
-            return this.oapiResultService.getJsonErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            Response response = new Response(Arrays.asList(errorMessage.getBytes()), MIME_JSON, HttpStatus.INTERNAL_SERVER_ERROR.value());
+            this.writeResponseResult(response);
         }
     }
 
@@ -327,5 +354,13 @@ public class OapiController {
                 BASE_URL = httpServletRequest.getRequestURL().toString().split("/" + OAPI)[0];
             }
         }
+    }
+
+    @Override
+    protected void handleGet(HttpServletRequest httpServletRequest) throws Exception {
+    }
+
+    @Override
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
     }
 }

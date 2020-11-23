@@ -539,6 +539,16 @@ public class WcpsCoverageMetadata {
         return geoAxisNames.trim();
     }
     
+    public List<String> getGeoAxisNamesAsList() {
+        List<String> results = new ArrayList<>();
+        
+        for (Axis axis : this.axes) {
+            results.add(axis.getLabel());
+        }
+        
+        return results;
+    }
+    
     /**
      * Return a concatenated string for grid axis names (e.g: i j k), start from ASCII i (65).
      */
@@ -551,6 +561,17 @@ public class WcpsCoverageMetadata {
         }
         
         return gridAxisNames.trim();
+    }
+    
+    public List<String> getGridAxisNamesAsList() {
+        List<String> results = new ArrayList<>();
+        
+        for (int i = 0; i < this.axes.size(); i++) {
+            String gridAxisName = Axis.createAxisLabelByIndex(i);
+            results.add(gridAxisName);
+        }
+        
+        return results;
     }
     
     /**

@@ -478,14 +478,21 @@ public class StringUtil {
     }
 
     /**
-     * Strip the " at first and last position of input string e.g: "abcdefef" ->
-     * abcdefef
+    * Strip the " at first and last position of input string e.g: "abcdefef" ->  abcdefef
      *
      * @param input
      * @return
      */
-    public static String stripQuotes(String input) {
+    public static String stripFirstAndLastQuotes(String input) {
         String output = input.replaceAll("^\"|\"$", "");
+        return output;
+    }
+    
+    /**
+     * Strip any " in a string
+     */
+    public static String stripQuotes(String input) {
+        String output = input.replace("\"", "");
         return output;
     }
 
@@ -543,6 +550,13 @@ public class StringUtil {
      */
     public static String stripParentheses(String input) {
         return input.replace("(", "").replace(")", "");
+    }
+    
+    /**
+     * Replace '[' and ']' from input string
+     */
+    public static String stripBrackets(String input) {
+        return input.replace("[", "").replace("]", "");
     }
     
     /**

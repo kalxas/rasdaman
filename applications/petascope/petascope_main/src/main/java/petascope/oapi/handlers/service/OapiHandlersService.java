@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static org.rasdaman.config.VersionManager.WCS_VERSION_20;
+import static org.rasdaman.config.VersionManager.WCS_VERSION_21;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import org.rasdaman.repository.service.CoverageRepositoryService;
@@ -35,27 +35,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static petascope.core.KVPSymbols.KEY_COVERAGEID;
 import static petascope.core.KVPSymbols.KEY_FORMAT;
+import static petascope.core.KVPSymbols.KEY_OUTPUT_TYPE;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import static petascope.core.KVPSymbols.KEY_SERVICE;
 import static petascope.core.KVPSymbols.KEY_SUBSET;
 import static petascope.core.KVPSymbols.KEY_VERSION;
+import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_GET_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
-import petascope.core.gml.cis11.GMLCoreCIS11;
-import petascope.core.gml.cis11.GMLCoreCIS11Builder;
+import petascope.core.json.cis11.JSONCoreCIS11;
+import petascope.core.json.cis11.JSONCoreCIS11Builder;
+import petascope.core.json.cis11.model.rangeset.DataBlock;
+import petascope.core.json.cis11.model.rangeset.RangeSet;
 import petascope.core.response.Response;
 import petascope.oapi.handlers.model.Bbox;
 import petascope.oapi.handlers.model.Collection;
 import petascope.oapi.handlers.model.Collections;
-import petascope.oapi.handlers.model.DataBlock;
 import petascope.oapi.handlers.model.LandingPage;
 import petascope.oapi.handlers.model.Link;
-import petascope.oapi.handlers.model.RangeSet;
 import petascope.util.MIMEUtil;
+import static petascope.util.MIMEUtil.MIME_JSON;
 import petascope.util.TimeUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
+import petascope.wcps.result.executor.WcpsRasqlExecutor;
 import petascope.wcs2.handlers.kvp.KVPWCSGetCoverageHandler;
 import petascope.wcs2.handlers.kvp.KVPWCSProcessCoverageHandler;
 
@@ -75,13 +79,15 @@ public class OapiHandlersService {
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
     @Autowired
-    private GMLCoreCIS11Builder gmlBuilder;
+    private JSONCoreCIS11Builder jsonBuilder;
     @Autowired
     private KVPWCSGetCoverageHandler getCoverageHandler;
     @Autowired
     private KVPWCSProcessCoverageHandler processCoverageHandler;
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
+    @Autowired
+    private WcpsRasqlExecutor wcpsRasqlExecutor;
     
     /**
      *  https://oapi.rasdaman.org/rasdaman/oapi (7.3.1. API landing page), see: Landing Page Response Schema
@@ -185,11 +191,11 @@ public class OapiHandlersService {
     }
 
     /**
-     * Return the GMLCore object in CIS 1.1
+     * Return the JSON core object in CIS 1.1
      */
-    public GMLCoreCIS11 getCIS11GmlCoreResult(String coverageId) throws Exception {
+    public JSONCoreCIS11 getJSONCoreCIS11Result(String coverageId) throws Exception {
         WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(coverageId);
-        GMLCoreCIS11 result = gmlBuilder.build(wcpsCoverageMetadata);
+        JSONCoreCIS11 result = jsonBuilder.build(wcpsCoverageMetadata);
         
         return result;
     }
@@ -204,7 +210,7 @@ public class OapiHandlersService {
         Map<String, String[]> kvpParams = new HashMap<>();
         
         String[] service = {WCS_SERVICE};
-        String[] version = {WCS_VERSION_20};
+        String[] version = {WCS_VERSION_21};
         String[] request = {VALUE_GET_COVERAGE};
         String[] format = {outputFormat};
         String[] coverageIds = {coverageId};
@@ -218,6 +224,10 @@ public class OapiHandlersService {
         }
         if (outputFormat != null) {
             kvpParams.put(KEY_FORMAT, format);
+        } else {
+            // NOTE: default is JSON in CIS 1.1 if output format is not specified
+            kvpParams.put(KEY_FORMAT, new String[] { MIME_JSON });
+            kvpParams.put(KEY_OUTPUT_TYPE, new String[] { VALUE_GENERAL_GRID_COVERAGE });
         }
         
         kvpParams.put(KEY_COVERAGEID, coverageIds);
@@ -226,8 +236,15 @@ public class OapiHandlersService {
     }
 
     public RangeSet getCoverageRangeSetResult(String coverageId, String[] subsets) throws Exception {
-        Response data = getCoverageSubsetResult(coverageId, subsets, MIMEUtil.MIME_JSON);
-        return new RangeSet(new DataBlock(new String(data.getDatas().get(0))));
+        Response response = getCoverageSubsetResult(coverageId, subsets, MIMEUtil.MIME_JSON);
+        byte[] bytes = null;
+        if (!response.getDatas().isEmpty()) {
+            bytes = response.getDatas().get(0);
+        }
+        
+        List<Object> pixelValues = this.wcpsRasqlExecutor.getJsonPixelValues(bytes);
+        
+        return new RangeSet(new DataBlock(pixelValues)); 
     }
 
 }

@@ -355,6 +355,16 @@ public class ListUtil {
         
         return false;
     }
+    
+    public static List<String> stripQuotes(List<String> inputs) {
+        List<String> results = new ArrayList<>();
+        
+        for (String input : inputs) {
+            results.add(StringUtil.stripQuotes(input));
+        }
+        
+        return results;
+    }
 
     /**
      * Generic comparator for numbers.

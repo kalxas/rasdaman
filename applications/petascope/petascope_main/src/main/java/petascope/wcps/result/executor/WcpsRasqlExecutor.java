@@ -23,12 +23,14 @@ package petascope.wcps.result.executor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import nu.xom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static petascope.core.XMLSymbols.LABEL_GENERAL_GRID_COVERAGE;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.ras.RasUtil;
@@ -40,9 +42,9 @@ import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.TimeUtil;
 import petascope.core.gml.GMLWCSRequestResultBuilder;
+import petascope.core.json.JSONWCSRequestResultBuilder;
+import petascope.util.StringUtil;
 import petascope.util.XMLUtil;
-import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
-import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 import static petascope.wcps.handler.ClipWKTExpressionHandler.WITH_COORDINATES;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.IrregularAxis;
@@ -60,6 +62,9 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
 
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
+    
+    @Autowired
+    private JSONWCSRequestResultBuilder jsonWCSRequestResultBuilder;
 
     public WcpsRasqlExecutor() {
     }
@@ -72,6 +77,11 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
         byte[] arrayData = RasUtil.getRasqlResultAsBytes(wcpsResult.getRasql());
         // If encoding is gml so build the GML Coverage with the tupleList contains the rasql result values
         if (mimeType != null) {
+            String coverageType = null;
+            if (wcpsResult.getMetadata() != null) {
+                coverageType = wcpsResult.getMetadata().getCoverageType();
+            }
+            
             if (wcpsResult.withCoordinates()) {
                 if (!(mimeType.equals(MIMEUtil.MIME_CSV) || mimeType.equals(MIMEUtil.MIME_JSON))) {
                     throw new PetascopeException(ExceptionCode.InvalidRequest, 
@@ -81,6 +91,9 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
             } else if (mimeType.equals(MIMEUtil.MIME_GML)) {
                 // encode(c, "gml")
                 arrayData = this.buildGmlCovResult(wcpsResult.getMetadata(), arrayData);
+            } else if (mimeType.equals(MIMEUtil.MIME_JSON) && coverageType.equals(LABEL_GENERAL_GRID_COVERAGE)) {
+                // encode(c, "json", "{\"outputType\":\"GeneralGridCoverage\"}")
+                arrayData = this.buildJsonCovResult(wcpsResult.getMetadata(), arrayData);
             }
         }
         return arrayData;
@@ -169,7 +182,6 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
         if (mimeType.equals(MIMEUtil.MIME_JSON)) {
             result = "[" + result + "]";
         }
-        
         return result.getBytes();
     }
 
@@ -191,6 +203,39 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
     }
 
     /**
+     * Return the list of Object (String / BigDecimal) for CIS 1.1 JSON RangeSet values
+     */
+    public List<Object> getJsonPixelValues(byte[] arrayData) {
+        String tupleList = new String(arrayData);
+        
+        List<Object> pixelValuesObjects = new ArrayList<>();
+        List<String> pixelValues = Arrays.asList(this.rasJsonToTupleList(tupleList).split(","));
+        
+        boolean hasMultipleBands = tupleList.contains("\"");
+        for (String value : pixelValues) {
+            if (hasMultipleBands) {
+                // e.g: "01 01"
+                pixelValuesObjects.add(value);
+            } else {
+                // e.g: 2.35353
+                pixelValuesObjects.add(new BigDecimal(value));
+            }
+        }
+        
+        return pixelValuesObjects;
+    }
+    
+    /**
+     * Build a JSON CIS 1.1 coverage result as a GetCoverage request with formatType=application/json&outputType=GeneralGridCoverage
+     */
+    private byte[] buildJsonCovResult(WcpsCoverageMetadata wcpsCoverageMetadata, byte[] arrayData) throws PetascopeException, SecoreException { 
+        List<Object> pixelValuesObjects = this.getJsonPixelValues(arrayData);
+        
+        String jsonResult = this.jsonWCSRequestResultBuilder.buildGetCoverageResult(wcpsCoverageMetadata, pixelValuesObjects);
+        return jsonResult.getBytes();
+    }
+
+    /**
      * Transforms a JSON output (http://rasdaman.org/ticket/1578) returned by rasdaman server into a JSON format
      * accepted by the gml:tupleList according to section 19.3.8 of the OGC GML
      * standard version 3.2.1
@@ -201,6 +246,15 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
      * @return JSON string of form b1 b2 .. bn, b1 b2 ... bn, ...
      */
     private String rasJsonToTupleList(String json) {
-        return json.replace(RASQL_OPEN_SUBSETS, "").replace(RASQL_CLOSE_SUBSETS, "").replace("\"", "");
+        /*
+        e.g: coverage has 2 bands
+        
+        <V>01 01</V>
+        <V>02 02</V>
+        <V>03 03</V>
+        */
+        String result = StringUtil.stripQuotes(StringUtil.stripBrackets(json));
+        
+        return result;
     }
 }

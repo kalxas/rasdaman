@@ -110,8 +110,7 @@ public class GMLGetCoverageBuilder {
     }
 
     /**
-     * From the list of input coverageIds, build the result for DescribeCoverage
-     * request.
+     * Build result for GetCoverage request in GML format
      */
     public Element buildWCSGetCoverageResult(WcpsCoverageMetadata wcpsCoverageMetadata, String pixelValues) throws PetascopeException, SecoreException {
 
