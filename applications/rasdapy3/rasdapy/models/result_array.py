@@ -55,6 +55,15 @@ class ResultArray(object):
     def size(self):
         return len(self.data)
 
+    def __str__(self):
+        output = []
+        for d in self.data:
+            output.append(str(d))
+        if len(output) == 1:
+            return str(output[0])
+
+        return str(output)
+
     def __iter__(self):
         self.cursor = 0
         return self
