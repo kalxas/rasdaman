@@ -101,7 +101,7 @@ Encode array subset to PNG format and write the result to a file.
 
   >>> result = query_executor.execute_read("select encode(m[0:10 ,0:10], \"png\") from mr2 as m")
   >>> with open("/tmp/output.png", "wb") as binary_file:
-  >>>   binary_file.write(result.data)
+  >>>   binary_file.write(result.data[0])
 
 Create a rasdaman collection. Note that you should be connected with a user that
 has write permission; by default this is rasadmin/rasadmin in rasdaman, but this
