@@ -213,6 +213,15 @@ void r_Conv_GDAL::encodeImage(GDALDataType gdalBandType, r_Primitive_Type* rasBa
     case GDT_Byte:
     {
         encodeImage<r_Char>(gdalBandType, isBoolean, width, height, numBands, false);
+        if (rasBandType->type_id() == r_Type::OCTET)
+        {
+          for (int i = 1; i <= int(numBands); ++i)
+          {
+            poDataset->GetRasterBand(i)->SetMetadataItem(GDAL_KEY_PIXELTYPE.c_str(),
+                                                         GDAL_VAL_SIGNEDBYTE.c_str(),
+                                                         GDAL_KEY_IMAGE_STRUCTURE.c_str());
+          }
+        }
         break;
     }
     case GDT_UInt16:
@@ -325,10 +334,10 @@ void r_Conv_GDAL::encodeImage(GDALDataType gdalBandType, bool isBoolean,
                 }
             }
         }
+        
         if (isComplex)
-        {
             width /= 2;
-        }
+        
         CPLErr error = poDataset->GetRasterBand((int)(band + 1))->
                        RasterIO(GF_Write, 0, 0, (int)width, (int)height, (char*) dstCells.get(),
                                 (int)width, (int)height, gdalBandType, 0, 0);
@@ -452,9 +461,7 @@ char* r_Conv_GDAL::decodeImage()
         bool signedByte = false;
         const char* pixelType = gdalBand->GetMetadataItem(GDAL_KEY_PIXELTYPE.c_str(), GDAL_KEY_IMAGE_STRUCTURE.c_str());
         if (pixelType)
-        {
             signedByte = string{pixelType} == GDAL_VAL_SIGNEDBYTE;
-        }
 
         decodeBand(bandCells, tileCells + bandOffset, tileBaseTypeSize, width, height, bandType, signedByte);
         bandOffset += bandBaseTypeSize;
@@ -592,7 +599,7 @@ void r_Conv_GDAL::transposeBand(const char* __restrict__ srcIn,
                                 char* __restrict__ dst, size_t tileBaseTypeSize,
                                 size_t width, size_t height)
 {
-    const T* __restrict__ src RAS_ALIGNED = reinterpret_cast<T*>(const_cast<char*>(srcIn));
+    const T* __restrict__ src RAS_ALIGNED = reinterpret_cast<const T*>(srcIn);
 
     if (!formatParams.isTranspose())
     {
@@ -601,9 +608,7 @@ void r_Conv_GDAL::transposeBand(const char* __restrict__ srcIn,
         {
             for (size_t col = 0; col < width; ++col)
                 for (size_t row = 0; row < height; ++row, dst += tileBaseTypeSize)
-                {
-                    *((T*) dst) = src[row * width + col];
-                }
+                    *reinterpret_cast<T*>(dst) = src[row * width + col];
         }
         else
         {
@@ -611,9 +616,7 @@ void r_Conv_GDAL::transposeBand(const char* __restrict__ srcIn,
             T* __restrict__ dstT RAS_ALIGNED = reinterpret_cast<T*>(dst);
             for (size_t col = 0; col < width; ++col)
                 for (size_t row = 0; row < height; ++row, ++dstT)
-                {
                     *dstT = src[row * width + col];
-                }
         }
     }
     else
@@ -622,9 +625,7 @@ void r_Conv_GDAL::transposeBand(const char* __restrict__ srcIn,
         if (bandIds.size() > 1)
         {
             for (size_t i = 0; i < width * height; ++i, dst += tileBaseTypeSize)
-            {
-                *((T*) dst) = src[i];
-            }
+                *reinterpret_cast<T*>(dst) = src[i];
         }
         else
         {

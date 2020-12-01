@@ -134,7 +134,8 @@ GDALDataType ConvUtil::rasTypeToGdalType(r_Type* rasType)
 {
     switch (rasType->type_id())
     {
-    case r_Type::BOOL:   return GDT_Byte;
+    case r_Type::BOOL:
+    case r_Type::OCTET:
     case r_Type::CHAR:   return GDT_Byte;
     case r_Type::USHORT: return GDT_UInt16;
     case r_Type::SHORT:  return GDT_Int16;
