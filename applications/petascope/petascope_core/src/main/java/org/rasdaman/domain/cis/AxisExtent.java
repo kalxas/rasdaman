@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import javax.persistence.*;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
 
@@ -159,7 +160,7 @@ public class AxisExtent implements Serializable {
             number = TimeUtil.countOffsets(datumOrigin, this.lowerBound, axisUoM, BigDecimal.ONE);
             return number;
         } else {
-            return new BigDecimal(this.lowerBound);
+            return BigDecimalUtil.stripDecimalZeros(new BigDecimal(this.lowerBound));
         }
     }
     
@@ -179,7 +180,7 @@ public class AxisExtent implements Serializable {
             number = TimeUtil.countOffsets(datumOrigin, this.upperBound, axisUoM, BigDecimal.ONE);
             return number;
         } else {
-            return new BigDecimal(this.upperBound);
+            return BigDecimalUtil.stripDecimalZeros(new BigDecimal(this.upperBound));
         }
     }
 }

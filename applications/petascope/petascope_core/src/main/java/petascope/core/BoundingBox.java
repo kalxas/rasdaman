@@ -51,6 +51,11 @@ public class BoundingBox {
         this.ymax = ymax;
     }
     
+    public BoundingBox(BigDecimal xmin, BigDecimal ymin, BigDecimal xmax, BigDecimal ymax, String geoXYCrs) {
+        this(xmin, ymin, xmax, ymax);
+        this.geoXYCrs = geoXYCrs;
+    }
+    
     public BigDecimal getXMin() {
         return this.xmin;
     }
@@ -81,6 +86,10 @@ public class BoundingBox {
 
     public void setYMax(BigDecimal ymax) {
         this.ymax = ymax;
+    }
+
+    public String getGeoXYCrs() {
+        return geoXYCrs;
     }
     
     public String toString() {
@@ -136,4 +145,5 @@ public class BoundingBox {
     private BigDecimal ymin;
     private BigDecimal xmax;
     private BigDecimal ymax;
+    private String geoXYCrs;
 }

@@ -83,8 +83,6 @@ public class IndexAxis extends Axis implements Serializable {
         this.upperBound = upperBound;
         this.axisOrder = axisOrder;
     }
-    
-    
 
 
     public Long getLowerBound() {

@@ -94,6 +94,40 @@ public class Wgs84BoundingBox implements Serializable {
         this.maxLat = wgs84BoundingBox.getMaxLat().toString();
     }
     
+    /**
+     * Return this BBOX as WKT polygon in WGS84 CRS (Long Lat order)
+     */
+    public String getWKTPolygon() {
+        
+        // NOTE: postgis does not allow full world's map (-180 -90 180 90)
+        BigDecimal minX = new BigDecimal(this.minLong);
+        if (minX.compareTo(new BigDecimal("-180")) <= 0) {
+            minX = new BigDecimal("-179.999");
+        }
+        BigDecimal minY = new BigDecimal(this.minLat);
+        if (minY.compareTo(new BigDecimal("-90")) <= 0) {
+            minY = new BigDecimal("-89.999");
+        }
+        
+        BigDecimal maxX = new BigDecimal(this.maxLong);
+        if (maxX.compareTo(new BigDecimal("180")) >= 0) {
+            maxX = new BigDecimal("179.999");
+        }
+        BigDecimal maxY = new BigDecimal(this.maxLat);
+        if (maxY.compareTo(new BigDecimal("90")) >= 0) {
+            maxY = new BigDecimal("89.999");
+        }
+        
+        String wkt = "POLYGON((";
+        wkt += minX + " " + minY + ","
+            + minX + " " + maxY + ","
+            + maxX + " " + maxY + ","
+            + maxX + " " + minY + ","
+            + minX + " " + minY + "))";
+        
+        return wkt;
+    }
+    
     @Override
     public String toString() {
         return "BBox(Long, Lat): " + this.minLong + ", " + this.minLat + ", " + this.maxLong + ", " + this.maxLat;

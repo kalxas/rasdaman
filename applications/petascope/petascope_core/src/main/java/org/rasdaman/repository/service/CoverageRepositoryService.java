@@ -146,7 +146,6 @@ public class CoverageRepositoryService {
      */
     public Coverage readCoverageFullMetadataByIdFromCache(String coverageId) throws PetascopeException {
         Coverage coverage = null;
-
         Pair<Coverage, Boolean> coveragePair = localCoveragesCacheMap.get(coverageId);
         
         // Check if coverage is already cached
@@ -193,6 +192,19 @@ public class CoverageRepositoryService {
         }
 
         return coverage;
+    }
+    
+    /**
+     * Read the basic metadata for coverage object from local cache
+     */
+    public Coverage readCoverageBasicMetadataByIdFromLocalCache(String coverageId) throws PetascopeException {
+        
+        if (localCoveragesCacheMap.isEmpty()) {            
+            this.readAllLocalCoveragesBasicMetatata();
+        }
+        
+        Coverage coverage = this.localCoveragesCacheMap.get(coverageId).fst;
+        return coverage;        
     }
     
     /**
@@ -287,7 +299,7 @@ public class CoverageRepositoryService {
     /**
      * Read a basic coverage metadata from local database.
      */
-    private void readCoverageBasicMetadataFromDatabase(String coverageId, String coverageType) throws PetascopeException {
+    private void readCoverageBasicMetadataFromDatabase(long id, String coverageId, String coverageType) throws PetascopeException {
         // Each coverage has only 1 envelope and each envelope has only 1 envelopeByAxis
         EnvelopeByAxis envelopeByAxis = coverageRepository.readEnvelopeByAxisByCoverageId(coverageId);
         // NOTE: this coverage object will update CRS with current configured SECORE URL (e.g: http://localhost:8080/def) in petascope.propeties
@@ -302,6 +314,7 @@ public class CoverageRepositoryService {
         }
 
         Coverage coverage = new GeneralGridCoverage();
+        coverage.setId(id);
         coverage.setCoverageId(coverageId);
         coverage.setCoverageType(coverageType);
         Envelope envelope = new Envelope();
@@ -397,12 +410,13 @@ public class CoverageRepositoryService {
         List<Pair<Coverage, Boolean>> coverages = new ArrayList<>();
         List<Object[]> coverageIdsAndTypes = coverageRepository.readAllCoverageIdsAndTypes();
         for (Object[] coverageIdAndType : coverageIdsAndTypes) {
-            String coverageId = coverageIdAndType[0].toString();
-            String coverageType = coverageIdAndType[1].toString();
+            long id = new Long(coverageIdAndType[0].toString());
+            String coverageId = coverageIdAndType[1].toString();
+            String coverageType = coverageIdAndType[2].toString();
             
             if (!localCoveragesCacheMap.containsKey(coverageId)) {
                 try {
-                    this.readCoverageBasicMetadataFromDatabase(coverageId, coverageType);
+                    this.readCoverageBasicMetadataFromDatabase(id, coverageId, coverageType);
 
                 } catch (Exception ex) {
                     throw new PetascopeException(ExceptionCode.InternalSqlError,
@@ -455,90 +469,73 @@ public class CoverageRepositoryService {
      * (EnvelopeByAxis). The XY axes' BoundingBox is reprojected to EPSG:4326.
      */
     public void createCoverageExtent(Coverage coverage) throws PetascopeException, SecoreException {
-        
-        List<AxisExtent> axisExtents = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getAxisExtents();
-        boolean foundX = false, foundY = false;
-        String xyAxesCRS = null;
-        String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
-        
         Wgs84BoundingBox wgs84BoundingBox = null;
-        int i = 0;
-        for (AxisExtent axisExtent : axisExtents) {
-            String axisExtentCrs = axisExtent.getSrsName();
-            // NOTE: the basic coverage metadata can have the abstract SECORE URL, so must replace it first
-            axisExtentCrs = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCrs);
-            
-            if (axisExtentCrs.contains(CrsUtil.EPSG_AUTH)) {
-                // x, y
-                String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
-                if (axisType.equals(AxisTypes.X_AXIS)) {
-                    foundX = true;
-                    xyAxesCRS = axisExtentCrs;
-                } else if (axisType.equals(AxisTypes.Y_AXIS)) {
-                    foundY = true;
-                }
-                if (foundX && foundY) {
-                    break;
-                }
-            }
-            
-            i++;
-        }
+        
+        BoundingBox bbox = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getGeoXYBoundingBox();
 
         // Don't transform the XY extents to EPSG:4326 if it is not EPSG code or it is not at least 2D
-        if (foundX && foundY && CrsUtil.isValidTransform(xyAxesCRS)) {
-            Pair<GeoAxis, GeoAxis> xyAxesPair = ((GeneralGridCoverage)coverage).getXYGeoAxes();
-            GeoAxis geoAxisX = xyAxesPair.fst;
-            IndexAxis indexAxisX = ((GeneralGridCoverage)coverage).getIndexAxisByName(geoAxisX.getAxisLabel());
-            GeoAxis geoAxisY = xyAxesPair.snd;
-            IndexAxis indexAxisY = ((GeneralGridCoverage)coverage).getIndexAxisByName(geoAxisY.getAxisLabel());
-            
-            if (CrsUtil.getEPSGCode(xyAxesCRS).equals(COVERAGES_EXTENT_TARGET_CRS_DEFAULT)) {
-                wgs84BoundingBox = new Wgs84BoundingBox(geoAxisX.getLowerBoundNumber(), geoAxisY.getLowerBoundNumber(), 
-                                                        geoAxisX.getUpperBoundNumber(), geoAxisY.getUpperBoundNumber());
-            } else {
-                // coverage in different CRS than EPSG:4326
-                int epsgCode = CrsUtil.getEpsgCodeAsInt(xyAxesCRS);
-                int gridWidth = (int)(indexAxisX.getUpperBound() - indexAxisX.getLowerBound() + 1);
-                int gridHigh = (int)(indexAxisY.getUpperBound() - indexAxisY.getLowerBound() + 1);
-                GeoTransform sourceGeoTransform = new GeoTransform(epsgCode, geoAxisX.getLowerBoundNumber().doubleValue(), geoAxisY.getUpperBoundNumber().doubleValue(), 
-                                                                   gridWidth, gridHigh, geoAxisX.getResolution().doubleValue(), geoAxisY.getResolution().doubleValue());
+        if (bbox != null) {       
 
-                try {
-                    BoundingBox bbox = CrsProjectionUtil.transform(sourceGeoTransform, COVERAGES_EXTENT_TARGET_CRS_DEFAULT);
-                    BigDecimal lonMin = bbox.getXMin();
-                    BigDecimal latMin = bbox.getYMin();
-                    BigDecimal lonMax = bbox.getXMax();
-                    BigDecimal latMax = bbox.getYMax();
+            if (coverage.getDomainSet() == null) {
+                // NOTE: this one is used only for older peernode petascope which doesn't have Wgs84BoundingBox object in envelope
+                // It returns less precisely bounding box, but it is used for backward compatibility               
+                wgs84BoundingBox = CrsProjectionUtil.createLessPreciseWgs84BBox(coverage);
+            }  else {            
+                Pair<GeoAxis, GeoAxis> xyAxesPair = ((GeneralGridCoverage)coverage).getXYGeoAxes();
+                GeoAxis geoAxisX = xyAxesPair.fst;
+                IndexAxis indexAxisX = ((GeneralGridCoverage)coverage).getIndexAxisByName(geoAxisX.getAxisLabel());
+                GeoAxis geoAxisY = xyAxesPair.snd;
+                IndexAxis indexAxisY = ((GeneralGridCoverage)coverage).getIndexAxisByName(geoAxisY.getAxisLabel());
 
-                    if (lonMin.compareTo(new BigDecimal("-180")) < 0) {
-                        lonMin = new BigDecimal("-180");
+                if (CrsUtil.getEPSGCode(bbox.getGeoXYCrs()).equals(COVERAGES_EXTENT_TARGET_CRS_DEFAULT)) {
+                    wgs84BoundingBox = new Wgs84BoundingBox(geoAxisX.getLowerBoundNumber(), geoAxisY.getLowerBoundNumber(), 
+                                                            geoAxisX.getUpperBoundNumber(), geoAxisY.getUpperBoundNumber());
+                } else {
+                    // coverage in different CRS than EPSG:4326
+                    int epsgCode = CrsUtil.getEpsgCodeAsInt(bbox.getGeoXYCrs());
+                    int gridWidth = (int)(indexAxisX.getUpperBound() - indexAxisX.getLowerBound() + 1);
+                    int gridHigh = (int)(indexAxisY.getUpperBound() - indexAxisY.getLowerBound() + 1);
+                    GeoTransform sourceGeoTransform = new GeoTransform(epsgCode, geoAxisX.getLowerBoundNumber().doubleValue(), geoAxisY.getUpperBoundNumber().doubleValue(), 
+                                                                       gridWidth, gridHigh, geoAxisX.getResolution().doubleValue(), geoAxisY.getResolution().doubleValue());
+
+                    try {
+                        BoundingBox bboxTmp = CrsProjectionUtil.transform(sourceGeoTransform, COVERAGES_EXTENT_TARGET_CRS_DEFAULT);
+                        BigDecimal lonMin = bboxTmp.getXMin();
+                        BigDecimal latMin = bboxTmp.getYMin();
+                        BigDecimal lonMax = bboxTmp.getXMax();
+                        BigDecimal latMax = bboxTmp.getYMax();
+
+                        if (lonMin.compareTo(new BigDecimal("-180")) < 0) {
+                            lonMin = new BigDecimal("-180");
+                        }
+                        if (latMin.compareTo(new BigDecimal("-90")) < 0) {
+                            latMin = new BigDecimal("-90");
+                        }                
+                        if (lonMax.compareTo(new BigDecimal("180")) > 0) {
+                            lonMax = new BigDecimal("180");
+                        }
+                        if (latMax.compareTo(new BigDecimal("90")) > 0) {
+                            latMax = new BigDecimal("90");
+                        }
+
+                        // Created WGS84 bbox for coverage, then, persist to database
+                        wgs84BoundingBox = new Wgs84BoundingBox(lonMin, latMin, lonMax, latMax);                    
+
+                    } catch (Exception ex) {
+                        log.warn("Cannot create extent for coverage '" + coverage.getCoverageId() + "', error from crs transform '" + ex.getMessage() + "'.");
                     }
-                    if (latMin.compareTo(new BigDecimal("-90")) < 0) {
-                        latMin = new BigDecimal("-90");
-                    }                
-                    if (lonMax.compareTo(new BigDecimal("180")) > 0) {
-                        lonMax = new BigDecimal("180");
-                    }
-                    if (latMax.compareTo(new BigDecimal("90")) > 0) {
-                        latMax = new BigDecimal("90");
-                    }
-
-                    // Created WGS84 bbox for coverage, then, persist to database
-                    wgs84BoundingBox = new Wgs84BoundingBox(lonMin, latMin, lonMax, latMax);                    
-
-                } catch (Exception ex) {
-                    log.warn("Cannot create extent for coverage '" + coverage.getCoverageId() + "', error from crs transform '" + ex.getMessage() + "'.");
                 }
             }
         }
         
-        if (coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox() == null) {
-            // If coverage doesn't have WGS84BBox, insert a row to database value
-            coverage.getEnvelope().getEnvelopeByAxis().setWgs84BBox(wgs84BoundingBox);
-        } else {
-            // NOTE: In case coverage has WGS84BBox, update its values to update row to database table instead of inserting a new row
-            coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox().set(wgs84BoundingBox);
+        if (wgs84BoundingBox != null) {
+            if (coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox() == null) {
+                // If coverage doesn't have WGS84BBox, insert a row to database value
+                coverage.getEnvelope().getEnvelopeByAxis().setWgs84BBox(wgs84BoundingBox);
+            } else {
+                // NOTE: In case coverage has WGS84BBox, update its values to update row to database table instead of inserting a new row
+                coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox().set(wgs84BoundingBox);
+            }
         }
     }
     

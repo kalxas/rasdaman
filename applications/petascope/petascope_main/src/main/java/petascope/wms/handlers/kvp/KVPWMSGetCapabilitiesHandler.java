@@ -31,6 +31,7 @@ import nu.xom.Element;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import org.rasdaman.domain.owsmetadata.Address;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.domain.owsmetadata.Phone;
@@ -58,6 +59,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.MIMEUtil;
 import petascope.exceptions.WMSException;
+import petascope.util.CrsProjectionUtil;
 import petascope.util.ListUtil;
 import petascope.util.XMLUtil;
 import petascope.wms.exception.WMSLayerNotExistException;
@@ -425,7 +427,14 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         layerElement.appendChild(crsElement);
 
         // EX_GeographicBoundingBox 
-        EXGeographicBoundingBox exGeographicBoundingBox = new EXGeographicBoundingBox(coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox());
+        Wgs84BoundingBox wgs84BBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
+        if (wgs84BBox == null) {
+            // In case Wgs84BBox is not created (typically from remote coverages)
+            wgs84BBox = CrsProjectionUtil.createLessPreciseWgs84BBox(coverage);
+            coverage.getEnvelope().getEnvelopeByAxis().setWgs84BBox(wgs84BBox);
+        }
+        
+        EXGeographicBoundingBox exGeographicBoundingBox = new EXGeographicBoundingBox(wgs84BBox);
         layer.setExGeographicBoundingBox(exGeographicBoundingBox);
         String exBBoxRepresentation = layer.getExGeographicBoundingBox().getReprenstation();
         layerElement.appendChild(exBBoxRepresentation);

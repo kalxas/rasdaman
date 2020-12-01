@@ -53,7 +53,7 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
     @Query("Select coverageId from Coverage ORDER by coverageId")
     List<String> readAllCoverageIds();
     
-    @Query("Select coverageId, coverageType from Coverage")
+    @Query("Select id, coverageId, coverageType from Coverage")
     List<Object[]> readAllCoverageIdsAndTypes();
     
     @Query("Select coverageId, coverageType from Coverage c where c.coverageId = :coverageId")

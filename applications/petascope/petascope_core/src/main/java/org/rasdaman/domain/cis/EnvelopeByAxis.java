@@ -22,18 +22,28 @@
 package org.rasdaman.domain.cis;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.rasdaman.config.ConfigManager;
+import petascope.core.AxisTypes;
+import petascope.core.BoundingBox;
+import petascope.core.CrsDefinition;
+import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
+import petascope.util.StringUtil;
+import petascope.util.TimeUtil;
 
 /**
  * CIS 1.1
@@ -211,6 +221,34 @@ public class EnvelopeByAxis implements Serializable {
 
         return lowerCorner.trim();
     }
+    
+    /**
+     * Return the list of axes lower bounds
+     */
+    public List<String> getLowerBoundValues() {
+        List<String> results = new ArrayList<>();
+        
+        for (AxisExtent axisExtent : this.axisExtents) {
+            String lowerBound = StringUtil.stripQuotes(axisExtent.getLowerBound());
+            results.add(lowerBound);
+        }
+        
+        return results;
+    }
+    
+    /**
+     * Return the list of axes upper bounds
+     */
+    public List<String> getUpperBoundValues() {
+        List<String> results = new ArrayList<>();
+        
+        for (AxisExtent axisExtent : this.axisExtents) {
+            String upperBound = StringUtil.stripQuotes(axisExtent.getUpperBound());
+            results.add(upperBound);
+        }
+        
+        return results;
+    }
 
     /**
      * Return the String contains all the lower corners of axes extent e.g:
@@ -265,5 +303,90 @@ public class EnvelopeByAxis implements Serializable {
         }
         
         return ListUtil.join(results, ",");
+    }
+    
+    /**
+     * If this coverage has a time axis, then returns it lower and uppe bounds in date time format
+     */
+    public List<AxisExtent> getTimeAxisExtents() throws PetascopeException, SecoreException {
+        List<AxisExtent> axisExtents = new ArrayList<>();
+        
+        for (int i = 0; i < this.axisExtents.size(); i++) {
+            String axisType = CrsUtil.getAxisTypeByIndex(this.srsName, i);
+            if (axisType.equals(AxisTypes.T_AXIS)) {
+                AxisExtent axisExtent = this.axisExtents.get(i);
+                CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(axisExtent.getSrsName());
+                if (!axisExtent.getLowerBound().contains("\"")) {
+                    axisExtent.setLowerBound(TimeUtil.valueToISODateTime(BigDecimal.ZERO, axisExtent.getLowerBoundNumber(), crsDefinition));
+                } 
+                if (!axisExtent.getUpperBound().contains("\"")) {
+                    axisExtent.setUpperBound(TimeUtil.valueToISODateTime(BigDecimal.ZERO, axisExtent.getUpperBoundNumber(), crsDefinition));
+                }
+                
+                axisExtents.add(axisExtent);
+            }
+        }
+        
+        return axisExtents;
+    }
+    
+    /**
+     * Return the list of crss of a coverage
+     */
+    public List<String> getCrsList() {
+        Set<String> results = new LinkedHashSet<>();
+        
+        for (AxisExtent axisExtent : this.axisExtents) {
+            String shortenedCrs = CrsUtil.getAuthorityCodeFormat(axisExtent.getSrsName());
+            results.add(shortenedCrs);
+        }
+        
+        return new ArrayList<>(results);
+    }
+    
+    /**
+     * Check if this coverage has geo XY axes and returns list of minX, minY, maxX, maxY
+     */
+    public BoundingBox getGeoXYBoundingBox() throws PetascopeException {
+        List<AxisExtent> axisExtents = this.axisExtents;
+        boolean foundX = false, foundY = false;
+        String xyAxesCRS = null;
+        String coverageCRS = this.srsName;
+        BigDecimal xMin = null, yMin = null, xMax = null, yMax = null;
+        
+        BoundingBox result = null;
+        
+        int i = 0;
+        for (AxisExtent axisExtent : axisExtents) {
+            String axisExtentCrs = axisExtent.getSrsName();
+            // NOTE: the basic coverage metadata can have the abstract SECORE URL, so must replace it first
+            axisExtentCrs = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCrs);
+            
+            if (axisExtentCrs.contains(CrsUtil.EPSG_AUTH)) {
+                // x, y
+                String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+                if (axisType.equals(AxisTypes.X_AXIS)) {
+                    foundX = true;
+                    xMin = new BigDecimal(axisExtent.getLowerBound());
+                    xMax = new BigDecimal(axisExtent.getUpperBound());
+                    xyAxesCRS = axisExtentCrs;
+                } else if (axisType.equals(AxisTypes.Y_AXIS)) {
+                    foundY = true;
+                    yMin = new BigDecimal(axisExtent.getLowerBound());
+                    yMax = new BigDecimal(axisExtent.getUpperBound());
+                }
+                if (foundX && foundY) {
+                    break;
+                }
+            }
+            
+            i++;
+        }
+        
+        if (foundX && foundY && CrsUtil.isValidTransform(xyAxesCRS)) {
+            result = new BoundingBox(xMin, yMin, xMax, yMax, xyAxesCRS);
+        }
+        
+        return result;
     }
 }

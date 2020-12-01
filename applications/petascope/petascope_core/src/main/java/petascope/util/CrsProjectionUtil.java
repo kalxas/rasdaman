@@ -39,6 +39,11 @@ import org.gdal.gdalconst.gdalconstConstants;
 import org.gdal.osr.CoordinateTransformation;
 import org.gdal.osr.SpatialReference;
 import org.rasdaman.config.ConfigManager;
+import org.rasdaman.domain.cis.AxisExtent;
+import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.GeneralGridCoverage;
+import org.rasdaman.domain.cis.Wgs84BoundingBox;
+import static org.rasdaman.repository.service.CoverageRepositoryService.COVERAGES_EXTENT_TARGET_CRS_DEFAULT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes;
@@ -311,6 +316,100 @@ public class CrsProjectionUtil {
             srMap.put(code, ret);
         }
         return ret;
+    }
+    
+    /**
+     * Create a Wgs84BoundingBox, but the projected geo domains in EPSG:4326 are less precisely,
+     * because it uses the pairs of coordinates to project from coverage's Envelope (domainset is not known)
+     * 
+     * NOTE: this should not be used in most cases if grid extents and axis resolutions are known
+     */
+    public static Wgs84BoundingBox createLessPreciseWgs84BBox(Coverage coverage) throws PetascopeException {
+
+        List<AxisExtent> axisExtents = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getAxisExtents();
+        boolean foundX = false, foundY = false;
+        String xyAxesCRS = null;
+        String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
+        BigDecimal xMin = null, yMin = null, xMax = null, yMax = null;
+        
+        Wgs84BoundingBox wgs84BoundingBox = null;
+        int i = 0;
+        for (AxisExtent axisExtent : axisExtents) {
+            String axisExtentCrs = axisExtent.getSrsName();
+            // NOTE: the basic coverage metadata can have the abstract SECORE URL, so must replace it first
+            axisExtentCrs = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCrs);
+            
+            if (axisExtentCrs.contains(CrsUtil.EPSG_AUTH)) {
+                // x, y
+                String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+                if (axisType.equals(AxisTypes.X_AXIS)) {
+                    foundX = true;
+                    xMin = new BigDecimal(axisExtent.getLowerBound());
+                    xMax = new BigDecimal(axisExtent.getUpperBound());
+                    xyAxesCRS = axisExtentCrs;
+                } else if (axisType.equals(AxisTypes.Y_AXIS)) {
+                    foundY = true;
+                    yMin = new BigDecimal(axisExtent.getLowerBound());
+                    yMax = new BigDecimal(axisExtent.getUpperBound());
+                }
+                if (foundX && foundY) {
+                    break;
+                }
+            }
+            
+            i++;
+        }
+        
+        // Don't transform the XY extents to EPSG:4326 if it is not EPSG code or it is not at least 2D
+        if (foundX && foundY && CrsUtil.isValidTransform(xyAxesCRS)) {
+            if (CrsUtil.getEPSGCode(xyAxesCRS).equals(COVERAGES_EXTENT_TARGET_CRS_DEFAULT)) {
+                // already in EPSG:4326
+                wgs84BoundingBox = new Wgs84BoundingBox(xMin, yMin, xMax, yMax);
+            } else {
+                // not in EPSG:4326, needs to project
+                wgs84BoundingBox = CrsProjectionUtil.createLessPreciseWgs84BBox(xMin, yMin, xMax, yMax, xyAxesCRS);
+            }
+        }
+        
+        return wgs84BoundingBox;
+    }
+    
+    /**
+     * Create a Wgs84BoundingBox, but the projected geo domains in EPSG:4326 are less precisely,
+     * because it uses the pairs of coordinates to project.
+     * 
+     * NOTE: this should not be used in most cases if grid extents and axis resolutions are known
+     */
+    public static Wgs84BoundingBox createLessPreciseWgs84BBox(BigDecimal xMin, BigDecimal yMin, BigDecimal xMax, BigDecimal yMax, String xyAxesCRS) 
+            throws PetascopeException {
+        // NOTE: this one is used only for older peernode petascope which doesn't have Wgs84BoundingBox object in envelope
+        // It returns less precisely bounding box, but it is used for backward compatibility
+        double[] xyMinArray = {xMin.doubleValue(), yMin.doubleValue()};
+        double[] xyMaxArray = {xMax.doubleValue(), yMax.doubleValue()};
+        List<BigDecimal> minLongLatList = null, maxLongLatList = null;
+        minLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMinArray);
+        maxLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMaxArray);
+
+        BigDecimal lonMin = minLongLatList.get(0);
+        BigDecimal latMin = minLongLatList.get(1);
+        BigDecimal lonMax = maxLongLatList.get(0);
+        BigDecimal latMax = maxLongLatList.get(1);
+
+        if (lonMin.compareTo(new BigDecimal("-180")) < 0) {
+            lonMin = new BigDecimal("-180");
+        }
+        if (latMin.compareTo(new BigDecimal("-90")) < 0) {
+            latMin = new BigDecimal("-90");
+        }                
+        if (lonMax.compareTo(new BigDecimal("180")) > 0) {
+            lonMax = new BigDecimal("180");
+        }
+        if (latMax.compareTo(new BigDecimal("90")) > 0) {
+            latMax = new BigDecimal("90");
+        }
+
+        Wgs84BoundingBox wgs84BoundingBox = new Wgs84BoundingBox(lonMin, latMin, lonMax, latMax);
+        return wgs84BoundingBox;
     }
 
     /**
