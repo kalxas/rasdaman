@@ -739,6 +739,20 @@ follows below.
    datetime.datetime(2015, 5, 1, 0, 0), datetime.datetime(2015, 7, 1, 0, 0)]
 
 
+Access from R
+-------------
+
+Accessing rasdaman from R is possible in two ways right now:
+
+- :ref:`RRasdaman <sec-rrasdaman-install>` enables connecting to rasdaman,
+  executing rasql queries, and retreiving results.
+
+- `CubeR <​https://mattia6690.github.io/CubeR/>`__ allows convenient executiong
+  of WCPS queries directly from R. Check also this accompanying `presentation
+  <​https://sao.eurac.edu/wp-content/uploads/2018/07/RossiEtAl_EGU2018_PICO_DataCubes.compressed.pdf>`__.
+
+
+
 `OpenLayers <https://openlayers.org/>`__
 ----------------------------------------
 
