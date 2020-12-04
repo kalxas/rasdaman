@@ -6022,6 +6022,32 @@ for example using ``curl`` tool:
          'http://localhost:8080/rasdaman/rasql'
 
 
+If results from rasql server are multiple objects 
+(e.g: ``SELECT .. FROM RAS_*`` or a collection contains multiple arrays),
+then they are written in ``multipart/related`` MIME format with ``End``
+string as **multipart boundary**. Below is an example
+from ``SELECT c from RAS_COLLECTIONNAMES as c``:
+
+.. hidden-code-block:: text
+
+    --End
+    Content-type: text/plain
+
+    rgb
+    --End
+    Content-type: text/plain
+
+    mr
+    --End
+    Content-type: text/plain
+
+    mr2
+    --End--
+
+Clients need to parse the **multipart** results for these cases. There are
+some useful libraries to do that, 
+e.g. `NodeJS with Mailparser <https://nodemailer.com/extras/mailparser/>`_.
+
 
 .. _sec-resp-format:
 
