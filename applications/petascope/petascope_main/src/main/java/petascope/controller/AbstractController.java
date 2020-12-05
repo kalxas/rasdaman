@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import static org.rasdaman.config.ConfigManager.UPLOAD_FILE_PREFIX;
@@ -53,8 +54,12 @@ import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.MIMEUtil;
+import static petascope.util.MIMEUtil.MIME_BINARY;
 import petascope.util.StringUtil;
+import static petascope.util.StringUtil.AND_SIGN;
 import static petascope.util.StringUtil.DOLLAR_SIGN;
+import static petascope.util.StringUtil.EQUAL_SIGN;
+import static petascope.util.StringUtil.POST_STRING_CONTENT_TYPE;
 import petascope.util.XMLUtil;
 
 /**
@@ -111,6 +116,63 @@ public abstract class AbstractController {
      * Handler for GET requests.
      */
     abstract protected void handleGet(HttpServletRequest httpServletRequest) throws Exception;
+    
+    private static String getSubmittedFileName(Part part) {
+        for (String cd : part.getHeader("content-disposition").split(";")) {
+            if (cd.trim().startsWith("filename")) {
+                String fileName = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
+                return fileName.substring(fileName.lastIndexOf('/') + 1).substring(fileName.lastIndexOf('\\') + 1); // MSIE fix.
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Handle POST request with/without attached files in the POST body
+     */
+    protected void handlePost(HttpServletRequest httpServletRequest) throws IOException, Exception {
+        Map<String, String[]> kvpParameters;
+        String queryString = httpServletRequest.getQueryString();
+        if (queryString == null) {
+            // in case with POST XML/SOAP string
+            String postBody = this.getPOSTRequestBody(httpServletRequest);
+            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        } else {
+            // in case with POST KVP format
+            
+            String requestContentType = httpServletRequest.getContentType();
+            if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)) {
+                // post request without files in body
+                String postBody = this.getPOSTRequestBody(httpServletRequest);
+                kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+            } else {
+                // post request with files in body
+                for (Part part : httpServletRequest.getParts()) {
+                    // e.g: query=for ...
+                    String key = part.getName();
+                    byte[] bytes = IOUtils.toByteArray(part.getInputStream());
+                    
+                    if (part.getContentType() == null) {
+                        // KEY=VALUE as string                        
+                        String value = new String(bytes);
+                        queryString += AND_SIGN + key + EQUAL_SIGN + value;
+                    } else {
+                        // KEY=Uploaded_File_Content as binary (e.g: $1=/tmp/test.tif)                        
+                        String fileName = getSubmittedFileName(part);
+                        // stored file in servere.g: /tmp/rasdaman_petascope/rasdman.test.1122332.tif
+                        String uploadedFilePath = this.storeUploadFileOnServer(fileName, bytes);
+                        queryString += AND_SIGN + key + EQUAL_SIGN + uploadedFilePath;
+                    }
+                }
+                
+                kvpParameters = this.buildPostRequestKvpParametersMap(queryString);
+            }
+            
+        }
+
+        this.requestDispatcher(httpServletRequest, kvpParameters);
+    }
     
     /**
      * Depend on the requested service then pass the map of keys, values
@@ -333,6 +395,7 @@ public abstract class AbstractController {
         // This one is needed as normally it write the result with HTTP:200, 
         // but for SOAP case when error message is enclosed in envelope, it can return HTTP:400, 404
         injectedHttpServletResponse.setStatus(response.getHTTPCode());
+        injectedHttpServletResponse.setContentType(response.getMimeType());
         addFileNameToHeader(response);
         OutputStream os = injectedHttpServletResponse.getOutputStream();
         try {
@@ -366,8 +429,6 @@ public abstract class AbstractController {
     }
     
     protected void addFileNameToHeader(Response response) throws IOException, PetascopeException {
-        if (response.getCoverageID().equals(Response.DEFAULT_COVERAGE_ID))
-            return;
         
         String mimeType = response.getFormatType();
         String fileName = response.getCoverageID() + "." + MIMEUtil.getFileNameExtension(mimeType);
@@ -401,10 +462,16 @@ public abstract class AbstractController {
     protected void writeMultipartResponse(Response response, String mimeType, OutputStream os) throws IOException {
         MultipartResponse multi;
         multi = new MultipartResponse(injectedHttpServletResponse);
+        int i = 0;
         for (byte[] data : response.getDatas()) {
-            multi.startPart(mimeType);
-            IOUtils.write(data, os);
+            if (i > 0) {
+                multi.addLine();
+            }
             multi.endPart();
+            multi.writeContentType(mimeType);
+            IOUtils.write(data, os);            
+            
+            i++;            
         }
         multi.finish();
     }
@@ -520,7 +587,7 @@ public abstract class AbstractController {
         String[] values = kvpParameters.get(key.toLowerCase());
         if (values == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
-                    "Cannot find value from KVP parameters map for key: " + key + ".");
+                    "Cannot find value from KVP parameters map for key' " + key + "'.");
         }
         
         if (values[0].contains(",")) {
@@ -554,7 +621,7 @@ public abstract class AbstractController {
         String[] values = kvpParameters.get(key.toLowerCase());
         if (values == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
-                    "Cannot find value from KVP parameters map for key: " + key + ".");
+                    "Cannot find value from KVP parameters map for key '" + key + "'.");
         }
         
         return values[0].trim();

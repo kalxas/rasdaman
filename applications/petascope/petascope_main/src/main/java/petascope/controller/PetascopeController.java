@@ -94,47 +94,8 @@ public class PetascopeController extends AbstractController {
     @RequestMapping(value = OWS, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) 
             throws IOException, PetascopeException, WCSException, SecoreException, Exception {
-
-        Map<String, String[]> kvpParameters;
-        String queryString = httpServletRequest.getQueryString();
-        if (queryString == null) {
-            // in case with POST XML/SOAP string
-            String postBody = this.getPOSTRequestBody(httpServletRequest);
-            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        } else {
-            // in case with POST KVP format
-            
-            String requestContentType = httpServletRequest.getContentType();
-            if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)) {
-                // post request without files in body
-                String postBody = this.getPOSTRequestBody(httpServletRequest);
-                kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-            } else {
-                // post request with files in body
-                for (Part part : httpServletRequest.getParts()) {
-                    // e.g: query=for ...
-                    String key = part.getName();
-                    byte[] bytes = IOUtils.toByteArray(part.getInputStream());
-                    
-                    if (part.getContentType() == null) {
-                        // KEY=VALUE as string                        
-                        String value = new String(bytes);
-                        queryString += AND_SIGN + key + EQUAL_SIGN + value;
-                    } else if (part.getContentType().equals(MIME_BINARY)) {
-                        // KEY=Uploaded_File_Content as binary (e.g: $1=/tmp/test.tif)                    
-                        // e.g: /tmp/rasdaman_petascope/rasdaman.1122332.tif
-                        String fileName = part.getSubmittedFileName();
-                        String uploadedFilePath = this.storeUploadFileOnServer(fileName, bytes);
-                        queryString += AND_SIGN + key + EQUAL_SIGN + uploadedFilePath;
-                    }
-                }
-                
-                kvpParameters = this.buildPostRequestKvpParametersMap(queryString);
-            }
-            
-        }
-
-        this.requestDispatcher(httpServletRequest, kvpParameters);
+        
+        super.handlePost(httpServletRequest);
     }
 
     @RequestMapping(value = OWS + "/", method = RequestMethod.POST)

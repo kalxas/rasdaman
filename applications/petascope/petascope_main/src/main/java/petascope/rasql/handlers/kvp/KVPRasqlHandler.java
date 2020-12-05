@@ -105,6 +105,9 @@ public class KVPRasqlHandler implements IKVPHandler {
                 boolean rw = !RasUtil.isSelectQuery(query);
                 Object rasjResult = RasUtil.executeRasqlQuery(query, username, password, rw, null);
                 response.setDatas(getResultDatas(rasjResult));
+                
+                String mimeType = RasUtil.getMimeInEncode(query);
+                response.setFormatType(mimeType);
             } else {
                 // decode() or inv_*() in rasql query, no result returned
                 RasUtil.executeInsertUpdateFileStatement(query, filePath, username, password);

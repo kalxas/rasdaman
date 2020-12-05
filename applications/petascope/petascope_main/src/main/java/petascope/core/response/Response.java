@@ -22,6 +22,7 @@
 package petascope.core.response;
 
 import java.util.List;
+import org.slf4j.LoggerFactory;
 import petascope.util.MIMEUtil;
 
 /**
@@ -31,16 +32,19 @@ import petascope.util.MIMEUtil;
  */
 public class Response {
     
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(Response.class);
+    
     private static final int DEFAULT_HTTP_RESPONSE_CODE = 200;
     public static final String DEFAULT_COVERAGE_ID = "ows";
     
     // Multiparts responses (e.g: a request which returns multipart on multi coverages)
     private List<byte[]> datas;
-    // HTTP code which returns to client
+    // HTTP code returned to client
     private int httpCode = DEFAULT_HTTP_RESPONSE_CODE;
     // formatType of encoding in WCPS query, by default is gml
     private String formatType = MIMEUtil.MIME_GML;
-    // if formatType is not text (gml, xml, text) then it needs a file name from coverageID to set when download WCS, WCPS result
+    // if formatType is not text (gml, xml, text) then it needs a file name from
+    // coverageID to set when download WCS/WCPS result  
     private String coverageID = DEFAULT_COVERAGE_ID;
 
     public Response() {
@@ -78,17 +82,22 @@ public class Response {
         return hasDatas() && datas.size() > 1;
     }
     
+    public String getMimeType() {
+        String mimeType = getFormatType();
+        // To display application/gml+xml in browser, change in HTTP response to text/xml
+        if (mimeType.equals(MIMEUtil.MIME_GML)) {
+            mimeType = MIMEUtil.MIME_XML;
+        }
+        return mimeType;
+    }    
+    
     public void setFormatType(String formatType) {
         this.formatType = formatType;
     }
 
     // Encoding in Rasql
     public String getFormatType() {
-        if (formatType == null) {
-            formatType = "";
-        }
-
-        return formatType.trim();
+        return formatType != null ? formatType.trim() : "";
     }
 
     public int getHTTPCode() {
@@ -96,9 +105,7 @@ public class Response {
     }
 
     public String getCoverageID() {
-        // When coverageID is null, the request will return result with this filename as default.
-        coverageID = (coverageID != null) ? coverageID : DEFAULT_COVERAGE_ID;
-        return coverageID;
+        return (coverageID != null) ? coverageID : DEFAULT_COVERAGE_ID;
     }
 
     public void setCoverageID(String coverageID) {

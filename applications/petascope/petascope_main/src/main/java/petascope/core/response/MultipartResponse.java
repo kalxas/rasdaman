@@ -45,14 +45,12 @@ public class MultipartResponse {
     public MultipartResponse(HttpServletResponse servletResponse) throws IOException {
         servletResponse.setContentType(MULTIPART_CONTENT_TYPE);
         this.responseOutputStream = servletResponse.getOutputStream();
-        this.addLine();
-        this.addEnd();
     }
 
     /**
-     * Starts a new part in the response.
+     * Write content type with the mime
      */
-    public void startPart(String contentType) throws IOException {
+    public void writeContentType(String contentType) throws IOException {
         this.addContentType(contentType);
         this.addLine();
     }
@@ -61,7 +59,6 @@ public class MultipartResponse {
      * Ends the current part in the response.
      */
     public void endPart() throws IOException {
-        this.addLine();
         this.addEnd();
     }
 
@@ -69,10 +66,11 @@ public class MultipartResponse {
      * Adds the ending part in the response body.
      */
     public void finish() throws IOException {
+        this.addLine();
         this.addFinish();
     }
 
-    private void addLine() throws IOException {
+    public void addLine() throws IOException {
         this.responseOutputStream.println();
     }
 

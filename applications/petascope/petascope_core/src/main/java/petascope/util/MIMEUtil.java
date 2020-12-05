@@ -21,6 +21,7 @@ public class MIMEUtil {
     public static final String MIME_JPEG = "image/jpeg";
     public static final String MIME_PNG = "image/png";
     public static final String MIME_TIFF = "image/tiff";
+    public static final String MIME_GTIFF = "image/gtiff";
     public static final String MIME_BMP = "image/bmp";
     public static final String MIME_JP2 = "image/jp2";
     public static final String MIME_BINARY = "application/octet-stream";
@@ -134,8 +135,9 @@ public class MIMEUtil {
         // No encode gml in rasql, only in WCS/WCPS
         mimeTypesMap.put(MIME_GML, ENCODE_GML);
         mimeTypesMap.put(MIME_JPEG, ENCODE_JPEG);
-        mimeTypesMap.put(MIME_PNG, ENCODE_PNG);
+        mimeTypesMap.put(MIME_PNG, ENCODE_PNG);        
         mimeTypesMap.put(MIME_TIFF, ENCODE_TIFF);
+        mimeTypesMap.put(MIME_GTIFF, ENCODE_GTIFF);
         mimeTypesMap.put(MIME_BMP, ENCODE_BMP);
         mimeTypesMap.put(MIME_JP2, ENCODE_JPEG2000);
         mimeTypesMap.put(MIME_NETCDF, ENCODE_NETCDF);
@@ -267,6 +269,8 @@ public class MIMEUtil {
             return "json";
         } else if (mimeType.equals(MIME_DEM)) {
             return ".data";
+        } else if (mimeType.equals(MIME_TEXT)) {
+            return ".txt";
         } else if (mimeType.equals("")) {
             // It is used in case result returns a number, e.g: return avg(c)
             // MIME XML so Browser will display result instead of downloading as a file if set to MIME csv 

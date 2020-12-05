@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.odmg.Database;
 import org.odmg.ODMGException;
 import org.odmg.OQLQuery;
@@ -51,12 +52,14 @@ import petascope.rasdaman.exceptions.RasdamanCollectionExistsException;
 import petascope.util.BigDecimalUtil;
 import petascope.core.Pair;
 import petascope.util.ListUtil;
+import petascope.util.MIMEUtil;
 import static petascope.util.ras.RasConstants.RASQL_VERSION;
 import rasj.RasImplementation;
 import rasj.odmg.RasBag;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_ENCODE;
 import rasj.RasGMArray;
 import rasj.RasMInterval;
 import rasj.RasResultIsNoIntervalException;
@@ -521,7 +524,71 @@ public class RasUtil {
         
         return sdomResult;
     }
+    
+    /**
+     * If query contains encode() operator, then, extract the MIME type from it
+     * e.g: ... encode(c, "png") -> "png"
+     */
+    public static String getMimeInEncode(String query) throws PetascopeException {
+        query = query.toLowerCase().replaceAll("\\s+", "");
+        if (query.contains(RASQL_ENCODE)) {
+            
+            int tmpIndex = query.indexOf(RASQL_ENCODE) + RASQL_ENCODE.length() + 1;
+            String encodePart = query.substring(tmpIndex, query.length());
+            
+            int openParenthesisCount = 0;
+            int encodeFormatIndex = 0;
+            boolean hasParentheses = false;
+            for (int i = 0; i < encodePart.length(); i++) {
+                char c = encodePart.charAt(i);
+                if (i + 1 < query.length()) {
+                    char nextChar = query.charAt(i + 1);
+                    if ((c + "" + nextChar).equals("\"{")) {
+                        // Don't read more from extra parameter
+                        break;
+                    }
+                    
+                }
+                
+                if (c == '(') {
+                    openParenthesisCount++;
+                }
+                if (c == ')') {
+                    openParenthesisCount--;
+                    if (openParenthesisCount == 0) {
+                        hasParentheses = true;
+                        encodeFormatIndex = i;
+                        break;
+                    }
+                }
+            }
+            
+            String tmp = encodePart;
+            if (hasParentheses) {
+                // In case the first part before the encode format has parentheses for function which can contain quotes
+                tmp = encodePart.substring(encodeFormatIndex + 2, encodePart.length());
+            }
+            
+            String encodeFormatPart = tmp;
+            if (hasParentheses) {
+                String[] tmps = tmp.split(",");
+                encodeFormatPart = tmps[0];
+            } else {
+                // e.g: "png"
+                tmpIndex = tmp.indexOf("\"");
+                String tmpSubString = encodeFormatPart.substring(tmpIndex + 1, encodeFormatPart.length());
+                tmpIndex = tmpSubString.indexOf("\"");
+                encodeFormatPart = "\"" + tmpSubString.substring(0, tmpIndex) + "\"";
+            }
 
+            // e.g: "png" -> png
+            String encodeFormat = StringUtils.substringsBetween(encodeFormatPart, "\"", "\"")[0];
+            String mimeType = MIMEUtil.getMimeType(encodeFormat);
+            return mimeType;
+        }
+        
+        return null;
+    }
     private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
     private static final String TOKEN_COLLECTION_TYPE = "%collectionType%";
     private static final String TEMPLATE_CREATE_COLLECTION = "CREATE COLLECTION " + TOKEN_COLLECTION_NAME + " " + TOKEN_COLLECTION_TYPE;
