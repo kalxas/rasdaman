@@ -149,7 +149,9 @@ set_rasmgr_port()
 }
 
 get_rasmgr_process() {
-    ps -Ao user,pid,args | grep -E "^$USER +[[:digit:]]+ +$rasmgr_bin --port $RASMGR_PORT"
+    local prefix="^$USER"
+    [ -z "$USER" ] && prefix="" # USER is empty in docker, so above would fail
+    ps -Ao user,pid,args | grep -E "$prefix +[[:digit:]]+ +$rasmgr_bin --port $RASMGR_PORT"
 }
 
 #------ start embedded petascope/secore if needed --------------------------
