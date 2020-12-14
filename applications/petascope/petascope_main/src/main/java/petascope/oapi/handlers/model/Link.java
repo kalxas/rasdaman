@@ -41,6 +41,7 @@ public class Link {
     
     public static final String DATA_REL = "data";
     public static final String PROCESSING_REL = "processing";
+    public static final String REL_SELF = "self";
     
     private static final String COVERAGE_REL = "http://www.opengis.net/def/rel/ogc/1.0/coverage";
     private static final String COVERAGE_RANGE_SET_REL = "http://www.opengis.net/def/rel/ogc/1.0/coverage-rangeset";
@@ -107,7 +108,7 @@ public class Link {
     public static List<Link> getCollectionInformationLinks(String urlPrefix, String coverageId) {
         String coverageIdUrl = getCoverageIdUrl(urlPrefix, coverageId);
         return Arrays.asList(
-                new Link(COLLECTION, coverageIdUrl),
+                new Link(REL_SELF, coverageIdUrl),
                 new Link(COVERAGE_REL, coverageIdUrl + "/" + COVERAGE),
                 new Link(COVERAGE_DOMAIN_SET_REL, coverageIdUrl + "/" + COVERAGE + "/" + COVERAGE_DOMAIN_SET),
                 new Link(COVERAGE_RANGE_TYPE_REL, coverageIdUrl + "/" + COVERAGE + "/" + COVERAGE_RANGE_TYPE),
@@ -117,3 +118,4 @@ public class Link {
     }
 
 }
+

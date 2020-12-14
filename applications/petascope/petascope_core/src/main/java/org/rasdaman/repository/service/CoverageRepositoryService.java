@@ -99,16 +99,43 @@ public class CoverageRepositoryService {
     // NOTE: as Spring Cache with annotation @Cacheable in findAllCoverages will put only 1 key -> list of coverages so
     // it is not good as there is no chance to update or delete one of the cached coverage from this cache, then has to
     // define this map manually.
-    public static final Map<String, Pair<Coverage, Boolean>> localCoveragesCacheMap = new ConcurrentSkipListMap<>();
+    // map of qualified coverage id (e.g: hostname:7000:covA) -> coverage
+    private static final Map<String, Pair<Coverage, Boolean>> localCoveragesCacheMap = new ConcurrentSkipListMap<>();
 
     /**
      * Store the coverages's extents (only geo-referenced XY axes). First String
      * is minLong, minLat, second String is maxLong, maxLat.
      */
     public static final String COVERAGES_EXTENT_TARGET_CRS_DEFAULT = "EPSG:4326";
-    
+
     public CoverageRepositoryService() {
 
+    }
+
+    /**
+     * Return a pair of coverage object if a coverage id exists from local cache map
+     */
+    private Pair<Coverage, Boolean> getLocalPairCoverageByCoverageId(String inputCoverageId) throws PetascopeException {
+        Pair<Coverage, Boolean> result = null;
+        String coverageId = inputCoverageId;
+        result = this.localCoveragesCacheMap.get(coverageId);
+            
+        return result;
+    }
+    /**
+     * Add a coverage id and its coverage object to local cache map
+     */
+    public void putToLocalCacheMap(String inputCoverageId, Pair<Coverage, Boolean> coveragePair) {
+        String coverageId = inputCoverageId;
+        this.localCoveragesCacheMap.put(coverageId, coveragePair);
+    }
+    
+    /**
+     * Remove from the local cache map by coverage id
+     */
+    public void removeFromLocalCacheMap(String inputCoverageId) {
+        String coverageId = inputCoverageId;
+        this.localCoveragesCacheMap.remove(coverageId);
     }
     
     /**
@@ -119,11 +146,8 @@ public class CoverageRepositoryService {
             this.readAllLocalCoveragesBasicMetatata();
         }
         
-        if (!localCoveragesCacheMap.containsKey(coverageId)) {
-            return false;
-        }
-        
-        return true;
+        Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
+        return coveragePair != null;
     }
     
     /**
@@ -146,16 +170,12 @@ public class CoverageRepositoryService {
      */
     public Coverage readCoverageFullMetadataByIdFromCache(String coverageId) throws PetascopeException {
         Coverage coverage = null;
-        Pair<Coverage, Boolean> coveragePair = localCoveragesCacheMap.get(coverageId);
+        Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
         
         // Check if coverage is already cached
         if (coveragePair == null) {
             // If coverage is not cached then read full coverage from database
-            try {
-                coverage = this.readCoverageByIdFromDatabase(coverageId);
-            } catch (PetascopeException ex) {
-		throw ex;
-            }
+            coverage = this.readCoverageByIdFromDatabase(coverageId);
         } else if (coveragePair.snd == false) {
             // If coverage just contains basic metadata, then read full coverage from database
             coverage = this.readCoverageByIdFromDatabase(coverageId);
@@ -179,8 +199,9 @@ public class CoverageRepositoryService {
             this.readAllLocalCoveragesBasicMetatata();
         }
         
-        if (localCoveragesCacheMap.containsKey(coverageId)) {
-            coverage = localCoveragesCacheMap.get(coverageId).fst;
+        Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
+        if (coveragePair != null) {
+            coverage = coveragePair.fst;
         } else {
             // NOTE: if the cache map doesn't contain the coverage for some reason
             // then try again (this happened for WMS GetCapabitilies requests from wsclient when pestascope starts and throws coverage not found)
@@ -203,8 +224,13 @@ public class CoverageRepositoryService {
             this.readAllLocalCoveragesBasicMetatata();
         }
         
-        Coverage coverage = this.localCoveragesCacheMap.get(coverageId).fst;
-        return coverage;        
+        Coverage result = null;
+        Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
+        if (coveragePair != null) {
+            result = coveragePair.fst;
+        }
+        
+        return result;
     }
     
     /**
@@ -226,7 +252,7 @@ public class CoverageRepositoryService {
         log.debug("Time to read coverage '" + coverageId + "' from database is " + String.valueOf(end - start) + " ms.");
         
         if (coverage == null) {
-            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + coverageId + "' does not exist.");
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + coverageId + "' does not exist in local database.");
         } else {
             log.debug("Coverage '" + coverageId + "' is read from database.");
 
@@ -239,7 +265,8 @@ public class CoverageRepositoryService {
             }
         }
         
-        localCoveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
+        // e.g: vm1:7000:covA
+        this.putToLocalCacheMap(coverageId, new Pair<>(coverage, true));
         
         // NOTE: without it, after coverage's crs is replaced from $SECORE_URL$ to localhost:8080 (from petascope.properties)
         // with a DescribeCoverage request, after the replacement, 
@@ -328,7 +355,7 @@ public class CoverageRepositoryService {
         coverage.setCoverageSizeInBytes(coverageSize);
         
         // Then cache the read coverage's basic metadata
-        localCoveragesCacheMap.put(coverage.getCoverageId(), new Pair<>(coverage, false));
+        localCoveragesCacheMap.put(coverageId, new Pair<>(coverage, false));
     }
 
     /**
@@ -414,7 +441,7 @@ public class CoverageRepositoryService {
             String coverageId = coverageIdAndType[1].toString();
             String coverageType = coverageIdAndType[2].toString();
             
-            if (!localCoveragesCacheMap.containsKey(coverageId)) {
+            if (this.getLocalPairCoverageByCoverageId(coverageId) == null) {
                 try {
                     this.readCoverageBasicMetadataFromDatabase(id, coverageId, coverageType);
 
@@ -448,7 +475,7 @@ public class CoverageRepositoryService {
     public void createAllCoveragesExtents() throws PetascopeException, SecoreException {
         long start = System.currentTimeMillis();
         for (String coverageId : localCoveragesCacheMap.keySet()) {
-            Coverage coverage = localCoveragesCacheMap.get(coverageId).fst;
+            Coverage coverage = this.getLocalPairCoverageByCoverageId(coverageId).fst;
             if (coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox() == null) {
                 try {
                     coverage = this.readCoverageFullMetadataByIdFromCache(coverageId);
@@ -599,7 +626,7 @@ public class CoverageRepositoryService {
         this.coverageRepository.delete(coverage);
 
         // Remove the cached coverage from cache
-        localCoveragesCacheMap.remove(coverageId);
+        this.removeFromLocalCacheMap(coverageId);
 
         entityManager.flush();
         entityManager.clear();

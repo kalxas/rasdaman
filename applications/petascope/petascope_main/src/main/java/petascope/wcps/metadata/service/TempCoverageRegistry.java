@@ -88,7 +88,7 @@ public class TempCoverageRegistry {
             // Delete temp rasdaman collection
             // @TODO: this temp rasdaman collection was created until SELECT decode() rasql works fine            
             RasUtil.deleteFromRasdaman(coverageId, username, password);
-            this.coverageRepositoryService.localCoveragesCacheMap.remove(coverageId);
+            this.coverageRepositoryService.removeFromLocalCacheMap(coverageId);
         }        
         
         this.positionalParametersMap.clear();

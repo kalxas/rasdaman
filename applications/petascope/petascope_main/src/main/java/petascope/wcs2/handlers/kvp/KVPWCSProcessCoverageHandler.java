@@ -201,7 +201,7 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
                     coverage.getRasdamanRangeSet().setCollectionName(coverage.getCoverageId());
 
                     String coverageId = coverage.getCoverageId();
-                    this.coverageRepositoryService.localCoveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
+                    this.coverageRepositoryService.putToLocalCacheMap(coverageId, new Pair<>(coverage, true));
 
                     // e.g: $1 -> (TEMP_COV_abc_202001010, /tmp/rasdaman_petacope/rasdaman...tif)
                     this.tempCoverageRegistry.add(positionalParameter, coverageId, value);
