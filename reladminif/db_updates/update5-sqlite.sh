@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DIRECTQL="$CONF_DIR/../bin/directql"
+DIRECTQL="$CONF_DIR/../bin/rasserver"
 SCRIPT_DIR="${SCRIPT_DIR:-.}"
 
 if ! type python3 > /dev/null 2>&1; then
