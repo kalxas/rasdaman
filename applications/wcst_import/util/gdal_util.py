@@ -381,7 +381,7 @@ class GDALGmlUtil:
             "complex64": 10,
             "complex128": 11,
         }
-        import gdal
+        from osgeo import gdal
         return gdal.GetDataTypeName(numpy_to_gdal_dict[data_type])
 
 

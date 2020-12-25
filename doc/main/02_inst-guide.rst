@@ -856,7 +856,7 @@ Debian 10 / Ubuntu 18.04 / Ubuntu 20.04
     $ sudo apt-get install --no-install-recommends \
       make libtool gawk autoconf automake bison flex git g++ unzip libpng-dev \
       libjpeg-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-devlibnetcdf-dev \
+      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev libnetcdf-dev \
       libedit-dev libreadline-dev libdw-dev libsqlite3-dev libgrib2c-dev curl \
       libssl-dev libeccodes-dev cmake ccache
     # To build Java components
@@ -1306,7 +1306,7 @@ To alternatively set up H2 / HSQLDB for use by petascope:
    For example, download a H2 driver ::
 
    $ cd /opt/rasdaman/geodb
-   $ wget http://repo2.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
+   $ wget https://repo1.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
 
 4. Configure database settings in petascope.properties file, 
    see :ref:`details <petascope-database-connection>`.
