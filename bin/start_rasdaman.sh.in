@@ -165,18 +165,19 @@ start_embedded()
     local props_path="$1"
     local app_name="$2"
     local war_file_name="$3"
+    local war_file="$war_path/$war_file_name"
 
     if [ -f "$props_path" ]; then
         # check if java-server is embedded/external
         java_server=$(get_property_value "$props_path" "java_server")
-        # check if java-server is embedded
-        if [ "$java_server" = "embedded" ]; then
+        # if java-server is embedded and the war file exists then attempt starting it
+        if [ "$java_server" = "embedded" -a -f "$war_file" ]; then
             # Get the embedded port for server
             server_port=$(get_property_value "$props_path" "server.port")
             logn "  starting $app_name on port $server_port... "
             check_port_available "$server_port"
             if [ $? -ne 0 ]; then
-                nohup java $JAVA_OPTS -jar "$war_path/$war_file_name" >> "$app_name.log" 2>&1 &
+                nohup java $JAVA_OPTS -jar "$war_file" >> "$app_name.log" 2>&1 &
                 check_process "$app_name"
             else
                 echo "failed, port $server_port is occupied."

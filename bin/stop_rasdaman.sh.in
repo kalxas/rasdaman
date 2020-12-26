@@ -152,6 +152,7 @@ stop_embedded()
     local props_path="$1"
     local app_name="$2"
     local war_file_name="$3"
+    local war_file="$war_path/$war_file_name"
 
     if [ -f "$props_path" ]; then
         # check if java-server is embedded/external
@@ -164,9 +165,9 @@ stop_embedded()
             check_port_available "$server_port"
             if [ $? -eq 0 ]; then
                 # kill process on this port
-                local pid="$(ps -Ao pid,args | grep "[^]]$war_path/$war_file_name\b" | awk '{print $1}' 2> /dev/null)"
+                local pid="$(ps -Ao pid,args | grep "[^]]$war_file\b" | awk '{print $1}' 2> /dev/null)"
                 if [ -n "$pid" ]; then
-                    kill -9 "$pid"
+                    kill "$pid"
                     log "embedded $app_name stopped on port $server_port."
                 else
                     log "$app_name is not running."
