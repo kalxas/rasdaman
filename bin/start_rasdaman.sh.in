@@ -266,7 +266,10 @@ done
     error "$rasmgr_bin not found, rasdaman cannot be started."
 
 # here we want to put all log files
-[ -d "$log_path" ] || { log "$log_path not found, creating."; mkdir -p "$log_path"; }
+if [ ! -d "$log_path" ]; then
+  log "$log_path not found, will be created."
+  mkdir "$log_path" || error "Failed creating log dir, invalid permissions?"
+fi
 cd "$log_path" || error "$log_path not found."
 
 # check if we can actually write anything here
