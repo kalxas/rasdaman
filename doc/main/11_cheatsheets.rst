@@ -677,8 +677,11 @@ Simple example to setup a web page with a map from a WMS server using WebWorldWi
     </html> 
 
 
-Python / Jupyter Notebook
--------------------------
+Python / Jupter Notebook
+------------------------
+
+OWSLib
+^^^^^^
 
 `OWSLib <https://geopython.github.io/OWSLib/>`__ is a Python package that helps
 with programming clients for OGC services such as WCS, WCPS, or WMS. To install
@@ -738,6 +741,11 @@ follows below.
    datetime.datetime(2015, 3, 1, 0, 0), datetime.datetime(2015, 4, 1, 0, 0), 
    datetime.datetime(2015, 5, 1, 0, 0), datetime.datetime(2015, 7, 1, 0, 0)]
 
+rasdapy3
+^^^^^^^^
+
+`rasdapy3 <https://pypi.org/project/rasdapy3/>`__ is a client API for rasdaman that enables building and executing rasql queries within python. 
+Best practice code snippets are also provided.
 
 Access from R
 -------------
