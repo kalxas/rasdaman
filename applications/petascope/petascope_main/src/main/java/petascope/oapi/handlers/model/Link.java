@@ -110,8 +110,9 @@ public class Link {
         return Arrays.asList(
                 new Link(REL_SELF, coverageIdUrl),
                 new Link(COVERAGE_REL, coverageIdUrl + "/" + COVERAGE),
-                new Link(COVERAGE_DOMAIN_SET_REL, coverageIdUrl + "/" + COVERAGE + "/" + COVERAGE_DOMAIN_SET),
-                new Link(COVERAGE_RANGE_TYPE_REL, coverageIdUrl + "/" + COVERAGE + "/" + COVERAGE_RANGE_TYPE),
+                //                https://gitlab.ecere.ca/collab/moaw/-/issues/49 (don't show links for domainSet and rangeType)
+//                new Link(COVERAGE_DOMAIN_SET_REL, coverageIdUrl + "/" + COVERAGE + "/" + COVERAGE_DOMAIN_SET),
+//                new Link(COVERAGE_RANGE_TYPE_REL, coverageIdUrl + "/" + COVERAGE + "/" + COVERAGE_RANGE_TYPE),
                 new Link(COVERAGE_RANGE_SET_REL, coverageIdUrl + "/" + COVERAGE + "/" + COVERAGE_RANGE_SET),
                 new Link(COVERAGE_METADATA_REL, coverageIdUrl + "/" + COVERAGE + "/" + COVERAGE_METADATA)
         );

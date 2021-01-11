@@ -44,7 +44,7 @@ public class Temporal {
         this.intervals = intervals;
     }
 
-    public List<List<String>> getIntervals() {
+    public List<List<String>> getInterval() {
         return intervals;
     }
 
