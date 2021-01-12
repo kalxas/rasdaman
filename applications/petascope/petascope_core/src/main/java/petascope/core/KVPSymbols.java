@@ -182,6 +182,9 @@ public interface KVPSymbols {
     // WCS mutlipart
     String VALUE_MULTIPART_RELATED = "multipart/related";
 
+    // If request is sent with Accept: image/png in the header
+    String ACCEPT_HEADER_KEY = "Accept";
+
     // OWS metadata (ServiceIdentification and ServiceProvider) in GetCapabilities response
     String KEY_OWS_METADATA_SERVICE_TITLE = "serviceTitle";
     String KEY_OWS_METADATA_ABSTRACT = "abstract";

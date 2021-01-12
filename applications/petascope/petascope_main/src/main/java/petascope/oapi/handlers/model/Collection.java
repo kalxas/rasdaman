@@ -79,13 +79,14 @@ public class Collection {
         return CRS;
     }
 
-    public Link getDomainSet() {
-        return domainSetLink;
-    }
-
-    public Link getRangeType() {
-        return rangeTypeLink;
-    }
+    // https://gitlab.ecere.ca/collab/moaw/-/issues/49#note_496
+//    public Link getDomainSet() {
+//        return domainSetLink;
+//    }
+//
+//    public Link getRangeType() {
+//        return rangeTypeLink;
+//    }
 
     public List<Link> getLinks() {
         return links;

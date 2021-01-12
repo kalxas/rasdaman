@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static petascope.controller.AbstractController.buildGetRequestKvpParametersMap;
 import static petascope.controller.AbstractController.getValueByKeyAllowNull;
 import static petascope.controller.AbstractController.getValuesByKeyAllowNull;
+import static petascope.core.KVPSymbols.ACCEPT_HEADER_KEY;
 import petascope.core.json.cis11.model.metadata.Metadata;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
@@ -227,6 +228,16 @@ public class OapiController extends AbstractController {
         Map<String, String[]> kvpParameters = buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         String[] inputSubsets = kvpParameters.get(SUBSET_PARAM);
         String outputFormat = getValueByKeyAllowNull(kvpParameters, OUTPUT_FORMAT_PARAM);
+        
+        if (outputFormat == null && httpServletRequest.getHeader(ACCEPT_HEADER_KEY) != null) {
+            // content negotiation if *f* parameter is missing from the request
+            outputFormat = httpServletRequest.getHeader(ACCEPT_HEADER_KEY);
+            // e.g: http://localhost:8082/rasdaman/oapi/collections/test_mr/coverage sent by Web Browser
+            // which has invalid MIME type
+            if (outputFormat.contains(",")) {
+                outputFormat = null;
+            }
+        }
         
         String[] parsedSubsets = this.opaiParsingService.parseGetCoverageSubsets(inputSubsets);
         try {
