@@ -45,12 +45,15 @@ import static petascope.controller.AbstractController.getValuesByKeyAllowNull;
 import static petascope.core.KVPSymbols.ACCEPT_HEADER_KEY;
 import petascope.core.json.cis11.model.metadata.Metadata;
 import petascope.core.response.Response;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WMSException;
+import petascope.oapi.handlers.model.Collection;
 import petascope.oapi.handlers.service.OapiHandlersService;
 import petascope.oapi.handlers.service.OapiResultService;
 import petascope.oapi.handlers.service.OapiSubsetParsingService;
+import petascope.util.MIMEUtil;
 import static petascope.util.MIMEUtil.MIME_JSON;
 
 /**
@@ -202,7 +205,8 @@ public class OapiController extends AbstractController {
         this.setBaseURL(httpServletRequest);
         
         try {
-            Response response = this.oapiResultService.getJsonResponse(oapiHandlersService.getCollectionInformationResult(coverageId, BASE_URL));
+            Collection collection = oapiHandlersService.getCollectionInformationResult(coverageId, BASE_URL);
+            Response response = this.oapiResultService.getJsonResponse(collection);
             this.writeResponseResult(response);
         } catch (Exception ex) {
             String errorMessage = "Error returning coverage information. Reason: " + ex.getMessage();
@@ -228,15 +232,12 @@ public class OapiController extends AbstractController {
         Map<String, String[]> kvpParameters = buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         String[] inputSubsets = kvpParameters.get(SUBSET_PARAM);
         String outputFormat = getValueByKeyAllowNull(kvpParameters, OUTPUT_FORMAT_PARAM);
+        String acceptHeaderValue = httpServletRequest.getHeader(ACCEPT_HEADER_KEY);
         
-        if (outputFormat == null && httpServletRequest.getHeader(ACCEPT_HEADER_KEY) != null) {
+        if (outputFormat == null && acceptHeaderValue != null) {
             // content negotiation if *f* parameter is missing from the request
-            outputFormat = httpServletRequest.getHeader(ACCEPT_HEADER_KEY);
-            // e.g: http://localhost:8082/rasdaman/oapi/collections/test_mr/coverage sent by Web Browser
-            // which has invalid MIME type
-            if (outputFormat.contains(",")) {
-                outputFormat = null;
-            }
+            // then select the supported MIME type from left to right
+            outputFormat = this.getSupportedMIMETypeForContentNegotiation(acceptHeaderValue);
         }
         
         String[] parsedSubsets = this.opaiParsingService.parseGetCoverageSubsets(inputSubsets);
@@ -365,6 +366,31 @@ public class OapiController extends AbstractController {
                 BASE_URL = httpServletRequest.getRequestURL().toString().split("/" + OAPI)[0];
             }
         }
+    }
+    
+    /**
+     * If Accept header exists, then parse its values to return the supported MIME type from rasdaman
+     **/
+    private String getSupportedMIMETypeForContentNegotiation(String acceptHeaderValue) throws PetascopeException {
+        // e.g: image/tiff;application=geotiff;q=1.0,image/png;q=0.5, */*; q=0.1
+        // if image/tiff is not supported, then check image/png
+        
+        String[] values = acceptHeaderValue.split(",");
+        for (String value : values) {
+            // e.g: image/tiff;application=geotiff;q=1.0
+            String[] subValues = value.split(";");
+            for (String subValue : subValues) {
+                if (subValue.contains("/")) {
+                    // e.g: image/tiff
+                    if (MIMEUtil.isSupported(subValue)) {
+                        return subValue;
+                    }
+                }
+            }
+        }
+        
+        throw new PetascopeException(ExceptionCode.NoApplicableCode, 
+                                    "There is no supported MIME type from server for the content negotiation request of client.");
     }
 
     @Override

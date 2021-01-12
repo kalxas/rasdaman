@@ -228,6 +228,18 @@ public class MIMEUtil {
         }
         return formatType;
     }
+    
+    /**
+     * Check if a MIME type is supported, e.g: image/tiff
+     */
+    public static boolean isSupported(String mimeType) {
+        if (mimeType.equalsIgnoreCase(MIME_HTML)) {
+            return false;
+        }
+        
+        String formatType = getInstance().get(mimeType);
+        return formatType != null;
+    }
 
     /**
      * Return the list of MimeTypes

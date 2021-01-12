@@ -4,7 +4,7 @@
     "title" : "test_custom_recipe_coverage",
     "extent" : {
       "spatial" : {
-        "bbox" : [ [ -180.00, -90.00, 180.00, 90.00 ] ],
+        "bbox" : [ [ -180, -90, 180, 90 ] ],
         "crs" : "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
       },
       "temporal" : {
@@ -31,7 +31,7 @@
     "title" : "test_wcs_metadata_regular_time_series",
     "extent" : {
       "spatial" : {
-        "bbox" : [ [ 111.98, -44.98, 155.97, -8.97 ] ],
+        "bbox" : [ [ 111.975, -44.975, 155.975, -8.975 ] ],
         "crs" : "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
       },
       "temporal" : {
@@ -58,7 +58,7 @@
     "title" : "test_wms_3d_time_series_regular",
     "extent" : {
       "spatial" : {
-        "bbox" : [ [ -180.00, -90.00, 180.00, 90.00 ] ],
+        "bbox" : [ [ -180, -90, 180, 90 ] ],
         "crs" : "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
       },
       "temporal" : {

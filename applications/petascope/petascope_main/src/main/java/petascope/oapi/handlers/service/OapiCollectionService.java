@@ -114,10 +114,10 @@ public class OapiCollectionService {
             
             if (wgs84BBox != null) {
                 // coverage is geo-referenced
-                List<BigDecimal> values = Arrays.asList(wgs84BBox.getMinLong().setScale(2, RoundingMode.UP),
-                                                        wgs84BBox.getMinLat().setScale(2, RoundingMode.UP),
-                                                        wgs84BBox.getMaxLong().setScale(2, RoundingMode.DOWN),
-                                                        wgs84BBox.getMaxLat().setScale(2, RoundingMode.DOWN));
+                List<BigDecimal> values = Arrays.asList(wgs84BBox.getMinLong(),
+                                                        wgs84BBox.getMinLat(),
+                                                        wgs84BBox.getMaxLong(),
+                                                        wgs84BBox.getMaxLat());
 
                 bboxValues.add(values);
                 result = new Spatial(bboxValues);                
