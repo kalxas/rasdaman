@@ -994,15 +994,15 @@ Binary min, max operations in WCPS
 ----------------------------------
 
 Since v10+, rasdaman supports binary ``min()`` and ``max()`` operations.
-For two MDD values (or evaluated MDD expressions),
-take the minimum / maximum for each pair of corresponding cell
-values in the MDDs. Example:
+For two compatible coverages A and B they calculate a result coverage 
+with the minimum / maximum for each pair of corresponding cell values of A and B.
+Example:
 
 .. code-block:: text
 
-  min(a, b) 
+  min(A, B)
 
-where *a* and *b* are MDD values / expressions
+where A and B are coverage expressions.
 
 .. _positional_parameters_in_wcps:
 
