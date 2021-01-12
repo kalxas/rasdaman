@@ -106,6 +106,8 @@ import petascope.wcps.exception.processing.ClipExpressionException;
 import petascope.wcps.exception.processing.Coverage0DMetadataNullException;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.exception.processing.InvalidWKTClippingException;
+import petascope.wcps.handler.BinaryMaxExpressionHandler;
+import petascope.wcps.handler.BinaryMinExpressionHandler;
 import petascope.wcps.handler.ClipCorridorExpressionHandler;
 import petascope.wcps.handler.ClipCurtainExpressionHandler;
 import petascope.wcps.handler.ClipWKTExpressionHandler;
@@ -178,6 +180,11 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     CoverageConstructorHandler coverageConstructorHandler;
     @Autowired private
     UnaryArithmeticExpressionHandler unaryArithmeticExpressionHandler;
+    
+    @Autowired private
+    BinaryMinExpressionHandler binaryMinExpressionHandler;
+    @Autowired private
+    BinaryMaxExpressionHandler binaryMaxExpressionHandler;
     @Autowired private
     UnaryPowerExpressionHandler unaryPowerExpressionHandler;
     @Autowired private
@@ -305,7 +312,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
                 // coverage Id is persited coverage, e.g: $c in (test_mr)
                 String coverageId = context.COVERAGE_VARIABLE_NAME().getText();
                 coverageIds.add(coverageId);
-            } else if (context.decodeCoverageExpression().getText() != null) {
+            } else if (context.decodeCoverageExpression() != null && context.decodeCoverageExpression().getText() != null) {
                 // coverage Id is created from postional parameter (e.g: $c in (decode($1))
                 WcpsResult result = (WcpsResult) visit(context.decodeCoverageExpression());
                 WcpsCoverageMetadata metadata = result.getMetadata();
@@ -874,6 +881,28 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
 
         WcpsResult result = unaryArithmeticExpressionHandler.handle(operand, coverageExpr);
+        return result;
+    }
+    
+    @Override
+    public VisitorResult visitMinBinaryExpressionLabel(@NotNull wcpsParser.MinBinaryExpressionLabelContext ctx) {
+        // MIN LEFT_PARENTHESIS coverageExpression COMMA coverageExpression RIGHT_PARENTHESIS
+        // e.g: min(c, c1) with c and c1 are coverages
+        WcpsResult leftCoverageExpr = (WcpsResult) visit(ctx.coverageExpression(0));        
+        WcpsResult rightCoverageExpr = (WcpsResult) visit(ctx.coverageExpression(1));
+
+        WcpsResult result = binaryMinExpressionHandler.handle(leftCoverageExpr, rightCoverageExpr);
+        return result;
+    }
+    
+    @Override
+    public VisitorResult visitMaxBinaryExpressionLabel(@NotNull wcpsParser.MaxBinaryExpressionLabelContext ctx) {
+        // MAX LEFT_PARENTHESIS coverageExpression COMMA coverageExpression RIGHT_PARENTHESIS
+        // e.g: max(c, c1) with c and c1 are coverages
+        WcpsResult leftCoverageExpr = (WcpsResult) visit(ctx.coverageExpression(0));        
+        WcpsResult rightCoverageExpr = (WcpsResult) visit(ctx.coverageExpression(1));
+
+        WcpsResult result = binaryMaxExpressionHandler.handle(leftCoverageExpr, rightCoverageExpr);
         return result;
     }
 

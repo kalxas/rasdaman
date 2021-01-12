@@ -31,6 +31,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCoverageExpressionOverlayLabel(@NotNull wcpsParser.CoverageExpressionOverlayLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#minBinaryExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterMinBinaryExpressionLabel(@NotNull wcpsParser.MinBinaryExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#minBinaryExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitMinBinaryExpressionLabel(@NotNull wcpsParser.MinBinaryExpressionLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#SliceScaleDimensionIntervalElementLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -350,17 +361,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitWKTPointElementListLabel(@NotNull wcpsParser.WKTPointElementListLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#DomainExpressionLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterDomainExpressionLabel(@NotNull wcpsParser.DomainExpressionLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#DomainExpressionLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitDomainExpressionLabel(@NotNull wcpsParser.DomainExpressionLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#TrigonometricExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -370,6 +370,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTrigonometricExpressionLabel(@NotNull wcpsParser.TrigonometricExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#DomainExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterDomainExpressionLabel(@NotNull wcpsParser.DomainExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#DomainExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitDomainExpressionLabel(@NotNull wcpsParser.DomainExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionScaleByDimensionIntervalsLabel}.
@@ -515,6 +526,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCoverageExpressionArithmeticLabel(@NotNull wcpsParser.CoverageExpressionArithmeticLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#maxBinaryExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterMaxBinaryExpressionLabel(@NotNull wcpsParser.MaxBinaryExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#maxBinaryExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitMaxBinaryExpressionLabel(@NotNull wcpsParser.MaxBinaryExpressionLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionDecodeLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -590,6 +612,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAxisIteratorLabel(@NotNull wcpsParser.AxisIteratorLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionMaxBinaryLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionMaxBinaryLabel(@NotNull wcpsParser.CoverageExpressionMaxBinaryLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionMaxBinaryLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionMaxBinaryLabel(@NotNull wcpsParser.CoverageExpressionMaxBinaryLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#ReduceNumericalExpressionLabel}.
@@ -900,6 +933,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionMinBinaryLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionMinBinaryLabel(@NotNull wcpsParser.CoverageExpressionMinBinaryLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionMinBinaryLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionMinBinaryLabel(@NotNull wcpsParser.CoverageExpressionMinBinaryLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageConstructorExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1076,17 +1120,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitBooleanUnaryScalarLabel(@NotNull wcpsParser.BooleanUnaryScalarLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionConstructorLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterCoverageExpressionConstructorLabel(@NotNull wcpsParser.CoverageExpressionConstructorLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionConstructorLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitCoverageExpressionConstructorLabel(@NotNull wcpsParser.CoverageExpressionConstructorLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#UnaryCoverageArithmeticExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1096,6 +1129,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUnaryCoverageArithmeticExpressionLabel(@NotNull wcpsParser.UnaryCoverageArithmeticExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionConstructorLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionConstructorLabel(@NotNull wcpsParser.CoverageExpressionConstructorLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionConstructorLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionConstructorLabel(@NotNull wcpsParser.CoverageExpressionConstructorLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#NotUnaryBooleanExpressionLabel}.

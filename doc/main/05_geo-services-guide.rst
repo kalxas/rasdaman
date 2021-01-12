@@ -990,6 +990,20 @@ This can readily be used in a subset expression: ::
   return
     encode( $c[ $a ] + $b, "itext/json" )
 
+Binary min, max operations in WCPS
+----------------------------------
+
+Since v10+, rasdaman supports binary ``min()`` and ``max()`` operations.
+For two MDD values (or evaluated MDD expressions),
+take the minimum / maximum for each pair of corresponding cell
+values in the MDDs. Example:
+
+.. code-block:: text
+
+  min(a, b) 
+
+where *a* and *b* are MDD values / expressions
+
 .. _positional_parameters_in_wcps:
 
 Positional parameter in WCPS

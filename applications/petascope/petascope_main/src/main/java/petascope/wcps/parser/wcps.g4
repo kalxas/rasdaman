@@ -411,6 +411,10 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionTrigonometricLabel
                   | exponentialExpression
                     #CoverageExpressionExponentialLabel
+                  | minBinaryExpression                    
+  		            #CoverageExpressionMinBinaryLabel
+                  | maxBinaryExpression                    
+  		            #CoverageExpressionMaxBinaryLabel
 		          | unaryPowerExpression
                     #CoverageExpressionPowerLabel
                   | unaryBooleanExpression
@@ -545,6 +549,15 @@ exponentialExpression: exponentialExpressionOperator LEFT_PARENTHESIS coverageEx
 unaryPowerExpression: POWER LEFT_PARENTHESIS coverageExpression COMMA numericalScalarExpression RIGHT_PARENTHESIS
 #UnaryPowerExpressionLabel;
 
+/**
+encode(max(c, c1), "csv") from test_mr as c, test_mr as c1
+**/
+minBinaryExpression: MIN LEFT_PARENTHESIS coverageExpression COMMA coverageExpression RIGHT_PARENTHESIS
+#minBinaryExpressionLabel;
+
+maxBinaryExpression: MAX LEFT_PARENTHESIS coverageExpression COMMA coverageExpression RIGHT_PARENTHESIS
+#maxBinaryExpressionLabel;
+
 
 /**
  * Example
@@ -574,7 +587,7 @@ castExpression: LEFT_PARENTHESIS rangeType RIGHT_PARENTHESIS coverageExpression
 #CastExpressionLabel;
 
 
-fieldName: COVERAGE_VARIABLE_NAME | REAL_NUMBER_CONSTANT;
+fieldName: COVERAGE_VARIABLE_NAME | INTEGER;
 
 /**
  This is used for only range constructor not in switch case
@@ -865,7 +878,8 @@ crsName: STRING_LITERAL;
 
 axisName: COVERAGE_VARIABLE_NAME;
 
-number:   (MINUS)? REAL_NUMBER_CONSTANT
+number:   (MINUS)? INTEGER
+        | (MINUS)? REAL_NUMBER_CONSTANT
         | (MINUS)? SCIENTIFIC_NUMBER_CONSTANT;
 
 constant: STRING_LITERAL
