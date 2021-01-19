@@ -192,19 +192,19 @@ public class GMLGetCapabilitiesBuilder {
     private static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
 
     // Interpoltation Extension
-    private static final String OGC_CITE_INTEPOLATION_NEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/nearest-neighbor";
-    private static final String INTERPOLATION_NEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/near";
-    private static final String INTERPOLATION_BILINEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/bilinear";
-    private static final String INTERPOLATION_CUBIC = "http://www.opengis.net/def/interpolation/OGC/1.0/cubic";
-    private static final String INTERPOLATION_CUBICSPLINE = "http://www.opengis.net/def/interpolation/OGC/1.0/cubicspline";
-    private static final String INTERPOLATION_LANCZOS = "http://www.opengis.net/def/interpolation/OGC/1.0/lanczos";
-    private static final String INTERPOLATION_AVERAGE = "http://www.opengis.net/def/interpolation/OGC/1.0/average";
-    private static final String INTERPOLATION_MODE = "http://www.opengis.net/def/interpolation/OGC/1.0/mode";
-    private static final String INTERPOLATION_MAX = "http://www.opengis.net/def/interpolation/OGC/1.0/max";
-    private static final String INTERPOLATION_MIN = "http://www.opengis.net/def/interpolation/OGC/1.0/min";
-    private static final String INTERPOLATION_MED = "http://www.opengis.net/def/interpolation/OGC/1.0/med";
-    private static final String INTERPOLATION_Q1 = "http://www.opengis.net/def/interpolation/OGC/1.0/q1";
-    private static final String INTERPOLATION_Q3 = "http://www.opengis.net/def/interpolation/OGC/1.0/q3";
+    public static final String OGC_CITE_INTEPOLATION_NEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/nearest-neighbor";
+    public static final String INTERPOLATION_NEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/near";
+    public static final String INTERPOLATION_BILINEAR = "http://www.opengis.net/def/interpolation/OGC/1.0/bilinear";
+    public static final String INTERPOLATION_CUBIC = "http://www.opengis.net/def/interpolation/OGC/1.0/cubic";
+    public static final String INTERPOLATION_CUBICSPLINE = "http://www.opengis.net/def/interpolation/OGC/1.0/cubicspline";
+    public static final String INTERPOLATION_LANCZOS = "http://www.opengis.net/def/interpolation/OGC/1.0/lanczos";
+    public static final String INTERPOLATION_AVERAGE = "http://www.opengis.net/def/interpolation/OGC/1.0/average";
+    public static final String INTERPOLATION_MODE = "http://www.opengis.net/def/interpolation/OGC/1.0/mode";
+    public static final String INTERPOLATION_MAX = "http://www.opengis.net/def/interpolation/OGC/1.0/max";
+    public static final String INTERPOLATION_MIN = "http://www.opengis.net/def/interpolation/OGC/1.0/min";
+    public static final String INTERPOLATION_MED = "http://www.opengis.net/def/interpolation/OGC/1.0/med";
+    public static final String INTERPOLATION_Q1 = "http://www.opengis.net/def/interpolation/OGC/1.0/q1";
+    public static final String INTERPOLATION_Q3 = "http://www.opengis.net/def/interpolation/OGC/1.0/q3";
     
     public static List<String> SUPPORTED_INTERPOLATIONS = null;
     // This one lists the EPSG CRSs for WCS CRS extension as it can be very long, so just list one popular CRS

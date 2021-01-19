@@ -60,8 +60,11 @@ public class StringUtil {
     public static final String POSITIVE_INTEGER_PATTERN = "^[1-9]\\d*$";
     // e.g: $1, $2,..
     public static final Pattern POSITIONAL_PARAMETER_PATTERN = Pattern.compile("\\$[1-9]\\d*");
+    public static final String FALSE_VALUE = "false";
+    public static final String TRUE_VALUE = "true";
     
     public static final String POST_STRING_CONTENT_TYPE = "application/x-www-form-urlencoded";
+    public static final String POST_TEXT_PLAIN_CONTENT_TYPE = "text/plain";
     
     /**
      * For coverages created temporarily, used for WCPS decode() from uploaded files
@@ -495,6 +498,14 @@ public class StringUtil {
         String output = input.replace("\"", "");
         return output;
     }
+    
+    /**
+     * Strip any , in aa string
+     */
+    public static String stripCommas(String input) {
+        String output = input.replace(",", "");
+        return output;
+    }
 
     /**
      * Clean all the empty, null elements in string array
@@ -566,4 +577,5 @@ public class StringUtil {
         String coverageId = TEMP_COVERAGE_PREFIX + "_" + StringUtil.addDateTimeSuffix(FilenameUtils.getBaseName(filePath));
         return coverageId;
     }
+    
 }

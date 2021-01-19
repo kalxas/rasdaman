@@ -27,9 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Service;
+import static petascope.controller.AbstractController.getValuesByKeyAllowNull;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_INTERPOLATION;
+import static petascope.core.gml.GMLGetCapabilitiesBuilder.INTERPOLATION_NEAR;
+import static petascope.core.gml.GMLGetCapabilitiesBuilder.OGC_CITE_INTEPOLATION_NEAR;
+import petascope.exceptions.PetascopeException;
 import petascope.util.ListUtil;
 
 /**
@@ -53,7 +58,7 @@ public class KVPWCSGetCoverageScalingService {
      * @return
      * @throws petascope.exceptions.WCSException
      */
-    public String handleScaleExtension(String queryContent, Map<String, String[]> kvpParameters) throws WCSException {
+    public String handleScaleExtension(String queryContent, Map<String, String[]> kvpParameters) throws WCSException, PetascopeException {
         // Validate first as no mixing scale parameters (e.g: scalefactor=2&scaleaxes=Lat(0.5),Long(4.3)
         // but scaleaxes=Lat(0.5)&scaleaxes=Long(0.5) is ok
         Set<String> scaleParameters = new HashSet<>();
@@ -96,6 +101,18 @@ public class KVPWCSGetCoverageScalingService {
                 scaleExtents.add(scaleExtentParam);
             }
             queryContent = KVPSymbols.KEY_SCALEEXTENT + "( " + queryContent + ", [" + ListUtil.join(scaleExtents, ", ") + "] )";
+        }
+        
+        if (!scaleParameters.isEmpty()) {
+            // NOTE: scale() in radaman only supports nearest neighbor
+            String[] interpolations = getValuesByKeyAllowNull(kvpParameters, KEY_INTERPOLATION);
+            if (interpolations != null) {
+                String interpolation = interpolations[0];
+                if (!(interpolation.equals(OGC_CITE_INTEPOLATION_NEAR)
+                    || interpolation.equals(INTERPOLATION_NEAR))) {
+                    throw new WCSException(ExceptionCode.InterpolationMethodNotSupported);
+                }
+            }
         }
 
         return queryContent;

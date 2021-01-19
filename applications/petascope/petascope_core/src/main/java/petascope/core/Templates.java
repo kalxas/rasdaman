@@ -51,6 +51,8 @@ public class Templates {
     public static final String GENERAL_EXCEPTION_VERSION_REPLACEMENT = "%version%";
     public static final String GENERAL_EXCEPTION_CODE_REPLACEMENT = "%exceptionCode%";
     public static final String GENERAL_EXCEPTION_TEXT_REPLACEMENT = "%exceptionText%";
+    public static final String GENERAL_EXCEPTION_LOCATOR_REPLACEMENT = "%locator%";
+    public static final String GENERAL_EXCEPTION_LOCATOR_TEMPLATE_HOLDER = "locator=\"" + GENERAL_EXCEPTION_LOCATOR_REPLACEMENT + "\"";
     public static final String GENERAL_EXCEPTION_QUERY_REPLACEMENT = "%query%";
     public static final String PETASCOPE_URL = "%PetascopeURL%";
 

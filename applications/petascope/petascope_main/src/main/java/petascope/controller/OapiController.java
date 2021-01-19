@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import static org.rasdaman.config.ConfigManager.CONTEXT_PATH;
 import static org.rasdaman.config.ConfigManager.OAPI;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_ENDPOINT_URL;
@@ -361,7 +362,7 @@ public class OapiController extends AbstractController {
         if (StringUtils.isEmpty(BASE_URL)) {
             // petascope endpoint proxy is configured in petascope.properies
             if (!PETASCOPE_ENDPOINT_URL.isEmpty()) {
-                BASE_URL = PETASCOPE_ENDPOINT_URL.replace("/" + OWS, "/" + OAPI);
+                BASE_URL = PETASCOPE_ENDPOINT_URL.replace(CONTEXT_PATH + "/" + OWS, CONTEXT_PATH + "/" + OAPI);
             } else {
                 BASE_URL = httpServletRequest.getRequestURL().toString().split("/" + OAPI)[0];
             }

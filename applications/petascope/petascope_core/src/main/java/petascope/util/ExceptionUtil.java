@@ -23,6 +23,7 @@ package petascope.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -153,9 +154,23 @@ public class ExceptionUtil {
             version = VersionManager.getLatestVersion(WCS_SERVICE);
         }
         
+        String locator = null;
+        if (ex instanceof PetascopeException) {
+            ExceptionCode exceptionCode = ((PetascopeException) ex).getExceptionCode();
+            locator = exceptionCode.getLocator();
+            if (locator != null) {
+                exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_LOCATOR_REPLACEMENT, locator);
+            }
+        }
+        
+        if (locator == null) {
+            // no locator, don't show empty XML attribute
+            exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_LOCATOR_TEMPLATE_HOLDER, "");
+        }
+        
         exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_VERSION_REPLACEMENT, version);
         exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_CODE_REPLACEMENT, exceptionCodeName);
-        exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_TEXT_REPLACEMENT, detailMessage);
+        exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_TEXT_REPLACEMENT, detailMessage);        
         
         if (query != null) {
             exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_QUERY_REPLACEMENT, query);

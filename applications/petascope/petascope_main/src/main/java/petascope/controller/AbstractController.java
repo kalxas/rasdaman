@@ -60,6 +60,7 @@ import static petascope.util.StringUtil.AND_SIGN;
 import static petascope.util.StringUtil.DOLLAR_SIGN;
 import static petascope.util.StringUtil.EQUAL_SIGN;
 import static petascope.util.StringUtil.POST_STRING_CONTENT_TYPE;
+import static petascope.util.StringUtil.POST_TEXT_PLAIN_CONTENT_TYPE;
 import petascope.util.XMLUtil;
 
 /**
@@ -145,7 +146,8 @@ public abstract class AbstractController {
         // in case with POST KVP format
             
         String requestContentType = httpServletRequest.getContentType();
-        if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)) {
+        if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)
+            || requestContentType.contains(POST_TEXT_PLAIN_CONTENT_TYPE)) {
             // post request without files in body
             String postBody = this.getPOSTRequestBody(httpServletRequest);
             kvpParameters = this.buildPostRequestKvpParametersMap(postBody);

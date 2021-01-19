@@ -46,7 +46,8 @@ public class ExceptionCode {
     private final String description;
     /**
      * Indicator of location in the client's operation request where this
-     * exception was encountered
+     * exception was encountered (locator points to the key parameter which contains invalid value)
+     * e.g: service=BOGUS -> locator="service" in the XML exception
      */
     private String locator;
     /**
@@ -94,6 +95,13 @@ public class ExceptionCode {
         this.exceptionCodeName = exceptionCode;
         this.description = description;
         this.httpErrorCode = httpErrorCode;
+    }
+    
+    public ExceptionCode(String exceptionCode, String description, int httpErrorCode, String locator) {
+        this.exceptionCodeName = exceptionCode;
+        this.description = description;
+        this.httpErrorCode = httpErrorCode;
+        this.locator = locator;
     }
 
     /**
@@ -164,7 +172,7 @@ public class ExceptionCode {
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError");
     public static final ExceptionCode InternalWMSError = new ExceptionCode("InternalWMSError", SC_BAD_REQUEST);
     public static final ExceptionCode InterpolationMethodNotSupported = new ExceptionCode("InterpolationMethodNotSupported",
-            "'interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", SC_METHOD_NOT_ALLOWED);
+            "'interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", SC_NOT_FOUND, "interpolation");
     public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
             "The dimension subsetting operation specified an axis label that does not exist in the Envelope " +
             "or has been used more than once in the GetCoverage request.", SC_NOT_FOUND);

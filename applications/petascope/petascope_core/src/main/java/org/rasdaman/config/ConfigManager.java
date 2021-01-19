@@ -73,6 +73,8 @@ public class ConfigManager {
     public static final String LANGUAGE = "en";
 
     /* **** Default endpoint for controllers to handle services **** */
+    // e.g: localhost:8080/rasdaman/ows
+    public static final String CONTEXT_PATH = "rasdaman"; 
     public static final String MIGRATION = "migration";
     public static final String OWS = "ows";
     public static final String WCPS = "wcps";
@@ -81,7 +83,7 @@ public class ConfigManager {
     public static final String ADMIN = "admin";
     // context path for OAPI endpoint (e.g: localhost:8080/rasdaman/oapi)
     public static final String OAPI = "oapi";
-    public static final String GET_COVERAGE_EXTENTS = "GetCoveragesExtents";
+
     
     /* **** Default DMBS for petascope is Postgresql **** */
     public static final String DEFAULT_DMBS = "postgresql";
@@ -235,11 +237,11 @@ public class ConfigManager {
     // from petascope.properties used for log4j
     private static final String KEY_LOG_FILE_PATH = "log4j.appender.rollingFile.File";
     
-    public static byte GDAL_JAVA_VERSION = 0;
-    
     /* ***** Demo web pages ***** */
     // Used only when one wants to add web pages demo (e.g: Earthlook) to be served by Petascope
     private static final String KEY_STATIC_HTML_DIR_PATH = "static_html_dir_path";
+
+    public static byte GDAL_JAVA_VERSION = 0;
 
     /**
      * Initialize all the keys, values of petascope.properties
