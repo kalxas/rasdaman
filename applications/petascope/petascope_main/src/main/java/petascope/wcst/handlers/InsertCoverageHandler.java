@@ -332,10 +332,16 @@ public class InsertCoverageHandler {
         rasdamanCollectionCreator.createCollection();
         
         // e.g: <[0:0,0:0,0:0] {9999f,9999f,9999f,9999f,9999f,9999f,9999f,9999f,9999f}>
-        String rasdamanValues = this.createRasdamanInsertNullValuesExpression(numberOfDimensions, bandNullValues, typeSuffixes);
+        String rasdamanValues = this.createRasdamanInsertNullValuesExpression(numberOfBands, numberOfDimensions, bandNullValues, typeSuffixes);
         RasdamanValuesInserter rasdamanInserter = new RasdamanValuesInserter(collectionName, rasCollectionType, rasdamanValues, null, 
                                                                              ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
-        rasdamanInserter.insert();
+        try {
+            rasdamanInserter.insert();
+        } catch (Exception ex) {
+            // In case of error inserting initial value to rasdaman collection, then delete this collection
+            RasUtil.deleteFromRasdaman(collectionName, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
+            throw ex;
+        }
         
         // Then, update this test collection from the given file path
         this.updateTempCollection(coverage, decodeExpression);
@@ -369,14 +375,20 @@ public class InsertCoverageHandler {
      * e.g:  <[0:0,0:0,0:0] {-999f,-999f,0s}> for a coverage with 3 axes and 3 bands with different data types and null values
      * or  <[0:0,0:0] {0c,0c,0c}> for a coverage with 2 axes and 3 bands and same null values
      */
-    private String createRasdamanInsertNullValuesExpression(int numberOfDimensions, List<NilValue> bandNullValues, List<String> typeSuffixes) {        
+    private String createRasdamanInsertNullValuesExpression(int numberOfBands, int numberOfDimensions, List<NilValue> bandNullValues, List<String> typeSuffixes) {        
         final String GRID_DOMAINS = "$GRID_DOMAINS";
         final String DEFAULT_GRID_DOMAIN = "0:0";
         
         final String NULL_VALUES = "$NULL_VALUES";
         final String DEFAUL_NULL_VALUE = "0";
         final String FLOAT_ZERO_SUFFIX = ".0";
-        final String TEMPLATE = "<[" + GRID_DOMAINS + "] {" + NULL_VALUES + "}>";
+        
+        // for collection with struct type
+        String TEMPLATE = "<[" + GRID_DOMAINS + "] {" + NULL_VALUES + "}>";
+        if (numberOfBands == 1) {
+            // for collection with single band type
+            TEMPLATE = "<[" + GRID_DOMAINS + "] " + NULL_VALUES + ">";
+        }
         
         List<String> gridDomainsTmp = new ArrayList<>();
         for (int i = 0; i < numberOfDimensions; i++) {

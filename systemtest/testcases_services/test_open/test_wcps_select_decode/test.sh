@@ -41,6 +41,7 @@ readonly ORACLE="$SCRIPT_DIR/oracle"
 readonly OUTPUT="$SCRIPT_DIR/output"
 
 readonly ENDPOINT="$PETASCOPE_URL?SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages"
+readonly OAPI_ENDPOINT="$PETASCOPE_OAPI"
 
 handle_output() {
   # $1 test case name
@@ -48,12 +49,17 @@ handle_output() {
   local oracle_file="$ORACLE/$test_name"
   local output_file="$OUTPUT/$test_name"
 
-  log "Checking test case '$test_name'..."
+  logn "Checking test case '$test_name'..."
 
   if [ ! -f "$oracle_file" ]; then
     cp "$output_file" "$oracle_file"
   else
-    compare_output_to_oracle "$output_file" "$oracle_file"
+    compare_output_to_oracle "$output_file" "$oracle_file" 
+    if [ "$?" == "0" ]; then
+        loge "ok"
+    else
+        loge "failed"
+    fi
   fi
 }
 
@@ -62,7 +68,8 @@ rm -rf "$OUTPUT"
 mkdir -p "$OUTPUT"
 
 # Add more test files here
-readonly TEST_2D_TIFF_3BANDS_FILE_PATH="$SCRIPT_DIR"/../../test_all_wcst_import/testdata/3D_Timeseries_Regular/SCALED_M_LSTDA_2015-01.TIFF
+readonly TEST_2D_TIFF_3BANDS_FILE_PATH="$SCRIPT_DIR/../../test_all_wcst_import/testdata/3D_Timeseries_Regular/SCALED_M_LSTDA_2015-01.TIFF"
+readonly TEST_2D_TIFF_1BAND_FILE_PATH="$SCRIPT_DIR/../../test_all_wcst_import/testdata/wcps_mean_summer_air_temp/mean_summer_airtemp.tif"
 
 TEST_NAME="1-test_encode"
 curl -s "$ENDPOINT" \
@@ -107,6 +114,13 @@ curl -s "$ENDPOINT" \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" \
      -F "2=@$TEST_2D_TIFF_3BANDS_FILE_PATH" \
      -F "3=@$TEST_2D_TIFF_3BANDS_FILE_PATH"  > "$OUTPUT/$TEST_NAME"
+handle_output "$TEST_NAME"
+
+TEST_NAME="8-test_oapi_wcps_decode"
+curl -s "$ENDPOINT" \
+     -F 'query=for $c in (decode($1)), $d in test_mean_summer_airtemp return encode($c - 50 + $d - 100, "jpeg")' \
+     -F "1=@$TEST_2D_TIFF_1BAND_FILE_PATH" > "$OUTPUT/$TEST_NAME"
+
 handle_output "$TEST_NAME"
 
 

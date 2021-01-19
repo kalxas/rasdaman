@@ -132,46 +132,48 @@ public abstract class AbstractController {
      * Handle POST request with/without attached files in the POST body
      */
     protected void handlePost(HttpServletRequest httpServletRequest) throws IOException, Exception {
+        Map<String, String[]> kvpParameters = this.parsePostRequestToKVPMap(httpServletRequest);
+        this.requestDispatcher(httpServletRequest, kvpParameters);
+    }
+    
+    /**
+     * Parse the content of POST request to a map of key values pair
+     */
+    protected Map<String, String[]> parsePostRequestToKVPMap(HttpServletRequest httpServletRequest) throws IOException, Exception {
         Map<String, String[]> kvpParameters;
         String queryString = httpServletRequest.getQueryString();
-        if (queryString == null) {
-            // in case with POST XML/SOAP string
+        // in case with POST KVP format
+            
+        String requestContentType = httpServletRequest.getContentType();
+        if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)) {
+            // post request without files in body
             String postBody = this.getPOSTRequestBody(httpServletRequest);
             kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         } else {
-            // in case with POST KVP format
-            
-            String requestContentType = httpServletRequest.getContentType();
-            if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)) {
-                // post request without files in body
-                String postBody = this.getPOSTRequestBody(httpServletRequest);
-                kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-            } else {
-                // post request with files in body
-                for (Part part : httpServletRequest.getParts()) {
-                    // e.g: query=for ...
-                    String key = part.getName();
-                    byte[] bytes = IOUtils.toByteArray(part.getInputStream());
-                    
-                    if (part.getContentType() == null) {
-                        // KEY=VALUE as string                        
-                        String value = new String(bytes);
-                        queryString += AND_SIGN + key + EQUAL_SIGN + value;
-                    } else {
-                        // KEY=Uploaded_File_Content as binary (e.g: $1=/tmp/test.tif)                        
-                        String fileName = getSubmittedFileName(part);
-                        // stored file in servere.g: /tmp/rasdaman_petascope/rasdman.test.1122332.tif
-                        String uploadedFilePath = this.storeUploadFileOnServer(fileName, bytes);
-                        queryString += AND_SIGN + key + EQUAL_SIGN + uploadedFilePath;
-                    }
-                }
-                
-                kvpParameters = this.buildPostRequestKvpParametersMap(queryString);
-            }
-            
-        }
+            // post request with files in body
+            for (Part part : httpServletRequest.getParts()) {
+                // e.g: query=for ...
+                String key = part.getName();
+                byte[] bytes = IOUtils.toByteArray(part.getInputStream());
 
-        this.requestDispatcher(httpServletRequest, kvpParameters);
+                if (part.getContentType() == null) {
+                    // KEY=VALUE as string                        
+                    String value = new String(bytes);
+                    queryString += AND_SIGN + key + EQUAL_SIGN + value;
+                } else {
+                    // KEY=Uploaded_File_Content as binary (e.g: $1=/tmp/test.tif)                        
+                    String fileName = getSubmittedFileName(part);
+                    // stored file in servere.g: /tmp/rasdaman_petascope/rasdman.test.1122332.tif
+                    String uploadedFilePath = this.storeUploadFileOnServer(fileName, bytes);
+                    queryString += AND_SIGN + key + EQUAL_SIGN + uploadedFilePath;
+                }
+            }
+
+            kvpParameters = this.buildPostRequestKvpParametersMap(queryString);
+        }            
+        
+        
+        return kvpParameters;
     }
     
     /**

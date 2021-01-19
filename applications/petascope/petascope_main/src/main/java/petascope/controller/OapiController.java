@@ -144,7 +144,7 @@ public class OapiController extends AbstractController {
         
         this.setBaseURL(httpServletRequest);
         
-        Map<String, String[]> kvpParameters = buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());        
+        Map<String, String[]> kvpParameters = this.parsePostRequestToKVPMap(httpServletRequest);
         String query = getValueByKeyAllowNull(kvpParameters, QUERY_PARAM);
         
         if (query == null) {
