@@ -63,7 +63,7 @@ public class WMSGetMapWCPSMetadataTranslatorService {
     /**
      * Create a WCPS Coverage metadata object based on layerName (coverageId) and original XY bounding box of coverage's XY axes which fits on a rasdaman downscaled collection.
      */
-    public WcpsCoverageMetadata createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(WMSLayer wmsLayer) throws PetascopeException, SecoreException {
+    public WcpsCoverageMetadata createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(WMSLayer wmsLayer) throws PetascopeException {
         WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(wmsLayer.getLayerName());
         Pair<BigDecimal, BigDecimal> geoSubsetX = new Pair(wmsLayer.getOriginalBoundsBBox().getXMin(), wmsLayer.getOriginalBoundsBBox().getXMax());
         Pair<BigDecimal, BigDecimal> geoSubsetY = new Pair(wmsLayer.getOriginalBoundsBBox().getYMin(), wmsLayer.getOriginalBoundsBBox().getYMax());

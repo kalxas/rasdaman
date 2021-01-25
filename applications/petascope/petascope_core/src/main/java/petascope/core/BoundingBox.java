@@ -56,6 +56,13 @@ public class BoundingBox {
         this.geoXYCrs = geoXYCrs;
     }
     
+    public BoundingBox(BoundingBox inputBBox) {
+        this.xmin = inputBBox.getXMin();
+        this.ymin = inputBBox.getYMin();
+        this.xmax = inputBBox.getXMax();
+        this.ymax = inputBBox.getYMax();
+    }
+    
     public BigDecimal getXMin() {
         return this.xmin;
     }
@@ -131,11 +138,16 @@ public class BoundingBox {
      * e.g: [-20, 20,  40,  50] intersects [-10, 30,  30,  40]
      */
     public boolean intersectsXorYAxis(BoundingBox inputBBox) {
-        boolean matchX = (this.xmin.compareTo(inputBBox.getXMin()) <= 0 && this.xmax.compareTo(inputBBox.getXMin()) >= 0)
-                       || (this.xmin.compareTo(inputBBox.getXMax()) <= 0 && this.xmax.compareTo(inputBBox.getXMax()) >= 0);
+        BigDecimal inputXMin = inputBBox.getXMin();
+        BigDecimal inputXMax = inputBBox.getXMax();
+        BigDecimal inputYMin = inputBBox.getYMin();
+        BigDecimal inputYMax = inputBBox.getYMax();
         
-        boolean matchY = (this.ymin.compareTo(inputBBox.getYMin()) <= 0 && this.ymax.compareTo(inputBBox.getYMin()) >= 0)
-                       || (this.ymin.compareTo(inputBBox.getYMax()) <= 0 && this.ymax.compareTo(inputBBox.getYMax()) >= 0);
+        boolean matchX = this.xmin.compareTo(inputXMin) >= 0 && this.xmin.compareTo(inputXMax) <= 0
+                         || inputXMin.compareTo(this.xmin) >=0 && inputXMin.compareTo(this.xmax) <= 0;
+        
+        boolean matchY = this.ymin.compareTo(inputYMin) >= 0 && this.ymin.compareTo(inputYMax) <= 0
+                         || inputYMin.compareTo(this.ymin) >=0 && inputYMin.compareTo(this.ymax) <= 0;
         
         return matchX || matchY;
         

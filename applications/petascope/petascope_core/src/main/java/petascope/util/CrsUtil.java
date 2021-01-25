@@ -207,7 +207,7 @@ public class CrsUtil {
      *
      * @return
      */
-    public static String getDatumOrigin(String crs) throws PetascopeException, SecoreException {
+    public static String getDatumOrigin(String crs) throws PetascopeException {
         String datumOrigin = getCrsDefinition(crs).getDatumOrigin();
 
         return datumOrigin;
@@ -227,7 +227,7 @@ public class CrsUtil {
      * @throws SecoreException
      */
     // (!!) Always use decomposeUri() output to feed this method: it currently understands single CRSs.
-    public static CrsDefinition getCrsDefinition(String givenCrsUri) throws PetascopeException, SecoreException {
+    public static CrsDefinition getCrsDefinition(String givenCrsUri) throws PetascopeException {
         CrsDefinition crs = null;
         List<List<String>> axes = new ArrayList<>();
 
@@ -430,24 +430,22 @@ public class CrsUtil {
                 break; // fallback only on IO problems
             } catch (MalformedURLException ex) {
                 log.error("Malformed URI: " + ex.getMessage());
-                throw new SecoreException(ExceptionCode.InvalidMetadata, ex);
+                throw new PetascopeException(ExceptionCode.InvalidMetadata, ex);
             } catch (ValidityException ex) {
-                throw new SecoreException(ExceptionCode.InternalComponentError,
+                throw new PetascopeException(ExceptionCode.InternalComponentError,
                         (null == uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
             } catch (ParsingException ex) {
                 log.error(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
-                throw new SecoreException(ExceptionCode.InternalComponentError,
+                throw new PetascopeException(ExceptionCode.InternalComponentError,
                         (null == uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
             } catch (IOException ex) {
                 if (crsUri.equals(lastUri) || null != uomUrl) {
-                    throw new SecoreException(ExceptionCode.InternalComponentError,
+                    throw new PetascopeException(ExceptionCode.InternalComponentError,
                             (null == uomUrl ? crsUri : uomUrl) + ": resolver exception: " + ex.getMessage(), ex);
                 } else {
                     log.warn("Connection problem with " + (null == uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
                     log.warn("Attempting to fetch the CRS definition via fallback resolver.");
                 }
-            } catch (SecoreException ex) {
-                throw ex;
             } catch (Exception ex) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
                         (null == uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition.", ex);
@@ -742,13 +740,7 @@ public class CrsUtil {
         int i = 0;
         
         for (String crs : crss) {
-            CrsDefinition crsDefinition = null;
-            try {
-                crsDefinition = CrsUtil.getCrsDefinition(crs);
-            } catch (SecoreException ex) {
-                throw new PetascopeException(ExceptionCode.SecoreError, 
-                                            "Cannot get definition for CRS '" + crs + "'. Reason: " + ex.getExceptionText(), ex);
-            }
+            CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crs);
             
             if (axisIndex < i + crsDefinition.getAxes().size()) {
                 int normalizedIndex = axisIndex - i;
@@ -1075,11 +1067,7 @@ public class CrsUtil {
             uri = getEPSGFullUri(uri);
         }
         List<CrsDefinition.Axis> axes = new ArrayList<>();
-        try {
-            axes = CrsUtil.getCrsDefinition(uri).getAxes();
-        } catch (SecoreException ex) {
-            throw new PetascopeException(ExceptionCode.SecoreError, "Cannot get CRS definition from URI: '" + uri + "'. Reason: " + ex.getExceptionText(), ex);
-        }
+        axes = CrsUtil.getCrsDefinition(uri).getAxes();
         if (axes.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS does not contain any axis, given '" + uri + "'.");
         } else if (axes.get(0).getType().equals(AxisTypes.Y_AXIS)) {
@@ -1239,7 +1227,7 @@ public class CrsUtil {
          * @throws PetascopeException
          * @throws SecoreException
          */
-        public static boolean isCached(String uri) throws PetascopeException, SecoreException {
+        public static boolean isCached(String uri) throws PetascopeException {
             if (parsedCRSs.containsKey(uri)) {
                 return true;
             }
@@ -1573,7 +1561,7 @@ public class CrsUtil {
          * @throws PetascopeException
          * @throws SecoreException
          */
-        public static CrsDefinition getCachedDefinition(String uri) throws PetascopeException, SecoreException {
+        public static CrsDefinition getCachedDefinition(String uri) throws PetascopeException {
             CrsDefinition crsDefinition = parsedCRSs.get(uri);
             return crsDefinition;
         }

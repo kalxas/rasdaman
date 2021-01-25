@@ -275,7 +275,7 @@ public class WMSGetMapSubsetTranslatingService {
             extendX = extendY;
             extendY = temp;
         }
-
+        
         subsetCollectionExpression = SCALE + "( " + subsetCollectionExpression + ", [" + scaleX + ", " + scaleY + "] )";
         String finalCollectionExpressionLayer = subsetCollectionExpression;
 

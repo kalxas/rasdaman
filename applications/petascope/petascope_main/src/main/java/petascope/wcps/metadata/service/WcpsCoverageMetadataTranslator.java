@@ -81,7 +81,7 @@ public class WcpsCoverageMetadataTranslator {
      * @throws PetascopeException
      * @throws SecoreException
      */
-    public WcpsCoverageMetadata create(String coverageId) throws PetascopeException, SecoreException {
+    public WcpsCoverageMetadata create(String coverageId) throws PetascopeException {
         // Only supports GeneralGridCoverage now
         
         Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(coverageId);
@@ -125,7 +125,7 @@ public class WcpsCoverageMetadataTranslator {
      * @throws petascope.exceptions.PetascopeException
      * @throws petascope.exceptions.SecoreException
      */
-    public WcpsCoverageMetadata translate(String coverageId) throws PetascopeException, SecoreException {
+    public WcpsCoverageMetadata translate(String coverageId) throws PetascopeException {
         // NOTE: cannot cache a translated WCPS coverage metadata as a WCPS request can slice, trim to the coverage metadata which is stored in cache
         // and the next request will not have the full metadata as the previous one which is big error.
         WcpsCoverageMetadata wcpsCoverageMetadata = this.create(coverageId);
@@ -318,7 +318,7 @@ public class WcpsCoverageMetadataTranslator {
      * @param gridDomains
      * @return
      */
-    private List<Axis> buildAxes(String coverageCRS, List<GeoAxis> geoAxes, List<IndexAxis> indexAxes) throws PetascopeException, SecoreException {
+    private List<Axis> buildAxes(String coverageCRS, List<GeoAxis> geoAxes, List<IndexAxis> indexAxes) throws PetascopeException {
         List<Axis> result = new ArrayList();
         
         for (int i = 0; i < geoAxes.size(); i++) {
@@ -374,7 +374,7 @@ public class WcpsCoverageMetadataTranslator {
         return result;
     }
 
-    private BigDecimal getOriginNumber(GeoAxis geoAxis) throws PetascopeException, SecoreException {
+    private BigDecimal getOriginNumber(GeoAxis geoAxis) throws PetascopeException {
         BigDecimal origin;
 
         if (geoAxis.isIrregular()) {

@@ -219,6 +219,9 @@ public class WMSGetMapStyleService {
                                                          WcpsCoverageMetadata wcpsCoverageMetadata,
                                                          List<WcpsSliceSubsetDimension> nonXYGridSliceSubsetDimensions) throws PetascopeException, SecoreException {
         
+        // for example, the bbox from client can contain the layer's bbox, not always within the layer's bbox (e.g: -90,-180,90,180 in EPSG:4326)
+        BoundingBox originalRequestBBox = new BoundingBox(wmsLayer.getRequestBBox());
+        
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getRequestBBox(), wmsLayer.getLayerName());
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getExtendedRequestBBox(), wmsLayer.getLayerName());
         
@@ -260,6 +263,9 @@ public class WMSGetMapStyleService {
                                                         String coverageSubset,
                                                         WcpsCoverageMetadata wcpsCoverageMetadata,
                                                         List<WcpsSliceSubsetDimension> nonXYGridSliceSubsetDimensions) throws PetascopeException, SecoreException {
+        
+        // for example, the bbox from client can contain the layer's bbox, not always within the layer's bbox (e.g: -90,-180,90,180 in EPSG:4326)
+        BoundingBox originalRequestBBox = new BoundingBox(wmsLayer.getRequestBBox());
         
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getRequestBBox(), wmsLayer.getLayerName());
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getExtendedRequestBBox(), wmsLayer.getLayerName());

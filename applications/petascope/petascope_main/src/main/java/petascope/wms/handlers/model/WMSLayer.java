@@ -31,9 +31,9 @@ import petascope.core.BoundingBox;
 public class WMSLayer {
     
    private String layerName;
-   // original min and max XY geo bounds of a layer
+   // original min and max XY geo bounds of a layer (e.g: in UTM 32)
    private BoundingBox originalXYBoundsBBox;
-   // min and max XY geo bounds of a requesting BBOX from client
+   // min and max XY geo bounds of a requesting BBOX from client (e.g: EPSG:4326)
    private BoundingBox requestBBox;
    // extended min and max XY geo bounds from the requesting BBOX from client
    private BoundingBox extendedRequestBBox;

@@ -122,8 +122,6 @@ public class WMSGetMapService {
     private WMSGetMapSubsetParsingService wmsGetMapSubsetParsingService;
     @Autowired
     private WMSGetMapSubsetTranslatingService wmsGetMapSubsetTranslatingService;
-    @Autowired
-    private SubsetExpressionHandler subsetExpressionHandler;
     
     // In case of nativeCrs of layer (coverage) is different from outputCrs of GetMap request, then it needs to reproject $collectionExpression from sourceCrs to targetCrs.
     public static final String COLLECTION_EXPRESSION_TEMPLATE = "$collectionExpression";
@@ -148,12 +146,12 @@ public class WMSGetMapService {
     // Optional parameter, used only incase with project()
     private String interpolation;    
     private boolean transparent;
-    // BBox already translated from requesting CRS to native CRS of XY geo-referenced axes
-    // NOTE: it needs to keep the original BBox for Extend() to display result correctly in WMS client
+    
+    // The bbox parameter from WMS clients (e.g: in EPSG:4326), the layer's native CRS can be different
     private BoundingBox originalRequestBBox;
     
-    // If original BBox is in EPSG:4326, then this object should be in XY axes' native CRS (e.g: UTM 32632)
-    private BoundingBox originalRequestBBoxNativeCRS;
+    // If layer has different CRS (e.g: UTM 32 CRS) and request BBOX from client is EPSG:4326, then transform the CRS from UTM32 -> EPSG:4326
+    private BoundingBox layerBBoxRequestCRS;
     
     // NOTE: this fittedBBox is used to fit input BBox to coverage's geo XY axes' domains 
     // to avoid server killed by subsetting collection (e.g: c[-20:30] instead of c[0:30])
@@ -255,20 +253,23 @@ public class WMSGetMapService {
 
         String firstLayerName = this.layerNames.get(0);
         WcpsCoverageMetadata wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.translate(firstLayerName);
-        BoundingBox originalGeoXYBoundsBBox = wcpsCoverageMetadataTmp.getOrginalGeoXYBoundingBox();
+        BoundingBox layerBBoxNativeCRS = wcpsCoverageMetadataTmp.getOrginalGeoXYBoundingBox();
+        this.layerBBoxRequestCRS = layerBBoxNativeCRS;
 
-        WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(firstLayerName, originalGeoXYBoundsBBox,
+        WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(firstLayerName, layerBBoxNativeCRS,
                                                                                        this.fittedRequestBBox, this.fittedRequestBBox, this.width, this.height);
         WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
 
         String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
         this.isProjection = !this.outputCRS.equalsIgnoreCase(nativeCRS);
-        this.originalRequestBBoxNativeCRS = this.originalRequestBBox;
         if (isProjection) {
-            // e.g: coverage's nativeCRS is EPSG:4326 and request BBox which contains coordinates in EPSG:3857
-            this.fittedRequestBBox = this.wmsGetMapBBoxService.transformBoundingBox(this.fittedRequestBBox, this.outputCRS, nativeCRS);
-            this.transformOrginalRequestBBoxToNativeCRSBBox(xyAxes.get(0).getNativeCrsUri());
+            // e.g: layer's nativeCRS is EPSG:32632 and request BBox is EPSG:4326            
+            this.transformNativeCRSBBoxToRequestCRS(xyAxes);
+            
+            // Get the intersected geo bbox in layer's native CRS (e.g: UTM 32) by the original request bbox (e.g: in EPSG:4326) with the layer's bbox (e.g: in EPSG:4326)
+            this.fittedRequestBBox = this.wmsGetMapBBoxService.getIntersectedBBoxInNativeCRS(originalRequestBBox, layerBBoxRequestCRS, layerBBoxNativeCRS, outputCRS, nativeCRS);
+            
         }
         
         this.extendedFittedRequestGeoBBox = this.fittedRequestBBox;
@@ -361,6 +362,10 @@ public class WMSGetMapService {
                                 .replace(FORMAT_TYPE_TEMPLATE, formatType)
                                 .replace(COLLECTIONS_TEMPLATE, collections);
             
+            if (collections.isEmpty()) {
+                finalRasqlQuery = finalRasqlQuery.replace("FROM ", "");
+            }
+            
             bytes = RasUtil.getRasqlResultAsBytes(finalRasqlQuery);
         } catch (PetascopeException | SecoreException ex) {
             throw new WMSInternalException(ex.getMessage(), ex);
@@ -391,8 +396,8 @@ public class WMSGetMapService {
         List<WMSLayer> wmsLayers = new ArrayList<>();
         
         for (WcpsCoverageMetadata wcpsCoverageMetadata : wcpsCoverageMetadatas) {
-            BoundingBox layerOrginalXYBoundsBBox = wcpsCoverageMetadata.getOrginalGeoXYBoundingBox();
-            WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(wcpsCoverageMetadata.getCoverageName(), layerOrginalXYBoundsBBox,
+
+            WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(wcpsCoverageMetadata.getCoverageName(), this.originalRequestBBox,
                                                                                 this.fittedRequestBBox,
                                                                                 this.extendedFittedRequestGeoBBox, this.width, this.height);
             wmsLayers.add(wmsLayer);
@@ -402,18 +407,22 @@ public class WMSGetMapService {
     }
     
     /**
-     * In case of requesting different CRS than layer's native CRS for XY axes, then
-     * transform the original request BBox from the request CRS (e.g: EPSG:4326) to BBox in native CRS (e.g: EPSG:32632)
+     * In case of requesting different CRS (e.g: EPSG:4326) than layer's native CRS (e.g: UTM 32) for XY axes, then
+     * transform the layer's geo XY bounds from UTM 32 to ESPG:4326
      */
-    private void transformOrginalRequestBBoxToNativeCRSBBox(String nativeCRS) throws PetascopeException {
-        double[] sourceCoordinatesMin = {this.originalRequestBBox.getXMin().doubleValue(), this.originalRequestBBox.getYMin().doubleValue()};
-        double[] sourceCoordinatesMax = {this.originalRequestBBox.getXMax().doubleValue(), this.originalRequestBBox.getYMax().doubleValue()};
+    private void transformNativeCRSBBoxToRequestCRS(List<Axis> xyAxesNativeCRS) throws PetascopeException {
+        Axis axisX = xyAxesNativeCRS.get(0);
+        Axis axisY = xyAxesNativeCRS.get(1);
+        String nativeCRS = CrsUtil.getEPSGCode(axisX.getNativeCrsUri());
         
-        // e.g: EPSG:4326 request BBox to native layer's CRS EPSG:32632
-        List<BigDecimal> mins = CrsProjectionUtil.transform(this.outputCRS, nativeCRS, sourceCoordinatesMin);
-        List<BigDecimal> maxs = CrsProjectionUtil.transform(this.outputCRS, nativeCRS, sourceCoordinatesMax);
+        double[] sourceCoordinatesMin = {axisX.getGeoBounds().getLowerLimit().doubleValue(), axisY.getGeoBounds().getLowerLimit().doubleValue()};
+        double[] sourceCoordinatesMax = {axisX.getGeoBounds().getUpperLimit().doubleValue(), axisY.getGeoBounds().getUpperLimit().doubleValue()};
         
-        this.originalRequestBBoxNativeCRS = new BoundingBox(mins.get(0), mins.get(1), maxs.get(0), maxs.get(1));
+        // e.g: native layer's CRS: UTM 32 to request CRS: EPSG:4326
+        List<BigDecimal> mins = CrsProjectionUtil.transform(nativeCRS, this.outputCRS, sourceCoordinatesMin);
+        List<BigDecimal> maxs = CrsProjectionUtil.transform(nativeCRS, this.outputCRS, sourceCoordinatesMax);
+        
+        this.layerBBoxRequestCRS = new BoundingBox(mins.get(0), mins.get(1), maxs.get(0), maxs.get(1));
     }
     
     /**
@@ -425,7 +434,7 @@ public class WMSGetMapService {
         
         // If request BBox contains the layer (layer is inside the request BBox)
         // then no point to create extended request geo BBox as there are no more pixels to fill gaps
-        return (isProjection && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(this.originalRequestBBoxNativeCRS));
+        return (isProjection && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(this.layerBBoxRequestCRS));
     }
     
     /**
@@ -509,17 +518,8 @@ public class WMSGetMapService {
      * Check if request BBox in native CRS intersects with first layer's BBox.
      */
     private boolean intersectLayerXYBBox() throws PetascopeException, SecoreException {
-        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.translate(this.layerNames.get(0));
-        List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
-        Axis axisX = xyAxes.get(0);
-        Axis axisY = xyAxes.get(1);
-        
-        BoundingBox layersOriginalBoundingBox = new BoundingBox(axisX.getOriginalGeoBounds().getLowerLimit(), axisY.getOriginalGeoBounds().getLowerLimit(),
-                                                                axisX.getOriginalGeoBounds().getUpperLimit(), axisY.getOriginalGeoBounds().getUpperLimit());
-        
-        // Check if the request BBox intersects with layer's BBox
-        boolean firstCheck =  this.originalRequestBBoxNativeCRS.intersectsXorYAxis(layersOriginalBoundingBox) 
-                || layersOriginalBoundingBox.intersectsXorYAxis(originalRequestBBoxNativeCRS);
+        // Check if the request BBox (e.g: in EPSG:4326) intersects with layer's BBox (e.g: in UTM 32)
+        boolean firstCheck = this.layerBBoxRequestCRS.intersectsXorYAxis(this.originalRequestBBox);
          
         return firstCheck;
     }

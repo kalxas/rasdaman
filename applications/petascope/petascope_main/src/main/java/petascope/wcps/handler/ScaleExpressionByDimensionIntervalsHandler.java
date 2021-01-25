@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
@@ -67,6 +68,25 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslatorService;
     
     public static final String OPERATOR = "scale";
+    
+    /**
+     * Check if scaling axis exists in the input coverage
+     */
+    private void validateAxisLabelExist(WcpsCoverageMetadata metadata, String scaleAxisLabel) {
+        List<Axis> coverageAxes = metadata.getAxes();
+        
+        boolean result = false;
+        for (Axis axis : coverageAxes) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), scaleAxisLabel)) {
+                result = true;
+                break;
+            }
+        }
+        
+        if (!result) {
+            throw new WCPSException("Scaling axis label '" + scaleAxisLabel + "' does not exist in coverage '" + metadata.getCoverageName() + "'.");
+        }
+    }
     
     /**
      * Special case, only 1 X or Y axis specified, find the grid domain for another axis implicitly from the specified axis
@@ -110,6 +130,9 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // scale(coverageExpression, {domainIntervals})
         List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
+        for (WcpsSubsetDimension subset : subsetDimensions) {
+            this.validateAxisLabelExist(metadata, subset.getAxisName());
+        }
         List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(subsetDimensions, metadata.getAxes());
         
         if (this.processXOrYAxisImplicitly(metadata, numericSubsets, coverageExpression)) {

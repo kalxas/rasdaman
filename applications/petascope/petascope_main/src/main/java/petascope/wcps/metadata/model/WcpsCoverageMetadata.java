@@ -21,6 +21,7 @@
  */
 package petascope.wcps.metadata.model;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,6 +62,7 @@ public class WcpsCoverageMetadata {
     // NOTE: rasdaman collection name can be different from coverageName (in case of import a coverageName which is duplicate to an existing collectionName)
     // then coverage will create a new collectionName_datetime to store data.
     protected String rasdamanCollectionName;
+    protected BigDecimal downscaledLevel;
     // In case a coverage is created temporarily from uploaded file path
     protected String decodedFilePath;
     protected String coverageType;
@@ -306,7 +308,15 @@ public class WcpsCoverageMetadata {
     public void setRasdamanCollectionName(String rasdamanCollectionName) {
         this.rasdamanCollectionName = rasdamanCollectionName;
     }
+    
+    public BigDecimal getDownscaledLevel() {
+        return downscaledLevel;
+    }
 
+    public void setDownscaledLevel(BigDecimal downscaledLevel) {
+        this.downscaledLevel = downscaledLevel;
+    }
+    
     public String getDecodedFilePath() {
         return decodedFilePath;
     }
@@ -506,6 +516,7 @@ public class WcpsCoverageMetadata {
     public void setNilValues(List<NilValue> nilValues) {
         this.nilValues = nilValues;
     }
+    
     
     /**
      * Return the offset vector of an axis in coverage.

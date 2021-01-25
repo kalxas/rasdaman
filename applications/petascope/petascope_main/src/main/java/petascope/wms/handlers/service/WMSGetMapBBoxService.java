@@ -98,6 +98,79 @@ public class WMSGetMapBBoxService {
 
         return bbox;
     }
+    
+    /**
+     * Given 3 bounding boxes:
+     * originalRequestBBox (bbox in GetMap request, e.g: in EPSG:4326)
+     * layerBBoxRequestCRS (bbox of a layer in the request CRS, e.g: EPSG:4326)
+     * layerBBoxNativeCRS (bbox of a layer from its native CRS, e.g: EPSG:32632)
+     * 
+     * Get the intersected bbox between the original request bbox and the layer's bbox in native CRS.
+     * For example, requestBBox (1) is the whole map in EPSG:4326, Long-Lat order (-180,-90,180,90)
+     * and the layer is a Sentinel 2 UTM 3262 scene. Then, project the geo bounds of this layer from EPSG:32632 -> EPSG:4326 (2).
+     * Find the intersection between (1) and (2).
+     * Project the intersection from EPSG:4326 to UTM:32632
+     */
+    public BoundingBox getIntersectedBBoxInNativeCRS(BoundingBox originalRequestBBox, 
+                                                     BoundingBox layerBBoxRequestCRS, BoundingBox layerBBoxNativeCRS,
+                                                     String requestCRS, String nativeCRS) throws PetascopeException, WCSException, SecoreException {
+        BigDecimal xMinRequestCRS;
+        BigDecimal yMinRequestCRS;
+        BigDecimal xMaxRequestCRS;
+        BigDecimal yMaxRequestCRS;
+        
+        // X axis
+        if (originalRequestBBox.getXMin().compareTo(layerBBoxRequestCRS.getXMin()) >= 0            
+            && originalRequestBBox.getXMax().compareTo(layerBBoxRequestCRS.getXMax()) <= 0) {
+            
+            // request within layer's bbox
+            xMinRequestCRS = originalRequestBBox.getXMin();
+            xMaxRequestCRS = originalRequestBBox.getXMax();
+        } else if (originalRequestBBox.getXMin().compareTo(layerBBoxRequestCRS.getXMin()) < 0            
+            && originalRequestBBox.getXMax().compareTo(layerBBoxRequestCRS.getXMax()) > 0) {
+            
+            // request contains layers' bbox
+            xMinRequestCRS = layerBBoxRequestCRS.getXMin();
+            xMaxRequestCRS = layerBBoxRequestCRS.getXMax();
+        } else {
+            // intersect
+            
+            xMinRequestCRS = originalRequestBBox.getXMin().compareTo(layerBBoxRequestCRS.getXMin()) > 0 
+                           ? originalRequestBBox.getXMin() : layerBBoxRequestCRS.getXMin();
+            xMaxRequestCRS = originalRequestBBox.getXMax().compareTo(layerBBoxRequestCRS.getXMax()) < 0 
+                           ? originalRequestBBox.getXMax() : layerBBoxRequestCRS.getXMax();
+        }
+        
+        // Y axis
+        if (originalRequestBBox.getYMin().compareTo(layerBBoxRequestCRS.getYMin()) >= 0            
+            && originalRequestBBox.getYMax().compareTo(layerBBoxRequestCRS.getYMax()) <= 0) {
+            
+            // request within layer's bbox
+            yMinRequestCRS = originalRequestBBox.getYMin();
+            yMaxRequestCRS = originalRequestBBox.getYMax();
+        } else if (originalRequestBBox.getYMin().compareTo(layerBBoxRequestCRS.getYMin()) < 0            
+            && originalRequestBBox.getYMax().compareTo(layerBBoxRequestCRS.getYMax()) > 0) {
+            
+            // request contains layers' bbox
+            yMinRequestCRS = layerBBoxRequestCRS.getYMin();
+            yMaxRequestCRS = layerBBoxRequestCRS.getYMax();
+        } else {
+            // intersect
+            
+            yMinRequestCRS = originalRequestBBox.getYMin().compareTo(layerBBoxRequestCRS.getYMin()) > 0 
+                           ? originalRequestBBox.getYMin() : layerBBoxRequestCRS.getYMin();
+            yMaxRequestCRS = originalRequestBBox.getYMax().compareTo(layerBBoxRequestCRS.getYMax()) < 0 
+                           ? originalRequestBBox.getYMax() : layerBBoxRequestCRS.getYMax();
+        }
+        
+        
+        // e.g: in request CRS (EPSG:4326)
+        BoundingBox intersectionBBoxRequestCRS = new BoundingBox(xMinRequestCRS, yMinRequestCRS, xMaxRequestCRS, yMaxRequestCRS);
+        // e.g: in layer's native CRS (EPSG:32632)
+        BoundingBox intersectBBoxNativeCRS = this.transformBoundingBox(intersectionBBoxRequestCRS, requestCRS, nativeCRS);
+        
+        return intersectBBoxNativeCRS;        
+    }
 
     /**
      * Transform the input BBox from sourceCrs to targetCrs

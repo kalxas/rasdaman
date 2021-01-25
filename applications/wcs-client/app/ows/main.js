@@ -2536,11 +2536,13 @@ var rasdaman;
                     this.notificationService.error(errorInformation);
                     return;
                 }
-                if (errorInformation.status == 404 || errorInformation.status == -1) {
-                    this.notificationService.error("Cannot connect to petascope, please check if petascope is running.");
-                }
-                else {
-                    this.notificationService.error("The request failed with HTTP code:" + errorInformation.status + "(" + errorInformation.statusText + ")");
+                if (errorInformation.data == null) {
+                    if (errorInformation.status == 404 || errorInformation.status == -1) {
+                        this.notificationService.error("Cannot connect to petascope, please check if petascope is running.");
+                    }
+                    else {
+                        this.notificationService.error("The request failed with HTTP code:" + errorInformation.status + "(" + errorInformation.statusText + ")");
+                    }
                 }
                 if (errorInformation.data != null && errorInformation.data != "") {
                     try {
