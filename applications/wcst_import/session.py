@@ -179,7 +179,10 @@ class Session:
         with open(petascope_properties_path) as f:
             for line in f:
                 if "secore_urls=" in line:
-                    crs_resolver = line.split("=")[1].strip()
+                    # e.g: http://localhost:8080/def,https://ows.rasdaman.org/def
+                    values = line.split("=")[1].strip().split(",")
+
+                    crs_resolver = self.get_running_crs_resolver(values)
                     # wcst_import needs the SECORE prefix with "/" as last character
                     if crs_resolver[-1] != "/":
                         crs_resolver += "/"
@@ -187,6 +190,29 @@ class Session:
         if crs_resolver is None:
             raise RuntimeException("Cannot find secore_urls configuration "
                                    "in petascope's properties file '{}' for crs_resolver".format(petascope_properties_path))
+
+    def get_running_crs_resolver(self, crs_resolvers):
+        """
+        From a list of SECORE configured in petascope.properties, find the first running SECORE
+        to be used for wcst_import
+        :param string[] crs_resolvers: list of SECORE URLs
+        :return: string (the running SECORE)
+        """
+        i = 0
+        for url_prefix in crs_resolvers:
+            try:
+                test_url = url_prefix + "/crs/EPSG/0/4326"
+                from util.crs_util import CRSUtil
+                CRSUtil.get_axis_labels_from_single_crs(test_url)
+                # e.g: http://localhost:8080/def
+                return url_prefix
+            except Exception as ex:
+                log.warn("CRS resolver '" + url_prefix + "' is not working.")
+                if i < len(crs_resolvers) - 1:
+                    log.warn("Trying with another fallback resolver...")
+            i += 1
+
+        raise RuntimeException("No configured CRS resolvers in petascope.properties work. Given: " + ",".join(crs_resolvers))
 
     def __replace_secore_prefix(self, crs):
         """
