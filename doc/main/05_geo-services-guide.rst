@@ -693,6 +693,16 @@ will be updated from the local XML file at ``/home/rasdaman/Downloads/test_metad
                -F "file=@/home/rasdaman/Downloads/test_metadata.xml" 
                "http://localhost:8080/rasdaman/admin/UpdateCoverageMetadata"
 
+Check if a coverage / layer exists
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In v10+, rasdaman supports nonstandard REST request to check if 
+a coverage / layer exists. The result is ``true/false`` string literal.
+
+.. code-block:: text
+
+    http://localhost:8080/rasdaman/ows/objectExists?coverageId=${coverageId}
+    http://localhost:8080/rasdaman/ows/objectExists?layer=${layer}
+
 
 OGC Web Coverage Processing Service (WCPS)
 ==========================================

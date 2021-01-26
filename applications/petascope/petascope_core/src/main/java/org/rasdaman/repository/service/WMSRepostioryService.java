@@ -77,6 +77,10 @@ public class WMSRepostioryService {
         return result;
     }
     
+    public boolean isInCache(String layerName) throws PetascopeException {
+        return this.isInLocalCache(layerName);
+    }
+    
     /**
      * Check if a layer already exists from local loaded cache map
      */

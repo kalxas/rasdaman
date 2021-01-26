@@ -45,6 +45,16 @@ class CoverageUtil:
         :rtype bool
         """
         try:
+            # Check if coverage exists via the Non-standard REST endpoint
+            service_call = self.wcs_service + "/objectExists?coverageId=" + self.coverage_id
+            response = decode_res(validate_and_read_url(service_call))
+
+            return response == "true"
+        except Exception as ex:
+            # Something is wrong, try with the standard WCS DescribeCoverage request
+            pass
+
+        try:
             # Check if coverage exists in WCS DescribeCoverage result
             service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
                            Session.get_WCS_VERSION_SUPPORTED() \

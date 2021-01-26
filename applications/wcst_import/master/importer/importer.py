@@ -44,6 +44,7 @@ from util.file_util import File
 from util.import_util import decode_res
 from util.log import log, prepend_time
 from util.string_util import strip_trailing_zeros
+from util.url_util import validate_and_read_url
 from wcst.wcst import WCSTInsertRequest, WCSTInsertScaleLevelsRequest, WCSTUpdateRequest, WCSTSubset
 from wcst.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest, WMSTDescribeLayer
 from wcst.wmst import WMSTGetCapabilities
@@ -430,18 +431,28 @@ class Importer:
         """
         Inserts or Update the coverage into the wms service
         """
+        layer_exist = None
         try:
-            # First check if layer exists or not
-            request = WMSTDescribeLayer(self.coverage.coverage_id)
-            layer_exist = True
-            try:
-                response = ConfigManager.executor.execute(request)
-            except Exception as ex:
-                if not "LayerNotFound" in str(ex):
-                    raise ex
-                else:
-                    # Layer not found
-                    layer_exist = False
+            # First check if layer exists or not from nonstandard HTTP request
+            service_call = ConfigManager.wcs_service + "/objectExists?layer=" + self.coverage.coverage_id
+            response = decode_res(validate_and_read_url(service_call))
+            layer_exist = True if response == "true" else False
+        except Exception as ex:
+            # try the normal way
+            pass
+
+        try:
+            if layer_exist is None:
+                # First check if layer exists or not
+                request = WMSTDescribeLayer(self.coverage.coverage_id)
+                try:
+                    response = ConfigManager.executor.execute(request)
+                except Exception as ex:
+                    if not "LayerNotFound" in str(ex):
+                        raise ex
+                    else:
+                        # Layer not found
+                        layer_exist = False
 
             # WMS layer does not exist, just insert new WMS layer from imported coverage
             if layer_exist is False:

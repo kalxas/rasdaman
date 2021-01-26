@@ -46,6 +46,13 @@ FlancheJs.defineClass("Rj.util._ErrorManager", {
 
   methods:{
     reportError  :function (errorMsg, throwable) {
+
+      // Only get the error message, not the XML wrapper
+      if (errorMsg.includes("ows:ExceptionText")) {
+        errorMsg = errorMsg.substring(errorMsg.indexOf("<ows:ExceptionText>") + 19);
+        errorMsg = errorMsg.substring(errorMsg.indexOf("</ows:ExceptionText>"), 0);
+      }
+
       if (!this.getErrors()) {
         return;
       }

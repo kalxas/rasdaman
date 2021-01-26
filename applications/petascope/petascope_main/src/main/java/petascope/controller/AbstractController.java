@@ -29,6 +29,7 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -524,6 +525,18 @@ public abstract class AbstractController {
         } else {
             return request;
         }
+    }
+    
+    /**
+     * Write response as string
+     */
+    protected void writeTextResponse(Object obj) throws IOException, PetascopeException {
+        byte[] bytes = obj.toString().getBytes();
+        List<byte[]> bytesList = new ArrayList<>();
+        bytesList.add(bytes);
+
+        Response response = new Response(bytesList, MIMEUtil.MIME_TEXT);
+        this.writeResponseResult(response);
     }
 
     /**
