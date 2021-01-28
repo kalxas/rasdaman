@@ -2371,6 +2371,25 @@ for a general recipe ingredient file that uses many grib expressions.
 |           |(starting from 1)                               |                                          |
 +-----------+------------------------------------------------+------------------------------------------+
 
+.. NOTE::
+
+    Currently, rasdaman only supports GRIB files with `gridType` format of regular
+    lat long `regular_ll`. If the format is different, one needs to preprocess
+    the input files by other tools. How to check `gridType`:
+
+    .. hidden-code-block:: text
+
+       grib_dump file.grib | grep 'gridType'
+
+    If a GRIB file is flipped on Lat axis (South -> North with `jScansPositively = 0`
+    from `grib_dump` output) instead of GDAL style (North -> South with 
+    `jScansPositively = 1`), then one needs to flip it manually by other tools
+    before importing to rasdaman, e.g: with `cdo`:
+
+    .. hidden-code-block:: text
+
+       cdo invertlat input.grib output.grib 
+
 **File**
 
 +-----------------+--------------------------------------------------------------------+----------------+
