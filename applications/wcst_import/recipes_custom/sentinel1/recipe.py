@@ -22,8 +22,10 @@
  *
 """
 import os
+import sys
 
 from config_manager import ConfigManager
+from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
 from master.importer.importer import Importer
 from master.importer.multi_importer import MultiImporter
@@ -152,8 +154,12 @@ class Recipe(GeneralCoverageRecipe):
 
     def _init_coverage_options(self):
         covopts = self.options["coverage"]
+        self.epsg_xy_crs = None
 
         self._init_epsg_xy_crs()
+        if self.epsg_xy_crs is None:
+            raise RuntimeException("Cannot detect geo CRS from input files, make sure the files exist and are readable by gdal.")
+
         compound_crs = self.CRS_TEMPLATE.replace(self.EPSG_XY_CRS, self.epsg_xy_crs)
         self.crs = self._set_option(covopts, "crs", self._resolve_crs(compound_crs))
         self._set_option(covopts, "slicer", {})
