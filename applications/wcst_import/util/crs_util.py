@@ -282,6 +282,23 @@ class CRSUtil:
                         if crs_axis.label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_0:
                             crs_axis.label = CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
                             break
+    @staticmethod
+    def is_longitude_axis(axis_label):
+        """
+        Check if axis label is longitude
+        :return: boolean
+        """
+        return axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_0 \
+                or axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
+
+    @staticmethod
+    def is_latitude_axis(axis_label):
+        """
+        Check if axis label is latitude
+        :return: boolean
+        """
+        return axis_label == CRSUtil.LAT_AXIS_LABEL
+
 
     @staticmethod
     def log_crs_replacement_epsg_version_0_by_version_85():

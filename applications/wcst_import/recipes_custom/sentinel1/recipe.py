@@ -79,6 +79,8 @@ class Recipe(GeneralCoverageRecipe):
     EPSG_XY_CRS = "$EPSG_XY_CRS"
     CRS_TEMPLATE = "OGC/0/AnsiDate@" + EPSG_XY_CRS
 
+    EPSG_4326 = "4326"
+
     DEFAULT_IMPORT_ORDER = GdalToCoverageConverter.IMPORT_ORDER_ASCENDING
 
     DEFAULT_NULL_VALUE = 0
@@ -256,6 +258,40 @@ class Recipe(GeneralCoverageRecipe):
             ret.append(importer)
         return ret
 
+    def __filter_invalid_geo_bounds(self, slices):
+        """
+        Filter any coverage slices (scenes) which have invalid lat and long bounds
+        in EPSG:4326
+        """
+        results = []
+
+        for slice in slices:
+            input_file = slice.data_provider.file.filepath
+            axis_subsets = slice.axis_subsets
+
+            is_valid = True
+            for axis_subset in axis_subsets:
+                axis = axis_subset.coverage_axis.axis
+                geo_lower_bound = axis.low
+                geo_upper_bound = axis.high
+                axis_label = axis.label
+
+                if axis.crs_axis.uri.endswith(self.EPSG_4326):
+                    if CRSUtil.is_latitude_axis(axis_label):
+                        is_valid = geo_lower_bound >= -90 and geo_upper_bound <= 90
+                    elif CRSUtil.is_longitude_axis(axis_label):
+                        is_valid = geo_lower_bound >= -180 and geo_upper_bound <= 180
+
+                    if not is_valid:
+                        log.warn("File '" + input_file
+                                 + "' has invalid lat or long axes geo bounds in EPSG:4326 CRS, ignored for further processing.")
+                        break
+
+            if is_valid:
+                results.append(slice)
+
+        return results
+
     def _get_convertors(self):
         """
         Returns a map of coverage id -> GdalToCoverageConverter
@@ -294,6 +330,7 @@ class Recipe(GeneralCoverageRecipe):
 
             conv.data_type = band_data_type
             slices = conv._create_coverage_slices(crs_axes, evaluator_slice)
+            slices = self.__filter_invalid_geo_bounds(slices)
             conv.coverage_slices += slices
 
         return convertors
