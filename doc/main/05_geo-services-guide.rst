@@ -712,6 +712,7 @@ protocol-independent language for the extraction, processing, analysis,
 and fusion of multi-dimensional gridded coverages, often called
 `datacubes <https://en.wikipedia.org/wiki/Data_cube>`_.
 
+
 General
 -------
 
@@ -727,11 +728,11 @@ through the following ``ProcessCoverages`` request:
     http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
       &REQUEST=ProcessCoverage&QUERY=<wcps-query>
 
-.. NOTE::
 
-   In v10+, rasdaman supports the ``q`` parameter besides the ``query`` parameter
-   to store a WCPS query. A request must contain only one ``q`` or ``query`` parameter.
-   
+The following subsections list enhancements rasdaman offers over the
+OGC WCPS standard. A brief introduction to the WCPS language is given
+in the `WCPS cheatsheet <https://doc.rasdaman.org/11_cheatsheets.html#wcps>`_; 
+more educational material is available on `EarthServer <https://earthserver.xyz/wcs>`_.  
 
 Polygon/Raster Clipping
 -----------------------
@@ -1206,6 +1207,17 @@ proprietary parameter ``outputType`` in the ``encode()`` function.
     for c in (test_irr_cube_2)
     return encode( c, "application/gml+xml", 
                       "{\"outputType\":\"GeneralGridCoverage\"}" ) 
+
+Query Parameter
+---------------
+
+In v10+, rasdaman supports the ``q`` parameter besides the ``query`` parameter
+to store a WCPS query. A request must contain only one ``q`` or ``query`` parameter.
+
+.. code-block:: text
+
+    http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
+      &REQUEST=ProcessCoverage&q=<wcps-query>
 
 
 OGC Web Map Service (WMS)
