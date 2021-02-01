@@ -308,7 +308,13 @@ class Recipe(GeneralCoverageRecipe):
                 # Fixed values for 3 axes of Sentinel 2 coverage
                 axis_resolutions = self.RES_DICT[res]
                 slices = conv._create_coverage_slices(crs_axes, evaluator_slice, axis_resolutions)
-                conv.coverage_slices += slices
+                if len(slices) != 0:
+                    conv.coverage_slices += slices
+
+                if len(conv.coverage_slices) != 0:
+                    first_slice = conv.coverage_slices[0]
+                    # This needs one available file to extract metadata later
+                    conv.files = [first_slice.data_provider.file]
 
         return convertors
     

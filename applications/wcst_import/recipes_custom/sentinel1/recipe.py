@@ -326,7 +326,6 @@ class Recipe(GeneralCoverageRecipe):
             conv = self._get_convertor(convertors, cov_id)
 
             file_pair = FilePair(file.filepath, file.filepath)
-
             conv.files = [file_pair]
             crs_axes = CRSUtil(conv.crs).get_axes(self.coverage_id)
 
@@ -337,7 +336,13 @@ class Recipe(GeneralCoverageRecipe):
             conv.data_type = band_data_type
             slices = conv._create_coverage_slices(crs_axes, evaluator_slice)
             slices = self.__filter_invalid_geo_bounds(slices)
-            conv.coverage_slices += slices
+            if len(slices) != 0:
+                conv.coverage_slices += slices
+
+            if len(conv.coverage_slices) != 0:
+                first_slice = conv.coverage_slices[0]
+                # This needs one available file to extract metadata later
+                conv.files = [first_slice.data_provider.file]
 
         return convertors
 
