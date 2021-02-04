@@ -21,16 +21,23 @@
  */
 package petascope.wcps.metadata.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
+import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
 import static petascope.wcps.handler.ForClauseHandler.AS;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -73,6 +80,20 @@ public class LetClauseAliasRegistry {
      * Get the processed coverage expression by variable name
      */
     public WcpsResult get(String variableName) {
-        return this.variablesMap.get(variableName);
+        WcpsResult tmp = this.variablesMap.get(variableName);
+        if (tmp == null) {
+            return null;
+        }
+        
+        WcpsResult result = tmp;
+        try {
+            // WcpsCoverageMetadata clone = (WcpsCoverageMetadata)JSONUtil.clone(tmp.getMetadata());
+            // result.setMetadata(clone);
+            result = (WcpsResult) JSONUtil.clone(tmp);
+        } catch (Exception ex) {
+            throw new WCPSException("Cannot clone WCPS metadata object to another object. Reason: " + ex.getMessage(), ex);
+        }            
+        
+        return result;
     }
 }

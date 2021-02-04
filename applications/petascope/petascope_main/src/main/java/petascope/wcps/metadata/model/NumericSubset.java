@@ -21,11 +21,14 @@
  */
 package petascope.wcps.metadata.model;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.math.BigDecimal;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
+// As Jackson needs to know the concrete subclass when deserializing string to object
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
 public abstract class NumericSubset {
 
     public abstract String getStringRepresentation();

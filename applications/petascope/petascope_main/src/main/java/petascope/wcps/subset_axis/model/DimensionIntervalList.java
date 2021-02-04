@@ -39,6 +39,10 @@ import java.util.List;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 public class DimensionIntervalList extends ParameterResult {
+    
+    public DimensionIntervalList() {
+        
+    }
 
     /**
      * Constructor for the class
@@ -58,5 +62,5 @@ public class DimensionIntervalList extends ParameterResult {
         return intervals;
     }
 
-    private final List<WcpsSubsetDimension> intervals;
+    private List<WcpsSubsetDimension> intervals;
 }

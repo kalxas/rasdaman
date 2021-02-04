@@ -21,13 +21,19 @@
  */
 package petascope.wcps.metadata.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import petascope.core.CrsDefinition;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RegularAxis extends Axis {
+    
+    public RegularAxis() {
+        
+    }
     
     public RegularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
                        String crsUri, CrsDefinition crsDefinition, String axisType, String axisUoM,

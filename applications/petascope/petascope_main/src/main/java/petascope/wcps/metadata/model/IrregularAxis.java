@@ -43,6 +43,10 @@ public class IrregularAxis extends Axis {
     // list of coefficients for irregular axis
     private List<BigDecimal> directPositions;
     
+    public IrregularAxis() {
+        
+    }
+    
     public IrregularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
             String crsUri, CrsDefinition crsDefinition,
             String axisType, String axisUoM,

@@ -21,6 +21,8 @@
  */
 package petascope.wcps.metadata.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -54,6 +56,7 @@ import petascope.wcps.metadata.service.CrsUtility;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WcpsCoverageMetadata {
     
     CoverageMetadataService coverageMetadataService = new CoverageMetadataService();
@@ -84,6 +87,10 @@ public class WcpsCoverageMetadata {
     protected List<Axis> originalAxes;
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(WcpsCoverageMetadata.class);
+    
+    public WcpsCoverageMetadata() {
+        
+    }
     
     
     public WcpsCoverageMetadata(String coverageName, String rasdamanCollectionName, String coverageType, List<Axis> axes, String crsUri,
@@ -486,8 +493,11 @@ public class WcpsCoverageMetadata {
         List<NilValue> nodataValues = new ArrayList<>();
         
         // NOTE: null values are the same for all bands
-        for (NilValue nilValue : this.rangeFields.get(0).getNodata()) {
-            nodataValues.add(nilValue);
+        List<NilValue> nilValuesTmp = this.rangeFields.get(0).getNodata();
+        if (nilValuesTmp != null) {
+            for (NilValue nilValue : this.rangeFields.get(0).getNodata()) {
+                nodataValues.add(nilValue);
+            }
         }
         
         return nodataValues;
@@ -612,6 +622,7 @@ public class WcpsCoverageMetadata {
     /**
      * Check if coverage is sliced on X or Y axis.
      */
+    @JsonIgnore
     public boolean isSlicingOnXYAxis() {
         if (this.getXYAxes().size() > 0) {
             Axis axisX = this.getXYAxes().get(0);
@@ -630,6 +641,7 @@ public class WcpsCoverageMetadata {
      * Return a BoundingBox object with original lower/upper bounds 
      * on XY axes of a coverage.
      */
+    @JsonIgnore
     public BoundingBox getOrginalGeoXYBoundingBox() {
         List<Axis> xyAxes = this.getXYAxes();
         Axis axisX = xyAxes.get(0);
@@ -644,6 +656,7 @@ public class WcpsCoverageMetadata {
     /**
      * Return the original grid bounding box for XY axes
      */
+    @JsonIgnore
     public BoundingBox getOriginalGridXYBoundingBox() {
         List<Axis> xyAxes = this.getXYAxes();
         Axis axisX = xyAxes.get(0);
@@ -658,6 +671,7 @@ public class WcpsCoverageMetadata {
     /**
      * Check if this object has invalid geo /grid domains
      */
+    @JsonIgnore
     public boolean isValidXYGeoGridDomains() {
         if (this.hasXYAxes()) {
             Axis axisX = this.getXYAxes().get(0);

@@ -1,0 +1,14 @@
+for $rgb in (test_rgb)
+
+let $rgbscale := $rgb,
+    $rgbRed := $rgbscale.red,
+    $sub := [i(100:180), j(180:240)]
+   
+
+ return encode(
+ { b1: $rgbscale.green[$sub];
+     b2: $rgbscale.red[$sub];
+     b3: $rgbscale.blue[$sub]
+   } + $rgbscale[$sub].red / $rgbscale[$sub].blue
+
+     , "jpeg")

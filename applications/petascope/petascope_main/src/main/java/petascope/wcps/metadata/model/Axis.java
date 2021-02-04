@@ -21,6 +21,9 @@
  */
 package petascope.wcps.metadata.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.math.BigDecimal;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
@@ -33,9 +36,12 @@ import petascope.util.TimeUtil;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @param <T>
  */
+// As Jackson needs to know the concrete subclass when deserializing string to object
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class Axis<T> {
 
-    private final String label;
+    private String label;
     private NumericSubset geoBounds;
     private NumericSubset gridBounds;
     
@@ -45,12 +51,16 @@ public abstract class Axis<T> {
     private BigDecimal origin;
     // this is the CRS of axis in coverage
     private String nativeCrsUri;
-    private final CrsDefinition crsDefinition;
+    private CrsDefinition crsDefinition;
     // e.g: x, y, t, ...
-    private final String axisType;
-    private final String axisUoM;
-    private final int rasdamanOrder;
+    private String axisType;
+    private String axisUoM;
+    private int rasdamanOrder;
     private BigDecimal resolution;
+    
+    public Axis() {
+        
+    }
     
     public Axis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
             String crsUri, CrsDefinition crsDefinition,

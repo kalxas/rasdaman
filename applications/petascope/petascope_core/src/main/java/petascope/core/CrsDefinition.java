@@ -21,6 +21,8 @@
  */
 package petascope.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -78,12 +80,16 @@ public class CrsDefinition {
 
     // Members
     private static final Logger log = LoggerFactory.getLogger(CrsDefinition.class);
-    private final String     authority;
-    private final String     version;
-    private final String     code;
-    private final String     type;        // Geodetic, Geographic, Vertical, Temporal, etc.
-    private final List<Axis> axes;
+    private String     authority;
+    private String     version;
+    private String     code;
+    private String     type;        // Geodetic, Geographic, Vertical, Temporal, etc.
+    private List<Axis> axes;
     private String     datumOrigin; // for TemporalCRSs
+    
+    public CrsDefinition() {
+        
+    }
 
     // Constructor (each axis is defined later on by the GML parser)
     public CrsDefinition(String auth, String vers, String code, String type) {
@@ -95,7 +101,7 @@ public class CrsDefinition {
     }
 
     public void addAxis(String dir, String abbr, String uom) {
-        axes.add(new Axis(dir, abbr, uom));
+        axes.add(new Axis(this, dir, abbr, uom));
     }
 
     // Origin of the datum (currently used for TemporalCRSs only)
@@ -126,6 +132,7 @@ public class CrsDefinition {
         }
         return abbrevs;
     }
+    @JsonIgnore
     public int getDimensions() {
         return axes.size();
     }
@@ -182,21 +189,27 @@ public class CrsDefinition {
     }
 
     // Inner class
-    public class Axis implements Cloneable {
-        private final String direction;
-        private final String abbreviation;
-        private final String uom;
-        private final String type;
+    public static class Axis implements Cloneable {
+        private String direction;
+        private String abbreviation;
+        private String uom;
+        private String type;
+        private CrsDefinition crsDefinition;
+        
+        public Axis() {
+            
+        }
 
         // Constructor
         // (NOTE) Only the outer class can call it: an Axis must be always put inside a CRS definition.
-        private Axis(String dir, String abbr, String uom) {
+        private Axis(CrsDefinition crsDefinition, String dir, String abbr, String uom) {
             direction    = dir;
             abbreviation = abbr;
             this.uom     = uom;
 
-            // Projected/Geographic CRS can have multiple axes
-            type = getAxisTypeByLabel(this.getCrsDefinition(), abbr);
+            // Projected/Geographic CRS can have multiple axes            
+            type = getAxisTypeByLabel(crsDefinition, abbr);
+            this.crsDefinition = crsDefinition;
         }
 
         // Access
@@ -206,6 +219,7 @@ public class CrsDefinition {
         public String getAbbreviation() {
             return abbreviation;
         }
+        @JsonIgnore
         public String getUoM() {
             return uom;
         }
@@ -213,13 +227,15 @@ public class CrsDefinition {
         public String getType() {
             return type;
         }
+        
+        @JsonIgnore
         public CrsDefinition getCrsDefinition() {
-            return CrsDefinition.this;
+            return this.crsDefinition;
         }
 
         @Override
         public CrsDefinition.Axis clone() {
-            return new CrsDefinition.Axis(direction, abbreviation, uom);
+            return new CrsDefinition.Axis(this.crsDefinition, direction, abbreviation, uom);
         }
         
         /**

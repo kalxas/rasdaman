@@ -21,6 +21,7 @@
  */
 package petascope.wcps.subset_axis.model;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import petascope.wcps.result.ParameterResult;
 
 /**
@@ -36,7 +37,14 @@ import petascope.wcps.result.ParameterResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+// As Jackson needs to know the concrete subclass when deserializing string to object
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
 public abstract class WcpsSubsetDimension extends ParameterResult {
+    
+    public WcpsSubsetDimension() {
+        
+    }
+    
     /**
     * Constructor for the trimming of class
     *

@@ -41,7 +41,7 @@ from util.reflection_util import ReflectionUtil
 from recipes.general_coverage.recipe import Recipe as GeneralRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from recipes.virtual_coverage.recipe import Recipe as virtual_coverage_recipe
-from util.import_util import import_glob
+from util.import_util import import_glob, decode_res
 
 glob = import_glob()
 
@@ -92,7 +92,9 @@ class RecipeRegistry:
         try:
             log.info("Executing shell command '{}'...".format(command))
             output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-            log.info("Output result '{}'".format(output))
+            output = decode_res(output)
+            if output != "":
+                log.info("Output result '{}'".format(output))
         except subprocess.CalledProcessError as exc:
             log.warn("Failed, status code '{}', error message '{}'.".format(exc.returncode, str(exc.output).strip()))
             if abort_on_error:

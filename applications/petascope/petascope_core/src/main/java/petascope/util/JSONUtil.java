@@ -102,5 +102,19 @@ public class JSONUtil {
         }
     }
     
+    /**
+     * Clone an input object by serializing it to JSON string and deserializing it back to a new object
+     */
+    public static Object clone(Object inputObject) throws IOException, PetascopeException {
+        if (inputObject == null) {
+            return null;
+        }
+        
+        String json = serializeObjectToJSONString(inputObject);
+        Object result = objectMapper.readValue(json, inputObject.getClass());
+        
+        return result;
+    }
+    
     public static final String EMPTY_ROOT_NODE = "{}";
 }

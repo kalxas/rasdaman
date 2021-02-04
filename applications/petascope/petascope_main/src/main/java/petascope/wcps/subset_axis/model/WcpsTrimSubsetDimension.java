@@ -21,6 +21,8 @@
  */
 package petascope.wcps.subset_axis.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  *
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
@@ -28,6 +30,10 @@ package petascope.wcps.subset_axis.model;
 public class WcpsTrimSubsetDimension extends WcpsSubsetDimension {
     private String lowerBound;
     private String upperBound;
+    
+    public WcpsTrimSubsetDimension() {
+        
+    }
 
     public WcpsTrimSubsetDimension(String axisName, String crs, String lowerBound, String upperBound) {
         super(axisName, crs);
@@ -52,6 +58,7 @@ public class WcpsTrimSubsetDimension extends WcpsSubsetDimension {
     }
 
     @Override
+    @JsonIgnore
     public String getStringBounds() {
         return lowerBound + ":" + upperBound;
     }

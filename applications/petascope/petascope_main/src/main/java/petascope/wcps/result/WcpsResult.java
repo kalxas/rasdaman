@@ -21,6 +21,8 @@
  */
 package petascope.wcps.result;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.beans.factory.annotation.Autowired;
 import petascope.util.MIMEUtil;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.CollectionAliasRegistry;
@@ -39,11 +41,17 @@ public class WcpsResult extends VisitorResult {
     
     private DimensionIntervalList dimensionIntervalList;
     
+    @Autowired
+    @JsonIgnore
     private CollectionAliasRegistry collectionAliasRegistry;
     
     // if result of encode(clip(c, linestring()) with coordinates, "csv/json") then needs to translate
     // grid to geo coordinates from result of rasql ("grid_x1 grid_y1 value1", "grid_x2 grid_y2 value2", ...)
     private boolean withCoordinates;
+    
+    public WcpsResult() {
+        
+    }
     
     public WcpsResult(WcpsCoverageMetadata metadata, String rasql) {
         this.rasql = rasql;

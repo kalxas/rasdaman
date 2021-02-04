@@ -31,6 +31,10 @@ import petascope.util.BigDecimalUtil;
 public class NumericSlicing extends NumericSubset {
 
     private BigDecimal bound;
+    
+    public NumericSlicing() {
+        
+    }
 
     public NumericSlicing(BigDecimal bound) {
         this.bound =  BigDecimalUtil.stripDecimalZeros(bound);
