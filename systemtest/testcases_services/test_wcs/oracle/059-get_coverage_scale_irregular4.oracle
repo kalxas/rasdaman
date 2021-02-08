@@ -1,8 +1,88 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ows:ExceptionReport version="2.0.1"
-    
-      >
-    <ows:Exception exceptionCode="WcpsError">
-        <ows:ExceptionText>Scaling value for axis: E must be > 0, given: 0.</ows:ExceptionText>
-    </ows:Exception>
-</ows:ExceptionReport>
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:ReferenceableGridCoverage
+id="test_irr_cube_2"
+>
+<boundedBy>
+<Envelope axisLabels="E N" srsDimension="2"
+srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
+<lowerCorner>75042.72735943 5104865.557938452</lowerCorner>
+<upperCorner>95042.72735943 5124865.557938452</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="2" gmlrgrid:id="test_irr_cube_2-grid">
+<limits>
+<GridEnvelope>
+<low>-8 545</low>
+<high>-8 545</high>
+</GridEnvelope>
+</limits>
+<axisLabels>E N</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_irr_cube_2-point" srsName="/crs/EPSG/0/32633">
+<pos>85042.72735943 5114865.557938452</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633">20000 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633">0 -20000</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">9.558741 4.175151</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+<startPoint>-8 545</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="b1">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b1</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="b2">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b2</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata/>
+</gmlcov:ReferenceableGridCoverage>

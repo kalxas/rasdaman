@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
 import petascope.util.CrsUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSlicing;
@@ -54,6 +55,8 @@ public class WcsScaleExpressionByScaleSizeHandler extends AbstractWcsScaleHandle
 
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
+    @Autowired
+    private ScaleExpressionByDimensionIntervalsHandler scaleExpressionByDimensionIntervalsHandler;
 
     public WcpsResult handle(WcpsResult coverageExpression, WcpsScaleDimensionIntevalList scaleAxesDimensionList) {
         // Validate the scale dimension intervals first
@@ -62,7 +65,14 @@ public class WcsScaleExpressionByScaleSizeHandler extends AbstractWcsScaleHandle
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         List<Subset> subsets = new ArrayList<>();
 
+        List<Pair> gridBoundAxes = new ArrayList();
         for (Axis axis : metadata.getAxes()) {
+            
+            NumericTrimming gridNumericTrimming = new NumericTrimming(new BigDecimal(axis.getGridBounds().getLowerLimit().toPlainString()),
+                                                                      new BigDecimal(axis.getGridBounds().getUpperLimit().toPlainString()));
+            Pair<String, NumericTrimming> gridPair = new Pair(axis.getLabel(), gridNumericTrimming);
+            gridBoundAxes.add(gridPair);
+            
             // Check if axis is mentioned in scaleAxesDimensionList, then divide by the scaleFactor or just keep the same pixels for unmentioned axis
             BigDecimal scaleSize = null;
             for (AbstractWcpsScaleDimension dimension : scaleAxesDimensionList.getIntervals()) {
@@ -98,6 +108,8 @@ public class WcsScaleExpressionByScaleSizeHandler extends AbstractWcsScaleHandle
         String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), subsets);
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
                 .replace("$intervalList", domainIntervals);
+        
+        this.scaleExpressionByDimensionIntervalsHandler.applyScaleOnIrregularAxes(metadata, gridBoundAxes);
 
         return new WcpsResult(metadata, rasql);
     }

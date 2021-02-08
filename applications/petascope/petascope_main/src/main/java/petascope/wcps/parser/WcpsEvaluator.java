@@ -92,6 +92,8 @@ import petascope.wcps.result.VisitorResult;
 import static petascope.wcs2.parsers.subsets.SlicingSubsetDimension.ASTERISK;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -1491,7 +1493,12 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         WcpsScaleDimensionIntevalList scaleAxesDimensionList = (WcpsScaleDimensionIntevalList) visit(ctx.scaleDimensionIntervalList());
         
-        WcpsResult wcpsResult = scaleExpressionByScaleExtentHandler.handle(coverageExpr, scaleAxesDimensionList);        
+        WcpsResult wcpsResult = null;        
+        try {
+            wcpsResult = scaleExpressionByScaleExtentHandler.handle(coverageExpr, scaleAxesDimensionList);
+        } catch (PetascopeException ex) {
+            throw new WCPSException(ExceptionCode.RuntimeError, "Error processing scale() operator by extent. Reason: " + ex.getMessage() + ".", ex);
+        }
         return wcpsResult;
     }
 
@@ -1509,8 +1516,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult wcpsResult = null;
 
         try {
-            wcpsResult = scaleExpressionByDimensionIntervalsHandler.handle(coverageExpr, dimensionIntervalList);
-        } catch (PetascopeException | SecoreException ex) {
+            wcpsResult = scaleExpressionByDimensionIntervalsHandler.handle(coverageExpr, dimensionIntervalList, true);
+        } catch (PetascopeException ex) {
             String errorMessage = "Error processing scale() operator expression. Reason: " + ex.getMessage() + ".";
             throw new WCPSException(errorMessage, ex);
         }
@@ -1819,9 +1826,19 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitTrimScaleDimensionIntervalElementLabel(@NotNull wcpsParser.TrimScaleDimensionIntervalElementLabelContext ctx) {
         // axisName LEFT_PARENTHESIS   number   RIGHT_PARENTHESIS
         // e.g: i(20:30) and is used for scaleextent expression, e.g: scale(c, [i(20:30)])
+        String lowerBound = "";
+        String upperBound = "";
+        
+        if (ctx.number().size() > 0) {
+            lowerBound = ctx.number().get(0).getText();
+            upperBound = ctx.number().get(1).getText();
+        } else {
+            lowerBound = ctx.STRING_LITERAL().get(0).getText();
+            upperBound = ctx.STRING_LITERAL().get(1).getText();
+        }
         AbstractWcpsScaleDimension scaleAxesDimension = new WcpsTrimScaleDimension(ctx.axisName().getText(), 
-                                            ctx.number().get(0).getText(),
-                                            ctx.number().get(1).getText());
+                                            lowerBound,
+                                            upperBound);
         
         return scaleAxesDimension;
     }

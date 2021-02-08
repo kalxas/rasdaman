@@ -36,10 +36,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import static org.apache.commons.lang3.math.NumberUtils.isNumber;
-import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.domain.cis.GeneralGridCoverage;
-import org.rasdaman.domain.cis.GeoAxis;
-import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +45,7 @@ import petascope.wcps.encodeparameters.model.BandsMetadata;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.exceptions.SecoreException;
 import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.metadata.model.RegularAxis;
@@ -241,17 +238,9 @@ public class NetCDFParametersService {
                     data.add(coord.doubleValue());
                 }
             } else {
-                //Irregular axis, need to add the coefficients into the calculation
-                BigDecimal coeffMin = geoDomMin.subtract(axis.getOriginalOrigin()).divide(resolution);
-                BigDecimal coeffMax = geoDomMax.subtract(axis.getOriginalOrigin()).divide(resolution);
-                Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(covName);
-                // Only supports GeneralGridCoverage now and this axis should be irregular axis
-                GeoAxis geoAxis = ((GeneralGridCoverage) coverage).getGeoAxisByName(axis.getLabel());
-                IrregularAxis irregularAxis = ((IrregularAxis) geoAxis);
+                IrregularAxis irregularAxis = ((IrregularAxis)axis);
 
-                List<BigDecimal> coefficients = irregularAxis.getAllCoefficientsInInterval(coeffMin, coeffMax);
-
-                for (BigDecimal coefficient : coefficients) {
+                for (BigDecimal coefficient : irregularAxis.getDirectPositions()) {
                     BigDecimal coord = axis.getOriginalOrigin().add(coefficient.multiply(resolution));
                     data.add(coord.doubleValue());
                 }

@@ -1,0 +1,9 @@
+for c in (test_wcs_irregular_time_series_slices_number)
+
+return encode(
+               scale(c, 
+                      {
+                       imageCrsdomain(c[Lat(-40:40), Long(-90:90), date("2005-01-01":"2010-01-01")])
+                      }
+                     )
+             , "netcdf")

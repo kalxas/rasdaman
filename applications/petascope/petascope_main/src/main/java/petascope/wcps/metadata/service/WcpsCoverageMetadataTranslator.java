@@ -167,7 +167,7 @@ public class WcpsCoverageMetadataTranslator {
      * e.g: Lat axis with grid bound (0:10) will change to (0/2:10/2) = (0:5)
      */
     public void applyDownscaledLevelOnXYGridAxesForScale(WcpsResult coverageExpression, 
-                                                         WcpsCoverageMetadata metadata, List<Subset> numericSubsets) throws PetascopeException, SecoreException {
+                                                         WcpsCoverageMetadata metadata, List<Subset> numericSubsets) throws PetascopeException {
         
         if (metadata.containsOnlyXYAxes()) {
             int width = numericSubsets.get(0).getNumericSubset().getUpperLimit().toBigInteger().intValue() - numericSubsets.get(0).getNumericSubset().getLowerLimit().toBigInteger().intValue();

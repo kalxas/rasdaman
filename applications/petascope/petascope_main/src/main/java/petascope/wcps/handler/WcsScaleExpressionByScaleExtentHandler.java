@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.InvalidScaleExtentException;
 import petascope.wcps.metadata.model.Axis;
@@ -37,8 +40,11 @@ import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.WcpsScaleDimensionIntevalList;
 import petascope.wcps.subset_axis.model.AbstractWcpsScaleDimension;
+import petascope.wcps.subset_axis.model.DimensionIntervalList;
 import petascope.wcps.subset_axis.model.WcpsSliceScaleDimension;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimScaleDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * Class to translate a scale wcps expression by scaleSize into rasql  <code>
@@ -54,55 +60,31 @@ import petascope.wcps.subset_axis.model.WcpsTrimScaleDimension;
 public class WcsScaleExpressionByScaleExtentHandler extends AbstractWcsScaleHandler {
 
     @Autowired
-    private RasqlTranslationService rasqlTranslationService;
+    private ScaleExpressionByDimensionIntervalsHandler scaleExpressionByDimensionIntervalsHandler;
 
-    public WcpsResult handle(WcpsResult coverageExpression, WcpsScaleDimensionIntevalList scaleAxesDimensionList) {
-        // Validate the scale dimension intervals first
-        this.validateScalingDimensionInterval(coverageExpression, scaleAxesDimensionList);
+    public WcpsResult handle(WcpsResult coverageExpression, WcpsScaleDimensionIntevalList scaleAxesDimensionList) throws PetascopeException {
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
-        List<Subset> subsets = new ArrayList<>();
-
-        for (Axis axis : metadata.getAxes()) {
-            // Check if axis is mentioned in scaleAxesDimensionList, then divide by the scaleFactor or just keep the same pixels for unmentioned axis
-            BigDecimal scaledLowerBound = axis.getGridBounds().getLowerLimit();
-            BigDecimal scaledUpperBound = axis.getGridBounds().getUpperLimit();
-            for (AbstractWcpsScaleDimension dimension : scaleAxesDimensionList.getIntervals()) {
-                // NOTE: scaleextent must be low:hi
-                if (dimension instanceof WcpsSliceScaleDimension) {
-                    throw new InvalidScaleExtentException(axis.getLabel(), ((WcpsSliceScaleDimension) dimension).getBound());
-                }
-                if (CrsUtil.axisLabelsMatch(axis.getLabel(), dimension.getAxisName())) {
-                    // here scaleFactor is the number of pixels for the dimension
-                    scaledLowerBound = new BigDecimal(((WcpsTrimScaleDimension) dimension).getLowerBound());
-                    scaledUpperBound = new BigDecimal(((WcpsTrimScaleDimension) dimension).getUpperBound());
-                    break;
-                }
+        List<WcpsSubsetDimension> wcpsSubsetDimensions = new ArrayList<>();
+        
+        for (AbstractWcpsScaleDimension dimension : scaleAxesDimensionList.getIntervals()) {
+            Axis axis = metadata.getAxisByName(dimension.getAxisName());
+            // NOTE: scaleextent must be low:hi
+            if (dimension instanceof WcpsSliceScaleDimension) {
+                throw new InvalidScaleExtentException(axis.getLabel(), ((WcpsSliceScaleDimension) dimension).getBound());
             }
-
-            NumericSubset numericSubset = null;
-            // NOTE: scaleextent=Lat(20:30) means grid lower bound is 20 - 20 = 0, grid upper bound is 30 - 20 = 10
-            scaledUpperBound = scaledUpperBound.subtract(scaledLowerBound);
-            scaledLowerBound = BigDecimal.ZERO;
             
-            numericSubset = new NumericTrimming(new BigDecimal(scaledLowerBound.intValue()),
-                    new BigDecimal(scaledUpperBound.intValue()));
-
-            axis.setGridBounds(numericSubset);
-
-            subsets.add(new Subset(numericSubset, null, axis.getLabel()));
-
+            WcpsTrimScaleDimension trimScaleDimension = ((WcpsTrimScaleDimension)dimension);
+            WcpsTrimSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(),
+                                                                                    trimScaleDimension.getLowerBound(), trimScaleDimension.getUpperBound());
+            
+            wcpsSubsetDimensions.add(trimSubsetDimension);
         }
 
-        // it will not get all the axis to build the intervals in case of (extend() and scale())
-        String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), subsets);
-        String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
-                .replace("$intervalList", domainIntervals);
-
-        return new WcpsResult(metadata, rasql);
+        
+        DimensionIntervalList dimensionIntervalList = new DimensionIntervalList(wcpsSubsetDimensions);
+        WcpsResult wcpsResult = this.scaleExpressionByDimensionIntervalsHandler.handle(coverageExpression, dimensionIntervalList, false);
+        
+        return wcpsResult;
     }
-
-    //in case we will need to handle scale with a factor, use a method such as below
-    //public  WcpsResult handle(WcpsResult coverageExpression, BigDecimal scaleFactor)
-    private final String TEMPLATE = "SCALE($coverage, [$intervalList])";
 }

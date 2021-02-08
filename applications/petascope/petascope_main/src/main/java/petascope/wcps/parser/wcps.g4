@@ -641,7 +641,7 @@ which means scale to the grid interval 20:30
 used only for scaleextent
 */
 scaleDimensionIntervalElement: axisName LEFT_PARENTHESIS
-                            number COLON number
+                            (number | STRING_LITERAL) COLON (number | STRING_LITERAL)
                           RIGHT_PARENTHESIS                                                                             #TrimScaleDimensionIntervalElementLabel
 /*
 e.g: i(0.5)

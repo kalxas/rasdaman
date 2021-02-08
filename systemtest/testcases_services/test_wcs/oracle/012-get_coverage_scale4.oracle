@@ -12,31 +12,31 @@ srsName="/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
 <RectifiedGrid dimension="2" id="test_mr-grid">
 <limits>
 <GridEnvelope>
-<low>0 0</low>
-<high>0 18</high>
+<low>10 6</low>
+<high>10 23</high>
 </GridEnvelope>
 </limits>
 <axisLabels>i j</axisLabels>
 <origin>
 <Point
 id="test_mr-point" srsName="/crs/OGC/0/Index2D">
-<pos>10.5 10.5</pos>
+<pos>10.5 10.97222222222222222222222222222222222222222222222222</pos>
 </Point>
 </origin>
 <offsetVector srsName="/crs/OGC/0/Index2D">1 0</offsetVector>
-<offsetVector srsName="/crs/OGC/0/Index2D">0 -1</offsetVector>
+<offsetVector srsName="/crs/OGC/0/Index2D">0 -0.05555555555555555555555555555555555555555555555556</offsetVector>
 </RectifiedGrid>
 </domainSet>
 <rangeSet>
 <DataBlock>
 <rangeParameters/>
-<tupleList cs=" " ts=",">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</tupleList>
+<tupleList cs=" " ts=",">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</tupleList>
 </DataBlock>
 </rangeSet>
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>0 0</startPoint>
+<startPoint>10 6</startPoint>
 </GridFunction>
 </coverageFunction>
 <gmlcov:rangeType>

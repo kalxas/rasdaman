@@ -1,0 +1,5 @@
+for c in (test_wcs_irregular_time_series_slices_number)
+
+return encode(
+               scale(c, {Lat:"CRS:1"(0:4), Long:"CRS:1"(0:9), date:"CRS:1"(0:5)})
+             , "netcdf")

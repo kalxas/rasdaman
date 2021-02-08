@@ -32,6 +32,7 @@ import petascope.util.ListUtil;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.BigDecimalUtil;
+import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
 import petascope.wcps.exception.processing.IrregularAxisTrimmingCoefficientNotFoundException;
 
@@ -60,7 +61,6 @@ public class IrregularAxis extends Axis {
             int rasdamanOrder, BigDecimal origin, BigDecimal resolution, List<BigDecimal> directPositions, NumericSubset originalGeoBounds) {
         super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution, originalGeoBounds);
         this.directPositions = directPositions;
-
     }
 
     public List<BigDecimal> getDirectPositions() {
@@ -275,6 +275,28 @@ public class IrregularAxis extends Axis {
         } else {
             // non date time axis
             coefficients = this.getRawCoefficients();
+        }
+
+        return coefficients;
+    }
+    
+    public List<String> getCoefficientValues() throws PetascopeException {
+        List<String> coefficients = new ArrayList<>();
+
+        // date time axis, need to translate from raw coefficients to datetime format based on CRS origin
+        if (this.getAxisType().equals(T_AXIS)) {
+            List<String> timeValues = TimeUtil.listValuesToISODateTime(this.getGeoBounds().getLowerLimit(),
+                    directPositions, this.getCrsDefinition());
+            
+            for (String value : timeValues) {
+                coefficients.add(StringUtil.stripQuotes(value));
+            }
+        } else {
+            // non date time axis
+            List<BigDecimal> adjustedDirectPositions = this.adjustCoefficientsForPresentation(directPositions);
+            for (BigDecimal value : adjustedDirectPositions) {
+                coefficients.add(BigDecimalUtil.stripDecimalZeros(value).toPlainString());
+            }
         }
 
         return coefficients;

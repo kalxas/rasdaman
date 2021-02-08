@@ -49,7 +49,6 @@ import static petascope.core.KVPSymbols.KEY_QUERY;
 import static petascope.core.KVPSymbols.KEY_QUERY_SHORT_HAND;
 import petascope.core.Pair;
 import petascope.util.StringUtil;
-import static petascope.util.StringUtil.DOLLAR_SIGN;
 import static petascope.util.StringUtil.POSITIONAL_PARAMETER_PATTERN;
 import petascope.core.service.GdalFileToCoverageTranslatorService;
 import petascope.wcps.metadata.service.TempCoverageRegistry;

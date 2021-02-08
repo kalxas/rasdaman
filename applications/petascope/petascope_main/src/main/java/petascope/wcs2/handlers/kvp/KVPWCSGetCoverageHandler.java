@@ -219,6 +219,8 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
             wcpsQuery = WCPS_QUERY_TEMPLATE.replace("$coverageId", coverageId)
                                            .replace("$queryContent", queryContent)
                                            .replace(EXTRA_OPTIONS, options);
+            
+            log.debug("Generated for GetCoverage request WCPS query: " + wcpsQuery);
 
             // Handle multipart for WCS (WCPS) request if any or non multipart            
             Response responseTmp = responseService.handleWCPSResponse(kvpParameters, wcpsQuery, requestedMime);

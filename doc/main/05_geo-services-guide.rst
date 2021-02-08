@@ -2344,6 +2344,17 @@ for a general recipe ingredient file that uses many netcdf expressions.
 |           |dimension.                                           |                               |
 +-----------+-----------------------------------------------------+-------------------------------+
 
+.. NOTE::
+
+    If a netCDF file is flipped on Lat axis (South -> North with coordinates increase
+    from `ncdump -c` output) instead of GDAL style (North -> South with 
+    coordinates decrease from `ncdump -c`), then one needs to flip it manually by other tools
+    before importing to rasdaman, e.g: with `cdo`:
+
+    .. hidden-code-block:: text
+
+       cdo invertlat input.nc output.nc 
+
 
 **GDAL**
 
