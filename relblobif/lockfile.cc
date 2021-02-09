@@ -49,9 +49,22 @@ bool LockFile::lock()
     {
         fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY | O_SYNC, 0660);
         if (fd == INVALID_FILE_DESCRIPTOR)
+        {
             logWarning("Failed opening lock file");
+        }
         else if (!(ret = (flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC)))
-            logWarning("Failed locking file");
+        { 
+            // retry locking when it fails due to lock contention
+            unsigned retry = 1;
+            static const unsigned maxRetries = 100;
+            while (retry++ <= maxRetries && errno == EAGAIN) {
+              errno = 0;
+              usleep(retry * 1000u);
+              ret = (flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC);
+            }
+            if (!ret)
+              logWarning("Failed locking file");
+        }
     }
     return ret;
 }

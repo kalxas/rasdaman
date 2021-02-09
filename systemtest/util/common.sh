@@ -1092,16 +1092,29 @@ exit_script() { [ $NUM_FAIL -ne 0 ] && exit $RC_ERROR || exit $RC_OK; }
 # ------------------------------------------------------------------------------
 # rasdaman administration
 #
-restart_rasdaman()
+
+stop_rasdaman()
 {
-  logn "restarting rasdaman... "
+  logn "stopping rasdaman..."
   if pgrep rasmgr &> /dev/null; then
     $STOP_RAS &> /dev/null
     sleep 0.2 || sleep 1
   fi
+  loge ok
+}
+
+start_rasdaman()
+{
+  logn "starting rasdaman..."
   $START_RAS &> /dev/null
   sleep 0.2 || sleep 1
   loge ok.
+}
+
+restart_rasdaman()
+{
+  stop_rasdaman
+  start_rasdaman
 }
 
 # ------------------------------------------------------------------------------

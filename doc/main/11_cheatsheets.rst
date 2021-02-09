@@ -744,7 +744,8 @@ follows below.
 rasdapy3
 ^^^^^^^^
 
-`rasdapy3 <https://pypi.org/project/rasdapy3/>`__ is a client API for rasdaman that enables building and executing rasql queries within python. 
+`rasdapy3 <https://pypi.org/project/rasdapy3/>`__ is a client API for rasdaman 
+that enables building and executing rasql queries within python. 
 Best practice code snippets are also provided.
 
 Access from R

@@ -124,8 +124,9 @@ int main(int argc, char **argv)
     // should come after the log config as it logs msgs
     common::SignalHandler::handleShutdownSignals(shutdownHandler);
 
-    LINFO << "rasmgr: rasdaman server manager tool. rasdaman " << RMANVERSION << ".\n"
-          << "Copyright (c) 2003-2020 Peter Baumann, rasdaman GmbH.\n"
+    LINFO << "rasmgr: rasdaman server manager tool " << RMANVERSION
+          << " on base DBMS " << BASEDBSTRING << ".";
+    LINFO << "Copyright (c) 2003-2021 Peter Baumann, rasdaman GmbH.\n"
           << "Rasdaman community is free software: you can redistribute it and/or modify "
           "it under the terms of the GNU General Public License as published by "
           "the Free Software Foundation, either version 3 of the License, or "

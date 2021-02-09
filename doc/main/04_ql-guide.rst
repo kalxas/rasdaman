@@ -4592,7 +4592,7 @@ The output format is described below by way of an example.
 
     dbinfo( mddExp )
 
-    dbinfo( mddExp , formatParams)
+    dbinfo( mddExp , formatParams )
 
 
 **Example**
@@ -4633,7 +4633,7 @@ Example of syntax:
 Parameter "printiles=embedded" will print additionally domains of every tile.
 ::
 
-	$ rasql -q 'select dbinfo(c, "printtiles=svg") from test_grey as c' --out string
+	$ rasql -q 'select dbinfo(c, "printtiles=embedded") from test_grey as c' --out string
 	{
 	 "oid": "136193",
 	 "baseType": "marray <char, [*:*,*:*]>",

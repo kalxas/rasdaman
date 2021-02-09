@@ -305,7 +305,7 @@ parseParams(int argc, char **argv)
 
         if (cmlInter.isPresent(PARAM_HELP_FLAG) || argc == 1)
         {
-            cout << "rasdaman query tool, rasdaman " << RMANVERSION << "."<<endl;
+            cout << "rasql: rasdaman query tool " << RMANVERSION << "."<<endl;
             cout << "usage: " << argv[0] << " [--query querystring|-q querystring] [options]" << endl;
             cout << "options:" << endl;
             cmlInter.printHelp();
@@ -1313,7 +1313,7 @@ int main(int argc, char **argv)
         }
 
         // put INFO after parsing parameters to respect a '--quiet'
-        LINFO << argv[0] << ": rasdaman query tool, rasdaman " << RMANVERSION << ".";
+        LINFO << argv[0] << ": rasdaman query tool " << RMANVERSION << ".";
 
         if (openDatabase())
         {
