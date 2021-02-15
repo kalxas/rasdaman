@@ -1,0 +1,3 @@
+for c in (test_wcs_deep_rain_reversed_irregular_axis_coefficients)
+return encode(c[isobaric(50000:75000), forecast_hour(15:21),
+                ansi("2017-01-01T00:00:00.000Z"), ensemble(1), Lat:"CRS:1"(0), Long:"CRS:1"(0)], "netcdf")

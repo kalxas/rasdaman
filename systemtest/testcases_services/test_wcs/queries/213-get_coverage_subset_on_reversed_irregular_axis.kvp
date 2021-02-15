@@ -1,0 +1,4 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_wcs_deep_rain_reversed_irregular_axis_coefficients
+&subset=isobaric(50000,75000)
+&subset=forecast_hour(15,21)
+&format=application/json

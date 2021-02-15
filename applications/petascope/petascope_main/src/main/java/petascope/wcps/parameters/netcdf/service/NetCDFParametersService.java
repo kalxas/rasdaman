@@ -239,9 +239,15 @@ public class NetCDFParametersService {
                 }
             } else {
                 IrregularAxis irregularAxis = ((IrregularAxis)axis);
-
+                
+                BigDecimal origin = axis.getOriginalOrigin();
+                if (irregularAxis.getFirstCoefficient().compareTo(BigDecimal.ZERO) < 0) {
+                    // In case, irregular axis is reversed (uppers -> lowers coefficients from the input netCDF file)
+                    origin = axis.getOriginalGeoBounds().getUpperLimit();
+                }
+                
                 for (BigDecimal coefficient : irregularAxis.getDirectPositions()) {
-                    BigDecimal coord = axis.getOriginalOrigin().add(coefficient.multiply(resolution));
+                    BigDecimal coord = origin.add(coefficient.multiply(resolution));
                     data.add(coord.doubleValue());
                 }
             }

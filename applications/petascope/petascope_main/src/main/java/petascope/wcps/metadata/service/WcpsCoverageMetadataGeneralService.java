@@ -335,15 +335,16 @@ public class WcpsCoverageMetadataGeneralService {
 
                     // If axis is irregular so update the new axisDirections (i.e: coefficients between the new applied lowerBound, upperBound)
                     if (axis instanceof IrregularAxis) {
+                        IrregularAxis irregularAxis = (IrregularAxis) axis;
                         // NOTE: must normalize the inputs with origin first (e.g: for AnsiDate: origin is: 1601-01-01 and input is: 2008-01-01T01:00:02Z)
-                        BigDecimal normalizedLowerBound = axis.getGeoBounds().getLowerLimit().subtract(axis.getOriginalOrigin());
-                        BigDecimal normalizedUpperBound = axis.getGeoBounds().getUpperLimit().subtract(axis.getOriginalOrigin());
+                        BigDecimal normalizedLowerBound = irregularAxis.getGeoBounds().getLowerLimit().subtract(axis.getOriginalOrigin());
+                        BigDecimal normalizedUpperBound = irregularAxis.getGeoBounds().getUpperLimit().subtract(axis.getOriginalOrigin());
                         
-                        normalizedLowerBound = normalizedLowerBound.add(((IrregularAxis) axis).getFirstCoefficient());
-                        normalizedUpperBound = normalizedUpperBound.add(((IrregularAxis) axis).getFirstCoefficient());
+                        normalizedLowerBound = normalizedLowerBound.add(irregularAxis.getFirstCoefficient());
+                        normalizedUpperBound = normalizedUpperBound.add(irregularAxis.getFirstCoefficient());
                         
                         List<BigDecimal> newCoefficients = ((IrregularAxis) axis).getAllCoefficientsInInterval(normalizedLowerBound, normalizedUpperBound);
-                        ((IrregularAxis) axis).setDirectPositions(newCoefficients);
+                        irregularAxis.setDirectPositions(newCoefficients);
                     }
 
                     // Continue with another subset

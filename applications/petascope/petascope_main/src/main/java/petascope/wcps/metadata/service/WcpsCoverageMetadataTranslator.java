@@ -177,6 +177,7 @@ public class WcpsCoverageMetadataTranslator {
 
             Pair<BigDecimal, BigDecimal> geoSubsetX = new Pair<>(xyAxes.get(0).getGeoBounds().getLowerLimit(), xyAxes.get(0).getGeoBounds().getUpperLimit());
             Pair<BigDecimal, BigDecimal> geoSubsetY = new Pair<>(xyAxes.get(1).getGeoBounds().getLowerLimit(), xyAxes.get(1).getGeoBounds().getUpperLimit());
+            
             Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(metadata.getCoverageName());
             BigDecimal downscaledLevel = this.pyramidService.getDownscaledLevel(coverage, geoSubsetX, geoSubsetY, width, height);
             

@@ -87,8 +87,6 @@ public class LetClauseAliasRegistry {
         
         WcpsResult result = tmp;
         try {
-            // WcpsCoverageMetadata clone = (WcpsCoverageMetadata)JSONUtil.clone(tmp.getMetadata());
-            // result.setMetadata(clone);
             result = (WcpsResult) JSONUtil.clone(tmp);
         } catch (Exception ex) {
             throw new WCPSException("Cannot clone WCPS metadata object to another object. Reason: " + ex.getMessage(), ex);

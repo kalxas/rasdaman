@@ -192,6 +192,7 @@ public class CrsDefinition {
     public static class Axis implements Cloneable {
         private String direction;
         private String abbreviation;
+        @JsonProperty("UoM")
         private String uom;
         private String type;
         private CrsDefinition crsDefinition;
@@ -202,7 +203,7 @@ public class CrsDefinition {
 
         // Constructor
         // (NOTE) Only the outer class can call it: an Axis must be always put inside a CRS definition.
-        private Axis(CrsDefinition crsDefinition, String dir, String abbr, String uom) {
+        public Axis(CrsDefinition crsDefinition, String dir, String abbr, String uom) {
             direction    = dir;
             abbreviation = abbr;
             this.uom     = uom;
@@ -219,7 +220,8 @@ public class CrsDefinition {
         public String getAbbreviation() {
             return abbreviation;
         }
-        @JsonIgnore
+
+        @JsonProperty("UoM")
         public String getUoM() {
             return uom;
         }
