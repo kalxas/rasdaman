@@ -36,7 +36,7 @@ public class Collection {
     private String title;
     private String description;
     private Extent extent;
-    private List<String> CRS;
+    private List<String> crs;
     private Link domainSetLink;
     private Link rangeTypeLink;
     private List<Link> links;
@@ -48,7 +48,7 @@ public class Collection {
         this.title = title;
         this.description = description;
         this.extent = extent;
-        this.CRS = crss;
+        this.crs = crss;
         this.domainSetLink = domainSetLink;
         this.rangeTypeLink = rangeType;
         this.links = links;
@@ -74,9 +74,9 @@ public class Collection {
         return extent;
     }
 
-    @JsonProperty("CRS")
+    @JsonProperty("crs")
     public List<String> getCRS() {
-        return CRS;
+        return crs;
     }
 
     // https://gitlab.ecere.ca/collab/moaw/-/issues/49#note_496

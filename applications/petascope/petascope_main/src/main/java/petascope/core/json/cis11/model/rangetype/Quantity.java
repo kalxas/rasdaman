@@ -57,10 +57,10 @@ public class Quantity {
         
     }
 
-    public Quantity(String name, String description, String defintion, NilValues nilValues, UoM uom) {
+    public Quantity(String name, String description, String definition, NilValues nilValues, UoM uom) {
         this.name = name;
         this.description = description;
-        this.defintion = defintion;
+        this.defintion = definition;
         this.nilValues = nilValues;
         this.uom = uom;
     }
@@ -85,7 +85,7 @@ public class Quantity {
         this.description = description;
     }
 
-    public String getDefintion() {
+    public String getDefinition() {
         return defintion;
     }
 

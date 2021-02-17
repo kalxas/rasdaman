@@ -112,6 +112,7 @@ public class WcpsCoverageMetadataTranslator {
                                                         rangeFields, nilValues, extraMetadata, originalAxes);
         wcpsCoverageMetadata.setDecodedFilePath(coverage.getRasdamanRangeSet().getDecodeExpression());
 
+	wcpsCoverageMetadata.setDecodedFilePath(coverage.getRasdamanRangeSet().getDecodeExpression());
         return wcpsCoverageMetadata;
     }
 
@@ -280,9 +281,43 @@ public class WcpsCoverageMetadataTranslator {
         }
         // If a downscaled collection is selected, metadata object should use this one for other processes.
         newMetadata.setRasdamanCollectionName(collectionName);
+        newMetadata.setDownscaledLevel(downscaledLevel);
         
         return newMetadata;
     }
+    
+    /**
+     * Given a WcpsCoverage object and a downscaled level, return an updated WcpsCoverage object (with bounds changes) for this level
+     */
+    public WcpsCoverageMetadata createWcpsCoverageMetadataByDownscaledLevel(WcpsCoverageMetadata wcpsCoverageMetadata, BigDecimal downscaledLevel) {
+        String collectionName = wcpsCoverageMetadata.getCoverageName();
+        if (downscaledLevel.compareTo(BigDecimal.ONE) > 0) {
+            collectionName = this.pyramidService.createDownscaledCollectionName(collectionName, downscaledLevel);
+        }
+        
+        for (int i = 0; i < wcpsCoverageMetadata.getAxes().size(); i++) {
+            Axis axis = wcpsCoverageMetadata.getAxes().get(i);
+            
+            if (axis.isXYGeoreferencedAxis()) {
+                if (axis.isXAxis()) {
+                    this.updateAxisBounds(axis, new Pair<>(axis.getGeoBounds().getLowerLimit(), axis.getGeoBounds().getUpperLimit()), downscaledLevel);
+                } else {
+                    this.updateAxisBounds(axis, new Pair<>(axis.getGeoBounds().getLowerLimit(), axis.getGeoBounds().getUpperLimit()), downscaledLevel);
+                }
+                    
+                axis = new RegularAxis(axis.getLabel(), axis.getGeoBounds(), axis.getOriginalGridBounds(), axis.getGridBounds(),
+                                       axis.getNativeCrsUri(), axis.getCrsDefinition(), axis.getAxisType(), axis.getAxisUoM(), 
+                                       axis.getRasdamanOrder(), axis.getOrigin(), axis.getResolution(), axis.getOriginalGeoBounds());
+                
+                // Replace the old geo axis with new geo axis.
+                wcpsCoverageMetadata.updateAxisByIndex(i, axis);
+            }
+        }
+        // If a downscaled collection is selected, metadata object should use this one for other processes.
+        wcpsCoverageMetadata.setRasdamanCollectionName(collectionName);
+        
+        return wcpsCoverageMetadata;
+    }  
     
 
     /**
