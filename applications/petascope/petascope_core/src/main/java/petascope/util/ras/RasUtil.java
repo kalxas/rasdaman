@@ -569,6 +569,13 @@ public class RasUtil {
                 tmp = encodePart.substring(encodeFormatIndex + 2, encodePart.length());
             }
             
+            int indexOfFirstComma = -1;
+            if (tmp.charAt(0) != '"') {
+                // e.g: / 5.0,"png"
+                indexOfFirstComma = tmp.indexOf(",");
+                tmp = tmp.substring(indexOfFirstComma + 1, tmp.length());
+            }
+            
             String encodeFormatPart = tmp;
             if (hasParentheses) {
                 String[] tmps = tmp.split(",");
