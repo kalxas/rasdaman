@@ -70,7 +70,10 @@ public class JSONGetCoverageBuilder {
     private JSONCIS11GetCoverage buildJSONGetCoverage(WcpsCoverageMetadata wcpsCoverageMetadata, List<Object> pixelValues) throws PetascopeException {
         String coverageId = wcpsCoverageMetadata.getCoverageName();
         JSONCoreCIS11 jsonCore = this.jsonCoreCIS11Builder.build(wcpsCoverageMetadata);
-        RangeSet rangeSet = this.buildRangeSetCIS11(pixelValues);
+        RangeSet rangeSet = null;
+        if (pixelValues != null) {
+            rangeSet = this.buildRangeSetCIS11(pixelValues);
+        }
         JSONCIS11GetCoverage result = new JSONCIS11GetCoverage(coverageId, jsonCore, rangeSet);
 
         return result;

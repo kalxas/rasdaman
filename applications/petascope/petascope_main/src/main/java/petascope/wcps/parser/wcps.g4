@@ -126,7 +126,8 @@ coverageVariableName: COVERAGE_VARIABLE_NAME
 processingExpression: getComponentExpression
                     | scalarExpression
                     | encodedCoverageExpression
-		            | scalarValueCoverageExpression;
+		            | scalarValueCoverageExpression
+                    | describeCoverageExpression;
 
 
 /**
@@ -255,7 +256,7 @@ getComponentExpression: coverageIdentifierExpression
 		                  | imageCrsDomainExpression
 		                  | imageCrsDomainByDimensionExpression
 		                  | imageCrsExpression
-                      | describeCoverageExpression;
+                          ;
 
 /**
 identifier()
@@ -337,12 +338,15 @@ imageCrsExpression: IMAGECRS LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHES
 
 /**
  * Example:
- * describeCoverage($c);
+ * describe($c);
  *
  * Query:
- * for $c in (someCov) return describeCoverage($c)
+ * for $c in (someCov) return describe($c + 5, "gml", "{\"outputType\":\"GeneralGridCoverage\"}")
  */
-describeCoverageExpression: DESCRIBE_COVERAGE LEFT_PARENTHESIS coverageVariableName RIGHT_PARENTHESIS                   #DescribeCoverageExpressionLabel;
+describeCoverageExpression: DESCRIBE_COVERAGE LEFT_PARENTHESIS
+                            coverageExpression COMMA STRING_LITERAL (COMMA extraParams)?
+                            RIGHT_PARENTHESIS     
+                           #DescribeCoverageExpressionLabel;
 
 domainIntervals: (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (sdomExtraction)?; 
 

@@ -309,4 +309,12 @@ public class MIMEUtil {
         }
         return false;
     }
+    
+    public static boolean isGML(String mime) {
+        return mime.equalsIgnoreCase(ENCODE_GML) || mime.equalsIgnoreCase(MIME_GML);
+    }
+    
+    public static boolean isJSON(String mime) {
+        return mime.equalsIgnoreCase(ENCODE_JSON) || mime.equalsIgnoreCase(MIME_JSON);
+    }
 }

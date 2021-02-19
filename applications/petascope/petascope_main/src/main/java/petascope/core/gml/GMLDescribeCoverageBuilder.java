@@ -84,7 +84,7 @@ public class GMLDescribeCoverageBuilder {
         
         AbstractGMLCISDescribeCoverage gmlCISDescribeCoverage; 
         
-        if (coverageType.equals(LABEL_GENERAL_GRID_COVERAGE)) {
+        if (isCIS11(coverageType)) {
             // CIS 1.1
             GMLCoreCIS11 gmlCore = this.gmlCoreCIS11Builder.build(wcpsCoverageMetadata);
             gmlCISDescribeCoverage = new GMLCIS11DescribeCoverage(coverageId, coverageType, gmlCore);            
@@ -95,6 +95,10 @@ public class GMLDescribeCoverageBuilder {
         }
         
         return gmlCISDescribeCoverage;
+    }
+    
+    public static boolean isCIS11(String coverageType) {
+        return coverageType.equals(LABEL_GENERAL_GRID_COVERAGE);
     }
     
     /**

@@ -112,8 +112,10 @@ public class GMLCIS11GetCoverage extends AbstractGMLCISGetCoverage {
         coverageTypeElement.appendChild(rangeTypeElement);
         
         // <gml:rangeSet>
-        Element rangeSetElement = this.getRangeSet().serializeToXMLElement();
-        coverageTypeElement.appendChild(rangeSetElement);
+        if (this.rangeSet != null) {
+            Element rangeSetElement = this.getRangeSet().serializeToXMLElement();
+            coverageTypeElement.appendChild(rangeSetElement);
+        }
         
         // <cis11:metadata>
         Element metadataElement;

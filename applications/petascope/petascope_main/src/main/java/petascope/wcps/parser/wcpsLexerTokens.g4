@@ -55,7 +55,7 @@ CRS_TRANSFORM: ('c' | 'C')('r' | 'R')('s' | 'S')('t' | 'T')('r' | 'R')('a' | 'A'
 DECODE: ('d' | 'D')('e' | 'E')('c' | 'C')('o' | 'O')('d' | 'D')('e' | 'E');
 DEFAULT: ('d' | 'D')('e' | 'E')('f' | 'F')('a' | 'A')('u' | 'U')('l' | 'L')('t' | 'T');
 DISCRETE: ('d'|'D')('i'|'I')('s'|'S')('c'|'C')('r'|'R')('e'|'E')('t'|'T')('e'|'E');
-DESCRIBE_COVERAGE: ('d' | 'D')('e' | 'E')('s' | 'S')('c' | 'C')('r' | 'R')('i' | 'I')('b' | 'B')('e' | 'E')('c' | 'C')('o' | 'O')('v' | 'V')('e' | 'E')('r' | 'R')('a' | 'A')('g' | 'G')('e' | 'E');
+DESCRIBE_COVERAGE: ('d' | 'D')('e' | 'E')('s' | 'S')('c' | 'C')('r' | 'R')('i' | 'I')('b' | 'B')('e' | 'E');
 DIVISION: '/';
 DOT: '.';
 ENCODE: ('e' | 'E')('n' | 'N')('c' | 'C')('o' | 'O')('d' | 'D')('e' | 'E');

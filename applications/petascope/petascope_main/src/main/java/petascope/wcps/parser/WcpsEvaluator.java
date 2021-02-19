@@ -115,6 +115,7 @@ import petascope.wcps.handler.ClipCurtainExpressionHandler;
 import petascope.wcps.handler.ClipWKTExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
 import petascope.wcps.handler.DecodeCoverageHandler;
+import petascope.wcps.handler.DescribeCoverageHandler;
 import petascope.wcps.handler.DomainIntervalsHandler;
 import petascope.wcps.handler.LetClauseHandler;
 import petascope.wcps.metadata.model.RangeField;
@@ -157,6 +158,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     ForClauseListHandler forClauseListHandler;
     @Autowired private
     ReturnClauseHandler returnClauseHandler;
+    @Autowired private
+    DescribeCoverageHandler describeCoverageHandler;
     @Autowired private
     EncodeCoverageHandler encodeCoverageHandler;
     @Autowired private
@@ -387,6 +390,31 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             result = (WcpsMetadataResult) processingExpr;
         }
 
+        return result;
+    }
+    
+    @Override
+    public VisitorResult visitDescribeCoverageExpressionLabel(@NotNull wcpsParser.DescribeCoverageExpressionLabelContext ctx) {
+        // describe(coverage expression, "format", "extra parameters")
+        // e.g: describe($c + 5, "gml", "{\"outputType\":\"GeneralGridCoverage\"}")
+        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
+        // e.g: gml / json
+        String formatType = StringUtil.stripFirstAndLastQuotes(ctx.STRING_LITERAL().getText());
+        
+        // e.g: {\"outputType\":\"GeneralGridCoverage\"}
+        String extraParams = "";
+        if (ctx.extraParams() != null) {
+            extraParams = StringUtil.stripFirstAndLastQuotes(ctx.extraParams().getText()).replace("\\", "");
+        }
+        
+        WcpsMetadataResult result = null;
+        try {
+            result = this.describeCoverageHandler.handle(coverageExpression, formatType, extraParams);
+        } catch (Exception ex) {
+            String errorMessage = "Error processing describe() operator expression. Reason: " + ex.getMessage() + ".";
+            throw new WCPSException(errorMessage, ex);
+        }
+        
         return result;
     }
 

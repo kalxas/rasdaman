@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cis11:GeneralGridCoverage id="test_mean_summer_airtemp"
+>
+<cis11:Envelope axisLabels="Lat Lon" srsDimension="2" srsName="/crs/EPSG/0/4326">
+<cis11:AxisExtent axisLabel="Lat"
+lowerBound="-12.974999999999987" uomLabel="degree" upperBound="-11.974999999999987"/>
+<cis11:AxisExtent axisLabel="Lon" lowerBound="129.975"
+uomLabel="degree" upperBound="130.975"/>
+</cis11:Envelope>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
+<startPoint>6 36</startPoint>
+</GridFunction>
+</coverageFunction>
+<cis11:DomainSet>
+<cis11:GeneralGrid axisLabels="Lat Lon" srsName="/crs/EPSG/0/4326">
+<cis11:RegularAxis axisLabel="Lat"
+lowerBound="-12.974999999999987" resolution="-0.5"
+uomLabel="degree" upperBound="-11.974999999999987"/>
+<cis11:RegularAxis axisLabel="Lon" lowerBound="129.975"
+resolution="0.5" uomLabel="degree" upperBound="130.975"/>
+<cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+<cis11:IndexAxis axisLabel="i" lowerBound="6" upperBound="7"/>
+<cis11:IndexAxis axisLabel="j" lowerBound="36" upperBound="37"/>
+</cis11:GridLimits>
+</cis11:GeneralGrid>
+</cis11:DomainSet>
+<cis11:RangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</cis11:RangeType>
+<cis11:metadata/>
+</cis11:GeneralGridCoverage>

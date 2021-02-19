@@ -51,6 +51,7 @@ import static petascope.core.XMLSymbols.NAMESPACE_CIS_11;
 import static petascope.core.XMLSymbols.NAMESPACE_GMLRGRID;
 import static petascope.core.XMLSymbols.PREFIX_GMLRGRID;
 import petascope.util.XMLUtil;
+import static petascope.core.gml.GMLDescribeCoverageBuilder.isCIS11;
 
 /**
  * Build GMLGetCoverage object as result of WCS GetCoverage request in GML.
@@ -94,14 +95,20 @@ public class GMLGetCoverageBuilder {
         
         AbstractGMLCISGetCoverage gmlGetCoverage;
         
-        if (coverageType.equals(LABEL_GENERAL_GRID_COVERAGE)) {
+        if (isCIS11(coverageType)) {
             // CIS 1.1
-            RangeSetCIS11 rangeSet = this.buildRangeSetCIS11(pixelValues);
+            RangeSetCIS11 rangeSet = null; 
+            if (pixelValues != null) {
+                rangeSet = this.buildRangeSetCIS11(pixelValues);
+            }
             GMLCoreCIS11 gmlCore = this.gmlCoreCIS11Builder.build(wcpsCoverageMetadata);        
             gmlGetCoverage = new GMLCIS11GetCoverage(coverageId, coverageType, gmlCore, rangeSet);
         } else {
             // CIS 1.0
-            RangeSetCIS10 rangeSet = this.buildRangeSetCIS10(pixelValues);
+            RangeSetCIS10 rangeSet = null;
+            if (pixelValues != null) {
+                rangeSet = this.buildRangeSetCIS10(pixelValues);
+            }
             GMLCoreCIS10 gmlCore = this.gmlCoreCIS10Builder.build(wcpsCoverageMetadata);        
             gmlGetCoverage = new GMLCIS10GetCoverage(coverageId, coverageType, gmlCore, rangeSet);
         }
@@ -119,7 +126,7 @@ public class GMLGetCoverageBuilder {
         Set<String> schemaLocations = new LinkedHashSet<>();
         String coverageType = wcpsCoverageMetadata.getCoverageType();
         
-        if (coverageType.equals(LABEL_GENERAL_GRID_COVERAGE)) {
+        if (isCIS11(coverageType)) {
             // CIS 1.1
             xmlNameSpacesMap.put(PREFIX_CIS11, NAMESPACE_CIS_11);
             schemaLocations.add(SCHEMA_LOCATION_WCS_CIS_11_GET_COVERAGE);

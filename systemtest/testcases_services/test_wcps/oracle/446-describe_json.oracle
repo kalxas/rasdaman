@@ -1,0 +1,73 @@
+{
+  "type" : "CoverageByDomainAndRangeType",
+  "id" : "test_mean_summer_airtemp",
+  "envelope" : {
+    "type" : "EnvelopeByAxisType",
+    "srsName" : "http://localhost:8080/def/crs/EPSG/0/4326",
+    "axisLabels" : [ "Lat", "Lon" ],
+    "axis" : [ {
+      "type" : "AxisExtentType",
+      "axisLabel" : "Lat",
+      "lowerBound" : -12.974999999999987,
+      "upperBound" : -11.974999999999987,
+      "uomLabel" : "degree"
+    }, {
+      "type" : "AxisExtentType",
+      "axisLabel" : "Lon",
+      "lowerBound" : 129.975,
+      "upperBound" : 130.975,
+      "uomLabel" : "degree"
+    } ]
+  },
+  "domainSet" : {
+    "type" : "DomainSetType",
+    "generalGrid" : {
+      "type" : "GeneralGridCoverageType",
+      "srsName" : "http://localhost:8080/def/crs/EPSG/0/4326",
+      "axisLabels" : [ "Lat", "Lon" ],
+      "axis" : [ {
+        "type" : "RegularAxisType",
+        "axisLabel" : "Lat",
+        "lowerBound" : -12.974999999999987,
+        "upperBound" : -11.974999999999987,
+        "uomLabel" : "degree",
+        "resolution" : -0.5
+      }, {
+        "type" : "RegularAxisType",
+        "axisLabel" : "Lon",
+        "lowerBound" : 129.975,
+        "upperBound" : 130.975,
+        "uomLabel" : "degree",
+        "resolution" : 0.5
+      } ],
+      "gridLimits" : {
+        "type" : "GridLimitsType",
+        "srsName" : "http://www.opengis.net/def/crs/OGC/0/Index2D",
+        "axisLabels" : [ "i", "j" ],
+        "axis" : [ {
+          "type" : "IndexAxisType",
+          "axisLabel" : "i",
+          "lowerBound" : 6,
+          "upperBound" : 7
+        }, {
+          "type" : "IndexAxisType",
+          "axisLabel" : "j",
+          "lowerBound" : 36,
+          "upperBound" : 37
+        } ]
+      }
+    }
+  },
+  "rangeType" : {
+    "type" : "DataRecordType",
+    "field" : [ {
+      "type" : "QuantityType",
+      "name" : "Gray",
+      "uom" : {
+        "type" : "UnitReference",
+        "code" : "10^0"
+      },
+      "definition" : "ogcType:unsignedByte"
+    } ]
+  }
+}

@@ -1075,8 +1075,6 @@ Since v10+, rasdaman supports the non-standard ``decode()`` operator
 in WCPS. This feature allows one to combine existing coverages with
 temporary coverages created in memory from input files attached
 in POST request body.
-Since v10+, rasdaman supports the non-standard positional parameters
-
 
 Syntax
 ^^^^^^
@@ -1101,6 +1099,39 @@ Example
 
 See :ref:`example about positional parameters in WCPS <positional_parameters_in_wcps_example>`.
 
+
+Describe Operator in WCPS
+-------------------------
+
+Since v10+, rasdaman supports a non-standard ``describe()`` operator
+in WCPS. This function allows one to get a WCS ``DescribeCoverage``
+result in GML or JSON format for a given ``coverageExpression``.
+
+Syntax
+^^^^^^
+
+
+.. code-block:: text
+
+   describe(coverageExpression, ${outputFormat} [ , ${extraParameter} ])
+
+- ``${outputFormat}`` can be "gml" / "application/gml+xml", or "json" / "application/json". 
+  Other formats are not supported and will result in exception.
+- ``${extraParameters}`` can be optionally specified as a JSON string
+  to further customize the result. Currently the following options are supported:
+
+    +-------------------------------------------------------------+------------------+------------------+
+    | ``${extraParameters}`` / ``${outputFormat}``                |     **GML**      |   **JSON**       |
+    +=============================================================+==================+==================+
+    |empty                                                        |CIS 1.0 format    |CIS 1.1 format    |
+    |                                                             |                  |                  |
+    |                                                             |                  |                  |
+    +-------------------------------------------------------------+------------------+------------------+
+    |"{\\\\"outputType\\\\":\\\\"GeneralGridCoverage\\\\"}"       |CIS 1.1 format    |CIS 1.1 format    |
+    |                                                             |                  |                  |
+    |                                                             |                  |                  |
+    +-------------------------------------------------------------+------------------+------------------+
+     
 
 Case Distinction
 ----------------

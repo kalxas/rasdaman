@@ -103,8 +103,10 @@ public class GMLCIS10GetCoverage extends AbstractGMLCISGetCoverage {
         coverageTypeElement.appendChild(domainSetElement);
         
         // <gml:rangeSet>
-        Element rangeSetElement = this.getRangeSet().serializeToXMLElement();
-        coverageTypeElement.appendChild(rangeSetElement);
+        if (this.rangeSet != null) {
+            Element rangeSetElement = this.getRangeSet().serializeToXMLElement();
+            coverageTypeElement.appendChild(rangeSetElement);
+        }
         
         // <gml:coverageFunction>
         Element coverageFunctionElement = this.getGmlCore().getCoverageFunction().serializeToXMLElement();

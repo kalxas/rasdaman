@@ -27,6 +27,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -67,6 +69,21 @@ public class JSONUtil {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
         String result = serializeObjectToString(obj);
+        
+        return result;
+    }
+    
+    /**
+     * Deserialize a JSON string to an object
+     */
+    public static Object deserialize(String json, Class c) throws PetascopeException {
+        Object result = null;
+        try {
+            result = objectMapper.readValue(json, c);
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    "Cannot deserialize JSON string to object '" + c.getName() + "'. Reason: " + ex.getMessage(), ex);
+        }
         
         return result;
     }
