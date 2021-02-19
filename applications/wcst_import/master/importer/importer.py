@@ -60,7 +60,7 @@ class Importer:
 
     DEFAULT_INSERT_VALUE = "0"
 
-    def __init__(self, resumer, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False):
+    def __init__(self, resumer, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False, session=None):
         """
         Imports a coverage into wcst
         :param Coverage coverage: the coverage to be imported
@@ -74,6 +74,7 @@ class Importer:
         self.insert_into_wms = insert_into_wms
         self.scale_levels = scale_levels
         self.grid_coverage = grid_coverage
+        self.session = session
 
     def ingest(self):
         """
@@ -227,6 +228,11 @@ class Importer:
                     end_time = time.time()
                     time_to_ingest = round(end_time - start_time, 2)
                     log.info(prepend_time("Total time to ingest: {} s.".format(time_to_ingest)))
+
+                if hasattr(self.coverage.slices[i].data_provider, "file"):
+                    imported_file = self.coverage.slices[i].data_provider.file
+                    if self.session is not None:
+                        self.session.imported_files.append(imported_file)
             except Exception as e:
                 if ConfigManager.skip:
                     log.warn("Skipped slice " + str(self.coverage.slices[i]))

@@ -246,7 +246,7 @@ class Recipe(GeneralCoverageRecipe):
             coverage_slices = conv.coverage_slices
 
             importer = Importer(conv.resumer, conv.to_coverage(coverage_slices),
-                                self.wms_import, self.scale_levels, self.grid_cov)
+                                self.wms_import, self.scale_levels, self.grid_cov, self.session)
             ret.append(importer)
         return ret
     

@@ -270,7 +270,15 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self.resumer, self._get_coverage(), self.options['wms_import'], self.options['scale_levels'])
+            grid_coverage = False
+            if 'coverage' in self.options:
+                grid_coverage = self.options['coverage']['grid_coverage'] if 'grid_coverage' in self.options['coverage'] else False
+            wms_import = self.options['wms_import'] if 'wms_import' in self.options else False
+            scale_levels = self.options['scale_levels'] if self.options['scale_levels'] is not None else None
+
+            self.importer = Importer(self.resumer, self._get_coverage(), wms_import, scale_levels,
+                                     grid_coverage,
+                                     self.session)
         return self.importer
 
     @staticmethod

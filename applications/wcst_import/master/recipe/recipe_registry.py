@@ -101,7 +101,7 @@ class RecipeRegistry:
                 log.error("wcst_import terminated on running hook command.")
                 exit(1)
 
-    def __run_hooks(self, session, hooks):
+    def __run_hooks(self, session, hooks, after_ingestion=False):
         """
         Run some hooks before/after analyzing input files
         :param Session session:
@@ -127,7 +127,11 @@ class RecipeRegistry:
             # Evaluate shell command expression to get a runnable shell command
             cmd_template = hook["cmd"]
 
-            for file in session.files:
+            files = session.files
+            if after_ingestion is True:
+                files = session.imported_files
+
+            for file in files:
                 evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(recipe_type, file)
                 cmd = self.sentence_evaluator.evaluate(cmd_template, evaluator_slice)
                 self.__run_shell_command(cmd, abort_on_error)
@@ -165,7 +169,7 @@ class RecipeRegistry:
 
         if session.before_hooks:
             log.info(make_bold("Executing before ingestion hook(s)..."))
-            self.__run_hooks(session, session.before_hooks)
+            self.__run_hooks(session, session.before_hooks, False)
 
         recipe.describe()
 
@@ -189,7 +193,7 @@ class RecipeRegistry:
 
         if session.after_hooks:
             log.info(make_bold("Executing after ingestion hook(s)..."))
-            self.__run_hooks(session, session.after_hooks)
+            self.__run_hooks(session, session.after_hooks, True)
 
     def run_recipe(self, session):
         """

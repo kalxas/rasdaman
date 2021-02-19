@@ -53,7 +53,10 @@ class Session:
         self.ingredient_file_name = ingredient_file_name
         self.ingredients_dir_path = ingredients_dir_path if ingredients_dir_path.endswith("/") \
             else ingredients_dir_path + "/"
+        # input files to import
         self.files = self.parse_input(inp['paths'] if 'paths' in inp else [])
+        # imported files from the list of input files (files are added in .resume.json will be ignored)
+        self.imported_files = []
         self.coverage_id = inp['coverage_id'] if 'coverage_id' in inp else None
         self.recipe = recipe
         self.input = inp

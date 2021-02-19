@@ -44,7 +44,7 @@ class FileExpressionEvaluator(ExpressionEvaluator):
         :param str expression: the expression to test
         :rtype: bool
         """
-        if expression.startswith("file:"):
+        if expression.startswith("file:") or expression.startswith("imported_file:"):
             return True
         return False
 
@@ -59,7 +59,10 @@ class FileExpressionEvaluator(ExpressionEvaluator):
             raise RuntimeException(
                 "Cannot evaluate a file expression on something that is not a valid file. Given expression: {}".format(
                     expression))
-        expression = expression.replace("file:", "")
+
+        # e.g: file:path -> path
+        expression = expression.split(":")[1]
+
         return self._resolve(expression, evaluator_slice.get_file())
 
     def _resolve(self, expression, file):

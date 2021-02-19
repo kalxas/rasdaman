@@ -2446,15 +2446,20 @@ for a general recipe ingredient file that uses many grib expressions.
 
 **File**
 
-+-----------------+--------------------------------------------------------------------+----------------+
-|  **Type**       |                **Description**                                     |  **Examples**  |
-+=================+====================================================================+================+
-|File Information |``${file:PROPERTY}`` where property can be one of                   |                |
-|                 |path|name|dir_path|original_path|original_dir_path                  |``${file:path}``|
-|                 |original_* allows to get the original input file's path/directory   |                |
-|                 |(used only when using **pre-hook** with ``replace_path``            |                |
-|                 |to replace original input file paths with customized file paths).   |                |
-+-----------------+--------------------------------------------------------------------+----------------+
++-----------------+--------------------------------------------------------------------+-----------------------------+
+|  **Type**       |                **Description**                                     |  **Examples**               |
++=================+====================================================================+=============================+
+|File Information |``${file:PROPERTY}`` where property can be one of                   |                             |
+|                 |path|name|dir_path|original_path|original_dir_path                  |``${file:path}``             |
+|                 |original_* allows to get the original input file's path/directory   |                             |
+|                 |(used only when using **pre-hook** with ``replace_path``            |                             |
+|                 |to replace original input file paths with customized file paths).   |                             |
++-----------------+--------------------------------------------------------------------+-----------------------------+
+|Imported File    |``${imported_file:PROPERTY}`` where property can be one of          |                             |
+|Information      |path|name|dir_path|original_path|original_dir_path                  |                             |
+|                 |Files which were imported to rasdaman (excluded **skipped files**). |``${imported_file:path}``    |
+|                 |This variable is used only for ``after_ingestion`` hooks.           |                             |
++-----------------+--------------------------------------------------------------------+-----------------------------+
 
 **Special Functions**
 

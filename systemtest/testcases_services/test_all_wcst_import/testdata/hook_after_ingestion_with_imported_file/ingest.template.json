@@ -1,0 +1,34 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "track_files": false,
+    "skip": true,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_hook_after_ingestion_with_imported_file",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "map_mosaic",
+    "options": {
+    }
+  },
+  "hooks": [
+    {
+      "description": "warp input file to /tmp dir",
+      "when": "before_ingestion",
+      "cmd": " gdalwarp '${file:dir_path}/'${file:name} '/tmp/${file:name}' -overwrite",
+      "abort_on_error": false,
+      "replace_path": ["/tmp/${file:name}"]
+    }, {
+        "description": "remove temp file which was imported",
+        "when": "after_ingestion",
+        "cmd": "rm -f '${imported_file:path}'"
+      }
+  ]
+}
