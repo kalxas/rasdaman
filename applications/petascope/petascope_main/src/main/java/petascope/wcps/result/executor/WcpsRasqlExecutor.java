@@ -77,7 +77,7 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
         byte[] arrayData = RasUtil.getRasqlResultAsBytes(wcpsResult.getRasql());
         // If encoding is gml so build the GML Coverage with the tupleList contains the rasql result values
         if (mimeType != null) {
-            String coverageType = null;
+            String coverageType = "";
             if (wcpsResult.getMetadata() != null) {
                 coverageType = wcpsResult.getMetadata().getCoverageType();
             }
