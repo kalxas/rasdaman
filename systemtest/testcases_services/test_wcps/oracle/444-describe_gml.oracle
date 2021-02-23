@@ -1,32 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cis11:GeneralGridCoverage id="test_mean_summer_airtemp"
+<gmlcov:RectifiedGridCoverage id="test_mean_summer_airtemp"
 >
-<cis11:Envelope axisLabels="Lat Lon" srsDimension="2" srsName="/crs/EPSG/0/4326">
-<cis11:AxisExtent axisLabel="Lat"
-lowerBound="-12.974999999999987" uomLabel="degree" upperBound="-11.974999999999987"/>
-<cis11:AxisExtent axisLabel="Lon" lowerBound="129.975"
-uomLabel="degree" upperBound="130.975"/>
-</cis11:Envelope>
+<boundedBy>
+<Envelope axisLabels="Lat Lon" srsDimension="2"
+srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
+<lowerCorner>-12.974999999999987 129.975</lowerCorner>
+<upperCorner>-11.974999999999987 130.975</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<RectifiedGrid dimension="2" id="test_mean_summer_airtemp-grid">
+<limits>
+<GridEnvelope>
+<low>6 36</low>
+<high>7 37</high>
+</GridEnvelope>
+</limits>
+<axisLabels>Lat Lon</axisLabels>
+<origin>
+<Point
+id="test_mean_summer_airtemp-point" srsName="/crs/EPSG/0/4326">
+<pos>-12.224999999999987 130.225</pos>
+</Point>
+</origin>
+<offsetVector srsName="/crs/EPSG/0/4326">-0.5 0</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/4326">0 0.5</offsetVector>
+</RectifiedGrid>
+</domainSet>
 <coverageFunction>
 <GridFunction>
 <sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
 <startPoint>6 36</startPoint>
 </GridFunction>
 </coverageFunction>
-<cis11:DomainSet>
-<cis11:GeneralGrid axisLabels="Lat Lon" srsName="/crs/EPSG/0/4326">
-<cis11:RegularAxis axisLabel="Lat"
-lowerBound="-12.974999999999987" resolution="-0.5"
-uomLabel="degree" upperBound="-11.974999999999987"/>
-<cis11:RegularAxis axisLabel="Lon" lowerBound="129.975"
-resolution="0.5" uomLabel="degree" upperBound="130.975"/>
-<cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-<cis11:IndexAxis axisLabel="i" lowerBound="6" upperBound="7"/>
-<cis11:IndexAxis axisLabel="j" lowerBound="36" upperBound="37"/>
-</cis11:GridLimits>
-</cis11:GeneralGrid>
-</cis11:DomainSet>
-<cis11:RangeType>
+<gmlcov:rangeType>
 <swe:DataRecord>
 <swe:field name="Gray">
 <swe:Quantity definition="/dataType/OGC/0/unsignedByte">
@@ -37,6 +44,6 @@ resolution="0.5" uomLabel="degree" upperBound="130.975"/>
 </swe:Quantity>
 </swe:field>
 </swe:DataRecord>
-</cis11:RangeType>
-<cis11:metadata/>
-</cis11:GeneralGridCoverage>
+</gmlcov:rangeType>
+<gmlcov:metadata/>
+</gmlcov:RectifiedGridCoverage>

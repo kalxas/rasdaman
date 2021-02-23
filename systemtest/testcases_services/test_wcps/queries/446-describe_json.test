@@ -1,1 +1,1 @@
-for c in (test_mean_summer_airtemp) return describe(c[Lat(-13:-12), Long(130:131)], "application/json")
+for c in (test_mean_summer_airtemp) return describe(c[Lat(-13:-12), Long(130:131)], "application/json", "outputType=GeneralGridCoverage")

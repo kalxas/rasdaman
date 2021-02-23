@@ -31,10 +31,8 @@ import petascope.core.json.JSONWCSRequestResultBuilder;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
-import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.XMLUtil;
-import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
@@ -52,22 +50,34 @@ public class DescribeCoverageHandler {
     @Autowired
     private JSONWCSRequestResultBuilder jsonWCSRequestResultBuilder;
     
+    // For General Grid Coverage in CIS 1.1
+    public static final String EXTRA_PARAMETER_KEY_OUTPUT_TYPE = "outputType";
+    
     public WcpsMetadataResult handle(WcpsResult coverageExpression, String outputFormat, String extraParams) throws PetascopeException, SecoreException {
 
         if (!(MIMEUtil.isGML(outputFormat) || MIMEUtil.isJSON(outputFormat))) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, "Format value is not supported. Given '" + outputFormat + "'");
         }
         
-        if (!(extraParams.isEmpty() || JSONUtil.isJsonValid(extraParams))) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Extra parameter must be valid JSON. Given '" + extraParams + "'");
-        }
-        
         // to differentiate GML CIS 1.0 and CIS 1.1 GeneralGridCoverage
         String coverageOutputType = "";
         
-        if (JSONUtil.isJsonValid(extraParams)) {
-            JsonExtraParams jsonExtraParams = (JsonExtraParams) JSONUtil.deserialize(extraParams, JsonExtraParams.class);
-            coverageOutputType = jsonExtraParams.getOutputType();
+        if (extraParams.contains("=")) {
+            String[] params = extraParams.split(",");
+            for (String param : params) {
+                if (param.contains(EXTRA_PARAMETER_KEY_OUTPUT_TYPE)) {
+                    // e.g: return describe( $c, "application/json", "outputType=GeneralGridCoverage" )
+                    coverageOutputType = param.split("=")[1];
+                }
+            }
+        }
+        
+        if (!coverageOutputType.isEmpty() && !coverageOutputType.equals(LABEL_GENERAL_GRID_COVERAGE)) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Value for 'outputType' parameter is not supported. Given '" + coverageOutputType + "'");
+        }
+        
+        if (MIMEUtil.isJSON(outputFormat) && !coverageOutputType.equals(LABEL_GENERAL_GRID_COVERAGE)) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Encoding in JSON format needs to have \"outputType=GeneralGridCoverage\" as extra parameter");
         }
         
         String output = "";

@@ -1098,40 +1098,7 @@ Example
 ^^^^^^^
 
 See :ref:`example about positional parameters in WCPS <positional_parameters_in_wcps_example>`.
-
-
-Describe Operator in WCPS
--------------------------
-
-Since v10+, rasdaman supports a non-standard ``describe()`` operator
-in WCPS. This function allows one to get a WCS ``DescribeCoverage``
-result in GML or JSON format for a given ``coverageExpression``.
-
-Syntax
-^^^^^^
-
-
-.. code-block:: text
-
-   describe(coverageExpression, ${outputFormat} [ , ${extraParameter} ])
-
-- ``${outputFormat}`` can be "gml" / "application/gml+xml", or "json" / "application/json". 
-  Other formats are not supported and will result in exception.
-- ``${extraParameters}`` can be optionally specified as a JSON string
-  to further customize the result. Currently the following options are supported:
-
-    +-------------------------------------------------------------+------------------+------------------+
-    | ``${extraParameters}`` / ``${outputFormat}``                |     **GML**      |   **JSON**       |
-    +=============================================================+==================+==================+
-    |empty                                                        |CIS 1.0 format    |CIS 1.1 format    |
-    |                                                             |                  |                  |
-    |                                                             |                  |                  |
-    +-------------------------------------------------------------+------------------+------------------+
-    |"{\\\\"outputType\\\\":\\\\"GeneralGridCoverage\\\\"}"       |CIS 1.1 format    |CIS 1.1 format    |
-    |                                                             |                  |                  |
-    |                                                             |                  |                  |
-    +-------------------------------------------------------------+------------------+------------------+
-     
+  
 
 Case Distinction
 ----------------
@@ -1249,6 +1216,98 @@ to store a WCPS query. A request must contain only one ``q`` or ``query`` parame
 
     http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
       &REQUEST=ProcessCoverage&q=<wcps-query>
+
+Describe Operator in WCPS
+-------------------------
+
+For some ``coverageExpression`` the ``describe()`` function delivers a "coverage description" 
+consisting of the result coverage, except the range set, in either GML or JSON.
+This function is not part of the WCPS standard.
+
+Syntax
+^^^^^^
+
+.. code-block:: text
+
+   describe( coverageExpression, outputFormat [ , extraParameter ] )
+
+where
+
+- ``outputFormat`` is a string specifying the format encoding
+  in which the result will be formatted. Formats are indicated through
+  their MIME type identifier, just as in ``encode()``. Formats supported:
+   
+   - ``application/gml+xml`` (or short: ``gml``) for GML
+   - ``application/json`` (or short: ``json``) for JSON
+
+- ``extraParameters`` is an optional string containing parameters
+  for fine-tuning the output, just as in ``encode()``. Options supported:
+
+   - ``"outputType=GeneralGridCoverage"`` to return a CIS 1.1
+     General Grid Coverage structure
+
+Semantics
+^^^^^^^^^
+
+A ``describe()`` operation returns a description of the coverage resulting
+from the coverage expression passed, consisting of domain set, range type, and metadata, 
+but not the range set. As such, this operator is the WCPS equivalent 
+to a WCS ``DescribeCoverage`` request, and the output adheres to the same WCS schema.
+
+The coverage description generated will follow the coverage's type, 
+so one of Rectified Grid Coverage (CIS 1.0), ReferenceableGridCoverage (CIS 1.0),
+General Grid Coverage (CIS 1.0). 
+
+By default, the coverage will be provided
+as Rectified or Referenceable Grid Coverage (in accordance with its type); 
+optionally, a General Grid Coverage can be generated instead. 
+However, generation of a General Grid Coverage structure can be enforced through
+``"outputType=GeneralGridCoverage"``. 
+As JSON is supported only from OGC CIS 1.1 onwards this format is only available 
+(i) if the coverage is stored as a CIS 1.1 General Grid Coverage 
+(currently not supported) or (ii) this output type is selected
+explicitly through ``extraParameter``.
+
+**Efficiency**: The ``describe()`` operator normally does not materialize
+the complete coverage, but determines only the coverage description making
+this function very efficient. A full evaluation is only required
+if ``coverageExpression`` contains a ``clip()`` performing a curtain, corridor,
+or linestring operation.
+
+Examples
+^^^^^^^^
+
+- Determine coverage description as a CIS 1.0 Rectified Grid Coverage in GML, 
+  without evaluating the range set:
+
+  .. code-block:: text
+
+     for $c in (Cov)
+     return describe( $c.red[Lat(10:20), Long(30:40), "application/gml+xml" )
+
+- Deliver coverage description as a CIS 1.1 General Grid Coverage in GML,
+  where range type changes in the query:
+
+  .. code-block:: text
+
+     for $c in (Cov)
+     return describe( { $c.red; $c.green; $c.blue }, "application/gml+xml", 
+                                         "outputType=GeneralGridCoverage" )
+
+- Deliver coverage description as a CIS 1.1 General Grid Coverage, in JSON:
+
+  .. code-block:: text
+
+     for $c in (Cov)
+     return describe( $c, "application/json", "outputType=GeneralGridCoverage" )
+
+
+Specific Exceptions
+^^^^^^^^^^^^^^^^^^^
+
+- Unsupported output format
+- This format only supported for General Grid Coverage
+- Illegal extra parameter
 
 
 OGC Web Map Service (WMS)
