@@ -5,9 +5,29 @@ def usage():
     print ("Usage: python3 " + sys.argv[0] + " $DIRECTQL $RASBASE")
     sys.exit(1)
 
+def decode(input_str):
+  return input_str.decode('UTF-8').rstrip()
+
 def execute_query(query_command):
   result = []
-  output = subprocess.getoutput(query_command)
+
+  MAX_RETRY = 5
+  i = 0
+  output = ""
+  
+  while i < MAX_RETRY:
+      try:
+          output = decode(subprocess.check_output(query_command, shell=True))
+          break   
+      except Exception as ex:                                                                                                   
+          print("Failed to run query '{}'. Error message '{}'.".format(query_command, decode(ex.output)))
+          i += 1
+          print("Retry {}/{} times".format(i, MAX_RETRY))
+
+  if i == MAX_RETRY:
+      print("Tried {} times. Exiting..".format(MAX_RETRY))
+      exit(1)
+
   for line in output.split("\n"):
       if "Result object" in line or "Result element" in line:
           result.append(line[line.index(":") + 1:].strip().strip("\x00"))
