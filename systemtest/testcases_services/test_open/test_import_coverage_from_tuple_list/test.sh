@@ -50,11 +50,11 @@ sed "s@SECORE_URL@$SECORE_URL@g" "$GML_TEMPLATE_FILE" > "$GML_FILE"
 
 # this query will be encoded in python script with urllib
 import_coverage_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=InsertCoverage&coverageRef=file://$GML_FILE"
-curl -s -S "$import_coverage_request" 2>&1 >> "$LOG_FILE"
+$CURL "$import_coverage_request" 2>&1 >> "$LOG_FILE"
 
 # then, check the imported coverage encoded in PNG
 get_coverage_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCoverage&coverageId=$COVERAGE_ID&format=tiff"
-curl -s "$get_coverage_request" > "$OUTPUT_FILE"
+$CURL "$get_coverage_request" > "$OUTPUT_FILE"
 
 cmp "$ORACLE_FILE" "$OUTPUT_FILE" 2>&1 > /dev/null
 

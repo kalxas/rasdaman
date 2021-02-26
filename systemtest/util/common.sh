@@ -64,6 +64,7 @@ export LOG_DIR="$RMANHOME/log"
 export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 export PETASCOPE_PROPERTIES_FILE="$RMANHOME/etc/petascope.properties"
 
+
 # -------------------
 # script return codes
 #
@@ -428,6 +429,26 @@ check_java_enabled() {
   fi
 }
 
+# --------- properties
+
+# return the value of key=value from properties file ($1: the key, $2: the file)
+get_key_value()
+{    
+    key_value=$(grep -E "^$1=" "$2") && echo ${key_value#*=} || echo ""
+}
+
+export RASADMIN_USER="$(get_key_value "rasdaman_admin_user" "$PETASCOPE_PROPERTIES_FILE")"
+export RASADMIN_PASS="$(get_key_value "rasdaman_admin_pass" "$PETASCOPE_PROPERTIES_FILE")"
+
+# credentials files for wcst_import to authenticate to petascope
+export RASADMIN_CREDENTIALS_FILE="/tmp/rasadmin_credentials.txt"
+echo "$RASADMIN_USER:$RASADMIN_PASS" > "$RASADMIN_CREDENTIALS_FILE"
+chmod 400 "$RASADMIN_CREDENTIALS_FILE"
+
+export WCST_IMPORT="wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE"
+export WGET="wget --auth-no-challenge --user $RASADMIN_USER --password $RASADMIN_PASS"
+export CURL="curl -u $RASADMIN_USER:$RASADMIN_PASS -s"
+
 # ------------------------------------------------------------------------------
 # print test summary
 # exports $RC - return code that the caller can use in: exit $RC
@@ -526,7 +547,7 @@ check() { if [ $? -ne 0 ]; then check_failed "$1"; else check_passed "$1"; fi }
 #
 
 # $1 is a URL; return the HTTP code from the URL by curl
-get_http_return_code() { curl -sL -w "%{http_code}\\n" "$1" -o /dev/null; }
+get_http_return_code() { $CURL -sL -w "%{http_code}\\n" "$1" -o /dev/null; }
 
 # if "$f" is found in known_fails, then return 0, otherwise to 1
 check_known_fail()
@@ -665,7 +686,7 @@ urlencode() {
 
 # Get all available coverage Ids
 get_coverage_ids() {
-  local xml=$(wget -qO- "$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCapabilities")
+  local xml=$($WGET -qO- "$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCapabilities")
   local coverage_ids=($(grep -oP "(?<=<wcs:CoverageId>)[^<]+"  <<< "$xml"))
   echo ${coverage_ids[@]}
 }
@@ -695,7 +716,7 @@ delete_coverage() {
     if [ "$coverage_id" == "$input_coverage_id" ]; then
 
         # Store the result of deleting request to a temp file
-        curl -s -i "$WCS_END_POINT" > "$OUTPUT_FILE"
+        $CURL -i "$WCS_END_POINT" > "$OUTPUT_FILE"
 
         # Check HTTP code is 200, coverage is deleted successfully
         cat "$OUTPUT_FILE" | head -n 1 | grep "200" --quiet
@@ -721,7 +742,7 @@ get_request_rest() {
   # $2 is the request contex path and KVP if any
   local url="$1"
   local context=$(echo "$2" | tr -d '\n')
-  curl -s -G -X GET "$url/$context" > "$3" 
+  $CURL -G -X GET "$url/$context" > "$3" 
 }
 
 # GET KVP request
@@ -734,10 +755,10 @@ get_request_kvp() {
   # replace the "\n" in the query to be a valid GET request without break lines
   local kvpValues=$(echo "$2" | tr -d '\n')
   if [ -z "$4" ]; then
-    curl -s -G -X GET "$url" --data-urlencode "$kvpValues" > "$3"
+    $CURL -G -X GET "$url" --data-urlencode "$kvpValues" > "$3"
   else
     # SECORE (just send the request as it is without encoding)
-    curl -s -X GET "$url""$kvpValues" > "$3"
+    $CURL -X GET "$url""$kvpValues" > "$3"
   fi
 }
 
@@ -748,7 +769,7 @@ post_request_kvp() {
   # $3 is output file
   local url="$1"
   local kvpValues=$(echo "$2" | tr -d '\n')
-  curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
+  $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
 # this function will be used to send XML/SOAP request for WCS, WCPS
@@ -756,7 +777,7 @@ post_request_xml() {
   # curl -s -X POST --data-urlencode "$kvpValues" "$PETASCOPE_URL" -o "$2"
   local url="$1"
   local kvpValues=$(echo "$2" | tr -d '\n')
-  curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
+  $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
 # this function will send a POST request to server with an upload file
@@ -769,7 +790,7 @@ post_request_file() {
   local url="$1"
   local kvpValues=$(echo "$2" | tr -d '\n')
   local upload_file="$3"
-  curl -s -F "file=@$upload_file" "$url?$kvpValues" > "$4"
+  $CURL -F "file=@$upload_file" "$url?$kvpValues" > "$4"
 }
 
 # check if the output produced by the test ($1) matches the expected oracle ($2)

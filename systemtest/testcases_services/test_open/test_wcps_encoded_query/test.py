@@ -20,16 +20,18 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 import urllib
-import urllib2
+import urllib2, base64
 import sys
 
 # Post an encoded WCPS query to Petascope
 wcpsURL = sys.argv[1]
 wcpsQuery = sys.argv[2]
+rasadmin_user = sys.argv[3]
+rasadmin_pass = sys.argv[4]
 
-print wcpsURL
-print wcpsQuery
+base64string = base64.b64encode('%s:%s' % (rasadmin_user, rasadmin_pass))
 
 data = urllib.urlencode({ "query": wcpsQuery } )
 request = urllib2.Request(wcpsURL, data)
+request.add_header("Authorization", "Basic %s" % base64string)
 response = urllib2.urlopen(request, timeout=150)

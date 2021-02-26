@@ -37,11 +37,11 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 . "$SCRIPT_DIR"/../../../util/common.sh
 
 logn "sending GET request to $PETASCOPE_URL/..."
-wget -q -O/dev/null --spider "$PETASCOPE_URL/"
+$WGET -q -O/dev/null --spider "$PETASCOPE_URL/"
 check
 
 logn "sending POST request to $PETASCOPE_URL/..."
-wget -q -O/dev/null "$PETASCOPE_URL/" --post-data ""
+$WGET -q -O/dev/null "$PETASCOPE_URL/" --post-data ""
 check
 
 # print summary from util/common.sh

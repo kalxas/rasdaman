@@ -41,7 +41,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 #
 
 run_test() {
-    wget --content-on-error --trust-server-names --content-disposition \
+    $WGET --content-on-error --trust-server-names --content-disposition \
          "$endpoint" > "$OUTPUT_DIR/$f.log" 2>&1
     [ -f "$f" ]
     check_result 0 $? "  check if $f exists"

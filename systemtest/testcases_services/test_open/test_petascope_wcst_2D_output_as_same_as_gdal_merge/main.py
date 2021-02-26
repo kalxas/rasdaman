@@ -35,13 +35,13 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 prog="main.py: "
 
-if len(sys.argv) != 2:
-    print "Usage: python main.py PETASCOPE_ENDPOINT (e.g: http://localhost:8080/rasdaman/ows)"
-    exit(0)
-
 ###### configurations
 petascope_endpoint = sys.argv[1]
 coverage_id = "test_overlapping_map_mosaic"
+
+RASADMIN_USER = sys.argv[2]
+RASADMIN_PASS = sys.argv[3]
+RASADMIN_CREDENTIALS_FILE = sys.argv[4]
 
 ingredient_file = dir_path + "/ingest.json"
 
@@ -101,10 +101,10 @@ for x in range(len(list_files)):
         copyfile(src_file, dst_file)
 
     # When everything is done, now import files with WCST_Import and check the result from GetCoverage request with gdal_merge.py
-    subprocess.call("wcst_import.sh -q " + ingredient_file_tmp, shell=True, stdout=open(os.devnull, 'wb'))
+    subprocess.call("wcst_import.sh -i " + RASADMIN_CREDENTIALS_FILE + " -q " + ingredient_file_tmp, shell=True, stdout=open(os.devnull, 'wb'))
 
     get_coverage_request = petascope_endpoint + "?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=" + coverage_id + "&FORMAT=image/tiff"
-    subprocess.call("wget -q '" + get_coverage_request + "' -O " + output_file, shell=True, stdout=open(os.devnull, 'wb'))
+    subprocess.call("wget --auth-no-challenge --user '" + RASADMIN_USER + "' --password '" + RASADMIN_PASS + "' -q '" + get_coverage_request + "' -O " + output_file, shell=True, stdout=open(os.devnull, 'wb'))
 
     # Now compare 2 files file
     process = subprocess.Popen(['gdalinfo', final_merged_file], stdout=subprocess.PIPE)
@@ -118,7 +118,7 @@ for x in range(len(list_files)):
 
     # now delete the imported coverage and check the result
     delete_coverage_request = petascope_endpoint + "?SERVICE=WCS&VERSION=2.0.1&REQUEST=DeleteCoverage&COVERAGEID=" + coverage_id
-    subprocess.call("wget -q '" + delete_coverage_request + "' -O /dev/null", shell=True, stdout=open(os.devnull, 'wb'))
+    subprocess.call("wget --auth-no-challenge --user '" + RASADMIN_USER + "' --password '" + RASADMIN_PASS + "' -q '" + delete_coverage_request + "' -O /dev/null", shell=True, stdout=open(os.devnull, 'wb'))
 
     if src_tmp[2] != dst_tmp[2]:
         print prog + "Size is different, gdal_merge: " + src_tmp[2] + ", petascope: " + dst_tmp[2] + "."

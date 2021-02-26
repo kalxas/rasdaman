@@ -72,44 +72,44 @@ readonly TEST_2D_TIFF_3BANDS_FILE_PATH="$SCRIPT_DIR/../../test_all_wcst_import/t
 readonly TEST_2D_TIFF_1BAND_FILE_PATH="$SCRIPT_DIR/../../test_all_wcst_import/testdata/wcps_mean_summer_air_temp/mean_summer_airtemp.tif"
 
 TEST_NAME="1-test_encode"
-curl -s "$ENDPOINT" \
+$CURL "$ENDPOINT" \
      -F 'query=for c in (decode($1)) return encode(c, "tiff")' \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" > "$OUTPUT/$TEST_NAME"
 handle_output "$TEST_NAME"
 
 TEST_NAME="2-test_binary_operator"
-curl -s "$ENDPOINT" \
+$CURL "$ENDPOINT" \
      -F 'query=for c in (decode($1)) return encode((unsigned char)(c + 15*1.5 - c * 0.5) , "tiff")' \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" > "$OUTPUT/$TEST_NAME"
 handle_output "$TEST_NAME"
 
 TEST_NAME="3-test_band_extraction"
-curl -s "$ENDPOINT" \
+$CURL "$ENDPOINT" \
      -F 'query=for c in (decode($1)) return encode(c.band1 , "tiff")' \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" > "$OUTPUT/$TEST_NAME"
 handle_output "$TEST_NAME"
 
 TEST_NAME="4-test_band_combination"
-curl -s "$ENDPOINT" \
+$CURL "$ENDPOINT" \
      -F 'query=for c in (decode($1)) return encode({red: c.band2; green: c.band1; blue: c.band3} , "tiff")' \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" > "$OUTPUT/$TEST_NAME"
 handle_output "$TEST_NAME"
 
 TEST_NAME="5-two_positional_file_parameters"
-curl -s "$ENDPOINT" \
+$CURL "$ENDPOINT" \
      -F 'query=for $c in (decode($1)), $d in (decode($1)) return encode((unsigned char)($c + $d - $c * 1.5) , "tiff")' \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" > "$OUTPUT/$TEST_NAME" \
      -F "2=@$TEST_2D_TIFF_3BANDS_FILE_PATH" > "$OUTPUT/$TEST_NAME"
 handle_output "$TEST_NAME"
 
 TEST_NAME="6-subset_avg_cells"
-curl -s "$ENDPOINT" \
+$CURL "$ENDPOINT" \
      -F 'query=for $c in (decode($1)), $d in (decode($1)) return avg(($c + $d)[Lat(0:90), Long(-180:180)])' \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" > "$OUTPUT/$TEST_NAME"
 handle_output "$TEST_NAME"
 
 TEST_NAME="7-positional_parameter_not_in_return_expression"
-curl -s "$ENDPOINT" \
+$CURL "$ENDPOINT" \
      -F 'query=for $c in (decode($1)), $d in (decode($2)), $e in (decode($3)) return 1 + 2' \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" \
      -F "2=@$TEST_2D_TIFF_3BANDS_FILE_PATH" \
@@ -117,7 +117,7 @@ curl -s "$ENDPOINT" \
 handle_output "$TEST_NAME"
 
 TEST_NAME="8-test_oapi_wcps_decode"
-curl -s "$ENDPOINT" \
+$CURL "$ENDPOINT" \
      -F 'query=for $c in (decode($1)), $d in test_mean_summer_airtemp return encode($c - 50 + $d - 100, "jpeg")' \
      -F "1=@$TEST_2D_TIFF_1BAND_FILE_PATH" > "$OUTPUT/$TEST_NAME"
 

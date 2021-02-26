@@ -41,7 +41,7 @@ readonly NEW_COVERAGE_ID="test_update_coverage_id_NEW"
 sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$SCRIPT_DIR/ingest.template.json" > "$SCRIPT_DIR/ingest.json"
 
 # First, import 2D coverage with scale levels from ingredient file
-wcst_import.sh "$SCRIPT_DIR/ingest.json" > /dev/null 2>&1
+$WCST_IMPORT "$SCRIPT_DIR/ingest.json" > /dev/null 2>&1
 check_result 0 $? "importing test data"
 
 # Then, rename the coverage id to a new coverage id

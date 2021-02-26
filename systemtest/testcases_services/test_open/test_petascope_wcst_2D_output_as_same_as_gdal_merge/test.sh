@@ -37,7 +37,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$SCRIPT_DIR/ingest.template.json" > "$SCRIPT_DIR/ingest.json"
 
 # Run the import test and compare with result from gdal_merge
-python "$SCRIPT_DIR/main.py" "$PETASCOPE_URL"
+python "$SCRIPT_DIR/main.py" "$PETASCOPE_URL" "$RASADMIN_USER" "$RASADMIN_PASS" "$RASADMIN_CREDENTIALS_FILE" >> "$SCRIPT_DIR/test.log"
 check 0 $? "check import = gdal_merge result"
 
 print_summary

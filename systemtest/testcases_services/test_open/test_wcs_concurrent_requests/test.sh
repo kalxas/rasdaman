@@ -52,7 +52,7 @@ log "test petascope WCS with $REQUEST_NO concurrent requests..."
 pids=""
 for i in $(seq $REQUEST_NO); do
    out="$OUTPUT_DIR/wcs_request_${i}.out"
-   wget -q "$WCS_REQUEST" -O "$out" &
+   $WGET -q "$WCS_REQUEST" -O "$out" &
    pids="$pids $!"
 done
 
@@ -62,8 +62,7 @@ log "all requests finished."
 
 ORACLE_FILE_OUT="$OUTPUT_DIR/valid_response.oracle"
 cp "$ORACLE_FILE" "$ORACLE_FILE_OUT"
-oracle_tmp=$(prepare_gdal_file "$ORACLE_FILE_OUT")
-rm -f "$ORACLE_FILE_OUT"
+prepare_gdal_file "$ORACLE_FILE_OUT"
 
 for i in $(seq $REQUEST_NO); do
    out="$OUTPUT_DIR/wcs_request_${i}.out"
@@ -77,8 +76,8 @@ for i in $(seq $REQUEST_NO); do
    fi
    [ -s "$out" ] || continue # skip empty files
 
-   output_tmp=$(prepare_gdal_file "$out")
-   cmp "$output_tmp" "$oracle_tmp" > /dev/null 2>&1
+   prepare_gdal_file "$out"
+   cmp "$out" "$ORACLE_FILE_OUT" > /dev/null 2>&1
    [ $? -eq 0 ] && check_passed quiet
    NUM_TOTAL=$(($NUM_TOTAL-1)) # it was added again in check_passed
 done

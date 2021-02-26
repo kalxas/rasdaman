@@ -63,7 +63,7 @@ rm -rf "$OUTPUT"
 mkdir -p "$OUTPUT"
 
 # First, import 2D coverage with scale levels from ingredient file
-wcst_import.sh "$SCRIPT_DIR/ingest.json" > /dev/null 2>&1
+$WCST_IMPORT "$SCRIPT_DIR/ingest.json" > /dev/null 2>&1
 check_result 0 $? "importing data"
 
 # Then, check downscaled collections with oracles

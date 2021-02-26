@@ -60,7 +60,7 @@ do
   wms_test_end_point=$(echo "$WMS_TEST_END_POINT_TEMPLATE" | sed "s/MIN_MAX_LAT_LONG_TEMPLATE/$min_max_lat_long/g")
 
   # query with small change in boundingbox for each request
-  wget -q --spider "$wms_test_end_point"
+  $WGET -q --spider "$wms_test_end_point"
 
   sleep 0.1
 

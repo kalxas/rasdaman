@@ -49,7 +49,7 @@ pid=$!
 # Wait embedded petascope starts
 sleep 20
 
-wget -q --spider "http://localhost:$port/rasdaman/ows?service=WCS&version=2.0.1&request=GetCapabilities"
+$WGET -q --spider "http://localhost:$port/rasdaman/ows?service=WCS&version=2.0.1&request=GetCapabilities"
 
 # defined in common.sh
 check_result 0 $? "test embedded petascope with customized etc dir"

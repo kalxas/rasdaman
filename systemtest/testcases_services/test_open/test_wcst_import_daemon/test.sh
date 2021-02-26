@@ -48,11 +48,11 @@ sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$ingredients_file_testdata" > "$ingest_j
 # array for holding posible daemon commands
 # in case the daemon's functionality is extended, add the new commands at the end of the array
 declare -a daemon_commands=( \
-    "wcst_import.sh $ingest_json --daemon start" \
-    "wcst_import.sh $ingest_json --daemon status" \
-    "wcst_import.sh $ingest_json --daemon restart" \
-    "wcst_import.sh $ingest_json --daemon stop" \
-    "wcst_import.sh $ingest_json --watch 0.5")
+    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon start" \
+    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon status" \
+    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon restart" \
+    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon stop" \
+    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --watch 0.5")
 
 get_daemon_pid() {
     ps aux | grep "$ingest_json" | grep -v "grep" | tr -s " " | cut -d " " -f2
@@ -146,7 +146,7 @@ check_pidfile_removed() {
     log "check that daemon stops when pid file is removed..."
 
     watch_daemon_0_5s
-    rm "$ingest_json.wcst_import.pid"
+    rm -f "$ingest_json.wcst_import.pid"
     # daemon will stop when pid file is removed, but wait more than 0.5 seconds to make sure it really stopped
     sleep 2
 

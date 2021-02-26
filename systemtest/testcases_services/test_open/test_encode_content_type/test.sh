@@ -50,7 +50,7 @@ get_content_type() {
   # $2 is query
   local query=$(urlencode "$2")
   local url="$endpoint""$query"
-  curl -sI "$url" | grep 'Content-Type:' | cut -d' ' -f2
+  $CURL -sI "$url" | grep 'Content-Type:' | cut -d' ' -f2
 }
 
 # write the request content to a test ouput file

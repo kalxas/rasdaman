@@ -44,7 +44,7 @@ log "Testing Petascope allow CORS..."
 # NOTE: In Petascope there are 2 method (doGet() and doOptions() which response with "Allow Origin: *"), need to test both of them.
 
 # 1. Test doGet()
-curl -s -H "Origin:*" -I "$PETASCOPE_URL" > "$OUTPUT_FILE"
+$CURL -H "Origin:*" -I "$PETASCOPE_URL" > "$OUTPUT_FILE"
 
 # Check the result to see Petascope allows CORS
 logn "Check doGet() with enabled CORS..."
@@ -56,7 +56,7 @@ rm -f "$OUTPUT_FILE"
 
 # 2. Test doOptions()
 # Redirect standar error to file to get the verbose result (not download from URL and export to output file).
-curl -s -H "Origin: http://test.com"   -H "Access-Control-Request-Method: POST"   -H "Access-Control-Request-Headers: X-Requested-With" -X OPTIONS "$PETASCOPE_URL" --verbose 2> "$OUTPUT_FILE"
+$CURL -H "Origin: http://test.com"   -H "Access-Control-Request-Method: POST"   -H "Access-Control-Request-Headers: X-Requested-With" -X OPTIONS "$PETASCOPE_URL" --verbose 2> "$OUTPUT_FILE"
 # Check the result to see Petascope allows CORS
 logn "Check doOptions() with enabled CORS..."
 grep -q "Access-Control-Allow-Origin: *" "$OUTPUT_FILE"
@@ -66,7 +66,7 @@ check
 rm "$OUTPUT_FILE"
 
 # 3. Test doGet() on a sub-controller
-curl -s -H "Origin:*" -I "$PETASCOPE_URL/GetCoverageExtents" > "$OUTPUT_FILE"
+$CURL -H "Origin:*" -I "$PETASCOPE_URL/GetCoverageExtents" > "$OUTPUT_FILE"
 
 # Check the result to see Petascope allows CORS
 log "Check doGet() with enabled CORS on a sub-controller..."
