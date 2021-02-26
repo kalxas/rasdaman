@@ -49,6 +49,8 @@ import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.core.gml.metadata.model.Envelope;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.WCPSException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
@@ -1299,6 +1301,36 @@ public class WcpsCoverageMetadataGeneralService {
                     String errorMessage = "Number of grid pixels is different, given first coverage's axis with name '" + firstAxisName + "', grid pixels '" + firstGridPixels
                                         + "' and second coverage's axis with name '" + secondAxisName + "', grid pixels '" + secondGridPixels + "'.";
                     throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
+                }
+                
+                if (firstAxis instanceof IrregularAxis && secondAxis instanceof IrregularAxis) {
+                    List<String> firstCoefficients;
+                    List<String> secondCoefficients;
+                    
+                    try {
+                        firstCoefficients = ((IrregularAxis)firstAxis).getCoefficientValues();
+                        secondCoefficients = ((IrregularAxis)secondAxis).getCoefficientValues();
+                    } catch (PetascopeException ex) {
+                        throw new WCPSException(ExceptionCode.InternalComponentError, 
+                                                "Failed to get coefficients from axis '" + firstAxisName + "'. Reason: " + ex.getExceptionText(), ex);
+                    }
+                    
+                    if (firstCoefficients.size() != secondCoefficients.size()) {
+                        String errorMessage = "Different number of coefficients in axis '" + firstAxisName
+                                            + "'. Given '" + firstCoefficients.size() + "' and '" + secondCoefficients.size() + "' coefficients";
+                        throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
+                    }
+                    
+                    for (int j = 0; j < firstCoefficients.size(); j++) {
+                        String firstCoefficient = firstCoefficients.get(j);
+                        String secondCoefficient = secondCoefficients.get(j);
+                        
+                        if (!firstCoefficient.equals(secondCoefficient)) {
+                            String errorMessage = "Coefficient '" + firstCoefficient + "' of axis '" + firstAxisName + "' "
+                                                + "exists in the first coverage, but not in the second coverage";
+                            throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
+                        }
+                    }
                 }
             }
         }

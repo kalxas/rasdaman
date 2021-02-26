@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+>
+<ows:Exception exceptionCode="WcpsError">
+<ows:ExceptionText>Axes of coverages 'test_irr_cube_2' and 'test_irr_cube_2' are not compatible. Reason: Coefficient '2008-01-01T02:01:20.000Z' of axis 'ansi' exists in the first coverage, but not in the second coverage.</ows:ExceptionText>
+</ows:Exception>
+</ows:ExceptionReport>

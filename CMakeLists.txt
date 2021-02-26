@@ -575,6 +575,8 @@ endif()
 set(LOG_DIR "${CMAKE_INSTALL_PREFIX}/log" CACHE STRING 
     "The path where server logs are stored.")
 install(DIRECTORY DESTINATION ${LOG_DIR})
+install( CODE "execute_process(COMMAND chmod -R 640 ${CONF_DIR}/*)" )
+
 
 #
 # Directories used in the source-code
