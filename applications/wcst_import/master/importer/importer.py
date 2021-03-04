@@ -232,7 +232,11 @@ class Importer:
                 if hasattr(self.coverage.slices[i].data_provider, "file"):
                     imported_file = self.coverage.slices[i].data_provider.file
                     if self.session is not None:
-                        self.session.imported_files.append(imported_file)
+                        if self.session.blocking == True:
+                            self.session.imported_files.append(imported_file)
+                        else:
+                            # import file by file with blocking: false
+                            self.session.imported_files = [imported_file]
             except Exception as e:
                 if ConfigManager.skip:
                     log.warn("Skipped slice " + str(self.coverage.slices[i]))
