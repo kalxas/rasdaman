@@ -61,6 +61,7 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 import static org.rasdaman.config.ConfigManager.STATIC_HTML_DIR_PATH;
+import org.rasdaman.datamigration.DataMigrationService;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +111,9 @@ public class ApplicationMain extends SpringBootServletInitializer {
     private CoverageRepositoryService coverageRepositoryService;
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
+    
+    @Autowired
+    private DataMigrationService dataMigrationService;
 
     /**
      * Invoked when running Petascope (rasdaman.war) only in an external servlet container. 
@@ -266,6 +270,10 @@ public class ApplicationMain extends SpringBootServletInitializer {
             log.info("petascopedb migrated successfully.");
             System.exit(ExitCode.SUCCESS.getExitCode());
         }
+        
+        
+        // Check if petascope should do the migration internally
+        this.dataMigrationService.runMigration();
         
         this.loadCoveragesToCaches(this.coverageRepositoryService);
         this.loadLayersToCaches(this.wmsRepostioryService);

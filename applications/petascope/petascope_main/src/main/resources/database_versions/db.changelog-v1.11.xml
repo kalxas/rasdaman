@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+<changeSet author="rasdaman (generated)" id="1615284877674-1">
+<createTable tableName="data_migration">
+<column name="data_migration_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="applied_migration" type="VARCHAR(255)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1615284877674-2">
+<addPrimaryKey columnNames="data_migration_id" constraintName="data_migration_pkey" tableName="data_migration"/>
+</changeSet>
+</databaseChangeLog>
