@@ -3145,56 +3145,54 @@ exception of ``add_cells`` and ``avg_cells``.
 General Array Constructor
 =========================
 
-The **marray** constructor allows to create n-dimensional arrays with
-their content defined by a general expression. This is useful
+The **marray** constructor allows to create n-dimensional arrays with their
+content defined by a general expression. This is useful
 
 -  whenever the array is too large to be described as a constant (see
    :ref:`sec-arrayconstant`) or
 
--  when the array's cell values are derived from some other source,
+-  when the array's contents is derived from some other source,
    e.g., for a histogram computation (see examples below).
 
 **Syntax**
 
-The basic shape of the ``marray`` construct is as follows. ::
+The basic shape of the ``marray`` constructor is as follows: ::
 
     marray var in mintervalExp [, var in mintervalExp]
     values cellExp
 
-Iterator Variable Declaration
+The *cellExp* describes how the resulting array is produced at each point of its
+domain.
 
-First, the constructor allocates an array in the server with the spatial
-domain defined by the cross product of all *mintervalExp*. For example,
-the following defines a 2-D 5x10 matrix: ::
+**Iterator Variable Declaration**
+
+The result array is defined by the cross product of all *mintervalExp*. For
+example, the following defines a 2-D 5x10 matrix: ::
 
     marray x in [1:5], y in [1:10]
     values ...
 
 The base type of the array is determined by the type of *cellExp.*
-Variable *var* can be of any number of dimensions.
-
+Each variable *var* can be of any number of dimensions.
 
 **Iteration Expression**
 
-In the second step, the constructor iterates over the spatial domain
-defined as described, successively evaluating *cellExp* for each
-variable combination; the result value is assigned to the cell with the
-coordinate currently under evaluation. To this end, *cellExp* can
-contain arbitrary occurrences of *var*. The *cellExp* must evaluate to a
-scalar (i.e., a single or composite value, as opposed to an array). The
-syntax for using a variable is:
+The resulting array is filled in at each coordinate of its spatial domain
+by successively evaluating *cellExp*; the result value is assigned to the cell 
+at the coordinate currently under evaluation. To this end, *cellExp* can
+contain arbitrary occurrences of *var*, which are accordingly substituted with 
+the values of the current coordinate. The syntax for using a variable is:
 
 -  for a one-dimensional variable: ::
 
         var
 
--  for a higher-dimensional variable: ::
+-  for a one- or higher-dimensional variable: ::
 
         var [ index-expr ]
 
-where *index-expr* is a constant expression (no sdom() etc.!) evaluating
-to a non-negative integer; this number indicates the variable dimension
-to be used.
+where *index-expr* is a constant expression evaluating to a non-negative
+integer; this number indicates the variable dimension to be used.
 
 .. _figure15:
 
@@ -3224,9 +3222,9 @@ The first one takes a sales table and consolidates it from days to week
 per product. Table structure is as given in :numref:`figure16`\ .::
 
     select marray tab in [ 0:sdom(s)[0].hi/7, sdom(s)[1] ]
-    over day in [ 0:6 ]
-    values condense +
-    using s[ day[0] + tab7 ] , tab[1] ]
+           values condense +
+                  over day in [ 0:6 ]
+                  using s[ day[0] + tab7 ] , tab[1] ]
     from salestable as s
 
 The last example computes histograms for the mr images. The query
@@ -3234,10 +3232,10 @@ creates a 1-D array ranging from 0 to 9 where each cell contains the
 number of pixels in the image having the respective intensity value. ::
 
     select marray v in [ 0 : 9 ]
-    values condense +
-    over x in sdom(mr)
-    where mr[x] = v[0]
-    using 1
+           values condense +
+                  over x in sdom(mr)
+                  where mr[x] = v[0]
+                  using 1
     from mr
 
 .. _figure16:
@@ -3252,7 +3250,7 @@ number of pixels in the image having the respective intensity value. ::
 **Shorthand**
 
 As a shorthand, variable *var* can be used without indexing; this is
-equivalent to *var*\ [0]: ::
+equivalent to *var*[0]: ::
 
     marray x in [1:5]
     values a[ x ]       -- equivalent to a[ x[0] ]
@@ -3273,7 +3271,7 @@ higher-dimensional variable, for example: ::
     marray xy in [1:5, 1:10]
     values a[ xy[0], xy[1] ]
 
-*Iteration Sequence Undefined*
+**Iteration Sequence Undefined**
 
 The sequence in which the array cells defined by an marray construct are
 inspected is not defined. In fact, server optimisation will heavily make
@@ -4501,8 +4499,9 @@ In a condense operation, cells containing nulls do not contribute to the
 overall result (in plain words, nulls are ignored).
 
 If all values are null, then the result is the identity element in this case,
-e.g. ``0`` for ``+``, ``true`` for ``and``, ``false`` for ``or``, max value for 
-``min``, min value for ``max``, ``0`` for ``count_cells``.
+e.g. ``0`` for ``+``, ``true`` for ``and``, ``false`` for ``or``, maximum value
+possible for the result base type for  ``min``, minimum value possible for the
+result base type for ``max``, ``0`` for ``count_cells``.
 
 The scalar value resulting from an aggregation query does not
 carry a null value set like MDDs do; hence, during further processing it
