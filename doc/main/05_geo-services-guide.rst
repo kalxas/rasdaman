@@ -1705,14 +1705,14 @@ Data Import
 ===========
 
 Raster data in a variety of formats, such as TIFF, netCDF, GRIB, etc.
-can be imported in petascope through the ``wcst_import.sh`` utility.
+can be imported in rasdaman through the ``wcst_import.sh`` utility.
 Internally it is based on ``WCS-T`` requests, but hides the complexity and
 maintains the geo-related metadata in its so-called ``petascopedb``
 while the raster data get ingested into the rasdaman array store.
 
-Building large *timeseries/datacubes*, *mosaics*, etc. and keeping them up-to-date
-as new data arrive available is supported for a large variety of data formats and
-file/directory organizations.
+Building large *time-series / datacubes*, *mosaics*, etc. and keeping them
+up-to-date as new data become available is supported for a large variety of data
+formats and file/directory organizations.
 
 The systemtest contains `many examples <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata>`__
 for importing different types of data.
@@ -1722,20 +1722,21 @@ for importing different types of data.
 Introduction
 ------------
 
-The ``wcst_import.sh`` tool introduces two concepts:
+The ``wcst_import.sh`` tool is based on two concepts:
 
-- **Recipe** - A recipe is a class implementing the *BaseRecipe* that based on a set of 
-  parameters (*ingredients*) can import a set of files into WCS forming a well 
-  defined coverage (mosaic, regular timeseries, irregular timeseries, etc);
+- **Recipe** - A recipe defines how a set of data files can be combined into a
+  well-defined coverage (e.g. a 2-D mosaic, regular or irregular 3-D timeseries, 
+  etc.);
 
-- **Ingredients** - An *ingredients* file is a JSON file containing a set of parameters 
-  that define how the recipe should behave (e.g. the WCS endpoint, the coverage name, etc.)
+- **Ingredients** - A JSON file that configures how the recipe should build the 
+  coverage (e.g. the server endpoint, the coverage name, which files to consider,
+  etc.).
 
 To execute an ingredients file in order to import some data: ::
 
     $ wcst_import.sh path/to/my_ingredients.json
 
-Alternatively, ``wcst_import.sh`` tool can be started as a daemon as follows: ::
+Alternatively, ``wcst_import.sh`` can be started in the background as a daemon: ::
 
     $ wcst_import.sh path/to/my_ingredients.json --daemon start
 
@@ -1743,7 +1744,7 @@ or as a daemon that is "watching" for new data at some interval (in seconds): ::
 
     $ wcst_import.sh path/to/my_ingredients.json --watch <interval>
 
-For further informations regarding ``wcst_import.sh`` commands and usage: ::
+For further informations regarding the usage of ``wcst_import.sh``: ::
 
     $ wcst_import.sh --help
 
@@ -1757,15 +1758,12 @@ The workflow behind is depicted approximately on :numref:`wcst_import_workflow`.
 
    Ingestion process with `wcst_import.sh`
 
-An ingredients file showing all options possible can be found `here
+An ingredients file showing all possible options (across all recipes) can be found `here
 <http://rasdaman.org/browser/applications/wcst_import/ingredients/possible_ingredients.json>`_;
 in the `same directory <http://rasdaman.org/browser/applications/wcst_import/ingredients>`_
 there are several examples of different recipes.
 
 .. _data-import-recipes:
-
-Recipes
--------
 
 The following recipes are provided in the rasdaman repository:
 
@@ -1781,16 +1779,20 @@ The following recipes are provided in the rasdaman repository:
 For each one of these there is an ingredients example under the
 `ingredients/ <http://rasdaman.org/browser/applications/wcst_import/ingredients>`_
 directory, together with an example for the available parameters
-Further on each recipe type is described in turn.
+Further on each recipe type is described in turn, starting with the common
+options shared by all recipes.
 
 .. _data-import-common-options:
 
 Common Options
+--------------
+
+Some options are commonly applicable to all recipes. We describe these options
+for each top-level section of an ingredient file: config, input, recipe, and
+hooks.
+
+config section
 ^^^^^^^^^^^^^^
-
-Some options are commonly applicable to all recipes.
-
-**config section**
 
 * ``service_url`` - The endpoint of the WCS service with the WCS-T extension enabled
 
@@ -1805,8 +1807,9 @@ Some options are commonly applicable to all recipes.
   process. Useful in production environments for automated deployment for example.
   By default it is ``false``, i.e. user confirmation is needed to execute the
   ingestion.
+
 * ``blocking`` (since v9.8) - Set to ``false`` to analyze and import each file
-  separately (**non-blocking mode**). By default blocking is set to ``true``,
+  separately (*non-blocking mode*). By default blocking is set to ``true``,
   i.e. wcst_import will analyze all input files first to create corresponding
   coverage descriptions, and only then import them. The advantage of non-blocking
   mode is that the analyzing and importing happens incrementally
@@ -1815,32 +1818,36 @@ Some options are commonly applicable to all recipes.
 
   .. note::
 
-        When importing in **non-blocking** import mode for coverages with irregular axes,
-        it will *only rely on sorted files by filenames* and it can fail if these axes' coefficients
-        are collected from input files' metadata (e.g: DateTime value in TIFF's tag or GRIB metadata)
-        as they might not be consecutive. wcst_import will not analyze all files
-        to collect metadata to be sorted by DateTime as in default **blocking** import mode.
+      When importing in *non-blocking* import mode for coverages with
+      irregular axes, it will *only rely on sorted files by filenames* and it
+      can fail if these axes' coefficients are collected from input files'
+      metadata (e.g: DateTime value in TIFF's tag or GRIB metadata) as they
+      might not be consecutive. wcst_import will not analyze all files to
+      collect metadata to be sorted by DateTime as in default *blocking*
+      import mode.
 
 
 * ``default_null_values`` - This parameter adds default null values for bands that
   do *not* have a null value provided by the file itself. The value for this
   parameter should be an array containing the desired null value either as a
-  closed interval ``low:high`` or single values. E.g. for a coverage with 3 bands
-
-  .. NOTE::
-
-     If you specify a null value interval (e.g: ``"9.96921e+35:*"``) in ``wcst_import.sh``, 
-     note that during encode it will not be preserved in the encoded result
-     like tiff because null value intervals are not supported by most formats. 
-     In this case it is recommended to specify in addition a non-interval null value, 
-     which will be used for encode.
+  closed interval ``low:high`` or single values. Example:
 
   .. hidden-code-block:: json
 
       "default_null_values": [ 9.96921e+36, "9.96921e+35:*" ],
 
-  Note, if set this parameter will override the null/nodata values present in
-  the input files.
+  .. NOTE::
+
+     If set this parameter will override the null/nodata values present in
+     the input files.
+
+  .. NOTE::
+
+     If a null value interval is specified, e.g. e.g ``"9.96921e+35:*"``,
+     during encode it will not be preserved as-is because null value intervals 
+     are not supported by most formats. In this case it is recommended to 
+     first specify a non-interval null value, followed by the interval, e.g.
+     ``[9.96921e+35, "9.96921e+35:*"]``.
 
 * ``tmp_directory`` - Temporary directory in which gml and data files are created;
   should be readable and writable by rasdaman, petascope and current user. By
@@ -1885,16 +1892,29 @@ Some options are commonly applicable to all recipes.
         { "low": "2012-02-09", "high": "2012-12-09", "type": "date" }
       ]
 
-* ``description_max_no_slices`` - maximum number of slices (files) to show for
+* ``description_max_no_slices`` - Maximum number of slices (files) to show for
   preview before starting the actual ingestion.
 
-* ``subset_correction`` (*deprecated* since rasdaman v9.6) - In some cases the
+* ``subset_correction`` (*deprecated* since v9.6) - In some cases the
   resolution is small enough to affect the precision of the transformation from
   domain coordinates to grid coordinates. To allow for corrections that will
   make the import possible, set this parameter to ``true``.
 
+input section
+^^^^^^^^^^^^^
 
-**recipes/options section**
+* ``coverage_id`` - The name of the coverage to be created; if the coverage 
+  already exists, it will be updated with the new files collected by ``paths``.
+
+* ``paths`` - Absolute or relative (to the ingredients file) path or regex that
+  would work with the ls command. Multiple paths separated by commas
+  can be specified. The collected paths are sorted by file name by default,
+  unless specified otherwise in the recipe section (e.g. by date/time for 
+  time-series recipes).
+
+
+recipe section
+^^^^^^^^^^^^^^
 
 * ``import_order`` - Allow to sort the input files (``ascending`` (default)
   or ``descending``).Currently, it sorts by *datetime* which allows
@@ -1935,24 +1955,58 @@ Some options are commonly applicable to all recipes.
 
       "scale_levels": [ 1.5, 2, 4, ... ]
 
-**hooks section**
 
-Since v9.8, wcst_import allows to run bash commands *before/after ingestion*
+.. _wms-image-pyramids:
+
+Image pyramids
+~~~~~~~~~~~~~~
+
+Since v9.7 it is possible to create downscaled versions of a given coverage,
+eventually achieving something like an image pyramid, in order to enable
+faster WMS requests when zooming in/out.
+
+By using the :ref:`scale_levels <scale-levels>` option of wcst_import 
+when importing a coverage with WMS enabled, petascope will create downscaled
+collections in rasdaman following this pattern: ``coverageId_<level>``.
+If level is a float, then *the dot* is replaced with an *underscore*,
+as dots are not permitted in a collection name. Some examples:
+
+- MyCoverage, level 2 -> MyCoverage_2
+- MyCoverage, level 2.45 -> MyCoverage_2_45
+
+Example ingredients specification to create two downscaled levels which are
+*8x* and *32x* smaller than the original coverage:
+
+.. hidden-code-block:: json
+
+    "options": {
+      "scale_levels": [8, 32],
+      ...
+    }
+
+Two new WCS-T non-standard requests are utilized by wcst_import for this feature,
+see :ref:`here for more information <wcs-t-non-standard-requests-wms>`.
+
+
+hooks section
+^^^^^^^^^^^^^
+
+Since v9.8, it is possible to run shell commands *before/after ingestion*
 by adding optional ``hooks`` configuration in an ingredient file.
 There are 2 types of ingestion hooks:
 
-* ``before_ingestion``: run bash commands before analyzing input file(s)
-  (e.g: using **gdalwarp** to reproject input file(s) from EPSG:3857 CRS to
-  EPSG:4326 CRS and import *projected EPSG:4326* input file(s)) to a coverage.
+* ``before_ingestion`` - Run shell commands before analyzing the input files,
+  e.g. reproject input files from EPSG:3857 to EPSG:4326 with gdalwarp and 
+  import the *reprojected* files only.
 
-* ``after_ingestion``: run bash commands after importing input file(s)
-  to coverage (e.g: clean all projected file(s) from **gdalwarp** command above).
+* ``after_ingestion`` - Run shell commands after importing the input files,
+  e.g. clean all projected files from running gdalwarp above.
 
-When importing mode is set to non-blocking (``"blocking": false``),
-wcst_import will run before/after hook(s) for the file which
-is being used to update coverage, while the default blocking importing mode
-will run before/after hook(s) for *all input files* before/after
-they are updated to a coverage. Parameters are explained below.
+When import mode is set to non-blocking (``"blocking": false``), wcst_import
+will run before/after hook(s) for the file which is being used to update
+coverage, while the default blocking importing mode will run before/after
+hooks for *all input files* before/after they are updated to a coverage.
+Parameters are explained below.
 
 .. hidden-code-block:: json
 
@@ -2002,13 +2056,9 @@ driver for NetCDF a single variable from the collected NetCDF files is imported.
 
 .. hidden-code-block:: json
 
-  "slicer": {
-          "type": "gdal",
-          ...
-  },
   "hooks": [
       {
-        "description": "Demonstrate import 1 variable for netCDF with subdataset",
+        "description": "Import one variable for netCDF with subdataset",
         "when": "before_ingestion",
         "cmd": "",
         "abort_on_error": true,
@@ -2020,8 +2070,8 @@ driver for NetCDF a single variable from the collected NetCDF files is imported.
 
 .. _data-import-recipe-mosaic-map:
 
-Mosaic map
-^^^^^^^^^^
+Recipe map_mosaic
+-----------------
 
 Well suited for importing a tiled map, not necessarily continuous; it
 will place all input files given under a single coverage and deal with
@@ -2062,8 +2112,8 @@ their position in space. Parameters are explained below.
 
 .. _data-import-recipe-regular-timeseries:
 
-Regular timeseries
-^^^^^^^^^^^^^^^^^^
+Recipe time_series_regular
+--------------------------
 
 Well suited for importing multiple 2-D slices created at regular
 intervals of time (e.g sensor data, satelite imagery etc) as 3-D cube
@@ -2114,8 +2164,8 @@ with the third axis being a temporal one. Parameters are explained below
 
 .. _data-import-recipe-irregular-timeseries:
 
-Irregular timeseries
-^^^^^^^^^^^^^^^^^^^^
+Recipe time_series_irregular
+----------------------------
 
 Well suited for importing multiple 2-D slices created at irregular intervals of
 time into a 3-D cube with the third axis being a temporal one. There are two
@@ -2190,19 +2240,19 @@ particular use case:
 
 .. _data-import-recipe-general-coverage:
 
-General coverage
-^^^^^^^^^^^^^^^^
+Recipe general_coverage
+-----------------------
 
-The general recipe aims to be a highly flexible recipe that can handle any kind
-of data files (be it 2D, 3D or n-D) and model them in coverages of any
-dimensionality. It does that by allowing users to define their own coverage
-models with any number of bands and axes and fill the necesary coverage
-information through the so called ingredient sentences inside the ingredients.
+A highly flexible recipe that can handle any kind of data files (be it 2D, 3D or
+n-D) and model them in coverages of any dimensionality. It does that by allowing
+users to define their own coverage models with any number of bands and axes and
+fill the necesary coverage information through the so called ingredient
+sentences inside the ingredients.
 
-Ingredient Sentences
-~~~~~~~~~~~~~~~~~~~~
+Ingredient sentences
+^^^^^^^^^^^^^^^^^^^^
 
-An ingredient *expression* can be of multiple types:
+An *ingredient sentence* can be of multiple types:
 
 - *Numeric* - e.g. ``2``, ``4.5``
 
@@ -2210,27 +2260,28 @@ An ingredient *expression* can be of multiple types:
 
 - *Functions* - e.g. ``datetime('2012-01-01', 'YYYY-mm-dd')``
 
-- *Expressions* - allows a user to collect information from inside the ingested
-  file using a specific driver. An expression is of form
-  ``${driverName:driverOperation}`` - e.g. ``${gdal:minX}``,
-  ``${netcdf:variable:time:min``. You can find all the possible expressions
+- *Data expressions* - Allow to collect information from the data file being
+  imported with a specific format driver. An expression is of form
+  ``${driverName:driverOperation}`` - e.g. ``${gdal:minX}`` or
+  ``${netcdf:variable:time:min``. All possible expressions are documented
   :ref:`here <data-import-possible-expressions>`.
 
-- *Any valid python expression* - You can combine the types below into a python
-  expression; this allows you to do mathematical operations, some string parsing
-  etc. - e.g. ``${gdal:minX} + 1/2 * ${gdal:resolutionX}`` or
-  ``datetime(${netcdf:variable:time:min} * 24 * 3600)``
+- *Python expressions* - The types above can be combined into any valid Python
+  expression; this allows to do mathematical operations, string parsing, 
+  date/time manipulation, etc. E.g. 
+  ``${gdal:minX} + 1/2 * ${gdal:resolutionX}`` or
+  ``datetime(${netcdf:variable:time:min} * 24 * 3600)``.
 
 
 Parameters
-~~~~~~~~~~
+^^^^^^^^^^
 
 Using the ingredient sentences we can define any coverage model directly in the
 options of the ingredients file. Each coverage model contains a
 
 * ``CRS`` - the crs of the coverage to be constructed. Either a CRS url e.g.
   http://opengis.net/def/crs/EPSG/0/4326 or
-  http://ows.rasdaman.org/def/crs-compound?1=http://ows.rasdaman.org/def/crs/EPSG/0/4326&2=http://ows.rasdaman.org/def/crs/OGC/0/AnsiDate
+  https://ows.rasdaman.org/def/crs-compound?1=https://ows.rasdaman.org/def/crs/EPSG/0/4326&2=https://ows.rasdaman.org/def/crs/OGC/0/AnsiDate
   or the shorthand notations ``CRS1@CRS2@CRS3``, e.g.
   ``EPSG/0/4326@OGC/0/AnsiDate``
 
@@ -2287,7 +2338,8 @@ An example for the **netCDF format** can be found `here
 <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_irregular_time_nc/ingest.template.json>`_
 and for **PNG** `here
 <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_mr/ingest.template.json>`_.
-Here's an example ingredient file for *grib* data:
+
+Below is an example ingredient file for *grib* data:
 
 .. hidden-code-block:: json
 
@@ -2400,15 +2452,16 @@ Here's an example ingredient file for *grib* data:
 
 .. _data-import-possible-expressions:
 
-Expressions
-~~~~~~~~~~~
+Data expressions
+^^^^^^^^^^^^^^^^
 
 Each driver allows expressions to extract information from input files.
 We will mark with capital letters things that vary in the expression.
-E.g. ``${gdal:metadata:YOUR_FIELD}`` means that you can replace
-``YOUR_FIELD`` with any valid gdal metadata tag (e.g. a ``TIFFTAG_DATETIME``)
+E.g. ``${gdal:metadata:FIELD}`` means that you can replace
+``FIELD`` with any valid gdal metadata tag such as ``TIFFTAG_DATETIME``.
 
-**Netcdf**
+NetCDF
+~~~~~~
 
 Take a look at `this NetCDF example
 <http://rasdaman.org/browser/applications/wcst_import/ingredients/general_coverage_netcdf.json>`_
@@ -2435,19 +2488,18 @@ for a general recipe ingredient file that uses many netcdf expressions.
 
 .. NOTE::
 
-    If a netCDF file is flipped on Lat axis (South -> North with coordinates increase
-    from `ncdump -c` output) instead of GDAL style (North -> South with 
-    coordinates decrease from `ncdump -c`), then one needs to flip it manually by other tools
-    before importing to rasdaman, e.g: with `cdo`:
-
-    .. hidden-code-block:: text
-
-       cdo invertlat input.nc output.nc 
+    If a netCDF file is flipped on Lat axis (South -> North with coordinates
+    increase from ``ncdump -c`` output) instead of GDAL style (North -> South
+    with coordinates decrease from ``ncdump -c``), then one needs to flip it
+    manually by other tools before importing to rasdaman, e.g. with ``cdo
+    invertlat input.nc output.nc``.
 
 
-**GDAL**
+GDAL
+~~~~
 
-For TIFF, PNG, JPEG, and other 2D data formats we use GDAL. Take a look at `this GDAL example
+For TIFF, PNG, JPEG, and other 2D data formats rasdaman relies on GDAL. Take a
+look at `this GDAL example
 <http://rasdaman.org/browser/applications/wcst_import/ingredients/general_coverage_gdal_3d.json>`_
 for a general recipe ingredient file that uses many GDAL expressions.
 
@@ -2467,7 +2519,8 @@ for a general recipe ingredient file that uses many GDAL expressions.
 |           |one of the originX|originY                           |                             |
 +-----------+-----------------------------------------------------+-----------------------------+
 
-**GRIB**
+GRIB
+~~~~
 
 Take a look at `this GRIB example
 <http://rasdaman.org/browser/applications/wcst_import/ingredients/general_coverage_grib.json>`_
@@ -2483,26 +2536,19 @@ for a general recipe ingredient file that uses many grib expressions.
 |           |(starting from 1)                               |                                          |
 +-----------+------------------------------------------------+------------------------------------------+
 
-.. NOTE::
+Currently, rasdaman only supports GRIB files with ``gridType`` format of regular
+lat long ``regular_ll``. If the format is different, it is necessary to
+preprocess the input files with other tools into regular grid type. The grid
+type can be retreived with ``grib_dump file.grib | grep 'gridType'``.
 
-    Currently, rasdaman only supports GRIB files with `gridType` format of regular
-    lat long `regular_ll`. If the format is different, one needs to preprocess
-    the input files by other tools. How to check `gridType`:
+If a GRIB file is flipped on Lat axis (South -> North with ``jScansPositively =
+0`` from ``grib_dump`` output) instead of GDAL style (North -> South with 
+``jScansPositively = 1``), then it is necessary to flip it manually with other
+tools before importing to rasdaman, e.g. ``cdo invertlat input.grib
+output.grib``.
 
-    .. hidden-code-block:: text
-
-       grib_dump file.grib | grep 'gridType'
-
-    If a GRIB file is flipped on Lat axis (South -> North with `jScansPositively = 0`
-    from `grib_dump` output) instead of GDAL style (North -> South with 
-    `jScansPositively = 1`), then one needs to flip it manually by other tools
-    before importing to rasdaman, e.g: with `cdo`:
-
-    .. hidden-code-block:: text
-
-       cdo invertlat input.grib output.grib
-
-**File**
+File
+~~~~
 
 +-----------------+--------------------------------------------------------------------+-----------------------------+
 |  **Type**       |                **Description**                                     |  **Examples**               |
@@ -2519,10 +2565,12 @@ for a general recipe ingredient file that uses many grib expressions.
 |                 |This variable is used only for ``after_ingestion`` hooks.           |                             |
 +-----------------+--------------------------------------------------------------------+-----------------------------+
 
-**Special Functions**
+.. _data-import-expressions-special-functions:
 
-A couple of special functions are available to deal with some more
-complicated cases:
+Special functions
+~~~~~~~~~~~~~~~~~
+
+A couple of special functions are available to deal with more complicated cases:
 
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
 | **Function Name**                |             **Description**                     |             **Examples**                   |
@@ -2545,14 +2593,14 @@ complicated cases:
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
 
 
-**Using libraries in expressions**
+Using libraries in sentences
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In case, the expression is complex, one can import the python libraries as 
-``statements`` in the ingredients file to simplify the calculation. 
-For example, one needs to calculate the lower bound and upper bound
-for the time axis ``ansi`` (starting **days** from ``1978-12-31T12:00:00``).
-This can be done by using the useful modules: ``datetime`` and ``timedelta``
-from python ``datatime`` library.
+In case the ingredient sentences require functionality from extra Python
+libraries, they can be imported with a ``statements`` option.  For example, to
+calculate the lower bound and upper bound for the time axis ``ansi`` (starting
+days from ``1978-12-31T12:00:00``) one could use ``datetime`` and ``timedelta``
+from the ``datatime`` library.
 
 .. hidden-code-block:: json
 
@@ -2571,15 +2619,18 @@ from python ``datatime`` library.
 
 .. NOTE::
 
-    The special utility function ``datetime(date_time_string, format)`` to convert 
-    a string of datetime (e.g: ``"20120101:1200"``)  with an input format 
-    (e.g: ``"YYYYMMDD:HHmm"``) to an ISO date time format will be overridden
-    when ``datetime`` module is imported in ``statements`` setting.
-    In this case, one will use the functionalities from python ``datetime``
-    module instead of parsing and calculating datetime values.
+    Python functions imported in this way override the  `special function
+    <data-import-expressions-special-functions>`_ provided by wcst_import. For
+    example, the special utility function ``datetime(date_time_string, format)``
+    to convert  a string of datetime (e.g: ``"20120101:1200"``)  with an input
+    format  (e.g ``"YYYYMMDD:HHmm"``) to an ISO date time format will be
+    overridden when the ``datetime`` module is imported with a ``statements``
+    setting.
 
+.. _band-uom-netcdf-grib:
 
-**Band's unit of measurement (uom) code for netCDF and GRIB recipes**
+Band UoM for netCDF and GRIB
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * In netCDF recipes you can add *uom* for each band by referencing the metadata
   key of the specific variable. For example, for variable ``LAI``:
@@ -2605,9 +2656,11 @@ from python ``datatime`` library.
       }
     ]
 
+
 .. _local-metadata:
 
-**Local metadata from input files**
+Local metadata from input files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Beside the *global metadata* of a coverage, you can add *local metadata*
 for each file which is a part of the whole coverage (e.g a 3D time-series
@@ -2740,49 +2793,65 @@ netCDF file 1:
       <!--- End Local Metadata from netCDF file 1 -->
    <slices>
 
+
 .. _customized-axis-labels:
 
-**Customized axis labels in coverage**
+Customized axis labels
+^^^^^^^^^^^^^^^^^^^^^^
 
-This feature is available since rasdaman version 9.8 for general recipe.
-Before, axis labels for a coverage must match axis abbreviations in CRS's GML
-definition when they are configured in the ingredient file under section ``"slicer"/"axes"``.
-With this new feature, one can set **an arbitrary name** for each axis label by
-adding optional configuration ``"crsOrder"`` for each axis accordingly the
-position index which **starts from 0** of axis in coverage's CRS.
-
-For example with below configuration, coverage will be created with
-3 customized axes ``MyDateTimeAxis, MyLatAxis and MyLongAxis`` based on
-coverage's CRS (*AnsiDate* (1 DateTime axis) and *EPSG:4326* (Lat and Long axes)):
+By default, the axes to be configured must be matched by their name as defined
+by the coverage CRS. For example, a CRS ``OGC/0/AnsiDate@EPSG:4326`` defines three
+axes with labels ansi, Long, and Lat. To configure them, we would have a
+section as bellow:
 
 .. hidden-code-block:: json
 
      "axes": {
-          "MyDateTimeAxis": {
-              // Match DateTime axis in AnsiDate CRS
-              "crsOrder": 0,
-               ...
-            },
-          "MyLongAxis": {
-              // Match Long axis in EPSG:4326
-              "crsOder": 2,
-               ...
-           },
-           "MyLatAxis": {
-              // Match Lat axis in EPSG:4326
-              "crsOder": 1,
-              ...
-           }
+        "AnsiDate": {
+            ...
+        },
+        "Long": {
+            ...
+         },
+         "Lat": {
+            ...
+         }
+      }
+
+Since v9.8, one can change the default axis label defined by the CRS through
+indicating the axis index in the CRS (0-based) with the ``"crsOrder"`` setting.
+For example, to change the axis labels to MyDateTimeAxis, MyLatAxis, and 
+MyLongAxis:
+
+.. hidden-code-block:: json
+
+     "axes": {
+        "MyDateTimeAxis": {
+            // Match ansi axis in AnsiDate CRS
+            "crsOrder": 0,
+             ...
+        },
+        "MyLongAxis": {
+            // Match Long axis in EPSG:4326
+            "crsOder": 2,
+             ...
+         },
+         "MyLatAxis": {
+            // Match Lat axis in EPSG:4326
+            "crsOder": 1,
+            ...
+         }
       }
 
 
 .. _slice-group-size:
 
-**Group several coverage slices into a group**
+Group coverage slices
+^^^^^^^^^^^^^^^^^^^^^
 
-Since v9.8+, wcst_import allows to group input files on irregular axes
-(with ``"dataBound": false``) by optional ``sliceGroupSize: value (positive integer)``.
-E.g:
+Since v9.8, wcst_import allows to group input files on irregular axes (with
+``"dataBound": false``) through the ``sliceGroupSize`` option, which would 
+specify the group size (positive number). E.g:
 
 .. hidden-code-block:: json
 
@@ -2799,15 +2868,16 @@ If each input slice corresponds to index *X*, and one wants to have slice
 groups of size *N*, then the index would be translated with this option to
 ``X - (X % N)``.
 
-Typical use case is importing 3D coverage from 2D satellite imageries where
-time axis is irregular and its values are fetched from input files
-by regex expression. Then, all input files which belong to 1 time window
-(e.g: ``"sliceGroupSize"``: 7 (7 days in AnsiDate CRS) will have the same value
-which is the first date of this week).
+Typical use case is importing 3D coverage from 2D satellite imagery where the
+time axis is irregular and its values are fetched from input files by regex
+expression. Then, all input files which belong to the same time window (e.g 7
+days in AnsiDate CRS with ``"sliceGroupSize": 7``) will have the same value,
+which is the first date of the week.
 
 .. _band-and-dim-metadata:
 
-**Bands and dimensions metadata in global metadata**
+Band and axis metadata in global metadata
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Metadata can be individually specified for each *band* and *axis* in the
 ingredient file. Example:
@@ -2844,89 +2914,91 @@ ingredient file. Example:
       }
     }
 
-Since v9.7, for this metadata can be automatically derived from the input
-netCDF files.
+Since v9.7, the following metadata can also be automatically derived from the
+input netCDF files.
 
-* **band** metadata:
+band metadata
+~~~~~~~~~~~~~
 
-  * For netCDF: If ``"bands"`` is set to ``"auto"`` or does not exist under ``"metadata"``
-    in the ingredient file, all user-specified bands will have metadata which is
-    fetched directly from the netCDF file. Metadata for 1 band is
-    **collected automatically** if: 1) band is not added. 2) band is set to ``"auto"``.
+* For netCDF: If ``"bands"`` is set to ``"auto"`` or does not exist under ``"metadata"``
+  in the ingredient file, all user-specified bands will have metadata which is
+  fetched directly from the netCDF file. Metadata for 1 band is
+  **collected automatically** if: 1) band is not added. 2) band is set to ``"auto"``.
 
-  * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
-    Example:
+* Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
+  Example:
 
-    .. hidden-code-block:: json
+  .. hidden-code-block:: json
 
-        "metadata": {
-          "type": "xml",
-          "global": {
-            "description": "'3-band data.'",
-            "resolution": "'1'"
+      "metadata": {
+        "type": "xml",
+        "global": {
+          "description": "'3-band data.'",
+          "resolution": "'1'"
+        },
+        "bands": {
+          "red": {
+            "metadata1": "metadata_red1",
+            "metadata2": "metadata_red2"
           },
-          "bands": {
-            "red": {
-              "metadata1": "metadata_red1",
-              "metadata2": "metadata_red2"
-            },
-            "green": {
-              "metadata3": "metadata_green3",
-              "metadata4": "metadata_green4"
-            }
+          "green": {
+            "metadata3": "metadata_green3",
+            "metadata4": "metadata_green4"
           }
         }
+      }
 
 
-* **axis** metadata:
+axis metadata
+~~~~~~~~~~~~~
 
-  * For netCDF: If ``"axes"`` is set to ``"auto"`` or does not exist under ``"metadata"``
-    in the ingredient file, all user-specified axes will have metadata which is
-    fetched directly from the netCDF file. Metadata for 1 axis is 
-    **collected automatically** if: 1) axis is not added. 2) axis is set
-    to ``"auto"``. 3) axis is set with ``${netcdf:variable:DimensionName:metadata}``.
-    The axis label for variable is detected from the ``min`` or ``max`` value
-    of CRS axis configuration under ``"slicer/axes"`` section. For example:
+* For netCDF: If ``"axes"`` is set to ``"auto"`` or does not exist under ``"metadata"``
+  in the ingredient file, all user-specified axes will have metadata which is
+  fetched directly from the netCDF file. Metadata for 1 axis is 
+  **collected automatically** if: 1) axis is not added. 2) axis is set
+  to ``"auto"``. 3) axis is set with ``${netcdf:variable:DimensionName:metadata}``.
+  The axis label for variable is detected from the ``min`` or ``max`` value
+  of CRS axis configuration under ``"slicer/axes"`` section. For example:
 
-    .. hidden-code-block:: json
+  .. hidden-code-block:: json
 
-        "slicer": {
-           ...
-           "axes": {
-              "Long": {
-                 # 'lon' is variable name in netCDF file for CRS axis 'Long'.
-                 "min": "${netcdf:variable:lon:min}"
-                  ...
-               }
-            }
-         }
+      "slicer": {
+         ...
+         "axes": {
+            "Long": {
+               # 'lon' is variable name in netCDF file for CRS axis 'Long'.
+               "min": "${netcdf:variable:lon:min}"
+                ...
+             }
+          }
+       }
 
-  * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
+* Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
 
-    .. hidden-code-block:: json
+  .. hidden-code-block:: json
 
-        "metadata": {
-          "type": "xml",
-          "global": {
-            "description": "'3-band data.'",
-            "resolution": "'1'"
+      "metadata": {
+        "type": "xml",
+        "global": {
+          "description": "'3-band data.'",
+          "resolution": "'1'"
+        },
+        "axes": {
+          "i": {
+            "metadata_i_1": "metadata_1",
+            "metadata_i_2": "metadata_2"
           },
-          "axes": {
-            "i": {
-              "metadata_i_1": "metadata_1",
-              "metadata_i_2": "metadata_2"
-            },
-            "j": {
-              "metadata_j_1": "metadata_3"
-            }
+          "j": {
+            "metadata_j_1": "metadata_3"
           }
         }
+      }
 
 
 .. _data-import-recipe-wcs_extract:
 
-Import from external WCS
-^^^^^^^^^^^^^^^^^^^^^^^^
+Recipe wcs_extract
+------------------
 
 Allows to import a coverage from a remote petascope endpoint into the local
 petascope. Parameters are explained below.
@@ -2963,8 +3035,8 @@ petascope. Parameters are explained below.
 
 .. _data-import-recipe-sentinel1:
 
-Import Sentinel-1 Data
-^^^^^^^^^^^^^^^^^^^^^^
+Recipe sentinel1
+----------------
 
 This is a convenience recipe for importing Sentinel 1 data in particular;
 **currently only GRD/SLC product types are supported**, and only geo-referenced
@@ -3050,8 +3122,8 @@ following options in the ``"input"`` section:
 
 .. _data-import-recipe-sentinel2:
 
-Import Sentinel-2 Data
-^^^^^^^^^^^^^^^^^^^^^^
+Recipe sentinel2
+----------------
 
 This is a convenience recipe for importing Sentinel 2 data in particular. It
 relies on support for Sentinel 2 in `more recent GDAL versions
@@ -3142,42 +3214,10 @@ following options in the ``"input"`` section:
   specified or empty, data of any CRS will be ingested.
 
 
-.. _wms-image-pyramids:
-
-Image pyramids
-^^^^^^^^^^^^^^
-
-This feature (v9.7+) allows to create downscaled versions of a given coverage,
-eventually achieving something like an image pyramid, in order to enable
-faster WMS requests when zooming in/out.
-
-By using the :ref:`scale_levels <scale-levels>` option of wcst_import 
-when importing a coverage with WMS enabled, petascope will create downscaled
-collections in rasdaman following this pattern: ``coverageId_<level>``.
-If level is a float, then *the dot* is replaced with an *underscore*,
-as dots are not permitted in a collection name. Some examples:
-
-- MyCoverage, level 2 -> MyCoverage_2
-- MyCoverage, level 2.45 -> MyCoverage_2_45
-
-Example ingredients specification to create two downscaled levels which are
-*8x* and *32x* smaller than the original coverage:
-
-.. hidden-code-block:: json
-
-    "options": {
-      "scale_levels": [8, 32],
-      ...
-    }
-
-Two new WCS-T non-standard requests are utilized by wcst_import for this feature,
-see :ref:`here for more information <wcs-t-non-standard-requests-wms>`.
-
-
 .. _data-import-recipe-create-own:
 
 Creating your own recipe
-^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------
 
 The recipes above cover a frequent but limited subset of what is possible to
 model using a coverage. WCSTImport allows to define your own recipes in

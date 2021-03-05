@@ -74,7 +74,7 @@ Rasdaman is continuously tested on the platforms listed below. The rasdaman code
 has been developed on SUN/Solaris and HP-UX originally, and has been ported to
 IBM AIX, SGI IRIX, and DEC Unix - but that was way back in the last millennium.
 
-- Ubuntu 16.04, 18.04
+- Ubuntu 16.04, 18.04, 20.04
 - CentOS 7
 
 In general, compiling rasdaman should work on distributions with gcc 4.8 or
@@ -149,7 +149,7 @@ DEB packages
 
 Currently the following Debian-based distributions are supported:
 
-- Ubuntu 16.04 / 18.04
+- Ubuntu 16.04 / 18.04 / 20.04
 
 
 Installation
@@ -441,7 +441,7 @@ by simply editing a JSON file.
 Currently, the following distributions are supported:
 
 -  Debian (9, 10)
--  Ubuntu (16.04, 18.04)
+-  Ubuntu (16.04, 18.04, 20.04)
 -  CentOS (7)
 
 First-Time Installation
