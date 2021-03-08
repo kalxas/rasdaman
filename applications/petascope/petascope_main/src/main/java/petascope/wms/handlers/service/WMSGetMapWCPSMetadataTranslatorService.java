@@ -46,9 +46,9 @@ public class WMSGetMapWCPSMetadataTranslatorService {
     /**
      * Create a WMSLayer from input parameters of GetMap request
      */
-    public WMSLayer createWMSLayer(String layerName, BoundingBox originalBoundsBBox, BoundingBox requestBBox,
+    public WMSLayer createWMSLayer(String layerName, BoundingBox originalXYBoundsBBox, BoundingBox requestBBox,
                                    BoundingBox extendedRequestBBox, int width, int height) {
-        WMSLayer wmsLayer = new WMSLayer(layerName, originalBoundsBBox, requestBBox, extendedRequestBBox, width, height);
+        WMSLayer wmsLayer = new WMSLayer(layerName, originalXYBoundsBBox, requestBBox, extendedRequestBBox, width, height);
         return wmsLayer;
     }
     

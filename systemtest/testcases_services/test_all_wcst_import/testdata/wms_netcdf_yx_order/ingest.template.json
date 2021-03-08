@@ -1,0 +1,70 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "track_files": false,
+    "mock": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_wms_netcdf_yx_order",
+    "paths": [
+      "test.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/AnsiDate@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "photounit": "Taiwan Agricultural Research Institute",
+            "crs": "WGS84",
+            "groundresolutionunit": "cm"
+          }
+        },
+        "slicer": {
+          "type": "netcdf",
+	  "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "depth_below_surface_simulated",
+              "variable": "depth_below_surface_simulated",
+              "description": "NETCDF_VARNAME=depth_below_surface_simulated",
+              "nilReason": "The nil value represents nil.",
+              "identifier": "depth_below_surface_simulated"
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "(datetime(1970,1,1,0,0,0) + timedelta(minutes=${netcdf:variable:time:min})).strftime(\"%Y-%m-%dT%H:%M\")",
+              "max": "(datetime(1970,1,1,0,0,0) + timedelta(minutes=${netcdf:variable:time:max})).strftime(\"%Y-%m-%dT%H:%M\")",
+              "directPositions": "[(datetime(1970,1,1,0,0,0) + timedelta(minutes=x)).strftime(\"%Y-%m-%dT%H:%M\") for x in ${netcdf:variable:time}]",
+              "statements": "from datetime import datetime, timedelta",
+              "resolution": 1,
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true
+            },
+            "Lat": {
+              "min": "${netcdf:variable:y:min}",
+              "max": "${netcdf:variable:y:max}",
+              "gridOrder": 1,
+              "resolution": "${netcdf:variable:y:resolution}"
+            },
+            "Long": {
+              "min": "${netcdf:variable:x:min}",
+              "max": "${netcdf:variable:x:max}",
+              "gridOrder": 2,
+              "resolution": "${netcdf:variable:x:resolution}"
+            }
+          }
+        }
+      },
+      "scale_levels": [ 2, 4, 8 ],
+      "wms_import": true
+    }
+  }
+}

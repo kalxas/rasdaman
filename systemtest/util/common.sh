@@ -443,7 +443,7 @@ export RASADMIN_PASS="$(get_key_value "rasdaman_admin_pass" "$PETASCOPE_PROPERTI
 # credentials files for wcst_import to authenticate to petascope
 export RASADMIN_CREDENTIALS_FILE="/tmp/rasadmin_credentials.txt"
 echo "$RASADMIN_USER:$RASADMIN_PASS" > "$RASADMIN_CREDENTIALS_FILE"
-chmod 400 "$RASADMIN_CREDENTIALS_FILE"
+chmod 600 "$RASADMIN_CREDENTIALS_FILE"
 
 export WCST_IMPORT="wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE"
 export WGET="wget --auth-no-challenge --user $RASADMIN_USER --password $RASADMIN_PASS"

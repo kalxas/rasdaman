@@ -397,7 +397,7 @@ public class WMSGetMapService {
         
         for (WcpsCoverageMetadata wcpsCoverageMetadata : wcpsCoverageMetadatas) {
 
-            WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(wcpsCoverageMetadata.getCoverageName(), this.originalRequestBBox,
+            WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(wcpsCoverageMetadata.getCoverageName(), this.layerBBoxRequestCRS,
                                                                                 this.fittedRequestBBox,
                                                                                 this.extendedFittedRequestGeoBBox, this.width, this.height);
             wmsLayers.add(wmsLayer);

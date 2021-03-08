@@ -1,0 +1,5 @@
+service=WMS&
+version=1.3.0&
+request=DeleteStyle&
+name=RGB&
+layer=test_wms_netcdf_yx_order
