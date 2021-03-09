@@ -20,34 +20,43 @@ It offers spatio-temporal access and analytics through APIs based on the OGC dat
 OGC Coverage Standards Overview
 ===============================
 
-For operating rasdaman geo services as well as for accessing such geo services through these APIs
-it is important to understand the mechanics of the relevant standards.
-In particular, the concept of OGC / ISO *coverages* is important.
+For operating rasdaman geo services as well as for accessing such geo services
+through these APIs it is important to understand the mechanics of the relevant
+standards. In particular, the concept of OGC / ISO *coverages* is important.
 
-In standardization, coverages are used to represent space/time varying phenomena, concretely:
-regular and irregular grids, point clouds, and general meshes. The coverage standards offer data and service models for dealing with those.
-In rasdaman, focus is on multi-dimensional gridded ("raster") coverages.
+In standardization, coverages are used to represent space/time varying
+phenomena, concretely: regular and irregular grids, point clouds, and general
+meshes. The coverage standards offer data and service models for dealing with
+those. In rasdaman, focus is on multi-dimensional gridded ("raster") coverages.
 
-In rasdaman, the OGC standards WMS, WCS, and WCPS are supported, being reference implementation for WCS.
-These APIs serve different purposes:
+In rasdaman, the OGC standards WMS, WCS, and WCPS are supported, being reference
+implementation for WCS. These APIs serve different purposes:
 
 - WMS delivers a 2D map as a visual image, suitable for consunmption by humans
 - WCS delivers n-D data, suitable for further processing and analysis
-- WCPS performs flexible server-side processing, filtering, analytics, and fusion on coverages.
+- WCPS performs flexible server-side processing, filtering, analytics, and fusion 
+  on coverages.
 
-These coverage data and service concepts are summarized briefly below;
-for specific details on coordinate reference system handling see also :ref:`CRS definition management <crs-def-management>`.
-Ample material is also available on the Web for familiarization with coverages (best consult in this sequence):
+These coverage data and service concepts are summarized briefly below; for
+specific details on coordinate reference system handling see also :ref:`CRS
+definition management <crs-def-management>`. Ample material is also available on
+the Web for familiarization with coverages (best consult in this sequence):
 
-- `hands-on demos <https://standards.rasdaman.org>`_ for multi-dimensional coverage services provided by `Jacobs University <https://www.jacobs-university.de/lsis>`_;
-- a series of `webinars and tutorial slides <https://www.earthserver.xyz/webinars>`_ provided by `EarthServer <https://www.earthserver.xyz>`_;
-- a `range of background information <http://myogc.org/go/coveragesDWG>`_ on these standards provided by `OGC <http://www.opengeospatial.org>`_;
-- the official standards documents maintained by `OGC <http://www.opengeospatial.org>`_:
+- `hands-on demos <https://standards.rasdaman.org>`__ for multi-dimensional 
+  coverage services provided by
+  `Jacobs University <https://www.jacobs-university.de/lsis>`__;
+- a series of 
+  `webinars and tutorial slides <https://www.earthserver.xyz/webinars>`__ 
+  provided by `EarthServer <https://www.earthserver.xyz>`__;
+- a `range of background information <http://myogc.org/go/coveragesDWG>`__ on 
+  these standards provided by `OGC <http://www.opengeospatial.org>`__;
+- the official standards documents maintained by 
+  `OGC <http://www.opengeospatial.org>`__:
 
- * `WCS 2.0.1 <https://portal.opengeospatial.org/files/09-110r4>`_
- * `WCS-T 2.0 <http://docs.opengeospatial.org/is/13-057r1/13-057r1.html>`_
- * `WCPS 1.0 <https://portal.opengeospatial.org/files/08-059r4>`_
- * `WMS 1.3.0 <http://portal.opengeospatial.org/files/?artifact_id=4756&passcode=4hy072w9zerhjyfbqfhq>`_
+ * `WCS 2.0.1 <https://portal.opengeospatial.org/files/09-110r4>`__
+ * `WCS-T 2.0 <http://docs.opengeospatial.org/is/13-057r1/13-057r1.html>`__
+ * `WCPS 1.0 <https://portal.opengeospatial.org/files/08-059r4>`__
+ * `WMS 1.3.0 <http://portal.opengeospatial.org/files/?artifact_id=4756&passcode=4hy072w9zerhjyfbqfhq>`__
 
 
 Coverage Data
@@ -82,21 +91,24 @@ directives, as well as delivery in some output format requested by the client.
 A set of WCS Extensions adds further functionality facets.
 
 One of those is WCS Processing; it defines the ``ProcessCoverages`` request
-which allows sending a coverage analytics request through the WCPS spatio-temporal
-analytics language. WCPS supports extraction, analytics, and fusion of
-multi-dimensional coverage expressed in a high-level, declarative,
-and safe language.
+which allows sending a coverage analytics request through the WCPS
+spatio-temporal analytics language. WCPS supports extraction, analytics, and
+fusion of multi-dimensional coverage expressed in a high-level, declarative, and
+safe language.
 
 
 OGC Web Services Endpoint
 =========================
 
-Once the petascope servlet is deployed (see :ref:`rasdaman installation guide <sec-system-install-packages>`) coverages can be accessed through service endpoint ``/rasdaman/ows``.
+Once the petascope servlet is deployed (see :ref:`rasdaman installation guide
+<sec-system-install-packages>`) coverages can be accessed through service
+endpoint ``/rasdaman/ows``.
 
 .. NOTE::
 
-   Endpoint ``/rasdaman/rasql``, which by default is also available after deploying
-   rasdaman, does not know about coverages and their services, but only knows domain-agnostic rasql.
+   Endpoint ``/rasdaman/rasql``, which by default is also available after
+   deploying rasdaman, does not know about coverages and their services, but
+   only knows domain-agnostic rasql.
 
 For example, assuming that the service's IP address is ``123.456.789.1`` and the
 service port is ``8080``, the following request URLs would deliver the
@@ -188,9 +200,11 @@ a CIS 1.0 ``RectifiedGridCoverage``.
 CRS Management
 --------------
 
-the Native CRS of a coverage is given by a URL, as per OGC convention.
-Resolving this URL should deliver the CRS definition.
-The `OGC CRS resolver <http://external.opengeospatial.org/twiki_public/CRSdefinitionResolver>`_ is one such service. Its implementation is running SECORE which is part of rasdaman community.
+the Native CRS of a coverage is given by a URL, as per OGC convention. Resolving
+this URL should deliver the CRS definition. The `OGC CRS resolver
+<http://external.opengeospatial.org/twiki_public/CRSdefinitionResolver>`__ is
+one such service. Its implementation is running SECORE which is part of rasdaman
+community.
 
 By providing the source code of the OGC resolver it is possible to deploy
 one's own resolver under an own URL, such as http://rasdaman.org:8080/def/crs/EPSG/0/27700.
@@ -261,7 +275,8 @@ WCS Core offers request types:
 
     - ``GetCapabilities`` for obtaining a list of coverages offered together
       with an overall service description;
-    - ``DescribeCoverage`` for obtaining information about a coverage without downloading it;
+    - ``DescribeCoverage`` for obtaining information about a coverage without 
+      downloading it;
     - ``GetCoverage`` for downloading, extracting, and reformatting of coverages;
       this is the central workhorse of WCS.
 
@@ -281,7 +296,8 @@ send WCS requests, for example:
 
     http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1&request=GetCapabilities
 
-See `example queries <http://rasdaman.org/browser/systemtest/testcases_services/test_wcs/queries>`_
+See `example queries
+<http://rasdaman.org/browser/systemtest/testcases_services/test_wcs/queries>`__
 in the WCS systemtest which send KVP (key value pairs) GET request and XML POST
 request to Petascope.
 
@@ -292,43 +308,46 @@ In general, subsetting in petascope behaves similarly to subsetting in gdal,
 with a couple of deviations necessary for n-D. Specifically, subsetting
 follows the next rules:
 
-- Slicing (``geoPoint``): the grid slice with index corresponding to the requested slicing
-  geo point is returned. This is computed as follows:
+- Slicing (``geoPoint``): the grid slice with index corresponding to the 
+  requested slicing geo point is returned. This is computed as follows:
 
   .. code-block:: text
 
      gridIndex = floor((geoPoint - minGeoLowerBound) / axisResolution)
 
-- Trimming (``geoLowerBound``:``geoUpperBound``): the lower bound of the grid interval
-  is determined as in the case of slicing. The number of returned grid points follows gdal:
+- Trimming (``geoLowerBound``:``geoUpperBound``): the lower bound of the grid 
+  interval is determined as in the case of slicing. The number of returned grid 
+  points follows gdal:
 
-  .. code-block:: text
-   
-     + If axis resolution is positive (e.g: ``Long`` axis):
-          gridLowerBound = floor((geoLowerBound - minGeoLowerBound) / axisResolution)
-          numberOfGridPixels = floor(((geoUpperBound - geoLowerBound) / axisResolution) + 0.5)
-          gridUpperBound = gridLowerBound + numberOfGridPixels - 1
+  - If axis resolution is positive (e.g. ``Long`` axis):
 
-     + If axis resolution is negative (e.g: ``Lat`` axis):
-          gridLowerBound = floor((geoUpperBound - maxGeoLowerBound) / axisResolution)
-          numberOfGridPixels = floor((geoLowerBound - geoUpperBound) / axisResolution) + 0.5)
-          gridUpperBound = gridLowerBound + numberOfGridPixels - 1
+    .. code-block::text
+
+      gridLowerBound = floor((geoLowerBound - minGeoLowerBound) / axisResolution)
+      numberOfGridPixels = floor(((geoUpperBound - geoLowerBound) / axisResolution) + 0.5)
+      gridUpperBound = gridLowerBound + numberOfGridPixels - 1
+
+  - If axis resolution is negative (e.g. ``Lat`` axis):
+
+    .. code-block::text
+
+      gridLowerBound = floor((geoUpperBound - maxGeoLowerBound) / axisResolution)
+      numberOfGridPixels = floor((geoLowerBound - geoUpperBound) / axisResolution) + 0.5)
+      gridUpperBound = gridLowerBound + numberOfGridPixels - 1
 
   .. NOTE::
 
-     If a trimming subset on an axis with: 
+     If a trimming subset is applied on an axis with 
+     ``(geoUpperBound - geoLowerBound) / axisResolution < 0.5``, then lower grid 
+     bound is translated by the slicing formula and upper grid bound is set to 
+     lower grid bound.
 
-        (geoUpperBound - geoLowerBound) / axisResolution < 0.5
+For example, a 2D coverage has ``Long`` (X) and ``Lat`` (Y) axes with CRS
+``EPSG:4326``. The resolution for axis ``Long`` is ``10`` and the resolution
+for axis ``Lat`` is ``-10``. The geo bounds of axis ``Long`` are ``[0:180]``
+and the geo bounds of axis ``Lat`` are ``[0:90]``.
 
-     then, lower grid bound is translated by the slicing formula and upper grid bound is
-     set to lower grid bound.
-
-For example: a 2D coverage has ``Long`` (X) and ``Lat`` (Y) axes with CRS ``EPSG:4326``.
-The resolution for axis ``Long`` is: ``10`` and the resolution for axis ``Lat`` is: ``-10``.
-The geo bounds of axis ``Long`` are: ``[0:180]`` and the geo bounds
-of axis ``Lat`` are ``[0:90]``.
-
-- Calculate **slicing** on ``Long`` axis by geo coordinates to grid coordinates:
+- Calculate *slicing* on ``Long`` axis by geo coordinates to grid coordinates:
 
   .. code-block:: text
 
@@ -341,7 +360,7 @@ of axis ``Lat`` are ``[0:90]``.
       - Long(49.99999):   returns [4]
       - Long(50.0):       returns [5]
 
-- Calculate **trimming** on ``Long`` axis by geo coordinates to grid coordinates:
+- Calculate *trimming* on ``Long`` axis by geo coordinates to grid coordinates:
 
   .. code-block:: text
   
@@ -356,10 +375,11 @@ of axis ``Lat`` are ``[0:90]``.
 CIS 1.0 to 1.1 Transformation
 -----------------------------
 
-Under WCS 2.1 - ie: with ``SERVICE=2.1.0`` - both ``DescribeCoverage``and ``GetCoverage``
-requests understand the proprietary parameter ``OUTPUTTYPE=GeneralGridCoverage``
-which formats the result as CIS 1.1 ``GeneralGridCoverage`` even if it has been
-imported into the server as a CIS 1.0 coverage, for example:
+Under WCS 2.1 - ie: with ``SERVICE=2.1.0`` - both ``DescribeCoverage``and
+``GetCoverage`` requests understand the proprietary parameter
+``OUTPUTTYPE=GeneralGridCoverage`` which formats the result as CIS 1.1
+``GeneralGridCoverage`` even if it has been imported into the server as a CIS
+1.0 coverage, for example:
 
 .. code-block:: text
 
@@ -378,22 +398,22 @@ Polygon/Raster Clipping
 -----------------------
 
 WCS and WCPS support clipping of polygons expressed in the
-`WKT format <https://en.wikipedia.org/wiki/Well-known_text>`_ format.
+`WKT format <https://en.wikipedia.org/wiki/Well-known_text>`__ format.
 Polygons can be ``MultiPolygon (2D)``, ``Polygon (2D)`` and ``LineString (1D+)``.
 The result is always a 2D coverage in case of MultiPolygon and Polygon, and
 is a 1D coverage in case of ``LineString``.
 
 Further clipping patterns include ``curtain`` and ``corridor`` on 3D+ coverages
-from ``Polygon (2D)`` and ``Linestring (1D)``.
-The result of ``curtain`` clipping has the same dimensionality as the input coverage
-whereas the result of ``corridor`` clipping is always a 3D coverage,
-with the first axis being the *trackline* of the corridor by convention.
+from ``Polygon (2D)`` and ``Linestring (1D)``. The result of ``curtain``
+clipping has the same dimensionality as the input coverage whereas the result of
+``corridor`` clipping is always a 3D coverage, with the first axis being the
+*trackline* of the corridor by convention.
 
 Below some examples are presented expaining the mimics for WCS.
 
-Syntactically, clipping is expressed by adding a ``&CLIP=`` parameter to the request.
-If the ``SUBSETTINGCRS`` parameter is specified then this CRS also applies
-to the clipping WKT, otherwise it is assumed that the WKT is in the
+Syntactically, clipping is expressed by adding a ``&CLIP=`` parameter to the
+request. If the ``SUBSETTINGCRS`` parameter is specified then this CRS also
+applies to the clipping WKT, otherwise it is assumed that the WKT is in the
 Native coverage CRS.
 
 Clipping Examples
@@ -501,7 +521,7 @@ stored either explicitly in the GML body, or in an external file linked in the
 GML body, as shown in the examples below. The format of the file storing the
 cell values must be 
 
-- 2-D data `supported by the GDAL library <http://www.gdal.org/formats_list.html>`_,
+- 2-D data `supported by the GDAL library <http://www.gdal.org/formats_list.html>`__,
   such as TIFF / GeoTIFF, JPEG / JPEG2000, PNG, etc;
 - n-D data in NetCDF or GRIB format
 
@@ -513,9 +533,9 @@ proprietary parameters.
 
 .. NOTE::
 
-   For coverage management normally WCS-T is not used directly.
-   Rather, the more convenient ``wcst_import`` Python importing tool
-   is recommended for :ref:`data-import`.
+   For coverage management normally WCS-T is not used directly. Rather, the more
+   convenient ``wcst_import`` Python importing tool is recommended for
+   :ref:`data-import`.
 
 Inserting coverages
 ^^^^^^^^^^^^^^^^^^^
@@ -556,7 +576,7 @@ Inserting a new coverage into the server's WCS offerings is done using the
     |             |"Float32,Int32,Float32")                         |Default: Byte.                                            |        |
     +-------------+-------------------------------------------------+----------------------------------------------------------+--------+
     |TILING       |rasdaman tiling clause, see                      |Indicates the array tiling to be applied during insertion |No      |
-    |             |`wiki:Tiling <http://rasdaman.org/wiki/Tiling>`_ |                                                          |        |
+    |             |`wiki:Tiling <http://rasdaman.org/wiki/Tiling>`__|                                                          |        |
     +-------------+-------------------------------------------------+----------------------------------------------------------+--------+
 
 The response of a successful coverage request is the coverage id of the newly
@@ -611,7 +631,7 @@ Updating an existing coverage into the server's WCS offerings is done using the 
     |INPUTCOVERAGE     |{coverage}                                    |A coverage to be updated                                  |One of inputCoverageRef or   |
     |                  |                                              |                                                          |inputCoverage is required    |
     +------------------+----------------------------------------------+----------------------------------------------------------+-----------------------------+
-    |SUBSET            |AxisLabel(geoLowerBound,geoUpperBound)        |Trim or slice expression, one per updated                 |No                           |
+    |SUBSET            |AxisLabel(geoLowerBound, geoUpperBound)       |Trim or slice expression, one per updated                 |No                           |
     |                  |                                              |coverage dimension                                        |                             |
     +------------------+----------------------------------------------+----------------------------------------------------------+-----------------------------+
 
@@ -710,14 +730,14 @@ OGC Web Coverage Processing Service (WCPS)
 The OGC Web Coverage Processing Service (WCPS) standard defines a
 protocol-independent language for the extraction, processing, analysis,
 and fusion of multi-dimensional gridded coverages, often called
-`datacubes <https://en.wikipedia.org/wiki/Data_cube>`_.
+`datacubes <https://en.wikipedia.org/wiki/Data_cube>`__.
 
 General
 -------
 
 WCPS requests can be submitted in both
-abstract syntax (`example <http://rasdaman.org/browser/systemtest/testcases_services/test_wcps/queries/233-extra_params_merge_new_metadata.test>`_)
-and in XML (`example <http://rasdaman.org/browser/systemtest/testcases_services/test_wcps/queries/245-test_enqoute_cdata_greate_less_character.xml>`_).
+abstract syntax (`example <http://rasdaman.org/browser/systemtest/testcases_services/test_wcps/queries/233-extra_params_merge_new_metadata.test>`__)
+and in XML (`example <http://rasdaman.org/browser/systemtest/testcases_services/test_wcps/queries/245-test_enqoute_cdata_greate_less_character.xml>`__).
 
 For example, using the WCS GET/KVP protocol binding a WCPS request can be sent
 through the following ``ProcessCoverages`` request:
@@ -729,8 +749,8 @@ through the following ``ProcessCoverages`` request:
 
 The following subsections list enhancements rasdaman offers over the
 OGC WCPS standard. A brief introduction to the WCPS language is given
-in the `WCPS cheatsheet <https://doc.rasdaman.org/11_cheatsheets.html#wcps>`_; 
-more educational material is available on `EarthServer <https://earthserver.xyz/wcs>`_.  
+in the `WCPS cheatsheet <https://doc.rasdaman.org/11_cheatsheets.html#wcps>`__; 
+more educational material is available on `EarthServer <https://earthserver.xyz/wcs>`__.  
 
 
 Polygon/Raster Clipping
@@ -1371,7 +1391,7 @@ Petascope allows to import a 3D+ coverage as a WMS layer.
 To this end, the ingrdients file used for ``wcst_import``
 must contain ``wms_import": true``. This works for 3D+ coverages
 with recipes *regular_time_series*, *irregular_time_series*, and *general_coverage* recipes.
-`This example <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wms_3d_time_series_irregular/ingest.template.json>`_
+`This example <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wms_3d_time_series_irregular/ingest.template.json>`__
 demonstrates how to define an *irregular_time_series* 3D coverage from 2D GeoTIFF files.
 
 Once the coverage is ingested, a ``GetMap`` request
@@ -1414,8 +1434,8 @@ for non-geo-referenced axes can have these formats:
 
   Examples:
 
-  - Multiple values on `time axis of 3D coverage <http://rasdaman.org/browser/systemtest/testcases_services/test_wms/queries/29-get_map_on_3d_time_series_irregular_time_specified.test>`_.
-  - Multiple values on `time, dim_pressure axes of 4d coverage <http://rasdaman.org/browser/systemtest/testcases_services/test_wms/queries/31-get_map_on_4d_coverage_dim_pressure_and_time_irregular_specified.test>`_.
+  - Multiple values on `time axis of 3D coverage <http://rasdaman.org/browser/systemtest/testcases_services/test_wms/queries/29-get_map_on_3d_time_series_irregular_time_specified.test>`__.
+  - Multiple values on `time, dim_pressure axes of 4d coverage <http://rasdaman.org/browser/systemtest/testcases_services/test_wms/queries/31-get_map_on_4d_coverage_dim_pressure_and_time_irregular_specified.test>`__.
 
 WMS Layer Management
 --------------------
@@ -1476,7 +1496,7 @@ abstract and layer provided in the KVP parameters below
 .. NOTE::
 
     For Tomcat version 7+ it requires the query (WCPS/rasql fragment)
-    to be URL-encoded correctly. `This site <http://meyerweb.com/eric/tools/dencoder/>`_ 
+    to be URL-encoded correctly. `This site <http://meyerweb.com/eric/tools/dencoder/>`__ 
     offers such an encoding service.
 
 
@@ -1660,7 +1680,7 @@ Errors and Workarounds
 **Cannot load new WMS layer in QGIS**
     In this case, the problem is due to QGIS caching the WMS GetCapabilities from the last
     request so the new layer does not exist (see
-    `clear caching solution <http://osgeo-org.1560.x6.nabble.com/WMS-provider-Cannot-calculate-extent-td5250516.html>`_).
+    `clear caching solution <http://osgeo-org.1560.x6.nabble.com/WMS-provider-Cannot-calculate-extent-td5250516.html>`__).
 
 .. _wcs-t-non-standard-requests-wms:
 
@@ -1759,8 +1779,8 @@ The workflow behind is depicted approximately on :numref:`wcst_import_workflow`.
    Ingestion process with `wcst_import.sh`
 
 An ingredients file showing all possible options (across all recipes) can be found `here
-<http://rasdaman.org/browser/applications/wcst_import/ingredients/possible_ingredients.json>`_;
-in the `same directory <http://rasdaman.org/browser/applications/wcst_import/ingredients>`_
+<http://rasdaman.org/browser/applications/wcst_import/ingredients/possible_ingredients.json>`__ 
+in the `same directory <http://rasdaman.org/browser/applications/wcst_import/ingredients>`__
 there are several examples of different recipes.
 
 .. _data-import-recipes:
@@ -1773,11 +1793,12 @@ The following recipes are provided in the rasdaman repository:
 * :ref:`General coverage <data-import-recipe-general>`
 * :ref:`Import from external WCS <data-import-recipe-wcs_extract>`
 * Specialized recipes
-    - :ref:`Sentinel 1 <data-import-recipe-sentinel1>`
-    - :ref:`Sentinel 2 <data-import-recipe-sentinel2>`
+
+  * :ref:`Sentinel 1 <data-import-recipe-sentinel1>`
+  * :ref:`Sentinel 2 <data-import-recipe-sentinel2>`
 
 For each one of these there is an ingredients example under the
-`ingredients/ <http://rasdaman.org/browser/applications/wcst_import/ingredients>`_
+`ingredients/ <http://rasdaman.org/browser/applications/wcst_import/ingredients>`__
 directory, together with an example for the available parameters
 Further on each recipe type is described in turn, starting with the common
 options shared by all recipes.
@@ -2172,67 +2193,82 @@ time into a 3-D cube with the third axis being a temporal one. There are two
 types of time parameters in "options", one needs to be choosed according to the
 particular use case:
 
-- ``tag_name`` with ``TIFFTAG_DATETIME`` inside image's
-  metadata (can be checked with gdalinfo filename, not every image has this
-  parameters). `Here is an example with the "tag_name" option
-  <http://www.rasdaman.org/attachment/wiki/WCSTImportGuide/ingredient_irregulartime_tag_name.txt>`_
+- ``tag_name`` - e.g. ``TIFFTAG_DATETIME`` in the image's metadata; the 
+  metadata should be checked with ``gdalinfo <file>``, as not every image may
+  have the tag. Below is an example:
 
-- ``filename`` allows an arbitrary pattern to extract the time information
-  from the data file paths. `Here is an example with the "filename" option
-  <http://www.rasdaman.org/attachment/wiki/WCSTImportGuide/ingredient_irregulartime_filename.txt>`_
-
-.. hidden-code-block:: json
+  .. hidden-code-block:: json
 
     {
       "config": {
         // The endpoint of the WCS service with the WCS-T extension enabled
-        "service_url": "http://localhost:8080/rasdaman/ows",
-        // If set to true, it will print the WCS-T requests and will not
-        // execute them. To actually execute them set it to false.
-        "mock": true,
-        // If set to true, the process will not require any user confirmation.
-        // This is useful for production environments when deployment is automated.
-        "automated": false
+        "service_url": "http://localhost:8080/rasdaman/ows"
       },
       "input": {
         // The name of the coverage; if the coverage already exists,
         // it will be updated with the new files
-        "coverage_id": "MyCoverage",
+        "coverage_id": "CoverageExampleTagName",
         // Absolute or relative (to the ingredients file) path or regex that
         // would work with the ls command. Multiple paths separated by commas
         // can be specified.
-        "paths": [ "/var/data/*" ]
+        "paths": [ "/home/rasdaman/images/tag_name/*.tif" ]
       },
       "recipe": {
         // The name of the recipe
         "name": "time_series_irregular",
         "options": {
-          // Information about the time parameter, two options (pick one!)
-
-          // 1. Get the date for the slice from a tag that can be read by GDAL
+          // Get the date for the slice from a tag that can be read by GDAL
           "time_parameter": {
-            "metadata_tag": {
-              // The name of such a tag
-              "tag_name": "TIFFTAG_DATETIME"
-            },
+            // The name of such a tag
+            "metadata_tag": { "tag_name": "TIFFTAG_DATETIME" },
             // The format of the datetime value in the tag
-            "datetime_format": "YYYY:MM:DD HH:mm:ss"
+            // Y = Year, e.g. to match TIFFTAG_DATETIME=2005
+            "datetime_format": "YYYY"
           },
+          // CRS to be used for the time axis
+          "time_crs": "http://opengis.net/def/crs/OGC/0/AnsiDate",
+          // The tiling to be applied in rasdaman
+          "tiling": "ALIGNED [0:10, 0:1000, 0:500]"
+        }
+      }
+    }
 
-          // 2. Extract the date/time from the file name
+- ``filename`` allows an arbitrary pattern to extract the time information
+  from the data file paths. Below is an example:
+
+  .. hidden-code-block:: json
+
+    {
+      "config": {
+        // The endpoint of the WCS service with the WCS-T extension enabled
+        "service_url": "http://localhost:8080/rasdaman/ows"
+      },
+      "input": {
+        // The name of the coverage; if the coverage already exists,
+        // it will be updated with the new files
+        "coverage_id": "CoverageExampleFilename",
+        // Absolute or relative (to the ingredients file) path or regex that
+        // would work with the ls command. Multiple paths separated by commas
+        // can be specified.
+        "paths": [ "/home/rasdaman/images/filename/*" ]
+      },
+      "recipe": {
+        // The name of the recipe
+        "name": "time_series_irregular",
+        "options": {
+          // Extract the date/time from the file name
           "time_parameter" :{
             "filename": {
-              // The regex has to contain groups of tokens, separated by parentheses.
+              // The regex has to contain groups of tokens in parentheses
               "regex": "(.*)_(.*)_(.+?)_(.*)",
               // Which regex group to use for retrieving the time value
               "group": "2"
             },
           }
-
           // CRS to be used for the time axis
           "time_crs": "http://localhost:8080/def/crs/OGC/0/AnsiDate",
           // The tiling to be applied in rasdaman
-          "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
+          "tiling": "ALIGNED [0:2, 0:1000, 0:1000]"
         }
       }
     }
@@ -2243,74 +2279,81 @@ particular use case:
 Recipe general_coverage
 -----------------------
 
-A highly flexible recipe that can handle any kind of data files (be it 2D, 3D or
-n-D) and model them in coverages of any dimensionality. It does that by allowing
-users to define their own coverage models with any number of bands and axes and
-fill the necesary coverage information through the so called ingredient
-sentences inside the ingredients.
+This is a highly flexible recipe that can handle any kind of data files (be it
+2D, 3D or n-D) and model them in coverages of any dimensionality. It does that
+by allowing users to define their own coverage models with any number of bands
+and axes and fill the necesary coverage information through the so called
+ingredient sentences inside the ingredients.
 
 
 Coverage parameters
 ^^^^^^^^^^^^^^^^^^^
 
-Using the ingredient sentences we can define any coverage model directly in the
-options of the ingredients file. Each coverage model contains an option for the
-CRS, a section for :ref:`metadata <data-import-recipe-general-coverage-metadata>`,
-and a :ref:`slicer <data-import-recipe-general-coverage-slicer>` section defining how to decode input data files.
+Using `ingredient sentences <data-import-ingredient-sentences>`__ we can define
+any coverage model directly in the options of the ingredients file. Each
+coverage model contains the following parts:
 
 * ``crs`` - Indicates the crs of the coverage to be constructed. Either a CRS 
   url can be used e.g. http://opengis.net/def/crs/EPSG/0/4326 or the shorthand 
   notation ``CRS1@CRS2@CRS3``, e.g. ``OGC/0/AnsiDate@EPSG/0/4326`` for 
   indicating a time/date + spatial CRS.
 
+* ``metadata`` - A group of options controlling metadata extraction and 
+  consolidation; more detailed information follows :ref:`below 
+  <data-import-recipe-general-coverage-metadata>`
+
+* ``slicer`` - A group of options controlling the data decoding and placement
+  into the overall datacube; more detailed information follows :ref:`below
+  <data-import-recipe-general-coverage-slicer>`.
+
 .. _data-import-recipe-general-coverage-metadata:
 
 metadata section
 ~~~~~~~~~~~~~~~~
 
-The ``metadata`` section specifies in which format you want the metadata (json or xml).
-It can only contain characters and in petascope the datatype for this field
-is CLOB (Character Large Object). For postgresql (the default DBMS for petascopedb)
-this field is generated by Hibernate as LOB, for which the maximum size is 2GB
-(`source <https://giswiki.hsr.ch/PostgreSQL_-_Binary_Large_Objects>`__).
+The ``metadata`` section specifies in which format you want the metadata (json
+or xml). It can only contain characters and is limited in size by the backend
+database limit for CLOB columns; for postgresql (the default backend for
+petascope) the maximum size is 2GB (`source
+<https://giswiki.hsr.ch/PostgreSQL_-_Binary_Large_Objects>`__).
 
-* ``type`` - Specifies format to store coverage's metadata (``xml`` / ``json``).
-  Set to ``xml`` by default.
+* ``type`` - Specifies the format for storing the coverage metadata; ``xml`` and
+  ``json`` are supported, and it is set to ``xml`` by default.
 
-* ``global`` - Specifies fields which should be saved (e.g. the licence, the creator
-  etc) once for the whole coverage. Example:
+* ``global`` - Specifies fields which should be saved once for the whole
+  coverage (e.g. the data licence, the creator etc). For example a "Title" 
+  metadata value can be set with ``"global": { "Title": "'Drought code'", ... }``.
 
-  .. hidden-code-block:: json
+* ``local`` - Specifies fields which are fetched from each input file to be
+  stored in coverage's metadata. When subsetting in the output coverage only
+  *local* metadata associated to the subsetted areas will be added to the result.
+  E.g., ``"local": { "LocalMetadataKey": "${netcdf:metadata:LOCAL_METADATA}" }``
+  sets LocalMetadataKey to a metadata value extracted from the input data;
+  the ``${..}`` is explained in :ref:`data-import-possible-expressions`. For a
+  more detailed explanation of local metadata see the dedicated
+  :ref:`local-metadata` section.
 
-      "global": {
-        "Title": "'Drought code'"
-      },
+* ``colorPaletteTable`` - Controls collection of color palette table for the
+  created coverage, which can then be used internally when encoding coverage to,
+  e.g. PNG, to colorize the result. Currently only GDAL-style ``colorTable`` 
+  with 256 color entries is supported. 
 
-* ``local`` - Specifies fields which are fetched from each input file
-  to be stored in coverage's metadata. Then, when subsetting output coverage,
-  only associated *local* metadata will be added to the result. Example:
+  A path to an explicit Color Palette Table file can be specified, see `example file
+  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_color_palette_rasql_ready_encoded_png/color_palette_table_rasql_READY.cpt>`__;
+  such a file can be referenced in the ingredients file with, e.g.,
+  ``"colorPaletteTable": "PATH/TO/table.cpt"``.
 
-  .. hidden-code-block:: json
+  If ``colorPaletteTable`` is set to ``"auto"`` or not specified at all, and
+  the slicer is set to ``gdal`` (see next section for info on slicers), then
+  the color table will be read automatically from the first input file if its
+  metadata contains one.
 
-      "local": {
-        "LocalMetadataKey": "${netcdf:metadata:LOCAL_METADATA}"
-      }
+  If ``colorPaletteTable`` is set to an empty string ``""``, any color table
+  metadata will be ignored when creating coverage's global metadata.
 
+* ``bands`` and ``axes`` - Allow specifying metadata for the coverage bands 
+  and/or axes; more details can be found in :ref:`band-and-dim-metadata`.
 
-* ``colorPaletteTable`` - Specifies the path to a Color Palette Table 
-  file (currently, only GDAL ``colorTable`` with 256 color supported), see `example <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_color_palette_rasql_ready_encoded_png/color_palette_table_rasql_READY.cpt>`_ which can be used internally when encoding coverage to PNG to
-  colorize result. Example:
-
-  .. hidden-code-block:: json
-
-      "colorPaletteTable": "PATH/TO/color_palette_table.cpt"
-
-   Since v10, general recipe with slicer ``gdal`` reads ``colorPaletteTable``
-   automatically if the first input file (TIFF format with  Color Table
-   (RGB with 256 entries)) contains this metadata when ``colorPaletteTable``
-   is set to ``auto`` or not specified in the ingredients file. 
-   If ``colorPaletteTable`` is set to empty string, this metadata is ignored
-   when creating coverage's global metadata.
 
 .. _data-import-recipe-general-coverage-slicer:
 
@@ -2321,59 +2364,103 @@ The ``slicer`` subsection specifies the driver to use to read from the data file
 the required bands from data files and for each axis from the CRS how to obtain the 
 bounds and resolution corresponding to each file.
 
-* ``type`` - Specifies the driver to be used (``gdal``, ``netcdf`` or ``grib``)
-  ``gdal`` is used for TIFF, PNG, and other 2D formats.
+* ``type`` - Specifies the decoding driver to be used; currently the following
+  are supported:
 
-* ``pixelIsPoint`` - Only valid for ``netcdf`` and ``grib`` drivers.
-   In some cases, by convention in the input files, the coordinates 
-   are set in the middle of grid pixels, hence, set to ``true`` to extend the 
-   lower and upper bounds of each regular axis by half grid pixel to be able to import.
-   By default it is set to ``false``. 
+  * ``gdal`` - for TIFF, PNG, and other encoding format that can be read with 
+    GDAL (check with ``gdalinfo <file>``);
+
+  * ``netcdf`` - for importing NetCDF data. If a netCDF file is flipped on Lat
+    axis (South -> North coordinates  increase in the output of ``ncdump -c``)
+    instead of GDAL style (North -> South coordinates decrease), then it is
+    necessary to flip it before importing as rasdaman, e.g. with 
+    ``cdo invertlat input.nc output.nc``.
+
+  * ``grib`` - for GRIB data. Currently, rasdaman only supports GRIB files with
+    ``gridType`` format of regular lat long ``regular_ll``. If the format is
+    different, it is necessary to preprocess the input files into regular grid 
+    type. The grid type can be retreived with 
+    ``grib_dump file.grib | grep 'gridType'``.
+
+    If a GRIB file is flipped on Lat axis (South -> North with 
+    ``jScansPositively = 0`` in the output of ``grib_dump``) instead of GDAL 
+    style (North -> South with ``jScansPositively = 1``), then it is necessary 
+    to flip it before importing to rasdaman, e.g. with
+    ``cdo invertlat input.grib output.grib``.
+
+* ``pixelIsPoint`` - Only valid if ``type`` is ``netcdf`` or ``grib``.
+  In some cases, by convention in the input files, the coordinates 
+  are set in the middle of grid pixels, hence, set to ``true`` to extend the 
+  lower and upper bounds of each regular axis by half grid pixel to be able to import.
+  By default it is set to ``false``. 
 
 * ``bands`` - A list of bands/chanels/variables from the input files which
-  should be imported to the importing coverage.
+  should be imported to the importing coverage. Each entry is a JSON object with
+  the following options, of which ``identifier`` and ``name`` are mandatory to 
+  specify while the rest are optional:
 
-  * ``identifier`` - The exactly name of the band in the input file.
-  * ``name`` - The name of the band which will be used in coverage.
-    This can be set to different from the ``indentifier``.
-  * ``description`` - Metadata description of the band.
-  * ``nilValue``` - Metadata null value of the band.
-  * ``nilReason`` - Metadata reason for the null value of the band.
-  * Other ``"key": "value"`` user customized metadata to add to
-    coverage's global metadata in ``bands`` section.
+  * ``identifier`` - The name of the band in the input file;
+  * ``name`` - The name of the band which will be used in the created coverage;
+    this can be set to different from the ``indentifier``;
+  * ``description`` - Metadata description of the band;
+  * ``nilValue``` - Metadata null value of the band;
+  * ``nilReason`` - Metadata reason for the null value of the band;
+  * ``uomCode`` - Set the Unit of measurement (uom) code of the band. Besides 
+    setting it directly, it can also be derived from the input file metadata,
+    with e.g. ``${netcdf:variable:NAME:units}`` for NetCDF or
+    ``${grib:unitsOfFirstFixedSurface}`` for GRIB.
+  * Further ``"key": "value"`` entries can be specified to add customized band
+    metadata to the global coverage metadata.
 
-* ``axes`` - A JSON object contains multiple properties, each property
-  has the label of the axis as name and an associated object to define
-  this axis.
+* ``axes`` - A JSON object which configures the properties of each axis of the
+  created coverage with ``"axisLabel": { properties... }``. The possible 
+  properties are listed below; generally, ``gridOrder``, ``min``, ``max``,
+  and ``resolution`` have to be specified, except for irregular axes where
+  ``resolution`` is not applicable.
 
-  * ``gridOrder`` - The index of the axis which is set in the input file.
+  * ``gridOrder`` - The index of the axis in the input file (0-based);
   * ``crsOrder`` - Specifies a different name for this axis than the one 
-    configured in the CRS's definition. See :ref:`details <customized-axis-labels>`.
-  * ``min`` - The lower bound of the axis (coordinates in the CRS).
-  * ``max``- The upper bound of the axis (coordinates in the CRS).
-  * ``resolution`` - The resolution of the axis from the input file.
-    If this axis is irregular, the resolution is set to ``1``.
-  * ``irregular`` - Set to ``true`` to specify this axis is irregular (e.g: time axis 
-    with irregular datetime values from filenames). By default it is set to ``false``
-  * ``directPositions`` - A list of coefficients which are extracted / calculated from 
-    the axis's values specified in the input file. Only used if this axis is irregular.
-    See `example <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_aggregated_ansidate_netcdf/ingest.template.json#L46>`_.
-  * ``statements`` - Import some python utility libraries (e.g: ``datetime`` / ``timedelta``)
-    to support calculating axis's ``min``, ``max`` and ``directPositions``. See `example <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/test_ecmwf_grib_1_aggregated_irregular_axis_import_statement/ingest.template.json#L54>`_.
-  * ``dataBound`` - Set to ``false`` to specify this axis should be imported
-    as a slicing point instead of a subset with lower and upper bounds. 
-    Typical use case is extracting irregular datetime values from the input files' names. 
-    By default it is set to ``true``.
+    configured in the CRS's definition; more details can be found :ref:`here 
+    <customized-axis-labels>`;
+  * ``min`` - The lower bound of the axis (coordinates in the axis CRS);
+  * ``max``- The upper bound of the axis (coordinates in the axis CRS);
+  * ``resolution`` - The resolution of the axis from the input file;
+    if this axis is irregular, the resolution is set to ``1``;
+  * ``statements`` - Import python utility libraries (e.g. ``datetime`` / 
+    ``timedelta``) to support calculating ``min``, ``max``, ``resolution``, etc;
+    covered in more detail in a subsequent :ref:`section 
+    <data-import-using-python-libraries>`;
 
+  A few additional options are specific to *irregular axes*:
 
-An example for the *netCDF format* can be found `here
-<http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_irregular_time_nc/ingest.template.json>`_
-and for *PNG* `here
-<http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_mr/ingest.template.json>`_.
+  * ``irregular`` - Set to ``true`` to specify that this axis is irregular, e.g.
+    a time axis with irregular datetime indexes; if not specified, it is set to 
+    ``false`` by default;
+  * ``directPositions`` - A list of coefficients which are extracted or 
+    calculated from the axis values specified in the input file; for an example 
+    see this `ingredients file
+    <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_aggregated_ansidate_netcdf/ingest.template.json#L46>`__;
+  * ``dataBound`` - Set to ``false`` to specify that this axis should be 
+    imported as a slicing point instead of a subset with lower and upper bounds;
+    typical use case for this is when extracting irregular datetime values from 
+    the input file names. When not specified it is set to ``true`` by default.
+  * ``sliceGroupSize`` - Group multiple input slices into a single slice in the
+    created coverage, e.g., multiple daily data files onto a single week index
+    on the coverage time axis; explained in more detail :ref:`here <slice-group-size>`;
 
-Below is an example ingredient file for *grib* data:
+.. _data-import-recipe-general-coverage-examples:
 
-.. hidden-code-block:: json
+Examples
+~~~~~~~~
+
+The examples below illustrate importing data in different formats with the
+``general_coverage`` recipe; many more can be found in the rasdaman
+`test suite <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/>`__.
+
+* Commented example for importing GRIB data (only the ``recipe`` section is 
+  shown for brevity):
+
+  .. hidden-code-block:: json
 
     "recipe": {
       "name": "general_coverage",
@@ -2481,6 +2568,173 @@ Below is an example ingredient file for *grib* data:
       }
     }
 
+- Example for importing NetCDF data (full ingredients file `here 
+  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_irregular_time_nc/ingest.template.json>`__):
+
+  .. hidden-code-block:: json
+
+    "recipe": {
+      "name": "general_coverage",
+      "options": {
+        "coverage": {
+          "crs": "OGC/0/UnixTime@EPSG/0/3577",
+          "metadata": {
+            "type": "xml",
+            "global": {
+              "date_created": "'${netcdf:metadata:date_created}'",
+              "Conventions": "'${netcdf:metadata:Conventions}'",
+              "history": "\"${netcdf:metadata:history}\"",
+              "title": "'${netcdf:metadata:title}'",
+              "summary": "'${netcdf:metadata:summary}'",
+              "product_version": "'${netcdf:metadata:product_version}'",
+              "test_empty_attribute": "",
+              "source": "'${netcdf:metadata:source}'"
+            },
+            "bands": {
+              "band_1": {
+                "product_version": "'${netcdf:metadata:product_version}'",
+                "test_empty_attribute": ""
+              },
+              "band_7": {
+                "date_created": "'${netcdf:metadata:date_created}'",
+                "Conventions": "'${netcdf:metadata:Conventions}'"
+              }
+            },
+            "axes": {
+              "unix": {
+                "min": "${netcdf:variable:unix:min}",
+                "max": "${netcdf:variable:unix:max}",
+                "directPositions": "${netcdf:variable:E:min}"
+              }
+            }
+          },
+          "slicer": {
+            "type": "netcdf",
+            "pixelIsPoint": true,
+            "bands": [
+              {
+                "name": "band_1",
+                "description": "Nadir BRDF Adjusted Reflectance 0.43-0.45 microns (Coastal Aerosol)",
+                "identifier": "band_1",
+                "nilValue": "-999"
+              },
+              {
+                "name": "band_2",
+                "identifier": "band_2",
+                "nilValue": "-999"
+              },
+              {
+                "name": "band_3",
+                "identifier": "band_3",
+                "nilValue": "-999"
+              },
+              {
+                "name": "band_4",
+                "identifier": "band_4",
+                "nilValue": "-999"
+              },
+              {
+                "name": "band_5",
+                "identifier": "band_5",
+                "nilValue": "-999"
+              },
+              {
+                "name": "band_6",
+                "identifier": "band_6",
+                "nilValue": "-999"
+              },
+              {
+                "name": "band_7",
+                "identifier": "band_7",
+                "nilValue": "-999"
+              }
+            ],
+            "axes": {
+              "unix": {
+                "min": "${netcdf:variable:unix:min}",
+                "max": "${netcdf:variable:unix:max}",
+                "directPositions": "${netcdf:variable:unix}",
+                "gridOrder": 0,
+                "irregular": true
+              },
+              "E": {
+                "min": "${netcdf:variable:E:min}",
+                "max": "${netcdf:variable:E:max}",
+                "gridOrder": 2,
+                "resolution": 25
+              },
+              "N": {
+                "min": "${netcdf:variable:N:min}",
+                "max": "${netcdf:variable:N:max}",
+                "gridOrder": 1,
+                "resolution": -25
+              }
+            }
+          }
+        },
+        "tiling": "ALIGNED [0:13, 0:999, 0:999] TILE SIZE 4000000"
+      }
+    }
+
+* Example for importing TIFF data with the ``gdal`` driver 
+  (full ingredients file `here 
+  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_slice_group_size_7days/ingest.template.json>`__):
+
+  .. hidden-code-block:: json
+
+    "recipe": {
+      "name": "general_coverage",
+      "options": {
+        "import_order": "ascending",
+        "coverage": {
+          "crs": "OGC/0/AnsiDate@EPSG/0/4326",
+          "metadata": {
+            "type": "xml",
+            "global": {
+              "Title": "'This is a test coverage'"
+            }
+          },
+          "slicer": {
+            "type": "gdal",
+            "bands": [
+              {
+                "name": "Gray",
+                "identifier": "0"
+              }
+            ],
+            "axes": {
+              "MyTimeAxis": {
+                "min": "datetime(regex_extract('${file:name}', '(.*)\\.(.*)',1), 'YYYYMMDD')",
+                "crsOrder": 0,
+                "gridOrder": 0,
+                "type": "ansidate",
+                "irregular": true,
+                "sliceGroupSize": 7,
+                "dataBound": false
+              },
+              "long": {
+                "min": "${gdal:minX}",
+                "max": "${gdal:maxX}",
+                "crsOrder": 2,
+                "gridOrder": 1,
+                "resolution": "${gdal:resolutionX}"
+              },
+              "lat": {
+                "min": "${gdal:minY}",
+                "max": "${gdal:maxY}",
+                "crsOrder": 1,
+                "gridOrder": 2,
+                "resolution": "${gdal:resolutionY}"
+              }
+            }
+          }
+        },
+        "tiling": "ALIGNED [0:0, 0:1023, 0:1023]"
+      }
+    }
+
+
+.. _data-import-ingredient-sentences:
 
 Ingredient sentences
 ^^^^^^^^^^^^^^^^^^^^
@@ -2496,14 +2750,15 @@ An *ingredient sentence* can be of multiple types:
 - *Data expressions* - Allow to collect information from the data file being
   imported with a specific format driver. An expression is of form
   ``${driverName:driverOperation}`` - e.g. ``${gdal:minX}`` or
-  ``${netcdf:variable:time:min``. All possible expressions are documented
-  :ref:`here <data-import-possible-expressions>`.
+  ``${netcdf:variable:time:min``. All possible expressions are documented in
+  :ref:`data-import-possible-expressions`.
 
 - *Python expressions* - The types above can be combined into any valid Python
   expression; this allows to do mathematical operations, string parsing, 
-  date/time manipulation, etc. E.g. 
-  ``${gdal:minX} + 1/2 * ${gdal:resolutionX}`` or
-  ``datetime(${netcdf:variable:time:min} * 24 * 3600)``.
+  date/time manipulation, etc. E.g. ``${gdal:minX} + 1/2 * ${gdal:resolutionX}``
+  or ``datetime(${netcdf:variable:time:min} * 24 * 3600)``. Expressions can
+  use functions from any Python library which just needs to be explicitly
+  imported as explained in :ref:`data-import-using-python-libraries`.
 
 
 .. _data-import-possible-expressions:
@@ -2515,13 +2770,11 @@ Each driver allows expressions to extract information from input files.
 We will mark with capital letters things that vary in the expression.
 E.g. ``${gdal:metadata:FIELD}`` means that you can replace
 ``FIELD`` with any valid gdal metadata tag such as ``TIFFTAG_DATETIME``.
+Example ingredients where data expressions are used can be found in
+:ref:`data-import-recipe-general-coverage-examples`.
 
 NetCDF
 ~~~~~~
-
-Take a look at `this NetCDF example
-<http://rasdaman.org/browser/applications/wcst_import/ingredients/general_coverage_netcdf.json>`_
-for a general recipe ingredient file that uses many netcdf expressions.
 
 +-----------+-----------------------------------------------------+-------------------------------+
 |  **Type** |                **Description**                      |        **Examples**           |
@@ -2529,41 +2782,29 @@ for a general recipe ingredient file that uses many netcdf expressions.
 |Metadata   |                                                     |                               |
 |information|``${netcdf:metadata:YOUR_METADATA_FIELD}``           |``${netcdf:metadata:title}``   |
 +-----------+-----------------------------------------------------+-------------------------------+
-|Variable   |``${netcdf:variable:VARIABLE_NAME:MODIFIER}``        |``${netcdf:variable:time:min}``|
-|information|where ``VARIABLE_NAME`` can be any variable in the   |``${netcdf:variable:t:units}`` |
+|Variable   |``${netcdf:variable:VAR_NAME:MODIFIER}``             |``${netcdf:variable:t:min}``   |
+|information|where ``VAR_NAME`` can be any variable in the        |``${netcdf:variable:t:units}`` |
 |           |file and ``MODIFIER`` can be one of:                 |                               |
 |           |first|last|max|min; Any extra modifiers will return  |                               |
 |           |the corresponding metadata field on the given        |                               |
 |           |variable                                             |                               |
 +-----------+-----------------------------------------------------+-------------------------------+
-|Dimension  |``${netcdf:dimension:DIMENSION_NAME}``               |``${netcdf:dimension:time}``   |
-|information|where ``DIMENSION_NAME`` can be any dimension in the |                               |
+|Dimension  |``${netcdf:dimension:DIM_NAME}``                     |``${netcdf:dimension:time}``   |
+|information|where ``DIM_NAME`` can be any dimension in the       |                               |
 |           |file. This will return the value on the selected     |                               |
 |           |dimension.                                           |                               |
 +-----------+-----------------------------------------------------+-------------------------------+
 
-.. NOTE::
-
-    If a netCDF file is flipped on Lat axis (South -> North with coordinates
-    increase from ``ncdump -c`` output) instead of GDAL style (North -> South
-    with coordinates decrease from ``ncdump -c``), then one needs to flip it
-    manually by other tools before importing to rasdaman, e.g. with ``cdo
-    invertlat input.nc output.nc``.
-
-
 GDAL
 ~~~~
 
-For TIFF, PNG, JPEG, and other 2D data formats rasdaman relies on GDAL. Take a
-look at `this GDAL example
-<http://rasdaman.org/browser/applications/wcst_import/ingredients/general_coverage_gdal_3d.json>`_
-for a general recipe ingredient file that uses many GDAL expressions.
+Relevant for TIFF, PNG, JPEG, and other 2D data formats.
 
 +-----------+-----------------------------------------------------+-----------------------------+
 |  **Type** |                **Description**                      |        **Examples**         |
 +===========+=====================================================+=============================+
 |Metadata   |                                                     |                             |
-|information|``${gdal:metadata:METADATA_FIELD}``                  |${gdal:metadata:TIFFTAG_NAME}|
+|information|``${gdal:metadata:METADATA_FIELD}``                  |``${gdal:metadata:TIFFTAG}`` |
 +-----------+-----------------------------------------------------+-----------------------------+
 |Geo Bounds |``${gdal:BOUND_NAME}`` where ``BOUND_NAME`` can be   |``${gdal:minX}``             |
 |           |one of the minX|maxX|minY|maxY                       |                             |
@@ -2578,10 +2819,6 @@ for a general recipe ingredient file that uses many GDAL expressions.
 GRIB
 ~~~~
 
-Take a look at `this GRIB example
-<http://rasdaman.org/browser/applications/wcst_import/ingredients/general_coverage_grib.json>`_
-for a general recipe ingredient file that uses many grib expressions.
-
 +-----------+------------------------------------------------+------------------------------------------+
 |  **Type** |                **Description**                 |               **Examples**               |
 +===========+================================================+==========================================+
@@ -2591,17 +2828,6 @@ for a general recipe ingredient file that uses many grib expressions.
 |           |to get the current processed GRIB message index |                                          |
 |           |(starting from 1)                               |                                          |
 +-----------+------------------------------------------------+------------------------------------------+
-
-Currently, rasdaman only supports GRIB files with ``gridType`` format of regular
-lat long ``regular_ll``. If the format is different, it is necessary to
-preprocess the input files with other tools into regular grid type. The grid
-type can be retreived with ``grib_dump file.grib | grep 'gridType'``.
-
-If a GRIB file is flipped on Lat axis (South -> North with ``jScansPositively =
-0`` from ``grib_dump`` output) instead of GDAL style (North -> South with 
-``jScansPositively = 1``), then it is necessary to flip it manually with other
-tools before importing to rasdaman, e.g. ``cdo invertlat input.grib
-output.grib``.
 
 File
 ~~~~
@@ -2626,28 +2852,39 @@ File
 Special functions
 ~~~~~~~~~~~~~~~~~
 
-A couple of special functions are available to deal with more complicated cases:
+A couple of special functions are available to help with more complicated
+expressions:
 
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
-| **Function Name**                |             **Description**                     |             **Examples**                   |
+| **Function and Arguments**       |             **Description**                     |             **Examples**                   |
 +==================================+=================================================+============================================+
-|``grib_datetime(date,time)``      |This function helps to deal with the usual grib  |``grib_datetime(${grib:dataDate},           |
-|                                  |date and time format. It returns back a datetime |${grib:dataTime})``                         |
-|                                  |string in ISO format.                            |                                            |
+|                                  |                                                 |::                                          |
+|``grib_datetime``                 |                                                 |                                            |
+|                                  |This function helps to deal with the usual grib  |  grib_datetime(${grib:dataDate},           |
+|- date                            |date and time format. It returns back a datetime |                ${grib:dataTime})           |
+|- time                            |string in ISO format.                            |                                            |
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
-|``datetime(date, format)``        |This function helps to deal with strange date    |``datetime("20120101:1200",                 |
-|                                  |time formats. It returns back a datetime string  |"YYYYMMDD:HHmm")``                          |
-|                                  |in ISO format.                                   |                                            |
+|                                  |                                                 |::                                          |
+|``datetime``                      |                                                 |                                            |
+|                                  |This function helps to deal with strange date    |  datetime("20120101:1200",                 |
+|- date                            |time formats. It returns back a datetime string  |           "YYYYMMDD:HHmm")                 |
+|- format                          |in ISO format.                                   |                                            |
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
-|``regex_extract(input, regex,     |This function extracts information from a string |``datetime(regex_extract('${file:name}',    |
-|group)``                          |using regex; input is the string you parse, regex|'(.*)_(.*)_(.*)_(\\d\\d\\d\\d-\\d\\d)       |
-|                                  |is the regular expression, group is the regex    |(.*)', 4), 'YYYY-MM')``                     |
-|                                  |group you want to select                         |                                            |
+|                                  |                                                 |::                                          |
+|``regex_extract``                 |                                                 |                                            |
+|                                  |This function extracts information from a string | datetime(                                  |
+|- string                          |using regex; input is the string you parse, regex|   regex_extract('${file:name}',            |
+|- regex                           |is the regular expression, group is the regex    |     '(.*)_(\\d*-\\d\\d)(.*)', 2),          |
+|- group                           |group you want to select                         |   'YYYY-MM')                               |
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
-|``replace(input, old, new)``      |Replaces all occurrences of a substring with     |``replace('${file:path}','.tiff', '.xml')`` |
-|                                  |another substring in the input string            |                                            |
+|``replace``                       |                                                 |::                                          |
+|                                  |                                                 |                                            |
+|- str                             |Replaces all occurrences of a substring with     | replace('${file:path}',                    |
+|- old                             |another substring in the input string            |         '.tiff', '.xml')                   |
+|- new                             |                                                 |                                            |
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
 
+.. _data-import-using-python-libraries:
 
 Using libraries in sentences
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2673,44 +2910,12 @@ from the ``datatime`` library.
                 "type": "ansidate"
               },
 
-.. NOTE::
 
-    Python functions imported in this way override the  `special function
-    <data-import-expressions-special-functions>`_ provided by wcst_import. For
-    example, the special utility function ``datetime(date_time_string, format)``
-    to convert  a string of datetime (e.g: ``"20120101:1200"``)  with an input
-    format  (e.g ``"YYYYMMDD:HHmm"``) to an ISO date time format will be
-    overridden when the ``datetime`` module is imported with a ``statements``
-    setting.
-
-.. _band-uom-netcdf-grib:
-
-Band UoM for netCDF and GRIB
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* In netCDF recipes you can add *uom* for each band by referencing the metadata
-  key of the specific variable. For example, for variable ``LAI``:
-
-.. hidden-code-block:: json
-
-   "uomCode": "${netcdf:variable:LAI:units}"
-
-* In GRIB recipes adding uom for bands is same as for netCDF, except that
-  a *GRIB expression* is used to fetch this information from metadata in the
-  GRIB file. Example:
-
-  .. hidden-code-block:: json
-
-    "bands": [
-      {
-        "name": "Temperature_isobaric",
-        "identifier": "Temperature_isobaric",
-        "description": "Bands description",
-        "nilReason": "Nil value represents missing values.",
-        "nilValue": 9999,
-        "uomCode": "${grib:unitsOfFirstFixedSurface}"
-      }
-    ]
+Python functions imported in this way override the :ref:`special functions
+<data-import-expressions-special-functions>` provided by wcst_import. For
+example, the special utility function ``datetime(date_time_string, format)`` to
+convert a string of datetime to an ISO date time format will be overridden when
+the ``datetime`` module is imported with a ``statements`` setting.
 
 
 .. _local-metadata:
@@ -2719,12 +2924,12 @@ Local metadata from input files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Beside the *global metadata* of a coverage, you can add *local metadata*
-for each file which is a part of the whole coverage (e.g a 3D time-series
+for each file which is a part of the whole coverage (e.g. a 3D time-series
 coverage mosaiced from 2D GeoTiff files).
 
-In ingredient file of *general recipe*, under the metadata section add a "local"
-object with keys and values extracted by using format type expression. Example
-of extracting an attribute from a netCDF input file:
+Under the metadata section add a "local" object with keys and values extracted
+by using format type expression. Example of extracting an attribute from a
+netCDF input file:
 
 .. hidden-code-block:: json
 
@@ -2738,10 +2943,10 @@ of extracting an attribute from a netCDF input file:
       }
     }
 
-Afterwards, each file's envelope (geo domain) and its local metadata
-will be added to the coverage metadata under ``<slice>...</slice>`` element
-if coverage metadata is imported in XML format. Example of a coverage
-containing local metadata in XML from 2 netCDF files:
+Each file's envelope (geo domain) and its local metadata will be added to the
+coverage metadata under ``<slice>...</slice>`` element if coverage metadata is
+imported in XML format. Example of a coverage containing local metadata in XML
+from 2 netCDF files:
 
 .. hidden-code-block:: xml
 
@@ -2766,7 +2971,6 @@ containing local metadata in XML from 2 netCDF files:
       </slice>
       <!--- End Local Metadata from netCDF file 1 -->
 
-
       <!--- Begin Local Metadata from netCDF file 2 -->
       <slice>
         <boundedBy>
@@ -2788,28 +2992,28 @@ containing local metadata in XML from 2 netCDF files:
 
     </slices>
 
-Since v10.0, local metadata for input files can be fetched from corresponding 
-external text files using the optional ``metadata_file`` setting. For example:
+Since v10.0, local metadata for input files can be also fetched from
+corresponding external text files with the optional ``metadata_file`` option.
+For example:
 
 .. hidden-code-block:: json
 
      "local": {
-          "local_metadata_key": "${gdal:metadata:local_metadata_key}",
-          "metadata_file": {
-               // The metadata from the external XML file will be created
-               // as a child element of this root element
-               "root_element": "INSPIRE",
-               // Path to the external XML file corresponding to
-               // the importing input file
-               "path": "replace('${file:path}', '.tiff', '.xml')"
-          }
+        "local_metadata_key": "${gdal:metadata:local_metadata_key}",
+        "metadata_file": {
+           // The metadata from the external XML file will be created
+           // as a child element of this root element
+           "root_element": "INSPIRE",
+           // Path to the external XML file corresponding to
+           // the importing input file
+           "path": "replace('${file:path}', '.tiff', '.xml')"
+        }
       }
 
-
-When subsetting a coverage which contains local metadata section
-from input files (via WC(P)S requests), if the geo domains of subsetted
-coverage intersect with some input files' envelopes, only local metadata of
-these files will be added to the output coverage metadata.
+When subsetting a coverage which contains a local metadata section from input
+files (via WC(P)S requests), if the geo domains of subsetted coverage intersect
+with some input files' envelopes, only local metadata of these files will be
+added to the output coverage metadata.
 
 For example: a ``GetCoverage`` request with a trim such that
 crs axis subsets are within netCDF file 1:
@@ -2823,8 +3027,8 @@ crs axis subsets are within netCDF file 1:
           &subset=Long(29.6015625,29.6015625)
           &subset=forecast(0)
 
-The coverage's metadata result will contain *only* local metadata from
-netCDF file 1:
+The coverage's metadata result will contain local metadata *only* from netCDF
+file 1:
 
 .. hidden-code-block:: xml
 
@@ -2862,17 +3066,11 @@ section as bellow:
 
 .. hidden-code-block:: json
 
-     "axes": {
-        "AnsiDate": {
-            ...
-        },
-        "Long": {
-            ...
-         },
-         "Lat": {
-            ...
-         }
-      }
+  "axes": {
+    "AnsiDate": { ... },
+    "Long":     { ... },
+    "Lat":      { ... }
+  }
 
 Since v9.8, one can change the default axis label defined by the CRS through
 indicating the axis index in the CRS (0-based) with the ``"crsOrder"`` setting.
@@ -2881,23 +3079,23 @@ MyLongAxis:
 
 .. hidden-code-block:: json
 
-     "axes": {
-        "MyDateTimeAxis": {
-            // Match ansi axis in AnsiDate CRS
-            "crsOrder": 0,
-             ...
-        },
-        "MyLongAxis": {
-            // Match Long axis in EPSG:4326
-            "crsOder": 2,
-             ...
-         },
-         "MyLatAxis": {
-            // Match Lat axis in EPSG:4326
-            "crsOder": 1,
-            ...
-         }
-      }
+  "axes": {
+    "MyDateTimeAxis": {
+      // Match ansi axis in AnsiDate CRS
+      "crsOrder": 0,
+      ...
+    },
+    "MyLongAxis": {
+      // Match Long axis in EPSG:4326
+      "crsOder": 2,
+      ...
+    },
+    "MyLatAxis": {
+      // Match Lat axis in EPSG:4326
+      "crsOder": 1,
+      ...
+    }
+  }
 
 
 .. _slice-group-size:
@@ -2907,7 +3105,7 @@ Group coverage slices
 
 Since v9.8, wcst_import allows to group input files on irregular axes (with
 ``"dataBound": false``) through the ``sliceGroupSize`` option, which would 
-specify the group size (positive number). E.g:
+specify the group size as a positive number. E.g:
 
 .. hidden-code-block:: json
 
@@ -2929,6 +3127,7 @@ time axis is irregular and its values are fetched from input files by regex
 expression. Then, all input files which belong to the same time window (e.g 7
 days in AnsiDate CRS with ``"sliceGroupSize": 7``) will have the same value,
 which is the first date of the week.
+
 
 .. _band-and-dim-metadata:
 
@@ -3012,7 +3211,7 @@ axis metadata
   in the ingredient file, all user-specified axes will have metadata which is
   fetched directly from the netCDF file. Metadata for 1 axis is 
   **collected automatically** if: 1) axis is not added. 2) axis is set
-  to ``"auto"``. 3) axis is set with ``${netcdf:variable:DimensionName:metadata}``.
+  to ``"auto"``. 3) axis is set with ``${netcdf:variable:Name:metadata}``.
   The axis label for variable is detected from the ``min`` or ``max`` value
   of CRS axis configuration under ``"slicer/axes"`` section. For example:
 
@@ -3029,7 +3228,8 @@ axis metadata
           }
        }
 
-* Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
+* Otherwise, the user could specify metadata explicitly as a dictionary of 
+  keys/values.
 
   .. hidden-code-block:: json
 
@@ -3095,7 +3295,7 @@ Recipe sentinel1
 ----------------
 
 This is a convenience recipe for importing Sentinel 1 data in particular;
-**currently only GRD/SLC product types are supported**, and only geo-referenced
+currently only GRD/SLC product types are supported, and only geo-referenced
 tiff files. Below is an example:
 
 .. hidden-code-block:: json
@@ -3137,7 +3337,7 @@ tiff files. Below is an example:
       }
     }
 
-The recipe extends `general_coverage <data-import-recipe-wcs_extract>`_ so
+The recipe extends :ref:`general_coverage <data-import-recipe-general>` so
 the ``"recipe"`` section has the same structure. However, a lot of information
 is automatically filled in by the recipe now, so the ingredients file is much
 simpler as the example above shows.
@@ -3220,7 +3420,7 @@ Below is an example:
       }
     }
 
-The recipe extends `general_coverage <data-import-recipe-wcs_extract>`_ so
+The recipe extends :ref:`general_coverage <data-import-recipe-general>` so
 the ``"recipe"`` section has the same structure. However, a lot of information
 is automatically filled in by the recipe now, so the ingredients file is much
 simpler as the example above shows.
@@ -3778,7 +3978,7 @@ Data export
 elements for XML POST requests), and take a valid **MIME type** as value. Output
 encoding is passed on to the the GDAL library, so the limitations on output
 formats are devised accordingly by the `supported raster formats
-<http://www.gdal.org/formats_list.html>`_ of GDAL. The valid MIME types which
+<http://www.gdal.org/formats_list.html>`__ of GDAL. The valid MIME types which
 Petascope may support can be checked from the WCS 2.0.1 GetCapabilities
 response:
 
@@ -3823,7 +4023,7 @@ are forwarded by petascope to the client.
    for being visible as coverages.
 
 For further internal documentation on petascope see
-`Developer introduction to petascope and its metadata database <http://rasdaman.org/wiki/PetascopeDevGuide>`_.
+`Developer introduction to petascope and its metadata database <http://rasdaman.org/wiki/PetascopeDevGuide>`__.
 
 Service Startup and Shutdown
 ----------------------------

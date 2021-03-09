@@ -164,7 +164,7 @@ To just have a URL as is nothing special needs to be done, just put as is:
 
 To render the URL with alternative text, then the following form should be used:
 
-    `Link text <http://rasdaman.org>`_
+    `Link text <http://rasdaman.org>`__
 
 Internal cross-referencing can be done by first setting up a label before a
 section header or a figure (see above this section Hyperlinks) and then using

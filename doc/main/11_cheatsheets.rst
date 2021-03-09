@@ -12,7 +12,7 @@ WCS
 ===
 
 The `OGC Web Coverage Service (WCS) standard 
-<https://www.opengeospatial.org/standards/wcs>`_ defines support for modeling
+<https://www.opengeospatial.org/standards/wcs>`__ defines support for modeling
 and retrieval of geospatial data as *coverages* (e.g. sensor, image, or
 statistics data).
 
@@ -171,7 +171,7 @@ WCPS
 ====
 
 The `OGC Web Coverage Processing Service (WCPS) standard 
-<https://www.opengeospatial.org/standards/wcps>`_ defines a
+<https://www.opengeospatial.org/standards/wcps>`__ defines a
 protocol-independent declarative query language for the extraction, processing,
 and analysis of multi-dimensional coverages representing sensor, image, or
 statistics data.
@@ -196,7 +196,7 @@ For each iteration, the ``return`` clause is evaluated if the result of the
 freely used in where / return expressions.
 
 Conforming WCPS queries can be submitted to rasdaman as `WCS ProcessCoverages
-requests <https://portal.opengeospatial.org/files/08-059r4>`_, e.g: ::
+requests <https://portal.opengeospatial.org/files/08-059r4>`__, e.g: ::
 
     http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
         &request=ProcessCoverages
@@ -413,7 +413,7 @@ WMS
 ===
 
 The `OGC Web Map Service (WMS) standard 
-<https://www.opengeospatial.org/standards/wms>`_ defines map portrayal on
+<https://www.opengeospatial.org/standards/wms>`__ defines map portrayal on
 geo-spatial data. In rasdaman, a WMS service can be enabled on any coverage,
 including 3-D or higher dimensional; the latest 1.3.0 version is supported.
 

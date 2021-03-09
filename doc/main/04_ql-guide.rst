@@ -1939,7 +1939,7 @@ selection, polytope clipping, curtain queries, and corridor queries. Presently,
 all operations are available in rasdaman via the ``clip`` function.
 
 Further examples of clipping can be found in the `systemtest for clipping
-<http://rasdaman.org/browser/systemtest/testcases_mandatory/test_clipping>`_.
+<http://rasdaman.org/browser/systemtest/testcases_mandatory/test_clipping>`__.
 
 .. _sec-clipping-polygons:
 
@@ -3339,7 +3339,7 @@ to avoid overflow or overtyping.
 
 Here a summary is presented, while full details can be explored in `rasdaman's
 systemtest
-<http://rasdaman.org/browser/systemtest/testcases_mandatory/test_type_coercion/oracle>`_.
+<http://rasdaman.org/browser/systemtest/testcases_mandatory/test_type_coercion/oracle>`__.
 The type specifiers (c, o, s, ...) are the literal type suffixes as documented
 in :numref:`table-literal-type-suffix`; ``X`` and ``Y`` indicate any cell type,
 ``U`` corresponds to any unsigned integer type, ``S`` to any signed integer
@@ -6045,7 +6045,7 @@ from ``SELECT c from RAS_COLLECTIONNAMES as c``:
 
 Clients need to parse the **multipart** results for these cases. There are
 some useful libraries to do that, 
-e.g. `NodeJS with Mailparser <https://nodemailer.com/extras/mailparser/>`_.
+e.g. `NodeJS with Mailparser <https://nodemailer.com/extras/mailparser/>`__.
 
 
 .. _sec-resp-format:
