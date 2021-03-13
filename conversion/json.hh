@@ -53,27 +53,24 @@ public:
     /// constructor using convert_type_e shortcut
     r_Conv_JSON(const char* src, const r_Minterval& interv, int tp);
     /// destructor
-    ~r_Conv_JSON(void);
+    ~r_Conv_JSON(void) override = default;
 
     /// convert to CSV
-    virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL);
+    r_Conv_Desc& convertTo(const char* options = NULL,
+                           const r_Range* nullVal = NULL) override;
     /// convert from CSV
-    using r_Convertor::convertFrom;
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
+    r_Conv_Desc& convertFrom(const char* options = NULL) override;
+    /// convert data in a specific format to array
+    r_Conv_Desc& convertFrom(r_Format_Params options) override;
     /// cloning
-    virtual r_Convertor* clone(void) const;
+    r_Convertor* clone(void) const override;
     /// identification
-    virtual const char* get_name(void) const;
-    virtual r_Data_Format get_data_format(void) const;
+    const char* get_name(void) const override;
+    r_Data_Format get_data_format(void) const override;
 
 private:
 
     void initJSON();
-
-    static const std::string LEFT_PAREN;
-    static const std::string RIGHT_PAREN;
-    static const std::string SEPARATOR;
 };
 
 #endif

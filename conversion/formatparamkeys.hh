@@ -69,6 +69,18 @@ static const std::string TYPE{"type"};
 namespace CSV
 {
 static const std::string ORDER{"order"};
+static const std::string ENABLE_NULL{"enableNull"};
+static const std::string TRUE_VALUE{"trueValue"};
+static const std::string FALSE_VALUE{"falseValue"};
+static const std::string NULL_VALUE{"nullValue"};
+static const std::string DIMENSION_START{"dimensionStart"};
+static const std::string DIMENSION_END{"dimensionEnd"};
+static const std::string DIMENSION_SEPARATOR{"dimensionSeparator"};
+static const std::string VALUE_SEPARATOR{"valueSeparator"};
+static const std::string COMPONENT_SEPARATOR{"componentSeparator"};
+static const std::string STRUCT_VALUE_START{"structValueStart"};
+static const std::string STRUCT_VALUE_END{"structValueEnd"};
+static const std::string OUTER_DELIMITERS{"outerDelimiters"};
 }
 
 namespace GDAL

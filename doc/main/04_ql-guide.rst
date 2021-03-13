@@ -3879,11 +3879,25 @@ encode
 
       // Format dependent extra parameters, e.g. gdal specific format parameters
       "formatParameters": {
+        // GDAL-specific, see GDAL docs for the particular format (e.g. PNG)
         "INTERLEAVE": "BAND",
         "COMPRESSION": "LZW",
-        // CSV/JSON specific
-        "order": "inner_outer",
         ...
+
+        // CSV/JSON-specific, see the CSV encode section for documentation
+        "order":              "inner_outer",
+        "enableNull":         false,
+        "nullValue":          "",
+        "trueValue":          "t",
+        "falseValue":         "f",
+        "dimensionStart":     "{",
+        "dimensionEnd":       "}",
+        "dimensionSeparator": ",",
+        "valueSeparator":     ",",
+        "componentSeparator": " ",
+        "structValueStart":   "\"",
+        "structValueEnd":     "\"",
+        "outerDelimiters":    false
       },
 
       // Configuration options (string key/value pairs);
@@ -3891,7 +3905,9 @@ encode
       "configOptions": {
         "GDAL_CACHEMAX": "64",
         ...
-      }
+      },
+
+
     }
 
 
@@ -4133,8 +4149,9 @@ CSV/JSON
 
 The CSV format is an ASCII character string where the cell values are
 represented by numbers linearized in row-major order. Row and column delimiters
-may be used, ``{`` and ``}`` for CSV, ``[`` and ``]`` for JSON. The delimiters
-are optional when decoding data in this format.
+are ``{`` and ``}`` for CSV, ``[`` and ``]`` for JSON; they can be  customized
+when encoding, see the encode() `section <csv-encode>`. The delimiters are
+optional when decoding data.
 
 decode()
 ^^^^^^^^
@@ -4194,18 +4211,46 @@ the line break): ::
     1 2 3
     2 1 3
 
+.. _csv-encode:
 
 encode()
 ^^^^^^^^
 
 Data encoded with CSV is a comma-separated list of values, such that each
 row of values (for every dimension, not just the last one) is between
-``{`` and ``}`` braces (``[`` and ``]`` for JSON). Composite cells are output
-as space separated values in quotes.
+``{`` and ``}`` braces (``[`` and ``]`` for JSON). The table below documents all
+`"formatParameters"` options that allow controlling the CSV/JSON output.
 
-The array serialization order can be specified with an optional format
-parameter ``order``, which can be ``outer_inner`` (default, last dimension
-iterates fastest), or vice-versa, ``inner_outer``.
+.. table:: optional options for controlling CSV/JSON encoding.
+
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | **option**                  | **description**                                     | CSV default   | JSON default  |
+    +=============================+=====================================================+===============+===============+
+    | ``order``                   | array linearization order, can be "outer_inner"     | "outer_inner" | "outer_inner" |
+    |                             | (default, last dimension iterates fastest, i.e.     |               |               |
+    |                             | column-major for 2-D), or vice-versa, "inner_outer".|               |               |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``trueValue``               | string denoting true values                         | "t"           | "true"        |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``falseValue``              | string denoting false values                        | "f"           | "false"       |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``dimensionStart``          | string to indicate starting a new dimension slice   | "{"           | "["           |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``dimensionEnd``            | string to indicate ending a dimension slice         | "}"           | "]"           |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``dimensionSeparator``      | separator between dimension slices                  | ","           | ","           |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``valueSeparator``          | separator between cell values                       | ","           | ","           |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``componentSeparator``      | separator between components of struct cell values  | " "           | ","           |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``structValueStart``        | string to indicate starting a new struct value      | "\\\\\""      | "["           |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``structValueEnd``          | string to indicate ending a new struct value        | "\\\\\""      | "]"           |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+    | ``outerDelimiters``         | wrap output in dimensionStart and dimensionEnd      | false         | true          |
+    +-----------------------------+-----------------------------------------------------+---------------+---------------+
+
 
 **Examples**
 

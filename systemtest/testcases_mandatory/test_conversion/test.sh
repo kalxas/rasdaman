@@ -100,13 +100,33 @@ function run_transpose_test()
     outfile="$out.png"
     [ -f "$outfile" ] || outfile="$out.unknown"
 
-    logn "comparing images: "
     if [ -f "$ORACLE_PATH/mr_1.png.checksum" ]; then
       $GDALINFO "$outfile" | grep 'Checksum' > "$out.result"
       diff "$ORACLE_PATH/mr_1.png.checksum" "$out.result" > /dev/null
     else
       cmp "$TESTDATA_PATH/mr_1.png" "$outfile" > /dev/null
     fi
+
+    check_result 0 $? "input and output match"
+
+    drop_colls test_tmp
+    rm -f $out*
+
+    log ----- png and png RGBSet transpose conversion ------
+
+    local out=rgb_transpose
+
+    create_coll test_tmp RGBSet
+    $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' \
+           -f $TESTDATA_PATH/rgb.png --quiet > /dev/null 2>&1
+    $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' \
+           --out file --outfile $out --quiet > /dev/null
+
+    outfile="$out.png"
+    [ -f "$outfile" ] || outfile="$out.unknown"
+
+    $GDALINFO "$outfile" | grep 'Checksum' > "$out.result"
+    diff "$ORACLE_PATH/rgb_transpose.checksum" "$out.result" > /dev/null
 
     check_result 0 $? "input and output match"
 
@@ -133,7 +153,6 @@ function run_variables_test()
     outfile="$out.png"
     [ -f "$outfile" ] || outfile="$out.unknown"
 
-    logn "comparing images: "
     if [ -f "$ORACLE_PATH/rgb.png.checksum_2" ]; then
       $GDALINFO "$outfile" | grep 'Checksum' > "$out.result"
       diff "$ORACLE_PATH/rgb.png.checksum_2" "$out.result" > /dev/null
@@ -156,18 +175,16 @@ function run_csv_scalar_test()
 
     $RASQL -q 'select encode(37, "csv")' --out file --outfile scalar1 > /dev/null 2>&1
 
-    logn "comparing csv scalar output with oracle: "
     cmp $ORACLE_PATH/scalar1.csv.oracle scalar1.* > /dev/null > /dev/null 2>&1
-    check_result 0 $? "input and output match"
+    check_result 0 $? "comparing csv scalar output with oracle"
     rm -f scalar1.*
 
     log ----- json scalar encode no-collection test -----
 
     $RASQL -q 'select encode(37, "json")' --out file --outfile scalar1 > /dev/null 2>&1
 
-    logn "comparing csv scalar output with oracle: "
     cmp $ORACLE_PATH/scalar1.json.oracle scalar1.* > /dev/null
-    check_result 0 $? "input and output match"
+    check_result 0 $? "comparing csv scalar output with oracle"
     rm -f scalar1.*
 
     log ----- csv scalar encode test ------
@@ -177,18 +194,16 @@ function run_csv_scalar_test()
 
     $RASQL -q 'select encode(c[100,100], "csv") from test_tmp as c' --out file --outfile scalar2 --quiet > /dev/null 2>&1
 
-    logn "comparing csv scalar output with oracle: "
     cmp $ORACLE_PATH/scalar2.csv.oracle scalar2.* > /dev/null
-    check_result 0 $? "input and output match"
+    check_result 0 $? "comparing csv scalar output with oracle"
     rm -f scalar2.*
 
     log ----- json scalar encode test ------
 
     $RASQL -q 'select encode(c[100,100], "json") from test_tmp as c' --out file --outfile scalar2 --quiet > /dev/null 2>&1
 
-    logn "comparing json scalar output with oracle: "
     cmp $ORACLE_PATH/scalar2.json.oracle scalar2.* > /dev/null
-    check_result 0 $? "input and output match"
+    check_result 0 $? "comparing json scalar output with oracle"
     rm -f scalar2.*
 
 #drop data
@@ -252,7 +267,6 @@ function run_test()
       out="$f.unknown"
     fi
 
-    logn "comparing images: "
     if [ -n "$oracle2" -a -f "$ORACLE_PATH/$f.$ext.checksum_$oracle2" ]; then
       $GDALINFO $out | grep 'Checksum' > $out.result
       diff $ORACLE_PATH/$f.$ext.checksum_$oracle2 $out.result > /dev/null
@@ -263,7 +277,7 @@ function run_test()
       cmp $TESTDATA_PATH/$f.$ext $out > /dev/null
     fi
     rc=$?
-    check_result 0 $rc "input and output match"
+    check_result 0 $rc "input and output images match"
     #[ $rc -ne 0 ] && exit 1
 
     drop_colls test_tmp
@@ -283,7 +297,6 @@ function run_csv_test()
     insert_into test_tmp "$TESTDATA_PATH/$f.csv" "$decodeopts" "inv_csv"
     export_to_file test_tmp "$f" "encode" ', "csv"'
 
-    logn "comparing images: "
     cmp $ORACLE_PATH/$f.csv $f.* > /dev/null
     check_result 0 $? "input and output match"
 
@@ -571,13 +584,11 @@ create_coll test_tmp GreySet
 insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "decode"
 export_to_file test_tmp "mr_1" "encode" ', "csv", "order=inner_outer"'
 
-logn "comparing images: "
 cmp $TESTDATA_PATH/mr_1_inner_outer.csv mr_1.csv > /dev/null
 check_result 0 $? "input and output match"
 
 export_to_file test_tmp "mr_1" "encode" ', "csv", "{ \"formatParameters\": { \"order\": \"inner_outer\" } }"'
 
-logn "comparing images: "
 cmp $TESTDATA_PATH/mr_1_inner_outer.csv mr_1.csv > /dev/null
 check_result 0 $? "input and output match"
 
@@ -598,7 +609,6 @@ log ----------------- csv transpose -----------------
 $RASQL --quiet -q 'select encode(c[0:9,40:49], "csv", "{ \"transpose\": [0,1] }") from test_tmp as c' --out file --outfile "csv_transpose"
 check_result 0 $? "csv(transpose)"
 
-logn "comparing images: "
 cmp $TESTDATA_PATH/csv_transpose.csv csv_transpose.* > /dev/null
 check_result 0 $? "input and output match"
 
@@ -623,13 +633,11 @@ f=json_float3
 create_coll test_tmp "FloatSet3"
 insert_into test_tmp "$TESTDATA_PATH/$f.json" ", \"json\", \"domain=[0:2,1:2,4:6];basetype=float\"" "decode"
 export_to_file test_tmp "$f" "encode" ', "json"'
-logn "comparing images: "
 cmp $ORACLE_PATH/$f.json $f.* > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*
 
 export_to_file test_tmp "$f" "encode" ', "json", ""'
-logn "comparing images: "
 cmp $ORACLE_PATH/$f.json $f.* > /dev/null
 check_result 0 $? "input and output match"
 rm -f $f*
