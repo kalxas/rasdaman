@@ -4242,11 +4242,11 @@ row of values (for every dimension, not just the last one) is between
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
     | ``valueSeparator``          | separator between cell values                       | ","           | ","           |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
-    | ``componentSeparator``      | separator between components of struct cell values  | " "           | ","           |
+    | ``componentSeparator``      | separator between components of struct cell values  | " "           | " "           |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
-    | ``structValueStart``        | string to indicate starting a new struct value      | "\\\\\""      | "["           |
+    | ``structValueStart``        | string to indicate starting a new struct value      | "\\\\\""      | "\\\\\""      |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
-    | ``structValueEnd``          | string to indicate ending a new struct value        | "\\\\\""      | "]"           |
+    | ``structValueEnd``          | string to indicate ending a new struct value        | "\\\\\""      | "\\\\\""      |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
     | ``outerDelimiters``         | wrap output in dimensionStart and dimensionEnd      | false         | true          |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
