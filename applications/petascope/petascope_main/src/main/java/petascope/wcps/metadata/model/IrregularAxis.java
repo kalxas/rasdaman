@@ -33,6 +33,8 @@ import petascope.util.ListUtil;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.BigDecimalUtil;
+import petascope.util.BigDecimalUtil.BigDecimalComparator;
+import static petascope.util.BigDecimalUtil.MIN_SCALE_TO_CHECK_EPSILON;
 import petascope.util.JSONUtil;
 import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
@@ -97,7 +99,7 @@ public class IrregularAxis extends Axis {
      */
     @JsonIgnore
     public int getIndexOfCoefficient(BigDecimal coefficient) throws PetascopeException {
-        int i = Collections.binarySearch(this.directPositions, coefficient);
+        int i = Collections.binarySearch(this.directPositions, coefficient, new BigDecimalComparator());
         
         return i;
     }
@@ -206,7 +208,7 @@ public class IrregularAxis extends Axis {
             throw new PetascopeException(ExceptionCode.RuntimeError, "Input coefficient lower bound '" + minInput 
                                                     + "' is lower than the direct positions' lower bound '" + coefficientLowerBound.toPlainString() 
                                                     + "' of irregular axis '" + this.getLabel() + "'.");
-        } else if (maxInput.compareTo(coefficientUpperBound) > 0) {
+        } else if (maxInput.compareTo(coefficientUpperBound.add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON)) > 0) {
             throw new PetascopeException(ExceptionCode.RuntimeError, "Input upper bound '" + maxInput
                                                     + "' is greater than the direct positions' upper bound '" + coefficientUpperBound 
                                                     + "' of irregular axis '" + this.getLabel() + "'.");
@@ -217,12 +219,12 @@ public class IrregularAxis extends Axis {
         // coefficient in numbers for legacy coverages
         for (BigDecimal coefficient : directPositions) {
             // find the min number which >= minInput
-            if (!foundMinIndex && coefficient.compareTo(minInput) >= 0) {
+            if (!foundMinIndex && BigDecimalUtil.greaterThanOrEqual(coefficient, minInput)) {
                 minIndex = i;
                 foundMinIndex = true;
             }
             // find the max number which <= maxInput (as it is ascending list, so don't stop until coefficent > maxInput
-            if (coefficient.compareTo(maxInput) <= 0) {
+            if (BigDecimalUtil.smallerThanOrEqual(coefficient, maxInput)) {
                 maxIndex = i;
             }
             // stop as it should find the minIndex and maxIndex already

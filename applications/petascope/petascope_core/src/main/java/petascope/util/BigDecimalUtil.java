@@ -24,6 +24,7 @@ package petascope.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -47,6 +48,9 @@ public class BigDecimalUtil {
     public static final int MAX_PRECISION = 128;
     // The total digit numbers of BigDecimal number (after the ".")
     public static final int MAX_SCALE = 64;
+    
+    // e.g: 10.66666666666666667 and 10.666666666666666666666666666666 are equal 
+    public static final int MIN_SCALE_TO_CHECK_EPSILON = 10;
     
     private static final Logger log = LoggerFactory.getLogger(BigDecimalUtil.class);
     
@@ -132,7 +136,7 @@ public class BigDecimalUtil {
      * @param value
      * @return 
      */
-    public static long listContainsCoefficient(List<BigDecimal> list, BigDecimal value) {
+    public static int listContainsCoefficient(List<BigDecimal> list, BigDecimal value) {
         int counter = 0;
         for (BigDecimal coeff : list) {
             // if value is within [coefficient - epsilon, coefficient + epsilon], then value is considered the coefficient
@@ -193,5 +197,35 @@ public class BigDecimalUtil {
         
         return new Pair<>(firstValue, secondValue);
     }
+    
+    
+    /**
+     * Check if number A >= number B
+     */
+    public static boolean greaterThanOrEqual(BigDecimal firstValue, BigDecimal secondValue) {        
+        return firstValue.compareTo(secondValue.subtract(COEFFICIENT_DECIMAL_EPSILON)) >= 0;
+    }
+    
+    /**
+     * Check if number A <= number B
+     */
+    public static boolean smallerThanOrEqual(BigDecimal firstValue, BigDecimal secondValue) {        
+        return firstValue.compareTo(secondValue.add(COEFFICIENT_DECIMAL_EPSILON)) <= 0;
+    }
+    
+    public static class BigDecimalComparator implements Comparator<BigDecimal> {
+
+    @Override
+    public int compare(BigDecimal firstValue, BigDecimal secondValue) {
+        if (firstValue.compareTo(secondValue.subtract(COEFFICIENT_DECIMAL_EPSILON)) < 0) {
+            return -1;
+        } else if (firstValue.compareTo(secondValue.add(COEFFICIENT_DECIMAL_EPSILON)) > 0) {
+            return 1;
+        }
+        
+        return 0;
+    }
+
+}
    
 }
