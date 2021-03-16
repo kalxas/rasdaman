@@ -59,22 +59,22 @@ public:
     /// constructor using convert_type_e shortcut
     r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp);
     /// destructor
-    ~r_Conv_GDAL(void);
+    ~r_Conv_GDAL(void) override;
 
     /// convert to format
-    virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL);
+    r_Conv_Desc& convertTo(const char* options = NULL,
+                           const r_Range* nullValue = NULL) override;
     /// convert from format
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
+    r_Conv_Desc& convertFrom(const char* options = NULL) override;
 
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
+    r_Conv_Desc& convertFrom(r_Format_Params options) override;
 
     /// cloning
-    virtual r_Convertor* clone(void) const;
+    r_Convertor* clone(void) const override;
 
     /// identification
-    virtual const char* get_name(void) const;
-    virtual r_Data_Format get_data_format(void) const;
+    const char* get_name(void) const override;
+    r_Data_Format get_data_format(void) const override;
 
 private:
 
@@ -252,6 +252,9 @@ private:
     static const std::string PNG_FORMAT;
 
     std::vector<int> bandIds;
+    /// set to true if a color map has been applied to the source array before
+    /// encoding; this info is used in the destructor
+    bool colorMapEvaluated{false};
 };
 
 #endif

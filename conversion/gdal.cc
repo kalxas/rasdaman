@@ -99,7 +99,7 @@ r_Conv_GDAL::~r_Conv_GDAL(void)
         GDALClose(poDataset);
         poDataset = NULL;
     }
-    if (formatParams.isColorMap())
+    if (colorMapEvaluated)
     {
         // Deleting the image data allocated during color mapping
         delete []desc.src;
@@ -123,26 +123,27 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
         throw r_Error(r_Error::r_Error_Conversion);
     }
     if (r_MimeTypes::isMimeType(format))
-    {
         format = r_MimeTypes::getFormatName(format);
-    }
+    
     if (options)
-    {
         initEncodeParams(string{options});
-    }
+
     updateNodataValue(nullValue);
 
     //if selected, transposes rasdaman data before converting to gdal
     if (formatParams.isTranspose())
     {
-        transpose(const_cast<char*>(desc.src), desc.srcInterv, desc.srcType, formatParams.getTranspose());
+        transpose(const_cast<char*>(desc.src), desc.srcInterv, desc.srcType,
+                  formatParams.getTranspose());
     }
 
     if (formatParams.isColorMap())
     {
-        auto coloredSrc = formatParams.colorMapTable.applyColorMap(desc.srcType, desc.src, desc.srcInterv, desc.baseType);
+        auto coloredSrc = formatParams.colorMapTable.applyColorMap(
+              desc.srcType, desc.src, desc.srcInterv, desc.baseType);
         desc.src = reinterpret_cast<const char*>(coloredSrc.release());
         desc.srcType = r_Convertor::get_external_type(desc.baseType);
+        colorMapEvaluated = true;
     }
 
     GDALAllRegister();
@@ -406,6 +407,14 @@ r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options)
     desc.destType = ConvUtil::gdalTypeToRasType(poDataset, bandIds);
     setTargetDomain();
     desc.dest = decodeImage();
+    
+    // if selected, transposes rasdaman data after converting from netcdf
+    // if (formatParams.isTranspose())
+    // {
+    //     LDEBUG << "transposing decoded data of sdom: " << desc.destInterv;
+    //     transpose(desc.dest, desc.destInterv, (const r_Type*) desc.destType,
+    //               formatParams.getTranspose());
+    // }
 
     return desc;
 
