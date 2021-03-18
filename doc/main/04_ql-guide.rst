@@ -3250,7 +3250,7 @@ number of pixels in the image having the respective intensity value. ::
 **Shorthand**
 
 As a shorthand, variable *var* can be used without indexing; this is
-equivalent to *var*[0]: ::
+equivalent to var[0]: ::
 
     marray x in [1:5]
     values a[ x ]       -- equivalent to a[ x[0] ]
@@ -3595,602 +3595,218 @@ inserted in to the database in a particular format, or be it a Web
 application where particular output formats have to be used to conform
 with the respective standards.
 
-To this end, rasql provides two families of operations:
+To this end, rasql provides two functions for
 
--  ``encode()`` for encoding an MDD in a particular data format
-   repre­sent­at­ion; formally, the result will be a 1D byte array.
+- `decoding <rasql-decode-function>`__ format-encoded data into an MDD
 
--  ``decode()`` for decoding a byte stream (such as a query input parameter
-   during ``insert`` - see examples below) into an actionable MDD.
+- `encoding <rasql-encode-function>`__ an MDD to a particular format
 
 Implementation of these functions is based on GDAL and, hence, supports
-all GDAL formats. Some formats are implemented in addition, see the
-description below.
+all GDAL formats. Some formats are implemented natively in addition: NetCDF,
+GRIB, JSON, and CSV.
 
 
-Encode / Decode Operations
-==========================
+.. _rasql-decode-function:
 
-**Syntax**
+Decode for data import
+======================
+
+The ``decode()`` function allows for decoding data represented in one of
+the supported formats, into an MDD which can be persisted or processed in
+rasdaman.
+
+Syntax
+------
 
 ::
 
-    encode( mddExp , formatidentifier )
-    encode( mddExp , formatidentifier , formatParams )
-
     decode( mddExp )
-    decode( mddExp , formatidentifier, formatParams )
 
-The ``encode()`` functions accept a format identifier in its second parameter
-whose values are GDAL format identifiers. The ``decode()`` function
-automatically detects the format used, so there is no format parameter. It
-accepts a format when a custom internal implementation should be selected
-instead of using GDAL, e.g. netCDF, GRIB, or CSV / JSON.
-
-**Examples**
-
-The following query loads a TIFF image into collection ``rgb``: ::
-
-    insert into rgb
-    values decode( $1 )
-
-This query extracts PNG images (one for each tuple) from collection ``rgb``: ::
-
-    select encode( rgb, "png" )
-    from rgb
+    encode( mddExp , format , formatParameters )
 
 
-**Input/Output Types**
+As a first paramater the data to be decoded must be specified. Technically this
+data must be in the form of a 1D char array. Usually it is specified as a query 
+input parameter with ``$1``, while the binary data is attached with the
+``--file`` option of the rasql command-line client tool, or with the
+corresponding methods in the client API. If the data is on the same machine as
+rasdaman, it can be loaded directly by specifying the path to it in the format
+parameters; more details on this in :ref:`rasql-decode-format-parameters`.
 
-The result of any encoding function is a 1D MDD of type ``char`` holding the
-MDD encoded in the target format.
+Data format
+-----------
 
-The input to any decoding function is such a 1D MDD, conversely.
+The source data format is automatically detected in case it is handled by GDAL
+(e.g. PNG, TIFF, JPEG, etc; see output of ``gdalinfo --formats`` or the `GDAL
+documentation <https://gdal.org/drivers/raster/index.html>`__ for a full list),
+so there is no format parameter in this case.
 
-**Type Matching**
-
-For encoding an MDD into a data format (and vice versa), the MDD type
-must match the dimension and data type the image format can handle - it
-is mandatory that the array to be transformed or generated conforms to
-the overall structure supported by the particular data exchange format.
-For example, TIFF can only handle 2-D arrays with a particular subset of
-supported cell types.
-
-The cell type of an MDD input stream may need to be provided explicitly
-through a cast operator, otherwise the query could be aborted with an
-error on cell type mismatch. The following query correctly inserts a
-TIFF image with floating-point values into collection ``Bathymetry``: ::
-
-    insert into Bathymetry
-    values (double) decode( $1 )
-
-The reason for this requirement is that, at the time the query is
-analyzed, the input parameters are not yet decoded, this takes place at
-a later stage. Hence, the server has no knowledge about the data type,
-and this prevents it from understanding the query correctly.
+A format is necessary, however, when a custom internal implementation should be
+selected instead of GDAL for decoding the data, e.g. NetCDF (``"netcdf"`` /
+``"application/netcdf"``), GRIB (``"grib"``), JSON (``"json"`` /
+``"application/json"``), or CSV (``"csv"`` / ``"text/csv"``).
 
 
-Formats Supported
-=================
+.. _rasql-decode-format-parameters:
 
-The **decode()** and **encode()** functions utilize the open-source GDAL
-library for transcoding. A list of the GDAL supported formats can be
-obtained through gdalinfo or from
-`www.gdal.org/formats_list.html <http://www.gdal.org/formats_list.html>`__:
+Format parameters
+-----------------
 
-.. code-block:: shell
+Optionally, a format parameters string can be specified as a third parameter,
+which allows to control the format decoding. For GDAL formats it is necessary to
+specify format ``"GDAL"`` in this case.
 
-    $ gdalinfo -formats
-    Supported Formats:
-      VRT (rw+v): Virtual Raster
-      GTiff (rw+v): GeoTIFF
-      NITF (rw+v): National Imagery Transmission Format
-      RPFTOC (ro): Raster Product Format TOC format
-      ...
-
-Additionally, the following formats beyond GDAL are supported by
-rasdaman (more details in :ref:`multidimensional-format-support`:
-
--  CSV (comma-separated values), format name: "csv"
--  JSON, format name: "json" (same as CSV, but uses ``[`` and ``]`` as dimension separators)
--  NetCDF4 (n-D), format name "netcdf"
--  HDF4 (n-D), format name "hdf"
--  GRIB (n-D), format name "grib" (decode only)
--  TIFF, JPEG, PNG, BMP (2-D)
-
-
-Conversion Options
-==================
-
-The ``encode()`` / ``decode()`` functions can be provided with a format specific
-parameter JSON string, *formatParams*, for fine-tuning the conversion. Certain
-parameters are common to all formats:
-
-1. **variable subset**: variable names, band ids;
-2. **internal structure**: lat/lon, x/y/t, message domains in GRIB;
-3. **x/y transpose**: indicate if x/y should be transposed or is it not relevant
-   (comes up in netCDF and GRIB and has a performance penalty at both decode and encode)
-4. **filepath**: absolute path to an input file, this improves ingestion performance
-   if the data is on the same machine as the rasdaman server, as the network
-   transport is bypassed
-5. **subset domain**: only the given subset needs to be extracted from the input
-   file; *note* that the subset domain must match in dimensionality with the file
-   dimensionality, and must be accordingly offset to the grid origin in the file,
-   which is typically 0,0,0,..
-
-**Quote escaping**: when used in a query the format parameters are the third
-argument of the ``decode``/``encode`` functions. They need to be in quotes, i.e.
-``"formatParameters"``. Because of these outer quotes, all quotes inside of the
+The format parameters must be formatted as a valid JSON object. As the format
+parameters are in quotes, i.e. ``"formatParameters"``, all quotes inside of the
 ``formatParameters`` need to be escaped (``\"``). For example, 
-``"{\"transpose\": [0,1] }"`` is the right way to specify transposition, while 
-``"{"transpose": [0,1] }"`` will lead to failure.
+``"{ \"transpose\": [0,1] }"`` is the right way to specify transposition, while 
+``"{ "transpose": [0,1] }"`` will lead to failure. Note that in examples further
+on quotes are not escaped for readability.
 
-**Single line**: the format parameters JSON string must be a single line when
-specified on the command-line.
+Common parameters
+^^^^^^^^^^^^^^^^^
 
-decode
-------
+The following parameters are common to GDAL, NetCDF, and GRIB data formats:
 
-.. code-block:: json
+- ``variables`` -  An array of variable names or band ids (0-based, as strings) 
+  to be extracted from the data. This allows to decode only some of the 
+  variables in a NetCDF file for example with ``["var1", "var2"]``, or the bands 
+  of a TIFF file with ``["0", "2"]``.
 
-    {
-      // Specify variable names, band ids (0-based), etc.
-      "variables": [ "var1", "var2", ... ],
+- ``filePaths`` - An array of absolute paths to input files to be decoded, e.g.
+  ``["/path/to/rgb.tif"]``. This improves ingestion performance if the data is 
+  on the same machine as the rasdaman server, as the network transport is 
+  bypassed and the data is read directly from disk. Supported only for GDAL, 
+  NetCDF, and GRIB data formats.
 
-      // Absolute path to input file(s). This improves ingestion performance if the data
-      // is on the same machine as the rasdaman server, as the network transport is bypassed;
-      // It is possible that a format could have multiple files associated to each other,
-      // so this argument is an array of filepaths.
-      // Note: supported for netCDF, GRIB, and GDAL formats.
-      "filePaths": [ "/path/to/file.tif", ... ],
+- ``subsetDomain`` - Specify a subset to be extracted from the input file, 
+  instead of the full data. The subset should be specified in rasdaman minterval
+  format as a string, e.g. ``"[0:100,0:100]"``. Note that the subset domain must 
+  match in dimensionality with the file dimensionality, and must be accordingly 
+  offset to the grid origin in the file, which is typically [0,0,0,...].
 
-      // Only the given subset needs to be extracted from the input file.
-      "subsetDomain": "[0:100,0:100]",
+- ``transpose`` - Specify if x/y should be transposed with an array of 0-based
+  axis ids indicating the axes that need to be transposed; the axes must be
+  contiguous ``[N,N+1]``, e.g. ``[0,1]``. This is often relevant in NetCDF and
+  GRIB data which have a swapped x/y order than what is usually expected in e.g.
+  GDAL. Note that transposing axes has a performance penalty, so avoid if
+  possible.
 
-      // Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and
-      // GRIB and has a performance penalty, so avoid if possible);
-      // The argument is an array of 0-based axis ids indicating the axes that need to be
-      // transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
-      "transpose": [ 0, 1 ],
+- ``formatParameters`` - A JSON object containing extra options which are
+  format-specific, specified as string key-value pairs. This is where one would
+  specify the base type and domain for decoding a CSV file for example, or GDAL
+  format-specific options. Example for a CSV file:
 
-      // Describe the internal structure of a format if necessary, e.g. message domains in GRIB
-      "internalStructure": {
-        "messageDomains": [
-          { "msgId": 1, "domain": "[0:0,0:0,0:719,0:360]" },
-          { "msgId": 2, "domain": "[0:0,1:1,0:719,0:360]" },
-          { "msgId": 3, "domain": "[0:0,2:2,0:719,0:360]" },
-          ...
-        ]
-      },
+  .. code-block:: json
 
-      // Extra format parameters
-      "formatParameters": {
-        "key": "value",
-        // CSV/JSON specific (example values)
-        "basetype": "struct { float f, long l }",
-        "domain": "[0:100,0:100]"
-      },
-
-      // Configuration options (string key/value pairs);
-      // details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
-      "configOptions": {
-        "GDAL_CACHEMAX": "64",
-        ...
-      }
-    }
-
-.. _encode:
-
-encode
-------
-
-.. code-block:: json
-
-    {
-      // netCDF-specific
-      "dimensions": [ "dimName1", "dimName2", ... ],
-
-      // Specify variable names, band ids (0-based), etc; the variables can be objects listing
-      // details like type, metadata and data for netCDF, or simply an array of variable names
-      "variables": {
-        "var1": {..},
-        "var2": {..},
-        ...
-      },
-
-      // single string, or multiple key/value pairs
-      "metadata": {
-        "standard_name": "sea_surface_temperature",
-        "long_name": "Sea Surface Temperature",
-        "units": "K"
-      },
-
-      // Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and GRIB
-      // and has a performance penalty, so avoid if possible);
-      // The argument is an array of 0-based axis ids indicating the axes that need to be
-      // transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
-      "transpose": [0,1],
-
-      // geo-referencing information, can be either given as a geo bounding box or an
-      // array of GCPs (but not both); see 'Affine GeoTransform' and 'GCPs' sections
-      // at http://www.gdal.org/gdal_datamodel.html
-      "geoReference": {
-        "crs": "EPSG:4326",
-
-        // a geo bounding box
-        "bbox": {
-          "xmin": -15,
-          "ymin": 0.5,
-          "xmax": 10.2,
-          "ymax": 25
-        },
-
-        // or an array of GCPs
-        "GCPs": [
-          {
-            "id": ..,     // optional unique identifier (gets the array index by default)
-            "info": ..,   // optional text associated with the GCP
-
-            // these must have double value
-            "pixel": .., "line": ..,     // GCP location on the raster
-            "x": ..,  "y": ..,  "z": ..  // georeferenced location, with "z" being optional
-                                         // (zero by default)
-          }
-          ...
-        ]
-      },
-
-      // single value or an array of values if different for multiple bands
-      // ( if nodata= 1 single value, it will be applied to all bands, and if nodata =
-      // array of values then each value is applied to each band separately ).
-      // 
-      // special floating-point constants supported (case-sensitive):
-      // NaN, NaNf, Infinity, -Infinity
-      "nodata": 0,
-
-      // Specify a colorMap to be applied to the array before encoding:
-      // - type: can be one of "values", "intervals" or "ramp"
-      // - colorTable: a map of pixelValue/colorValue pairs, where pixelValue is any number,
-      //   and colorValue is an array of 1, 3 or 4 8-bit unsigned integers for greyscale, RGB,
-      //   or RGBA output respectively. All colorValues must have the same number of components.
-      "colorMap": {
-        "type": "values",       
-        "colorTable": {
-          "-1": [255, 255, 255, 0],
-          "-0.5": [125, 125, 125, 255],
-          "1": [0, 0, 0, 255] 
-        } 
-      },
-
-      // for more details see "Color Table" at http://www.gdal.org/gdal_datamodel.html
-      "colorPalette": {
-        "paletteInterp": "RGB"       // optional palette interpretation, one of
-                                     // "Gray", "RGB", "CMYK", "HSL" (default: "RGB")
-        // An optional array of band color interpretations, one of:
-        // Undefined Gray Palette Red Green Blue Alpha Hue Saturation Lightness Cyan
-        // Magenta Yellow Black YCbCr_Y YCbCr_Cb YCbCr_Cr YCbCr_Cr
-        "colorInterp": [ "Red", "Green", "Blue" ]
-        "colorTable": [              // optional color table, an array of arrays with 1, 3 or
-                                     // 4 short values (depending on the colorInterpretation)
-          [255, 0, 0, 0],            // for each color entry; pixels with value 0 are colored red
-          ...
-        ]
-      },
-
-      // Format dependent extra parameters, e.g. gdal specific format parameters
-      "formatParameters": {
-        // GDAL-specific, see GDAL docs for the particular format (e.g. PNG)
-        "INTERLEAVE": "BAND",
-        "COMPRESSION": "LZW",
-        ...
-
-        // CSV/JSON-specific, see the CSV encode section for documentation
-        "order":              "inner_outer",
-        "enableNull":         false,
-        "nullValue":          "",
-        "trueValue":          "t",
-        "falseValue":         "f",
-        "dimensionStart":     "{",
-        "dimensionEnd":       "}",
-        "dimensionSeparator": ",",
-        "valueSeparator":     ",",
-        "componentSeparator": " ",
-        "structValueStart":   "\"",
-        "structValueEnd":     "\"",
-        "outerDelimiters":    false
-      },
-
-      // Configuration options (string key/value pairs);
-      // details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
-      "configOptions": {
-        "GDAL_CACHEMAX": "64",
-        ...
-      },
-
-
+    "formatParameters": {
+      "basetype": "struct { float f, long l }",
+      "domain": "[0:100,0:100]"
     }
 
 
-GDAL Format Parameters
-^^^^^^^^^^^^^^^^^^^^^^
+GDAL
+^^^^
 
-The key/values under ``"formatParameters"`` are passed onto GDAL as given. Each
-format supports specific parameters as documented on the `GDAL formats page
-<https://www.gdal.org/formats_list.html>`.
+- ``formatParameters`` - any entries in the formatParameters object are
+  forwarded to the specific GDAL driver; consult the `GDAL documentation
+  <https://gdal.org/drivers/raster/index.html>`__ for the options recognized 
+  by each particular driver. E.g. for `PNG 
+  <https://gdal.org/drivers/raster/png.html>`__ you could specify, among other
+  details, a description metadata field with:
 
-Rasdaman itself does not change the default values for these parameters, with
-the following *exceptions*:
+  .. code-block:: json
 
-- ``PNG`` - the compression level when encoding to PNG (option ``ZLEVEL``) will
-  be set to ``2`` if the user does not specify it explicitly and the result
-  array is not of type ``boolean``. The default compression level of ``6`` does
-  not offer considerable space savings on typical image results (e.g. around
-  10\% lower file size for satellite image), while significantly increasing the
-  time to encode, taking up to 3-5x longer.
+    "formatParameters": {
+      "DESCRIPTION": "Data description..."
+    }
 
-.. _coloring-arrays:
+- ``configOptions`` - A JSON object containing configuration options as string
+  key-value pairs; only relevant for GDAL currently, more details in the `GDAL
+  documentation <https://gdal.org/user/configoptions.html>`__. Example:
 
-Coloring Arrays
-^^^^^^^^^^^^^^^
+  .. code-block:: json
 
-Depending on the type, a ``colorMap`` changes the pixel values of the array 
-argument of encode according to the following rules.
+    "configOptions": {
+      "GDAL_CACHEMAX": "64",
+      ...
+    }
 
-**Values**
-
-If the colorMap type is ``"values"``, each pixel is replaced by the entry in the 
-colorTable where the key is the pixel value. In the example below, it means 
-that all pixels with value -1 are replaced by [255, 255, 255, 0]. Pixels with 
-values not present in the colorTable are not rendered: they are replaced 
-with a color having all components set to 0.
-  
-.. code-block:: json
-
-  "colorMap": {
-    "type": "values",       
-    "colorTable": {
-      "-1": [255, 255, 255, 0],
-      "-0.5": [125, 125, 125, 255],
-      "1": [0, 0, 0, 255] 
-    } 
-  }
-
-**Intervals**
-
-If type is ``"intervals"``, all pixels with values between two consecutive entries 
-are rendered using the color of the first (lowest-value) entry. Pixels with 
-values equal to or less than the minimum value are rendered with the bottom 
-color (and opacity). Pixels with values equal to or greater than the maximum 
-value are rendered with the top color and opacity. 
-
-.. code-block:: json
-
-  "colorMap": {
-    "type": "intervals",       
-    "colorTable": {
-      "-1": [255, 255, 255, 0],
-      "-0.5": [125, 125, 125, 255],
-      "1": [0, 0, 0, 255] 
-    } 
-  }
-
-In this case, all pixels with values in the interval (-inf, -0.5) are replaced 
-with [255, 255, 255, 0], pixels in the interval [-0.5, 1) are replaced with 
-[125, 125, 125, 255], and pixels with value >= 1 are replaced with [0, 0, 0, 255].
-
-**Ramp**
-
-If type = "ramp", handling is same as "intervals", but instead of using the color 
-of the lowest value entry, linear interpolation between the lowest value entry and 
-highest value entry, based on the pixel value, is performed. 
-
-.. code-block:: json
-
-  "colorMap": {
-    "type": "ramp",       
-    "colorTable": {
-      "-1": [255, 255, 255, 0],
-      "-0.5": [125, 125, 125, 255],
-      "1": [0, 0, 0, 255] 
-    } 
-  }
-
-Pixels with value -0.75 are replaced with color [189, 189, 189, 127], because 
-they sit in the middle of the distance between -1 and -0.5, so they get, on 
-each channel, the color value in the middle. 
-The interpolation formula for a pixel of value x, where 2 consecutive entries 
-in the colorTable :math:`a, b` with :math:`a \le x \le b`, is:
-
-.. math::
-
-  resultColor = \frac{b - x}{b - a} * colorTable[b] + \frac{x - a}{b - a} * colorTable[a]
-
-For the example above, a = -1, x = -0.75, b = -0.5, colorTable[a] = [255, 255, 255, 0], 
-colorTable[b] = [125, 125, 125, 255], so:
-
-.. math::
-
-  resultColor &= \frac{-0.5 + 0.75}{-0.5 + 1} * [255, 255, 255, 0] +
-  \frac{-0.75 + 1}{-0.5 + 1} * [125, 125, 125, 255] \\
-              &= 0.5 * [255, 255, 255, 0] + 0.5 * [125, 125, 125, 255] \\
-              &= [127, 127, 127, 0] + [62, 62, 62, 127] \\
-              &= [189, 189, 189, 127] \\
-
-Note the integer division, because the colors are of type unsigned char. 
-
-
-Examples
---------
-
-1. Using filePaths in JSON format (``<[0:0] 1c>`` is a dummy array value which is mandatory): ::
-
-    UPDATE test_mr SET test_mr[0:255,0:210] ASSIGN decode(<[0:0] 1c>, "GDAL",
-        "{\"filePaths\":[\"/home/rasdaman/mr_1.png\"]}") WHERE oid(test_mr) = 6145
-
-2. Transpose the last two axes of the output before encoding to PNG: ::
-
-    select encode(c, "png", "{ \"transpose\": [0,1] }") from mr2 as c
-
-3. Add some global attribute as metadata in netcdf: ::
-
-    select encode(c, "netcdf", "{ \"transpose\": [1,0], \"nodata\": [100],
-        \"metadata\": { \"new_metadata\": \"This is a new added metadata\" },
-        \"formatParameters\": {\"INTERLEAVE\": \"BAND\"},
-        \"configOptions\": { \"GDAL_CACHEMAX\": \"64\"} }")
-    from test_mean_summer_airtemp as c
-
-
-
-
-(Deprecated) Key-Value Conversion Options
------------------------------------------
-
-The optional string parameter allows passing format-specific options, as
-well as generic parameters, like a geo-referencing bounding box and CRS.
-All parameter settings are concatenated into one quoted string of the
-following format:
-
-.. code-block:: text
-
-    "key1=value1;key2=value2;..."
-
-Both key and value are case-sensitive.
-
-In addition to format specific parameters, most formats recognize the
-following parameters:
-
--  ``xmin``, ``ymin``, ``xmax``, ``ymax`` for specifying the bounding box;
-
--  a general ``metadata`` string to be placed into the output file (if the
-   format supports this);
-
--  ``nodata`` allows a list of null values for each band. If only one value
-   is provided it applies to all bands simultaneously; alternatively, a
-   comma-separated list of null values can be provided individually per
-   band. For example, the following will set blue to transparent:
-
-    .. code-block:: text
-
-        "nodata=0,0,255;"
-
--  ``crs`` for indicating the Coordinate Reference System (CRS) in which the
-   above coordinates are expressed. Any of these CRS representations is
-   accepted:
-
--  Well Known Text (as per GDAL)
-
--  "EPSG:n"
-
--  "EPSGA:n"
-
--  "AUTO:proj_id,unit_id,lon0,lat0" indicating OGC WMS auto projections
-
--  "``urn:ogc:def:crs:EPSG::n``" indicating OGC URNs (deprecated by OGC)
-
--  PROJ.4 definitions
-
--  well known names, such as NAD27, NAD83, WGS84 or WGS72.
-
--  WKT in ESRI format, prefixed with "ESRI::"
-
--  "IGNF:xxx" and "+init=IGNF:xxx", etc.
-
-Since recently (v1.10), GDAL also supports OGC CRS URLs, OGC's preferred
-way of identifying CRSs.
-
-
-.. _multidimensional-format-support:
-
-Natively Supported Formats
-==========================
-
-Here we cover the formats with native support for encoding/decoding
-in rasdaman.
-
-TIFF, PNG, JPEG, BMP
---------------------
-
-If ``-DUSE_TIFF=ON``, ``-DUSE_JPEG=ON``, or ``-DUSE_PNG=ON``
-are specified during configuration with cmake, then the following internal
-convertors (not based on GDAL) are available, respectively:
-
-- ``tiff( mddExpr )``/``tiff( mddExpr, formatParams )`` and ``inv_tiff( mddExp )``
-- ``jpeg( mddExpr )``/``jpeg( mddExpr, formatParams )`` and ``inv_jpeg( mddExp )``
-- ``png( mddExpr )``/``png( mddExpr, formatParams )`` and ``inv_png( mddExp )``
-- ``bmp( mddExpr )``/``bmp( mddExpr, formatParams )`` and ``inv_bmp( mddExp )``
-
-The first version corresponds to ``encode``, while the second version 
-corresponds to ``decode``. Usually there is no reason to use these functions,
-beyond deployment on constrained environments where GDAL presents a heavy
-dependency and only a few specific convertors are sufficient. Therefore,
-``encode`` and ``decode`` are recommended whenever GDAL support is compiled.
-
-
-NetCDF
-------
-
-TODO
 
 GRIB
-----
+^^^^
 
-decode()
-^^^^^^^^
+- ``internalStructure`` - Describe the internal structure of a GRIB file, namely
+  the domains of all messages to be extracted from the file:
 
-TODO
+  .. code-block:: json
 
-encode()
-^^^^^^^^
+    "internalStructure": {
+      "messageDomains": [
+        { "msgId": 1, "domain": "[0:0,0:0,0:719,0:360]" },
+        { "msgId": 2, "domain": "[0:0,1:1,0:719,0:360]" },
+        { "msgId": 3, "domain": "[0:0,2:2,0:719,0:360]" },
+        ...
+      ]
+    }
 
-Not supported.
 
-CSV/JSON
---------
+CSV / JSON
+^^^^^^^^^^
 
-The CSV format is an ASCII character string where the cell values are
-represented by numbers linearized in row-major order. Row and column delimiters
-are ``{`` and ``}`` for CSV, ``[`` and ``]`` for JSON; they can be  customized
-when encoding, see the encode() `section <csv-encode>`. The delimiters are
-optional when decoding data.
+The following are mandatory options that have to be specified in the
+``formatParameters`` object:
 
-decode()
-^^^^^^^^
+- ``domain`` - The domain of the MDD encoded in the CSV data. It has to match
+  the number of cells read from input file, e.g. for 
+  ``"domain": "[1:5, 0:10, 2:3]"``, there should be 110 numbers in the input 
+  file.
 
-Numbers from the input file are read in order of appearance and stored
-without any reordering in rasdaman; whitespace plus the following
-characters are ignored:
+- ``basetype`` - Atomic or struct base type of the cell values in the CSV data;
+  named structs like ``RGBPixel`` are not supported. Examples: ::
+
+    long
+    char
+    struct { char red, char blue, char green }
+
+
+Numbers from the input file are read in order of appearance and stored without
+any reordering in rasdaman; whitespace plus the following characters are
+ignored:
 
 .. code-block:: text
 
     '{', '}', ',', '"', '\'', '(', ')', '[', ']'
 
-**Mandatory extra parameters:**
 
-``domain``
-    Domain ``d`` has to match number of cells read from input file. E.g.
-    for ``\"domain\": \"[1:5, 0:10, 2:3]\"``, there should be 110 numbers in the
-    input file.
+Examples
+--------
 
-``basetype``
-    Atomic or struct base type; named structs like ``RGBPixel`` are not
-    supported. Examples: ::
+GDAL
+^^^^
 
-        long
-        char
-        struct { char red, char blue, char green }
+The following query loads a TIFF image into collection ``rgb``: ::
 
-**Examples**
+    rasql -q 'insert into rgb values decode( $1 )' --file rgb.tif
 
-Assume array ``A`` is a 2x3 array of longs given as a string as follows: ::
+If you use double quotes for the query string, note that the ``$`` must be
+escaped to avoid interpretation by the shell: ::
+
+    rasql -q "insert into rgb values decode( \$1 )" --file rgb.tif
+
+CSV / JSON
+^^^^^^^^^^
+
+Let array ``A`` be a 2x3 array of longs given as a string as follows: ::
 
     1,2,3,2,1,3
 
 Inserting ``A`` into rasdaman can be done with ::
 
     insert into A
-    values decode($1, "csv", "{ \"formatParameters\":
-                                { \"domain\": \"[0:1,0:2]\",
-                                  \"basetype\": \"long\" } }")
+    values decode($1, "csv", "{ "formatParameters": {
+                                  "domain": "[0:1,0:2]",
+                                  "basetype": "long" } }")
 
 Further, let ``B`` be an 1x2 array of RGB values given as follows: ::
 
@@ -4199,11 +3815,11 @@ Further, let ``B`` be an 1x2 array of RGB values given as follows: ::
 Inserting ``B`` into rasdaman can be done by passing it to this query: ::
 
     insert into B
-    values decode( $1, "csv", "{ \"formatParameters\":
-                                { \"domain\": \"[0:0,0:1]\",
-                                  \"basetype\": \"struct{char red,
+    values decode( $1, "csv", "{ "formatParameters": {
+                                  "domain": "[0:0,0:1]",
+                                  "basetype": "struct{char red,
                                                          char blue,
-                                                         char green}\" } }")
+                                                         char green}" } }")
 
 ``B`` could just as well be formatted like this with the same effect (note
 the line break): ::
@@ -4211,17 +3827,314 @@ the line break): ::
     1 2 3
     2 1 3
 
+
+
+.. _rasql-encode-function:
+
+Encode for data export
+======================
+
+The ``encode()`` function allows encoding an MDD in a particular data format
+repre­sent­at­ion; formally, the result will be a 1D char array.
+
+
+Syntax
+------
+
+::
+
+    encode( mddExp , format )
+
+    encode( mddExp , format , formatParameters )
+
+
+The first parameter is the MDD to be encoded. It must be 2D if encoded to GDAL
+formats (PNG, TIFF, JPEG, etc.), while the native rasdaman encoders (NetCDF,
+JSON, and CSV) support MDDs of any dimension; note that presently encode to GRIB
+is not supported. As not all base types supported by rasdaman (char, octet,
+float, etc.) are necessarily supported by each format, care must be taken to
+cast the MDD beforehand.
+
+
+Data format
+-----------
+
+A mandatory ``format`` must be specified as the second parameter, indicating
+the data format to which the MDD will be encoded; allowed values are
+
+- GDAL format identifiers (see output of ``gdalinfo --formats`` or the
+  `GDAL documentation <https://gdal.org/drivers/raster/index.html>`__);
+
+- a mime-type string, e.g. ``"image/png"``;
+
+- ``"netcdf"`` / ``"application/netcdf"``, ``"csv"`` / ``"text/csv"``, or
+  ``"json"`` / ``"application/json"``, for formats natively supported by
+  rasdaman.
+
+
+.. _rasql-encode-format-parameters:
+
+Format parameters
+-----------------
+
+Optionally, a format parameters string can be specified as a third parameter,
+which allows to control the format encoding. As in the case of decode(), it must
+be a valid JSON object. As the format parameters are in quotes, i.e.
+``"formatParameters"``, all quotes inside of the ``formatParameters`` need to be
+escaped (``\"``). For example,  ``"{ \"transpose\": [0,1] }"`` is the right way
+to specify transposition, while  ``"{ "transpose": [0,1] }"`` will lead to
+failure.
+
+Common parameters to most or all formats include:
+
+- ``metadata`` - A single string, or an object of string key-value pairs which 
+  are added as global metadata when encoding.
+
+- ``transpose`` - Specify if x/y should be transposed with an array of 0-based
+  axis ids indicating the axes that need to be transposed; the axes must be
+  contiguous ``[N,N+1]``, e.g. ``[0,1]``. This is often relevant when encoding
+  data with GDAL formats, which was originally imported from NetCDF and
+  GRIB files. Note that transposing axes has a performance penalty, so avoid if
+  possible.
+
+- ``nodata`` - Specify nodata value(s). If a single number is specified it will
+  be applicable to all bands (e.g. ``0``), otherwise an array of numbers for 
+  each band can be provided (e.g. ``[0,255,255]``). Special floating-point 
+  constants are supported (case-sensitive): NaN, NaNf, Infinity, -Infinity.
+
+- ``formatParameters`` - A JSON object containing extra options which are
+  format-specific, specified as string key-value pairs. This is where one would
+  specify the options for controling what separators and values are used in CSV
+  encoding for example, or GDAL format-specific options.
+
+GDAL
+^^^^
+
+- ``formatParameters`` - any entries in the formatParameters object are
+  forwarded to the specific GDAL driver; consult the `GDAL documentation
+  <https://gdal.org/drivers/raster/index.html>`__ for the options recognized 
+  by each particular driver. E.g. for `PNG 
+  <https://gdal.org/drivers/raster/png.html>`__ you could specify, among other
+  details, a description metadata field with:
+
+  .. code-block:: json
+
+    "formatParameters": {
+      "DESCRIPTION": "Data description..."
+    }
+
+  Rasdaman itself does not change the default values for these parameters, with
+  the following *exceptions*:
+
+  - ``PNG`` - the compression level when encoding to PNG (option ``ZLEVEL``) will
+    be set to ``2`` if the user does not specify it explicitly and the result
+    array is not of type ``boolean``. The default compression level of ``6`` does
+    not offer considerable space savings on typical image results (e.g. around
+    10\% lower file size for satellite image), while significantly increasing the
+    time to encode, taking up to 3-5x longer.
+
+- ``configOptions`` - A JSON object containing configuration options as string
+  key-value pairs; only relevant for GDAL currently, more details in the `GDAL
+  documentation <https://gdal.org/user/configoptions.html>`__. Example:
+
+  .. code-block:: json
+
+    "configOptions": {
+      "GDAL_CACHEMAX": "64", ...
+    }
+
+Geo-referencing
+~~~~~~~~~~~~~~~
+
+- ``geoReference`` - An object specifying geo-referencing information; either
+  "bbox" or "GCPs" must be provided, along with the "crs":
+
+  - ``crs`` - Coordinate Reference System (CRS) in which the coordinates are 
+    expressed. Any of the CRS representations `acceptable by GDAL
+    <https://gdal.org/programs/raster_common_options.html#cmdoption-t_srs>`__
+    can be used:
+
+    - Well known names, such as ``"NAD27"``, ``"NAD83"``, ``"WGS84"`` or ``"WGS72"``
+    - ``"EPSG:n"``, ``"EPSGA:n"``
+    - PROJ.4 definitions
+    - OpenGIS Well Known Text
+    - ESRI Well Known Text, prefixed with ``"ESRI::"``
+    - Spatial References from URLs
+    - ``"AUTO:proj_id,unit_id,lon0,lat0"`` indicating OGC WMS auto projections
+    - ``"urn:ogc:def:crs:EPSG::n"`` indicating OGC URNs (deprecated by OGC)
+
+  - ``bbox`` - A geographic X/Y bounding box as an object listing the coordinate
+    values (as floating-point numbers) for ``xmin``, ``ymin``, ``xmax``, and
+    ``ymax`` properties, e.g.:
+
+    .. code-block:: json
+
+      "bbox": {
+        "xmin": 0.0,
+        "ymin": -1.0,
+        "xmax": 1.0,
+        "ymax": 2.0
+      }
+
+  - ``GCPs`` - Alternative to a ``bbox``, an array of GCPs (Ground Control 
+    Points) can be specified; see GCPs section in the `GDAL documentation
+    <https://gdal.org/user/raster_data_model.html#gcps>`__ for details. Each
+    element of the array is an object describing one control point with the
+    following properties:
+
+    - ``id`` - optional unique identifier (gets the GCP array index by default);
+    - ``info`` - optional text associated with the GCP;
+    - ``pixel``, ``line`` - location on the array grid;
+    - ``x``, ``y``, ``z`` - georeferenced location with coordinates in the
+      specified CRS; "z" is optional (zero by default);
+
+
+.. _coloring-arrays:
+
+Coloring Arrays
+~~~~~~~~~~~~~~~
+
+- ``colorMap`` - Map single-band cell values into 1, 3, or 4-band values. It can 
+  be done in different ways depending on the specified type:
+
+  - ``values`` - Each pixel is replaced by the entry in the ``colorTable`` where
+    the key is the pixel value. In the example below, it means that all pixels with
+    value -1 are replaced by [255, 255, 255, 0]. Pixels with values not present in
+    the colorTable are not rendered: they are replaced with a color having all
+    components set to 0.
+
+    .. code-block:: json
+
+      "colorMap": {
+        "type": "values",       
+        "colorTable": {
+          "-1": [255, 255, 255, 0],
+          "-0.5": [125, 125, 125, 255],
+          "1": [0, 0, 0, 255] 
+        } 
+      }
+
+  - ``intervals`` - All pixels with values between two consecutive entries 
+    are rendered using the color of the first (lower-value) entry. Pixels with 
+    values equal to or less than the minimum value are rendered with the bottom 
+    color (and opacity). Pixels with values equal to or greater than the maximum 
+    value are rendered with the top color and opacity. 
+
+    .. code-block:: json
+
+      "colorMap": {
+        "type": "intervals",       
+        "colorTable": {
+          "-1": [255, 255, 255, 0],
+          "-0.5": [125, 125, 125, 255],
+          "1": [0, 0, 0, 255] 
+        } 
+      }
+
+    In this case, all pixels with values in the interval (-inf, -0.5) are replaced 
+    with [255, 255, 255, 0], pixels in the interval [-0.5, 1) are replaced with 
+    [125, 125, 125, 255], and pixels with value >= 1 are replaced with [0, 0, 0, 255].
+
+  - ``ramp`` - Same as "intervals", but instead of using the color of the lowest
+    value entry, linear interpolation between the lowest value entry and highest
+    value entry, based on the pixel value, is performed. 
+
+    .. code-block:: json
+
+      "colorMap": {
+        "type": "ramp",       
+        "colorTable": {
+          "-1": [255, 255, 255, 0],
+          "-0.5": [125, 125, 125, 255],
+          "1": [0, 0, 0, 255] 
+        } 
+      }
+
+    Pixels with value -0.75 are replaced with color [189, 189, 189, 127], because 
+    they sit in the middle of the distance between -1 and -0.5, so they get, on 
+    each channel, the color value in the middle. 
+    The interpolation formula for a pixel of value x, where 2 consecutive entries 
+    in the colorTable :math:`a, b` with :math:`a \le x \le b`, is:
+
+    .. math::
+
+      resultColor = \frac{b - x}{b - a} * colorTable[b] + \frac{x - a}{b - a} * colorTable[a]
+
+    For the example above, a = -1, x = -0.75, b = -0.5,
+    colorTable[a] = [255, 255, 255, 0], colorTable[b] = [125, 125, 125, 255], so:
+
+    .. math::
+
+      resultColor &= \frac{-0.5 + 0.75}{-0.5 + 1} * [255, 255, 255, 0] + \\
+                  & \hspace{1.5em} \frac{-0.75 + 1}{-0.5 + 1} * [125, 125, 125, 255] \\
+                  &= 0.5 * [255, 255, 255, 0] + 0.5 * [125, 125, 125, 255] \\
+                  &= [127, 127, 127, 0] + [62, 62, 62, 127] \\
+                  &= [189, 189, 189, 127] \\
+
+    Note the integer division, because the colors are of type unsigned char.
+
+- ``colorPalette`` - Similar to ``colorMap``, however, it allows specifying
+  color information on a metadata level, rather than by actually transforming
+  array pixel values; for details see the `GDAL documentation
+  <https://gdal.org/user/raster_data_model.html#color-table>`__. It is an object
+  that contains several optional properties:
+
+  - ``paletteInterp`` - Indicate how the entries in the colorTable should be 
+    interpreted; allowed values are "Gray", "RGB", "CMYK", "HSL" (default "RGB");
+
+  - ``colorInterp`` - Array of color interpretations for each band; allowed 
+    values are Undefined, Gray, Palette, Red, Green, Blue, Alpha, Hue, Saturation, 
+    Lightness, Cyan, Magenta, Yellow, Black, YCbCr_Y, YCbCr_Cb, YCbCr_Cr, YCbCr_Cr;
+
+  - ``colorTable`` - Array of arrays, each containing 1, 3, or 4 short values
+    (depending on the ``colorInterp``) for each color entry; to associate a 
+    color with an array cell value, the cell value is used as a subscript into 
+    the color table (starting from 0).
+
+NetCDF
+^^^^^^
+
+The following are mandatory options when encoding to NetCDF:
+
+- ``variables`` -  Specify variable names for each band of the MDD, as well as
+  dimension names if they need to be saved as `coordinate variables
+  <https://www.unidata.ucar.edu/software/netcdf/docs/netcdf_data_set_components.html#coordinate_variables>`__.
+  There are two ways to specify the variables:
+
+  1. An array of strings for each variable name, e.g. ``["var1", "var2"]``;
+     no coordinate variables should be specified in this case, as there is no
+     way to specify the data for them;
+
+  2. An object of variable name - object pairs, where each object lists the
+     following variable details:
+
+     - ``metadata`` - An object of string key-value pairs which are added as
+       attributes to the variable;
+
+     - ``type`` - Type of the data values this variable contains relevant (and 
+       required) only for coordinate variables; allowed values are "byte",
+       "char", "short", "ushort", "int", "uint", "float", and "double";
+
+     - ``data`` - An array of data values for the variable relevant (and 
+       required) only for coordinate variables (as regular variables get
+       their data values from the array to be encoded); the number of values
+       must match the dimension extent;
+
+- ``dimensions`` - An array of names for each dimension, e.g. ``["Lat","Long"]``.
+
+
 .. _csv-encode:
 
-encode()
-^^^^^^^^
+CSV / JSON
+^^^^^^^^^^
 
-Data encoded with CSV is a comma-separated list of values, such that each
-row of values (for every dimension, not just the last one) is between
-``{`` and ``}`` braces (``[`` and ``]`` for JSON). The table below documents all
-`"formatParameters"` options that allow controlling the CSV/JSON output.
+Data encoded with CSV or JSON is a comma-separated list of values, such that
+each row of values (for every dimension, not just the last one) is between ``{``
+and ``}`` braces (``[`` and ``]`` for JSON). The table below documents all
+`"formatParameters"` options that allow controlling the output, and the default
+settings for both formats.
 
-.. table:: optional options for controlling CSV/JSON encoding.
+.. table:: optional options for controlling CSV / JSON encoding.
 
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
     | **option**                  | **description**                                     | CSV default   | JSON default  |
@@ -4244,15 +4157,93 @@ row of values (for every dimension, not just the last one) is between
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
     | ``componentSeparator``      | separator between components of struct cell values  | " "           | " "           |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
-    | ``structValueStart``        | string to indicate starting a new struct value      | "\\\\\""      | "\\\\\""      |
+    | ``structValueStart``        | string to indicate starting a new struct value      | "\\\""        | "\\\""        |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
-    | ``structValueEnd``          | string to indicate ending a new struct value        | "\\\\\""      | "\\\\\""      |
+    | ``structValueEnd``          | string to indicate ending a new struct value        | "\\\""        | "\\\""        |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
     | ``outerDelimiters``         | wrap output in dimensionStart and dimensionEnd      | false         | true          |
     +-----------------------------+-----------------------------------------------------+---------------+---------------+
 
 
-**Examples**
+
+Examples
+--------
+
+GDAL
+^^^^
+
+This query extracts PNG images (one for each tuple) from collection ``mr``: ::
+
+    select encode( mr, "png" )
+    from mr
+
+Using filePaths in JSON format (``<[0:0] 1c>`` is a dummy array value which
+is not relevant in this case, but is nevertheless mandatory): ::
+
+    UPDATE test_mr SET test_mr[0:255,0:210] ASSIGN decode(<[0:0] 1c>, "GDAL",
+        "{"filePaths":["/home/rasdaman/mr_1.png"]}") WHERE oid(test_mr) = 6145
+
+Transpose the last two axes of the output before encoding to PNG: ::
+
+    select encode(c, "png", "{ "transpose": [0,1] }") from mr2 as c
+
+NetCDF
+^^^^^^
+
+Add some global attributes as metadata in netcdf: ::
+
+    select encode(c, "netcdf", "{ "transpose": [1,0], "nodata": [100],
+        "metadata": { "new_metadata": "This is a new added metadata" } }")
+    from test_mean_summer_airtemp as c
+
+
+The format parameters below specify the variables to be encoded in the result
+NetCDF file (Lat, Long, forecast, and drought_code); of these Lat, Long, and
+forecast are dimension variables for which the values are specified in the
+``"data"`` array, which leaves drought_code is the proper variable for encoding
+the array data.
+
+.. hidden-code-block:: json
+
+  "dimensions": [ "Lat", "Long", "forecast" ],
+  "variables": {
+    "Lat": {
+      "type": "double",
+      "data": [ 34.650524, 34.509953 ],
+      "name": "Lat",
+      "metadata": {
+        "standard_name": "latitude",
+        "units": "degrees_north",
+        "axis": "Y"
+      }
+    },
+    "Long": {
+      "type": "double",
+      "data": [ 29.671875, 29.8125 ],
+      "name": "Long",
+      "metadata": {
+        "standard_name": "longitude",
+        "units": "degrees_east",
+        "axis": "X"
+      }
+    },
+    "forecast": {
+      "type": "double",
+      "data": [ 0, 3 ],
+      "name": "forecast"
+    },
+    "drought_code": {
+      "type": "float",
+      "name": "drought_code",
+      "metadata": {
+        "description": "Global Fire Forecast- Drought Code",
+        "units": "10^0"
+      }
+    }
+  }
+
+CSV / JSON
+^^^^^^^^^^
 
 Suppose we have array ``A = <[0:1,0:1] 0, 1; 2, 3>``. Encoding to CSV by default ::
 
@@ -4283,6 +4274,7 @@ Let ``B`` be an RGB array ``<[0:0,0:1] {0c, 1c, 2c}, {3c, 4c, 5c}>``. Encoding i
 to CSV with default order will result in the following output:
 
     {"0 1 2","3 4 5"}
+
 
 
 .. _ql-guide-oids:

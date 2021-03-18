@@ -166,13 +166,9 @@ r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options, const r_Range* nullVa
 
     // write rasdaman data to netcdf variables in the dataFile
     if (desc.baseType == ctype_struct || desc.baseType == ctype_rgb)
-    {
         writeMultipleVars(dimids);
-    }
     else
-    {
         writeSingleVar(dimids);
-    }
 
     addMetadata();
 
@@ -371,6 +367,7 @@ void r_Conv_NETCDF::validateJsonEncodeOptions()
         LERROR << "mandatory format options field missing: " << FormatParamKeys::General::VARIABLES;
         throw r_Error(INVALIDFORMATPARAMETER);
     }
+    
     Json::Value dims = encodeOptions[FormatParamKeys::Encode::NetCDF::DIMENSIONS];
     auto dim = dims.size();
     dimNames.resize(dim);
@@ -378,18 +375,13 @@ void r_Conv_NETCDF::validateJsonEncodeOptions()
     {
         //create the vector of dimension metadata names and swap the last two in case transposition is selected as an option
         if (formatParams.isTranspose() && i == dim - 2)
-        {
             dimNames[i] = dims[dim - 1].asString();
-        }
         else if (formatParams.isTranspose() && i == dim - 1)
-        {
             dimNames[i] = dims[dim - 2].asString();
-        }
         else
-        {
             dimNames[i] = dims[i].asString();
-        }
     }
+    
     Json::Value vars = encodeOptions[FormatParamKeys::General::VARIABLES];
     for (const auto& varName : vars.getMemberNames())
     {
@@ -1029,6 +1021,7 @@ void r_Conv_NETCDF::jsonArrayToNcVar(int var, int dimid, Json::Value jsonArray)
 template <class T>
 void r_Conv_NETCDF::addVarAttributes(int var, nc_type nctype, T validMin, T validMax, size_t dimNum)
 {
+    LDEBUG << "add nodata for dim " << dimNum << ", var " << var;
     if (validMax != T{})
     {
         status = nc_put_att(dataFile, var, VALID_MIN.c_str(), nctype, 1, &validMin);

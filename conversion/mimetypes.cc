@@ -70,6 +70,7 @@ std::map<std::string, std::string> r_MimeTypes::initMimeTypeToFormatNameMap()
     ret["image/gif"] = "GIF";
     ret["image/bmp"] = "BMP";
     ret["application/netcdf"] = "netCDF";
+    ret["application/x-netcdf"] = "netCDF";
     ret["application/x-ogc-zmap"] = "ZMap";
     ret["application/x-ogc-xyz"] = "XYZ";
     ret["application/x-ogc-wms"] = "WMS";
