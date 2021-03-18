@@ -882,41 +882,23 @@ bool r_Conv_NETCDF::attExists(int var, const char* att) const
 nc_type r_Conv_NETCDF::stringToNcType(string type)
 {
     if (type == string("byte"))
-    {
         return NC_BYTE;
-    }
     else if (type == string("char"))
-    {
         return NC_UBYTE;
-    }
     else if (type == string("short"))
-    {
         return NC_SHORT;
-    }
     else if (type == string("ushort"))
-    {
         return NC_USHORT;
-    }
     else if (type == string("int"))
-    {
         return NC_INT;
-    }
     else if (type == string("uint"))
-    {
         return NC_UINT;
-    }
     else if (type == string("float"))
-    {
         return NC_FLOAT;
-    }
     else if (type == string("double"))
-    {
         return NC_DOUBLE;
-    }
     else
-    {
         return NC_NAT;
-    }
 }
 
 #define PUT_VAR(method) \

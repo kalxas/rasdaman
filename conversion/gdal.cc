@@ -394,9 +394,27 @@ r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options)
     {
         tmpFilePath = formatParams.getFilePath();
     }
-
+    
     GDALAllRegister();
+    
+#if GDAL_VERSION_MAJOR >= 2
+    // Open dataset with GDALOpenEx, only available since GDAL 2.0
+    // https://gdal.org/api/raster_c_api.html#_CPPv410GDALOpenExPKcjPPCKcPPCKcPPCKc
+    unsigned nOpenFlags = GDAL_OF_RASTER | GDAL_OF_SHARED;
+    auto openOptions = getOpenOptions();
+    char **papszOpenOptions = openOptions.Count() > 0 ? openOptions.List() : NULL;
+    char **papszAllowedDrivers = NULL; // all drivers
+    char **papszSiblingFiles = NULL; // find them automatically
+    poDataset = static_cast<GDALDataset*>(GDALOpenEx(tmpFilePath.c_str(),
+                                                     nOpenFlags,
+                                                     papszAllowedDrivers,
+                                                     papszOpenOptions,
+                                                     papszSiblingFiles));
+#else
+    // Use 1.x GDALOpen
     poDataset = static_cast<GDALDataset*>(GDALOpen(tmpFilePath.c_str(), GA_ReadOnly));
+#endif
+
     if (poDataset == NULL)
     {
         LERROR << "failed opening file with GDAL, reason: " << CPLGetLastErrorMsg();
@@ -1153,9 +1171,9 @@ r_Conv_GDAL::setConfigOptions()
 void
 r_Conv_GDAL::getFormatParameters(CPLStringList& stringList, r_Primitive_Type* rasBandType)
 {
-    for (const pair<string, string>& formatParameter : formatParams.getFormatParameters())
+    for (const pair<string, string>& p : formatParams.getFormatParameters())
     {
-        stringList.AddNameValue(formatParameter.first.c_str(), formatParameter.second.c_str());
+        stringList.AddNameValue(p.first.c_str(), p.second.c_str());
     }
 
     auto formatLower = format;
@@ -1179,6 +1197,16 @@ r_Conv_GDAL::getFormatParameters(CPLStringList& stringList, r_Primitive_Type* ra
             stringList.AddNameValue(PNG_COMPRESSION_PARAM.c_str(), PNG_DEFAULT_ZLEVEL.c_str());
         }
     }
+}
+
+CPLStringList r_Conv_GDAL::getOpenOptions() const
+{
+    CPLStringList stringList;
+    for (const pair<string, string>& p : formatParams.getOpenOptions())
+    {
+        stringList.AddNameValue(p.first.c_str(), p.second.c_str());
+    }
+    return stringList;
 }
 
 double

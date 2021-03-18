@@ -213,6 +213,12 @@ private:
      * format parameters.
      */
     void getFormatParameters(CPLStringList& stringList, r_Primitive_Type* rasBandType);
+    
+    /**
+     * @param stringList this parameter is populated with a list of key/value
+     * open options from the format parameters.
+     */
+    CPLStringList getOpenOptions() const;
 
     /**
      * Convert the value of a given parameter to double.

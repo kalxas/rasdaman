@@ -644,6 +644,36 @@ rm -f $f*
 
 drop_colls test_tmp
 
+
+
+############# overview levels ##########################
+
+log ----- test overviews ----------------------------
+
+gdalinfo --version | grep --quiet "GDAL 1"
+
+if [ $? -ne 0 ]; then
+  
+  f="$TESTDATA_PATH/rgb.tif"
+
+  res=$($RASQL -q 'select sdom(decode($1))' \
+               --out string -f "$f" | grep Result)
+  exp="  Result element 1: [0:399,0:343]"
+  check_result "$exp" "$res" "check if full data was decoded"
+
+  res=$($RASQL -q 'select sdom(decode($1, "GDAL", "{ \"openOptions\": { \"OVERVIEW_LEVEL\": \"0\" } }"))' \
+               --out string -f "$f" | grep Result)
+  exp="  Result element 1: [0:199,0:171]"
+  check_result "$exp" "$res" "check if overview level 0 was decoded"
+
+else
+
+  log "skipping test, this feature is unsupported on GDAL 1.x"
+
+fi
+
+
+
 # ------------------------------------------------------------------------------
 # test summary
 #

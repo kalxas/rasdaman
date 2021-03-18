@@ -95,6 +95,7 @@ void r_Format_Params::parseJson()
     parseFilepaths();
     parseStringKeyValuesList(FormatParamKeys::General::FORMAT_PARAMETERS, formatParameters);
     parseStringKeyValuesList(FormatParamKeys::General::CONFIG_OPTIONS, configOptions);
+    parseStringKeyValuesList(FormatParamKeys::General::OPEN_OPTIONS, openOptions);
     parseSubsetDomain();
     parseNodata();
     parseMetadata();
@@ -466,7 +467,12 @@ void r_Format_Params::addFormatParameter(const std::string& key, const std::stri
 
 vector<pair<string, string>> r_Format_Params::getConfigOptions() const
 {
-    return configOptions;
+  return configOptions;
+}
+
+std::vector<std::pair<std::string, std::string> > r_Format_Params::getOpenOptions() const
+{
+  return openOptions;
 }
 
 const r_Minterval& r_Format_Params::getSubsetDomain() const

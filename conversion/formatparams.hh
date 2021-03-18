@@ -95,9 +95,12 @@ public:
 
     /// extra format parameters, e.g. compression type; convertor-dependent
     void addFormatParameter(const std::string& key, const std::string& val);
-
+    
     /// Configuration options (string key/value pairs); details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
     std::vector<std::pair<std::string, std::string>> getConfigOptions() const;
+    
+    /// Open options (string key/value pairs); e.g. https://gdal.org/drivers/raster/gtiff.html#open-options
+    std::vector<std::pair<std::string, std::string>> getOpenOptions() const;
 
     /// indicate dimensions (0-indexed) to be transposed
     std::pair<int, int> getTranspose() const;
@@ -186,9 +189,12 @@ private:
 
     /// extra format parameters, e.g. compression type; convertor-dependent
     std::vector<std::pair<std::string, std::string>> formatParameters;
-
+    
     /// Configuration options (string key/value pairs); details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
     std::vector<std::pair<std::string, std::string>> configOptions;
+    
+    /// Open options (string key/value pairs); e.g. https://gdal.org/drivers/raster/gtiff.html#open-options
+    std::vector<std::pair<std::string, std::string>> openOptions;
 
     /// indicate dimensions (0-indexed) to be transposed
     std::pair<int, int> transposePair;

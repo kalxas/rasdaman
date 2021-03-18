@@ -3721,9 +3721,9 @@ GDAL
       "DESCRIPTION": "Data description..."
     }
 
-- ``configOptions`` - A JSON object containing configuration options as string
-  key-value pairs; only relevant for GDAL currently, more details in the `GDAL
-  documentation <https://gdal.org/user/configoptions.html>`__. Example:
+- ``configOptions`` - A JSON object containing *configuration options* as string
+  key-value pairs; more details in the `GDAL documentation 
+  <https://gdal.org/user/configoptions.html>`__. Example:
 
   .. code-block:: json
 
@@ -3731,6 +3731,25 @@ GDAL
       "GDAL_CACHEMAX": "64",
       ...
     }
+
+- ``openOptions`` - A JSON object containing *open options* as string
+  key-value pairs; an option for selecting overview level from the file with,
+  e.g. ``"OVERVIEW_LEVEL": "2"``, is available for all formats (`more details
+  <https://gdal.org/api/raster_c_api.html?highlight=overview_level#_CPPv410GDALOpenExPKcjPPCKcPPCKcPPCKc>`__);
+  further options may be supported by each driver, e.g. for `TIFF
+  <https://gdal.org/drivers/raster/gtiff.html#open-options>`__;
+
+  .. code-block:: json
+
+    "openOptions": {
+      "OVERVIEW_LEVEL": "2",
+      "NUM_THREADS": "ALL_CPUS"
+    }
+
+  .. note::
+
+    This feature is only available since GDAL 2.0, so if you have an older GDAL
+    these options will be ignored.
 
 
 GRIB
@@ -3794,6 +3813,16 @@ escaped to avoid interpretation by the shell: ::
 
     rasql -q "insert into rgb values decode( \$1 )" --file rgb.tif
 
+The example below shows directly specifying a file path in the format parameters;
+``<[0:0] 1c>`` is a dummy array value which is not relevant in this case, but is 
+nevertheless mandatory: ::
+
+    UPDATE test_mr SET test_mr[0:255,0:210]
+    ASSIGN decode(<[0:0] 1c>, "GDAL",
+        "{ \"filePaths\": [\"/home/rasdaman/mr_1.png\"] }")
+    WHERE oid(test_mr) = 6145
+
+
 CSV / JSON
 ^^^^^^^^^^
 
@@ -3804,9 +3833,9 @@ Let array ``A`` be a 2x3 array of longs given as a string as follows: ::
 Inserting ``A`` into rasdaman can be done with ::
 
     insert into A
-    values decode($1, "csv", "{ "formatParameters": {
-                                  "domain": "[0:1,0:2]",
-                                  "basetype": "long" } }")
+    values decode($1, "csv", "{ \"formatParameters\": {
+          \"domain\": \"[0:1,0:2]\",
+          \"basetype\": \"long\" } }")
 
 Further, let ``B`` be an 1x2 array of RGB values given as follows: ::
 
@@ -3815,11 +3844,9 @@ Further, let ``B`` be an 1x2 array of RGB values given as follows: ::
 Inserting ``B`` into rasdaman can be done by passing it to this query: ::
 
     insert into B
-    values decode( $1, "csv", "{ "formatParameters": {
-                                  "domain": "[0:0,0:1]",
-                                  "basetype": "struct{char red,
-                                                         char blue,
-                                                         char green}" } }")
+    values decode($1, "csv", "{ \"formatParameters\": {
+          \"domain\": \"[0:0,0:1]",
+          \"basetype\": \"struct{char red, char blue, char green}\" } }")
 
 ``B`` could just as well be formatted like this with the same effect (note
 the line break): ::
@@ -4177,23 +4204,17 @@ This query extracts PNG images (one for each tuple) from collection ``mr``: ::
     select encode( mr, "png" )
     from mr
 
-Using filePaths in JSON format (``<[0:0] 1c>`` is a dummy array value which
-is not relevant in this case, but is nevertheless mandatory): ::
-
-    UPDATE test_mr SET test_mr[0:255,0:210] ASSIGN decode(<[0:0] 1c>, "GDAL",
-        "{"filePaths":["/home/rasdaman/mr_1.png"]}") WHERE oid(test_mr) = 6145
-
 Transpose the last two axes of the output before encoding to PNG: ::
 
-    select encode(c, "png", "{ "transpose": [0,1] }") from mr2 as c
+    select encode(c, "png", "{ \"transpose\": [0,1] }") from mr2 as c
 
 NetCDF
 ^^^^^^
 
 Add some global attributes as metadata in netcdf: ::
 
-    select encode(c, "netcdf", "{ "transpose": [1,0], "nodata": [100],
-        "metadata": { "new_metadata": "This is a new added metadata" } }")
+    select encode(c, "netcdf", "{ \"transpose\": [1,0], \"nodata\": [100],
+        \"metadata\": { \"new_metadata\": \"This is a new added metadata\" } }")
     from test_mean_summer_airtemp as c
 
 

@@ -37,6 +37,7 @@ static const std::string COLORMAP{"colorMap"};
 static const std::string VARIABLES{"variables"};
 static const std::string FORMAT_PARAMETERS{"formatParameters"};
 static const std::string CONFIG_OPTIONS{"configOptions"};
+static const std::string OPEN_OPTIONS{"openOptions"};
 static const std::string CONFIG_OPTIONS_LEGACY{"config"};
 }
 
