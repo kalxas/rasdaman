@@ -3234,6 +3234,60 @@ is no user generated content available.
 The rasdaman service doesn't use cookies.
 
 
+******
+Backup
+******
+
+Both software and hardware can fail, therefore it is prudent to establish
+regular backup procedures. For rasdaman in particular a couple of things should
+be considered for inclusion in a backup:
+
+1. The rasdaman database, which normally can be found in ``/opt/rasdaman/data``.
+   The SQL database itself in this directory, ``RASBASE``, is fairly small; the
+   ``TILES`` subdirectory may be large as it contains all the array data, but if 
+   backup disk space is not scarce then it is definitely recommended to backup
+   as well. Incremental backups of the ``TILES`` with rsync for example should
+   work well without unnecessary duplicated data copying, unless existing data
+   areas are often updated. Example with rsync:
+
+   .. code-block:: shell
+
+      # backup small RASBASE to /backup/rasdamandb
+      rsync -avz /opt/rasdaman/data/RASBASE /backup/rasdamandb/
+
+      # backup potentially large TILES dir to /backup/rasdamandb
+      rsync -avz /opt/rasdaman/data/TILES /backup/rasdamandb/
+
+2. The petascopedb geo metadata database is usually small and worth backing up.
+   By default it is stored in PostgreSQL and can be extracted into a small 
+   compressed archive as follows:
+
+   .. code-block:: shell
+
+      # create backup in a gzip archive petascopedb.sql.gz
+      sudo -u postgres pg_dump petascopedb | gzip > /backup/petascopedb.sql.gz
+
+   If necessary, it can be restored with
+
+   .. code-block:: shell
+
+      # create petascopedb in case it does not exist
+      sudo -u postgres createdb petascopedb
+
+      # restore backup petascopedb.sql.gz (use cat if it's not a gzip archive)
+      zcat petascopedb.sql.gz | sudo -u postgres psql -d petascopedb --quiet
+
+3. The rasdaman configuration files in ``/opt/rasdaman/etc``, but also consider
+   the ``bin`` and ``share`` directories which may be useful in case of package 
+   update problems, as well as maybe log files in the  ``log`` directory.
+
+   .. code-block:: shell
+
+      # backup everything except the data dir, which is handled in step 1. above
+      rsync -avz --exclude='data/' /opt/rasdaman /backup/
+
+
+
 *****************************
 Example Database and Programs
 *****************************
@@ -3316,7 +3370,6 @@ Sends the following hardwired query if one is not provided as a parameter:
 This program computes the average cell value from all images of a given
 collection on client side. Note that it requires grayscale images. A good
 candidate collection is ``mr`` from the demo database.
-
 
 
 ***************
