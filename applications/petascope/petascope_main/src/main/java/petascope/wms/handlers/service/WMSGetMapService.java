@@ -33,7 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.rasdaman.AuthenticationService;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.Style;
@@ -46,6 +49,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.BoundingBox;
+import petascope.core.Pair;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -122,6 +126,8 @@ public class WMSGetMapService {
     private WMSGetMapSubsetParsingService wmsGetMapSubsetParsingService;
     @Autowired
     private WMSGetMapSubsetTranslatingService wmsGetMapSubsetTranslatingService;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
     
     // In case of nativeCrs of layer (coverage) is different from outputCrs of GetMap request, then it needs to reproject $collectionExpression from sourceCrs to targetCrs.
     public static final String COLLECTION_EXPRESSION_TEMPLATE = "$collectionExpression";
@@ -366,7 +372,8 @@ public class WMSGetMapService {
                 finalRasqlQuery = finalRasqlQuery.replace("FROM ", "");
             }
             
-            bytes = RasUtil.getRasqlResultAsBytes(finalRasqlQuery);
+            Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
+            bytes = RasUtil.getRasqlResultAsBytes(finalRasqlQuery, userPair.fst, userPair.snd);
         } catch (PetascopeException | SecoreException ex) {
             throw new WMSInternalException(ex.getMessage(), ex);
         }
@@ -585,7 +592,9 @@ public class WMSGetMapService {
             String query = SELECT + ENCODE + "(" + EXTEND + "(" + TRANSPARENT_DOMAIN 
                          + ", [0:" + (this.width - 1) + ",0:" + (this.height - 1) + "]) , \"" 
                          + this.format + "\", \"{\\\"nodata\\\": [" + DEFAULT_NULL_VALUE + "]}\") ";
-            byte[] bytes = RasUtil.getRasqlResultAsBytes(query);
+            
+            Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
+            byte[] bytes = RasUtil.getRasqlResultAsBytes(query, userPair.fst, userPair.snd);
             response = new Response(Arrays.asList(bytes), this.format, this.layerNames.get(0));
             this.blankTileMap.put(key, response);
         }

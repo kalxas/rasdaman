@@ -27,9 +27,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.servlet.http.HttpServletRequest;
 import nu.xom.Element;
+import org.rasdaman.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
 import static petascope.core.XMLSymbols.LABEL_GENERAL_GRID_COVERAGE;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -64,6 +67,8 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
     
     @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Autowired
     private JSONWCSRequestResultBuilder jsonWCSRequestResultBuilder;
 
     public WcpsRasqlExecutor() {
@@ -74,7 +79,8 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
         // mimeType is a full mime, e.g: application/gml+xml, image/png,...
         String mimeType = wcpsResult.getMimeType();
         // Return the result of rasql query as array of bytes
-        byte[] arrayData = RasUtil.getRasqlResultAsBytes(wcpsResult.getRasql());
+        Pair<String, String> rasUserCredentialsPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(this.httpServletRequest);
+        byte[] arrayData = RasUtil.getRasqlResultAsBytes(wcpsResult.getRasql(), rasUserCredentialsPair.fst, rasUserCredentialsPair.snd);
         // If encoding is gml so build the GML Coverage with the tupleList contains the rasql result values
         if (mimeType != null) {
             String coverageType = "";

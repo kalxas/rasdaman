@@ -21,6 +21,10 @@
  */
 package org.rasdaman;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Base64;
@@ -75,6 +79,56 @@ public class AuthenticationService {
         
         return result;
     }
+    
+    /**
+     * If credentials don't exist in the request, return pair of rasgust credentials instead
+     */
+    public static Pair<String, String> getBasicAuthCredentialsOrRasguest(HttpServletRequest httpServletRequest) throws PetascopeException {
+        String username = ConfigManager.RASDAMAN_USER;
+        String passwd = ConfigManager.RASDAMAN_PASS;
+        Pair<String, String> pair = AuthenticationService.getBasicAuthUsernamePassword(httpServletRequest);
+        if (pair != null) {
+            username = pair.fst;
+            passwd = pair.snd;
+        }
+        
+        return new Pair<>(username, passwd);
+    }
+    
+    /**
+     * 
+     * Set basic authentication header credentials to a URL to request and return input stream
+     * 
+    **/    
+    public static InputStream getInputStreamWithBasicAuthCredentials(URL url, HttpServletRequest httpServletRequest) throws IOException, PetascopeException {
+        URLConnection urlConnection;
+        urlConnection = url.openConnection();
+        
+        Pair<String, String> credentialsPair = getBasicAuthUsernamePassword(httpServletRequest);
+        
+        String userpass = credentialsPair.fst + ":" + credentialsPair.snd;
+        String basicAuth = "Basic " + new String(new Base64().encode(userpass.getBytes()));
+        urlConnection.setRequestProperty("Authorization", basicAuth);
+        
+        InputStream inputStream = urlConnection.getInputStream();
+        return inputStream;
+    }
+    
+    // -- rasdaman enterprise begin
+    
+    /**
+     * Encode authenticated users' emails from Shibboleth IdP to a valid user name for rasdaman.
+     */
+    public static String encodeShibbolethEmail(String email) {
+        // Replace any special characters to be valid rasdaman identification
+        String username = email.replaceAll("\\W", "_");
+        username = "shibboleth_" + username;
+        
+        return username;
+    }
+    
+    
+    // -- rasdaman enterprise end
     
     /**
      * Check if user is petascope admin user

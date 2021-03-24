@@ -31,10 +31,14 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.codehaus.plexus.util.StringUtils;
+import org.rasdaman.AuthenticationService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
+import petascope.core.Pair;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
@@ -63,6 +67,9 @@ import static petascope.wcs2.parsers.subsets.AbstractSubsetDimension.ASTERISK;
  */
 @Service
 public class SubsetParsingService {
+    
+    @Autowired
+    private HttpServletRequest httpServletRequest;
 
     public SubsetParsingService() {
 
@@ -199,15 +206,17 @@ public class SubsetParsingService {
                               "Lower bound or upper bound of axis iterator's interval cannot be '" + ASTERISK + "'.");
                 }
                 
+                Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
+                
                 if (!StringUtils.isNumeric(lowerBound)) {
                     // e.g: int(10/5)
-                    String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + lowerBound);
+                    String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + lowerBound, userPair.fst, userPair.snd);
                     lowerBound = result;
                 }
                 
                 if (!StringUtils.isNumeric(upperBound)) {
                     // e.g: (long)(10/2) + 5
-                    String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + upperBound);
+                    String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + upperBound, userPair.fst, userPair.snd);
                     upperBound = result;
                 }
 

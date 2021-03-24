@@ -25,6 +25,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import org.rasdaman.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;
@@ -63,6 +65,9 @@ import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public abstract class AbstractClipExpressionHandler extends AbstractOperatorHandler {
+    
+    @Autowired
+    protected HttpServletRequest httpServletRequest;
     
     @Autowired
     protected WcpsCoverageMetadataGeneralService wcpsCoverageMetadataGeneralService;
@@ -508,7 +513,8 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
         String rasqlQuery = "Select sdom(" + clipRasqlQuery + ") FROM " + aliasRasdamanCollectionNames;        
         try {
             // e.g: [0:20,0:50]
-            String sdom = new String(RasUtil.getRasqlResultAsBytes(rasqlQuery));
+            Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
+            String sdom = new String(RasUtil.getRasqlResultAsBytes(rasqlQuery, userPair.fst, userPair.snd));
             sdom = sdom.replace(RASQL_OPEN_SUBSETS, "").replace(RASQL_CLOSE_SUBSETS, "");
             String[] tmpArray = sdom.split(",");
             for (String tmp : tmpArray) {

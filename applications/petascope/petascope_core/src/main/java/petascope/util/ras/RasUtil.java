@@ -75,8 +75,9 @@ public class RasUtil {
 
     /**
      * Execute a RasQL query with configured credentials.
+     * executed by petascope itself when it starts and not external user
      */
-    public static Object executeRasqlQuery(String query) throws PetascopeException {
+    public static Object executeInternalRasqlQuery(String query) throws PetascopeException {
         return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS, false);
     }
     
@@ -219,7 +220,7 @@ public class RasUtil {
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         //check if there are other objects left in the collection
         log.info("Checking the number of objects left in collection " + collectionName);
-        RasBag result = (RasBag) executeRasqlQuery(TEMPLATE_SDOM.replace(TOKEN_COLLECTION_NAME, collectionName));
+        RasBag result = (RasBag) executeRasqlQuery(TEMPLATE_SDOM.replace(TOKEN_COLLECTION_NAME, collectionName), username, password, false);
         log.info("Result size is: " + String.valueOf(result.size()));
         if (result.isEmpty()) {
             //no object left, delete the collection so that the name can be reused in the future
@@ -455,11 +456,11 @@ public class RasUtil {
     /**
      * Run a rasql query and return results as array of bytes
      */
-    public static byte[] getRasqlResultAsBytes(String rasqlQuery) throws RasdamanException, PetascopeException {
+    public static byte[] getRasqlResultAsBytes(String rasqlQuery, String username, String password) throws RasdamanException, PetascopeException {
         byte[] result = new byte[0];
         RasQueryResult res;
 
-        res = new RasQueryResult(RasUtil.executeRasqlQuery(rasqlQuery));
+        res = new RasQueryResult(RasUtil.executeRasqlQuery(rasqlQuery, username, password, false));
         if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
             for (String s : res.getScalars()) {
                 result = s.getBytes(Charset.forName("UTF-8"));
@@ -483,8 +484,8 @@ public class RasUtil {
     /**
      * Execute a rasql query which will return a string
      */
-    public static String executeQueryToReturnString(String query) throws PetascopeException {
-        String result = new RasQueryResult(executeRasqlQuery(query)).toString();
+    public static String executeQueryToReturnString(String query, String username, String password) throws PetascopeException {
+        String result = new RasQueryResult(executeRasqlQuery(query, username, password, false)).toString();
         
         return result;
     }
