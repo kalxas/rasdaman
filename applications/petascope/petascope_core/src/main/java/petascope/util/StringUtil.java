@@ -578,4 +578,18 @@ public class StringUtil {
         return coverageId;
     }
     
+    /**
+     * Given an input datetime, if it doesn't contain quotes, then add them
+     * e.g. 2015-01-01 -> "2015-01-01"
+     */
+    public static String enquoteIfNotEnquotedAlready(String inputDateTime) {
+        String result = inputDateTime;
+        
+        if (!inputDateTime.contains("\"")) {
+            result = "\"" + inputDateTime + "\"";
+        }
+        
+        return result;
+    }
+    
 }

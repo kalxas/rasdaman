@@ -35,6 +35,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
+import petascope.util.StringUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -157,23 +158,28 @@ public class WMSGetMapSubsetParsingService {
         
         for (String part : parts) {
             ParsedSubset<BigDecimal> parsedSubset;
-            if (part.contains(KVPSymbols.VALUE_TIME_PATTERN_CHARACTER)) {
+            if (axis.isTimeAxis()) {
                 // Time axis with datetime format, e.g: "2015-04-01T20:00:20Z")
+                
+                String lowerBound = "";
+                String upperBound = "";
                 
                 if (part.contains(VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER)) {
                     // e.g: "2015-05-01"/"2015-06-01"
-                    String lowerBound = part.split(VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER)[0];
-                    String upperBound = part.split(VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER)[1];
-                    
-                    TrimmingSubsetDimension subsetDimension = new TrimmingSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), lowerBound, upperBound);
-                    parsedSubset = CrsComputerService.parseSubsetDimensionToNumbers(axis.getNativeCrsUri(), axis.getAxisUoM(), subsetDimension);
+                    lowerBound = part.split(VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER)[0];
+                    upperBound = part.split(VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER)[1];
+
                 } else {
                     // e.g: "2015-05-01"
-                    String lowerBound = part;
-                    String upperBound = part;
-                    TrimmingSubsetDimension subsetDimension = new TrimmingSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), lowerBound, upperBound);
-                    parsedSubset = CrsComputerService.parseSubsetDimensionToNumbers(axis.getNativeCrsUri(), axis.getAxisUoM(), subsetDimension);
+                    lowerBound = part;
+                    upperBound = part;
                 }
+                
+                lowerBound = StringUtil.enquoteIfNotEnquotedAlready(lowerBound);
+                upperBound = StringUtil.enquoteIfNotEnquotedAlready(upperBound);
+
+                TrimmingSubsetDimension subsetDimension = new TrimmingSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), lowerBound, upperBound);
+                parsedSubset = CrsComputerService.parseSubsetDimensionToNumbers(axis.getNativeCrsUri(), axis.getAxisUoM(), subsetDimension);
             } else {
                 // Numeric axes
                 if (part.contains(VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER)) {
