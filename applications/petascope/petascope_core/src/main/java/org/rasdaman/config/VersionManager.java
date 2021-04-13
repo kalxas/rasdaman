@@ -76,6 +76,13 @@ public class VersionManager {
         return latestVersion;
     }
     
+    public static String getLowestVersion(String serviceName) {
+        List<String> versions = serviceVersionsMap.get(serviceName);
+        String lowestVersion = versions.get(0);
+        
+        return lowestVersion;
+    }
+    
     /**
      * Get all supported versions of a service (e.g: WCS -> 2.0.1 and 2.1).
      */

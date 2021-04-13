@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import petascope.controller.handler.service.AbstractHandler;
+import petascope.controller.handler.service.XMLWCSServiceHandler;
 import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.KEY_VERSION;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
@@ -81,6 +82,8 @@ public abstract class AbstractController {
 
     @Autowired
     protected HttpServletResponse injectedHttpServletResponse;
+    @Autowired
+    private XMLWCSServiceHandler xmlWCSServiceHandler;
   
     @Resource
     // Spring finds all the subclass of AbstractHandler and injects to the list
@@ -188,7 +191,7 @@ public abstract class AbstractController {
     /**
      * From the GET request query string to map of key / values which is encoded
      */
-    public static Map<String, String[]> buildGetRequestKvpParametersMap(String queryString) throws Exception {
+    public Map<String, String[]> buildGetRequestKvpParametersMap(String queryString) throws Exception {
         if (queryString == null) {
             queryString = "";
         }
@@ -225,15 +228,12 @@ public abstract class AbstractController {
     /**
      * Build the map of keys values for both GET/POST request
      */
-    private static Map<String, String[]> buildKvpParametersMap(String queryString) throws Exception {
+    private Map<String, String[]> buildKvpParametersMap(String queryString) throws Exception {
         // It needs to relax the key parameters with case insensitive, e.g: request=DescribeCoverage or REQUEST=DescribeCoverage is ok
         Map<String, String[]> kvpParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         
         final String QUERY = "query=";
 
-        List<String> wcsVersions = VersionManager.getAllSupportedVersions(KVPSymbols.WCS_SERVICE);
-        String[] supportedWCSVersions = wcsVersions.toArray(new String[wcsVersions.size()]);
-        
         List<String> wcpsVersions = VersionManager.getAllSupportedVersions(KVPSymbols.WCPS_SERVICE);
         String[] supportedWCPSVersions = wcpsVersions.toArray(new String[wcpsVersions.size()]);
         
@@ -251,10 +251,6 @@ public abstract class AbstractController {
             // The request is in KVP GET/POST requests
             kvpParameters = parseKVPParameters(queryString, decoded);
         } else {
-            // NOTE: As only WCS 2.0.1 supports POST XML/SOAP
-            // @TODO: It can use a simple XML parser to get the version element to check it correctly.            
-            kvpParameters.put(KVPSymbols.KEY_VERSION, supportedWCSVersions);
-
             // NOTE: Try to parse the query string in POST/SOAP XML as it have to be KVP and data url-encoded
             // e.g: query=<?xml.....> or without query= (in case of POST with curl --data, this has problem with "+" as it is not encoded as %2B, so just for backwards compatibility            
             String requestBody = queryString;
@@ -262,22 +258,14 @@ public abstract class AbstractController {
                 // Only get the request content in XML
                 requestBody = requestBody.split(QUERY)[1];
             }
-            
+
             // The request is in POST XML or SOAP requests with XML syntax
-            String root = XMLUtil.getRootElementName(requestBody);
-
-            // NOTE: current only WCS supports POST XML, SOAP, add the service name so WCS handlers can handle
-            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] {KVPSymbols.WCS_SERVICE});
+            String root = XMLUtil.getRootElementName(requestBody);      
             if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
-                // It is a SOAP request (WCPS 1.0) or WCS, so extract the query content
                 requestBody = XMLUtil.extractWcsRequest(queryString);
-                // NOTE: response also needed to be add in SOAP body, not like XML which has same result as KVP
-                kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_REQUEST_WCS_SOAP});
-            } else {
-                kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_REQUEST_WCS_XML});
             }
-
-            kvpParameters.put(KVPSymbols.KEY_REQUEST_BODY, new String[] {requestBody});
+            kvpParameters = xmlWCSServiceHandler.parseRequestBodyToKVPMaps(requestBody);
+            
         }
 
         // Validate the parsed KVP maps for all requirement parameters (only when it has at least 1 parameter as an empty request will return WCS-Client)

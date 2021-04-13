@@ -102,10 +102,6 @@ public interface KVPSymbols {
     String KEY_QUERY_SHORT_HAND = "q";
 
     // WCS XML
-    // Made up for handling POST XML request
-    String VALUE_REQUEST_WCS_XML = "wcsXML";
-    // Made up for handling POST SOAP request
-    String VALUE_REQUEST_WCS_SOAP = "wcsSOAP";
     String KEY_REQUEST_BODY = "requestBody";
 
     // rasql KVP

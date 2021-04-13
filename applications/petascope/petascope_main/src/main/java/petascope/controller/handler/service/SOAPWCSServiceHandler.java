@@ -56,7 +56,6 @@ public class SOAPWCSServiceHandler extends AbstractHandler {
     public SOAPWCSServiceHandler() {
         // SOAP WCS is a part of WCS2
         service = KVPSymbols.WCS_SERVICE;
-        requestServices.add(KVPSymbols.VALUE_REQUEST_WCS_SOAP);
     }
 
     @Override

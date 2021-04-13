@@ -77,8 +77,6 @@ public class XMLWCSServiceHandler extends AbstractHandler {
     public XMLWCSServiceHandler() {
         // XML WCS is a part of WCS2
         service = KVPSymbols.WCS_SERVICE;
-        
-        requestServices.add(KVPSymbols.VALUE_REQUEST_WCS_XML);
     }
 
     @Override
@@ -108,5 +106,26 @@ public class XMLWCSServiceHandler extends AbstractHandler {
         }
 
         return response;
+    }
+    
+    
+    public Map<String, String[]> parseRequestBodyToKVPMaps(String requestBody) throws PetascopeException {
+       Map<String, String[]> parsedKvpParameters = null;
+        // GetCapabilities
+        if (requestBody.contains(XMLSymbols.LABEL_GET_CAPABILITIES)) {
+            parsedKvpParameters = getCapabilitiesXMLParser.parse(requestBody);
+        } else if (requestBody.contains(XMLSymbols.LABEL_DESCRIBE_COVERAGE)) {
+            // DescribeCoverage
+            parsedKvpParameters = describeCoverageXMLParser.parse(requestBody);
+        } else if (requestBody.contains(XMLSymbols.LABEL_GET_COVERAGE)) {
+            // GetCoverage
+            parsedKvpParameters = getCoverageXMLParser.parse(requestBody);
+        } else if (requestBody.contains(XMLSymbols.LABEL_WCPS_QUERY)) {
+            // ProcessCoverages
+            // NOTE: There are 3 types of WCPS (XML in xml syntax, text in abstractSyntax and text in OGC WCPS POST), but all of them contains the <query> element
+            parsedKvpParameters = processCoverageXMLParser.parse(requestBody);
+        }
+        
+        return parsedKvpParameters;
     }
 }

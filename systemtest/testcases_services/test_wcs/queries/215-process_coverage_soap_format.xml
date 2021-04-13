@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+    <env:Header/>
+    <env:Body>
+
+<ProcessCoveragesRequest xmlns="http://www.opengis.net/wcps/1.0" service="WCPS" version="1.0.0">  <query>    <abstractSyntax>
+      for c in (test_mean_summer_airtemp) return 1 </abstractSyntax>  </query></ProcessCoveragesRequest>
+
+    </env:Body>
+</env:Envelope>

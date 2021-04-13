@@ -65,7 +65,7 @@ public class XMLGetCoverageParser extends XMLAbstractParser {
         
         kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[]{KVPSymbols.WCS_SERVICE});
         kvpParameters.put(KVPSymbols.KEY_VERSION, new String[]{version});
-        kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[]{KVPSymbols.VALUE_DESCRIBE_COVERAGE});
+        kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[]{KVPSymbols.VALUE_GET_COVERAGE});
 
         // parse the coverageId
         this.parseCoverageId(rootElement);

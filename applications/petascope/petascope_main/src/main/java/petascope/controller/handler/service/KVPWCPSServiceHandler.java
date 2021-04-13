@@ -61,7 +61,6 @@ public class KVPWCPSServiceHandler extends AbstractHandler {
             throw new PetascopeException(ExceptionCode.InvalidRequest, ""
                     + "Only one parameter '" + KEY_QUERY + "' or '" + KEY_QUERY_SHORT_HAND + "' is allowed in the ProcessCoverages request.");
         }
-        
         Response response = this.processCoverageHandler.handle(kvpParameters);
         return response;
     }

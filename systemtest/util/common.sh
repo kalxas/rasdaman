@@ -622,6 +622,7 @@ prepare_xml_file()
            -e 's/[[:space:]]>/>/g' \
            -e '/<valid_range>/s/ //g' \
            -e '/_NCProperties/d' \
+           -e '/version=".*"/d' \
            "$xml_file"
   fi
 }

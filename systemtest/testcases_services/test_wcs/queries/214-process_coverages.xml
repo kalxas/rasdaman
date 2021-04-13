@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ProcessCoveragesRequest xmlns="http://www.opengis.net/wcps/1.0"  service="WCPS" version="1.0.0">
+  <query>    <abstractSyntax>    for $c in (test_mr) return encode($c, "png") </abstractSyntax>  </query></ProcessCoveragesRequest>

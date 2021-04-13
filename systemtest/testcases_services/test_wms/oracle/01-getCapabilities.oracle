@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<WMS_Capabilities updateSequence="3" version="1.3.0"
 >
 <Service>
 <Name>WMS</Name>
@@ -58,3 +56,5 @@
 <Layer>
 <Title>Rasdaman Web Map Service</Title>
 <Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
+<Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+noSubsets="0" opaque="1" queryable="0">
