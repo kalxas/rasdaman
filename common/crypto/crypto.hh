@@ -48,6 +48,11 @@ class Crypto {
    */
   static std::string messageDigest(const std::string &message,
                                    const std::string &mdName);
+  
+  /**
+   * Should be called before working with OpenSSL methods.
+   */
+  static void initDigests();
 };
 }
 

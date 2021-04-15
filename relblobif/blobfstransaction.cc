@@ -58,7 +58,8 @@ BlobFSTransaction::BlobFSTransaction(
     else
     {
         LDEBUG << "Locking pre-existing transaction dir: " << transactionPath;
-        transactionLock.reset(new BlobFSTransactionLock(transactionPath));
+        transactionLock.reset(new BlobFSTransactionLock(transactionPath,
+                                                        cfg.transactionLocksPath));
         transactionLock->lock(TransactionLockType::General);
     }
 }
@@ -225,7 +226,16 @@ void BlobFSTransaction::collectBlobIds()
 bool BlobFSTransaction::addBlobId(const std::string &blobPath)
 {
     BlobFile blobFile(blobPath);
-    long long blobId = blobFile.getBlobId();
+    long long blobId = INVALID_BLOB_ID;
+    try
+    {
+        blobId = blobFile.getBlobId();
+    }
+    catch (...)
+    {
+        blobId = INVALID_BLOB_ID;
+    }
+
     if (blobId != INVALID_BLOB_ID)
     {
         blobIds.push_back(blobId);
@@ -272,7 +282,8 @@ void BlobFSTransaction::createGeneralLock()
 {
     if (transactionLock == nullptr)
     {
-        transactionLock.reset(new BlobFSTransactionLock(transactionPath));
+        transactionLock.reset(new BlobFSTransactionLock(transactionPath,
+                                                        config.transactionLocksPath));
         transactionLock->lock(TransactionLockType::General);
     }
 }

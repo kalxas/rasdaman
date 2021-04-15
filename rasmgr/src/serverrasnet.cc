@@ -44,6 +44,7 @@
 
 #include "common/grpc/grpcutils.hh"
 #include "common/uuid/uuid.hh"
+#include "common/crypto/crypto.hh"
 #include "common/logging/signalhandler.hh"
 #include <logging.hh>
 
@@ -630,38 +631,15 @@ const char *ServerRasNet::getCapability(const char *serverName, const char *data
 
 int ServerRasNet::messageDigest(const char *input, char *output, const char *mdName)
 {
-    const EVP_MD *md;
-    unsigned int md_len, i;
-    unsigned char md_value[100];
-
-    OpenSSL_add_all_digests();
-
-    md = EVP_get_digestbyname(mdName);
-
-    if (!md)
-    {
+    std::string mdNameStr{mdName};
+    std::string inputStr{input};
+    
+    auto result = common::Crypto::messageDigest(inputStr, mdNameStr);
+    if (result.empty())
         return 0;
-    }
-
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    EVP_MD_CTX mdctx;
-    EVP_DigestInit(&mdctx, md);
-    EVP_DigestUpdate(&mdctx, input, strlen(input));
-    EVP_DigestFinal(&mdctx, md_value, &md_len);
-#else
-    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-    EVP_DigestInit(mdctx, md);
-    EVP_DigestUpdate(mdctx, input, strlen(input));
-    EVP_DigestFinal(mdctx, md_value, &md_len);
-    EVP_MD_CTX_free(mdctx);
-#endif
-
-    for (i = 0; i < md_len; i++)
-    {
-        sprintf(output + i + i, "%02x", md_value[i]);
-    }
-
-    return static_cast<int>(strlen(output));
+    
+    strcpy(output, result.c_str());
+    return int(result.size());
 }
 
 const char *ServerRasNet::convertDatabRights(const UserDatabaseRights &dbRights)

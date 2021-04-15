@@ -31,26 +31,20 @@
 namespace common {
 
 bool Crypto::isMessageDigestAvailable(const std::string &mdName) {
+    initDigests();
     const EVP_MD* md;
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    OpenSSL_add_all_digests();
-#endif
     md = EVP_get_digestbyname(mdName.c_str());
     return md != nullptr;
 }
 
 std::string Crypto::messageDigest(const std::string &message,
                                   const std::string &mdName) {
-    const EVP_MD* md;
+    initDigests();
     unsigned int md_len, i;
     unsigned char md_value[100];
     char output[35];
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    OpenSSL_add_all_digests();
-#endif
 
-    md = EVP_get_digestbyname(mdName.c_str());
-
+    const EVP_MD* md = EVP_get_digestbyname(mdName.c_str());
     if (!md) {
         throw std::runtime_error("The '" + mdName + "' digest is not available.");
     }
@@ -73,5 +67,19 @@ std::string Crypto::messageDigest(const std::string &message,
     }
 
     return std::string(output);
+}
+
+void Crypto::initDigests()
+{
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    // OpenSSL_add_all_digests() needs to be executed only once:
+    // static variable with block scope is a clean and fast way to do this
+    static bool init = []() {
+        OpenSSL_add_all_digests();
+        return true;
+    }();
+#else
+    // nothing to do in newer openssl
+#endif
 }
 }

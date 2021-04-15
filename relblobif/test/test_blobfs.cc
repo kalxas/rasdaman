@@ -62,7 +62,7 @@ class TestBlobFS
 public:
 
     TestBlobFS()
-        : config("", "", "")
+      : config("", "", "", "")
     {
     }
 
@@ -311,7 +311,6 @@ public:
             const string blobPath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId);
         }
         double runtime = Test::stopTimer();
-        LOG << "test running time: " << runtime << endl;
     }
 
     void testGetTmpBlobPath()
@@ -319,17 +318,14 @@ public:
         try
         {
             const string ret1 = BlobFS::getInstance().insertTransaction->getTmpBlobPath(1);
-            LOG << "insert subdir: " << ret1 << endl;
             const string exp1("/tmp/rasdata/TRANSACTIONS/insert.");
             EXPECT_EQ(ret1.substr(0, exp1.length()), exp1);
 
             const string ret2 = BlobFS::getInstance().updateTransaction->getTmpBlobPath(1);
-            LOG << "update subdir: " << ret2 << endl;
             const string exp2("/tmp/rasdata/TRANSACTIONS/update.");
             EXPECT_EQ(ret2.substr(0, exp2.length()), exp2);
 
             const string ret3 = BlobFS::getInstance().removeTransaction->getTmpBlobPath(1);
-            LOG << "remove subdir: " << ret3 << endl;
             const string exp3("/tmp/rasdata/TRANSACTIONS/remove.");
             EXPECT_EQ(ret3.substr(0, exp3.length()), exp3);
         }
@@ -414,12 +410,12 @@ public:
 
         // create fake (unlocked) commit lock simulating crash in the server during the commit
         BlobFS::getInstance().insertTransaction->transactionLock->clear(TransactionLockType::Commit);
-        string lockFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
+        string lockFilePath = BlobFS::getInstance().insertTransaction->transactionLock->transactionLockPath +
                               BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK;
         int fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
         BlobFS::getInstance().insertTransaction->transactionLock->clear(TransactionLockType::General);
-        string lockTransactionFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
+        string lockTransactionFilePath = BlobFS::getInstance().insertTransaction->transactionLock->transactionLockPath +
                                          BlobFSTransactionLock::TRANSACTION_LOCK;
         fd = open(lockTransactionFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
@@ -481,7 +477,8 @@ public:
 
         BlobFSConfig tmpConfig(BlobFS::getInstance().config.rootPath,
                                BlobFS::getInstance().config.tilesPath,
-                               BlobFS::getInstance().config.transactionsPath);
+                               BlobFS::getInstance().config.transactionsPath,
+                               BlobFS::getInstance().config.transactionLocksPath);
         config = tmpConfig;
     }
 

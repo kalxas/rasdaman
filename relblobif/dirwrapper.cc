@@ -116,6 +116,20 @@ string DirWrapper::getDirname(const std::string &filePath)
            ? filePath.substr(0, index) : "";
 }
 
+string DirWrapper::getBasename(const std::string &path)
+{
+    if (path.empty())
+      return "";
+    
+    auto endPos = path.size() - 1;
+    while (endPos >= 1 && path[endPos] == '/')
+      --endPos;
+    auto startPos = path.find_last_of("/", endPos);
+    startPos = startPos == string::npos ? 0 : startPos + 1;
+    auto len = endPos - startPos + 1;
+    return path.substr(startPos, len);
+}
+
 // -----------------------------------------------------------------------------
 //                          DirEntryIterator
 // -----------------------------------------------------------------------------
@@ -137,7 +151,8 @@ bool DirEntryIterator::open()
     }
     else
     {
-        LWARNING << "error opening directory " << dirPath << ": " << strerror(errno);
+//        LWARNING << "error opening directory " << dirPath << ": " << strerror(errno);
+        LDEBUG << "error opening directory " << dirPath << ": " << strerror(errno);
         errno = 0;
         return false;
     }

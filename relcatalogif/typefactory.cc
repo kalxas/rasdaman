@@ -400,8 +400,9 @@ bool TypeFactory::deleteMDDType(const char *typeName)
         {
             if (miter.get_element()->getMDDType() == resultType)
             {
+                const auto *name = miter.get_element()->getName();
                 LERROR << "MDD type " << typeName << " cannot be deleted, in use by "
-                       << "existing collection " << miter.get_element()->getName();
+                       << "existing collection type " << name;
                 throw r_Error(TYPEISINUSE);
             }
         }

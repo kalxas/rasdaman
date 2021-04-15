@@ -46,6 +46,7 @@ extern char globalConnectId[PATH_MAX];
 
 const std::string BlobFS::tilesSubdir        = "TILES";
 const std::string BlobFS::transactionsSubdir = "TRANSACTIONS";
+const std::string BlobFS::transactionLocksDir = "/tmp/rasdaman_transaction_locks/";
 
 BlobFS &BlobFS::getInstance()
 {
@@ -53,11 +54,12 @@ BlobFS &BlobFS::getInstance()
     return instance;
 }
 
-BlobFS::BlobFS() : BlobFS(BlobFS::getFileStorageRootPath())
+BlobFS::BlobFS() : BlobFS(BlobFS::getFileStorageRootPath(), transactionLocksDir)
 {}
 
-BlobFS::BlobFS(const string &rasdataPathParam)
-    : config(DirWrapper::toCanonicalPath(rasdataPathParam), "", "")
+BlobFS::BlobFS(const string &rasdataPathParam, string transactionLocksDirArg)
+    : config(DirWrapper::toCanonicalPath(rasdataPathParam), "", "",
+             DirWrapper::toCanonicalPath(transactionLocksDirArg))
 {
     LDEBUG << "initializing file storage on directory " << config.rootPath;
 
@@ -67,14 +69,26 @@ BlobFS::BlobFS(const string &rasdataPathParam)
     DirWrapper::createDirectory(config.tilesPath);
     config.transactionsPath = config.rootPath + transactionsSubdir + '/';
     DirWrapper::createDirectory(config.transactionsPath);
+    DirWrapper::createDirectory(config.transactionLocksPath);
 
     insertTransaction.reset(new BlobFSInsertTransaction(config));
     updateTransaction.reset(new BlobFSUpdateTransaction(config));
     removeTransaction.reset(new BlobFSRemoveTransaction(config));
     selectTransaction.reset(new BlobFSSelectTransaction(config));
 
-    finalizeUncompletedTransactions();
-
+    try
+    {
+        finalizeUncompletedTransactions();
+    }
+    catch (const std::exception &ex)
+    {
+        LWARNING << "failed finalizing uncompletted transactions: " << ex.what();
+    }
+    catch (...)
+    {
+        LWARNING << "failed finalizing uncompletted transactions.";
+    }
+    
     LDEBUG << "initialized blob file storage handler with tiles directory "
            << config.tilesPath;
 }
@@ -136,6 +150,7 @@ void BlobFS::postRasbaseAbort()
 
 void BlobFS::finalizeUncompletedTransactions()
 {
+    LDEBUG << "checking and finalizing any uncompleted transactions...";
     DirEntryIterator trDirIter(config.transactionsPath);
     if (!trDirIter.open())
         return;
@@ -147,29 +162,24 @@ void BlobFS::finalizeUncompletedTransactions()
 
         // lock transaction dir for checking; if locking fails, another
         // rasserver is already checking this trDir so nothing to do
-        LockFile checkTrLock(DirWrapper::fromCanonicalPath(trDir) + ".lock");
+        auto trLockPath = config.transactionLocksPath + DirWrapper::getBasename(trDir);
+        auto checkLockPath = trLockPath + ".check.lock";
+        LTRACE << "attempting to create a check lock: " << checkLockPath;
+        LockFile checkTrLock(checkLockPath);
         if (!checkTrLock.lock())
             continue;
         
-        // Wait for 10ms before checking the transaction lock. This is necessary
-        // to account for the possibility that another rasserver is currently
-        // in the process of initializing this transaction in
-        // BlobFSTransaction::initTransactionDirectory, where it has created the 
-        // trDir but has not managed to create the General lock yet.
-        //
-        // 10ms is not practically verified, intuitively it should be more than 
-        // enough time for a simple file to be created and locked by another 
-        // rasserver.
-        this_thread::sleep_for(chrono::milliseconds(10));
-        
         // if a transaction lock is already in place, it means that another
         // rasserver is currently running this transaction so nothing to do
-        BlobFSTransactionLock trLock(trDir, true);
+        LTRACE << "attempting to create a transaction lock";
+        BlobFSTransactionLock trLock(trDir, config.transactionLocksPath, true);
         if (trLock.isLocked(TransactionLockType::General))
             continue;
+        LTRACE << "transaction is not locked by another rasserver, clearing lock";
         trLock.clear(TransactionLockType::General);
         
         // get the correct transaction object (insert/update/remove)
+        LTRACE << "attempting to create a transaction object";
         auto transaction = std::unique_ptr<BlobFSTransaction>(
             BlobFSTransaction::getBlobFSTransaction(trDir, config));
         if (!transaction)
@@ -180,6 +190,7 @@ void BlobFS::finalizeUncompletedTransactions()
         BLDEBUG << "ok.\n";
     }
     trDirIter.close();
+    LDEBUG << "checking and finalizing any uncompleted transactions done.";
 }
 
 std::string BlobFS::getBlobFilePath(long long blobId) const

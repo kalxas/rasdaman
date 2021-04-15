@@ -32,6 +32,7 @@
 #include "globals.hh"
 #include "userauthconverter.hh"
 #include "authentication.hh"
+#include "common/crypto/crypto.hh"
 
 #define RC_OK            0
 #define ERRAUTHFNOTF    -1
@@ -152,7 +153,7 @@ int UserAuthConverter::verifyAuthFile(std::ifstream &ifs)
     unsigned int md_len;
     unsigned char md_value[50];
 
-    OpenSSL_add_all_digests();
+    common::Crypto::initDigests();
     md = EVP_get_digestbyname(DEFAULT_DIGEST);
     if (!md)
     {

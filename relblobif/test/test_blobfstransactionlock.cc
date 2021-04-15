@@ -87,17 +87,21 @@ public:
         EXPECT_FALSE(lockFile.isLocked());
         EXPECT_FALSE(lockFile.unlock());
     }
-
+    
     void testBlobFileStorageTransactionLock()
     {
-        string transactionPath("/tmp/rasdata/insert.1234567");
+        string trDir = "/tmp/rasdata";
+        string transactionPath(trDir + "/insert.1234567");
+        string trLockPrefix = trDir + "/" + DirWrapper::getBasename(transactionPath);
+        string trLockPath(trLockPrefix + BlobFSTransactionLock::TRANSACTION_LOCK);
+        string commitLockPath(trLockPrefix + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK);
+        string abortLockPath(trLockPrefix + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK);
+
+        DirWrapper::createDirectory(trDir);
         DirWrapper::createDirectory(transactionPath);
 
-        string trLockPath(transactionPath + "/" + BlobFSTransactionLock::TRANSACTION_LOCK);
-        string commitLockPath(transactionPath + "/" + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK);
-        string abortLockPath(transactionPath + "/" + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK);
-
-        BlobFSTransactionLock* transactionLock = new BlobFSTransactionLock(transactionPath);
+        BlobFSTransactionLock* transactionLock = 
+            new BlobFSTransactionLock(transactionPath, "/tmp/rasdata");
 
         EXPECT_FALSE(BlobFile::fileExists(trLockPath));
         EXPECT_FALSE(BlobFile::fileExists(commitLockPath));
@@ -136,44 +140,26 @@ public:
         DirWrapper::removeDirectory(transactionPath);
     }
 
-    void testBlobFileStorageTransactionLockInvalidTransactionPath()
+    void testDirWrapper()
     {
-        string transactionPath("/tmp/rasdata/insert.1234567");
-        string trLockPath(transactionPath + "/" + BlobFSTransactionLock::TRANSACTION_LOCK);
-        string commitLockPath(transactionPath + "/" + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK);
-        string abortLockPath(transactionPath + "/" + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK);
+        string transactionPath("/tmp/rasdata/insert.12345678/");
+        DirWrapper::createDirectory(transactionPath);
 
-        BlobFSTransactionLock* transactionLock = new BlobFSTransactionLock(transactionPath);
+        BlobFSTransactionLock* transactionLock = new BlobFSTransactionLock(transactionPath, "");
 
-        EXPECT_FALSE(transactionLock->lock(TransactionLockType::General));
-        EXPECT_FALSE(BlobFile::fileExists(trLockPath));
-        EXPECT_FALSE(transactionLock->isLocked(TransactionLockType::General));
-
-        EXPECT_FALSE(transactionLock->lock(TransactionLockType::Commit));
-        EXPECT_FALSE(BlobFile::fileExists(commitLockPath));
-        EXPECT_FALSE(transactionLock->isLocked(TransactionLockType::Commit));
-
-        EXPECT_FALSE(transactionLock->lock(TransactionLockType::Abort));
-        EXPECT_FALSE(BlobFile::fileExists(abortLockPath));
-        EXPECT_FALSE(transactionLock->isLocked(TransactionLockType::Abort));
-
-        EXPECT_FALSE(transactionLock->clear(TransactionLockType::General));
-        EXPECT_FALSE(transactionLock->clear(TransactionLockType::Commit));
-        EXPECT_FALSE(transactionLock->clear(TransactionLockType::Abort));
-
-        EXPECT_FALSE(BlobFile::fileExists(trLockPath));
-        EXPECT_FALSE(BlobFile::fileExists(commitLockPath));
-        EXPECT_FALSE(BlobFile::fileExists(abortLockPath));
-
-        EXPECT_FALSE(transactionLock->lock(TransactionLockType::General));
-        EXPECT_FALSE(transactionLock->lock(TransactionLockType::Commit));
-        EXPECT_FALSE(transactionLock->lock(TransactionLockType::Abort));
-
+        EXPECT_TRUE(transactionLock->lock(TransactionLockType::General));
+        EXPECT_TRUE(transactionLock->isLocked(TransactionLockType::General));
+        
+        DirWrapper::removeDirectory(transactionPath);
+        EXPECT_FALSE(DirWrapper::directoryExists(transactionPath.c_str()));
+        
+        EXPECT_EQ(DirWrapper::getBasename("/path/to/dir/file"), "file");
+        EXPECT_EQ(DirWrapper::getBasename("/path/to/dir/"), "dir");
+        EXPECT_EQ(DirWrapper::getBasename("/path/to/dir///"), "dir");
+        EXPECT_EQ(DirWrapper::getBasename("file"), "file");
+        EXPECT_EQ(DirWrapper::getBasename("file/"), "file");
+        
         delete transactionLock;
-
-        EXPECT_FALSE(BlobFile::fileExists(trLockPath));
-        EXPECT_FALSE(BlobFile::fileExists(commitLockPath));
-        EXPECT_FALSE(BlobFile::fileExists(abortLockPath));
     }
 
     void prepareRun()
@@ -202,11 +188,10 @@ int main(int argc, char** argv)
     TestBlobFSTransactionLock test;
     test.prepareRun();
 
-    RUN_TEST(test.testLockFile());
-    RUN_TEST(test.testLockFileInvalidPath());
-
-    RUN_TEST(test.testBlobFileStorageTransactionLock());
-    RUN_TEST(test.testBlobFileStorageTransactionLockInvalidTransactionPath());
+    RUN_TEST(test.testLockFile())
+    RUN_TEST(test.testLockFileInvalidPath())
+    RUN_TEST(test.testDirWrapper())
+    RUN_TEST(test.testBlobFileStorageTransactionLock())
 
     test.finishRun();
 

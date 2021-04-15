@@ -68,7 +68,8 @@ private:
     /// option in rasmgr.conf
     BlobFS();
     /// Initialize with a given root file storage path
-    explicit BlobFS(const std::string &rasdataPath);
+    explicit BlobFS(const std::string &rasdataPath,
+                    std::string transactionLocksDirArg = transactionLocksDir);
 
     /// Check that the root storage path is valid (exists, is writable, etc) and
     /// throw an exception if it isn't
@@ -90,5 +91,6 @@ private:
     
     static const std::string tilesSubdir;        // TILES
     static const std::string transactionsSubdir; // TRANSACTIONS
+    static const std::string transactionLocksDir;// /tmp/rasdaman_transaction_locks
 };
 

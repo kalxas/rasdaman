@@ -23,13 +23,13 @@
 
 
 add_library(rasserver_lib
-    rasserver_config.hh rasserver_config.cc
-    rasserver_entry.hh rasserver_entry.cc
-    createinitmdd.hh createinitmdd.cc
-    )
+        rasserver_config.hh rasserver_config.cc
+        rasserver_entry.hh rasserver_entry.cc
+        createinitmdd.hh createinitmdd.cc
+        )
 target_link_libraries(rasserver_lib
-    PUBLIC commline rasnet
-    )
+        PUBLIC commline rasnet
+        )
 
 add_definitions(${PNG_DEFINITIONS})
 add_executable(rasserver
@@ -37,11 +37,13 @@ add_executable(rasserver
         rasserver_rasdl.hh rasserver_rasdl.cc
         rasserver_directql.cc rasserver_directql.hh
         ../applications/rasql/rasql_error.cc
-)
+        )
 
-target_include_directories(rasserver PUBLIC "${CMAKE_SOURCE_DIR}/debug" ${OPENSSL_INCLUDE_DIR})
+target_include_directories(rasserver
+        PUBLIC "${CMAKE_SOURCE_DIR}/debug" ${OPENSSL_INCLUDE_DIR})
 
-target_link_libraries(rasserver rasserver_lib
+target_link_libraries(rasserver
+        rasserver_lib
         servercomm qlparser conversion
         rasodmg raslib storagemgr reladminif tilemgr mddmgr
         catalogmgr relmddif relstorageif
@@ -61,4 +63,4 @@ install(TARGETS rasserver
         DESTINATION ${BIN_DIR})
         
 install(CODE "execute_process(COMMAND ln -sf 
-    ${BIN_DIR}/rasserver ${BIN_DIR}/directql)")
+        ${BIN_DIR}/rasserver ${BIN_DIR}/directql)")

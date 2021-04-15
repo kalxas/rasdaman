@@ -25,15 +25,20 @@
 
 using namespace std;
 
-const std::string BlobFSTransactionLock::TRANSACTION_LOCK = "transaction.lock";
-const std::string BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK = "transaction_commit.lock";
-const std::string BlobFSTransactionLock::TRANSACTION_ABORT_LOCK = "transaction_abort.lock";
+const std::string BlobFSTransactionLock::TRANSACTION_LOCK = ".transaction.lock";
+const std::string BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK = ".transaction_commit.lock";
+const std::string BlobFSTransactionLock::TRANSACTION_ABORT_LOCK = ".transaction_abort.lock";
 
-BlobFSTransactionLock::BlobFSTransactionLock(const std::string &path, bool check)
-    : transactionPath(DirWrapper::toCanonicalPath(path)), checkOnly(check),
-      locks{LockFile{transactionPath + TRANSACTION_LOCK},
-            LockFile{transactionPath + TRANSACTION_COMMIT_LOCK},
-            LockFile{transactionPath + TRANSACTION_ABORT_LOCK}}
+BlobFSTransactionLock::BlobFSTransactionLock(const std::string &path, 
+                                             const std::string &trLocksPath,
+                                             bool check)
+    : transactionPath(DirWrapper::toCanonicalPath(path)),
+      transactionLockPath(DirWrapper::toCanonicalPath(trLocksPath) +
+                          DirWrapper::getBasename(transactionPath)),
+      checkOnly(check),
+      locks{LockFile{transactionLockPath + TRANSACTION_LOCK},
+            LockFile{transactionLockPath + TRANSACTION_COMMIT_LOCK},
+            LockFile{transactionLockPath + TRANSACTION_ABORT_LOCK}}
 {
 }
 

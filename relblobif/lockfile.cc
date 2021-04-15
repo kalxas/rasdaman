@@ -50,7 +50,8 @@ bool LockFile::lock()
         fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY | O_SYNC, 0660);
         if (fd == INVALID_FILE_DESCRIPTOR)
         {
-            logWarning("Failed opening lock file");
+            LDEBUG << "Failed opening lock file " << lockFilePath << ": " << strerror(errno);
+//            logWarning("Failed opening lock file");
         }
         else if (!(ret = (flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC)))
         { 

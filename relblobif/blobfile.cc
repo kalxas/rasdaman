@@ -170,8 +170,11 @@ long long BlobFile::getBlobId()
 {
     long long ret = INVALID_BLOB_ID;
 
-    if (!filePath.empty() && !isdigit(filePath.back()))
-        return ret; // probably a .lock file, not a blob
+    if (!filePath.empty() && (!isdigit(filePath.back()) || filePath.front() == '.'))
+    {
+        // probably a .lock file, or a .nfs*, i.e. not a blob
+        return ret;
+    }
 
     size_t lastIndex = filePath.find_last_of('/');
     if (lastIndex != string::npos)

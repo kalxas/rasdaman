@@ -294,6 +294,21 @@ if [ "$start_rasmgr_rasservers" = true ]; then
     nohup "$rasmgr_bin" --port "$RASMGR_PORT" > nohup.out 2>&1 &
     check_process "rasmgr" 1
 
+    # --- wait for rasmgr to initialize---------------------------------
+    count=1
+    timeout=6 # sec
+    while [ $count -le $timeout ]; do
+        "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x list srv 2>&1 | grep -q "Command failed"
+        if [ $? -ne 0 ]; then
+            break
+        fi
+        sleep 1
+        count=$((count+1))
+    done
+    if [ $count -gt $timeout ]; then
+        log "  Warning: rasmgr does not respond to commands, it may have failed to start properly."
+    fi
+
     # --- start servers: -------------------------------------------------
     # if no input servers provided, check if environmental variable $RASSERVERS exists
     if [ -z "$servers" ]; then

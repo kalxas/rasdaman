@@ -29,7 +29,8 @@ public:
      * line parameters
      * @param config
      */
-    RasManager(Configuration &config);
+    RasManager(Configuration &config
+               );
 
     virtual ~RasManager();
 

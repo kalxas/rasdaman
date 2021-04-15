@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 #include "accesscontrol.hh"
 #include "raslib/error.hh"
+#include "common/crypto/crypto.hh"
 #include "globals.hh"
 #include <logging.hh>
 
@@ -44,12 +45,10 @@ AccessControl accessControl;
 
 AccessControl::AccessControl()
 {
-    OpenSSL_add_all_digests();
 }
 
 AccessControl::~AccessControl()
 {
-    EVP_cleanup();
 }
 
 void AccessControl::setServerName(const char *newServerName)
@@ -156,33 +155,15 @@ int AccessControl::crunchCapability(const char *capability)
 
 int AccessControl::messageDigest(const char *input, char *output, const char *mdName)
 {
-    const EVP_MD *md = EVP_get_digestbyname(mdName);
-    if (!md)
-    {
+    std::string mdNameStr{mdName};
+    std::string inputStr{input};
+    
+    auto result = common::Crypto::messageDigest(inputStr, mdNameStr);
+    if (result.empty())
         return 0;
-    }
-
-    unsigned int md_len;
-    unsigned char md_value[maxDigestBufferSize];
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    EVP_MD_CTX mdctx;
-    EVP_DigestInit(&mdctx, md);
-    EVP_DigestUpdate(&mdctx, input, strlen(input));
-    EVP_DigestFinal(&mdctx, md_value, &md_len);
-#else
-    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-    EVP_DigestInit(mdctx, md);
-    EVP_DigestUpdate(mdctx, input, strlen(input));
-    EVP_DigestFinal(mdctx, md_value, &md_len);
-    EVP_MD_CTX_free(mdctx);
-#endif
-
-    for (unsigned int i = 0; i < md_len; i++)
-    {
-        sprintf(output + i + i, "%02x", md_value[i]);
-    }
-
-    return strlen(output);
+    
+    strcpy(output, result.c_str());
+    return int(result.size());
 }
 
 void AccessControl::wantToRead()

@@ -64,6 +64,7 @@ rascontrol_bin="@bindir@rascontrol"
 
 petascope_props="@sysconfdir@petascope.properties"
 secore_props="@sysconfdir@secore.properties"
+war_path="@pkgdatadir@war"
 
 # base DBMS used by petascope
 PETASCOPEDB=@petascopedb@
@@ -107,9 +108,9 @@ wait_for_process_to_shutdown()
     done
     if [ $count -eq "$max_count" ]; then
         echo
-        log "timeout of 3 seconds on waiting for $proc_name to shutdown reached;"
+        log "timeout on waiting for $proc_name to shutdown reached;"
         log "please manually check and kill any still running $proc_name processes:"
-        log " 1. list the running $proc_name processes: pgrep -f $proc_path"
+        log " 1. list the running $proc_name processes: ps aux | grep $proc_path"
         log " 2. kill each process with: kill <pid> (or kill -9 <pid> if kill fails)"
     fi
 }
@@ -251,9 +252,9 @@ for i in "$@"; do
     else
         option=""
         case $i in
-          --service)      option="$i";;
-          --port|-p)      option="$i";;
-          --help|-h)      usage;;
+          --service)     option="$i";;
+          --port|-p)     option="$i";;
+          --help|-h)     usage;;
           *) error "unknown option: $i";;
         esac
     fi
@@ -290,7 +291,7 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
     # finally shut down the server manager
     logn "  "
     "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x down host -all
-    wait_for_process_to_shutdown "$rasmgr_bin" 3 "port $RASMGR_PORT"
+    wait_for_process_to_shutdown "$rasmgr_bin" 10 "port $RASMGR_PORT"
 
 fi
 

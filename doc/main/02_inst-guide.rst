@@ -1765,6 +1765,39 @@ careful that this location needs to be write accessible by the Tomcat
 user. The same can be set for SECORE in ``secore.properties``.
 
 
+.. _sec-temporary-files:
+
+Temporary files
+===============
+
+Rasdaman stores various data temporarily in ``/tmp/rasdaman\_*`` directories,
+in particular:
+
+- ``/tmp/rasdaman\_conversion/`` - format-encoded data, such as TIFF, NetCDF, etc., 
+  is in some cases temporarily stored here before decoding into rasdaman. This 
+  also happens always when encoding query processing results into some
+  format for export. The intermediate data is quickly removed as soon as the
+  encoding or decoding process is finished.
+
+  Temporarily, however, this directory can get rather large: if you export array
+  result that encodes into a 1GB TIFF  file, then the directory will contain 1GB
+  of data for some time; if 10 such queries run concurrently, then it may
+  contain up to 10GB of data. For this reason we recommend to check the size of
+  ``/tmp`` during installation, and make sure it is large enough. It is always
+  recommended to make ``/tmp`` a separate partition, so as to prevent 
+  system-wide problems in case the filesystem is filled up with data.
+
+- ``/tmp/rasdaman\_petascope/`` - contains small temporary files generated
+  during data import with the wcst\_import tool.
+
+- ``/tmp/rasdaman\_transaction\_locks/`` - during query read/write transaction,
+  rasdaman generates various empty lock files in this directory. As the files 
+  are empty, the size of this directory is minimal.
+
+  While rasdaman is running this directory must not be removed, otherwise it
+  may lead to data corruption.
+
+
 .. _sec-rasdaman-architecture:
 
 *********************
@@ -3372,11 +3405,11 @@ Uninstall rasdaman
 ******************
 
 When uninstalling rasdaman, you can execute the following commands to ensure
-that all installed files and services are properly removed from the system.
+that all installed files and services are fully removed from the system.
 
-   .. note::
-        These instructions are mainly applicable if rasdaman was installed
-        from package or with the rasdaman installer.
+.. note::
+    These instructions are only applicable if rasdaman was installed
+    from package or with the rasdaman installer.
 
 .. hidden-code-block:: bash
 
@@ -3385,20 +3418,23 @@ that all installed files and services are properly removed from the system.
     # Disable rasdaman
     $ sudo systemctl disable rasdaman
     # Removes everything related to rasdaman (except dependencies)
-    $ sudo apt purge rasdaman
-    # Remove rasdaman folder WARNING!: This will remove all the data and rasdaman configuration files
+    # on Ubuntu/Debian systems; for CentOS use the yum equivalent
+    $ sudo apt-get purge rasdaman
+    # Remove the rasdaman installation directory
+    # WARNING: This removes all rasdaman data and configuration files!
     $ sudo rm -r /opt/rasdaman
-    # Remove rasdaman service
+    # Remove systemd service
     $ sudo rm /etc/systemd/system/rasdaman.service
-    # Remove rasdaman start/stop scripts
+    # Remove rasdaman init script
     $ sudo rm /etc/init.d/rasdaman
-    # Remove rasdaman repository
+    # Remove rasdaman apt repository on Ubuntu/Debian
     $ sudo rm /etc/apt/sources.list.d/rasdaman.list
-    # Remove rasdaman startup file
+    # Remove rasdaman profile script
     $ sudo rm /etc/profile.d/rasdaman.sh
     # Remove the rasdaman unit from systemctl --failed list
     $ sudo systemctl reset-failed
-    # This will remove tomcat/postgres if no other package uses them
+    # This will remove tomcat/postgres if no other package uses them,
+    # on Ubuntu/Debian
     $ sudo apt-get autoremove
 
 ***************

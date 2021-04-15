@@ -59,7 +59,8 @@ class TestBlobFSTransaction
 public:
 
     TestBlobFSTransaction()
-        : config(string("/tmp/rasdata/"), string("/tmp/rasdata/TILES/"), string("/tmp/rasdata/TRANSACTIONS/"))
+        : config(string("/tmp/rasdata/"), string("/tmp/rasdata/TILES/"),
+                 string("/tmp/rasdata/TRANSACTIONS/"), "/tmp/rasdata")
     {
         system("rm -rf /tmp/rasdata");
         mkdir(config.rootPath.c_str(), 0770);
@@ -85,7 +86,8 @@ public:
     {
         BlobFSTransaction* transaction = new BlobFSInsertTransaction(config);
         string transactionPath = transaction->transactionPath;
-        string transactionLockFile = transactionPath + BlobFSTransactionLock::TRANSACTION_LOCK;
+        string trLockPath = transaction->transactionLock->transactionLockPath;
+        string transactionLockFile = trLockPath + BlobFSTransactionLock::TRANSACTION_LOCK;
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         long long blobId = 4294967296;
@@ -106,7 +108,7 @@ public:
         EXPECT_TRUE(BlobFile::fileExists(expectedTmpBlobPath));
 
         transaction->postRasbaseCommit();
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK));
         EXPECT_FALSE(BlobFile::fileExists(expectedTmpBlobPath));
 
         string expectedFinalBlobPath = config.tilesPath + "16/262144/4294967296";
@@ -130,7 +132,8 @@ public:
     {
         BlobFSTransaction* transaction = new BlobFSInsertTransaction(config);
         string transactionPath = transaction->transactionPath;
-        string transactionLockFile = transactionPath + BlobFSTransactionLock::TRANSACTION_LOCK;
+        string trLockPath = transaction->transactionLock->transactionLockPath;
+        string transactionLockFile = trLockPath + BlobFSTransactionLock::TRANSACTION_LOCK;
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         long long blobId = 4294967296;
@@ -142,7 +145,7 @@ public:
         EXPECT_EQ(transaction->getTmpBlobPath(blobId), expectedTmpBlobPath);
 
         transaction->postRasbaseAbort();
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
         EXPECT_FALSE(BlobFile::fileExists(expectedTmpBlobPath));
 
         string expectedFinalBlobPath = config.tilesPath + "16/262144/4294967296";
@@ -163,9 +166,10 @@ public:
 
         BlobFSTransaction* transaction = new BlobFSUpdateTransaction(config);
         string transactionPath = transaction->transactionPath;
+        string trLockPath = transaction->transactionLock->transactionLockPath;
         string expectedFinalBlobPath = config.tilesPath + "16/262144/4294967296";
         string expectedTmpBlobPath = transactionPath + "4294967296";
-        string transactionLockFile = transactionPath + BlobFSTransactionLock::TRANSACTION_LOCK;
+        string transactionLockFile = trLockPath + BlobFSTransactionLock::TRANSACTION_LOCK;
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         blobData.size = 5;
@@ -186,7 +190,7 @@ public:
         EXPECT_TRUE(BlobFile::fileExists(expectedTmpBlobPath));
 
         transaction->postRasbaseCommit();
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK));
         EXPECT_FALSE(BlobFile::fileExists(expectedTmpBlobPath));
 
         EXPECT_EQ(transaction->getFinalBlobPath(blobId), expectedFinalBlobPath);
@@ -213,9 +217,10 @@ public:
 
         BlobFSTransaction* transaction = new BlobFSUpdateTransaction(config);
         string transactionPath = transaction->transactionPath;
+        string trLockPath = transaction->transactionLock->transactionLockPath;
         string expectedFinalBlobPath = config.tilesPath + "16/262144/4294967296";
         string expectedTmpBlobPath = transactionPath + "4294967296";
-        string transactionLockFile = transactionPath + BlobFSTransactionLock::TRANSACTION_LOCK;
+        string transactionLockFile = trLockPath + BlobFSTransactionLock::TRANSACTION_LOCK;
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         blobData.size = 5;
@@ -233,7 +238,7 @@ public:
         EXPECT_EQ_MEM(readBlobData1.data, blobData.data, blobData.size);
 
         transaction->postRasbaseAbort();
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK));
         EXPECT_FALSE(BlobFile::fileExists(expectedTmpBlobPath));
 
         EXPECT_EQ(transaction->getFinalBlobPath(blobId), expectedFinalBlobPath);
@@ -259,9 +264,10 @@ public:
 
         BlobFSTransaction* transaction = new BlobFSRemoveTransaction(config);
         string transactionPath = transaction->transactionPath;
+        string trLockPath = transaction->transactionLock->transactionLockPath;
         string expectedFinalBlobPath = config.tilesPath + "16/262144/4294967296";
         string expectedTmpBlobPath = transactionPath + "4294967296";
-        string transactionLockFile = transactionPath + BlobFSTransactionLock::TRANSACTION_LOCK;
+        string transactionLockFile = trLockPath + BlobFSTransactionLock::TRANSACTION_LOCK;
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         transaction->add(blobData);
@@ -273,12 +279,12 @@ public:
         transaction->preRasbaseCommit();
         EXPECT_TRUE(BlobFile::fileExists(expectedTmpBlobPath));
         EXPECT_FALSE(BlobFile::fileExists(expectedFinalBlobPath));
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
 
         transaction->postRasbaseCommit();
         EXPECT_FALSE(BlobFile::fileExists(expectedFinalBlobPath));
         EXPECT_FALSE(BlobFile::fileExists(expectedTmpBlobPath));
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK));
 
         delete transaction;
 
@@ -294,9 +300,10 @@ public:
 
         BlobFSTransaction* transaction = new BlobFSRemoveTransaction(config);
         string transactionPath = transaction->transactionPath;
+        string trLockPath = transaction->transactionLock->transactionLockPath;
         string expectedFinalBlobPath = config.tilesPath + "16/262144/4294967296";
         string expectedTmpBlobPath = transactionPath + "4294967296";
-        string transactionLockFile = transactionPath + BlobFSTransactionLock::TRANSACTION_LOCK;
+        string transactionLockFile = trLockPath + BlobFSTransactionLock::TRANSACTION_LOCK;
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         transaction->add(blobData);
@@ -308,7 +315,7 @@ public:
         transaction->postRasbaseAbort();
         EXPECT_FALSE(BlobFile::fileExists(expectedTmpBlobPath));
         EXPECT_TRUE(BlobFile::fileExists(expectedFinalBlobPath));
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
 
         delete transaction;
 
@@ -324,9 +331,10 @@ public:
 
         BlobFSTransaction* transaction = new BlobFSRemoveTransaction(config);
         string transactionPath = transaction->transactionPath;
+        string trLockPath = transaction->transactionLock->transactionLockPath;
         string expectedFinalBlobPath = config.tilesPath + "16/262144/4294967296";
         string expectedTmpBlobPath = transactionPath + "4294967296";
-        string transactionLockFile = transactionPath + BlobFSTransactionLock::TRANSACTION_LOCK;
+        string transactionLockFile = trLockPath + BlobFSTransactionLock::TRANSACTION_LOCK;
         EXPECT_TRUE(BlobFile::fileExists(transactionLockFile));
 
         transaction->add(blobData);
@@ -338,12 +346,12 @@ public:
         transaction->preRasbaseCommit();
         EXPECT_TRUE(BlobFile::fileExists(expectedTmpBlobPath));
         EXPECT_FALSE(BlobFile::fileExists(expectedFinalBlobPath));
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
 
         transaction->postRasbaseAbort();
         EXPECT_FALSE(BlobFile::fileExists(expectedTmpBlobPath));
         EXPECT_TRUE(BlobFile::fileExists(expectedFinalBlobPath));
-        EXPECT_FALSE(BlobFile::fileExists(transactionPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
+        EXPECT_FALSE(BlobFile::fileExists(trLockPath + BlobFSTransactionLock::TRANSACTION_ABORT_LOCK));
 
         // check contents of final updated file
         BlobFile readBlobFile2(expectedFinalBlobPath);

@@ -60,6 +60,14 @@ public:
 
     /// /path/to/dir/file -> /path/to/dir
     static std::string getDirname(const std::string &filePath);
+    
+    /// /path/to/dir/file -> file
+    /// /path/to/dir/ -> dir
+    /// /path/to/dir/// -> dir
+    /// dir/ -> dir
+    /// file -> file
+    /// "" -> ""
+    static std::string getBasename(const std::string &path);
 };
 
 /**

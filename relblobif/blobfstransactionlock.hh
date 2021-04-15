@@ -69,7 +69,9 @@ public:
      * @param trPath the root directory of the transaction.
      * @param check use this object for checking (do not clear locks in destructor)
      */
-    BlobFSTransactionLock(const std::string &trPath, bool check = false);
+    BlobFSTransactionLock(const std::string &trPath,
+                          const std::string &trLocksPath,
+                          bool check = false);
 
     /**
      * Clears the transaction lock, which should be a general lock (A)
@@ -102,6 +104,9 @@ private:
 
     // transaction root path
     std::string transactionPath;
+    
+    // /tmp/rasdaman_transaction_locks/<transactionPath>
+    std::string transactionLockPath;
 
     // check only locks, do not clear them in destructor
     bool checkOnly{false};

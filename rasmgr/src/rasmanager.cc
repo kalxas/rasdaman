@@ -63,11 +63,11 @@ namespace rasmgr
 {
 using std::shared_ptr;
 
-RasManager::RasManager(rasmgr::Configuration &config)
+RasManager::RasManager(rasmgr::Configuration &config
+                       )
+  : running{false}, port{config.getPort()}
 {
-    this->port = config.getPort();
-    RasMgrConfig::getInstance()->setRasMgrPort(static_cast<std::int32_t>(this->port));
-    this->running = false;
+    RasMgrConfig::getInstance()->setRasMgrPort(std::int32_t(this->port));
 }
 
 RasManager::~RasManager()

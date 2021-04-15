@@ -247,7 +247,7 @@ bool r_Minterval::intersects_with(const r_Minterval &minterval) const
     if (dimension() != minterval.dimension())
     {
 #ifdef RASDEBUG
-        LDEBUG << "cannot check if " << this << " and " << minterval <<
+        LDEBUG << "cannot check if " << *this << " and " << minterval <<
                " intersect, mintervals do not share the same dimension.";
 #endif
         return false;
