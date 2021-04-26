@@ -4123,7 +4123,6 @@ as metadata backend:
     spring.datasource.url=jdbc:h2:file://{path-to-petascopedb}/petascopedb.db;DB_CLOSE_ON_EXIT=FALSE
     spring.datasource.username={db-username}
     spring.datasource.password={db-password}
-    spring.h2.console.enabled=true
 
 .. _start-stop-embedded-applications:
 

@@ -35,8 +35,8 @@ spring.jpa.hibernate.ddl-auto=none
 
 # ******************************** ERROR SYNTAX KEY=VALUE ********************************
 # These properties are not valid
-key=value
-key1=value2
+key========================value
+key1=value1;key2=value2
 key2=value2
 
 # Config for Spring datasource with Postgresql (more detail about other databases see wiki page: http://rasdaman.org/wiki/PetascopeUserGuide#SpringHibernatedatasourcesconfiguration) 

@@ -163,7 +163,7 @@ while read line; do
 
         # 5.1 Get the old_file setting (setting name) and value (setting value)
         old_setting=$(echo ${line%%=*}) # get the value before the delimiter '=', % is from ending (right to left)
-        old_value=$(echo ${line##*=}) # get the value after the delimiter '=', ## is from beginning (left to right)
+        old_value=$(echo ${line#*=}) # get the value after the delimiter '=', ## is from beginning (left to right)
 
         old_setting_value=$(trim_whitespace "$old_setting=$old_value")
 
