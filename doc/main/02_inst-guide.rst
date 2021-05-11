@@ -3367,6 +3367,39 @@ This program computes the average cell value from all images of a given
 collection on client side. Note that it requires grayscale images. A good
 candidate collection is ``mr`` from the demo database.
 
+******************
+Uninstall rasdaman
+******************
+
+When uninstalling rasdaman, you can execute the following commands to ensure
+that all installed files and services are properly removed from the system.
+
+   .. note::
+        These instructions are mainly applicable if rasdaman was installed
+        from package or with the rasdaman installer.
+
+.. hidden-code-block:: bash
+
+    # Stop rasdaman
+    $ sudo service rasdaman stop
+    # Disable rasdaman
+    $ sudo systemctl disable rasdaman
+    # Removes everything related to rasdaman (except dependencies)
+    $ sudo apt purge rasdaman
+    # Remove rasdaman folder WARNING!: This will remove all the data and rasdaman configuration files
+    $ sudo rm -r /opt/rasdaman
+    # Remove rasdaman service
+    $ sudo rm /etc/systemd/system/rasdaman.service
+    # Remove rasdaman start/stop scripts
+    $ sudo rm /etc/init.d/rasdaman
+    # Remove rasdaman repository
+    $ sudo rm /etc/apt/sources.list.d/rasdaman.list
+    # Remove rasdaman startup file
+    $ sudo rm /etc/profile.d/rasdaman.sh
+    # Remove the rasdaman unit from systemctl --failed list
+    $ sudo systemctl reset-failed
+    # This will remove tomcat/postgres if no other package uses them
+    $ sudo apt-get autoremove
 
 ***************
 Troubleshooting
