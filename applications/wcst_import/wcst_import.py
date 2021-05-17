@@ -183,6 +183,15 @@ def main():
     ConfigManager.user = arguments.user
     ConfigManager.passwd = arguments.passwd
 
+    if arguments.identity_file is not None:
+        key_value = FileUtil.read_file_to_string(arguments.identity_file)
+        if ":" not in key_value:
+            raise RuntimeException("credentials in the identity file '" + arguments.identity_file + "' "
+                                    "must be specified in the file as username:password")
+        tmps = key_value.split(":")
+        ConfigManager.user = tmps[0].strip()
+        ConfigManager.passwd = tmps[1].strip()
+
     try:
         ingredients = decode_ingredients(read_ingredients(ingredients_file_path))
         hooks = ingredients["hooks"] if "hooks" in ingredients else None

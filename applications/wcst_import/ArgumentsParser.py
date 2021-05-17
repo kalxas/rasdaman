@@ -38,5 +38,8 @@ def parse_arguments():
                                        " in the ingredient file.", type=str)
     parser.add_argument("--passwd", help="Password of the username", type=str)
 
+    parser.add_argument("--identity-file", help="specify a file from which credentials of a valid rasdaman user are read; "
+                                                "the credentials must be specified as username:password", type=str)
+
     result = parser.parse_args()
     return result

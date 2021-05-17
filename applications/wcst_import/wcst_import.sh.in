@@ -73,7 +73,7 @@ Options:
     the daemon (-d) waits for <interval> seconds before checking the ingredients 
     file for new data; by default the interval is 3600 (1 hour).
   -i, --identity-file
-    specify a file from which credentials of a valid petascope user are read;
+    specify a file from which credentials of a valid rasdaman user are read;
     the credentials must be specified in the file as username:password
   -u, --user <username>
     specify a valid user for the petascope endpoint; the password will be
@@ -156,9 +156,9 @@ elif [ -n "$identity_file_path" ]; then
         error "identity file '$identity_file_path' cannot be read"
     fi
 
-    user=$(awk -F: '{ print $1 }' "$identity_file_path")
-    passwd=$(awk -F: '{ print $2 }' "$identity_file_path")
-    if [ -z "$user" ] || [ -z "$passwd" ]; then
+    user_tmp=$(awk -F: '{ print $1 }' "$identity_file_path")
+    passwd_tmp=$(awk -F: '{ print $2 }' "$identity_file_path")
+    if [ -z "$user_tmp" ] || [ -z "$passwd_tmp" ]; then
         error "cannot parse username or password from the identity file '$identity_file_path'; expected format username:password."
     fi
 fi
@@ -168,6 +168,7 @@ add_args "-d" "$daemon_action"
 [ "$daemon_flag" = true ] && add_args "-w" "$watch_interval"
 add_args "--user" "$user"
 add_args "--passwd" "$passwd"
+add_args "--identity-file" "$identity_file_path"
 
 if [ "$quiet" = true ]; then
     eval "$wcst_import_py_args" > /dev/null 2>&1
