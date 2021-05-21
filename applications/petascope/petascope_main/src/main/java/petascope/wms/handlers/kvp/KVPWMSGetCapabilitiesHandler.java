@@ -457,7 +457,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
         // Each layer contains zero or multiple styles (by default, style is as same as layer).
         if (!layer.getStyles().isEmpty()) {
-            String styles = this.buildStyles(layer.getStyles());
+            String styles = this.buildStyles(layer.getName(), layer.getStyles());
             layerElement.appendChild(styles);
         }
 
@@ -470,10 +470,19 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      * @param styles
      * @return
      */
-    private String buildStyles(List<Style> styles) throws PetascopeException {
+    private String buildStyles(String layerName, List<Style> styles) throws PetascopeException {
         StringBuilder result = new StringBuilder();
         for (Style style : styles) {
-            result.append(this.getRepresentation(style));
+            String styleRepresentation = "";
+            try {
+                styleRepresentation = this.getRepresentation(style);
+            } catch (Exception ex) {
+                throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                                            "Cannot create representation for style '" + style.getName() + "' of layer '" + layerName + "'"
+                                            + ". Reason: " + ex.getMessage(), ex);
+            }
+            
+            result.append(styleRepresentation);
         }
 
         return result.toString();

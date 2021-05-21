@@ -21,9 +21,11 @@
  */
 package petascope.wms.handlers.kvp;
 
+import java.io.StringReader;
 import petascope.core.response.Response;
 import java.util.Arrays;
 import java.util.Map;
+import nu.xom.Builder;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.Style;
 import org.rasdaman.repository.service.WMSRepostioryService;
@@ -32,10 +34,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.KVPSymbols;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.MIMEUtil;
 import petascope.exceptions.WMSException;
+import petascope.util.XMLUtil;
 import petascope.wms.exception.WMSDuplicateStyleForLayerException;
 import petascope.wms.exception.WMSLayerNotExistException;
 import petascope.wms.exception.WMSMissingRequestParameter;
@@ -129,8 +133,7 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
                 throw new WMSDuplicateStyleForLayerException(styleName, layerName);
             } else {
                 // create new style
-                style = new Style();
-                layer.getStyles().add(style);
+                style = new Style();                
             }
         } else {
             style = layer.getStyle(styleName);
@@ -166,9 +169,20 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         }
         
         if (kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION) != null) {
-            String colorTableDefinition = kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION)[0];
+            String colorTableDefinition = kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION)[0].trim();
+            if (XMLUtil.isXmlString(colorTableDefinition)) {
+                try {
+                    new Builder().build(new StringReader(colorTableDefinition)).getRootElement();
+                } catch (Exception ex) {
+                    throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                                                 "The provided SLD text is not valid XML format for style '" + styleName + "' of layer '" + layerName + "'"
+                                                + ". Reason: " + XMLUtil.enquoteCDATA(ex.getMessage()), ex);
+                }
+            }
             style.setColorTableDefinition(colorTableDefinition);
         }
+        
+        layer.getStyles().add(style);
 
         // Then update the layer with the new updated/added style to database.
         this.wmsRepostioryService.saveLayer(layer);

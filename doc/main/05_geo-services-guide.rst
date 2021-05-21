@@ -1632,7 +1632,6 @@ Style Definition Variants
               <sld:FeatureTypeStyle>
                 <sld:Rule>
                   <sld:RasterSymbolizer>
-                    </sld:ChannelSelection>
                     <sld:ColorMap type="values">
                        <ColorMapEntry color="#0000FF" quantity="150" />
                        <ColorMapEntry color="#FFFF00" quantity="200" />
