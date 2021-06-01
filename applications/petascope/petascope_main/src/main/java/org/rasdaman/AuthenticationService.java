@@ -74,7 +74,7 @@ public class AuthenticationService {
             }
             // decoded username:password
             final String[] values = credentials.split(":", 2);
-            result = new Pair<>(values[0], values[1]);
+            result = new Pair<>(values[0].trim(), values[1].trim());
         }
         
         return result;
@@ -106,29 +106,16 @@ public class AuthenticationService {
         
         Pair<String, String> credentialsPair = getBasicAuthUsernamePassword(httpServletRequest);
         
-        String userpass = credentialsPair.fst + ":" + credentialsPair.snd;
-        String basicAuth = "Basic " + new String(new Base64().encode(userpass.getBytes()));
-        urlConnection.setRequestProperty("Authorization", basicAuth);
+        if (credentialsPair != null) {
+            String userpass = credentialsPair.fst + ":" + credentialsPair.snd;
+            String basicAuth = "Basic " + new String(new Base64().encode(userpass.getBytes()));
+            urlConnection.setRequestProperty("Authorization", basicAuth);
+        }
         
         InputStream inputStream = urlConnection.getInputStream();
         return inputStream;
     }
     
-    // -- rasdaman enterprise begin
-    
-    /**
-     * Encode authenticated users' emails from Shibboleth IdP to a valid user name for rasdaman.
-     */
-    public static String encodeShibbolethEmail(String email) {
-        // Replace any special characters to be valid rasdaman identification
-        String username = email.replaceAll("\\W", "_");
-        username = "shibboleth_" + username;
-        
-        return username;
-    }
-    
-    
-    // -- rasdaman enterprise end
     
     /**
      * Check if user is petascope admin user

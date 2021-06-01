@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -64,6 +65,7 @@ public class EnvelopeByAxis implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -96,14 +98,6 @@ public class EnvelopeByAxis implements Serializable {
         this.srsDimension = srsDimension;
         this.axisLabels = axisLabels;
         this.axisExtents = axisExtents;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public List<AxisExtent> getAxisExtents() {
@@ -145,6 +139,7 @@ public class EnvelopeByAxis implements Serializable {
      * @param axisLabel
      * @return
      */
+    @JsonIgnore
     public AxisExtent getAxisExtentByLabel(String axisLabel) {
         for (AxisExtent axisExtent : this.axisExtents) {
             if (axisExtent.getAxisLabel().equals(axisLabel)) {
@@ -158,6 +153,7 @@ public class EnvelopeByAxis implements Serializable {
     /**
      * Return the axisExtent (geoDomains) from the list of axis extents by index of element
      */
+    @JsonIgnore
     public AxisExtent getAxisExtentByIndex(int index) {
         AxisExtent axisExtent = this.axisExtents.get(index);
         return axisExtent;
@@ -178,6 +174,7 @@ public class EnvelopeByAxis implements Serializable {
      * @throws petascope.exceptions.PetascopeException
      * @throws petascope.exceptions.SecoreException
      */
+    @JsonIgnore
     public String getAxisLabelsRepresentation() throws PetascopeException, SecoreException {
         String axisLabels = "";
 
@@ -207,6 +204,7 @@ public class EnvelopeByAxis implements Serializable {
      * @throws petascope.exceptions.PetascopeException
      * @throws petascope.exceptions.SecoreException
      */
+    @JsonIgnore
     public String getLowerCornerRepresentation() throws PetascopeException, SecoreException {
 
         String lowerCorner = "";
@@ -225,6 +223,7 @@ public class EnvelopeByAxis implements Serializable {
     /**
      * Return the list of axes lower bounds
      */
+    @JsonIgnore
     public List<String> getLowerBoundValues() {
         List<String> results = new ArrayList<>();
         
@@ -239,6 +238,7 @@ public class EnvelopeByAxis implements Serializable {
     /**
      * Return the list of axes upper bounds
      */
+    @JsonIgnore
     public List<String> getUpperBoundValues() {
         List<String> results = new ArrayList<>();
         
@@ -262,6 +262,7 @@ public class EnvelopeByAxis implements Serializable {
      * @throws petascope.exceptions.PetascopeException
      * @throws petascope.exceptions.SecoreException
      */
+    @JsonIgnore
     public String getUpperCornerRepresentation() throws PetascopeException, SecoreException {
 
         String upperCorner = "";
@@ -280,6 +281,7 @@ public class EnvelopeByAxis implements Serializable {
     /**
      * e.g: return Lat -> Y, Long -> X type
      */
+    @JsonIgnore
     public Map<String, String> getAxisLabelsTypesMap() throws PetascopeException, SecoreException {
         Map<String, String> map = new LinkedHashMap<>();
         
@@ -295,6 +297,7 @@ public class EnvelopeByAxis implements Serializable {
      * Return the comma separated list of axis names
      * e.g: Lat,Long,time
      */
+    @JsonIgnore
     public String getAxisNamesRepresentation() {
         List<String> results = new ArrayList<>();
         
@@ -308,6 +311,7 @@ public class EnvelopeByAxis implements Serializable {
     /**
      * If this coverage has a time axis, then returns it lower and uppe bounds in date time format
      */
+    @JsonIgnore
     public List<AxisExtent> getTimeAxisExtents() throws PetascopeException, SecoreException {
         List<AxisExtent> axisExtents = new ArrayList<>();
         
@@ -333,6 +337,7 @@ public class EnvelopeByAxis implements Serializable {
     /**
      * Return the list of crss of a coverage
      */
+    @JsonIgnore
     public List<String> getCrsList() {
         Set<String> results = new LinkedHashSet<>();
         
@@ -347,6 +352,7 @@ public class EnvelopeByAxis implements Serializable {
     /**
      * Check if this coverage has geo XY axes and returns list of minX, minY, maxX, maxY
      */
+    @JsonIgnore
     public BoundingBox getGeoXYBoundingBox() throws PetascopeException {
         List<AxisExtent> axisExtents = this.axisExtents;
         boolean foundX = false, foundY = false;

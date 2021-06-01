@@ -1,0 +1,45 @@
+{
+
+  "config": {
+
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "track_files": false,
+    "mock": false,
+    "automated": true
+
+  },
+
+  "input": {
+
+    "coverage_id": "test_wcs_utm31_pyramid_duplicate", 
+    "paths": [
+      "*.tif"
+    ]
+
+  },
+
+  "recipe": {
+
+    "name": "map_mosaic", 
+
+    "options": {
+
+	  "wms_import": true,
+
+      "scale_factors": [
+        {
+          "coverage_id": "test_wcs_utm31_pyramid_2_duplicate",
+          "factors": [2, 2]
+        },
+        {
+          "coverage_id": "test_wcs_utm31_pyramid_4_duplicate",
+          "factors": [4, 4]
+        }
+       ]
+    }
+
+  }
+
+}
+

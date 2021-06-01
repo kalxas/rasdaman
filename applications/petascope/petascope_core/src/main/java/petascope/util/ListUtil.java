@@ -389,4 +389,25 @@ public class ListUtil {
             return out;
         }
     }
+    
+    /**
+     * e.g: create a list of 5 elements, each element is 0
+     */
+    public static <T> List<T> createListOfSizeAndValues(int numberOfElements, T number) {
+        List<T> results = new ArrayList<>(numberOfElements);
+        
+        for (int i = 0; i < numberOfElements; i++) {
+            results.add(number);
+        }
+        
+        return results;
+    }
+    
+    /**
+     * e.g. base coverage name=test, scale factors=1,2,3
+     * return test_1_2_3
+     */
+    public static String createDownscaledCoverageName(String baseCoverageName, List<String> scaleFactors) {
+        return baseCoverageName + "_" + ListUtil.join(scaleFactors, "_");
+    }
 }

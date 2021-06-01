@@ -34,7 +34,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
-import org.gdal.gdal.gdal;
 import static org.rasdaman.config.VersionManager.SECORE_VERSION;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +48,8 @@ import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.IOUtil;
 import petascope.util.StringUtil;
 import petascope.util.ras.RasUtil;
+
+import org.gdal.gdal.gdal;
 
 /**
  * Configuration Manager class: a single entry point for all server settings.
@@ -160,6 +161,9 @@ public class ConfigManager {
 
     /* ***** AJP connector configuration for embedded tomcat ***** */
     public static int EMBEDDED_AJP_PORT = 0;
+
+    // Time out to connect to remote petascope after milseconds
+    public static final int PETASCOPE_CONNETION_TIMEOUT = 10 * 1000;
 
     
     // NOTE: When Petascope imports multiple coverages in different CRSs (e.g: Sentinel 2 UTM zones),

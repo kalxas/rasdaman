@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import javax.persistence.*;
 import petascope.util.BigDecimalUtil;
+import petascope.util.ListUtil;
 
 /**
  * CIS 1.1
@@ -44,6 +46,7 @@ public class RasdamanRangeSet implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
     
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -68,7 +71,7 @@ public class RasdamanRangeSet implements Serializable {
     @Column(name = "tiling")
     private String tiling;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
+    @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
     @OrderColumn
     @JoinColumn(name = RasdamanRangeSet.COLUMN_ID)
     private List<RasdamanDownscaledCollection> rasdamanDownscaledCollections = new ArrayList<>();
@@ -85,14 +88,6 @@ public class RasdamanRangeSet implements Serializable {
         this.rasdamanDownscaledCollections = rasdamanDownscaledCollections;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getCollectionName() {
         return collectionName;
     }
@@ -100,7 +95,7 @@ public class RasdamanRangeSet implements Serializable {
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
     }
-
+    
     public String getDecodeExpression() {
         return decodeExpression;
     }
@@ -108,6 +103,7 @@ public class RasdamanRangeSet implements Serializable {
     public void setDecodeExpression(String decodeExpression) {
         this.decodeExpression = decodeExpression;
     }
+
 
     public String getCollectionType() {
         return collectionType;
@@ -167,6 +163,29 @@ public class RasdamanRangeSet implements Serializable {
         return this.rasdamanDownscaledCollections;
     }
     
+    public List<BigDecimal> getRasdamanDownscaledCollectionsLevels() {
+        List<BigDecimal> results = new ArrayList<>();
+        for (RasdamanDownscaledCollection rasdamanDownscaledCollection : this.getRasdamanDownscaledCollections()) {
+            results.add(rasdamanDownscaledCollection.getLevel());
+        }
+        
+        return results;
+    }
+    
+    /**
+     * e.g: return 1,4,6,8 as ascending levels
+     */
+    @JsonIgnore
+    public String getRasdamanDownscaledCollectionsRepresentation() {
+        List<String> downscaledLevels = new ArrayList<>();
+        for (RasdamanDownscaledCollection rasdamanDownscaledCollection : this.getRasdamanDownscaledCollections()) {
+            downscaledLevels.add(rasdamanDownscaledCollection.getLevel().toPlainString());
+        }
+        
+        String result = ListUtil.join(downscaledLevels, ",");
+        return result;
+    }
+    
     public void setRasdamanDownscaledCollections(List<RasdamanDownscaledCollection> rasdamanDownscaledCollections) {
         this.rasdamanDownscaledCollections = rasdamanDownscaledCollections;
     }
@@ -174,6 +193,7 @@ public class RasdamanRangeSet implements Serializable {
     /**
      * Get the downscaled collection by scale level.
      */
+    @JsonIgnore
     public RasdamanDownscaledCollection getRasdamanDownscaledCollectionByScaleLevel(BigDecimal level) {
         for (RasdamanDownscaledCollection rasdamanDownscaledCollection : this.rasdamanDownscaledCollections) {           
             if (rasdamanDownscaledCollection.getLevel().equals(BigDecimalUtil.stripDecimalZeros(level))) {
@@ -189,6 +209,7 @@ public class RasdamanRangeSet implements Serializable {
      * select the ***highest level collection which is lower than**** this input level.
      * e.g: a list of levels [2, 5, 6, 9], input is: 7, then result is collection with level 6.
      */
+    @JsonIgnore
     public RasdamanDownscaledCollection getRasdamanDownscaledCollectionAsSourceCollection(BigDecimal level) {
         RasdamanDownscaledCollection result = null;
         for (RasdamanDownscaledCollection rasdamanDownscaledCollection : this.getRasdamanDownscaledCollections()) {            

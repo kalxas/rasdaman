@@ -37,6 +37,7 @@ import petascope.wcps.handler.CrsTransformHandler;
 import petascope.wcps.handler.SubsetExpressionHandler;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.CollectionAliasRegistry;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.DimensionIntervalList;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
@@ -59,6 +60,9 @@ public class WMSGetMapSubsetTranslatingService {
     private WMSGetMapWCPSMetadataTranslatorService wmsGetMapWCPSMetadataTranslatorService;
     @Autowired
     private SubsetExpressionHandler subsetExpressionHandler;
+    
+    @Autowired
+    private CollectionAliasRegistry collectionAliasRegistry;
 
     private static final String WIDTH = "$width";
     private static final String HEIGHT = "$height";
@@ -80,8 +84,6 @@ public class WMSGetMapSubsetTranslatingService {
     private static final String XMAX_OUTPUT_CRS = "$xMaxOutputCRS";
     private static final String YMAX_OUTPUT_CRS = "$yMaxOutputCRS";
     
-    public static final String COLLECTION_ALIAS_PREFIX = "c";
-    
     // Default value for project()
     private static final String DEFAULT_ERR_THRESHOLD = "0.125";
 
@@ -91,7 +93,8 @@ public class WMSGetMapSubsetTranslatingService {
             + ", \"" + XMIN_OUTPUT_CRS + ", " + YMIN_OUTPUT_CRS + ", " + XMAX_OUTPUT_CRS + ", " + YMAX_OUTPUT_CRS + "\" "
             + ", \"" + OUTPUT_CRS + "\" "
             + ", " + WIDTH + ", " + HEIGHT + ", " + RESAMPLE_ALG + ", " + ERR_THRESHOLD + " )";
-
+    
+    public static final String COLLECTION_ALIAS_PREFIX = "c";
     
     /**
      * Return a list of WCPS subsets from input subsets parameter of GetMap request
@@ -119,23 +122,23 @@ public class WMSGetMapSubsetTranslatingService {
      * Translate geo domains to grid domains for a WCPS coverage metadata
      */
     public WcpsResult applyWCPSGeoSubsets(WcpsCoverageMetadata wcpsCoverageMetadata, 
-                                          List<WcpsSubsetDimension> wcpsSubsetDimensions,
-                                          Map<String, String> aliasCollectionNameRegistry) throws PetascopeException {
+                                          List<WcpsSubsetDimension> wcpsSubsetDimensions) throws PetascopeException {
         String rasql = null;
 
         String collectionName = wcpsCoverageMetadata.getRasdamanCollectionName();
-        if (aliasCollectionNameRegistry.values().contains(collectionName)) {
+        if (this.collectionAliasRegistry.getAliasMap().values().contains(collectionName)) {
             // e.g: c0 -> collectionA
-            for (String alias : aliasCollectionNameRegistry.keySet()) {
-                if (aliasCollectionNameRegistry.get(alias).equals(collectionName)) {
+            for (String alias : this.collectionAliasRegistry.getAliasMap().keySet()) {
+                if (this.collectionAliasRegistry.getAliasMap().get(alias).equals(collectionName)) {
                     rasql = alias;
                     break;
                 }
             }
         } else {                
             // In case this collection does not exist in the registry then add it to the registry for the rasql FROM clause
-            String alias = COLLECTION_ALIAS_PREFIX + aliasCollectionNameRegistry.size();
-            aliasCollectionNameRegistry.put(alias, wcpsCoverageMetadata.getRasdamanCollectionName());
+            String alias = COLLECTION_ALIAS_PREFIX + this.collectionAliasRegistry.getAliasMap().size();
+            String layerName = wcpsCoverageMetadata.getCoverageName();
+            this.collectionAliasRegistry.add(alias, wcpsCoverageMetadata.getRasdamanCollectionName(), layerName);
             rasql = alias;
         }
             
@@ -156,7 +159,7 @@ public class WMSGetMapSubsetTranslatingService {
                                                        BoundingBox originalRequestBBox, String outputCRS)
             throws PetascopeException, SecoreException {
         
-        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
+        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
         
         int width = wmsLayer.getWidth();
         int height = wmsLayer.getHeight();
@@ -276,11 +279,19 @@ public class WMSGetMapSubsetTranslatingService {
             extendY = temp;
         }
         
-        subsetCollectionExpression = SCALE + "( " + subsetCollectionExpression + ", [" + scaleX + ", " + scaleY + "] )";
+        boolean needExtend = !(extendX.equals(scaleX) && extendY.equals(scaleY));
+        
         String finalCollectionExpressionLayer = subsetCollectionExpression;
+        if (needExtend || !(wmsLayer.getOriginalBoundsBBox().contains(wmsLayer.getRequestBBox()) 
+            && subsetCollectionExpression.toLowerCase().contains("project"))) {
+            // In case of requesting bbox only intersects with layer's bbox at the border
+            // then it needs to extend(scale()) rasdaman result to align the it over 256x256 pixels WMS tile
+            subsetCollectionExpression = SCALE + "( " + subsetCollectionExpression + ", [" + scaleX + ", " + scaleY + "] )";
+            finalCollectionExpressionLayer = subsetCollectionExpression;
+        }
 
         // No need to add extend if XY grid domains are as same as Scale() in the final generated rasql query
-        if (!(extendX.equals(scaleX) && extendY.equals(scaleY))) {
+        if (needExtend) {
             finalCollectionExpressionLayer = EXTEND + "( " + subsetCollectionExpression + ", [" + extendX + ", " + extendY + "] )";
         }
         

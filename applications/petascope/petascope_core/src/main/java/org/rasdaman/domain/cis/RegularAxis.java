@@ -56,8 +56,8 @@ public class RegularAxis extends GeoAxis implements Serializable {
         
     }
 
-    public RegularAxis(String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution) {
-        super(axisLabel, uomLabel, srsName, lowerBound, upperBound, resolution);
+    public RegularAxis(String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution, String axisType) {
+        super(axisLabel, uomLabel, srsName, lowerBound, upperBound, resolution, axisType);
     }
     
 }

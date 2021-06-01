@@ -21,12 +21,18 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,10 +40,13 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import petascope.util.ListUtil;
+import petascope.util.BigDecimalUtil;
 
 /**
  * CIS 1.1
@@ -72,8 +81,11 @@ public abstract class Coverage implements Serializable {
     // Used by Hibernate HSQ, Criteria
     public static final String COVERAGE_CLASS_NAME = "Coverage";
     public static final String COVERAGE_ID_PROPERTY = "coverageId";
+    
+    public static final String FK_COVERAGE_ID = "fk_id";
 
     @Id
+    @JsonIgnore
     @Column(name = COLUMN_ID)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -117,15 +129,13 @@ public abstract class Coverage implements Serializable {
     // Store the calculated size of coverage in bytes for overview
     protected long coverageSizeInBytes;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = FK_COVERAGE_ID)
+    @OrderColumn
+    protected List<CoveragePyramid> pyramid = new ArrayList<>();
+
     public Coverage() {
 
-    }
-    
-    public Coverage(String coverageId, String coverageType, Envelope envelope, long coverageSizeInBytes) {
-        this.coverageType = coverageType;
-        this.coverageId = coverageId;
-        this.envelope = envelope;
-        this.coverageSizeInBytes = coverageSizeInBytes;
     }
 
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, 
@@ -138,6 +148,14 @@ public abstract class Coverage implements Serializable {
         this.metadata = metadata;
         this.coverageType = coverageType;
         this.coverageSizeInBytes = coverageSizeInBytes;
+    }
+    
+    public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet) {
+        this.coverageId = coverageId;
+        this.coverageType = coverageType;
+        this.coverageSizeInBytes = coverageSizeInBytes;
+        this.envelope = envelope;
+        this.rasdamanRangeSet = rasdamanRangeSet;        
     }
 
     public long getId() {
@@ -221,6 +239,27 @@ public abstract class Coverage implements Serializable {
         this.coverageSizeInBytes = coverageSizeInBytes;
     }
 
+    public List<CoveragePyramid> getPyramid() {
+        return pyramid;
+    }
+
+    public void setPyramid(List<CoveragePyramid> pyramid) {
+        this.pyramid = pyramid;
+    }
+    
+    /**
+     * Check if a coverage id already exists in this coverage's pyramid set
+     */
+    public boolean hasPyramidMember(String coverageId) {
+        for (CoveragePyramid pyramidMember : this.pyramid) {
+            if (pyramidMember.getPyramidMemberCoverageId().equals(coverageId)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
     // Helper methods
     /**
      * Gets an array list containing all null values, on all bands and removes
@@ -237,9 +276,12 @@ public abstract class Coverage implements Serializable {
 
         for (Field field : fields) {
             Quantity quantity = field.getQuantity();
-            for (NilValue nilValue : quantity.getNilValuesList()) {
-                if (!uniqueNilValues.contains(nilValue)) {
-                    uniqueNilValues.add(nilValue);
+            
+            if (quantity.getNilValuesList() != null) {
+                for (NilValue nilValue : quantity.getNilValuesList()) {
+                    if (!uniqueNilValues.contains(nilValue)) {
+                        uniqueNilValues.add(nilValue);
+                    }
                 }
             }
         }
@@ -266,6 +308,7 @@ public abstract class Coverage implements Serializable {
      *
      * @return
      */
+    @JsonIgnore
     public int getNumberOfBands() {
         // Each field contains 1 quantity
         int numberOfBands = this.getRangeType().getDataRecord().getFields().size();
@@ -273,9 +316,11 @@ public abstract class Coverage implements Serializable {
         return numberOfBands;
     }
     
+      
     /**
      * Return the concatenated string of distinct band types, e.g: Float32,Byte,Int16
      */
+    @JsonIgnore
     public String getPixelDataType() {
         List<String> list = new ArrayList<>();
         
@@ -296,6 +341,7 @@ public abstract class Coverage implements Serializable {
      *
      * @return
      */
+    @JsonIgnore
     public int getNumberOfDimensions() {
         int numberOfDimensions = this.getEnvelope().getEnvelopeByAxis().getSrsDimension();
 

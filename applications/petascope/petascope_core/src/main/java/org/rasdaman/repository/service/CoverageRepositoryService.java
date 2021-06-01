@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import javax.persistence.EntityManager;
@@ -34,6 +35,7 @@ import javax.persistence.PersistenceContext;
 import org.rasdaman.domain.cis.Axis;
 import org.rasdaman.domain.cis.AxisExtent;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.DomainSet;
 import org.rasdaman.domain.cis.Envelope;
 import org.rasdaman.domain.cis.EnvelopeByAxis;
@@ -354,6 +356,18 @@ public class CoverageRepositoryService {
         long coverageSize = this.calculateCoverageSizeInBytes(coverage);
         coverage.setCoverageSizeInBytes(coverageSize);
         
+        List<CoveragePyramid> tmpList = this.coverageRepository.readAllCoveragePyramidsByBaseCoverageId(coverageId);
+        TreeMap<BigDecimal, CoveragePyramid> tmpMap = new TreeMap<>();
+        for (CoveragePyramid coveragePyramid : tmpList) {
+            BigDecimal weight = BigDecimal.ONE;
+            for (BigDecimal scaleFactor : coveragePyramid.getScaleFactors()) {
+                weight = weight.multiply(scaleFactor);
+            }
+            
+            tmpMap.put(weight, coveragePyramid);
+        }
+        coverage.setPyramid(new ArrayList<>(tmpMap.values()));
+
         // Then cache the read coverage's basic metadata
         localCoveragesCacheMap.put(coverageId, new Pair<>(coverage, false));
     }
@@ -459,6 +473,35 @@ public class CoverageRepositoryService {
         long end = System.currentTimeMillis();
         log.debug("Time to read all coverages is: " + String.valueOf(end - start) + " ms.");
 
+        return coverages;
+    }
+    
+    /**
+     * Return the coverage object from the local cache
+     */
+    public Coverage readCoverageFromLocalCache(String coverageId) throws PetascopeException {
+        if (this.localCoveragesCacheMap.isEmpty()) {
+            this.readAllLocalCoveragesBasicMetatata();
+        }
+        
+        Coverage result = null;
+        Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
+        if (coveragePair != null) {
+            result = coveragePair.fst;
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Return the list of basic coverage metadata object
+     */
+    public List<Coverage> readAllCoveragesBasicMetadata() {
+        List<Coverage> coverages = new ArrayList<>();
+        for (Map.Entry<String, Pair<Coverage, Boolean>> entry : this.localCoveragesCacheMap.entrySet()) {
+            coverages.add(entry.getValue().fst);
+        }
+        
         return coverages;
     }
 

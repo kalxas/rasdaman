@@ -37,6 +37,7 @@ import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IrreguarAxisCoefficientNotFoundException;
 import petascope.wcps.exception.processing.IrregularAxisTrimmingCoefficientNotFoundException;
 import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
@@ -343,8 +344,11 @@ public class CoordinateTranslationService {
         }
 
         // e.g: t(148654) in irr_cube_2
-        BigDecimal lowerCoefficient = (lowerLimit.subtract(geoDomainMin)).divide(scalarResolution);
-        BigDecimal upperCoefficient = (upperLimit.subtract(geoDomainMin)).divide(scalarResolution);
+        NumericSubset originalGeoBounds = irregularAxis.getOriginalGeoBounds();
+        BigDecimal orginalGeoDomainMin = originalGeoBounds.getLowerLimit();
+        
+        BigDecimal lowerCoefficient = (lowerLimit.subtract(orginalGeoDomainMin)).divide(scalarResolution);
+        BigDecimal upperCoefficient = (upperLimit.subtract(orginalGeoDomainMin)).divide(scalarResolution);
         
         lowerCoefficient = lowerCoefficient.add(irregularAxis.getFirstCoefficient());
         upperCoefficient = upperCoefficient.add(irregularAxis.getFirstCoefficient());

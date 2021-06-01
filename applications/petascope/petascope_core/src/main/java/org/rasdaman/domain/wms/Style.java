@@ -100,14 +100,6 @@ public class Style implements Serializable {
 
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     // One, mandatory for the GetMap request 
     // (if only has 1 style then request parameter does not need to specify the name, e.g: styles=&...)
     @Column(name = "name")

@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
@@ -38,6 +39,11 @@ import petascope.util.BigDecimalUtil;
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+
+/**
+ * NOTE: in rasdaman v10, this class is used for migrating to the new coverage pyramid model
+ */
+@Deprecated
 @Entity
 @Table(name = RasdamanDownscaledCollection.TABLE_NAME)
 public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscaledCollection>, Serializable {
@@ -46,6 +52,7 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -63,14 +70,6 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
     public RasdamanDownscaledCollection(String collectionName, BigDecimal level) {
         this.collectionName = collectionName;
         this.level = BigDecimalUtil.stripDecimalZeros(level).toPlainString();
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getCollectionName() {

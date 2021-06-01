@@ -23,6 +23,7 @@
 """
 import re
 from collections import OrderedDict
+from typing import List, Any
 
 from lxml import etree
 import sys
@@ -137,6 +138,7 @@ class CRSAxis:
 
 class CRSUtil:
 
+    axes: List[Any]
     LAT_AXIS_LABEL = "Lat"
 
     LONG_AXIS_LABEL_EPSG_VERSION_85 = "Long"

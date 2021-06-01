@@ -21,8 +21,8 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import static java.util.Collections.list;
 import java.util.LinkedHashMap;
 import javax.persistence.*;
 import java.util.List;
@@ -49,6 +49,7 @@ public class GridLimits implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     public long id;
@@ -70,14 +71,6 @@ public class GridLimits implements Serializable {
     public GridLimits(String srsName, List<IndexAxis> indexAxes) {
         this.srsName = srsName;
         this.indexAxes = indexAxes;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getSrsName() {

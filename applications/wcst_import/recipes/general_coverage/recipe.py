@@ -745,7 +745,7 @@ class Recipe(BaseRecipe):
         """
         if self.importer is None:
             self.importer = Importer(self.resumer, self._get_coverage(), self.options['wms_import'], self.options['scale_levels'],
-                                     self.options['coverage']['grid_coverage'], self.session)
+                                     self.options['coverage']['grid_coverage'], self.session, self.options['scale_factors'])
         return self.importer
 
     @staticmethod

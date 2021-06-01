@@ -1,0 +1,32 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "track_files": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_wms_3d_time_series_irregular",
+    "paths": [
+      "../088-wcs_3D_Timeseries_Irregular/SCALE*.TIFF"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_irregular",
+    "options": {
+      "wms_import": true,
+      "scale_levels": [5, 3, 2],
+      "time_parameter": {
+        "filename": {
+          "regex": "(.*)_(.*)\\.(.*)",
+          "group": "2"
+        },
+        "datetime_format": "YYYY-MM"
+      },
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate?axis-label=\"unix\"",
+      "tiling": "ALIGNED [0:0, 0:999, 0:999]"
+    }
+  }
+}

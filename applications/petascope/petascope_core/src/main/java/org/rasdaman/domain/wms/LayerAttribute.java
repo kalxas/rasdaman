@@ -58,14 +58,6 @@ public class LayerAttribute implements Serializable {
 
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     // Whether the server supports the GetFeatureInfo operation on that Layer (not supported in Rasdaman)
     // false (0): not queryable, true (1): queryable
     @Column

@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import javax.persistence.*;
 
@@ -43,6 +44,7 @@ public class Envelope implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @Column(name = COLUMN_ID)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -57,14 +59,6 @@ public class Envelope implements Serializable {
 
     public Envelope(EnvelopeByAxis envelopeByAxis) {
         this.envelopeByAxis = envelopeByAxis;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public EnvelopeByAxis getEnvelopeByAxis() {

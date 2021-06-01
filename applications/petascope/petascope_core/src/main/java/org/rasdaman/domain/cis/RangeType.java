@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import javax.persistence.*;
 
@@ -55,6 +56,7 @@ public class RangeType implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -78,15 +80,6 @@ public class RangeType implements Serializable {
         this.interpolationRestriction = interpolationRestriction;
     }
     
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public DataRecord getDataRecord() {
         return dataRecord;
     }

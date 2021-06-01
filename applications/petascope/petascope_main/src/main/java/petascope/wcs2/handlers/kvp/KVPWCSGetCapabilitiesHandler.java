@@ -25,7 +25,9 @@ import petascope.core.response.Response;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import nu.xom.Element;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,8 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
     
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
 
     public KVPWCSGetCapabilitiesHandler() {
 
@@ -73,6 +77,7 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
 
     @Override
     public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
+        
         // Validate before handling the request
         this.validate(kvpParameters);
 

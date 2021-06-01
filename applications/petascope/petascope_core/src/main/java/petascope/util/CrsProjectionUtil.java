@@ -73,6 +73,9 @@ public class CrsProjectionUtil {
     private static final String DUMMY_PNG_FOR_GDAL_VRT_FILE_PATH = ConfigManager.DEFAULT_PETASCOPE_DIR_TMP + "/dummy_file_for_gdal.vrt.png";
     private static boolean DUMMY_PNG_FILE_FOR_GDAL_CREATED = false;
     
+    // stored the projected GeoTransform to an output crs by specific geo XY resolutions
+    private static Map<String, GeoTransform> projectedGeoTransformCacheMap = new HashMap<>();
+    
     /**
      * Transform a XY values from sourceCRS to targetCRS (e.g: Long Lat (EPSG:4326) to ESPG:3857).
      * NOTE: Not every reprojection is possible, even if both sourceCR and targetCRS are EPSG CRS.
@@ -244,6 +247,13 @@ public class CrsProjectionUtil {
      */
     public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGeoTransform, String targetEPSGCRS, 
                                                           BigDecimal targetCRSGeoXResolution, BigDecimal targetCRSGeoYResolution) throws PetascopeException {
+        
+        String keyMap = StringUtil.join(targetEPSGCRS, sourceGeoTransform.toString(), targetEPSGCRS.toString(), targetCRSGeoXResolution.toPlainString(), targetCRSGeoYResolution.toPlainString());
+        GeoTransform result = projectedGeoTransformCacheMap.get(keyMap);
+        if (result != null) {
+            return result;
+        }
+        
         if (DUMMY_PNG_FILE_FOR_GDAL_CREATED == false) {
             createDummyImageForGdalVRT();
             DUMMY_PNG_FILE_FOR_GDAL_CREATED = true;
@@ -295,14 +305,20 @@ public class CrsProjectionUtil {
         }
         
         // Then, read the warped VRT file to collect the calculated result
-        Dataset dataset = gdal.Open(tempWarpedVRTFile.getAbsolutePath());
-        GeoTransform geoTransform = new GeoTransform(dataset);
+        String tmpVRTFile = tempWarpedVRTFile.getAbsolutePath();
+        Dataset dataset = gdal.Open(tmpVRTFile);
+        if (dataset == null) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Cannot project VRT file with gdal bash command: '" + command + "'.");
+        }
+        result = new GeoTransform(dataset);
         
         // Finally, remove temp files
         FileUtils.deleteQuietly(tempVRTFile);
         FileUtils.deleteQuietly(tempWarpedVRTFile);
         
-        return geoTransform;
+        projectedGeoTransformCacheMap.put(keyMap, result);
+        
+        return result;
     }
     
     /**

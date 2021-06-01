@@ -21,10 +21,10 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-import datetime
 import decimal
 import os
 import time
+import json
 
 from lib import arrow
 from collections import OrderedDict
@@ -43,14 +43,13 @@ from util.coverage_util import CoverageUtil
 from util.file_util import File
 from util.import_util import decode_res
 from util.log import log, prepend_time
-from util.string_util import strip_trailing_zeros
+from util.string_util import strip_trailing_zeros, create_downscaled_coverage_id, add_date_time_suffix
 from util.url_util import validate_and_read_url
-from wcst.wcst import WCSTInsertRequest, WCSTInsertScaleLevelsRequest, WCSTUpdateRequest, WCSTSubset
-from wcst.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest, WMSTDescribeLayer
-from wcst.wmst import WMSTGetCapabilities
-from util.crs_util import CRSUtil
+from master.request.wcst import WCSTInsertRequest, WCSTUpdateRequest, WCSTSubset
+from master.request.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest, WMSTDescribeLayer
+from master.request.pyramid import CreatePyramidMemberRequest, AddPyramidMemberRequest, ListPyramidMembersRequest
+from util.crs_util import CRSUtil, CRSAxis
 from util.time_util import DateTimeUtil
-from lxml import etree
 
 
 class Importer:
@@ -60,7 +59,7 @@ class Importer:
 
     DEFAULT_INSERT_VALUE = "0"
 
-    def __init__(self, resumer, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False, session=None):
+    def __init__(self, resumer, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False, session=None, scale_factors=None):
         """
         Imports a coverage into wcst
         :param Coverage coverage: the coverage to be imported
@@ -75,6 +74,7 @@ class Importer:
         self.scale_levels = scale_levels
         self.grid_coverage = grid_coverage
         self.session = session
+        self.scale_factors = scale_factors
 
     def ingest(self):
         """
@@ -299,14 +299,78 @@ class Importer:
         executor.execute(request, mock=ConfigManager.mock)
         executor.insitu = current_insitu_value
 
-        # If scale_levels specified in ingredient files, send the query to Petascope to create downscaled collections
-        if self.scale_levels:
+        base_coverage_id = self.coverage.coverage_id
+        current_pyramid_member_coverage_ids = self.list_pyramid_member_coverages(base_coverage_id, ConfigManager.mock)
+
+        # If scale_levels specified in ingredient files, send request to Petascope to create downscaled level coverages
+        if self.scale_levels is not None:
             # Levels be ascending order
             sorted_list = sorted(self.scale_levels)
             # NOTE: each level is processed separately with each HTTP request
             for level in sorted_list:
-                request = WCSTInsertScaleLevelsRequest(self.coverage.coverage_id, level)
-                executor.execute(request, mock=ConfigManager.mock)
+                downscaled_level_coverage_id = create_downscaled_coverage_id(self.coverage.coverage_id, level)
+
+                if downscaled_level_coverage_id in current_pyramid_member_coverage_ids:
+                    # if downscaled level coverage id exists, then add the timestamp as suffix to avoid conflict
+                    downscaled_level_coverage_id = add_date_time_suffix(downscaled_level_coverage_id)
+
+                scale_factors = self._get_scale_factors(level)
+                request = CreatePyramidMemberRequest(self.coverage.coverage_id, downscaled_level_coverage_id, scale_factors)
+                executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+
+        elif self.scale_factors is not None:
+            # if scale_factors exist in the ingredients file, then send CreatePyramidMember request
+            # to create downscaled level coverages and add them as pyramid members of the base coverage
+            for obj in self.scale_factors:
+                downscaled_level_coverage_id = obj["coverage_id"]
+                factors = obj["factors"]
+
+                request = CreatePyramidMemberRequest(self.coverage.coverage_id, downscaled_level_coverage_id,
+                                                     factors)
+                executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+
+        # add listed pyramid members coverage ids in the ingredients file to this base coverage's pyramid
+        if self.session.pyramid_members is not None:
+            for pyramid_member_coverage_id in self.session.pyramid_members:
+                if pyramid_member_coverage_id not in current_pyramid_member_coverage_ids:
+                    request = AddPyramidMemberRequest(self.coverage.coverage_id, pyramid_member_coverage_id)
+                    executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+
+    @staticmethod
+    def list_pyramid_member_coverages(coverage_id, mock=False):
+        """
+        Return the list of pyramid_member_coverages of the current importing coverage
+        """
+        if mock == False:
+            request = ListPyramidMembersRequest(coverage_id)
+            service_call = request.context_path + "?" + request.get_query_string()
+            json_obj = json.loads(decode_res(validate_and_read_url(service_call)))
+
+            results = []
+            for obj in json_obj:
+                results.append(obj["coverage"])
+
+            return results
+
+        return []
+
+    def _get_scale_factors(self, level):
+        """
+        Return the array of scale factors for each axis, based on the input scale level
+        """
+        scale_factors = []
+
+        NO_SCALING_SCALE_FACTOR = 1
+
+        crs_util = CRSUtil(self.coverage.crs)
+        for crs_axis in crs_util.axes:
+            scale_factor = NO_SCALING_SCALE_FACTOR
+            if crs_axis.type == CRSAxis.AXIS_TYPE_X or crs_axis.type == CRSAxis.AXIS_TYPE_Y:
+                scale_factor = level
+
+            scale_factors.append(scale_factor)
+
+        return scale_factors
 
     def _get_update_subsets_for_slice(self, slice):
         """

@@ -72,14 +72,6 @@ public class Phone {
 
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public List<String> getVoicePhones() {
         return voicePhones;
     }

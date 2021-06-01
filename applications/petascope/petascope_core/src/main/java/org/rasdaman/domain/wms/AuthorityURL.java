@@ -58,14 +58,6 @@ class AuthorityURL implements Serializable {
 
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     @Column(name = "name")
     private String name;
 

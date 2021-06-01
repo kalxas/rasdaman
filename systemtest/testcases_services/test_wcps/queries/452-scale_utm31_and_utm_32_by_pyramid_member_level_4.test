@@ -1,0 +1,6 @@
+for c in (test_wcs_utm31_pyramid),
+    d in (test_wcs_utm32_pyramid)
+return encode(
+    scale(c, {E:"CRS:1"(0:20), N:"CRS:1"(0:20)})
++   scale(d, {E:"CRS:1"(0:20), N:"CRS:1"(0:20)})
+, "jpeg")

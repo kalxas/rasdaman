@@ -21,12 +21,15 @@
  */
 package petascope.util;
 
+import java.io.File;
+import java.io.IOException;
 import petascope.core.XMLSymbols;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +45,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -590,6 +594,11 @@ public class StringUtil {
         }
         
         return result;
+    }
+    
+    public static String readFileToString(String filePath) throws IOException {
+        File file = new File(filePath);
+        return FileUtils.readFileToString(file);
     }
     
 }

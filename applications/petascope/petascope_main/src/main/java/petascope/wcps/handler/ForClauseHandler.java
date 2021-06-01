@@ -89,7 +89,7 @@ public class ForClauseHandler {
         WcpsResult result = new WcpsResult(null, rasql);
         return result;
     }
-
+    
     public static final String AS = "AS";
     private static final String TEMPLATE = "$collectionName " + AS + " $iterator";
     private static final String COVERAGE_VARIABLE_PREFIX = "$";

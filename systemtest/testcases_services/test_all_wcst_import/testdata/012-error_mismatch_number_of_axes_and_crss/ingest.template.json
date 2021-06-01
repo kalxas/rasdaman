@@ -1,0 +1,71 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_error_mismatch_number_of_axes_and_crss",
+    "paths": [
+      "../059-wcps_ecmwf_fire_4d/*.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+        "coverage": {
+          "crs": "EPSG/0/4326",
+          "metadata": {
+            "type": "xml",
+            "global": {
+              "Title": "'Drought code'"
+         	  }
+          },
+          "slicer": {
+            "type": "netcdf",
+	    "pixelIsPoint": true,
+            "bands": [
+              {
+                "name": "Drought code",
+                "variable": "dc",
+                "description": "Global Fire Forecast (GEFF) - Drought Code",
+                "nilReason": "The nil value represents no data value",
+                "nilValue": "-9999",
+                "identifier": "dc"
+              }
+            ],
+            "axes": {
+              "ansi": {
+                "min": "datetime(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 1), 'YYYYMMDD')",
+                "max": "datetime(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 1), 'YYYYMMDD')",
+  	          "resolution": "1",
+                "gridOrder": 0,
+                "type": "ansidate",
+                "irregular": true
+              },
+              "Long": {
+                "min": "${netcdf:variable:lon:min}",
+                "max": "${netcdf:variable:lon:max}",
+                "gridOrder": 2,
+                "resolution": "${netcdf:variable:lon:resolution}"
+              },
+              "Lat": {
+                "min": "${netcdf:variable:lat:min}",
+                "max": "${netcdf:variable:lat:max}",
+                "gridOrder": 1,
+                "resolution": "${netcdf:variable:lat:resolution}"
+              }, 
+              "forecast": {
+                "min": "int(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 2))",
+                "gridOrder": 3,
+   	        "dataBound": false,
+                "resolution": 1,
+                "irregular": true
+              }
+          }
+        }      
+      },
+      "tiling": "ALIGNED [0:366, 0:500, 0:500, 0:10]"
+    }
+  }
+}

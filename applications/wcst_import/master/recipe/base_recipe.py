@@ -33,6 +33,7 @@ from util.coverage_util import CoverageUtil
 from util.log import log, make_bold
 from util.file_util import FileUtil
 
+
 class BaseRecipe:
     __metaclass__ = ABCMeta
 
@@ -157,6 +158,29 @@ class BaseRecipe:
         if 'scale_levels' not in self.options:
             self.options['scale_levels'] = None
 
+        if 'scale_factors' not in self.options:
+            self.options['scale_factors'] = None
+
+        if self.options['scale_levels'] is not None \
+           and self.options['scale_factors'] is not None:
+            raise RecipeValidationException("Only one of 'scale_levels' or 'scale_factors' "
+                                            "setting can exist in the ingredients file.")
+        if self.options['scale_factors'] is not None:
+            # as scale_factors and scale_levels are only valid when initializing a new coverage
+            cov = CoverageUtil(self.session.get_coverage_id())
+            if not cov.exists():
+                for obj in self.options['scale_factors']:
+                    if 'coverage_id' not in obj or 'factors' not in obj:
+                        raise RecipeValidationException("All elements of 'scale_factors' list must contain "
+                                                        "'coverage_id' and 'factors' properties")
+                    coverage_id = obj['coverage_id']
+                    cov = CoverageUtil(coverage_id)
+                    if cov.exists():
+                        raise RecipeValidationException("Downscaled level coverage '" + coverage_id + "' already exists, "
+                                                        "please use a different 'coverage_id' in 'scale_factors' list")
+
+        self.validate_pyramid_members()
+
         if "import_order" in self.options:
             if self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING \
                     and self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
@@ -167,6 +191,18 @@ class BaseRecipe:
                 raise RecipeValidationException(error_message)
         else:
             self.options['import_order'] = None
+
+    def validate_pyramid_members(self):
+        """
+        Check if pyramid members coverage ids exist
+        """
+        if 'pyramid_members' in self.options:
+            for pyramid_member_coverage_id in self.options['pyramid_members']:
+                cov = CoverageUtil(pyramid_member_coverage_id)
+                if not cov.exists():
+                    error_message = "Pyramid member coverage '" + pyramid_member_coverage_id \
+                                    + "' does not exist locally'"
+                    raise RecipeValidationException(error_message)
 
     @staticmethod
     @abstractmethod

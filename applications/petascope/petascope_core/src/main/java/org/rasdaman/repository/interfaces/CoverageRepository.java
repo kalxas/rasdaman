@@ -23,6 +23,7 @@ package org.rasdaman.repository.interfaces;
 
 import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.EnvelopeByAxis;
 import org.rasdaman.domain.cis.RasdamanRangeSet;
 import org.springframework.data.jpa.repository.Query;
@@ -75,4 +76,10 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
            + "INNER JOIN a.rasdamanRangeSet as b \n"           
            + "WHERE a.coverageId = :coverageId")
     RasdamanRangeSet readRasdamanRangeSet(@Param("coverageId") String coverageId);
+
+    
+    @Query("select b from Coverage as a \n"
+          + " INNER JOIN a.pyramid as b \n"
+          + " WHERE a.coverageId = :baseCoverageId")
+    List<CoveragePyramid> readAllCoveragePyramidsByBaseCoverageId(@Param("baseCoverageId") String baseCoverageId);
 }

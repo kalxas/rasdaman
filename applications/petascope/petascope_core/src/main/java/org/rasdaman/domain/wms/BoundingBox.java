@@ -89,14 +89,6 @@ public class BoundingBox implements Serializable {
         this.setYMax(yMax);
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     @Column
     private String crs;
 

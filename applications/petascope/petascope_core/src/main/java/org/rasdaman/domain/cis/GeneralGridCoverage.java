@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      *
      * @return
      */
+    @JsonIgnore
     public List<GeoAxis> getGeoAxes() {
         List<GeoAxis> geoAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGeoAxes();
 
@@ -77,6 +79,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      *
      * @return
      */
+    @JsonIgnore
     public List<IndexAxis> getIndexAxes() {
         List<IndexAxis> indexAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGridLimits().getIndexAxes();
 
@@ -89,6 +92,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      * @param axisOrder
      * @return
      */
+    @JsonIgnore
     public IndexAxis getIndexAxisByOrder(int axisOrder) {
         List<IndexAxis> indexAxes = this.getIndexAxes();
 
@@ -106,6 +110,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      * grid index axis has the same name as geo axis, but the grid axes order
      * could be different with geo CRS axes order
      */
+    @JsonIgnore
     public IndexAxis getIndexAxisByName(String axisLabel) {
         for (IndexAxis indexAxis : this.getIndexAxes()) {
             if (CrsUtil.axisLabelsMatch(indexAxis.getAxisLabel(), axisLabel)) {
@@ -123,6 +128,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      * @param axisLabel
      * @return
      */
+    @JsonIgnore
     public Integer getGeoAxisOrderByName(String axisLabel) {
         List<GeoAxis> geoAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGeoAxes();
         int i = 0;
@@ -140,6 +146,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
     /**
      * Check if coverage contains an axis label
      */
+    @JsonIgnore
     public boolean containsGeoAxisName(String axisLabel) {
         GeoAxis geoAxis = this.getGeoAxisByName(axisLabel);
         
@@ -167,7 +174,8 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      * Return the XY geo axes of a coverage if possible
      * @return 
      */
-    public Pair<GeoAxis, GeoAxis> getXYGeoAxes() throws PetascopeException, SecoreException {
+    @JsonIgnore
+    public Pair<GeoAxis, GeoAxis> getXYGeoAxes() throws PetascopeException {
         GeoAxis geoAxisX = null, geoAxisY = null;
         
         String coverageCRS = this.getEnvelope().getEnvelopeByAxis().getSrsName();
@@ -198,6 +206,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
     /**
      * Return list of non XY geo axes
      */
+    @JsonIgnore
     public List<GeoAxis> getNonXYGeoAxes() throws PetascopeException, SecoreException {
         Pair<GeoAxis, GeoAxis> xyGeoAxesPair = this.getXYGeoAxes();
         
@@ -210,5 +219,21 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
         } 
         
         return nonXYGeoAxes;
+    }
+    
+    /**
+     * Check if a GeoAxis is X/Y type (e.g: Long or Lat)
+     */
+    @JsonIgnore
+    public boolean isXYAxis(GeoAxis geoAxis) throws PetascopeException, SecoreException {
+        Pair<GeoAxis, GeoAxis> pair = this.getXYGeoAxes();
+        
+        return CrsUtil.axisLabelsMatch(pair.fst.getAxisLabel(), geoAxis.getAxisLabel())
+              || CrsUtil.axisLabelsMatch(pair.snd.getAxisLabel(), geoAxis.getAxisLabel());
+    }
+    
+    @Override
+    public String toString() {
+        return "Coverage id '" + this.coverageId + "'.";
     }
 }

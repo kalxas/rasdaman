@@ -49,7 +49,17 @@ public class BinaryCoverageExpressionHandler extends AbstractOperatorHandler {
         //create the resulting rasql string
         String rasql = firstCoverage.getRasql() + " " + operator + " " + secondCoverage.getRasql();
         //create the resulting metadata
-        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.getResultingMetadata(firstCoverage.getMetadata(), secondCoverage.getMetadata());
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.getResultingMetadata(firstCoverage.getMetadata(), secondCoverage.getMetadata(), 
+                                                                                         firstCoverage.getRasql(), secondCoverage.getRasql());
+        
+        if (firstCoverage.getMetadata() != null) {
+            metadata.addToContributingMetadatasSet(firstCoverage.getMetadata(), firstCoverage.getRasql());
+        } 
+        
+        if (secondCoverage.getMetadata() != null) {
+            metadata.addToContributingMetadatasSet(secondCoverage.getMetadata(), secondCoverage.getRasql());
+        }
+  
         WcpsResult result = new WcpsResult(metadata, rasql);
         return result;
     }

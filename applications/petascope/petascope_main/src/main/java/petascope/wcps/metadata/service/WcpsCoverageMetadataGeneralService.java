@@ -126,8 +126,10 @@ public class WcpsCoverageMetadataGeneralService {
      * @param secondMeta
      * @return
      */
-    public WcpsCoverageMetadata getResultingMetadata(WcpsCoverageMetadata firstMeta, WcpsCoverageMetadata secondMeta) {
-        validateCoveragesCompatibility(firstMeta, secondMeta);        
+    public WcpsCoverageMetadata getResultingMetadata(WcpsCoverageMetadata firstMeta, WcpsCoverageMetadata secondMeta,
+                                                     String firstRasql, String secondRasql) {
+        validateCoveragesCompatibility(firstMeta, secondMeta);
+        
         if (firstMeta != null) {
             return firstMeta;
         }
@@ -333,6 +335,7 @@ public class WcpsCoverageMetadataGeneralService {
                     } else {
                         // slicing
                         applySlicing(checkBoundary, metadata, subsetDimension, numericSubset, axis);
+                        axis.setSlicing();
                     }
 
                     // If axis is irregular so update the new axisDirections (i.e: coefficients between the new applied lowerBound, upperBound)
@@ -1091,6 +1094,21 @@ public class WcpsCoverageMetadataGeneralService {
             axisY.setGridBounds(subsetGridY);
             
         }
+    }
+    
+    /**
+     * Given one input axis, create a WCPS metadata object with one axis as grid domains and CRS:1 CRS
+     * used for imageCrsdomain() handler result
+     * NOTE: this is used to determine in the case of axis iterator in condenser over $pt t (imageCrsdomain(c[time("2015":"2015")], t))
+     */
+    public WcpsCoverageMetadata generateWcpsMetadataWithOneGridAxis(String coverageId, Axis axis) throws PetascopeException {
+        axis.setNativeCrsUri(CrsUtil.GRID_CRS);
+        List<Axis> axesTmp = new ArrayList<>();
+        axesTmp.add(axis);
+        
+        // NOTE: this is used to determine in the case of axis iterator in condenser over $pt t (imageCrsdomain(c[time("2015":"2015")], t))
+        WcpsCoverageMetadata tmpMetadata = new WcpsCoverageMetadata(coverageId, null, null, axesTmp, CrsUtil.GRID_CRS, null, null, null, null);
+        return tmpMetadata;
     }
 
     /**

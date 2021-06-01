@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import javax.persistence.*;
 import nu.xom.Attribute;
@@ -58,6 +59,7 @@ public class NilValue implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -77,15 +79,6 @@ public class NilValue implements Serializable {
     public NilValue(String value, String reason) {
         this.value = value;
         this.reason = reason;
-    }
-
-    // no serialize this value as JSON extra parameters
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getValue() {

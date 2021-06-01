@@ -180,7 +180,7 @@ class Recipe(BaseRecipe):
             scale_levels = self.options['scale_levels'] if self.options['scale_levels'] is not None else None
 
             self.importer = Importer(self.resumer, self._get_coverage(), wms_import, scale_levels, grid_coverage,
-                                     self.session)
+                                     self.session, self.options['scale_factors'])
         return self.importer
 
 

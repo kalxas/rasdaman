@@ -36,7 +36,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
-ingredients_file_testdata="$SCRIPT_DIR/../../test_all_wcst_import/testdata/wcs_import_order_descending_test_import_order_descending_irregular_time_netcdf/ingest.template.json"
+ingredients_file_testdata="$SCRIPT_DIR/../../test_all_wcst_import/testdata/112-wcs_import_order_descending_test_import_order_descending_irregular_time_netcdf/ingest.template.json"
 
 relpath() { 
     python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')"

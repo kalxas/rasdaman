@@ -21,7 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-from wcst.wcst import WCSTExecutor
+from master.request.wcst import WCSTExecutor
 
 
 class ConfigManager:

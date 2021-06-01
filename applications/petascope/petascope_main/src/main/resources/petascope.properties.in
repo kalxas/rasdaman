@@ -25,7 +25,6 @@
 #  Settings should be specified in key=value pairs.
 #  The server needs to be restarted for any changes in this file to take effect.
 
-
 # --------------------------- Spring configuration -----------------------------
 
 # Files at most as large as specified here can be uploaded to petascope.

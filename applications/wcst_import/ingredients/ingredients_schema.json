@@ -121,6 +121,8 @@
                             "coverage_id": {},
                             "partitioning_scheme": {},
                             "scale_levels": {},
+                            "scale_factors": {},
+                            "pyramid_members": {},
                             "tiling": {},
                             "time_crs": {},
                             "time_format": {},

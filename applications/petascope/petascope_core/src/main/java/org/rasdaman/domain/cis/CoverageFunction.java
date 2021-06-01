@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -64,6 +65,7 @@ public class CoverageFunction implements Serializable {
     public static final String DEFAULT_SEQUENCE_RULE = "linear";
     
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -74,14 +76,6 @@ public class CoverageFunction implements Serializable {
     
     public CoverageFunction(String sequenceRule) {
         this.sequenceRule = sequenceRule;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     @Column(name = "sequence_rule")

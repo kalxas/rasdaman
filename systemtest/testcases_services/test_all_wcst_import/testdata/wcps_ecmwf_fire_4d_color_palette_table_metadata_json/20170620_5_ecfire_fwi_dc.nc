@@ -1,1 +1,0 @@
-20170110_0_ecfire_fwi_dc.nc

@@ -72,7 +72,7 @@ public class DataMigrationService {
      * has version number 6, then migration version handlers 3, 4, 5, 6 will be
      * invoked
      */
-    public void runMigration() {
+    public void runMigration() throws Exception {
         for (Entry<Integer, AbstractDataMigrationHandler> entry : this.versionHandlersMap.entrySet()) {
             AbstractDataMigrationHandler handler = entry.getValue();
             String handlerId = handler.getHandlerId();

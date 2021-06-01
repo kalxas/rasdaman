@@ -63,14 +63,6 @@ public class LegendURL implements Serializable {
 
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     // MIME type of logo (e.g: image/png)
     @Column(name = "format")
     private String logoFormat;

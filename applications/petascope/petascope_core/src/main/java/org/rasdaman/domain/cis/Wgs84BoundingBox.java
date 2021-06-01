@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
@@ -45,6 +46,7 @@ public class Wgs84BoundingBox implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
     
     @Id
+    @JsonIgnore
     @Column(name = COLUMN_ID)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -97,6 +99,7 @@ public class Wgs84BoundingBox implements Serializable {
     /**
      * Return this BBOX as WKT polygon in WGS84 CRS (Long Lat order)
      */
+    @JsonIgnore
     public String getWKTPolygon() {
         
         // NOTE: postgis does not allow full world's map (-180 -90 180 90)

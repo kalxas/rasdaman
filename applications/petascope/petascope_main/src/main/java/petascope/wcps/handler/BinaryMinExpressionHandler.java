@@ -21,7 +21,10 @@
  */
 package petascope.wcps.handler;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -32,12 +35,26 @@ import petascope.wcps.result.WcpsResult;
  */
 @Service
 public class BinaryMinExpressionHandler {
+    
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
 
-    public WcpsResult handle(WcpsResult coverageExp1, WcpsResult coverageExp2) {
-        String template = TEMPLATE.replace("$coverageExp1", coverageExp1.getRasql())
-                                  .replace("$coverageExp2", coverageExp2.getRasql());
+    public WcpsResult handle(WcpsResult firstCoverage, WcpsResult secondCoverage) {
+        String template = TEMPLATE.replace("$coverageExp1", firstCoverage.getRasql())
+                                  .replace("$coverageExp2", secondCoverage.getRasql());
+        
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.getResultingMetadata(firstCoverage.getMetadata(), secondCoverage.getMetadata(), 
+                                                                                         firstCoverage.getRasql(), secondCoverage.getRasql());
+        
+        if (firstCoverage.getMetadata() != null) {
+            metadata.addToContributingMetadatasSet(firstCoverage.getMetadata(), firstCoverage.getRasql());
+        } 
+        
+        if (secondCoverage.getMetadata() != null) {
+            metadata.addToContributingMetadatasSet(secondCoverage.getMetadata(), secondCoverage.getRasql());
+        }
 
-        return new WcpsResult(coverageExp1.getMetadata(), template);
+        return new WcpsResult(metadata, template);
     }
 
     private final String TEMPLATE = "($coverageExp1 MIN $coverageExp2)";

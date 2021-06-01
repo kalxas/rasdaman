@@ -21,17 +21,22 @@
  */
 package petascope.wcps.handler;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
@@ -39,6 +44,9 @@ import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.DimensionIntervalList;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import petascope.wcps.metadata.service.CollectionAliasRegistry;
+import petascope.wcps.metadata.service.CoverageAliasRegistry;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
+import petascope.wcps.subset_axis.model.AxisIterator;
 
 /**
  * Translation class for slice/trim expression in wcps.  <code>
@@ -60,7 +68,13 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
     @Autowired
+    private CoverageAliasRegistry coverageAliasRegistry;    
+    @Autowired
     private CollectionAliasRegistry collectionAliasRegistry;
+    @Autowired
+    private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
+    @Autowired
+    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
     
     
     public static final String OPERATOR = "domain subset";
@@ -90,10 +104,58 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         // Only apply subsets if subset dimensions have numeric bounds.
         List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(terminalSubsetDimensions, metadata.getAxes());
         
-        String rasqlResult = rasql;
+        String rasqlResult = "";
+        
+        // In case, condenser is used and axis iterators exist
+        // for the case of virtual coverage, after axis iterator, then time axis must be trimmed and it can return in proper domains in USING expression
+        // e.g: OVER $pt t (imageCrsdomain(c[time("2015":"2018")], time))
+        for (Map.Entry<String, AxisIterator> entry : this.axisIteratorAliasRegistry.getAliasAxisIteratorMap().entrySet()) {
+            // e.g: $pt[0]
+            String alias = entry.getKey();
+            AxisIterator axisIterator = entry.getValue();
+            
+            String bounds = axisIterator.getSubsetDimension().getStringBounds();
+            String firstBound = bounds.split(":")[0];
+            String secondsBound = bounds.split(":")[1];
+            
+            if (BigDecimalUtil.isNumber(firstBound) && BigDecimalUtil.isNumber(secondsBound)) {
+                BigDecimal lowerBound = new BigDecimal(bounds.split(":")[0]);
+                BigDecimal upperBound = new BigDecimal(bounds.split(":")[1]);
+                NumericTrimming numericTrimming = new NumericTrimming(lowerBound, upperBound);
+
+                String axisName = axisIterator.getSubsetDimension().getAxisName();
+                String crs = axisIterator.getSubsetDimension().getCrs();
+
+                Subset subset = new Subset(numericTrimming, crs, axisName);
+
+                boolean exists = false;
+                for (Subset subsetTmp : numericSubsets) {
+                    if (CrsUtil.axisLabelsMatch(subsetTmp.getAxisName(), subset.getAxisName())) {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    for (Axis axis : metadata.getAxes()) {
+                        if (CrsUtil.axisLabelsMatch(axis.getLabel(), subset.getAxisName()) 
+                            && subset.getCrs() != null
+                            && subset.getCrs().equals(CrsUtil.GRID_CRS)) {
+                            numericSubsets.add(subset);
+                            break;
+                        }
+                    }                
+                }
+            }
+        }
         
         // Update the coverage expression metadata with the new subsets
         wcpsCoverageMetadataService.applySubsets(checkBounds, metadata, subsetDimensions, numericSubsets);
+        
+        if (!checkBounds) {
+            // As WMS it can query with out of bounds for XY axes domains (e.g: request BBOX only intersects with a corner)
+            wcpsCoverageMetadataService.adjustXYGeoGridBounds(metadata);
+        }
 
         // now the metadata contains the correct geo and rasdaman subsets
         // NOTE: if subset dimension has "$" as axis iterator, just keep it and don't translate it to numeric as numeric subset.

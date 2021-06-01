@@ -212,20 +212,60 @@ public class BigDecimalUtil {
     public static boolean smallerThanOrEqual(BigDecimal firstValue, BigDecimal secondValue) {        
         return firstValue.compareTo(secondValue.add(COEFFICIENT_DECIMAL_EPSILON)) <= 0;
     }
+   
+    public static boolean isNumber(String value) {
+        try {
+            new BigDecimal(value);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public static List<String> toStringList(List<BigDecimal> list) {
+        List<String> results = new ArrayList<>();
+        
+        for (BigDecimal value : list) {
+            results.add(BigDecimalUtil.stripDecimalZeros(value).toPlainString());
+        }
+        
+        return results;
+    }
+    
+    /**
+     * e.g: 9.5 -> 9_5
+     */
+    public static String replacePointByUnderscore(BigDecimal number) {
+        String result = BigDecimalUtil.stripDecimalZeros(number).toPlainString().replace(".", "_");
+        return result;
+    }
+    
+    /**
+     * Return the product of all numbers
+     */
+    public static BigDecimal calculateProduct(List<BigDecimal> list) {
+        BigDecimal result = BigDecimal.ONE;
+        
+        for (BigDecimal value : list) {
+            result = result.multiply(value);
+        }
+        
+        return result;
+    }
     
     public static class BigDecimalComparator implements Comparator<BigDecimal> {
 
-    @Override
-    public int compare(BigDecimal firstValue, BigDecimal secondValue) {
-        if (firstValue.compareTo(secondValue.subtract(COEFFICIENT_DECIMAL_EPSILON)) < 0) {
-            return -1;
-        } else if (firstValue.compareTo(secondValue.add(COEFFICIENT_DECIMAL_EPSILON)) > 0) {
-            return 1;
+        @Override
+        public int compare(BigDecimal firstValue, BigDecimal secondValue) {
+            if (firstValue.compareTo(secondValue.subtract(COEFFICIENT_DECIMAL_EPSILON)) < 0) {
+                return -1;
+            } else if (firstValue.compareTo(secondValue.add(COEFFICIENT_DECIMAL_EPSILON)) > 0) {
+                return 1;
+            }
+
+            return 0;
         }
-        
-        return 0;
+
     }
 
-}
-   
 }

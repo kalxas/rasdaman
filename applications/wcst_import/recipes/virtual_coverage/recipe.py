@@ -28,15 +28,17 @@ from master.importer.coverage import Coverage
 from master.importer.importer import Importer
 from master.importer.resumer import Resumer
 from master.recipe.base_recipe import BaseRecipe
+from master.request.pyramid import AddPyramidMemberRequest
 from session import Session
 from util.string_util import replace_template_by_dict
-from util.file_util import FileUtil, TmpFile
+from util.file_util import TmpFile
 from config_manager import ConfigManager
 from util.xml_util import XMLUtil
-from wcst.wcst import WCSTInsertRequest, WCSTUpdateRequest
+from master.request.wcst import WCSTInsertRequest, WCSTUpdateRequest
 from util.url_util import validate_and_read_url
 import xml.etree.ElementTree as ET
 import re
+from master.importer.importer import Importer
 
 # Valid characters for coverage ids
 legal_characters = r'\w+$'
@@ -95,6 +97,8 @@ class Recipe(BaseRecipe):
         elif "axis" not in self.options["envelope"]:
             self.__raise_exception("axis")
 
+        self.validate_pyramid_members()
+
     def describe(self):
         pass
 
@@ -150,6 +154,21 @@ class Recipe(BaseRecipe):
                                         None, None, gml)
 
         executor.execute(request, mock=ConfigManager.mock)
+
+    def __add_pyramid_members(self):
+        """
+        Add the listed pyramid members in the ingredient files to this base coverage
+        """
+        executor = ConfigManager.executor
+        base_coverage_id = self.coverage_id
+        current_pyramid_member_coverage_ids = Importer.list_pyramid_member_coverages(base_coverage_id, ConfigManager.mock)
+
+        # add listed pyramid members coverage ids in the ingredients file to this base coverage's pyramid
+        if self.session.pyramid_members is not None:
+            for pyramid_member_coverage_id in self.session.pyramid_members:
+                if pyramid_member_coverage_id not in current_pyramid_member_coverage_ids:
+                    request = AddPyramidMemberRequest(self.coverage_id, pyramid_member_coverage_id)
+                    executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
     def __update_coverage_request(self):
         """
@@ -277,10 +296,11 @@ class Recipe(BaseRecipe):
         Starts the ingesting process
         """
         coverage = Coverage(self.coverage_id, [], None, None, None)
-        importer = Importer(self.resumer, coverage, self.import_wms)
+        importer = Importer(self.resumer, coverage, self.import_wms, None, None)
 
         if importer._is_insert():
             self.__insert_coverage_request()
+            self.__add_pyramid_members()
         else:
             self.__update_coverage_request()
 

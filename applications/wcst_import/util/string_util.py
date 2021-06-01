@@ -21,8 +21,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+from datetime import datetime
 import decimal
 from xml.sax.saxutils import escape
+import random
+
 
 def stringify(thing):
     """
@@ -111,3 +114,21 @@ def replace_template_by_dict(template, keys_values_dict):
         result = result.replace("{{" + str(key) + "}}", str(value))
 
     return result
+
+
+def create_downscaled_coverage_id(base_coverage_id, level):
+    """
+    Create a downscaled coverage id, base on base coverage id and level
+    e.g: covA, level2.5 -> covA_2_5
+    """
+    return base_coverage_id + "_" + str(level).replace(".", "_")
+
+
+def add_date_time_suffix(input_str):
+    """
+    Given a string, add the dd_mm_yy_hh_mm_ss_randomNumber as suffix
+    randomNumber between 000
+    e.g: covA -> covA_20_11_2020_20_13_55_3322
+    """
+    date_time = datetime.now().strftime("%d_%m_%Y_%H_%M_%S") + random.randint(0000, 9999).zfill(4)
+    return input_str + "_" + date_time

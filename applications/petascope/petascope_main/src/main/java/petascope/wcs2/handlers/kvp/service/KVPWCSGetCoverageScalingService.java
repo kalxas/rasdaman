@@ -44,6 +44,14 @@ import petascope.util.ListUtil;
  */
 @Service
 public class KVPWCSGetCoverageScalingService {
+    
+    // NOTE: rasdaman only supports scale() by nearest neighbor up to now
+    public static final Set<String> SUPPORTED_SCALING_AXIS_INTERPOLATIONS = new HashSet<>();
+    public static final String NEAREST_INTERPOLATION = "nearest";
+    
+    static {
+        SUPPORTED_SCALING_AXIS_INTERPOLATIONS.add(NEAREST_INTERPOLATION);
+    }
 
     public KVPWCSGetCoverageScalingService() {
 

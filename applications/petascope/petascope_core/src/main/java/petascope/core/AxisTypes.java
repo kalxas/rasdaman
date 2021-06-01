@@ -36,4 +36,5 @@ public interface AxisTypes {
     public static final String T_AXIS = "t";
     public static final String OTHER = "other";
     public static final String UNKNOWN = "unknown";
+    public static final String GRID = "grid";
 }

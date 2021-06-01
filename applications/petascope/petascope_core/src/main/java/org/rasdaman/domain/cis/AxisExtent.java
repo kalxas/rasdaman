@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.*;
@@ -51,6 +52,7 @@ public class AxisExtent implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -74,26 +76,23 @@ public class AxisExtent implements Serializable {
     // NOTE: As this could be long text, so varchar(255) is not enough
     // The CRS which contains axis
     private String srsName;
+    
+    @Column(name = "axis_type")
+    // e.g: X, Y, T,..
+    private String axisType;
 
     public AxisExtent() {
 
     }
     
-    public AxisExtent(String axisLabel, String srsName, String uomLabel, String lowerBound, String upperBound, BigDecimal resolution) {
+    public AxisExtent(String axisLabel, String srsName, String uomLabel, String lowerBound, String upperBound, BigDecimal resolution, String axisType) {
         this.axisLabel = axisLabel;
         this.srsName = srsName;
         this.uomLabel = uomLabel;
         this.lowerBound = lowerBound;        
         this.upperBound = upperBound;
         this.resolution = resolution;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
+        this.axisType = axisType;
     }
 
     public String getUpperBound() {
@@ -143,8 +142,16 @@ public class AxisExtent implements Serializable {
     public void setSrsName(String srsName) {
         this.srsName = srsName;
     }
+
+    public String getAxisType() {
+        return axisType;
+    }
+
+    public void setAxisType(String axisType) {
+        this.axisType = axisType;
+    }
     
-        /**
+     /**
      * Return the geo lower bound in numbers (as they could be in Datetime
      * string also)
      *
@@ -152,6 +159,7 @@ public class AxisExtent implements Serializable {
      * @throws PetascopeException
      * @throws SecoreException
      */
+    @JsonIgnore
     public BigDecimal getLowerBoundNumber() throws PetascopeException, SecoreException {
         BigDecimal number = null;
         if (this.lowerBound.contains("\"")) {
@@ -172,6 +180,7 @@ public class AxisExtent implements Serializable {
      * @throws PetascopeException
      * @throws SecoreException
      */
+    @JsonIgnore
     public BigDecimal getUpperBoundNumber() throws PetascopeException, SecoreException {
         BigDecimal number = null;
         if (this.upperBound.contains("\"")) {

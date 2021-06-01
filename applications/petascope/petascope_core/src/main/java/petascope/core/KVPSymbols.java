@@ -204,4 +204,17 @@ public interface KVPSymbols {
     String KEY_COVERAGE_ID = "coverageId";
     String KEY_NEW_ID = "newId";
     
+    
+    // -- pyramid admin services
+    
+    String KEY_CREATE_PYRAMID_MEMBER = "CreatePyramidMember";
+    String KEY_BASE = "Base";
+    String KEY_SCALE_FACTOR = "ScaleFactor";
+    String KEY_MEMBER = "Member";
+    
+    String KEY_ADD_PYRAMID_MEMBER = "AddPyramidMember";
+    // default is false when adding pyramid member to a base coverage
+    String KEY_PYRAMID_HARVESTING = "pyramidHarvesting";
+    String KEY_REMOVE_PYRAMID_MEMBER = "RemovePyramidMember";
+    String KEY_LIST_PYRAMID_MEMBERS = "ListPyramidMembers";
 }

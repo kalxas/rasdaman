@@ -281,7 +281,7 @@ class Recipe(BaseRecipe):
 
             self.importer = Importer(self.resumer, self._get_coverage(), wms_import, scale_levels,
                                      grid_coverage,
-                                     self.session)
+                                     self.session, self.options['scale_factors'])
         return self.importer
 
 

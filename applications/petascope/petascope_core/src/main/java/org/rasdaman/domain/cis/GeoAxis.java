@@ -21,6 +21,8 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
@@ -28,9 +30,7 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import petascope.core.AxisTypes;
-import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
 
@@ -41,6 +41,8 @@ import petascope.util.TimeUtil;
  *
  @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+// NOTE: this annotation is used to serial inheritance of this class with 2 subclasses (Regular and Irregular axis) in JSON by jackson
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @Entity
 @Table(name = GeoAxis.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = GeoAxis.COLUMN_ID, referencedColumnName = Axis.COLUMN_ID)
@@ -60,16 +62,21 @@ public class GeoAxis extends Axis implements Serializable {
 
     @Column(name = "resolution")
     private String resolution;
+    
+    @Column(name = "axis_type")
+    // e.g: X, Y, T,..
+    private String axisType;
 
     public GeoAxis() {
 
     }
 
-    public GeoAxis(String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution) {
+    public GeoAxis(String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution, String axisType) {
         super(axisLabel, uomLabel, srsName);
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.resolution = resolution;
+        this.axisType = axisType;
     }
 
     public BigDecimal getResolution() {
@@ -96,15 +103,23 @@ public class GeoAxis extends Axis implements Serializable {
         this.upperBound = upperBound;
     }
 
+    public String getAxisType() {
+        return axisType;
+    }
+
+    public void setAxisType(String axisType) {
+        this.axisType = axisType;
+    }
+    
+    
+
     // Helpers Method
     /**
      * Return the geo lower bound in numbers (as they could be in Datetime
      * string also)
-     *
-     * @return
-     * @throws PetascopeException
-     * @throws SecoreException
+     * 
      */
+    @JsonIgnore
     public BigDecimal getLowerBoundNumber() throws PetascopeException {
         BigDecimal number = null;
         if (this.lowerBound.contains("\"")) {
@@ -120,11 +135,8 @@ public class GeoAxis extends Axis implements Serializable {
     /**
      * Return the geo uppwer bound in numbers (as they could be in DateTtime
      * string also)
-     *
-     * @return
-     * @throws PetascopeException
-     * @throws SecoreException
      */
+    @JsonIgnore
     public BigDecimal getUpperBoundNumber() throws PetascopeException {
         BigDecimal number = null;
         if (this.upperBound.contains("\"")) {
@@ -139,13 +151,18 @@ public class GeoAxis extends Axis implements Serializable {
 
     /**
      * Check if the geoAxis is IrregularAxis
-     *
-     * @return
      */
+    @JsonIgnore
     public boolean isIrregular() {
         if (this.getClass().equals(IrregularAxis.class)) {
             return true;
         }
         return false;
     }    
+    
+    @JsonIgnore
+    public boolean isXYAxis() {
+        return this.axisType.equals(AxisTypes.X_AXIS)
+               || this.axisType.equals(AxisTypes.Y_AXIS);
+    }
 }

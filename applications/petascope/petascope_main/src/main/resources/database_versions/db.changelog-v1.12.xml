@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+<changeSet author="rasdaman (generated)" id="1616145243775-1">
+<createTable tableName="coverage_pyramid">
+<column name="coverage_pyramid_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="scale_factors" type="TEXT"/>
+<column name="fk_id" type="BIGINT"/>
+<column name="pyramid_member_coverage_id" type="VARCHAR(255)"/>
+<column name="synced" type="BOOLEAN"/>
+<column name="pyramid_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1616145243775-2">
+<addColumn tableName="geo_axis">
+<column name="axis_type" type="varchar(255 BYTE)"/>
+</addColumn>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1616145243775-3">
+<addColumn tableName="axis_extent">
+<column name="axis_type" type="varchar(255 BYTE)"/>
+</addColumn>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1616145243775-4">
+<addPrimaryKey columnNames="coverage_pyramid_id" constraintName="coverage_pyramid_pkey" tableName="coverage_pyramid"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1616145243775-5">
+<addForeignKeyConstraint baseColumnNames="fk_id" baseTableName="coverage_pyramid" constraintName="fknx59agakxnmslfoqi3n11h3us" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="coverage"/>
+</changeSet>
+</databaseChangeLog>

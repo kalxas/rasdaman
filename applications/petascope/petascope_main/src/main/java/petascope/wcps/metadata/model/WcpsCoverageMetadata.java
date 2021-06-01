@@ -28,11 +28,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
+import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.NilValue;
 import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes;
@@ -85,6 +86,16 @@ public class WcpsCoverageMetadata {
     // But in case WCPS coverage changes completely e.g: clip(c, linestring()) from 2D geo coverage -> 1D grid coverage
     // Then, axes are changed to contain only 1D grid axis and original axes is updated to previous axes (geo coverage).
     protected List<Axis> originalAxes;
+
+    // To mark this object is created from a condenser
+    private boolean condenserResult = false;
+    
+    private CoveragePyramid coveragePyramid;
+    
+    
+    // c = vc1 + vc2 + normal_coverage
+    // then this set contains vc1, vc2 and normal_coverage
+    private Map<String, WcpsCoverageMetadata> contributingRasqlWcpsCoverageMetadataMap = new LinkedHashMap<>();
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(WcpsCoverageMetadata.class);
     
@@ -367,6 +378,14 @@ public class WcpsCoverageMetadata {
         return getCoverageName() + "-point";
     }
     
+    public boolean isCondenserResult() {
+        return this.condenserResult;
+    }
+    
+    public void setCondenserResult(boolean value) {
+        this.condenserResult = value;
+    }
+    
     /**
      * To support WMS the axis order is needed to swap correctly in the bounding box
      * @return 
@@ -526,7 +545,14 @@ public class WcpsCoverageMetadata {
     public void setNilValues(List<NilValue> nilValues) {
         this.nilValues = nilValues;
     }
-    
+
+    public CoveragePyramid getCoveragePyramid() {
+        return coveragePyramid;
+    }
+
+    public void setCoveragePyramid(CoveragePyramid coveragePyramid) {
+        this.coveragePyramid = coveragePyramid;
+    }
     
     /**
      * Return the offset vector of an axis in coverage.
@@ -688,4 +714,66 @@ public class WcpsCoverageMetadata {
         
         return true;
     }
+    
+    /**
+     * Return the single null value from the first band of coverage
+     * e.g: list of null values ["9.96921e+35:*","9.96921E+36", "30"]
+     * then returns 9.96921E+36.
+     * 
+     * If coverage has no null value, then return 0
+     */
+    public String getFirstBandSingleNullValue() {
+        RangeField firstRangeField = this.rangeFields.get(0);
+        if (firstRangeField.getNodata() != null) {
+            for (NilValue nilValue : firstRangeField.getNodata()) {
+                String nullValue = nilValue.getValue();
+                if (!nullValue.contains(":")) {
+                    // e.g: 30;
+                    String value = BigDecimalUtil.stripDecimalZeros(new BigDecimal(nullValue)).toPlainString();
+                    return value;
+                }
+            }
+        }
+        
+        return "0";
+    }
+    
+    @Override
+    public String toString() {
+        return "Coverage Id '" + this.coverageName  + "'"; 
+    }
+    
+        
+    public Map<String, WcpsCoverageMetadata> getContributingRasqlWcpsCoverageMetadataMap() {
+        return this.contributingRasqlWcpsCoverageMetadataMap;
+    }
+    
+    /**
+     * Check if the contributing coverage expressions (e.g: c + c + c + c)
+     * are the same coverage
+     */
+    public boolean isSingleCoverageExpression() {
+        String previousCoverageId = null;
+        
+        for (Map.Entry<String, WcpsCoverageMetadata> entry : this.contributingRasqlWcpsCoverageMetadataMap.entrySet()) {
+            String coverageId = entry.getValue().getCoverageName();
+            if (previousCoverageId == null) {
+                previousCoverageId = entry.getValue().getCoverageName();
+            }
+            
+            if (!previousCoverageId.equals(coverageId)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    public void addToContributingMetadatasSet(WcpsCoverageMetadata metadata, String rasql) {
+        if (metadata != null) {
+            
+            this.contributingRasqlWcpsCoverageMetadataMap.put(rasql, metadata);
+        }
+    }
+    
 }

@@ -40,7 +40,7 @@ from session import Session
 from util.file_util import FileUtil
 from util.log import log
 from util.import_util import import_jsonschema
-from wcst.wcst import WCSTException
+from master.request.wcst import WCSTException
 from osgeo import gdal
 from config_manager import ConfigManager
 

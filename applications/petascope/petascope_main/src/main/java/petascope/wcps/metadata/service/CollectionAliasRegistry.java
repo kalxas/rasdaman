@@ -27,6 +27,7 @@ import java.util.Map;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
 
 /**
  * 
@@ -40,31 +41,36 @@ import org.springframework.stereotype.Service;
 @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class CollectionAliasRegistry {
 
-    private HashMap<String, String> aliasMap = new LinkedHashMap<>();
+    // c0 -> Pair<collection1, coverage1>
+    private HashMap<String, Pair<String, String>> aliasMap = new LinkedHashMap<>();
 
     public CollectionAliasRegistry() {
         
     }
 
-    public HashMap<String, String> getAliasMap() {
+    public HashMap<String, Pair<String, String>> getAliasMap() {
         return aliasMap;
     }
 
-    public void update(String aliasName, String rasdamanCollectionName) {
-        aliasMap.put(aliasName, rasdamanCollectionName);
+    public void update(String aliasName, String rasdamanCollectionName, String coverageId) {
+        aliasMap.put(aliasName, new Pair<>(rasdamanCollectionName, coverageId));
     }
 
-    public void add(String aliasName, String rasdamanCollectionName) {
+    public void add(String aliasName, String rasdamanCollectionName, String coverageId) {
         if (aliasName != null && rasdamanCollectionName != null) {
-            this.update(aliasName, rasdamanCollectionName);
+            this.update(aliasName, rasdamanCollectionName, coverageId);
         }
+    }
+    
+    public void remove(String coverageAlias) {
+        aliasMap.remove(coverageAlias);
     }
 
     /**
      * e.g: c0 -> utm31
      */
     public String getCollectionName(String aliasName) {
-        return aliasMap.get(aliasName);
+        return aliasMap.get(aliasName).fst;
     }
     
     /**
@@ -72,8 +78,8 @@ public class CollectionAliasRegistry {
      */
     public String getAliasName(String collectionName) {
         
-        for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
-            if (entry.getValue().equals(collectionName)) {
+        for (Map.Entry<String, Pair<String, String>> entry : this.aliasMap.entrySet()) {
+            if (entry.getValue().fst.equals(collectionName)) {
                 return entry.getKey();
             }
         }

@@ -153,6 +153,19 @@ public class BoundingBox {
         
     }
     
+    /**
+     * Check if this bbox contains an input bbox
+     */
+    public boolean contains(BoundingBox inputBBox) {
+        BigDecimal inputXMin = inputBBox.getXMin();
+        BigDecimal inputXMax = inputBBox.getXMax();
+        BigDecimal inputYMin = inputBBox.getYMin();
+        BigDecimal inputYMax = inputBBox.getYMax();
+        
+        return (this.xmin.compareTo(inputXMin) <= 0 && this.xmax.compareTo(inputXMax) >= 0)
+                && (this.ymin.compareTo(inputYMin) <= 0 && this.ymax.compareTo(inputYMax) >= 0);
+    }
+    
     private BigDecimal xmin;
     private BigDecimal ymin;
     private BigDecimal xmax;

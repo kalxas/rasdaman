@@ -26,6 +26,7 @@ import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -229,7 +230,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * or not.
      */
     @PostConstruct
-    private void postInit() {
+    private void postInit() throws Exception {
         
         loadGdalLibrary();
         initTrustAllSSL();
@@ -271,27 +272,47 @@ public class ApplicationMain extends SpringBootServletInitializer {
             System.exit(ExitCode.SUCCESS.getExitCode());
         }
         
+        // Run the 2 threads below in parallel to load coverages / layers to cache
+        // and wait for them to finish before checking migration
+//        CountDownLatch countDownLatch = new CountDownLatch(2);
+//        this.loadCoveragesToCaches(this.coverageRepositoryService,                                    
+//                                   countDownLatch);
+//        this.loadLayersToCaches(this.wmsRepostioryService, countDownLatch);
+//        
+//        // Check if petascope should do the migration internally
+//        countDownLatch.await();
+
+        log.debug("Load coverages to caches ...");                    
+        coverageRepositoryService.readAllLocalCoveragesBasicMetatata();
+        coverageRepositoryService.createAllCoveragesExtents();
         
-        // Check if petascope should do the migration internally
+        log.debug("Load layers to caches ...");
+        wmsRepostioryService.readAllLocalLayers();
+        log.info("Loaded all local layer objects to cache.");
+        
+
         this.dataMigrationService.runMigration();
-        
-        this.loadCoveragesToCaches(this.coverageRepositoryService);
-        this.loadLayersToCaches(this.wmsRepostioryService);
+
     }
     
     /**
      * Run this background proces to load coverages to caches when petascope start
      */
-    private void loadCoveragesToCaches(final CoverageRepositoryService coverageRepositoryService) {
+    private void loadCoveragesToCaches(final CoverageRepositoryService coverageRepositoryService,             
+            final CountDownLatch countDownLatch) {
         Runnable runnable = new Runnable() {
             public void run() {
                 try {
-                    log.debug("Load coverages to caches ...");
+                    log.debug("Load coverages to caches ...");                    
                     coverageRepositoryService.readAllLocalCoveragesBasicMetatata();
                     coverageRepositoryService.createAllCoveragesExtents();
+                    
+                    log.info("Loaded all local coverage objects to cache.");
                 } catch (Exception ex) {
                     log.error("Cannot read local coverages to caches. Reason: " + ex.getMessage(), ex);
                 }
+                
+                countDownLatch.countDown();
             }
         };
         new Thread(runnable).start();
@@ -300,15 +321,18 @@ public class ApplicationMain extends SpringBootServletInitializer {
     /**
      * Run this background proces to load layers to caches when petascope start
      */
-    private void loadLayersToCaches(final WMSRepostioryService wmsRepostioryService) {
+    private void loadLayersToCaches(final WMSRepostioryService wmsRepostioryService, final CountDownLatch countDownLatch) {
         Runnable runnable = new Runnable() {
             public void run() {
                 try {
                     log.debug("Load layers to caches ...");
                     wmsRepostioryService.readAllLocalLayers();
+                    log.info("Loaded all local layer objects to cache.");
                 } catch (PetascopeException ex) {
                     log.error("Cannot read local layers to caches. Reason: " + ex.getMessage(), ex);
                 }
+                
+                countDownLatch.countDown();
             }
         };
         new Thread(runnable).start();

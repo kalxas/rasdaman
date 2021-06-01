@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import javax.persistence.*;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.AxisTypes;
 import petascope.util.BigDecimalUtil;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
@@ -70,6 +72,8 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     
     public static final int COEFFICIENT_ZERO = 0;
     
+    public static final BigDecimal DEFAULT_RESOLUTION = BigDecimal.ONE;
+    
     public enum CoefficientStatus {
         APPEND_TO_TOP,
         APPEND_TO_BOTTOM,
@@ -93,7 +97,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     }
 
     public IrregularAxis(List<String> directPositions, String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution) {
-        super(axisLabel, uomLabel, srsName, lowerBound, upperBound, resolution);
+        super(axisLabel, uomLabel, srsName, lowerBound, upperBound, resolution, AxisTypes.UNKNOWN);
         this.directPositions = directPositions;
     }
     
@@ -105,6 +109,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
      * Ultility method to get direct positions in number
      * @return 
      */
+    @JsonIgnore
     public List<BigDecimal> getDirectPositionsAsNumbers() {
         List<BigDecimal> bigDecimalList = new ArrayList<>();
         for (String value : directPositions) {
@@ -193,6 +198,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
      * @param maxInput
      * @return
      */
+    @JsonIgnore
     public Pair<Long, Long> getGridIndices(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
 
         Long minIndex = null;
@@ -245,6 +251,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     /**
      * Get the fixed first slice (0) imported coefficient's index from list of directPositions
      */
+    @JsonIgnore
     public long getIndexOfCoefficientZero() throws PetascopeException {
         int ret = Collections.binarySearch(this.getDirectPositionsAsNumbers(), BigDecimal.ZERO);
         if (ret >= 0) {
@@ -269,6 +276,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
      * 
      * NOTE: This one is used as the anchor when needs to normalize other coefficients (greater than or lower than).
      */
+    @JsonIgnore
     public BigDecimal getCoefficientZeroBoundNumber() throws PetascopeException, SecoreException {        
         Long coefficientZeroIndex = this.getIndexOfCoefficientZero();
         BigDecimal lowestCoefficient = this.getDirectPositionsAsNumbers().get(0);
@@ -328,6 +336,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
      * @param maxInput
      * @return
      */
+    @JsonIgnore
     public List<BigDecimal> getAllCoefficientsInInterval(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
         // Find the min and max grid incides in the List of directPositions
         Pair<Long, Long> gridIndices = this.getGridIndices(minInput, maxInput);

@@ -62,6 +62,10 @@ public class CoverageAliasRegistry {
     public void clear() {
         coverageMappings = new LinkedHashMap<>();
     }
+    
+    public void remove(String coverageAlias) {
+        coverageMappings.remove(coverageAlias);
+    }
    
     public void updateCoverageMapping(String coverageAlias, String coverageName, String rasdamanCollectionName) {
         List<Pair<String, String>> values = coverageMappings.get(coverageAlias);
@@ -176,9 +180,9 @@ public class CoverageAliasRegistry {
             }
         }
         
-        for (Map.Entry<String, String> entry : this.collectionAliasRegistry.getAliasMap().entrySet()) {
+        for (Map.Entry<String, Pair<String, String>> entry : this.collectionAliasRegistry.getAliasMap().entrySet()) {
             // e.g: utm31 as c0
-            String clause = entry.getValue() + " " + AS + " " + entry.getKey();
+            String clause = entry.getValue().fst + " " + AS + " " + entry.getKey();
             list.add(clause);
         }
          

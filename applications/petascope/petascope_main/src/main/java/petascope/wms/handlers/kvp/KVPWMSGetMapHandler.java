@@ -185,7 +185,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             // NOTE: If first query returns success, then just fetch it from cache
             String queryString = StringUtil.buildQueryString(kvpParameters);
             if (WMSGetMapCachingService.responseCachingMap.containsKey(queryString)) {
-                 return wmsGetMapCachingService.getResponseFromCache(queryString);
+                return wmsGetMapCachingService.getResponseFromCache(queryString);
             }
             // Validate before handling the request
             this.validate(kvpParameters);

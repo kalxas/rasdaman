@@ -22,12 +22,11 @@
  *
 """
 import os
-import time
 from config_manager import ConfigManager
 from master.importer.resumer import Resumer
 
 from util.log import log
-from wcst.wcst import WCSTMockExecutor, WCSTExecutor
+from master.request.wcst import WCSTExecutor
 from master.error.runtime_exception import RuntimeException
 from util.file_util import FileUtil, File
 from util.list_util import get_null_values
@@ -96,10 +95,12 @@ class Session:
         self.description_max_no_slices = int(
             self.config['description_max_no_slices']) if "description_max_no_slices" in self.config else 5
         self.track_files = bool(self.config['track_files']) if "track_files" in self.config else True
+        self.pyramid_members = None
 
         self.wms_import = False
         if "options" in self.recipe:
             self.wms_import = True if "wms" not in self.recipe["options"] else bool(self.recipe["options"])
+            self.pyramid_members = None if "pyramid_members" not in self.recipe["options"] else self.recipe["options"]["pyramid_members"]
 
         # Pre/Post hooks to run before analyzing files/after import replaced files
         # (original files are not used but processed files (e.g: by gdalwarp))

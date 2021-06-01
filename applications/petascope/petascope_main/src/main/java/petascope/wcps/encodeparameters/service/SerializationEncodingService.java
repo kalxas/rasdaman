@@ -69,6 +69,8 @@ public class SerializationEncodingService {
     private CoverageRepositoryService coverageRepostioryService;
     
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    
+    private static final String ENABLE_NULL_JSON = "enableNull";
 
     public SerializationEncodingService() {
         
@@ -131,7 +133,8 @@ public class SerializationEncodingService {
      * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     public String serializeOldStyleExtraParamsToJson(String rasqlFormat, WcpsCoverageMetadata wcpsCoverageMetadata,
-                                            NetCDFExtraParams netCDFExtraParams, GeoReference geoReference, boolean hasNoData) throws JsonProcessingException, PetascopeException {
+                                            NetCDFExtraParams netCDFExtraParams, GeoReference geoReference, boolean hasNoData,
+                                                    boolean isGML) throws JsonProcessingException, PetascopeException {
         JsonExtraParams jsonExtraParams = new JsonExtraParams();
         if (netCDFExtraParams != null) {
             jsonExtraParams.setDimensions(new Dimensions(netCDFExtraParams.getDimensions()));
@@ -157,6 +160,8 @@ public class SerializationEncodingService {
         
         this.addColorPalleteToJSONExtraParamIfPossible(rasqlFormat, coverageMetadata, jsonExtraParams);
         
+        this.customizeEncodeForGML(isGML, jsonExtraParams);
+        
         String jsonOutput = JSONUtil.serializeObjectToJSONStringNoIndentation(jsonExtraParams);
         return jsonOutput;
     }
@@ -173,7 +178,8 @@ public class SerializationEncodingService {
      * @throws JsonProcessingException
      */
     public String serializeNewStyleExtraParamsToJson(String rasqlFormat, String extraParams, WcpsCoverageMetadata wcpsCoverageMetadata,
-                                             NetCDFExtraParams netCDFExtraParams, GeoReference geoReference) throws JsonProcessingException, IOException, PetascopeException {
+                                             NetCDFExtraParams netCDFExtraParams, GeoReference geoReference,
+                                             boolean isGML) throws JsonProcessingException, IOException, PetascopeException {
         ObjectMapper objectMapper = new ObjectMapper();        
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -232,7 +238,9 @@ public class SerializationEncodingService {
         }
         
         this.addColorPalleteToJSONExtraParamIfPossible(rasqlFormat, coverageMetadata, jsonExtraParams);
-
+        
+        this.customizeEncodeForGML(isGML, jsonExtraParams);
+        
         String jsonOutput = JSONUtil.serializeObjectToJSONStringNoIndentation(jsonExtraParams);
         return jsonOutput;
     }
@@ -251,12 +259,20 @@ public class SerializationEncodingService {
         return false;
     }
     
+    private void customizeEncodeForGML(boolean isGML, JsonExtraParams jsonExtraParams) {
+        if (isGML) {
+            // Don't print "null" when encoded as JSON to return result to WCS GetCoverage / WCPS with GML result
+            jsonExtraParams.getFormatParameters().put(ENABLE_NULL_JSON, "false");
+        }
+    }
+    
     /**
      * Automatically add { \"transpose\": [0,1] }" when coverage result is 2D and with YX grid axes order.
      */
     private void addTransposeToExtraParams(WcpsCoverageMetadata metadata, JsonExtraParams jsonExtraParams) throws PetascopeException {
         String coverageId = metadata.getCoverageName();
         // NOTE: with coverage constructor inside WCPS query, it doesn't have rasdaman collection, so do nothing in this case.
+                
         if (this.coverageRepostioryService.isInCache(coverageId)) {
             // e.g: geo order is Lat, Long check if grid order is also Lat, Long. If it is then need to add transpose
             Axis firstAxis = metadata.getAxes().get(0);

@@ -23,10 +23,13 @@ package petascope.wcst.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.rasdaman.admin.pyramid.service.RemovePyramidMemberService;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.domain.wms.Layer;
+import org.rasdaman.repository.service.CoveragePyramidRepositoryService;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 
@@ -62,6 +65,10 @@ public class DeleteCoverageHandler {
     private WMSRepostioryService wmsRepositoryService;
     @Autowired
     private WMSGetMapCachingService wmsGetMapCachingService;
+    @Autowired
+    private CoveragePyramidRepositoryService coveragePyramidRepositoryService;
+    @Autowired
+    private RemovePyramidMemberService removePyramidMemberService;
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DeleteCoverageHandler.class);
 
@@ -106,6 +113,7 @@ public class DeleteCoverageHandler {
             this.deleteFromWMS(coverage.getCoverageId());
 
             // collection is removed, try to remove coverage metadata
+            this.removeCoverageFromPyramids(coverage);
             coverageRepostioryService.delete(coverage);
             
             // Finally, delete all created set/mdd/cell types for this coverage if no other coverages is using them.
@@ -148,6 +156,29 @@ public class DeleteCoverageHandler {
         
         return new Response();
     }
+    
+    /**
+     * Remove the deleted coverage from the pyramids of all containing coverages.
+     * Then, whitelist all pyramid member of this deleted coverage.
+     * 
+     * e.g. delete cov4 which contains cov8 and cov16 as pyramid members
+     *      cov1 and cov2 contain cov4 as pyramid member
+     * 
+     * then, delete cov4 means:
+     *  - whitelist cov8 and cov16
+     *  - remove cov4 from the pyramids of cov1 and cov2
+     */
+    private void removeCoverageFromPyramids(Coverage deletingCoverage) throws PetascopeException {
+        // e.g. cov4
+        String deletingCoverageId = deletingCoverage.getCoverageId();
+            
+        
+        // e.g cov1 and cov2 contain cov4 in their pyramids, then remove cov4 from these pyramids
+        List<GeneralGridCoverage> containingCoverages = this.coveragePyramidRepositoryService.getCoveragesContainingPyramidMemberCoverageId(deletingCoverageId);
+        for (GeneralGridCoverage containingCoverage : containingCoverages) {
+            this.removePyramidMemberService.removePyramidMemberCoverage(containingCoverage, deletingCoverageId);
+        }
+    }
 
     /**
      * Check if coverageName exists in petascopedb
@@ -156,6 +187,7 @@ public class DeleteCoverageHandler {
      * @throws WCSException
      */
     private Coverage getCoverageById(String coverageId) throws WCSException, PetascopeException {
+        
         Coverage coverage = coverageRepostioryService.readCoverageByIdFromDatabase(coverageId);
         if (coverage == null) {
             throw new WCSTCoverageIdNotFound(coverageId);

@@ -47,6 +47,7 @@ import org.rasdaman.domain.cis.RasdamanRangeSet;
 import org.rasdaman.domain.cis.Uom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.AxisTypes;
 import petascope.core.CrsDefinition;
 import petascope.core.gml.cis10.GMLCIS10ParserService;
 import petascope.exceptions.ExceptionCode;
@@ -204,11 +205,13 @@ public class GdalFileToCoverageTranslatorService {
         List<GeoAxis> geoAxes = new ArrayList<>();
         // positive axis resolution
         BigDecimal geoUpperBoundX = geoLowerBoundX.add(new BigDecimal(gridWidth).multiply(geoXResolution));
-        GeoAxis geoAxisX = new GeoAxis(axisLabelX, uomX, srsName, geoLowerBoundX.toPlainString(), geoUpperBoundX.toPlainString(), geoXResolution.toPlainString());
+        GeoAxis geoAxisX = new GeoAxis(axisLabelX, uomX, srsName, geoLowerBoundX.toPlainString(), geoUpperBoundX.toPlainString(), 
+                                       geoXResolution.toPlainString(), AxisTypes.X_AXIS);
 
         // negative axis resolution
         BigDecimal geoLowerBoundY = geoUpperBoundY.add(new BigDecimal(gridHeight).multiply(geoYResolution));
-        GeoAxis geoAxisY = new GeoAxis(axisLabelY, uomY, srsName, geoLowerBoundY.toPlainString(), geoUpperBoundY.toPlainString(), geoYResolution.toPlainString());
+        GeoAxis geoAxisY = new GeoAxis(axisLabelY, uomY, srsName, geoLowerBoundY.toPlainString(), geoUpperBoundY.toPlainString(),
+                                       geoYResolution.toPlainString(), AxisTypes.Y_AXIS);
         
         if (CrsUtil.isXYAxesOrder(srsName)) {
             // e.g: EPSG:3857 with XY order

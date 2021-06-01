@@ -106,6 +106,10 @@ for test_case in "$TEST_DATA"/*; do
     curr_test_no=$((curr_test_no + 1))
     status="$ST_PASS"
 
+    if [[ "$OS_VERSION" == "$OS_UBUNTU1604" && "$test_case_name" == "106-wcs_extract" ]]; then
+        continue
+    fi
+
     start_timer
 
     # each folder is a coverage with image files and recipe

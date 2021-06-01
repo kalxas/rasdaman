@@ -118,9 +118,11 @@ import petascope.wcps.handler.DecodeCoverageHandler;
 import petascope.wcps.handler.DescribeCoverageHandler;
 import petascope.wcps.handler.DomainIntervalsHandler;
 import petascope.wcps.handler.LetClauseHandler;
+import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.LetClauseAliasRegistry;
+import petascope.wcps.metadata.service.UsingCondenseRegistry;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AbstractWKTShape;
@@ -148,6 +150,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     LetClauseAliasRegistry letClauseAliasRegistry;
     @Autowired private
     AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+    @Autowired private 
+    UsingCondenseRegistry usingCondenseRegistry;
     
     // Class handlers
     @Autowired private
@@ -1167,16 +1171,12 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         int count = 0;
 
         // to build the IndexCRS for axis iterator
-        int numberOfAxis = axisIterators.size();
-        String crsUri = CrsUtil.OPENGIS_INDEX_ND_PATTERN.replace("%d", String.valueOf(numberOfAxis));
-
         for (wcpsParser.AxisIteratorContext i : ctx.axisIterator()) {
             AxisIterator axisIterator = (AxisIterator) visit(i);
             aliasName = axisIterator.getAliasName();
             if (rasqlAliasName.isEmpty()) {
                 rasqlAliasName = StringUtil.stripDollarSign(aliasName);
             }
-            axisIterator.getSubsetDimension().setCrs(crsUri);
             axisIterator.setRasqlAliasName(rasqlAliasName);
             axisIterator.setAxisIteratorOrder(count);
 
@@ -1192,15 +1192,22 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             whereClause = (WcpsResult) visit(ctx.whereClause());
         }
 
+        this.usingCondenseRegistry.setOperator(operator);
         WcpsResult usingExpr = (WcpsResult) visit(ctx.coverageExpression());
+        if (usingExpr.getMetadata() != null) {
+            usingExpr.getMetadata().setCondenserResult(true);
+        }
 
         WcpsResult result = null;
         try {
-            result = generalCondenserHandler.handle(operator, axisIterators, whereClause, usingExpr);
+            result = generalCondenserHandler.handle(operator, axisIterators, whereClause, usingExpr);            
         } catch (PetascopeException ex) {
             String errorMessage = "Error processing general condenser operator expression. Reason: " + ex.getExceptionText() + ".";
             throw new WCPSException(errorMessage, ex);
         }
+        
+        this.usingCondenseRegistry.setOperator(null);
+        
         return result;
     }
 
@@ -1609,7 +1616,12 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         String axisName = ctx.axisName().getText();
 
-        WcpsMetadataResult result = imageCrsDomainExpressionByDimensionExpressionHandler.handle(coverageExpr, axisName);
+        WcpsMetadataResult result;
+        try {
+            result = imageCrsDomainExpressionByDimensionExpressionHandler.handle(coverageExpr, axisName);
+        } catch (PetascopeException ex) {
+            throw new WCPSException("Error processing imageCrsdomain() operator. Reason: " + ex.getExceptionText(), ex);
+        }
         return result;
     }
 
@@ -1632,7 +1644,12 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             }
         }
 
-        WcpsMetadataResult result = domainExpressionHandler.handle(coverageExpr, axisName, crsName);
+        WcpsMetadataResult result;
+        try {
+            result = domainExpressionHandler.handle(coverageExpr, axisName, crsName);
+        } catch (PetascopeException ex) {
+            throw new WCPSException("Error processing domain() operator. Reason: " + ex.getExceptionText(), ex);
+        }
         return result;
     }
     
@@ -1663,7 +1680,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             metadataResult = (WcpsMetadataResult)visit(ctx.imageCrsDomainByDimensionExpression());
         }
         
-        VisitorResult result = new WcpsMetadataResult(null, metadataResult.getResult());
+        VisitorResult result = new WcpsMetadataResult(metadataResult.getMetadata(), metadataResult.getResult());
         if ((sdomLowerBound != null) && (!metadataResult.getResult().contains(","))) {
             try {
                 result = this.domainIntervalsHandler.handle(new WcpsResult(null, metadataResult.getResult()), sdomLowerBound);
@@ -1979,13 +1996,15 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // return x in (50:80)
 
         WcpsMetadataResult wcpsMetadataResult = (WcpsMetadataResult) visit(ctx.domainIntervals());
+        Axis axis = wcpsMetadataResult.getMetadata().getAxes().get(0);
+        
         String rasqlInterval = wcpsMetadataResult.getResult();
         // remove the () from (50:80) and extract lower and upper grid bounds
         String[] gridBounds = rasqlInterval.substring(1, rasqlInterval.length() - 1).split(":");
 
         // NOTE: it expects that "domainIntervals" will only return 1 trimming domain in this case (so only 1D)
         String coverageVariableName = ctx.coverageVariableName().getText();
-        WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(AxisIterator.AXIS_NAME_DEAULT, AxisIterator.CRS_DEFAULT,
+        WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(),
                 gridBounds[0], gridBounds[1]);
 
         AxisIterator axisIterator = new AxisIterator(coverageVariableName, trimSubsetDimension);

@@ -91,14 +91,6 @@ public class EXGeographicBoundingBox implements Serializable {
         this.northBoundLatitude = wgs84BoundingBox.getMaxLat().toPlainString();
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     @Column
     private String westBoundLongitude;
 

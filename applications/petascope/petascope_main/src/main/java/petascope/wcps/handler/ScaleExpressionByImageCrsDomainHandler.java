@@ -62,12 +62,7 @@ public class ScaleExpressionByImageCrsDomainHandler extends AbstractOperatorHand
         checkOperandIsCoverage(coverageExpression, OPERATOR);  
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
-        // scale(coverageExpression, {domainIntervals})
 
-        // it will not get all the axis to build the intervals in case of (extend() and scale())
-        String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
-                               .replace("$intervalList", dimensionIntervalList);
-        
         List<NumericTrimming> gridBounds = new ArrayList<>();
         // e.g: imageCrsdomain(c) returns 0:30,0:40,0:60
         String[] values = dimensionIntervalList.split(",");
@@ -96,10 +91,16 @@ public class ScaleExpressionByImageCrsDomainHandler extends AbstractOperatorHand
             numericSubsets.add(numericSubset);
         }
         
+        // scale(coverageExpression, {domainIntervals})
+        // it will not get all the axis to build the intervals in case of (extend() and scale())
+        String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql());
         coverageExpression.setRasql(rasql);
         
         // Only for 2D XY coverage imported with downscaled collections
         this.wcpsCoverageMetadataTranslatorService.applyDownscaledLevelOnXYGridAxesForScale(coverageExpression, metadata, numericSubsets);
+        
+        rasql = coverageExpression.getRasql().replace("$intervalList", dimensionIntervalList);
+        coverageExpression.setRasql(rasql);
 
         return new WcpsResult(metadata, coverageExpression.getRasql());
     }

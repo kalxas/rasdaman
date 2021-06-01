@@ -1,0 +1,30 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "default_crs": "http://abc.secore.net/def/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "retry" : true,
+    "retries" : 5
+  },
+  "input": {
+    "coverage_id": "test_wms_3d_time_series_regular",
+    "paths": [
+      "../001-3D_Timeseries_Regular/SCALED*.TIFF"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_regular",
+    "options": {
+      "wms_import": true,
+      "scale_levels": [4, 20e-1, 16],
+      "time_start": "2012-12-02T20:12:02",
+      "time_format": "auto",
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "time_step": "2 days 10 minutes 3 seconds",
+      "tiling": "ALIGNED [0:0, 0:1000, 0:1000]"
+    }
+  }
+}

@@ -69,14 +69,6 @@ public class Layer implements Serializable {
 
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     // NOTE: each layer can have a parent layer and a parent layer can have multiple child layers (not used now).
     @Column(name = "parent_id")
     private int parent_id;

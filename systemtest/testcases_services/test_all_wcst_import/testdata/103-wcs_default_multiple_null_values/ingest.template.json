@@ -1,0 +1,33 @@
+{
+
+  "config": {
+
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "track_files": false,
+    "mock": false,
+    "automated": true,
+    "default_null_values": [0, "20:30", "40, 50, 60"]
+
+  },
+
+  "input": {
+
+    "coverage_id": "test_wcs_default_multiple_null_values", 
+    "paths": [
+      "*.TIFF"
+    ]
+
+  },
+
+  "recipe": {
+
+    "name": "map_mosaic", 
+
+    "options": {
+          "tiling": "ALIGNED [0:1999, 0:1999] TILE SIZE 16000000"
+    }
+
+  }
+
+}

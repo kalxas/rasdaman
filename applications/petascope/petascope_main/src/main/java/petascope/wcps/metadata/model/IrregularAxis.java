@@ -84,6 +84,10 @@ public class IrregularAxis extends Axis {
             this.originalDirectPositions.add(new BigDecimal(value.toPlainString()));
         }
     }
+    
+    public List<BigDecimal> getOriginalDirectPositions() {
+        return this.originalDirectPositions;
+    }
 
     /**
      * Get the fixed first slice (0) imported coefficient's index from list of directPositions
@@ -251,6 +255,7 @@ public class IrregularAxis extends Axis {
         if (gridIndices.fst.compareTo(gridIndices.snd) > 0) {
             throw new IrregularAxisTrimmingCoefficientNotFoundException(this.getLabel(), minInput.toPlainString(), maxInput.toPlainString());
         }
+        
         List<BigDecimal> coefficients = new ArrayList<>();
         
         for (Long i = gridIndices.fst; i <= gridIndices.snd; i++) {

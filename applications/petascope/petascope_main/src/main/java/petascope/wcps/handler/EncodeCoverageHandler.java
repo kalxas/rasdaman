@@ -80,6 +80,8 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
         // get the mime-type before modifying the rasqlFormat
         String mimeType = MIMEUtil.getMimeType(format);
         
+        boolean isGML = false;
+        
         // NOTE: must use JP2OpenJPEG to encode with geo-reference metadata for JPEG2000 (JP2)
         if (format.contains(MIMEUtil.FORMAT_ID_JP2) || format.contains(MIMEUtil.CODEC_JP2)) {
             format = MIMEUtil.FORMAT_ID_OPENJP2;
@@ -87,6 +89,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
             // NOTE: We need the values from JSON encoding of a coverage (http://rasdaman.org/ticket/1578)
             // to add in the tupleLists element of output in application/gml+xml            
             format = MIMEUtil.ENCODE_JSON;
+            isGML = true;
         }
 
         // NOTE: we have 2 cases for extra params:
@@ -96,7 +99,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
         //   then pass it in JSON string as rasql's encode extra parameters
         String otherParamsString = null;
         try {
-            otherParamsString = getExtraParams(coverageExpression, format, extraParams);
+            otherParamsString = getExtraParams(coverageExpression, format, extraParams, isGML);
         } catch (IOException ex) {
             throw new MetadataSerializationException(ex.getMessage(), ex);
         }
@@ -119,7 +122,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
      * @return
      */
     private String getExtraParams(WcpsResult coverageExpression, String rasqlFormat,
-            String extraParams) throws PetascopeException, JsonProcessingException, IOException, SecoreException {
+            String extraParams, boolean isGML) throws PetascopeException, JsonProcessingException, IOException, SecoreException {
         String otherParamsString = "";
         NetCDFExtraParams netCDFExtraParams = null;
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
@@ -144,7 +147,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
             if (JSONUtil.isJsonValid(extraParams)) {
                 // extra params is new JSON style
                 jsonOutput = serializationEncodingService.serializeNewStyleExtraParamsToJson(rasqlFormat, extraParams,
-                        metadata, netCDFExtraParams, geoReference);
+                        metadata, netCDFExtraParams, geoReference, isGML);
             } else if (extraParams.contains("{") || extraParams.contains("}")) {
                 // it is invalid JSON format and not old style (e.g: "nodata=0")
                 log.error("Extra parameters string: " + extraParams + " is not valid JSON format.");
@@ -152,7 +155,8 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
             } else {
                 // extra params is old style (check if it has "nodata" as parameter to add to metadata)
                 boolean hasNoData = parseNoDataFromExtraParams(extraParams, metadata);
-                jsonOutput = serializationEncodingService.serializeOldStyleExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference, hasNoData);
+                jsonOutput = serializationEncodingService.serializeOldStyleExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference, hasNoData,
+                                                                                             isGML);
             }
 
             // as all of the parameters go inside the new JSON style, so replace "{" to "{\""

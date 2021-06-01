@@ -83,6 +83,13 @@ public class AxisIteratorAliasRegistry {
     public List<String> getRasqlAxisIterators() {
         return rasqlAxisIterators;
     }
+    
+    /**
+     * e.g: $pt -> time axis with lowerBound "2016" and upperBound "2017"
+     */
+    public LinkedHashMap<String, AxisIterator> getAliasAxisIteratorMap() {
+        return this.axisIteratorMappings;
+    }
 
     /**
      * Adds a subset to the list of maintained rasql subsets representing axis iterator aliases.

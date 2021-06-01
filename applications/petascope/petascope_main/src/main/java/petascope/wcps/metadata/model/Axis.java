@@ -57,6 +57,7 @@ public abstract class Axis<T> {
     private String axisUoM;
     private int rasdamanOrder;
     private BigDecimal resolution;
+    private boolean slicing = false;
     
     public Axis() {
         
@@ -291,5 +292,13 @@ public abstract class Axis<T> {
         // NOTE: axis labels come from IndexND CRS.
         String axisName = Character.toString((char)('i' + index));
         return axisName;
+    }
+    
+    public void setSlicing() {
+        this.slicing = true;
+    }
+    
+    public boolean isSlicing() {
+        return slicing == true;
     }
 }

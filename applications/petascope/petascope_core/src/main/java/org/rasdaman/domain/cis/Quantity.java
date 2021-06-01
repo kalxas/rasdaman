@@ -21,7 +21,9 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.ArrayList;
 import javax.persistence.*;
 import java.util.List;
 
@@ -57,6 +59,7 @@ public class Quantity implements Serializable {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -105,15 +108,6 @@ public class Quantity implements Serializable {
         this.dataType = dataType;
     }
     
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getDefinition() {
         return definition;
     }
@@ -131,6 +125,9 @@ public class Quantity implements Serializable {
     }
 
     public List<NilValue> getNilValuesList() {
+        if (nilValues == null) {
+            return new ArrayList<>();
+        }
         return nilValues;
     }
 

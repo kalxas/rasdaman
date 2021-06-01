@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 public class DataMigration1Handler extends AbstractDataMigrationHandler {
     
     public DataMigration1Handler() {
+        // NOTE: update this by one for new handler class
         this.migrationVersion = 1;
         this.handlerId = "aea84698-80b6-11eb-8e53-509a4cb4e064";
     }

@@ -211,6 +211,8 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
         envelopeByAxis.setSrsDimension(numberOfDimensions);
 
         List<AxisExtent> axesExtent = new ArrayList<>();
+        
+        String coverageCRS = generalGrid.getSrsName();
 
         for (int i = 0; i < numberOfDimensions; i++) {
             // Regular, Irregular
@@ -241,6 +243,9 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
             axisExtent.setUomLabel(uom);
 
             axesExtent.add(axisExtent);
+            
+            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+            axisExtent.setAxisType(axisType);
         }
 
         envelopeByAxis.setAxisExtents(axesExtent);
@@ -505,6 +510,8 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
         List<BigDecimal> offsetVectors = parseOffsetVectors(gridTypeElement);
         // Map of grid axis Order -> list of coefficients (directPositions) for irregular axis
         Map<Integer, List<BigDecimal>> coefficientMap = parseAxesCoefficients(gridTypeElement);
+        
+        String coverageCRS = this.parseSrsName(rootElement);
 
         // Iterate the map of geoAxes and their lower, upper bounds
         int i = 0;
@@ -527,6 +534,9 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
             // Each axis should contain a CRS URI and its uom
             Pair<String, String> crsUom = parseCrsUom(i, axisLabel, envelopElement);
             List<BigDecimal> coefficients = coefficientMap.get(axisOrder);
+            
+            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+                
             if (coefficients == null) {
                 // No coefficients in GML string -> Regular Axis
                 RegularAxis regularAxis = new RegularAxis();
@@ -536,6 +546,8 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
                 regularAxis.setResolution(offsetVector);
                 regularAxis.setSrsName(crsUom.fst);
                 regularAxis.setUomLabel(crsUom.snd);
+                
+                regularAxis.setAxisType(axisType);
 
                 geoAxes.add(regularAxis);
             } else {
@@ -547,6 +559,9 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
                 irregularAxis.setResolution(offsetVector);
                 irregularAxis.setSrsName(crsUom.fst);
                 irregularAxis.setUomLabel(crsUom.snd);
+                
+                irregularAxis.setAxisType(axisType);
+                
                 // and the cofficients for axis
                 irregularAxis.setDirectPositions(coefficients);
 

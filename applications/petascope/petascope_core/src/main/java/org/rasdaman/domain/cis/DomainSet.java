@@ -21,6 +21,8 @@
  */
 package org.rasdaman.domain.cis;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import javax.persistence.*;
 
@@ -46,12 +48,14 @@ import javax.persistence.*;
 @Entity
 @Table(name = DomainSet.TABLE_NAME)
 @Inheritance(strategy=InheritanceType.JOINED)
+@JsonTypeInfo(use=com.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS)
 public abstract class DomainSet implements Serializable {
 
     public static final String TABLE_NAME = "domain_set";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = COLUMN_ID)
     private long id;
@@ -59,12 +63,5 @@ public abstract class DomainSet implements Serializable {
     public DomainSet() {
 
     }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
+    
 }

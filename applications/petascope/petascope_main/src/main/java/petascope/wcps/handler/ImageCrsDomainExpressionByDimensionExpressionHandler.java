@@ -21,10 +21,17 @@
  */
 package petascope.wcps.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSlicing;
 import petascope.wcps.metadata.model.NumericTrimming;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -40,8 +47,11 @@ import petascope.wcps.result.WcpsResult;
 public class ImageCrsDomainExpressionByDimensionExpressionHandler extends AbstractOperatorHandler {
     
     public static final String OPERATOR = "imageCrsDomain";
+    
+    @Autowired
+    private WcpsCoverageMetadataGeneralService generateWcpsMetadataWithOneGridAxis;
 
-    public WcpsMetadataResult handle(WcpsResult coverageExpression, String axisName) {
+    public WcpsMetadataResult handle(WcpsResult coverageExpression, String axisName) throws PetascopeException {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
         
@@ -66,7 +76,10 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler extends Abstra
         // (0:5)
         rasql = "(" + tmp + ")";
         
-        WcpsMetadataResult metadataResult = new WcpsMetadataResult(null, rasql);
+        String coverageId = coverageExpression.getMetadata().getCoverageName();
+        WcpsCoverageMetadata tmpMetadata = this.generateWcpsMetadataWithOneGridAxis.generateWcpsMetadataWithOneGridAxis(coverageId, axis);
+        
+        WcpsMetadataResult metadataResult = new WcpsMetadataResult(tmpMetadata, rasql);
         return metadataResult;
     }
 

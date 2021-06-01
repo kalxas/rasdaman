@@ -26,9 +26,13 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
+import org.rasdaman.AuthenticationService;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.util.IOUtil;
 import petascope.wcst.exceptions.WCSTMalformedURL;
@@ -38,9 +42,13 @@ import petascope.wcst.exceptions.WCSTMalformedURL;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
+@Service
 public class RemoteCoverageUtil {
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(RemoteCoverageUtil.class);
+    
+    @Autowired
+    private HttpServletRequest httpServletRequest;
 
     /**
      * Fetches a file that is either remote (http) or local (file) given it's
@@ -83,8 +91,9 @@ public class RemoteCoverageUtil {
     /**
      * Return bytes array from a remote file.
      */
-    public static byte[] getBytesFromRemoteFile(String fileURL) throws IOException {
-        InputStream inputStream = new URL(fileURL).openStream();
+    public byte[] getBytesFromRemoteFile(String fileURL) throws IOException, PetascopeException {
+        URL url = new URL(fileURL);
+        InputStream inputStream = AuthenticationService.getInputStreamWithBasicAuthCredentials(url, httpServletRequest);
         byte[] bytes = IOUtils.toByteArray(inputStream);
         
         return bytes;
