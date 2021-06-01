@@ -214,7 +214,7 @@ public interface KVPSymbols {
     
     String KEY_ADD_PYRAMID_MEMBER = "AddPyramidMember";
     // default is false when adding pyramid member to a base coverage
-    String KEY_PYRAMID_HARVESTING = "pyramidHarvesting";
+    String KEY_PYRAMID_HARVESTING = "harvesting";
     String KEY_REMOVE_PYRAMID_MEMBER = "RemovePyramidMember";
     String KEY_LIST_PYRAMID_MEMBERS = "ListPyramidMembers";
 }

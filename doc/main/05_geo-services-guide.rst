@@ -1686,35 +1686,89 @@ Errors and Workarounds
 WMS Pyramid Management
 ----------------------
 
-The following proprietary WMS requests are used to create and delete
-downscaled coverages. Internally they are used for efficient zooming in/out
+The following proprietary WMS requests are used to manage downscaled coverages. 
+Internally they are used for efficient zooming in/out
 in WMS, and downscaling when using the ``scale()`` function in WCPS
 or scaling extension in WCS.
 
-* ``InsertScaleLevel``: create a downscaled collection for a specific coverage
-  and given level; e.g. to create a downscaled coverage
-  of *test_world_map_scale_levels* that is *4x smaller*:
+.. _create_pyramid_member:
+
+* ``CreatePyramidMember``: create a pyramid member coverage *c* 
+  for a base coverage *b* with given scale factors for each axis 
+  (note: only regular axis can have *scale factor > 1*);  
+  e.g. to create a downscaled coverage *cov_3D_4* of a 3D coverage *cov_3D*
+  that is *4x smaller* for Lat and Long regular axes 
+  (Time is irregular axis, hence, scale factor must be 1):
 
   .. hidden-code-block:: text
 
-    http://localhost:8082/rasdaman/ows?service=WCS&version=2.0.1
-    &request=InsertScaleLevel
-    &coverageId=test_world_map_scale_levels
-    &level=4
+    http://localhost:8080/rasdaman/admin?
+        &REQUEST=CreatePyramidMember
+        &BASE=cov_3D
+        &MEMBER=cov_3D_4
+        &SCALEFACTOR=1,4,4
 
-* ``DeleteScaleLevel``: delete an existing downscaled coverage
-  at a given level; e.g. to delete the downscaled level 4 of coverage
-  *test_world_map_scale_levels*:
+.. _add_pyramid_member:
+
+* ``AddPyramidMember``: add an existing coverage *c* as a pyramid member coverage
+  for a base coverage *b*. The scale factors for each axis of the pyramid member coverage will
+  be calculated implicitly based on axis resolutions. 
+  If *harvesting=true* (default is false), recursively collect pyramid members
+  of coverage *c*  and add them as pyramid member of coverage *b*; 
+  e.g. to add a downscaled coverage *cov_3D_4* (4x smaller) and its pyramid members
+  recursively as pyramid member coverages of base coverage *cov_3D*:
 
   .. hidden-code-block:: text
 
-    http://localhost:8082/rasdaman/ows?service=WCS&version=2.0.1
-    &request=DeleteScaleLevel
-    &coverageId=test_world_map_scale_levels
-    &level=4
+    http://localhost:8080/rasdaman/admin?
+        &REQUEST=AddPyramidMember
+        &BASE=cov_3D
+        &MEMBER=cov_3D_4
+        &HARVESTING=true    
+  
 
-``wcst_import`` can send ``InsertScaleLevel`` requests automatically 
-when importing data with it with ``scale_levels`` option
+* ``RemovePyramidMember``: remove an existing pyramid member coverage *c*
+  from a base coverage *b* (coverage *c* still exists, until admin
+  deletes with WCS-T :ref:`DeleteCoverage request <delete-coverage>`); 
+  e.g. to remove downscaled coverage *cov_3D_4* from base coverage *cov_3D*:
+
+  .. hidden-code-block:: text
+
+    http://localhost:8080/rasdaman/admin
+        &REQUEST=RemovePyramidMember
+        &BASE=cov_3D
+        &MEMBER=cov_3D_4
+
+* ``ListPyramidMembers``: get a JSON list with objects of all pyramid member coverages
+  associated with a base coverage:
+
+  .. hidden-code-block:: text
+
+    http://localhost:8080/rasdaman/admin
+        &REQUEST=ListPyramidMembers
+        &BASE=Sentinel2_10m
+
+  Output example:
+    
+  .. hidden-code-block:: json  
+
+    {
+      "coverage": "Sentinel2_10m",
+      "members": [
+          {
+            "coverage": "Sentinel2_20m",
+            "scale_factors": [ 1, 2, 2 ]
+          }, 
+          {
+            "coverage": "Sentinel2_60m",
+            "scale_factors": [ 1, 6, 6 ]
+          }
+        ]
+    }
+
+
+``wcst_import`` can send ``CreatePyramidMember`` requests automatically 
+when importing data with it with ``scale_levels`` or ``scale_factors`` option
 in the ingredients file, more details :ref:`here <data-import-intro>`.
 
 
@@ -1968,12 +2022,47 @@ recipe section
 .. _scale-levels:
 
 * ``scale_levels`` - Enable the :ref:`WMS pyramids <wms-image-pyramids>` feature.
-  Level must be positive number and greater than 1.
+  Level must be positive number and greater than 1 (note: only spatial geo axes,
+  e.g. Lat and Long are scaled down in the pyramid member coverage).
+  A new coverage as pyramid member of the importing coverage will be created with
+  :ref:`this pattern <wms_scale_level_coverage_id_pattern>`.
   Syntax:
 
   .. hidden-code-block:: json
 
       "scale_levels": [ 1.5, 2, 4, ... ]
+
+* ``scale_factors`` - Enable the :ref:`WMS pyramids <wms-image-pyramids>` feature.
+  It is a more flexible variant of the ``scale_levels`` setting. The two settings are exclusive, 
+  either ``scale_levels`` or ``scale_factors`` can exist in the ingredient file.
+  The *coverage_id* of each factor must be unique in rasdaman and manually set by the user.
+  The *factors* is a list of decimal values corresponding to the coverage axes according to
+  its CRS order; a scale value for an irregular axis must be 1, while for a regular axis it 
+  should be greater than 1; see more details :ref:`here <create_pyramid_member>`.
+  For example, you can create two pyramid member 2D coverages which are 2x smaller
+  (*cov_level_2*) and 4x smaller (*cov_level_4*) on the regular *Lat* and *Long* axes:
+  
+
+  .. hidden-code-block:: json
+
+      "scale_factors": [
+        {
+          "coverage_id": "cov_level_2",
+          "factors": [2, 2]
+        },
+        {
+          "coverage_id": "cov_level_4",
+          "factors": [4, 4]
+        }
+       ]
+
+* ``pyramid_members`` - List of existing coverages which can be added
+  as pyramid members of the importing coverage, see :ref:`request <add_pyramid_member>`.
+  Syntax:
+
+  .. hidden-code-block:: json
+
+      "pyramid_members": [ "cov_level_2",  "cov_level_4"]
 
 
 .. _wms-image-pyramids:
@@ -1984,6 +2073,8 @@ Image pyramids
 Since v9.7 it is possible to create downscaled versions of a given coverage,
 eventually achieving something like an image pyramid, in order to enable
 faster WMS requests when zooming in/out.
+
+.. _wms_scale_level_coverage_id_pattern:
 
 By using the :ref:`scale_levels <scale-levels>` option of wcst_import 
 when importing a coverage with WMS enabled, petascope will create downscaled
