@@ -2429,7 +2429,7 @@ petascope) the maximum size is 2GB (`source
   with 256 color entries is supported. 
 
   A path to an explicit Color Palette Table file can be specified, see `example file
-  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_color_palette_rasql_ready_encoded_png/color_palette_table_rasql_READY.cpt>`__;
+  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/055-wcps_color_palette_rasql_ready_encoded_png/color_palette_table_rasql_READY.cpt>`__;
   such a file can be referenced in the ingredients file with, e.g.,
   ``"colorPaletteTable": "PATH/TO/table.cpt"``.
 
@@ -2529,7 +2529,7 @@ bounds and resolution corresponding to each file.
   * ``directPositions`` - A list of coefficients which are extracted or 
     calculated from the axis values specified in the input file; for an example 
     see this `ingredients file
-    <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_aggregated_ansidate_netcdf/ingest.template.json#L46>`__;
+    <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/089-wcs_aggregated_ansidate_netcdf/ingest.template.json#L46>`__;
   * ``dataBound`` - Set to ``false`` to specify that this axis should be 
     imported as a slicing point instead of a subset with lower and upper bounds;
     typical use case for this is when extracting irregular datetime values from 
@@ -2659,7 +2659,7 @@ The examples below illustrate importing data in different formats with the
     }
 
 - Example for importing NetCDF data (full ingredients file `here 
-  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_irregular_time_nc/ingest.template.json>`__):
+  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/072-wcps_irregular_time_nc/ingest.template.json>`__):
 
   .. hidden-code-block:: json
 
