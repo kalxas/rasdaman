@@ -360,7 +360,7 @@ public class CoverageRepositoryService {
         TreeMap<BigDecimal, CoveragePyramid> tmpMap = new TreeMap<>();
         for (CoveragePyramid coveragePyramid : tmpList) {
             BigDecimal weight = BigDecimal.ONE;
-            for (BigDecimal scaleFactor : coveragePyramid.getScaleFactors()) {
+            for (BigDecimal scaleFactor : coveragePyramid.getScaleFactorsList()) {
                 weight = weight.multiply(scaleFactor);
             }
             

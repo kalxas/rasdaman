@@ -126,7 +126,7 @@ public class PyramidService {
                                                 List<String> baseAffectedGridDomains,
                                                 String username, String password) throws PetascopeException, SecoreException {
         
-        List<BigDecimal> targetScaleFactors = targetCoveragePyramid.getScaleFactors();
+        List<BigDecimal> targetScaleFactors = targetCoveragePyramid.getScaleFactorsList();
 
         // Use this coverage as the source coverage for updating data to downscaled level collections
         CoveragePyramid sourceCoveragePyramid = this.getCoveragePyramidAsSourceDownscaledCollection(baseCoverage, targetScaleFactors);
@@ -136,7 +136,7 @@ public class PyramidService {
         
         // Sort the scale factor by geo orders to grid order to calculate the grid domains to be select and insert into the target downscaled collection
         // e.g: source CoveragePyramid has scale factors: 1,4,4 (downscaled level 4 on XY axes)
-        List<BigDecimal> sourceScaleFactorsByGridOrder = this.sortScaleFactorsByGridOder(baseCoverage, sourceCoveragePyramid.getScaleFactors());
+        List<BigDecimal> sourceScaleFactorsByGridOrder = this.sortScaleFactorsByGridOder(baseCoverage, sourceCoveragePyramid.getScaleFactorsList());
         // e.g: target CoveragePyramid has scale factos: 1,8,8 (downscaled level 8 on XY axes)
         List<BigDecimal> targetScaleFactorsByGridOrder = this.sortScaleFactorsByGridOder(baseCoverage, targetScaleFactors);
         
@@ -368,13 +368,13 @@ public class PyramidService {
             for (CoveragePyramid currentCoveragePyramid : baseCoverage.getPyramid()) {
                 if (currentCoveragePyramid.isSynced()) {
 
-                    List<BigDecimal> sourceScaleFactors = currentCoveragePyramid.getScaleFactors();
+                    List<BigDecimal> sourceScaleFactors = currentCoveragePyramid.getScaleFactorsList();
                     boolean selected = true;
 
                     // e.g: pyramid has levels, 1, 4, 8, and one wants to import level 6, then the selected source level will be 4
                     // to be used for creating downscaled level queries to insert data to level 6
                     for (int i = 0; i < sourceScaleFactors.size(); i++) {
-                        BigDecimal firstValue = result.getScaleFactors().get(i);
+                        BigDecimal firstValue = result.getScaleFactorsList().get(i);
                         BigDecimal secondValue = sourceScaleFactors.get(i);
                         BigDecimal thirdValue = inputScaleFactors.get(i);
 
@@ -629,7 +629,7 @@ public class PyramidService {
         TreeMap<BigDecimal, CoveragePyramid> treeMap = new TreeMap<>();
         
         for (CoveragePyramid coveragePyramid : coveragePyramids) {
-            BigDecimal productOfScaleFactors = BigDecimalUtil.calculateProduct(coveragePyramid.getScaleFactors());
+            BigDecimal productOfScaleFactors = BigDecimalUtil.calculateProduct(coveragePyramid.getScaleFactorsList());
             treeMap.put(productOfScaleFactors, coveragePyramid);
         }
         

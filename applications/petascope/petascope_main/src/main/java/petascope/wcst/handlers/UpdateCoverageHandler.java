@@ -260,7 +260,7 @@ public class UpdateCoverageHandler {
                 // then, update the pyramid member's coverage grid domains as well
                 this.pyramidService.updateGridAndGeoDomainsOnDownscaledLevelCoverage((GeneralGridCoverage)currentCoverage, 
                                                                                (GeneralGridCoverage)pyramidMemberCoverage,
-                                                                               coveragePyramid.getScaleFactors());
+                                                                               coveragePyramid.getScaleFactorsList());
             }
         }
 

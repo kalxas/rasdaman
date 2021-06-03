@@ -85,7 +85,6 @@ public class CoveragePyramid {
         this.synced = synced;
     }
 
-    @JsonIgnore
     public String getPyramidMemberCoverageId() {
         return pyramidMemberCoverageId;
     }
@@ -95,7 +94,7 @@ public class CoveragePyramid {
     }
 
     @JsonIgnore
-    public List<BigDecimal> getScaleFactors() {
+    public List<BigDecimal> getScaleFactorsList() {
         List<BigDecimal> results = new ArrayList<>();
         
         if (scaleFactors != null) {
@@ -108,8 +107,7 @@ public class CoveragePyramid {
         return results;
     }
     
-    @JsonIgnore
-    public String getScaleFactorsRepresentation() {
+    public String getScaleFactors() {
         return this.scaleFactors;
     }
     

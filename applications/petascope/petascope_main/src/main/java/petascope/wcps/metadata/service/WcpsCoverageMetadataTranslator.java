@@ -249,7 +249,7 @@ public class WcpsCoverageMetadataTranslator {
     private String updateGridDomainsForNormalCoverage(String rasql, GeneralGridCoverage pyramidMemberCoverage, CoveragePyramid coveragePyramid) {
         
         // axis labels + scale factor for axis
-        List<Pair<String, BigDecimal>> scaleFactorsByGridOder = this.pyramidService.sortScaleFactorsByGridOderWithAxisLabel(pyramidMemberCoverage, coveragePyramid.getScaleFactors());
+        List<Pair<String, BigDecimal>> scaleFactorsByGridOder = this.pyramidService.sortScaleFactorsByGridOderWithAxisLabel(pyramidMemberCoverage, coveragePyramid.getScaleFactorsList());
 
         // In case of using condenser as first paramter of scale(), it should not downscale domain of iterators
         int indexOfUsing = rasql.indexOf(USING);

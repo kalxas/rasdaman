@@ -122,13 +122,19 @@ public class JSONUtil {
     /**
      * Clone an input object by serializing it to JSON string and deserializing it back to a new object
      */
-    public static Object clone(Object inputObject) throws IOException, PetascopeException {
+    public static Object clone(Object inputObject) throws PetascopeException {
         if (inputObject == null) {
             return null;
         }
         
         String json = serializeObjectToJSONString(inputObject);
-        Object result = objectMapper.readValue(json, inputObject.getClass());
+        Object result = null;
+        
+        try {
+            result = objectMapper.readValue(json, inputObject.getClass());
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Cannot clone object. Reason: " + ex.getMessage());
+        }
         
         return result;
     }

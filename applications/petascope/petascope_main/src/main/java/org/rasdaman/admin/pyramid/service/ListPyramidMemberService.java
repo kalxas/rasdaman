@@ -88,7 +88,7 @@ public class ListPyramidMemberService extends AbstractAdminService {
         
         List<PyramidMember> pyramidMembers = new ArrayList<>();
         for (CoveragePyramid coveragePyramid : baseCoverage.getPyramid()) {
-            PyramidMember member = new PyramidMember(coveragePyramid.getPyramidMemberCoverageId(), coveragePyramid.getScaleFactors());
+            PyramidMember member = new PyramidMember(coveragePyramid.getPyramidMemberCoverageId(), coveragePyramid.getScaleFactorsList());
             pyramidMembers.add(member);
         }
         
