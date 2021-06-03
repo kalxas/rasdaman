@@ -114,7 +114,7 @@ for test_case in "$TEST_DATA"/*; do
 
     # each folder is a coverage with image files and recipe
     # 1.1 get the recipe in $test_case directory (NOTE: -L to find in symbolic directory)
-    recipe_file_template=$(find -L "$test_case" -type f -name "*.template.json")
+    recipe_file_template=$(find -L "$test_case" -type f -name "ingest.template.json")
     if [ -z "$recipe_file_template" ]; then
         log "Test case '$test_case' is obsolete, removing."
         rm -rf "$test_case"

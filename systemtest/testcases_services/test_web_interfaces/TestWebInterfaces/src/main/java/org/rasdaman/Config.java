@@ -85,17 +85,17 @@ public class Config {
     /**
      * Wait milliseconds after clicking button to get result
      */
-    public static final int TIME_TO_WAIT_BEFORE_CLICK = 4000;
+    public static final int TIME_TO_WAIT_BEFORE_CLICK = 5000;
 
     /**
      * Wait milliseconds before taking the image of web page as test result
      */
-    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 4000;
+    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 5000;
     
     /**
      * Wait milliseconds after switching to another iframe
      */
-    public static final int TIME_TO_WAIT_AFTER_SWITCHING_IFRAME = 5000;
+    public static final int TIME_TO_WAIT_AFTER_SWITCHING_IFRAME = 6000;
     
     public static final int FIRST_TIME_TO_VISIT_WS_CLIENT = 10000;
 

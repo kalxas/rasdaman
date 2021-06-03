@@ -293,7 +293,7 @@ class WCSTBaseExecutor():
         self.insitu = insitu
 
     def prepare_request(self, request):
-        if self.insitu is not None:
+        if self.insitu is not None and isinstance(request, WCSTRequest):
             request.add_global_param(self.__INSITU_PARAMETER, self.insitu)
         return request
 
