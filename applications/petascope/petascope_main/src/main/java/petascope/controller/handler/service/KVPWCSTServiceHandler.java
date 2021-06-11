@@ -72,11 +72,7 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
         requestServices.add(KVPSymbols.VALUE_INSERT_COVERAGE);
         requestServices.add(KVPSymbols.VALUE_UPDATE_COVERAGE);
         requestServices.add(KVPSymbols.VALUE_DELETE_COVERAGE);
-        
-        requestServices.add(KVPSymbols.VALUE_INSERT_SCALE_LEVEL);
-        requestServices.add(KVPSymbols.VALUE_DELETE_SCALE_LEVEL);
     }
-
 
     @Override
     public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException {

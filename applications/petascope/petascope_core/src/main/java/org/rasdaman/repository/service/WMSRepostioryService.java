@@ -69,7 +69,7 @@ public class WMSRepostioryService {
     /**
      * Return a layer object if a layer name (or qualified layer name) exists from local cache map
      */
-    private Layer getLocalLayerByName(String inputLayerName) throws PetascopeException {
+    private Layer getLocalLayerByNameFromCache(String inputLayerName) throws PetascopeException {
         Layer result = null;
         String layerName = inputLayerName;
         result = this.localLayersCacheMap.get(layerName);
@@ -87,11 +87,11 @@ public class WMSRepostioryService {
     public boolean isInLocalCache(String layerName) throws PetascopeException {
         if (localLayersCacheMap.isEmpty()) {
             for (String layerNameTmp : this.readAllLocalLayerNames()) {
-                this.readLayerByNameFromCache(layerNameTmp);
+                this.readLayerByName(layerNameTmp);
             }
         }
         
-        return this.getLocalLayerByName(layerName) != null;
+        return this.getLocalLayerByNameFromCache(layerName) != null;
     }
 
     /**
@@ -108,20 +108,14 @@ public class WMSRepostioryService {
      * layer's metadata to GetMap, not for updating or deleting as it will have
      * error in Hibernate (Constraint violation with cached object)
      */
-    public Layer readLayerByNameFromCache(String inputLayerName) throws PetascopeException {
+    public Layer readLayerByName(String inputLayerName) throws PetascopeException {
         Layer layer = null;
         
         String layerName = inputLayerName;
 
-        // Check if layer already cached        
+        // Check if layer already cached in local cache
         layer = localLayersCacheMap.get(layerName);
-        if (layer == null) {
-            try {
-                layer = this.readLayerByNameFromDatabase(layerName);
-            } catch (PetascopeException ex) {
-                throw ex;
-            }
-        }
+
 
         return layer;
     }
@@ -130,7 +124,7 @@ public class WMSRepostioryService {
     * Read the layer from the local cache
     */
     public Layer readLayerByNameFromLocalCache(String layerName) throws PetascopeException {
-        Layer layer = this.getLocalLayerByName(layerName);
+        Layer layer = this.getLocalLayerByNameFromCache(layerName);
         return layer;
     }
 

@@ -264,31 +264,33 @@
             </uib-accordion>
         </div>
 
-        <!-- Layers's downscaled collection levels of selected layer -->
+        <!-- Layers's pyramid members list -->
         <div class="row top15" ng-hide="!isLayerDocumentOpen">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isLayerDocumentOpen"> 	
                     <uib-accordion-heading>
-                        Downscaled collection levels of the selected layer
+                        Pyramid members of layer <b>{{selectedLayerName}}</b>
                         <i class="pull-right glyphicon"
                            ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen, 
                                     'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
                     </uib-accordion-heading>                    
                     <!-- smart table for pagination http://lorenzofox3.github.io/smart-table-website/ -->
-                    <table st-table="levels" st-safe-src="layer.downscaledCollectionLevels"
+                    <table st-table="members" st-safe-src="layer.pyramidCoverageMembers"
                            class="table table-striped">
                         <thead>
                             <tr>
-                                <th colspan=55% style="width: 40%;">Level</th>
-                                <th colspan=45% style="width: 45%;">Operations</th>
+                                <th colspan=40% style="width: 40%;">Pyramid member</th>
+                                <th colspan=40% style="width: 35%;">Scale factors</th>
+                                <th colspan=20% style="width: 25%;">Operations</th>
                             </tr>                            
 
                         </thead>
                         <tbody>                            
-                            <tr ng-repeat="level in levels">                                
-                                <td colspan=55%>{{level}}</td>
-                                <td colspan=45%>                                    
-                                     <button class="btn btn-danger" ng-click="deleteDownscaledCollectionLevel(level)" ng-show="adminStateInformation.loggedIn">Delete</button>
+                            <tr ng-repeat="member in members">                                
+                                <td colspan=40%>{{member.coverageId}}</td>
+                                <td colspan=40%>{{member.scaleFactors}}</td>
+                                <td colspan=20%>                                    
+                                     <button class="btn btn-danger" ng-click="removePyramidMember(member.coverageId)" ng-show="adminStateInformation.loggedIn">Delete</button>
                                 </td>                           
                             </tr>
                         </tbody>
@@ -301,19 +303,26 @@
                         </tfoot>
                     </table>
 
-                   <!-- downscaled collection levels' form to insert -->
+                   <!-- coverage pyramids members to create -->
                    <div class="container" ng-show="adminStateInformation.loggedIn">
                         <form class="form-horizontal" action="">
                             <div class="form-group">
-                                <label class="control-label col-sm-2">Level:</label>
-                                <div class="col-sm-3">
-                                    <input type="text" class="form-control" placeholder="Positive number for downscaled level" id="levelValue">
+                                <label class="control-label col-sm-2">Scale factors:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" placeholder="comma-separated list of positive float values for the selected coverage's axes (irregular axis = 1, regular axis > 1)" id="scaleFactorsValue">
                                 </div>
-                            </div>                            
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Member:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" placeholder="a non-existing coverage name to be created as a pyramid member coverage" id="pyramidMemberCoverageIdValue">
+                                </div>
+                            </div>
 
                             <div class="form-group">        
                                 <div class="col-sm-offset-2 col-sm-1">
-                                    <button class="btn btn-primary" type="button" ng-click="insertDownscaledCollectionLevel()">Insert Level</button>
+                                    <button class="btn btn-primary" type="button" ng-click="createPyramidMember()">Create Pyramid Member</button>
                                 </div>                                
                             </div>
                         </form>

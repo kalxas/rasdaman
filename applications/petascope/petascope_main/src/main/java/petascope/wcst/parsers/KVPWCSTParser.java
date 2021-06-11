@@ -120,31 +120,8 @@ public class KVPWCSTParser {
                     maskGrid, maskGridRefURL, subsets, rangeComponents, null, tiling);
 
             return updateCoverageRequest;
-        } else if (requestType.equals(KVPSymbols.VALUE_INSERT_SCALE_LEVEL)) {
-            // InsertScaleLevel request received (e.g: coverageId=test_mr&level=2)
-            String coverageId = kvpParameters.get(KEY_COVERAGEID) == null ? null : kvpParameters.get(KEY_COVERAGEID)[0];
-            BigDecimal level = this.getScaleLevel(kvpParameters);
-            
-            if (coverageId == null) {
-                throw new WCSTMissingMandatoryParameter(KEY_COVERAGEID);
-            }
-            
-            InsertScaleLevelRequest insertScaleLevelRequest = new InsertScaleLevelRequest(coverageId, level);
-            
-            return insertScaleLevelRequest;
-        } else if (requestType.equals(KVPSymbols.VALUE_DELETE_SCALE_LEVEL)) {
-            // DeleteScaleLevel request received (e.g: coverageId=test_mr&level=2)
-            String coverageId = kvpParameters.get(KEY_COVERAGEID) == null ? null : kvpParameters.get(KEY_COVERAGEID)[0];
-            BigDecimal level = this.getScaleLevel(kvpParameters);
-            
-            if (coverageId == null) {
-                throw new WCSTMissingMandatoryParameter(KEY_COVERAGEID);
-            }
-            
-            DeleteScaleLevelRequest deleteScaleLevelRequest = new DeleteScaleLevelRequest(coverageId, level);
-            
-            return deleteScaleLevelRequest;
         }
+
         //not a request that this parser can parse, but canParse returned true
         //should never happen
         log.error("Invalid request type: " + kvpParameters.get(KEY_REQUEST)[0] + ". This parser can not parse requests of this type.");

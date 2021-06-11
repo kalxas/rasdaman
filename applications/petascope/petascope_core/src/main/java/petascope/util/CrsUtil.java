@@ -395,6 +395,14 @@ public class CrsUtil {
                     }
 
                     log.debug("Axis element found: " + axisAbbrev + "[" + uomName + "]");
+                    
+                    // e.g: /def/uom/UCUM/0/s which doesn't exist in SECORE, only get the unit character: s - seconds
+                    if (uomName.contains("UCUM/0/")) {
+                        String[] tmps = uomName.split("/");
+                        
+                        // return s (seconds) only
+                        uomName = tmps[tmps.length - 1];
+                    }
 
                     // Add axis to the definition (temporarily first, then force XY order)
                     List<String> tmp = new ArrayList<String>();

@@ -96,7 +96,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_LAYERS);
         } else {
             for (String layerName : layersParam[0].split(",")) {
-                Layer layer = wmsRepostioryService.readLayerByNameFromCache(layerName);
+                Layer layer = wmsRepostioryService.readLayerByName(layerName);
                 if (layer == null) {
                     throw new WMSLayerNotExistException(layerName);
                 }

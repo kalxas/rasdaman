@@ -22,21 +22,18 @@
  */
 
 module wms {
-    export class DeleteLayerDownscaledCollectionLevel implements rasdaman.common.ISerializable {
+    export class ListPyramidMembers implements rasdaman.common.ISerializable {
         public request:string;
-        public layerName:string;
-        public level:string;        
+        public base:string;        
 
-        public constructor(layerName:string, level:string) {            
-            this.request = "DeleteScaleLevel";
-            this.layerName = layerName;
-            this.level = level;            
+        public constructor(layerName:string) {            
+            this.request = "ListPyramidMembers";
+            this.base = layerName;
         }
 
         public toKVP():string {
-            return "&request=" + this.request +
-                "&coverageId=" + this.layerName +
-                "&level=" + this.level;
+            return "&REQUEST=" + this.request +
+                "&BASE=" + this.base;
         }
     }
 }

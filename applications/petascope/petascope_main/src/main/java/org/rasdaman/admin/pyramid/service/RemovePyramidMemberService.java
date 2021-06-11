@@ -38,13 +38,13 @@ import org.springframework.stereotype.Service;
 import static petascope.controller.AbstractController.getValueByKey;
 import static petascope.core.KVPSymbols.KEY_BASE;
 import static petascope.core.KVPSymbols.KEY_MEMBER;
-import static petascope.core.KVPSymbols.KEY_REMOVE_PYRAMID_MEMBER;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.SetUtil;
+import static petascope.core.KVPSymbols.VALUE_REMOVE_PYRAMID_MEMBER;
 
 /**
  * Class to handle admin request to remove a pyramid member coverage
@@ -76,8 +76,8 @@ public class RemovePyramidMemberService extends AbstractAdminService {
     private CoveragePyramidRepositoryService coveragePyramidRepositoryService;
     
     public RemovePyramidMemberService() {
-        this.service = KEY_REMOVE_PYRAMID_MEMBER;
-        this.request = KEY_REMOVE_PYRAMID_MEMBER;
+        this.service = VALUE_REMOVE_PYRAMID_MEMBER;
+        this.request = VALUE_REMOVE_PYRAMID_MEMBER;
     }
     
     private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {

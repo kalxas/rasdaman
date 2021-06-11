@@ -46,7 +46,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import nu.xom.Node;
+import org.apache.commons.collections4.ListUtils;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  * List utilities.
@@ -410,4 +415,17 @@ public class ListUtil {
     public static String createDownscaledCoverageName(String baseCoverageName, List<String> scaleFactors) {
         return baseCoverageName + "_" + ListUtil.join(scaleFactors, "_");
     }
+    
+    /**
+     * Given a list and number of elements to separate,
+     * return a list of partitioned list
+     * e.g: [1,2,3,4,5] and size = 2
+     * returns [ [1,2], [3,4], 5]
+     */
+    public static <T> List<List<T>> partitionList(List<T> list, int size) {
+        List<List<T>> partionedList = ListUtils.partition(list, size);
+        
+        return partionedList;
+    }
+    
 }

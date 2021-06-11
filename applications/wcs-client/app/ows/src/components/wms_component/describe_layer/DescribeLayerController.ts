@@ -171,6 +171,27 @@ module rasdaman {
                                     $log.error(args);
                                 })
 
+                        var listPyramidMembersRequest = new wms.ListPyramidMembers($scope.selectedLayerName);
+                        
+                        // get the pyramid members of this selected layer
+                        wmsService.listPyramidMembersRequest(listPyramidMembersRequest).then(                            
+                            (arrayData:[])=> {
+                                var pyramidCoverageMembers = [];
+                                arrayData.forEach((element:any) => {
+                                    var coverageName = element["coverage"];
+                                    var scaleFactors = element["scaleFactors"].join(",");
+                                    var pyramidCoverageMember = new wms.PyramidCoverageMember(coverageName, scaleFactors);
+                                    
+                                    pyramidCoverageMembers.push(pyramidCoverageMember);
+                                });
+
+                                $scope.layers[i].pyramidCoverageMembers = pyramidCoverageMembers;
+                            }, (...args:any[])=> {                                    
+                                errorHandlingService.handleError(args);
+                                $log.error(args);
+                            });
+                        
+
                         return;
                     }
                 }                
@@ -477,37 +498,37 @@ module rasdaman {
                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
             }
 
-            // ********** Layer's downscaled collection levels management **************
+            // ********** Layer's downscaled coverages management **************
 
-            // Insert a rasdaman downscaled collection level to database
-            $scope.insertDownscaledCollectionLevel = () => {
-                let level = $("#levelValue").val();
-                if (!(!isNaN(level) && Number(level) > 1)) {
-                    alertService.error("Downscaled collection level must be positive numer and greater than 1, given <b>" + level + "</b>");
-                } else if ($scope.layer.downscaledCollectionLevels.includes(level)) {
-                    alertService.error("Downscaled collection level <b>" + level + "</b> already exists.");
-                } else {
-                    // Then, send the insert layer's downscaled collection level request to server
-                    var insertLayerDownscaledCollectionLevel = new wms.InsertLayerDownscaledCollectionLevel($scope.layer.name, level);
-                    wmsService.insertLayerDownscaledCollectionLevelRequest(insertLayerDownscaledCollectionLevel).then(
-                        (...args:any[])=> {
-                            alertService.success("Successfully insert downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
-                            // reload WMS GetCapabilities 
-                            $scope.wmsStateInformation.reloadServerCapabilities = true;
-                        }, (...args:any[])=> {
-                            errorHandlingService.handleError(args);                            
-                        }).finally(function () {                        
-                    });
-                }
+            // Create a pyramid member coverage as downscaled level coverage of this selected layer
+            $scope.createPyramidMember = () => {                
+                let scaleFactors = $("#scaleFactorsValue").val();
+                let pyramidMemberCoverageId = $("#pyramidMemberCoverageIdValue").val();
+
+                var createPyramidMember = new wms.CreatePyramidMember($scope.layer.name, scaleFactors, pyramidMemberCoverageId);
+                wmsService.createPyramidMemberRequest(createPyramidMember).then(
+                    (...args:any[])=> {
+                        alertService.success("Successfully created pyramid member coverage <b>" + pyramidMemberCoverageId 
+                                           + "</b> with scalefactors <b>" + scaleFactors + "</b> of layer  <b>" + $scope.layer.name + "</b>.");
+                        // reload WMS GetCapabilities 
+                        $scope.wmsStateInformation.reloadServerCapabilities = true;
+
+                        $("#scaleFactorsValue").val("");
+                        $("#pyramidMemberCoverageIdValue").val("");
+                    }, (...args:any[])=> {
+                        errorHandlingService.handleError(args);                            
+                    }).finally(function () {                        
+                });
+
             }
 
-            // Delete a rasdaman downscaled collection level from database
-            $scope.deleteDownscaledCollectionLevel = (level:string) => {
+            // Remove a pyramid member coverage from the base coverage (selected layer)
+            $scope.removePyramidMember = (pyramidMemberCoverageId:string) => {
                 // Then, send the delete layer's downscaled collection level request to server
-                var deleteLayerDownscaledCollectionLevel = new wms.DeleteLayerDownscaledCollectionLevel($scope.layer.name, level);
-                wmsService.deleteLayerDownscaledCollectionLevelRequest(deleteLayerDownscaledCollectionLevel).then(
+                var removePyramidMemberRequest = new wms.RemovePyramidMember($scope.layer.name, pyramidMemberCoverageId);
+                wmsService.removePyramidMemberRequest(removePyramidMemberRequest).then(
                     (...args:any[])=> {
-                        alertService.success("Successfully delete downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                        alertService.success("Successfully remove pyramid member <b>" + pyramidMemberCoverageId + "</b> from layer <b>" + $scope.layer.name + "</b>");
                         // reload WMS GetCapabilities 
                         $scope.wmsStateInformation.reloadServerCapabilities = true;                    
                     }, (...args:any[])=> {

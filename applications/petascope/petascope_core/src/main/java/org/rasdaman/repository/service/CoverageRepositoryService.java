@@ -197,21 +197,13 @@ public class CoverageRepositoryService {
         
         Coverage coverage = null;
         
-        if (localCoveragesCacheMap.isEmpty()) {
-            this.readAllLocalCoveragesBasicMetatata();
+        if (this.isInLocalCache(coverageId)) {
+            coverage = this.getLocalPairCoverageByCoverageId(coverageId).fst;
         }
         
-        Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
-        if (coveragePair != null) {
-            coverage = coveragePair.fst;
-        } else {
-            // NOTE: if the cache map doesn't contain the coverage for some reason
-            // then try again (this happened for WMS GetCapabitilies requests from wsclient when pestascope starts and throws coverage not found)
-            coverage = this.readCoverageFullMetadataByIdFromCache(coverageId);
-        }
         
         if (coverage == null) {
-            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage: " + coverageId + " does not exist.");
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + coverageId + "' does not exist.");
         }
 
         return coverage;
@@ -496,7 +488,12 @@ public class CoverageRepositoryService {
     /**
      * Return the list of basic coverage metadata object
      */
-    public List<Coverage> readAllCoveragesBasicMetadata() {
+    public List<Coverage> readAllCoveragesBasicMetadata() throws PetascopeException {
+        
+        if (this.localCoveragesCacheMap.isEmpty()) {
+            this.readAllLocalCoveragesBasicMetatata();
+        }        
+        
         List<Coverage> coverages = new ArrayList<>();
         for (Map.Entry<String, Pair<Coverage, Boolean>> entry : this.localCoveragesCacheMap.entrySet()) {
             coverages.add(entry.getValue().fst);

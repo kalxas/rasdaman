@@ -597,6 +597,79 @@ public class RasUtil {
         
         return null;
     }
+
+
+    
+    /**
+     * Send a simple rasql query to rasdaman to check if username and passWord are correct.
+     */
+    public static boolean checkValidUserCredentials(String username, String password) throws Exception {
+        try {
+            String query = "SELECT 1";
+            executeRasqlQuery(query, username, password, false);
+        } catch (Exception ex) {   
+            if (ex.getMessage().contains("user " + username + " does not exist") 
+                || ex.getMessage().contains("The credentials provided by the client are invalid")) {
+                return false;
+            } else {
+                throw ex;
+            }            
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Get all collection names by input credentials
+     */
+    public static List<String> getCollectionnames(String username, String password) throws PetascopeException {
+        List<String> collectionnames = new ArrayList<>();
+        
+        try {
+            Object rasqlResult = executeRasqlQuery("LIST COLLECTIONS", username, password, false);
+            RasQueryResult queryResult = new RasQueryResult(rasqlResult);              
+            collectionnames = ListUtil.stol(queryResult.toString(), ",");
+        } catch(Exception ex) {
+            // in case LIST COLLECTIONS doesn't exist
+            String query = "SELECT c from RAS_COLLECTIONNAMES as c";
+            Object rasjResult = executeRasqlQuery(query, username, password, false);
+            RasQueryResult queryResult = new RasQueryResult(rasjResult);
+            
+            for (int i = 0; i < queryResult.getMdds().size(); i++) {
+                collectionnames.add(new String(queryResult.getMdds().get(i)));
+            }
+        }
+        
+        return collectionnames;
+    }
+    
+    /**
+     * For example, number of dimensions is 2, number of bands is 2 and, first band's null value is 30 and data type is character
+     * and scale's target domain is [0:30,0:40]
+     * returns SCALE(<[0:0,0:0] {30c,30c}>, [0:30,0:40])
+     */
+    public static String getScaleNullGridDomains(int numberOfDimensions, int numberOfBands, String firstBandNullValue, 
+                                                 String firstBandDataType, String scaleTargetGridDomains) {
+        String defaultGridDomain = "0:0";
+        List<String> gridDomains = new ArrayList<>();
+        for (int i = 0; i < numberOfDimensions; i++) {
+            gridDomains.add(defaultGridDomain);
+        }
+        
+        List<String> bandNullValues = new ArrayList<>();
+        for (int i = 0; i < numberOfBands; i++) {
+            // e.g: float -> f
+            String typeSuffix = TypeResolverUtil.getTypeSuffix(firstBandDataType);
+            
+            // e.g: 0.3f
+            bandNullValues.add(firstBandNullValue + typeSuffix);
+        }
+        
+        String result = "SCALE( <[" + ListUtil.join(gridDomains, ",") + "] {" + ListUtil.join(bandNullValues, ",") + "}>, " + scaleTargetGridDomains + ")";
+        return result;       
+    }
+
+
     private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
     private static final String TOKEN_COLLECTION_TYPE = "%collectionType%";
     private static final String TEMPLATE_CREATE_COLLECTION = "CREATE COLLECTION " + TOKEN_COLLECTION_NAME + " " + TOKEN_COLLECTION_TYPE;

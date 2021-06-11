@@ -5414,7 +5414,6 @@ var wms;
                 this.importedType = "remote";
             }
             this.buildStylesFromGMLDocument();
-            this.getDownscaledCollectionLevelsFromGMLDocument();
         }
         Layer.prototype.initialiseDimenison = function () {
             return {
@@ -5519,14 +5518,6 @@ var wms;
             }
             else {
                 return false;
-            }
-        };
-        Layer.prototype.getDownscaledCollectionLevelsFromGMLDocument = function () {
-            this.downscaledCollectionLevels = [];
-            var tmpXML = $.parseXML(this.gmlDocument);
-            var text = $(tmpXML).find("rasdaman\\:downscaledCollectionLevels").text();
-            if (text !== "") {
-                this.downscaledCollectionLevels = text.split(",");
             }
         };
         Layer.prototype.buildStylesFromGMLDocument = function () {
@@ -5707,9 +5698,27 @@ var rasdaman;
             });
             return result.promise;
         };
-        WMSService.prototype.insertLayerDownscaledCollectionLevelRequest = function (request) {
+        WMSService.prototype.listPyramidMembersRequest = function (request) {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.wcsFullEndpoint + "&" + request.toKVP();
+            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
+            var currentHeaders = {};
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
+            }).then(function (response) {
+                try {
+                    result.resolve(response.data);
+                }
+                catch (err) {
+                    result.reject(err);
+                }
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.prototype.createPyramidMemberRequest = function (request) {
+            var result = this.$q.defer();
+            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
             var currentHeaders = {};
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
@@ -5725,9 +5734,9 @@ var rasdaman;
             });
             return result.promise;
         };
-        WMSService.prototype.deleteLayerDownscaledCollectionLevelRequest = function (request) {
+        WMSService.prototype.removePyramidMemberRequest = function (request) {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.wcsFullEndpoint + "&" + request.toKVP();
+            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
             var currentHeaders = {};
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
@@ -6111,6 +6120,24 @@ var rasdaman;
                             errorHandlingService.handleError(args);
                             $log.error(args);
                         });
+                        var listPyramidMembersRequest = new wms.ListPyramidMembers($scope.selectedLayerName);
+                        wmsService.listPyramidMembersRequest(listPyramidMembersRequest).then(function (arrayData) {
+                            var pyramidCoverageMembers = [];
+                            arrayData.forEach(function (element) {
+                                var coverageName = element["coverage"];
+                                var scaleFactors = element["scaleFactors"].join(",");
+                                var pyramidCoverageMember = new wms.PyramidCoverageMember(coverageName, scaleFactors);
+                                pyramidCoverageMembers.push(pyramidCoverageMember);
+                            });
+                            $scope.layers[i].pyramidCoverageMembers = pyramidCoverageMembers;
+                        }, function () {
+                            var args = [];
+                            for (var _i = 0; _i < arguments.length; _i++) {
+                                args[_i] = arguments[_i];
+                            }
+                            errorHandlingService.handleError(args);
+                            $log.error(args);
+                        });
                         return;
                     }
                 }
@@ -6309,41 +6336,37 @@ var rasdaman;
                 $scope.displayWMSLayer = false;
                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
             };
-            $scope.insertDownscaledCollectionLevel = function () {
-                var level = $("#levelValue").val();
-                if (!(!isNaN(level) && Number(level) > 1)) {
-                    alertService.error("Downscaled collection level must be positive numer and greater than 1, given <b>" + level + "</b>");
-                }
-                else if ($scope.layer.downscaledCollectionLevels.includes(level)) {
-                    alertService.error("Downscaled collection level <b>" + level + "</b> already exists.");
-                }
-                else {
-                    var insertLayerDownscaledCollectionLevel = new wms.InsertLayerDownscaledCollectionLevel($scope.layer.name, level);
-                    wmsService.insertLayerDownscaledCollectionLevelRequest(insertLayerDownscaledCollectionLevel).then(function () {
-                        var args = [];
-                        for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
-                        }
-                        alertService.success("Successfully insert downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
-                        $scope.wmsStateInformation.reloadServerCapabilities = true;
-                    }, function () {
-                        var args = [];
-                        for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
-                        }
-                        errorHandlingService.handleError(args);
-                    })["finally"](function () {
-                    });
-                }
-            };
-            $scope.deleteDownscaledCollectionLevel = function (level) {
-                var deleteLayerDownscaledCollectionLevel = new wms.DeleteLayerDownscaledCollectionLevel($scope.layer.name, level);
-                wmsService.deleteLayerDownscaledCollectionLevelRequest(deleteLayerDownscaledCollectionLevel).then(function () {
+            $scope.createPyramidMember = function () {
+                var scaleFactors = $("#scaleFactorsValue").val();
+                var pyramidMemberCoverageId = $("#pyramidMemberCoverageIdValue").val();
+                var createPyramidMember = new wms.CreatePyramidMember($scope.layer.name, scaleFactors, pyramidMemberCoverageId);
+                wmsService.createPyramidMemberRequest(createPyramidMember).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
                         args[_i] = arguments[_i];
                     }
-                    alertService.success("Successfully delete downscaled collection level <b>" + level + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                    alertService.success("Successfully created pyramid member coverage <b>" + pyramidMemberCoverageId
+                        + "</b> with scalefactors <b>" + scaleFactors + "</b> of layer  <b>" + $scope.layer.name + "</b>.");
+                    $scope.wmsStateInformation.reloadServerCapabilities = true;
+                    $("#scaleFactorsValue").val("");
+                    $("#pyramidMemberCoverageIdValue").val("");
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                })["finally"](function () {
+                });
+            };
+            $scope.removePyramidMember = function (pyramidMemberCoverageId) {
+                var removePyramidMemberRequest = new wms.RemovePyramidMember($scope.layer.name, pyramidMemberCoverageId);
+                wmsService.removePyramidMemberRequest(removePyramidMemberRequest).then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    alertService.success("Successfully remove pyramid member <b>" + pyramidMemberCoverageId + "</b> from layer <b>" + $scope.layer.name + "</b>");
                     $scope.wmsStateInformation.reloadServerCapabilities = true;
                 }, function () {
                     var args = [];
@@ -7024,20 +7047,22 @@ var admin;
 })(admin || (admin = {}));
 var wms;
 (function (wms) {
-    var DeleteLayerDownscaledCollectionLevel = (function () {
-        function DeleteLayerDownscaledCollectionLevel(layerName, level) {
-            this.request = "DeleteScaleLevel";
-            this.layerName = layerName;
-            this.level = level;
+    var CreatePyramidMember = (function () {
+        function CreatePyramidMember(baseCoverageId, scaleFactors, pyramidMemberCoverageId) {
+            this.request = "CreatePyramidMember";
+            this.baseCoverageId = baseCoverageId;
+            this.scaleFactors = scaleFactors;
+            this.pyramidMemberCoverageId = pyramidMemberCoverageId;
         }
-        DeleteLayerDownscaledCollectionLevel.prototype.toKVP = function () {
-            return "&request=" + this.request +
-                "&coverageId=" + this.layerName +
-                "&level=" + this.level;
+        CreatePyramidMember.prototype.toKVP = function () {
+            return "&REQUEST=" + this.request +
+                "&BASE=" + this.baseCoverageId +
+                "&SCALEFACTOR=" + this.scaleFactors +
+                "&MEMBER=" + this.pyramidMemberCoverageId;
         };
-        return DeleteLayerDownscaledCollectionLevel;
+        return CreatePyramidMember;
     }());
-    wms.DeleteLayerDownscaledCollectionLevel = DeleteLayerDownscaledCollectionLevel;
+    wms.CreatePyramidMember = CreatePyramidMember;
 })(wms || (wms = {}));
 var wms;
 (function (wms) {
@@ -7076,23 +7101,6 @@ var wms;
 })(wms || (wms = {}));
 var wms;
 (function (wms) {
-    var InsertLayerDownscaledCollectionLevel = (function () {
-        function InsertLayerDownscaledCollectionLevel(layerName, level) {
-            this.request = "InsertScaleLevel";
-            this.layerName = layerName;
-            this.level = level;
-        }
-        InsertLayerDownscaledCollectionLevel.prototype.toKVP = function () {
-            return "&request=" + this.request +
-                "&coverageId=" + this.layerName +
-                "&level=" + this.level;
-        };
-        return InsertLayerDownscaledCollectionLevel;
-    }());
-    wms.InsertLayerDownscaledCollectionLevel = InsertLayerDownscaledCollectionLevel;
-})(wms || (wms = {}));
-var wms;
-(function (wms) {
     var InsertLayerStyle = (function () {
         function InsertLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion) {
             this.request = "InsertStyle";
@@ -7117,6 +7125,49 @@ var wms;
         return InsertLayerStyle;
     }());
     wms.InsertLayerStyle = InsertLayerStyle;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var ListPyramidMembers = (function () {
+        function ListPyramidMembers(layerName) {
+            this.request = "ListPyramidMembers";
+            this.base = layerName;
+        }
+        ListPyramidMembers.prototype.toKVP = function () {
+            return "&REQUEST=" + this.request +
+                "&BASE=" + this.base;
+        };
+        return ListPyramidMembers;
+    }());
+    wms.ListPyramidMembers = ListPyramidMembers;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var PyramidCoverageMember = (function () {
+        function PyramidCoverageMember(coverageId, scaleFactors) {
+            this.coverageId = coverageId;
+            this.scaleFactors = scaleFactors;
+        }
+        return PyramidCoverageMember;
+    }());
+    wms.PyramidCoverageMember = PyramidCoverageMember;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var RemovePyramidMember = (function () {
+        function RemovePyramidMember(baseCoverageId, pyramidMemberCoverageId) {
+            this.request = "RemovePyramidMember";
+            this.baseCoverageId = baseCoverageId;
+            this.pyramidMemberCoverageId = pyramidMemberCoverageId;
+        }
+        RemovePyramidMember.prototype.toKVP = function () {
+            return "REQUEST=" + this.request +
+                "&BASE=" + this.baseCoverageId +
+                "&MEMBER=" + this.pyramidMemberCoverageId;
+        };
+        return RemovePyramidMember;
+    }());
+    wms.RemovePyramidMember = RemovePyramidMember;
 })(wms || (wms = {}));
 var wms;
 (function (wms) {

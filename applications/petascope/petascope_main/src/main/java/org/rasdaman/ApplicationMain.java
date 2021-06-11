@@ -63,9 +63,11 @@ import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 import static org.rasdaman.config.ConfigManager.STATIC_HTML_DIR_PATH;
 import org.rasdaman.datamigration.DataMigrationService;
+import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import petascope.util.ras.RasUtil;
 
 /**
  * This class initializes the petascope properties and runs the application as jar file.
@@ -271,71 +273,46 @@ public class ApplicationMain extends SpringBootServletInitializer {
             log.info("petascopedb migrated successfully.");
             System.exit(ExitCode.SUCCESS.getExitCode());
         }
-        
-        // Run the 2 threads below in parallel to load coverages / layers to cache
-        // and wait for them to finish before checking migration
-//        CountDownLatch countDownLatch = new CountDownLatch(2);
-//        this.loadCoveragesToCaches(this.coverageRepositoryService,                                    
-//                                   countDownLatch);
-//        this.loadLayersToCaches(this.wmsRepostioryService, countDownLatch);
-//        
-//        // Check if petascope should do the migration internally
-//        countDownLatch.await();
 
-        log.debug("Load coverages to caches ...");                    
-        coverageRepositoryService.readAllLocalCoveragesBasicMetatata();
-        coverageRepositoryService.createAllCoveragesExtents();
+
+        // ### data migration
         
-        log.debug("Load layers to caches ...");
-        wmsRepostioryService.readAllLocalLayers();
-        log.info("Loaded all local layer objects to cache.");
+        // Test if rasdaman is running first
         
+        try {
+            RasUtil.checkValidUserCredentials(ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
+        } catch(Exception ex) {
+            String errorMessage = "Cannot check if rasdaman is running. Reason: " + ex.getMessage().trim()
+                                + " Hint: make sure rasdaman is running and restart tomcat service afterwards.";
+            log.error(errorMessage);
+            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
+            return;
+        }
+        
+        log.info("Running data migrations ...");
 
         this.dataMigrationService.runMigration();
+        
+        log.info("Checked data migrations.");
+        
+        // ### coverages
 
-    }
-    
-    /**
-     * Run this background proces to load coverages to caches when petascope start
-     */
-    private void loadCoveragesToCaches(final CoverageRepositoryService coverageRepositoryService,             
-            final CountDownLatch countDownLatch) {
-        Runnable runnable = new Runnable() {
-            public void run() {
-                try {
-                    log.debug("Load coverages to caches ...");                    
-                    coverageRepositoryService.readAllLocalCoveragesBasicMetatata();
-                    coverageRepositoryService.createAllCoveragesExtents();
-                    
-                    log.info("Loaded all local coverage objects to cache.");
-                } catch (Exception ex) {
-                    log.error("Cannot read local coverages to caches. Reason: " + ex.getMessage(), ex);
-                }
+        log.info("Loading coverages to caches ...");                    
+        
+        coverageRepositoryService.readAllCoveragesBasicMetadata();
+                        
+        coverageRepositoryService.createAllCoveragesExtents();
+        
+        log.info("Loaded coverages to caches.");
                 
-                countDownLatch.countDown();
-            }
-        };
-        new Thread(runnable).start();
-    }
-    
-    /**
-     * Run this background proces to load layers to caches when petascope start
-     */
-    private void loadLayersToCaches(final WMSRepostioryService wmsRepostioryService, final CountDownLatch countDownLatch) {
-        Runnable runnable = new Runnable() {
-            public void run() {
-                try {
-                    log.debug("Load layers to caches ...");
-                    wmsRepostioryService.readAllLocalLayers();
-                    log.info("Loaded all local layer objects to cache.");
-                } catch (PetascopeException ex) {
-                    log.error("Cannot read local layers to caches. Reason: " + ex.getMessage(), ex);
-                }
-                
-                countDownLatch.countDown();
-            }
-        };
-        new Thread(runnable).start();
+        // ### layers
+        
+        log.info("Loading layers to caches ...");
+        
+        wmsRepostioryService.readAllLayers();
+        
+        log.info("Loaded layers to caches.");
+        
     }
 
     /**

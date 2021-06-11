@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.PetascopeException;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
+import petascope.util.ListUtil;
 import petascope.util.StringUtil;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
 
@@ -192,6 +193,14 @@ public class TypeResolverUtil {
         }
         
         return results;
+    }
+    
+    /**
+     * e.g: char (data type) -> c (suffix)
+     */
+    public static String getTypeSuffix(String rasDataType) {
+        String result = RAS_TYPES_TO_ABBREVIATION.get(rasDataType);
+        return result;
     }
     
     /**

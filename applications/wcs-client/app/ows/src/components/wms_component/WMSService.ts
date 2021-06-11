@@ -62,7 +62,8 @@ module rasdaman {
                     try {
                         var gmlDocument = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = self.serializedObjectFactory.getSerializedObject(gmlDocument);
-                        var capabilities = new wms.Capabilities(serializedResponse, gmlDocument.value);
+                        var capabilities = new wms.Capabilities(serializedResponse, gmlDocument.value);                       
+
                         var response = new rasdaman.common.Response<wms.Capabilities>(gmlDocument, capabilities);
                         result.resolve(response);
                     } catch (err) {
@@ -153,13 +154,35 @@ module rasdaman {
             return result.promise;
         }
 
-        // ******** Layer's downscaled collection management ********
+        // ******** Layer's downscaled levels coverages (pyramid members) management ********
 
-        // Insert the specified downscaled collection level for a layer to databasee
-        public insertLayerDownscaledCollectionLevelRequest(request:wms.InsertLayerDownscaledCollectionLevel):angular.IPromise<any> {
+        // List all downscaled levels coverages (pyramid memebers) of a base coverage
+        public listPyramidMembersRequest(request:wms.ListPyramidMembers):angular.IPromise<any> {
             var result = this.$q.defer();
             // Build the request URL
-            var requestUrl = this.wcsSettings.wcsFullEndpoint + "&" + request.toKVP();
+            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
+            var currentHeaders = {};
+
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
+            }).then(function (response:any) {
+                try {                                                
+                    result.resolve(response.data);
+                } catch (err) {
+                    result.reject(err);
+                }
+            }, function (error) {
+                result.reject(error);
+            });
+
+            return result.promise;
+        }
+
+        // Create a pyramid member coverage for a layer
+        public createPyramidMemberRequest(request:wms.CreatePyramidMember):angular.IPromise<any> {
+            var result = this.$q.defer();
+            // Build the request URL
+            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
             var currentHeaders = {};
 
             this.$http.get(requestUrl, {
@@ -177,11 +200,11 @@ module rasdaman {
             return result.promise;
         }
 
-        // Delete the specified downscaled collection level for a layer from databasee
-        public deleteLayerDownscaledCollectionLevelRequest(request:wms.DeleteLayerDownscaledCollectionLevel):angular.IPromise<any> {
+        // Remove the pyramid member coverage from a base coverage's pyramid
+        public removePyramidMemberRequest(request:wms.RemovePyramidMember):angular.IPromise<any> {
             var result = this.$q.defer();
             // Build the request URL
-            var requestUrl = this.wcsSettings.wcsFullEndpoint + "&" + request.toKVP();
+            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
             var currentHeaders = {};
 
             this.$http.get(requestUrl, {

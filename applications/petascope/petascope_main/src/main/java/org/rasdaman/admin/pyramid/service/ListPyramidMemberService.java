@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 import static petascope.controller.AbstractController.getValueByKey;
 import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.KEY_BASE;
-import static petascope.core.KVPSymbols.KEY_LIST_PYRAMID_MEMBERS;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
@@ -45,6 +44,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.SetUtil;
+import static petascope.core.KVPSymbols.VALUE_LIST_PYRAMID_MEMBERS;
 
 /**
  * Class to list the persisted pyramid member coverages of a base coverage
@@ -62,8 +62,8 @@ public class ListPyramidMemberService extends AbstractAdminService {
     private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_REQUEST, KEY_BASE);
 
     public ListPyramidMemberService() {
-        this.service = KEY_LIST_PYRAMID_MEMBERS;
-        this.request = KEY_LIST_PYRAMID_MEMBERS;
+        this.service = VALUE_LIST_PYRAMID_MEMBERS;
+        this.request = VALUE_LIST_PYRAMID_MEMBERS;
     }
 
     private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {

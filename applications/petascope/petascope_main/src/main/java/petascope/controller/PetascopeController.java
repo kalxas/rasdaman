@@ -48,10 +48,12 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
+import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
+import static petascope.core.KVPSymbols.VALUE_ADD_PYRAMID_MEMBER;
+import static petascope.core.KVPSymbols.VALUE_CREATE_PYRAMID_MEMBER;
 import static petascope.core.KVPSymbols.VALUE_DELETE_COVERAGE;
-import static petascope.core.KVPSymbols.VALUE_DELETE_SCALE_LEVEL;
 import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
-import static petascope.core.KVPSymbols.VALUE_INSERT_SCALE_LEVEL;
+import static petascope.core.KVPSymbols.VALUE_REMOVE_PYRAMID_MEMBER;
 import static petascope.core.KVPSymbols.VALUE_UPDATE_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_WMS_DELETE_STYLE;
 import static petascope.core.KVPSymbols.VALUE_WMS_INSERT_STYLE;
@@ -60,12 +62,6 @@ import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_STYLE;
 import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_WCS_LAYER;
 import petascope.util.ExceptionUtil;
 import static petascope.core.KVPSymbols.VALUE_WMS_DELETE_LAYER;
-import static petascope.util.MIMEUtil.MIME_BINARY;
-import static petascope.util.StringUtil.AND_SIGN;
-import static petascope.util.StringUtil.DOLLAR_SIGN;
-import static petascope.util.StringUtil.EQUAL_SIGN;
-import static petascope.util.StringUtil.POSITIVE_INTEGER_PATTERN;
-import static petascope.util.StringUtil.POST_STRING_CONTENT_TYPE;
 
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
@@ -78,12 +74,12 @@ public class PetascopeController extends AbstractController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PetascopeController.class);
     
     // These write requests will need to check if requesting IP address is in petascope's whitelist.
-    private static final List WRITE_REQUESTS = Arrays.asList(new String[]{ VALUE_INSERT_COVERAGE, VALUE_UPDATE_COVERAGE, VALUE_DELETE_COVERAGE, 
-                                                    VALUE_INSERT_SCALE_LEVEL, VALUE_DELETE_SCALE_LEVEL,
+    private static final List WRITE_REQUESTS = Arrays.asList(new String[]{ VALUE_INSERT_COVERAGE, VALUE_UPDATE_COVERAGE, VALUE_DELETE_COVERAGE,                                                     
                                                     VALUE_WMS_INSERT_WCS_LAYER, VALUE_WMS_UPDATE_WCS_LAYER,
                                                     VALUE_WMS_DELETE_LAYER,
                                                     VALUE_WMS_INSERT_STYLE, VALUE_WMS_UPDATE_STYLE,
-                                                    VALUE_WMS_DELETE_STYLE
+                                                    VALUE_WMS_DELETE_STYLE,
+                                                    VALUE_CREATE_PYRAMID_MEMBER, VALUE_ADD_PYRAMID_MEMBER, VALUE_REMOVE_PYRAMID_MEMBER,
                                                    });
 
 
@@ -185,6 +181,7 @@ public class PetascopeController extends AbstractController {
                 String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
                 request = requestService;
                 
+                // in case, petascope is behind Apache proxy, then get the forwared IP via proxy
                 String sourceIP = httpServletRequest.getHeader("X-FORWARDED-FOR");
                 if (sourceIP == null) {
                     // In case petascope is not proxied by apache

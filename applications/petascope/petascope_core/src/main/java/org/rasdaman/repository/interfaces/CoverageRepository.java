@@ -83,3 +83,4 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
           + " WHERE a.coverageId = :baseCoverageId")
     List<CoveragePyramid> readAllCoveragePyramidsByBaseCoverageId(@Param("baseCoverageId") String baseCoverageId);
 }
+

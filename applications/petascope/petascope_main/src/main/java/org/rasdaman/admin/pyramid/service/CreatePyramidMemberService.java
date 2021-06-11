@@ -44,7 +44,6 @@ import org.springframework.stereotype.Service;
 import static petascope.controller.AbstractController.getValueByKey;
 import static petascope.controller.AbstractController.getValueByKeyAllowNull;
 import static petascope.core.KVPSymbols.KEY_BASE;
-import static petascope.core.KVPSymbols.KEY_CREATE_PYRAMID_MEMBER;
 import static petascope.core.KVPSymbols.KEY_INTERPOLATION;
 import static petascope.core.KVPSymbols.KEY_MEMBER;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
@@ -61,6 +60,7 @@ import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import petascope.wcps.metadata.model.IrregularAxis;
 import static petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService.NEAREST_INTERPOLATION;
 import static petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService.SUPPORTED_SCALING_AXIS_INTERPOLATIONS;
+import static petascope.core.KVPSymbols.VALUE_CREATE_PYRAMID_MEMBER;
 
 /**
  * Class to handle admin request to create a pyramid member coverage by scalefactors
@@ -100,8 +100,8 @@ public class CreatePyramidMemberService extends AbstractAdminService {
     private AddPyramidMemberService addPyramidMemberService;
     
     public CreatePyramidMemberService() {
-        this.service = KEY_CREATE_PYRAMID_MEMBER;
-        this.request = KEY_CREATE_PYRAMID_MEMBER;
+        this.service = VALUE_CREATE_PYRAMID_MEMBER;
+        this.request = VALUE_CREATE_PYRAMID_MEMBER;
     }
     
     private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {

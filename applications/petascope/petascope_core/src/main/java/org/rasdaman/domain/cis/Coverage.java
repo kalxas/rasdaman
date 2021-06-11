@@ -151,11 +151,18 @@ public abstract class Coverage implements Serializable {
     }
     
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet) {
+        this(coverageId, coverageType, 0, envelope, rasdamanRangeSet, null, new ArrayList<CoveragePyramid>());
+    }
+    
+    public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet,
+                    List<String> sourceCoverageIds, List<CoveragePyramid> pyramid) {
         this.coverageId = coverageId;
         this.coverageType = coverageType;
         this.coverageSizeInBytes = coverageSizeInBytes;
         this.envelope = envelope;
         this.rasdamanRangeSet = rasdamanRangeSet;        
+
+        this.pyramid = pyramid;
     }
 
     public long getId() {
@@ -269,6 +276,7 @@ public abstract class Coverage implements Serializable {
      *
      * @return
      */
+    @JsonIgnore
     public List<NilValue> getAllUniqueNullValues() {
         List<NilValue> uniqueNilValues = new ArrayList<NilValue>();
 
@@ -289,6 +297,7 @@ public abstract class Coverage implements Serializable {
         return uniqueNilValues;
     }
     
+    @JsonIgnore
     public List<NilValue> getAllNullValues() {
         List<NilValue> result = new ArrayList<>();
 

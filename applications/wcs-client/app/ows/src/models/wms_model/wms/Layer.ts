@@ -54,8 +54,8 @@ module wms {
         // Default layer imported locally
         public importedType:String;
 
-        // List of downscaled collection levels
-        public downscaledCollectionLevels:String[];
+        // List of downscaled levels coverages (pyramid members)
+        public pyramidCoverageMembers:PyramidCoverageMember[];
         
         public constructor(gmlDocument:string, name:string, title:string, abstract:string, customizedMetadata:ows.CustomizedMetadata,
                            westBoundLongitude:Number, eastBoundLongitude:Number, 
@@ -101,9 +101,7 @@ module wms {
            
             // build styles from gmlDocument of this layer
             this.buildStylesFromGMLDocument();
-
-            // get list of downscaled collection levels of this layer
-            this.getDownscaledCollectionLevelsFromGMLDocument();
+            
         }
 
         private initialiseDimenison() {
@@ -266,17 +264,6 @@ module wms {
                 return false;
             }
             
-        }
-
-        // Extract the list of downscaled collection levels of this layer
-        private getDownscaledCollectionLevelsFromGMLDocument() {
-            this.downscaledCollectionLevels = [];
-            
-            var tmpXML = $.parseXML(this.gmlDocument);
-            var text = $(tmpXML).find("rasdaman\\:downscaledCollectionLevels").text();
-            if (text !== "") {
-                this.downscaledCollectionLevels = text.split(",");                
-            }
         }
 
         // Extract the Style element of layer to an array

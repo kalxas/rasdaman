@@ -159,6 +159,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      * @param axisLabel
      * @return
      */
+    @JsonIgnore
     public GeoAxis getGeoAxisByName(String axisLabel) {
         List<GeoAxis> geoAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGeoAxes();
         for (GeoAxis geoAxis : geoAxes) {

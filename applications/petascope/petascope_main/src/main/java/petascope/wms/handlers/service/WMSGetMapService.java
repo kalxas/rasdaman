@@ -459,7 +459,7 @@ public class WMSGetMapService {
         // CoverageExpression is the main part of a Rasql query builded from the current layer and style
         // e.g: c1 + 5, case c1 > 5 then {0, 1, 2}
         String collectionExpression = null;
-        Layer layer = this.wmsRepostioryService.readLayerByNameFromCache(layerName);
+        Layer layer = this.wmsRepostioryService.readLayerByName(layerName);
         
         if (!StringUtils.isEmpty(styleName) && layer.getStyle(styleName) == null) {
             throw new WMSStyleNotFoundException(styleName, layerName);

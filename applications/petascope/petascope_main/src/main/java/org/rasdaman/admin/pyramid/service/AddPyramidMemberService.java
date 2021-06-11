@@ -43,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static petascope.controller.AbstractController.getValueByKey;
 import static petascope.controller.AbstractController.getValueByKeyAllowNull;
-import static petascope.core.KVPSymbols.KEY_ADD_PYRAMID_MEMBER;
 import static petascope.core.KVPSymbols.KEY_BASE;
 import static petascope.core.KVPSymbols.KEY_MEMBER;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
@@ -56,6 +55,7 @@ import petascope.util.CrsUtil;
 import petascope.util.SetUtil;
 import petascope.util.StringUtil;
 import static petascope.core.KVPSymbols.KEY_PYRAMID_HARVESTING;
+import static petascope.core.KVPSymbols.VALUE_ADD_PYRAMID_MEMBER;
 
 /**
  * Class to handle admin request to add a pyramid member coverage (and all nested pyramid members of it
@@ -91,8 +91,8 @@ public class AddPyramidMemberService extends AbstractAdminService {
     private CoveragePyramidRepositoryService coveragePyramidRepositoryService;
     
     public AddPyramidMemberService() {
-        this.service = KEY_ADD_PYRAMID_MEMBER;
-        this.request = KEY_ADD_PYRAMID_MEMBER;
+        this.service = VALUE_ADD_PYRAMID_MEMBER;
+        this.request = VALUE_ADD_PYRAMID_MEMBER;
     }
     
     private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {

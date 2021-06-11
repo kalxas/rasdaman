@@ -82,8 +82,6 @@ public interface KVPSymbols {
     String VALUE_INSERT_COVERAGE = "InsertCoverage";
     String VALUE_DELETE_COVERAGE = "DeleteCoverage";
     String VALUE_UPDATE_COVERAGE = "UpdateCoverage";
-    String VALUE_INSERT_SCALE_LEVEL = "InsertScaleLevel";
-    String VALUE_DELETE_SCALE_LEVEL = "DeleteScaleLevel";
 
     String KEY_USE_ID = "useId";
     String KEY_COVERAGE_REF = "coverageRef";
@@ -207,14 +205,14 @@ public interface KVPSymbols {
     
     // -- pyramid admin services
     
-    String KEY_CREATE_PYRAMID_MEMBER = "CreatePyramidMember";
+    String VALUE_CREATE_PYRAMID_MEMBER = "CreatePyramidMember";
     String KEY_BASE = "Base";
     String KEY_SCALE_FACTOR = "ScaleFactor";
     String KEY_MEMBER = "Member";
     
-    String KEY_ADD_PYRAMID_MEMBER = "AddPyramidMember";
+    String VALUE_ADD_PYRAMID_MEMBER = "AddPyramidMember";
     // default is false when adding pyramid member to a base coverage
     String KEY_PYRAMID_HARVESTING = "harvesting";
-    String KEY_REMOVE_PYRAMID_MEMBER = "RemovePyramidMember";
-    String KEY_LIST_PYRAMID_MEMBERS = "ListPyramidMembers";
+    String VALUE_REMOVE_PYRAMID_MEMBER = "RemovePyramidMember";
+    String VALUE_LIST_PYRAMID_MEMBERS = "ListPyramidMembers";
 }

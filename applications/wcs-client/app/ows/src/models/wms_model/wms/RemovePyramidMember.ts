@@ -22,21 +22,21 @@
  */
 
 module wms {
-    export class InsertLayerDownscaledCollectionLevel implements rasdaman.common.ISerializable {
+    export class RemovePyramidMember implements rasdaman.common.ISerializable {
         public request:string;
-        public layerName:string;
-        public level:string;        
+        public baseCoverageId:string;
+        public pyramidMemberCoverageId:string;
 
-        public constructor(layerName:string, level:string) {            
-            this.request = "InsertScaleLevel";
-            this.layerName = layerName;
-            this.level = level;            
+        public constructor(baseCoverageId:string, pyramidMemberCoverageId:string) {            
+            this.request = "RemovePyramidMember";
+            this.baseCoverageId = baseCoverageId;
+            this.pyramidMemberCoverageId = pyramidMemberCoverageId;            
         }
 
         public toKVP():string {
-            return "&request=" + this.request +
-                "&coverageId=" + this.layerName +
-                "&level=" + this.level;
+            return "REQUEST=" + this.request +
+                "&BASE=" + this.baseCoverageId +
+                "&MEMBER=" + this.pyramidMemberCoverageId;
         }
     }
 }

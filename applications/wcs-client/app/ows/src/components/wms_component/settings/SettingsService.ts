@@ -37,6 +37,9 @@ module rasdaman {
             // In case of only WSClient is deployed to external web server (e.g: Tomcat) and this Tomcat has Petascope
             // This is used for development only.
             this.wmsEndpoint = this.wmsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
+
+            // #TESTING
+            // this.wmsEndpoint = "http://localhost:8082/rasdaman/ows";
                                    
             this.setWMSEndPoint(this.wmsEndpoint);
             
