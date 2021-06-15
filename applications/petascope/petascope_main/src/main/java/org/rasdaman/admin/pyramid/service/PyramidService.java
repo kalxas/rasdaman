@@ -140,10 +140,16 @@ public class PyramidService {
         // e.g: target CoveragePyramid has scale factos: 1,8,8 (downscaled level 8 on XY axes)
         List<BigDecimal> targetScaleFactorsByGridOrder = this.sortScaleFactorsByGridOder(baseCoverage, targetScaleFactors);
         
+        GeoAxis geoAxisX = ((GeneralGridCoverage)sourceCoverage).getXYGeoAxes().fst;
+        GeoAxis geoAxisY = ((GeneralGridCoverage)sourceCoverage).getXYGeoAxes().snd;
+        
+        int gridOrderAxisX = ((GeneralGridCoverage)sourceCoverage).getIndexAxisByName(geoAxisX.getAxisLabel()).getAxisOrder();
+        int gridOrderAxisY = ((GeneralGridCoverage)sourceCoverage).getIndexAxisByName(geoAxisY.getAxisLabel()).getAxisOrder();
+        
         // Now, separate the (big) grid domains on source collection properly and select these suitable spatial domains to update on target downscaled collections
         this.updateScaleLevelByGridDomains(sourceCollectionName, targetDownscaledCollectionName, baseAffectedGridDomains, 
                                            sourceScaleFactorsByGridOrder,
-                                           targetScaleFactorsByGridOrder, username, password);
+                                           targetScaleFactorsByGridOrder, username, password, gridOrderAxisX, gridOrderAxisY);
     }
     
     /**
@@ -244,7 +250,8 @@ public class PyramidService {
                                                List<String> baseAffectedGridDomains, 
                                                List<BigDecimal> sourceScaleFactors,
                                                List<BigDecimal> targetScaleFactors,
-                                               String username, String password) throws PetascopeException {
+                                               String username, String password,
+                                               int gridOrderAxisX, int gridOrderAxisY) throws PetascopeException {
         
         List<List<String>> calculatedSourceAffectedDomainsList = new ArrayList<>();
         List<List<String>> calculatedTargetAffectedDomainsList = new ArrayList<>();
@@ -274,8 +281,17 @@ public class PyramidService {
             
             long upperBoundGridAxis = Long.valueOf(gridIntervals[i].split(RASQL_BOUND_SEPARATION)[1]);
             
-            Pair<List<String>, List<String>> separatedPair = this.separateGridDomainByValue(sourceAffectedGridDomain, MAX_SELECT_GRID_WIDTH_HEIGHT_AXIS,
+            Pair<List<String>, List<String>> separatedPair;
+            
+            if (i == gridOrderAxisX || i == gridOrderAxisY) {
+                // X or Y axes, seperated by size 10000 x 10000
+                separatedPair = this.separateGridDomainByValue(sourceAffectedGridDomain, MAX_SELECT_GRID_WIDTH_HEIGHT_AXIS,
                                                                                             upperBoundGridAxis, targetDownscaledRatio);
+            } else {
+                // non XY axes, seperated by size 1
+                separatedPair = this.separateGridDomainByValue(sourceAffectedGridDomain, MAX_SELECT_GRID_OTHER_AXIS,
+                                                                                            upperBoundGridAxis, targetDownscaledRatio);
+            }
             List<String> calculatedSourceAffectedDomains = separatedPair.fst;
             List<String> calculatedTargetAffectedDomains = separatedPair.snd;
             
