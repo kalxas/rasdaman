@@ -154,7 +154,10 @@ public class PetascopeController extends AbstractController {
            throwStartException();
         }
         
-        log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
+
+        String requestTmp = this.getRequestRepresentation(kvpParameters);
+        log.info("Received request: " + requestTmp);
+
         long start = System.currentTimeMillis();
         
         String service = null;

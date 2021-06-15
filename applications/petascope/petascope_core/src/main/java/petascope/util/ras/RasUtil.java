@@ -531,66 +531,60 @@ public class RasUtil {
      * e.g: ... encode(c, "png") -> "png"
      */
     public static String getMimeInEncode(String query) throws PetascopeException {
-        query = query.toLowerCase().replaceAll("\\s+", "");
-        if (query.contains(RASQL_ENCODE)) {
-            
-            int tmpIndex = query.indexOf(RASQL_ENCODE) + RASQL_ENCODE.length() + 1;
-            String encodePart = query.substring(tmpIndex, query.length());
-            
-            int openParenthesisCount = 0;
-            int encodeFormatIndex = 0;
-            boolean hasParentheses = false;
-            for (int i = 0; i < encodePart.length(); i++) {
-                char c = encodePart.charAt(i);
-                if (i + 1 < query.length()) {
-                    char nextChar = query.charAt(i + 1);
-                    if ((c + "" + nextChar).equals("\"{")) {
-                        // Don't read more from extra parameter
-                        break;
+        query = query.toLowerCase();
+        
+        String fromClause = " " + RasConstants.RASQL_FROM + " ";
+        String encode = RasConstants.RASQL_ENCODE + "(";
+        
+        if (query.contains(fromClause) && query.replaceAll("\\s+", "").contains(encode)) {                       
+
+            int indexOfFrom = query.indexOf(fromClause);
+
+            String subQuery = query.substring(0, indexOfFrom).replaceAll("\\s+", "");
+
+            String firstCharacter = "";
+            String secondCharacter = "";
+
+            String encodeFormat = "";
+
+            if (!subQuery.contains("\"{")) {
+                // Old style format
+                String[] tmps = subQuery.split(",\"");
+
+                encodeFormat = tmps[0];
+                if (tmps.length >= 3) {
+                    if (tmps[tmps.length - 1].contains("=")) {
+                        // e.g: "nodata=0"
+                        encodeFormat = tmps[tmps.length - 2];
+                    } else {
+                        encodeFormat = tmps[tmps.length - 1];
                     }
-                    
+                } else if (tmps.length == 2) {
+                    encodeFormat = tmps[1];
                 }
-                
-                if (c == '(') {
-                    openParenthesisCount++;
-                }
-                if (c == ')') {
-                    openParenthesisCount--;
-                    if (openParenthesisCount == 0) {
-                        hasParentheses = true;
-                        encodeFormatIndex = i;
-                        break;
-                    }
-                }
-            }
-            
-            String tmp = encodePart;
-            if (hasParentheses) {
-                // In case the first part before the encode format has parentheses for function which can contain quotes
-                tmp = encodePart.substring(encodeFormatIndex + 2, encodePart.length());
-            }
-            
-            int indexOfFirstComma = -1;
-            if (tmp.charAt(0) != '"') {
-                // e.g: / 5.0,"png"
-                indexOfFirstComma = tmp.indexOf(",");
-                tmp = tmp.substring(indexOfFirstComma + 1, tmp.length());
-            }
-            
-            String encodeFormatPart = tmp;
-            if (hasParentheses) {
-                String[] tmps = tmp.split(",");
-                encodeFormatPart = tmps[0];
             } else {
-                // e.g: "png"
-                tmpIndex = tmp.indexOf("\"");
-                String tmpSubString = encodeFormatPart.substring(tmpIndex + 1, encodeFormatPart.length());
-                tmpIndex = tmpSubString.indexOf("\"");
-                encodeFormatPart = "\"" + tmpSubString.substring(0, tmpIndex) + "\"";
+                // new style extra format JSON
+                int index = indexOfFrom;
+                for (int i = subQuery.length() - 1; i >= 0; i--) {
+                    firstCharacter = String.valueOf(subQuery.charAt(i - 1));
+                    secondCharacter = String.valueOf(subQuery.charAt(i));
+
+                    String combination = firstCharacter + secondCharacter;
+
+                    if ("\"{".equals(combination)) {
+                        String newSubQuery = subQuery.substring(0, index - 3);
+                        String[] tmps = newSubQuery.split(",");
+
+                        encodeFormat = tmps[tmps.length - 1];
+                        break;
+                    }
+
+                    index = i;
+                }
+
             }
 
-            // e.g: "png" -> png
-            String encodeFormat = StringUtils.substringsBetween(encodeFormatPart, "\"", "\"")[0];
+            encodeFormat = encodeFormat.replace("\"", "").replace(")", "");
             String mimeType = MIMEUtil.getMimeType(encodeFormat);
             return mimeType;
         }
