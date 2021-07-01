@@ -103,6 +103,8 @@ public class CoverageRepositoryService {
     // define this map manually.
     // map of qualified coverage id (e.g: hostname:7000:covA) -> coverage
     private static final Map<String, Pair<Coverage, Boolean>> localCoveragesCacheMap = new ConcurrentSkipListMap<>();
+    
+    private static final List<Object[]> localCoverageIdsAndTypesCache = new ArrayList<>();
 
     /**
      * Store the coverages's extents (only geo-referenced XY axes). First String
@@ -149,7 +151,7 @@ public class CoverageRepositoryService {
         }
         
         Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
-        return coveragePair != null;
+        return coveragePair != null && coveragePair.fst != null;
     }
     
     /**
@@ -437,20 +439,26 @@ public class CoverageRepositoryService {
      *
      * @return List<Pair<Coverage, Boolean>>
      */
-    public List<Pair<Coverage, Boolean>> readAllLocalCoveragesBasicMetatata() throws PetascopeException {        
+    public List<Pair<Coverage, Boolean>> readAllLocalCoveragesBasicMetatata() throws PetascopeException {
         long start = System.currentTimeMillis();
-
-        List<Pair<Coverage, Boolean>> coverages = new ArrayList<>();
-        List<Object[]> coverageIdsAndTypes = coverageRepository.readAllCoverageIdsAndTypes();
-        for (Object[] coverageIdAndType : coverageIdsAndTypes) {
-            long id = new Long(coverageIdAndType[0].toString());
-            String coverageId = coverageIdAndType[1].toString();
-            String coverageType = coverageIdAndType[2].toString();
+        
+        if (this.localCoverageIdsAndTypesCache.isEmpty()) {
+            this.localCoverageIdsAndTypesCache.addAll(coverageRepository.readAllCoverageIdsAndTypes());
             
-            if (this.getLocalPairCoverageByCoverageId(coverageId) == null) {
-                try {
-                    this.readCoverageBasicMetadataFromDatabase(id, coverageId, coverageType);
+            for (Object[] coverageIdAndType : localCoverageIdsAndTypesCache) {
+                String coverageId = coverageIdAndType[1].toString();
+                this.localCoveragesCacheMap.put(coverageId, new Pair(null, false));
+            }
+        }
 
+        for (Object[] coverageIdAndType : localCoverageIdsAndTypesCache) {
+            String coverageId = coverageIdAndType[1].toString();
+            
+            if (!this.isInLocalCache(coverageId)) {
+                try {
+                    long id = new Long(coverageIdAndType[0].toString());
+                    String coverageType = coverageIdAndType[2].toString();
+                    this.readCoverageBasicMetadataFromDatabase(id, coverageId, coverageType);
                 } catch (Exception ex) {
                     throw new PetascopeException(ExceptionCode.InternalSqlError,
                                                  "Cannot read coverage basic metadata '" + coverageId + "' from database. Reason: " + ex.getMessage(), ex);
@@ -460,7 +468,7 @@ public class CoverageRepositoryService {
 
         // Read all coverage from persistent database
         log.debug("Read all persistent coverages from database.");
-        coverages = new ArrayList<>(localCoveragesCacheMap.values());
+        List<Pair<Coverage, Boolean>> coverages = new ArrayList<>(localCoveragesCacheMap.values());
 
         long end = System.currentTimeMillis();
         log.debug("Time to read all coverages is: " + String.valueOf(end - start) + " ms.");
@@ -520,7 +528,9 @@ public class CoverageRepositoryService {
                 try {
                     coverage = this.readCoverageFullMetadataByIdFromCache(coverageId);
                     this.createCoverageExtent(coverage);
-                    this.save(coverage);
+                    if (coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox() != null) {
+                        this.save(coverage);
+                    }
                 } catch (Exception ex) {
                     log.warn("Cannot create geo extents in EPSG:4326 for coverage '" + coverageId + "'. Reason: " + ex.getMessage(), ex);
                 }

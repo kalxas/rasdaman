@@ -624,6 +624,7 @@ public class RasUtil {
             RasQueryResult queryResult = new RasQueryResult(rasqlResult);              
             collectionnames = ListUtil.stol(queryResult.toString(), ",");
         } catch(Exception ex) {
+            log.warn("Cannot execute LIST COLLECTIONS query. Reason: " + ex.getMessage());
             // in case LIST COLLECTIONS doesn't exist
             String query = "SELECT c from RAS_COLLECTIONNAMES as c";
             Object rasjResult = executeRasqlQuery(query, username, password, false);

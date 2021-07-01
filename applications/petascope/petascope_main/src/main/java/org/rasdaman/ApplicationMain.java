@@ -295,24 +295,52 @@ public class ApplicationMain extends SpringBootServletInitializer {
         
         log.info("Checked data migrations.");
         
-        // ### coverages
+        // load coverages / layers to caches in background thread
+        this.loadCoveragesLayersCaches(this);
 
-        log.info("Loading coverages to caches ...");                    
-        
-        coverageRepositoryService.readAllCoveragesBasicMetadata();
-                        
-        coverageRepositoryService.createAllCoveragesExtents();
-        
-        log.info("Loaded coverages to caches.");
+    }
+
+    /**
+     * Run in a background thread to load coverages and layers to caches.
+     * Log warnings if something don't work (later WCS / WMS Getcapabilities requests will retry to read from database to caches)
+     */
+    private void loadCoveragesLayersCaches(final ApplicationMain self) {
+        // users cache
+        Runnable runnable = new Runnable() {            
+            public void run() {
+                // ### 1. coverages
                 
-        // ### layers
+                try {
+                    log.info("Loading coverages to caches ...");
+                    coverageRepositoryService.readAllCoveragesBasicMetadata();
+                } catch (PetascopeException ex) {
+                    log.warn("Cannot load coverages to cache. Reason: " + ex.getMessage(), ex);
+                }
+
+                try {
+                    coverageRepositoryService.createAllCoveragesExtents();
+                } catch (Exception ex) {
+                    log.warn("Cannot create coverage extents. Reason: " + ex.getMessage(), ex);
+                }
+
+                log.info("Loaded coverages to caches.");
+
+                // ### 2. layers
+
+                log.info("Loading layers to caches ...");
+                
+                try {
+                    wmsRepostioryService.readAllLayers();
+                } catch (PetascopeException ex) {
+                    log.warn("Cannto load layers to cache. Reason: " + ex.getMessage(), ex);                    
+                }
+                
+                log.info("Loaded layers to caches.");
+            }
+        };
         
-        log.info("Loading layers to caches ...");
-        
-        wmsRepostioryService.readAllLayers();
-        
-        log.info("Loaded layers to caches.");
-        
+        Thread thread = new Thread(runnable);
+        thread.start();        
     }
 
     /**
