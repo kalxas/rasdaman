@@ -26,7 +26,7 @@ from master.generator.model.gml_coverage import GMLCoverage
 
 
 class GridCoverage(GMLCoverage):
-    def __init__(self, id, boundedBy, domainSet, rangeSet, rangeType, coverageMetadata=None):
+    def __init__(self, id, boundedBy, domainSet, rangeSet, rangeType, coverageMetadata=None, overview_index=None):
         """
         Model class for a grid coverage
         :param str id: the coverage id
@@ -37,6 +37,6 @@ class GridCoverage(GMLCoverage):
         :param CoverageMetadata coverageMetadata: the extra metadata of the coverage
         """
         super(GridCoverage, self).__init__(self.__COVERAGE_TYPE, id, boundedBy, domainSet, rangeSet, rangeType,
-                                                    coverageMetadata)
+                                                    coverageMetadata, overview_index)
 
     __COVERAGE_TYPE = "GridCoverage"

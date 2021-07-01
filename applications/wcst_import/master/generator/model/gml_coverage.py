@@ -11,7 +11,7 @@ from master.generator.model.range_type import RangeType
 class GMLCoverage(Model):
     __metaclass__ = ABCMeta
 
-    def __init__(self, coverageType, id, boundedBy, domainSet, rangeSet, rangeType, coverageMetadata=None):
+    def __init__(self, coverageType, id, boundedBy, domainSet, rangeSet, rangeType, coverageMetadata=None, overview_index=None):
         """
         Model class for the coverage. This class should be extended by more specific coverages
          that can provide the coverage type
@@ -30,6 +30,7 @@ class GMLCoverage(Model):
         self.rangeSet = rangeSet
         self.rangeType = rangeType
         self.coverageMetadata = coverageMetadata
+        self.overviewIndex = int(overview_index) if overview_index is not None else None
 
     def get_template_name(self):
         return "gml_coverage.xml"

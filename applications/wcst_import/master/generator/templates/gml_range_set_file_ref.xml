@@ -6,6 +6,7 @@
         <gml:fileReference><![CDATA[
                 {{fileReference}}
             ]]></gml:fileReference>
-        <gml:fileStructure>{{mimetype}}</gml:fileStructure>
+        <gml:mimeType>{{mimetype}}</gml:mimeType>
+        <gml:fileStructure codeSpace="https://codespace.rasdaman.com/formatParameters/Overview">{{overviewIndex}}</gml:fileStructure>
     </gml:File>
 </gml:rangeSet>

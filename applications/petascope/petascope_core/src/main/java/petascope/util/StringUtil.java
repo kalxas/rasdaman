@@ -425,6 +425,13 @@ public class StringUtil {
 
         return escapedString;
     }
+    
+    /**
+     * e.g: \" -> \\\"
+     */
+    public static String escapeQuotesJSON(String str) {
+        return str.replace("\"", "\\\"");
+    }
 
     /**
      * Takes two numeric strings and returns their range.

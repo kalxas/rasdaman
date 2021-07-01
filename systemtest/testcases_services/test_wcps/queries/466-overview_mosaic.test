@@ -1,0 +1,1 @@
+for c in (test_wcps_overview_mosaic_2) return encode(c, "jpeg")

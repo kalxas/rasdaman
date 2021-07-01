@@ -41,7 +41,7 @@ class GdalAxisFiller:
     GRID_AXIS_X_ORDER_SHIFTED = 1
     GRID_AXIS_Y_ORDER_SHIFTED = 2
 
-    def __init__(self, axes, gdal_dataset):
+    def __init__(self, axes, gdal_dataset, overview=None):
         """
         Adds the necesary info for an axis derived from a gdal dataset
         :param list[CRSAxis]  axes: a list of potential axes to be filled
@@ -52,6 +52,9 @@ class GdalAxisFiller:
         self.gdal_dataset = gdal_dataset
         self.subsets = []
         """:type : list[AxisSubset]"""
+
+        # data type: int to know this object is created for a specific overview from file
+        self.overview = overview
 
     def fill(self, timeseries_recipe=False):
         """

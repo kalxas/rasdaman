@@ -23,15 +23,20 @@
 """
 
 from abc import ABCMeta, abstractmethod
+from collections import OrderedDict
+
 from config_manager import ConfigManager
 
 from master.error.validate_exception import RecipeValidationException
+from master.helper.overview import Overview
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 
 from session import Session
 from util.coverage_util import CoverageUtil
 from util.log import log, make_bold
 from util.file_util import FileUtil
+import copy
+from decimal import Decimal
 
 
 class BaseRecipe:
@@ -203,6 +208,62 @@ class BaseRecipe:
                     error_message = "Pyramid member coverage '" + pyramid_member_coverage_id \
                                     + "' does not exist locally'"
                     raise RecipeValidationException(error_message)
+
+    @staticmethod
+    def create_subsets_for_overview(subsets, overview_index, gdal_file):
+        """
+        Given subsets for all base coverage's axes and the scale_ratio of the overview in the first file
+        Return a new subsets object which has the smaller grid domains and geo resolutions for XY axes
+        of the corresponding overview
+        :param subsets: list[AxisSubset]
+        :param overview_index: 0-based overview index
+        :param gdal_file: gdal dataset of a file
+        """
+        size_x_overview = gdal_file.get_raster_x_size_by_overview(overview_index)
+        size_y_overview = gdal_file.get_raster_y_size_by_overview(overview_index)
+
+        overview = Overview(overview_index, size_x_overview, size_y_overview)
+
+        subsets_overview = copy.deepcopy(subsets)
+
+        for axis_subset in subsets_overview:
+            geo_axis = axis_subset.coverage_axis.axis
+            geo_lower_bound = geo_axis.low
+            geo_upper_bound = geo_axis.high
+
+            grid_axis = axis_subset.coverage_axis.grid_axis
+
+            if axis_subset.coverage_axis.axis.crs_axis.is_x_axis():
+                axis_subset.coverage_axis.grid_axis.grid_high = overview.grid_upper_bound_x
+                resolution = Decimal(geo_upper_bound - geo_lower_bound) / Decimal(overview.grid_size_x)
+
+                if grid_axis.resolution < 0:
+                    resolution = resolution * -1
+                grid_axis.resolution = resolution
+            elif axis_subset.coverage_axis.axis.crs_axis.is_y_axis():
+                axis_subset.coverage_axis.grid_axis.grid_high = overview.grid_upper_bound_y
+                resolution = Decimal(geo_upper_bound - geo_lower_bound) / Decimal(overview.grid_size_y)
+
+                if grid_axis.resolution < 0:
+                    resolution = resolution * -1
+                grid_axis.resolution = resolution
+
+        return subsets_overview
+
+    @staticmethod
+    def create_dict_of_slices(import_overviews):
+        """
+        Create a dict to hold slices of base coverage and overview coverges if any
+        :return:
+        """
+        slices_dict = OrderedDict()
+        slices_dict["base"] = []
+
+        if len(import_overviews) > 0:
+            for overview_index in import_overviews:
+                slices_dict[str(overview_index)] = []
+
+        return slices_dict
 
     @staticmethod
     @abstractmethod

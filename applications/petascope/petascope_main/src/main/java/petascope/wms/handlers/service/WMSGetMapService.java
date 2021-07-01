@@ -573,7 +573,7 @@ public class WMSGetMapService {
         
         SerializationEncodingService.addColorPalleteToJSONExtraParamIfPossible(this.format, coverageMetadata, jsonExtraParams);
         
-        String encodeFormatParameters = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
+        String encodeFormatParameters = JSONUtil.serializeObjectToJSONStringNoIndentation(jsonExtraParams);
         encodeFormatParameters = encodeFormatParameters.replace("\"", "\\\"");
         
         return encodeFormatParameters;

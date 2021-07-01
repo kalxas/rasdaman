@@ -1,7 +1,24 @@
 /*
-* Copyright (C) 2007-2020 Rasdaman GmbH
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003 - 2021 Peter Baumann / rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-// -- Begin Rasdaman Enterprise
 package petascope.controller;
 
 import com.rasdaman.admin.service.AbstractAdminService;
@@ -21,6 +38,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import static petascope.core.KVPSymbols.KEY_SERVICE;
+import static petascope.core.KVPSymbols.VALUE_ADD_PYRAMID_MEMBER;
+import static petascope.core.KVPSymbols.VALUE_CREATE_PYRAMID_MEMBER;
+import static petascope.core.KVPSymbols.VALUE_LIST_PYRAMID_MEMBERS;
+import static petascope.core.KVPSymbols.VALUE_REMOVE_PYRAMID_MEMBER;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
@@ -37,6 +58,14 @@ import static petascope.util.MIMEUtil.MIME_HTML;
 public class AdminController extends AbstractController {
     
     private static org.slf4j.Logger log = LoggerFactory.getLogger(AdminController.class);
+    
+    // these requests are sent from wcst_import to create pyramids from overviews / scale_levels
+    private static final List<String> PYRAMID_REQUESTS = Arrays.asList(new String[] { VALUE_LIST_PYRAMID_MEMBERS, VALUE_ADD_PYRAMID_MEMBER, 
+                                                                                      VALUE_CREATE_PYRAMID_MEMBER,
+                                                                                      VALUE_REMOVE_PYRAMID_MEMBER });
+    private static final List<String> PYRAMID_WRITE_REQUESTS = Arrays.asList(new String[] {
+            VALUE_ADD_PYRAMID_MEMBER, VALUE_CREATE_PYRAMID_MEMBER, VALUE_REMOVE_PYRAMID_MEMBER
+            });
     
     @Resource
     // Spring finds all the subclass of AbstractHandler and injects to the list
@@ -65,11 +94,20 @@ public class AdminController extends AbstractController {
             // request to /rasdaman/admin without any parameter, then return petascope admin client
             this.returnAdminHomePage();
         } else {
+            log.info("Received request '" + this.buildRequestQueryString(kvpParameters) + "'.");
+            
+            String request = this.getValueByKeyAllowNull(kvpParameters, KEY_REQUEST);
+            if (!this.PYRAMID_REQUESTS.contains(request)) {
+                // request to /rasadmin/admin with parameters, then check if the request has valid credentials
+                // for petascope admin user via basic authentication headers
+                AuthenticationService.validatePetascopeAdminUser(httpServletRequest);
+            } else {
+                // Check if it is allowed to send write requests from external ip addresses
+                this.validateWriteRequestFromIP(PYRAMID_WRITE_REQUESTS, request, this.getRequesIPAddress());
+            }
+            
             Response response = null;
             String service = this.getValueByKeyAllowNull(kvpParameters, KEY_SERVICE);
-            String request = this.getValueByKeyAllowNull(kvpParameters, KEY_REQUEST);
-            
-            log.info("Received request '" + httpServletRequest.getQueryString() + "'.");
             
             // Check if any handlers can handle the request
             for (AbstractAdminService handler : handlers) {
@@ -97,4 +135,3 @@ public class AdminController extends AbstractController {
     }   
 }
 
-// -- End Rasdaman Enterprise

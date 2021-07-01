@@ -84,7 +84,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
     def __init__(self, resumer, default_null_values, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields, axes_metadata_fields,
                  metadata_type,
-                 grid_coverage, pixel_is_point, import_order):
+                 grid_coverage, pixel_is_point, import_order, session):
         """
         Converts a grib list of files to a coverage
         :param resumer: Resumer object
@@ -106,7 +106,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param boolean pixel_is_point: check if netCDF should be adjusted by +/- 0.5 * resolution for each regular axes
         :param import_order: ascending(default), descending if specified in ingredient file
         """
-        AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order)
+        AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order, session)
         self.resumer = resumer
         self.default_null_values = default_null_values
         self.sentence_evaluator = sentence_evaluator
@@ -127,6 +127,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         # dataSet of a processing grib file
         self.dataset = None
         self.data_type = None
+        self.session = session
 
     def _file_band_nil_values(self, index):
         """

@@ -242,12 +242,18 @@ class Recipe(GeneralCoverageRecipe):
     def _get_importers(self):
         ret = []
         convertors = self._get_convertors()
+
         for cov_id, conv in convertors.items():
             coverage_slices = conv.coverage_slices
 
-            importer = Importer(conv.resumer, conv.to_coverage(coverage_slices),
-                                self.wms_import, self.scale_levels, self.grid_cov, self.session, self.options['scale_factors'])
-            ret.append(importer)
+            coverages = conv.to_coverages(coverage_slices)
+
+            for coverage in coverages:
+                importer = Importer(conv.resumer, coverage,
+                                    self.wms_import, self.scale_levels, self.grid_cov, self.session, self.options['scale_factors'])
+
+                ret.append(importer)
+
         return ret
     
     def _get_convertors(self):
@@ -307,12 +313,16 @@ class Recipe(GeneralCoverageRecipe):
 
                 # Fixed values for 3 axes of Sentinel 2 coverage
                 axis_resolutions = self.RES_DICT[res]
-                slices = conv._create_coverage_slices(crs_axes, evaluator_slice, axis_resolutions)
-                if len(slices) != 0:
-                    conv.coverage_slices += slices
+
+                slices_dict = conv._create_coverage_slices(crs_axes, evaluator_slice, axis_resolutions)
+                if conv.coverage_slices == {}:
+                    conv.coverage_slices = slices_dict
+                else:
+                    for key, val in slices_dict.items():
+                        conv.coverage_slices[key] += slices_dict[key]
 
                 if len(conv.coverage_slices) != 0:
-                    first_slice = conv.coverage_slices[0]
+                    first_slice = conv.coverage_slices["base"][0]
                     # This needs one available file to extract metadata later
                     conv.files = [first_slice.data_provider.file]
 
@@ -394,7 +404,8 @@ class Recipe(GeneralCoverageRecipe):
                                        axis_metadata_fields,
                                        self._metadata_type(),
                                        self.grid_cov,
-                                       self.import_order)
+                                       self.import_order,
+                                       self.session)
     
     def _get_crs(self, crs_code):
         crs = self.crs.replace(self.VAR_CRS_CODE, crs_code)

@@ -21,12 +21,9 @@
  */
 package petascope.wcst.helpers.update;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import petascope.exceptions.PetascopeException;
-import petascope.util.StringUtil;
 
 /**
  * Interface for updating rasdaman data.

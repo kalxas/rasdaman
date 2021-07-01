@@ -78,8 +78,7 @@ public class PetascopeController extends AbstractController {
                                                     VALUE_WMS_INSERT_WCS_LAYER, VALUE_WMS_UPDATE_WCS_LAYER,
                                                     VALUE_WMS_DELETE_LAYER,
                                                     VALUE_WMS_INSERT_STYLE, VALUE_WMS_UPDATE_STYLE,
-                                                    VALUE_WMS_DELETE_STYLE,
-                                                    VALUE_CREATE_PYRAMID_MEMBER, VALUE_ADD_PYRAMID_MEMBER, VALUE_REMOVE_PYRAMID_MEMBER,
+                                                    VALUE_WMS_DELETE_STYLE                                                    
                                                    });
 
 
@@ -110,26 +109,6 @@ public class PetascopeController extends AbstractController {
     @RequestMapping(value = OWS + "/", method = RequestMethod.GET)
     protected void handleGetFallBack(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
         this.handleGet(httpServletRequest);
-    }
-    
-    /**
-     * Check if a source IP address can send a write request to petascope.
-     */
-    private void validateWriteRequestFromIP(String request, String sourceIP) throws PetascopeException {
-        
-        if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
-            // localhost IP in servlet
-            if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
-                sourceIP = "127.0.0.1";
-            }
-
-            if (this.WRITE_REQUESTS.contains(request)) {
-                if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
-                    throw new PetascopeException(ExceptionCode.AccessDenied, 
-                                                "Write request '" + request + "' is not permitted from IP address '" + sourceIP + "'.");
-                }
-            }
-        }
     }
     
     /**
@@ -184,17 +163,10 @@ public class PetascopeController extends AbstractController {
                 String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
                 request = requestService;
                 
-                // in case, petascope is behind Apache proxy, then get the forwared IP via proxy
-                String sourceIP = httpServletRequest.getHeader("X-FORWARDED-FOR");
-                if (sourceIP == null) {
-                    // In case petascope is not proxied by apache
-                    sourceIP = httpServletRequest.getRemoteAddr();
-                }
-                 
                 // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
                 // then no need to check if his IP is allowed anymore.
                 if (!AuthenticationService.isAdminUser(httpServletRequest)) {
-                    this.validateWriteRequestFromIP(request, sourceIP);
+                    this.validateWriteRequestFromIP(this.WRITE_REQUESTS, request, this.getRequesIPAddress());
                 }
 
                 // Check if any handlers can handle the request

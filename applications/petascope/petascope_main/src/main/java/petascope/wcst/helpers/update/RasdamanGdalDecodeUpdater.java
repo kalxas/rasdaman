@@ -32,18 +32,20 @@ import petascope.exceptions.PetascopeException;
  */
 public class RasdamanGdalDecodeUpdater extends RasdamanUpdater {
 
-    String affectedCollectionName;
-    String affectedDomain;
-    String shiftDomain;    
-    String rangeParameters;
+    final String affectedCollectionName;
+    final String affectedDomain;
+    final String shiftDomain;    
+    final String rangeParameters;
 
+    
     /**
      * Class constructor.
      * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
      * @param affectedDomain the rasdaman domain over which the update is executed.
      * @param shiftDomain the domain with which the array stored in the file must be shifted.
      */
-    public RasdamanGdalDecodeUpdater(String affectedCollectionName, String affectedDomain, String shiftDomain, String rangeParameters, String username, String password) {
+    public RasdamanGdalDecodeUpdater(String affectedCollectionName, String affectedDomain, String shiftDomain, String rangeParameters,
+                                     String username, String password) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedDomain = affectedDomain;
         this.shiftDomain = shiftDomain;

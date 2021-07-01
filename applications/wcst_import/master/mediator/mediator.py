@@ -64,15 +64,18 @@ class Mediator:
         cov_metadata = CoverageMetadata(self.metadata_provider.extra_metadata)
         if self.metadata_provider.is_coverage_irregular():
             return ReferenceableGridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
-                                             self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata)
+                                             self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata,
+                                             self.metadata_provider.overview_index)
         # GridCoverage
         elif self.metadata_provider.is_grid_coverage():
             return GridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
-                                self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata)
+                                self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata,
+                                self.metadata_provider.overview_index)
         # RectifiedGridCoverage
         else:
             return RectifiedGridCoverage(self.metadata_provider.coverage_id, self._get_bounded_by(),
-                                         self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata)
+                                         self._get_domain_set(), self._get_range_set(), self._get_range_type(), cov_metadata,
+                                         self.metadata_provider.overview_index)
 
     def get_gml_str(self):
         """

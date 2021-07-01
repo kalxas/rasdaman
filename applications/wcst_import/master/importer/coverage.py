@@ -31,7 +31,8 @@ from master.provider.metadata.grid_axis import GridAxis
 
 
 class Coverage:
-    def __init__(self, coverage_id, slices, range_fields, crs, pixel_data_type, tiling=None, metadata=None):
+    def __init__(self, coverage_id, slices, range_fields, crs, pixel_data_type, tiling=None, metadata=None,
+                 base_coverage_id=None, overview_index=None):
         """
         Class to represent a coverage that is created in a recipe containing the minimum amount of information
         form which we can extrapolate the whole gmlcov
@@ -42,6 +43,8 @@ class Coverage:
         :param str pixel_data_type: the type of the pixel in gdal format
         :param str tiling: the tiling string to be passed to rasdaman if one is chosen
         :param str metadata: Global extra metadata to be kept by the coverage
+        :param str base_coverage_id: If this coverage is overview, it must have a base coverage id
+        :param int overview_index: if this coverage is an overview, then this value is not None
         """
         self.coverage_id = coverage_id
         self.slices = slices
@@ -50,6 +53,8 @@ class Coverage:
         self.pixel_data_type = pixel_data_type
         self.tiling = tiling
         self.metadata = metadata
+        self.base_coverage_id = base_coverage_id
+        self.overview_index = overview_index
 
     def get_insert_axes(self):
         """

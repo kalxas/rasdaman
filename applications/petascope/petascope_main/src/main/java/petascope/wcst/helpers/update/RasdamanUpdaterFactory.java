@@ -26,7 +26,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import petascope.util.IOUtil;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
+import petascope.util.StringUtil;
 
 /**
  * Class creating the correct RasdamanUpdater object.
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Service;
 public class RasdamanUpdaterFactory {
     
     public static final int NO_EXPAND_DIMENSION = -1;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public RasdamanUpdaterFactory() {
     }
@@ -46,13 +49,20 @@ public class RasdamanUpdaterFactory {
 
     public RasdamanUpdater getUpdater(String collectionName, String domain, String filePath, String mimeType,
                                       String shiftDomain, String rangeParameters, String username, String password,
-                                      boolean updateFilePath) throws IOException {
+                                      boolean updateFilePath,
+                                      Integer overviewIndex
+                                    ) throws IOException {
+
+        if (rangeParameters.isEmpty()) {
+            rangeParameters = "{}";
+        }
         
         // Add the filePaths to the rangeParameters json string
         if (updateFilePath) {
-            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, filePath);
+            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, filePath, overviewIndex);
         }
 
+        // else, not insitu
         if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {
             return new RasdamanGribUpdater(collectionName, domain, rangeParameters, shiftDomain, username, password);
         } else if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.NETCDF_MIMETYPE)) {
@@ -61,8 +71,19 @@ public class RasdamanUpdaterFactory {
             return new RasdamanGdalDecodeUpdater(collectionName, domain, shiftDomain, rangeParameters, username, password);
         }
     }
-    
-    
+
+    private String getInsituMime(String mimeType) {
+        if (mimeType.contains(IOUtil.GRIB_MIMETYPE)) {
+            return IOUtil.GRIB_MIMETYPE;
+        } else if (mimeType.contains(IOUtil.NETCDF_MIMETYPE)) {
+            return IOUtil.NETCDF_MIMETYPE;
+        } else {
+            return IOUtil.GDAL_MIMETYPE;
+        }
+    }
+
+    // -- rasdaman enterprise ends
+
     /**
      * To improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed 
      * we add the filePaths parameter into RangeElement strings
@@ -80,14 +101,35 @@ public class RasdamanUpdaterFactory {
      * 
      * @return 
      */
-    private String updateFilePathsInRangeParameters(String rangeParameters, String filePath) throws IOException {
-        if (rangeParameters.isEmpty()) {
-            rangeParameters = "{}";
-        }
-        ObjectNode root = (ObjectNode) new ObjectMapper().readTree(rangeParameters);
-        ArrayNode filePathsNode = root.putArray("filePaths");
+    private String updateFilePathsInRangeParameters(String rangeParameters, String filePath, Integer overviewIndex) throws IOException {        
+        ObjectNode rootNode = (ObjectNode) this.objectMapper.readTree(rangeParameters);
+        ArrayNode filePathsNode = rootNode.putArray("filePaths");
         filePathsNode.add(filePath);
+        
+        rootNode = this.createOpenOptionsNode(rootNode, rangeParameters, overviewIndex);
+        
         // e.g: "...{\"filePaths\":[\"PATH/test.png\"]}..."
-        return root.toString().replace("\"", "\\\"");       
+        return StringUtil.escapeQuotesJSON(rootNode.toString());
+    }
+    
+    /**
+     * If overviewIndex is not null, then add OpenOptions element
+     */
+    private ObjectNode createOpenOptionsNode(ObjectNode rootNode, String rangeParameters, Integer overviewIndex) throws IOException {
+        ObjectNode rootNodeResult = rootNode;
+        
+        if (rootNode == null) {
+            rootNodeResult = (ObjectNode) this.objectMapper.readTree(rangeParameters);
+        }
+        
+        if (overviewIndex != null) {
+            // Use overview from the input file to update to rasdaman downscaled collection
+            
+            // \"openOptions\": { \"OVERVIEW_LEVEL\": 3}
+            ObjectNode openOptionsNode = rootNodeResult.putObject("openOptions");
+            openOptionsNode.put("OVERVIEW_LEVEL", overviewIndex);            
+        }
+        
+        return rootNodeResult;        
     }
 }

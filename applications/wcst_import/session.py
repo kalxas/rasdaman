@@ -23,6 +23,7 @@
 """
 import os
 from config_manager import ConfigManager
+from master.helper.overview import Overview
 from master.importer.resumer import Resumer
 
 from util.log import log
@@ -31,6 +32,9 @@ from master.error.runtime_exception import RuntimeException
 from util.file_util import FileUtil, File
 from util.list_util import get_null_values
 from util.import_util import import_glob
+from util.string_util import is_integer
+from decimal import Decimal
+
 
 glob = import_glob()
 
@@ -98,9 +102,13 @@ class Session:
         self.pyramid_members = None
 
         self.wms_import = False
+        self.import_overviews = []
+
         if "options" in self.recipe:
             self.wms_import = True if "wms" not in self.recipe["options"] else bool(self.recipe["options"])
             self.pyramid_members = None if "pyramid_members" not in self.recipe["options"] else self.recipe["options"]["pyramid_members"]
+
+            self.__get_import_overviews()
 
         # Pre/Post hooks to run before analyzing files/after import replaced files
         # (original files are not used but processed files (e.g: by gdalwarp))
@@ -151,6 +159,61 @@ class Session:
         ConfigManager.description_max_no_slices = self.description_max_no_slices
         ConfigManager.track_files = self.track_files
         ConfigManager.ingredient_file_name = self.ingredient_file_name
+
+    def __get_import_overviews(self):
+        """
+        Get the OVERVIEWs in the ingredients file if user wants to import
+        """
+
+        if "options" in self.recipe:
+
+            if "import_all_overviews" in self.recipe["options"] and "import_overviews" in self.recipe["options"]:
+                raise RuntimeException("Both settings '{}' or '{}' cannot exist in the ingredients file, "
+                                       "please specify only one of them."
+                                       .format("import_all_overviews", "import_overviews"))
+
+            self.import_overviews = self.recipe["options"]["import_overviews"] \
+                if "import_overviews" in self.recipe["options"] else []
+
+            if len(self.files) > 0 and ("import_all_overviews" in self.recipe["options"] or "import_overviews" in self.recipe["options"]):
+
+                from util.gdal_util import GDALGmlUtil
+                first_input_file_gdal = GDALGmlUtil(self.files[0].filepath)
+
+                if "import_all_overviews" in self.recipe["options"] \
+                        and bool(self.recipe["options"]["import_all_overviews"]) is True:
+
+                    # import all overviews
+                    number_of_overviews = first_input_file_gdal.get_number_of_overviews()
+                    self.import_overviews = []
+                    if number_of_overviews > 0:
+                        self.import_overviews = range(0, number_of_overviews)
+
+                for overview_index in self.import_overviews:
+                    if is_integer(overview_index) is False or int(overview_index) < 0:
+                        raise RuntimeException("'{}' must contain non-negative integers integer values. "
+                                               "Given: {}".format("import_overviews", overview_index))
+                    elif self.recipe["name"] != "sentinel2":
+                        # NOTE: sentinel 2 custom recipe to import .zip file has special format (xml to combine subdatasets (10m, 20m, 60m))
+                        # e.g: SENTINEL2_L2A:/vsizip//home/vagrant/S2A_..._20210601T140140.zip/S2A_..._20210601T140140.SAFE/MTD_MSIL2A.xml:10m:EPSG_32632
+
+                        overview = first_input_file_gdal.get_overview(overview_index)
+                        if overview is None:
+                            raise RuntimeException(
+                                "Overview index '{}' does not exist in the input file '{}'.".format(overview_index,
+                                                                                                first_input_file_gdal.gdal_file_path))
+
+
+
+                from util.gdal_util import GDALGmlUtil
+                # e.g 101140
+                gdal_version = int(GDALGmlUtil.get_gdal_version()[0:2])
+                if gdal_version < 20:
+                    from osgeo import gdal
+                    # e.g: 1.11.4
+                    version = gdal.__version__
+                    raise RuntimeException("NOTE: Importing overviews is only supported since gdal version 2.0, "
+                                           "and your system has GDAL version '" + version + "'.")
 
     def __get_crs_resolver_configuration(self):
         """

@@ -52,7 +52,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields,
                  axes_metadata_fields,
                  metadata_type,
-                 grid_coverage, pixel_is_point, import_order):
+                 grid_coverage, pixel_is_point, import_order, session):
         """
         Converts a netcdf list of files to a coverage
         :param resumer: Resumber object
@@ -74,7 +74,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         :param boolean pixel_is_point: check if netCDF should be adjusted by +/- 0.5 * resolution for each regular axes
         :param import_order: ascending(default), descending if specified in ingredient file
         """
-        AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order)
+        AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order, session)
         self.default_null_values = default_null_values
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
@@ -91,6 +91,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         self.grid_coverage = grid_coverage
         self.pixel_is_point = pixel_is_point
         self.data_type = None
+        self.session = session
 
     def _data_type(self):
         """

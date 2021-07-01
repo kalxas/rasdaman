@@ -23,6 +23,7 @@
 """
 import os
 import sys
+from collections import OrderedDict
 
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
@@ -256,45 +257,54 @@ class Recipe(GeneralCoverageRecipe):
     def _get_importers(self):
         ret = []
         convertors = self._get_convertors()
+
         for cov_id, conv in convertors.items():
             coverage_slices = conv.coverage_slices
 
-            importer = Importer(conv.resumer, conv.to_coverage(coverage_slices),
-                                self.wms_import, self.scale_levels, self.grid_cov, self.session, self.options['scale_factors'])
-            ret.append(importer)
+            coverages = conv.to_coverages(coverage_slices)
+
+            for coverage in coverages:
+                importer = Importer(conv.resumer, coverage,
+                                    self.wms_import, self.scale_levels, self.grid_cov, self.session, self.options['scale_factors'])
+
+                ret.append(importer)
+
         return ret
 
-    def __filter_invalid_geo_bounds(self, slices):
+    def __filter_invalid_geo_bounds(self, slices_dict):
         """
         Filter any coverage slices (scenes) which have invalid lat and long bounds
         in EPSG:4326
         """
-        results = []
+        results = OrderedDict()
 
-        for slice in slices:
-            input_file = slice.data_provider.file.filepath
-            axis_subsets = slice.axis_subsets
+        for key, slices in slices_dict.items():
+            results[key] = []
 
-            is_valid = True
-            for axis_subset in axis_subsets:
-                axis = axis_subset.coverage_axis.axis
-                geo_lower_bound = axis.low
-                geo_upper_bound = axis.high
-                axis_label = axis.label
+            for slice in slices:
+                input_file = slice.data_provider.file.filepath
+                axis_subsets = slice.axis_subsets
 
-                if axis.crs_axis.uri.endswith(self.EPSG_4326):
-                    if CRSUtil.is_latitude_axis(axis_label):
-                        is_valid = geo_lower_bound >= -90 and geo_upper_bound <= 90
-                    elif CRSUtil.is_longitude_axis(axis_label):
-                        is_valid = geo_lower_bound >= -180 and geo_upper_bound <= 180
+                is_valid = True
+                for axis_subset in axis_subsets:
+                    axis = axis_subset.coverage_axis.axis
+                    geo_lower_bound = axis.low
+                    geo_upper_bound = axis.high
+                    axis_label = axis.label
 
-                    if not is_valid:
-                        log.warn("File '" + input_file
-                                 + "' has invalid lat or long axes geo bounds in EPSG:4326 CRS, ignored for further processing.")
-                        break
+                    if axis.crs_axis.uri.endswith(self.EPSG_4326):
+                        if CRSUtil.is_latitude_axis(axis_label):
+                            is_valid = geo_lower_bound >= -90 and geo_upper_bound <= 90
+                        elif CRSUtil.is_longitude_axis(axis_label):
+                            is_valid = geo_lower_bound >= -180 and geo_upper_bound <= 180
 
-            if is_valid:
-                results.append(slice)
+                        if not is_valid:
+                            log.warn("File '" + input_file
+                                     + "' has invalid lat or long axes geo bounds in EPSG:4326 CRS, ignored for further processing.")
+                            break
+
+                if is_valid:
+                    results[key].append(slice)
 
         return results
 
@@ -334,13 +344,17 @@ class Recipe(GeneralCoverageRecipe):
                                 GdalToCoverageConverter.RECIPE_TYPE, file)
 
             conv.data_type = band_data_type
-            slices = conv._create_coverage_slices(crs_axes, evaluator_slice)
-            slices = self.__filter_invalid_geo_bounds(slices)
-            if len(slices) != 0:
-                conv.coverage_slices += slices
+            slices_dict = conv._create_coverage_slices(crs_axes, evaluator_slice)
+            slices_dict = self.__filter_invalid_geo_bounds(slices_dict)
+
+            if conv.coverage_slices == {}:
+                conv.coverage_slices = slices_dict
+            else:
+                for key, val in slices_dict.items():
+                    conv.coverage_slices[key] += slices_dict[key]
 
             if len(conv.coverage_slices) != 0:
-                first_slice = conv.coverage_slices[0]
+                first_slice = conv.coverage_slices["base"][0]
                 # This needs one available file to extract metadata later
                 conv.files = [first_slice.data_provider.file]
 
@@ -402,7 +416,7 @@ class Recipe(GeneralCoverageRecipe):
                                        axis_metadata_fields,
                                        self._metadata_type(),
                                        self.grid_cov,
-                                       self.import_order)
+                                       self.import_order, self.session)
 
     @staticmethod
     def get_name():

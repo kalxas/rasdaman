@@ -223,6 +223,8 @@ public class UpdateCoverageHandler {
                 bytes = getReplacementValuesFromFileAsBytes(rangeSet);
             }
             String mimetype = GMLCIS10ParserService.parseMimeType(rangeSet);
+            Integer overviewIndex = GMLCIS10ParserService.parseOverviewIndex(rangeSet);
+            
             // e.g: netCDF test_eobstest: "{"variables": ["tg"]}",
             String rangeParameters = GMLCIS10ParserService.parseRangeParameters(rangeSet);
 
@@ -230,9 +232,9 @@ public class UpdateCoverageHandler {
             RangeParametersConvertor convertor = rangeParametersConvertorFactory.getConvertor(mimetype, rangeParameters, currentCoverage);
             String decodeParameters = convertor.toRasdamanDecodeParameters();
 
-                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName,
-                                                            affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters, username, password,
-							    isLocal);
+            updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName,
+                    affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters, username, password,
+                    isLocal, overviewIndex);
             if (isLocal) {
                 updater.updateWithFile();
             } else {
@@ -902,7 +904,7 @@ public class UpdateCoverageHandler {
                 currentIndexAxis.setUpperBound(gridUpperBound);
             }
             
-            if (currentIndexAxis.getAxisLabel().equals(expandedAxisDimensionPair.fst) 
+            if (CrsUtil.axisLabelsMatch(currentIndexAxis.getAxisLabel(), expandedAxisDimensionPair.fst) 
                && expandedAxisDimensionPair.snd != RasdamanUpdaterFactory.NO_EXPAND_DIMENSION) {
                 Long expandedUpperBound = currentIndexAxis.getUpperBound() + 1;
                 currentIndexAxis.setUpperBound(expandedUpperBound);

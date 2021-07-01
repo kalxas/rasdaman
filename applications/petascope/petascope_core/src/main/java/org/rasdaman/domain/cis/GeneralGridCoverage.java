@@ -133,7 +133,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
         List<GeoAxis> geoAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGeoAxes();
         int i = 0;
         for (GeoAxis geoAxis : geoAxes) {
-            if (geoAxis.getAxisLabel().equals(axisLabel)) {
+            if (CrsUtil.axisLabelsMatch(geoAxis.getAxisLabel(), axisLabel)) {
                 return i;
             }
 

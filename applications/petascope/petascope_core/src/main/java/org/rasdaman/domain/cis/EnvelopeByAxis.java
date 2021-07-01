@@ -142,7 +142,7 @@ public class EnvelopeByAxis implements Serializable {
     @JsonIgnore
     public AxisExtent getAxisExtentByLabel(String axisLabel) {
         for (AxisExtent axisExtent : this.axisExtents) {
-            if (axisExtent.getAxisLabel().equals(axisLabel)) {
+            if (CrsUtil.axisLabelsMatch(axisExtent.getAxisLabel(), axisLabel)) {
                 return axisExtent;
             }
         }

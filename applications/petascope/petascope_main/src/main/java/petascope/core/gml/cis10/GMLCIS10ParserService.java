@@ -834,6 +834,16 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
         }
         return dataBlock.get(0);
     }
+    
+    public static Element parseFileElement(Element rangeSet) throws WCSTWrongNumberOfFileElements {
+        //get the File element
+        Elements file = rangeSet.getChildElements(XMLSymbols.LABEL_FILE, XMLSymbols.NAMESPACE_GML);
+        if (file.size() != 1) {
+            throw new WCSTWrongNumberOfFileElements();
+        }
+        
+        return file.get(0);
+    }
 
     /**
      * Returns the mime type of the inserted file
@@ -841,18 +851,35 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
      * @param rangeSet the range set xml block
      * @return the mime type of the file to be inserted
      */
-    public static String parseMimeType(Element rangeSet) throws WCSException {
-        //get the File element
-        Elements file = rangeSet.getChildElements(XMLSymbols.LABEL_FILE, XMLSymbols.NAMESPACE_GML);
-        if (file.size() != 1) {
-            throw new WCSTWrongNumberOfFileElements();
-        }
-        //get the fileReference
-        Elements mimetype = file.get(0).getChildElements(XMLSymbols.LABEL_FILE_STRUCTURE, XMLSymbols.NAMESPACE_GML);
+    public static String parseMimeType(Element rangeSet) throws WCSException {        
+        Element file = parseFileElement(rangeSet);
+        // get the <gml:mimeType>
+        Elements mimetype = file.getChildElements(XMLSymbols.LABEL_MIME_TYPE, XMLSymbols.NAMESPACE_GML);
         if (mimetype.size() != 1) {
             throw new WCSTWrongNumberOfFileStructureElements();
         }
         return mimetype.get(0).getValue().trim();
+    }
+    
+    /**
+     * Return the value of overview index if exists
+     */
+    public static Integer parseOverviewIndex(Element rangeSet) throws WCSTWrongNumberOfFileElements {
+        Element file = parseFileElement(rangeSet);
+        
+        // get the  <gml:fileStructure codeSpace="https://codespace.rasdaman.com/formatParameters/Overview">1</gml:fileStructure>
+        Elements fileStructure = file.getChildElements(XMLSymbols.LABEL_FILE_STRUCTURE, XMLSymbols.NAMESPACE_GML);
+        
+        Integer result = null;
+        
+        if (fileStructure != null) {
+            String value = fileStructure.get(0).getValue().trim();
+            if (!value.isEmpty()) {
+                result = Integer.valueOf(value);
+            }
+        }
+        
+        return result;
     }
 
     /**

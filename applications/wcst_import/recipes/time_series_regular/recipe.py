@@ -33,6 +33,7 @@ from master.helper.gdal_range_fields_generator import GdalRangeFieldsGenerator
 from master.importer.axis_subset import AxisSubset
 from master.importer.coverage import Coverage
 from master.importer.importer import Importer
+from master.importer.multi_importer import MultiImporter
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
 from master.provider.metadata.regular_axis import RegularAxis
@@ -44,6 +45,7 @@ from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
 from util.log import log
 from master.helper.time_gdal_tuple import TimeFileTuple
+from util.string_util import create_coverage_id_for_overview
 from util.time_util import DateTimeUtil
 from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
@@ -179,10 +181,12 @@ class Recipe(BaseRecipe):
         """
         crs_axes = CRSUtil(crs).get_axes(self.session.coverage_id)
 
-        slices = []
+        slices_dict = self.create_dict_of_slices(self.session.import_overviews)
+
         timeseries = self._generate_timeseries_tuples()
         count = 1
         for tpair in timeseries:
+            file = tpair.file
             file_path = tpair.file.get_filepath()
 
             # NOTE: don't process any imported file from *.resume.json as it is just waisted time
@@ -196,8 +200,9 @@ class Recipe(BaseRecipe):
 
                 valid_coverage_slice = True
 
+                gdal_file = GDALGmlUtil(file.get_filepath())
                 try:
-                    subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file_path)).fill(True)
+                    subsets = GdalAxisFiller(crs_axes, gdal_file).fill(True)
                     subsets = self._fill_time_axis(tpair, subsets)
                 except Exception as ex:
                     # If skip: true then just ignore this file from importing, else raise exception
@@ -208,12 +213,19 @@ class Recipe(BaseRecipe):
                     # Generate local metadata string for current coverage slice
                     self.evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, tpair.file)
                     local_metadata = gdal_coverage_converter._generate_local_metadata(subsets, self.evaluator_slice)
-                    slices.append(Slice(subsets, FileDataProvider(tpair.file), local_metadata))
+                    slices_dict["base"].append(Slice(subsets, FileDataProvider(tpair.file), local_metadata))
 
-            timer.print_elapsed_time()
-            count += 1
+                    # Then, create slices for selected overviews from user
+                    for overview_index in self.session.import_overviews:
+                        subsets_overview = self.create_subsets_for_overview(subsets, overview_index, gdal_file)
 
-        return slices
+                        slices_dict[str(overview_index)].append(Slice(subsets_overview, FileDataProvider(file),
+                                                                      local_metadata))
+
+                timer.print_elapsed_time()
+                count += 1
+
+        return slices_dict
 
     def _fill_time_axis(self, tpair, subsets):
         """
@@ -234,9 +246,9 @@ class Recipe(BaseRecipe):
                 subsets[i].interval.low = tpair.time.to_string()
         return subsets
 
-    def _get_coverage(self):
+    def _get_coverages(self):
         """
-        Returns the coverage to be used for the importer
+        Returns the list of coverages to be used for the importer
         """
         gdal_dataset = GDALGmlUtil.open_gdal_dataset_from_any_file(self.session.get_files())
         crs = CRSUtil.get_compound_crs([self.options['time_crs'], gdal_dataset.get_crs()])
@@ -254,19 +266,33 @@ class Recipe(BaseRecipe):
                                                           crs, None, None,
                                                           global_metadata_fields, local_metadata_fields,
                                                           None, None, general_recipe._metadata_type(),
-                                                          None, None)
+                                                          None, None, self.session)
 
-        coverage_slices = self._get_coverage_slices(crs, gdal_coverage_converter)
+        coverage_slices_dict = self._get_coverage_slices(crs, gdal_coverage_converter)
         fields = GdalRangeFieldsGenerator(gdal_dataset, self.options['band_names']).get_range_fields()
 
         global_metadata = None
-        if len(coverage_slices) > 0:
-            global_metadata = gdal_coverage_converter._generate_global_metadata(coverage_slices[0], self.evaluator_slice)
+        if len(coverage_slices_dict["base"]) > 0:
+            global_metadata = gdal_coverage_converter._generate_global_metadata(coverage_slices_dict["base"][0], self.evaluator_slice)
 
-        coverage = Coverage(self.session.get_coverage_id(), coverage_slices, fields, crs,
-                            gdal_dataset.get_band_gdal_type(), self.options['tiling'], global_metadata)
+        results = []
+        base_coverage_id = self.session.get_coverage_id()
+        for key, value in coverage_slices_dict.items():
+            if key == "base":
+                # base coverage
+                coverage = Coverage(base_coverage_id, coverage_slices_dict[key], fields, crs,
+                                    gdal_dataset.get_band_gdal_type(), self.options['tiling'], global_metadata)
+            else:
+                # overview coverage (key = overview_index)
+                coverage_id = create_coverage_id_for_overview(base_coverage_id, key)
+                coverage = Coverage(coverage_id, coverage_slices_dict[key], fields,
+                                    crs,
+                                    gdal_dataset.get_band_gdal_type(), self.options['tiling'], global_metadata,
+                                    base_coverage_id, key)
 
-        return coverage
+            results.append(coverage)
+
+        return results
 
     def _get_importer(self):
         if self.importer is None:
@@ -276,9 +302,16 @@ class Recipe(BaseRecipe):
             wms_import = self.options['wms_import'] if 'wms_import' in self.options else False
             scale_levels = self.options['scale_levels'] if self.options['scale_levels'] is not None else None
 
-            self.importer = Importer(self.resumer, self._get_coverage(), wms_import, scale_levels,
-                                     grid_coverage,
-                                     self.session, self.options['scale_factors'])
+            coverages = self._get_coverages()
+            importers = []
+
+            for coverage in coverages:
+                importers.append(Importer(self.resumer, coverage, wms_import, scale_levels,
+                                          grid_coverage,
+                                          self.session, self.options['scale_factors']))
+
+            self.importer = MultiImporter(importers)
+
         return self.importer
 
     @staticmethod

@@ -110,6 +110,11 @@ for test_case in "$TEST_DATA"/*; do
         continue
     fi
 
+    if [[ ( "$OS_VERSION" == "$OS_CENTOS7" || "$OS_VERSION" == "$OS_UBUNTU1604" ) && "$test_case_name" == *"overview"* ]]; then
+        # NOTE: centos 7 and ubuntu 16.04 with gdal version 1.x does not support importing overview
+        continue
+    fi
+
     start_timer
 
     # each folder is a coverage with image files and recipe

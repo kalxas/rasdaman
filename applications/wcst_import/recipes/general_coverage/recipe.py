@@ -32,6 +32,7 @@ from master.helper.regular_user_axis import RegularUserAxis
 from master.helper.user_axis import UserAxis, UserAxisType
 from master.helper.user_band import UserBand
 from master.importer.importer import Importer
+from master.importer.multi_importer import MultiImporter
 from master.recipe.base_recipe import BaseRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageConverter
@@ -647,32 +648,32 @@ class Recipe(BaseRecipe):
 
         return crs
 
-    def _get_coverage(self):
+    def _get_coverages(self):
         """
-        Returns the coverage to be used for the importer
-        :rtype: master.importer.coverage.Coverage
+        Returns the list of coverage to be used for the importer
+        :rtype: list master.importer.coverage.Coverage
         """
         recipe_type = self.options['coverage']['slicer']['type']
         if recipe_type == GdalToCoverageConverter.RECIPE_TYPE:
-            coverage = self._get_gdal_coverage(recipe_type)
+            coverages = self._get_gdal_coverages(recipe_type)
         elif recipe_type == NetcdfToCoverageConverter.RECIPE_TYPE:
-            coverage = self._get_netcdf_coverage(recipe_type)
+            coverages = self._get_netcdf_coverage(recipe_type)
         elif recipe_type == GRIBToCoverageConverter.RECIPE_TYPE:
-            coverage = self._get_grib_coverage(recipe_type)
+            coverages = self._get_grib_coverage(recipe_type)
         else:
             raise RuntimeException(
                 "No valid slicer could be found, given: " + recipe_type)
-        return coverage
+        return coverages
 
-    def _get_gdal_coverage(self, recipe_type):
+    def _get_gdal_coverages(self, recipe_type):
         """
-        Returns a coverage that uses the gdal slicer
+        Returns a list of coverage that uses the gdal slicer
         :param string: recipe_type the type of recipe
         :rtype: master.importer.coverage.Coverage
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
-        coverage = GdalToCoverageConverter(self.resumer, self.session.default_null_values,
+        coverages = GdalToCoverageConverter(self.resumer, self.session.default_null_values,
                                            recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
@@ -682,8 +683,9 @@ class Recipe(BaseRecipe):
                                            self._axes_metadata_fields(),
                                            self._metadata_type(),
                                            self.options['coverage']['grid_coverage'],
-                                           self.options['import_order']).to_coverage()
-        return coverage
+                                           self.options['import_order'],
+                                           self.session).to_coverages()
+        return coverages
 
     def _get_netcdf_coverage(self, recipe_type):
         """
@@ -708,7 +710,8 @@ class Recipe(BaseRecipe):
                                              self._netcdf_axes_metadata_fields(),
                                              self._metadata_type(),
                                              self.options['coverage']['grid_coverage'], pixel_is_point,
-                                             self.options['import_order']).to_coverage()
+                                             self.options['import_order'],
+                                             self.session).to_coverages()
         return coverage
 
     def _get_grib_coverage(self, recipe_type):
@@ -734,7 +737,8 @@ class Recipe(BaseRecipe):
                                            self._axes_metadata_fields(),
                                            self._metadata_type(),
                                            self.options['coverage']['grid_coverage'], pixel_is_point,
-                                           self.options['import_order']).to_coverage()
+                                           self.options['import_order'],
+                                           self.session).to_coverages()
 
         return coverage
 
@@ -744,8 +748,16 @@ class Recipe(BaseRecipe):
         :rtype: Importer
         """
         if self.importer is None:
-            self.importer = Importer(self.resumer, self._get_coverage(), self.options['wms_import'], self.options['scale_levels'],
-                                     self.options['coverage']['grid_coverage'], self.session, self.options['scale_factors'])
+            coverages = self._get_coverages()
+            importers = []
+
+            for coverage in coverages:
+                importer = Importer(self.resumer, coverage, self.options['wms_import'], self.options['scale_levels'],
+                                    self.options['coverage']['grid_coverage'], self.session, self.options['scale_factors'])
+                importers.append(importer)
+
+            self.importer = MultiImporter(importers)
+
         return self.importer
 
     @staticmethod

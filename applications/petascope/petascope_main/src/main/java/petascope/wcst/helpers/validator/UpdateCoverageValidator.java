@@ -192,7 +192,7 @@ public class UpdateCoverageValidator {
             BigDecimal currentAxisResolution = null;
             for (GeoAxis currentGeoAxis : currentAxes) {
                 // Input axis does exist                
-                if (currentGeoAxis.getAxisLabel().equals(inputGeoAxis.getAxisLabel())) {
+                if (CrsUtil.axisLabelsMatch(currentGeoAxis.getAxisLabel(), inputGeoAxis.getAxisLabel())) {
                     currentAxisResolution = currentGeoAxis.getResolution();
                 }
             }

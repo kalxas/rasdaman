@@ -1,0 +1,51 @@
+{
+  "config": {
+	"service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_import_overview_general_recipe",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+        "import_all_overviews": true,
+
+        "coverage": {
+          "crs": "OGC/0/AnsiDate@EPSG/0/4326",          
+          "slicer": {
+            "type": "gdal",
+
+            "axes": {
+
+                "ansi": {
+                  "min": "datetime(regex_extract('${file:name}', '(.*).tif', 1), 'YYYYMMDD')",
+                  "gridOrder": 0,
+                  "irregular": true,
+                  "dataBound": false
+                },
+
+              "Long": {
+                "min": "${gdal:minX}",
+                "max": "${gdal:maxX}",
+                "gridOrder": 1,
+                "resolution": "${gdal:resolutionX}"
+              },
+              "Lat": {
+                "min": "${gdal:minY}",
+                "max": "${gdal:maxY}",
+                "gridOrder": 2,
+                "resolution": "${gdal:resolutionY}"
+              }
+          }
+        }      
+      },
+      "tiling": "ALIGNED [0:0, 0:366, 0:500]"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+for c in (test_import_overview_general_recipe_3) return encode(c[ansi:"CRS:1"(0)], "jpeg")

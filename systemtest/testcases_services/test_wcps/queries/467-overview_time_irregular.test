@@ -1,0 +1,1 @@
+for c in (test_import_overview_time_irregular_2) return encode(c[date:"CRS:1"(0)], "jpeg")

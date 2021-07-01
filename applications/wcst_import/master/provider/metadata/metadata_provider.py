@@ -32,7 +32,7 @@ from util.xml_util import XMLUtil
 
 
 class MetadataProvider:
-    def __init__(self, coverage_id, axes_map, range_fields, crs, extra_metadata, grid_coverage):
+    def __init__(self, coverage_id, axes_map, range_fields, crs, extra_metadata, grid_coverage, overview_index=None):
         """
         Class to provide the basis for metadata providers
         :param coverage_id: the id of the coverage
@@ -51,6 +51,7 @@ class MetadataProvider:
         self.crs = crs
         self.extra_metadata = extra_metadata
         self.grid_coverage = grid_coverage
+        self.overview_index = overview_index
 
     def get_crs(self):
         """

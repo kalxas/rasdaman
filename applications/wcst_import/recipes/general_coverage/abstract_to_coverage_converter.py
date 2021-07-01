@@ -24,10 +24,12 @@
 
 import decimal
 import math
+from collections import OrderedDict
 
 from lib import arrow
 from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
 from util.coverage_util import CoverageUtil
+from util.gdal_util import GDALGmlUtil
 
 from util.list_util import sort_slices_by_datetime
 
@@ -51,9 +53,10 @@ from util.crs_util import CRSUtil
 from master.importer.coverage import Coverage
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
-from util.string_util import is_number
+from util.string_util import is_number, create_coverage_id_for_overview
 from util.file_util import FileUtil
 from util.timer import Timer
+import copy
 
 
 class AbstractToCoverageConverter:
@@ -68,7 +71,7 @@ class AbstractToCoverageConverter:
     # A dictionary of irregular axes and their geo lower bounds
     irregular_axis_geo_lower_bound_dict = {}
 
-    def __init__(self, resumer, recipe_type, sentence_evaluator, import_order):
+    def __init__(self, resumer, recipe_type, sentence_evaluator, import_order, session):
         """
         Abstract class capturing common functionality between coverage converters.
         :param String recipe_type: the type of recipe (gdal|grib|netcdf)
@@ -79,7 +82,8 @@ class AbstractToCoverageConverter:
         self.recipe_type = recipe_type
         self.sentence_evaluator = sentence_evaluator
         self.import_order = import_order
-        self.coverage_slices = []
+        self.coverage_slices = OrderedDict()
+        self.session = session
 
     def _user_axis(self, user_axis, evaluator_slice):
         """
@@ -427,11 +431,13 @@ class AbstractToCoverageConverter:
 
     def _create_coverage_slices(self, crs_axes, calculated_evaluator_slice=None, axis_resolutions=None):
         """
-        Returns all the coverage slices for this coverage
+        Returns the slices for the collection of files given
         :param crs_axes:
         :rtype: list[Slice]
         """
-        slices = []
+        from master.recipe.base_recipe import BaseRecipe
+        slices_dict = BaseRecipe.create_dict_of_slices(self.session.import_overviews)
+
         count = 1
         for file in self.files:
             # NOTE: don't process any previously imported file (recorded in *.resume.json)
@@ -463,14 +469,30 @@ class AbstractToCoverageConverter:
                     valid_coverage_slice = False
 
                 if valid_coverage_slice:
-                    slices.append(coverage_slice)
+                    slices_dict["base"].append(coverage_slice)
+
+                    if self.session.recipe["options"]["coverage"]["slicer"]["type"] == "gdal":
+                        gdal_file = GDALGmlUtil(file.get_filepath())
+
+                        # Then, create slices for selected overviews from user
+                        for overview_index in self.session.import_overviews:
+                            axis_subsets_overview = BaseRecipe.create_subsets_for_overview(coverage_slice.axis_subsets,
+                                                                                           overview_index, gdal_file)
+
+                            coverage_slice_overview = copy.deepcopy(coverage_slice)
+                            coverage_slice_overview.axis_subsets = axis_subsets_overview
+
+                            slices_dict[str(overview_index)].append(coverage_slice_overview)
 
                 timer.print_elapsed_time()
                 count += 1
 
         # Currently, only sort by datetime to import coverage slices (default is ascending)
         reverse = (self.import_order == self.IMPORT_ORDER_DESCENDING)
-        return sort_slices_by_datetime(slices, reverse)
+        for key, value in slices_dict.items():
+            slices_dict[key] = sort_slices_by_datetime(value, reverse)
+
+        return slices_dict
 
     def _create_coverage_slice(self, file, crs_axes, evaluator_slice, axis_resolutions=None):
         """
@@ -498,27 +520,42 @@ class AbstractToCoverageConverter:
 
         return Slice(axis_subsets, FileDataProvider(file, file_structure), local_metadata)
 
-    def to_coverage(self, coverage_slices=None):
+    def to_coverages(self, coverage_slices_dict=None):
         """
-        Returns a Coverage from all the importing files (gdal|grib|netcdf)
-        :rtype: Coverage
+        Returns list coverages from all the importing files (gdal|grib|netcdf)
+        :rtype: Array[Coverage]
         """
         crs_axes = CRSUtil(self.crs).get_axes(self.coverage_id)
 
-        if coverage_slices is None:
+        if coverage_slices_dict is None:
             # Build list of coverage slices from input files
-            coverage_slices = self._create_coverage_slices(crs_axes)
+            coverage_slices_dict = self._create_coverage_slices(crs_axes)
 
         global_metadata = None
-        if len(coverage_slices) > 0:
-            first_coverage_slice = coverage_slices[0]
+        if len(coverage_slices_dict) > 0:
+            first_coverage_slice = coverage_slices_dict["base"][0]
             # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
             global_metadata = self._generate_global_metadata(first_coverage_slice)
 
         # Evaluate all the swe bands's metadata (each file should have same swe bands's metadata), so first file is ok
         self._evaluate_swe_bands_metadata(self.files[0], self.bands)
 
-        coverage = Coverage(self.coverage_id, coverage_slices, self._range_fields(), self.crs,
-                            self._data_type(),
-                            self.tiling, global_metadata)
-        return coverage
+        results = []
+        base_coverage_id = self.coverage_id
+        for key, value in coverage_slices_dict.items():
+            slices = coverage_slices_dict[key]
+            if key == "base":
+                coverage = Coverage(base_coverage_id, slices, self._range_fields(), self.crs,
+                                    self._data_type(),
+                                    self.tiling, global_metadata)
+            else:
+                # overview coverage (key = overview_index)
+                coverage_id = create_coverage_id_for_overview(self.coverage_id, key)
+
+                coverage = Coverage(coverage_id, slices, self._range_fields(), self.crs,
+                                    self._data_type(),
+                                    self.tiling, global_metadata, base_coverage_id, key)
+
+            results.append(coverage)
+
+        return results

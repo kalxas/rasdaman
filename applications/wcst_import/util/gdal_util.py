@@ -182,6 +182,23 @@ class GDALGmlUtil:
         geo_transform = self.gdal_dataset.GetGeoTransform()
         result = repr(geo_transform[5])
         return Decimal(result)
+
+    def get_number_of_overviews(self):
+        """
+        Return the total number of overviews in the file
+        """
+        first_band = self.get_raster_band(1)
+        result = first_band.GetOverviewCount()
+        return result
+
+    def get_overview(self, overview_index):
+        """
+        Return the overview if it exists from the file
+        :param overview_index: 0-based index
+        """
+        first_band = self.get_raster_band(1)
+        overview = first_band.GetOverview(overview_index)
+        return overview
     
     def get_raster_band(self, index):
         """
@@ -292,6 +309,20 @@ class GDALGmlUtil:
         :rtype: int
         """
         return self.gdal_dataset.RasterYSize
+
+    def get_raster_x_size_by_overview(self, overview_index):
+        """
+        Return the raster size on the x axis by overview index (0 based)
+        :return: int
+        """
+        return self.get_overview(overview_index).XSize
+
+    def get_raster_y_size_by_overview(self, overview_index):
+        """
+        Return the raster size on the y axis by overview index (0 based)
+        :return: int
+        """
+        return self.get_overview(overview_index).YSize
 
     def get_datetime(self, time_tag=None):
         """
@@ -408,4 +439,8 @@ class GDALGmlUtil:
             # Cannot open any dataset from input files, just exit wcst_import process
             FileUtil.validate_input_file_paths([])
 
-
+    @staticmethod
+    def get_gdal_version():
+        import osgeo.gdal as gdal
+        # e.g: 1110400 for version 11.1.4
+        return gdal.VersionInfo()

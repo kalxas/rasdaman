@@ -139,6 +139,7 @@ public interface XMLSymbols {
     String LABEL_UPPER_CORNER_ASSOCIATE_ROLE = "UpperCorner";
     String LABEL_LOWER_CORNER = "lowerCorner";
     String LABEL_UPPER_CORNER = "upperCorner";
+    String LABEL_MIME_TYPE = "mimeType";
     String LABEL_MEDIATYPE = "mediaType";
     String LABEL_NATIVE_FORMAT = "nativeFormat";
     String LABEL_PROCESSCOVERAGE_REQUEST = "ProcessCoveragesRequest";

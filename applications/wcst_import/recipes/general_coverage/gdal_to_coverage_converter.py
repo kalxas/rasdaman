@@ -51,7 +51,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
 
     def __init__(self, resumer, default_null_values, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields,
-                 axes_metadata_fields, metadata_type, grid_coverage, import_order):
+                 axes_metadata_fields, metadata_type, grid_coverage, import_order, session):
         """
         Converts a gdal list of files to a coverage
         :param resumer: resumer object
@@ -72,7 +72,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         :param boolean grid_coverage: check if user want to import grid coverage
         :param import_order: ascending(default), descending if specified in ingredient file
         """
-        AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order)
+        AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order, session)
         self.default_null_values = default_null_values
         self.resumer = resumer
         self.sentence_evaluator = sentence_evaluator
@@ -89,6 +89,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         self.metadata_type = metadata_type
         self.grid_coverage = grid_coverage
         self.data_type = None
+        self.session = session
 
     def _data_type(self):
         return self.data_type

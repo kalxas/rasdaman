@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
+import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import static org.rasdaman.config.ConfigManager.UPLOAD_FILE_PREFIX;
 import org.rasdaman.config.VersionManager;
@@ -55,6 +56,7 @@ import petascope.core.response.MultipartResponse;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import static petascope.util.MIMEUtil.MIME_BINARY;
 import petascope.util.StringUtil;
@@ -80,6 +82,8 @@ public abstract class AbstractController {
     // When petascope cannot start for some reasons, just not throw the exception until it can start the web application and throw exception to user via HTTP request
     public static Exception startException;
 
+    @Autowired
+    protected HttpServletRequest injectedHttpServletRequest;
     @Autowired
     protected HttpServletResponse injectedHttpServletResponse;
     @Autowired
@@ -643,6 +647,57 @@ public abstract class AbstractController {
         }
         
         return values[0].trim();
+    }
+    
+    /**
+     * Return a string representing a HTTP query string from a given map of key value pairs
+     */
+    public static String buildRequestQueryString(Map<String, String[]> kvpParameters) {
+        List<String> results = new ArrayList<>();
+        
+        for (Map.Entry<String, String[]> entry: kvpParameters.entrySet()) {
+            for (String value : entry.getValue()) {
+                results.add(entry.getKey() + "=" + value);
+            }
+        }
+        
+        // e.g: request=GetCapabilities&version=2.0.1
+        return ListUtil.join(results, "&");
+    }
+    
+    
+    /**
+     * Check if a source IP address can send a write request to petascope.
+     */
+    protected void validateWriteRequestFromIP(List<String> writeRequest, String request, String sourceIP) throws PetascopeException {
+        
+        if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
+            // localhost IP in servlet
+            if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
+                sourceIP = "127.0.0.1";
+            }
+
+            if (writeRequest.contains(request)) {
+                if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
+                    throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                                "Write request '" + request + "' is not permitted from IP address '" + sourceIP + "'.");
+                }
+            }
+        }
+    }
+    
+    /**
+     * Get request IP address from client to petascope
+     */
+    protected String getRequesIPAddress() {
+        // in case, petascope is behind Apache proxy, then get the forwared IP via proxy
+        String sourceIP = this.injectedHttpServletRequest.getHeader("X-FORWARDED-FOR");
+        if (sourceIP == null) {
+            // In case petascope is not proxied by apache
+            sourceIP = this.injectedHttpServletRequest.getRemoteAddr();
+        }
+        
+        return sourceIP;
     }
 }
 

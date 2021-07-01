@@ -132,3 +132,24 @@ def add_date_time_suffix(input_str):
     """
     date_time = datetime.now().strftime("%d_%m_%Y_%H_%M_%S") + random.randint(0000, 9999).zfill(4)
     return input_str + "_" + date_time
+
+
+def is_integer(val):
+    """
+    Check if input string is integer, not float
+    :param str val
+    """
+    try:
+        int(val)
+        return True
+    except ValueError:
+        return False
+
+
+def create_coverage_id_for_overview(base_coverage_id, overview_index):
+    """
+    From the base coverage id, create the overview coverage id by overview index
+    e.g: cov_a with overview 1 -> cov_a_1
+    """
+    return base_coverage_id + "_" + overview_index
+

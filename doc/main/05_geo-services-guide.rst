@@ -2056,6 +2056,35 @@ recipe section
         }
        ]
 
+
+* ``import_overviews`` -  If specified with indices (0-based), wcst_import will import
+  the corresponding overview levels defined in the input files
+  as separated coverages with :ref:`this naming pattern <wms_scale_level_coverage_id_pattern>`.
+  The selected overview coverages are then added as pyramid memberds to the base
+  importing coverage. For example, to import overview levels 0 and 3 from a tiff
+  file which has 4 overview levels in total
+
+  .. hidden-code-block:: text
+
+      gdalinfo 20100101.tif
+      ...
+      Band 1 Block=89x71 Type=Byte, ColorInterp=Gray
+      Overviews: 45x36, 23x18, 12x9, 6x5
+
+  you can specify ``"import_overviews": [0, 3]`` in the ingredients.
+  
+  By default this setting is set to an empty array, i.e. no overview levels will
+  be imported. Only GDAL recipes and gdal version 2+ are supported.
+
+* ``import_all_overviews`` - If specified with ``true``, all overview levels 
+  which exist in the input files will be imported.
+  For example, to import all 4 overview levels from a tiff file you can
+  specify ``"import_all_overviews": true`` in the ingredient file.
+
+  This setting and ``import_overviews`` are exclusive, only one can be specified.
+  By default it is set to `false`. Only GDAL recipes and gdal version 2+ are supported.
+
+
 * ``pyramid_members`` - List of existing coverages which can be added
   as pyramid members of the importing coverage, see :ref:`request <add_pyramid_member>`.
   Syntax:

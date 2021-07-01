@@ -132,7 +132,16 @@
                             "time_tag": {},
                             "wcs_endpoint": {},
                             "wms_import": {},
-                            "envelope": {}
+                            "envelope": {},
+                            "import_all_overviews": {
+                                "type": "boolean"
+                            },
+                            "import_overviews": {
+                                 "type": "array",
+                                 "items": {
+                                     "type": "number"
+                                 }
+                            }
 
                     },
                     "additionalProperties": false

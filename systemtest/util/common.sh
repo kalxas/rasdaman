@@ -949,6 +949,12 @@ run_test()
                     fi
                     ;;
                 test)
+
+                    if [[ ( "$OS_VERSION" == "$OS_CENTOS7" || "$OS_VERSION" == "$OS_UBUNTU1604" ) && "$f" == *"overview"* ]]; then
+                        # NOTE: centos 7 and ubuntu 16.04 with gdal version 1.x does not support importing overview
+                        continue
+                    fi
+
                     QUERY=$(cat "$f")
                     # check if query contains "jpeg2000"-approx_stats and gdal 
                     # supports this format, then the query should be run.

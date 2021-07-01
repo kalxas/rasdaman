@@ -26,17 +26,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.rasdaman.config.ConfigManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.core.Pair;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
-import petascope.util.ras.RasUtil;
 
 /**
  * Endpoints to validate credentials from clients.

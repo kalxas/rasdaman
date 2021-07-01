@@ -66,8 +66,10 @@ class Importer:
         """
         self.coverage = coverage
         self.resumer = resumer
-        self.coverage.slices = SliceRestricter(
-                                    self.resumer.eliminate_already_imported_slices(self.coverage.slices)).get_slices()
+
+        slices = self.resumer.eliminate_already_imported_slices(self.coverage.slices)
+        obj = SliceRestricter(slices)
+        self.coverage.slices = obj.slices
         self.processed = 0
         self.total = len(coverage.slices)
         self.insert_into_wms = insert_into_wms
@@ -90,6 +92,9 @@ class Importer:
 
             if self.insert_into_wms:
                 self._insert_update_into_wms()
+
+            if self.coverage.base_coverage_id is not None:
+                self.add_pyramid_member_if_any(self.coverage.base_coverage_id, self.coverage.coverage_id)
 
     def get_progress(self):
         """
@@ -161,8 +166,8 @@ class Importer:
             return slices
 
         # If number of files < 5 print all files, or only print first 5 files
-        max = ConfigManager.description_max_no_slices if ConfigManager.description_max_no_slices < len(
-            coverages[0].slices) else len(coverages[0].slices)
+        max = ConfigManager.description_max_no_slices \
+            if ConfigManager.description_max_no_slices < len(coverages[0].slices) else len(coverages[0].slices)
         for i in range(0, max):
             slices.append(coverages[0].slices[i])
         return slices
@@ -265,11 +270,15 @@ class Importer:
 
         if file_size_in_mb != 0:
             size_per_second = round(file_size_in_mb / time_to_ingest, 2)
-            log_text = "{} - file '{}' - grid domains [{}] of size {} MB; Total time to ingest file {} s @ {} MB/s.".format(index, file_name,
+            log_text = "coverage '{}' - {} - file '{}' - grid domains [{}] of size {} MB; Total time to ingest file {} s @ {} MB/s.".format(
+                                                                self.coverage.coverage_id,
+                                                                index, file_name,
                                                                 grid_domains,
                                                                 file_size_in_mb, time_to_ingest, size_per_second)
         else:
-            log_text = "{} - file '{}' - grid domains [{}]; Total time to ingest file {} s.".format(index, file_name,
+            log_text = "coverage '{}' - {} - file '{}' - grid domains [{}]; Total time to ingest file {} s.".format(
+                                                                self.coverage.coverage_id,
+                                                                index, file_name,
                                                                 grid_domains,
                                                                 time_to_ingest)
 
@@ -354,6 +363,17 @@ class Importer:
 
         return []
 
+    def add_pyramid_member_if_any(self, base_coverage_id, pyramid_member_coverage_id):
+        """
+        If pyramid member coverage doesn't exist in base coverage's pyramid, then add it
+        """
+        current_pyramid_member_coverage_ids = self.list_pyramid_member_coverages(base_coverage_id, ConfigManager.mock)
+        if pyramid_member_coverage_id not in current_pyramid_member_coverage_ids:
+            executor = ConfigManager.executor
+
+            request = AddPyramidMemberRequest(base_coverage_id, pyramid_member_coverage_id)
+            executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+
     def _get_scale_factors(self, level):
         """
         Return the array of scale factors for each axis, based on the input scale level
@@ -427,7 +447,7 @@ class Importer:
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self._get_update_axes(slice),
                                              self.coverage.range_fields, self._get_update_crs(slice, self.coverage.crs),
-                                             slice.local_metadata, self.grid_coverage)
+                                             slice.local_metadata, self.grid_coverage, self.coverage.overview_index)
         data_provider = slice.data_provider
         mediator = Mediator(metadata_provider, data_provider)
         return mediator.get_gml_file() if ConfigManager.mock else mediator.get_gml_str()
@@ -469,7 +489,7 @@ class Importer:
             axes_map[axis] = GridAxis(grid_axis.order, grid_axis.label, grid_axis.resolution, 0, 0)
         metadata_provider = MetadataProvider(self.coverage.coverage_id, axes_map,
                                              self.coverage.range_fields, self.coverage.crs, self.coverage.metadata,
-                                             self.grid_coverage)
+                                             self.grid_coverage, self.coverage.overview_index)
         tuple_list = []
 
         # Tuple list for InsertCoverage request should be created from null values if they exist
@@ -494,7 +514,8 @@ class Importer:
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self.coverage.get_insert_axes(),
                                              self.coverage.range_fields, self.coverage.crs, self.coverage.metadata,
-                                             self.grid_coverage)
+                                             self.grid_coverage,
+                                             self.coverage.overview_index)
         data_provider = self.coverage.slices[0].data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         self.processed += 1
