@@ -104,7 +104,7 @@ public class CoverageRepositoryService {
     // map of qualified coverage id (e.g: hostname:7000:covA) -> coverage
     private static final Map<String, Pair<Coverage, Boolean>> localCoveragesCacheMap = new ConcurrentSkipListMap<>();
     
-    private static final List<Object[]> localCoverageIdsAndTypesCache = new ArrayList<>();
+    private static final Map<String, Object[]> localCoverageIdsAndTypesCacheMap = new ConcurrentSkipListMap<>();
 
     /**
      * Store the coverages's extents (only geo-referenced XY axes). First String
@@ -442,16 +442,17 @@ public class CoverageRepositoryService {
     public List<Pair<Coverage, Boolean>> readAllLocalCoveragesBasicMetatata() throws PetascopeException {
         long start = System.currentTimeMillis();
         
-        if (this.localCoverageIdsAndTypesCache.isEmpty()) {
-            this.localCoverageIdsAndTypesCache.addAll(coverageRepository.readAllCoverageIdsAndTypes());
+        if (this.localCoverageIdsAndTypesCacheMap.isEmpty()) {
             
-            for (Object[] coverageIdAndType : localCoverageIdsAndTypesCache) {
+            for (Object[] coverageIdAndType : coverageRepository.readAllCoverageIdsAndTypes()) {
                 String coverageId = coverageIdAndType[1].toString();
                 this.localCoveragesCacheMap.put(coverageId, new Pair(null, false));
+                
+                this.localCoverageIdsAndTypesCacheMap.put(coverageId, coverageIdAndType);
             }
         }
 
-        for (Object[] coverageIdAndType : localCoverageIdsAndTypesCache) {
+        for (Object[] coverageIdAndType : localCoverageIdsAndTypesCacheMap.values()) {
             String coverageId = coverageIdAndType[1].toString();
             
             if (!this.isInLocalCache(coverageId)) {
@@ -621,11 +622,11 @@ public class CoverageRepositoryService {
      */
     public void add(Coverage coverage) throws PetascopeException {
         String coverageId = coverage.getCoverageId();
-        if (isInLocalCache(coverageId)) {
+        if (this.isInLocalCache(coverageId)) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, "Coverage '" + coverageId  + "' already exists in database.");
         } else {
             // add the new coverage to the database
-            this.save(coverage);
+            this.save(coverage);            
         }        
     }
 
@@ -661,6 +662,9 @@ public class CoverageRepositoryService {
         coverage.setCoverageSizeInBytes(coverageSize);
 
         localCoveragesCacheMap.put(coverageId, new Pair(coverage, true));
+
+        Object[] objs = {coverage.getId(), coverageId, coverage.getCoverageType() };
+        this.localCoverageIdsAndTypesCacheMap.put(coverageId, objs);
         
         log.debug("Coverage '" + coverageId + "' is persisted in database.");
     }
@@ -680,6 +684,8 @@ public class CoverageRepositoryService {
 
         entityManager.flush();
         entityManager.clear();
+        
+        this.localCoverageIdsAndTypesCacheMap.remove(coverageId);
         
         log.debug("Coverage: " + coverage.getCoverageId() + " is removed from database.");
     }
@@ -752,6 +758,7 @@ public class CoverageRepositoryService {
         coverage.setCoverageId(newCoverageId);
         this.save(coverage);
         this.localCoveragesCacheMap.remove(currentCoverageId);
+        this.localCoverageIdsAndTypesCacheMap.remove(currentCoverageId);
         
         log.info("Renamed coverage id from '" + currentCoverageId + "' to '" + newCoverageId + "'.");
     }

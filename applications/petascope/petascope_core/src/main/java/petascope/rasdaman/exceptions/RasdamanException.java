@@ -32,6 +32,10 @@ public class RasdamanException extends PetascopeException {
     public RasdamanException(String exceptionText, String query) {
         this(ExceptionCode.RasdamanError, exceptionText);
     }
+    
+    public RasdamanException(String exceptionText, Exception ex) {
+        this(ExceptionCode.RasdamanError, exceptionText, ex, null);
+    }
 
     public RasdamanException(String exceptionText, Exception ex, String query) {
         this(ExceptionCode.RasdamanError, exceptionText, ex, query);

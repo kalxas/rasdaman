@@ -86,7 +86,7 @@ public class RasUtil {
             try {
                 db.close();
             } catch (Exception ex) {
-                throw new RasdamanException("Failed closing rasdaman db connection: " + ex.getMessage(), null);
+                throw new RasdamanException("Failed closing rasdaman db connection: " + ex.getMessage(), ex);
             }
         }
     }
@@ -96,7 +96,7 @@ public class RasUtil {
             try {
                 tr.abort();
             } catch (Exception ex) {
-                throw new RasdamanException("Failed closing rasdaman transaction: " + ex.getMessage(), null);
+                throw new RasdamanException("Failed closing rasdaman transaction: " + ex.getMessage(), ex);
             }
         }
     }
@@ -460,7 +460,9 @@ public class RasUtil {
         byte[] result = new byte[0];
         RasQueryResult res;
 
-        res = new RasQueryResult(RasUtil.executeRasqlQuery(rasqlQuery, username, password, false));
+        Object object = RasUtil.executeRasqlQuery(rasqlQuery, username, password, false);
+        res = new RasQueryResult(object);
+
         if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
             for (String s : res.getScalars()) {
                 result = s.getBytes(Charset.forName("UTF-8"));
