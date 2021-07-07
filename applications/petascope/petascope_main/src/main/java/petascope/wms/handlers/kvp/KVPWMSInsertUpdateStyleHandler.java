@@ -133,7 +133,8 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
                 throw new WMSDuplicateStyleForLayerException(styleName, layerName);
             } else {
                 // create new style
-                style = new Style();                
+                style = new Style();
+                layer.getStyles().add(style);
             }
         } else {
             style = layer.getStyle(styleName);
@@ -182,8 +183,6 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
             style.setColorTableDefinition(colorTableDefinition);
         }
         
-        layer.getStyles().add(style);
-
         // Then update the layer with the new updated/added style to database.
         this.wmsRepostioryService.saveLayer(layer);
         log.info("WMS Style '" + style.getName() + "' is persisted in database.");
