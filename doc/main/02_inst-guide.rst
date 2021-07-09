@@ -384,12 +384,11 @@ Customizing the installation
 
 When installing or updating rasdaman from the official packages, the process can
 be optionally customized with an installation profile (see example `installer
-configuration
-<https://doc.rasdaman.org/02_inst-guide.html#sec-system-install-installer-config>`).
+configuration <sec-system-install-installer-config>`__).
 
 - To customize when installing rasdaman for the first time, it is necessary to
   first download the package install profile from `here
-  <https://download.rasdaman.org/installer/rasdaman-installer/profiles/package/install.toml>`.
+  <https://download.rasdaman.org/installer/rasdaman-installer/profiles/package/install.toml>`__.
 
 - When updating an existing rasdaman installation, you can find the default
   package install profile in your installation at
