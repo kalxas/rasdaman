@@ -135,12 +135,6 @@ Notice, though, that the geo service component, petascope, currently still
 relies on a PostgreSQL database; this is planned to be changed in the near
 future.
 
-   .. note::
-        Installing or updating rasdaman from the official packages can be optionally 
-        customized with an installation profile (see `installer configuration 
-        <sec-system-install-installer-config>`). Prior to installation, make sure that 
-        the RAS_INSTALL_PATH environment variable points to the custom profile that you 
-        want to use.
 
 .. _sec-system-install-pkgs-deb:
 
@@ -383,6 +377,35 @@ an update perform these steps: ::
     $ sudo service tomcat stop
     $ sudo yum clean all
     $ sudo yum update rasdaman
+
+
+Customizing the installation
+----------------------------
+
+When installing or updating rasdaman from the official packages, the process can
+be optionally customized with an installation profile (see example `installer
+configuration
+<https://doc.rasdaman.org/02_inst-guide.html#sec-system-install-installer-config>`).
+
+- To customize when installing rasdaman for the first time, it is necessary to
+  first download the package install profile from `here
+  <https://download.rasdaman.org/installer/rasdaman-installer/profiles/package/install.toml>`.
+
+- When updating an existing rasdaman installation, you can find the default
+  package install profile in your installation at
+  ``/opt/rasdaman/share/rasdaman/installer/profiles/package/install.toml``.
+
+Download / copy the ``install.toml`` file to some place, e.g. 
+``$HOME/rasdaman_install.toml``, and make any desired changes to it before
+installing or updating rasdaman. Make sure that the ``RAS_INSTALL_PATH``
+environment variable is set to point to the custom profile, e.g.
+
+.. code-block:: shell
+
+  export RAS_INSTALL_PATH="$HOME/rasdaman_install.toml"
+
+When you install or update rasdaman afterwards, the configuration process will
+take the custom profile into account instead of the default one.
 
 
 Administration
