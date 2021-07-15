@@ -165,4 +165,11 @@ public class GeoAxis extends Axis implements Serializable {
         return this.axisType.equals(AxisTypes.X_AXIS)
                || this.axisType.equals(AxisTypes.Y_AXIS);
     }
+    
+    @JsonIgnore
+    public boolean isTimeAxis() {
+        return this.axisType.equals(AxisTypes.T_AXIS);
+    }
+    
+    
 }

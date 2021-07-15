@@ -41,6 +41,7 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
+from util.import_util import import_netcdf4
 from util.log import log
 from util.string_util import escape_metadata_dict
 from util.string_util import escape_metadata_nested_dicts
@@ -673,10 +674,16 @@ class Recipe(BaseRecipe):
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
+
+        input_files = self.session.get_files()
+        user_axes = self._read_axes(crs)
+        DEFAULT_NUMBER_GDAL_DIMENSIONS = 2
+        self.__validate_data_bound_axes(user_axes, DEFAULT_NUMBER_GDAL_DIMENSIONS)
+
         coverages = GdalToCoverageConverter(self.resumer, self.session.default_null_values,
                                            recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),
-                                           self.session.get_files(), crs, self._read_axes(crs),
+                                            input_files, crs, user_axes,
                                            self.options['tiling'], self._global_metadata_fields(),
                                            self._local_metadata_fields(),
                                            self._bands_metadata_fields(),
@@ -700,10 +707,21 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
+        input_files = self.session.get_files()
+        user_axes = self._read_axes(crs)
+        bands = self._read_bands()
+        first_band = bands[0]
+        first_band_variable_identifier = first_band.identifier
+
+        netCDF4 = import_netcdf4()
+        # Get the number of dimensions of band variable to validate with number of axes specified in the ingredients file
+        number_of_dimensions = len(netCDF4.Dataset(input_files[0], 'r').variables[first_band_variable_identifier].dimensions)
+        self.__validate_data_bound_axes(user_axes, number_of_dimensions)
+
         coverage = NetcdfToCoverageConverter(self.resumer, self.session.default_null_values,
                                              recipe_type, sentence_evaluator, self.session.get_coverage_id(),
-                                             self._read_bands(),
-                                             self.session.get_files(), crs, self._read_axes(crs),
+                                             bands,
+                                             input_files, crs, user_axes,
                                              self.options['tiling'], self._global_metadata_fields(),
                                              self._local_metadata_fields(),
                                              self._netcdf_bands_metadata_fields(),
@@ -741,6 +759,21 @@ class Recipe(BaseRecipe):
                                            self.session).to_coverages()
 
         return coverage
+
+    def __validate_data_bound_axes(self, user_axes, number_of_dimensions):
+        """
+        Check if number of user axes defined in the ingredients file + dataBound:false axes
+        should match with number of dimensions in the first input file
+        """
+        number_of_data_bounded_axes = 0
+        for user_axis in user_axes:
+            if user_axis.dataBound == True:
+                number_of_data_bounded_axes += 1
+
+        if number_of_data_bounded_axes != number_of_dimensions:
+            raise RuntimeException("Number of specified axes in the ingredient without dataBound=false != number of axes of the input file,"
+                                   " given: {} and {} axes. \n"
+                                   "Hint: set irregular axis with \"dataBound\": false in the ingredients file.".format(number_of_data_bounded_axes, number_of_dimensions))
 
     def _get_importer(self):
         """

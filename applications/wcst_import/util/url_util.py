@@ -65,17 +65,24 @@ def validate_and_read_url(url, data=None):
 
         ret = urlopen(request, context=ssl._create_unverified_context())
     except Exception as e:
+        if hasattr(e.reason, "strerror"):
+            # URLError
+            error_message = e.reason.strerror
+        else:
+            # HTTPError
+            error_message = decode_res(e.read())
+
         raise RuntimeException("Failed opening connection to '{}'. "
-                               "Check that the service is up and running."
-                               "Detail error: {}.".format(url, decode_res(e.read())))
+                               "Check that the service is up and running. "
+                               "Detail error: {}.".format(url, error_message))
     response = ret.read()
 
     if ret.getcode() != 200:
-        raise RuntimeException("Server responded failed for request '{}'."
+        raise RuntimeException("Server failed to respond for request '{}'. "
                                "Detail error: {}.".format(url, response))
 
     if "<html" in decode_res(response):
-        raise RuntimeException("Server requests credentials for authentication,"
+        raise RuntimeException("Server requests credentials for authentication, "
                                "please provide them (check wcst_import.sh -h for details)")
 
     return response

@@ -112,6 +112,11 @@ fi
 
 [ "$ingredients_file" = "" ] && usage "no ingredients file specified."
 
+# default it is 3600 seconds for daemon's interval time
+if [[ -z "$watch_interval" ]]; then
+    watch_interval=3600
+fi
+
 case $watch_interval in
     ''|*[!0-9]*) usage "invalid watch interval specified: $watch_interval";;
     *)           [ "$watch_interval" -gt 0 ] || usage "please specify a positive watch interval.";;

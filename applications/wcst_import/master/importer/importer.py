@@ -130,6 +130,7 @@ class Importer:
                 executor.execute(request, mock=ConfigManager.mock)
                 self.resumer.add_imported_data(current.data_provider)
             except Exception as e:
+
                 if ConfigManager.retry == True:
                     log.warn(
                         "\nException thrown when trying to insert slice: \n" + current_str + "Retrying, you can safely ignore the warning for now. Tried " + str(

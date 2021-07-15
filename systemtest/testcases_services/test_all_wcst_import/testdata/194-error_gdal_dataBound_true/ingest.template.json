@@ -1,0 +1,58 @@
+{
+  "config": {
+	"service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_error_gdal_dataBound_true",
+    "paths": [
+      "*.tiff"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+        "coverage": {
+          "crs": "OGC/0/Index1D@EPSG/0/4326",
+          "metadata": {
+            "type": "xml",
+            "global": {
+              "Title": "'Drought code'"
+         	  },
+             "local": {
+                  "local_metadata_key": "${gdal:metadata:local_metadata_key}"
+              }
+          },
+          "slicer": {
+            "type": "gdal",
+
+            "axes": {
+
+              "Long": {
+                "min": "${gdal:minX}",
+                "max": "${gdal:maxX}",
+                "gridOrder": 1,
+                "resolution": "${gdal:resolutionX}"
+              },
+              "Lat": {
+                "min": "${gdal:minY}",
+                "max": "${gdal:maxY}",
+                "gridOrder": 2,
+                "resolution": "${gdal:resolutionY}"
+              },
+              "i": {
+                    "min": "int(regex_extract('${file:name}', 'test_(.*).tiff', 1))",
+                    "gridOrder": 0,
+                    "irregular": true,
+                    "dataBound": true
+              }
+          }
+        }      
+      },
+      "tiling": "ALIGNED [0:366, 0:500]"
+    }
+  }
+}

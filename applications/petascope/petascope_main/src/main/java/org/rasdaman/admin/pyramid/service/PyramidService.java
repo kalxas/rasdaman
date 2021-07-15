@@ -623,8 +623,8 @@ public class PyramidService {
                 long numberOfPyramidMemberGridPixels = pyramidMemberIndexAxis.getUpperBound() - pyramidMemberIndexAxis.getLowerBound() + 1;
                 
                 // e.g: 10 / 5 = 2
-                BigDecimal scaleFactor = BigDecimalUtil.stripDecimalZeros(BigDecimalUtil.divide(pyramidMemberGeoAxis.getResolution(), 
-                                                                                                baseGeoAxis.getResolution()));
+                BigDecimal scaleFactor = BigDecimalUtil.stripDecimalZeros(BigDecimalUtil.divide(pyramidMemberGeoAxis.getResolution().abs(), 
+                                                                                                baseGeoAxis.getResolution().abs()));
                 // e.g: 2 * 1 = 2
                 productOfScaleFactors = productOfScaleFactors.multiply(scaleFactor);
                 

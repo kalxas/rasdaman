@@ -78,9 +78,17 @@ class Resumer:
         Adds a checkpoint and saves to the backing file
         """
         if ConfigManager.track_files and not ConfigManager.mock:
-            file = open(self.__RESUMER_FILE_NAME_DICT[self.coverage_id], "w")
-            json.dump(Resumer.__IMPORTED_DATA_DICT[self.coverage_id], file)
-            file.close()
+            resume_file_path = self.__RESUMER_FILE_NAME_DICT[self.coverage_id]
+
+            try:
+                file = open(resume_file_path, "w")
+                json.dump(Resumer.__IMPORTED_DATA_DICT[self.coverage_id], file)
+                file.close()
+            except Exception as e:
+                log.error("Cannot create resume file '{}'. \n"
+                          "Hint: make sure the folder containing the resume file is writeable "
+                          "for the user running wcst_import.sh.".format(resume_file_path))
+                exit(1)
 
     def add_imported_data(self, data_provider):
         """
