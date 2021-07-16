@@ -114,12 +114,15 @@ public class Application {
             */
 
             // Test SECORE
+/*
+            http://rasdaman.org/ticket/2471
+
             webPageTests.add(new SecoreGetCRSMetadataTest());
             webPageTests.add(new SecoreCompare2CRSsMetadataTest());
             webPageTests.add(new SecoreBrowseCRSMetadataTest());
             webPageTests.add(new SecoreDeleteCRSMetadataTest());
             webPageTests.add(new SecoreExecuteXQueryTest());
-            webPageTests.add(new SecoreLogoutTest());
+            webPageTests.add(new SecoreLogoutTest()); */
 
             log.info("----------------------- Test Start ------------------");
 

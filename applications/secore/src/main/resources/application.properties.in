@@ -23,3 +23,11 @@
 spring.mvc.view.prefix: /WEB-INF/jsp/
 spring.mvc.view.suffix: .jsp
 secore.confDir=@CONF_DIR@
+
+# NOTE: Set it to true to enable SecoreController.java component
+# when running SECORE as standalone web application.
+# Default set it is to false, when SECORE is embedded in petascope.
+# Because, it will not consider requests to get resources (e.g. .html, .js)
+# from petascope as resolving CRS requests.
+secore.controller.enabled=false
+

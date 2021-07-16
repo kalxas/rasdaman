@@ -21,6 +21,7 @@
  */
 package petascope.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -37,11 +38,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -51,6 +56,14 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.config.ConfigManager;
+import org.rasdaman.secore.Resolver;
+import org.rasdaman.secore.db.DbManager;
+import org.rasdaman.secore.db.DbSecoreVersion;
+import org.rasdaman.secore.req.ResolveRequest;
+import org.rasdaman.secore.req.ResolveResponse;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -60,6 +73,8 @@ import petascope.core.XMLSymbols;
 import static petascope.util.StringUtil.ENCODING_UTF8;
 import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_0;
 import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_85;
+
+
 
 /**
  * Coordinates transformation utility in case a spatial reprojection is needed
@@ -118,8 +133,6 @@ public class CrsUtil {
     // WGS84
     public static final String WGS84_EPSG_CODE = "4326";
 
-    // used in WCS GetCapabilities to list all the possible CRSs
-    public static final String EPSG_ALL_CRS = CrsUtil.getResolverUri() + "/crs/EPSG/0";
     // e.g: <identifier>http://localhost:8080/def/crs/EPSG/0/4326</identifier>
     public static final String SECORE_IDENTIFIER_PATTERN = "<identifier>(.+?)</identifier>";
     
@@ -130,6 +143,46 @@ public class CrsUtil {
     private static Map<List<String>, Long[]> gridIndexConversions = new HashMap<List<String>, Long[]>();         // subset2gridIndex conversions
 
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
+    
+    
+    private static final String APPLICATION_PROPERTIES_FILE = "application.properties";
+    private static final String KEY_SECORE_CONF_DIR = "secore.confDir";
+    
+    /**
+     * Invoke embedded SECORE in petascope before petascope starts to migrate 
+     * 
+     */
+    public static void loadInternalSecore(boolean embedded, String webappsDir) throws IOException, org.rasdaman.secore.util.SecoreException, SecoreException {
+
+        Properties properties = new Properties();
+        InputStream resourceStream = new ClassPathResource(APPLICATION_PROPERTIES_FILE).getInputStream();
+        properties.load(resourceStream);
+
+        PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
+        File initialFile = new File(properties.getProperty(KEY_SECORE_CONF_DIR) + "/" + org.rasdaman.secore.ConfigManager.SECORE_PROPERTIES_FILE);
+        propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
+
+        String confDir = properties.getProperty(KEY_SECORE_CONF_DIR);
+        try {
+            org.rasdaman.secore.ConfigManager.initInstance(confDir, embedded, webappsDir);
+            //  Create (first time load) or Get the BaseX database from caches.
+            DbManager dbManager = DbManager.getInstance();
+
+            // NOTE: we need to check current version of Secoredb first, if it is not latest, then run the update definition files with the current version to the newest versionNumber from files.
+            // in $RMANHOME/share/rasdaman/secore.
+            // if current version of Secoredb is empty then add SecoreVersion element to BaseX database and run all the db_updates files.
+            DbSecoreVersion dbSecoreVersion = new DbSecoreVersion(dbManager.getDb());
+            dbSecoreVersion.handle();
+            log.debug("Initialzed BaseX dbs successfully.");
+        } catch (Exception ex) {
+            throw new SecoreException(ExceptionCode.InternalComponentError, "Cannot initialize database manager", ex);
+        }
+    }
+    
+    public static void handleSecoreController(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        org.rasdaman.secore.controller.SecoreController controller = new org.rasdaman.secore.controller.SecoreController();
+        controller.handleRequest(req, resp);
+    }
 
     // Interface (unuseful now)
     /**
@@ -176,6 +229,12 @@ public class CrsUtil {
     public static String CrsUriDir(String committee) {
         return CrsUriDir(getResolverUri(), committee, CRS_DEFAULT_VERSION);
     }
+    
+    public static final String getEPSGVersion0CRS() {
+        // used in WCS GetCapabilities to list all the possible CRSs
+        String result = CrsUtil.getResolverUri() + "/crs/EPSG/0";
+        return result;
+    }
 
     /**
      * WCS GetCapabilities must contain list of EPSG CRSs as it is required in
@@ -184,17 +243,14 @@ public class CrsUtil {
      * @return
      * @throws java.net.MalformedURLException
      */
-    public static List<String> getAllEPSGCrss() throws MalformedURLException, IOException {
-        URL url = new URL(CrsUtil.EPSG_ALL_CRS);
-        URLConnection con = url.openConnection();
-        con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-        con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-        InputStream inStream = con.getInputStream();
+    public static List<String> getAllEPSGCrss() throws Exception {
+        String uri = CrsUtil.getEPSGVersion0CRS();        
+        InputStream inStream = getInputStream(uri);
 
         String crssTmp = IOUtils.toString(inStream, ENCODING_UTF8);
         Matcher matcher = Pattern.compile(SECORE_IDENTIFIER_PATTERN).matcher(crssTmp);
 
-        List<String> crss = new ArrayList<String>();
+        List<String> crss = new ArrayList<>();
         while (matcher.find()) {
             crss.add(matcher.group(1));
         }
@@ -211,6 +267,40 @@ public class CrsUtil {
         String datumOrigin = getCrsDefinition(crs).getDatumOrigin();
 
         return datumOrigin;
+    }
+    
+    /**
+     * Check if the crs should go to the internal SECORE or not
+     */
+    public static boolean isInternalSecoreURL(String url) {
+        String tmpCRS = url.replace(ConfigManager.DEFAULT_PETASCOPE_PORT, ConfigManager.EMBEDDED_PETASCOPE_PORT);
+        return url.startsWith(ConfigManager.DEFAULT_SECORE_INTERNAL_URL) || url.startsWith(tmpCRS);
+    }
+    
+    /**
+     * Return the input stream by internal SECORE or external SECORE
+     */
+    private static InputStream getInputStream(String crsUri) throws Exception {
+        InputStream result;
+        crsUri = crsUri.replaceAll("\"", "%22");
+        
+        if (isInternalSecoreURL(crsUri)) {
+            // If secore_url=interal -> query from embedded secore
+            ResolveRequest request = new ResolveRequest(crsUri);
+            ResolveResponse res = Resolver.resolve(request);
+            String text = res.getData();
+            result = IOUtils.toInputStream(text);
+        } else {
+            log.debug("# Checking external SECORE with url " + crsUri);
+            // external secore, send requests normally
+            URL url = new URL(crsUri);
+            URLConnection con = url.openConnection();
+            con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
+            con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
+            result = con.getInputStream();
+        }
+        
+        return result;
     }
 
     /**
@@ -271,11 +361,7 @@ public class CrsUtil {
         for (String crsUri : crsUris) {
             URL uomUrl = null;
             try {
-                URL url = new URL(crsUri.replaceAll("\"", "%22"));
-                URLConnection con = url.openConnection();
-                con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-                con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-                InputStream inStream = con.getInputStream();
+                InputStream inStream = getInputStream(crsUri);
 
                 // Build the document
                 Document doc = XMLUtil.buildDocument(null, inStream);
@@ -456,7 +542,7 @@ public class CrsUtil {
                 }
             } catch (Exception ex) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                        (null == uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition.", ex);
+                        (null == uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition. Reason: " + ex.getMessage(), ex);
             }
         }
 
@@ -490,7 +576,7 @@ public class CrsUtil {
      * @throws IOException
      * @throws ParsingException
      */
-    public static Element crsDefUrlToXml(final String url) throws MalformedURLException, IOException, ParsingException {
+    public static Element crsDefUrlToXml(final String url) throws Exception {
         Element ret = crsDefUrlToDocument(url);
         if (ret == null) {
             for (String configuredResolver : ConfigManager.SECORE_URLS) {
@@ -557,20 +643,16 @@ public class CrsUtil {
      * @return Element
      * @throws MalformedURLException
      */
-    private static Element crsDefUrlToDocument(final String url) throws MalformedURLException {
+    private static Element crsDefUrlToDocument(final String url) throws Exception {
         Element ret = null;
-        URL uomUrl = new URL(url);
-        try {
-            // Get the CRS URI definition from SECORE to build Element
-            URLConnection uomCon = uomUrl.openConnection();
-            uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-            uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);            
+        try {                                  
             if (url.contains("uom/UCUM") || url.contains("uom/OGC")) {
                 // NOTE: as it cannot resolve the UOM for time axis, e.g: http://www.opengis.net/def/uom/UCUM/0/d, doesn't need to do anything
                 ret = null;
             } else {
-                InputStream is = uomCon.getInputStream();
-                Document doc = XMLUtil.buildDocument(null, is);
+                // Get the CRS URI definition from SECORE to build Element
+                InputStream inStream = getInputStream(url);               
+                Document doc = XMLUtil.buildDocument(null, inStream);
                 ret = doc.getRootElement();
             }
         } catch (IOException | ParsingException | PetascopeException ex) {
@@ -929,14 +1011,14 @@ public class CrsUtil {
      * http://www.opengis.net/def/crs/EPSG/0/4326
      */
     public static String getEPSGFullUri(String epsgCode) {
-        return EPSG_ALL_CRS + "/" + epsgCode.split(":")[1];
+        return getEPSGVersion0CRS() + "/" + epsgCode.split(":")[1];
     }
     
     /**
      * e.g: 4326 -> localhost:8080/def/crs/EPSG/0/
      */
     public static String getEPSGFullUriByCode(String code) {
-        return EPSG_ALL_CRS + "/" + code;
+        return getEPSGVersion0CRS() + "/" + code;
     }
  
     /**
@@ -1127,6 +1209,28 @@ public class CrsUtil {
         }
         
         return results;        
+    }
+    
+    /**
+     * Check if SECORE urls configured in petascope.properties work when petascope starts
+     */
+    public static boolean isSecoreAvailable() {
+        boolean secoreRunning = false;
+        for (String secoreURL : ConfigManager.SECORE_URLS) {
+            
+            String testURL = secoreURL + "/crs/EPSG/0/4326";
+            log.info("Checking if SECORE is running at '" + secoreURL + "'");
+            
+            try {
+                CrsUtil.getCrsDefinition(testURL);
+                secoreRunning = true;
+                break;
+            } catch (Exception ex) {
+                log.warn("SECORE request '" + testURL + "' failed, reason: " + ex.getMessage() + ".");
+            }
+        }
+        
+        return secoreRunning;
     }
 
     /**
@@ -1402,12 +1506,7 @@ public class CrsUtil {
             for (String equalityUri : new String[]{equalityUri_given, equalityUri_atResolver}) {
                 try {
                     // Create InputStream and set the timeouts
-                    URL url = new URL(equalityUri);
-                    url = new URL(url.toString().replaceAll("\"", "%22"));
-                    URLConnection con = url.openConnection();
-                    con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-                    con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-                    InputStream inStream = con.getInputStream();
+                    InputStream inStream = getInputStream(equalityUri);
                     log.debug(equalityUri);
 
                     // Build the document
@@ -1711,7 +1810,8 @@ public class CrsUtil {
          * @return
          */
         public static String fromDbRepresentation(String crsUri) {
-            crsUri = crsUri.replace(SECORE_URL_PREFIX, ConfigManager.SECORE_URLS.get(0));
+            String secoreURL = ConfigManager.SECORE_URLS.get(0);
+            crsUri = crsUri.replace(SECORE_URL_PREFIX, secoreURL);
             return crsUri;
         }
 

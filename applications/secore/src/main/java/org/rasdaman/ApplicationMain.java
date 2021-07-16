@@ -22,12 +22,16 @@
 package org.rasdaman;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.rasdaman.secore.db.DbManager;
 import org.rasdaman.secore.db.DbSecoreVersion;
 import org.rasdaman.secore.ConfigManager;
+import static org.rasdaman.secore.ConfigManager.KEY_JAVA_SERVER;
+import static org.rasdaman.secore.ConfigManager.SECORE_PROPERTIES_FILE;
+import static org.rasdaman.secore.ConfigManager.VALUE_JAVA_SERVER_EXTERNAL;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.SecoreException;
 import org.slf4j.Logger;
@@ -69,8 +73,29 @@ public class ApplicationMain extends SpringBootServletInitializer {
         propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
 
         String confDir = properties.getProperty(KEY_SECORE_CONF_DIR);
+        String confFile = confDir + "/" + SECORE_PROPERTIES_FILE;
+        
+        Properties props = new Properties();
+
+        try {        
+            File file = new File(confFile);
+            InputStream is = new FileInputStream(file);            
+            props.load(is);
+        } catch (Exception ex) {
+            throw new SecoreException(ExceptionCode.InternalComponentError, "Cannot load properties from properties file '" + confFile + ", reason: " + ex.getMessage(), ex);
+        }
+        
+        // NOTE: only have effect when running def.war separately from petascope
+        String value = props.getProperty(KEY_JAVA_SERVER);
+        boolean embedded = true;
+        if (value != null && value.trim().equals(VALUE_JAVA_SERVER_EXTERNAL)) {
+            embedded = false;
+        } else if (value == null) {
+            log.warn(KEY_JAVA_SERVER + " setting does not exist in properties file '" + confFile + "', internal mode is selected.");
+        }
+        
         try {
-            ConfigManager.initInstance(confDir);
+            ConfigManager.initInstance(confDir, embedded, null);
             //  Create (first time load) or Get the BaseX database from caches.
             DbManager dbManager = DbManager.getInstance();
 

@@ -27,10 +27,18 @@ ifeq ($(BUILD_DIR),)
 $(error BUILD_DIR was not provided)
 endif
 
-target = $(BUILD_DIR)/target/def.war
+target = $(BUILD_DIR)/target/def.jar
+targetwithdeps = $(BUILD_DIR)/target/def-jar-with-dependencies.jar
 MVN = mvn
 
 all: $(target)
 
 $(target): pom.xml $(shell find -name '*.java')
-	$(MVN) -q -B package -DbuildDir=$(BUILD_DIR)
+	$(MVN) -q -B package -DbuildDir=$(BUILD_DIR) \
+                         -Dversion=$(PROJECT_VERSION)
+
+	$(MVN) -q install:install-file -Dfile=$(targetwithdeps) \
+			-DgroupId=org.rasdaman \
+			-DartifactId=secore \
+			-Dversion=$(PROJECT_VERSION) \
+			-Dpackaging=jar

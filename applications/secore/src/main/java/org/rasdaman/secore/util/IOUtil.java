@@ -32,6 +32,7 @@ import org.rasdaman.secore.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 /**
  * I/O utility class.
@@ -138,12 +139,15 @@ public class IOUtil {
     public static String getSecoreDbDir() throws SecoreException {
         if (secoreDbDir == null) {            
             try {
-                if (ConfigManager.getInstance().useEmbeddedServer()) {
+                if (ConfigManager.embeddedFromPetascope != null) {
+                    // SECORE is running inside petascope which is deployed in external tomcat                        
+                    secoreDbDir = ConfigManager.webappsDir + "/" + Constants.SECORE_DB_DIR;
+                } else if (ConfigManager.getInstance().useEmbeddedServer() == true) {
                     // embedded servlet container
                     // NOTE: secoredb is configged by user in secore.properties file (secoredb.path)
                     secoreDbDir = ConfigManager.getInstance().getEmbeddedSecoreDbFolderPath() + "/" + Constants.SECORE_DB_DIR;
                 } else {
-                    // external servlet container, secoredb is from webapps/secoredb
+                    // SECORE is running in external tomcat, secoredb is from webapps/secoredb
                     File webappsDir = new ClassPathResource("gml").getFile().getParentFile().getParentFile().getParentFile().getParentFile();                
                     secoreDbDir = webappsDir.getAbsolutePath() + "/" + Constants.SECORE_DB_DIR;
                 }

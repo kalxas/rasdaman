@@ -54,7 +54,7 @@ if (ENABLE_JAVA)
     endif(GENERATE_DOCS)
 
     add_custom_target(secore ALL
-            COMMAND $(MAKE) -C ${SRC_DIR} BUILD_DIR=${BUILD_DIR}
+            COMMAND $(MAKE) -C ${SRC_DIR} BUILD_DIR=${BUILD_DIR} PROJECT_VERSION=${PROJECT_VERSION}
             WORKING_DIRECTORY ${SRC_DIR}
             COMMENT "building secore"
             VERBATIM)
@@ -67,8 +67,9 @@ if (ENABLE_JAVA)
 	        GROUP_EXECUTE GROUP_WRITE GROUP_READ 
 	        WORLD_EXECUTE WORLD_WRITE WORLD_READ)
 
-    install(FILES "${SECORE_TARGET_DIR}/def.war"
-            DESTINATION ${WAR_DIR})
+    # NOTE: only when packaging as war then this one can be enabled, default it builds def.jar as a library for petascope
+    # install(FILES "${SECORE_TARGET_DIR}/def.war"
+    #        DESTINATION ${WAR_DIR})
 
     # these files contain update CRS defintions for SECORE userdb
     install(DIRECTORY db_updates/ DESTINATION "${SHARE_DATA_DIR}/secore")

@@ -23,13 +23,17 @@ package org.rasdaman.config;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
@@ -50,6 +54,7 @@ import petascope.util.StringUtil;
 import petascope.util.ras.RasUtil;
 
 import org.gdal.gdal.gdal;
+import static petascope.util.CrsUtil.isInternalSecoreURL;
 
 /**
  * Configuration Manager class: a single entry point for all server settings.
@@ -158,7 +163,10 @@ public class ConfigManager {
 
     /* ***** SECORE configuration ***** */
     public static List<String> SECORE_URLS;
-
+    public static final String SECORE_INTERNAL = "internal";
+    // this is used internally inside petascope as a valid URI, loaded from secore.properties, default it is "http://localhost:8080/def"
+    public static final String DEFAULT_SECORE_INTERNAL_URL = "http://localhost:8080/def";
+    
     /* ***** AJP connector configuration for embedded tomcat ***** */
     public static int EMBEDDED_AJP_PORT = 0;
 
@@ -221,7 +229,7 @@ public class ConfigManager {
 
     /* ***** SECORE configuration ***** */
     private static final String KEY_SECORE_URLS = "secore_urls";
-
+    
     /* ***** WCS configuration ***** */
     // validate XML POST input request with XML Schema (not set to true when OGC CITE testing)
     private static final String KEY_XML_VALIDATION = "xml_validation";
@@ -244,14 +252,20 @@ public class ConfigManager {
     /* ***** Demo web pages ***** */
     // Used only when one wants to add web pages demo (e.g: Earthlook) to be served by Petascope
     private static final String KEY_STATIC_HTML_DIR_PATH = "static_html_dir_path";
+    
+    private static final String KEY_EMBEDDED_PETASCOPE_PORT = "server.port";
+    public static final String DEFAULT_PETASCOPE_PORT = "8080";
+    public static String EMBEDDED_PETASCOPE_PORT = "";
 
     public static byte GDAL_JAVA_VERSION = 0;
+    public static String CONF_DIR = "";
 
     /**
      * Initialize all the keys, values of petascope.properties
      */
-    public static void init(String confDir) throws RasdamanException, PetascopeException {
+    public static void init(String confDir) throws Exception {
         if (instance == null) {
+            CONF_DIR = confDir;
             instance = new ConfigManager(confDir);
         }
     }
@@ -276,13 +290,13 @@ public class ConfigManager {
      *
      * @param confDir Path to the properties directory
      */
-    private ConfigManager(String confDir) throws RasdamanException, PetascopeException {
+    private ConfigManager(String confDir) throws Exception {
         confDir = validateConfDir(confDir);
 
         String petaPropsPath = confDir + PETASCOPE_PROPERTIES_FILE;
 
         initLogger(petaPropsPath);
-        initSettings(confDir, petaPropsPath);
+        initSettings(petaPropsPath);
     }
 
     private void initLogger(String petaPropsPath) {
@@ -299,7 +313,7 @@ public class ConfigManager {
      * Overwrite defaults settings with user-defined values in
      * petascope.properties
      */
-    private void initSettings(String confDir, String petaPropsPath) throws RasdamanException, PetascopeException {
+    private void initSettings(String petaPropsPath) throws Exception {
         try {
             props = new Properties();
             props.load(new FileInputStream(petaPropsPath));
@@ -474,12 +488,42 @@ public class ConfigManager {
         RASDAMAN_BIN_PATH = get(KEY_RASDAMAN_BIN_PATH);
     }
     
-    private void initSecoreSettings() throws PetascopeException {
+    private void initSecoreSettings() throws Exception {
         SECORE_URLS = StringUtil.csv2list(get(KEY_SECORE_URLS));
         if (SECORE_URLS.isEmpty()) {
             log.error("Failed loading secore urls from petascope.properties");
             throw new RuntimeException("Failed loading secore urls from petascope.properties");
         }
+        
+        Set<String> tmps = new LinkedHashSet<>();
+        for (String secoreURL : SECORE_URLS) {
+            if (secoreURL.equals(SECORE_INTERNAL)) {
+                tmps.addAll(this.getInternalSecoreURLs());
+            } else {
+                tmps.add(secoreURL);
+            }
+        }
+        
+        SECORE_URLS = new ArrayList<>(tmps);
+    }
+    
+    /**
+     * Get the internal SECORE URLs (in case, embedded server.port is different than 8080,
+     * then it is added as well to the result)
+     */
+    public List<String> getInternalSecoreURLs() throws PetascopeException {
+        List<String> results = new ArrayList<>();
+        String tmp = DEFAULT_SECORE_INTERNAL_URL;
+        results.add(tmp);
+
+        // server.port
+        EMBEDDED_PETASCOPE_PORT = this.get(KEY_EMBEDDED_PETASCOPE_PORT);
+        if (!EMBEDDED_PETASCOPE_PORT.equals(DEFAULT_PETASCOPE_PORT)) {
+            tmp = tmp.replace(DEFAULT_PETASCOPE_PORT, EMBEDDED_PETASCOPE_PORT);
+            results.add(tmp);
+        }
+        
+        return results;
     }
     
     private void initTempUploadDirs() throws PetascopeException {

@@ -27,6 +27,8 @@ from typing import List, Any
 
 from lxml import etree
 import sys
+
+
 if sys.version_info[0] < 3:
     import urlparse
 else:
@@ -371,6 +373,8 @@ class CRSUtil:
         Parse the axes XML elements out of the CRS definition
         :param str crs: a complete CRS request  (e.g: http://localhost:8080/def/crs/EPSG/0/4326)
         """
+
+        crs = replace_crs_by_working_crs(crs)
         try:
             gml = validate_and_read_url(crs)
             root = etree.fromstring(gml)
@@ -453,5 +457,16 @@ class CRSUtil:
         return {"axes": [], "individual_crs_axes": OrderedDict()}
 
     __CACHE__ = {}
+
+
+def replace_crs_by_working_crs(crs):
+    """
+    Replace the first part of crs in the ingredients file with the checked working crs when wcst_import starts
+    e.g. in the ingredients it has: "time_crs": "http://localhost:8082/def/crs/OGC/0/AnsiDate"
+    but the working SECORE CRS when wcst_import starts, is: "http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate"
+    """
+    from session import RUNNING_SECORE_URL
+    result = RUNNING_SECORE_URL + "/" + crs.split("/def/")[1]
+    return result
 
 

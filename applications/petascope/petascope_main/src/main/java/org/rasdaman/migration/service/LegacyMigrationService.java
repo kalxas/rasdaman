@@ -121,9 +121,9 @@ public class LegacyMigrationService extends AbstractMigrationService {
         // NOTE: Check secore is running first, if it is not running, migration cannot be done
         try {
             // try to request to localhost:8080/def/crs/EPSG/0/4326
-            CrsUtil.getCrsDefinition(CrsUtil.EPSG_ALL_CRS + "/4326");
+            CrsUtil.getCrsDefinition(CrsUtil.getEPSGVersion0CRS() + "/4326");
         } catch (Exception ex) {            
-            String errorMessage = "Test request '" + CrsUtil.EPSG_ALL_CRS + "/4326' failed; "
+            String errorMessage = "Test request '" + CrsUtil.getEPSGVersion0CRS() + "/4326' failed; "
                                 + "please make sure def.war (SECORE) is deployed in Tomcat and then retry the migration.";
             log.debug(errorMessage, ex);
             throw new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);

@@ -70,7 +70,7 @@ server.port=8081
 # java_server=embedded. If java_server=external secore, then a secoredb folder 
 # will be automatically created in Tomcat's webapps directory for this purpose,
 # so no need to adapt set any value for this setting.
-secoredb.path=
+secoredb.path=/opt/rasdaman/data/secore
 
 
 #---------------------------- logging configuration ----------------------------

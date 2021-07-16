@@ -26,9 +26,9 @@ add_subdirectory(rasdapy3)
 add_subdirectory(rasql-web-console)
 
 if (ENABLE_JAVA)
+    add_subdirectory(secore)
     add_subdirectory(petascope)
     add_subdirectory(raswct)
-    add_subdirectory(secore)
     add_subdirectory(wcst_import)
 
     if (ENABLE_R)

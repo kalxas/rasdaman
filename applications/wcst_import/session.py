@@ -38,6 +38,12 @@ from decimal import Decimal
 
 glob = import_glob()
 
+INTERNAL_SECORE = "internal"
+DEFAULT_SECORE_URL = "http://localhost:8080/def"
+INTERNAL_SECORE_URL_CONTEXT_PATH = "/rasdaman/def"
+INTERNAL_SECORE_URL = "http://localhost:8080/" + INTERNAL_SECORE_URL_CONTEXT_PATH
+RUNNING_SECORE_URL = None
+
 
 class Session:
     def __init__(self, config, inp, recipe, hooks, ingredient_file_name, ingredients_dir_path):
@@ -73,7 +79,7 @@ class Session:
                 os.makedirs(ConfigManager.tmp_directory)
                 os.chmod(ConfigManager.tmp_directory, 0o777)
             self.tmp_directory = ConfigManager.tmp_directory
-        self.crs_resolver = self.__get_crs_resolver_configuration()
+        self.crs_resolver, self.embedded_petascope_port = self.__get_crs_resolver_and_embedded_petascope_port_configuration()
         self.default_crs = config['default_crs'] if "default_crs" in config else None
 
         # NOTE: only old recipes before general recipe using the default_crs inside the ingredient files
@@ -215,14 +221,39 @@ class Session:
                     raise RuntimeException("NOTE: Importing overviews is only supported since gdal version 2.0, "
                                            "and your system has GDAL version '" + version + "'.")
 
-    def __get_crs_resolver_configuration(self):
+    def __get_setting_value_from_properties_file(self, properties_file, setting_key):
+        """
+        Given a properties file, e.g. /opt/rasdaman/etc/petascope.properties and setting key, e.g. secore_urls
+        return setting value of this key
+        """
+        try:
+            with open(properties_file) as f:
+                pass
+        except Exception as ex:
+            raise RuntimeException("Cannot open properties file '" + properties_file
+                                   + "', reason: " + str(ex)
+                                   + ". Hint: make sure user running wcst_import has permission to read this file.")
+
+        with open(properties_file) as f:
+            for line in f:
+                line = line.strip()
+                # e.g: server.port=8080
+                if "=" in line and line.startswith(setting_key):
+                    value = line.split("=")[1].strip()
+                    return value
+
+        raise RuntimeException("Cannot find setting '" + setting_key + "' from properties file '" + properties_file + "'.")
+
+
+    def __get_crs_resolver_and_embedded_petascope_port_configuration(self):
         """
         From the petascope.properties file which is configured in config_manager.py when building wcst_import,
         it can read the secore_urls configuration of Petascope and set as default crs resolver.
         It must replace the SECORE prefix in ingredient file by petascope's SECORE prefix.
         (e.g: http://localhost:8080/def  to http://opengis.net/def).
-        :return: str
+        :return: tuple(secore_urls, embedded_petascope_port)
         """
+
         # We will check if the environment variable exists first (it is exported in wcst_import.sh)
         try:
             petascope_properties_path = os.environ["PETASCOPE_PROPERTIES_PATH"]
@@ -242,23 +273,23 @@ class Session:
                     raise RuntimeException("Could not locate the petascope.properties file, "
                                            "please export the environment variable PETASCOPE_PROPERTIES_PATH before executing this script.")
 
-        crs_resolver = None
-        with open(petascope_properties_path) as f:
-            for line in f:
-                if "secore_urls=" in line:
-                    # e.g: http://localhost:8080/def,https://ows.rasdaman.org/def
-                    values = line.split("=")[1].strip().split(",")
+        embedded_petascope_port = self.__get_setting_value_from_properties_file(petascope_properties_path,
+                                                                                "server.port")
 
-                    crs_resolver = self.get_running_crs_resolver(values)
-                    # wcst_import needs the SECORE prefix with "/" as last character
-                    if crs_resolver[-1] != "/":
-                        crs_resolver += "/"
-                    return crs_resolver
+        crs_resolver_urls = self.__get_setting_value_from_properties_file(petascope_properties_path, "secore_url").split(",")
+        crs_resolver = self.get_running_crs_resolver(crs_resolver_urls, embedded_petascope_port)
+
         if crs_resolver is None:
             raise RuntimeException("Cannot find secore_urls configuration "
                                    "in petascope's properties file '{}' for crs_resolver".format(petascope_properties_path))
 
-    def get_running_crs_resolver(self, crs_resolvers):
+        # wcst_import needs the SECORE prefix with "/" as last character
+        if crs_resolver[-1] != "/":
+            crs_resolver += "/"
+
+        return (crs_resolver, embedded_petascope_port)
+
+    def get_running_crs_resolver(self, crs_resolvers, embedded_petascope_port):
         """
         From a list of SECORE configured in petascope.properties, find the first running SECORE
         to be used for wcst_import
@@ -266,11 +297,32 @@ class Session:
         :return: string (the running SECORE)
         """
         i = 0
+        crs_resolvers_tmp = []
         for url_prefix in crs_resolvers:
+            url_prefix = url_prefix.strip()
+
+            # NOTE: if secore_urls=internal in petascope.properties, it means
+            # wcst_import will use the internal SECORE inside petascope with the sub endpoint at /rasdaman/def
+            if url_prefix == INTERNAL_SECORE or url_prefix == DEFAULT_SECORE_URL:
+                url_prefix = INTERNAL_SECORE_URL
+
+                crs_resolvers_tmp.append(url_prefix)
+
+                # Also, in case petascope runs at different port than 8080
+                if embedded_petascope_port != "8080":
+                    url_prefix = "http://localhost:" + embedded_petascope_port + INTERNAL_SECORE_URL_CONTEXT_PATH
+                    crs_resolvers_tmp.append(url_prefix)
+
+        for url_prefix in crs_resolvers_tmp:
             try:
+                url_prefix = url_prefix.strip()
+
                 test_url = url_prefix + "/crs/EPSG/0/4326"
                 from util.crs_util import CRSUtil
+                global RUNNING_SECORE_URL
+                RUNNING_SECORE_URL = url_prefix
                 CRSUtil.get_axis_labels_from_single_crs(test_url)
+
                 # e.g: http://localhost:8080/def
                 return url_prefix
             except Exception as ex:

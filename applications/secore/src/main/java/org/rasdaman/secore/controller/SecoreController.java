@@ -45,6 +45,8 @@ import static org.rasdaman.secore.Constants.NEW_LINE;
 import static org.rasdaman.secore.Constants.XML_DECL;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.SecoreException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -52,7 +54,12 @@ import org.springframework.stereotype.Controller;
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Component
 @Controller
+
+// NOTE: Only enable this controller when controller.enabled=true in application.properties 
+// (i.e. when running SECORE as a standalone web application, separated from petascope)
+@ConditionalOnProperty(value="secore.controller.enabled", havingValue = "true")
 public class SecoreController {
 
     private static final Logger log = LoggerFactory.getLogger(SecoreController.class);
@@ -73,6 +80,10 @@ public class SecoreController {
      */
     @RequestMapping("/**")
     public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        this.handleRequest(req, resp);
+    }
+    
+    public void handleRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String uri = req.getRequestURL().toString();        
         String qs = req.getQueryString();
         if (qs != null && !qs.equals(EMPTY)) {
@@ -112,7 +123,7 @@ public class SecoreController {
         }
     }
 
-    private void writeResult(HttpServletResponse resp, String result) throws ServletException, IOException {
+    public void writeResult(HttpServletResponse resp, String result) throws ServletException, IOException {
         PrintWriter out = resp.getWriter();
         resp.setContentType(CONTENT_TYPE);
         if (result.equals(XML_DECL + NEW_LINE)) {
@@ -125,7 +136,7 @@ public class SecoreController {
         out.close();
     }
 
-    private void writeError(HttpServletResponse resp, SecoreException ex) throws IOException {
+    public void writeError(HttpServletResponse resp, SecoreException ex) throws IOException {
         log.error("Exception caught:", ex);
         String output = exceptionToXml(ex);
         resp.setContentType(CONTENT_TYPE);
@@ -135,7 +146,7 @@ public class SecoreController {
         out.close();
     }
 
-    private String exceptionToXml(SecoreException ex) {
+    public String exceptionToXml(SecoreException ex) {
         ExceptionReport report = ex.getReport();
         StringBuilder ret = new StringBuilder(500);
         ret.append(XML_DECL);

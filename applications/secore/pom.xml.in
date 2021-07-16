@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <name>SECORE - CRS Resolver</name>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <groupId>org.rasdaman</groupId>
     <artifactId>secore</artifactId>
-    <version>1.0.0</version>
+    <version>${version}</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
@@ -26,6 +26,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <!-- NOTE: when SECORE is embedded in petascope as def.jar, this one is provided by petascope, 
+                 without it, tomcat will start petascope with error: More than one fragment with the name [spring_web].
+                 Remove it, when building SECORE as a standalone web application (def.war).  -->
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <!-- don't use logback as default logger -->
@@ -147,10 +151,40 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- generate one jar with all dependencies inside -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <finalName>def</finalName>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- this is used for inheritance merges -->
+                        <phase>package</phase>
+                        <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- note: this plugin is needed to build standalone SECORE web application which can run in embedded mode.
+                 Only enable it, when you build war file instead of the default jar file -->
+            
+            <!-- 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            -->
+
         </plugins>
     </build>
 </project>

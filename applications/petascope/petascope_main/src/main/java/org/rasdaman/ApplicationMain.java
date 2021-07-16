@@ -22,6 +22,8 @@
 package org.rasdaman;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -30,10 +32,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.management.RuntimeErrorException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import org.apache.commons.io.FileUtils;
 import org.gdal.gdal.gdal;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
@@ -67,6 +71,8 @@ import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import petascope.exceptions.SecoreException;
+import petascope.util.CrsUtil;
 import petascope.util.ras.RasUtil;
 
 /**
@@ -105,6 +111,11 @@ public class ApplicationMain extends SpringBootServletInitializer {
     private static String OPT_PETASCOPE_CONFDIR = "";
     
     private static Properties applicationProperties = null;
+    
+    /**
+     * Check if petascope runs with embedded tomcat or external tomcat
+     */
+    public static boolean embedded = false;
 
     // Spring finds all the subclass of AbstractMigrationService and injects to the list
     @Resource
@@ -166,6 +177,11 @@ public class ApplicationMain extends SpringBootServletInitializer {
     }
 
     private static Properties loadApplicationProperties() throws Exception {
+        // NOTE: for external system tomcat, it returns `/var/lib/tomcat9`
+        // for external local tomcat, it returns `/home/rasdaman/pache-tomcat-8.5.34/bin`
+        String webappsDir = new FileSystemResource("").getFile().getCanonicalPath().replace("/bin", "") + "/webapps";
+        CrsUtil.loadInternalSecore(embedded, webappsDir);
+        
         Properties properties = new Properties();
         properties.load(ApplicationMain.class.getClassLoader().getResourceAsStream(APPLICATION_PROPERTIES_FILE));
         return properties;
@@ -273,12 +289,20 @@ public class ApplicationMain extends SpringBootServletInitializer {
             log.info("petascopedb migrated successfully.");
             System.exit(ExitCode.SUCCESS.getExitCode());
         }
+        
+        // ### check if SECORE is running first
 
-
+        if (!CrsUtil.isSecoreAvailable()) {
+            ConfigManager.SECORE_URLS = ConfigManager.getInstance(ConfigManager.CONF_DIR).getInternalSecoreURLs();
+            log.warn("SECORE endpoints configured in secore_urls setting in petascope.properties failed to return response; "
+                    + "petascope will use internal SECORE instead. "
+                    + "Hint: add \"internal\" as the first value of secure_urls in petascope.properties to avoid this warning in future.");            
+        }
+        
         // ### data migration
-        
+
         // Test if rasdaman is running first
-        
+
         try {
             RasUtil.checkValidUserCredentials(ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
         } catch(Exception ex) {
@@ -288,13 +312,13 @@ public class ApplicationMain extends SpringBootServletInitializer {
             AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
             return;
         }
-        
+
         log.info("Running data migrations ...");
 
         this.dataMigrationService.runMigration();
-        
+
         log.info("Checked data migrations.");
-        
+
         // load coverages / layers to caches in background thread
         this.loadCoveragesLayersCaches(this);
 
@@ -386,6 +410,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * e.g: java -jar rasdaman.war --petascope.confDir=/opt/rasdaman/new_etc
      */
     public static void main(String[] args) throws Exception {
+        embedded = true;
+                
         for (String arg : args) {
             if (matchInputArgumentKey(arg, KEY_PETASCOPE_CONF_DIR)) {
                 checkValidKeyEqualsValue(arg);

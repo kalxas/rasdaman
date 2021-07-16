@@ -66,9 +66,13 @@ public class ConfigManager {
     private final static String KEY_SERVICE_URL = "service.url";
     private final static String KEY_CODESPACE = "codespace";
     // If java_server=external, extract secoredb to tomcat/webapps/, if java_server=embedded, extract secoredb to $RMANHOME/share/rasdaman/war
-    private final static String KEY_JAVA_SERVER = "java_server";
+    public final static String KEY_JAVA_SERVER = "java_server";
+    public static final String VALUE_JAVA_SERVER_EXTERNAL = "external";
     // Only embedded secore needs to specify the path to store secoredb folder
     private final static String KEY_EMBEDDED_SECOREDB_FOLDER_PATH = "secoredb.path";
+    // NOTE: extracted gml dir will be at /tmp, but secoredb containing baseX files will be in different places (tomcat/webapps or /opt/rasdaman/data/secore)
+    private static final String EXTRACTED_GML_DIR_TMP = "/tmp/rasdaman/secore";
+    private static final String EMBEDDED_SECOREDB_FOLDER_PATH = "/opt/rasdaman/data/secore";
     
     // username, password to log in admin pages (*.jsp files)
     // NOTE: if no configurations in secore.properties, just login normally
@@ -84,17 +88,23 @@ public class ConfigManager {
 
     // As with embedded servlet container, it needs to extract gml.tar.gz from resource folder to a temp folder and BaseX can create secoredb    
     public static final String GML_ZIPPED_NAME = "gml.tar.gz";
-    public static final String SECORE_EMBEDDED_TMP_FOLDER = "/tmp/rasdaman/secore";
-    public static final String GML_EMBEDDED_TMP_FOLDER = SECORE_EMBEDDED_TMP_FOLDER + "/gml";
 
     // from secore.properties used for log4j
     private static final String LOG_FILE_PATH = "log4j.appender.rollingFile.File";
 
     // after get the fullpath to etc/gml, then it can load gml dictionary files from this folder
     private String gmlDir;
+    
+    Boolean isEmbedded = null;
+    public static Boolean embeddedFromPetascope = null;
+    // tomcat webapp dirs, passed from petascope
+    public static String webappsDir = null;
 
     @Autowired
-    private ConfigManager(String confDir) {
+    private ConfigManager(String confDir, Boolean embeddedFromPetascope, String webappsDir) {
+        this.embeddedFromPetascope = embeddedFromPetascope;
+        this.webappsDir = webappsDir;
+        
         // (we read from @CONF_DIR@/secore.properties (i.e: $RMANHOME/etc/secore.properties)) which is copied from secore-core/etc/secore.properties
         String confFile = confDir + "/" + SECORE_PROPERTIES_FILE;
         
@@ -122,23 +132,33 @@ public class ConfigManager {
                 }
             }
         }
+        
+        // Only when embeddedFromPetascope = null, i.e. running SECORE as a standalone web application
+        this.setEmbedded(embeddedFromPetascope);
 
         // NOTE: get the gml folder in resources folder
         File file;
         try {
-            if (this.useEmbeddedServer()) {
+            if (embeddedFromPetascope != null || this.useEmbeddedServer() == true) {
                 // NOTE: it depends on the configuration of $RMANHOME/etc/secore.properties (java_server=external)
                 // not by java -jar def.war, so need to change to java_server=embedded first.
                 // embedded servlet container, war file is not extracted, need to extract the gml folder temporarily for BaseX to create secoredb
                 InputStream inputStream = new ClassPathResource(ConfigManager.GML_ZIPPED_NAME).getInputStream();
-                File tempFile = new File(ConfigManager.SECORE_EMBEDDED_TMP_FOLDER + "/" + ConfigManager.GML_ZIPPED_NAME);
-                // copy tar.gz from resource to /tmp folder
-                FileUtils.copyInputStreamToFile(inputStream, tempFile);
-                File extractedGmlFolder = new File(ConfigManager.SECORE_EMBEDDED_TMP_FOLDER);
-                Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-                // extract this tar file to a temp folder
-                archiver.extract(tempFile, extractedGmlFolder);
-                gmlDir = ConfigManager.GML_EMBEDDED_TMP_FOLDER;
+                try {
+                    File tempFile = new File(EXTRACTED_GML_DIR_TMP + "/" + ConfigManager.GML_ZIPPED_NAME);
+                    // copy tar.gz from resource to /tmp folder
+                    FileUtils.copyInputStreamToFile(inputStream, tempFile);
+                    File extractedGmlFolder = new File(EXTRACTED_GML_DIR_TMP);
+                    Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+                    // extract this tar file to a temp folder
+                    archiver.extract(tempFile, extractedGmlFolder);
+                    
+                    gmlDir = EXTRACTED_GML_DIR_TMP + "/gml";
+                    log.info("Extracted gml.zip to tmp folder '" + gmlDir + "'.");
+                } catch (Exception ex) {
+                    throw new RuntimeException("Cannot extract gml.tar.gz to folder '" + ConfigManager.EMBEDDED_SECOREDB_FOLDER_PATH 
+                            + ", reason: " + ex.getMessage() + ". Hint: make sure user running petascope has write permission for this folder.", ex);
+                }
             } else {
                 /// external servlet container, war file is extracted to folder automatically, then could find the file path.
                 // NOTE: for SECORE runs with external servlet container get the gml folder in resources folder of def.war, then go to $CATALINA_HOME/webapps/
@@ -158,7 +178,7 @@ public class ConfigManager {
 
         // then init log4j configuration
         initLogging(confFile);
-        
+        log.info("SECORE gml dir path '" + gmlDir + "'.");
         log.info("Loaded SECORE properties from this file path '" + confFile + "'.");
     }
 
@@ -221,9 +241,9 @@ public class ConfigManager {
      * @throws java.io.IOException
      * @throws org.rasdaman.secore.util.SecoreException
      */
-    public static void initInstance(String confDir) throws IOException, SecoreException {
+    public static void initInstance(String confDir, boolean embedded, String webappsDir) throws IOException, SecoreException {
         if (instance == null) {
-            instance = new ConfigManager(confDir);
+            instance = new ConfigManager(confDir, embedded, webappsDir);
         }
     }
 
@@ -278,14 +298,25 @@ public class ConfigManager {
     /**
      * Check if SECORE runs by embedded or external servlet container.
      *
-     * @return
      */
     public boolean useEmbeddedServer() {
-        String value = get(KEY_JAVA_SERVER);
-        if (value.equals("external")) {
-            return false;
+        return this.isEmbedded;
+    }
+    
+    public void setEmbedded(Boolean embeddedFromPetascope) {
+        if (embeddedFromPetascope == null) {
+            // NOTE: only when running secore as a standalone web application then it should check java_server from secore.properties
+            String value = get(KEY_JAVA_SERVER);
+            if (value.equals("external")) {
+                this.isEmbedded = false;
+            } else {
+                // java_server=embedded
+                this.isEmbedded = true;
+            }
+        } else {
+            // secore get influence from petascope
+            this.isEmbedded = embeddedFromPetascope;
         }
-        return true;
     }
     
     /**

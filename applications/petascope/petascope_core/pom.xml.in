@@ -171,6 +171,11 @@
             <version>${version}</version>
         </dependency>
         <dependency>
+            <groupId>org.rasdaman</groupId>
+            <artifactId>secore</artifactId>
+            <version>${version}</version>        
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.1.0</version>

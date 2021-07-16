@@ -68,7 +68,8 @@ server.contextPath=/rasdaman
 
 # SECORE endpoints to be used by petascope. Multiple endpoints (for fail safety)
 # can be specified as comma-separated list, attempted in order as listed.
-secore_urls=http://localhost:8080/def
+# internal is by default SECORE embedded in petascope.
+secore_urls=internal
 
 # Account with read/write access to various service management capabilities;
 # Login at http://localhost:8080/rasadaman/admin to access the management

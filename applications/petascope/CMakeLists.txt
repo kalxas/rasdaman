@@ -107,7 +107,7 @@ configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 # Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
     COMMAND $(MAKE) -C ${SRC_DIR} PROJECT_VERSION=${PROJECT_VERSION} BUILD_DIR=${BUILD_DIR}
-    DEPENDS rasj
+    DEPENDS rasj secore
     WORKING_DIRECTORY ${SRC_DIR}
     COMMENT "building petascope"
     VERBATIM)
