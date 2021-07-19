@@ -327,16 +327,16 @@ public class ConfigManager {
      */
     public String getEmbeddedSecoreDbFolderPath() throws SecoreException {
         String secoredbFolderPath = ConfigManager.getInstance().get(KEY_EMBEDDED_SECOREDB_FOLDER_PATH);
-        if (secoredbFolderPath.equals("")) {
+        if (secoredbFolderPath.trim().isEmpty()) {
+            secoredbFolderPath = EMBEDDED_SECOREDB_FOLDER_PATH;
+        }
+        
+        File file = new File(secoredbFolderPath);
+        if (!file.canRead() || !file.canWrite()) { 
             throw new SecoreException(ExceptionCode.InvalidParameterValue, 
-                                      KEY_EMBEDDED_SECOREDB_FOLDER_PATH + " is empty in secore.properties file for embedded SECORE.");
-        } else {
-            File file = new File(secoredbFolderPath);
-            if (!file.canRead() || !file.canWrite()) { 
-                throw new SecoreException(ExceptionCode.InvalidParameterValue, 
-                                          KEY_EMBEDDED_SECOREDB_FOLDER_PATH + " points to non readable/writable folder path in secore.properties file for embedded SECORE.");
-            }
-        }       
+                                      KEY_EMBEDDED_SECOREDB_FOLDER_PATH + " points to non readable/writable folder path in secore.properties file for embedded SECORE.");
+        }
+        
         
         return secoredbFolderPath;
     }

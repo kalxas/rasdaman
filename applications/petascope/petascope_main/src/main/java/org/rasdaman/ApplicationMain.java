@@ -22,22 +22,16 @@
 package org.rasdaman;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.management.RuntimeErrorException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import org.apache.commons.io.FileUtils;
 import org.gdal.gdal.gdal;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
@@ -67,11 +61,9 @@ import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 import static org.rasdaman.config.ConfigManager.STATIC_HTML_DIR_PATH;
 import org.rasdaman.datamigration.DataMigrationService;
-import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.ras.RasUtil;
 
@@ -177,9 +169,12 @@ public class ApplicationMain extends SpringBootServletInitializer {
     }
 
     private static Properties loadApplicationProperties() throws Exception {
-        // NOTE: for external system tomcat, it returns `/var/lib/tomcat9`
-        // for external local tomcat, it returns `/home/rasdaman/pache-tomcat-8.5.34/bin`
-        String webappsDir = new FileSystemResource("").getFile().getCanonicalPath().replace("/bin", "") + "/webapps";
+        String webappsDir = null;
+        if (embedded == false) {
+            // NOTE: for external system tomcat, it returns `/var/lib/tomcat9`
+            // for external local tomcat, it returns `/home/rasdaman/pache-tomcat-8.5.34/bin`
+            webappsDir = new FileSystemResource("").getFile().getCanonicalPath().replace("/bin", "") + "/webapps";
+        }
         CrsUtil.loadInternalSecore(embedded, webappsDir);
         
         Properties properties = new Properties();

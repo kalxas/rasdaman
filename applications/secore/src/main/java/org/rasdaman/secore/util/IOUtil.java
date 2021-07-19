@@ -140,8 +140,14 @@ public class IOUtil {
         if (secoreDbDir == null) {            
             try {
                 if (ConfigManager.embeddedFromPetascope != null) {
-                    // SECORE is running inside petascope which is deployed in external tomcat                        
-                    secoreDbDir = ConfigManager.webappsDir + "/" + Constants.SECORE_DB_DIR;
+                    // SECORE is running inside petascope which is deployed in external tomcat     
+                    if (ConfigManager.webappsDir != null) {
+                        // petascope runs in external tomcat
+                        secoreDbDir = ConfigManager.webappsDir + "/" + Constants.SECORE_DB_DIR;
+                    } else {
+                        // petascope runs in embedded tomcat
+                        secoreDbDir = ConfigManager.getInstance().getEmbeddedSecoreDbFolderPath() + "/" + Constants.SECORE_DB_DIR;
+                    }
                 } else if (ConfigManager.getInstance().useEmbeddedServer() == true) {
                     // embedded servlet container
                     // NOTE: secoredb is configged by user in secore.properties file (secoredb.path)
@@ -155,8 +161,9 @@ public class IOUtil {
                 File secoreDbDirFile = new File(secoreDbDir);
                 if (!secoreDbDirFile.exists()) {
                     if (!secoreDbDirFile.mkdir()) {
-                        log.warn("Failed creating database directory: " + secoreDbDir);
-                        secoreDbDir = null;
+                        throw new SecoreException(ExceptionCode.InternalComponentError, 
+                                                  "Failed creating database directory at '" + secoreDbDir 
+                                                  + "'. Hint: make sure the user running web application has write permission to this folder.");
                     }
                 }
             } catch (IOException ex) {
