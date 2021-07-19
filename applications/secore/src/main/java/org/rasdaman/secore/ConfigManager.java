@@ -331,10 +331,15 @@ public class ConfigManager {
             secoredbFolderPath = EMBEDDED_SECOREDB_FOLDER_PATH;
         }
         
-        File file = new File(secoredbFolderPath);
-        if (!file.canRead() || !file.canWrite()) { 
+        File directory = new File(secoredbFolderPath);
+        if (!directory.exists()) {
+            // try to create /opt/rasdaman/data/secoredb first
+            directory.mkdir();
+        }
+        
+        if (!directory.canRead() || !directory.canWrite()) { 
             throw new SecoreException(ExceptionCode.InvalidParameterValue, 
-                                      KEY_EMBEDDED_SECOREDB_FOLDER_PATH + " points to non readable/writable folder path in secore.properties file for embedded SECORE.");
+                                      KEY_EMBEDDED_SECOREDB_FOLDER_PATH + " points to non readable/writable folder path '" + secoredbFolderPath + "' in secore.properties file for embedded SECORE.");
         }
         
         
