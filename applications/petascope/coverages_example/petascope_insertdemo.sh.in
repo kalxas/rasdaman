@@ -154,8 +154,7 @@ done
 
 PETASCOPE_URL="$SERVICE_ENDPOINT/rasdaman/ows"
 
-SECORE_URL=$(grep "^secore_urls=" "$SETTINGS" | sed -e 's/.*=//' -e 's/^[ \t]*//')
-[ -z "$SECORE_URL" ] && SECORE_URL="$SERVICE_ENDPOINT/def"
+SECORE_URL="$DEFAULT_SERVICE_ENDPOINT/def"
 
 import_all_coverages
 
