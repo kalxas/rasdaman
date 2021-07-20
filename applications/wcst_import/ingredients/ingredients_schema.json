@@ -123,6 +123,7 @@
                             "scale_levels": {},
                             "scale_factors": {},
                             "pyramid_members": {},
+                            "pyramid_bases": {},
                             "tiling": {},
                             "time_crs": {},
                             "time_format": {},

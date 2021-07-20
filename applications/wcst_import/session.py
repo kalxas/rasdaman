@@ -106,6 +106,7 @@ class Session:
             self.config['description_max_no_slices']) if "description_max_no_slices" in self.config else 5
         self.track_files = bool(self.config['track_files']) if "track_files" in self.config else True
         self.pyramid_members = None
+        self.pyramid_bases = None
 
         self.wms_import = False
         self.import_overviews = []
@@ -113,6 +114,8 @@ class Session:
         if "options" in self.recipe:
             self.wms_import = True if "wms" not in self.recipe["options"] else bool(self.recipe["options"])
             self.pyramid_members = None if "pyramid_members" not in self.recipe["options"] else self.recipe["options"]["pyramid_members"]
+            self.pyramid_bases = None if "pyramid_bases" not in self.recipe["options"] else self.recipe["options"][
+                "pyramid_bases"]
 
             self.__get_import_overviews()
 
@@ -312,6 +315,8 @@ class Session:
                 if embedded_petascope_port != "8080":
                     url_prefix = "http://localhost:" + embedded_petascope_port + INTERNAL_SECORE_URL_CONTEXT_PATH
                     crs_resolvers_tmp.append(url_prefix)
+            else:
+                crs_resolvers_tmp.append(url_prefix)
 
         for url_prefix in crs_resolvers_tmp:
             try:

@@ -2093,6 +2093,15 @@ recipe section
 
       "pyramid_members": [ "cov_level_2",  "cov_level_4"]
 
+* ``pyramid_bases`` - List of existing coverages to which the importing coverage
+  will be added as a pyramid member. This parameter has the opposite effect of `pyramid_members`,
+  see :ref:`request <add_pyramid_member>`.
+  Syntax:
+
+  .. hidden-code-block:: json
+
+      "pyramid_bases": [ "cov_A",  "cov_B"]
+
 
 .. _wms-image-pyramids:
 

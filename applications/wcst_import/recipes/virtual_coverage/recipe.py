@@ -98,6 +98,7 @@ class Recipe(BaseRecipe):
             self.__raise_exception("axis")
 
         self.validate_pyramid_members()
+        self.validate_pyramid_bases()
 
     def describe(self):
         pass
@@ -168,6 +169,22 @@ class Recipe(BaseRecipe):
             for pyramid_member_coverage_id in self.session.pyramid_members:
                 if pyramid_member_coverage_id not in current_pyramid_member_coverage_ids:
                     request = AddPyramidMemberRequest(self.coverage_id, pyramid_member_coverage_id)
+                    executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+
+    def __add_pyramid_bases(self):
+        """
+        Add current importing coverage id to the listed pyramid members of pyramid_bases the ingredient files
+        """
+        executor = ConfigManager.executor
+
+        if self.session.pyramid_bases is not None:
+            for base_coverage_id in self.session.pyramid_bases:
+
+                base_pyramid_member_coverage_ids = Importer.list_pyramid_member_coverages(base_coverage_id,
+                                                                                          ConfigManager.mock)
+
+                if self.coverage_id not in base_pyramid_member_coverage_ids:
+                    request = AddPyramidMemberRequest(base_coverage_id, self.coverage_id)
                     executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
     def __update_coverage_request(self):
@@ -301,6 +318,7 @@ class Recipe(BaseRecipe):
         if importer._is_insert():
             self.__insert_coverage_request()
             self.__add_pyramid_members()
+            self.__add_pyramid_bases()
         else:
             self.__update_coverage_request()
 

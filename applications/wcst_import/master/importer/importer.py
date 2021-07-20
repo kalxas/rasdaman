@@ -310,7 +310,7 @@ class Importer:
         executor.insitu = current_insitu_value
 
         base_coverage_id = self.coverage.coverage_id
-        current_pyramid_member_coverage_ids = self.list_pyramid_member_coverages(base_coverage_id, ConfigManager.mock)
+        base_pyramid_member_coverage_ids = self.list_pyramid_member_coverages(base_coverage_id, ConfigManager.mock)
 
         # If scale_levels specified in ingredient files, send request to Petascope to create downscaled level coverages
         if self.scale_levels is not None:
@@ -320,7 +320,7 @@ class Importer:
             for level in sorted_list:
                 downscaled_level_coverage_id = create_downscaled_coverage_id(self.coverage.coverage_id, level)
 
-                if downscaled_level_coverage_id in current_pyramid_member_coverage_ids:
+                if downscaled_level_coverage_id in base_pyramid_member_coverage_ids:
                     # if downscaled level coverage id exists, then add the timestamp as suffix to avoid conflict
                     downscaled_level_coverage_id = add_date_time_suffix(downscaled_level_coverage_id)
 
@@ -341,9 +341,20 @@ class Importer:
 
         # add listed pyramid members coverage ids in the ingredients file to this base coverage's pyramid
         if self.session.pyramid_members is not None:
-            for pyramid_member_coverage_id in self.session.pyramid_members:
-                if pyramid_member_coverage_id not in current_pyramid_member_coverage_ids:
-                    request = AddPyramidMemberRequest(self.coverage.coverage_id, pyramid_member_coverage_id)
+            for base_coverage_id in self.session.pyramid_members:
+                if base_coverage_id not in base_pyramid_member_coverage_ids:
+                    request = AddPyramidMemberRequest(self.coverage.coverage_id, base_coverage_id)
+                    executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+
+        # add this importing coverage id to the listed pyramid members of base coverages configured in the ingredients file
+        if self.session.pyramid_bases is not None:
+            for base_coverage_id in self.session.pyramid_bases:
+
+                base_pyramid_member_coverage_ids = self.list_pyramid_member_coverages(base_coverage_id,
+                                                                                      ConfigManager.mock)
+
+                if self.coverage.coverage_id not in base_pyramid_member_coverage_ids:
+                    request = AddPyramidMemberRequest(base_coverage_id, self.coverage.coverage_id)
                     executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
     @staticmethod

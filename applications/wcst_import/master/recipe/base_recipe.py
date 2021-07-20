@@ -185,6 +185,7 @@ class BaseRecipe:
                                                         "please use a different 'coverage_id' in 'scale_factors' list")
 
         self.validate_pyramid_members()
+        self.validate_pyramid_bases()
 
         if "import_order" in self.options:
             if self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING \
@@ -206,6 +207,18 @@ class BaseRecipe:
                 cov = CoverageUtil(pyramid_member_coverage_id)
                 if not cov.exists():
                     error_message = "Pyramid member coverage '" + pyramid_member_coverage_id \
+                                    + "' does not exist locally'"
+                    raise RecipeValidationException(error_message)
+
+    def validate_pyramid_bases(self):
+        """
+        Check if pyramid bases coverage ids exist
+        """
+        if 'pyramid_bases' in self.options:
+            for pyramid_base_coverage_id in self.options['pyramid_bases']:
+                cov = CoverageUtil(pyramid_base_coverage_id)
+                if not cov.exists():
+                    error_message = "Pyramid base coverage '" + pyramid_base_coverage_id \
                                     + "' does not exist locally'"
                     raise RecipeValidationException(error_message)
 
