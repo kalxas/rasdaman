@@ -641,6 +641,7 @@ prepare_gdal_file()
          -e '/Size is/,$p' > "$tmpf"
   sed -i -e '/TOWGS84\[/d' \
          -e '/fileReferenceHistory/d' \
+         -e '/Mask Flags/d' \
          "$tmpf"
 
   rm -f "$1.aux.xml" "$1" && mv "$tmpf" "$1"

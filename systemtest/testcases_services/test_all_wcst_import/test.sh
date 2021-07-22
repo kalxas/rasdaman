@@ -86,7 +86,7 @@ run_wcst_import() {
     local wcst_import_log="$test_cases_output_dir/wcst_import.log"
 
     local ingredient_file="$2"
-    wcst_import.sh "$ingredient_file" > "$wcst_import_log" 2>&1
+    $WCST_IMPORT "$ingredient_file" > "$wcst_import_log" 2>&1
 }
 
 # Check if petascope is deployed (imported from util/petascope.sh)
@@ -148,7 +148,7 @@ for test_case in "$TEST_DATA"/*; do
     # 1.4 execute wcst_import with $recipe_file
     if [[ "$test_case" == *error_* ]]; then
         # This test returns error, then check with test.oracle
-        outputError=$(wcst_import.sh "$recipe_file" 2>&1)
+        outputError=$($WCST_IMPORT "$recipe_file" 2>&1)
 	    echo "$outputError" > "$OUTPUT_DIR/$test_case_name/test.output"
         oracleError=$(cat "$test_case/test.oracle")
 

@@ -121,7 +121,7 @@ function check_type()
 #
 function drop_colls()
 {
-  check_rasdaman
+  #check_rasdaman
   for c in "$@"; do
     $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$c\b" > /dev/null
     if [ $? -eq 0 ]; then

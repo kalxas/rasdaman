@@ -5,6 +5,7 @@
     "default_crs": "SECORE_URL/crs/EPSG/0/3857",
     "mock": false,
     "automated": true,
+    "track_files": false,
     "subset_correction": false
   },
   "input": {

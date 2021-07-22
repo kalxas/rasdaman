@@ -111,7 +111,7 @@ add_custom_target(petascope ALL
     WORKING_DIRECTORY ${SRC_DIR}
     COMMENT "building petascope"
     VERBATIM)
-add_dependencies(petascope rasj)
+add_dependencies(petascope rasj secore)
 
 install(PROGRAMS "${CREATE_PETASCOPEDB_SCRIPT}" "${INSERT_DATA_SCRIPT}"
         DESTINATION ${BIN_DIR})
