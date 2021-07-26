@@ -91,7 +91,7 @@ a server: *InsertCoverage*, *UpdateCoverage*, and *DeleteCoverage*.
 
 Rasdaman provides the `wcst_import tool
 <http://doc.rasdaman.org/05_geo-services-guide.html#data-import>`__ to simplify
-the ingestion of data into analysis-ready coverages (aka datacubes) by 
+the import of data into analysis-ready coverages (aka datacubes) by 
 generating WCS-T requests as instructed by a simple configuration file.
 
 

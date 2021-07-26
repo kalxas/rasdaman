@@ -2282,7 +2282,7 @@ larger output domain: ::
     from test_grey3d as c
 
 As much redundancy as possible is annihilated during a preprocessing stage which
-uses a Gram-Schmidt procedure to excise extraneous data ingested during query
+uses a Gram-Schmidt procedure to excise extraneous data imported during query
 time, and with this algorithm, rasdaman is able to determine the correct
 dimension of the output domain.
 

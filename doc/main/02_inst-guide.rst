@@ -603,7 +603,7 @@ Default Installer configuration:
     # Configure what to do after rasdaman is installed and running
     #
     [post_install]
-    # Ingest demo collections (with rasdaman_insertdemo.sh) and demo coverages
+    # Import demo collections (with rasdaman_insertdemo.sh) and demo coverages
     # (with petascope_insertdemo.sh)
     insert_demo = true
     # Run the systemtest
@@ -1672,7 +1672,7 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 +------------------------------+----------------------------------------------------------------+
 |``migrate_petascopedb.sh``    |Applies database migrations on petascopedb.                     |
 +------------------------------+----------------------------------------------------------------+
-|``wcst_import.sh``            |Tool for convenient and flexible ingestion of                   |
+|``wcst_import.sh``            |Tool for convenient and flexible import of                      |
 |                              |geo-referenced data into petascope.                             |
 +------------------------------+----------------------------------------------------------------+
 

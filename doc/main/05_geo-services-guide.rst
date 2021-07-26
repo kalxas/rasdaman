@@ -1394,9 +1394,8 @@ with recipes *regular_time_series*, *irregular_time_series*, and *general_covera
 `This example <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wms_3d_time_series_irregular/ingest.template.json>`__
 demonstrates how to define an *irregular_time_series* 3D coverage from 2D GeoTIFF files.
 
-Once the coverage is ingested, a ``GetMap`` request
-can use the additional (non-horizontal) axes for subsetting according
-to the OGC WMS 1.3.0 standard.
+Once the coverage is created, a ``GetMap`` request can use the additional
+(non-horizontal) axes for subsetting according to the OGC WMS 1.3.0 standard.
 
 .. TABLE:: WMS Subset Parameters for Different Axis Types
 
@@ -1781,7 +1780,7 @@ Raster data in a variety of formats, such as TIFF, netCDF, GRIB, etc.
 can be imported in rasdaman through the ``wcst_import.sh`` utility.
 Internally it is based on ``WCS-T`` requests, but hides the complexity and
 maintains the geo-related metadata in its so-called ``petascopedb``
-while the raster data get ingested into the rasdaman array store.
+while the raster data get imported into the rasdaman array store.
 
 Building large *time-series / datacubes*, *mosaics*, etc. and keeping them
 up-to-date as new data become available is supported for a large variety of data
@@ -1829,7 +1828,7 @@ The workflow behind is depicted approximately on :numref:`wcst_import_workflow`.
    :align: center
    :scale: 40%
 
-   Ingestion process with `wcst_import.sh`
+   Data importing process with ``wcst_import.sh``
 
 An ingredients file showing all possible options (across all recipes) can be found `here
 <http://rasdaman.org/browser/applications/wcst_import/ingredients/possible_ingredients.json>`__ 
@@ -1877,10 +1876,10 @@ config section
 * ``mock`` - Print WCS-T requests but do not execute anything if set to ``true``.
   Set to ``false`` by default.
 
-* ``automated`` - Set to ``true`` to avoid any interaction during the ingestion
+* ``automated`` - Set to ``true`` to avoid any interaction during the data import
   process. Useful in production environments for automated deployment for example.
   By default it is ``false``, i.e. user confirmation is needed to execute the
-  ingestion.
+  actual import.
 
 * ``blocking`` (since v9.8) - Set to ``false`` to analyze and import each file
   separately (*non-blocking mode*). By default blocking is set to ``true``,
@@ -1934,7 +1933,7 @@ config section
   you can specify the root file url here; the default value is ``"file://"``.
 
 * ``skip`` - Set to ``true`` to ignore files that failed to import; by default it
-  is ``false``, i.e. the ingestion is terminated when a file fails to import.
+  is ``false``, i.e. the import process is terminated when a file fails to import.
 
 * ``retry`` - Set to ``true`` to retry a failed request. The number of retries is
   either 5, or the value of setting ``retries`` if specified. This is set to
@@ -1967,7 +1966,7 @@ config section
       ]
 
 * ``description_max_no_slices`` - Maximum number of slices (files) to show for
-  preview before starting the actual ingestion.
+  preview before starting the actual data import.
 
 * ``subset_correction`` (*deprecated* since v9.6) - In some cases the
   resolution is small enough to affect the precision of the transformation from
@@ -2140,9 +2139,9 @@ see :ref:`here for more information <wcs-t-non-standard-requests-wms>`.
 hooks section
 ^^^^^^^^^^^^^
 
-Since v9.8, it is possible to run shell commands *before/after ingestion*
+Since v9.8, it is possible to run shell commands *before/after data import*
 by adding optional ``hooks`` configuration in an ingredient file.
-There are 2 types of ingestion hooks:
+There are 2 types of hooks:
 
 * ``before_ingestion`` - Run shell commands before analyzing the input files,
   e.g. reproject input files from EPSG:3857 to EPSG:4326 with gdalwarp and 
@@ -2161,7 +2160,7 @@ Parameters are explained below.
 
   "hooks": [
       {
-        // Describe what this ingestion hook does
+        // Describe what this hook does
         "description": "reproject input files.",
 
         // Run bash command before importing file(s) to coverage
@@ -2170,29 +2169,29 @@ Parameters are explained below.
         // Bash command which should be run for each input file
         "cmd": "gdalwarp -t_srs EPSG:4326 -tr 0.02 0.02 -overwrite \"${file:path}\" \"${file:path}.projected\"",
 
-        // If set to *true*, when a bash command line returns any error, wcst_import terminates immediately.
-        // **NOTE:** only valid for ``before`` hook.
+        // If set to true, when a bash command line returns any error, wcst_import
+        // terminates immediately. Only valid for before_ingestion hooks.
         "abort_on_error": true,
 
         // wcst_import will consider the specified path(s) as the actual file(s)
-        // to be ingested after running the hook, rather than the original file.
-        // This is an array of paths where globbing is allowed (same as the "input":"paths" option).
-        // **NOTE:** only valid for ``before`` hook.
+        // to be imported after running the hook, rather than the original file.
+        // This is an array of paths where globbing is allowed (same as the
+        // "input":"paths" option. Only valid for before_ingestion hooks.
         "replace_path": ["${file:path}.projected"]
       },
 
       {
-        // Describe what this ingestion hook does
+        // Describe what this hook does
         "description": "Remove projected files.",
 
-        // Run bash command after importing file(s) to coverage
+        // Run bash command after importing file(s)
         "when": "after_ingestion",
 
-        // Bash command which should be run for each imported file(s)
+        // Bash command which should be run after each imported file(s)
         "cmd": "rm -rf \"${file:path}.projected\""
       },
 
-      // more ``before`` and ``after`` hooks if needed
+      // more hooks if needed
       ...
   ]
 
@@ -2639,7 +2638,7 @@ The examples below illustrate importing data in different formats with the
             ],
             "axes": {
               // For each axis specify how to extract the spatio-temporal position
-              // of each file that we ingest
+              // of each file that is imported
               "Latitude": {
                 // E.g. to determine at which Latitude the nth file will be positioned,
                 // we will evaluate the given expression on the file
@@ -2965,14 +2964,14 @@ File
 +=================+====================================================================+=============================+
 |File Information |``${file:PROPERTY}`` where property can be one of                   |                             |
 |                 |path|name|dir_path|original_path|original_dir_path                  |``${file:path}``             |
-|                 |original_* allows to get the original input file's path/directory   |                             |
-|                 |(used only when using **pre-hook** with ``replace_path``            |                             |
-|                 |to replace original input file paths with customized file paths).   |                             |
+|                 |original_* allows to get the original input file's path/directory.  |                             |
+|                 |Used only in ``before_ingestion`` hooks with ``replace_path``       |                             |
+|                 |to replace original input file paths with customized file paths.    |                             |
 +-----------------+--------------------------------------------------------------------+-----------------------------+
 |Imported File    |``${imported_file:PROPERTY}`` where property can be one of          |                             |
 |Information      |path|name|dir_path|original_path|original_dir_path                  |                             |
-|                 |Files which were imported to rasdaman (excluded **skipped files**). |``${imported_file:path}``    |
-|                 |This variable is used only for ``after_ingestion`` hooks.           |                             |
+|                 |Files which were imported to rasdaman (excluding *skipped files*).  |``${imported_file:path}``    |
+|                 |This variable is used only in ``after_ingestion`` hooks.            |                             |
 +-----------------+--------------------------------------------------------------------+-----------------------------+
 
 .. _data-import-expressions-special-functions:
@@ -3479,22 +3478,22 @@ to generate the actual coverage name during import:
 - ``polarisation`` - single polarisation of input files, e.g: ``HH/HV/VV/VH``
 
 If the files collected by ``"paths"`` are varying in any of these parameters,
-the corresponding variables must appear somewhere in the ``"coverage_id"`` (as
-for each combination a separate coverage will be constructed). Otherwise, the
-ingestion will either fail or result in invalid coverages. E.g. if all data's mode beam
-is  ``IW``, but still different polarisations, the
+the corresponding variables must appear somewhere in the ``"coverage_id"``
+(as for each combination a separate coverage will be constructed). Otherwise,
+the data import will either fail or result in invalid coverages. E.g. if all
+data's mode beam is  ``IW``, but still different polarisations, the
 ``"coverage_id"`` could be ``"MyCoverage_${polarisation}"``;
 
-In addition, the data to be ingested can be optionall filtered with the
+In addition, the data to be imported can be optionally filtered with the
 following options in the ``"input"`` section:
 
-- ``modebeams`` - specify a subset of mode beams to ingest from the data,
+- ``modebeams`` - specify a subset of mode beams to import from the data,
   e.g. only the ``IW`` mode beam; if not specified, data of all supported
   mode beams will be ingested.
 
-- ``polarisations`` - specify a subset of polarisations to ingest,
+- ``polarisations`` - specify a subset of polarisations to import,
   e.g. only the ``HH`` polarisation; if not specified, data of all supported
-  polarisations will be ingested.
+  polarisations will be imported.
 
 **Limitations:**
 
@@ -3529,7 +3528,7 @@ Below is an example:
         // Optional filtering settings
         "resolutions": ["10m", "20m", "60m", "TCI"],
         "levels": ["L1C", "L2A"],
-        "crss": ["32757"] // remove or leave empty to ingest any CRS
+        "crss": ["32757"] // remove or leave empty to import any CRS
       },
       "recipe": {
         "name": "sentinel2",
@@ -3577,25 +3576,25 @@ to generate the actual coverage name during import:
 If the files collected by ``"paths"`` are varying in any of these parameters,
 the corresponding variables must appear somewhere in the ``"coverage_id"`` (as
 for each combination a separate coverage will be constructed). Otherwise, the
-ingestion will either fail or result in invalid coverages. E.g. if all data is
+import will either fail or result in invalid coverages. E.g. if all data is
 level ``L1C`` with CRS ``32757``, but still different resolutions, the
 ``"coverage_id"`` could be ``"MyCoverage_${resolution}"``; the other variables
 can still be specified though, so  ``"MyCoverage_${resolution}_${crsCode}"`` is
 valid as well.
 
-In addition, the data to be ingested can be optionall filtered with the
+In addition, the data to be imported can be optionally filtered with the
 following options in the ``"input"`` section:
 
-- ``resolutions`` - specify a subset of resolutions to ingest from the data,
+- ``resolutions`` - specify a subset of resolutions to import from the data,
   e.g. only the "10m" subdataset; if not specified, data of all supported
   resolutions will be ingested.
 
-- ``levels`` - specify a subset of levels to ingest, so that files of other
+- ``levels`` - specify a subset of levels to import, so that files of other
   levels will be fully skipped; if not specified, data of all supported levels
   will be ingested.
 
-- ``crss`` - specify a list of CRSs (EPSG codes as strings) to ingest; if not
-  specified or empty, data of any CRS will be ingested.
+- ``crss`` - specify a list of CRSs (EPSG codes as strings) to import; if not
+  specified or empty, data of any CRS will be imported.
 
 
 .. _data-import-recipe-create-own:
@@ -3687,7 +3686,7 @@ IDE will help you auto import them)):
 
         def ingest(self):
             """
-            Ingests the input files
+            Imports the input files
             """
             pass
 
@@ -3750,7 +3749,7 @@ here. This is how the recipe looks like now:
 
         def ingest(self):
             """
-            Ingests the input files
+            Imports the input files
             """
             pass
 
@@ -3765,22 +3764,22 @@ here. This is how the recipe looks like now:
         def get_name():
             return "my_custom_recipe"
 
-Now that our recipe can validate the recipe options, let's move to the ``describe()``
-method. This method allows you to let your users know any relevant information
-about the ingestion before it actually starts. The irregular_timeseries recipe
-prints the timestamp for the first couple of slices for the user to check if
-they are correct. Similar behaviour should be done based on what your recipe has
-to do.
+Now that our recipe can validate the recipe options, let's move to the
+``describe()`` method. This method allows you to let your users know any
+relevant information about the data import before it actually starts. The
+``irregular_timeseries`` recipe prints the timestamp for the first couple of
+slices for the user to check if they are correct. Similar behaviour should be
+done based on what your recipe has to do.
 
-Next, we should define the ingest behaviour. The framework does not make any
-assumptions about how the correct method of ingesting is, however it offers a
+Next, we should define the import behaviour. The framework does not make any
+assumptions about how the correct method of data import is, however it offers a
 lot of utility functionality that help you do it in a more standardized way. We
 will continue this tutorial by describing how to take advantage of this
 functionality, however, note that this is not required for the recipe to work.
 The first thing that you need to do is to define an *importer* object. This
-importer object, takes a *coverage* object and ingests it using WCST requests. The
-object has two public methods, ``ingest()``, which ingests the coverage into the
-WCS-T service (note: ingest can be an insert operation when the coverage was not
+importer object, takes a *coverage* object and imports it using WCST requests. The
+object has two public methods, ``ingest()``, which imports the coverage into the
+WCS-T service (note: this can be an insert operation when the coverage was not
 defined, or update if the coverage exists. The importer will handle both cases
 for you, so you don't have to worry if the coverage already exists.) and
 ``get_progress()`` which returns a tuple containing the number of imported slices and
@@ -3821,7 +3820,7 @@ this:
 
         def ingest(self):
             """
-            Ingests the input files
+            Imports the input files
             """
             self._get_importer().ingest()
 
@@ -3923,7 +3922,7 @@ Let's see what we have so far:
 
         def ingest(self):
             """
-            Ingests the input files
+            Import the input files
             """
             self._get_importer().ingest()
 
@@ -4039,7 +4038,7 @@ see how it works.
 
         def ingest(self):
             """
-            Ingests the input files
+            Import the input files
             """
             self._get_importer().ingest()
 

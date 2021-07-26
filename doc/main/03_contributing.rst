@@ -1210,7 +1210,7 @@ The following directories are used by the script:
 
 ``setup`` and ``teardown`` tests files in ``queries`` dir are treated specially:
 ``setup`` is evaluated first, before any others, and ``teardown`` is evaluated
-at the end. This allows to ingest data for the test, and drop it at the end, for
+at the end. This allows to import data for the test, and drop it at the end, for
 example.
 
 
