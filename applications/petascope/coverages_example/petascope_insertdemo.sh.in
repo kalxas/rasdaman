@@ -110,8 +110,10 @@ import_coverage()
       -e "s|SECORE_URL|$SECORE_URL|g" \
       "$RECIPE_TEMPLATE_FILE" > "$RECIPE_FILE"
 
-  logn "  importing coverage $COVERAGE_ID (detail output in /tmp/$COVERAGE_ID.log)... "
-  "$WCST_IMPORT" "$RECIPE_FILE" > "/tmp/$COVERAGE_ID.log" 2>&1
+  log_file="/tmp/$COVERAGE_ID.log"
+  logn "  importing coverage $COVERAGE_ID (detail output in $log_file)... "
+  rm -f "$log_file"
+  "$WCST_IMPORT" "$RECIPE_FILE" > "$log_file" 2>&1
   check $?
 
   rm -f "$RECIPE_FILE"
