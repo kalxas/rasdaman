@@ -4155,49 +4155,52 @@ For further internal documentation on petascope see
 Service Startup and Shutdown
 ----------------------------
 
-- For external petascope and SECORE servlets, start/stop external tomcat
-  which deploys these web applications.
+Depending of how ``java_server`` is configured in ``petascope.properties``,
+starting the petascope Web application is different as follows:
 
-- For :ref:`embedded petascope and secore servlets <start-stop-embedded-applications>` normally get started and stopped
-  automatically through the standard scripts, ``start_rasdaman.sh``and
-  ``stop_rasdaman.sh``.
+- If set to ``external``, then managing the petascope Web application is done
+  via the system Tomcat in which it is deployed, e.g. ``service tomcat
+  start/stop/restart``.
 
-petascope Configuration
------------------------
+- If set to :ref:`embedded <start-stop-embedded-applications>` then petascope is
+  managed along with rasdaman, e.g. ``start_rasdaman.sh`` and
+  ``stop_rasdaman.sh``, or ``service rasdaman start/stop``.
 
-The petascope services are configured in file ``$RMANHOME/etc/petascope.properties``.
+Configuration
+-------------
 
-.. NOTE::
-   For changes to take effect Tomcat needs to be restarted after editing this file.
+The petascope service is configured in file
+``$RMANHOME/etc/petascope.properties``. For changes to take effect, system
+Tomcat (if deployment is ``external``) or rasdaman (if deployment is
+``embedded``) needs to be restarted after editing this file.
 
 
-petascope Security
-------------------
+Security
+--------
 
-In ``$RMANHOME/etc/petascope.properties``, by default only local IP addresses
-configured by ``allow_write_requests_from`` setting key are allowed to send
-**write requests** to petascope (e.g: `InsertCoverage`, `DeleteCoverage`,...).
+By default only local IP addresses are allowed to make *write requests* to
+petascope (e.g. ``InsertCoverage`` and ``UpdateCoverage`` when importing data,
+or ``DeleteCoverage``, etc). This is configured through the
+``allow_write_requests_from`` setting in ``petascope.properties``.
 
-Any write requests from a not-listed IP address will be blocked.
-However, if one has petascope admin user credentials, configured by
-``petascope_admin_user`` and ``petascope_admin_pass`` setting keys, 
-then one can send write requests with these credentials via basic authentication
-header. Petascope will accept requests as they come from petascope admin user.
-
-This typical case is used by WSClient, when one has logged in as petascope
-admin user and can send requests to delete a coverage or insert WMS styles
-for a WMS layer.
+Any write requests from a non-listed IP address will be blocked. However, if one
+has petascope admin user credentials, configured through the
+``petascope_admin_user`` and ``petascope_admin_pass`` settings, then one can
+send write requests with these credentials via basic authentication header.
+This authentication mechanism is used by the WSClient for example when logged
+in with the petascope admin credentials, to enable deleting coverages, updating
+metadata, styles, etc.
 
 .. _petascope-database-connection:
 
 Meta Database Connectivity
 --------------------------
 
-Non-array data of coverages (here loosely called metadata) are stored in
-another database, separate from the rasdaman database.
-This backend is configured in ``$RMANHOME/etc/petascope.properties``.
+Non-array data of coverages (here loosely called metadata) are stored in another
+database, separate from the rasdaman database. This backend is configured in
+``petascope.properties``.
 
-As a first action it is strongly recommended to substitute {db-username}
+As a first action it is highly recommended to substitute {db-username}
 and {db-password} by some safe settings; keeping obvious values constitutes
 a major security risk.
 
@@ -4256,57 +4259,51 @@ as metadata backend:
 petascope Standalone Deployment
 -------------------------------
 
-The petascope and secore servlets can be deployed through any suitable
-servlet container, or can be operated standalone using its built-in embedded container.
-The embedded variant is activated through the directive ``java_server=embedded`` in the respective configuration file.
+The petascope Web application can be deployed through any suitable servlet
+container, or (recommended) can be operated standalone using its built-in
+embedded container. The embedded variant is activated through setting
+``java_server=embedded`` in ``$RMANHOME/etc/petascope.properties``.
 
-Below are excerpts from the two configuration files affected showing how to configure this mode.
+To configure embedded mode, the following options will need to be checked and
+adjusted:
 
-- ``$RMANHOME/etc/petascope.properties``
+- ``petascope.properties``
 
-   .. hidden-code-block:: ini
+   .. code-block:: ini
  
       java_server=embedded
       server.port=8080
-      secore_urls=http://localhost:8081/def
+      # a path writable by the rasdaman user
+      log4j.appender.rollingFile.File=/opt/rasdaman/log/petascope.log
+      # or
+      log4j.appender.rollingFile.rollingPolicy.ActiveFileName=/opt/rasdaman/log/petascope.log
 
-- ``$RMANHOME/etc/secore.properties``
+- ``secore.properties``
 
-   .. hidden-code-block:: ini
- 
-      java_server=embedded
-      server.port=8081
-      secoredb.path={path-to-writable-directory}
+   .. code-block:: ini
 
-In this standalone mode petascope and secore can be started individually
-using the central **startup/shutdown** scripts of rasdaman: ::
+      # paths writable by the rasdaman user
+      secoredb.path=/opt/rasdaman/data/secore
+      log4j.appender.rollingFile.File=/opt/rasdaman/log/secore.log
+      log4j.appender.rollingFile.rollingPolicy.ActiveFileName=/opt/rasdaman/log/secore.log
 
-    $ start_rasdaman.sh --service [secore | petascope]
-    $ stop_rasdaman.sh --service [secore | petascope]
+In the standalone mode petascope can be started individually using the central
+startup/shutdown scripts of rasdaman: ::
 
-Both servlets can beven be started from the command line: ::
+    $ sudo -u rasdaman start_rasdaman.sh --service petascope
+    $ sudo -u rasdaman stop_rasdaman.sh --service petascope
 
-    $ java -jar rasdaman.war [ --petascope.confDir={path-to-properties-file} ]
-    $ java -jar def.war
+The Web application can be even be started from the command line: ::
 
-- The port required by the embedded tomcat will be fetched from the
-  ``server.port`` setting in ``petascope.properties``.
-  Assuming the port is set to 9009, petascope can be accessed
-  via URL ``http://localhost:9009/rasdaman/ows``.
-- For secore, the port required by the embedded tomcat will be fetched
-  from the ``server.port`` setting in ``secore.properties``. 
-  Assuming the port is set to 9010, secore can be accessed via URL
-  ``http://localhost:9010/def``.
+    $ java -jar rasdaman.war [ --petascope.confDir={path-to-etc-dir} ]
 
-.. NOTE::
-
-   Configuration parameter ``secoredb.path`` must be set in
-   ``secore.properties`` file to a directoy where the effective
-   **SECORE user has write access** for creating the XML database files.
+The port required by the embedded tomcat will be fetched from the
+``server.port`` setting in ``petascope.properties``. Assuming the port is set 
+to 8080, petascope can be accessed via URL ``http://localhost:8080/rasdaman/ows``.
 
 
-petascope Serving Static Content 
---------------------------------
+Serving Static Content 
+----------------------
 
 Serving external static content (such as HTML, CSS, and Javascript)
 residing outside ``rasdaman.war`` through petascope can be enabled
@@ -4314,20 +4311,27 @@ with the following setting in ``petascope.properties``: ::
 
     static_html_dir_path={absolute-path-to-index.html}
 
-with an absolute path to a readable directory containing an ``index.html``.
-This will be served as the root, ie: at URL ``http://localhost:8080/rasdaman/``.
+with an absolute path to a directory readable by the user running petascope. The
+directory must contain an ``index.html``, which will be served as the root, ie:
+at URL ``http://localhost:8080/rasdaman/``.
 
 
 Logging
 -------
 
-Configuration file ``petascope.properties`` also defines logging.
-The log level can be adjusted in verbosity.
-Tomcat restart is required for new settings to become effective.
+Configuration file ``petascope.properties`` also defines logging. The log level
+can be adjusted in verbosity, log file path can be set, etc. Tomcat restart is
+required for new settings to become effective.
 
-.. NOTE::
+The user running Tomcat (``tomcat`` or so) must have write permissions to the
+``petascope.log`` file specified if ``java_server=external``; usually the file
+should be placed in the Tomcat log directory in this case, e.g.
+``/var/log/tomcat/petascope.log``.
 
-   Make sure that Tomcat has write permissions on the ``petascope.log`` file specified.
+Otherwise, if ``java_server=embedded``, then the user running rasdaman must have
+write permissions to the specified log file; usually the file would be placed
+in the rasdaman log directory in this case, e.g.
+``/opt/rasdaman/log/petascope.log``.
 
 
 Geo Service Standards Compliance
@@ -4374,5 +4378,4 @@ rasdaman community is OGC WCS reference implementation and supports the followin
      With WCS 2.1, petascope provides an additional proprietary parameter to request
      CIS 1.0 coverages to be returned as CIS 1.1 coverages.
      This is specified by adding parameter ``outputType=GeneralGridCoverage``.
-
 
