@@ -59,11 +59,11 @@ secore_admin_pass=secorepasswd
 #                make sure to not clash with the server.port in petascope.properties
 #  2. external - def.war is deployed in webapps dir of external Tomcat
 # During compilation it is configured with cmake -DJAVA_SERVER=embedded/external
-java_server=external
+java_server=@GENERATED_java_server@
 
 # Port on which embedded petascope (java_server=embedded above) will listen when 
 # rasdaman starts. This setting has no effect when java_server=external.
-server.port=8081
+server.port=8080
 
 # Path to folder where embedded secore stores its database. This folder needs 
 # read and write permissions for the system user running rasdaman if 

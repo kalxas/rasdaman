@@ -67,12 +67,12 @@ for test_case in $TEST_SEQUENCE; do
         2) status=SKIP;;
         *) status=FAIL; ret=$rc;;
     esac
-    printf "%5s %4ds  $TEST_SCRIPT\n" $status $SECONDS >> "$log"
+    printf "%5s %4ds  $TEST_SCRIPT\n" $status $SECONDS >> "$logf"
 done
 
 echo
 echo
 log "TEST SUMMARY\n"
-cat "$log"
+cat "$logf"
 
 exit $ret
