@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -97,7 +98,8 @@ public class CrsUtil {
     public static final String OPENGIS_EPSG_URI = OPENGIS_URI_PREFIX + "/def/crs/EPSG/0/";
     public static final String OPENGIS_EPSG_URI_DEFAULT_VERSION = OPENGIS_URI_PREFIX + "/def/crs/EPSG/" + DEFAULT_EPSG_VERSION + "/";
     private static final String HTTP_URL_PATTERN = "(http|https)://.*/";
-    private static final String HTTP_PREFIX = "http://";
+    private static final String HTTP_PREFIX = "http";
+    private static final String LOCALHOST = "localhost";
 
     // SECORE keywords (URL is set in the ConfigManager)
     public static final String KEY_RESOLVER_CRS = "crs";
@@ -245,7 +247,7 @@ public class CrsUtil {
      */
     public static List<String> getAllEPSGCrss() throws Exception {
         String uri = CrsUtil.getEPSGVersion0CRS();        
-        InputStream inStream = getInputStream(uri);
+        InputStream inStream = getInputStreamByInternalOrExternalSECORE(uri);
 
         String crssTmp = IOUtils.toString(inStream, ENCODING_UTF8);
         Matcher matcher = Pattern.compile(SECORE_IDENTIFIER_PATTERN).matcher(crssTmp);
@@ -273,14 +275,19 @@ public class CrsUtil {
      * Check if the crs should go to the internal SECORE or not
      */
     public static boolean isInternalSecoreURL(String url) {
-        String tmpCRS = url.replace(ConfigManager.DEFAULT_PETASCOPE_PORT, ConfigManager.EMBEDDED_PETASCOPE_PORT);
-        return url.startsWith(ConfigManager.DEFAULT_SECORE_INTERNAL_URL) || url.startsWith(tmpCRS);
+        if (url.contains(LOCALHOST)) {
+            // If SECORE url is localhost, then check it should be resolved internally by petascope or not
+            String tmpCRS = url.replace(ConfigManager.DEFAULT_PETASCOPE_PORT, ConfigManager.EMBEDDED_PETASCOPE_PORT);
+            return url.startsWith(ConfigManager.DEFAULT_SECORE_INTERNAL_URL) || url.startsWith(tmpCRS);
+        }
+        
+        return false;
     }
     
     /**
      * Return the input stream by internal SECORE or external SECORE
      */
-    private static InputStream getInputStream(String crsUri) throws Exception {
+    private static InputStream getInputStreamByInternalOrExternalSECORE(String crsUri) throws Exception {
         InputStream result;
         crsUri = crsUri.replaceAll("\"", "%22");
         
@@ -293,11 +300,7 @@ public class CrsUtil {
         } else {
             log.debug("# Checking external SECORE with url " + crsUri);
             // external secore, send requests normally
-            URL url = new URL(crsUri);
-            URLConnection con = url.openConnection();
-            con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-            con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-            result = con.getInputStream();
+            result = HttpUtil.getInputStream(crsUri);
         }
         
         return result;
@@ -361,7 +364,7 @@ public class CrsUtil {
         for (String crsUri : crsUris) {
             URL uomUrl = null;
             try {
-                InputStream inStream = getInputStream(crsUri);
+                InputStream inStream = getInputStreamByInternalOrExternalSECORE(crsUri);
 
                 // Build the document
                 Document doc = XMLUtil.buildDocument(null, inStream);
@@ -450,31 +453,38 @@ public class CrsUtil {
                         log.warn(crsUri + ": missing unit of measure in " + axisAbbrev + " axis definition: setting empty UoM.");
                         uomName = "";
                     } else {
+                        // e.g. http://ows.rasdaman.org/def//uom/UCUM/0/d
+                        String uomCrsUrlTmp = uomAtt.getValue().trim();
 
                         // UoM attribute can be either a String or as well a dereferenced definition (URL)
-                        if (!uomAtt.getValue().contains(HTTP_PREFIX)) {
+                        if (!uomCrsUrlTmp.startsWith(HTTP_PREFIX)) {
                             uomName = uomAtt.getValue().split(" ")[0]; // UoM is meant as one word only
                         } else {
                             // Need to parse a new XML definition
-                            uomUrl = new URL(uomAtt.getValue());
-                            Element uomRoot = crsDefUrlToXml(uomAtt.getValue());
-                            if (uomRoot != null) {
+                            uomUrl = new URL(uomCrsUrlTmp);
+                            try {
+                                Element uomRoot = crsDefUrlToXml(uomCrsUrlTmp);
+                                if (uomRoot != null) {
 
-                                // Catch some exception in the GML
-                                Element uomExEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_EXCEPTION_TEXT);
-                                if (uomExEl != null) {
-                                    log.error(crsUri + ": " + uomExEl.getValue());
-                                    throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
-                                }
+                                    // Catch some exception in the GML
+                                    Element uomExEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_EXCEPTION_TEXT);
+                                    if (uomExEl != null) {
+                                        log.error(crsUri + ": " + uomExEl.getValue());
+                                        throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
+                                    }
 
-                                // Get the UoM value
-                                Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
-                                if (uomNameEl == null) {
-                                    log.error(uom + ": UoM definition misses name.");
-                                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid UoM definition: " + uom);
+                                    // Get the UoM value
+                                    Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
+                                    if (uomNameEl == null) {
+                                        log.error(uom + ": UoM definition misses name.");
+                                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid UoM definition: " + uom);
+                                    }
+                                    uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
+                                } else {
+                                    uomName = extractUomNameFromUri(uomUrl);
                                 }
-                                uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
-                            } else {
+                            } catch (Exception ex) {
+                                // In case UOM CRS doesn't exist, just extract the uom label from the last part of the crs
                                 uomName = extractUomNameFromUri(uomUrl);
                             }
                         }
@@ -646,15 +656,10 @@ public class CrsUtil {
     private static Element crsDefUrlToDocument(final String url) throws Exception {
         Element ret = null;
         try {                                  
-            if (url.contains("uom/UCUM") || url.contains("uom/OGC")) {
-                // NOTE: as it cannot resolve the UOM for time axis, e.g: http://www.opengis.net/def/uom/UCUM/0/d, doesn't need to do anything
-                ret = null;
-            } else {
-                // Get the CRS URI definition from SECORE to build Element
-                InputStream inStream = getInputStream(url);               
-                Document doc = XMLUtil.buildDocument(null, inStream);
-                ret = doc.getRootElement();
-            }
+            // Get the CRS URI definition from SECORE to build Element
+            InputStream inStream = getInputStreamByInternalOrExternalSECORE(url);               
+            Document doc = XMLUtil.buildDocument(null, inStream);
+            ret = doc.getRootElement();
         } catch (IOException | ParsingException | PetascopeException ex) {
             log.warn("Error while building the document from URL '" + url + "'", ex);
             ret = null;
@@ -1506,7 +1511,7 @@ public class CrsUtil {
             for (String equalityUri : new String[]{equalityUri_given, equalityUri_atResolver}) {
                 try {
                     // Create InputStream and set the timeouts
-                    InputStream inStream = getInputStream(equalityUri);
+                    InputStream inStream = getInputStreamByInternalOrExternalSECORE(equalityUri);
                     log.debug(equalityUri);
 
                     // Build the document

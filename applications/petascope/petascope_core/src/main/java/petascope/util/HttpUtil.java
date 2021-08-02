@@ -21,12 +21,17 @@
  */
 package petascope.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_CONNETION_TIMEOUT;
 
 /**
@@ -52,6 +57,29 @@ public class HttpUtil {
         }
 
         return result;
+    }
+    
+    /**
+     * Get input stream from an external URL
+     */
+    public static InputStream getInputStream(String inputUrl) throws IOException {
+        URL url = new URL(inputUrl);
+        HttpURLConnection con = (HttpURLConnection)(url.openConnection());
+        con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
+        con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
+
+        // NOTE: allow to follow requesting from http -> https 
+        // e.g. http://ows.rasdaman.org/def//uom/EPSG/0/9122 -> https://ows.rasdaman.org/def//uom/EPSG/0/9122
+        int status = con.getResponseCode();
+        if (status == HttpURLConnection.HTTP_MOVED_TEMP
+            || status == HttpURLConnection.HTTP_MOVED_PERM) {
+            String location = con.getHeaderField("Location");
+            URL newUrl = new URL(location);
+            con = (HttpURLConnection) newUrl.openConnection();
+         }
+
+        InputStream result = con.getInputStream();
+        return result;        
     }
 
 }
