@@ -42,10 +42,12 @@ INTERNAL_SECORE = "internal"
 DEFAULT_SECORE_URL = "http://localhost:8080/def"
 INTERNAL_SECORE_URL_CONTEXT_PATH = "/rasdaman/def"
 INTERNAL_SECORE_URL = "http://localhost:8080/" + INTERNAL_SECORE_URL_CONTEXT_PATH
-RUNNING_SECORE_URL = None
 
 
 class Session:
+
+    RUNNING_SECORE_URL = None
+
     def __init__(self, config, inp, recipe, hooks, ingredient_file_name, ingredients_dir_path):
         """
         This class is used to hold the configuration for this importing session
@@ -324,8 +326,7 @@ class Session:
 
                 test_url = url_prefix + "/crs/EPSG/0/4326"
                 from util.crs_util import CRSUtil
-                global RUNNING_SECORE_URL
-                RUNNING_SECORE_URL = url_prefix
+                Session.RUNNING_SECORE_URL = url_prefix
                 CRSUtil.get_axis_labels_from_single_crs(test_url)
 
                 # e.g: http://localhost:8080/def
@@ -336,7 +337,25 @@ class Session:
                     log.warn("Trying with another fallback resolver...")
             i += 1
 
-        raise RuntimeException("No configured CRS resolvers in petascope.properties work. Given: " + ",".join(crs_resolvers))
+        # none of resolvers work, then assume there is SECORE embedded in petascope
+        internal_secore_url = self.wcs_service.replace("/rasdaman/ows", "/rasdaman/def").strip()
+        try:
+            test_url = internal_secore_url + "/crs/EPSG/0/4326"
+            from util.crs_util import CRSUtil
+            Session.RUNNING_SECORE_URL = internal_secore_url
+            CRSUtil.get_axis_labels_from_single_crs(test_url)
+
+            log.warn("None of the configured secore_urls in petascope.properties respond to requests. "
+                     "wcst_import will use the internal CRS resolver at endpoint '" + internal_secore_url + "'. "
+                     "Hint: set secore_urls=internal in petascope.properties to suppress this warning.")
+
+            return internal_secore_url
+        except Exception as ex:
+            raise RuntimeException(
+                "No configured CRS resolvers in petascope.properties work. Given: " + ",".join(crs_resolvers))
+
+
+
 
     def __replace_secore_prefix(self, crs):
         """

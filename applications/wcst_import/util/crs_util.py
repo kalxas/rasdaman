@@ -140,7 +140,7 @@ class CRSAxis:
 
 class CRSUtil:
 
-    axes: List[Any]
+    axes = []
     LAT_AXIS_LABEL = "Lat"
 
     LONG_AXIS_LABEL_EPSG_VERSION_85 = "Long"
@@ -465,8 +465,8 @@ def replace_crs_by_working_crs(crs):
     e.g. in the ingredients it has: "time_crs": "http://localhost:8082/def/crs/OGC/0/AnsiDate"
     but the working SECORE CRS when wcst_import starts, is: "http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate"
     """
-    from session import RUNNING_SECORE_URL
-    result = RUNNING_SECORE_URL + "/" + crs.split("/def/")[1]
+    from session import Session
+    result = Session.RUNNING_SECORE_URL + "/" + crs.split("/def/")[1]
     return result
 
 
