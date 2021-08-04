@@ -481,13 +481,19 @@ module rasdaman {
                 webWorldWindModel = this.initWebWorldWind(canvasId);
             }                        
 
+            // NOTE: max bbox of EPSG:4326 which WebWorldWind supports is [-90,90,-180,180]
+            var ymin = Math.max(-90, bbox.ymin);
+            var ymax = Math.min(90, bbox.ymax);
+            var xmin = Math.max(-180, bbox.xmin);
+            var xmax = Math.min(180, bbox.xmax);
+
             var wwd = webWorldWindModel.wwd;
             var config = {
                     title: "WMS layer overview",
                     version: WMSSettingsService.version,
                     service: this.wmsSetting.wmsEndpoint,
                     layerNames: layerName,
-                    sector: new WorldWind.Sector(bbox.ymin, bbox.ymax, bbox.xmin, bbox.xmax),
+                    sector: new WorldWind.Sector(ymin, ymax, xmin, xmax),
                     levelZeroDelta: new WorldWind.Location(36, 36),
                     numLevels: 15,
                     format: "image/png",
