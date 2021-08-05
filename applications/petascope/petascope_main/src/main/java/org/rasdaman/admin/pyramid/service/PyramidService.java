@@ -546,10 +546,20 @@ public class PyramidService {
             IndexAxis pyramidMemberXIndexAxis = pyramidMemberCoverage.getIndexAxisByName(pyramidMemberXGeoAxis.getAxisLabel());
             IndexAxis pyramidMemberYIndexAxis = pyramidMemberCoverage.getIndexAxisByName(pyramidMemberYGeoAxis.getAxisLabel());
             
-            if (pyramidMemberXGeoAxis.getLowerBoundNumber().compareTo(geoSubsetX.fst) <= 0 && 
-                pyramidMemberXGeoAxis.getUpperBoundNumber().compareTo(geoSubsetX.snd) >= 0 && 
-                pyramidMemberYGeoAxis.getLowerBoundNumber().compareTo(geoSubsetY.fst) <= 0 && 
-                pyramidMemberYGeoAxis.getUpperBoundNumber().compareTo(geoSubsetY.snd) >= 0) {
+            // NOTE: if a pyramid member has a bit smaller geo extents then the request XY subsets, then it is still ok to use this pyramid member
+            BigDecimal RATIO = new BigDecimal("0.1");
+            BigDecimal epsilonX = geoSubsetX.fst.subtract(geoSubsetX.snd).abs().multiply(RATIO);
+            BigDecimal epsilonY = geoSubsetY.fst.subtract(geoSubsetY.snd).abs().multiply(RATIO);
+            
+            BigDecimal pyramidMemberGeoLowerBoundX = pyramidMemberXGeoAxis.getLowerBoundNumber().subtract(epsilonX);
+            BigDecimal pyramidMemberGeoUpperBoundX = pyramidMemberXGeoAxis.getUpperBoundNumber().add(epsilonX);
+            BigDecimal pyramidMemberGeoLowerBoundY = pyramidMemberYGeoAxis.getLowerBoundNumber().subtract(epsilonY);
+            BigDecimal pyramidMemberGeoUpperBoundY = pyramidMemberYGeoAxis.getUpperBoundNumber().add(epsilonY);
+            
+            if (pyramidMemberGeoLowerBoundX.compareTo(geoSubsetX.fst) <= 0 && 
+                pyramidMemberGeoUpperBoundX.compareTo(geoSubsetX.snd) >= 0 && 
+                pyramidMemberGeoLowerBoundY.compareTo(geoSubsetY.fst) <= 0 && 
+                pyramidMemberGeoUpperBoundY.compareTo(geoSubsetY.snd) >= 0) {
                 
                 ParsedSubset<BigDecimal> pyramidMemberXParsedSubset = new ParsedSubset<>(geoSubsetX.fst, geoSubsetX.snd);
                 ParsedSubset<Long> pyramidMemberXGridBounds = this.coordinateTranslationService.geoToGridForRegularAxis(pyramidMemberXParsedSubset, pyramidMemberXGeoAxis.getLowerBoundNumber(),
