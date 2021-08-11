@@ -2101,6 +2101,23 @@ recipe section
 
       "pyramid_bases": [ "cov_A",  "cov_B"]
 
+* ``pyramid_harvesting`` - If set to ``true``, recursively add all nested pyramid 
+  members of the pyramid *member* coverage to the target *base* coverage. The
+  pyramid member coverage depends on which of these two settings is used:
+
+  - If ``pyramid_bases`` is specified, then the currently importing coverage is 
+    the pyramid member of the the base coverages listed in ``pyramid_bases``;
+
+  - Otherwise, if ``pyramid_members`` is specified, then the currently importing
+    coverage is the base coverage of the pyramid member coverages listed in 
+    ``pyramid_members``;
+
+  - Otherwise, if neither of the above options is specified, an error is throws.
+
+  See :ref:`request <add_pyramid_member>`for more details on the underlying
+  request sent to petascope when this option is set to ``true``.
+  By default this option is set to ``false``.
+
 
 .. _wms-image-pyramids:
 

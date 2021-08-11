@@ -109,6 +109,7 @@ class Session:
         self.track_files = bool(self.config['track_files']) if "track_files" in self.config else True
         self.pyramid_members = None
         self.pyramid_bases = None
+        self.pyramid_harvesting = False
 
         self.wms_import = False
         self.import_overviews = []
@@ -118,6 +119,13 @@ class Session:
             self.pyramid_members = None if "pyramid_members" not in self.recipe["options"] else self.recipe["options"]["pyramid_members"]
             self.pyramid_bases = None if "pyramid_bases" not in self.recipe["options"] else self.recipe["options"][
                 "pyramid_bases"]
+            # If set to true, then request: /rasdaman/admin?REQUEST=AddPyramidMember&BASE=s2_10m&MEMBER=s2_60m&harvesting=true
+            # mean: recursively add pyramid member coverages of s2_60m coverage to base s2_10m coverage
+            self.pyramid_harvesting = False if "pyramid_harvesting" not in self.recipe["options"] else bool(self.recipe["options"]["pyramid_harvesting"])
+
+            if self.pyramid_members is None and self.pyramid_bases is None and self.pyramid_harvesting is True:
+                raise RuntimeException("'pyramid_harvesting' setting can be used only, "
+                                       "when either 'pyramid_members' or 'pyramid_bases' setting are specified with values in the ingredients file.")
 
             self.__get_import_overviews()
 

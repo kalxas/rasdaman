@@ -168,7 +168,7 @@ class Recipe(BaseRecipe):
         if self.session.pyramid_members is not None:
             for pyramid_member_coverage_id in self.session.pyramid_members:
                 if pyramid_member_coverage_id not in current_pyramid_member_coverage_ids:
-                    request = AddPyramidMemberRequest(self.coverage_id, pyramid_member_coverage_id)
+                    request = AddPyramidMemberRequest(self.coverage_id, pyramid_member_coverage_id, self.session.pyramid_harvesting)
                     executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
     def __add_pyramid_bases(self):
@@ -184,7 +184,7 @@ class Recipe(BaseRecipe):
                                                                                           ConfigManager.mock)
 
                 if self.coverage_id not in base_pyramid_member_coverage_ids:
-                    request = AddPyramidMemberRequest(base_coverage_id, self.coverage_id)
+                    request = AddPyramidMemberRequest(base_coverage_id, self.coverage_id, self.session.pyramid_harvesting)
                     executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
     def __update_coverage_request(self):

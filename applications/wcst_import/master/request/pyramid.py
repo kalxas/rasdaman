@@ -62,24 +62,27 @@ class CreatePyramidMemberRequest(AdminRequest):
 
 class AddPyramidMemberRequest(AdminRequest):
 
-    def __init__(self, base_coverage_id, pyramid_member_coverage_id):
+    def __init__(self, base_coverage_id, pyramid_member_coverage_id, harvesting=False):
         """
         Class to request to add a downscaled level coverage to a base coverage's pyramid
 
         e.g. /rasdaman/admin?REQUEST=AddPyramidMember
                             & BASE=Sentinel2_10m
                             & MEMBER=Sentinel2_10m
+                            & HARVESTING=true (default is false)
         """
         super(AddPyramidMemberRequest, self).__init__()
 
         self.base_coverage_id = base_coverage_id
         self.pyramid_member_coverage_id = pyramid_member_coverage_id
+        self.harvesting = harvesting
 
     def _get_request_type_parameters(self):
         request_kvp = OrderedDict()
         request_kvp["REQUEST"] = "AddPyramidMember"
         request_kvp["BASE"] = self.base_coverage_id
         request_kvp["MEMBER"] = self.pyramid_member_coverage_id
+        request_kvp["HARVESTING"] = self.harvesting
 
         return request_kvp
 

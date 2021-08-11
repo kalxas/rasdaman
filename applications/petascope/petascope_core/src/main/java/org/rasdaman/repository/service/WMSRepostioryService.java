@@ -227,6 +227,13 @@ public class WMSRepostioryService {
 
         log.debug("WMS Layer: " + layer.getName() + " is removed from database.");
     }
+    
+    /**
+     * Remove the layer from local cache map when needed
+     */
+    public void removeLayerFromLocalCache(String layerName) {
+        localLayersCacheMap.remove(layerName);
+    }
 
     /**
      * Delete a WMS Style object to persistent database

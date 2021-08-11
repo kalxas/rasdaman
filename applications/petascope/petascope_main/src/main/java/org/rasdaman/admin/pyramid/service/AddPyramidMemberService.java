@@ -193,7 +193,7 @@ public class AddPyramidMemberService extends AbstractAdminService {
         
         String tmp = getValueByKeyAllowNull(kvpParameters, KEY_PYRAMID_HARVESTING);
         boolean pyramidHarvesting = false;
-        if (tmp != null && tmp.equals(StringUtil.TRUE_VALUE)) {
+        if (tmp != null && tmp.equalsIgnoreCase(StringUtil.TRUE_VALUE)) {
             pyramidHarvesting = true;
         }
          

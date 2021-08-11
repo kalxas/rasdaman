@@ -94,7 +94,8 @@ class Importer:
                 self._insert_update_into_wms()
 
             if self.coverage.base_coverage_id is not None:
-                self.add_pyramid_member_if_any(self.coverage.base_coverage_id, self.coverage.coverage_id)
+                # for importing overviews nested inside input files
+                self.add_pyramid_member_if_any(self.coverage.base_coverage_id, self.coverage.coverage_id, self.session.pyramid_harvesting)
 
     def get_progress(self):
         """
@@ -208,6 +209,8 @@ class Importer:
             is_loggable = False
             log.warn("\nCannot create log file for this ingestion process, only log to console.")
 
+        add_pyramid_members = False
+
         for i in range(self.processed, self.total):
             try:
                 index = "{}/{}".format(str(i + 1), str(self.total))
@@ -226,6 +229,11 @@ class Importer:
                     self._insert_slice(self.coverage.slices[i])
                     grid_domains = self.__get_grid_domains(self.coverage.slices[i])
                     self._log_file_ingestion(index, file_name, start_time, grid_domains, file_size_in_mb, is_loggable, log_file)
+
+                    if add_pyramid_members is False:
+                        # NOTE: add pyramid members after the first file imported successfully if specified in the ingredients file
+                        self._add_pyramid_members()
+                        add_pyramid_members = True
                 else:
                     is_ingest_file = False
                     # extract coverage from petascope to ingest a new coverage
@@ -339,23 +347,33 @@ class Importer:
                                                      factors)
                 executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
-        # add listed pyramid members coverage ids in the ingredients file to this base coverage's pyramid
-        if self.session.pyramid_members is not None:
-            for base_coverage_id in self.session.pyramid_members:
-                if base_coverage_id not in base_pyramid_member_coverage_ids:
-                    request = AddPyramidMemberRequest(self.coverage.coverage_id, base_coverage_id)
-                    executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+    def _add_pyramid_members(self):
+        """
+        Depend on what configured in the ingredients file, send AddPyramidMember requests to petascope
+        """
+        executor = ConfigManager.executor
+        base_coverage_id = self.coverage.coverage_id
+        base_pyramid_member_coverage_ids = self.list_pyramid_member_coverages(base_coverage_id, ConfigManager.mock)
 
-        # add this importing coverage id to the listed pyramid members of base coverages configured in the ingredients file
-        if self.session.pyramid_bases is not None:
-            for base_coverage_id in self.session.pyramid_bases:
+        if self.session is not None:
 
-                base_pyramid_member_coverage_ids = self.list_pyramid_member_coverages(base_coverage_id,
-                                                                                      ConfigManager.mock)
+            # add listed pyramid members coverage ids in the ingredients file to this base coverage's pyramid
+            if self.session.pyramid_members is not None:
+                for base_coverage_id in self.session.pyramid_members:
+                    if base_coverage_id not in base_pyramid_member_coverage_ids:
+                        request = AddPyramidMemberRequest(self.coverage.coverage_id, base_coverage_id, self.session.pyramid_harvesting)
+                        executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
-                if self.coverage.coverage_id not in base_pyramid_member_coverage_ids:
-                    request = AddPyramidMemberRequest(base_coverage_id, self.coverage.coverage_id)
-                    executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+            # add this importing coverage id to the listed pyramid members of base coverages configured in the ingredients file
+            if self.session.pyramid_bases is not None:
+                for base_coverage_id in self.session.pyramid_bases:
+
+                    base_pyramid_member_coverage_ids = self.list_pyramid_member_coverages(base_coverage_id,
+                                                                                          ConfigManager.mock)
+
+                    if self.coverage.coverage_id not in base_pyramid_member_coverage_ids:
+                        request = AddPyramidMemberRequest(base_coverage_id, self.coverage.coverage_id, self.session.pyramid_harvesting)
+                        executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
     @staticmethod
     def list_pyramid_member_coverages(coverage_id, mock=False):
@@ -375,7 +393,7 @@ class Importer:
 
         return []
 
-    def add_pyramid_member_if_any(self, base_coverage_id, pyramid_member_coverage_id):
+    def add_pyramid_member_if_any(self, base_coverage_id, pyramid_member_coverage_id, pyramid_haversting=False):
         """
         If pyramid member coverage doesn't exist in base coverage's pyramid, then add it
         """
@@ -383,7 +401,7 @@ class Importer:
         if pyramid_member_coverage_id not in current_pyramid_member_coverage_ids:
             executor = ConfigManager.executor
 
-            request = AddPyramidMemberRequest(base_coverage_id, pyramid_member_coverage_id)
+            request = AddPyramidMemberRequest(base_coverage_id, pyramid_member_coverage_id, pyramid_haversting)
             executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
     def _get_scale_factors(self, level):

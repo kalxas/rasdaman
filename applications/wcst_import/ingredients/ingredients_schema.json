@@ -124,6 +124,9 @@
                             "scale_factors": {},
                             "pyramid_members": {},
                             "pyramid_bases": {},
+                            "pyramid_harvesting": {
+                                "type": "boolean"
+                            },
                             "tiling": {},
                             "time_crs": {},
                             "time_format": {},
