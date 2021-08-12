@@ -170,7 +170,7 @@ public class PyramidService {
             IndexAxis pyramidMemberIndexAxis = pyramidMemberCoverage.getIndexAxisByOrder(i);
             String aixsLabel = pyramidMemberIndexAxis.getAxisLabel();
             
-            GeoAxis baseGeoAxis = pyramidMemberCoverage.getGeoAxisByName(aixsLabel);
+            GeoAxis baseGeoAxis = baseCoverage.getGeoAxisByName(aixsLabel);
             GeoAxis pyramidMemberGeoAxis = pyramidMemberCoverage.getGeoAxisByName(aixsLabel);           
             
             long numberOfBaseGridPixels = baseIndexAxis.getUpperBound() - baseIndexAxis.getLowerBound() + 1;
@@ -181,6 +181,13 @@ public class PyramidService {
                 // e.g: 20 / 2.5
                 long numberOfPyramidMemberGridPixels = BigDecimalUtil.divide(new BigDecimal(numberOfBaseGridPixels), scaleFactor).setScale(0, RoundingMode.HALF_UP).longValue();
                 
+                // e.g: -21 as grid lower bound
+                long baseIndexAxisLowerBound = baseIndexAxis.getLowerBound();
+                // e.g: -5 as grid lower bound
+                long gridIndexAxisLowerBoundNew = BigDecimalUtil.divide(new BigDecimal(baseIndexAxisLowerBound), scaleFactor).setScale(0, RoundingMode.HALF_UP).longValue();
+                pyramidMemberIndexAxis.setLowerBound(gridIndexAxisLowerBoundNew);
+                
+                // before updating grid upper bound
                 long currentPyramidMemberIndexAxisUpperBound = pyramidMemberIndexAxis.getUpperBound();
                 
                 // e.g: -5
@@ -201,10 +208,15 @@ public class PyramidService {
                 pyramidMemberIndexAxis.setUpperBound(baseIndexAxis.getUpperBound());
             }
             
-            // Update geo bounds
-
-            pyramidMemberGeoAxis.setLowerBound(baseGeoAxis.getLowerBound());
-            pyramidMemberGeoAxis.setUpperBound(baseGeoAxis.getUpperBound());
+            // Update geo bounds in case the base's geo domains are extended for pyramid member coverage
+            
+            if (BigDecimalUtil.smallerThan(baseGeoAxis.getLowerBoundNumber(), pyramidMemberGeoAxis.getLowerBoundNumber())) {
+                pyramidMemberGeoAxis.setLowerBound(baseGeoAxis.getLowerBound());
+            }
+            
+            if (BigDecimalUtil.greaterThan(baseGeoAxis.getUpperBoundNumber(), pyramidMemberGeoAxis.getUpperBoundNumber())) {
+                pyramidMemberGeoAxis.setUpperBound(baseGeoAxis.getUpperBound());
+            }
             
             if (!baseGeoAxis.isIrregular()) {
                 // for regular axis

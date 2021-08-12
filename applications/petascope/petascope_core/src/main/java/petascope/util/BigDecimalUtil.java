@@ -206,11 +206,19 @@ public class BigDecimalUtil {
         return firstValue.compareTo(secondValue.subtract(COEFFICIENT_DECIMAL_EPSILON)) >= 0;
     }
     
+    public static boolean greaterThan(BigDecimal firstValue, BigDecimal secondValue) {        
+        return firstValue.compareTo(secondValue.subtract(COEFFICIENT_DECIMAL_EPSILON)) > 0;
+    }
+    
     /**
      * Check if number A <= number B
      */
     public static boolean smallerThanOrEqual(BigDecimal firstValue, BigDecimal secondValue) {        
         return firstValue.compareTo(secondValue.add(COEFFICIENT_DECIMAL_EPSILON)) <= 0;
+    }
+    
+    public static boolean smallerThan(BigDecimal firstValue, BigDecimal secondValue) {        
+        return firstValue.compareTo(secondValue.add(COEFFICIENT_DECIMAL_EPSILON)) < 0;
     }
    
     public static boolean isNumber(String value) {

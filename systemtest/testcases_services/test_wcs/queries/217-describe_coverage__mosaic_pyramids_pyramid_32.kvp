@@ -1,0 +1,5 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=DescribeCoverage&
+COVERAGEID=test_mosaic_pyramids_32
+
