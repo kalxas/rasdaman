@@ -1946,11 +1946,26 @@ config section
   a floating-point number can also be specified for sub-second precision.
   Default values is 1.
 
-* ``track_files`` - Set to ``true`` to allow files to be tracked in order to avoid
-  reimporting already imported files. This setting is enabled by default.
+* ``track_files`` - Set to ``true`` to allow input files to be tracked in a JSON file
+  ``<coverage_id>.resume.json`` containing a list of imported file paths, 
+  in order to avoid reimporting them when wcst_import.sh is subsequently executed again.
+  The JSON file is generated in the directory set
+  by the ``resumer_dir_path`` setting. This setting is enabled by default.
+  Example content of a resume file ``S2_L2A_32633_B01.resume.json`` of a
+  coverage ``S2_L2A_32633_B01``:
 
-* ``resumer_dir_path`` - The directory in which to store the track file. By
-  default it will be stored next to the ingredients file.
+  .. hidden-code-block:: json
+
+      ["/tmp/s2_l2A_32633_B01_1.tiff",
+       "/tmp/s2_l2A_32633_B01_2.tiff",
+       ...
+       "/tmp/s2_l2A_32633_B01_10.tiff"]
+
+
+* ``resumer_dir_path`` - The directory in which to store the resume file generated
+  when ``track_files`` is set to ``true``. The user invoking 
+  wcst_import.sh must have permissions to write in this  directory.
+  By default the resume file will be stored in the same directory as the ingredients file.
 
 * ``slice_restriction`` - Limit the slices that are imported to the ones that fit
   in a specified bounding box. Each subset in the bounding box should be of form
@@ -2083,6 +2098,17 @@ recipe section
   This setting and ``import_overviews`` are exclusive, only one can be specified.
   By default it is set to `false`. Only GDAL recipes and gdal version 2+ are supported.
 
+* ``import_overviews_only`` - If specified with ``true``, input files are not imported
+  to the *base* coverage specified with ``coverage_id``, but only to the *overview*
+  coverages as specified in the ingredients file by either ``import_all_overviews`` or 
+  ``import_overviews``. This setting is set to ``false`` by default if not specified explicitly.
+
+  .. NOTE::
+
+     If the input files were already imported to the *base* coverage and they were tracked
+     in ``<base_coverage_id>.resume.json``, it is necessary to remove this resume file in 
+     order to import only the overview coverages. Alternatively the ingredients file can
+     be copied to another directory and adapted to set ``import_overviews_only`` to ``true``.
 
 * ``pyramid_members`` - List of existing coverages which can be added
   as pyramid members of the importing coverage, see :ref:`request <add_pyramid_member>`.

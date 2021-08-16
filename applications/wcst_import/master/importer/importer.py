@@ -93,9 +93,11 @@ class Importer:
             if self.insert_into_wms:
                 self._insert_update_into_wms()
 
-            if self.coverage.base_coverage_id is not None:
+            if self.coverage.base_coverage_id is not None \
+                    and (self.session is not None and self.session.import_overviews_only is False):
                 # for importing overviews nested inside input files
-                self.add_pyramid_member_if_any(self.coverage.base_coverage_id, self.coverage.coverage_id, self.session.pyramid_harvesting)
+                self.add_pyramid_member_if_any(self.coverage.base_coverage_id, self.coverage.coverage_id,
+                                               self.session.pyramid_harvesting)
 
     def get_progress(self):
         """
@@ -230,7 +232,8 @@ class Importer:
                     grid_domains = self.__get_grid_domains(self.coverage.slices[i])
                     self._log_file_ingestion(index, file_name, start_time, grid_domains, file_size_in_mb, is_loggable, log_file)
 
-                    if add_pyramid_members is False:
+                    if add_pyramid_members is False \
+                            and (self.session is not None and self.session.import_overviews_only is False):
                         # NOTE: add pyramid members after the first file imported successfully if specified in the ingredients file
                         self._add_pyramid_members()
                         add_pyramid_members = True

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="NoSuchCoverage">
+        <ows:ExceptionText>Coverage 'test_import_oveviews_only' does not exist in local database.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

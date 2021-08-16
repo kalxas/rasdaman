@@ -113,6 +113,7 @@ class Session:
 
         self.wms_import = False
         self.import_overviews = []
+        self.import_overviews_only = False
 
         if "options" in self.recipe:
             self.wms_import = True if "wms" not in self.recipe["options"] else bool(self.recipe["options"])
@@ -128,6 +129,7 @@ class Session:
                                        "when either 'pyramid_members' or 'pyramid_bases' setting are specified with values in the ingredients file.")
 
             self.__get_import_overviews()
+            self.import_overviews_only = False if "import_overviews_only" not in self.recipe["options"] else bool(self.recipe["options"]["import_overviews_only"])
 
         # Pre/Post hooks to run before analyzing files/after import replaced files
         # (original files are not used but processed files (e.g: by gdalwarp))
@@ -257,7 +259,6 @@ class Session:
 
         raise RuntimeException("Cannot find setting '" + setting_key + "' from properties file '" + properties_file + "'.")
 
-
     def __get_crs_resolver_and_embedded_petascope_port_configuration(self):
         """
         From the petascope.properties file which is configured in config_manager.py when building wcst_import,
@@ -361,9 +362,6 @@ class Session:
         except Exception as ex:
             raise RuntimeException(
                 "No configured CRS resolvers in petascope.properties work. Given: " + ",".join(crs_resolvers))
-
-
-
 
     def __replace_secore_prefix(self, crs):
         """

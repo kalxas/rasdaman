@@ -127,6 +127,9 @@
                             "pyramid_harvesting": {
                                 "type": "boolean"
                             },
+                            "import_overviews_only": {
+                                "type": "boolean"
+                            },
                             "tiling": {},
                             "time_crs": {},
                             "time_format": {},

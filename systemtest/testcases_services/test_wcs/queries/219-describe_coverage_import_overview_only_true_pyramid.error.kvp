@@ -1,0 +1,1 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_import_oveviews_only&subset=Long(111.975)&subset=Lat(-8.975)&format=csv

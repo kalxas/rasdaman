@@ -469,7 +469,8 @@ class AbstractToCoverageConverter:
                     valid_coverage_slice = False
 
                 if valid_coverage_slice:
-                    slices_dict["base"].append(coverage_slice)
+                    if self.session.import_overviews_only is False:
+                        slices_dict["base"].append(coverage_slice)
 
                     if self.session.recipe["options"]["coverage"]["slicer"]["type"] == "gdal":
                         gdal_file = GDALGmlUtil(file.get_filepath())

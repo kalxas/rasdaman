@@ -216,7 +216,8 @@ class Recipe(BaseRecipe):
                     # Generate local metadata string for current coverage slice
                     self.evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, tpair.file)
                     local_metadata = gdal_coverage_converter._generate_local_metadata(subsets, self.evaluator_slice)
-                    slices_dict["base"].append(Slice(subsets, FileDataProvider(tpair.file), local_metadata))
+                    if self.session.import_overviews_only is False:
+                        slices_dict["base"].append(Slice(subsets, FileDataProvider(tpair.file), local_metadata))
 
                     # Then, create slices for selected overviews from user
                     for overview_index in self.session.import_overviews:
