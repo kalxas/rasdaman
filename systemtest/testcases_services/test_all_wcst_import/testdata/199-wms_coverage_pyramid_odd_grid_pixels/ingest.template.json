@@ -1,0 +1,64 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "track_files": false,
+    "automated": true,
+    "insitu": true
+  },
+  "input": {
+    "coverage_id": "test_coverage_pyramid_odd_grid_pixels",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/3826",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "photounit": "GWA",
+            "crs": "TWD97",
+            "groundresolutionunit": "cm"
+          }
+        },
+        "slicer": {
+          "type": "gdal",
+		  "bands": [
+            {
+              "name": "Red",
+              "identifier": "0"
+            },
+            {
+              "name": "Green",
+              "identifier": "1"
+            },
+            {
+              "name": "Blue",
+              "identifier": "2"
+            }
+          ],
+          "axes": {
+            "Y": {
+              "min": "${gdal:minY}",
+              "max": "${gdal:maxY}",
+              "gridOrder": 1,
+              "resolution": "${gdal:resolutionY}"
+            },
+            "X": {
+              "min": "${gdal:minX}",
+              "max": "${gdal:maxX}",
+              "gridOrder": 0,
+              "resolution": "${gdal:resolutionX}"
+            }
+          }
+        }
+      },
+      "scale_levels": [22],
+      "wms_import":true
+    }
+  }
+}

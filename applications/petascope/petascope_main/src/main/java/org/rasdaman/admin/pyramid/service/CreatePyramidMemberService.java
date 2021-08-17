@@ -293,8 +293,8 @@ public class CreatePyramidMemberService extends AbstractAdminService {
                 long gridDistance = baseIndexAxis.getUpperBound() - baseIndexAxis.getLowerBound() + 1;
 
                 // e.g: 20 / 2.5
-                long numberOfPyramidMemberGridPixels = BigDecimalUtil.divide(new BigDecimal(gridDistance), scaleFactor).setScale(0, RoundingMode.HALF_UP).longValue();
-                long pyramidMemeberIndexAxisLowerBound =  BigDecimalUtil.divide(new BigDecimal(baseIndexAxis.getLowerBound()), scaleFactor).longValue();
+                long numberOfPyramidMemberGridPixels = BigDecimalUtil.divideToLong(new BigDecimal(gridDistance), scaleFactor);
+                long pyramidMemeberIndexAxisLowerBound =  BigDecimalUtil.divideToLong(new BigDecimal(baseIndexAxis.getLowerBound()), scaleFactor);
                 
                 // base 0:99 with scale factor = 2 will return 0:48
                 long pyramidMemeberIndexAxisUpperBound = pyramidMemeberIndexAxisLowerBound + numberOfPyramidMemberGridPixels - 1;
@@ -326,7 +326,8 @@ public class CreatePyramidMemberService extends AbstractAdminService {
         }
         
         try {            
-            this.pyramidService.updateDownscaledLevelCollection(baseCoverage, downscaledLevelCollectionName, coveragePyramid, gridDomains, username, password);
+            this.pyramidService.updateDownscaledLevelCollection(baseCoverage, downscaledLevelCoverage, 
+                                                                downscaledLevelCollectionName, coveragePyramid, gridDomains, username, password);
         } catch (Exception ex) {
             String errorMessage = "Error updating downscaled level collection for coverage '" + pyramidMemberCoverageId 
                                 + "' with scale factors '" + ListUtil.join(scaleFactors, ",") + "'. Reason: " + ex.getMessage();

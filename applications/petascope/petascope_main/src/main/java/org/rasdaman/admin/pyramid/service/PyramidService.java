@@ -121,6 +121,7 @@ public class PyramidService {
      * NOTE: input geoDomains will be divided to have good size enough for updating to downscaled collection.
      */
     public void updateDownscaledLevelCollection(GeneralGridCoverage baseCoverage, 
+                                                GeneralGridCoverage pyramidMemberCoverage,
                                                 String targetDownscaledCollectionName,
                                                 CoveragePyramid targetCoveragePyramid, 
                                                 List<String> baseAffectedGridDomains,
@@ -147,7 +148,8 @@ public class PyramidService {
         int gridOrderAxisY = ((GeneralGridCoverage)sourceCoverage).getIndexAxisByName(geoAxisY.getAxisLabel()).getAxisOrder();
         
         // Now, separate the (big) grid domains on source collection properly and select these suitable spatial domains to update on target downscaled collections
-        this.updateScaleLevelByGridDomains(sourceCollectionName, targetDownscaledCollectionName, baseAffectedGridDomains, 
+        this.updateScaleLevelByGridDomains(pyramidMemberCoverage,
+                                           sourceCollectionName, targetDownscaledCollectionName, baseAffectedGridDomains, 
                                            sourceScaleFactorsByGridOrder,
                                            targetScaleFactorsByGridOrder, username, password, gridOrderAxisX, gridOrderAxisY);
     }
@@ -173,34 +175,18 @@ public class PyramidService {
             GeoAxis baseGeoAxis = baseCoverage.getGeoAxisByName(aixsLabel);
             GeoAxis pyramidMemberGeoAxis = pyramidMemberCoverage.getGeoAxisByName(aixsLabel);           
             
-            long numberOfBaseGridPixels = baseIndexAxis.getUpperBound() - baseIndexAxis.getLowerBound() + 1;
             BigDecimal scaleFactor = scaleFactorsByGridOrder.get(i);
             
             if (!baseGeoAxis.isIrregular()) {
-                // for regular axis
-                // e.g: 20 / 2.5
-                long numberOfPyramidMemberGridPixels = BigDecimalUtil.divide(new BigDecimal(numberOfBaseGridPixels), scaleFactor).setScale(0, RoundingMode.HALF_UP).longValue();
-                
-                // e.g: -21 as grid lower bound
+                // e.g: 907 as base grid upper bound
                 long baseIndexAxisLowerBound = baseIndexAxis.getLowerBound();
-                // e.g: -5 as grid lower bound
-                long gridIndexAxisLowerBoundNew = BigDecimalUtil.divide(new BigDecimal(baseIndexAxisLowerBound), scaleFactor).setScale(0, RoundingMode.HALF_UP).longValue();
+                long baseIndexAxisUpperBound = baseIndexAxis.getUpperBound();
+                
+                // e.g: 7 as pyramid member grid lower bound with scale ratio = 122.0
+                long gridIndexAxisLowerBoundNew = BigDecimalUtil.divideToLong(new BigDecimal(baseIndexAxisLowerBound), scaleFactor);
+                long gridIndexAxisUpperBoundNew = BigDecimalUtil.divideToLong(new BigDecimal(baseIndexAxisUpperBound), scaleFactor);
                 pyramidMemberIndexAxis.setLowerBound(gridIndexAxisLowerBoundNew);
-                
-                // before updating grid upper bound
-                long currentPyramidMemberIndexAxisUpperBound = pyramidMemberIndexAxis.getUpperBound();
-                
-                // e.g: -5
-                long pyramidMemeberIndexAxisLowerBound = pyramidMemberIndexAxis.getLowerBound();
-                long pyramidMemeberIndexAxisUpperBound = pyramidMemeberIndexAxisLowerBound + numberOfPyramidMemberGridPixels - 1;
-                if (pyramidMemeberIndexAxisUpperBound < pyramidMemeberIndexAxisLowerBound) {
-                    pyramidMemeberIndexAxisUpperBound = pyramidMemeberIndexAxisLowerBound;
-                }
-                
-                // NOTE: dowscaled coverage is really extended after a new file is added to base coverage, not just importing the same geo domains
-                if (pyramidMemeberIndexAxisUpperBound > currentPyramidMemberIndexAxisUpperBound) {
-                    pyramidMemberIndexAxis.setUpperBound(pyramidMemeberIndexAxisUpperBound);
-                }
+                pyramidMemberIndexAxis.setUpperBound(gridIndexAxisUpperBoundNew); 
 
             } else {
                 // NOTE: for irregular axis, set as base coverage
@@ -209,14 +195,8 @@ public class PyramidService {
             }
             
             // Update geo bounds in case the base's geo domains are extended for pyramid member coverage
-            
-            if (BigDecimalUtil.smallerThan(baseGeoAxis.getLowerBoundNumber(), pyramidMemberGeoAxis.getLowerBoundNumber())) {
-                pyramidMemberGeoAxis.setLowerBound(baseGeoAxis.getLowerBound());
-            }
-            
-            if (BigDecimalUtil.greaterThan(baseGeoAxis.getUpperBoundNumber(), pyramidMemberGeoAxis.getUpperBoundNumber())) {
-                pyramidMemberGeoAxis.setUpperBound(baseGeoAxis.getUpperBound());
-            }
+            pyramidMemberGeoAxis.setLowerBound(baseGeoAxis.getLowerBound());
+            pyramidMemberGeoAxis.setUpperBound(baseGeoAxis.getUpperBound());
             
             if (!baseGeoAxis.isIrregular()) {
                 // for regular axis
@@ -226,6 +206,7 @@ public class PyramidService {
                 BigDecimal newPyramidResolution = BigDecimalUtil.divide(pyramidGeoDistance, new BigDecimal(pyramidGridDistance));
 
                 BigDecimal oldPyramidResolution = pyramidMemberGeoAxis.getResolution();
+                // for axis with negative resolution, e.g: Lat
                 if (oldPyramidResolution.compareTo(BigDecimal.ZERO) < 0) {
                     newPyramidResolution = newPyramidResolution.multiply(BigDecimal.valueOf(-1));
                 }
@@ -258,7 +239,8 @@ public class PyramidService {
      * - select c[1, 0:200, 0:150] -> d[1, 0:100, 0:75]
      * - select c[2, 0:200, 0:150] -> d[2, 0:100, 0:75]
      */
-    private void updateScaleLevelByGridDomains(String sourceDownscaledCollectionName, String targetDownscaledCollectionName, 
+    private void updateScaleLevelByGridDomains(GeneralGridCoverage pyramidMemberCoverage,
+                                               String sourceDownscaledCollectionName, String targetDownscaledCollectionName, 
                                                List<String> baseAffectedGridDomains, 
                                                List<BigDecimal> sourceScaleFactors,
                                                List<BigDecimal> targetScaleFactors,
@@ -292,17 +274,18 @@ public class PyramidService {
             String sourceAffectedGridDomain = sourceGridLowerBound + RASQL_BOUND_SEPARATION + sourceGridUpperBound;
             
             long upperBoundGridAxis = Long.valueOf(gridIntervals[i].split(RASQL_BOUND_SEPARATION)[1]);
-            
             Pair<List<String>, List<String>> separatedPair;
+            
+            IndexAxis pyramidIndexAxis = pyramidMemberCoverage.getIndexAxisByOrder(i);
             
             if (i == gridOrderAxisX || i == gridOrderAxisY) {
                 // X or Y axes, seperated by size 10000 x 10000
                 separatedPair = this.separateGridDomainByValue(sourceAffectedGridDomain, MAX_SELECT_GRID_WIDTH_HEIGHT_AXIS,
-                                                                                            upperBoundGridAxis, targetDownscaledRatio);
+                                                                                            upperBoundGridAxis, targetDownscaledRatio, pyramidIndexAxis);
             } else {
                 // non XY axes, seperated by size 1
                 separatedPair = this.separateGridDomainByValue(sourceAffectedGridDomain, MAX_SELECT_GRID_OTHER_AXIS,
-                                                                                            upperBoundGridAxis, targetDownscaledRatio);
+                                                                                            upperBoundGridAxis, targetDownscaledRatio, pyramidIndexAxis);
             }
             List<String> calculatedSourceAffectedDomains = separatedPair.fst;
             List<String> calculatedTargetAffectedDomains = separatedPair.snd;
@@ -330,7 +313,8 @@ public class PyramidService {
      * result will be: 0:4,5:9,10:14,15:19,20:20
      */
     private Pair<List<String>, List<String>> separateGridDomainByValue(String gridDomain, long upperValueForSeperation, long upperBoundGridAxis,
-                                                                       BigDecimal targetDownscaledRatio) {
+                                                                       BigDecimal targetDownscaledRatio,
+                                                                       IndexAxis pyramidIndexAxis) {
         List<String> sourceSeparatedResults = new ArrayList<>();
         List<String> targetSeparatedResults = new ArrayList<>();
         
@@ -346,8 +330,10 @@ public class PyramidService {
 
             // e.g: value = 5, first is: 0:4
             String sourceResult = lowerBound + RASQL_BOUND_SEPARATION + temp;
-            String targetResult = (new BigDecimal(lowerBound).multiply(targetDownscaledRatio)).longValue() 
-                                + RASQL_BOUND_SEPARATION + new BigDecimal(temp).multiply(targetDownscaledRatio).longValue();
+            long gridLowerBoundTargetResult = BigDecimalUtil.multipleToLong(new BigDecimal(lowerBound), targetDownscaledRatio);
+            long gridUpperBoundTargetResult = BigDecimalUtil.multipleToLong(new BigDecimal(temp), targetDownscaledRatio);
+            
+            String targetResult = gridLowerBoundTargetResult + RASQL_BOUND_SEPARATION + gridUpperBoundTargetResult;
             if (temp >= upperBound) {
                 // e.g: value = 5, last is 20:20
                 long tempUpperBound = upperBound;
@@ -357,8 +343,22 @@ public class PyramidService {
                 }
                 sourceResult = lowerBound + RASQL_BOUND_SEPARATION + tempUpperBound;
                 
-                targetResult = (new BigDecimal(lowerBound).multiply(targetDownscaledRatio)).longValue() 
-                                + RASQL_BOUND_SEPARATION +  (new BigDecimal(tempUpperBound).multiply(targetDownscaledRatio)).longValue() ;
+                long minGridDownscaledLowerBound = pyramidIndexAxis.getLowerBound();
+                long maxGridDownscaledUpperBound = pyramidIndexAxis.getUpperBound();
+                
+                long downscaledLowerBound = BigDecimalUtil.multipleToLong(new BigDecimal(lowerBound), targetDownscaledRatio);
+                // lowerBound must be in the calculated bound of PyramidMemberCoverage
+                if (downscaledLowerBound < minGridDownscaledLowerBound) {
+                    downscaledLowerBound = minGridDownscaledLowerBound;
+                }
+                
+                long downscaledUpperBound = BigDecimalUtil.multipleToLong(new BigDecimal(tempUpperBound), targetDownscaledRatio);
+                // upperBound must be in the calculated bound of PyramidMemberCoverage
+                if (downscaledUpperBound > maxGridDownscaledUpperBound) {
+                    downscaledUpperBound = maxGridDownscaledUpperBound;
+                }
+                
+                targetResult = downscaledLowerBound + RASQL_BOUND_SEPARATION + downscaledUpperBound;
             }
             sourceSeparatedResults.add(sourceResult);
             targetSeparatedResults.add(targetResult);

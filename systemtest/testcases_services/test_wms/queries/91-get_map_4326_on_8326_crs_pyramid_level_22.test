@@ -1,0 +1,4 @@
+service=WMS&version=1.3.0&
+request=GetMap&layers=test_coverage_pyramid_odd_grid_pixels&
+bbox=23.623007613975247,120.10681456651098,24.973612009636362,120.68390127292383&
+width=10&height=10&crs=EPSG:4326&format=image/png&transparent=true&styles=

@@ -140,6 +140,7 @@ public class UpdateCoverageHandler {
         }
         // Build input Coverage object from GML document (each slice is a input coverage) to update the persisted coverage
         Coverage inputCoverage = gmlCISParserService.parseDocumentToCoverage(gmlInputCoverageDocument);
+        inputCoverage.setId(currentCoverage.getId());
 
 	try {
             this.handleUpdateCoverageRequest(request, currentCoverage, inputCoverage, gmlInputCoverageDocument);
@@ -254,15 +255,18 @@ public class UpdateCoverageHandler {
             if (coveragePyramid.isSynced() && !coveragePyramid.getPyramidMemberCoverageId().equals(currentCoverage.getCoverageId())) {                
                 Coverage pyramidMemberCoverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(coveragePyramid.getPyramidMemberCoverageId());
                 String downscaledCollectionName = pyramidMemberCoverage.getRasdamanRangeSet().getCollectionName();
-                this.pyramidService.updateDownscaledLevelCollection((GeneralGridCoverage)currentCoverage, 
-                                                                     downscaledCollectionName,
-                                                                     coveragePyramid, 
-                                                                     new ArrayList<>(gridDomainsPairsMap.values()), username, password);
                 
                 // then, update the pyramid member's coverage grid domains as well
                 this.pyramidService.updateGridAndGeoDomainsOnDownscaledLevelCoverage((GeneralGridCoverage)currentCoverage, 
                                                                                (GeneralGridCoverage)pyramidMemberCoverage,
                                                                                coveragePyramid.getScaleFactorsList());
+                
+                // then, create downscaled collection
+                this.pyramidService.updateDownscaledLevelCollection((GeneralGridCoverage)currentCoverage, 
+                                                                    (GeneralGridCoverage)pyramidMemberCoverage,
+                                                                    downscaledCollectionName,
+                                                                    coveragePyramid, 
+                                                                    new ArrayList<>(gridDomainsPairsMap.values()), username, password);
             }
         }
 

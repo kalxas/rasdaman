@@ -261,6 +261,19 @@ public class BigDecimalUtil {
         return result;
     }
     
+    /**
+     * Divide first by second and round up the result as long value
+     */
+    public static long divideToLong(BigDecimal first, BigDecimal second) {
+        long result = BigDecimalUtil.divide(first, second).longValue();
+        return result;
+    }
+    
+    public static long multipleToLong(BigDecimal first, BigDecimal second) {
+        long result = first.multiply(second).longValue();
+        return result;
+    }
+    
     public static class BigDecimalComparator implements Comparator<BigDecimal> {
 
         @Override
