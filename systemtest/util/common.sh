@@ -110,6 +110,7 @@ TEST_SUBSETTING_1D=test_subsetting_1d
 TEST_SUBSETTING=test_subsetting
 TEST_SUBSETTING_SINGLE=test_subsetting_single
 TEST_SUBSETTING_3D=test_subsetting_3d
+TEST_SUBSETTING_HOLES=test_subsetting_holes
 TEST_OVERLAP=test_overlap
 TEST_OVERLAP_3D=test_overlap_3d
 # ------------------------------------------------------------------------------

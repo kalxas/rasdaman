@@ -390,6 +390,14 @@ function import_nullvalues_data()
   $RASQL -q "insert into $TEST_NULL_FLOAT values (float) <[0:2,0:2] nanf, 0.0f, 3.13f; 3.14f, 3.15f, 3.33f; 3.33334f, 3.34f, nanf>" > /dev/null | tee -a $LOG
 }
 
+#
+# drop subsetting test data
+#
+drop_subsetting_data()
+{
+  drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D $TEST_SUBSETTING_HOLES
+}
+
 #		
 # import data used in rasql subsetting tests. Expects arguments		
 # $1 - testdata dir holding files to be imported		
@@ -417,7 +425,7 @@ function import_subsetting_data()
   check_type RGBSet		
   check_type GreySet3		
 	 		
-  drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D		
+  drop_subsetting_data		
 			
   create_coll $TEST_SUBSETTING_1D GreySet1		
   $RASQL -q "insert into $TEST_SUBSETTING_1D values \$1" -f "$TESTDATA_PATH/101.bin" --mdddomain "[0:100]" --mddtype GreyString > /dev/null		
@@ -439,7 +447,18 @@ function import_subsetting_data()
   create_coll $TEST_SUBSETTING_3D GreySet3		
   $RASQL -q "insert into $TEST_SUBSETTING_3D values marray i in [0:0,-500:-500,-500:-500] values 0c" --quiet > /dev/null		
   $RASQL -q "update $TEST_SUBSETTING_3D as m set m[0,*:*,*:*] assign shift(decode(\$1), [-500, -500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null		
-  $RASQL -q "update $TEST_SUBSETTING_3D as m set m[1,*:*,*:*] assign shift(decode(\$1), [500, 500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null		
+  $RASQL -q "update $TEST_SUBSETTING_3D as m set m[1,*:*,*:*] assign shift(decode(\$1), [500, 500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null
+
+  local coll=$TEST_SUBSETTING_HOLES
+  local settype=${TEST_SUBSETTING_HOLES}_Set
+  local datafile="$TESTDATA_PATH/float_2d_with_nulls.tif"
+  $RASQL -q "drop type $settype" > /dev/null 2>&1
+  $RASQL -q "CREATE TYPE $settype AS SET (FloatImage NULL VALUES [-9999])" > /dev/null 2>&1
+  $RASQL -q "create collection $coll $settype" --quiet
+  $RASQL -q "insert into $coll values <[-100:-100,-570:-570] 0f>" --quiet
+  $RASQL -q "update $coll as m set m[*:*,*:*] assign <[-1000:-1000,-1670:-1670] 0f>" --quiet
+  # $datafile: 64x110 = [-984:-921,-681:-571]
+  $RASQL -q "update $coll as m set m[*:*,*:*] assign shift(decode(\$1), [-984, -681])" -f "$datafile" --quiet
 }
 
 #
@@ -477,12 +496,4 @@ generate_data()
   local data_values="$4"     #   1.5f
   $DIRECTQL -q "select encode(marray i in $data_sdom values ($data_values), \"$encode_format\")" \
             --out file --outfile "$result_filepath" | grep '  Result object' | sed 's/^ *Result .* file \(.*\)\.\.\..*/\1/'
-}
-
-#
-# drop subsetting test data
-#
-drop_subsetting_data()
-{
-  drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D
 }
