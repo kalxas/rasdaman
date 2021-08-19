@@ -678,6 +678,8 @@ base::type::fstream_t* File::newFileStream(const std::string& filename) {
 #endif  // defined(ELPP_UNICODE)
   if (fs->is_open()) {
     fs->flush();
+    // set permissions to 660
+    chmod(filename.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
   } else {
     base::utils::safeDelete(fs);
     ELPP_INTERNAL_ERROR("Bad file [" << filename << "]", true);
