@@ -77,13 +77,13 @@ OId::OId(OIdPrimitive newId)
 {
     oid = newId / OId::ID_MULTIPLIER;
     oidtype = static_cast<OId::OIdType>(newId - (oid * OId::ID_MULTIPLIER));
-    assert(oidtype <= OId::maxCounter);
+    assert(oidtype <= int(OId::maxCounter));
 }
 
 OId::OId(OIdCounter newId, OIdType type)
     : oid{newId}, oidtype{type}
 {
-    assert(oidtype <= OId::maxCounter);
+    assert(oidtype <= int(OId::maxCounter));
 }
 
 OId::OIdCounter OId::getCounter() const
