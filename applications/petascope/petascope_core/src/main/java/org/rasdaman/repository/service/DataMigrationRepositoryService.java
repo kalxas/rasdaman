@@ -21,7 +21,9 @@
  */
 package org.rasdaman.repository.service;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import org.rasdaman.domain.migration.DataMigration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +76,19 @@ public class DataMigrationRepositoryService {
         }
         
         return result;
+    }
+    
+    public List<DataMigration> getDataMigrations() {
+        Iterator<DataMigration> iterator = dataMigrationRepository.findAll().iterator();
+        List<DataMigration> results = new ArrayList<>();
+        
+        while (iterator.hasNext()) {
+            // if the table has data, then get the one from the table
+            DataMigration tmp = iterator.next();
+            results.add(tmp);
+        }
+        
+        return results;        
     }
     
 }

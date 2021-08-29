@@ -22,6 +22,7 @@
 package org.rasdaman.domain.cis;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +44,7 @@ import petascope.util.ListUtil;
 
 @Entity
 @Table(name = CoveragePyramid.TABLE_NAME)
-public class CoveragePyramid {
+public class CoveragePyramid implements Serializable {
     
     public static final String TABLE_NAME = "coverage_pyramid";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

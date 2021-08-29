@@ -1656,8 +1656,10 @@ var swe;
             var reasons = [];
             var values = [];
             elements.forEach(function (element) {
-                var reasonTmp = element.getAttributeAsString("reason");
-                reasons.push(reasonTmp);
+                if (element.doesAttributeExist("reason")) {
+                    var reasonTmp = element.getAttributeAsString("reason");
+                    reasons.push(reasonTmp);
+                }
                 var valueTmp = element.getValueAsString();
                 values.push(valueTmp);
             });

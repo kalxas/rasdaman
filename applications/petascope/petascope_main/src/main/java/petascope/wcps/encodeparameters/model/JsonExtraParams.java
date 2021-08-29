@@ -21,6 +21,7 @@
 */
 package petascope.wcps.encodeparameters.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +42,8 @@ import java.util.Map;
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+// Don't return empty array e.g. "transpose": [] to rasql as this is an error
 public class JsonExtraParams {
     
     public JsonExtraParams() {        

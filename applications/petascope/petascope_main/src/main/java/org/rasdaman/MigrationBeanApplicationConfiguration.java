@@ -304,6 +304,9 @@ public class MigrationBeanApplicationConfiguration implements Condition {
         properties.setProperty(HIBERNATE_IMPLICIT_NAMING_STRATEGY_KEY, HIBERNATE_IMPLICIT_NAMING_STRATEGY_VALUE);
         properties.setProperty(HIBERNATE_PHYSICAL_NAMING_STRATEGY_KEY, HIBERNATE_PHYSICAL_NAMING_STRATEGY_VALUE);
         entityManagerFactory.setJpaProperties(properties);
+        
+        // NOTE: without this, it cannot scan model e.g. UserRepository class in com.rasdaman package in petascope-core
+        entityManagerFactory.setPackagesToScan("com.rasdaman", "org.rasdaman");
 
         entityManagerFactory.afterPropertiesSet();
 

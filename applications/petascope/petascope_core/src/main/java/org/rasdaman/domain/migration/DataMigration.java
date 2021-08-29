@@ -21,6 +21,8 @@
  */
 package org.rasdaman.domain.migration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,12 +39,13 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = DataMigration.TABLE_NAME)
-public class DataMigration {
+public class DataMigration implements Serializable {
     
     public static final String TABLE_NAME = "data_migration";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
     
     @Id
+    @JsonIgnore
     @Column(name = COLUMN_ID)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

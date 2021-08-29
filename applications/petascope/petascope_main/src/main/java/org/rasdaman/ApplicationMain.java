@@ -175,6 +175,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
             // for external local tomcat, it returns `/home/rasdaman/pache-tomcat-8.5.34/bin`
             webappsDir = new FileSystemResource("").getFile().getCanonicalPath().replace("/bin", "") + "/webapps";
         }
+        
         CrsUtil.loadInternalSecore(embedded, webappsDir);
         
         Properties properties = new Properties();
@@ -247,7 +248,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
         
         loadGdalLibrary();
         initTrustAllSSL();
-
+        
         if (MIGRATE && AbstractController.startException == null) {
             log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + 
                     "' to JDBC URL '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'...");
@@ -291,9 +292,9 @@ public class ApplicationMain extends SpringBootServletInitializer {
             ConfigManager.SECORE_URLS = ConfigManager.getInstance(ConfigManager.CONF_DIR).getInternalSecoreURLs();
             log.warn("SECORE endpoints configured in secore_urls setting in petascope.properties failed to return response; "
                     + "petascope will use internal SECORE instead. "
-                    + "Hint: add \"internal\" as the first value of secure_urls in petascope.properties to avoid this warning in future.");            
+                    + "Hint: add \"internal\" as the first value of secure_urls in petascope.properties to avoid this warning in future."); 
         }
-        
+
         // ### data migration
 
         // Test if rasdaman is running first

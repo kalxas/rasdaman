@@ -33,11 +33,14 @@ import static org.rasdaman.MigrationBeanApplicationConfiguration.SOURCE;
 import static org.rasdaman.MigrationBeanApplicationConfiguration.SOURCE_TRANSACTION_MANAGER;
 import org.rasdaman.domain.cis.Coverage;
 import static org.rasdaman.domain.cis.Coverage.COVERAGE_ID_PROPERTY;
+import org.rasdaman.domain.migration.DataMigration;
 import org.rasdaman.domain.migration.Migration;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.domain.wms.Layer;
 import static org.rasdaman.domain.wms.Layer.LAYER_NAME_PROPERTY;
+import org.rasdaman.repository.interfaces.DataMigrationRepository;
 import org.rasdaman.repository.service.CoverageRepositoryService;
+import org.rasdaman.repository.service.DataMigrationRepositoryService;
 import org.rasdaman.repository.service.MigrationRepositoryService;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
@@ -47,7 +50,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.util.DatabaseUtil;
+import petascope.util.JSONUtil;
 
 /**
  * Class to migrate petascopedb after version 9.5 to different database
@@ -71,6 +77,9 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
     private OWSMetadataRepostioryService owsMetadataRepostioryService;
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
+    
+    @Autowired
+    DataMigrationRepository dataMigrationRepository;
 
     @PersistenceContext(unitName = SOURCE)
     // Read to source database, use source transaction manager
@@ -102,7 +111,10 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
         migration.setLock(true);
         // Insert the first entry to migration table
         migrationRepositoryService.save(migration);
-
+        
+        // Migrate data_migration table first
+        this.saveDataMigrationTable();
+        
         // First, migrate the coverage's metadata
         this.saveAllCoverages();
         log.info("\n");
@@ -120,6 +132,25 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
 
         log.info("petascopedb 9.5 or newer has been migrated successfully.");
     }
+    
+    /**
+     * Migration data_migration table (so petascope will not starting data migration when it starts) for these existing versions
+     */
+    protected void saveDataMigrationTable() throws Exception {
+        log.info("Migrating data migration table ...");        
+        try {
+            List<DataMigration> dataMigrations = this.readDataMigrations();
+            for (DataMigration obj : dataMigrations) {
+                this.dataMigrationRepository.save(obj);
+            }
+            log.info("... migrated successfully.");
+        } catch (Exception ex) {
+            String errorMessage = "Cannot migrate data migration table. Reason: " + ex.getMessage();
+            throw new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
+        }
+    }
+    
+    
 
     @Override
     protected void saveAllCoverages() throws Exception {
@@ -132,7 +163,7 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
         int i = 1;
         for (String coverageId : sourceCoverageIds) {
             log.info("Migrating coverage '" + coverageId + "' (" + i + "/" + totalCoverages + ")");
-
+            
             // Check if coverage Id is already migrated
             if (targetCoverageIds.contains(coverageId)) {
                 log.info("... already migrated, skipping.");
@@ -140,13 +171,18 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
                 try {
                     // Coverage Id is not migrated yet, now read the whole coverage entity from source data source
                     Coverage coverage = this.readCoverageById(coverageId);
+                    
+                    // NOTE: this is used to avoid problem with some cases, the ids (primari keys) can be duplicated in rows
+                    // which lead to null error (e.g. AxisExtent or Axis object of a coverage is null) when persisting to database
+                    Coverage coverageTmp = (Coverage) JSONUtil.clone(coverage);
+                    
                     // And persist this coverage to target data source
-                    coverageRepostioryService.save(coverage);
+                    coverageRepostioryService.save(coverageTmp);
                     log.info("... migrated successfully.");
                 } catch (Exception ex) {
-                log.debug("Error when migrating coverage", ex);
-                log.info("... cannot migrate coverage with error '" + ex.getMessage() + "', skipping.");
-            }
+                    log.debug("Error when migrating coverage", ex);
+                    log.info("... cannot migrate coverage with error '" + ex.getMessage() + "', skipping.");
+                }
             }
             i++;
         }
@@ -185,8 +221,13 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
                 try {
                     // WMS layer is not migrated yet, now read the whole WMS layer content which is *slow*
                     Layer layer = this.readLayerByName(wmsLayerName);
+                    
+                    // NOTE: this is used to avoid problem with some cases, the ids (primari keys) can be duplicated in rows
+                    // which lead to null error (e.g. AxisExtent or Axis object of a coverage is null) when persisting to database
+                    Layer layerTmp = (Layer) JSONUtil.clone(layer);
+                    
                     // And persist this WMS layer to target datasource
-                    wmsRepostioryService.saveLayer(layer);
+                    wmsRepostioryService.saveLayer(layerTmp);
                     log.info("... migrated successfully.");
                 } catch (Exception ex) {
                     log.debug("Error when migrating layer", ex);
@@ -200,10 +241,20 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
     }
 
     // Hibernate queries manually to source datasource
+    
+    /**
+     * Read data_migration from source datasource.
+     */
+    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER)
+    // Read to source database, use source transaction manager
+    private List<DataMigration> readDataMigrations() {
+        Criteria criteria = this.getSourceHibernateSession().createCriteria(DataMigration.class);
+        List<DataMigration> results = criteria.list();
+
+        return results;
+    }
     /**
      * Read all persistent coverageIds from table coverage of source datasource.
-     *
-     * @return
      */
     @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER)
     // Read to source database, use source transaction manager

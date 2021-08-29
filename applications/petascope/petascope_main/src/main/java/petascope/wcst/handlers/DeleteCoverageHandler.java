@@ -188,18 +188,24 @@ public class DeleteCoverageHandler {
      */
     private Coverage getCoverageById(String coverageId) throws WCSException, PetascopeException {
         
-        Coverage coverage = coverageRepostioryService.readCoverageByIdFromDatabase(coverageId);
-        if (coverage == null) {
-            // In case local coverage doesn't exist, then check if this coverageId exists in the cache or not,
-            // if it is (for some reasons), then remove it from the cache, so it will not appear for WCS GetCapabilities result
-            if (this.coverageRepostioryService.isInLocalCache(coverageId)) {
-                this.coverageRepostioryService.removeFromLocalCacheMap(coverageId);
+        Coverage coverage = null;
+        
+        try {
+            coverage = coverageRepostioryService.readCoverageByIdFromDatabase(coverageId);
+        } catch (PetascopeException ex) {
+            if (ex.getExceptionCode().equals(ExceptionCode.NoSuchCoverage)) {
+                // In case local coverage doesn't exist, then check if this coverageId exists in the cache or not,
+                // if it is (for some reasons), then remove it from the cache, so it will not appear for WCS GetCapabilities result
+                if (this.coverageRepostioryService.isInLocalCache(coverageId)) {
+                    this.coverageRepostioryService.removeFromLocalCacheMap(coverageId);
+                }
+
+                if (this.wmsRepositoryService.isInLocalCache(coverageId)) {
+                    this.wmsRepositoryService.removeLayerFromLocalCache(coverageId);
+                }
+
+                throw new WCSTCoverageIdNotFound(coverageId);
             }
-            if (this.wmsRepositoryService.isInLocalCache(coverageId)) {
-                this.wmsRepositoryService.removeLayerFromLocalCache(coverageId);
-            }
-            
-            throw new WCSTCoverageIdNotFound(coverageId);
         }
 
         return coverage;

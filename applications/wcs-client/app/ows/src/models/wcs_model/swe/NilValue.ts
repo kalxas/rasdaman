@@ -39,8 +39,10 @@ module swe {
             let values = [];
 
             elements.forEach(element => {
-                let reasonTmp = element.getAttributeAsString("reason");
-                reasons.push(reasonTmp);
+                if (element.doesAttributeExist("reason")) {
+                    let reasonTmp = element.getAttributeAsString("reason");
+                    reasons.push(reasonTmp);
+                }
                 
                 let valueTmp = element.getValueAsString();
                 values.push(valueTmp);

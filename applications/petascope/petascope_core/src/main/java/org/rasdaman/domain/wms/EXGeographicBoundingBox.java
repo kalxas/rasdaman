@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
@@ -147,6 +148,7 @@ public class EXGeographicBoundingBox implements Serializable {
      *
      * @return
      */
+    @JsonIgnore
     public String getReprenstation() {
         Element exBBoxElement = new Element(XMLSymbols.LABEL_WMS_EX_BBOX);
 

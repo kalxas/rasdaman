@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -205,6 +206,7 @@ public class Dimension implements Serializable {
      *
      * @return
      */
+    @JsonIgnore
     public String getRepresentation() {
         
         Element dimensionElement = new Element(XMLSymbols.LABEL_WMS_DIMENSION);

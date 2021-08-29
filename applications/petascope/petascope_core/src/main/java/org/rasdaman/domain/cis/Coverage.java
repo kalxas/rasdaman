@@ -133,7 +133,7 @@ public abstract class Coverage implements Serializable {
     @JoinColumn(name = FK_COVERAGE_ID)
     @OrderColumn
     protected List<CoveragePyramid> pyramid = new ArrayList<>();
-
+    
     public Coverage() {
 
     }
@@ -285,8 +285,8 @@ public abstract class Coverage implements Serializable {
         for (Field field : fields) {
             Quantity quantity = field.getQuantity();
             
-            if (quantity.getNilValuesList() != null) {
-                for (NilValue nilValue : quantity.getNilValuesList()) {
+            if (quantity.getNilValues() != null) {
+                for (NilValue nilValue : quantity.getNilValues()) {
                     if (!uniqueNilValues.contains(nilValue)) {
                         uniqueNilValues.add(nilValue);
                     }
@@ -305,7 +305,7 @@ public abstract class Coverage implements Serializable {
 
         for (Field field : fields) {
             Quantity quantity = field.getQuantity();
-            result.addAll(quantity.getNilValuesList());            
+            result.addAll(quantity.getNilValues());            
         }
 
         return result;

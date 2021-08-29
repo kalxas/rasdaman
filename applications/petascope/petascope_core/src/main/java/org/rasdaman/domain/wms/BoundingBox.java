@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
@@ -155,6 +156,7 @@ public class BoundingBox implements Serializable {
      *
      * @return
      */
+    @JsonIgnore
     public String getRepresentation() {
         
         Element bboxElement = new Element(XMLSymbols.LABEL_WMS_BOUNDING_BOX);

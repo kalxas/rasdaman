@@ -124,7 +124,7 @@ public class Quantity implements Serializable {
         this.description = description;
     }
 
-    public List<NilValue> getNilValuesList() {
+    public List<NilValue> getNilValues() {
         if (nilValues == null) {
             return new ArrayList<>();
         }
