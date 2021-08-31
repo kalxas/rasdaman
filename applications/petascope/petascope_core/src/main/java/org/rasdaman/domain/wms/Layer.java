@@ -75,7 +75,7 @@ public class Layer implements Serializable {
 
     // Table 7 — Inheritance of Layer properties
     // One, mandatory
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String name;
 
     // One, mandatory

@@ -47,6 +47,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.gdal.ogr.Geometry;
+import org.gdal.ogr.ogr;
 
 /**
  * String utilities.
@@ -603,9 +605,48 @@ public class StringUtil {
         return result;
     }
     
+    /**
+     * e.g. 2015-01-02 -> '2015-01-02'
+     */
+    public static String enquoteSingleIfNotEnquotedAlready(String inputDateTime) {
+        String result = inputDateTime;
+        
+        if (!inputDateTime.contains("'")) {
+            result = "'" + inputDateTime + "'";
+        }
+        
+        return result;
+    }
+    
     public static String readFileToString(String filePath) throws IOException {
         File file = new File(filePath);
         return FileUtils.readFileToString(file);
     }
+    
+    /**
+     * Given WKT ( e.g. POLYGON((...)) or MULTIPOLYGON(((...))) ),
+     * return the valid WKT result with the coordinates of the first and the last vertices are the same.
+     * 
+     * e.g. POLYGON((1 1, 2 2, 3 3)) -> POLYGON((1 1, 2 2, 3 3, 1 1))
+     */
+    public static String closeRingsWKT(String wkt) {
+        Geometry geom = ogr.CreateGeometryFromWkt(wkt);
+        geom.CloseRings();
+        
+        String result = geom.ExportToWkt();
+        return result;
+    }
+    
+    /**
+     * a = null -> "null" 
+     * a = "aa" -> "aa"
+     */
+    public static String getNullLiteralOrValue(String input) {
+        if (input == null) {
+            return "null";
+        }
+        
+        return input;
+    } 
     
 }

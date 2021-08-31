@@ -90,7 +90,7 @@ public abstract class Coverage implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "coverage_id")
+    @Column(name = "coverage_id", unique = true)
     // this is the id of coverage (or coverage name)
     protected String coverageId;
 

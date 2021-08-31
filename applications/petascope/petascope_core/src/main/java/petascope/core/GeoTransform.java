@@ -99,6 +99,10 @@ public class GeoTransform {
     public BigDecimal getUpperLeftGeoXDecimal() {
         return new BigDecimal(String.valueOf(this.upperLeftGeoX));
     }
+    
+    public BigDecimal getLowerRightGeoYDecimal() {
+        return new BigDecimal(String.valueOf(this.getLowerRightGeoY()));
+    }
 
     public void setUpperLeftGeoX(double upperLeftGeoX) {
         this.upperLeftGeoX = upperLeftGeoX;

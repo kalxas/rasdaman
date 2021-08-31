@@ -253,9 +253,9 @@ public class Style implements Serializable {
           /**
          * e.g: 1 -> GDAL
          */
-        public static String getType(byte typeCode) throws PetascopeException {
+        public static String getType(Byte typeCode) throws PetascopeException {
             for (ColorTableType enumObj : ColorTableType.values()) {
-                if (enumObj.getTypeCode()== typeCode) {
+                if (enumObj.getTypeCode() == typeCode) {
                     String result = enumObj.toString();
                     return result;
                 }
