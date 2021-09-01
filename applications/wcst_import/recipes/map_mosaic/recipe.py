@@ -116,43 +116,41 @@ class Recipe(BaseRecipe):
         count = 1
 
         for file in files:
-            # NOTE: don't process any imported file from *.resume.json as it is just waisted time
-            if not self.resumer.is_file_imported(file.filepath):
-                timer = Timer()
+            timer = Timer()
 
-                # print which file is analyzing
-                FileUtil.print_feedback(count, len(files), file.filepath)
-                if not FileUtil.validate_file_path(file.filepath):
-                    continue
+            # print which file is analyzing
+            FileUtil.print_feedback(count, len(files), file.filepath)
+            if not FileUtil.validate_file_path(file.filepath):
+                continue
 
-                valid_coverage_slice = True
+            valid_coverage_slice = True
 
-                try:
-                    gdal_file = GDALGmlUtil(file.get_filepath())
-                    # array of AxisSubset
-                    subsets = GdalAxisFiller(crs_axes, gdal_file).fill()
-                except Exception as ex:
-                    # If skip: true then just ignore this file from importing, else raise exception
-                    FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
-                    valid_coverage_slice = False
+            try:
+                gdal_file = GDALGmlUtil(file.get_filepath())
+                # array of AxisSubset
+                subsets = GdalAxisFiller(crs_axes, gdal_file).fill()
+            except Exception as ex:
+                # If skip: true then just ignore this file from importing, else raise exception
+                FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
+                valid_coverage_slice = False
 
-                if valid_coverage_slice:
-                    # Generate local metadata string for current coverage slice
-                    self.evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
-                    local_metadata = gdal_coverage_converter._generate_local_metadata(subsets, self.evaluator_slice)
+            if valid_coverage_slice:
+                # Generate local metadata string for current coverage slice
+                self.evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
+                local_metadata = gdal_coverage_converter._generate_local_metadata(subsets, self.evaluator_slice)
 
-                    if self.session.import_overviews_only is False:
-                        slices_dict["base"].append(Slice(subsets, FileDataProvider(file), local_metadata))
+                if self.session.import_overviews_only is False:
+                    slices_dict["base"].append(Slice(subsets, FileDataProvider(file), local_metadata))
 
-                    # Then, create slices for selected overviews from user
-                    for overview_index in self.session.import_overviews:
-                        subsets_overview = self.create_subsets_for_overview(subsets, overview_index, gdal_file)
+                # Then, create slices for selected overviews from user
+                for overview_index in self.session.import_overviews:
+                    subsets_overview = self.create_subsets_for_overview(subsets, overview_index, gdal_file)
 
-                        slices_dict[str(overview_index)].append(Slice(subsets_overview, FileDataProvider(file),
-                                                                                    local_metadata))
+                    slices_dict[str(overview_index)].append(Slice(subsets_overview, FileDataProvider(file),
+                                                                                local_metadata))
 
-                timer.print_elapsed_time()
-                count += 1
+            timer.print_elapsed_time()
+            count += 1
 
         return slices_dict
 

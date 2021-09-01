@@ -288,11 +288,6 @@ class Recipe(GeneralCoverageRecipe):
                     continue 
                 cov_id = self._get_coverage_id(self.coverage_id, crs_code, level, res)
 
-                # This file already imported in coverage_id.resume.json
-                self.resumer = Resumer(cov_id)
-                if self.resumer.is_file_imported(f.filepath):
-                    continue
-
                 conv = self._get_convertor(convertors, cov_id, crs_code, level, res)
 
                 file_pair = FilePair(subds_file.filepath, f.filepath)

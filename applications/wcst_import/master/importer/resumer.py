@@ -65,7 +65,9 @@ class Resumer:
                         + "' will not be imported.")
                     file = open(Resumer.__RESUMER_FILE_NAME_DICT[coverage_id])
                     data = json.loads(file.read())
+
                     Resumer.__IMPORTED_DATA_DICT[coverage_id] = data
+
                     file.close()
             except IOError as e:
                 raise RuntimeException("Could not read the resume file, full error message: " + str(e))
@@ -124,28 +126,24 @@ class Resumer:
 
         return ret_slices
 
-    def is_file_imported(self, input_file_path):
-        """
-        Check if a file was imported and exists in *.resume.json
-        :param input_file_path: path to input file
-        """
-        if self.coverage_id in Resumer.__IMPORTED_DATA_DICT:
-            for imported_file in Resumer.__IMPORTED_DATA_DICT[self.coverage_id]:
-                if FileUtil.strip_root_url(input_file_path) == FileUtil.strip_root_url(imported_file):
-                    return True
-
-        return False
-
     def get_not_imported_files(self, files):
         """
-        Filter all not imported files from input files and files inside coverageId.resume.json file
+        Of the given files, return only those which are not present in the coverageId.resume.json file
+        (i.e. already imported)
         :param List[File] files: input files list
         """
         collected_files = []
 
-        for file in files:
-            if not self.is_file_imported(file.get_filepath()):
-                collected_files.append(file)
+        tmp_dict = Resumer.__IMPORTED_DATA_DICT
+        if self.coverage_id in tmp_dict:
+            inported_files_list = tmp_dict[self.coverage_id]
+            imported_files_set = {FileUtil.strip_root_url(f) for f in inported_files_list}
+            for file in files:
+                file_path = FileUtil.strip_root_url(file.get_filepath())
+                if file_path not in imported_files_set:
+                    collected_files.append(file)
+        else:
+            collected_files = files
 
         return collected_files
 

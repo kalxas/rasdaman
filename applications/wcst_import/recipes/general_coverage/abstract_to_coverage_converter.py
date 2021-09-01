@@ -440,53 +440,51 @@ class AbstractToCoverageConverter:
 
         count = 1
         for file in self.files:
-            # NOTE: don't process any previously imported file (recorded in *.resume.json)
-            if not self.resumer.is_file_imported(file.filepath):
-                timer = Timer()
+            timer = Timer()
 
-                FileUtil.print_feedback(count, len(self.files), file.filepath)
+            FileUtil.print_feedback(count, len(self.files), file.filepath)
 
-                # print which file is analyzing
-                if not FileUtil.validate_file_path(file.filepath):
-                    continue
+            # print which file is analyzing
+            if not FileUtil.validate_file_path(file.filepath):
+                continue
 
-                valid_coverage_slice = True
+            valid_coverage_slice = True
 
-                try:
-                    if calculated_evaluator_slice is None:
-                        # get the evaluator for the current recipe_type (each recipe has different evaluator)
-                        self.evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
-                    else:
-                        self.evaluator_slice = calculated_evaluator_slice
+            try:
+                if calculated_evaluator_slice is None:
+                    # get the evaluator for the current recipe_type (each recipe has different evaluator)
+                    self.evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
+                else:
+                    self.evaluator_slice = calculated_evaluator_slice
 
-                    if self.data_type is None:
-                        self.data_type = self.evaluator_slice.get_data_type(self)
+                if self.data_type is None:
+                    self.data_type = self.evaluator_slice.get_data_type(self)
 
-                    coverage_slice = self._create_coverage_slice(file, crs_axes, self.evaluator_slice, axis_resolutions)
-                except Exception as ex:
-                    # If skip: true then just ignore this file from importing, else raise exception
-                    FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
-                    valid_coverage_slice = False
+                coverage_slice = self._create_coverage_slice(file, crs_axes, self.evaluator_slice, axis_resolutions)
+            except Exception as ex:
+                # If skip: true then just ignore this file from importing, else raise exception
+                FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
+                valid_coverage_slice = False
 
-                if valid_coverage_slice:
-                    if self.session.import_overviews_only is False:
-                        slices_dict["base"].append(coverage_slice)
+            if valid_coverage_slice:
+                if self.session.import_overviews_only is False:
+                    slices_dict["base"].append(coverage_slice)
 
-                    if self.session.recipe["options"]["coverage"]["slicer"]["type"] == "gdal":
-                        gdal_file = GDALGmlUtil(file.get_filepath())
+                if self.session.recipe["options"]["coverage"]["slicer"]["type"] == "gdal":
+                    gdal_file = GDALGmlUtil(file.get_filepath())
 
-                        # Then, create slices for selected overviews from user
-                        for overview_index in self.session.import_overviews:
-                            axis_subsets_overview = BaseRecipe.create_subsets_for_overview(coverage_slice.axis_subsets,
-                                                                                           overview_index, gdal_file)
+                    # Then, create slices for selected overviews from user
+                    for overview_index in self.session.import_overviews:
+                        axis_subsets_overview = BaseRecipe.create_subsets_for_overview(coverage_slice.axis_subsets,
+                                                                                       overview_index, gdal_file)
 
-                            coverage_slice_overview = copy.deepcopy(coverage_slice)
-                            coverage_slice_overview.axis_subsets = axis_subsets_overview
+                        coverage_slice_overview = copy.deepcopy(coverage_slice)
+                        coverage_slice_overview.axis_subsets = axis_subsets_overview
 
-                            slices_dict[str(overview_index)].append(coverage_slice_overview)
+                        slices_dict[str(overview_index)].append(coverage_slice_overview)
 
-                timer.print_elapsed_time()
-                count += 1
+            timer.print_elapsed_time()
+            count += 1
 
         # Currently, only sort by datetime to import coverage slices (default is ascending)
         reverse = (self.import_order == self.IMPORT_ORDER_DESCENDING)

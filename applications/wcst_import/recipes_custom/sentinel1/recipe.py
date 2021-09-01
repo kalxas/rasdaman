@@ -328,11 +328,6 @@ class Recipe(GeneralCoverageRecipe):
             modebeam, polarisation = self._get_modebeam_polarisation(file.filepath)
             cov_id = self._get_coverage_id(self.coverage_id, modebeam, polarisation)
 
-            # This file already imported in coverage_id.resume.json
-            self.resumer = Resumer(cov_id)
-            if self.resumer.is_file_imported(file.filepath):
-                continue
-
             conv = self._get_convertor(convertors, cov_id)
 
             file_pair = FilePair(file.filepath, file.filepath)
