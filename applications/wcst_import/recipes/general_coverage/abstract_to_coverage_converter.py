@@ -532,7 +532,11 @@ class AbstractToCoverageConverter:
 
         global_metadata = None
         if len(coverage_slices_dict) > 0:
-            first_coverage_slice = coverage_slices_dict["base"][0]
+            for coverage_level, slices in coverage_slices_dict.items():
+                if len(slices) > 0:
+                    first_coverage_slice = slices[0]
+                    break
+
             # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
             global_metadata = self._generate_global_metadata(first_coverage_slice)
 

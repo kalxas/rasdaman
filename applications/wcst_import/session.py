@@ -188,7 +188,8 @@ class Session:
 
         if "options" in self.recipe:
 
-            if "import_all_overviews" in self.recipe["options"] and "import_overviews" in self.recipe["options"]:
+            if "import_all_overviews" in self.recipe["options"] and "import_overviews" in self.recipe["options"] \
+                    and self.recipe["options"]["import_all_overviews"] is True:
                 raise RuntimeException("Both settings '{}' or '{}' cannot exist in the ingredients file, "
                                        "please specify only one of them."
                                        .format("import_all_overviews", "import_overviews"))
