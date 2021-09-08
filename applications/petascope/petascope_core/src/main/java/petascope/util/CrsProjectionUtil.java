@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.gdal.gdal.Dataset;
 import org.gdal.gdal.gdal;
 import org.gdal.gdalconst.gdalconstConstants;
@@ -297,20 +298,40 @@ public class CrsProjectionUtil {
                             .replace("VRT_FILE", tempVRTFile.getAbsolutePath())
                             .replace("VRT_WARPED_FILE", tempWarpedVRTFile.getAbsolutePath());
         
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            process.waitFor();
-        } catch (Exception ex) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot execute gdalwarp command: " + command + ". Reason: " + ex.getMessage(), ex);
-        }
+        // If gdalwarp cannot return valid VRT output, then retry 3 more times
+        int MAX_RETRIES = 3;
+        int i = 1;
         
-        // Then, read the warped VRT file to collect the calculated result
-        String tmpVRTFile = tempWarpedVRTFile.getAbsolutePath();
-        Dataset dataset = gdal.Open(tmpVRTFile);
-        if (dataset == null) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError, "Cannot project VRT file with gdal bash command: '" + command + "'.");
+        while (i <= MAX_RETRIES) {
+        
+            String stdout = "", stderr = "";
+            try {
+                Process process = Runtime.getRuntime().exec(command);
+                process.waitFor();
+                stderr = IOUtils.toString(process.getErrorStream());
+                stdout = IOUtils.toString(process.getInputStream());
+
+            } catch (Exception ex) {
+                throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot execute gdalwarp command: " + command + ". Reason: " + ex.getMessage(), ex);
+            }
+
+            // Then, read the warped VRT file to collect the calculated result
+            String tmpVRTFile = tempWarpedVRTFile.getAbsolutePath();
+            Dataset dataset = gdal.Open(tmpVRTFile);
+            if (dataset == null) {
+                // retry one more time as the output VRT has error for some reason
+                i++;
+                
+                if (i > MAX_RETRIES) {
+                    throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                                                "Cannot project VRT file with gdal bash command: '" + command + "'. Stddout: "  + stdout + ". Stderr: "  + stderr);
+                }
+                log.warn("Failed projecting VRT file with gdal bash command: '" + command + "'. Stddout: "  + stdout + ". Stderr: "  + stderr + ". Retrying " + i + "/" + MAX_RETRIES);
+            } else {
+                result = new GeoTransform(dataset);
+                break;
+            } 
         }
-        result = new GeoTransform(dataset);
         
         // Finally, remove temp files
         FileUtils.deleteQuietly(tempVRTFile);

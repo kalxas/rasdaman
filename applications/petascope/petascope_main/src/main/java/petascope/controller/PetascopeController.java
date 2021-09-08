@@ -62,6 +62,7 @@ import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_STYLE;
 import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_WCS_LAYER;
 import petascope.util.ExceptionUtil;
 import static petascope.core.KVPSymbols.VALUE_WMS_DELETE_LAYER;
+import petascope.util.StringUtil;
 
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
@@ -134,7 +135,9 @@ public class PetascopeController extends AbstractController {
         }
         
 
-        String requestTmp = this.getRequestRepresentation(kvpParameters);
+        String requestTmp = StringUtil.enquoteSingleIfNotEnquotedAlready(this.getRequestRepresentation(kvpParameters));
+
+        
         log.info("Received request: " + requestTmp);
 
         long start = System.currentTimeMillis();
@@ -185,6 +188,12 @@ public class PetascopeController extends AbstractController {
             // Dump the response result to client
             this.writeResponseResult(response);
         } catch(Exception ex) {
+            long end = System.currentTimeMillis();
+            long totalTime = end - start;
+            String errorMessage = "Failed processing request " + requestTmp 
+                                + ", evaluation time " + String.valueOf(totalTime) + " ms. Reason: " + ex.getMessage();
+            log.error(errorMessage);
+            
             requestSuccess = false;
             String[] versions = kvpParameters.get(KVPSymbols.KEY_VERSION);
             String version = null;
@@ -208,7 +217,9 @@ public class PetascopeController extends AbstractController {
             
             long end = System.currentTimeMillis();
             long totalTime = end - start;
-            log.info("Request processed in " + String.valueOf(totalTime) + " ms.");
+            if (requestSuccess) {
+                log.info("Processed request " + requestTmp + " in " + String.valueOf(totalTime) + " ms.");
+            }
 
         }
     }
