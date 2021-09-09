@@ -85,6 +85,8 @@ public class ConfigManager {
     public static final String OWS = "ows";
     public static final String WCPS = "wcps";
     public static final String RASQL = "rasql";
+    public static final String SECORE = "def";
+    
     public static final String OWS_ADMIN = OWS + "/" + "admin";
     public static final String ADMIN = "admin";
     // context path for OAPI endpoint (e.g: localhost:8080/rasdaman/oapi)

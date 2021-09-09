@@ -498,7 +498,7 @@ public abstract class AbstractController {
     /**
      * Log the request GET/POST from kvpParameters map
      */
-    protected String getRequestRepresentation(Map<String, String[]> kvpParametersMap) {
+    public static String getRequestRepresentation(Map<String, String[]> kvpParametersMap) {
         String request = "";
         for (Map.Entry<String, String[]> entry : kvpParametersMap.entrySet()) {
             for (String value : entry.getValue()) {

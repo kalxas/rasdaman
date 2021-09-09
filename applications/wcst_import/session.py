@@ -138,9 +138,9 @@ class Session:
 
         if hooks is not None:
             for hook in hooks:
-                if hook["when"] == "before_ingestion":
+                if hook["when"] == "before_import" or hook["when"] == "before_ingestion":
                     self.before_hooks.append(hook)
-                elif hook["when"] == "after_ingestion":
+                elif hook["when"] == "after_import" or hook["when"] == "after_ingestion":
                     self.after_hooks.append(hook)
 
         self.setup_config_manager()

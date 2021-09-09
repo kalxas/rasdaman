@@ -65,9 +65,16 @@ class CoverageUtil:
                 return True
             return False
         except Exception as ex:
-            if not "NoSuchCoverage" in str(ex):
+            exception_text = str(ex)
+
+            if "Missing basic authentication header" in exception_text:
+                raise RuntimeException("Endpoint '{}' requires valid rasdaman credentials with format username:password in a text file. \n"
+                                       "Hint: Create this identify file first with read permission for user running wcst_import, \n"
+                                       "then rerun wcst_import.sh ingredients.json -i path_to_the_identity_file.".format(self.wcs_service))
+
+            if not "NoSuchCoverage" in exception_text:
                 raise RuntimeException("Could not check if the coverage exists. "
-                                   "Detail error: {}".format(str(ex)))
+                                   "Reason: {}".format(exception_text))
             else:
                 # coverage doesn't exist
                 return False
@@ -83,8 +90,8 @@ class CoverageUtil:
 
             return response
         except Exception as ex:
-            raise RuntimeException("Could not retrieve the axis labels. "                                   
-                                   "Detail error: {}".format(str(ex)))
+            raise RuntimeException("Could not retrieve the axis labels by WCS DescribeCoverage request. \n"                                   
+                                   "Reason: {}".format(str(ex)))
 
     def get_axes_labels(self):
         """

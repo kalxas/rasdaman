@@ -22,6 +22,9 @@
  *
 """
 import sys
+
+from util.string_util import parse_error_message
+
 if sys.version_info[0] < 3:
     from urllib2 import Request, urlopen
 else:
@@ -67,23 +70,20 @@ def validate_and_read_url(url, data=None):
     except Exception as e:
         if hasattr(e.reason, "strerror"):
             # URLError
-            error_message = e.reason.strerror
+            exception_text = e.reason.strerror
         else:
             # HTTPError
-            error_message = decode_res(e.read())
+            exception_text = decode_res(e.read())
 
-        raise RuntimeException("Failed opening connection to '{}'. "
-                               "Check that the service is up and running. "
-                               "Detail error: {}.".format(url, error_message))
+        error_message = parse_error_message(exception_text)
+
+        raise RuntimeException("Failed opening connection to '{}'. \n"                               
+                               "Reason: {}".format(url, error_message))
     response = ret.read()
 
     if ret.getcode() != 200:
         raise RuntimeException("Server failed to respond for request '{}'. "
-                               "Detail error: {}.".format(url, response))
-
-    if "<html" in decode_res(response):
-        raise RuntimeException("Server requests credentials for authentication, "
-                               "please provide them (check wcst_import.sh -h for details)")
+                               "Reason: {}".format(url, response))
 
     return response
 

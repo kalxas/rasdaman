@@ -153,3 +153,14 @@ def create_coverage_id_for_overview(base_coverage_id, overview_index):
     """
     return base_coverage_id + "_" + overview_index
 
+
+def parse_error_message(exception_text):
+    """
+    Parse the error message inside <ows:ExceptionText>....</ows:ExceptionText>
+    :return: str
+    """
+    start = "<ows:ExceptionText>"
+    end = "</ows:ExceptionText>"
+    error_message = exception_text[exception_text.find(start) + len(start):exception_text.rfind(end)]
+
+    return error_message

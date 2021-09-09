@@ -2189,11 +2189,11 @@ Since v9.8, it is possible to run shell commands *before/after data import*
 by adding optional ``hooks`` configuration in an ingredient file.
 There are 2 types of hooks:
 
-* ``before_ingestion`` - Run shell commands before analyzing the input files,
+* ``before_import`` - Run shell commands before analyzing the input files,
   e.g. reproject input files from EPSG:3857 to EPSG:4326 with gdalwarp and 
   import the *reprojected* files only.
 
-* ``after_ingestion`` - Run shell commands after importing the input files,
+* ``after_import`` - Run shell commands after importing the input files,
   e.g. clean all projected files from running gdalwarp above.
 
 When import mode is set to non-blocking (``"blocking": false``), wcst_import
@@ -2210,19 +2210,19 @@ Parameters are explained below.
         "description": "reproject input files.",
 
         // Run bash command before importing file(s) to coverage
-        "when": "before_ingestion",
+        "when": "before_import",
 
         // Bash command which should be run for each input file
         "cmd": "gdalwarp -t_srs EPSG:4326 -tr 0.02 0.02 -overwrite \"${file:path}\" \"${file:path}.projected\"",
 
         // If set to true, when a bash command line returns any error, wcst_import
-        // terminates immediately. Only valid for before_ingestion hooks.
+        // terminates immediately. Only valid for before_import hooks.
         "abort_on_error": true,
 
         // wcst_import will consider the specified path(s) as the actual file(s)
         // to be imported after running the hook, rather than the original file.
         // This is an array of paths where globbing is allowed (same as the
-        // "input":"paths" option. Only valid for before_ingestion hooks.
+        // "input":"paths" option. Only valid for before_import hooks.
         "replace_path": ["${file:path}.projected"]
       },
 
@@ -2231,7 +2231,7 @@ Parameters are explained below.
         "description": "Remove projected files.",
 
         // Run bash command after importing file(s)
-        "when": "after_ingestion",
+        "when": "after_import",
 
         // Bash command which should be run after each imported file(s)
         "cmd": "rm -rf \"${file:path}.projected\""
@@ -2253,7 +2253,7 @@ driver for NetCDF a single variable from the collected NetCDF files is imported.
   "hooks": [
       {
         "description": "Import one variable for netCDF with subdataset",
-        "when": "before_ingestion",
+        "when": "before_import",
         "cmd": "",
         "abort_on_error": true,
         // GDAL netCDF subdataset variable file path
@@ -3011,13 +3011,13 @@ File
 |File Information |``${file:PROPERTY}`` where property can be one of                   |                             |
 |                 |path|name|dir_path|original_path|original_dir_path                  |``${file:path}``             |
 |                 |original_* allows to get the original input file's path/directory.  |                             |
-|                 |Used only in ``before_ingestion`` hooks with ``replace_path``       |                             |
+|                 |Used only in ``before_import`` hooks with ``replace_path``          |                             |
 |                 |to replace original input file paths with customized file paths.    |                             |
 +-----------------+--------------------------------------------------------------------+-----------------------------+
 |Imported File    |``${imported_file:PROPERTY}`` where property can be one of          |                             |
 |Information      |path|name|dir_path|original_path|original_dir_path                  |                             |
 |                 |Files which were imported to rasdaman (excluding *skipped files*).  |``${imported_file:path}``    |
-|                 |This variable is used only in ``after_ingestion`` hooks.            |                             |
+|                 |This variable is used only in ``after_import`` hooks.               |                             |
 +-----------------+--------------------------------------------------------------------+-----------------------------+
 
 .. _data-import-expressions-special-functions:

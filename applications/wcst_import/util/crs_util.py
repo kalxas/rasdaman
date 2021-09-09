@@ -383,7 +383,7 @@ class CRSUtil:
             return xml_axes
         except Exception as ex:
             raise RuntimeException("Failed parsing the crs at: {}. "
-                                   "Detail error: {}".format(crs, str(ex)))
+                                   "Reason: {}".format(crs, str(ex)))
 
     @staticmethod
     def get_axis_labels_from_single_crs(crs):
@@ -444,7 +444,7 @@ class CRSUtil:
             self.individual_crs_axes[crs] = axis_labels
         except Exception as ex:
             raise RuntimeException("Failed parsing the crs at: {}. "
-                                   "Detail error: {}".format(crs, str(ex)))
+                                   "Reason: {}".format(crs, str(ex)))
 
     def save_to_cache(self, crs, axes, individual_crs_axes):
         self.__CACHE__[crs] = OrderedDict()
