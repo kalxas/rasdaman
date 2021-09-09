@@ -1611,7 +1611,10 @@ Style Definition Variants
         }
 
     * WMS ``Styled Layer Descriptor (SLD)``: The color table definition must be valid XML
-      and contains ``ColorMap`` element. Check :ref:`coloring-arrays` for details about the supported types
+      and contain a `ColorMap` element.
+      Note that rasdaman will only consider the first `sld:ColorMap` element in the
+      SLD document, any other SLD elements will be ignored. 
+      Check :ref:`coloring-arrays` for details about the supported types
       (``ramp`` (default), ``values``, ``intervals``), example ``ColorMap`` with ``type="values"``: 
 
       .. hidden-code-block:: xml
@@ -1916,7 +1919,7 @@ config section
 
   .. NOTE::
 
-     If a null value interval is specified, e.g. e.g ``"9.96921e+35:*"``,
+     If a null value interval is specified, e.g ``"9.96921e+35:*"``,
      during encode it will not be preserved as-is because null value intervals 
      are not supported by most formats. In this case it is recommended to 
      first specify a non-interval null value, followed by the interval, e.g.

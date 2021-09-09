@@ -289,7 +289,7 @@ public abstract class AbstractController {
         // e.g: Rasql servlet does not contains these requirement parameters
         if (kvpParameters.get(KVPSymbols.KEY_SERVICE) != null) {
             String service = getValueByKey(kvpParameters, KVPSymbols.KEY_SERVICE);
-            String request = getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_REQUEST);
+            String request = getValueByKey(kvpParameters, KVPSymbols.KEY_REQUEST);
             String versions[] = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
 
             // NOTE: WMS allows version is null, so just use the latest WMS version

@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import org.apache.commons.io.IOUtils;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
@@ -58,7 +59,25 @@ public class ExceptionUtil {
     public static void handle(String version, Exception ex, HttpServletResponse httpServletResponse) throws IOException {
         httpServletResponse.setContentType(MIMEUtil.MIME_XML);
         
-        log.error("Caught an exception ", ex);
+        if (ConfigManager.enableFullStacktrace()) {
+            log.error("Caught an exception ", ex);
+        } else {
+            String errorMessage = "";
+            for (StackTraceElement element : ex.getStackTrace()) {
+                // e.g. petascope.controller.AbstractController
+                String classNamePath = element.getClassName();
+                
+                // Only log the error lines in files from petascope's source codes
+                if (classNamePath.contains("rasdaman") || classNamePath.contains("petascope")) {    
+                    if (!classNamePath.contains("$")) {
+                        errorMessage += "	at " + classNamePath + "." + element.getMethodName() 
+                                     + "(" + element.getFileName() + ":" + element.getLineNumber() + ")"  + "\n";
+                    }
+                }
+            }
+            
+            log.error("Caught an exception: " + ex.getMessage() + " \n " +  errorMessage);
+        }
         
         OutputStream outputStream = httpServletResponse.getOutputStream();
 

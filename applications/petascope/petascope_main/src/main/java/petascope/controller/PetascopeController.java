@@ -159,11 +159,11 @@ public class PetascopeController extends AbstractController {
             } else {
 
                 // e.g: WCS, WMS
-                service = kvpParameters.get(KVPSymbols.KEY_SERVICE)[0];
+                service = getValueByKey(kvpParameters, KVPSymbols.KEY_SERVICE);
                 // e.g: 2.0.1, 2.1.0 (WCS)
-                String[] versions = kvpParameters.get(KVPSymbols.KEY_VERSION);
+                String[] versions = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
                 // e.g: GetCapabilities, DescribeCoverage
-                String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
+                String requestService = getValueByKey(kvpParameters, KVPSymbols.KEY_REQUEST);
                 request = requestService;
                 
                 // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
