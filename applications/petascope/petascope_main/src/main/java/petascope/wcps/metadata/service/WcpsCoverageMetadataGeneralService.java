@@ -1138,11 +1138,13 @@ public class WcpsCoverageMetadataGeneralService {
             // Then the geo bound is the coefficient + axis original origin
             // e.g: test_irr_cube_2, ansi:"CRS:1"(0) then coefficient is 0, the original origin is the dateTime in number from the first date (note the AnsiDate's origin)
             
-            // e.g: coverage has list of coefficents (-30, -20, -10, -2, 0, 5, 7) and request ansi:"CRS:1"(-1), then the index of -1 in the list is: -3.
-            int lowerCoefficientIndex = ((IrregularAxis) axis).getIndexOfCoefficientZero() + parsedSubset.getLowerLimit().intValue();
-            int upperCoefficientIndex = ((IrregularAxis) axis).getIndexOfCoefficientZero() + parsedSubset.getUpperLimit().intValue();
-            BigDecimal lowerCoefficient = ((IrregularAxis) axis).getDirectPositions().get(lowerCoefficientIndex);
-            BigDecimal upperCoefficient = ((IrregularAxis) axis).getDirectPositions().get(upperCoefficientIndex);
+            // e.g: coverage has list of coefficents (-30, -20, -10, -2, 0, 5, 7) and request ansi:"CRS:1"(-1), then the index of ":CRS:1"(-1) in the list is: -3.
+            IrregularAxis irregularAxis = ((IrregularAxis) axis);
+            
+            int lowerCoefficientIndex = parsedSubset.getLowerLimit().intValue() - irregularAxis.getOriginalGridBounds().getLowerLimit().intValue();
+            int upperCoefficientIndex = parsedSubset.getUpperLimit().intValue() - irregularAxis.getOriginalGridBounds().getLowerLimit().intValue();
+            BigDecimal lowerCoefficient = irregularAxis.getDirectPositions().get(lowerCoefficientIndex);
+            BigDecimal upperCoefficient = irregularAxis.getDirectPositions().get(upperCoefficientIndex);
             
             // Calculate the distance from this coefficient for CRS:1(GRID_INDEX) to coefficient zero.
             // (NOTE: coefficient zero can be in random position, not only the first element in list of directPositions)
