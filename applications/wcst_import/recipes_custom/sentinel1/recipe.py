@@ -348,7 +348,7 @@ class Recipe(GeneralCoverageRecipe):
                 for key, val in slices_dict.items():
                     conv.coverage_slices[key] += slices_dict[key]
 
-            if len(conv.coverage_slices) != 0:
+            if len(conv.coverage_slices) > 0 and len(conv.coverage_slices["base"]) > 0:
                 first_slice = conv.coverage_slices["base"][0]
                 # This needs one available file to extract metadata later
                 conv.files = [first_slice.data_provider.file]
