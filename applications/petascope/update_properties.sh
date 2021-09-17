@@ -150,8 +150,6 @@ trim_whitespace() {
     echo -n "$var"
 }
 
-# if some old settings are removed, the backup file needs to be kept
-keep_backup=0 
 deprecated_settings_exist=1
 
 # NOTE: line is read without leading white spaces
@@ -179,8 +177,7 @@ while read line; do
                 echo "# Deprecated settings" >> "$new_file_tmp"
                 deprecated_settings_exist=0
             fi
-            echo "$old_setting_value" >> "$new_file_tmp"
-            keep_backup=1 # Some old settings were removed, then it needs to keep the backup file
+            echo "$old_setting_value" >> "$new_file_tmp"            
         elif [[ "$old_setting_value" != "$new_setting_value" ]]; then            
             # 5.3 If the old_file value is not the same as the new_file value 
             # then replace the new_file setting with the old_file setting from new_file.tmp
@@ -212,14 +209,6 @@ if [ "$new_file_name" != "secore.properties" ]; then
     [ "$disable_write_operations" == "true" ] && $(replace_value "allow_write_requests_from=" "" "$new_file_tmp")       
 fi
 
-# if no old settings were removed in old file from new file, the backup for old file is not needed
-if [[ "$keep_backup" == 0 ]]; then
-    # the .bak file is not needed 
-    logn "Removing backup file... "
-    rm -f "$old_bak"
-    check
-fi
-
 # replace misconfiguration for log4j rolling file appender for strategy 2
 matchLine="log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy"
 oldLine="log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender"
@@ -238,8 +227,8 @@ sed -i "s/^# *$oldLine/# $newLine/g" "$new_file_tmp"
 rm -f "$old_file" && mv "$new_file_tmp" "$old_file" # rename new_file.tmp to old file.
 
 if cmp -s "$old_file" "$old_bak"; then
-    # remove the temp backup file as it is as same as the updated properties file
-    log "Removing backup file $old_bak as it is as same as $old_file properties file..."
+    # remove the temp backup file as it is same as the updated properties file
+    log "Removing backup file $old_bak as it is same as $old_file properties file..."
     rm -rf "$old_bak"
 fi
 

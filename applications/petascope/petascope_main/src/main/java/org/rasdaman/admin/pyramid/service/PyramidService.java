@@ -585,8 +585,8 @@ public class PyramidService {
                                                                                                        new BigDecimal(pyramidMemberYIndexAxis.getLowerBound()));
                 long numberOfPyramidMemberYGridPixels = pyramidMemberYGridBounds.getUpperLimit() - pyramidMemberYGridBounds.getLowerLimit() + 1;
                 
-                if (numberOfPyramidMemberXGridPixels <= numberOfBaseXGridPixels && numberOfPyramidMemberXGridPixels > width &&
-                    numberOfPyramidMemberYGridPixels <= numberOfBaseYGridPixels && numberOfPyramidMemberYGridPixels > height)  {
+                if ((numberOfPyramidMemberXGridPixels <= numberOfBaseXGridPixels && numberOfPyramidMemberXGridPixels > width)
+                    || (numberOfPyramidMemberYGridPixels <= numberOfBaseYGridPixels && numberOfPyramidMemberYGridPixels > height)) {
                     result = coveragePyramid;
                 } else {
                     return result;
