@@ -33,6 +33,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.NilValue;
 import org.slf4j.LoggerFactory;
@@ -43,8 +45,10 @@ import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.service.CoverageMetadataService;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
+import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.service.AxesOrderComparator;
@@ -141,6 +145,7 @@ public class WcpsCoverageMetadata {
         return covMetadata;
     }
 
+    @JsonIgnore
     public Integer getGridDimension() {
         return axes.size();
     }
@@ -169,6 +174,7 @@ public class WcpsCoverageMetadata {
     /**
      * Find the geo order of an original axis by name.
      */
+    @JsonIgnore
     public int getOriginalAxisGeoOrder(String axisName) throws PetascopeException {
         int i = 0;
         for (Axis originalAxis : this.originalAxes) {
@@ -191,6 +197,7 @@ public class WcpsCoverageMetadata {
      *
      * @return
      */
+    @JsonIgnore
     public List<Axis> getSortedAxesByGridOrder() {
         List<Axis> sortedAxis = new ArrayList<>();
         // create a copy of the original list
@@ -211,6 +218,7 @@ public class WcpsCoverageMetadata {
     /**
      * Get geo order for input axis
      */
+    @JsonIgnore
     public int getAxisGeoOrder(String axisName) {
         int i = 0;
         for (Axis axis : this.axes) {
@@ -226,6 +234,7 @@ public class WcpsCoverageMetadata {
     /**
      * Get grid order (rasdaman order) for input axis
      */
+    @JsonIgnore
     public int getAxisGridOrder(String axisName) {
         List<Axis> axesTmp = this.getSortedAxesByGridOrder();
         for (int i = 0; i < axesTmp.size(); i++) {
@@ -240,6 +249,7 @@ public class WcpsCoverageMetadata {
         return this.originalAxes;
     }
     
+    @JsonIgnore
     public int getNumberOfOriginalAxes() {
         return this.originalAxes.size();
     }
@@ -253,6 +263,7 @@ public class WcpsCoverageMetadata {
      *
      * @return
      */
+    @JsonIgnore
     public List<Axis> getSortedOriginalAxesByGridOrder() {
         List<Axis> sortedAxis = new ArrayList<>();
         // create a copy of the original list
@@ -273,6 +284,7 @@ public class WcpsCoverageMetadata {
     /**
      * Find original axis by name.
      */
+    @JsonIgnore
     public Axis getOriginalAxisByName(String axisName) {
         for (int i = 0; i < originalAxes.size(); i++) {
             Axis axis = originalAxes.get(i);
@@ -286,6 +298,7 @@ public class WcpsCoverageMetadata {
     /**
      * Find original axis by grid order (rasdaman order).
      */
+    @JsonIgnore
     public Axis getOriginalAxisByGridOrder(int index) {
         List<Axis> axesTmp = this.getSortedOriginalAxesByGridOrder();
         Axis originalAxis = axesTmp.get(index);
@@ -360,6 +373,7 @@ public class WcpsCoverageMetadata {
         return false;
     }
 
+    @JsonIgnore
     public Axis getAxisByName(String axisName) {
         for (Axis axis : this.axes) {
             if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisName)) {
@@ -390,6 +404,7 @@ public class WcpsCoverageMetadata {
      * To support WMS the axis order is needed to swap correctly in the bounding box
      * @return 
      */
+    @JsonIgnore
     public boolean isXYOrder() {        
         // e.g: 4326 in WMS is YX order (Lat, Long)        
         int xGridOrder = -1;
@@ -414,6 +429,7 @@ public class WcpsCoverageMetadata {
     /**
      * Check if this coverage object contains only 2 axes and they are XY axes, e.g: Long Lat.
      */
+    @JsonIgnore
     public boolean containsOnlyXYAxes() {
         return this.axes.size() == 2 && this.getXYAxes().size() == 2;
     }
@@ -424,6 +440,7 @@ public class WcpsCoverageMetadata {
      *
      * @return
      */
+    @JsonIgnore
     public List<Axis> getXYAxes() {
         Map<Integer, Axis> map = new HashMap<>();
         for (Axis axis : this.axes) {
@@ -441,6 +458,7 @@ public class WcpsCoverageMetadata {
     /**
      * Return axis which is not X or Y type
      */
+    @JsonIgnore
     public List<Axis> getNonXYAxes() {
         List<Axis> nonXYAxes = new ArrayList<>(); 
         for (Axis axis : this.axes) {
@@ -457,6 +475,7 @@ public class WcpsCoverageMetadata {
      *
      * @return
      */
+    @JsonIgnore
     public String getXYCrs() {
         // NOTE: cannot combine CRS from 1 axis with geo-referenced CRS and 1 axis is time (or IndexND)
         // so if coverage returns with 1 axis is Lat and 1 axis is AnsiDate so the CRS for the coverage will be Index2D
@@ -473,6 +492,7 @@ public class WcpsCoverageMetadata {
      * 
      * @return Pair of geo-order of XY axes
      */
+    @JsonIgnore
     public Pair<Integer, Integer> getXYAxesOrder() {
         int xOrder = -1;
         int yOrder = -1;
@@ -496,6 +516,7 @@ public class WcpsCoverageMetadata {
      * With a sliced coverage on a Lat/Long axis, it doesn't contain XY axes.
      * @return true if coverage has XY axes or false
      */
+    @JsonIgnore
     public boolean hasXYAxes() {
         if (this.getXYAxesOrder() != null) {
             return true;
@@ -575,6 +596,7 @@ public class WcpsCoverageMetadata {
     /**
      * Return a concatenated string for geo axis names (e.g: Lat Long time)
      */
+    @JsonIgnore
     public String getGeoAxisNames() {
         
         String geoAxisNames = "";
@@ -586,6 +608,7 @@ public class WcpsCoverageMetadata {
         return geoAxisNames.trim();
     }
     
+    @JsonIgnore
     public List<String> getGeoAxisNamesAsList() {
         List<String> results = new ArrayList<>();
         
@@ -599,6 +622,7 @@ public class WcpsCoverageMetadata {
     /**
      * Return a concatenated string for grid axis names (e.g: i j k), start from ASCII i (65).
      */
+    @JsonIgnore
     public String getGridAxisNames() {
         String gridAxisNames = "";
         
@@ -610,6 +634,7 @@ public class WcpsCoverageMetadata {
         return gridAxisNames.trim();
     }
     
+    @JsonIgnore
     public List<String> getGridAxisNamesAsList() {
         List<String> results = new ArrayList<>();
         
@@ -625,6 +650,7 @@ public class WcpsCoverageMetadata {
      * Return IndexND CRS from number of axes in coverage.
      * e.g: opengis.net/def/crs/OGC/0/Index3D
      */
+    @JsonIgnore
     public String getIndexCrsUri() {
         String indexCRS = CrsUtility.createIndexNDCrsUri(axes);
         
@@ -634,6 +660,7 @@ public class WcpsCoverageMetadata {
     /**
      * Get current grid domains of coverage with rasdaman oder.
      */
+    @JsonIgnore
     public String getGridDomainsRepresentation() {
         List<Axis> gridAxes = this.getSortedAxesByGridOrder();
         List<String> temp = new ArrayList<>();
@@ -769,10 +796,16 @@ public class WcpsCoverageMetadata {
         return true;
     }
     
-    public void addToContributingMetadatasSet(WcpsCoverageMetadata metadata, String rasql) {
+    public void addToContributingMetadatasSet(WcpsCoverageMetadata metadata, String rasql){
         if (metadata != null) {
+
+            try {
+                WcpsCoverageMetadata cloneMetadata = (WcpsCoverageMetadata) JSONUtil.clone(metadata);
+                this.contributingRasqlWcpsCoverageMetadataMap.put(rasql, cloneMetadata);
+            } catch (PetascopeException ex) {
+                throw new WCPSException(ExceptionCode.InternalComponentError, "Cannot clone Object. Reason: " + ex.getMessage(), ex);
+            }
             
-            this.contributingRasqlWcpsCoverageMetadataMap.put(rasql, metadata);
         }
     }
     

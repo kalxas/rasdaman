@@ -38,6 +38,11 @@ public class Pair<A, B> implements Serializable {
      * The snd component.
      */
     public final B snd;
+    
+    public Pair() {
+        fst = null;
+        snd = null;
+    }
 
     /**
      * Creates a new pair.

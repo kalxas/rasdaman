@@ -21,6 +21,7 @@
  */
 package petascope.wcps.metadata.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import petascope.util.BigDecimalUtil;
 
@@ -49,11 +50,13 @@ public class NumericSlicing extends NumericSubset {
     }
 
     @Override
+    @JsonIgnore
     public String getStringRepresentation() {
         return bound.toPlainString();
     }
 
     @Override
+    @JsonIgnore
     public String getStringRepresentationInInteger() {
         return bound.toBigInteger().toString();
     }

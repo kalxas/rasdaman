@@ -1,0 +1,10 @@
+for $c in (test_rgb) 
+let $subset := [ i (0:45), j(0:45) ],
+    $clipped:= clip( switch
+              case  30<$c [ $subset ] return 1
+              default return 0, 
+            POLYGON((0 0, 0 1, 0 1, 4 0)) 
+      )
+return encode(
+        $clipped
+        ,"csv")
