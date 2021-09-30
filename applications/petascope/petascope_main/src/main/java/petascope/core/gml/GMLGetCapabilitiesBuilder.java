@@ -655,11 +655,15 @@ public class GMLGetCapabilitiesBuilder {
     private Element buildContentsElement(String version) throws PetascopeException, SecoreException {
 
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
-        List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllLocalCoveragesBasicMetatata();
+        List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllLocalCoveragesBasicMetatataFromCache();
 
         // Children elements (list of all imported coverage)
         for (Pair<Coverage, Boolean> coveragePair : importedCoveragePairs) {
             Coverage coverage = coveragePair.fst;
+            
+            if (coverage == null) {
+                continue;
+            }
             
             // NOTE: According to WCS 2.1.0 standard, WCS 2.0.1 does not list CIS 1.1 coverages to the result.
             if (version.equals(VersionManager.WCS_VERSION_20) && coverage.getCoverageType().equals(VALUE_GENERAL_GRID_COVERAGE)) {
@@ -770,7 +774,7 @@ public class GMLGetCapabilitiesBuilder {
      * Create an optional WGS84 bounding box for coverages which have X and Y georeferenced-axes
      * which can project to EPSG:4326 CRS (Long - Lat order)
      */
-    private Element createWGS84BoundingBoxElement(Coverage coverage) {
+    private Element createWGS84BoundingBoxElement(Coverage coverage) throws PetascopeException {
         Wgs84BoundingBox wgs84BoundingBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
         Element wgs84BoundingBoxElement = null;
         

@@ -73,6 +73,10 @@ public class Wgs84BoundingBox implements Serializable {
         this.maxLat = BigDecimalUtil.stripDecimalZeros(maxLat).toPlainString();
     }
 
+    public long getId() {
+        return id;
+    }
+
     public BigDecimal getMinLong() {
         return new BigDecimal(minLong);
     }

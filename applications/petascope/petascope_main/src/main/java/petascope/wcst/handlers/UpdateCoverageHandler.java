@@ -335,27 +335,27 @@ public class UpdateCoverageHandler {
      * Then, the geo domain of this axis from input slice needs to be shifted by an offset value and this input slice could be imported
      * to Petascope instead of throwing exception from validator because grid domains don't match.
      */
-    private void shiftRegularAxesByOffsets(Coverage currentCoverage, List<AbstractSubsetDimension> dimensionSubsets, Coverage inputCoverage) throws PetascopeException, SecoreException {
+    private void shiftRegularAxesByOffsets(Coverage currentCoverage, List<AbstractSubsetDimension> inputDimensionSubsets, Coverage inputCoverage) throws PetascopeException, SecoreException {
         
-        for (AbstractSubsetDimension dimensionSubset : dimensionSubsets) {
+        for (AbstractSubsetDimension inputDimensionSubset : inputDimensionSubsets) {
             
-            if (dimensionSubset instanceof SlicingSubsetDimension) {
+            if (inputDimensionSubset instanceof SlicingSubsetDimension) {
                 continue;
             }
             
-            String axisLabel = dimensionSubset.getDimensionName();
-            GeoAxis axis = ((GeneralGridCoverage) currentCoverage).getGeoAxisByName(axisLabel);
+            String axisLabel = inputDimensionSubset.getDimensionName();
+            GeoAxis geoAxis = ((GeneralGridCoverage) currentCoverage).getGeoAxisByName(axisLabel);
             
-            if (axis instanceof org.rasdaman.domain.cis.RegularAxis) {
-                ParsedSubset<BigDecimal> subsetDomain = CrsComputerService.parseSubsetDimensionToNumbers(axis.getSrsName(), axis.getUomLabel(), dimensionSubset);
+            if (geoAxis instanceof org.rasdaman.domain.cis.RegularAxis) {
+                ParsedSubset<BigDecimal> subsetDomain = CrsComputerService.parseSubsetDimensionToNumbers(geoAxis.getSrsName(), geoAxis.getUomLabel(), inputDimensionSubset);
                 // NOTE: Only support this feature if axis is regular
-                BigDecimal currentLowerBound = axis.getLowerBoundNumber();
-                BigDecimal currentUpperBound = axis.getUpperBoundNumber();
+                BigDecimal currentGeoLowerBound = geoAxis.getLowerBoundNumber();
+                BigDecimal currentGeoUpperBound = geoAxis.getUpperBoundNumber();
                 
-                BigDecimal inputLowerBound = subsetDomain.getLowerLimit();
-                BigDecimal inputUpperBound = subsetDomain.getUpperLimit();
+                BigDecimal inputGeoLowerBound = subsetDomain.getLowerLimit();
+                BigDecimal inputGeoUpperBound = subsetDomain.getUpperLimit();
                 
-                BigDecimal axisResolution = axis.getResolution();                
+                BigDecimal axisResolution = geoAxis.getResolution();                
                 BigDecimal lowerGeoOffSet = BigDecimal.ZERO;
                 BigDecimal upperGeoOffSet = BigDecimal.ZERO;
                 
@@ -366,8 +366,8 @@ public class UpdateCoverageHandler {
                     positiveAxisDirection = false;
                 }
                 
-                GeoAxis currentAxis = ((GeneralGridCoverage) currentCoverage).getGeoAxisByName(axisLabel);
-                GeoAxis inputAxis = ((GeneralGridCoverage) inputCoverage).getGeoAxisByName(axisLabel);
+                GeoAxis currentGeoAxis = ((GeneralGridCoverage) currentCoverage).getGeoAxisByName(axisLabel);
+                GeoAxis inputGeoAxis = ((GeneralGridCoverage) inputCoverage).getGeoAxisByName(axisLabel);
                 
                 BigDecimal gridLowerDistance = BigDecimal.ZERO;
                 BigDecimal gridUpperDistance = BigDecimal.ZERO;
@@ -379,118 +379,118 @@ public class UpdateCoverageHandler {
                     // e.g: Long axis with positive direction
                     
                     // NOTE: don't need to shift anything if origin from current imported coverage's geo domain is the same as from input geo domain
-                    if (inputLowerBound.compareTo(currentLowerBound) == 0) {
+                    if (inputGeoLowerBound.compareTo(currentGeoLowerBound) == 0) {
                         continue;
                     }
                     
                     // First, find the new origin between input subset and current subet (for positive axis, lowerBound is origin)
-                    if (inputLowerBound.compareTo(currentLowerBound) < 0) {
+                    if (inputGeoLowerBound.compareTo(currentGeoLowerBound) < 0) {
                         // In this case, ***coverage's domain*** must be shifted by an offset as the origin belongs to the input subset    
-                        gridLowerDistance = (currentLowerBound.subtract(inputLowerBound)).divide(axisResolution, MathContext.DECIMAL64);
-                        origin = inputLowerBound;
+                        gridLowerDistance = (currentGeoLowerBound.subtract(inputGeoLowerBound)).divide(axisResolution, MathContext.DECIMAL64);
+                        origin = inputGeoLowerBound;
                         
                         BigDecimal shiftedGridLowerDistance = this.shiftToRoundedNumber(gridLowerDistance);
                         lowerGeoOffSet = (shiftedGridLowerDistance.subtract(gridLowerDistance)).multiply(axisResolution);
 
-                        currentAxis.setLowerBound(currentLowerBound.add(lowerGeoOffSet).toPlainString());
+                        currentGeoAxis.setLowerBound(currentGeoLowerBound.add(lowerGeoOffSet).toPlainString());
                     } else {
                         // In this case, ***input subset domain*** must be shifted by tan offset as the origin belongs to the coverage's domain
-                        gridLowerDistance = (inputLowerBound.subtract(currentLowerBound)).divide(axisResolution.abs(), MathContext.DECIMAL64);     
-                        origin = currentLowerBound;
+                        gridLowerDistance = (inputGeoLowerBound.subtract(currentGeoLowerBound)).divide(axisResolution.abs(), MathContext.DECIMAL64);     
+                        origin = currentGeoLowerBound;
                         
                         BigDecimal shiftedGridLowerDistance = this.shiftToRoundedNumber(gridLowerDistance);
                         lowerGeoOffSet = (shiftedGridLowerDistance.subtract(gridLowerDistance)).multiply(axisResolution);
 
-                        if (dimensionSubset instanceof TrimmingSubsetDimension) {
-                            ((TrimmingSubsetDimension)dimensionSubset).setLowerBound(inputLowerBound.add(lowerGeoOffSet).toPlainString());
+                        if (inputDimensionSubset instanceof TrimmingSubsetDimension) {
+                            ((TrimmingSubsetDimension)inputDimensionSubset).setLowerBound(inputGeoLowerBound.add(lowerGeoOffSet).toPlainString());
                         } else {
-                            ((SlicingSubsetDimension)dimensionSubset).setBound(inputLowerBound.add(lowerGeoOffSet).toPlainString());
+                            ((SlicingSubsetDimension)inputDimensionSubset).setBound(inputGeoLowerBound.add(lowerGeoOffSet).toPlainString());
                         }
 
-                        if (inputAxis != null) {
-                            inputAxis.setLowerBound(inputLowerBound.add(lowerGeoOffSet).toPlainString());
+                        if (inputGeoAxis != null) {
+                            inputGeoAxis.setLowerBound(inputGeoLowerBound.add(lowerGeoOffSet).toPlainString());
                         }
                     }
                     
-                    if (!origin.equals(currentLowerBound)) {
+                    if (!origin.equals(currentGeoLowerBound)) {
                          // In this case, ***coverage's domain*** must be shifted by an offset as the origin belongs to the input subset 
-                        gridUpperDistance = (currentUpperBound.subtract(origin)).divide(axisResolution, MathContext.DECIMAL64);
+                        gridUpperDistance = (currentGeoUpperBound.subtract(origin)).divide(axisResolution, MathContext.DECIMAL64);
                         if (!BigDecimalUtil.integer(gridUpperDistance)) {
                             BigDecimal shiftedGridUpperDistance = this.shiftToRoundedNumber(gridUpperDistance);
                             upperGeoOffSet = (shiftedGridUpperDistance.subtract(gridUpperDistance)).multiply(axisResolution);
                             
-                            currentAxis.setUpperBound(currentUpperBound.add(upperGeoOffSet).toPlainString());
+                            currentGeoAxis.setUpperBound(currentGeoUpperBound.add(upperGeoOffSet).toPlainString());
                         }
                     } else {
                         // In this case, ***input subset domain*** must be shifted by tan offset as the origin belongs to the coverage's domain
-                        gridUpperDistance = (inputUpperBound.subtract(origin)).divide(axisResolution, MathContext.DECIMAL64);
+                        gridUpperDistance = (inputGeoUpperBound.subtract(origin)).divide(axisResolution, MathContext.DECIMAL64);
                         BigDecimal shiftedGridUpperDistance = this.shiftToRoundedNumber(gridUpperDistance);
                         upperGeoOffSet = (shiftedGridUpperDistance.subtract(gridUpperDistance)).multiply(axisResolution);
 
-                        if (dimensionSubset instanceof TrimmingSubsetDimension) {
-                            ((TrimmingSubsetDimension)dimensionSubset).setUpperBound(inputUpperBound.add(upperGeoOffSet).toPlainString());
+                        if (inputDimensionSubset instanceof TrimmingSubsetDimension) {
+                            ((TrimmingSubsetDimension)inputDimensionSubset).setUpperBound(inputGeoUpperBound.add(upperGeoOffSet).toPlainString());
                         }
 
-                        if (inputAxis != null) {
-                            inputAxis.setUpperBound(inputUpperBound.add(upperGeoOffSet).toPlainString());
+                        if (inputGeoAxis != null) {
+                            inputGeoAxis.setUpperBound(inputGeoUpperBound.add(upperGeoOffSet).toPlainString());
                         }
                     }
                 } else {
                     // e.g: Lat Axis with nagative direction
                     
                     // NOTE: don't need to shift anything if origin from current imported coverage's geo domain is the same as from input geo domain
-                    if (inputUpperBound.compareTo(currentUpperBound) == 0) {
+                    if (inputGeoUpperBound.compareTo(currentGeoUpperBound) == 0) {
                         continue;
                     }
                     
                     // First, find the new origin between input subset and current subet (for positive axis, lowerBound is origin)
-                    if (inputUpperBound.compareTo(currentUpperBound) > 0) {
+                    if (inputGeoUpperBound.compareTo(currentGeoUpperBound) > 0) {
                         // In this case, ***coverage's domain*** must be shifted by an offset as the origin belongs to the input subset
-                        gridUpperDistance = (currentUpperBound.subtract(inputUpperBound)).divide(axisResolution, MathContext.DECIMAL64);  
-                        origin = inputUpperBound;
+                        gridUpperDistance = (currentGeoUpperBound.subtract(inputGeoUpperBound)).divide(axisResolution, MathContext.DECIMAL64);  
+                        origin = inputGeoUpperBound;
                         
                         BigDecimal shiftedGridUpperDistance = this.shiftToRoundedNumber(gridUpperDistance);                                            
                         upperGeoOffSet = (shiftedGridUpperDistance.subtract(gridUpperDistance)).multiply(axisResolution);
 
-                        currentAxis.setUpperBound(currentUpperBound.add(upperGeoOffSet).toPlainString());
+                        currentGeoAxis.setUpperBound(currentGeoUpperBound.add(upperGeoOffSet).toPlainString());
                     } else {
                         // In this case, ***input subset domain*** must be shifted by tan offset as the origin belongs to the coverage's domain
-                        gridUpperDistance = (inputUpperBound.subtract(currentUpperBound)).divide(axisResolution, MathContext.DECIMAL64);     
-                        origin = currentUpperBound;
+                        gridUpperDistance = (inputGeoUpperBound.subtract(currentGeoUpperBound)).divide(axisResolution, MathContext.DECIMAL64);     
+                        origin = currentGeoUpperBound;
                         
                         BigDecimal shiftedGridUpperDistance = this.shiftToRoundedNumber(gridUpperDistance);
                         upperGeoOffSet = (shiftedGridUpperDistance.subtract(gridUpperDistance)).multiply(axisResolution);
 
-                        if (dimensionSubset instanceof TrimmingSubsetDimension) {
-                            ((TrimmingSubsetDimension)dimensionSubset).setUpperBound(inputUpperBound.add(upperGeoOffSet).toPlainString());
+                        if (inputDimensionSubset instanceof TrimmingSubsetDimension) {
+                            ((TrimmingSubsetDimension)inputDimensionSubset).setUpperBound(inputGeoUpperBound.add(upperGeoOffSet).toPlainString());
                         } else {
-                            ((SlicingSubsetDimension)dimensionSubset).setBound(inputUpperBound.add(upperGeoOffSet).toPlainString());
+                            ((SlicingSubsetDimension)inputDimensionSubset).setBound(inputGeoUpperBound.add(upperGeoOffSet).toPlainString());
                         }
 
-                        if (inputAxis != null) {
-                            inputAxis.setUpperBound(inputUpperBound.add(upperGeoOffSet).toPlainString());
+                        if (inputGeoAxis != null) {
+                            inputGeoAxis.setUpperBound(inputGeoUpperBound.add(upperGeoOffSet).toPlainString());
                         }
                     }
                     
-                    if (!origin.equals(currentUpperBound)) {
+                    if (!origin.equals(currentGeoUpperBound)) {
                         // In this case, ***coverage's domain*** must be shifted by an offset as the origin belongs to the input subset
-                        gridLowerDistance = (currentLowerBound.subtract(origin)).divide(axisResolution, MathContext.DECIMAL64);
+                        gridLowerDistance = (currentGeoLowerBound.subtract(origin)).divide(axisResolution, MathContext.DECIMAL64);
                         BigDecimal shiftedGridLowerDistance = this.shiftToRoundedNumber(gridLowerDistance);
                         lowerGeoOffSet = (shiftedGridLowerDistance.subtract(gridLowerDistance)).multiply(axisResolution);
 
-                        currentAxis.setLowerBound(currentLowerBound.add(lowerGeoOffSet).toPlainString());
+                        currentGeoAxis.setLowerBound(currentGeoLowerBound.add(lowerGeoOffSet).toPlainString());
                     } else {
                         // In this case, ***input subset domain*** must be shifted by an offset as the origin belongs to the coverage's domain
-                        gridLowerDistance = (inputLowerBound.subtract(origin)).divide(axisResolution, MathContext.DECIMAL64);
+                        gridLowerDistance = (inputGeoLowerBound.subtract(origin)).divide(axisResolution, MathContext.DECIMAL64);
                         BigDecimal shiftedGridLowerDistance = this.shiftToRoundedNumber(gridLowerDistance);
                         lowerGeoOffSet = (shiftedGridLowerDistance.subtract(gridLowerDistance)).multiply(axisResolution);
 
-                        if (dimensionSubset instanceof TrimmingSubsetDimension) {
-                            ((TrimmingSubsetDimension)dimensionSubset).setLowerBound(inputLowerBound.add(lowerGeoOffSet).toPlainString());
+                        if (inputDimensionSubset instanceof TrimmingSubsetDimension) {
+                            ((TrimmingSubsetDimension)inputDimensionSubset).setLowerBound(inputGeoLowerBound.add(lowerGeoOffSet).toPlainString());
                         }
 
-                        if (inputAxis != null) {
-                            inputAxis.setLowerBound(inputLowerBound.add(lowerGeoOffSet).toPlainString());
+                        if (inputGeoAxis != null) {
+                            inputGeoAxis.setLowerBound(inputGeoLowerBound.add(lowerGeoOffSet).toPlainString());
                         }
                     }
                 }

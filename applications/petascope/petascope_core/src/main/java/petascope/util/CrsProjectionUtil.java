@@ -42,6 +42,7 @@ import org.gdal.osr.SpatialReference;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.AxisExtent;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.EnvelopeByAxis;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import static org.rasdaman.repository.service.CoverageRepositoryService.COVERAGES_EXTENT_TARGET_CRS_DEFAULT;
@@ -361,12 +362,12 @@ public class CrsProjectionUtil {
      * 
      * NOTE: this should not be used in most cases if grid extents and axis resolutions are known
      */
-    public static Wgs84BoundingBox createLessPreciseWgs84BBox(Coverage coverage) throws PetascopeException {
+    public static Wgs84BoundingBox createLessPreciseWgs84BBox(EnvelopeByAxis envelopeByAxis) throws PetascopeException {
 
-        List<AxisExtent> axisExtents = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getAxisExtents();
+        List<AxisExtent> axisExtents = envelopeByAxis.getAxisExtents();
         boolean foundX = false, foundY = false;
         String xyAxesCRS = null;
-        String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
+        String coverageCRS = envelopeByAxis.getSrsName();
         BigDecimal xMin = null, yMin = null, xMax = null, yMax = null;
         
         Wgs84BoundingBox wgs84BoundingBox = null;

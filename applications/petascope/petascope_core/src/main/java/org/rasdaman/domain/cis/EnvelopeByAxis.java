@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.rasdaman.config.ConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
 import petascope.core.CrsDefinition;
@@ -41,6 +43,7 @@ import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.BigDecimalUtil;
+import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
@@ -60,6 +63,8 @@ import petascope.util.TimeUtil;
 @Entity
 @Table(name = EnvelopeByAxis.TABLE_NAME)
 public class EnvelopeByAxis implements Serializable {
+    
+    private static final Logger log = LoggerFactory.getLogger(EnvelopeByAxis.class);
 
     public static final String TABLE_NAME = "envelope_by_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
@@ -98,6 +103,10 @@ public class EnvelopeByAxis implements Serializable {
         this.srsDimension = srsDimension;
         this.axisLabels = axisLabels;
         this.axisExtents = axisExtents;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public List<AxisExtent> getAxisExtents() {
@@ -159,7 +168,16 @@ public class EnvelopeByAxis implements Serializable {
         return axisExtent;
     }
     
-    public Wgs84BoundingBox getWgs84BBox() {
+    public Wgs84BoundingBox getWgs84BBox() throws PetascopeException {
+        // In case Wgs84BBox is not created (typically from remote coverages of older petascope)
+        if (this.wgs84BBox == null && this.getGeoXYBoundingBox() != null) {
+            try {
+                this.wgs84BBox = CrsProjectionUtil.createLessPreciseWgs84BBox(this);
+            } catch(Exception ex) {
+                log.warn("Cannot get WGS84 bounding box. Reason: " + ex.getMessage());
+            }
+        }
+        
         return wgs84BBox;
     }
 

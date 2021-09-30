@@ -49,6 +49,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gdal.ogr.Geometry;
 import org.gdal.ogr.ogr;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  * String utilities.
@@ -629,12 +631,16 @@ public class StringUtil {
      * 
      * e.g. POLYGON((1 1, 2 2, 3 3)) -> POLYGON((1 1, 2 2, 3 3, 1 1))
      */
-    public static String closeRingsWKT(String wkt) {
+    public static String closeRingsWKT(String wkt) throws PetascopeException {
         Geometry geom = ogr.CreateGeometryFromWkt(wkt);
-        geom.CloseRings();
+        if (geom != null) {
+            geom.CloseRings();
         
-        String result = geom.ExportToWkt();
-        return result;
+            String result = geom.ExportToWkt();
+            return result;
+        }
+        
+        throw new PetascopeException(ExceptionCode.InvalidRequest, "WKT is not valid. Given: " + wkt);
     }
     
     /**

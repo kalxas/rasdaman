@@ -23,17 +23,25 @@ package org.rasdaman.repository.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.apache.commons.collections4.IterableUtils;
 import org.rasdaman.domain.cis.Axis;
 import org.rasdaman.domain.cis.AxisExtent;
+import org.rasdaman.domain.cis.BaseLocalCoverage;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.DomainSet;
@@ -56,15 +64,18 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import org.rasdaman.repository.interfaces.CoverageRepository;
+import org.rasdaman.repository.interfaces.EnvelopeByAxisRepository;
 import org.rasdaman.repository.interfaces.RasdamanRangeSetRepository;
+import org.rasdaman.repository.interfaces.Wgs84BoundingBoxRepository;
 import org.springframework.transaction.annotation.Transactional;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
 import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
-import petascope.util.StringUtil;
+import petascope.util.ListUtil;
 import static petascope.util.StringUtil.TEMP_COVERAGE_PREFIX;
+import petascope.util.ThreadUtil;
 import petascope.util.ras.RasUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
@@ -83,6 +94,10 @@ public class CoverageRepositoryService {
 
     @Autowired
     private CoverageRepository coverageRepository;
+    @Autowired
+    private EnvelopeByAxisRepository envelopeByAxisRepository;
+    @Autowired
+    private Wgs84BoundingBoxRepository wgs84BoundingBoxRepository;
     
     @Autowired
     private RasdamanRangeSetRepository rasdamanRangeSetRepository;
@@ -104,8 +119,6 @@ public class CoverageRepositoryService {
     // map of qualified coverage id (e.g: hostname:7000:covA) -> coverage
     private static final Map<String, Pair<Coverage, Boolean>> localCoveragesCacheMap = new ConcurrentSkipListMap<>();
     
-    private static final Map<String, Object[]> localCoverageIdsAndTypesCacheMap = new ConcurrentSkipListMap<>();
-
     /**
      * Store the coverages's extents (only geo-referenced XY axes). First String
      * is minLong, minLat, second String is maxLong, maxLat.
@@ -174,18 +187,17 @@ public class CoverageRepositoryService {
      */
     public Coverage readCoverageFullMetadataByIdFromCache(String coverageId) throws PetascopeException {
         Coverage coverage = null;
-        Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
         
-        // Check if coverage is already cached
-        if (coveragePair == null) {
-            // If coverage is not cached then read full coverage from database
-            coverage = this.readCoverageByIdFromDatabase(coverageId);
-        } else if (coveragePair.snd == false) {
-            // If coverage just contains basic metadata, then read full coverage from database
-            coverage = this.readCoverageByIdFromDatabase(coverageId);
-        } else {
-            // Coverage already exists in the cache.
+        if (this.isInLocalCache(coverageId)) {
+            Pair<Coverage, Boolean> coveragePair = this.getLocalPairCoverageByCoverageId(coverageId);
             coverage = coveragePair.fst;
+            
+            if (coveragePair.snd == false) {
+                coverage = this.readCoverageByIdFromDatabase(coverageId);
+            }
+        }
+        if (coverage == null) {
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + coverageId + "' does not exist.");
         }
         
         return coverage;
@@ -230,6 +242,14 @@ public class CoverageRepositoryService {
     }
     
     /**
+     * Read all local coverage objects from database.
+     */
+    public List<Coverage> readAllLocalCoveragesFromDatabase() {
+        List<Coverage> results = IterableUtils.toList(this.coverageRepository.findAll());
+        return results;
+    }
+    
+    /**
      * Read a persisted coverage from database by coverage_id (coverage_name).
      * NOTE: used only to insert/update/delete a coverage metadata from database
      * as it is not loaded from cache to avoid error with Hibernate cascade.
@@ -252,8 +272,6 @@ public class CoverageRepositoryService {
         } else {
             log.debug("Coverage '" + coverageId + "' is read from database.");
 
-            long coverageSize = this.calculateCoverageSizeInBytes(coverage);
-            coverage.setCoverageSizeInBytes(coverageSize);
             this.addRasdamanDataTypesForRangeQuantities(coverage);
 
             if (coverage.getRasdamanRangeSet().getTiling() == null) {
@@ -275,6 +293,34 @@ public class CoverageRepositoryService {
 
         return coverage;
     }
+
+    /**
+     * Return map of local coverageId -> rasdaman rangeset of this coverage
+     */
+    public Map<String, RasdamanRangeSet> getAllLocalRasdamanRangeSetsMap() {
+        Map<String, RasdamanRangeSet> result = new LinkedHashMap<>();
+        List<Object[]> list = this.coverageRepository.readAllRasdamanRangeSets();
+        for (Object[] objs : list) {
+            String coverageId = (String) objs[0];
+            long rasdamanRangeSetId = (long) objs[1];
+            String collectionName = (String) objs[2];
+            String collectionType = (String) objs[3];
+            String mddType = (String) objs[4];
+            String tiling = (String) objs[5];
+            
+            RasdamanRangeSet rasdamanRangeSet = new RasdamanRangeSet();
+            rasdamanRangeSet.setId(rasdamanRangeSetId);
+            rasdamanRangeSet.setCollectionType(collectionType);
+            rasdamanRangeSet.setCollectionName(collectionName);
+            rasdamanRangeSet.setMddType(mddType);
+            rasdamanRangeSet.setTiling(tiling);
+            
+            result.put(coverageId, rasdamanRangeSet);
+        }
+        
+        return result;
+        
+    } 
     
     /**
      * Calculate the size of a coverage in bytes from number of pixels and number of bits per band.
@@ -294,8 +340,20 @@ public class CoverageRepositoryService {
             if (typeEntry != null) {            
                 List<String> bandsTypes = typeEntry.getBandsTypes();
                 List<Byte> bandsSizes = typeEntry.getBandsSizesInBytes(bandsTypes);
-
-                List<Object[]> gridBounds = coverageRepository.readGridBoundsByCoverageId(coverage.getCoverageId());
+                
+                GeneralGridCoverage geneneralGridCoverage = (GeneralGridCoverage)coverage;
+                List<Object[]> gridBounds = new ArrayList<>();
+                if (geneneralGridCoverage.getDomainSet() != null) {
+                    // for full coverage object
+                    List<IndexAxis> indexAxes = geneneralGridCoverage.getIndexAxes();
+                    for (IndexAxis indexAxis : indexAxes) {
+                        Object[] objs = {indexAxis.getLowerBound(), indexAxis.getUpperBound()};
+                        gridBounds.add(objs);
+                    }
+                } else {
+                    // for basic coverage object without domainset
+                    gridBounds = coverageRepository.readGridBoundsByCoverageId(coverage.getCoverageId());
+                }
 
                 long totalPixels = 0;
 
@@ -319,53 +377,7 @@ public class CoverageRepositoryService {
         return result;
     }
     
-    /**
-     * Read a basic coverage metadata from local database.
-     */
-    private void readCoverageBasicMetadataFromDatabase(long id, String coverageId, String coverageType) throws PetascopeException {
-        // Each coverage has only 1 envelope and each envelope has only 1 envelopeByAxis
-        EnvelopeByAxis envelopeByAxis = coverageRepository.readEnvelopeByAxisByCoverageId(coverageId);
-        // NOTE: this coverage object will update CRS with current configured SECORE URL (e.g: http://localhost:8080/def) in petascope.propeties
-        // don't let Hibernate see this object is updated and it will update this change to petascopedb as it should keep the pattern $SECORE_URL$/crs in petascopedb.
-        entityManager.clear();
-
-        // NOTE: replace the abstract SECORE url in database first ($SECORE$/crs -> localhost:8080/def/crs)
-        envelopeByAxis.setSrsName(CrsUtil.CrsUri.fromDbRepresentation(envelopeByAxis.getSrsName()));
-        // also with AxisExtents of EnvelopeByAxis
-        for (AxisExtent axisExtent : envelopeByAxis.getAxisExtents()) {
-            axisExtent.setSrsName(CrsUtil.CrsUri.fromDbRepresentation(axisExtent.getSrsName()));
-        }
-
-        Coverage coverage = new GeneralGridCoverage();
-        coverage.setId(id);
-        coverage.setCoverageId(coverageId);
-        coverage.setCoverageType(coverageType);
-        Envelope envelope = new Envelope();
-        envelope.setEnvelopeByAxis(envelopeByAxis);
-        ((GeneralGridCoverage) coverage).setEnvelope(envelope);
-        
-        RasdamanRangeSet rasdamanRangeSet = this.coverageRepository.readRasdamanRangeSet(coverageId);
-        coverage.setRasdamanRangeSet(rasdamanRangeSet);
-
-        long coverageSize = this.calculateCoverageSizeInBytes(coverage);
-        coverage.setCoverageSizeInBytes(coverageSize);
-        
-        List<CoveragePyramid> tmpList = this.coverageRepository.readAllCoveragePyramidsByBaseCoverageId(coverageId);
-        TreeMap<BigDecimal, CoveragePyramid> tmpMap = new TreeMap<>();
-        for (CoveragePyramid coveragePyramid : tmpList) {
-            BigDecimal weight = BigDecimal.ONE;
-            for (BigDecimal scaleFactor : coveragePyramid.getScaleFactorsList()) {
-                weight = weight.multiply(scaleFactor);
-            }
-            
-            tmpMap.put(weight, coveragePyramid);
-        }
-        coverage.setPyramid(new ArrayList<>(tmpMap.values()));
-
-        // Then cache the read coverage's basic metadata
-        localCoveragesCacheMap.put(coverageId, new Pair<>(coverage, false));
-    }
-
+    
     /**
      * This persists rasdaman data types for range quantities as they were not saved to petascopedb when inserting coverages
      * before v9.8.
@@ -442,39 +454,49 @@ public class CoverageRepositoryService {
     public List<Pair<Coverage, Boolean>> readAllLocalCoveragesBasicMetatata() throws PetascopeException {
         long start = System.currentTimeMillis();
         
-        if (this.localCoverageIdsAndTypesCacheMap.isEmpty()) {
+        if (this.localCoveragesCacheMap.isEmpty()) {
             
-            for (Object[] coverageIdAndType : coverageRepository.readAllCoverageIdsAndTypes()) {
-                String coverageId = coverageIdAndType[1].toString();
-                this.localCoveragesCacheMap.put(coverageId, new Pair(null, false));
+            Map<String, RasdamanRangeSet> localCoverageIdRasdamanRangeSetMap = this.getAllLocalRasdamanRangeSetsMap();
+            List<BaseLocalCoverage> baseCoverages = this.coverageRepository.readAllBasicCoverageMetadatas();
+            
+            long end = System.currentTimeMillis();
+            
+            log.info("Time to load all basic local coverage from database is " + (end - start) +  " ms.");
+            
+            // NOTE: to update SECORE_URL of Envelope = the one configured in petascope.properties without persisting this configured URL to database
+            entityManager.clear();
+            for (BaseLocalCoverage baseCoverage : baseCoverages) {
+                String coverageId = baseCoverage.getCoverageId();
+                                
+                RasdamanRangeSet rasdamanRangeSet = localCoverageIdRasdamanRangeSetMap.get(coverageId);
+                Coverage coverage = new GeneralGridCoverage(baseCoverage);
+                coverage.setRasdamanRangeSet(rasdamanRangeSet);
                 
-                this.localCoverageIdsAndTypesCacheMap.put(coverageId, coverageIdAndType);
+                this.addCrsPrefix(coverage);
+                
+                this.localCoveragesCacheMap.put(coverageId, new Pair<>(coverage, false));
             }
-        }
-
-        for (Object[] coverageIdAndType : localCoverageIdsAndTypesCacheMap.values()) {
-            String coverageId = coverageIdAndType[1].toString();
             
-            if (!this.isInLocalCache(coverageId)) {
-                try {
-                    long id = new Long(coverageIdAndType[0].toString());
-                    String coverageType = coverageIdAndType[2].toString();
-                    this.readCoverageBasicMetadataFromDatabase(id, coverageId, coverageType);
-                } catch (Exception ex) {
-                    throw new PetascopeException(ExceptionCode.InternalSqlError,
-                                                 "Cannot read coverage basic metadata '" + coverageId + "' from database. Reason: " + ex.getMessage(), ex);
-                }
-            }
+            log.debug("Time to read all base local coverages from database is: " + String.valueOf(end - start) + " ms.");
         }
-
-        // Read all coverage from persistent database
-        log.debug("Read all persistent coverages from database.");
+        
         List<Pair<Coverage, Boolean>> coverages = new ArrayList<>(localCoveragesCacheMap.values());
 
         long end = System.currentTimeMillis();
-        log.debug("Time to read all coverages is: " + String.valueOf(end - start) + " ms.");
+        log.debug("Time to read all local basic coverages is: " + String.valueOf(end - start) + " ms.");
 
         return coverages;
+    }
+    
+    public List<Pair<Coverage, Boolean>> readAllLocalCoveragesBasicMetatataFromCache() {
+        List<Pair<Coverage, Boolean>> results = new ArrayList<>();
+        for (Pair<Coverage, Boolean> pair : this.localCoveragesCacheMap.values()) {
+            if (pair != null) {
+                results.add(pair);
+            }
+        }
+        
+        return results;
     }
     
     /**
@@ -511,36 +533,6 @@ public class CoverageRepositoryService {
         return coverages;
     }
 
-    /**
-     * From the cached coverages's basic metadata (EnvelopeByAxis with
-     * AxisExtents), create the coverages's extents by reprojecting from native
-     * XY axes's CRS to EPSG:4326 and cache all the results (minLongLat,
-     * maxLongLat). NOTE: Only add coverage with native CRS EPSG code as GDAL
-     * cannot reproject unknown CRS.
-     *
-     * @throws petascope.exceptions.PetascopeException
-     * @throws petascope.exceptions.SecoreException
-     */
-    public void createAllCoveragesExtents() throws PetascopeException, SecoreException {
-        long start = System.currentTimeMillis();
-        for (String coverageId : localCoveragesCacheMap.keySet()) {
-            Coverage coverage = this.getLocalPairCoverageByCoverageId(coverageId).fst;
-            if (coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox() == null) {
-                try {
-                    coverage = this.readCoverageFullMetadataByIdFromCache(coverageId);
-                    this.createCoverageExtent(coverage);
-                    if (coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox() != null) {
-                        this.save(coverage);
-                    }
-                } catch (Exception ex) {
-                    log.warn("Cannot create geo extents in EPSG:4326 for coverage '" + coverageId + "'. Reason: " + ex.getMessage(), ex);
-                }
-            }
-        }
-
-        long end = System.currentTimeMillis();
-        log.debug("Time to compute all coverage extents is " + String.valueOf(end - start) + " ms.");
-    }
 
     /**
      * Create a coverage's extent by cached coverage's metadata
@@ -548,7 +540,9 @@ public class CoverageRepositoryService {
      */
     public void createCoverageExtent(Coverage coverage) throws PetascopeException, SecoreException {
         Wgs84BoundingBox wgs84BoundingBox = null;
-        
+        String coverageId = coverage.getCoverageId();
+
+        addCrsPrefix(coverage);
         BoundingBox bbox = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getGeoXYBoundingBox();
 
         // Don't transform the XY extents to EPSG:4326 if it is not EPSG code or it is not at least 2D
@@ -557,7 +551,11 @@ public class CoverageRepositoryService {
             if (coverage.getDomainSet() == null) {
                 // NOTE: this one is used only for older peernode petascope which doesn't have Wgs84BoundingBox object in envelope
                 // It returns less precisely bounding box, but it is used for backward compatibility               
-                wgs84BoundingBox = CrsProjectionUtil.createLessPreciseWgs84BBox(coverage);
+                try {
+                    wgs84BoundingBox = CrsProjectionUtil.createLessPreciseWgs84BBox(coverage.getEnvelope().getEnvelopeByAxis());
+                } catch(Exception ex) {
+                    log.warn("Cannot create WGS84 bounding box for coverage '" + coverageId + "'. Reason: " + ex.getMessage());
+                }
             }  else {            
                 Pair<GeoAxis, GeoAxis> xyAxesPair = ((GeneralGridCoverage)coverage).getXYGeoAxes();
                 GeoAxis geoAxisX = xyAxesPair.fst;
@@ -626,7 +624,7 @@ public class CoverageRepositoryService {
             throw new PetascopeException(ExceptionCode.InvalidRequest, "Coverage '" + coverageId  + "' already exists in database.");
         } else {
             // add the new coverage to the database
-            this.save(coverage);            
+            this.save(coverage);     
         }        
     }
 
@@ -647,6 +645,9 @@ public class CoverageRepositoryService {
         // with new SECORE endpoint or otherwise the persisted URL will throw exception as non-existing URL.
         CoverageRepositoryService.removeCrsPrefix(coverage);
         
+        long coverageSize = this.calculateCoverageSizeInBytes(coverage);
+        coverage.setCoverageSizeInBytes(coverageSize);
+        
         long start = System.currentTimeMillis();
         // then it can save (insert/update) the coverage to database
         this.coverageRepository.save(coverage);
@@ -657,14 +658,8 @@ public class CoverageRepositoryService {
         entityManager.clear();
         
         CoverageRepositoryService.addCrsPrefix(coverage);
-        
-        long coverageSize = this.calculateCoverageSizeInBytes(coverage);
-        coverage.setCoverageSizeInBytes(coverageSize);
 
         localCoveragesCacheMap.put(coverageId, new Pair(coverage, true));
-
-        Object[] objs = {coverage.getId(), coverageId, coverage.getCoverageType() };
-        this.localCoverageIdsAndTypesCacheMap.put(coverageId, objs);
         
         log.debug("Coverage '" + coverageId + "' is persisted in database.");
     }
@@ -684,9 +679,7 @@ public class CoverageRepositoryService {
 
         entityManager.flush();
         entityManager.clear();
-        
-        this.localCoverageIdsAndTypesCacheMap.remove(coverageId);
-        
+
         log.debug("Coverage: " + coverage.getCoverageId() + " is removed from database.");
     }
 
@@ -727,7 +720,6 @@ public class CoverageRepositoryService {
      * reading coverage from database, replace placeholder with SECORE
      * configuration endpoint from petascope.properties.
      *
-     * @param coverage
      */
     public static void addCrsPrefix(Coverage coverage) {
         // + Start with EnvelopeByAxis first
@@ -739,13 +731,15 @@ public class CoverageRepositoryService {
             addedCRS = CrsUtil.CrsUri.fromDbRepresentation(axisExtent.getSrsName());
             axisExtent.setSrsName(addedCRS);
         }
-
-        // + Then with geoAxes of GeneralGridDomainSet as only support GeneralGridCoverage now
-        DomainSet generalGridDomainSet = ((GeneralGridCoverage) coverage).getDomainSet();
-        GeneralGrid generalGrid = ((GeneralGridDomainSet) generalGridDomainSet).getGeneralGrid();
-        for (Axis geoAxis : generalGrid.getGeoAxes()) {
-            addedCRS = CrsUtil.CrsUri.fromDbRepresentation(geoAxis.getSrsName());
-            geoAxis.setSrsName(addedCRS);
+        
+        if (coverage.getDomainSet() != null) {
+            // for full Coverage metadata            
+            DomainSet generalGridDomainSet = ((GeneralGridCoverage) coverage).getDomainSet();
+            GeneralGrid generalGrid = ((GeneralGridDomainSet) generalGridDomainSet).getGeneralGrid();
+            for (Axis geoAxis : generalGrid.getGeoAxes()) {
+                addedCRS = CrsUtil.CrsUri.fromDbRepresentation(geoAxis.getSrsName());
+                geoAxis.setSrsName(addedCRS);
+            }
         }
     }
     
@@ -758,9 +752,32 @@ public class CoverageRepositoryService {
         coverage.setCoverageId(newCoverageId);
         this.save(coverage);
         this.localCoveragesCacheMap.remove(currentCoverageId);
-        this.localCoverageIdsAndTypesCacheMap.remove(currentCoverageId);
         
         log.info("Renamed coverage id from '" + currentCoverageId + "' to '" + newCoverageId + "'.");
+    }
+    
+    /**
+     * Persist Wgs84BBox of an EnvelopeByAxis to database
+     */
+    public void saveWgs84BBox(EnvelopeByAxis envelopeByAxis) throws PetascopeException {
+        Wgs84BoundingBox wgs84BBox = envelopeByAxis.getWgs84BBox();
+        if (wgs84BBox != null) {
+            this.wgs84BoundingBoxRepository.save(wgs84BBox);
+            // NOTE: flush() to persis Wgs84BBox to database first
+            // for the case with insert, when the generated id as primary key is not set. After persisting to database, then it has the id
+            this.entityManager.flush();
+            this.envelopeByAxisRepository.saveWgs84BBox(envelopeByAxis.getId(), envelopeByAxis.getWgs84BBox());
+        }
+    }
+    
+    /**
+     * Persist coverageSizeInBytes to database of the selected coverage
+     */
+    @Transactional
+    public void saveCoverageSizeInBytes(Coverage localCoverage) {
+        long coverageAutoId = localCoverage.getId();
+        long coverageSizeInBytes = localCoverage.getCoverageSizeInBytes();
+        this.coverageRepository.saveCoverageSizeInBytes(coverageAutoId, coverageSizeInBytes);
     }
 
     // For migration only

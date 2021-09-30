@@ -338,7 +338,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      */
     private String buildLayers() throws WMSLayerNotExistException, PetascopeException {
         // All WMS layers
-        List<Layer> layers = this.wmsRepostioryService.readAllLayers();
+        List<Layer> layers = this.wmsRepostioryService.readAllLayersFromCaches();
         
         // to build layerElements
         List<Element> layerElements = new ArrayList<>();
@@ -384,7 +384,9 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
         // Name
         Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME);
-        nameElement.appendChild(layer.getName());
+
+        String layerName = layer.getName(); 
+        nameElement.appendChild(layerName);
         layerElement.appendChild(nameElement);
 
         // Title        
@@ -398,7 +400,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         abstractElement.appendChild(layerAbstract);
         layerElement.appendChild(abstractElement);
         
-        Coverage coverage = null;
+        Coverage coverage = this.coverageRepositoryService.readCoverageFromLocalCache(layer.getName());
         try {
             coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layer.getName());
             if (coverage != null) {
@@ -428,11 +430,6 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
         // EX_GeographicBoundingBox 
         Wgs84BoundingBox wgs84BBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
-        if (wgs84BBox == null) {
-            // In case Wgs84BBox is not created (typically from remote coverages)
-            wgs84BBox = CrsProjectionUtil.createLessPreciseWgs84BBox(coverage);
-            coverage.getEnvelope().getEnvelopeByAxis().setWgs84BBox(wgs84BBox);
-        }
         
         EXGeographicBoundingBox exGeographicBoundingBox = new EXGeographicBoundingBox(wgs84BBox);
         layer.setExGeographicBoundingBox(exGeographicBoundingBox);

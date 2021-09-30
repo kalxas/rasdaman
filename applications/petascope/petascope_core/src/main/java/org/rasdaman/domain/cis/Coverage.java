@@ -88,7 +88,7 @@ public abstract class Coverage implements Serializable {
     @JsonIgnore
     @Column(name = COLUMN_ID)
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    protected long id;
 
     @Column(name = "coverage_id", unique = true)
     // this is the id of coverage (or coverage name)
@@ -105,29 +105,29 @@ public abstract class Coverage implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = DomainSet.COLUMN_ID)
-    private DomainSet domainSet;
+    protected DomainSet domainSet;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = RasdamanRangeSet.COLUMN_ID)
-    private RasdamanRangeSet rasdamanRangeSet;
+    protected RasdamanRangeSet rasdamanRangeSet;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = RangeType.COLUMN_ID)
-    private RangeType rangeType;
+    protected RangeType rangeType;
 
     @Column(name = "metadata")
     @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     // Hibernate will detect suitable datatype for target database (e.g: in Postgreql is text for String)
-    private String metadata;
+    protected String metadata;
 
     @Column(name = "coverage_type")
     // To determine coverage is: GridCoverage, RectifiedGridCoverage, ReferenceableGridCoverage
     protected String coverageType;
     
-    @Transient
+    @Column(name = "coverage_size_in_bytes")
     // Store the calculated size of coverage in bytes for overview
-    protected long coverageSizeInBytes;
+    protected Long coverageSizeInBytes = 0L;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = FK_COVERAGE_ID)
@@ -151,17 +151,16 @@ public abstract class Coverage implements Serializable {
     }
     
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet) {
-        this(coverageId, coverageType, 0, envelope, rasdamanRangeSet, null, new ArrayList<CoveragePyramid>());
+        this(coverageId, coverageType, 0, envelope, rasdamanRangeSet, new ArrayList<CoveragePyramid>());
     }
     
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet,
-                    List<String> sourceCoverageIds, List<CoveragePyramid> pyramid) {
+                    List<CoveragePyramid> pyramid) {
         this.coverageId = coverageId;
         this.coverageType = coverageType;
         this.coverageSizeInBytes = coverageSizeInBytes;
         this.envelope = envelope;
         this.rasdamanRangeSet = rasdamanRangeSet;        
-
         this.pyramid = pyramid;
     }
 

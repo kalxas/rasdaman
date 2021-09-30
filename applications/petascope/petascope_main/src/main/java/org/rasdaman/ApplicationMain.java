@@ -104,6 +104,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
     
     private static Properties applicationProperties = null;
     
+    public static boolean COVERAGES_CACHES_LOADED = false;
+    
     /**
      * Check if petascope runs with embedded tomcat or external tomcat
      */
@@ -325,8 +327,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * Log warnings if something don't work (later WCS / WMS Getcapabilities requests will retry to read from database to caches)
      */
     private void loadCoveragesLayersCaches(final ApplicationMain self) {
-        // users cache
-        Runnable runnable = new Runnable() {            
+
+        Runnable runnable1 = new Runnable() {            
             public void run() {
                 // ### 1. coverages
                 
@@ -337,14 +339,15 @@ public class ApplicationMain extends SpringBootServletInitializer {
                     log.warn("Cannot load coverages to cache. Reason: " + ex.getMessage(), ex);
                 }
 
-                try {
-                    coverageRepositoryService.createAllCoveragesExtents();
-                } catch (Exception ex) {
-                    log.warn("Cannot create coverage extents. Reason: " + ex.getMessage(), ex);
-                }
-
                 log.info("Loaded coverages to caches.");
-
+                
+                COVERAGES_CACHES_LOADED = true;
+            }
+        };
+        
+        Runnable runnable2 = new Runnable() {            
+            public void run() {
+        
                 // ### 2. layers
 
                 log.info("Loading layers to caches ...");
@@ -359,8 +362,11 @@ public class ApplicationMain extends SpringBootServletInitializer {
             }
         };
         
-        Thread thread = new Thread(runnable);
-        thread.start();        
+        Thread thread1 = new Thread(runnable1);
+        thread1.start();        
+        
+        Thread thread2 = new Thread(runnable2);
+        thread2.start();
     }
 
     /**

@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="NoSuchCoverage">
-        <ows:ExceptionText>Coverage 'test_import_oveviews_only' does not exist in local database.</ows:ExceptionText>
+        <ows:ExceptionText>Coverage 'test_import_oveviews_only' does not exist.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

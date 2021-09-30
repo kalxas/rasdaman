@@ -22,10 +22,12 @@
 package org.rasdaman.repository.interfaces;
 
 import java.util.List;
+import org.rasdaman.domain.cis.BaseLocalCoverage;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.EnvelopeByAxis;
 import org.rasdaman.domain.cis.RasdamanRangeSet;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -57,6 +59,15 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
     @Query("Select id, coverageId, coverageType from Coverage")
     List<Object[]> readAllCoverageIdsAndTypes();
     
+    @Query("select distinct a \n"
+        + "from BaseLocalCoverage a \n"     
+        + "JOIN FETCH a.envelope as b \n"
+        + "JOIN FETCH b.envelopeByAxis as c \n"            
+        + "JOIN FETCH c.axisExtents as d \n"        
+        + "LEFT JOIN FETCH c.wgs84BBox as e \n"
+        + "LEFT JOIN FETCH a.pyramid as a2 \n")
+    List<BaseLocalCoverage> readAllBasicCoverageMetadatas();
+    
     @Query("Select coverageId, coverageType from Coverage c where c.coverageId = :coverageId")
     String readCoverageTypeByCoverageId(@Param("coverageId") String coverageId);
     
@@ -76,11 +87,21 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
            + "INNER JOIN a.rasdamanRangeSet as b \n"           
            + "WHERE a.coverageId = :coverageId")
     RasdamanRangeSet readRasdamanRangeSet(@Param("coverageId") String coverageId);
+    
+    @Query("select a.coverageId, b.id, b.collectionName, b.collectionType, b.mddType, b.tiling \n"
+            + "FROM Coverage as a \n"
+           + "INNER JOIN a.rasdamanRangeSet as b \n")
+    List<Object[]> readAllRasdamanRangeSets();
 
     
     @Query("select b from Coverage as a \n"
           + " INNER JOIN a.pyramid as b \n"
           + " WHERE a.coverageId = :baseCoverageId")
     List<CoveragePyramid> readAllCoveragePyramidsByBaseCoverageId(@Param("baseCoverageId") String baseCoverageId);
+    
+    @Transactional
+    @Modifying
+    @Query("update Coverage set coverageSizeInBytes = :coverageSizeInBytes where id = :coverageAutoId")
+    void saveCoverageSizeInBytes(@Param("coverageAutoId") long coverageAutoId, @Param("coverageSizeInBytes") long coverageSizeInBytes);
 }
 

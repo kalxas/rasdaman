@@ -14,5 +14,6 @@
    <include file="database_versions/db.changelog-v1.11.xml"/>
    <include file="database_versions/db.changelog-v1.12.xml"/>
    <include file="database_versions/db.changelog-v1.13.xml"/>
+   <include file="database_versions/db.changelog-v1.14.xml"/>
 </databaseChangeLog>
 

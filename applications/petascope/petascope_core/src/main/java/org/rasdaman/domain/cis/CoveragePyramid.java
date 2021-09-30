@@ -74,6 +74,7 @@ public class CoveragePyramid implements Serializable {
     // However, if a pyramid member coverage is created by CreatePyramidMember request OR it is created before version 10 as downscaled collection,
     // then, when updating the base coverage by WCS-T UpdateCoverage request,
     // this pyramid member **must be synced** by the input file
+    @JsonIgnore
     boolean synced = false;
     
     public CoveragePyramid() {

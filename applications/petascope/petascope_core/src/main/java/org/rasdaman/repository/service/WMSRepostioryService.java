@@ -172,6 +172,15 @@ public class WMSRepostioryService {
         return layers;
     }
 
+    /**
+     * Read all stored layers in local cache and from outpeer nodes
+     */
+    public List<Layer> readAllLayersFromCaches() throws PetascopeException {
+        List<Layer> layers = new ArrayList<>(localLayersCacheMap.values());
+
+        return layers;
+    }
+
 
      /**
      * This one should return only local layer of this node and not contain any remote layers.

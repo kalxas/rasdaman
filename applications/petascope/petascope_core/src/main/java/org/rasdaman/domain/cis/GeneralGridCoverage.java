@@ -53,6 +53,17 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
     public GeneralGridCoverage() {
 
     }
+    
+        
+    public GeneralGridCoverage(BaseLocalCoverage baseCoverage) {
+        this.id = baseCoverage.getId();
+        this.coverageId = baseCoverage.getCoverageId();
+        this.envelope = baseCoverage.getEnvelope();
+        this.coverageType = baseCoverage.getCoverageType();
+        this.coverageSizeInBytes = baseCoverage.getCoverageSizeInBytes();
+        this.pyramid = baseCoverage.getPyramid();
+        this.rasdamanRangeSet = baseCoverage.getRasdamanRangeSet();
+    }
 
     public GeneralGridCoverage(String coverageId, String coverageType, long coverageSizeInBytes, 
                                Envelope envelope, DomainSet domainSet, RangeType rangeType, RasdamanRangeSet rasdamanRangeSet, String metadata) {
