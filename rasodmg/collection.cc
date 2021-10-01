@@ -240,7 +240,7 @@ void
 r_Collection<T>::insert_obj_into_db()
 {
     if (!object_name || !strlen(object_name))
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, object_name);
     if (!type_name || !strlen(type_name))
         throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
 
@@ -262,7 +262,7 @@ void
 r_Collection<T>::update_obj_in_db()
 {
     if (!object_name || !strlen(object_name))
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, object_name);
 
     // inspect collection elements
     if (!is_empty())

@@ -133,9 +133,15 @@ public:
 
     /// constructor getting the kind
     explicit r_Error(kind theKindArg, unsigned int newErrorNo = 0);
-
+    
+    /// constructor getting the kind and additional error details
+    explicit r_Error(kind theKindArg, std::string errorParam);
+    
     /// constructor getting an error number
     explicit r_Error(unsigned int errorno);
+
+    /// constructor getting an error number and additional error details
+    explicit r_Error(unsigned int errorno, std::string errorDetails);
 
     /// constructor getting an error text
     r_Error(const char *what);
@@ -146,6 +152,9 @@ public:
     virtual const std::string  &what_str() const noexcept;
     kind                get_kind() const;
     unsigned long       get_errorno() const;
+    const std::string  &get_errorparam() const;
+    
+    void set_what(const char* what);
 
     /// used to transfer exceptions of kind r_Error_SerialisableException to the client.
     virtual std::string serialiseError() const;
@@ -169,6 +178,10 @@ protected:
     /// The virtual method is redefined in each subclass which supports text parameters.
     /// Usually it is invoked in the constructor of the subclass.
     virtual void resetErrorText();
+    
+    /// Update the standard error text with the extra error information if any was
+    /// specified.
+    void updateWithErrorDetails();
 
     /// attribute storing the error description text
     std::string errorText;
@@ -178,6 +191,9 @@ protected:
 
     /// attribute storing the error kind
     kind theKind{r_Error_General};
+    
+    /// additional information for errors that can be parameterized
+    std::string errorDetails;
 };
 
 /// Result is no interval.

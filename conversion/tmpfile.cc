@@ -70,9 +70,9 @@ void r_TmpFile::initTmpFile()
     char tmpFileName[] = TMP_FILENAME_TEMPLATE;
     if ((fd = mkstemp(tmpFileName)) == INVALID_FILE_DESCRIPTOR)
     {
-        LERROR << "failed creating a temporary file '" << tmpFileName << "'.";
-        LERROR << "reason: " << strerror(errno);
-        throw r_Error(r_Error::r_Error_General);
+        std::stringstream s;
+        s << "failed creating a temporary file '" << tmpFileName << "', " << strerror(errno);
+        throw r_Error(r_Error::r_Error_General, s.str());
     }
     fileName = string(tmpFileName);
     unlink(tmpFileName);
@@ -98,8 +98,8 @@ void r_TmpFile::writeData(const char* data, size_t dataSize)
     }
     else
     {
-        LERROR << "invalid temporary file '" << fileName << "'.";
-        throw r_Error(r_Error::r_Error_General);
+      throw r_Error(r_Error::r_Error_General,
+                    "invalid temporary file '" + fileName + "'");
     }
 }
 
@@ -115,26 +115,27 @@ char* r_TmpFile::readData(long& dataSize)
         }
         else
         {
-            LERROR << "failed reading temporary file '" << fileName << "'.";
-            LERROR << "reason: " << strerror(errno);
-            throw r_Error(r_Error::r_Error_General);
+            std::stringstream s;
+            s << "failed reading temporary file '" << fileName << "', " << strerror(errno);
+            throw r_Error(r_Error::r_Error_General, s.str());
         }
 
         ifstream file(fileName, ios::in | ios::binary);
         fileContents = (char*) mymalloc(static_cast<size_t>(dataSize));
         if (fileContents == NULL)
         {
-            LERROR << "failed allocating " << dataSize <<
-                   " bytes for reading temporary file '" << fileName << "'.";
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
+            std::stringstream s;
+            s << "failed allocating " << dataSize
+              << " bytes for reading temporary file '" << fileName << "'.";
+            throw r_Error(r_Error::r_Error_MemoryAllocation, s.str());
         }
         file.read(fileContents, dataSize);
         file.close();
     }
     else
     {
-        LERROR << "invalid temporary file '" << fileName << "'.";
-        throw r_Error(r_Error::r_Error_General);
+        throw r_Error(r_Error::r_Error_General,
+                      "invalid temporary file '" + fileName + "'");
     }
     return fileContents;
 }

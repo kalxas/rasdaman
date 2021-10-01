@@ -599,7 +599,7 @@ rm -f mr_1.csv
 log ------- csv with invalid_order conversion --------
 create_coll test_tmp GreySet
 insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "decode"
-$RASQL --quiet -q "select encode(c, \"csv\", \"order=invalid_order\") from test_tmp as c" --out file --outfile "csv" 2>&1 | grep -F -q "242"
+$RASQL --quiet -q "select encode(c, \"csv\", \"order=invalid_order\") from test_tmp as c" --out file --outfile "csv" 2>&1 | grep -F -q "Error in convertor of the selected data exchange format"
 check_result 0 $? "invalid_order"
 
 rm -f mr_1.csv
@@ -671,8 +671,6 @@ else
   log "skipping test, this feature is unsupported on GDAL 1.x"
 
 fi
-
-
 
 # ------------------------------------------------------------------------------
 # test summary

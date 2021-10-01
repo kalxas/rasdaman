@@ -83,7 +83,8 @@ DBObject *ObjectBroker::loadInlineTile(const OId &id)
             }
             else
             {
-                throw r_Error(r_Error::r_Error_ObjectUnknown);
+                throw r_Error(r_Error::r_Error_ObjectUnknown,
+                              "IndexId for tile " + std::to_string(inlineid));
             }
         }
         DBObjectPPair myPair(retval->getOId(), retval);
@@ -111,7 +112,7 @@ OId ObjectBroker::getOIdOfSetType(const char *name)
     else
     {
         LTRACE << "is not in db";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, name);
     }
 
     return retval;
@@ -159,7 +160,7 @@ MDDType *ObjectBroker::getMDDTypeByName(const char *name)
         else
         {
             LTRACE << "is not in db";
-            throw r_Error(r_Error::r_Error_ObjectUnknown);
+            throw r_Error(r_Error::r_Error_ObjectUnknown, name);
         }
     }
 
@@ -188,7 +189,7 @@ OId ObjectBroker::getOIdOfMDDType(const char *name)
     else
     {
         LTRACE << "is not in db";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, name);
     }
 
     return retval;
@@ -213,7 +214,7 @@ OId ObjectBroker::getOIdOfMDDBaseType(const char *name)
     else
     {
         LTRACE << "is not in db";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, name);
     }
 
     return retval;
@@ -238,7 +239,7 @@ OId ObjectBroker::getOIdOfMDDDimensionType(const char *name)
     else
     {
         LTRACE << "is not in db";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, name);
     }
 
     return retval;
@@ -263,7 +264,7 @@ OId ObjectBroker::getOIdOfMDDDomainType(const char *name)
     else
     {
         LTRACE << "is not in db";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, name);
     }
 
     return retval;
@@ -288,7 +289,7 @@ OId ObjectBroker::getOIdOfStructType(const char *name)
     else
     {
         LTRACE << "is not in db";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, name);
     }
 
     return retval;
@@ -313,7 +314,7 @@ OId ObjectBroker::getOIdOfMDDSet(const char *name)
     else
     {
         LTRACE << "is not in db";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, name);
     }
 
     return retval;
@@ -334,8 +335,7 @@ OIdSet *ObjectBroker::getAllSetTypes()
     {
         auto oid = query.nextColumnLong();
         auto id = OId(oid, OId::SETTYPEOID);
-        LTRACE << "read " << id << " " << id.getType();
-        LDEBUG << "got object " << id << " " << id.getType();
+        LTRACE << "read object " << id << " " << id.getType();
         retval->insert(id);
     }
 
@@ -357,8 +357,7 @@ OIdSet *ObjectBroker::getAllMDDTypes()
     {
         auto oid = query.nextColumnLong();
         auto id = OId(oid, OId::MDDTYPEOID);
-        LTRACE << "read " << id << " " << id.getType();
-        LDEBUG << "got object " << id << " " << id.getType();
+        LTRACE << "read object " << id << " " << id.getType();
         retval->insert(id);
     }
 
@@ -380,8 +379,7 @@ OIdSet *ObjectBroker::getAllMDDBaseTypes()
     {
         auto oid = query.nextColumnLong();
         auto id = OId(oid, OId::MDDBASETYPEOID);
-        LTRACE << "read " << id << " " << id.getType();
-        LDEBUG << "got object " << id << " " << id.getType();
+        LTRACE << "read object " << id << " " << id.getType();
         retval->insert(id);
     }
 
@@ -403,8 +401,7 @@ OIdSet *ObjectBroker::getAllMDDDimensionTypes()
     {
         auto oid = query.nextColumnLong();
         auto id = OId(oid, OId::MDDDIMTYPEOID);
-        LTRACE << "read " << id << " " << id.getType();
-        LDEBUG << "got object " << id << " " << id.getType();
+        LTRACE << "read object " << id << " " << id.getType();
         retval->insert(id);
     }
 
@@ -426,8 +423,7 @@ OIdSet *ObjectBroker::getAllMDDDomainTypes()
     {
         auto oid = query.nextColumnLong();
         auto id = OId(oid, OId::MDDDOMTYPEOID);
-        LTRACE << "read " << id << " " << id.getType();
-        LDEBUG << "got object " << id << " " << id.getType();
+        LTRACE << "read object " << id << " " << id.getType();
         retval->insert(id);
     }
 
@@ -449,8 +445,7 @@ OIdSet *ObjectBroker::getAllStructTypes()
     {
         auto oid = query.nextColumnLong();
         auto id = OId(oid, OId::STRUCTTYPEOID);
-        LTRACE << "read " << id << " " << id.getType();
-        LDEBUG << "got object " << id << " " << id.getType();
+        LTRACE << "read object " << id << " " << id.getType();
         retval->insert(id);
     }
 
@@ -472,8 +467,7 @@ OIdSet *ObjectBroker::getAllMDDObjects()
     {
         auto oid = query.nextColumnLong();
         auto id = OId(oid, OId::MDDOID);
-        LTRACE << "read " << id << " " << id.getType();
-        LDEBUG << "got object " << id << " " << id.getType();
+        LTRACE << "read object " << id << " " << id.getType();
         retval->insert(id);
     }
     return retval;
@@ -494,8 +488,7 @@ OIdSet *ObjectBroker::getAllMDDSets()
     {
         auto oid = query.nextColumnLong();
         auto id = OId(oid, OId::MDDCOLLOID);
-        LTRACE << "read " << id << " " << id.getType();
-        LDEBUG << "got object " << id << " " << id.getType();
+        LTRACE << "read object " << id << " " << id.getType();
         retval->insert(id);
     }
 

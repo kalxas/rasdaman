@@ -407,6 +407,8 @@ When you install or update rasdaman afterwards, the configuration process will
 take the custom profile into account instead of the default one.
 
 
+.. _sec-system-install-administration:
+
 Administration
 --------------
 
@@ -1009,8 +1011,8 @@ that can be specified with ``-D<option>``, along with the default settings.
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``ENABLE_JAVA``          | **ON** / OFF      | Generate and install of Java-based components (rasj, petascope, secore). |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``JAVA_SERVER``          | **external** /    |                                                                          |
-    |                          | embedded          | Set the Java application deployment mode.                                |
+    | ``JAVA_SERVER``          | **embedded** /    |                                                                          |
+    |                          | external          | Set the Java application deployment mode.                                |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``USE_GDAL``             | **ON** / OFF      | Enable inclusion of GDAL library during installation. Further variables  |
     |                          |                   | can be set to control the GDAL paths: ``-DGDAL_INCLUDE_DIR``,            |
@@ -1678,19 +1680,36 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 
 **start_rasdaman.sh**
 
-Since v9.8, to start a specific service (rasdaman and :ref:`embedded secore
-and petascope <start-stop-embedded-applications>`) ``
---service (core | secore | petascope )`` option can be used
-(``core`` refers to ``rasmgr`` + ``rasservers`` only). 
-Since v10.0 the rasmgr port can be specified with ``-p, --port``. 
+Since v9.8, to start a specific service (rasdaman and :ref:`embedded secore and
+petascope <start-stop-embedded-applications>`) ``--service (core | secore |
+petascope )`` option can be used(``core`` refers to ``rasmgr`` + ``rasserver``
+only).
+
+Since v10.0 the rasmgr port can be specified with ``-p, --port``. Additionally,
+Since v10.0 ``start_rasdaman.sh`` will refuse running if executed with root
+user; this can be overriden if needed with the ``--allow-root`` option.
+
 Check ``-h, --help`` for all details.
+
+If rasdaman was installed from packages or with the installer, then instead of
+executing this script directly one would execute ``service rasdaman start``.
+Any options to be passed on to ``start_rasdaman.sh`` can be set in
+``/etc/default/rasdaman`` in this case; see :ref:`more details
+<sec-system-install-administration>`.
 
 **stop_rasdaman.sh**
 
 Since v9.8, to stop a specific service the 
 ``--service (core | secore | petascope )`` option can be used. Since v10.0 
-the rasmgr port can be specified with ``-p, --port``. 
+the rasmgr port can be specified with ``-p, --port``.
+
 Check ``-h, --help`` for all details.
+
+If rasdaman was installed from packages or with the installer, then instead of
+executing this script directly one would execute ``service rasdaman stop``. Any
+options to be passed on to ``stop_rasdaman.sh`` can be set in
+``/etc/default/rasdaman`` in this case; see :ref:`more details
+<sec-system-install-administration>`.
 
 **migrate_petascopedb.sh**
 

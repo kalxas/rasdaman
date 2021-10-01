@@ -1904,7 +1904,10 @@ void RasnetClientComm::handleError(const string &error)
             }
             else
             {
-                throw r_Error(static_cast<r_Error::kind>(message.kind()), message.error_no());
+                r_Error err(static_cast<r_Error::kind>(message.kind()), message.error_no());
+                if (!what.empty() && what != err.what() && message.error_no() == 0)
+                    err.set_what(what.c_str());
+                throw err;
             }
         }
         else if (message.type() == ErrorMessage::STL)

@@ -53,6 +53,7 @@ bool r_Format_Params::parse(const string& options)
         if (isJson(options))
         {
             string json{options};
+            LDEBUG << "parsing json format parameters: " << json;
             // rasql transmits \" from the cmd line literally; this doesn't work
             // in json, so we unescape them below
             boost::algorithm::replace_all(json, "\\\"", "\"");
@@ -71,9 +72,8 @@ bool r_Format_Params::parse(const string& options)
             }
             else
             {
-                LERROR << "failed parsing the JSON format options: " << errs;
-                LERROR << "original options string: '" << options << "'.";
-                throw r_Error(INVALIDFORMATPARAMETER);
+                throw r_Error(r_Error::r_Error_Conversion,
+                              "failed parsing the JSON format options, " + errs);
             }
         }
     }
@@ -110,9 +110,8 @@ void r_Format_Params::parseTranspose()
         const Json::Value& val = params[key];
         if (val.size() != 2 || !val.isArray())
         {
-            LERROR << "parameter '" << key
-                   << "' has an invalid value, expected an array with two index positions.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            throw r_Error(r_Error::r_Error_Conversion, "parameter '" + key +
+                          "' has an invalid value, expected an array with two index positions");
         }
         transposePair = make_pair(val[0].asInt(), val[1].asInt());
         transpose = true;
@@ -134,8 +133,8 @@ void r_Format_Params::parseColorMap()
 
     if (val.size() != 2 || !val.isMember(type) || !val.isMember(colorTable))
     {
-        LERROR << "parameter '" << key << "' has an invalid value(s).";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        throw r_Error(r_Error::r_Error_Conversion,
+                      "invalid value(s) specified for format parameter " + key);
     }
 
     const auto valType = val[type].asString();
@@ -153,15 +152,15 @@ void r_Format_Params::parseColorMap()
     }
     else
     {
-        LERROR << "Invalid colorMap type: " << valType;
-        throw r_Error(INVALIDFORMATPARAMETER);
+        throw r_Error(r_Error::r_Error_Conversion,
+                      "invalid colorMap type " + valType);
     }
 
     const Json::Value& table = val[colorTable];
     if (table.empty())
     {
-        LERROR << "Empty colorTable provided.";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        throw r_Error(r_Error::r_Error_Conversion,
+                      "empty colorTable provided");
     }
 
     std::map<double, std::string> pixelValuesMap;
@@ -175,8 +174,9 @@ void r_Format_Params::parseColorMap()
         }
         catch (...)
         {
-            LERROR << "Cannot transform '" << a.key().asString() << "' to double.";
-            throw r_Error(r_Error::r_Error_Conversion);
+            throw r_Error(r_Error::r_Error_Conversion,
+                          "cannot transform value of format parameter '" +
+                          a.key().asString() + "' to double.");
         }
         pixelValuesMap[pixelValues.back()] = a.key().asString();
     }
@@ -198,8 +198,9 @@ void r_Format_Params::parseColorMap()
             }
             else
             {
-                LERROR << "Entry '" << x.asInt() << "' is not whithin the interval [0, 255].";
-                throw r_Error(INVALIDFORMATPARAMETER);
+                throw r_Error(r_Error::r_Error_Conversion,
+                              "color table entry " + std::to_string(x.asInt()) +
+                              " is not whithin the interval [0, 255]");
             }
         }
         if (!nrCompSet)
@@ -208,8 +209,8 @@ void r_Format_Params::parseColorMap()
         }
         else if (nrComp != colorTableMap[pixelValues[n]].size())
         {
-            LERROR << "All entries in the color table must have the same number of components.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            throw r_Error(r_Error::r_Error_Conversion,
+                          "all entries in the color table must have the same number of components.");
         }
     }
     colorMapTable.setColorTable(colorTableMap);
@@ -246,9 +247,9 @@ void r_Format_Params::parseVariables()
         }
         else
         {
-            LERROR << "parameter '" << key
-                   << "' has an invalid value, expected an array/object with dataset/band identifiers.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            throw r_Error(r_Error::r_Error_Conversion,
+                          "format parameter " + key + " has an invalid value, "
+                          "expected an array/object with dataset/band identifiers");
         }
     }
 }
@@ -261,9 +262,9 @@ void r_Format_Params::parseFilepaths()
         const Json::Value& val = params[key];
         if (!val.isArray())
         {
-            LERROR << "parameter '" << key
-                   << "' has an invalid value, expected an array with file paths.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            throw r_Error(r_Error::r_Error_Conversion,
+                          "format parameter " + key + " has an invalid value, "
+                          "expected an array with file paths");
         }
         for (Json::ArrayIndex i = 0; i < val.size(); i++)
         {
@@ -279,15 +280,17 @@ void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector<st
         const Json::Value& val = params[key];
         if (!val.isObject())
         {
-            LERROR << "parameter '" << key
-                   << "' has an invalid value, expected an object with key/value pairs.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            throw r_Error(r_Error::r_Error_Conversion,
+                          "format parameter " + key + " has an invalid value, "
+                          "expected an object with key/value pairs");
         }
 
         // todo take care of the xmin/xmax/..
+        LDEBUG << "parsing " << key << " from format parameters";
         for (const string& fkey : val.getMemberNames())
         {
             string fval = val[fkey].asString();
+            LDEBUG << fkey << ": " << fval;
             targetVector.push_back(make_pair(fkey, fval));
         }
     }
@@ -305,9 +308,9 @@ void r_Format_Params::parseSubsetDomain()
         }
         catch (r_Error& err)
         {
-            LERROR << "parameter '" << key
-                   << "' has an invalid value, expected a subset minterval.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            throw r_Error(r_Error::r_Error_Conversion,
+                          "format parameter " + key + " has an invalid value, "
+                          "expected a subset minterval");
         }
     }
 }
@@ -324,9 +327,9 @@ void r_Format_Params::parseNodata()
             {
                 if (!val[i].isDouble())
                 {
-                    LERROR << "parameter '" << key
-                           << "' has an invalid value, expected an array of double values.";
-                    throw r_Error(INVALIDFORMATPARAMETER);
+                    throw r_Error(r_Error::r_Error_Conversion,
+                                  "format parameter " + key + " has an invalid value, "
+                                  "expected an array of double values");
                 }
                 nodata.push_back(val[i].asDouble());
             }
@@ -337,9 +340,9 @@ void r_Format_Params::parseNodata()
         }
         else
         {
-            LERROR << "parameter '" << key
-                   << "' has an invalid value, expected double or an array of double values.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            throw r_Error(r_Error::r_Error_Conversion,
+                          "format parameter " + key + " has an invalid value, "
+                          "expected double or an array of double values");
         }
     }
 }
@@ -364,9 +367,9 @@ void r_Format_Params::parseMetadata()
         }
         else
         {
-            LERROR << "parameter '" << key
-                   << "' has an invalid value, expected string or an object of key/value string pairs.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            throw r_Error(r_Error::r_Error_Conversion,
+                          "format parameter " + key + " has an invalid value, "
+                          "expected string or an object of key/value string pairs");
         }
     }
 }

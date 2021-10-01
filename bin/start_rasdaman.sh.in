@@ -207,6 +207,10 @@ Options:
   -p, --port <port>     specify the port on which rasmgr will listen. By default
                         this is 7001, it is recommended to avoid changing this
                         value unless really necessary.
+  
+  --allow-root          allow starting rasdaman (i.e. running this script) with
+                        root; otherwise, by default start_rasdaman.sh will exit
+                        with an error if it is executed with root. 
 
   <N1> <N2> ...         start only the specified rasservers, as named in 
                         etc/rasmgr.conf. By default all configured rasservers 
@@ -228,6 +232,7 @@ set_all_options()
 log "starting rasdaman $VERSION build $BUILD...";
 
 set_all_options true
+allow_root=false
 
 servers=""
 # Iterate all input arguments (it can contain server names (N1 N2 ...) and some options (--service petascope ...)
@@ -252,6 +257,7 @@ for i in "$@"; do
         case $i in
           --service)      option="$i";;
           --port|-p)      option="$i";;
+          --allow-root)   allow_root=true;;
           --help|-h)      usage;;
           -*)             error "unknown option: $i";;
           *)              servers="$servers $i";;
@@ -259,7 +265,24 @@ for i in "$@"; do
     fi
 done
 
-# --- start rasmgr: -------------------------------------------------
+# --- check user running this script --------------------------------
+
+if [ "$allow_root" = false ]; then
+  user_id=$(id -u)
+  if [ "$user_id" -eq 0 ]; then
+    error "starting rasdaman with root user is not recommended, please run $PROG \
+with a non-root user. If you insist to run with root, $PROG must be executed with \
+the --allow-root option."
+  fi
+fi
+
+if [ -n "$http_proxy" ]; then
+  log "Note: env variable http_proxy is set to \"$http_proxy\", and generally it breaks proper \
+function of rasdaman; it will be unset before starting rasdaman processes."
+  unset -v http_proxy
+fi
+
+# --- start rasmgr --------------------------------------------------
 
 # check if rasmgr exists
 [ -f "$rasmgr_bin" ] || \
@@ -269,6 +292,7 @@ done
 if [ ! -d "$log_path" ]; then
   log "$log_path not found, will be created."
   mkdir "$log_path" || error "Failed creating log dir, invalid permissions?"
+  chmod 750 "$log_path" # readable only for owner and group
 fi
 cd "$log_path" || error "$log_path not found."
 
@@ -288,13 +312,13 @@ if [ "$start_rasmgr_rasservers" = true ]; then
     rm -f nohup.out
 
 
-    # start rasdaman server manager as demon; log will go into nohup.out
-    # the manager is started in quiet mode
+    # --- start rasmgr -------------------------------------------------
+    # start rasdaman server manager as a daemon; log will go into nohup.out
     logn "  starting rasmgr... "
     nohup "$rasmgr_bin" --port "$RASMGR_PORT" > nohup.out 2>&1 &
     check_process "rasmgr" 1
 
-    # --- wait for rasmgr to initialize---------------------------------
+    # wait for rasmgr to initialize
     count=1
     timeout=6 # sec
     while [ $count -le $timeout ]; do
@@ -309,8 +333,8 @@ if [ "$start_rasmgr_rasservers" = true ]; then
         log "  Warning: rasmgr does not respond to commands, it may have failed to start properly."
     fi
 
-    # --- start servers: -------------------------------------------------
-    # if no input servers provided, check if environmental variable $RASSERVERS exists
+    # --- start servers ------------------------------------------------
+    # if no input servers provided, check environmental variable $RASSERVERS
     if [ -z "$servers" ]; then
         servers="$RASSERVERS"
     fi

@@ -291,7 +291,7 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
     # finally shut down the server manager
     logn "  "
     "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x down host -all
-    wait_for_process_to_shutdown "$rasmgr_bin" 10 "port $RASMGR_PORT"
+    wait_for_process_to_shutdown "$rasmgr_bin" 15 "port $RASMGR_PORT"
 
 fi
 

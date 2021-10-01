@@ -341,9 +341,11 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
                 structValueStart = val;
             else if (key == STRUCT_VALUE_END)
                 structValueEnd = val;
-            else {
-                LERROR << "invalid CSV/JSON option \"" << key << "\"";
-                throw r_Error(INVALIDFORMATPARAMETER);
+            else
+            {
+                std::stringstream s;
+                s << "invalid CSV/JSON option \"" << key << "\"";
+                throw r_Error(r_Error::r_Error_Conversion, s.str());
             }
         }
     }
@@ -365,9 +367,10 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
         order = r_Conv_CSV::INNER_OUTER;
     else
     {
-        LERROR << "illegal CSV/JSON option string: \"" << options << "\", expected "
-               << ORDER << "=(" << ORDER_OUTER_INNER << "|" << ORDER_INNER_OUTER << ").";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        std::stringstream s;
+        s << "illegal CSV/JSON option string: \"" << options << "\", expected "
+          << ORDER << "=(" << ORDER_OUTER_INNER << "|" << ORDER_INNER_OUTER << ")";
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 }
 
@@ -380,9 +383,10 @@ bool r_Conv_CSV::processBoolOption(const std::string& optionKey, const std::stri
         return true;
     else
     {
-        LERROR << "illegal value for option \"" << optionKey << "\", expected "
-               << boolOption << "=(" << BOOL_TRUE << "|" << BOOL_FALSE << ").";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        std::stringstream s;
+        s << "illegal value for option \"" << optionKey << "\", expected "
+          << boolOption << "=(" << BOOL_TRUE << "|" << BOOL_FALSE << ")";
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 }
 
@@ -394,10 +398,11 @@ r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options)
     }
     else
     {
-        LERROR << "mandatory decode format options missing: '" <<
-               FormatParamKeys::Decode::CSV::BASETYPE << "' and '" <<
-               FormatParamKeys::Decode::CSV::DATA_DOMAIN << "'.";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        std::stringstream s;
+        s << "mandatory decode format options '" <<
+             FormatParamKeys::Decode::CSV::BASETYPE << "' and '" <<
+             FormatParamKeys::Decode::CSV::DATA_DOMAIN << "' were not specified";
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 
     desc.destInterv = r_Minterval(domain.c_str());
@@ -503,9 +508,10 @@ void parsePrimitive(char* dest, const char* src, unsigned int numElem, size_t sr
         }
         else
         {
-            LERROR << "wrong number of values, read " << countVal
-                   << ", but expected " << numElem;
-            throw r_Error(r_Error::r_Error_Conversion);
+            std::stringstream err;
+            err << "wrong number of values, read " << countVal
+                << ", but expected " << numElem;
+            throw r_Error(r_Error::r_Error_Conversion, err.str());
         }
     }
 }
@@ -545,9 +551,10 @@ void r_Conv_CSV::parseStruct(unsigned int numElem)
             }
             else
             {
-                LERROR << "wrong number of values, read " << countVal 
-                       << ", but expected " << (numElem * componentTypes.size());
-                throw r_Error(r_Error::r_Error_Conversion);
+                std::stringstream err;
+                err << "wrong number of values, read " << countVal
+                    << ", but expected " << (numElem * componentTypes.size());
+                throw r_Error(r_Error::r_Error_Conversion, err.str());
             }
         }
     }
@@ -589,13 +596,15 @@ void r_Conv_CSV::processDecodeOptions(const string& options)
     }
     if (domain.empty())
     {
-        LERROR << "mandatory parameter '" << dataDomainKey << "' must be specified.";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        std::stringstream s;
+        s << "mandatory parameter '" << dataDomainKey << "' must be specified";
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
     if (basetype.empty())
     {
-        LERROR << "mandatory parameter '" << baseTypeKey << "' must be specified.";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        std::stringstream s;
+        s << "mandatory parameter '" << baseTypeKey << "' must be specified";
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 }
 

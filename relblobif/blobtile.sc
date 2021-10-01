@@ -236,6 +236,6 @@ r_Data_Format BLOBTile::getTileDataFormat(long long blobOid)
     else
     {
         LERROR << "no tile with id " << blobOid << " found.";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
+        throw r_Error(r_Error::r_Error_ObjectUnknown, "tile id " + std::to_string(blobOid));
     }
 }

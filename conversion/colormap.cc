@@ -60,8 +60,8 @@ r_ColorMap::applyColorMap(const r_Type* srcType, const char* srcData, const r_Mi
     case 3: baseType = ctype_rgb; break;
     case 4: baseType = ctype_struct; break;
     default:
-        LERROR << "Unsupported number of bands in color map: " << nrBands;
-        throw r_Error(r_Error::r_Error_Conversion);
+        throw r_Error(r_Error::r_Error_Conversion,
+                      "unsupported number of bands in color map: " + std::to_string(nrBands));
     }
     size_t nrPixels = dimData.cell_count();
 
@@ -75,8 +75,10 @@ r_ColorMap::applyColorMap(const r_Type* srcType, const char* srcData, const r_Mi
             applySpecificColorMap<T>(reinterpret_cast<const T*>(srcData), nrPixels, nrBands, img.get());
         ),
         CODE(
-            LERROR << "Unsupported base type " << srcType->type_id() << ", cannot perform color mapping.";
-            throw r_Error(r_Error::r_Error_Conversion);
+            std::stringstream s;
+            s << "unsupported base type " << srcType->type_id() 
+              << ", cannot perform color mapping";
+            throw r_Error(r_Error::r_Error_Conversion, s.str());
         )
     )
     return img;
@@ -97,7 +99,11 @@ void r_ColorMap::applySpecificColorMap(const T* data, size_t nrPixels, size_t nr
         applyIntervalsColorMap<T>(data, nrPixels, nrBands, res, true);
         break;
     default:
-        throw r_Error(r_Error::r_Error_Conversion);
+      {
+        std::stringstream s;
+        s << "invalid color map type " << int(colorMapType);
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
+      }
     }
 }
 

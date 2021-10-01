@@ -422,15 +422,15 @@ if (ENABLE_JAVA)
     set(ENABLE_R OFF CACHE BOOL "Compile and install R package.")
 
     # deployment mode
-    set(JAVA_SERVER "external" CACHE STRING 
-        "Set the Java application deployment mode (external or embedded)")
-    set_property(CACHE JAVA_SERVER PROPERTY STRINGS external embedded)
+    set(JAVA_SERVER "embedded" CACHE STRING 
+        "Set the Java application deployment mode (embedded or external)")
+    set_property(CACHE JAVA_SERVER PROPERTY STRINGS embedded external)
     if (${JAVA_SERVER} STREQUAL external)
         set(JAVA_SERVER_EXTERNAL true)
     elseif (${JAVA_SERVER} STREQUAL embedded)
         set(JAVA_SERVER_EMBEDDED true)
     else ()
-        message(FATAL_ERROR "Invalid JAVA_SERVER option '${JAVA_SERVER}'.")
+        message(FATAL_ERROR "Invalid JAVA_SERVER option '${JAVA_SERVER}', expected 'embedded' or 'external'.")
     endif ()
 
     message(STATUS "Java-based components (rasj, petascope, secore) enabled " 
@@ -574,8 +574,10 @@ if (NOT ("${WAR_DIR}" STREQUAL "${SHARE_DATA_DIR}/war") AND NOT (EXISTS "${WAR_D
 endif()
 set(LOG_DIR "${CMAKE_INSTALL_PREFIX}/log" CACHE STRING 
     "The path where server logs are stored.")
-install(DIRECTORY DESTINATION ${LOG_DIR})
-install( CODE "execute_process(COMMAND chmod -R 640 ${CONF_DIR}/*)" )
+install(DIRECTORY DESTINATION ${LOG_DIR}
+        DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE
+                              GROUP_EXECUTE GROUP_READ)
+install(CODE "execute_process(COMMAND chmod -R 640 ${CONF_DIR}/*)" )
 
 
 #

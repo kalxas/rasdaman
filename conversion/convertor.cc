@@ -80,8 +80,7 @@ r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Typ
 
     if (tp == NULL)
     {
-        LERROR << "Error: in conversion: type is null.";
-        throw r_Error();
+        throw r_Error(r_Error::r_Error_Conversion, "source type is null");
     }
 
     // Initialise desc.baseType from desc.srcType
@@ -209,9 +208,11 @@ std::string r_Convertor::type_to_string(int ctype)
     case ctype_struct:
         return "struct {char, char, char, char}";
     default:
-        LERROR << "Error: in conversion: unsupported type " << ctype;
-        r_Error err(r_Error::r_Error_General);
-        throw (err);
+      {
+        std::stringstream s;
+        s << "unsupported base type " << ctype;
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
+      }
     }
 }
 
@@ -493,9 +494,8 @@ void r_Convert_Memory::initMemory(void)
     }
     if (status < 0)
     {
-        LERROR << "Error: cannot allocate memory for conversion.";
-        r_Error err(MEMMORYALLOCATIONERROR);
-        throw (err);
+        throw r_Error(r_Error::r_Error_MemoryAllocation,
+                      "cannot allocate memory for conversion");
     }
 }
 

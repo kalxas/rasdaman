@@ -97,7 +97,8 @@ void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const s
     }
     else
     {
-        LERROR << "Selected transposition dimensions do not coincide with the last two MDD dimensions.";
-        throw r_Error(TRANSPOSEPARAMETERSINVALID);
+        throw r_Error(r_Error::r_Error_General, 
+                      "selected transposition dimensions do not coincide with "
+                      "the last two dimensions of the MDD operand");
     }
 }

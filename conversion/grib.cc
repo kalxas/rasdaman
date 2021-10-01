@@ -93,12 +93,11 @@ r_Conv_Desc& r_Conv_GRIB::convertTo(__attribute__((unused)) const char* options,
 // print the given error msg if it isn't
 #define VALIDATE_MSG_ERRCODE(err, msg) \
     if (err != GRIB_SUCCESS) { \
-        LERROR << msg; \
-        LERROR << "reason: " << grib_get_error_message(err); \
+        std::stringstream s; s << msg << ", reason: " << grib_get_error_message(err); \
         grib_handle_delete(h); \
         if (desc.dest) { free(desc.dest); desc.dest = NULL; } \
         fclose(in); \
-        throw r_Error(r_Error::r_Error_Conversion); \
+        throw r_Error(r_Error::r_Error_Conversion, s.str()); \
     }
 
 /// convert from GRIB
@@ -107,8 +106,8 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(const char* options)
 {
     if (options == NULL)
     {
-        LERROR << "mandatory format options have not been specified.";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        throw r_Error(r_Error::r_Error_Conversion,
+                      "mandatory format options have not been specified");
     }
     formatParams.parse(string(options));
     return this->convertFrom(formatParams);
@@ -142,8 +141,9 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options)
     unique_ptr<char[]> messageData(new (nothrow) char[messageSize]);
     if (!messageData)
     {
-        LERROR << "failed allocating " << messageSize << " bytes of memory.";
-        throw r_Error(r_Error::r_Error_MemoryAllocation);
+        std::stringstream s;
+        s << "failed allocating " << messageSize << " bytes of memory.";
+        throw r_Error(r_Error::r_Error_MemoryAllocation, s.str());
     }
 
     setTargetDataAndType();
@@ -214,8 +214,8 @@ Json::Value r_Conv_GRIB::getMessageDomainsJson()
     }
     else
     {
-        LERROR << "invalid format options, messageDomains have not been specified.";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        throw r_Error(r_Error::r_Error_Conversion,
+                      "invalid format options, messageDomains have not been specified");
     }
 }
 
@@ -234,9 +234,9 @@ FILE* r_Conv_GRIB::getFileHandle()
     }
     if (in == NULL)
     {
-        LERROR << "failed opening GRIB file.";
-        LERROR << "reason: " << strerror(errno);
-        throw r_Error(r_Error::r_Error_Conversion);
+        std::stringstream s;
+        s << "failed opening GRIB file, " << strerror(errno);
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
     return in;
 }
@@ -261,8 +261,8 @@ unordered_map<int, r_Minterval> r_Conv_GRIB::getMessageDomainsMap(const Json::Va
 {
     if (messageDomains.empty())
     {
-        LERROR << "invalid format options, messageDomains must have at least one message domain.";
-        throw r_Error(INVALIDFORMATPARAMETER);
+        throw r_Error(r_Error::r_Error_Conversion,
+                      "invalid format options, messageDomains must have at least one message domain");
     }
 
     unordered_map<int, r_Minterval> ret;
@@ -291,9 +291,10 @@ r_Minterval r_Conv_GRIB::computeBoundingBox(const unordered_map<int, r_Minterval
 
         if (messageDomain.dimension() != dims)
         {
-            LERROR << "invalid message domains given, mismatched dimension: " <<
-                   messageDomain << ", expected " << dims << " dimensions.";
-            throw r_Error(r_Error::r_Error_Conversion);
+            std::stringstream s;
+            s << "invalid message domains given, mismatched dimension: " <<
+                 messageDomain << ", expected " << dims << " dimensions.";
+            throw r_Error(r_Error::r_Error_Conversion, s.str());
         }
         checkDomain(messageDomain);
 
@@ -313,9 +314,10 @@ r_Minterval r_Conv_GRIB::computeBoundingBox(const unordered_map<int, r_Minterval
         {
             if (messageDomain[i] != ret[i])
             {
-                LERROR << "invalid message domain bound given: " << messageDomain[i] <<
-                       "; x/y bounds must be equal in all message domains, expected: " << ret[i];
-                throw r_Error(r_Error::r_Error_Conversion);
+                std::stringstream s;
+                s << "invalid message domain bound given: " << messageDomain[i] <<
+                     "; x/y bounds must be equal in all message domains, expected: " << ret[i];
+                throw r_Error(r_Error::r_Error_Conversion, s.str());
             }
         }
     }
@@ -336,9 +338,10 @@ void r_Conv_GRIB::setTargetDomain(const r_Minterval& fullBoundingBox)
         desc.destInterv = formatParams.getSubsetDomain();
         if (!desc.destInterv.intersects_with(fullBoundingBox))
         {
-            LERROR << "invalid subsetDomain parameter '" << desc.destInterv <<
-                   "', does not intersect with the file domain '" << fullBoundingBox << "'.";
-            throw r_Error(INVALIDFORMATPARAMETER);
+            std::stringstream s;
+            s << "invalid subsetDomain parameter '" << desc.destInterv <<
+                 "', does not intersect with the file domain '" << fullBoundingBox << "'";
+            throw r_Error(r_Error::r_Error_Conversion, s.str());
         }
     }
 }
@@ -350,8 +353,9 @@ void r_Conv_GRIB::setTargetDataAndType()
     desc.dest = (char*) mymalloc(totalSize);
     if (!desc.dest)
     {
-        LERROR << "failed allocating " << totalSize << " bytes of memory.";
-        throw r_Error(r_Error::r_Error_MemoryAllocation);
+        std::stringstream s;
+        s << "failed allocating " << totalSize << " bytes of memory";
+        throw r_Error(r_Error::r_Error_MemoryAllocation, s.str());
     }
     memset(desc.dest, 0, totalSize);
     desc.destType = get_external_type(ctype_float64);
@@ -365,11 +369,12 @@ void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageInd
     VALIDATE_MSG_ERRCODE(err, "failed determining the X size of message " << messageIndex)
     if (x != long(messageWidth))
     {
-        LERROR << "the x grid size of the grib message (Ni) '" << x <<
-               "' does not match the x bound specified in the message domains '" << messageWidth << "'";
         grib_handle_delete(h);
         fclose(in);
-        throw r_Error(r_Error::r_Error_Conversion);
+        std::stringstream s;
+        s << "the x grid size of the grib message (Ni) '" << x <<
+             "' does not match the x bound specified in the message domains '" << messageWidth << "'";
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 
     long y = 0;
@@ -377,11 +382,12 @@ void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageInd
     VALIDATE_MSG_ERRCODE(err, "failed determining the Y size of message " << messageIndex)
     if (y != long(messageHeight))
     {
-        LERROR << "the y grid size of the grib message (Nj) '" << y <<
-               "' does not match the y bound specified in the message domains '" << messageHeight << "'";
         grib_handle_delete(h);
         fclose(in);
-        throw r_Error(r_Error::r_Error_Conversion);
+        std::stringstream s;
+        s << "the y grid size of the grib message (Nj) '" << y <<
+             "' does not match the y bound specified in the message domains '" << messageHeight << "'";
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 
     size_t valuesLen = 0;
@@ -389,11 +395,12 @@ void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageInd
     VALIDATE_MSG_ERRCODE(err, "failed determining the number of values in message " << messageIndex)
     if (valuesLen != messageArea)
     {
-        LERROR << "the number of values in the grib message '" << valuesLen <<
-               "' does not match the number of values specified in the message domains '" << messageArea << "'";
         grib_handle_delete(h);
         fclose(in);
-        throw r_Error(r_Error::r_Error_Conversion);
+        std::stringstream s;
+        s << "the number of values in the grib message '" << valuesLen <<
+             "' does not match the number of values specified in the message domains '" << messageArea << "'";
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 }
 
@@ -434,19 +441,22 @@ void r_Conv_GRIB::checkDomain(const r_Minterval& domain)
     {
         if (!isSlice(domain[i]))
         {
-            LERROR << "non x/y bound is not a slice: " << domain[i];
-            throw r_Error(r_Error::r_Error_Conversion);
+            std::stringstream s;
+            s << "non x/y bound " << domain[i] << " is not a slice";
+            throw r_Error(r_Error::r_Error_Conversion, s.str());
         }
     }
     if (isSlice(domain[xDimIndex]))
     {
-        LERROR << "the x bound (second last dimension of the domain) must not be a slice: " << domain[xDimIndex];
-        throw r_Error(r_Error::r_Error_Conversion);
+        std::stringstream s;
+        s << "the x bound (second last dimension of the domain) must not be a slice: " << domain[xDimIndex];
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
     if (isSlice(domain[yDimIndex]))
     {
-        LERROR << "the x bound (second last dimension of the domain) must not be a slice: " << domain[yDimIndex];
-        throw r_Error(r_Error::r_Error_Conversion);
+        std::stringstream s;
+        s << "the x bound (second last dimension of the domain) must not be a slice: " << domain[yDimIndex];
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 }
 
@@ -463,9 +473,9 @@ r_Minterval r_Conv_GRIB::domainStringToMinterval(const char* domain)
     }
     catch (r_Eno_interval& ex)
     {
-        LERROR << "invalid domain minterval: " << domain;
-        LERROR << ex.what();
-        throw r_Error(r_Error::r_Error_Conversion);
+        std::stringstream s;
+        s << "invalid domain minterval " << domain << ", " << ex.what();
+        throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 }
 
@@ -473,14 +483,14 @@ r_Minterval r_Conv_GRIB::domainStringToMinterval(const char* domain)
 
 r_Conv_Desc& r_Conv_GRIB::convertFrom(__attribute__((unused)) const char* options)
 {
-    LERROR << "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.";
-    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+    throw r_Error(r_Error::r_Error_FeatureNotSupported.
+                  "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it");
 }
 
 r_Conv_Desc& r_Conv_GRIB::convertFrom(__attribute__((unused)) r_Format_Params options)
 {
-    LERROR << "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.";
-    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+    throw r_Error(r_Error::r_Error_FeatureNotSupported,
+                  "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.");
 }
 
 #endif // HAVE_GRIB

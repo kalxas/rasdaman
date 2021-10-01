@@ -1594,9 +1594,8 @@ Style Definition Variants
                         } 
         }
 
-    * GDAL ``ColorPalette``: check :ref:`encode` for more details.
-      The color table definition must be a JSON object and contains **256 color arrays**
-      in ``colorTable`` array, example:
+    * GDAL ``ColorPalette``: The color table definition must be a JSON object
+      containing **256 color arrays** in a ``colorTable`` array, example:
 
       .. hidden-code-block:: json
 
@@ -1611,11 +1610,12 @@ Style Definition Variants
         }
 
     * WMS ``Styled Layer Descriptor (SLD)``: The color table definition must be valid XML
-      and contain a `ColorMap` element.
-      Note that rasdaman will only consider the first `sld:ColorMap` element in the
+      and contain a ``ColorMap`` element.
+      Note that rasdaman will only consider the first ``sld:ColorMap`` element in the
       SLD document, any other SLD elements will be ignored. 
       Check :ref:`coloring-arrays` for details about the supported types
-      (``ramp`` (default), ``values``, ``intervals``), example ``ColorMap`` with ``type="values"``: 
+      (``ramp`` (default), ``values``, ``intervals``), example ``ColorMap`` with
+      ``type="values"``: 
 
       .. hidden-code-block:: xml
 
@@ -2151,7 +2151,7 @@ recipe section
 
   - Otherwise, if neither of the above options is specified, an error is throws.
 
-  See :ref:`request <add_pyramid_member>`for more details on the underlying
+  See :ref:`request <add_pyramid_member>` for more details on the underlying
   request sent to petascope when this option is set to ``true``.
   By default this option is set to ``false``.
 

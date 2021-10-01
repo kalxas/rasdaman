@@ -50,11 +50,23 @@ r_Error::r_Error()
 r_Error::r_Error(kind theKindArg, unsigned int newErrorNo)
     : errorNo(newErrorNo), theKind(theKindArg)
 {
-    resetErrorText();
+  resetErrorText();
+}
+
+r_Error::r_Error(kind theKindArg, std::string errorParamArg)
+  : errorNo(0), theKind(theKindArg), errorDetails{std::move(errorParamArg)}
+{
+  resetErrorText();
 }
 
 r_Error::r_Error(unsigned int errorno)
     : errorNo(errorno)
+{
+    resetErrorText();
+}
+
+r_Error::r_Error(unsigned int errorno, std::string errorParamArg)
+    : errorNo(errorno), errorDetails{std::move(errorParamArg)}
 {
     resetErrorText();
 }
@@ -85,7 +97,17 @@ r_Error::get_kind() const
 unsigned long
 r_Error::get_errorno() const
 {
-    return errorNo;
+  return errorNo;
+}
+
+const std::string &r_Error::get_errorparam() const
+{
+  return errorDetails;
+}
+
+void r_Error::set_what(const char *what)
+{
+  errorText = what;
 }
 
 std::string
@@ -171,7 +193,7 @@ r_Error::setErrorTextOnKind()
         errorText = "Client Unknown";
         break;
     case r_Error_FileNotFound:
-        errorText =  "Referenced file not found.";
+        errorText =  "Referenced file not found";
         break;
     case r_Error_ObjectUnknown:
         errorText = "Object Unknown";
@@ -219,7 +241,7 @@ r_Error::setErrorTextOnKind()
         errorText = "Illegal contents of the string with projection bounds";
         break;
     case r_Error_RuntimeProjectionError:
-        errorText = "CRS Reprojection failed at runtime. Check that the CRSes are fully supported.";
+        errorText = "CRS Reprojection failed at runtime, check that the CRSes are fully supported";
         break;
     case r_Error_InvalidSourceCRS:
         errorText = "Cannot use source coordinate reference system, as reported by GDAL library";
@@ -228,22 +250,23 @@ r_Error::setErrorTextOnKind()
         errorText = "Cannot use target coordinate reference system, as reported by GDAL library";
         break;
     case r_Error_InvalidProjectionResultGridExtents:
-        errorText = "Projection output must have width/height > 0.";
+        errorText = "Projection output must have width/height > 0";
         break;
     case r_Error_FileTileStructureInconsistent:
         errorText = "Structure of file tile is inconsistent with the original read one";
         break;
     case r_Error_RasFedMessageParsingFailed:
-        errorText = "Error while parsing a message from the federation daemon.";
+        errorText = "Error while parsing a message from the federation daemon";
         break;
     case r_Error_UDFInstallationDirectoryNotDefined:
-        errorText = "UDF Installation Directory not found or inaccessible.";
+        errorText = "UDF Installation Directory not found or inaccessible";
         break;
     default:
-        errorText = "not specified";
+        errorText = "Not specified";
         break;
     }
-    errorText = "Exception: " + errorText;
+    
+    updateWithErrorDetails();
 }
 
 std::unordered_map<unsigned int, ErrorInfo> loadErrorTexts()
@@ -353,6 +376,8 @@ r_Error::setErrorTextOnNumber()
     {
         errorText = "no explanation text available for error code " + std::to_string(errorNo);
     }
+    
+    updateWithErrorDetails();
 }
 
 void
@@ -399,6 +424,36 @@ r_Error::resetErrorText()
     {
         setErrorTextOnKind();
     }
+}
+
+void r_Error::updateWithErrorDetails()
+{
+  if (errorDetails.empty())
+  {
+      return; // no details, nothing to do
+  }
+  
+  if (errorText.empty())
+  {
+      errorText = errorDetails;
+  }
+  else
+  {
+      if (errorText.back() == '.' || errorText.back() == '!')
+      {
+          errorText[errorText.length() - 1] = ':';
+          errorText += ' ';
+      }
+      else if (errorText.back() == '?')
+      {
+          errorText += " Details: ";
+      }
+      else
+      {
+          errorText += ": ";
+      }
+      errorText += errorDetails;
+  }
 }
 
 // ----------------------------------------------------------------------------------------------
