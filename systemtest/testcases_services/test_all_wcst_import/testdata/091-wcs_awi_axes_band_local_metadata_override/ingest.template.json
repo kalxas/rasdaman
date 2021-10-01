@@ -27,7 +27,7 @@
           "pixelIsPoint": "true",
           "bands": [
             {
-              "name": "Chlorophyll-a",
+              "name": "Chlorophyll_a",
               "variable": "Chlorophyll",
               "description": "Chlorophyll-a concentration in mg/m3",
               "identifier": "CHL1_mean"

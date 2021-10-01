@@ -1791,7 +1791,7 @@ formats and file/directory organizations.
 
 The systemtest contains `many examples <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata>`__
 for importing different types of data.
-
+   
 .. _data-import-intro:
 
 Introduction
@@ -1857,6 +1857,14 @@ For each one of these there is an ingredients example under the
 directory, together with an example for the available parameters
 Further on each recipe type is described in turn, starting with the common
 options shared by all recipes.
+
+
+.. note::
+
+    It is required to run only one ``wcst_import.sh`` process for registering / importing
+    files to one specific coverage. Running multiple ``wcst_import.sh`` processes 
+    for building multiple different coverages are allowed (the maximum number of processes
+    is equivalent to the number of rasservers configured in ``rasmgr.conf`` file).
 
 .. _data-import-common-options:
 

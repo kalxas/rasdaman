@@ -9,9 +9,9 @@
     "insitu": false
   },
   "input": {
-    "coverage_id": "test_wms_4d_ecmwf_fire_netcdf",
+    "coverage_id": "test_invalid_band_name",
     "paths": [
-      "../059-wcps_ecmwf_fire_4d/*.nc"
+      "*.nc"
     ]
   },
   "recipe": {
@@ -23,14 +23,17 @@
             "type": "xml",
             "global": {
               "Title": "'Drought code'"
-         	  }
+         	  },
+             "local": {
+		"local_metadata_key": "${netcdf:metadata:LOCAL_METADATA}"
+              }
           },
           "slicer": {
             "type": "netcdf",
 	    "pixelIsPoint": true,
             "bands": [
               {
-                "name": "Drought_code",
+                "name": "Drought code",
                 "variable": "dc",
                 "description": "Global Fire Forecast (GEFF) - Drought Code",
                 "nilReason": "The nil value represents no data value",
@@ -69,8 +72,6 @@
           }
         }      
       },
-      "wms_import": true,
-      "scale_levels": [2, 5],
       "tiling": "ALIGNED [0:366, 0:500, 0:500, 0:10]"
     }
   }

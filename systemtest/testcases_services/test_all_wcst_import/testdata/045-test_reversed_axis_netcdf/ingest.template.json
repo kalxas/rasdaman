@@ -28,7 +28,7 @@
           "type": "netcdf",
           "bands": [
             {
-              "name": "ERAinterim discharge",
+              "name": "ERAinterim_discharge",
               "variable": "dis",
               "description": "Global ERAinterim river discharge data",
               "nilReason": "The nil value represents no data value",

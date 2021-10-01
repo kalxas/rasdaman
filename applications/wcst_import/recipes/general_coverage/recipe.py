@@ -43,7 +43,7 @@ from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
 from util.import_util import import_netcdf4
 from util.log import log
-from util.string_util import escape_metadata_dict
+from util.string_util import escape_metadata_dict, is_band_name_valid, BAND_NAME_PATTERN
 from util.string_util import escape_metadata_nested_dicts
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
@@ -210,6 +210,13 @@ class Recipe(BaseRecipe):
                     # NOTE: for old ingredients with wrong defined "identifier" with band name instead of index 0-based
                     if not identifier.isdigit():
                         identifier = str(i)
+
+                band_name = self._read_or_empty_string(band, "name")
+                if band_name != "":
+                    if not is_band_name_valid(band_name):
+                        raise RecipeValidationException("Specified band name is not valid. "
+                                                        "Given: '" + band_name + "'. "
+                                                        "Hint: it must match this pattern '" + BAND_NAME_PATTERN + "'.")
 
                 ret_bands.append(UserBand(
                     identifier,

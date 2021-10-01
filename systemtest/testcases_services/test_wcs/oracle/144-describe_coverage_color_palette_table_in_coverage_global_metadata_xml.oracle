@@ -103,9 +103,9 @@ id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-point" srsName="/crs-com
 </domainSet>
 <gmlcov:rangeType>
 <swe:DataRecord>
-<swe:field name="Drought code">
+<swe:field name="Drought_code">
 <swe:Quantity definition="/dataType/OGC/0/float32">
-<swe:label>Drought code</swe:label>
+<swe:label>Drought_code</swe:label>
 <swe:description>Global Fire Forecast (GEFF) - Drought Code</swe:description>
 <swe:nilValues>
 <swe:NilValues>

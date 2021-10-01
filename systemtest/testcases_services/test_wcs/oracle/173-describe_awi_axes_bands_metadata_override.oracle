@@ -153,9 +153,9 @@ id="test_awi_axes_band_local_metadata_override-point" srsName="/crs-compound?1=/
 </domainSet>
 <gmlcov:rangeType>
 <swe:DataRecord>
-<swe:field name="Chlorophyll-a">
+<swe:field name="Chlorophyll_a">
 <swe:Quantity definition="/dataType/OGC/0/float32">
-<swe:label>Chlorophyll-a</swe:label>
+<swe:label>Chlorophyll_a</swe:label>
 <swe:description>Chlorophyll-a concentration in mg/m3</swe:description>
 <swe:nilValues>
 <swe:NilValues>

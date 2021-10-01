@@ -33,7 +33,7 @@
 	    "pixelIsPoint": true,
             "bands": [
               {
-                "name": "Drought code",
+                "name": "Drought_code",
                 "variable": "dc",
                 "description": "Global Fire Forecast (GEFF) - Drought Code",
                 "nilReason": "The nil value represents no data value",

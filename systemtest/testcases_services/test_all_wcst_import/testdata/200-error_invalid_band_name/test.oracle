@@ -1,0 +1,1 @@
+Specified band name is not valid. Given: 'Drought code'. Hint: it must match this pattern '^[a-zA-Z_0-9]+$'.
