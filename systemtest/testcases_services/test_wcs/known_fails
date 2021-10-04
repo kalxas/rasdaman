@@ -17,3 +17,6 @@
 
 # Failed due to http://rasdaman.org/ticket/2079
 112-get_coverage_clip_invalid_wkt_coordinates.error.kvp
+
+# https://rasdaman.org/ticket/2480
+202-describe_coverage_non_ascii_characters_in_metadata.kvp
