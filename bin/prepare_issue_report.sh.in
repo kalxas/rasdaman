@@ -1,0 +1,667 @@
+#!/bin/bash
+#
+# This file is part of rasdaman community.
+#
+# Rasdaman community is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rasdaman community is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2003 - 2021 Peter Baumann / rasdaman GmbH.
+#
+# For more information please see <http://www.rasdaman.org>
+# or contact Peter Baumann via <baumann@rasdaman.com>.      
+#
+# ------------------------------------------------------------------------------
+#
+# prepare_issue_report.sh - helps prepare a report for an issue encountered 
+#                           while operating rasdaman. For more details see
+#                           prepare_issue_report.sh --help
+#
+
+# --- CONSTANTS -----------------------------------------------------
+
+PROG=$(basename "$0")
+VERSION="@VERSION_FULL@"
+BUILD="@GIT_HASH@"
+
+RC_OK=0
+RC_ERROR=1
+RC_HELP=2
+
+log()   { echo -e "$PROG: $*"; }
+logn()  { echo -e -n "$PROG: $*"; }
+error() { echo -e "$*" >&2; exit $RC_ERROR; }
+check() { [ $? ] && echo "ok." || echo "failed."; }
+
+# Read the property of a value by input key from input properties file
+get_property_value()
+{
+    # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
+    # $2 is the key of a property in this file which needs to get the value of this key.
+    local properties_file="$1"
+    local key="$2"
+    # only grep key=value line not commented line (e.g: #key=value)
+    grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
+}
+
+
+# --- ACTION ------------------------------------------------------
+
+usage()
+{
+    cat <<EOF
+Usage
+
+  $PROG [OPTION]...
+
+
+Description
+
+  This script helps prepare a report for an issue encountered while operating
+  rasdaman. Running the script will open an editor where you can enter a
+  description of how the issue got triggered.
+
+  Various options can be specified to control what additional information is
+  included in order to help developers in understanding and reproducing the
+  issue. Following the options, you can specify files to include in the report,
+  e.g. screenshots, ingredient files for importing data, sample (downsized if
+  possible) data, etc.
+
+  Everything is compressed into a single archive in the current working
+  directory from which the script is executed, and the path to it is printed at
+  the end.
+
+  By default the script will try to include config files, latest 200 log files,
+  petascopedb, and RASBASE, as long as the resulting archive is not larger than
+  20 MB to make it suitable for sending by email. Parts which are too large
+  will be left out, in reverse order of priority (first RASBASE, then
+  petascopedb, etc). The limit can be changed with --limit-size <N>. As soon as
+  a particular --include-* option is specified, the default behavior is no
+  longer in effect and exclusively the specified options are considered.
+
+
+Options
+
+  -f, --attach-file         Attach a file to the issue report, e.g. a screenshot,
+                            sample data, ingredients, etc. The argument must be
+                            a valid file path, relative to the current working
+                            directory, or an absolute path. This option can be
+                            specified multiple times for multiple files.
+
+  --coverage-id <C>         Specify an affected coverage <C>, and the script will
+                            attempt to extract relevant information about it
+                            with a WCS DescribeCoverage request, and dbinfo/sdom
+                            rasql queries. This argument is mandatory, unless
+                            --no-coverage-id is specified
+
+  --no-coverage-id          Must be specified if the reported issue does not
+                            involve a particular coverage or collection.
+
+  --dry-run                 Print the actions that will be done, but do not
+                            execute them.
+
+  --include-all             Shorthand option equivalent to specifying all 
+                            --include-* options individually.
+
+  --include-all-logs        Include petascope.log and all *.log files in 
+                            /opt/rasdaman/log
+
+  --include-recent-logs <N> Like --include-logs, but only the <N> most recent
+                            log files will be included. By default the 200 most
+                            recent log files will be included. To disable
+                            including log files, specify 0.
+
+  --include-petascopedb     Include the geo metadata database petascopedb.
+
+  --include-rasbase         Include the core metadata database RASBASE, without
+                            any of the actual array data.
+  
+  --include-rasbase-full    Include the core metadata database RASBASE, as well
+                            as all of the array data; this may turn out to be
+                            very large, depending on the amount of data ingested.
+
+  --exclude-config          By default configuration files will be included in the
+                            report, as they are generally very helpful in
+                            debugging issues. Credentials are automatically
+                            anonymized from the config files. Included are:
+
+                              - /opt/rasdaman/etc
+                              - /etc/default/rasdaman, /etc/default/tomcat
+                              - pg_hba.conf
+
+                            Specify this option to prevent the above behavior.
+
+  --limit-size <N>          Limit the size of the resulting archive to <N> MB.
+                            Specifying 0 removes the limit.
+
+  --rmanhome <path>         Specify rasdaman installation path; if not specified,
+                            $rmanhome will be used.
+
+
+
+Examples
+
+  1. Describe the issue, including config files and 100 most recent log files,
+     as well as a screenshot illustrating the problem:
+
+     $ prepare_issue_report.sh --include-recent-logs 100 -f screenshot.png \
+                               --no-coverage-id
+
+  2. Describe the issue, include config files, all log files, petascopedb and
+     RASBASE, as well as sample data and ingredients:
+
+     $ prepare_issue_report.sh --include-all-logs --include-petascopedb \
+                               --include-rasbase -f sample_data.tar.gz \
+                               -f ingredients.json --no-coverage-id
+
+  3. Like the first example, but also include information about coverage TestCov:
+
+     $ prepare_issue_report.sh --include-recent-logs 100 --coverage-id TestCov \
+                               -f screenshot.png
+
+  4. Provide a screenshot and include details up to a maximum archive size of 
+     20 MB (default behavior):
+
+     $ prepare_issue_report.sh -f screenshot.png --no-coverage-id
+EOF
+    exit $RC_HELP
+}
+
+validate_number() {
+  local num="$1"
+  local option="$2"
+  if [ "$1" -eq "$1" ] 2>/dev/null; then
+    return 0
+  else
+    error "Specified parameter '$num' of option $option is not a valid number."
+  fi
+}
+
+execute() { 
+  if [ "$dry_run" = false ]; then
+    # dry run is disabled, execute the command
+    eval "$@"
+  else
+    # dry run is enabled, log command but do not execute
+    log "command: ${@}"
+    return 0
+  fi
+}
+
+get_filesize_mb() {
+  local f="$1"
+  local bytes=$(wc -c < "$f")
+  awk "BEGIN { print $bytes/1000000.0; }"
+}
+
+add_to_total_size() {
+  [ "$dry_run" = true ] && return 0
+
+  local f="$1"
+  local err="$2"
+  local f_mb=$(get_filesize_mb "$f")
+  local new_total_size=$(awk "BEGIN { print $total_size + $f_mb; }")
+
+  if [ "$limit_size" -gt 0 ]; then
+    if (( $(echo $new_total_size $limit_size | awk '{ if ($1 > $2) print 1; }') )); then
+      if [ -n "$err" ]; then
+        # if an error message is specified, print an error
+        error "Archive size $new_total_size exceeds the limit of $limit_size after adding $f; please specify a larger --limit-size (or 0 for unlimited), or $err."
+      else
+        return 1
+      fi
+    fi
+  fi
+  total_size=$new_total_size
+  return 0
+}
+
+
+#
+# parse cmd line arguments
+#
+
+log "preparing issue report for rasdaman $VERSION build $BUILD..."
+
+files=""
+coverage_id=
+no_coverage_id=false
+rmanhome="@CMAKE_INSTALL_PREFIX@"
+dry_run=false
+include_all=false
+include_all_logs=false
+include_recent_logs=200
+include_petascopedb=false
+include_rasbase=false
+include_rasbase_full=false
+exclude_config=false
+limit_size=20
+# whether the default settings should be used; if any --include-* is specified,
+# then this setting should be switched to false
+default=true
+
+option=""
+for i in "$@"; do
+
+  if [ -n "$option" ]; then
+    case $option in
+      -f|--attach-file)         files="$files $i";;
+      --coverage-id)            coverage_id="$i";;
+      --rmanhome)               rmanhome="$i";;
+      --include-recent-logs)    include_recent_logs="$i"; default=false;;
+      --limit-size)             limit_size="$i";;
+      *)                        error "unknown option: $option";;
+    esac
+    option=""
+    
+  elif [ -n "$i" ]; then
+    option=""
+    case $i in
+      -h|--help)                usage;;
+      --dry-run)                dry_run=true;;
+      --include-all)            include_all=true; default=false;;
+      --include-all-logs)       include_all_logs=true; default=false;;
+      --include-petascopedb)    include_petascopedb=true; default=false;;
+      --include-rasbase)        include_rasbase=true; default=false;;
+      --include-rasbase-full)   include_rasbase_full=true; default=false;;
+      --exclude-config)         exclude_config=true;;
+      --no-coverage-id)         no_coverage_id=true;;
+      *)                        option="$i";;
+    esac
+  fi
+  
+done
+
+if [ "$default" = true ]; then
+  include_petascopedb=true
+  include_rasbase=true
+fi
+if [ "$include_all" = true ]; then
+  include_all_logs=true
+  include_petascopedb=true
+  include_rasbase=true
+  include_rasbase_full=true
+fi
+
+
+
+#
+# validate options
+#
+
+username=$(id -u -n)
+
+# check rmanhome
+if [ ! -d "$rmanhome" ]; then
+  error "Rasdaman installation not found at $rmanhome, please specify with --rmanhome."
+fi
+if [ ! -r "$rmanhome" ]; then
+  error "Rasdaman directory $rmanhome not readable by user $username, please rerun this script with sudo."
+fi
+
+# check cwd writable
+if [ ! -w . ]; then
+  error "Current working dir not writable by user $username: $(pwd)"
+fi
+
+validate_number "$include_recent_logs" "--include-recent-logs"
+validate_number "$limit_size" "--limit-size"
+
+for f in $files; do
+  [ -f "$f" ] || error "File specified with -f/--attach-file not found: '$f'"
+  [ -r "$f" ] || error "File specified with -f/--attach-file not readable by user $username: '$f'"
+done
+
+if [ "$no_coverage_id" != true -a -z "$coverage_id" ]; then
+  error "Please specify the coverage id relevant in the issue with --coverage-id, or the --no-coverage-id option if a coverage id is not applicable."
+fi
+if [ "$no_coverage_id" = true -a -n "$coverage_id" ]; then
+  error "Both --no-coverage-id and --coverage-id '$coverage_id' were specified, please specify only one of the two option."
+fi
+
+
+#
+# open template for issue report in an $EDITOR
+#
+
+if [ ! -n EDITOR ]; then
+  EDITOR=nano
+  type $EDITOR &> /dev/null || EDITOR=vim
+  type $EDITOR &> /dev/null || EDITOR=vi
+  type $EDITOR &> /dev/null || \
+    error "Could not determine a text editor to open a report template text file; please set the EDITOR env variable and rerun this script."
+fi
+
+timestamp="$(date +%Y-%m-%d_%H-%M-%S)"
+report_file="rasdaman_issue_report_${timestamp}.txt"
+
+log "creating report template text file $report_file"
+
+execute "touch \"$report_file\""
+
+if [ "$dry_run" = false ]; then
+
+  checklist="- Add ingredient files and (small, resized) sample data with --attach-file?"
+
+  if [ ! -n "$coverage_id" ]; then
+    checklist="$checklist
+- Specify --coverage-id <coverage|collection>?"
+  fi
+
+  cat <<MARKER > "$report_file"
+# Rasdaman issue report, $(date +%Y-%m-%d)
+
+
+## Short summary
+
+<!-- 1-2 sentences summarizing the report -->
+
+
+## Performed actions
+
+<!--
+List the steps that lead to the observed behavior below;
+Be as thorough as possible, to help us reproduce the issue.
+-->
+
+
+## Observed behavior
+
+<!--
+What was the result? Mention screenshots or query output files added 
+with --attach-file, copy textual query output, terminal command outputs, etc.
+-->
+
+
+## Expected behavior
+
+<!-- Describe what was expected to happen instead. -->
+
+
+## Checklist
+
+$checklist
+
+
+## Settings for generating report
+
+### Command line
+
+$@
+
+### Settings
+
+- default settings     '$default'
+
+- attached files       '$files'
+--coverage-id          '$coverage_id'
+--no-coverage-id       '$no_coverage_id'
+--rmanhome             '$rmanhome'
+--dry-run              '$dry_run'
+--include-all          '$include_all'
+--include-all logs     '$include_all_logs'
+--include-recent-logs  '$include_recent_logs'
+--include-petascopedb  '$include_petascopedb'
+--include-rasbase      '$include_rasbase'
+--include-rasbase-full '$include_rasbase_full'
+--exclude-config       '$exclude_config'
+--limit-size           '$limit_size'
+
+MARKER
+fi
+
+log "opening template with text editor $EDITOR"
+
+execute "$EDITOR \"$report_file\""
+
+
+#
+# Confirmation prompt
+#
+
+if [ "$dry_run" = false ]; then
+
+  read -p "$PROG: continue creating issue report (y/n)? " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    ;
+  else
+    log "exiting."
+    exit $RC_OK
+  fi
+
+fi
+
+# As we add to the archive, the total size is being increased by the size of
+# each part, and checked against the --limit-size if any.
+total_size=0
+
+#
+# Compress attached files
+#
+
+if [ -n "$files" ]; then
+
+  archive_attached=attached_files.tar.gz
+  execute "tar cfz $archive_attached $files"
+  add_to_total_size "$archive_attached" "reduce the size of attached files"
+
+fi
+
+
+#
+# Compress config files
+#
+
+if [ "$exclude_config" != true ]; then
+
+  archive_config=config_files.tar.gz
+  log "creating config archive at $archive_config"
+
+  config_files=""
+  pg_hba=$(find /etc /var -name pg_hba.conf 2> /dev/null)
+
+  # anonymize credentials in rasdaman config files
+  rasdaman_etc=/tmp/rasdaman_etc
+  log "anonymizing credentials in rasdaman config files"
+  execute "mkdir -p $rasdaman_etc"
+  execute "cp -a $rmanhome/etc/* $rasdaman_etc/"
+  if [ "$dry_run" = false ]; then
+    pushd "$rasdaman_etc/" > /dev/null
+    sed -i 's/password=.*/password=***/g' petascope.*
+    sed -i 's/_pass=.*/_pass=***/g' petascope.* secore.*
+    sed -i 's/Password=.*/Password=***/g' rasfed.*
+    popd > /dev/null
+  fi
+
+  for f in $rasdaman_etc /etc/default/rasdaman /etc/default/tomcat $pg_hba; do
+    if [ -e "$f" -a -r "$f" ]; then
+      config_files="$config_files $f"
+    fi
+  done
+
+  execute "tar cfz $archive_config $config_files"
+  add_to_total_size "$archive_config" "reduce the size of $rmanhome/etc"
+
+fi
+
+
+#
+# Compress log files
+#
+
+if [ "$include_all_logs" = true -o "$include_recent_logs" -gt 0 ]; then
+
+  cwd="$(pwd)"
+  archive_logs="$cwd/log_files.tar.gz"
+
+  petascope_log=$(grep petascope.log "$rmanhome/etc/petascope.properties" | grep -v -E '^#' | awk -F= '{ print $2; }')
+  rasdaman_logs="$rmanhome/log"
+  if [ -L "$rasdaman_logs" -a -e "$rasdaman_logs" ]; then
+    rasdaman_logs=$(readlink -f "$rasdaman_logs")
+  fi
+
+  log "creating logs archive at $archive_logs"
+  if [ "$include_all_logs" = true ]; then
+    execute "tar cfz $archive_logs $petascope_log $rasdaman_logs"
+  elif [ "$include_recent_logs" -gt 0 ]; then
+    pushd "$rasdaman_logs" > /dev/null
+    execute "tar cfz $archive_logs $petascope_log $(ls -t | head -n $include_recent_logs)"
+    popd > /dev/null # back to cwd
+  fi
+
+  add_to_total_size "$archive_logs"
+  if [ $? -ne 0 ]; then
+    rm "$archive_logs"
+    archive_logs=
+    log "warning: will not include rasdaman logs in order to avoid exceeding the limit of $limit_size MB; consider specifying a larger --limit-size (or 0 for unlimited), or reducing the number of included logs with --include-recent-logs <N> (see --help for details)."
+  fi
+
+fi
+
+
+#
+# Compress petascopedb
+#
+
+if [ "$include_petascopedb" = true ]; then
+
+  archive_petascopedb=petascopedb.sql.gz
+  log "creating petascopedb archive at $archive_petascopedb"
+  execute "sudo -u postgres pg_dump petascopedb | gzip > $archive_petascopedb"
+  add_to_total_size $archive_petascopedb
+  if [ $? -ne 0 ]; then
+    rm "$archive_petascopedb"
+    archive_petascopedb=
+    log "warning: will not include petascopedb in order to avoid exceeding the limit of $limit_size MB; consider specifying a larger --limit-size (or 0 for unlimited), or reducing the number of included logs with --include-recent-logs <N> (see --help for details)."
+  fi
+
+fi
+
+
+#
+# Compress rasbase
+#
+
+if [ "$include_rasbase_full" = true -o "$include_rasbase" = true ]; then
+
+  archive_rasbase=rasbase.tar.gz
+  log "creating rasbase archive at $archive_rasbase"
+
+  rasdata="$rmanhome/data"
+  if [ -L "$rasdata" -a -e "$rasdata" ]; then
+    rasdata=$(readlink -f "$rasdata")
+  fi
+
+  rasdata_files="$rasdata/RASBASE"
+  if [ "$include_rasbase_full" = true ]; then
+    rasdata_files="$rasdata_files $rasdata/TILES"
+  fi
+
+  execute "tar cfz $archive_rasbase $rasdata_files"
+  add_to_total_size $archive_rasbase
+  if [ $? -ne 0 ]; then
+    rm "$archive_rasbase"
+    archive_rasbase=
+    log "warning: will not include RASBASE in order to avoid exceeding the limit of $limit_size MB; consider specifying a larger --limit-size (or 0 for unlimited), or reducing the number of included logs with --include-recent-logs <N> (see --help for details)."
+  fi
+
+fi
+
+
+#
+# Collect OS, package, gcc, gdal, netcdf, java info
+#
+
+versions=versions.txt
+
+new_section() {
+cat <<MARKER >> "$versions"
+--------------------------------------------------------------------------------
+$1
+
+MARKER
+}
+
+new_section /etc/os-release
+cat /etc/os-release >> "$versions"
+
+new_section "rasdaman package"
+if type apt-cache &> /dev/null; then 
+  apt-cache show rasdaman >> "$versions" 2>&1
+elif type yum &> /dev/null; then
+  yum info rasdaman >> "$versions" 2>&1
+else
+  echo "apt-cache, nor yum were found." >> $versions
+fi
+
+new_section gdal
+gdalinfo --version >> "$versions" 2>&1
+
+new_section gcc
+gcc --version >> "$versions" 2>&1
+
+new_section java
+java -version >> "$versions" 2>&1
+
+new_section netcdf
+nc-config --version >> "$versions" 2>&1
+
+new_section python
+python --version >> "$versions" 2>&1
+
+
+#
+# Coverage information
+#
+
+if [ -n "$coverage_id" ]; then
+
+  log "collection information about coverage $coverage_id"
+
+  ows_endpoint="http://localhost:8080/rasdaman/ows"
+  cov_describe_req="service=WCS&version=2.0.1&request=DescribeCoverage&coverageId=${coverage_id}"
+
+  archive_coverage_details="coverage_details.tar.gz"
+  cov_describe="${coverage_id}_DescribeCoverage.xml"
+  cov_rasql="${coverage_id}_rasql.txt"
+
+  petascope_props="$rmanhome/etc/petascope.properties"
+  ras_username=$(get_property_value "$petascope_props" "rasdaman_admin_user")
+  ras_password=$(get_property_value "$petascope_props" "rasdaman_admin_pass")
+
+  execute "curl -u $ras_username:$ras_password \"${ows_endpoint}?${cov_describe_req}\" > \"$cov_describe\""
+  execute "rasql -q \"select dbinfo(c) from $coverage_id as c\" --user $ras_username --passwd $ras_password --out string >> \"$cov_rasql\""
+  execute "rasql -q \"select sdom(c) from $coverage_id as c\" --user $ras_username --passwd $ras_password --out string >> \"$cov_rasql\""
+  execute "rasql -q \"select c from RAS_SET_TYPES as c\" --user $ras_username --passwd $ras_password --out string >> \"$cov_rasql\""
+  execute "rasql -q \"select c from RAS_MARRAY_TYPES as c\" --user $ras_username --passwd $ras_password --out string >> \"$cov_rasql\""
+  execute "rasql -q \"select c from RAS_STRUCT_TYPES as c\" --user $ras_username --passwd $ras_password --out string >> \"$cov_rasql\""
+  execute "tar cfz $archive_coverage_details \"$cov_describe\" \"$cov_rasql\""
+  execute "rm \"$cov_describe\" \"$cov_rasql\""
+
+fi
+
+
+#
+# Assemble final tar command
+#
+
+archive_path="rasdaman_issue_report_${timestamp}.tar.gz"
+log "creating issue report archive at $archive_path"
+execute "tar cfz $archive_path $report_file $archive_attached $archive_config $archive_logs $archive_petascopedb $archive_rasbase $versions $archive_coverage_details"
+
+
+# --- END ACTION ----------------------------------------------------
+
+log "done."
+
+exit $RC_OK

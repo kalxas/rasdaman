@@ -1791,7 +1791,7 @@ formats and file/directory organizations.
 
 The systemtest contains `many examples <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata>`__
 for importing different types of data.
-   
+
 .. _data-import-intro:
 
 Introduction
@@ -1857,7 +1857,6 @@ For each one of these there is an ingredients example under the
 directory, together with an example for the available parameters
 Further on each recipe type is described in turn, starting with the common
 options shared by all recipes.
-
 
 .. note::
 
@@ -4206,6 +4205,8 @@ are forwarded by petascope to the client.
 For further internal documentation on petascope see
 `Developer introduction to petascope and its metadata database <http://rasdaman.org/wiki/PetascopeDevGuide>`__.
 
+.. _petascope-startup-shutdown:
+
 Service Startup and Shutdown
 ----------------------------
 
@@ -4213,12 +4214,17 @@ Depending of how ``java_server`` is configured in ``petascope.properties``,
 starting the petascope Web application is different as follows:
 
 - If set to ``external``, then managing the petascope Web application is done
-  via the system Tomcat in which it is deployed, e.g. ``service tomcat
-  start/stop/restart``.
+  via the system Tomcat in which it is deployed, e.g.
+
+  .. code-block:: shell
+
+   $ systemctl start tomcat
+   $ systemctl stop tomcat
+   $ systemctl restart tomcat
 
 - If set to :ref:`embedded <start-stop-embedded-applications>` then petascope is
-  managed along with rasdaman, e.g. ``start_rasdaman.sh`` and
-  ``stop_rasdaman.sh``, or ``service rasdaman start/stop``.
+  managed along with rasdaman; see :ref:`this section
+  <sec-system-install-service-control>` for more details.
 
 Configuration
 -------------

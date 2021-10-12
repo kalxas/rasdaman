@@ -194,14 +194,14 @@ start_embedded()
 usage()
 {
     cat <<EOF
-Start the rasdaman server if not already running.
+Start the rasdaman server if it is not already running.
 
 Usage:
   start_rasdaman.sh [OPTION]...
 
 Options:
   --service <svc>       start a particular service <svc> only; allowed values 
-                        for <svc> are: core, petascope, secore. By default all
+                        for <svc> are: core, petascope. By default all
                         services are started.
 
   -p, --port <port>     specify the port on which rasmgr will listen. By default
@@ -210,7 +210,7 @@ Options:
   
   --allow-root          allow starting rasdaman (i.e. running this script) with
                         root; otherwise, by default start_rasdaman.sh will exit
-                        with an error if it is executed with root. 
+                        with an error if it is executed with root.
 
   <N1> <N2> ...         start only the specified rasservers, as named in 
                         etc/rasmgr.conf. By default all configured rasservers 
@@ -225,13 +225,13 @@ set_all_options()
 {
     start_rasmgr_rasservers=$1
     start_embedded_petascope=$1
-    start_embedded_secore=$1
     start_all_services=$1
 }
 
 log "starting rasdaman $VERSION build $BUILD...";
 
 set_all_options true
+service_already_reset=false
 allow_root=false
 
 servers=""
@@ -241,12 +241,16 @@ for i in "$@"; do
     if [ -n "$option" ]; then
         # Get option value for --service
         if [ "$option" = "--service" ]; then
-            set_all_options false
+            # reset the start options only once; this allows to specify multiple
+            # --service values
+            if [ $service_already_reset = false ]; then
+                set_all_options false
+                service_already_reset=true
+            fi
             case "$i" in
               core)      start_rasmgr_rasservers=true;;
               petascope) start_embedded_petascope=true;;
-              secore)    start_embedded_secore=true;;
-              *)         error "Value for option $option must be core|petascope|secore. Given: $i";;
+              *)         error "Value for option $option must be core|petascope. Given: $i";;
             esac
         elif [ "$option" = "--port" ] || [ "$option" = "-p" ]; then
             set_rasmgr_port "$i"
@@ -354,11 +358,7 @@ if [ "$start_rasmgr_rasservers" = true ]; then
 
 fi
 
-# start embedded petascope and secore if needed
-if [ "$start_embedded_secore" = true ]; then
-    start_embedded "$secore_props" "secore" "def.war"
-fi
-
+# start embedded petascope
 if [ "$start_embedded_petascope" = true ]; then
     start_embedded "$petascope_props" "petascope" "rasdaman.war"
 fi

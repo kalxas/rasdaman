@@ -40,7 +40,7 @@ Rasdaman Documentation Set
 
 This manual should be read in conjunction with the complete rasdaman
 documentation set which this guide is part of. The documentation set in
-its completeness covers all important infor­mat­ion needed to work with
+its completeness covers all important information needed to work with
 the rasdaman system, such as programming and query access to databases,
 guidance to utilities such as *raswct*, release notes, and additional
 information on the rasdaman wiki.
@@ -74,7 +74,7 @@ Rasdaman is continuously tested on the platforms listed below. The rasdaman code
 has been developed on SUN/Solaris and HP-UX originally, and has been ported to
 IBM AIX, SGI IRIX, and DEC Unix - but that was way back in the last millennium.
 
-- Ubuntu 16.04, 18.04, 20.04
+- Ubuntu 18.04, 20.04
 - CentOS 7
 
 In general, compiling rasdaman should work on distributions with gcc 4.8 or
@@ -138,12 +138,12 @@ future.
 
 .. _sec-system-install-pkgs-deb:
 
-DEB packages
-------------
+Debian-based systems
+--------------------
 
 Currently the following Debian-based distributions are supported:
 
-- Ubuntu 16.04 / 18.04 / 20.04
+- Ubuntu 18.04 / 20.04
 
 
 Installation
@@ -173,10 +173,6 @@ Installation
 
       .. hidden-code-block:: bash
 
-        # For ubuntu 16.04
-        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb xenial testing" \
-        | sudo tee /etc/apt/sources.list.d/rasdaman.list
-
         # For ubuntu 18.04
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic testing" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
@@ -191,10 +187,6 @@ Installation
 
       .. hidden-code-block:: bash
 
-        # For ubuntu 16.04
-        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb xenial nightly" \
-        | sudo tee /etc/apt/sources.list.d/rasdaman.list
-
         # For ubuntu 18.04
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic nightly" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
@@ -208,10 +200,7 @@ Installation
     $ sudo apt-get update
     $ sudo apt-get install rasdaman
 
-    # to make rasql available on the PATH
-    $ source /etc/profile.d/rasdaman.sh
-
-4. If during the install you get a prompt like the below, type **N** (default 
+   If during the install you get a prompt like the below, type **N** (default 
    option):
 
    .. code-block:: text
@@ -232,6 +221,11 @@ Installation
 
     $ apt-get -o Dpkg::Options::="--force-confdef" install -y rasdaman
 
+   You will find the rasdaman installation under ``/opt/rasdaman/``.
+   Finally, to make rasql available on the PATH for your system user: ::
+
+    $ source /etc/profile.d/rasdaman.sh
+
 5. Check that the rasdaman server can answer queries: ::
 
     $ rasql -q 'select c from RAS_COLLECTIONNAMES as c' --out string
@@ -248,11 +242,7 @@ Installation
 
     http://localhost:8080/rasdaman/ows
 
-7. You will find the rasdaman installation under ``/opt/rasdaman/``; 
-   ``rasdaman.war`` and ``def.war`` are installed in ``/var/lib/tomcat9/webapps`` 
-   (or tomcat8).
-
-8. If SELinux is running then likely some extra configuration is needed to
+7. If SELinux is running then possibly some extra configuration is needed to
    get petascope run properly. See :ref:`here <selinux-configuration>` for more
    details.
 
@@ -265,12 +255,13 @@ The packages are updated whenever a new rasdaman version is released. To update
 your installation: ::
 
     $ sudo apt-get update
+    $ sudo service rasdaman stop
     $ sudo apt-get install rasdaman
 
 
 .. _sec-system-install-pkgs-rpm:
 
-RPM packages
+RPM-based systems
 ------------
 
 Currently the following RPM-based distributions are supported:
@@ -319,7 +310,9 @@ Installation
     rasdaman.x86_64 : Rasdaman extends standard relational database systems with the ability
                       to store and retrieve multi-dimensional raster data
 
-3. Add the EPEL repository to yum (`official page <https://fedoraproject.org/wiki/EPEL>`__): ::
+3. Add the EPEL repository to yum
+   (`official page <https://fedoraproject.org/wiki/EPEL>`__), needed for several
+   dependencies of the rasdaman package: ::
 
     $ sudo yum install epel-release
 
@@ -327,21 +320,17 @@ Installation
 
     $ sudo yum install rasdaman
 
-    # to make rasql available on the PATH
+   You will find the rasdaman installation under ``/opt/rasdaman/``.
+   To make rasql available on the PATH for your system user: ::
+
     $ source /etc/profile.d/rasdaman.sh
-
-
-   .. note::
-        If PostgreSQL has been newly installed (as opposed to having it
-        installed before executing the commands on this page) then it is
-        registered as a dependency of the rasdaman package.
 
    .. note::
         If petascope has *problems* connecting to rasdaman, check this
         `FAQ entry <https://rasdaman.org/wiki/FAQ#PetascopecannotconnecttorasdamaninCentos7>`__
         for some advice.
 
-5. Check that everything is fine: ::
+5. Check that the rasdaman server can answer queries: ::
 
     $ rasql -q 'select c from RAS_COLLECTIONNAMES as c' --out string
 
@@ -357,10 +346,7 @@ Installation
 
     http://localhost:8080/rasdaman/ows
 
-7. You will find the rasdaman installation under ``/opt/rasdaman/``; `rasdaman.war`
-   and `def.war` are installed in ``/var/lib/tomcat/webapps``.
-
-8. If SELinux is running then likely some extra configuration is needed to
+7. If SELinux is running then likely some extra configuration is needed to
    get petascope run properly. See :ref:`here <selinux-configuration>` for more
    details.
 
@@ -373,14 +359,13 @@ Updating
 The packages are updated whenever a new version of rasdaman is released. To download
 an update perform these steps: ::
 
-    $ sudo service rasdaman stop
-    $ sudo service tomcat stop
     $ sudo yum clean all
+    $ sudo service rasdaman stop
     $ sudo yum update rasdaman
 
 
-Customizing the installation
-----------------------------
+Customizing the package installation
+------------------------------------
 
 When installing or updating rasdaman from the official packages, the process can
 be optionally customized with an installation profile (see example `installer
@@ -422,6 +407,12 @@ A ``rasdaman`` service script allows to start/stop rasdaman, e.g. ::
     $ service rasdaman stop
     $ service rasdaman status
 
+It can be similarly referenced with ``systemctl``, e.g. ::
+
+    $ systemctl start rasdaman
+    $ systemctl stop rasdaman
+    $ systemctl status rasdaman
+
 The service script can be customized by updating environment variables in
 ``/etc/default/rasdaman`` (create the file if it does not exist). The default
 settings can be seen below.
@@ -445,6 +436,9 @@ settings can be seen below.
 
 See also the dedicated pages on :ref:`configuration and log files
 <sec-system-install-conf>` and :ref:`administration <sec-server-administration>`.
+
+Check :ref:`this section <petascope-startup-shutdown>` on how to start / stop
+the petascope component of rasdaman.
 
 .. _sec-system-install-installer:
 
@@ -1186,8 +1180,8 @@ available must be configured initially, which is done in file
 ``$RMANHOME/etc/rasmgr.conf``. For distribution, this configuration contains ten
 server processes going by a name like, for example, ``N1``. If this is fine
 then you can just leave it as it is. If you want to change this by
-modify­ing server startup parameters or increasing the number of server
-process­es available then see :ref:`sec-rascontrol-invocation` for details on how
+modifying server startup parameters or increasing the number of server
+processes available then see :ref:`sec-rascontrol-invocation` for details on how
 to do this.
 
 Server Start/Stop
@@ -1272,16 +1266,18 @@ by petascope. The steps approximately performed by the script are listed below.
 
 **PostgreSQL**
 
-To set up PostgreSQL for use by petascope:
+PostgreSQL is automatically configured when rasdaman is installed, so doing the
+below is not usually necessary; we list the steps as documentation of how is
+PostgreSQL configured by default:
 
 1. If postgres has not been initialized yet: ::
 
     $ sudo service postgresql initdb
 
-   If the output is 'Data directory is not empty!' then you can skip this step.
+   If the output is 'Data directory is not empty!' then this step is skipped.
 
-2. You may need to enable trust-based access in PostgreSQL. The below configuration
-   needs to be added before the ident lines to ``/etc/postgresql/9.4/main/pg_hba.conf``
+2. Trust-based access in PostgreSQL is enabled by adding the below configuration
+   before the ident lines to ``/etc/postgresql/9.4/main/pg_hba.conf``
    on Debian 8, or ``/var/lib/pgsql/data/pg_hba.conf`` on CentOS 7: ::
 
     host    all   petauser   localhost       md5
@@ -1299,18 +1295,18 @@ To set up PostgreSQL for use by petascope:
 
    In ``$RMANHOME/etc/petascope.properties`` set the
    ``spring.datasource.username``/``spring.datasource.password``
-   and ``metadata_user``/``metadata_pass`` options accordingly to this user/password.
+   and ``metadata_user``/``metadata_pass`` options accordingly to this user /
+   password. The password is randomly generated.
 
-5. If necessary, copy ``$RMANHOME/share/rasdaman/war/rasdaman.war`` to the Tomcat
-   webapps directory (``/var/lib/tomcat/webapps`` on CentOS 7) and start or restart
-   Tomcat.
+5. Copy ``/opt/rasdaman/share/rasdaman/war/rasdaman.war`` to the Tomcat webapps
+   directory (``/var/lib/tomcat/webapps`` on CentOS 7) and restart Tomcat.
 
    Following successful deployment, petascope accepts OGC W*S requests at
    URL ``http://localhost:8080/rasdaman/ows``.
 
 **H2 / HSQLDB**
 
-To alternatively set up H2 / HSQLDB for use by petascope:
+To alternatively set up H2 / HSQLDB for use by petascope instead of PostgreSQL:
 
 1. Create a directory that will host petascopedb and the H2 driver: ::
 
@@ -1320,7 +1316,12 @@ To alternatively set up H2 / HSQLDB for use by petascope:
    can read/write to the folder above. For example, Tomcat webserver
    which uses `tomcat` user ::
 
-   $ sudo chown -R tomcat /opt/rasdaman/geodb 
+    $ sudo chown -R tomcat: /opt/rasdaman/geodb
+
+   However, if embedded deployment is enabled in petascope.properties, then the
+   owner should be the ``rasdaman`` user which runs rasdaman ::
+
+    $ sudo chown -R rasdaman: /opt/rasdaman/geodb
 
 3. Download the driver and place it in the created directory. 
    For example, download a H2 driver ::
@@ -1331,15 +1332,16 @@ To alternatively set up H2 / HSQLDB for use by petascope:
 4. Configure database settings in petascope.properties file, 
    see :ref:`details <petascope-database-connection>`.
 
-5. Restart the webserver running petascope. 
+5. Restart the webserver running petascope (or rasdaman if embedded tomcat).
 
 .. _selinux-configuration:
 
 **SELinux configuration**
 
-If ``SELinux`` is enabled (result of ``getenforce`` is `enforcing`) then
+If ``SELinux`` is enabled (result of ``getenforce`` is ``enforcing``) then
 permissions for the ``tomcat`` user which is running petascope need to be
-configured properly:
+configured properly if petascope is running in an external servlet container
+(as opposed to :ref:`embedded <start-stop-embedded-applications>`):
 
 - Allow to load the ``gdal-java`` native library (via JNI)
 - Read / write files in ``/tmp/rasdaman_*``
@@ -1411,23 +1413,6 @@ There are two ways to configure SELinux in order to enable petascope:
 Restart Tomcat with ``sudo service tomcat restart``; now rasdaman should be able
 to import data to petascope via WCSTImport and get data from rasdaman via
 WCS / WMS / WCPS.
-
-secore
-^^^^^^
-
-SECORE (Semantic Coordinate Reference System Resolver) is a service that
-maps CRS URLs to CRS definitions. This component, which is part of the
-standard rasdaman distribution, is used by the `Open Geospatial
-Consortium <http://www.opengeospatial.com>`__ (OGC) for operating their
-official CRS resolver. Petascope uses SECORE for resolving CRS
-definitions of the coverages it holds, and it is best if SECORE is
-deployed locally as ``def.war``, alongside the petascope
-``rasdaman.war`` application; configuring installation path or disabling
-installation is done in the same way as for petascope.
-
-For further details on SECORE management, security and troubleshooting
-see the `administration <https://rasdaman.org/wiki/SecoreAdministration>`__
-and `developer guide <https://rasdaman.org/wiki/SecoreDevGuide>`__ pages.
 
 SSL/TLS Configuration
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1602,16 +1587,16 @@ further information.
 
 .. _sec-system-install-conf:
 
-***********************************
-Directories and Configuration Files
-***********************************
+************************
+Installed Files and Data
+************************
 
-Overall directory structure
-===========================
+Top-level directories
+=====================
 
-As common with rasdaman, we refer to the installation location as
-``$RMANHOME`` below; the default is ``/opt/rasdaman``. The table below
-lists the directories found in ``$RMANHOME`` after a fresh installation.
+As common with rasdaman, we refer to the installation location as ``$RMANHOME``
+below; the default is ``/opt/rasdaman``. The table below lists the top-level
+directories found in ``$RMANHOME`` after a fresh installation.
 
 +---------------------+-------------------------------------------------------------+
 |**Directory**        |**Description**                                              |
@@ -1678,26 +1663,27 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 |                              |geo-referenced data into petascope.                             |
 +------------------------------+----------------------------------------------------------------+
 
-**start_rasdaman.sh**
+start_rasdaman.sh
+-----------------
 
-Since v9.8, to start a specific service (rasdaman and :ref:`embedded secore and
-petascope <start-stop-embedded-applications>`) ``--service (core | secore |
-petascope )`` option can be used(``core`` refers to ``rasmgr`` + ``rasserver``
-only).
+Since v9.8, to start a specific service (rasdaman and :ref:`embedded petascope 
+<start-stop-embedded-applications>`) the ``--service (core | secore | petascope)`` 
+option can be used(``core`` refers to ``rasmgr`` + ``rasserver`` only).
 
 Since v10.0 the rasmgr port can be specified with ``-p, --port``. Additionally,
-Since v10.0 ``start_rasdaman.sh`` will refuse running if executed with root
-user; this can be overriden if needed with the ``--allow-root`` option.
+for security and usability reasons, ``start_rasdaman.sh`` will refuse running
+if executed with root user; this can  be overriden if needed with the
+``--allow-root`` option.
 
 Check ``-h, --help`` for all details.
 
-If rasdaman was installed from packages or with the installer, then instead of
-executing this script directly one would execute ``service rasdaman start``.
-Any options to be passed on to ``start_rasdaman.sh`` can be set in
-``/etc/default/rasdaman`` in this case; see :ref:`more details
-<sec-system-install-administration>`.
+Normally rasdaman is installed from packages, and instead of executing this
+script directly one would execute ``service rasdaman start``. Any options to be
+passed on to ``start_rasdaman.sh`` can be set in ``/etc/default/rasdaman`` in
+this case; see :ref:`more details <sec-system-install-administration>`.
 
-**stop_rasdaman.sh**
+stop_rasdaman.sh
+----------------
 
 Since v9.8, to stop a specific service the 
 ``--service (core | secore | petascope )`` option can be used. Since v10.0 
@@ -1705,13 +1691,13 @@ the rasmgr port can be specified with ``-p, --port``.
 
 Check ``-h, --help`` for all details.
 
-If rasdaman was installed from packages or with the installer, then instead of
-executing this script directly one would execute ``service rasdaman stop``. Any
-options to be passed on to ``stop_rasdaman.sh`` can be set in
-``/etc/default/rasdaman`` in this case; see :ref:`more details
-<sec-system-install-administration>`.
+Normally rasdaman is installed from packages, and instead of executing this
+script directly one would execute ``service rasdaman start``. Any options to be
+passed on to ``start_rasdaman.sh`` can be set in ``/etc/default/rasdaman`` in
+this case; see :ref:`more details <sec-system-install-administration>`.
 
-**migrate_petascopedb.sh**
+migrate_petascopedb.sh
+----------------------
 
 This script is used to migrate coverages imported by wcst_import, OWS Service 
 metadata and WMS 1.3 layers. For more details see 
@@ -1726,9 +1712,10 @@ There are 2 types of migration:
    different database (e.g. PostgreSQL to HSQLDB).
 
 .. note::
-  The petascope web application must not be running (e.g in Tomcat) while 
+  The petascope Web application must not be running (e.g in Tomcat) while 
   migrating to a different database (type 2 above) to protect the existing 
   data integrity.
+
 
 Configuration files
 ===================
@@ -1736,33 +1723,36 @@ Configuration files
 Configurations are automatically loaded upon rasdaman start. After any
 modification a restarthas to be performed for the change to take effect.
 
-Server rasdaman configuration files can be found in ``$RMANHOME/etc``.
+Server rasdaman configuration files can be found in ``$RMANHOME/etc``:
 
-+------------------------------+---------------------------------------------------------------------------------------------------+
-|``rasmgr.conf``               |allows fine-tunning the rasdaman servers, e.g. number of servers, names, database connection, etc. |
-+------------------------------+---------------------------------------------------------------------------------------------------+
-|``petascope.properties``      |set `petascope <https://rasdaman.org/wiki/PetascopeUserGuide>`_ properties, e.g. database/rasdaman |
-|                              |connection details, CRS resolver URLs, various feature options                                     |
-+------------------------------+---------------------------------------------------------------------------------------------------+
-|``secore.properties``         |`secore <https://rasdaman.org/wiki/SecoreUserGuide>`_ configuration                                |
-+------------------------------+---------------------------------------------------------------------------------------------------+
++------------------------------+------------------------------------------------+
+|``rasmgr.conf``               |allows fine-tunning the rasdaman servers, e.g.  |
+|                              |number of servers, names, database connection   |
++------------------------------+------------------------------------------------+
+|``petascope.properties``      |set petascope properties, e.g. backend/rasdaman |
+|                              |connection details, CRS resolver URLs, features |
++------------------------------+------------------------------------------------+
+|``secore.properties``         |secore configuration                            |
++------------------------------+------------------------------------------------+
 
-Specifically, log output is controlled via these configuration files:
+Logging output of petascope and secore is configured in their respective config
+files, while logging output of rasdaman is controlled via the below 
+configuration files:
 
 +---------------------+--------------------------------------------------+
-|``log-rasmgr.conf``  |log output of rasmgr                              |
+|``log-rasmgr.conf``  | log output of rasmgr                             |
 +---------------------+--------------------------------------------------+
-|``log-server.conf``  | log output of the rasservers                     |
+|``log-server.conf``  | log output of rasserver worker processes         |
 +---------------------+--------------------------------------------------+
 |``log-client.conf``  | log output of client applications, e.g., rasql   |
 +---------------------+--------------------------------------------------+
 
 rasdaman uses the `Easylogging++ <https://github.com/easylogging/easyloggingpp/>`__
 library for logging in its C++ components. Log properties can be
-configured as documented on the `EasyLogging GitHub
-page <https://github.com/muflihun/easyloggingpp/tree/v9.96.2#using-configuration-file>`__.
+configured as documented on the `EasyLogging GitHub page 
+<https://github.com/muflihun/easyloggingpp/tree/v9.96.2#using-configuration-file>`__.
 
-Further potentially relevant configuration files are
+External potentially relevant configuration files are:
 
 +------------+---------------------------------------------------------+
 | postgresql |``/var/lib/pgsql/data/{postgresql.conf,pg_hba.conf}`` or |
@@ -1778,8 +1768,8 @@ Log files
 
 **rasdaman**
 
-*rasdaman* server logs are placed in ``$RMANHOME/log/``. The server components feed
-the following files where ``uid`` represents a unique identifier of the
+*rasdaman* server logs are placed in ``$RMANHOME/log/``. The server components
+feed the following files where ``uid`` represents a unique identifier of the
 process, and ``pid`` is a Linux process identifier:
 
 ``rasserver.<uid>.<pid>.log``
@@ -1790,14 +1780,10 @@ process, and ``pid`` is a Linux process identifier:
     ``rasmgr`` log: there is only one ``rasmgr`` process running at any time.
 
 .. note::
-    ``ls -ltr`` is a useful command to see the latest recently modified log
-    files at the bottom.
+    ``ls -ltr`` is a useful command to see the most recently modified log
+    files at the bottom when debugging recently executed queries.
 
 **petascope & secore**
-
-*petascope* log messages can be typically found in
-``/var/log/tomcatN/catalina.out``, where N can be 7 or 8 depending on
-your OS/Tomcat version.
 
 It is highly recommended to set a specific log file however in the log4j
 configuration section in ``petascope.properties`` (e.g.
@@ -1839,11 +1825,163 @@ in particular:
   may lead to data corruption.
 
 
+Demo data & programs
+====================
+
+Example database
+----------------
+
+A demonstration database is provided as part of the delivery package which
+contains the collections and images described in the :ref:`ql-guide`. To
+populate this database, first install the system as described here, and then
+invoke: ::
+
+    $ rasdaman_insertdemo.sh
+
+The demo database occupies marginal disk space, and is a straightforward way to
+show that the rasdaman installation has been successfull.
+
+Example programs
+----------------
+
+Several example programs are provided in the ``c++`` and ``java`` subdirectories
+of ``$RMANHOME/share/rasdaman/examples``. Each directory contains a Makefile
+plus ``.cc`` and ``.java`` sources, resp.
+
+Makefile
+--------
+
+The ``Makefile`` helps to compile and link the sample C++ / Java sources files
+delivered. It is a good source for hints on the how-tos of compiler and linker
+flags.
+
+.. note::
+    All programs, once compiled and linked, print a usage synopsis when
+    invoked without parameter.
+
+``query.cc``
+------------
+
+Sends a hardwired query to a running rasdaman system:
+
+.. code-block: rasql
+
+    select a[0:4,0:4]
+    from mr as a
+    where some_cells( a[8:9,8:9] >= 0 )
+
+In addition, it demonstrates how to work with the result set returned from
+rasdaman. The query can easily be changed, or made a parameter to the program.
+
+``Query.java``
+--------------
+
+Sends the following hardwired query if one is not provided as a parameter:
+
+.. code-block: rasql
+
+    select avg_cells( a )
+    from mr
+
+``AvgCell.java``
+----------------
+
+This program computes the average cell value from all images of a given
+collection on client side. Note that it requires grayscale images. A good
+candidate collection is ``mr`` from the demo database.
+
+
+*****************
+Access Interfaces
+*****************
+
+Rasdaman services can be invoked in several ways: through command line,
+Web requests, and custom programs connecting via the C++ and Java APIs.
+
+Command Line Tools
+==================
+
+Queries can be submitted to the command line tool ``rasql``. Complete
+control over the server is provided through several utilities, in
+particular ``rasmgr``; see :ref:`sec-rascontrol-invocation` for details. All
+tools can communicate with local and remote rasdaman servers.
+
+Web Services
+============
+
+Several Web services are available with rasdaman. They are implemented as
+servlets, hence independent from the array engine and only available if started
+in a servlet container such as Tomcat or jetty. They can be accessed under the
+common context path ``/rasdaman``.
+
+*  ``/rasdaman/ows`` exposes geo Web Services based on the interface standards
+   of the Open Geospatial Consortium (OGC Web Services, OWS). Supported OGC
+   standards are:
+
+   -  Web Coverage Service (WCS)
+   -  Web Coverage Processing Service (WCPS)
+   -  Web Map Service (WMS) suites
+
+*  ``/rasdaman/def`` provides access to a Coordinate Reference System
+   (CRS) Resolver Service, SECORE. It is identical to the one deployed by OGC,
+   where http://www.opengis.net/def/crs is the branch for CRS served by
+   SECORE.
+
+*  ``/rasdaman/rasql`` provides support for submitting rasql queries and
+   receiving results with standard HTTP requests. Requests must specify three
+   mandatory parameters:
+
+   +--------------+------------------------------------------------------------+
+   | ``username`` | rasdaman login name under which the query will be executed |
+   +--------------+------------------------------------------------------------+
+   | ``password`` | password corresponding to the login                        |
+   +--------------+------------------------------------------------------------+
+   | ``query``    | rasql query string, properly encoded for URI embedding     |
+   +--------------+------------------------------------------------------------+
+
+   Example: ::
+
+    http://localhost:8080/rasdaman/rasql
+        ?username=rasguest
+        &password=rasguest
+        &uery=select%20encode%28mr2%2C%22png%22%29%20from%20mr
+
+
+The diagram below illustrates the OGC service architecture of rasdaman:
+
+.. hidden-code-block:: text
+
+    clients              read:                       read:
+    +-----------------+
+    |                 |  GetCapabilities             select ...
+    |  +-----------+  |  DescribeCoverage
+    |  |3rd party  |  |
+    |  +-----------+  |  GetCoverage
+    |                 |  ProcessCoverage
+    |  +-----------+  |  GetMap
+    |  |wcs_client |  |                 +---------+            +---------+
+    |  +-----------+  | +-------------> |petascope| +--------> |rasserver|
+    |                 |                 +---------+            +---------+
+    |  +-----------+  |  write:                      write:
+    |  |wcst_import|  |
+    |  +-----------+  |  InsertCoverage              create type/coll
+    |                 |  UpdateCoverage              insert,update,delete
+    +-----------------+  DeleteCoverage              drop type/coll
+
+
+
+APIs
+====
+
+Programmatic access is available through self-programmed code using the
+C++ and Java interfaces; see the C++ and Java Guide for details.
+
+
 .. _sec-rasdaman-architecture:
 
-*********************
-rasdaman Architecture
-*********************
+*******************
+Server Architecture
+*******************
 
 The parallel server architecture of rasdaman offers a scalable,
 distributed environment to efficiently process even very large numbers
@@ -1851,7 +1989,7 @@ of concurrent client requests. Yet, server administration is easy to
 accomplish, with only few things to do to have a smoothly running,
 highly performant installation. Moreover, the system is implemented in a
 special high availability technique where most server management
-operat­ions can be done with the server up and running, limiting the
+operations can be done with the server up and running, limiting the
 need for a server shutdown to the absolute minimum.
 
 In this Section the general rasdaman server architecture is outlined. It
@@ -1893,7 +2031,7 @@ server(s) all run on the same physical hardware, the *rasdaman host*.
 The servers resolve requests, thereby generating calls to the relational
 database system which in turn accesses its database files. For the
 purpose of this manual, the relational server together with the
-data­base it maintains are collectively called the *database*. The
+database it maintains are collectively called the *database*. The
 machine the relational database server runs on is referred to as
 *database host* (:numref:`figure2`).
 
@@ -2010,7 +2148,7 @@ Authentication
 
 On every machine hosting rasdaman servers a separate manager has to run.
 The manager maintains an authorization file, ``$RMANHOME/etc/rasmgr.auth``.
-It should not be changed by the ad­min­ist­rat­or, as they are
+It should not be changed by the administrator, as they are
 generated, maintained, and overwritten by the manager.
 
 .. _figure4:
@@ -2094,8 +2232,6 @@ look like this: ::
 
     define dbh rasdaman_host -connect /opt/rasdaman/data/RASBASE
 
-Such an entry gets established automatically when running the ``create_db.sh`` script.
-
 .. caution::
     For a customized data directory location it is recommended to use
     a symbolic link, rather than modify installation defaults.
@@ -2120,127 +2256,6 @@ to keep this value because otherwise this name has to be changed in many
 places across multiple clients and scripts.
 
 
-*****************
-Access Interfaces
-*****************
-
-Rasdaman services can be invoked in several ways: through command line,
-through Web services, and through C++ and Java APIs.
-
-Command Line Tools
-==================
-
-Queries can be submitted to the command line tool ``rasql``. Complete
-control over the server is provided through several utilities, in
-particular ``rasmgr``; see :ref:`sec-rascontrol-invocation` for details. All
-tools can communicate with local and remote rasdaman servers.
-
-Web Services
-============
-
-Several Web services are available with rasdaman. They are implemented as
-servlets, hence independent from the array en­gine and only available if started
-in a servlet container such as Tom­cat or jetty. They can be accessed under the
-common context path ``/rasdaman``.
-
-The corresponding war files by default are located in installation directory
-``share/rasdaman/war/``. During the configuration step and before compilation
-(cf. :ref:`sec-download-install`) this directory can be set with ``cmake``
-option ``-DWAR_DIR``. For example, this allows indicating the directory where
-war files are installed (such as Tomcat's ``webapps``/ directory).
-
-.. note::
-    The effective user invoking "make install" (as available in
-    shell variable ``$USER``) has to have write permissions in that directory.
-
-rasql Queries
--------------
-
-Submission of rasql queries is possible through path ``/rasdaman/rasql``.
-
-This requires deployment of war file ``rasdaman.war``.
-
-Invocation syntax
-^^^^^^^^^^^^^^^^^
-
-The request has three mandatory parameters:
-
-+--------------+------------------------------------------------------------+
-| ``username`` | rasdaman login name under which the query will be executed |
-+--------------+------------------------------------------------------------+
-| ``password`` | password corresponding to the login                        |
-+--------------+------------------------------------------------------------+
-| ``query``    | rasql query string, properly encoded for URI embedding     |
-+--------------+------------------------------------------------------------+
-
-Example
-^^^^^^^
-
-::
-
-    `www.acme.com/rasdaman/rasql <http://www.acme.com/rasdaman/rasql>`_
-        ? username=rasguest
-        & password=rasguest
-        & query=select%20encode(mr,"png")%20from%20mr
-
-
-Geo Web Services
-----------------
-
-A series of geo Web services is available at the following endpoints:
-
-*  Web service for directly submitting rasql queries, and receiving results:
-
-   ``/rasdaman/rasql``
-
-*  Geo Web Services based on the interface standards of the Open
-   Geospatial Consortium (OGC Web Services, OWS):
-
-   ``/rasdaman/ows``
-
-   This requires deployment of war file ``rasdaman.war``. Supported are:
-
-   -  Web Coverage Service (WCS)
-   -  Web Coverage Processing Service (WCPS)
-   -  Web Map Service (WMS) suites
-
-*  A Coordinate Reference System (CRS) Resolver service, SECORE, which
-   is identical to the one deployed by OGC) is available under path
-   ``/def``. This path is reflecting the OGC resolver architecture where
-   `www.opengis.net/def/crs <http://www.opengis.net/def/crs>`_ is the branch for 
-   CRSs served by SECORE.
-
-   This requires deployment of war file ``def.war``.
-
-The diagram below illustrates the OGC service architecture of rasdaman:
-
-.. hidden-code-block:: text
-
-    clients              read:                       read:
-    +-----------------+
-    |                 |  GetCapabilities              select ...
-    |  +-----------+  |  DescribeCoverage
-    |  |3rd party  |  |
-    |  +-----------+  |  GetCoverage
-    |                 |  ProcessCoverage
-    |  +-----------+  |  GetMap
-    |  |ws client  |  |                 +---------+            +---------+
-    |  +-----------+  | +-------------> |petascope| +--------> |rasserver|
-    |                 |                 +---------+            +---------+
-    |  +-----------+  |  write:                      write:
-    |  |wcst_import|  |
-    |  +-----------+  |  InsertCoverage               create type/coll
-    |                 |  UpdateCoverage               insert,update,delete
-    +-----------------+  DeleteCoverage               drop type/coll
-
-
-
-APIs
-====
-
-Programmatic access is available through self-programmed code using the
-C++ and Java interfaces; see the C++ and Java Guide for details.
-
 
 .. _sec-server-administration:
 
@@ -2248,11 +2263,12 @@ C++ and Java interfaces; see the C++ and Java Guide for details.
 Server Administration
 *********************
 
-This Section explains how to start up and shut down servers, as well as
-how to monitor and influence server state.
+This Section explains on how to manage a rasdaman service on a *lower level*:
+start up and shut down individual server workers, as well as how to monitor and
+influence server state.
 
 It is recommended to first study the previous section so as to
-under­stand server administration terminology used here.
+understand server administration terminology used here.
 
 General Procedure
 =================
@@ -2266,7 +2282,7 @@ supervising activity of local (and possibly remote) rasdaman servers.
 Interaction between user (i.e., administrator) and the manager takes
 place through the interactive control front end.
 
-In the sequel, it is first described how to launch the manager ``ras­mgr``,
+In the sequel, it is first described how to launch the manager ``rasmgr``,
 then ``rascontrol`` commands are detailed.
 
 Important Security Note
@@ -2276,15 +2292,8 @@ To remain compatible with older rasdaman versions, clients use login
 "rasguest" / password "rasguest" by default (i.e., when no user and
 password are explicitly set by the application). In the distribution
 configuration, this user is defined to have read-only access to the
-databases - in plain words,
-
-*  According to the default configuration,
-
-*  users can access,
-
-*  but not manipulate databases
-
-*  without authentication.
+databases, so that users can access but not manipulate databases without
+authentication.
 
 Therefore, the administrator is strongly urged to adapt authentication
 settings to the local security policy before switching databases online.
@@ -2343,7 +2352,7 @@ To start a manager which will listen at port 7001: ::
 =========================
 
 The manager front end, rascontrol, is a command-line interface used for
-rasdaman admin­istrat­ion. It allows to define the whole rasdaman system
+rasdaman administration. It allows to define the whole rasdaman system
 configuration, including start up and shut down of server instances and
 user logins and rights.
 
@@ -2424,7 +2433,7 @@ Script Use
 ----------
 
 Alternatively to interactive login, user and password information can be
-taken from the environment variable ``RASLOGIN``. This variant is suit­able
+taken from the environment variable ``RASLOGIN``. This variant is suitable
 for batch scripting in conjunction with the ``-x`` option.
 
 The following example shows how first the ``RASLOGIN`` is set appropriately: ::
@@ -2612,8 +2621,10 @@ Define rasdaman Servers
 
 Option ``-xp`` must be the last option. Everything following "-xp" until end
 of line is considered to be "\ *options*\ " and will be passed, at
-start­up time, to the server; see :ref:`sec-server-control-options`
-below for the list of options available.
+startup time, to the server.
+
+.. TODO: invalid reference
+.. ; see :ref:`sec-server-control-options` below for the list of options available.
 
 Change Server Settings
 ----------------------
@@ -2651,8 +2662,10 @@ Change Server Settings
 
 Option ``-xp`` must be the last option. Everything following "-xp" until end
 of line is considered to be "\ *options*\ " and will be passed, at
-start­up time, to the server; see Section :ref:`sec-server-control-options`
-below for the list of options available.
+startup time, to the server.
+
+.. TODO: invalid reference
+.. see Section :ref:`sec-server-control-options` below for the list of options available.
 
 Restrictions:
 
@@ -2716,14 +2729,14 @@ Define Database Hosts
     the database server
 
 ``-user u``
-    the user name (optional) used to connect ``ras­server``
+    the user name (optional) used to connect ``rasserver``
     to the base DBMS server; for PostrgreSQL, using this
-    parameter auto­matically implies trust authent­ic­ation.
+    parameter automatically implies trust authentication.
 
 ``-passwd p``
     the password (optional) used to connect ``rasserver`` to
     the base DBMS server; for PostrgreSQL, using this
-    parameter auto­matically implies trust authent­ic­ation.
+    parameter automatically implies trust authentication.
 
 Change Database Host Settings
 -----------------------------
@@ -2742,14 +2755,14 @@ Change Database Host Settings
     change connect string to *c*
 
 ``-user u``
-    the user name used to connect ``ras­server`` to the
+    the user name used to connect ``rasserver`` to the
     base DBMS server; using this optional parameter
-    auto­matically implies ident-based authentication.
+    automatically implies ident-based authentication.
 
 ``-passwd p``
     the password used to connect ``rasserver`` to the
     base DBMS server; using this optional parameter
-    auto­matically implies ident-based authentication.
+    automatically implies ident-based authentication.
 
 The connection parameters can be changed at any time, however the
 servers will get the information only when they are restarted.
@@ -2765,7 +2778,7 @@ Remove Database Host Definitions
 Remove database host *h* from the definition table.
 
 It is not possible to remove a database host definition while this
-data­base host has active servers connected to it.
+database host has active servers connected to it.
 
 Status Information
 ------------------
@@ -2777,8 +2790,8 @@ Databases
 =========
 
 Databases represent the physical database itself, together with the
-relat­ional database server accessing them. It is possible to have
-mult­iple database definitions in the rasdaman server environment which
+relational database server accessing them. It is possible to have
+multiple database definitions in the rasdaman server environment which
 are distinguished by the database host; the interpretation, then, is
 that the same contents (be it the same physical database or a mirrored
 copy) is available through relational servers running on the different
@@ -2822,10 +2835,10 @@ Remove Database Definitions
     host name of database to be removed
 
 Remove definition of database *d* from the definition table. The
-data­base itself remains unchanged, it is not physically deleted.
+database itself remains unchanged, it is not physically deleted.
 
 It is not possible to remove a database definition while the
-corresp­ond­ing database has open transactions.
+corresponding database has open transactions.
 
 Status Information
 ------------------
@@ -2866,8 +2879,8 @@ Server Start-up and Shutdown
     currently running.
 
 Look up the named server(s) in the definition list, and start the
-spec­ified one(s) using the previously defined individual startup
-para­meters.
+specified one(s) using the previously defined individual startup
+parameters.
 
 At least one of the options *s*, -host *s*, and -all must be present.
 
@@ -2898,7 +2911,7 @@ options *s*, -host *s*, and -all must be present.
 Without ``-force`` and ``-kill``, the server is marked for shut down and will
 actually be terminated by sending ``SIGTERM`` after completing the current
 transaction. With ``-force`` and ``-kill``, the server is terminated
-instant­­an­eously; this should be handled with extreme caution, as
+instantaneously; this should be handled with extreme caution, as
 experience shows that relational database systems react differently on
 such a situation: usually a running transaction is aborted (which is the
 desired behavior), but sometimes the running transaction is committed
@@ -3108,7 +3121,7 @@ Federation network
 
 The federation network is defined in a decentralized way: each ``rasmgr``
 knows peers from which it accepts requests, and to which it can send
-re­quests. To this end, each ``rasmgr`` maintains an ``inpeer`` and ``outpeer``
+requests. To this end, each ``rasmgr`` maintains an ``inpeer`` and ``outpeer``
 list:
 
 -  The ``inpeer`` list contains those hosts from which this node's ``rasmgr``
@@ -3121,12 +3134,12 @@ By manipulating these two lists administrators can exercise fine-grain
 security policy in a rasdaman federation network.
 
 Note that the federation connectivity graph is not necessarily
-symmetric: a ``ras­mgr`` may send requests to some other ``rasmgr``, but not
-accept re­quests, and vice versa, depending on the individual
+symmetric: a ``rasmgr`` may send requests to some other ``rasmgr``, but not
+accept requests, and vice versa, depending on the individual
 configuration.
 
 Each host individually respects these statements, there is no global
-ras­da­man federation configuration.
+rasdaman federation configuration.
 
 Federation node addressing
 --------------------------
@@ -3155,8 +3168,8 @@ in all federation nodes. See :ref:`sec-users-rights` for details on users and th
 various permissions they can have on a database.
 
 If neither any ``inpeer`` nor any ``outpeer`` is defined (either interactively
-through ``ras­control`` or by way of settings in ``rasmgr.conf``) then this
-ras­da­man instance will act completely standalone and will neither send
+through ``rascontrol`` or by way of settings in ``rasmgr.conf``) then this
+rasdaman instance will act completely standalone and will neither send
 nor accept peer requests.
 
 Define peers
@@ -3216,7 +3229,7 @@ Caveat: fluctuating IPs
 -----------------------
 
 In cloud environments, IP addresses are maintained dynamically and can
-change for a given host between reboots. Hence, when growing a rasda­man
+change for a given host between reboots. Hence, when growing a rasdaman
 federation by launching new VMs care must be taken that the in- and
 outpeers received the proper current IP address.
 
@@ -3284,24 +3297,20 @@ Security
 ********
 
 There are several security measures available, which should be considered
-seriously. Among them are the access right mechanisms found in Tomcat, web
-server, rasdaman, and PostgreSQL. We highly recommend to make use of these.
+seriously. Among them are the access right mechanisms found in Tomcat,
+rasdaman, and PostgreSQL. We highly recommend to make use of these.
 
-For Tomcat, Web server, and PostgreSQL we refer to the pertaining documentation.
+For Tomcat and PostgreSQL please refer to the pertaining documentation. The
+servlet is safe against SQL injection attacks - we are not aware of any means
+for the user to send custom queries to the PostgreSQL server or the rasdaman
+server. XSRF and XSS represent no danger to the service because there is no
+user generated content available.
+
 For rasdaman, we recommend to change the default user passwords in rasdaman
 (rasguest/rasguest for read-only access, rasadmin/rasadmin for read-write and
 administrator access) to not run into the Oracle "Scott/tiger" trap. Even
-better, add separate, private users. For all these actions, the ``rascontrol``
-utility is your friend. Along the same line we recommend to configure petascope
-access to rasdaman using a read-only login which is different from the default
-one provided in the ``petascope.properties`` file.
-
-The servlet is safe against SQL injection attacks - we are not aware of any
-means for the user to send custom queries to the PostgreSQL server or the
-rasdaman server. XSRF and XSS represent no danger to the service because there
-is no user generated content available.
-
-The rasdaman service doesn't use cookies.
+better, use additional separate, private users. The rasdaman service doesn't
+use cookies.
 
 
 ******
@@ -3357,93 +3366,9 @@ be considered for inclusion in a backup:
       rsync -avz --exclude='data/' /opt/rasdaman /backup/
 
 
-
-*****************************
-Example Database and Programs
-*****************************
-
-Example Database
-================
-
-A demonstration database is provided as part of the delivery package which
-contains the collections and images described in the *Query Language Guide*. To
-populate this database, first install the system as described here in the
-*Installation Guide*, and then invoke ``rasdaman_insertdemo.sh`` in the ``bin``
-directory. This script makes use of the example images sitting in the
-``examples`` directory.
-
-It is recommended to populate this demo database - it occupies only marginal
-disk space - first: Successful generation of this database shows overall
-successful rasdaman installation.
-
-Before the test programs can be used, the demo database has to be created and
-schema information has to be imported if it was not already done during the
-installation of rasdaman: ::
-
-    $ create_db.sh
-
-Afterwards, the following line establishes the demo database (using a script
-from the ``bin`` directory: ::
-
-    $ rasdaman_insertdemo.sh
-
-The rasdaman server should not be running during ``create_db.sh`` execution,
-however, the server should be started for the ``rasdaman_insert­demo.sh``
-script, as this is a client application.
-
-Example Programs
-================
-
-Several example programs are provided in the ``c++`` and ``java`` subdirectories
-of ``$RMANHOME/share/rasdaman/examples``. Each directory contains a Makefile
-plus several ``.cc`` and ``.java`` sources, resp.
-
-Makefile
---------
-
-The ``Makefile`` serves to compile and link the sample C++ / Java sources files
-delivered. It is a good source for hints on the how-tos of compiler and linker
-flags etc.
-
-.. note::
-    All programs, once compiled and linked, print a usage synopsis when
-    invoked without parameter.
-
-``query.cc``
-------------
-
-Sends a hardwired query to a running rasdaman system:
-
-.. code-block: rasql
-
-    select a[0:4,0:4]
-    from mr as a
-    where some_cells( a[8:9,8:9] >= 0 )
-
-In addition, it demonstrates how to work with the result set returned from
-rasdaman. The query can easily be changed, or even made a parameter to the
-program.
-
-``Query.java``
---------------
-
-Sends the following hardwired query if one is not provided as a parameter:
-
-.. code-block: rasql
-
-    select avg_cells( a )
-    from mr
-
-``AvgCell.java``
-----------------
-
-This program computes the average cell value from all images of a given
-collection on client side. Note that it requires grayscale images. A good
-candidate collection is ``mr`` from the demo database.
-
-******************
-Uninstall rasdaman
-******************
+**************
+Uninstallation
+**************
 
 When uninstalling rasdaman, you can execute the following commands to ensure
 that all installed files and services are fully removed from the system.
@@ -3454,29 +3379,32 @@ that all installed files and services are fully removed from the system.
 
 .. hidden-code-block:: bash
 
-    # Stop rasdaman
-    $ sudo service rasdaman stop
-    # Disable rasdaman
+    # Stop rasdaman, disable service, and clear from failed list
+    $ sudo systemctl stop rasdaman
     $ sudo systemctl disable rasdaman
+    $ sudo systemctl reset-failed
+
     # Removes everything related to rasdaman (except dependencies)
-    # on Ubuntu/Debian systems; for CentOS use the yum equivalent
+    # on Ubuntu/Debian systems; for CentOS use `yum erase rasdaman`
     $ sudo apt-get purge rasdaman
+
     # Remove the rasdaman installation directory
     # WARNING: This removes all rasdaman data and configuration files!
     $ sudo rm -r /opt/rasdaman
-    # Remove systemd service
+
+    # Remove systemd service, init script, profile script
     $ sudo rm /etc/systemd/system/rasdaman.service
-    # Remove rasdaman init script
     $ sudo rm /etc/init.d/rasdaman
+    $ sudo rm /etc/profile.d/rasdaman.sh
+
     # Remove rasdaman apt repository on Ubuntu/Debian
     $ sudo rm /etc/apt/sources.list.d/rasdaman.list
-    # Remove rasdaman profile script
-    $ sudo rm /etc/profile.d/rasdaman.sh
-    # Remove the rasdaman unit from systemctl --failed list
-    $ sudo systemctl reset-failed
-    # This will remove tomcat/postgres if no other package uses them,
-    # on Ubuntu/Debian
+
+    # Remove dependencies of the rasdaman package which are no longer
+    # needed by other packages; it will remove postgres if no other 
+    # package depends on it (Debian / Ubuntu)
     $ sudo apt-get autoremove
+
 
 ***************
 Troubleshooting
@@ -3491,9 +3419,16 @@ The first step in troubleshooting problems should be to look into the
 Start with checking the ``rasmgr`` and ``rasserver`` logs for any errors. If
 this does not provide any clues, check the ``petascope.log`` or ``catalina.out``.
 
+Next, investigate the status of rasdaman and external Tomcat if applicable
+with ``systemctl rasdaman status`` (and similar for Tomcat). Inspect the
+output of ``ps aux | grep ras`` to list details about the rasdaman processes,
+or ``top`` for CPU and memory usage.
+
+It can be useful to double check the system memory usage with ``free -m``,
+and disk space usage with ``df -h``.
 
 Manually stop rasdaman
-----------------------
+======================
 
 If stopping rasdaman fails, it may be necessary to manually stop it:
 
@@ -3506,11 +3441,11 @@ If stopping rasdaman fails, it may be necessary to manually stop it:
     # of the output from the previous command
     $ kill -9 <pid>
 
-    # then try to kill rasserver processes
-    $ pkill rasserver
+    # then try to kill any remaining rasserver processes
+    $ pkill -f rasserver
 
-    # if this fails, force kill rasservers
-    $ pkill -9 rasserver
+    # if this fails (check with ps aux), force kill rasservers
+    $ pkill -9 -f rasserver
 
 Checking the server logs could provide further information on why stopping
 rasdaman failed in the first place.
