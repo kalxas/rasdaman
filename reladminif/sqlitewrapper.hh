@@ -225,7 +225,7 @@ private:
     int columnCounter;
 
     // 10 minutes timeout, in case RASBASE is locked by another rasserver for writing
-    static constexpr int SQLITE_BUSY_TIMEOUT{10 * 60 * 1000};
+    static constexpr int SQLITE_BUSY_TIMEOUT_MS{10 * 60 * 1000};
 };
 
 #endif
