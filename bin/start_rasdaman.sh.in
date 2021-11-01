@@ -78,6 +78,9 @@ ENABLE_JAVA=@ENABLE_JAVA@
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 [ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
 
+# set default memory limit of 4GB for embedded petascope
+[ -z "$JAVA_OPTS" ] && JAVA_OPTS="-Xmx4000m"
+
 log()  { echo "$PROG: $*"; }
 logn() { printf "%s" "$PROG: $*"; }
 error(){ echo "$PROG: $*" >&2; exit $RC_ERROR; }

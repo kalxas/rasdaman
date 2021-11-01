@@ -433,6 +433,8 @@ settings can be seen below.
   START_RASDAMAN_OPTS="-p $RASMGR_PORT"
   # options to be passed on to stop_rasdaman.sh
   STOP_RASDAMAN_OPTS="-p $RASMGR_PORT"
+  # Java options to be passed on to embedded petascope
+  JAVA_OPTS="-Xmx4000m"
 
 See also the dedicated pages on :ref:`configuration and log files
 <sec-system-install-conf>` and :ref:`administration <sec-server-administration>`.
