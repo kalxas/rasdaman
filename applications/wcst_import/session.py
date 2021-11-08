@@ -33,7 +33,7 @@ from master.error.runtime_exception import RuntimeException
 from util.file_util import FileUtil, File
 from util.list_util import get_null_values
 from util.import_util import import_glob
-from util.string_util import is_integer
+from util.string_util import is_integer, get_petascope_endpoint_without_ows
 from decimal import Decimal
 
 
@@ -129,7 +129,7 @@ class Session:
             self.pyramid_members = None if "pyramid_members" not in self.recipe["options"] else self.recipe["options"]["pyramid_members"]
             self.pyramid_bases = None if "pyramid_bases" not in self.recipe["options"] else self.recipe["options"][
                 "pyramid_bases"]
-            # If set to true, then request: /rasdaman/admin?REQUEST=AddPyramidMember&BASE=s2_10m&MEMBER=s2_60m&harvesting=true
+            # If set to true, then request: /rasdaman/admin/coverage/pyramid/add?COVERAGEID=s2_10m&MEMBERS=s2_60m&harvesting=true
             # mean: recursively add pyramid member coverages of s2_60m coverage to base s2_10m coverage
             self.pyramid_harvesting = False if "pyramid_harvesting" not in self.recipe["options"] else bool(self.recipe["options"]["pyramid_harvesting"])
 
@@ -178,6 +178,8 @@ class Session:
         ConfigManager.tmp_directory = self.tmp_directory if self.tmp_directory[-1] == "/" else self.tmp_directory + "/"
         ConfigManager.root_url = self.root_url
         ConfigManager.wcs_service = self.wcs_service
+        ConfigManager.admin_service = get_petascope_endpoint_without_ows(self.wcs_service) + "/admin"
+
         ConfigManager.executor = self.get_executor()
         ConfigManager.subset_correction = self.subset_correction
         ConfigManager.skip = self.skip

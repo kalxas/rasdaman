@@ -176,3 +176,25 @@ def is_band_name_valid(input_str):
     Check if input string is valid band name for a coverage
     """
     return __band_name_pattern.match(input_str)
+
+
+def get_petascope_endpoint_without_ows(petascope_endpoint):
+    """
+    e.g. http://mundi.rasdaman.com/rasdaman/ows or http://mundi.rasdaman.com/rasdaman/ows/
+    returns http://mundi.rasdaman.com/rasdaman
+    """
+    endpoint = petascope_endpoint
+
+    if petascope_endpoint.endswith("/ows") or petascope_endpoint.endswith("/ows/"):
+        endpoint = ""
+        tmps = petascope_endpoint.split("/")
+
+        size = len(tmps)
+
+        for i in range(0, size - 1):
+            endpoint += tmps[i]
+            if i < size - 2:
+                endpoint += "/"
+
+    return endpoint
+

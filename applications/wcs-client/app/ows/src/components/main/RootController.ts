@@ -67,7 +67,7 @@ module rasdaman {
             $scope.checkPetascopeEnableAuthentication = function(): angular.IPromise<any> {
 
                 var result = $q.defer();
-                var requestUrl = settings.contextPath + "/CheckEnableAuthentication";
+                var requestUrl = settings.contextPath + "/admin/authisactive";
 
                 $http.get(requestUrl)
                     .then(function(dataObj: any) {

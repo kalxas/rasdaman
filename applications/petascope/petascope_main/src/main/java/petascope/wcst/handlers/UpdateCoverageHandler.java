@@ -27,6 +27,8 @@
  */
 package petascope.wcst.handlers;
 
+import com.rasdaman.admin.layer.service.AdminCreateOrUpdateLayerService;
+
 import petascope.core.Pair;
 import petascope.core.XMLSymbols;
 import petascope.core.gml.cis10.GMLCIS10ParserService;
@@ -65,6 +67,7 @@ import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.Axis;
 import org.rasdaman.domain.cis.AxisExtent;
+import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.cis.IndexAxis;
@@ -82,7 +85,6 @@ import petascope.core.gml.metadata.service.CoverageMetadataService;
 import static petascope.core.service.CrsComputerService.GRID_POINT_EPSILON_WCPS;
 import petascope.exceptions.ExceptionCode;
 import org.rasdaman.admin.pyramid.service.PyramidService;
-import org.rasdaman.domain.cis.CoveragePyramid;
 
 import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
 import petascope.wcst.exceptions.WCSTInvalidXML;
@@ -91,6 +93,8 @@ import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
+import org.rasdaman.repository.service.WMSRepostioryService;
+
 @Service
 public class UpdateCoverageHandler {
 
@@ -98,6 +102,8 @@ public class UpdateCoverageHandler {
     
     @Autowired
     private CoverageRepositoryService persistedCoverageService;
+    @Autowired
+    private WMSRepostioryService wmsRepostioryService;
     @Autowired
     private GMLCISParserService gmlCISParserService;
     @Autowired
@@ -111,7 +117,7 @@ public class UpdateCoverageHandler {
     @Autowired
     private CoverageMetadataService coverageMetadataService;
     @Autowired
-    private CoverageRepositoryService coverageRepostioryService;
+    private AdminCreateOrUpdateLayerService createOrUpdateLayerService;
 
     @Autowired
     private RemoteCoverageUtil remoteCoverageUtil;
@@ -124,7 +130,7 @@ public class UpdateCoverageHandler {
      * @return empty response.
      */
     public Response handle(UpdateCoverageRequest request)
-            throws WCSTCoverageParameterNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
+            throws WCSTCoverageParameterNotFound, WCSTInvalidXML, PetascopeException, SecoreException, Exception {
         log.debug("Handling coverage update...");
         // persisted coverage
         Coverage currentCoverage = persistedCoverageService.readCoverageByIdFromDatabase(request.getCoverageId());
@@ -153,6 +159,11 @@ public class UpdateCoverageHandler {
         
         // Now, we can persist the updated current coverage from input slice
         persistedCoverageService.save(currentCoverage);
+        
+        // If this coverage has an existing associated WMS layer, then update the coverage -> update the layer as well
+        if (this.wmsRepostioryService.isInLocalCache(coverageId)) {
+            this.createOrUpdateLayerService.save(coverageId, null);
+        }
 
         Response response = new Response();
         response.setCoverageID(coverageId);

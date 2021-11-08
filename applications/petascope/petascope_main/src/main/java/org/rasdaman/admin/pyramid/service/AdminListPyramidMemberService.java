@@ -35,16 +35,13 @@ import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static petascope.controller.AbstractController.getValueByKey;
-import petascope.core.KVPSymbols;
-import static petascope.core.KVPSymbols.KEY_BASE;
-import static petascope.core.KVPSymbols.KEY_REQUEST;
+import static petascope.core.KVPSymbols.KEY_COVERAGE_ID;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.SetUtil;
-import static petascope.core.KVPSymbols.VALUE_LIST_PYRAMID_MEMBERS;
 
 /**
  * Class to list the persisted pyramid member coverages of a base coverage
@@ -54,47 +51,42 @@ import static petascope.core.KVPSymbols.VALUE_LIST_PYRAMID_MEMBERS;
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 @Service
-public class ListPyramidMemberService extends AbstractAdminService {
-    
+public class AdminListPyramidMemberService extends AbstractAdminService {
+
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
 
-    private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_REQUEST, KEY_BASE);
-
-    public ListPyramidMemberService() {
-        this.service = VALUE_LIST_PYRAMID_MEMBERS;
-        this.request = VALUE_LIST_PYRAMID_MEMBERS;
-    }
+    private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_COVERAGE_ID);
 
     private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {
         this.validateRequiredParameters(kvpParameters, VALID_PARAMETERS);
     }
-    
+
     private String parseBaseCoverageId(Map<String, String[]> kvpParameters) throws PetascopeException {
-        String baseCoverageId = getValueByKey(kvpParameters, KEY_BASE);
+        String baseCoverageId = getValueByKey(kvpParameters, KEY_COVERAGE_ID);
         if (!this.coverageRepositoryService.isInCache(baseCoverageId)) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, "Base coverage '" + baseCoverageId + "' does not exist.");
         }
-        
+
         return baseCoverageId;
     }
 
     @Override
     public Response handle(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
         this.validate(kvpParameters);
-        
+
         String baseCoverageId = this.parseBaseCoverageId(kvpParameters);
         Coverage baseCoverage = this.coverageRepositoryService.readCoverageFullMetadataByIdFromCache(baseCoverageId);
-        
+
         List<PyramidMember> pyramidMembers = new ArrayList<>();
         for (CoveragePyramid coveragePyramid : baseCoverage.getPyramid()) {
             PyramidMember member = new PyramidMember(coveragePyramid.getPyramidMemberCoverageId(), coveragePyramid.getScaleFactorsList());
             pyramidMembers.add(member);
         }
-        
+
         String json = JSONUtil.serializeObjectToJSONString(pyramidMembers);
         List<byte[]> datas = Arrays.asList(json.getBytes());
-        
+
         Response result = new Response(datas, MIMEUtil.MIME_JSON);
         return result;
     }

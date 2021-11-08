@@ -33,12 +33,15 @@ class CreatePyramidMemberRequest(AdminRequest):
         """
         Class to request to create a downscaled level coverage and add this coverage to a base coverage's pyramid
 
-        e.g. Example: /rasdaman/admin?REQUEST=CreatePyramidMember
-                                     & BASE=S2 & MEMBER=S2_4
-                                     & SCALEFACTOR=4,4,1
+        e.g. Example: /rasdaman/admin/coverage/pyramid/CreatePyramidMember
+                                     & COVERAGEID=S2
+                                     & MEMBER=S2_4
+                                     & SCALEVECTOR=4,4,1
                                      & INTERPOLATION=linear,linear,nearest
         """
         super(CreatePyramidMemberRequest, self).__init__()
+
+        self.context_path = ConfigManager.admin_service + "/coverage/pyramid/create"
 
         self.base_coverage_id = base_coverage_id
         self.pyramid_member_coverage_id = pyramid_member_coverage_id
@@ -49,10 +52,9 @@ class CreatePyramidMemberRequest(AdminRequest):
 
     def _get_request_type_parameters(self):
         request_kvp = OrderedDict()
-        request_kvp["REQUEST"] = "CreatePyramidMember"
-        request_kvp["BASE"] = self.base_coverage_id
+        request_kvp["COVERAGEID"] = self.base_coverage_id
         request_kvp["MEMBER"] = self.pyramid_member_coverage_id
-        request_kvp["SCALEFACTOR"] = self.scale_factors
+        request_kvp["SCALEVECTOR"] = self.scale_factors
 
         if self.interpolation is not None:
             request_kvp["INTERPOLATION"] = self.interpolation
@@ -66,12 +68,14 @@ class AddPyramidMemberRequest(AdminRequest):
         """
         Class to request to add a downscaled level coverage to a base coverage's pyramid
 
-        e.g. /rasdaman/admin?REQUEST=AddPyramidMember
-                            & BASE=Sentinel2_10m
-                            & MEMBER=Sentinel2_10m
+        e.g. /rasdaman/admin/coverage/pyramid/add?
+                            & COVERAGEID=Sentinel2_10m
+                            & MEMBERS=Sentinel2_20m
                             & HARVESTING=true (default is false)
         """
         super(AddPyramidMemberRequest, self).__init__()
+
+        self.context_path = self.context_path + "/coverage/pyramid/add"
 
         self.base_coverage_id = base_coverage_id
         self.pyramid_member_coverage_id = pyramid_member_coverage_id
@@ -79,9 +83,8 @@ class AddPyramidMemberRequest(AdminRequest):
 
     def _get_request_type_parameters(self):
         request_kvp = OrderedDict()
-        request_kvp["REQUEST"] = "AddPyramidMember"
-        request_kvp["BASE"] = self.base_coverage_id
-        request_kvp["MEMBER"] = self.pyramid_member_coverage_id
+        request_kvp["COVERAGEID"] = self.base_coverage_id
+        request_kvp["MEMBERS"] = self.pyramid_member_coverage_id
         request_kvp["HARVESTING"] = self.harvesting
 
         return request_kvp
@@ -93,16 +96,15 @@ class ListPyramidMembersRequest(AdminRequest):
         """
         Class to request to list the list pyramid members of a base coverage
 
-        e.g. /rasdaman/admin?REQUEST=ListPyramidMembers
-                            & BASE=Sentinel2_10m
+        e.g. /rasdaman/admin/coverage/pyramid/list?COVERAGEID=test_wms_4326
         """
         super(ListPyramidMembersRequest, self).__init__()
+        self.context_path = self.context_path + "/coverage/pyramid/list"
 
         self.base_coverage_id = base_coverage_id
 
     def _get_request_type_parameters(self):
         request_kvp = OrderedDict()
-        request_kvp["REQUEST"] = "ListPyramidMembers"
-        request_kvp["BASE"] = self.base_coverage_id
+        request_kvp["COVERAGEID"] = self.base_coverage_id
 
         return request_kvp

@@ -28,15 +28,13 @@ module wms {
         public name:string;        
 
         public constructor(layerName:string, name:string) {            
-            this.request = "DeleteStyle";
             this.layerName = layerName;
             this.name = name;            
         }
 
         public toKVP():string {
-            return "&request=" + this.request +
-                "&name=" + this.name +
-                "&layer=" + this.layerName;
+            return "COVERAGEID=" + this.layerName +
+                "&STYLEID=" + this.name;
         }
     }
 }

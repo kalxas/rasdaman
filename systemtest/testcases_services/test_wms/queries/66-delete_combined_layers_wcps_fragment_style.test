@@ -1,5 +1,2 @@
-service=WMS&
-version=1.3.0&
-request=DeleteStyle&
-name=ERROR_STYLE&
-layer=test_wms_4326
+STYLEID=ERROR_STYLE&
+COVERAGEID=test_wms_4326

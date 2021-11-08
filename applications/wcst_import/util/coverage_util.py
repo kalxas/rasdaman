@@ -37,6 +37,7 @@ class CoverageUtil:
         :param str coverage_id: the coverage id
         """
         self.wcs_service = ConfigManager.wcs_service
+        self.admin_service = ConfigManager.admin_service
         self.coverage_id = coverage_id
 
     def exists(self):
@@ -46,7 +47,7 @@ class CoverageUtil:
         """
         try:
             # Check if coverage exists via the Non-standard REST endpoint
-            service_call = self.wcs_service + "/objectExists?coverageId=" + self.coverage_id
+            service_call = self.admin_service + "/coverage/exist?COVERAGEID=" + self.coverage_id
             response = decode_res(validate_and_read_url(service_call))
 
             return response == "true"
@@ -67,11 +68,6 @@ class CoverageUtil:
         except Exception as ex:
             exception_text = str(ex)
 
-            if "Missing basic authentication header" in exception_text:
-                raise RuntimeException("Endpoint '{}' requires valid rasdaman credentials with format username:password in a text file. \n"
-                                       "Hint: Create this identify file first with read permission for user running wcst_import, \n"
-                                       "then rerun wcst_import.sh ingredients.json -i path_to_the_identity_file.".format(self.wcs_service))
-
             if not "NoSuchCoverage" in exception_text:
                 raise RuntimeException("Could not check if the coverage exists. "
                                    "Reason: {}".format(exception_text))
@@ -90,6 +86,13 @@ class CoverageUtil:
 
             return response
         except Exception as ex:
+            exception_text = str(ex)
+
+            if "Missing basic authentication header" in exception_text:
+                raise RuntimeException("Endpoint '{}' requires valid rasdaman credentials with format username:password in a text file. \n"
+                                       "Hint: Create this identify file first with read permission for user running wcst_import, \n"
+                                       "then rerun wcst_import.sh ingredients.json -i path_to_the_identity_file.".format(self.wcs_service))
+
             raise RuntimeException("Could not retrieve the axis labels by WCS DescribeCoverage request. \n"                                   
                                    "Reason: {}".format(str(ex)))
 

@@ -89,6 +89,13 @@ public class ConfigManager {
     
     public static final String OWS_ADMIN = OWS + "/" + "admin";
     public static final String ADMIN = "admin";
+    public static final String COVERAGE = "coverage";
+    public static final String LAYER = "layer";
+    public static final String STYLE = "style";
+    public static final String PYRAMID = "pyramid";
+    public static final String WCS = "wcs";
+    public static final String WMS = "wms";
+        
     // context path for OAPI endpoint (e.g: localhost:8080/rasdaman/oapi)
     public static final String OAPI = "oapi";
 

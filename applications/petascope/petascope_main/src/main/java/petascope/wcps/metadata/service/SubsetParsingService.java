@@ -21,6 +21,7 @@
  */
 package petascope.wcps.metadata.service;
 
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import org.apache.commons.lang3.math.NumberUtils;
 import petascope.wcps.exception.processing.InvalidIntervalNumberFormat;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -33,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.codehaus.plexus.util.StringUtils;
-import org.rasdaman.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;

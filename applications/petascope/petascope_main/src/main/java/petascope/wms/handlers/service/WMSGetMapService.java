@@ -23,6 +23,7 @@ package petascope.wms.handlers.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,8 +36,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.rasdaman.AuthenticationService;
-import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.Style;

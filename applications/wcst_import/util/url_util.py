@@ -51,6 +51,7 @@ def validate_and_read_url(url, data=None):
     :rtype: str
     """
     url = __encode_quote(url)
+
     try:
         request = Request(url)
         if data is not None:

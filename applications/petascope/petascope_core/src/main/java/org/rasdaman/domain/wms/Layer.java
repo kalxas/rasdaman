@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -314,5 +315,10 @@ public class Layer implements Serializable {
         }
 
         return null;
+    }
+    
+    @JsonIgnore
+    public boolean hasStyle(String styleName) {
+        return this.getStyle(styleName) != null;
     }
 }

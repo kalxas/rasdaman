@@ -71,7 +71,7 @@ import petascope.wms.handlers.service.WMSGetMapService;
 @Service
 public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
 
-    private static Logger log = LoggerFactory.getLogger(KVPWMSDeleteStyleHandler.class);
+    private static Logger log = LoggerFactory.getLogger(KVPWMSGetMapHandler.class);
 
     @Autowired
     private WMSRepostioryService wmsRepostioryService;

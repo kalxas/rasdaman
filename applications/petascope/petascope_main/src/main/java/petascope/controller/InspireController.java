@@ -22,9 +22,9 @@
 package petascope.controller;
 
 
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.rasdaman.AuthenticationService;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
@@ -75,7 +75,7 @@ public class InspireController extends AbstractController {
         
         // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
         // then no need to check if his IP is allowed anymore.
-        if (!AuthenticationService.isAdminUser(httpServletRequest)) {
+        if (!AuthenticationService.isPetascopeAdminOrRasadminUser(httpServletRequest)) {
             this.validateWriteRequestFromIP(UPDATE_METADATA_PATH, this.getRequesIPAddress());
         }
         

@@ -21,7 +21,6 @@
  */
 package petascope.controller.handler.service;
 
-import java.io.IOException;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,6 @@ import petascope.wcst.handlers.InsertCoverageHandler;
 import petascope.wcst.handlers.UpdateCoverageHandler;
 import petascope.wcst.parsers.DeleteCoverageRequest;
 import petascope.wcst.parsers.InsertCoverageRequest;
-import petascope.wcst.parsers.InsertScaleLevelRequest;
 import petascope.wcst.parsers.KVPWCSTParser;
 import petascope.wcst.parsers.UpdateCoverageRequest;
 
@@ -75,7 +73,7 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
     }
 
     @Override
-    public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException {
+    public Response handle(Map<String, String[]> kvpParameters) throws Exception {
         Response response = null;
         String queryString = this.getQueryString(kvpParameters);
 
@@ -126,7 +124,7 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
      * @return
      */
     private Response handleUpdateCoverageRequest(Map<String, String[]> kvpParameters)
-            throws WCSException, WCSTInvalidXML, PetascopeException, WCSTCoverageParameterNotFound, SecoreException {
+            throws WCSException, WCSTInvalidXML, PetascopeException, WCSTCoverageParameterNotFound, SecoreException, Exception {
         UpdateCoverageRequest updateCoverageRequest = (UpdateCoverageRequest) kvpWCSTParser.parse(kvpParameters);
         Response response = this.updateCoverageHandler.handle(updateCoverageRequest);
 

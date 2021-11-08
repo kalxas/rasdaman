@@ -23,9 +23,11 @@ package petascope.wcst.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rasdaman.admin.pyramid.service.RemovePyramidMemberService;
+import javax.servlet.http.HttpServletRequest;
+import org.rasdaman.admin.pyramid.service.AdminRemovePyramidMemberService;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.domain.wms.Layer;
@@ -36,6 +38,7 @@ import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
@@ -68,7 +71,7 @@ public class DeleteCoverageHandler {
     @Autowired
     private CoveragePyramidRepositoryService coveragePyramidRepositoryService;
     @Autowired
-    private RemovePyramidMemberService removePyramidMemberService;
+    private AdminRemovePyramidMemberService removePyramidMemberService;
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DeleteCoverageHandler.class);
 

@@ -22,7 +22,6 @@
 package org.rasdaman.admin.pyramid.service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -45,7 +44,6 @@ import petascope.util.ListUtil;
 import petascope.util.ras.RasUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_INTERVAL_SEPARATION;
-import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.metadata.service.CoordinateTranslationService;
 
@@ -132,7 +130,7 @@ public class PyramidService {
         // Use this coverage as the source coverage for updating data to downscaled level collections
         CoveragePyramid sourceCoveragePyramid = this.getCoveragePyramidAsSourceDownscaledCollection(baseCoverage, targetScaleFactors);
         
-        Coverage sourceCoverage = this.coverageRepostioryService.readCoverageFromLocalCache(sourceCoveragePyramid.getPyramidMemberCoverageId());
+        Coverage sourceCoverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(sourceCoveragePyramid.getPyramidMemberCoverageId());
         String sourceCollectionName = sourceCoverage.getRasdamanRangeSet().getCollectionName();
         
         // Sort the scale factor by geo orders to grid order to calculate the grid domains to be select and insert into the target downscaled collection

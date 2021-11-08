@@ -23,20 +23,17 @@
 
 module wms {
     export class RemovePyramidMember implements rasdaman.common.ISerializable {
-        public request:string;
         public baseCoverageId:string;
         public pyramidMemberCoverageId:string;
 
         public constructor(baseCoverageId:string, pyramidMemberCoverageId:string) {            
-            this.request = "RemovePyramidMember";
             this.baseCoverageId = baseCoverageId;
             this.pyramidMemberCoverageId = pyramidMemberCoverageId;            
         }
 
         public toKVP():string {
-            return "REQUEST=" + this.request +
-                "&BASE=" + this.baseCoverageId +
-                "&MEMBER=" + this.pyramidMemberCoverageId;
+            return "COVERAGEID=" + this.baseCoverageId +
+                "&MEMBERS=" + this.pyramidMemberCoverageId;
         }
     }
 }

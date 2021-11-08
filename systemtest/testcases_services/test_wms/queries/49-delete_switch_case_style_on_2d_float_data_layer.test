@@ -1,5 +1,2 @@
-service=WMS&
-version=1.3.0&
-request=DeleteStyle&
-layer=test_wms_2d_float_data&
-name=TempStyle
+COVERAGEID=test_wms_2d_float_data&
+STYLEID=TempStyle

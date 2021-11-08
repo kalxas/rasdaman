@@ -360,7 +360,7 @@ class WCSTExecutor(WCSTBaseExecutor):
             response = decode_res(validate_and_read_url(base_url_tmp, request.get_query_string()))
         except Exception as ex:
             raise WCSTException(404, "Failed reading response from WCS service. "
-                                     "Detailed error: {}.".format(str(ex)), service_call)
+                                     "Detailed error: {}".format(str(ex)), service_call)
 
         namespaces = ""
 

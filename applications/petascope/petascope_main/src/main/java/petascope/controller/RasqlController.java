@@ -21,12 +21,12 @@
  */
 package petascope.controller;
 
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import liquibase.util.StringUtils;
-import org.rasdaman.AuthenticationService;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.RASQL;
 import org.rasdaman.config.VersionManager;

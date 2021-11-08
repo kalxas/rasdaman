@@ -21,12 +21,12 @@
  */
 package petascope.wcps.handler;
 
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.rasdaman.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;

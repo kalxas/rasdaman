@@ -24,7 +24,6 @@ package org.rasdaman.admin.pyramid.service;
 import com.rasdaman.admin.service.AbstractAdminService;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,11 +42,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static petascope.controller.AbstractController.getValueByKey;
 import static petascope.controller.AbstractController.getValueByKeyAllowNull;
-import static petascope.core.KVPSymbols.KEY_BASE;
+import static petascope.core.KVPSymbols.KEY_COVERAGE_ID;
 import static petascope.core.KVPSymbols.KEY_INTERPOLATION;
 import static petascope.core.KVPSymbols.KEY_MEMBER;
-import static petascope.core.KVPSymbols.KEY_REQUEST;
-import static petascope.core.KVPSymbols.KEY_SCALE_FACTOR;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -57,10 +54,9 @@ import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
 import petascope.util.SetUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
-import petascope.wcps.metadata.model.IrregularAxis;
 import static petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService.NEAREST_INTERPOLATION;
 import static petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService.SUPPORTED_SCALING_AXIS_INTERPOLATIONS;
-import static petascope.core.KVPSymbols.VALUE_CREATE_PYRAMID_MEMBER;
+import static petascope.core.KVPSymbols.KEY_SCALE_VECTOR;
 
 /**
  * Class to handle admin request to create a pyramid member coverage by scalefactors
@@ -85,35 +81,30 @@ import static petascope.core.KVPSymbols.VALUE_CREATE_PYRAMID_MEMBER;
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 @Service
-public class CreatePyramidMemberService extends AbstractAdminService {
+public class AdminCreatePyramidMemberService extends AbstractAdminService {
     
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(CreatePyramidMemberService.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(AdminCreatePyramidMemberService.class);
     
-    private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_REQUEST, KEY_BASE, KEY_MEMBER, 
-                                                                                KEY_SCALE_FACTOR, KEY_INTERPOLATION);
+    private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_COVERAGE_ID, KEY_MEMBER, 
+                                                                                KEY_SCALE_VECTOR, KEY_INTERPOLATION);
     
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
     @Autowired
     private PyramidService pyramidService;
     @Autowired
-    private AddPyramidMemberService addPyramidMemberService;
-    
-    public CreatePyramidMemberService() {
-        this.service = VALUE_CREATE_PYRAMID_MEMBER;
-        this.request = VALUE_CREATE_PYRAMID_MEMBER;
-    }
+    private AdminAddPyramidMemberService addPyramidMemberService;
     
     private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {
         this.validateRequiredParameters(kvpParameters, VALID_PARAMETERS);
     }
     
     private String parseBaseCoverageId(Map<String, String[]> kvpParameters) throws PetascopeException {
-        String baseCoverageId = getValueByKey(kvpParameters, KEY_BASE);
+        String baseCoverageId = getValueByKey(kvpParameters, KEY_COVERAGE_ID);
         if (!this.coverageRepositoryService.isInLocalCache(baseCoverageId)) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, "Base coverage '" + baseCoverageId + "' does not exist in local database.");
         }
-
+        
         return baseCoverageId;
     }
     
@@ -132,7 +123,7 @@ public class CreatePyramidMemberService extends AbstractAdminService {
     }
     
     private List<BigDecimal> parseScaleFactor(Map<String, String[]> kvpParameters, GeneralGridCoverage baseCoverage) throws PetascopeException, SecoreException {
-        String scaleFactor = getValueByKey(kvpParameters, KEY_SCALE_FACTOR);
+        String scaleFactor = getValueByKey(kvpParameters, KEY_SCALE_VECTOR);
         
         List<BigDecimal> results = new ArrayList<>();
         
@@ -252,6 +243,8 @@ public class CreatePyramidMemberService extends AbstractAdminService {
         this.addPyramidMemberService.addPyramidMemeberCoverageToAllContainingCoverages(baseCoverage, downscaledLevelCoverage, false);        
         
         this.coverageRepositoryService.save(baseCoverage);
+
+        log.debug("Created pyramid member coverage '"  + pyramidMemberCoverageId + "' of base coverage '" + baseCoverage.getCoverageId() + "'.");
     }
     
     /**

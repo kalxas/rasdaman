@@ -744,16 +744,30 @@ public class CoverageRepositoryService {
     }
     
     /**
-     * Rename a local coverage to a new coverage id, e.g: covA -> covB
+     * Update a local coverage's information (id and metadata)
+     * e.g. covA -> covB
      */
-    public void updateCoverageId(String currentCoverageId, String newCoverageId) throws PetascopeException {
-                // If ok, then update local coverage id and associated lay name if exist
-        Coverage coverage = this.readCoverageByIdFromDatabase(currentCoverageId);
-        coverage.setCoverageId(newCoverageId);
-        this.save(coverage);
-        this.localCoveragesCacheMap.remove(currentCoverageId);
-        
-        log.info("Renamed coverage id from '" + currentCoverageId + "' to '" + newCoverageId + "'.");
+    public void updateCoverage(String currentCoverageId, String newCoverageId, String newMetadata) throws PetascopeException {
+        if (newCoverageId != null || newMetadata != null) {
+            Coverage coverage = this.readCoverageByIdFromDatabase(currentCoverageId);
+
+            if (newCoverageId != null) {
+                coverage.setCoverageId(newCoverageId);
+                this.localCoveragesCacheMap.remove(currentCoverageId);            
+            }
+            if (newMetadata != null) {
+                coverage.setMetadata(newMetadata);
+            }
+
+            this.save(coverage);
+
+            if (newMetadata != null) {
+                log.info("Updated new metadata for coverage '" + currentCoverageId + "'.");
+            }        
+            if (newCoverageId != null) {
+                log.info("Renamed coverage id from '" + currentCoverageId + "' to '" + newCoverageId + "'.");
+            }
+        }
     }
     
     /**

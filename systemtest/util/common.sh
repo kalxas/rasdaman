@@ -1045,7 +1045,15 @@ run_test()
               esac
               ;;
 
-      wms)    get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
+      wms)    
+              endpoint="$PETASCOPE_URL"
+              if [[ "$f" =~ "insert" ]]; then                
+                endpoint="$PETASCOPE_ADMIN_URL/layer/style/add"
+              elif [[ "$f" =~ "delete" ]]; then
+                endpoint="$PETASCOPE_ADMIN_URL/layer/style/remove"
+              fi
+              
+              get_request_kvp "$endpoint" "$QUERY" "$out"
               ;;
 
       oapi)   get_request_rest "$PETASCOPE_OAPI" "$QUERY" "$out"

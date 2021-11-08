@@ -23,23 +23,22 @@
 
 module wms {
     export class CreatePyramidMember implements rasdaman.common.ISerializable {
-        public request:string;
         public baseCoverageId:string;
+
+        // e.g. scaleVector={2,2,1}
         public scaleFactors:string;
         public pyramidMemberCoverageId:string;
 
         public constructor(baseCoverageId:string, scaleFactors:string, pyramidMemberCoverageId:string,) {
-            this.request = "CreatePyramidMember";
             this.baseCoverageId = baseCoverageId;
             this.scaleFactors = scaleFactors;
             this.pyramidMemberCoverageId = pyramidMemberCoverageId;     
         }
 
         public toKVP():string {
-            return "&REQUEST=" + this.request +
-                "&BASE=" + this.baseCoverageId +
-                "&SCALEFACTOR=" + this.scaleFactors +
-                "&MEMBER=" + this.pyramidMemberCoverageId;
+            return "&COVERAGEID=" + this.baseCoverageId +
+                "&MEMBER=" + this.pyramidMemberCoverageId +
+                "&SCALEVECTOR=" + this.scaleFactors;
         }
     }
 }

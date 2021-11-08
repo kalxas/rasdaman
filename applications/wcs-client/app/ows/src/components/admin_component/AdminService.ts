@@ -95,7 +95,7 @@ module rasdaman {
 
         public updateServiceIdentification(serviceIdentification:admin.ServiceIdentification):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.adminEndpoint + "/UpdateServiceIdentification";
+            var requestUrl = this.settings.adminEndpoint + "/ows/serviceinfo";
 
             var credentials = this.getPersistedAdminUserCredentials();
             var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
@@ -121,7 +121,7 @@ module rasdaman {
         
         public updateServiceProvider(serviceProvider:admin.ServiceProvider):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.adminEndpoint + "/UpdateServiceProvider";
+            var requestUrl = this.settings.adminEndpoint + "/ows/serviceinfo";
 
             var credentials = this.getPersistedAdminUserCredentials();
             var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);

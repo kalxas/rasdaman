@@ -48,7 +48,10 @@ import org.springframework.web.multipart.MultipartFile;
 import petascope.controller.handler.service.AbstractHandler;
 import petascope.controller.handler.service.XMLWCSServiceHandler;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_REQUEST;
 import static petascope.core.KVPSymbols.KEY_VERSION;
+import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
+import static petascope.core.KVPSymbols.VALUE_UPDATE_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
 import static petascope.core.KVPSymbols.WMS_SERVICE;
 import petascope.core.XMLSymbols;
@@ -297,22 +300,17 @@ public abstract class AbstractController {
                 log.debug("WMS received request without version parameter, use the default version: " + VersionManager.getLatestVersion(WMS_SERVICE));
                 kvpParameters.put(KVPSymbols.KEY_VERSION, new String[] {VersionManager.getLatestVersion(WMS_SERVICE)});
             } else if (service.equals(KVPSymbols.WCS_SERVICE) && request.equals(KVPSymbols.VALUE_GET_CAPABILITIES)) {
-                // NOTE: backwards compatibility for old clients which send WCS GetCapabilities with version parameter
-                if (versions != null) {
-                    log.warn("Using '" + KEY_VERSION + "' in a GetCapabilities request is invalid.");
-                } else {                     
-                    // It should use AcceptVersions for WCS GetCapabilities
-                    if (kvpParameters.get(KVPSymbols.KEY_ACCEPTVERSIONS) != null) {
-                        String value = getValuesByKey(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS)[0];
-                        versions = value.split(",");
-                        kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
-                    }
-                    
-                    if (versions == null) {
-                        // NOTE: only petascope allows to request GetCapabilities without known versions before-hand
-                        versions = new String[] {VersionManager.getLatestVersion(WCS_SERVICE)};
-                        kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
-                    }
+                // It should use AcceptVersions for WCS GetCapabilities
+                if (kvpParameters.get(KVPSymbols.KEY_ACCEPTVERSIONS) != null) {
+                    String value = getValuesByKey(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS)[0];
+                    versions = value.split(",");
+                    kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
+                }
+
+                if (versions == null) {
+                    // NOTE: only petascope allows to request GetCapabilities without known versions before-hand
+                    versions = new String[] {VersionManager.getLatestVersion(WCS_SERVICE)};
+                    kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
                 }
             }
         }
@@ -500,14 +498,33 @@ public abstract class AbstractController {
      */
     public static String getRequestRepresentation(Map<String, String[]> kvpParametersMap) {
         String request = "";
+        boolean importCoverage = false;
+        for (Map.Entry<String, String[]> entry : kvpParametersMap.entrySet()) {
+            String key = entry.getKey();
+            if (key.equalsIgnoreCase(KEY_REQUEST)) {
+                String value = getValueByKeyAllowNull(kvpParametersMap, key);
+                if (value != null && (value.equalsIgnoreCase(VALUE_INSERT_COVERAGE) || value.equalsIgnoreCase(VALUE_UPDATE_COVERAGE))) {
+                    importCoverage = true;
+                    break;
+                }
+            }
+        }
+        
         for (Map.Entry<String, String[]> entry : kvpParametersMap.entrySet()) {
             for (String value : entry.getValue()) {
                 
                 // As they contain long GML text, no need to show
-                if (entry.getKey().equalsIgnoreCase(KVPSymbols.KEY_COVERAGE)
-                  || entry.getKey().equalsIgnoreCase(KVPSymbols.KEY_INPUT_COVERAGE)) {
-                    value = value.substring(0, 50) + "...";
+                if (importCoverage) {
+                    if (entry.getKey().equalsIgnoreCase(KVPSymbols.KEY_COVERAGE)
+                      || entry.getKey().equalsIgnoreCase(KVPSymbols.KEY_INPUT_COVERAGE)) {
+                        int size = 50;
+                        if (value.length() < 50) {
+                            size = value.length();
+                        }
+                        value = value.substring(0, size) + "...";
+                    }
                 }
+                
                 request = request + entry.getKey() + "=";
                 request = request + value + "&";
             }
@@ -665,7 +682,7 @@ public abstract class AbstractController {
         return ListUtil.join(results, "&");
     }
     
-    
+
     /**
      * Check if a source IP address can send a write request to petascope.
      */
@@ -716,6 +733,24 @@ public abstract class AbstractController {
         }
         
         return sourceIP;
+    }
+    
+    public void logReceivedRequest(Map<String, String[]> kvpParameters) throws PetascopeException {
+        String requestTmp = StringUtil.enquoteSingleIfNotEnquotedAlready(this.injectedHttpServletRequest.getRequestURI() + "?" + this.getRequestRepresentation(kvpParameters));      
+        log.info("Received request: " + requestTmp);
+    }
+    
+    public void logHandledRequest(boolean requestSuccess, long start, Map<String, String[]> kvpParameters, Exception ex) {
+        String requestTmp = StringUtil.enquoteSingleIfNotEnquotedAlready(this.injectedHttpServletRequest.getRequestURI() + "?" + this.getRequestRepresentation(kvpParameters));
+        long end = System.currentTimeMillis();
+        long totalTime = end - start;
+        if (requestSuccess) {
+            log.info("Processed request: " + requestTmp + " in " + String.valueOf(totalTime) + " ms.");
+        } else {
+            String errorMessage = "Failed processing request " + requestTmp 
+                                + ", evaluation time " + String.valueOf(totalTime) + " ms. Reason: " + ex.getMessage();
+            log.error(errorMessage);
+        }
     }
 }
 

@@ -1,0 +1,10 @@
+service=WMS&
+version=1.3.0&
+request=GetMap&
+layers=test_wcs_utm31_pyramid&
+bbox=52.292,6.037,53.062,7.543&
+crs=EPSG:4326&
+width=20&
+height=20&
+Styles=&
+format=image/png

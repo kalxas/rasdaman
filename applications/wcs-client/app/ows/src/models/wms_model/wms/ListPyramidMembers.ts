@@ -23,17 +23,15 @@
 
 module wms {
     export class ListPyramidMembers implements rasdaman.common.ISerializable {
-        public request:string;
         public base:string;        
 
         public constructor(layerName:string) {            
-            this.request = "ListPyramidMembers";
             this.base = layerName;
         }
 
+        // /rasdaman/admin/coverage/pyramid/list?COVERAGEID=Sentinel2_10m
         public toKVP():string {
-            return "&REQUEST=" + this.request +
-                "&BASE=" + this.base;
+            return "COVERAGEID=" + this.base;
         }
     }
 }

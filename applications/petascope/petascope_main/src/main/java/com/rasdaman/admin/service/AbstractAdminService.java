@@ -42,33 +42,19 @@ public abstract class AbstractAdminService {
         
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractAdminService.class);
     
-    // A Handler can only handle 1 kind of service (rascontrol / statistics,...)
-    protected String service;
-    protected String request;
+    public static final String ROLE_ADMIN = "admin";
     
     @Autowired
     public HttpServletRequest httpServletRequest;
     
-    protected void validateRequiredParameters(Map<String, String[]> kvpParameters, Set<String> validParameters) throws PetascopeException {
+    public static void validateRequiredParameters(Map<String, String[]> kvpParameters, Set<String> validParameters) throws PetascopeException {
         for (String key : kvpParameters.keySet()) {
             if (!validParameters.contains(key.toLowerCase())) {
                 throw new PetascopeException(ExceptionCode.InvalidRequest, "Parameter '" + key + "' is not valid in request.");
             }
         }
     }
-
-    public boolean canHandle(String service, String request) {
-        // Handler could handle a service (rascontrol / statistic,...)
-        if ((this.service != null && this.service.equals(service)) 
-            || (this.request != null && this.request.equals(request))) {
-            log.debug("Found the request handler: " + this.getClass().getCanonicalName());
-            return true;
-        }
-        
-        return false;
-    }
-
+    
     public abstract Response handle(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception;
     
 }
-

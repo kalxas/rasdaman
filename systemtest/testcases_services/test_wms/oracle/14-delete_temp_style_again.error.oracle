@@ -1,6 +1,8 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<ServiceExceptionReport version="1.3.0"   >
-    <ServiceException code="StyleNotFound">
-	The given style name 'TempStyle' of layer 'test_wms_4326' does not exist in database.
-</ServiceException>
-</ServiceExceptionReport>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+    xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+    xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ows:Exception exceptionCode="InvalidRequest" >
+        <ows:ExceptionText>Style 'TempStyle' does not exist in layer 'test_wms_4326'.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

@@ -36,15 +36,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static petascope.controller.AbstractController.getValueByKey;
-import static petascope.core.KVPSymbols.KEY_BASE;
-import static petascope.core.KVPSymbols.KEY_MEMBER;
-import static petascope.core.KVPSymbols.KEY_REQUEST;
+import static petascope.core.KVPSymbols.KEY_COVERAGE_ID;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.SetUtil;
-import static petascope.core.KVPSymbols.VALUE_REMOVE_PYRAMID_MEMBER;
+import static petascope.core.KVPSymbols.KEY_MEMBERS;
 
 /**
  * Class to handle admin request to remove a pyramid member coverage
@@ -52,40 +50,35 @@ import static petascope.core.KVPSymbols.VALUE_REMOVE_PYRAMID_MEMBER;
  * API: /rasdaman/admin?
         REQUEST=RemovePyramidMember
         & BASE={base-coverage-id}
-        & MEMBER={pyramid-element-coverage-id}
+        & MEMBERS={pyramid-element-coverage-id}
  
  * Example:
   /rasdaman/admin?
     REQUEST=RemovePyramidMember
   & BASE=Sentinel2_10m
-  & MEMBER=Sentinel2_10m
+  & MEMBERS=Sentinel2_10m
          
  * 
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 @Service
-public class RemovePyramidMemberService extends AbstractAdminService {
+public class AdminRemovePyramidMemberService extends AbstractAdminService {
     
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(RemovePyramidMemberService.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(AdminRemovePyramidMemberService.class);
     
-    private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_REQUEST, KEY_BASE, KEY_MEMBER);
+    private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_COVERAGE_ID, KEY_MEMBERS);
     
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
     @Autowired
     private CoveragePyramidRepositoryService coveragePyramidRepositoryService;
     
-    public RemovePyramidMemberService() {
-        this.service = VALUE_REMOVE_PYRAMID_MEMBER;
-        this.request = VALUE_REMOVE_PYRAMID_MEMBER;
-    }
-    
-    private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {
+    private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {       
         this.validateRequiredParameters(kvpParameters, VALID_PARAMETERS);
     }
     
     private String parseBaseCoverageId(Map<String, String[]> kvpParameters) throws PetascopeException {
-        String baseCoverageId = getValueByKey(kvpParameters, KEY_BASE);
+        String baseCoverageId = getValueByKey(kvpParameters, KEY_COVERAGE_ID);
         if (!this.coverageRepositoryService.isInLocalCache(baseCoverageId)) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, "Base coverage '" + baseCoverageId + "' does not exist in local database.");
         }
@@ -93,15 +86,17 @@ public class RemovePyramidMemberService extends AbstractAdminService {
         return baseCoverageId;
     }
     
-    private String parseMemberCoverageId(Map<String, String[]> kvpParameters, GeneralGridCoverage baseCoverage) throws PetascopeException {
-        String pyramidMemberCoverageId = getValueByKey(kvpParameters, KEY_MEMBER);
-        if (!baseCoverage.hasPyramidMember(pyramidMemberCoverageId)) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, 
-                                        "Base coverage '" + baseCoverage.getCoverageId() + "' does not contain pyramid member coverage '" + pyramidMemberCoverageId + "'.");
+    private String[] parsePyramidMemberCoverageIds(Map<String, String[]> kvpParameters, GeneralGridCoverage baseCoverage) throws PetascopeException {
+        String[] memberIds = getValueByKey(kvpParameters, KEY_MEMBERS).split(",");
+        
+        for (String pyramidMemberCoverageId : memberIds) {
+            if (!baseCoverage.hasPyramidMember(pyramidMemberCoverageId)) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                                            "Base coverage '" + baseCoverage.getCoverageId() + "' does not contain pyramid member coverage '" + pyramidMemberCoverageId + "'.");
+            }
         }
         
-        
-        return pyramidMemberCoverageId;
+        return memberIds;
     }
     
 
@@ -113,15 +108,18 @@ public class RemovePyramidMemberService extends AbstractAdminService {
         String baseCoverageId = this.parseBaseCoverageId(kvpParameters);
         GeneralGridCoverage baseCoverage = ((GeneralGridCoverage)this.coverageRepositoryService.readCoverageByIdFromDatabase(baseCoverageId));
         
-        // e.g: cov8
-        String pyramidMemberCoverageId = this.parseMemberCoverageId(kvpParameters, baseCoverage);        
+        // e.g: cov8,cov16
+        String[] pyramidMemberCoverageIds = this.parsePyramidMemberCoverageIds(kvpParameters, baseCoverage);        
         
-        this.removePyramidMemberCoverage(baseCoverage, pyramidMemberCoverageId);
-        
-        // get all coverage contains cov4 (e.g. cov1 and cov2), and remove cov8 from their containing coverages' pyramids
-        List<GeneralGridCoverage> containingCoverages = this.coveragePyramidRepositoryService.getCoveragesContainingPyramidMemberCoverageId(baseCoverageId);
-        for (GeneralGridCoverage containingCoverage : containingCoverages) {
-            this.removePyramidMemberCoverage(containingCoverage, pyramidMemberCoverageId);
+        for (String pyramidMemberCoverageId : pyramidMemberCoverageIds) {
+            // remove cov8 from cov4's pyramid
+            this.removePyramidMemberCoverage(baseCoverage, pyramidMemberCoverageId);
+
+            // get all coverage contains cov4 (e.g. cov1 and cov2), and remove cov8 from their containing coverages' pyramids
+            List<GeneralGridCoverage> containingCoverages = this.coveragePyramidRepositoryService.getCoveragesContainingPyramidMemberCoverageId(baseCoverageId);
+            for (GeneralGridCoverage containingCoverage : containingCoverages) {
+                this.removePyramidMemberCoverage(containingCoverage, pyramidMemberCoverageId);
+            }
         }
         
         Response result = new Response();
@@ -143,6 +141,8 @@ public class RemovePyramidMemberService extends AbstractAdminService {
             if (coveragePyramid.getPyramidMemberCoverageId().equals(pyramidMemberCoverageId)) {
                 iterator.remove();
                 this.coverageRepositoryService.save(baseCoverage);
+                
+                log.debug("Removed pyramid member coverage '"  + pyramidMemberCoverageId + "' from base coverage '" + baseCoverage.getCoverageId() + "'.");
                 
                 break;
             }

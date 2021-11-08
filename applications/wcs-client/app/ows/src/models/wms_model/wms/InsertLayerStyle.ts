@@ -23,7 +23,6 @@
 
 module wms {
     export class InsertLayerStyle implements rasdaman.common.ISerializable {
-        public request:string;
         public layerName:string;
         public name:string;
         public abstract:string;                
@@ -34,7 +33,6 @@ module wms {
 
         public constructor(layerName:string, name:string, abstract:string, queryType:string, query:string,
                             colorTableType:string, colorTableDefintion:string) {            
-            this.request = "InsertStyle";
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
@@ -45,9 +43,8 @@ module wms {
         }
 
         public toKVP():string {
-            var result = "&request=" + this.request +
-                        "&name=" + this.name +
-                        "&layer=" + this.layerName +
+            var result = "COVERAGEID=" + this.layerName +
+                        "&STYLEID=" + this.name +                        
                         "&abstract=" + this.abstract;
 
             result += "&" + this.queryFragmentType + "=" + this.query;

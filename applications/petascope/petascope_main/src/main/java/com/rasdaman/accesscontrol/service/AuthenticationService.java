@@ -19,13 +19,16 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package org.rasdaman;
+package com.rasdaman.accesscontrol.service;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.rasdaman.config.ConfigManager;
@@ -40,10 +43,16 @@ import petascope.exceptions.PetascopeException;
  */
 public class AuthenticationService {
     
+    // -- rasdaman enterprise begin
+    
+    public static final String SHIBBOLETH_AUTH_USER_ID_SESSION_KEY = "SHIBBOLETH_AUTH_USER_ID";
+    
+    // -- rasdaman enterprise end
+    
     /**
      * Check if the request is requesting under admin user with basic authentication headers
      */
-    public static boolean isAdminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
+    public static boolean isPetascopeAdminOrRasadminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
         Pair<String, String> credentialsPair = getBasicAuthUsernamePassword(httpServletRequest);
         
         if (credentialsPair != null) {
@@ -81,7 +90,7 @@ public class AuthenticationService {
     }
     
     /**
-     * If credentials don't exist in the request, return pair of rasgust credentials instead
+     * If credentials don't exist in the request, return pair of rasguest credentials instead
      */
     public static Pair<String, String> getBasicAuthCredentialsOrRasguest(HttpServletRequest httpServletRequest) throws PetascopeException {
         String username = ConfigManager.RASDAMAN_USER;
@@ -118,13 +127,13 @@ public class AuthenticationService {
     
     
     /**
-     * Check if user is petascope admin user
+     * Check if user is either petascope admin user or rasadmin user
      */
-    public static void validatePetascopeAdminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
+    public static void validatePetascopeAdminOrRasadminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
         Pair<String, String> credentialsPair = getBasicAuthUsernamePassword(httpServletRequest);
         if (credentialsPair == null) {
             throw new PetascopeException(ExceptionCode.AccessDenied, "Missing credentials for admin user in basic authentication headers");
-        } else if (!isAdminUser(httpServletRequest)) {
+        } else if (!isPetascopeAdminOrRasadminUser(httpServletRequest)) {
             throw new PetascopeException(ExceptionCode.AccessDenied, "Invalid credentials for admin user");
         }
     }
@@ -144,5 +153,78 @@ public class AuthenticationService {
     public static boolean isRasdamanAdminUser(String username, String password) {
         return ConfigManager.RASDAMAN_ADMIN_USER.equals(username) 
             && ConfigManager.RASDAMAN_ADMIN_PASS.equals(password);
+    }
+    
+    
+    /**
+     * Check if a source IP address can send a write request to petascope.
+     */
+    public static void validateWriteRequestFromIP(List<String> writeRequest, String request, String sourceIP) throws PetascopeException {
+        
+        if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
+            // localhost IP in servlet
+            if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
+                sourceIP = "127.0.0.1";
+            }
+
+            if (writeRequest.contains(request)) {
+                if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
+                    throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                                "Write request '" + request + "' is not permitted from IP address '" + sourceIP + "'.");
+                }
+            }
+        }
+    }
+    
+    /**
+     * If basic authentication header is not enabled, then petascope checks if write request from IP address is valid or not
+     * before processing.
+     */
+    public static void validateWriteRequestFromIP(HttpServletRequest htttpServletRequest) throws PetascopeException {
+        if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
+            
+            String sourceIP = getRequesIPAddress(htttpServletRequest);
+            
+                // localhost IP in servlet
+                if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
+                    sourceIP = "127.0.0.1";
+                }
+
+                if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
+                    throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                                "Write request is not permitted from IP address '" + sourceIP + "'.");
+                }
+                
+
+        }
+    }
+    
+    /**
+     * Get request IP address from client to petascope
+     */
+    public static String getRequesIPAddress(HttpServletRequest httpServletRequest) {
+        // in case, petascope is behind Apache proxy, then get the forwared IP via proxy
+        String sourceIP = httpServletRequest.getHeader("X-FORWARDED-FOR");
+        if (sourceIP == null) {
+            // In case petascope is not proxied by apache
+            sourceIP = httpServletRequest.getRemoteAddr();
+        }
+        
+        return sourceIP;
+    }
+    
+    /**
+     * If non-admin user requests, then he must have the role if basic header is enabled, or his IP must be allowed
+     */
+    public static void validateWriteRequestFromAdminOrRoleOrAllowedIP(HttpServletRequest httpServletRequest,
+            String roleName // -- rasdaman enterprise
+        ) throws PetascopeException {
+        
+        if (!isPetascopeAdminOrRasadminUser(httpServletRequest)) {
+            // non-admin user
+            // + user's IP must be from allowed write request setting, otherwise exception
+            validateWriteRequestFromIP(httpServletRequest);
+        }
+        
     }
 }

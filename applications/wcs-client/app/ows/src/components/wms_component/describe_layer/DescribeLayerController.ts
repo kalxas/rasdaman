@@ -179,7 +179,7 @@ module rasdaman {
                                 var pyramidCoverageMembers = [];
                                 arrayData.forEach((element:any) => {
                                     var coverageName = element["coverage"];
-                                    var scaleFactors = element["scaleFactors"].join(",");
+                                    var scaleFactors = element["scale"].join(",");
                                     var pyramidCoverageMember = new wms.PyramidCoverageMember(coverageName, scaleFactors);
                                     
                                     pyramidCoverageMembers.push(pyramidCoverageMember);

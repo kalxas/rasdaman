@@ -49,7 +49,7 @@ import static petascope.util.ras.RasConstants.RASQL_INTERVAL_SEPARATION;
 import petascope.util.ras.RasUtil;
 
 /**
- * Class to handle data migration version number 1
+ * Class to handle data migration version number 2
  * 
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */

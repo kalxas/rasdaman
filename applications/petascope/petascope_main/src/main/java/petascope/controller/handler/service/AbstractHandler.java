@@ -98,7 +98,7 @@ public abstract class AbstractHandler {
     }
 
     public abstract Response handle(Map<String, String[]> kvpParameters)
-                    throws WCSException, WMSException, IOException, PetascopeException, SecoreException;
+                    throws Exception;
     
     
     /**

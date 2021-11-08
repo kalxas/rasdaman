@@ -33,13 +33,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.rasdaman.AuthenticationService;
+import com.rasdaman.accesscontrol.service.AuthenticationService;
+import static com.rasdaman.accesscontrol.service.AuthenticationService.getRequesIPAddress;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.INSPIRE_COMMON_URL;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_ENDPOINT_URL;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,20 +51,10 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
-import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
-import static petascope.core.KVPSymbols.VALUE_ADD_PYRAMID_MEMBER;
-import static petascope.core.KVPSymbols.VALUE_CREATE_PYRAMID_MEMBER;
 import static petascope.core.KVPSymbols.VALUE_DELETE_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
-import static petascope.core.KVPSymbols.VALUE_REMOVE_PYRAMID_MEMBER;
 import static petascope.core.KVPSymbols.VALUE_UPDATE_COVERAGE;
-import static petascope.core.KVPSymbols.VALUE_WMS_DELETE_STYLE;
-import static petascope.core.KVPSymbols.VALUE_WMS_INSERT_STYLE;
-import static petascope.core.KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER;
-import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_STYLE;
-import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_WCS_LAYER;
 import petascope.util.ExceptionUtil;
-import static petascope.core.KVPSymbols.VALUE_WMS_DELETE_LAYER;
 import petascope.util.StringUtil;
 
 /**
@@ -76,12 +68,8 @@ public class PetascopeController extends AbstractController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PetascopeController.class);
     
     // These write requests will need to check if requesting IP address is in petascope's whitelist.
-    private static final List WRITE_REQUESTS = Arrays.asList(new String[]{ VALUE_INSERT_COVERAGE, VALUE_UPDATE_COVERAGE, VALUE_DELETE_COVERAGE,                                                     
-                                                    VALUE_WMS_INSERT_WCS_LAYER, VALUE_WMS_UPDATE_WCS_LAYER,
-                                                    VALUE_WMS_DELETE_LAYER,
-                                                    VALUE_WMS_INSERT_STYLE, VALUE_WMS_UPDATE_STYLE,
-                                                    VALUE_WMS_DELETE_STYLE                                                    
-                                                   });
+
+    private static final List WRITE_REQUESTS = Arrays.asList(new String[] { VALUE_INSERT_COVERAGE, VALUE_UPDATE_COVERAGE, VALUE_DELETE_COVERAGE });
 
 
     public PetascopeController() {
@@ -173,8 +161,8 @@ public class PetascopeController extends AbstractController {
                 
                 // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
                 // then no need to check if his IP is allowed anymore.
-                if (!AuthenticationService.isAdminUser(httpServletRequest)) {
-                    this.validateWriteRequestFromIP(this.WRITE_REQUESTS, request, this.getRequesIPAddress());
+                if (!AuthenticationService.isPetascopeAdminOrRasadminUser(httpServletRequest)) {
+                    AuthenticationService.validateWriteRequestFromIP(this.WRITE_REQUESTS, request, getRequesIPAddress());
                 }
 
                 // Check if any handlers can handle the request

@@ -1,5 +1,2 @@
-service=WMS&
-version=1.3.0&
-request=DeleteStyle&
-layer=test_wms_wcps_styles_between_two_slices&
-name=wcps_fragment_between_two_slices
+COVERAGEID=test_wms_wcps_styles_between_two_slices&
+STYLEID=wcps_fragment_between_two_slices

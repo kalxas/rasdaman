@@ -200,15 +200,23 @@ public interface KVPSymbols {
     
     // Update coverage's id by new id
     String KEY_COVERAGE_ID = "coverageId";
-    String KEY_NEW_ID = "newId";
+    String KEY_NEW_COVERAGE_ID = "newCoverageId";
+    String KEY_LAYER_ID = "layerId";
+
+    // Style name of a layer
+    String KEY_STYLE_ID = "styleId";
+    String KEY_NEW_STYLE_ID = "newstyleId";
+    
+    // Update coverage's metadata
+    String KEY_METADATA = "metadata";
     
     
     // -- pyramid admin services
     
     String VALUE_CREATE_PYRAMID_MEMBER = "CreatePyramidMember";
-    String KEY_BASE = "Base";
-    String KEY_SCALE_FACTOR = "ScaleFactor";
+    String KEY_SCALE_VECTOR = "ScaleVector";
     String KEY_MEMBER = "Member";
+    String KEY_MEMBERS = "Members";
     
     String VALUE_ADD_PYRAMID_MEMBER = "AddPyramidMember";
     // default is false when adding pyramid member to a base coverage

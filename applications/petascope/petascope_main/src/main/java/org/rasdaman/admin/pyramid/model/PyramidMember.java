@@ -21,6 +21,7 @@
  */
 package org.rasdaman.admin.pyramid.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import java.util.List;
 public class PyramidMember {
     
     private String coverage;
+    @JsonProperty("scale")
     private List<BigDecimal> scaleFactors;
 
     public PyramidMember(String coverage, List<BigDecimal> scaleFactors) {

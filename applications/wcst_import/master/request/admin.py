@@ -42,7 +42,7 @@ class AdminRequest:
     """
 
     def __init__(self):
-        self.context_path = ConfigManager.wcs_service[0:ConfigManager.wcs_service.rfind("/")] + "/admin"
+        self.context_path = ConfigManager.admin_service
 
     @abstractmethod
     def _get_request_type_parameters(self):

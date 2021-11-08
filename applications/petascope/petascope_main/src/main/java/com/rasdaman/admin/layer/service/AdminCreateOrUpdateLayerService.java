@@ -14,24 +14,24 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2021 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wms.handlers.kvp;
+package com.rasdaman.admin.layer.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import petascope.core.response.Response;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.wms.BoundingBox;
 import org.rasdaman.domain.wms.Dimension;
 import org.rasdaman.domain.wms.EXGeographicBoundingBox;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.LayerAttribute;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +39,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.GeoTransform;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
-import petascope.util.MIMEUtil;
-import petascope.exceptions.WMSException;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
@@ -52,32 +51,27 @@ import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
-import petascope.wms.exception.WMSDuplicateLayerException;
 import petascope.wms.exception.WMSInvalidBoundingBoxInCrsTransformException;
 import petascope.wms.exception.WMSInvalidCrsUriException;
-import petascope.wms.exception.WMSMissingRequestParameter;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
-import static petascope.core.KVPSymbols.VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER;
-import petascope.exceptions.ExceptionCode;
 
 /**
- * Handle the InsertWCSLayer request to insert a WMS layer, e.g:
- * service=WMS&version=1.3.0&request=InsertWCSLayer&withPyramids=False&wcsCoverageId=test_wms_4326
+ * Service to create a new WMS layer or update an existing WMS layer of a
+ * coverage
  *
- * or UpdateWCSLayer request to update a WMS laye
- *
- * NOTE: This is a made up request to insert / update WMS layer. There is no
- * DeleteLayer for WMS as it is inconsistent with WCS coverage, only when
- * deleting WCS coverage, WMS layer will be deleted.
- *
- * @author
- * <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
+ * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 @Service
-public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
+public class AdminCreateOrUpdateLayerService {
 
-    private static Logger log = LoggerFactory.getLogger(KVPWMSInsertUpdateWCSLayerHandler.class);
+    private static Logger log = LoggerFactory.getLogger(AdminCreateOrUpdateLayerService.class);
+    
+    // It is the same as WGS:84 except the order (WGS:84 is Long, Lat) and WCS only allows to add CRS in EPSG:4326 order (Lat, Long)
+    private static final String DEFAULT_CRS_CODE = "4326";
+    private static final String DEFAULT_EPSG_CRS = "EPSG:4326";
 
+    @Autowired
+    private CoverageRepositoryService coverageRepositoryService;
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
@@ -85,56 +79,26 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
     @Autowired
     private WMSGetMapCachingService wmsGetMapCachingService;
 
-    // It is the same as WGS:84 except the order (WGS:84 is Long, Lat) and WCS only allows to add CRS in EPSG:4326 order (Lat, Long)
-    private static final String DEFAULT_CRS_CODE = "4326";
-    private static final String DEFAULT_EPSG_CRS = "EPSG:4326";
-
-    public KVPWMSInsertUpdateWCSLayerHandler() {
-
-    }
-
-    @Override
-    public void validate(Map<String, String[]> kvpParameters) throws WMSException {
-        // Check if wcsCoverageId does exist from the request        
-        String[] layerParam = kvpParameters.get(KVPSymbols.KEY_WMS_WCSCOVERAGEID);
-        if (layerParam == null) {
-            throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_WCSCOVERAGEID);
+    /**
+     * If a layer name associated with a coverageID doesn't exist, then create a
+     * new layer object If this layer exists, then update this layer from the
+     * associated coverage then persist to database
+     */
+    public void save(String layerName, Boolean isBlacklisted) throws Exception {
+        
+        if (!this.coverageRepositoryService.isInLocalCache(layerName)) {
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + layerName + "' does not exist in local database.");
         }
-    }
 
-    @Override
-    public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
-        // Validate before handling the request
-        this.validate(kvpParameters);
-
-        // Check if layer does exist in database
-        // NOTE: a WCS coverageId is equivalent to a WMS layer
-        String layerName = kvpParameters.get(KVPSymbols.KEY_WMS_WCSCOVERAGEID)[0];
-
-        String request = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
+        boolean layerExist = this.wmsRepostioryService.isInLocalCache(layerName);
         Layer layer = null;
-        // InsertWCSLayer
-        if (request.equals(KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER)) {
-            // Check if layer does not exist
-            try {
-                layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);
-                // Cannot add same layer name
-                if (layer != null) {
-                    throw new WMSDuplicateLayerException(layerName);
-                } 
-            } catch (PetascopeException ex) {
-                if (!ex.getExceptionCode().getExceptionCodeName().equals(ExceptionCode.NoSuchLayer.getExceptionCodeName())) {                    
-                    throw ex;
-                }
-            }
-            
+        
+        if (!layerExist) {
             layer = new Layer();
         } else {
-            // UpdateWCSLayer                        
             layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);
         }
 
-        // Layer does not exist, prepare to insert a new layer
         // NOTE: As WMS layer is a WCS coverage so reuse the functionalities from WCS coverage metadata
         WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(layerName);
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
@@ -161,14 +125,14 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         // Only set 1 bounding box for 1 native CRS now
         BoundingBox bbox = this.createBoundingBox(wcpsCoverageMetadata.isXYOrder(), xyAxes);
         layer.setBoundingBoxes(ListUtil.valuesToList(bbox));
-        
+
         List<Dimension> dimensions = new ArrayList<>();
         // Create dimensions for 3D+ coverage
         for (Axis axis : wcpsCoverageMetadata.getAxes()) {
             // Non XY axes only
             if (axis.isNonXYAxis()) {
                 Dimension dimension = new Dimension();
-                
+
                 if (axis.isTimeAxis()) {
                     // NOTE: TIME and ELEVATION are special axes names in WMS 1.3
                     dimension.setName(KVPSymbols.KEY_WMS_TIME);
@@ -177,7 +141,7 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
                 } else {
                     dimension.setName(axis.getLabel());
                 }
-                
+
                 String axisExtent;
                 // According to Table C.2, WMS 1.3 document
                 // if axis is regular, the extent will be: minGeoBound/maxGeoBound/resolution_with_axisUom (e.g: "1949-12-31T12:00:00.000Z"/"1950-01-06T12:00:00.000Z"/1d)
@@ -189,28 +153,25 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
                     axisExtent = minGeoBound + VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER + maxGeoBound + VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER + resolution + axisUoM;
                 } else {
                     // if it is irregular, the extent will be the list of seperate values: value1,value2,...valueN
-                    axisExtent = ((IrregularAxis)axis).getRepresentationCoefficients();
+                    axisExtent = ((IrregularAxis) axis).getRepresentationCoefficients();
                     axisExtent = axisExtent.replace(" ", ",");
                 }
                 dimension.setExtent(axisExtent);
                 dimensions.add(dimension);
             }
         }
-        
+
         layer.setDimensions(dimensions);
 
         // No need to add a default style as before, WMS with Styles= will return the default style
         // Persist the layer
         wmsRepostioryService.saveLayer(layer);
-        log.info("WMS layer: " + layerName + " is persisted in database.");
+        log.info("Layer '" + layerName + "' is persisted to local database.");
 
-        if (!request.equals(KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER)) {
+        if (layerExist) {
             // Remove all the cached GetMap response from cache as layer is updated
             this.wmsGetMapCachingService.removeLayerGetMapInCache(layerName);
         }
-
-        // Returns the layer name as a success
-        return new Response(Arrays.asList(layerName.getBytes()), MIMEUtil.MIME_GML, layerName);
     }
 
     /**
@@ -236,24 +197,23 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         if (!crs.equals(DEFAULT_CRS_CODE)) {
             String sourceCrs = xyAxes.get(0).getNativeCrsUri();
             int epsgCode = CrsUtil.getEpsgCodeAsInt(sourceCrs);
-            
+
             Axis axisX = xyAxes.get(0);
             Axis axisY = xyAxes.get(1);
             int gridWidth = axisX.getGridBounds().getUpperLimit().subtract(axisX.getGridBounds().getLowerLimit()).intValue() + 1;
             int gridHeight = axisY.getGridBounds().getUpperLimit().subtract(axisY.getGridBounds().getLowerLimit()).intValue() + 1;
-            
-            GeoTransform geoTransform = new GeoTransform(epsgCode, minGeoBoundX.doubleValue(), maxGeoBoundY.doubleValue(), 
-                                                         gridWidth, gridHeight, axisX.getResolution().doubleValue(), axisY.getResolution().doubleValue());
-            
+
+            GeoTransform geoTransform = new GeoTransform(epsgCode, minGeoBoundX.doubleValue(), maxGeoBoundY.doubleValue(),
+                    gridWidth, gridHeight, axisX.getResolution().doubleValue(), axisY.getResolution().doubleValue());
+
             // Need to transform from native CRS of XY geo axes (e.g: EPSG:3857) to EPSG:4326
-            
             String targetCrs = CrsUtil.getEPSGFullUri(DEFAULT_EPSG_CRS);
             petascope.core.BoundingBox wgs84bbox;
             try {
                 wgs84bbox = CrsProjectionUtil.transform(geoTransform, DEFAULT_EPSG_CRS);
             } catch (PetascopeException ex) {
                 String bbox = "xmin=" + minGeoBoundX.doubleValue() + ", ymin=" + minGeoBoundY.doubleValue()
-                            + "xmax=" + maxGeoBoundX.doubleValue() + ", ymax=" + maxGeoBoundY.doubleValue();
+                        + "xmax=" + maxGeoBoundX.doubleValue() + ", ymax=" + maxGeoBoundY.doubleValue();
                 throw new WMSInvalidBoundingBoxInCrsTransformException(bbox, sourceCrs, targetCrs, ex.getExceptionText());
             }
 
@@ -296,4 +256,5 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
 
         return bbox;
     }
+
 }

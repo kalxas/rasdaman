@@ -47,7 +47,6 @@ from util.log import log, prepend_time
 from util.string_util import strip_trailing_zeros, create_downscaled_coverage_id, add_date_time_suffix
 from util.url_util import validate_and_read_url
 from master.request.wcst import WCSTInsertRequest, WCSTUpdateRequest, WCSTSubset
-from master.request.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest, WMSTDescribeLayer
 from master.request.pyramid import CreatePyramidMemberRequest, AddPyramidMemberRequest, ListPyramidMembersRequest
 from util.crs_util import CRSUtil, CRSAxis
 from util.time_util import DateTimeUtil
@@ -388,7 +387,7 @@ class Importer:
         """
         Return the list of pyramid_member_coverages of the current importing coverage
         """
-        if mock == False:
+        if mock is False:
             request = ListPyramidMembersRequest(coverage_id)
             service_call = request.context_path + "?" + request.get_query_string()
             json_obj = json.loads(decode_res(validate_and_read_url(service_call)))
@@ -575,36 +574,24 @@ class Importer:
         """
         Inserts or Update the coverage into the wms service
         """
-        layer_exist = None
         try:
             # First check if layer exists or not from nonstandard HTTP request
-            service_call = ConfigManager.wcs_service + "/objectExists?layer=" + self.coverage.coverage_id
-            response = decode_res(validate_and_read_url(service_call))
-            layer_exist = True if response == "true" else False
-        except Exception as ex:
-            # try the normal way
-            pass
+            service_call = ConfigManager.admin_service + "/layer/isactive?COVERAGEID=" + self.coverage.coverage_id
+            if ConfigManager.mock is False:
+                response = decode_res(validate_and_read_url(service_call))
+                layer_exist = True if response == "true" else False
 
-        try:
-            if layer_exist is None:
-                # First check if layer exists or not
-                request = WMSTDescribeLayer(self.coverage.coverage_id)
-                try:
-                    response = ConfigManager.executor.execute(request)
-                except Exception as ex:
-                    if not "LayerNotFound" in str(ex):
-                        raise ex
-                    else:
-                        # Layer not found
-                        layer_exist = False
+                # WMS layer does not exist, just insert new WMS layer from imported coverage
 
-            # WMS layer does not exist, just insert new WMS layer from imported coverage
-            if layer_exist is False:
-                request = WMSTFromWCSInsertRequest(self.coverage.coverage_id, False, ConfigManager.black_listed)
+                if layer_exist is False:
+                    service_call = ConfigManager.admin_service + "/layer/activate?COVERAGEID=" + self.coverage.coverage_id
+                    if ConfigManager.black_listed is True:
+                        service_call += "&BLACKLISTED=true"
+
+                    validate_and_read_url(service_call)
             else:
-                # WMS layer existed, update WMS layer from updated coverage
-                request = WMSTFromWCSUpdateRequest(self.coverage.coverage_id, False)
-            ConfigManager.executor.execute(request, mock=ConfigManager.mock)
+                log.info(service_call)
+
         except Exception as e:
             log.error(
                 "Exception thrown when importing in WMS. Please try to reimport in WMS manually.")

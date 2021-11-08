@@ -21,7 +21,7 @@
  */
 package petascope.controller;
 
-import org.rasdaman.AuthenticationService;
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +77,7 @@ public class OWSMetadataController extends AbstractController {
     public void handleOWSUpdateServiceIdentification(HttpServletRequest httpServletRequest) throws Exception {
 
         // Only Petascope admin user can update coverage's metadata
-        AuthenticationService.validatePetascopeAdminUser(httpServletRequest);
+        AuthenticationService.validatePetascopeAdminOrRasadminUser(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);     
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -104,7 +104,7 @@ public class OWSMetadataController extends AbstractController {
     public void handleOWSUpdateServiceProvider(HttpServletRequest httpServletRequest) throws Exception {
 
         // Only Petascope admin user can update coverage's metadata
-        AuthenticationService.validatePetascopeAdminUser(httpServletRequest);
+        AuthenticationService.validatePetascopeAdminOrRasadminUser(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);     
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);

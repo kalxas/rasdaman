@@ -19,14 +19,19 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wms.handlers.kvp;
+package com.rasdaman.admin.layer.service;
 
+
+// -- rasdaman enterprise begin
+
+import com.rasdaman.admin.service.AbstractAdminService;
+
+// -- rasdaman enterprise end
 
 import petascope.core.response.Response;
-import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
-import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
@@ -35,60 +40,57 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.controller.AbstractController;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_COVERAGE_ID;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
-import petascope.util.MIMEUtil;
 import petascope.exceptions.WMSException;
-import petascope.wms.exception.WMSMissingRequestParameter;
+import petascope.util.SetUtil;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 
 /**
- * Handle the DeleteLayer in WMS 1.3 request to delete a WMS layer without deleting the WCS associated coverage,
- * e.g:   SERVICE=WMS&VERSION=1.3.0
- *        &REQUEST=DeleteLayer
- *        &LAYER=MyLayer
- *
+ * Deactivate (delete) the existing WMS layer of a coverage.
+ * 
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class KVPWMSDeleteLayerHandler extends KVPWMSAbstractHandler {
+public class AdminDeactivateLayerService extends AbstractAdminService {
 
-    private static Logger log = LoggerFactory.getLogger(KVPWMSDeleteLayerHandler.class);
+    private static Logger log = LoggerFactory.getLogger(AdminDeactivateLayerService.class);
+    private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_COVERAGE_ID);
     
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
     private WMSGetMapCachingService wmsGetMapCachingService;
     
-    public KVPWMSDeleteLayerHandler() {
+    public AdminDeactivateLayerService() {
 
     }
     
-    @Override
-    public void validate(Map<String, String[]> kvpParameters) throws WMSException {
-        // Check if layer does exist from the request        
-        String[] layerParam = kvpParameters.get(KVPSymbols.KEY_WMS_LAYER);
-        if (layerParam == null) {
-            throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_LAYER);
-        }
+    public void validate(Map<String, String[]> kvpParameters) throws WMSException, PetascopeException {
+        this.validateRequiredParameters(kvpParameters, VALID_PARAMETERS);
     }
 
     @Override
-    public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {        
+    public Response handle(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {     
         // Validate before handling the request
         this.validate(kvpParameters);
-
-        String layerName = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_LAYER);
+        
+        String layerName = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_COVERAGEID);
+        if (!this.wmsRepostioryService.isInLocalCache(layerName)) {
+            throw new PetascopeException(ExceptionCode.NoSuchLayer, "Layer '" + layerName + "' does not exist in local database.");
+        }
+        
         Layer layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);
-                
 
         // Then delete the layer from database.
         this.wmsRepostioryService.deleteLayer(layer);
         
         // Then remove the GetMap request which contains layers and styles from cache
         this.wmsGetMapCachingService.removeLayerGetMapInCache(layerName);
+        log.info("Layer '" + layerName + "' is deactivated.");
 
         // Request returns empty string as a success
-        return new Response(Arrays.asList("".getBytes()), MIMEUtil.MIME_GML, layerName);
+        return new Response();
     }    
 }

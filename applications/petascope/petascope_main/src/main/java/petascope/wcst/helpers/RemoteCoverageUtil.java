@@ -21,6 +21,7 @@
  */
 package petascope.wcst.helpers;
 
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -28,7 +29,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
-import org.rasdaman.AuthenticationService;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

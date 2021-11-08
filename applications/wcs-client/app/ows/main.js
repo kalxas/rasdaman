@@ -2439,7 +2439,7 @@ var rasdaman;
         };
         WCSService.prototype.updateCoverageMetadata = function (formData) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.adminEndpoint + "/UpdateCoverageMetadata";
+            var requestUrl = this.settings.adminEndpoint + "/coverage/update";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             requestHeaders["Content-Type"] = undefined;
             var request = {
@@ -2458,7 +2458,7 @@ var rasdaman;
         };
         WCSService.prototype.blackListOneCoverage = function (coverageId) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=BlackList&coverageId=" + coverageId;
+            var requestUrl = this.settings.adminEndpoint + "/wcs/blacklist?COVERAGELIST=" + coverageId;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -2471,7 +2471,7 @@ var rasdaman;
         };
         WCSService.prototype.blackListAllCoverages = function () {
             var result = this.$q.defer();
-            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=BlackListAll";
+            var requestUrl = this.settings.adminEndpoint + "/wcs/blacklistall";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -2484,7 +2484,7 @@ var rasdaman;
         };
         WCSService.prototype.whiteListOneCoverage = function (coverageId) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=WhiteList&coverageId=" + coverageId;
+            var requestUrl = this.settings.adminEndpoint + "/wcs/whitelist?COVERAGELIST=" + coverageId;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -2497,7 +2497,7 @@ var rasdaman;
         };
         WCSService.prototype.whiteListAllCoverages = function () {
             var result = this.$q.defer();
-            var requestUrl = this.settings.adminEndpoint + "?SERVICE=WCS&REQUEST=WhiteListAll";
+            var requestUrl = this.settings.adminEndpoint + "/wcs/whitelistall";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -2638,6 +2638,8 @@ var rasdaman;
             if (!this.wmsEndpoint.endsWith("ows")) {
                 this.wmsEndpoint = this.wmsEndpoint + "ows";
             }
+            this.contextPath = this.wmsEndpoint.replace("/rasdaman/ows", "/rasdaman");
+            this.adminEndpoint = this.contextPath + "/admin";
         };
         WMSSettingsService.$inject = ["$window"];
         WMSSettingsService.version = "1.3.0";
@@ -5039,7 +5041,7 @@ var rasdaman;
             });
             $scope.checkPetascopeEnableAuthentication = function () {
                 var result = $q.defer();
-                var requestUrl = settings.contextPath + "/CheckEnableAuthentication";
+                var requestUrl = settings.contextPath + "/admin/authisactive";
                 $http.get(requestUrl)
                     .then(function (dataObj) {
                     var data = JSON.parse(dataObj.data);
@@ -5650,16 +5652,16 @@ var rasdaman;
             });
             return result.promise;
         };
-        WMSService.prototype.updateLayerStyleRequest = function (updateLayerStyle) {
+        WMSService.prototype.insertLayerStyleRequest = function (insertLayerStyle) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wmsEndpoint;
+            var requestUrl = this.settings.adminEndpoint + "/layer/style/add";
             var currentHeaders = { "Content-Type": "application/x-www-form-urlencoded" };
             var request = {
                 method: 'POST',
                 url: requestUrl,
                 transformResponse: null,
                 headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
-                data: this.settings.wmsServiceNameVersion + "&" + updateLayerStyle.toKVP()
+                data: insertLayerStyle.toKVP()
             };
             this.$http(request).then(function (data) {
                 result.resolve(data);
@@ -5668,16 +5670,16 @@ var rasdaman;
             });
             return result.promise;
         };
-        WMSService.prototype.insertLayerStyleRequest = function (insertLayerStyle) {
+        WMSService.prototype.updateLayerStyleRequest = function (updateLayerStyle) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wmsEndpoint;
+            var requestUrl = this.settings.adminEndpoint + "/layer/style/update";
             var currentHeaders = { "Content-Type": "application/x-www-form-urlencoded" };
             var request = {
                 method: 'POST',
                 url: requestUrl,
                 transformResponse: null,
                 headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
-                data: this.settings.wmsServiceNameVersion + "&" + insertLayerStyle.toKVP()
+                data: updateLayerStyle.toKVP()
             };
             this.$http(request).then(function (data) {
                 result.resolve(data);
@@ -5688,7 +5690,7 @@ var rasdaman;
         };
         WMSService.prototype.deleteLayerStyleRequest = function (request) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
+            var requestUrl = this.settings.adminEndpoint + "/layer/style/remove" + "?" + request.toKVP();
             var currentHeaders = {};
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
@@ -5706,7 +5708,7 @@ var rasdaman;
         };
         WMSService.prototype.listPyramidMembersRequest = function (request) {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
+            var requestUrl = this.wcsSettings.adminEndpoint + "/coverage/pyramid/list" + "?" + request.toKVP();
             var currentHeaders = {};
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
@@ -5724,7 +5726,7 @@ var rasdaman;
         };
         WMSService.prototype.createPyramidMemberRequest = function (request) {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
+            var requestUrl = this.wcsSettings.adminEndpoint + "/coverage/pyramid/create" + "?" + request.toKVP();
             var currentHeaders = {};
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
@@ -5742,7 +5744,7 @@ var rasdaman;
         };
         WMSService.prototype.removePyramidMemberRequest = function (request) {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.adminEndpoint + "?" + request.toKVP();
+            var requestUrl = this.wcsSettings.adminEndpoint + "/coverage/pyramid/remove" + "?" + request.toKVP();
             var currentHeaders = {};
             this.$http.get(requestUrl, {
                 headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
@@ -5760,7 +5762,7 @@ var rasdaman;
         };
         WMSService.prototype.blackListOneLayer = function (layerName) {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=BlackList&LAYERS=" + layerName;
+            var requestUrl = this.wcsSettings.adminEndpoint + "/wms/blacklist?LAYERLIST=" + layerName;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -5773,7 +5775,7 @@ var rasdaman;
         };
         WMSService.prototype.blackListAllLayers = function () {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=BlackListAll";
+            var requestUrl = this.wcsSettings.adminEndpoint + "/wms/blacklistall";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -5786,7 +5788,7 @@ var rasdaman;
         };
         WMSService.prototype.whiteListOneLayer = function (layerName) {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=WhiteList&LAYERS=" + layerName;
+            var requestUrl = this.wcsSettings.adminEndpoint + "/wms/whitelist?LAYERLIST=" + layerName;
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -5799,7 +5801,7 @@ var rasdaman;
         };
         WMSService.prototype.whiteListAllLayers = function () {
             var result = this.$q.defer();
-            var requestUrl = this.wcsSettings.adminEndpoint + "?SERVICE=WMS&REQUEST=WhiteListAll";
+            var requestUrl = this.wcsSettings.adminEndpoint + "/wms/whitelistall";
             var requestHeaders = this.adminService.getAuthentcationHeaders();
             this.$http.get(requestUrl, {
                 headers: requestHeaders
@@ -6131,7 +6133,7 @@ var rasdaman;
                             var pyramidCoverageMembers = [];
                             arrayData.forEach(function (element) {
                                 var coverageName = element["coverage"];
-                                var scaleFactors = element["scaleFactors"].join(",");
+                                var scaleFactors = element["scale"].join(",");
                                 var pyramidCoverageMember = new wms.PyramidCoverageMember(coverageName, scaleFactors);
                                 pyramidCoverageMembers.push(pyramidCoverageMember);
                             });
@@ -6634,7 +6636,7 @@ var rasdaman;
         };
         AdminService.prototype.updateServiceIdentification = function (serviceIdentification) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.adminEndpoint + "/UpdateServiceIdentification";
+            var requestUrl = this.settings.adminEndpoint + "/ows/serviceinfo";
             var credentials = this.getPersistedAdminUserCredentials();
             var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
             var request = {
@@ -6653,7 +6655,7 @@ var rasdaman;
         };
         AdminService.prototype.updateServiceProvider = function (serviceProvider) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.adminEndpoint + "/UpdateServiceProvider";
+            var requestUrl = this.settings.adminEndpoint + "/ows/serviceinfo";
             var credentials = this.getPersistedAdminUserCredentials();
             var requestHeaders = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
             var request = {
@@ -7055,16 +7057,14 @@ var wms;
 (function (wms) {
     var CreatePyramidMember = (function () {
         function CreatePyramidMember(baseCoverageId, scaleFactors, pyramidMemberCoverageId) {
-            this.request = "CreatePyramidMember";
             this.baseCoverageId = baseCoverageId;
             this.scaleFactors = scaleFactors;
             this.pyramidMemberCoverageId = pyramidMemberCoverageId;
         }
         CreatePyramidMember.prototype.toKVP = function () {
-            return "&REQUEST=" + this.request +
-                "&BASE=" + this.baseCoverageId +
-                "&SCALEFACTOR=" + this.scaleFactors +
-                "&MEMBER=" + this.pyramidMemberCoverageId;
+            return "&COVERAGEID=" + this.baseCoverageId +
+                "&MEMBER=" + this.pyramidMemberCoverageId +
+                "&SCALEVECTOR=" + this.scaleFactors;
         };
         return CreatePyramidMember;
     }());
@@ -7074,14 +7074,12 @@ var wms;
 (function (wms) {
     var DeleteLayerStyle = (function () {
         function DeleteLayerStyle(layerName, name) {
-            this.request = "DeleteStyle";
             this.layerName = layerName;
             this.name = name;
         }
         DeleteLayerStyle.prototype.toKVP = function () {
-            return "&request=" + this.request +
-                "&name=" + this.name +
-                "&layer=" + this.layerName;
+            return "COVERAGEID=" + this.layerName +
+                "&STYLEID=" + this.name;
         };
         return DeleteLayerStyle;
     }());
@@ -7109,7 +7107,6 @@ var wms;
 (function (wms) {
     var InsertLayerStyle = (function () {
         function InsertLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion) {
-            this.request = "InsertStyle";
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
@@ -7119,9 +7116,8 @@ var wms;
             this.colorTableDefinition = colorTableDefintion;
         }
         InsertLayerStyle.prototype.toKVP = function () {
-            var result = "&request=" + this.request +
-                "&name=" + this.name +
-                "&layer=" + this.layerName +
+            var result = "COVERAGEID=" + this.layerName +
+                "&STYLEID=" + this.name +
                 "&abstract=" + this.abstract;
             result += "&" + this.queryFragmentType + "=" + this.query;
             result += "&ColorTableType=" + this.colorTableType +
@@ -7136,12 +7132,10 @@ var wms;
 (function (wms) {
     var ListPyramidMembers = (function () {
         function ListPyramidMembers(layerName) {
-            this.request = "ListPyramidMembers";
             this.base = layerName;
         }
         ListPyramidMembers.prototype.toKVP = function () {
-            return "&REQUEST=" + this.request +
-                "&BASE=" + this.base;
+            return "COVERAGEID=" + this.base;
         };
         return ListPyramidMembers;
     }());
@@ -7162,14 +7156,12 @@ var wms;
 (function (wms) {
     var RemovePyramidMember = (function () {
         function RemovePyramidMember(baseCoverageId, pyramidMemberCoverageId) {
-            this.request = "RemovePyramidMember";
             this.baseCoverageId = baseCoverageId;
             this.pyramidMemberCoverageId = pyramidMemberCoverageId;
         }
         RemovePyramidMember.prototype.toKVP = function () {
-            return "REQUEST=" + this.request +
-                "&BASE=" + this.baseCoverageId +
-                "&MEMBER=" + this.pyramidMemberCoverageId;
+            return "COVERAGEID=" + this.baseCoverageId +
+                "&MEMBERS=" + this.pyramidMemberCoverageId;
         };
         return RemovePyramidMember;
     }());
@@ -7194,7 +7186,6 @@ var wms;
 (function (wms) {
     var UpdateLayerStyle = (function () {
         function UpdateLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion) {
-            this.request = "UpdateStyle";
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
@@ -7204,9 +7195,8 @@ var wms;
             this.colorTableDefinition = colorTableDefintion;
         }
         UpdateLayerStyle.prototype.toKVP = function () {
-            var result = "&request=" + this.request +
-                "&name=" + this.name +
-                "&layer=" + this.layerName +
+            var result = "COVERAGEID=" + this.layerName +
+                "&STYLEID=" + this.name +
                 "&abstract=" + this.abstract;
             result += "&" + this.queryFragmentType + "=" + this.query;
             result += "&ColorTableType=" + this.colorTableType +

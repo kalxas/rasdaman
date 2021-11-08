@@ -1,5 +1,2 @@
-service=WMS&
-version=1.3.0&
-request=DeleteStyle&
-name=SLD&
-layer=test_wms_4326
+STYLEID=SLD&
+COVERAGEID=test_wms_4326

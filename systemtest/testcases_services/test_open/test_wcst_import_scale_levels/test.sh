@@ -70,13 +70,17 @@ check_result 0 $? "importing data"
 log "Test that downscaled collections match the oracles..."
 check_data
 
+DOWNSCALED_COVERAGE_ID_2="$COVERAGE_ID""_2"
+DOWNSCALED_COVERAGE_ID_4="$COVERAGE_ID""_4"
+DOWNSCALED_COVERAGE_ID_6="$COVERAGE_ID""_6"
+
 # Then, delete one of the downscaled collection by level
-delete_scale_level_request="$PETASCOPE_URL?service=WCS&request=DeleteScaleLevel&version=2.0.1&coverageId=$COVERAGE_ID&level=4"
+delete_scale_level_request="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$DOWNSCALED_COVERAGE_ID_4"
 result=$(get_http_return_code "$delete_scale_level_request")
 check_result "200" "$result" "delete downscaled collection level 4"
 
 # Then, insert this downscaled collection by level
-insert_scale_level_request="$PETASCOPE_URL?service=WCS&request=InsertScaleLevel&version=2.0.1&coverageId=$COVERAGE_ID&level=4"
+insert_scale_level_request="$PETASCOPE_ADMIN_URL/coverage/pyramid/create?COVERAGEID=$COVERAGE_ID&MEMBER=$DOWNSCALED_COVERAGE_ID_4&SCALEVECTOR=4,4"
 result=$(get_http_return_code "$insert_scale_level_request")
 check_result "200" "$result" "insert downscaled collection level 4"
 
@@ -88,6 +92,18 @@ check_data
 delete_coverage_request="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
 result=$(get_http_return_code "$delete_coverage_request")
 check_result "200" "$result" "delete coverate $COVERAGE_ID"
+
+delete_scale_level_request="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$DOWNSCALED_COVERAGE_ID_2"
+result=$(get_http_return_code "$delete_scale_level_request")
+check_result "200" "$result" "delete coverate $DOWNSCALED_COVERAGE_ID_2"
+
+delete_scale_level_request="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$DOWNSCALED_COVERAGE_ID_4"
+result=$(get_http_return_code "$delete_scale_level_request")
+check_result "200" "$result" "delete coverate $DOWNSCALED_COVERAGE_ID_4"
+
+delete_scale_level_request="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$DOWNSCALED_COVERAGE_ID_6"
+result=$(get_http_return_code "$delete_scale_level_request")
+check_result "200" "$result" "delete coverate $DOWNSCALED_COVERAGE_ID_6"
 
 # TODO: check that downscaled collections are deleted as well
 

@@ -1,8 +1,5 @@
-service=WMS&
-version=1.3.0&
-request=InsertStyle&
-name=ColorMap&
-layer=test_wms_4326&
+STYLEID=ColorMap&
+COVERAGEID=test_wms_4326&
 abstract=Rasdaman Color Map style&
 ColorTableType=ColorMap&
 ColorTableDefinition={ "type": "ramp", "colorTable": {  "0": [0, 0, 255, 0], "100": [125, 125, 125, 255], "255": [255, 0, 0, 255]  } }
