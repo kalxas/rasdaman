@@ -344,6 +344,9 @@ class WCSTExecutor(WCSTBaseExecutor):
         base_url_tmp = self.base_url
         if input_base_url is not None:
             base_url_tmp = input_base_url
+        elif hasattr(request, "context_path"):
+            if request.context_path is not None:
+                base_url_tmp = request.context_path
 
         service_call = base_url_tmp + "?" + request.get_query_string()
 

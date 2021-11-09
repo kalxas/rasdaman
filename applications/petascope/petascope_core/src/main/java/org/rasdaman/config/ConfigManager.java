@@ -202,6 +202,8 @@ public class ConfigManager {
     public static final String KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH = "spring.datasource.jdbc_jar_path";
     private static final String KEY_PETASCOPE_SERVLET_URL = "petascope_servlet_url";
     private static final String KEY_APPLICATION_NAME = "server.contextPath";
+    
+    private static final String KEY_INSPIRE_METADATA_URL = "inspire_common_url";
 
     // For old Petascopedb to migrate (source datasource)
     private static final String KEY_SOURCE_DATASOURCE_URL = "metadata_url";
@@ -266,6 +268,8 @@ public class ConfigManager {
 
     public static byte GDAL_JAVA_VERSION = 0;
     public static String CONF_DIR = "";
+
+    public static String INSPIRE_COMMON_URL = "";
 
     /**
      * Initialize all the keys, values of petascope.properties
@@ -395,6 +399,8 @@ public class ConfigManager {
     
     private void initPetascopeSettings() throws PetascopeException {
         PETASCOPE_ENDPOINT_URL = get(KEY_PETASCOPE_SERVLET_URL);
+        INSPIRE_COMMON_URL = getOptionalPropertyValue(KEY_INSPIRE_METADATA_URL, "");
+        
         PETASCOPE_APPLICATION_CONTEXT_PATH = get(KEY_APPLICATION_NAME);
 
         PETASCOPE_DATASOURCE_URL = get(KEY_PETASCOPE_DATASOURCE_URL);

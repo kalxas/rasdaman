@@ -85,6 +85,14 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "inspire": {
+                    "type": "object",
+                    "properties": {
+                        "metadata_url": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },

@@ -23,6 +23,7 @@
 """
 import os
 from config_manager import ConfigManager
+from master.helper.inspire import Inspire
 from master.helper.overview import Overview
 from master.importer.resumer import Resumer
 
@@ -69,6 +70,14 @@ class Session:
         # imported files from the list of input files (files are added in .resume.json will be ignored)
         self.imported_files = []
         self.coverage_id = inp['coverage_id'] if 'coverage_id' in inp else None
+
+        metadata_url = ""
+        if "inspire" in inp:
+            inspire = inp["inspire"]
+            if "metadata_url" in inspire:
+                metadata_url = inspire["metadata_url"]
+        self.inspire = Inspire(metadata_url)
+
         self.recipe = recipe
         self.input = inp
         self.wcs_service = config['service_url'] if "service_url" in config else None

@@ -687,6 +687,24 @@ public abstract class AbstractController {
     }
     
     /**
+     * Check if a source IP address can send a write request to petascope.
+     */
+    protected void validateWriteRequestFromIP(String request, String sourceIP) throws PetascopeException {
+        
+        if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
+            // localhost IP in servlet
+            if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
+                sourceIP = "127.0.0.1";
+            }
+
+            if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
+                throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                            "Write request '" + request + "' is not permitted from IP address '" + sourceIP + "'.");
+            }
+        }
+    }
+    
+    /**
      * Get request IP address from client to petascope
      */
     protected String getRequesIPAddress() {

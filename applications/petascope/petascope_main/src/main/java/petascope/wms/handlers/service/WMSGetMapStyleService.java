@@ -86,7 +86,7 @@ public class WMSGetMapStyleService {
     public static final String WCPS_FRAGMENT_ITERATOR = FRAGMENT_ITERATOR_PREFIX + COLLECTION_ITERATOR;
     public static final String RASQL_FRAGMENT_ITERATOR = FRAGMENT_ITERATOR_PREFIX + "Iterator";
     
-    public static final Pattern LAYER_ITERATOR_PATTERN = Pattern.compile("\\" + FRAGMENT_ITERATOR_PREFIX + "[:a-zA-Z0-9_-]+");
+    public static final Pattern LAYER_ITERATOR_PATTERN = Pattern.compile("\\" + FRAGMENT_ITERATOR_PREFIX + "([a-zA-Z0-9_][a-zA-Z0-9_\\.-]*:([0-9]+:)?)?[a-zA-Z_][a-zA-Z0-9_]*");
     public static final String USING = " using ";
     public static final String IN = " IN ";
     public static final String SELECT = " SELECT ";

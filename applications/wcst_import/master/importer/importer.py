@@ -39,6 +39,7 @@ from master.provider.metadata.axis import Axis
 from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.metadata_provider import MetadataProvider
+from master.request.admin import InspireUpdateMetadataURLRequest
 from util.coverage_util import CoverageUtil
 from util.file_util import File
 from util.import_util import decode_res
@@ -98,6 +99,10 @@ class Importer:
                 # for importing overviews nested inside input files
                 self.add_pyramid_member_if_any(self.coverage.base_coverage_id, self.coverage.coverage_id,
                                                self.session.pyramid_harvesting)
+
+            # NOTE: this request is invoked once whenever updating a coverage from input files
+            if self.session is not None:
+                self.update_coverage_inspire_metadata(self.coverage.coverage_id, self.session.inspire.metadata_url)
 
     def get_progress(self):
         """
@@ -395,6 +400,17 @@ class Importer:
             return results
 
         return []
+
+    def update_coverage_inspire_metadata(selfs, base_coverage_id, inspire_metadata_url):
+        """
+        Update coverage's INSPIRE metadata
+        :param base_coverage_id: str
+        :param inspire_metadata_url: str (if this value is non-empty, then coverage is marked as INSPIRE coverage)
+
+        """
+        executor = ConfigManager.executor
+        request = InspireUpdateMetadataURLRequest(base_coverage_id, inspire_metadata_url)
+        executor.execute(request, mock=ConfigManager.mock, input_base_url=None)
 
     def add_pyramid_member_if_any(self, base_coverage_id, pyramid_member_coverage_id, pyramid_haversting=False):
         """

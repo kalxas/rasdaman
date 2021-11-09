@@ -63,6 +63,8 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
         this.coverageSizeInBytes = baseCoverage.getCoverageSizeInBytes();
         this.pyramid = baseCoverage.getPyramid();
         this.rasdamanRangeSet = baseCoverage.getRasdamanRangeSet();
+        
+        this.inspireMetadataURL = baseCoverage.getInspireMetadataURL();
     }
 
     public GeneralGridCoverage(String coverageId, String coverageType, long coverageSizeInBytes, 

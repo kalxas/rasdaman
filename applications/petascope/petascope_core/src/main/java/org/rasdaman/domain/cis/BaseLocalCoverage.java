@@ -38,6 +38,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
@@ -103,6 +104,10 @@ public class BaseLocalCoverage implements Serializable {
     @Transient
     private RasdamanRangeSet rasdamanRangeSet;
     
+    @Column(name = "inspire_metadata_url")
+    @Lob
+    protected String inspireMetadataURL;
+    
     public BaseLocalCoverage() {
 
     }
@@ -140,6 +145,9 @@ public class BaseLocalCoverage implements Serializable {
     }
 
     public Long getCoverageSizeInBytes() {
+        if (coverageSizeInBytes == null) {
+            coverageSizeInBytes = 0L;
+        }
         return coverageSizeInBytes;
     }
 
@@ -187,5 +195,13 @@ public class BaseLocalCoverage implements Serializable {
 
     public void setRasdamanRangeSet(RasdamanRangeSet rasdamanRangeSet) {
         this.rasdamanRangeSet = rasdamanRangeSet;
+    }
+    
+    public String getInspireMetadataURL() {
+        return inspireMetadataURL;
+    }
+
+    public void setInspireMetadataURL(String inspireMetadataURL) {
+        this.inspireMetadataURL = inspireMetadataURL;
     }
 }

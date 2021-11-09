@@ -69,6 +69,11 @@ public interface XMLSymbols {
     String PREFIX_CRS = "crs";
     String PREFIX_PROCESS_COVERAGE = "proc";
     String PREFIX_INT = "int"; // wcs interpolation
+    
+    // -- INSPIRE
+    
+    String PREFIX_INSPIRE_DLS = "inspire_dls";
+    String PREFIX_INSPIRE_COMMON = "inspire_common";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -93,6 +98,9 @@ public interface XMLSymbols {
     String NAMESPACE_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
     String NAMESPACE_PROCESS_COVERAGE = "http://www.opengis.net/wcs/processing/2.0";
     String NAMESPACE_INTERPOLATION = "http://www.opengis.net/wcs/interpolation/1.0";
+    
+    String NAMESPACE_INSPIRE_DLS = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0";
+    String NAMESPACE_INSPIRE_COMMON = "http://inspire.ec.europa.eu/schemas/common/1.0";
 
     // XML requests WCS elements
     String LABEL_GET_CAPABILITIES = "GetCapabilities";
@@ -435,6 +443,24 @@ public interface XMLSymbols {
     String LABEL_PARTITION_SET = "PartitionSet";
     String LABEL_PARTITION = "Partition";
     String LABEL_COVERAGE_REF = "CoverageRef";
+    
+    // -- INSPIRE
+    
+    String LABEL_INSPIRE_EXTENDED_CAPABILITIES = "ExtendedCapabilities";
+    String LABEL_INSPIRE_METADATA_URL = "MetadataUrl";
+    String LABEL_INSPIRE_URL = "URL";
+    
+    String LABEL_INSPIRE_SUPPORTED_LANGUAGES = "SupportedLanguages";
+    String LABEL_INSPIRE_DEFAULT_LANGUAGE = "DefaultLanguage";
+    
+    String LABEL_INSPIRE_RESPONSE_LANGUAGE = "ResponseLanguage";
+    String LABEL_INSPIRE_LANGUAGE = "Language";
+    
+    String LABEL_INSPIRE_SPATIAL_DATASET_IDENTIFIER = "SpatialDataSetIdentifier";
+    String LABEL_INSPIRE_CODE = "Code";
+    
+    String LABEL_INSPIRE_NAMESPACE = "Namespace";
+    String LABEL_INSPIRE_MEDIATYPE = "MediaType";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -496,6 +522,11 @@ public interface XMLSymbols {
     String ATT_QUANTITY = "quantity";
     String ATT_OPACITY = "opacity";
     
+    // -- INSPIRE
+    
+    String ATT_METADATA_URL = "metadataURL";
+    
+    
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // XPath Contexts
@@ -520,7 +551,10 @@ public interface XMLSymbols {
     
     String SCHEMA_LOCATION_WCS_CIS_11_GET_COVERAGE = "http://www.opengis.net/cis/1.1/gml http://schemas.opengis.net/cis/1.1/gml/cisAll.xsd";    
     String SCHEMA_LOCATION_WCS_CIS_11_DESCRIBE_COVERAGE = "http://www.opengis.net/wcs/2.1/gml http://schemas.opengis.net/wcs/2.1/gml/wcsAll.xsd";
-
+    
+    String SCHEMA_LOCATION_INSPIRE1 = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0";
+    String SCHEMA_LOCATION_INSPIRE2 = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0/inspire_dls.xsd";
+    
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Predefined entities' names
@@ -542,4 +576,7 @@ public interface XMLSymbols {
     
     String VALUE_CONSTRAINT_POST_ENCODING_XML = "XML";
     String VALUE_CONSTRAINT_POST_ENCODING_SOAP = "SOAP";
+
+    String VALUE_TRUE = "true";
+    String VALUE_FALSE = "false";
 }

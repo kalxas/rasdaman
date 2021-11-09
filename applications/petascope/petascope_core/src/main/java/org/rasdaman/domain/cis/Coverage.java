@@ -134,6 +134,10 @@ public abstract class Coverage implements Serializable {
     @OrderColumn
     protected List<CoveragePyramid> pyramid = new ArrayList<>();
     
+    @Column(name = "inspire_metadata_url")
+    @Lob
+    protected String inspireMetadataURL;
+    
     public Coverage() {
 
     }
@@ -151,17 +155,18 @@ public abstract class Coverage implements Serializable {
     }
     
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet) {
-        this(coverageId, coverageType, 0, envelope, rasdamanRangeSet, new ArrayList<CoveragePyramid>());
+        this(coverageId, coverageType, 0, envelope, rasdamanRangeSet, new ArrayList<CoveragePyramid>(), null);
     }
     
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet,
-                    List<CoveragePyramid> pyramid) {
+                    List<CoveragePyramid> pyramid, String inspireMetadataURL) {
         this.coverageId = coverageId;
         this.coverageType = coverageType;
         this.coverageSizeInBytes = coverageSizeInBytes;
         this.envelope = envelope;
         this.rasdamanRangeSet = rasdamanRangeSet;        
         this.pyramid = pyramid;
+        this.inspireMetadataURL = inspireMetadataURL;
     }
 
     public long getId() {
@@ -237,11 +242,17 @@ public abstract class Coverage implements Serializable {
         this.coverageType = coverageType;
     }
 
-    public long getCoverageSizeInBytes() {
+    public Long getCoverageSizeInBytes() {        
+        if (coverageSizeInBytes == null) {
+            coverageSizeInBytes = 0L;
+        }
         return coverageSizeInBytes;
     }
 
-    public void setCoverageSizeInBytes(long coverageSizeInBytes) {
+    public void setCoverageSizeInBytes(Long coverageSizeInBytes) {
+        if (coverageSizeInBytes == null) {
+            coverageSizeInBytes = 0L;
+        }
         this.coverageSizeInBytes = coverageSizeInBytes;
     }
 
@@ -251,6 +262,14 @@ public abstract class Coverage implements Serializable {
 
     public void setPyramid(List<CoveragePyramid> pyramid) {
         this.pyramid = pyramid;
+    }
+
+    public String getInspireMetadataURL() {
+        return inspireMetadataURL;
+    }
+
+    public void setInspireMetadataURL(String inspireMetadataURL) {
+        this.inspireMetadataURL = inspireMetadataURL;
     }
     
     /**

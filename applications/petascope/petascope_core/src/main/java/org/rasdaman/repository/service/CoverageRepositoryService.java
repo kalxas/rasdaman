@@ -779,6 +779,16 @@ public class CoverageRepositoryService {
         long coverageSizeInBytes = localCoverage.getCoverageSizeInBytes();
         this.coverageRepository.saveCoverageSizeInBytes(coverageAutoId, coverageSizeInBytes);
     }
+    
+    /**
+     * Persist inspireMetadataURL to database of the selected coverage
+     */
+    @Transactional
+    public void saveCoverageInspireMetadataURL(Coverage localCoverage) {
+        long coverageAutoId = localCoverage.getId();
+        String inspireMetadataURL = localCoverage.getInspireMetadataURL();
+        this.coverageRepository.saveCoverageInspireMetadataURL(coverageAutoId, inspireMetadataURL);
+    }
 
     // For migration only
     /**

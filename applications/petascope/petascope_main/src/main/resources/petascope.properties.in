@@ -190,6 +190,12 @@ security.require-ssl=false
 # The password to open the certificate from the configured key-store file.
 #server.ssl.key-store-password=
 
+#------------------- INSPIRE configuration ------------------------------------
+
+# Link to an external catalog service for INSPIRE standard, to be provided by the user.
+# If not set then it will be automatically derived from petascope_servlet_url setting.
+inspire_common_url=
+
 
 #---------------------------- logging configuration ----------------------------
 
@@ -203,6 +209,7 @@ log4j.logger.org.hibernate=WARN
 log4j.logger.liquibase=WARN
 log4j.logger.io.grpc=WARN
 log4j.logger.io.netty=WARN
+log4j.logger.org.apache=WARN
 
 # Configure stdout logging
 log4j.appender.stdout=org.apache.log4j.ConsoleAppender

@@ -38,6 +38,7 @@ do
   sed -i -e '/<wcs:CoverageSummary>/,/<\/wcs:CoverageSummary>/d' \
          -e 's/<\(wcs:\)\?formatSupported>.*<\/\(wcs:\)\?formatSupported>/%formatSupported%/g' \
          -e '/<ows:HTTP>/,/<\/ows:HTTP>/d' \
+         -e '/<ows:ExtendedCapabilities>/,/<\/ows:ExtendedCapabilities>/d' \
          "$file"
 done
 

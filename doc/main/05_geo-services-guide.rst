@@ -713,6 +713,33 @@ will be updated from the local XML file at ``/home/rasdaman/Downloads/test_metad
                -F "file=@/home/rasdaman/Downloads/test_metadata.xml" 
                "http://localhost:8080/rasdaman/admin/UpdateCoverageMetadata"
 
+.. _petascope-make_inspire_coverage:
+
+Make a coverage to be INSPIRE coverage
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In the result of WCS GetCapabilities, there is an extra INSPIRE XML section
+``<ows:ExtendedCapabilities>...</ows:ExtendedCapabilities>`` storing the metadata
+complied to INSPIRE standard. To mark a local coverage to be INSPIRE coverage,
+one can send a request to this endpoint ``/rasdaman/admin/inspire/metadata/update``
+with the two mandatory parameters:
+
+- ``COVERAGEID``: coverage to be updated as INSPIRE coverage
+- ``METADATAURL``: URL referencing INSPIRE-compliant catalog entry for this coverage; if set to empty
+  then this coverage is marked as non INSPIRE coverage.
+
+If a coverage is INSPIRE coverage (its *metadata url* is not empty), then it will exist under
+``<ows:ExtendedCapabilities>`` section.
+
+For example, the coverage ``test_mr`` can be marked as INSPIRE coverage as follows:
+
+.. code-block:: text
+
+    curl -X POST \
+         -F 'COVERAGEID=test_inspire_metadata_url' \
+         -F 'METADATAURL=https://inspire-geoportal.ec.europa.eu/16.iso19139.xml' \
+         'http://localhost:8080//rasdaman/admin/inspire/metadata/update'
+
 Check if a coverage / layer exists
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In v10+, rasdaman supports nonstandard REST request to check if 
@@ -2009,6 +2036,12 @@ input section
   can be specified. The collected paths are sorted by file name by default,
   unless specified otherwise in the recipe section (e.g. by date/time for 
   time-series recipes).
+
+* ``inspire`` section contains the settings for importing INSPIRE coverage:
+
+  * ``metadata_url`` - If set to non empty string, then the importing coverage
+    will be marked as INSPIRE coverage, see more details :ref:`here <petascope-make_inspire_coverage>`.
+    If set to empty string or omitted, then the coverage will be updated as non-INSPIRE coverage.
 
 
 recipe section

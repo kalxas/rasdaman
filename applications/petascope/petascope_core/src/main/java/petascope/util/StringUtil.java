@@ -49,6 +49,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gdal.ogr.Geometry;
 import org.gdal.ogr.ogr;
+import static org.rasdaman.config.ConfigManager.OWS;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 
@@ -654,5 +655,41 @@ public class StringUtil {
         
         return input;
     } 
+    
+    /**
+     * e.g. given https://mundi.rasdaman.com/rasdaman/ows or https://mundi.rasdaman.com/rasdaman/ows/
+     * return https://mundi.rasdaman.com/rasdaman
+     */
+    public static String getPetascopeContextURL(String petascopeEndPoint) {
+        String endpoint = "";
+
+        if (petascopeEndPoint.endsWith("/" + OWS) || petascopeEndPoint.endsWith("/" + OWS + "/")) {
+            endpoint = "";
+            String[] tmps = petascopeEndPoint.split("/");
+            
+            for (int i = 0; i < tmps.length - 1; i++) {
+                endpoint += tmps[i];
+                if (i < tmps.length - 2) {
+                    endpoint += "/";
+                }
+            }
+        }
+        
+        return endpoint;
+    }
+    
+    /**
+     * Check if 2 strings are equivalent, if both are null or empty or one is null and one is empty, then they are equivalent
+     */
+    public static boolean equalsIgnoreNull(String input1, String input2) {
+        if (input1 == null) {
+            input1 = "";
+        }
+        if (input2 == null) {
+            input2 = "";
+        }
+        
+        return input1.equals(input2);
+    }
     
 }

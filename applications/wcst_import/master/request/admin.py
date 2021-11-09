@@ -24,6 +24,8 @@
 from abc import ABCMeta, abstractmethod
 
 import sys
+from collections import OrderedDict
+
 if sys.version_info[0] < 3:
     from urllib import urlencode
 else:
@@ -65,3 +67,27 @@ class AdminRequest:
 
         query_string = encoded_extra_params
         return query_string
+
+
+class InspireUpdateMetadataURLRequest(AdminRequest):
+
+    def __init__(self, base_coverage_id, inspire_metadata_url):
+        """
+        Class to request to create a downscaled level coverage and add this coverage to a base coverage's pyramid
+
+        e.g. Example: /admin/inspire/metadata/update?COVERAGEID=test_cov1
+                                     &METADATAURL=http://xxx123.566/abcdef/123456/aaa.xml
+        """
+        super(InspireUpdateMetadataURLRequest, self).__init__()
+
+        self.context_path += "/inspire/metadata/update"
+
+        self.base_coverage_id = base_coverage_id
+        self.inspire_metadata_url = inspire_metadata_url
+
+    def _get_request_type_parameters(self):
+        request_kvp = OrderedDict()
+        request_kvp["COVERAGEID"] = self.base_coverage_id
+        request_kvp["METADATAURL"] = self.inspire_metadata_url
+
+        return request_kvp

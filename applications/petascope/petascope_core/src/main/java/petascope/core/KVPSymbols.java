@@ -215,4 +215,7 @@ public interface KVPSymbols {
     String KEY_PYRAMID_HARVESTING = "harvesting";
     String VALUE_REMOVE_PYRAMID_MEMBER = "RemovePyramidMember";
     String VALUE_LIST_PYRAMID_MEMBERS = "ListPyramidMembers";
+    
+    String KEY_INSPIRE_COVERAGE_ID = "CoverageId";
+    String KEY_INSPIRE_METADATA_URL = "MetadataURL";
 }

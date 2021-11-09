@@ -35,6 +35,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.AuthenticationService;
 import org.rasdaman.config.ConfigManager;
+import static org.rasdaman.config.ConfigManager.INSPIRE_COMMON_URL;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_ENDPOINT_URL;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
@@ -152,6 +153,10 @@ public class PetascopeController extends AbstractController {
             if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {
                 // use the requesting URL to Petascope (not always: http://localhost:8080/rasdaman/ows)
                 PETASCOPE_ENDPOINT_URL = httpServletRequest.getRequestURL().toString();
+            }
+            
+            if (INSPIRE_COMMON_URL.isEmpty()) {
+                INSPIRE_COMMON_URL = PETASCOPE_ENDPOINT_URL;
             }
                 
             if (kvpParameters.isEmpty()) {               

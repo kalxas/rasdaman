@@ -325,6 +325,9 @@ class Recipe(BaseRecipe):
         if self.import_wms:
             importer._insert_update_into_wms()
 
+        if self.session is not None:
+            importer.update_coverage_inspire_metadata(self.coverage_id, self.session.inspire.metadata_url)
+
 
     @staticmethod
     def get_name():
