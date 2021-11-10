@@ -421,17 +421,22 @@ public class WMSGetMapStyleService {
         matcher.appendTail(stringBuffer);
         String result = stringBuffer.toString();
         
-        // In case of WMS style contains condenser
+        // In case of WMS style contains condenser or fixed subsets
         if (styleExpression.contains("[")) {
-            
-
             String geoXYSubsets = axisX.getLabel() + "(" + fittedBBox.getXMin() + ":" + fittedBBox.getXMax() + "), "
                                 + axisY.getLabel() + "(" + fittedBBox.getYMin() + ":" + fittedBBox.getYMax() + ")";
-            int indexOfUsing = result.toLowerCase().indexOf(USING) + 5;
-            String firstPart = result.substring(0, indexOfUsing);
-            String secondPart = result.substring(indexOfUsing, result.length());
-            // e.g: $CoV[ansi($ts)] -> $COV[Lat(0:20), Long(20:30), ansi($ts)]
-            result = firstPart + secondPart.replace("[", "[" + geoXYSubsets + ", ");
+            
+            int indexOfUsing = result.toLowerCase().indexOf(USING);
+            if (indexOfUsing != -1) {
+                indexOfUsing = indexOfUsing + 5;
+                String firstPart = result.substring(0, indexOfUsing);
+                String secondPart = result.substring(indexOfUsing, result.length());
+                // e.g: $CoV[ansi($ts)] -> $COV[Lat(0:20), Long(20:30), ansi($ts)]
+                result = firstPart + secondPart.replace("[", "[" + geoXYSubsets + ", ");
+            } else {
+                // e.g. style = $c[ansi("2020-12-30T23:54:58.500Z")] -  $c[ansi("2021-01-04T00:15:04.500Z")] + 30
+                result = result.replace("[", "[" + geoXYSubsets + ", ");
+            }
         }
 
         return result;

@@ -1,0 +1,24 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_wms_wcps_styles_between_two_slices",
+    "paths": [
+      "*.tiff"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_regular",
+    "options": {
+      "wms_import": true,
+      "time_start": "2021-01-01",
+      "time_format": "auto",
+       "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "time_step": "2 days 10 minutes 3 seconds",
+      "tiling": "ALIGNED [0:0, 0:999, 0:999]"
+    }
+  }
+}
