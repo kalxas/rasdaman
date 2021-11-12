@@ -718,18 +718,17 @@ will be updated from the local XML file at ``/home/rasdaman/Downloads/test_metad
 Make a coverage to be INSPIRE coverage
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the result of WCS GetCapabilities, there is an extra INSPIRE XML section
-``<ows:ExtendedCapabilities>...</ows:ExtendedCapabilities>`` storing the metadata
-complied to INSPIRE standard. To mark a local coverage to be INSPIRE coverage,
-one can send a request to this endpoint ``/rasdaman/admin/inspire/metadata/update``
-with the two mandatory parameters:
+INSPIRE coverages have an extra XML section
+``<ows:ExtendedCapabilities>...</ows:ExtendedCapabilities>`` 
+in the result of WCS GetCapabilities, which stores the coverage metadata in format 
+complying to the INSPIRE standard. Controlling whether a local coverage is treated 
+as an INSPIRE coverage can be done by sending a request to 
+``/rasdaman/admin/inspire/metadata/update`` with two mandatory parameters:
 
-- ``COVERAGEID``: coverage to be updated as INSPIRE coverage
-- ``METADATAURL``: URL referencing INSPIRE-compliant catalog entry for this coverage; if set to empty
-  then this coverage is marked as non INSPIRE coverage.
-
-If a coverage is INSPIRE coverage (its *metadata url* is not empty), then it will exist under
-``<ows:ExtendedCapabilities>`` section.
+- ``COVERAGEID`` - the coverage to be marked as INSPIRE coverage
+- ``METADATAURL`` - a URL to an INSPIRE-compliant catalog entry for this coverage; 
+  if set to empty, i.e. ``METADATAURL=`` then the coverage is marked as non-INSPIRE
+  coverage.
 
 For example, the coverage ``test_mr`` can be marked as INSPIRE coverage as follows:
 
@@ -2039,9 +2038,10 @@ input section
 
 * ``inspire`` section contains the settings for importing INSPIRE coverage:
 
-  * ``metadata_url`` - If set to non empty string, then the importing coverage
-    will be marked as INSPIRE coverage, see more details :ref:`here <petascope-make_inspire_coverage>`.
-    If set to empty string or omitted, then the coverage will be updated as non-INSPIRE coverage.
+  * ``metadata_url`` - If set to non-empty string, then the importing coverage
+    will be marked as INSPIRE coverage, see more details 
+    :ref:`here <petascope-make_inspire_coverage>`. If set to empty string or omitted,
+    then the coverage will be updated as non-INSPIRE coverage.
 
 
 recipe section
