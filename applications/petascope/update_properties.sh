@@ -160,8 +160,8 @@ while read line; do
     if [[ "$first_char" != '#' && "$first_char" != '' && "$line" != *" "* ]]; then # if $line contains with # or spaces -> comments so ignore.
 
         # 5.1 Get the old_file setting (setting name) and value (setting value)
-        old_setting=$(echo ${line%%=*}) # get the value before the delimiter '=', % is from ending (right to left)
-        old_value=$(echo ${line#*=}) # get the value after the delimiter '=', ## is from beginning (left to right)
+        old_setting=${line%%=*} # get the value before the delimiter '=', % is from ending (right to left)
+        old_value=${line#*=} # this deletes everything from the beginning of line, to the first =, leaving only the value after the = in old_value
 
         old_setting_value=$(trim_whitespace "$old_setting=$old_value")
 
