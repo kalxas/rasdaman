@@ -334,7 +334,7 @@ public class ConfigManager {
         File directory = new File(secoredbFolderPath);
         if (!directory.exists()) {
             // try to create /opt/rasdaman/data/secoredb first
-            directory.mkdir();
+            directory.mkdirs();
         }
         
         if (!directory.canRead() || !directory.canWrite()) { 
