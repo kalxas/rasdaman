@@ -301,4 +301,9 @@ public abstract class Axis<T> {
     public boolean isSlicing() {
         return slicing == true;
     }
+    
+    public String toString() {
+        String result = "Geo bounds: " + this.getGeoBounds().getStringRepresentation() + " - Grid bounds: " + this.getGridBounds().getStringRepresentation();
+        return result;
+    }
 }

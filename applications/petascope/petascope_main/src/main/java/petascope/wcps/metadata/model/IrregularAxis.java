@@ -84,10 +84,6 @@ public class IrregularAxis extends Axis {
             this.originalDirectPositions.add(new BigDecimal(value.toPlainString()));
         }
     }
-    
-    public List<BigDecimal> getOriginalDirectPositions() {
-        return this.originalDirectPositions;
-    }
 
     /**
      * Get the fixed first slice (0) imported coefficient's index from list of directPositions
@@ -99,11 +95,29 @@ public class IrregularAxis extends Axis {
     }
     
     /**
+     * Get the index of a given coefficient from the list of original coefficients
+     */
+    @JsonIgnore
+    public int getIndexOfCoefficient(BigDecimal inputCoefficient) {
+        int i = Collections.binarySearch(this.directPositions, inputCoefficient);
+        return i;
+    }
+    
+    /**
+     * Get the fixed first slice (0) imported coefficient's index from list of originalDirectPositions
+     */
+    @JsonIgnore
+    public int getIndexOfCoefficientZeroFromOriginalDirectPositions() {
+        int i = Collections.binarySearch(this.originalDirectPositions, BigDecimal.ZERO);        
+        return i;
+    }
+    
+    /**
      * Return the index of input coefficient in list of directions
      */
     @JsonIgnore
-    public int getIndexOfCoefficient(BigDecimal coefficient) throws PetascopeException {
-        int i = Collections.binarySearch(this.directPositions, coefficient, new BigDecimalComparator());
+    public int getIndexOfCoefficientFromOriginalDirectPositions(BigDecimal coefficient) throws PetascopeException {
+        int i = Collections.binarySearch(this.originalDirectPositions, coefficient, new BigDecimalComparator());
         
         return i;
     }
@@ -136,6 +150,17 @@ public class IrregularAxis extends Axis {
         return coefficientZeroBoundNumber;
     }
     
+    @JsonIgnore
+    public BigDecimal getCoefficientZeroBoundNumberFromOriginalDirectPositions() throws PetascopeException {        
+        int coefficientZeroIndex = this.getIndexOfCoefficientZeroFromOriginalDirectPositions();
+        BigDecimal lowestCoefficient = this.originalDirectPositions.get(0);
+        // Distance value between lowest coefficient and coeffcient zero
+        BigDecimal distanceValue = this.originalDirectPositions.get(coefficientZeroIndex).subtract(lowestCoefficient);
+        BigDecimal coefficientZeroBoundNumber = this.getOriginalGeoBounds().getLowerLimit().add(distanceValue.multiply(this.getResolution()));
+        
+        return coefficientZeroBoundNumber;
+    }
+    
     /**
      * From the index of grid bound in list of coefficients, find out the correspond
      * grid bound in rasdaman grid axis. e.g: a list of coefficients: 
@@ -143,11 +168,24 @@ public class IrregularAxis extends Axis {
      * grid axis domain is: [-1:4], zero coefficient index is 3 in list of coefficients,
      * then grid bound of index -3 (normalized by zero coefficient) will return grid value -1.
      */
-    public Pair<Long, Long> calculateGridBoundsByZeroCoefficientIndex(Long indexOfGridLowerBound, Long indexOfGridUpperBound) {
+    public Pair<Long, Long> calculateGridBoundsByZeroCoefficientIndex(Long indexOfGridLowerBound, Long indexOfGridUpperBound) throws PetascopeException {
         int coefficientZeroIndex = this.getIndexOfCoefficientZero();
-        indexOfGridLowerBound = indexOfGridLowerBound - coefficientZeroIndex;
+
+        BigDecimal firstCoefficient = this.directPositions.get(0);        
+        int gridZeroCoefficientDistance = this.getIndexOfCoefficientFromOriginalDirectPositions(firstCoefficient) - this.getIndexOfCoefficientZeroFromOriginalDirectPositions();
+        
+        if (coefficientZeroIndex != -1) {
+            indexOfGridLowerBound = indexOfGridLowerBound - coefficientZeroIndex; 
+        } else {
+            // e.g. $c[Lat(55.2:85), Lon(0.1:9.9), unix("2015-09-01":"2015-12-01")][unix("2015-12-01")]
+            indexOfGridLowerBound = indexOfGridLowerBound + gridZeroCoefficientDistance;
+        }
         if (indexOfGridUpperBound != null) {
-            indexOfGridUpperBound = indexOfGridUpperBound - coefficientZeroIndex;
+            if (coefficientZeroIndex != -1) {
+                indexOfGridUpperBound = indexOfGridUpperBound - coefficientZeroIndex;
+            } else {
+                indexOfGridUpperBound = indexOfGridUpperBound + gridZeroCoefficientDistance;
+            }
         }
 
         long gridLowerBound = Math.abs(indexOfGridLowerBound);
