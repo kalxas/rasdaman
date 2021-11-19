@@ -7119,9 +7119,13 @@ var wms;
             var result = "COVERAGEID=" + this.layerName +
                 "&STYLEID=" + this.name +
                 "&abstract=" + this.abstract;
-            result += "&" + this.queryFragmentType + "=" + this.query;
-            result += "&ColorTableType=" + this.colorTableType +
-                "&ColorTableDefinition=" + this.colorTableDefinition;
+            if (this.queryFragmentType != "none") {
+                result += "&" + this.queryFragmentType + "=" + this.query;
+            }
+            if (this.colorTableType != "none") {
+                result += "&ColorTableType=" + this.colorTableType +
+                    "&ColorTableDefinition=" + this.colorTableDefinition;
+            }
             return result;
         };
         return InsertLayerStyle;
@@ -7198,9 +7202,13 @@ var wms;
             var result = "COVERAGEID=" + this.layerName +
                 "&STYLEID=" + this.name +
                 "&abstract=" + this.abstract;
-            result += "&" + this.queryFragmentType + "=" + this.query;
-            result += "&ColorTableType=" + this.colorTableType +
-                "&ColorTableDefinition=" + this.colorTableDefinition;
+            if (this.queryFragmentType != "none") {
+                result += "&" + this.queryFragmentType + "=" + this.query;
+            }
+            if (this.colorTableType != "none") {
+                result += "&ColorTableType=" + this.colorTableType +
+                    "&ColorTableDefinition=" + this.colorTableDefinition;
+            }
             return result;
         };
         return UpdateLayerStyle;
