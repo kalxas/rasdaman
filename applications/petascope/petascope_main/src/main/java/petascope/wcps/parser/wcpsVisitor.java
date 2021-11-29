@@ -425,6 +425,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitAxisName(@NotNull wcpsParser.AxisNameContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionModLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageExpressionModLabel(@NotNull wcpsParser.CoverageExpressionModLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionScaleBySizeLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -521,6 +528,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLetClauseDimensionIntervalListLabel(@NotNull wcpsParser.LetClauseDimensionIntervalListLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#UnaryModExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryModExpressionLabel(@NotNull wcpsParser.UnaryModExpressionLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionExponentialLabel}.

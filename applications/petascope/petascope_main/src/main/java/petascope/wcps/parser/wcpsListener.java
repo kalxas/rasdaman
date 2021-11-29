@@ -658,6 +658,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitAxisName(@NotNull wcpsParser.AxisNameContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionModLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionModLabel(@NotNull wcpsParser.CoverageExpressionModLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionModLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionModLabel(@NotNull wcpsParser.CoverageExpressionModLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionScaleBySizeLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -810,6 +821,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLetClauseDimensionIntervalListLabel(@NotNull wcpsParser.LetClauseDimensionIntervalListLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#UnaryModExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnaryModExpressionLabel(@NotNull wcpsParser.UnaryModExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#UnaryModExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnaryModExpressionLabel(@NotNull wcpsParser.UnaryModExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionExponentialLabel}.

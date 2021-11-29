@@ -1,0 +1,6 @@
+for $c in (test_mr) return encode((switch
+	case $c is null and $c is null or $c is not null or $c + 20 / 30.5 > 5
+		return {red: 0; green:255; blue:68}
+	default
+		return {red: 150; green:103; blue:14})[i(0:20), j(0:20)]
+, "png")

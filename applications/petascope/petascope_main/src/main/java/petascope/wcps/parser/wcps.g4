@@ -206,7 +206,8 @@ for c in (rgb) return encode(switch case c > 1000 return {red: c.0, green: c.1, 
 */
 booleanSwitchCaseCoverageExpression: (LEFT_PARENTHESIS)* coverageExpression (RIGHT_PARENTHESIS)*
 						numericalComparissonOperator
-				     (LEFT_PARENTHESIS)* coverageExpression (RIGHT_PARENTHESIS)*;
+				     (LEFT_PARENTHESIS)* coverageExpression (RIGHT_PARENTHESIS)*
+                    | coverageExpression IS (NOT)? NULL ;
 
 /*
  Combine multiple booleanSwitchCaseCoverageExpression
@@ -421,6 +422,8 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
   		            #CoverageExpressionMaxBinaryLabel
 		          | unaryPowerExpression
                     #CoverageExpressionPowerLabel
+		          | unaryModExpression
+                    #CoverageExpressionModLabel
                   | unaryBooleanExpression
                     #CoverageExpressionUnaryBooleanLabel
                   | castExpression
@@ -552,6 +555,9 @@ exponentialExpression: exponentialExpressionOperator LEFT_PARENTHESIS coverageEx
 */
 unaryPowerExpression: POWER LEFT_PARENTHESIS coverageExpression COMMA numericalScalarExpression RIGHT_PARENTHESIS
 #UnaryPowerExpressionLabel;
+
+unaryModExpression: MOD LEFT_PARENTHESIS coverageExpression COMMA numericalScalarExpression RIGHT_PARENTHESIS
+#UnaryModExpressionLabel;
 
 /**
 encode(max(c, c1), "csv") from test_mr as c, test_mr as c1

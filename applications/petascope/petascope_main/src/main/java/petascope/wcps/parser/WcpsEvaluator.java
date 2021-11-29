@@ -118,6 +118,7 @@ import petascope.wcps.handler.DecodeCoverageHandler;
 import petascope.wcps.handler.DescribeCoverageHandler;
 import petascope.wcps.handler.DomainIntervalsHandler;
 import petascope.wcps.handler.LetClauseHandler;
+import petascope.wcps.handler.UnaryModExpressionHandler;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -196,6 +197,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     BinaryMaxExpressionHandler binaryMaxExpressionHandler;
     @Autowired private
     UnaryPowerExpressionHandler unaryPowerExpressionHandler;
+    @Autowired private
+    UnaryModExpressionHandler unaryModPowerExpressionHandler;
     @Autowired private
     UnaryBooleanExpressionHandler unaryBooleanExpressionHandler;
     
@@ -950,6 +953,17 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult result = unaryPowerExpressionHandler.handle(coverageExpr, scalarExpr);
         return result;
     }
+    
+    @Override
+    public VisitorResult visitUnaryModExpressionLabel(@NotNull wcpsParser.UnaryModExpressionLabelContext ctx) {
+        // MOD LEFT_PARENTHESIS coverageExpression COMMA numericalScalarExpression RIGHT_PARENTHESIS
+        // e.g: pow(c, -0.5) or pow(c, avg(c))
+        WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
+        WcpsResult scalarExpr = (WcpsResult) visit(ctx.numericalScalarExpression());
+
+        WcpsResult result = unaryModPowerExpressionHandler.handle(coverageExpr, scalarExpr);
+        return result;
+    }
 
     @Override
     public VisitorResult visitNotUnaryBooleanExpressionLabel(@NotNull wcpsParser.NotUnaryBooleanExpressionLabelContext ctx) {
@@ -1091,11 +1105,29 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitBooleanSwitchCaseCoverageExpression(@NotNull wcpsParser.BooleanSwitchCaseCoverageExpressionContext ctx) {
         // coverageExpression numericalComparissonOperator coverageExpression
         // NOTE: used in switch case (e.g: switch case c > 100 or c < 100 or c > c or c = c)
-        WcpsResult leftCoverageExpr = (WcpsResult) visit(ctx.coverageExpression().get(0));
-        String operand = ctx.numericalComparissonOperator().getText();
-        WcpsResult rightCoverageExpr = (WcpsResult) visit(ctx.coverageExpression().get(1));
+        
+        WcpsResult result = null;
+        
+        if (ctx.IS() != null) {
+            // e.g c is NULL
+            
+            WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression().get(0));
+            boolean isNull = true;        
+            if (ctx.NOT() != null) {
+                 isNull = false;
+            }
+            
+            result = coverageIsNullHandler.handle(coverageExpression, isNull);
+        } else {
+            // e.g c > 50
+            
+            WcpsResult leftCoverageExpr = (WcpsResult) visit(ctx.coverageExpression().get(0));
+            String operand = ctx.numericalComparissonOperator().getText();
+            WcpsResult rightCoverageExpr = (WcpsResult) visit(ctx.coverageExpression().get(1));
 
-        WcpsResult result = binaryCoverageExpressionHandler.handle(leftCoverageExpr, operand, rightCoverageExpr);
+            result = binaryCoverageExpressionHandler.handle(leftCoverageExpr, operand, rightCoverageExpr);
+        }
+        
         return result;
     }
 

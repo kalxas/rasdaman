@@ -85,6 +85,7 @@ LOWER_THAN: '<';
 LOWER_OR_EQUAL_THAN: '<=';
 MAX:('m'|'M')('a'|'A')('x'|'X');
 MIN: ('m'|'M')('i'|'I')('n'|'N');
+MOD: ('m'|'M')('o'|'O')('d'|'D');
 MINUS: '-';
 MULTIPLICATION: '*';
 NOT: ('n'|'N')('o'|'O')('t'|'T');
