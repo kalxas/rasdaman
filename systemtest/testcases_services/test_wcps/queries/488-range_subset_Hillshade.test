@@ -1,0 +1,1 @@
+for c in (test_hillshade) return encode({ Hillshade: c[i:"CRS:1"(0), j:"CRS:1"(0:0)].Hillshade; Loshade: c[i:"CRS:1"(0), j:"CRS:1"(0:0)].Loshade }, "csv")

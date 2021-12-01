@@ -29,6 +29,11 @@
  * Useful reference: https://github.com/antlr/grammars-v4
  */
 lexer grammar wcpsLexerTokens;
+
+UPPER_BOUND: ('h'|'H')('i'|'I');
+LOWER_BOUND: ('l'|'L')('o'|'O');
+
+
 FOR: (('f'|'F')('o'|'O')('r'|'R'));
 ABSOLUTE_VALUE: ('a'|'A')('b'|'B')('s'|'S');
 ADD: ('a'|'A')('d'|'D')('d'|'D');
@@ -80,10 +85,9 @@ LET: ('l'|'L')('e'|'E')('t'|'T');
 LN: ('l'|'L')('n'|'N');
 LIST: ('l'|'L')('i'|'I')('s'|'S')('t'|'T');
 LOG: ('l'|'L')('o'|'O')('g'|'G');
-LOWER_BOUND: '.'('l'|'L')('o'|'O');
 LOWER_THAN: '<';
 LOWER_OR_EQUAL_THAN: '<=';
-MAX:('m'|'M')('a'|'A')('x'|'X');
+MAX: ('m'|'M')('a'|'A')('x'|'X');
 MIN: ('m'|'M')('i'|'I')('n'|'N');
 MOD: ('m'|'M')('o'|'O')('d'|'D');
 MINUS: '-';
@@ -125,7 +129,6 @@ TANH: ('t'|'T')('a'|'A')('n'|'N')('h'|'H');
 TRIM: ('T' | 't')('R' | 'r')('I' | 'i')('M' | 'm');
 TRUE: ('T' | 't')('R' | 'r')('U' | 'u')('E' | 'e');
 USING: ('u'|'U')('s'|'S')('i'|'I')('n'|'N')('g'|'G');
-UPPER_BOUND: '.'('h'|'H')('i'|'I');
 VALUE:('v'|'V')('a'|'A')('l'|'L')('u'|'U')('e'|'E');
 VALUES:('v'|'V')('a'|'A')('l'|'L')('u'|'U')('e'|'E')('s'|'S');
 WHERE: ('w'|'W')('h'|'H')('e'|'E')('r'|'R')('e'|'E');
@@ -147,3 +150,9 @@ COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility w
 STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_/ ]+? '"';
 WS: [ \n\t\r]+ -> channel(HIDDEN);
 EXTRA_PARAMS:  '"' (~[\\"] | '\\' [\\"])* '"';
+
+ASTERISK: '*';
+
+
+
+

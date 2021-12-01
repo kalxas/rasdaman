@@ -106,6 +106,17 @@ whereClause: WHERE (LEFT_PARENTHESIS)? coverageExpression (RIGHT_PARENTHESIS)?
 returnClause: RETURN (LEFT_PARENTHESIS)? processingExpression (RIGHT_PARENTHESIS)?
 #ReturnClauseLabel;
 
+
+/**
+e.g: imageCrsdomain(c) returns (0:5,0:20,0:60)
+imageCrsdomain(c, ansi) returns (0:5)
+imageCrsdomain(c, Lat).lo returns 0
+imageCrsdomain(c, Long).hi returns 60
+**/
+sdomExtraction: LOWER_BOUND | UPPER_BOUND;
+
+domainIntervals: (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (DOT sdomExtraction)?;
+
 /**
  * Example
  * $coverageName;
@@ -281,14 +292,6 @@ Lat:http://.../4326 http://.../Index3D
 */
 coverageCrsSetExpression: CRSSET LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS                                        #CoverageCrsSetExpressionLabel;
 
-/**
-e.g: imageCrsdomain(c) returns (0:5,0:20,0:60)
-imageCrsdomain(c, ansi) returns (0:5)
-imageCrsdomain(c, Lat).lo returns 0
-imageCrsdomain(c, Long).hi returns 60
-**/
-sdomExtraction: (LOWER_BOUND | UPPER_BOUND);
-
 /*
 domain()
 The domain of coverage with the specific axis and its CRS (geo-referenced CRS or grid CRS)
@@ -349,8 +352,6 @@ describeCoverageExpression: DESCRIBE_COVERAGE LEFT_PARENTHESIS
                             RIGHT_PARENTHESIS     
                            #DescribeCoverageExpressionLabel;
 
-domainIntervals: (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (sdomExtraction)?; 
-
 positionalParamater: POSITIONAL_PARAMETER;
 extraParams: STRING_LITERAL | EXTRA_PARAMS;
 
@@ -378,8 +379,12 @@ decodeCoverageExpression: DECODE LEFT_PARENTHESIS
  */
 coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionLogicLabel
+
 		          | domainIntervals
                     #CoverageExpressionDomainIntervalsLabel
+                  | coverageExpression DOT fieldName
+                    #CoverageExpressionRangeSubsettingLabel
+
 		          | coverageConstructorExpression
                     #CoverageExpressionConstructorLabel
                   | coverageExpression coverageArithmeticOperator coverageExpression
@@ -428,8 +433,6 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionUnaryBooleanLabel
                   | castExpression
                     #CoverageExpressionCastLabel
-                  | coverageExpression DOT fieldName
-                    #CoverageExpressionRangeSubsettingLabel
                   | rangeConstructorExpression
                     #CoverageExpressionRangeConstructorLabel
                   | clipWKTExpression
