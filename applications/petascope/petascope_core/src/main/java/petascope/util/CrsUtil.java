@@ -323,6 +323,9 @@ public class CrsUtil {
     public static CrsDefinition getCrsDefinition(String givenCrsUri) throws PetascopeException {
         CrsDefinition crs = null;
         List<List<String>> axes = new ArrayList<>();
+        
+        // replace any $SECORE_URL$ for some cases it still exists when running multiple DescribeCoverage in parallel
+        givenCrsUri = CrsUtil.CrsUri.fromDbRepresentation(givenCrsUri);
 
         // Remove any possible slicing suffixes:
         givenCrsUri = givenCrsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "").trim();
