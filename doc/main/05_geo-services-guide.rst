@@ -676,9 +676,9 @@ For example, the coverage ``test_mr`` can be renamed to ``test_mr_new`` as follo
 
 .. code-block:: text
 
-    http://localhost:8080/rasdaman/admin/UpdateCoverageId?
-        COVERAGEID=test_mr
-       &NEWID=test_mr_new
+    http://localhost:8080/rasdaman/admin/coverage/update
+        ?COVERAGEID=test_mr
+        &NEWCOVERAGEID=test_mr_new
 
 .. _petascope-update-coverage-metadata:
 
@@ -696,9 +696,9 @@ coverage's metadata.
    This WSClient feature is login protected: **OGC WCS > Describe Coverage tab**
    when one is already **logged in** with petascope admin user in **Admin tab**.
 
-The service URL for this feature is ``http://localhost:8080/rasdaman/admin/UpdateCoverageMetadata``
+The service URL for this feature is ``/rasdaman/admin/coverage/update``
 which operates through multipart/form-data POST requests. The request should
-contain 2 parts: the first part is coverageId to update, the second part is a
+contain 2 parts: the first part is ``coverageId`` to update, the second part is a
 path to a local text file to be uploaded to server.
 
 Alternatively, one can use REST API to update a coverage metadata with
@@ -709,9 +709,9 @@ will be updated from the local XML file at ``/home/rasdaman/Downloads/test_metad
 .. code-block:: text
 
    curl --user petauser:PETASCOPE_ADMIN_PASSWORD 
-               -F "coverageId=test_mr_metadata" 
+               -F "COVERAGEID=test_mr_metadata" 
                -F "file=@/home/rasdaman/Downloads/test_metadata.xml" 
-               "http://localhost:8080/rasdaman/admin/UpdateCoverageMetadata"
+               "http://localhost:8080/rasdaman/admin/coverage/update"
 
 .. _petascope-make_inspire_coverage:
 
@@ -1471,41 +1471,30 @@ Layers can be easily created from existing coverages in WCS in two ways:
 
 - By specifying WMS setup during import coverage in the respective
   ingredients file; see :ref:`wms_import <wms-import>`;
-- By sending an :ref:`InsertWCSLayer <insert-wcs-layer>` HTTP request
+- By sending an :ref:`/rasdaman/admin/layer/activate <activate-wms-layer>` HTTP request
   to petascope.
 
 The following proprietary WMS request types serve to manage the WMS offering
 of rasdaman:
 
-.. _insert-wcs-layer:
+.. _activate-wms-layer:
 
-- ``InsertWCSLayer``: create a new WMS layer from an existing coverage.
+-  Create a new WMS layer from an existing coverage.
+  
+   .. hidden-code-block:: text
 
-.. hidden-code-block:: text
+    http://localhost:8080/rasdaman/admin/layer/activate
+           ?COVERAGEID=MyCoverage
 
-    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
-           &REQUEST=InsertWCSLayer
-           &WCSCOVERAGEID=MyCoverage
-
-- ``UpdateWCSLayer``: update an existing WMS layer from an existing coverage
-  which associates with this WMS layer.
-
-.. hidden-code-block:: text
-
-    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
-            &REQUEST=UpdateWCSLayer
-            &WCSCOVERAGEID=MyCoverage
-
-- A layer can be removed either directly with a ``DeleteLayer`` 
-  request (since rasdaman v10.0), or indirectly when deleting a coverage
+- A layer can be removed either directly with a ``/rasdaman/admin/layer/deactivate`` 
+  request, or indirectly when deleting a coverage
   (:ref:`removing the associated WCS coverage <delete-coverage>`). 
-  The ``DeleteLayer`` request is of the form:
+  The ``/rasdaman/admin/layer/deactivate`` request is of the form:
 
 .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
-            &REQUEST=DeleteLayer
-            &LAYER=MyLayer
+    http://localhost:8080/rasdaman/admin/layer/deactivate
+            &COVERAGEID=MyLayer
 
 .. _style-creation:
 
@@ -1524,6 +1513,11 @@ abstract and layer provided in the KVP parameters below
     to be URL-encoded correctly. `This site <http://meyerweb.com/eric/tools/dencoder/>`__ 
     offers such an encoding service.
 
+A style of a WMS layer can be insert/update via two endpoints below:
+
+- ``rasdaman/admin/layer/style/add`` to add a new style to an existing WMS layer.
+- ``rasdaman/admin/layer/style/update`` to update an existing style of an existing WMS layer.
+
 
 Style Definition Variants
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1532,10 +1526,9 @@ Style Definition Variants
 
    .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
-        &REQUEST=InsertStyle
-        &NAME=wcpsQueryFragment
-        &LAYER=test_wms_4326
+    http://localhost:8080/rasdaman/admin/layer/style/add
+        ?COVERAGEID=test_wms_4326
+        &STYLEID=wcps
         &ABSTRACT=This style marks the areas where fires are in progress with the color red
         &WCPSQUERYFRAGMENT=switch case $c > 1000 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14})
 
@@ -1546,9 +1539,9 @@ Style Definition Variants
 
    .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/ows?SERVICE=WMS&version=1.3.0&REQUEST=InsertStyle
-        &NAME=FireMarkup
-        &LAYER=dessert_area
+    http://localhost:8080/rasdaman/admin/layer/style/add
+        ?COVERAGEID=test_wms_4326
+        &STYLEID=rasql
         &ABSTRACT=This style marks the areas where fires are in progress with the color red
         &RASQLTRANSFORMFRAGMENT=case $Iterator when ($Iterator + 2) > 200 then {255, 0, 0} else {0, 255, 0} end
 
@@ -1566,10 +1559,9 @@ Style Definition Variants
 
    .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
-        &REQUEST=InsertStyle
-        &NAME=BandsCombined
-        &LAYER=sentinel2_B4
+    http://localhost:8080/rasdaman/admin/layer/style/add
+        ?COVERAGEID=sentinel2_B4
+        &STYLEID=BandsCombined        
         &ABSTRACT=This style needs 2 layers
         &WCPSQUERYFRAGMENT=$c + $sentinel2_B8
 
@@ -1596,10 +1588,9 @@ Style Definition Variants
 
    .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
-        &REQUEST=InsertStyle
-        &NAME=test
-        &LAYER=test_wms_4326
+    http://localhost:8080/rasdaman/admin/layer/style/add
+        ?COVERAGEID=test_wms_4326
+        &STYLEID=InsertStyle
         &ABSTRACT=This style marks the areas where fires are in progress with the color red
         &WCPSQUERYFRAGMENT=switch case $c > 1000 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14})
         &COLORTABLETYPE=ColorMap
@@ -1675,13 +1666,12 @@ Style Definition Variants
 WMS Style Removal
 ^^^^^^^^^^^^^^^^^
 
-The proprietary ``DeleteStyle`` WMS request type allows to remove
+The proprietary WMS request type below allows to remove
 a particular style of an existing WMS layer. ::
 
-    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
-        &REQUEST=DeleteStyle
-        &LAYER=dessert_area
-        &NAME=FireMarkup
+    http://localhost:8080/rasdaman/admin/layer/style/remove
+        ?COVERAGEID=dessert_area
+        &STYLEID=FireMarkup
 
 
 Testing a WMS Setup
@@ -1721,7 +1711,7 @@ or scaling extension in WCS.
 
 .. _create_pyramid_member:
 
-* ``CreatePyramidMember``: create a pyramid member coverage *c* 
+* Create a pyramid member coverage *c* 
   for a base coverage *b* with given scale factors for each axis 
   (note: only regular axis can have *scale factor > 1*);  
   e.g. to create a downscaled coverage *cov_3D_4* of a 3D coverage *cov_3D*
@@ -1730,15 +1720,14 @@ or scaling extension in WCS.
 
   .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/admin?
-        &REQUEST=CreatePyramidMember
-        &BASE=cov_3D
+    http://localhost:8080/rasdaman/admin/coverage/pyramid/create
+        ?COVERAGEID=cov_3D
         &MEMBER=cov_3D_4
-        &SCALEFACTOR=1,4,4
+        &SCALEVECTOR=1,4,4
 
 .. _add_pyramid_member:
 
-* ``AddPyramidMember``: add an existing coverage *c* as a pyramid member coverage
+* Add a list of existing coverage *c,d,e,...* as pyramid member coverages
   for a base coverage *b*. The scale factors for each axis of the pyramid member coverage will
   be calculated implicitly based on axis resolutions. 
   If *harvesting=true* (default is false), recursively collect pyramid members
@@ -1748,33 +1737,30 @@ or scaling extension in WCS.
 
   .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/admin?
-        &REQUEST=AddPyramidMember
-        &BASE=cov_3D
-        &MEMBER=cov_3D_4
+    http://localhost:8080/rasdaman/admin/coverage/pyramid/add
+        ?COVERAGEID=cov_3D
+        &MEMBERS=cov_3D_4
         &HARVESTING=true    
   
 
-* ``RemovePyramidMember``: remove an existing pyramid member coverage *c*
+* Remove a list of existing pyramid member coverage *c,d,e,..*
   from a base coverage *b* (coverage *c* still exists, until admin
   deletes with WCS-T :ref:`DeleteCoverage request <delete-coverage>`); 
   e.g. to remove downscaled coverage *cov_3D_4* from base coverage *cov_3D*:
 
   .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/admin
-        &REQUEST=RemovePyramidMember
-        &BASE=cov_3D
-        &MEMBER=cov_3D_4
+    http://localhost:8080/rasdaman/admin/coverage/pyramid/remove
+        &COVERAGEID=cov_3D
+        &MEMBERS=cov_3D_4
 
 * ``ListPyramidMembers``: get a JSON list with objects of all pyramid member coverages
   associated with a base coverage:
 
   .. hidden-code-block:: text
 
-    http://localhost:8080/rasdaman/admin
-        &REQUEST=ListPyramidMembers
-        &BASE=Sentinel2_10m
+    http://localhost:8080/rasdaman/admin/coverage/pyramid/list
+        ?COVERAGEID=Sentinel2_10m
 
   Output example:
     
@@ -1785,11 +1771,11 @@ or scaling extension in WCS.
       "members": [
           {
             "coverage": "Sentinel2_20m",
-            "scale_factors": [ 1, 2, 2 ]
+            "scale": [ 1, 2, 2 ]
           }, 
           {
             "coverage": "Sentinel2_60m",
-            "scale_factors": [ 1, 6, 6 ]
+            "scale": [ 1, 6, 6 ]
           }
         ]
     }

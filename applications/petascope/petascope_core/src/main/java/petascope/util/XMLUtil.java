@@ -1178,6 +1178,20 @@ public class XMLUtil {
         }
         return (Element) fragmentNode.copy();
     }
+    
+    
+    public static Element parseXmlFragmentWithoutReplacingAmpersand(String fragment) throws PetascopeException {
+
+        Builder docBuilder = new Builder();
+        Element fragmentNode = null;
+                
+        try {
+            fragmentNode = docBuilder.build(new StringReader(fragment)).getRootElement();
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Cannot parse XML fragment '" + fragment + "'. Reason: " + ex.getMessage(), ex);
+        }
+        return (Element) fragmentNode.copy();
+    }
 
     /**
      * Extract the WCS request from the SOAP message.
@@ -1390,7 +1404,8 @@ public class XMLUtil {
      * @return
      */
     public static String replaceEnquotes(String input) {
-        return input.replaceAll("&lt;", "<").replaceAll("&amp;lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;gt;", ">");
+        return input.replaceAll("&lt;", "<").replaceAll("&amp;lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;gt;", ">")
+                     .replaceAll("&amp;amp;", "&");
     }
 
     /**

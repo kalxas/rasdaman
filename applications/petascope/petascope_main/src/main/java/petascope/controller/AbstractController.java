@@ -555,7 +555,32 @@ public abstract class AbstractController {
         Map<String, String[]> parametersMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (!queryString.equals("")) {
             
-            String[] keyValues = queryString.split("&");
+            String[] keyValuesTmp = queryString.split("&");
+            List<String> keyValues = new ArrayList<>();
+            for (int i = 0; i < keyValuesTmp.length; i++) {
+                String currentItem = keyValuesTmp[i];
+                String correctKeyValue = currentItem;
+                                    
+                if (i < keyValuesTmp.length - 1) {
+
+                    // NOTE: for the case with special character &lt; &gt; and &amp; in escaped XML string       
+                    // e.g. &ColorTableDefinition=....label="&lt; 0.25" 
+                        
+                    for (int j = i + 1; j < keyValuesTmp.length; j++) {
+                        
+                        String nextItem = keyValuesTmp[j];
+                        if (nextItem.startsWith("lt;") || nextItem.startsWith("gt;") || nextItem.startsWith("amp;")) {
+                            correctKeyValue += "&" + nextItem;
+                            i = j;
+                        } else {
+                            break;
+                        }
+                    }           
+                }
+                
+                keyValues.add(correctKeyValue);
+            }
+            
             for (String keyValue : keyValues) {
                 // No parse keyValue when it empty such as: &service=DescribeCoverage&coverageId=test_mr, then the first & is empty string
                 if (keyValue.isEmpty()) {

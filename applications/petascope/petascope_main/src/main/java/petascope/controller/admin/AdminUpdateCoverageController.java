@@ -98,11 +98,11 @@ public class AdminUpdateCoverageController extends AbstractController {
             
             for (Map.Entry<String, List<MultipartFile>> entry : request.getMultiFileMap().entrySet()) {
                 MultipartFile firstMultipartFile = entry.getValue().get(0);
-                String mimeType = firstMultipartFile.getContentType();
+                String mimeType = firstMultipartFile.getContentType().toLowerCase();
                 
-                if (!(MIMEUtil.MIME_TEXT.equalsIgnoreCase(mimeType)
-                    || MIMEUtil.MIME_JSON.equalsIgnoreCase(mimeType)
-                    || MIMEUtil.MIME_XML.equalsIgnoreCase(mimeType))) {
+                if (!(mimeType.contains("text")
+                    || mimeType.contains("json")
+                    || mimeType.contains("xml"))) {
                     throw new PetascopeException(ExceptionCode.InvalidRequest, 
                                                 "Uploaded metadata file must be text/XML/JSON format. Given: '" + mimeType + "'.");
                 }

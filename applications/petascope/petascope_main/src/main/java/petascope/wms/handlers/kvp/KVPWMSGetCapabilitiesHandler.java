@@ -561,7 +561,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
             
             if (colorTableType.toLowerCase().equals(ColorTableType.SLD.toString().toLowerCase())) {
                 // NOTE: SLD is another nested XML element
-                colorTableDefinitionElement.appendChild(XMLUtil.parseXmlFragment(colorTableDefinition));
+                colorTableDefinitionElement.appendChild(XMLUtil.parseXmlFragmentWithoutReplacingAmpersand(colorTableDefinition));
             } else {
                 colorTableDefinitionElement.appendChild(colorTableDefinition);
             }
