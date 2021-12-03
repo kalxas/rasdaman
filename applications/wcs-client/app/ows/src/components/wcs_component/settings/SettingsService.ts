@@ -47,7 +47,7 @@ module rasdaman {
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
 
             // # TESTING
-            // this.wcsEndpoint = "http://localhost:8082/rasdaman/ows";
+            this.wcsEndpoint = "http://localhost:8080/rasdaman/ows";
 
             this.setWCSEndPoint(this.wcsEndpoint);
             this.defaultContextPath = this.contextPath;      

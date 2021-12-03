@@ -55,7 +55,6 @@ module wcs {
             let childElement = "wcs:CoverageSubtypeParent";
             if (source.doesElementExist(childElement)) {
                 this.coverageSubtypeParent = new CoverageSubtypeParent(source.getChildAsSerializedObject(childElement));
-                console.log(this.coverageSubtypeParent);
             }
 
             childElement = "ows:WGS84BoundingBox";

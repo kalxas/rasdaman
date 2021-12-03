@@ -39,7 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import petascope.controller.AbstractController;
 import static petascope.core.KVPSymbols.KEY_METADATA;
-import petascope.core.RoleSymbols;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.MIMEUtil;
@@ -60,7 +59,7 @@ public class AdminUpdateCoverageController extends AbstractController {
     @Override
     @RequestMapping(path = COVERAGE_UPDATE_PATH, method = RequestMethod.GET)
     protected void handleGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WCS_UPDATE_COV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.requestDispatcher(httpServletRequest, kvpParameters);
@@ -69,7 +68,7 @@ public class AdminUpdateCoverageController extends AbstractController {
     @Override
     @RequestMapping(path = COVERAGE_UPDATE_PATH, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WCS_UPDATE_COV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         Map<String, String[]> kvpParameters = this.parsePostRequest(httpServletRequest);
         this.requestDispatcher(httpServletRequest, kvpParameters);

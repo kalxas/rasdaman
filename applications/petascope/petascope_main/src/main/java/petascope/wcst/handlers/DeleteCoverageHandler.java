@@ -21,6 +21,8 @@
  */
 package petascope.wcst.handlers;
 
+import com.rasdaman.accesscontrol.service.AuthenticationService;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -72,10 +74,14 @@ public class DeleteCoverageHandler {
     private CoveragePyramidRepositoryService coveragePyramidRepositoryService;
     @Autowired
     private AdminRemovePyramidMemberService removePyramidMemberService;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DeleteCoverageHandler.class);
 
-    public Response handle(DeleteCoverageRequest request) throws PetascopeException, SecoreException {
+    public Response handle(DeleteCoverageRequest request) throws PetascopeException, SecoreException, IOException {
+        
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String username = ConfigManager.RASDAMAN_ADMIN_USER;
         String password = ConfigManager.RASDAMAN_ADMIN_PASS;

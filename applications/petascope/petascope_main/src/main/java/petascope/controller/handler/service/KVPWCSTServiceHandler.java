@@ -21,6 +21,7 @@
  */
 package petascope.controller.handler.service;
 
+import java.io.IOException;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,7 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
      *
      * @Return
      */
-    private Response handleInsertCoverageRequest(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException, SecoreException {
+    private Response handleInsertCoverageRequest(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException, SecoreException, IOException {
         InsertCoverageRequest insertCoverageRequest = (InsertCoverageRequest) kvpWCSTParser.parse(kvpParameters);
         Response response = this.insertCoverageHandler.handle(insertCoverageRequest);
 
@@ -137,7 +138,7 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
      * @param queryString
      * @return
      */
-    private Response handleDeleteCoverageRequest(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException, SecoreException {
+    private Response handleDeleteCoverageRequest(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException, SecoreException, IOException {
         DeleteCoverageRequest deleteCoverageRequest = ((DeleteCoverageRequest) kvpWCSTParser.parse(kvpParameters));
         Response response = this.deleteCoverageHandler.handle(deleteCoverageRequest);
 

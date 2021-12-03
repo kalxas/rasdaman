@@ -106,7 +106,7 @@
 
 
                     <!-- Select text file to update coverage's metadata, only show when one logged in with petascope admin user (!) -->
-                    <div class="row top15" ng-show="adminUserLoggedIn && coverageDescription">
+                    <div class="row top15" ng-show="adminUserLoggedIn && coverageDescription && hasRole">
                         <div>
                             <button type="button" class="btn btn-danger" style="float: right; margin-left: 3vw; display: none;" id="btnUpdateCoverageMetadata"
                                 ng-click="updateCoverageMetadata()">

@@ -33,9 +33,9 @@ module rasdaman {
      * this ****controller's scope****.
      */
     export class WCSMainController {
-        public static $inject = ["$scope", "$rootScope", "$state"];
+        public static $inject = ["$scope", "$rootScope", "$state", "rasdaman.AdminService"];
 
-        public constructor(private $scope:WCSMainControllerScope, $rootScope:angular.IRootScopeService, $state:any) {
+        public constructor(private $scope:WCSMainControllerScope, $rootScope:angular.IRootScopeService, $state:any, adminService:rasdaman.AdminService) {
             this.initializeTabs($scope);
 
             
@@ -44,9 +44,16 @@ module rasdaman {
             $scope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean) => {                
                 if (oldValue == true || newValue == true) {
                     if ($scope.isSupportWCST) {
+
+                        let roles = $rootScope.adminStateInformation.roles;
+                        
                         // petascope admin logged in
-                        $scope.wcsInsertCoverageTab.disabled = false;
-                        $scope.wcsDeleteCoverageTab.disabled = false;
+                        if (AdminService.hasRole(roles, AdminService.PRIV_OWS_WCS_INSERT_COV)) {
+                            $scope.wcsInsertCoverageTab.disabled = false;
+                        }
+                        if (AdminService.hasRole(roles, AdminService.PRIV_OWS_WCS_DELETE_COV)) {
+                            $scope.wcsDeleteCoverageTab.disabled = false;
+                        }
 
                         // reload WCS to show all coverages
                         $rootScope.$broadcast("reloadWCSServerCapabilities", true);

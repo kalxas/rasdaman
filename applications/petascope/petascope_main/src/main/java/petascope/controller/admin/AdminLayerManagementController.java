@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
-import petascope.core.RoleSymbols;
 import petascope.core.response.Response;
 
 /**
@@ -79,14 +78,14 @@ public class AdminLayerManagementController extends AbstractController {
     
     @RequestMapping(path = LAYER_ACTIVATE_PATH,  method = RequestMethod.GET)
     protected void handleLayerActivationGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_INSERT_LAYER);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.activateLayerService.handle(httpServletRequest, kvpParameters);
     }
     
     @RequestMapping(path = LAYER_ACTIVATE_PATH,  method = RequestMethod.POST)
     protected void handleLayerActivationPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_INSERT_LAYER);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         String postBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         this.activateLayerService.handle(httpServletRequest, kvpParameters);
@@ -96,14 +95,14 @@ public class AdminLayerManagementController extends AbstractController {
     
     @RequestMapping(path = LAYER_DEACTIVATE_PATH,  method = RequestMethod.GET)
     protected void handleLayerDeactivationGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_DELETE_LAYER);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.deactivateLayerService.handle(httpServletRequest, kvpParameters);
     }
     
     @RequestMapping(path = LAYER_DEACTIVATE_PATH,  method = RequestMethod.POST)
     protected void handleLayerDeactivationPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_DELETE_LAYER);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         String postBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         this.deactivateLayerService.handle(httpServletRequest, kvpParameters);

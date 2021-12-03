@@ -110,6 +110,24 @@ module rasdaman {
                     $scope.describeLayer();
                 }
             });
+
+            // When petascope admin user logged in, show insert/update/delete styles and insert/delete pyramid members features
+            $rootScope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
+                if (newValue) {
+                    // Admin logged in
+                    $scope.adminUserLoggedIn = true;
+
+                    $scope.hasInsertStyleRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WMS_INSERT_STYLE);
+                    $scope.hasUpdateStyleRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WMS_UPDATE_STYLE);
+                    $scope.hasDeletetyleRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WMS_DELETE_STYLE);
+
+                    $scope.hasInsertCoverageRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WCS_INSERT_COV);
+                    $scope.hasDeleteCoverageRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WCS_DELETE_COV);
+                } else {
+                    // Admin logged out
+                    $scope.adminUserLoggedIn = false;
+                }
+            });
            
             // Describe the content (children elements of this selected layer) of a selected WMS layer
             $scope.describeLayer = function() {
@@ -762,5 +780,12 @@ module rasdaman {
         describeStyleToUpdate(styleName:string):void;
         
         coverageDescription:wcs.CoverageDescription;
+
+        hasInsertStyleRole: boolean;
+        hasUpdateStyleRole: boolean;
+        hasDeleteStyleRole: boolean;
+
+        hasInsertCoverageRole: boolean;
+        hasDeleteCoverageRole: boolean;
     }
 }

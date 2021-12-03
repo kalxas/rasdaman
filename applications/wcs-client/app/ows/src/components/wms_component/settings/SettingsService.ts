@@ -42,7 +42,7 @@ module rasdaman {
             this.wmsEndpoint = this.wmsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
 
             // #TESTING
-            // this.wmsEndpoint = "http://localhost:8082/rasdaman/ows";
+            this.wmsEndpoint = "http://localhost:8080/rasdaman/ows";
                                    
             this.setWMSEndPoint(this.wmsEndpoint);
             

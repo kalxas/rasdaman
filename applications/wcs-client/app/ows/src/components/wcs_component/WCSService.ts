@@ -51,7 +51,7 @@ module rasdaman {
             var credentials:login.Credential = this.adminService.getPersistedAdminUserCredentials();
             if (credentials != null) {
                 // If petascope admin user logged in, then use its credentials for GetCapabilities intead to view blacklisted coverages
-                requestHeaders = this.adminService.getAuthentcationHeaders();
+                requestHeaders = this.adminService.getAuthenticationHeaders();
             } else {
                 requestHeaders = this.credentialService.createRequestHeader(this.settings.wcsEndpoint, {});
             }
@@ -227,7 +227,7 @@ module rasdaman {
             var result = this.$q.defer();                                               
             var requestUrl = this.settings.adminEndpoint + "/coverage/update"; 
             
-            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            var requestHeaders = this.adminService.getAuthenticationHeaders();
             requestHeaders["Content-Type"] = undefined;
 
             var request:angular.IRequestConfig = {
@@ -256,7 +256,7 @@ module rasdaman {
             var result = this.$q.defer();
             
             var requestUrl = this.settings.adminEndpoint + "/wcs/blacklist?COVERAGELIST=" + coverageId;
-            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            var requestHeaders = this.adminService.getAuthenticationHeaders();
 
             this.$http.get(requestUrl, {
                     headers: requestHeaders
@@ -274,7 +274,7 @@ module rasdaman {
             var result = this.$q.defer();
             
             var requestUrl = this.settings.adminEndpoint + "/wcs/blacklistall";
-            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            var requestHeaders = this.adminService.getAuthenticationHeaders();
 
             this.$http.get(requestUrl, {
                     headers: requestHeaders
@@ -294,7 +294,7 @@ module rasdaman {
             var result = this.$q.defer();
           
             var requestUrl = this.settings.adminEndpoint + "/wcs/whitelist?COVERAGELIST=" + coverageId;
-            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            var requestHeaders = this.adminService.getAuthenticationHeaders();
 
             this.$http.get(requestUrl, {
                     headers: requestHeaders
@@ -312,7 +312,7 @@ module rasdaman {
             var result = this.$q.defer();
             
             var requestUrl = this.settings.adminEndpoint + "/wcs/whitelistall";
-            var requestHeaders = this.adminService.getAuthentcationHeaders();
+            var requestHeaders = this.adminService.getAuthenticationHeaders();
 
             this.$http.get(requestUrl, {
                     headers: requestHeaders

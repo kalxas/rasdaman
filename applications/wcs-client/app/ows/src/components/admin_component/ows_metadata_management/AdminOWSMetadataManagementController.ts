@@ -62,6 +62,8 @@ module rasdaman {
             // When logged in, load Capabilities for OWS metadata
             $rootScope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
                 $scope.getServerCapabilities();
+
+                $scope.hasRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_UPDATE_SRV);
             });
 
             $scope.getServerCapabilities = (...args: any[])=> {                 
@@ -145,6 +147,8 @@ module rasdaman {
     interface AdminOWSMetadataManagementControllerScope extends rasdaman.AdminMainControllerScope {        
         serviceIdentification:admin.ServiceIdentification;
         serviceProvider:admin.ServiceProvider;
+
+        hasRole:boolean;
 
         getServerCapabilities():void;
         updateServiceIdentification():void;

@@ -4263,12 +4263,19 @@ or ``DeleteCoverage``, etc). This is configured through the
 ``allow_write_requests_from`` setting in ``petascope.properties``.
 
 Any write requests from a non-listed IP address will be blocked. However, if one
-has petascope admin user credentials, configured through the
-``petascope_admin_user`` and ``petascope_admin_pass`` settings, then one can
-send write requests with these credentials via basic authentication header.
+has a rasdaman user credentials with ``RW`` rights (see :ref:`user rights <sec-users-rights>`),
+then one can send write requests with these credentials via basic authentication header.
 This authentication mechanism is used by the WSClient for example when logged
 in with the petascope admin credentials, to enable deleting coverages, updating
 metadata, styles, etc.
+
+
+.. NOTE::
+
+   Since v10+, *petascope admin user* configured in ``petascope.properties`` by
+   settings ``petascope_admin_user`` and ``petascope_admin_pass`` has no effect.
+   One must use credentials of a rasdaman user with ``RW`` rights to perform
+   a request with the basic header authentication method.
 
 .. _petascope-database-connection:
 

@@ -36,8 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
-import static petascope.core.RoleSymbols.PRIV_OWS_WCS_INSERT_COV;
-import static petascope.core.RoleSymbols.PRIV_OWS_WCS_UPDATE_COV;
 import petascope.core.response.Response;
 
 /**
@@ -83,7 +81,7 @@ public class AdminPyramidController extends AbstractController {
     
     @RequestMapping(path = ADD_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleAddPyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, PRIV_OWS_WCS_UPDATE_COV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());        
         this.addPyramidMemberService.handle(httpServletRequest, kvpParameters);
@@ -91,7 +89,7 @@ public class AdminPyramidController extends AbstractController {
 
     @RequestMapping(path = ADD_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleAddPyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, PRIV_OWS_WCS_UPDATE_COV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -102,7 +100,7 @@ public class AdminPyramidController extends AbstractController {
     
     @RequestMapping(path = REMOVE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleRemovePyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, PRIV_OWS_WCS_UPDATE_COV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.removePyramidMemberService.handle(httpServletRequest, kvpParameters);
@@ -110,7 +108,7 @@ public class AdminPyramidController extends AbstractController {
 
     @RequestMapping(path = REMOVE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleRemovePyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, PRIV_OWS_WCS_UPDATE_COV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -121,7 +119,7 @@ public class AdminPyramidController extends AbstractController {
     
     @RequestMapping(path = CREATE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleCreatePyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, PRIV_OWS_WCS_INSERT_COV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.createPyramidMemberService.handle(httpServletRequest, kvpParameters);
@@ -129,7 +127,7 @@ public class AdminPyramidController extends AbstractController {
 
     @RequestMapping(path = CREATE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleCreatePyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, PRIV_OWS_WCS_INSERT_COV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);

@@ -54,6 +54,8 @@ module rasdaman {
             if (persitedAdminUserCredentials != null) {
                 adminService.login(persitedAdminUserCredentials).then(
                     (data:any) => {
+                        // store the list of granted roles for this admin user
+                        $rootScope.adminStateInformation.roles = data;                        
                         // Stored credentials for petascope admin user still correct
                         // no need to show petascope admin user login form                        
                         $rootScope.adminStateInformation.loggedIn = true;
@@ -71,7 +73,7 @@ module rasdaman {
                         $rootScope.adminStateInformation.loggedIn = true;
                     
                         // store to local storage as admin logged in
-                        adminService.persitAdminUserCredentials(data);
+                        adminService.persitAdminUserCredentials($scope.credential);
                        
                     }, (...args:any[])=> {
                         errorHandlingService.handleError(args);                            

@@ -3,20 +3,20 @@
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="true">
                     <uib-accordion-heading>
-                        Login with Petascope admin credentials
+                        Login with admin credentials
                     </uib-accordion-heading>
     
                         <div class="col-sm-6 col-md-offset-3">
                             <!--Username-->            
                             <div class="form-group">
-                                <label>Petascope admin user</label>
+                                <label>Admin user</label>
                                 <!-- NOTE: ng-model with value:string cannot work under accordion for two ways data binding, it needs an object -->
                                 <input class="form-control" ng-model="credential.username">
                             </div>
         
                             <!--Password-->            
                             <div class="form-group">
-                                <label>Petascope admin password</label>
+                                <label>Admin password</label>
                                 <input class="form-control" ng-model="credential.password" type="password">
                             </div>
         
@@ -25,7 +25,7 @@
                                 <input type="button" class="btn btn-warning" value="?" style="float: right;" 
                                 onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')"
                                 data-placement="left" title="" class="ng-pristine ng-valid ng-touched"
-                                data-original-title="Please specify credentials as configured in petascope.properties (petascope_admin_user and petascope_admin_pass settings)."/>
+                                data-original-title="Please specify credentials of an admin user with granted adequate roles."/>
                             </div>
                         </div>
     

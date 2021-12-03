@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
-import petascope.core.RoleSymbols;
 
 /**
  * Controller to manage WMS styles for admin
@@ -58,7 +57,7 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = ADD_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleAddStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_INSERT_STYLE);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.createOrUpdateStyleService.handleAdd(httpServletRequest, kvpParameters);
@@ -66,7 +65,7 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = ADD_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleAddStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_INSERT_STYLE);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -77,7 +76,7 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = UPDATE_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleUpdateStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_UPDATE_STYLE);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.createOrUpdateStyleService.handleUpdate(httpServletRequest, kvpParameters);
@@ -85,7 +84,7 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = UPDATE_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleUpdateStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_UPDATE_STYLE);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -96,7 +95,7 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = REMOVE_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleRemoveStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_DELETE_STYLE);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.adminDeleteStyleService.handle(httpServletRequest, kvpParameters);
@@ -104,7 +103,7 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = REMOVE_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleRemoveStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_WMS_DELETE_STYLE);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String postBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);

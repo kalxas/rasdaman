@@ -58,7 +58,6 @@ import static petascope.core.KVPSymbols.KEY_OWS_METADATA_PROVIDER_SITE;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ROLE;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_SERVICE_TITLE;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_VOICE_PHONE;
-import petascope.core.RoleSymbols;
 import petascope.util.SetUtil;
 
 /**
@@ -105,7 +104,7 @@ public class AdminOwsServiceInfoController extends AbstractController {
     
     @Override
     protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
-        AuthenticationService.validateWriteRequestFromAdminOrRoleOrAllowedIP(httpServletRequest, RoleSymbols.PRIV_OWS_UPDATE_SRV);
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         AbstractAdminService.validateRequiredParameters(kvpParameters, VALID_PARAMETERS);
         

@@ -21,6 +21,7 @@
  */
 package petascope.wcst.handlers;
 
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,6 +88,8 @@ public class InsertCoverageHandler {
     private GMLCISParserService gmlCISParserService;
     @Autowired
     private CoverageRepositoryService persistedCoverageService;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
 
     /**
      * Handles the InsertCoverage request
@@ -95,8 +98,10 @@ public class InsertCoverageHandler {
      * @return if the ingestion if successful, a response containing the added
      * coverage id is returned.
      */
-    public Response handle(InsertCoverageRequest request) throws PetascopeException, SecoreException {
+    public Response handle(InsertCoverageRequest request) throws PetascopeException, SecoreException, IOException {
         log.debug("Handling coverage insertion...");
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        
         if (request.getGMLCoverage() != null) {
             return handleGMLCoverageInsert(request);
         } else {

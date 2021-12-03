@@ -158,12 +158,6 @@ public class PetascopeController extends AbstractController {
                 // e.g: GetCapabilities, DescribeCoverage
                 String requestService = getValueByKey(kvpParameters, KVPSymbols.KEY_REQUEST);
                 request = requestService;
-                
-                // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
-                // then no need to check if his IP is allowed anymore.
-                if (!AuthenticationService.isPetascopeAdminOrRasadminUser(httpServletRequest)) {
-                    AuthenticationService.validateWriteRequestFromIP(this.WRITE_REQUESTS, request, getRequesIPAddress());
-                }
 
                 // Check if any handlers can handle the request
                 for (AbstractHandler handler : handlers) {

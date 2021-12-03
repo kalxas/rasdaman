@@ -111,6 +111,8 @@ module rasdaman {
                 if (newValue) {
                     // Admin logged in
                     $scope.adminUserLoggedIn = true;
+
+                    $scope.hasRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WCS_UPDATE_COV);
                 } else {
                     // Admin logged out
                     $scope.adminUserLoggedIn = false;
@@ -243,6 +245,8 @@ module rasdaman {
         // Not show the globe when coverage cannot reproject to EPSG:4326
         isCoverageDescriptionsDocumentOpen:boolean;
         hideWebWorldWindGlobe:boolean;
+
+        hasRole:boolean;
 
         coverageDescription:wcs.CoverageDescription;
         rawCoverageDescription:string;

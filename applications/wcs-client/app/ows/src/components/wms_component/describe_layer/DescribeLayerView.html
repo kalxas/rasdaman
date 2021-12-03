@@ -177,7 +177,7 @@
                                     onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">GetMap request</a></td>
                                 </td>
                                 <td colspan=10% ng-show="adminStateInformation.loggedIn">                                    
-                                     <button class="btn btn-danger" ng-click="deleteStyle(style.name)" ng-show="adminStateInformation.loggedIn">Delete</button>                                    
+                                     <button ng-show="adminStateInformation.loggedIn && hasDeleteStyleRole" class="btn btn-danger" ng-click="deleteStyle(style.name)">Delete</button>
                                 </td>                           
                             </tr>
                         </tbody>
@@ -251,10 +251,10 @@
 
                             <div class="form-group" ng-show="adminStateInformation.loggedIn">        
                                 <div class="col-sm-offset-2 col-sm-1">
-                                    <button class="btn btn-primary" type="button" ng-click="insertStyle()">Insert Style</button>
+                                    <button ng-show="adminStateInformation.loggedIn && hasInsertStyleRole" class="btn btn-primary" type="button" ng-click="insertStyle()">Insert Style</button>
                                 </div>
                                 <div class="col-sm-offset-4">
-                                    <button class="btn btn-warning" type="button" ng-click="updateStyle()">Update Style</button>
+                                    <button ng-show="adminStateInformation.loggedIn && hasUpdateStyleRole" class="btn btn-warning" type="button" ng-click="updateStyle()">Update Style</button>
                                 </div>
                             </div>
                         </form>
@@ -290,7 +290,7 @@
                                 <td colspan=40%>{{member.coverageId}}</td>
                                 <td colspan=40%>{{member.scaleFactors}}</td>
                                 <td colspan=20%>                                    
-                                     <button class="btn btn-danger" ng-click="removePyramidMember(member.coverageId)" ng-show="adminStateInformation.loggedIn">Delete</button>
+                                     <button ng-show="adminStateInformation.loggedIn && hasDeleteCoverageRole" class="btn btn-danger" ng-click="removePyramidMember(member.coverageId)">Delete</button>
                                 </td>                           
                             </tr>
                         </tbody>
@@ -304,7 +304,7 @@
                     </table>
 
                    <!-- coverage pyramids members to create -->
-                   <div class="container" ng-show="adminStateInformation.loggedIn">
+                   <div class="container" ng-show="adminStateInformation.loggedIn && hasInsertCoverageRole">
                         <form class="form-horizontal" action="">
                             <div class="form-group">
                                 <label class="control-label col-sm-2">Scale factors:</label>

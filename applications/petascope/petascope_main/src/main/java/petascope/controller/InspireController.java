@@ -75,9 +75,7 @@ public class InspireController extends AbstractController {
         
         // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
         // then no need to check if his IP is allowed anymore.
-        if (!AuthenticationService.isPetascopeAdminOrRasadminUser(httpServletRequest)) {
-            this.validateWriteRequestFromIP(UPDATE_METADATA_PATH, this.getRequesIPAddress());
-        }
+        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String coverageId = this.getValueByKeyAllowNull(kvpParameters, KEY_INSPIRE_COVERAGE_ID);
         String metadataURL = this.getValueByKeyAllowNull(kvpParameters, KEY_INSPIRE_METADATA_URL);

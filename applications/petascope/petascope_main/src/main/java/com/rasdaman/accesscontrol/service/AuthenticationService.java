@@ -27,11 +27,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.rasdaman.config.ConfigManager;
+import petascope.controller.AuthenticationController;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -42,27 +44,6 @@ import petascope.exceptions.PetascopeException;
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 public class AuthenticationService {
-    
-    // -- rasdaman enterprise begin
-    
-    public static final String SHIBBOLETH_AUTH_USER_ID_SESSION_KEY = "SHIBBOLETH_AUTH_USER_ID";
-    
-    // -- rasdaman enterprise end
-    
-    /**
-     * Check if the request is requesting under admin user with basic authentication headers
-     */
-    public static boolean isPetascopeAdminOrRasadminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
-        Pair<String, String> credentialsPair = getBasicAuthUsernamePassword(httpServletRequest);
-        
-        if (credentialsPair != null) {
-            // In case the user requesting with credentials
-            return isPetascopeAdminUser(credentialsPair.fst, credentialsPair.snd)
-                  || isRasdamanAdminUser(credentialsPair.fst, credentialsPair.snd);
-        }
-        
-        return false;
-    }
     
     /**
      * Parse header to get username and password encoded in Base64 for basic authentication header
@@ -125,37 +106,6 @@ public class AuthenticationService {
         return inputStream;
     }
     
-    
-    /**
-     * Check if user is either petascope admin user or rasadmin user
-     */
-    public static void validatePetascopeAdminOrRasadminUser(HttpServletRequest httpServletRequest) throws PetascopeException {
-        Pair<String, String> credentialsPair = getBasicAuthUsernamePassword(httpServletRequest);
-        if (credentialsPair == null) {
-            throw new PetascopeException(ExceptionCode.AccessDenied, "Missing credentials for admin user in basic authentication headers");
-        } else if (!isPetascopeAdminOrRasadminUser(httpServletRequest)) {
-            throw new PetascopeException(ExceptionCode.AccessDenied, "Invalid credentials for admin user");
-        }
-    }
-    
-        
-    /**
-     * Check if given credentials are valid for petascope admin user     
-     */
-    public static boolean isPetascopeAdminUser(String username, String password) {
-        return ConfigManager.PETASCOPE_ADMIN_USERNAME.equals(username) 
-            && ConfigManager.PETASCOPE_ADMIN_PASSWORD.equals(password);
-    }
-    
-    /**
-     * Check if given credentials are valid for rasdaman admin user     
-     */
-    public static boolean isRasdamanAdminUser(String username, String password) {
-        return ConfigManager.RASDAMAN_ADMIN_USER.equals(username) 
-            && ConfigManager.RASDAMAN_ADMIN_PASS.equals(password);
-    }
-    
-    
     /**
      * Check if a source IP address can send a write request to petascope.
      */
@@ -214,17 +164,24 @@ public class AuthenticationService {
     }
     
     /**
-     * If non-admin user requests, then he must have the role if basic header is enabled, or his IP must be allowed
+     * The user requests must have the role if basic header is enabled, or his IP must be allowed
      */
-    public static void validateWriteRequestFromAdminOrRoleOrAllowedIP(HttpServletRequest httpServletRequest,
-            String roleName // -- rasdaman enterprise
-        ) throws PetascopeException {
+    public static void validateWriteRequestByRoleOrAllowedIP(HttpServletRequest httpServletRequest) throws PetascopeException, IOException {
         
-        if (!isPetascopeAdminOrRasadminUser(httpServletRequest)) {
-            // non-admin user
+        Pair<String, String> credentialsPair = getBasicAuthCredentialsOrRasguest(httpServletRequest);
+        boolean mustValidate = true;
+        
+        if (credentialsPair != null) {
+            String username = credentialsPair.fst;
+            Set<String> roles = AuthenticationController.parseRolesFromRascontrol(username);
+            if (roles.contains(AuthenticationController.READ_WRITE_RIGHTS)) {
+                mustValidate = false;
+            }
+        }
+        
+        if (mustValidate) {
             // + user's IP must be from allowed write request setting, otherwise exception
             validateWriteRequestFromIP(httpServletRequest);
         }
-        
     }
 }

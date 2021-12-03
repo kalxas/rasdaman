@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="form-group">
-                        <input type="button" class="btn btn-primary" ng-click="updateServiceIdentification()" value="Update Service Identifcation"/>
+                        <input type="button" ng-show="hasRole == true" class="btn btn-primary" ng-click="updateServiceIdentification()" value="Update Service Identifcation"/>
                     </div>
 
             </uib-accordion-group>
@@ -125,7 +125,7 @@
                     </div>
 
                     <div class="form-group">
-                            <button type="submit" class="btn btn-primary" ng-click="updateServiceProvider()">Update Service Provider</button>
+                            <button type="submit" ng-show="hasRole == true" class="btn btn-primary" ng-click="updateServiceProvider()">Update Service Provider</button>
                     </div>
 
                 </form>
