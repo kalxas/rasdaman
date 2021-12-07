@@ -2274,7 +2274,6 @@ var rasdaman;
             this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             this.wcsEndpoint = this.wcsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
-            this.wcsEndpoint = "http://localhost:8080/rasdaman/ows";
             this.setWCSEndPoint(this.wcsEndpoint);
             this.defaultContextPath = this.contextPath;
             this.wcsFullEndpoint = this.wcsEndpoint + "?" + this.wcsServiceNameVersion;
@@ -2625,7 +2624,6 @@ var rasdaman;
         function WMSSettingsService($window) {
             this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             this.wmsEndpoint = this.wmsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
-            this.wmsEndpoint = "http://localhost:8080/rasdaman/ows";
             this.setWMSEndPoint(this.wmsEndpoint);
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
             this.setWMSFullEndPoint();
