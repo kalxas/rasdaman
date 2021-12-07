@@ -59,6 +59,7 @@ install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/start_rasdaman.sh"
         "${CMAKE_CURRENT_BINARY_DIR}/update_db.sh"
         "${CMAKE_CURRENT_BINARY_DIR}/rasdaman_insertdemo.sh"  
         "${CMAKE_CURRENT_BINARY_DIR}/watch_rasdaman.sh"  
+        "${CMAKE_SOURCE_DIR}/bin/update_properties.sh"  
         DESTINATION ${BIN_DIR})     
 
 # Only install the files if they are not installed. This allows the user to update his installation without having the files overwritten.
