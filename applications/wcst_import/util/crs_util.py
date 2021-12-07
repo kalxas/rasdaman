@@ -376,7 +376,10 @@ class CRSUtil:
 
         crs = replace_crs_by_working_crs(crs)
         try:
-            gml = validate_and_read_url(crs)
+            # allow SECORE to return result in maximum 2 minutes
+            timeout_in_seconds = 120
+
+            gml = validate_and_read_url(crs, None, timeout_in_seconds)
             root = etree.fromstring(gml)
             cselem = root.xpath("./*[contains(local-name(), 'CS')]")[0]
             xml_axes = cselem.xpath(".//*[contains(local-name(), 'SystemAxis')]")

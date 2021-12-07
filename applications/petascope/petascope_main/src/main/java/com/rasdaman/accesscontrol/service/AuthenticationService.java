@@ -174,7 +174,7 @@ public class AuthenticationService {
         if (credentialsPair != null) {
             String username = credentialsPair.fst;
             Set<String> roles = AuthenticationController.parseRolesFromRascontrol(username);
-            if (roles.contains(AuthenticationController.READ_WRITE_RIGHTS)) {
+            if (roles != null && roles.contains(AuthenticationController.READ_WRITE_RIGHTS)) {
                 mustValidate = false;
             }
         }

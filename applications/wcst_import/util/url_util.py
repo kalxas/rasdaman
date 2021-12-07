@@ -43,7 +43,7 @@ def __encode_quote(url):
     return url.replace('"', "%22")
 
 
-def validate_and_read_url(url, data=None):
+def validate_and_read_url(url, data=None, timeout_in_seconds=None):
     """
     Open url and validate the status code before returning the response in string
     :param str url: the url to open
@@ -67,16 +67,19 @@ def validate_and_read_url(url, data=None):
             base64string = base64.b64encode(tmp).decode("utf-8")
             request.add_header("Authorization", "Basic %s" % base64string)
 
-        ret = urlopen(request, context=ssl._create_unverified_context())
+        ret = urlopen(request, timeout=timeout_in_seconds, context=ssl._create_unverified_context())
     except Exception as e:
-        if hasattr(e.reason, "strerror"):
-            # URLError
-            exception_text = e.reason.strerror
-        else:
-            # HTTPError
-            exception_text = decode_res(e.read())
+        if hasattr(e, "reason"):
+            if hasattr(e.reason, "strerror"):
+                # URLError
+                exception_text = e.reason.strerror
+            else:
+                # HTTPError
+                exception_text = decode_res(e.read())
 
-        error_message = parse_error_message(exception_text)
+            error_message = parse_error_message(exception_text)
+        else:
+            error_message = str(e)
 
         raise RuntimeException("Failed opening connection to '{}'. \n"                               
                                "Reason: {}".format(url, error_message))
