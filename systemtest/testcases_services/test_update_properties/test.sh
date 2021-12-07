@@ -36,7 +36,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
-UPDATE=""$SCRIPT_DIR"/../../../applications/petascope/update_properties.sh"
+UPDATE=""$SCRIPT_DIR"/../../../bin/update_properties.sh"
 
 log "Testing properties file migration"
 

@@ -120,7 +120,7 @@ install(PROGRAMS "${CREATE_PETASCOPEDB_SCRIPT}" "${INSERT_DATA_SCRIPT}"
 install( CODE "execute_process(COMMAND mv ${CONF_DIR}/log4j.properties ${CONF_DIR}/log4j.properties.unused ERROR_QUIET)" )
 
 # Install petascope.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
-install( CODE "execute_process(COMMAND bash ${SRC_DIR}/update_properties.sh ${CONF_DIR}/petascope.properties ${SETTINGS_FILE})" )
+install( CODE "execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/update_properties.sh ${CONF_DIR}/petascope.properties ${SETTINGS_FILE})" )
 
 # Install built package (war) to the web applications folder (e.g: Tomcat /var/lib/tomcat/webapps/)
 # Petascope can be run as embedded or external with war package.
@@ -131,10 +131,6 @@ install( FILES "${PETASCOPE_TARGET_DIR}/rasdaman.war"
 install( PROGRAMS "${BUILD_DIR}/migrate_petascopedb.sh"
          DESTINATION "${BIN_DIR}" )
 
-# Copy update_properties.sh to $RMANHOME/bin to be used by rasdaman installer for installing packages (e.g: rpm)
-# which will update the changes from user's old petascope.properties and new built-in petascope.properties in the package.
-install( PROGRAMS "${SRC_DIR}/update_properties.sh"
-         DESTINATION "${BIN_DIR}" )
 
 # Copy petascope_insertdemo.sh to bin dir
 install( PROGRAMS "${INSERT_DATA_SCRIPT}"

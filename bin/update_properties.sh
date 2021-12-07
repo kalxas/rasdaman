@@ -157,6 +157,11 @@ while read line; do
     line=$(trim_whitespace "$line")
     first_char=${line:0:1} # get first character of the line
 
+    # copy over the define lines (inpeers / outpeers)
+    if [[ $line == define* ]]; then
+      echo $line >> "$new_file_tmp"
+    fi
+
     if [[ "$first_char" != '#' && "$first_char" != '' && "$line" != *" "* ]]; then # if $line contains with # or spaces -> comments so ignore.
 
         # 5.1 Get the old_file setting (setting name) and value (setting value)

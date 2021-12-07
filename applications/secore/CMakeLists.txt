@@ -60,7 +60,7 @@ if (ENABLE_JAVA)
             VERBATIM)
 
     # install secore.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
-    install(CODE "execute_process(COMMAND bash  ${SRC_DIR}/update_properties.sh ${CONF_DIR}/secore.properties ${SRC_DIR}/src/main/resources/secore.properties)")
+    install(CODE "execute_process(COMMAND bash  ${CMAKE_SOURCE_DIR}/bin/update_properties.sh ${CONF_DIR}/secore.properties ${SRC_DIR}/src/main/resources/secore.properties)")
 
     install(DIRECTORY DESTINATION "${WAR_DIR}/secoredb"
 	        DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ 
