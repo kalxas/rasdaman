@@ -28,6 +28,13 @@ if (ENABLE_JAVA)
     # will not rebuild secore when make install
     set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
+
+    set(SECORE_PACKAGING "jar")
+    if (ENABLE_STANDALONE_SECORE)
+        set(SECORE_PACKAGING "war")
+        message(STATUS "Build SECORE as a standalone web application (-DENABLE_STANDALONE_SECORE=ON).")
+    endif()
+
     configure_file(pom.xml.in "${SRC_DIR}/pom.xml" @ONLY)    
 
     # Generate files from *.in by replacing any variables that can be configured at compile time
@@ -54,7 +61,7 @@ if (ENABLE_JAVA)
     endif(GENERATE_DOCS)
 
     add_custom_target(secore ALL
-            COMMAND $(MAKE) -C ${SRC_DIR} BUILD_DIR=${BUILD_DIR} PROJECT_VERSION=${PROJECT_VERSION}
+            COMMAND $(MAKE) -C ${SRC_DIR} BUILD_DIR=${BUILD_DIR} PROJECT_VERSION=${PROJECT_VERSION} PACKAGING=${SECORE_PACKAGING}
             WORKING_DIRECTORY ${SRC_DIR}
             COMMENT "building secore"
             VERBATIM)
@@ -68,9 +75,11 @@ if (ENABLE_JAVA)
 	        WORLD_EXECUTE WORLD_WRITE WORLD_READ)
 
     # NOTE: only when packaging as war then this one can be enabled, default it builds def.jar as a library for petascope
-    # install(FILES "${SECORE_TARGET_DIR}/def.war"
-    #        DESTINATION ${WAR_DIR})
-
+    if (ENABLE_STANDALONE_SECORE)
+        install(FILES "${SECORE_TARGET_DIR}/def.war"
+                DESTINATION ${WAR_DIR})
+    endif()
+    
     # these files contain update CRS defintions for SECORE userdb
     install(DIRECTORY db_updates/ DESTINATION "${SHARE_DATA_DIR}/secore")
 

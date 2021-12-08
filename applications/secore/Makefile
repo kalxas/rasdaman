@@ -27,18 +27,30 @@ ifeq ($(BUILD_DIR),)
 $(error BUILD_DIR was not provided)
 endif
 
-target = $(BUILD_DIR)/target/def.jar
+target = $(BUILD_DIR)/target/def.${PACKAGING}
 targetwithdeps = $(BUILD_DIR)/target/def-jar-with-dependencies.jar
 MVN = mvn
 
 all: $(target)
 
 $(target): pom.xml $(shell find -name '*.java')
-	$(MVN) -q -B package -DbuildDir=$(BUILD_DIR) \
-                         -Dversion=$(PROJECT_VERSION)
 
-	$(MVN) -q install:install-file -Dfile=$(targetwithdeps) \
-			-DgroupId=org.rasdaman \
-			-DartifactId=secore \
-			-Dversion=$(PROJECT_VERSION) \
-			-Dpackaging=jar
+	# in case def.war file is needed
+	if [ "${PACKAGING}" == "war" ] ; then \
+    	$(MVN) -q -B package -DbuildDir=$(BUILD_DIR) \
+                         -Dversion=$(PROJECT_VERSION) \
+						 -Dpackaging=${PACKAGING} \
+						 -P ${PACKAGING} ; \
+    fi
+
+	$(MVN) -q -B package -DbuildDir=$(BUILD_DIR) \
+                     -Dversion=$(PROJECT_VERSION) \
+					 -Dpackaging=jar
+
+	# petascope needs def.jar in any cases
+	$(MVN) -q install:install-file \
+			   -Dfile=$(targetwithdeps) \
+			   -DgroupId=org.rasdaman \
+			   -DartifactId=secore \
+			   -Dversion=$(PROJECT_VERSION) \
+			   -Dpackaging=jar

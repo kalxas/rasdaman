@@ -973,78 +973,80 @@ that can be specified with ``-D<option>``, along with the default settings.
 .. _table-cmake:
 .. table:: CMake options for configuring the installation
 
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | Option                   | Alternatives      | Description                                                              |
-    +==========================+===================+==========================================================================+
-    | ``CMAKE_INSTALL_PREFIX`` | <path> (default   |                                                                          |
-    |                          | /opt/rasdaman)    | Installation directory.                                                  |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``CMAKE_BUILD_TYPE``     | **Release** /     |                                                                          |
-    |                          | Debug             | Specify build type, Release for production, Debug for development        |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``CMAKE_VERBOSE_OUTPUT`` | ON / **OFF**      | Enable this if you need detailed output from the make process.           |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``CMAKE_CXX_FLAGS``      | <flags>           | Specify additional compiler options, e.g. -DCMAKE_CXX_FLAGS="-g3"        |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``DEFAULT_BASEDB``       | **sqlite** /      |                                                                          |
-    |                          | postgresql        | Specify the DBMS that rasdaman uses for storing RASBASE.                 |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``ENABLE_BENCHMARK``     | ON / **OFF**      | Generate binaries that contain extra code for benchmark output.          |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``ENABLE_PROFILING``     | ON / **OFF**      | Enable profiling of queries with google-perftools.                       |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``ENABLE_DEBUG``         | ON / **OFF**      | Generate (slower) binaries that can be debugged / produce debug logs.    |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``ENABLE_ASAN``          | ON / **OFF**      | Compile with AddressSanitizer enabled (-fsanitize=address)               |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``ENABLE_STRICT``        | ON / **OFF**      | Enable compilation in strict mode (warnings terminate compilation).      |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``ENABLE_R``             | ON / **OFF**      | Enable compilation of R support.                                         |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``GENERATE_DOCS``        | **ON** / OFF      | Generate and install documentation (manuals, doxygen, javadoc).          |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``GENERATE_PIC``         | **ON** / OFF      | Generate position independent code (PIC).                                |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``ENABLE_JAVA``          | **ON** / OFF      | Generate and install of Java-based components (rasj, petascope, secore). |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``JAVA_SERVER``          | **embedded** /    |                                                                          |
-    |                          | external          | Set the Java application deployment mode.                                |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_GDAL``             | **ON** / OFF      | Enable inclusion of GDAL library during installation. Further variables  |
-    |                          |                   | can be set to control the GDAL paths: ``-DGDAL_INCLUDE_DIR``,            |
-    |                          |                   | ``-DGDAL_LIBRARY``, ``-DGDAL_JAVA_JAR_PATH``                             | 
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_GRIB``             | ON / **OFF**      | Enable inclusion of GRIB library during installation. Further variables  |
-    |                          |                   | allow controlling the GRIB library paths: ``-DGRIB_LIBRARIES`` and       |
-    |                          |                   | ``-DGRIB_INCLUDE_DIR``                                                   |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_HDF4``             | ON / **OFF**      | Enable inclusion of HDF4 library during installation. Further variables  |
-    |                          |                   | allow controlling the HDF4 library paths: ``-DHDF4_LIBRARIES`` and       |
-    |                          |                   | ``-DHDF4_INCLUDE_DIR``                                                   |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_NETCDF``           | ON / **OFF**      | Enable inclusion of netCDF library during installation. Further variables|
-    |                          |                   | allow controlling the netCDF library paths: ``-DNetCDF_LIBRARIES`` and   |
-    |                          |                   | ``-DNetCDF_INCLUDE_DIRS``                                                |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_TIFF``             | ON / **OFF**      | Enable compilation of internal TIFF encoder/decoder. Further variables   |
-    |                          |                   | allow controlling the TIFF library paths: ``-DTIFF_LIBRARY`` and         |
-    |                          |                   | ``-DTIFF_INCLUDE_DIR``                                                   |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_PNG``              | ON / **OFF**      | Enable compilation of internal PNG encoder/decoder. Further variables    |
-    |                          |                   | allow controlling the PNG library paths: ``-DPNG_LIBRARY`` and           |
-    |                          |                   | ``-DPNG_PNG_INCLUDE_DIR``                                                |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_JPEG``             | ON / **OFF**      | Enable compilation of internal JPEG encoder/decoder. Further variables   |
-    |                          |                   | allow controlling the JPEG library paths: ``-DJPEG_LIBRARY`` and         |
-    |                          |                   | ``-DJPEG_INCLUDE_DIR``                                                   |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``FILE_DATA_DIR``        | <path> (default   |                                                                          |
-    |                          | $RMANHOME/data)   | The path where the server stores array tiles as files.                   |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``WAR_DIR``              | <path> (default   |                                                                          |
-    |                          | $RMANHOME/share/  |                                                                          |
-    |                          | rasdaman/war)     | The path where Java war files will be installed.                         |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | Option                          | Alternatives      | Description                                                              |
+    +=================================+===================+==========================================================================+
+    | ``CMAKE_INSTALL_PREFIX``        | <path> (default   |                                                                          |
+    |                                 | /opt/rasdaman)    | Installation directory.                                                  |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``CMAKE_BUILD_TYPE``            | **Release** /     |                                                                          |
+    |                                 | Debug             | Specify build type, Release for production, Debug for development        |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``CMAKE_VERBOSE_OUTPUT``        | ON / **OFF**      | Enable this if you need detailed output from the make process.           |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``CMAKE_CXX_FLAGS``             | <flags>           | Specify additional compiler options, e.g. -DCMAKE_CXX_FLAGS="-g3"        |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``DEFAULT_BASEDB``              | **sqlite** /      |                                                                          |
+    |                                 | postgresql        | Specify the DBMS that rasdaman uses for storing RASBASE.                 |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_BENCHMARK``            | ON / **OFF**      | Generate binaries that contain extra code for benchmark output.          |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_PROFILING``            | ON / **OFF**      | Enable profiling of queries with google-perftools.                       |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_DEBUG``                | ON / **OFF**      | Generate (slower) binaries that can be debugged / produce debug logs.    |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_ASAN``                 | ON / **OFF**      | Compile with AddressSanitizer enabled (-fsanitize=address)               |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_STRICT``               | ON / **OFF**      | Enable compilation in strict mode (warnings terminate compilation).      |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_R``                    | ON / **OFF**      | Enable compilation of R support.                                         |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``GENERATE_DOCS``               | **ON** / OFF      | Generate and install documentation (manuals, doxygen, javadoc).          |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``GENERATE_PIC``                | **ON** / OFF      | Generate position independent code (PIC).                                |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_JAVA``                 | **ON** / OFF      | Generate and install of Java-based components (rasj, petascope, secore). |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``JAVA_SERVER``                 | **embedded** /    |                                                                          |
+    |                                 | external          | Set the Java application deployment mode.                                |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_STANDALONE_SECORE``    | ON / **OFF**      | Build SECORE as a standalone web application *.war*.                     |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_GDAL``                    | **ON** / OFF      | Enable inclusion of GDAL library during installation. Further variables  |
+    |                                 |                   | can be set to control the GDAL paths: ``-DGDAL_INCLUDE_DIR``,            |
+    |                                 |                   | ``-DGDAL_LIBRARY``, ``-DGDAL_JAVA_JAR_PATH``                             | 
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_GRIB``                    | ON / **OFF**      | Enable inclusion of GRIB library during installation. Further variables  |
+    |                                 |                   | allow controlling the GRIB library paths: ``-DGRIB_LIBRARIES`` and       |
+    |                                 |                   | ``-DGRIB_INCLUDE_DIR``                                                   |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_HDF4``                    | ON / **OFF**      | Enable inclusion of HDF4 library during installation. Further variables  |
+    |                                 |                   | allow controlling the HDF4 library paths: ``-DHDF4_LIBRARIES`` and       |
+    |                                 |                   | ``-DHDF4_INCLUDE_DIR``                                                   |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_NETCDF``                  | ON / **OFF**      | Enable inclusion of netCDF library during installation. Further variables|
+    |                                 |                   | allow controlling the netCDF library paths: ``-DNetCDF_LIBRARIES`` and   |
+    |                                 |                   | ``-DNetCDF_INCLUDE_DIRS``                                                |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_TIFF``                    | ON / **OFF**      | Enable compilation of internal TIFF encoder/decoder. Further variables   |
+    |                                 |                   | allow controlling the TIFF library paths: ``-DTIFF_LIBRARY`` and         |
+    |                                 |                   | ``-DTIFF_INCLUDE_DIR``                                                   |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_PNG``                     | ON / **OFF**      | Enable compilation of internal PNG encoder/decoder. Further variables    |
+    |                                 |                   | allow controlling the PNG library paths: ``-DPNG_LIBRARY`` and           |
+    |                                 |                   | ``-DPNG_PNG_INCLUDE_DIR``                                                |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_JPEG``                    | ON / **OFF**      | Enable compilation of internal JPEG encoder/decoder. Further variables   |
+    |                                 |                   | allow controlling the JPEG library paths: ``-DJPEG_LIBRARY`` and         |
+    |                                 |                   | ``-DJPEG_INCLUDE_DIR``                                                   |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``FILE_DATA_DIR``               | <path> (default   |                                                                          |
+    |                                 | $RMANHOME/data)   | The path where the server stores array tiles as files.                   |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``WAR_DIR``                     | <path> (default   |                                                                          |
+    |                                 | $RMANHOME/share/  |                                                                          |
+    |                                 | rasdaman/war)     | The path where Java war files will be installed.                         |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
 
 .. _sec-download-install-build:
 

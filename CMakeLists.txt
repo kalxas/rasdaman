@@ -441,6 +441,12 @@ else()
 endif ()
 
 #
+# SECORE
+#
+
+set(ENABLE_STANDALONE_SECORE OFF CACHE BOOL "") 
+
+#
 # Various
 #
 

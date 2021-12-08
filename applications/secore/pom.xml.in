@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <name>SECORE - CRS Resolver</name>
-    <packaging>jar</packaging>
+    <packaging>${packaging}</packaging>
     <groupId>org.rasdaman</groupId>
     <artifactId>secore</artifactId>
     <version>${version}</version>
@@ -22,27 +22,98 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>1.5.2.RELEASE</version>
     </parent>
+
+   <profiles>
+        <profile>
+            <id>jar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                    <!-- NOTE: when SECORE is embedded in petascope as def.jar, this one is provided by petascope, 
+                        without it, tomcat will start petascope with error: More than one fragment with the name [spring_web].
+                        Remove it, when building SECORE as a standalone web application (def.war).  -->
+                    <scope>provided</scope>
+                    <exclusions>
+                        <exclusion>
+                            <!-- don't use logback as default logger -->
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-logging</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <!-- don't use Tomcat embedded from Spring Boot which makes Ubuntu, Debian Tomcat 7 could not start -->
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-tomcat</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies> 
+
+        </profile>
+
+        <profile>
+            <id>war</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <!-- don't use logback as default logger -->
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-logging</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <!-- don't use Tomcat embedded from Spring Boot which makes Ubuntu, Debian Tomcat 7 could not start -->
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-tomcat</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>     
+
+            <build>
+                <plugins>
+                    <!-- note: this plugin is needed to build standalone SECORE web application .war which can run in embedded mode.
+                        Only enable it, when you build war file instead of the default jar file -->                
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>prepare</id>
+                                <phase>validate</phase>
+                                <configuration>
+                                    <tasks>                                    
+                                        <exec executable="sed">
+                                            <arg value="-i" />
+                                            <arg value="s/secore.controller.enabled=false/secore.controller.enabled=true/g" />
+                                            <arg value="${sourceDir}/src/main/resources/application.properties" />                                        
+                                        </exec>                                    
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+
+    </profiles>
+
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <!-- NOTE: when SECORE is embedded in petascope as def.jar, this one is provided by petascope, 
-                 without it, tomcat will start petascope with error: More than one fragment with the name [spring_web].
-                 Remove it, when building SECORE as a standalone web application (def.war).  -->
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <!-- don't use logback as default logger -->
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <!-- don't use Tomcat embedded from Spring Boot which makes Ubuntu, Debian Tomcat 7 could not start -->
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j</artifactId>
@@ -143,6 +214,12 @@
                                 <copy todir="${buildDir}/target/def/WEB-INF/classes/">
                                     <fileset dir="${buildDir}/src/main/resources/" includes="**/*" />
                                 </copy>
+
+                                <exec executable="sed">
+                                    <arg value="-i" />
+                                    <arg value="s/secore.controller.enabled=true/secore.controller.enabled=false/g" />
+                                    <arg value="${sourceDir}/src/main/resources/application.properties" />
+                                </exec>   
                             </tasks>
                         </configuration>
                         <goals>
@@ -174,16 +251,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- note: this plugin is needed to build standalone SECORE web application which can run in embedded mode.
-                 Only enable it, when you build war file instead of the default jar file -->
-            
-            <!-- 
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            -->
 
         </plugins>
     </build>
