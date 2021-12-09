@@ -5071,13 +5071,10 @@ var rasdaman;
                         $http.get(requestUrl, {
                             headers: credentialService.createBasicAuthenticationHeader(credential.username, credential.password)
                         }).then(function (dataObj) {
-                            var data = JSON.parse(dataObj.data);
-                            if (data) {
-                                $rootScope.homeLoggedIn = true;
-                                $rootScope.usernameLoggedIn = credential.username;
-                                $scope.showView($scope.wsclient, "services");
-                                return;
-                            }
+                            $rootScope.homeLoggedIn = true;
+                            $rootScope.usernameLoggedIn = credential.username;
+                            $scope.showView($scope.wsclient, "services");
+                            return;
                         }, function (errorObj) {
                             errorHandlingService.handleError(errorObj);
                         });
