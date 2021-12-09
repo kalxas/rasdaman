@@ -1506,7 +1506,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitStarExpressionLabel(@NotNull wcpsParser.StarExpressionLabelContext ctx) {
         // MULTIPLICATION
         // e.g: c[Lat(*)]
-        WcpsResult result = stringScalarHandler.handle("\"" + ASTERISK + "\"");
+        WcpsResult result = stringScalarHandler.handle(ASTERISK);
         return result;
     }
     

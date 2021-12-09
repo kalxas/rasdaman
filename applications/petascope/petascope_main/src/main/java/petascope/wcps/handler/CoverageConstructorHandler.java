@@ -31,6 +31,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
@@ -73,6 +74,8 @@ public class CoverageConstructorHandler extends AbstractOperatorHandler {
         for (AxisIterator i : axisIterators) {
             String alias = i.getAliasName();
             WcpsSubsetDimension subsetDimension = i.getSubsetDimension();
+            
+            validateAxisIteratorSubsetWithQuote(coverageName, alias, subsetDimension);
 
             if (rasqlAliasName.isEmpty()) {
                 rasqlAliasName = alias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
@@ -93,6 +96,24 @@ public class CoverageConstructorHandler extends AbstractOperatorHandler {
                 .replace("$intervals", rasqlDomain)
                 .replace("$values", values.getRasql());
         return new WcpsResult(metadata, template);
+    }
+    
+    public static void validateAxisIteratorSubsetWithQuote(String coverageName, String axisIteratorAlias, 
+                                                           WcpsSubsetDimension subsetDimension) {
+        if (subsetDimension.getStringBounds().startsWith("\"")) {
+            String errorMessage = "Invalid value '" + subsetDimension.getStringBounds() + "' specified for iterator variable " + axisIteratorAlias;
+            
+            if (coverageName == null) {
+                errorMessage += " of general condenser";
+            } else {
+                errorMessage += " of coverage constructor " + coverageName;
+            }
+            
+            errorMessage += ". Please specify integer grid coordinates, or use the imageCrsDomain function to derive them automatically from geo coordinates.";
+            
+            throw new WCPSException(errorMessage);
+        }
+        
     }
 
     private final String TEMPLATE = "MARRAY $iter in [$intervals] VALUES $values";

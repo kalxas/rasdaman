@@ -2,7 +2,7 @@
 <ows:ExceptionReport version="2.1.0"
     xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
     xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <ows:Exception exceptionCode="InvalidSubsetting" >
-        <ows:ExceptionText>slicing '"2008-01-03"' is not valid for irregular axis 'ansi'.</ows:ExceptionText>
+    <ows:Exception exceptionCode="WcpsError" >
+        <ows:ExceptionText>Invalid value '"2015-01-01T00:00:00.000Z":"2018-01-01T00:00:00.000Z"' specified for iterator variable $t of coverage constructor result. Please specify integer grid coordinates, or use the imageCrsDomain function to derive them automatically from geo coordinates.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

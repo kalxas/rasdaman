@@ -33,7 +33,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -52,6 +52,7 @@ import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 import petascope.core.service.CrsComputerService;
 import petascope.exceptions.PetascopeException;
+import petascope.util.StringUtil;
 
 import static petascope.util.WCPSConstants.MSG_STAR;
 import static petascope.util.ras.RasConstants.RASQL_SELECT;
@@ -208,13 +209,13 @@ public class SubsetParsingService {
                 
                 Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
                 
-                if (!StringUtils.isNumeric(lowerBound)) {
+                if (!NumberUtils.isNumber(lowerBound)) {
                     // e.g: int(10/5)
                     String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + lowerBound, userPair.fst, userPair.snd);
                     lowerBound = result;
                 }
                 
-                if (!StringUtils.isNumeric(upperBound)) {
+                if (!NumberUtils.isNumber(upperBound)) {
                     // e.g: (long)(10/2) + 5
                     String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + upperBound, userPair.fst, userPair.snd);
                     upperBound = result;
@@ -432,6 +433,8 @@ public class SubsetParsingService {
      * @return
      */
     private BigDecimal convertPointToBigDecimal(boolean isTrimming, boolean isLowerPoint, Axis axis, String point) throws PetascopeException {
+        point = StringUtil.stripQuotes(point);
+        
         BigDecimal result = null;
         if (point.equals(MSG_STAR)) {
             if (isTrimming) {

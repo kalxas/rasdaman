@@ -26,6 +26,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import static petascope.wcps.handler.CoverageConstructorHandler.validateAxisIteratorSubsetWithQuote;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.RasqlTranslationService;
@@ -75,7 +76,9 @@ public class GeneralCondenserHandler extends AbstractOperatorHandler {
         for (AxisIterator i : axisIterators) {
             String alias = i.getAliasName();
             WcpsSubsetDimension subsetDimension = i.getSubsetDimension();
-
+            
+            validateAxisIteratorSubsetWithQuote(null, alias, subsetDimension);
+            
             if (rasqlAliasName.isEmpty()) {
                 rasqlAliasName = alias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }

@@ -1205,8 +1205,8 @@ public class WcpsCoverageMetadataGeneralService {
         }
         
         if (subset != null) {
-            String axisLowerGeoBound = axis.getLowerGeoBoundRepresentation().replace("\"", "");
-            String axisUpperGeoBound = axis.getUpperGeoBoundRepresentation().replace("\"", "");
+            String axisLowerGeoBound = axis.getLowerGeoBoundRepresentation();
+            String axisUpperGeoBound = axis.getUpperGeoBoundRepresentation();
             throw new OutOfBoundsSubsettingException(GEO_TYPE, axisName, subset, axisLowerGeoBound, axisUpperGeoBound);
         }
     }

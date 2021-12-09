@@ -1,0 +1,9 @@
+for $c in (test_eobstest) return  
+encode(coverage result 
+over $y lat  (-90 : -85),
+     $x long  (-180 : -170),
+     $t t ("2015-01-01T00:00:00.000Z":"2018-01-01T00:00:00.000Z")
+values $c[ Lat($y), Long($x), t($t)]
+,
+"csv"
+)
