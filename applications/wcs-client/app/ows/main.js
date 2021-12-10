@@ -6100,7 +6100,7 @@ var rasdaman;
                     $scope.adminUserLoggedIn = true;
                     $scope.hasInsertStyleRole = rasdaman.AdminService.hasRole($rootScope.adminStateInformation.roles, rasdaman.AdminService.PRIV_OWS_WMS_INSERT_STYLE);
                     $scope.hasUpdateStyleRole = rasdaman.AdminService.hasRole($rootScope.adminStateInformation.roles, rasdaman.AdminService.PRIV_OWS_WMS_UPDATE_STYLE);
-                    $scope.hasDeletetyleRole = rasdaman.AdminService.hasRole($rootScope.adminStateInformation.roles, rasdaman.AdminService.PRIV_OWS_WMS_DELETE_STYLE);
+                    $scope.hasDeleteStyleRole = rasdaman.AdminService.hasRole($rootScope.adminStateInformation.roles, rasdaman.AdminService.PRIV_OWS_WMS_DELETE_STYLE);
                     $scope.hasInsertCoverageRole = rasdaman.AdminService.hasRole($rootScope.adminStateInformation.roles, rasdaman.AdminService.PRIV_OWS_WCS_INSERT_COV);
                     $scope.hasDeleteCoverageRole = rasdaman.AdminService.hasRole($rootScope.adminStateInformation.roles, rasdaman.AdminService.PRIV_OWS_WCS_DELETE_COV);
                 }
@@ -6630,7 +6630,10 @@ var rasdaman;
             };
             this.getAuthenticationHeaders = function () {
                 var credentials = _this.getPersistedAdminUserCredentials();
-                var headers = _this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
+                var headers = {};
+                if (credentials != null) {
+                    headers = _this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
+                }
                 return headers;
             };
         }
@@ -6761,6 +6764,7 @@ var rasdaman;
                 adminService.login($scope.credential).then(function (data) {
                     alertService.success("Successfully logged in.");
                     $rootScope.adminStateInformation.loggedIn = true;
+                    $rootScope.adminStateInformation.roles = data;
                     adminService.persitAdminUserCredentials($scope.credential);
                 }, function () {
                     var args = [];

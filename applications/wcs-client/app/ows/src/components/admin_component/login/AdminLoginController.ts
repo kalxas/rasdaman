@@ -71,6 +71,7 @@ module rasdaman {
                     (data:any) => {
                         alertService.success("Successfully logged in.");
                         $rootScope.adminStateInformation.loggedIn = true;
+                        $rootScope.adminStateInformation.roles = data;
                     
                         // store to local storage as admin logged in
                         adminService.persitAdminUserCredentials($scope.credential);

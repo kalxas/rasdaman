@@ -119,7 +119,7 @@ module rasdaman {
 
                     $scope.hasInsertStyleRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WMS_INSERT_STYLE);
                     $scope.hasUpdateStyleRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WMS_UPDATE_STYLE);
-                    $scope.hasDeletetyleRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WMS_DELETE_STYLE);
+                    $scope.hasDeleteStyleRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WMS_DELETE_STYLE);
 
                     $scope.hasInsertCoverageRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WCS_INSERT_COV);
                     $scope.hasDeleteCoverageRole = AdminService.hasRole($rootScope.adminStateInformation.roles, AdminService.PRIV_OWS_WCS_DELETE_COV);

@@ -90,7 +90,10 @@ module rasdaman {
         // and create a basic authentication headers for them
         public getAuthenticationHeaders = ():{} => {
             var credentials:login.Credential = this.getPersistedAdminUserCredentials();
-            var headers = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
+            var headers = {};
+            if (credentials != null) {
+                headers = this.credentialService.createBasicAuthenticationHeader(credentials.username, credentials.password);
+            }
 
             return headers;
         }
