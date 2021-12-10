@@ -57,7 +57,7 @@ module rasdaman {
             $scope.credential = new login.Credential("", "");
                 
             // Login with rasdaman user credentials
-            $scope.login = (...args: any[])=> {               
+            $scope.login = (...args: any[])=> {                                           
 
                 $rootScope.homeLoggedIn = false;
                 $scope.displayError = false;                                

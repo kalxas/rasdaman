@@ -106,7 +106,7 @@ public class AuthenticationController extends AbstractController {
         
         String loginEnv = ConfigManager.RASDAMAN_ADMIN_USER + ":" + DigestUtils.MD5(ConfigManager.RASDAMAN_ADMIN_PASS);
         String[] envp = new String[] {"RASLOGIN=" + loginEnv};
-        Process process = runtime.exec("rascontrol -q -e -x list user -rights", envp);
+        Process process = runtime.exec(ConfigManager.RASDAMAN_BIN_PATH + "/rascontrol -q -e -x list user -rights", envp);
 
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line = null;

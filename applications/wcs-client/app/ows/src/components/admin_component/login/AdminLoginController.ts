@@ -51,9 +51,10 @@ module rasdaman {
 
             // When opening web page, check if there are stored credentials for petascope admin user
             var persitedAdminUserCredentials = adminService.getPersistedAdminUserCredentials();
+
             if (persitedAdminUserCredentials != null) {
                 adminService.login(persitedAdminUserCredentials).then(
-                    (data:any) => {
+                    (data:any) => {                        
                         // store the list of granted roles for this admin user
                         $rootScope.adminStateInformation.roles = data;                        
                         // Stored credentials for petascope admin user still correct
@@ -76,7 +77,7 @@ module rasdaman {
                         // store to local storage as admin logged in
                         adminService.persitAdminUserCredentials($scope.credential);
                        
-                    }, (...args:any[])=> {
+                    }, (...args:any[])=> {                        
                         errorHandlingService.handleError(args);                            
                     }).finally(function () {                        
                 });

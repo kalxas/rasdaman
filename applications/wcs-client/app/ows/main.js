@@ -6624,6 +6624,10 @@ var rasdaman;
                 var persistedCredentialsString = window.localStorage.getItem("petascopeAdminUserCredentials");
                 if (persistedCredentialsString != null) {
                     var credentials = login.Credential.fromString(persistedCredentialsString);
+                    if (credentials["username"] == "petauser") {
+                        _this.persitLoggedOut();
+                        return null;
+                    }
                     return credentials;
                 }
                 return null;

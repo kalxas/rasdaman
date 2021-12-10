@@ -77,8 +77,17 @@ module rasdaman {
         // Check if petascope admin user logged in
         public getPersistedAdminUserCredentials = ():login.Credential => {            
             let persistedCredentialsString = window.localStorage.getItem("petascopeAdminUserCredentials");
+
             if (persistedCredentialsString != null) {
                 var credentials:login.Credential = login.Credential.fromString(persistedCredentialsString);
+                // NOTE: petauser was petascope admin user and since v10+, 
+                // it has no use anymore in petascope (user doesn't exist in rasdaman)
+                //  and user must login with different user in admin's tab
+                if (credentials["username"] == "petauser") {
+                    this.persitLoggedOut();
+                    return null;
+                }
+
                 return credentials;
             }
 
