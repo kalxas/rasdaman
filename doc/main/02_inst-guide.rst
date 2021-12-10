@@ -153,6 +153,13 @@ Installation
 
     $ wget -O - https://download.rasdaman.org/packages/rasdaman.gpg | sudo apt-key add -
 
+   .. note::
+        You may need to update the ca-certificates package to allow SSL-based applications 
+        (e.g. ``apt-get update`` or ``wget/curl``) to check for the authenticity
+        of SSL connections: ::
+
+         $ sudo apt-get install ca-certificates
+
 2. Add the rasdaman repository to apt. There are three types of packages:
 
     - **stable:** these packages are only updated on stable releases of rasdaman,
@@ -258,11 +265,18 @@ your installation: ::
     $ sudo service rasdaman stop
     $ sudo apt-get install rasdaman
 
+.. note::
+    You may need to update the ca-certificates package to allow SSL-based applications 
+    (e.g. ``yum update`` or ``wget/curl``) to check for the authenticity
+    of SSL connections: ::
+
+     $ sudo apt-get install ca-certificates
+
 
 .. _sec-system-install-pkgs-rpm:
 
 RPM-based systems
-------------
+-----------------
 
 Currently the following RPM-based distributions are supported:
 
@@ -298,6 +312,13 @@ Installation
 
         $ sudo curl "https://download.rasdaman.org/packages/rpm/nightly/CentOS/7/x86_64/rasdaman.repo" \
                   -o /etc/yum.repos.d/rasdaman.repo
+
+   .. note::
+        You may need to update the ca-certificates package to allow SSL-based applications 
+        (e.g. ``yum update`` or ``wget/curl``) to check for the authenticity
+        of SSL connections: ::
+
+         $ sudo yum install -y ca-certificates
 
 2. The rasdaman packages should be available now via yum: ::
 
@@ -362,6 +383,13 @@ an update perform these steps: ::
     $ sudo yum clean all
     $ sudo service rasdaman stop
     $ sudo yum update rasdaman
+
+.. note::
+    You may need to update the ca-certificates package to allow SSL-based applications 
+    (e.g. ``yum update`` or ``wget/curl``) to check for the authenticity
+    of SSL connections: ::
+
+     $ sudo yum install -y ca-certificates
 
 
 Customizing the package installation
