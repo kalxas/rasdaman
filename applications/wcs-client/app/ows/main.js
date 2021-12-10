@@ -2595,6 +2595,10 @@ var rasdaman;
                 if (credential != null && credential["username"] != null) {
                     var username = credential["username"];
                     var password = credential["password"];
+                    if (username == "petauser") {
+                        this.clearStorage();
+                        return result;
+                    }
                     result["Authorization"] = this.getEncodedBasicAuthencationString(username, password);
                 }
             }

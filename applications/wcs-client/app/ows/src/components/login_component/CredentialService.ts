@@ -70,6 +70,14 @@ module rasdaman {
                     var username = credential["username"];
                     var password = credential["password"];
                     
+                    // NOTE: petauser was petascope admin user and since v10+, 
+                    // it has no use anymore in petascope (user doesn't exist in rasdaman)
+                    //  and user must login with different user in admin's tab
+                    if (username == "petauser") {
+                        this.clearStorage();
+                        return result;
+                    }
+                    
                     result["Authorization"] = this.getEncodedBasicAuthencationString(username, password);
                 }
             }
