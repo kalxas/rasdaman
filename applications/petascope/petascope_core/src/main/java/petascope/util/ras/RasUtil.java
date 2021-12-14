@@ -135,7 +135,7 @@ public class RasUtil {
     public static Object executeRasqlQuery(String query, String username, String password, boolean rw, RasGMArray rasGMArray) throws PetascopeException {
         final long start = System.currentTimeMillis();
         log.info("Executing rasql query: " + query);
-
+        
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
 
@@ -599,17 +599,19 @@ public class RasUtil {
     /**
      * Send a simple rasql query to rasdaman to check if username and passWord are correct.
      */
-    public static boolean checkValidUserCredentials(String username, String password) throws Exception {
+    public static boolean checkValidUserCredentials(String username, String inputPassword) throws RasdamanException {
+        RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         try {
-            String query = "SELECT 1";
-            executeRasqlQuery(query, username, password, false);
-        } catch (Exception ex) {   
-            if (ex.getMessage().contains("user " + username + " does not exist") 
-                || ex.getMessage().contains("The credentials provided by the client are invalid")) {
+            impl.setUserIdentification(username, inputPassword);
+        } catch (Exception ex) {
+            String errorMessage = ex.getMessage();
+            boolean userNotExist = errorMessage.contains("user") && errorMessage.contains("does not exist");
+            boolean passwordInCorrect = errorMessage.contains("password") && errorMessage.contains("is invalid");
+            if (userNotExist || passwordInCorrect) {
                 return false;
             } else {
-                throw ex;
-            }            
+                throw new RasdamanException("Could not check if credentials for user '" + username + "' are valid in rasdaman. Reason: " + ex.getMessage(), ex);
+            }
         }
         
         return true;

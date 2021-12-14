@@ -1582,7 +1582,7 @@ Style Definition Variants
 -  WMS styling supports a ``ColorTable`` definition which
    allows to colorize the result of WMS GetMap request when the style is requested.
    A style can contain either one or both **query fragment** and **Color Table** definitions.
-   The ``InsertStyle`` request supports two new **non-standard** 
+   The request supports two new **non-standard** 
    extra parameters ``colorTableType`` (valid values: ``ColorMap``, ``GDAL`` and ``SLD``)
    and ``colorTableDefintion`` containing corresponding definition, example:
 
@@ -1590,7 +1590,7 @@ Style Definition Variants
 
     http://localhost:8080/rasdaman/admin/layer/style/add
         ?COVERAGEID=test_wms_4326
-        &STYLEID=InsertStyle
+        &STYLEID=firearea
         &ABSTRACT=This style marks the areas where fires are in progress with the color red
         &WCPSQUERYFRAGMENT=switch case $c > 1000 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14})
         &COLORTABLETYPE=ColorMap
