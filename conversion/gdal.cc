@@ -79,6 +79,15 @@ const string r_Conv_GDAL::PNG_FORMAT{"png"};
 r_Conv_GDAL::r_Conv_GDAL(const char* src, const r_Minterval& interv, const r_Type* tp)
     : r_Convert_Memory(src, interv, tp, true)
 {
+    // GDALAllRegister() needs to be executed only once:
+    // static variable with block scope is a clean and fast way to do this
+    static bool init = []()
+    {
+        GDALAllRegister();
+        CPLSetErrorHandler(customGdalErrorHandler);
+        return true;
+    }
+    ();
 }
 
 /// constructor using convert_type_e shortcut
@@ -86,6 +95,15 @@ r_Conv_GDAL::r_Conv_GDAL(const char* src, const r_Minterval& interv, const r_Typ
 r_Conv_GDAL::r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp)
     : r_Convert_Memory(src, interv, tp)
 {
+    // GDALAllRegister() needs to be executed only once:
+    // static variable with block scope is a clean and fast way to do this
+    static bool init = []()
+    {
+        GDALAllRegister();
+        CPLSetErrorHandler(customGdalErrorHandler);
+        return true;
+    }
+    ();
 }
 
 
@@ -145,7 +163,6 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
         colorMapEvaluated = true;
     }
 
-    GDALAllRegister();
     GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(format.c_str());
     if (driver == NULL)
     {
@@ -401,8 +418,6 @@ r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options)
         tmpFilePath = formatParams.getFilePath();
     }
     
-    GDALAllRegister();
-    
 #if GDAL_VERSION_MAJOR >= 2
     // Open dataset with GDALOpenEx, only available since GDAL 2.0
     // https://gdal.org/api/raster_c_api.html#_CPPv410GDALOpenExPKcjPPCKcPPCKcPPCKc
@@ -423,8 +438,10 @@ r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options)
 
     if (poDataset == NULL)
     {
-        std::string err{"failed opening file with GDAL, "};
-        err += CPLGetLastErrorMsg();
+        std::string err{"failed opening file with GDAL"};
+        std::string details = CPLGetLastErrorMsg();
+        if (!details.empty())
+          err += ", " + details;
         throw r_Error(r_Error::r_Error_Conversion, err);
     }
 

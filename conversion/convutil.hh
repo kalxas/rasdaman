@@ -30,8 +30,13 @@ rasdaman GmbH.
 #include "conversion/gdalincludes.hh"
 #include "conversion/convtypes.hh"
 
+#ifdef HAVE_GDAL
+#include <cpl_error.h>
+void customGdalErrorHandler(CPLErr errCat, int errNum, const char* errMsg);
+
 class GDALDataset;
 class GDALRasterBand;
+#endif
 
 /**
  * Helper class transforming the provided types into rasdaman types.

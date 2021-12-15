@@ -29,7 +29,7 @@ rasdaman GmbH.
  * <pre>
  *
  * PURPOSE:
- * This interface contains the methods implemented by RasOdmgImplementation and RasRnpImplementation
+ * This interface contains the methods implemented by RasRasnetImplementation
  *
  *
  *
@@ -88,6 +88,10 @@ public interface RasImplementationInterface extends Implementation {
     int getMaxRetry();
 
     void setUserIdentification(String userName, String plainPass);
+
+    void connectClient(String userName, String hashedPass);
+
+    void disconnectClient();
 
     Object queryRequest(String parameters) throws RasQueryExecutionFailedException;
 

@@ -48,11 +48,15 @@
 
 PROG=$(basename "$0")
 
+# load configuration file if it exists
+#config_file="/etc/default/rasdaman"
+#[ -f "$config_file" ] && . "$config_file"
+
 VERSION="@VERSION_FULL@"
 BUILD="@GIT_HASH@"
 
-RC_OK=0       # everything went fine
-RC_ERROR=1    # something went wrong
+RC_OK=0
+RC_ERROR=1
 RC_HELP=2
 
 RASMGR_PORT=7001
@@ -63,7 +67,6 @@ rasserver_bin="@bindir@rasserver"
 rascontrol_bin="@bindir@rascontrol"
 
 petascope_props="@sysconfdir@petascope.properties"
-secore_props="@sysconfdir@secore.properties"
 war_path="@pkgdatadir@war"
 
 ENABLE_JAVA=@ENABLE_JAVA@

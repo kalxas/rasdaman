@@ -49,20 +49,24 @@ configure_file(create_db.sh.in "${CMAKE_CURRENT_BINARY_DIR}/create_db.sh" @ONLY)
 configure_file(update_db.sh.in "${CMAKE_CURRENT_BINARY_DIR}/update_db.sh" @ONLY)
 configure_file(rasdaman_insertdemo.sh.in "${CMAKE_CURRENT_BINARY_DIR}/rasdaman_insertdemo.sh" @ONLY)
 configure_file(watch_rasdaman.sh.in "${CMAKE_CURRENT_BINARY_DIR}/watch_rasdaman.sh" @ONLY)
+configure_file(prepare_issue_report.sh.in "${CMAKE_CURRENT_BINARY_DIR}/prepare_issue_report.sh" @ONLY)
 
 configure_file(rasmgr.conf.in "${CMAKE_CURRENT_BINARY_DIR}/rasmgr.conf" @ONLY)
 
 # Install the created scripts as executable programs in the bin directory.
-install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/start_rasdaman.sh"            
+install(PROGRAMS
+        "${CMAKE_CURRENT_BINARY_DIR}/start_rasdaman.sh"            
         "${CMAKE_CURRENT_BINARY_DIR}/stop_rasdaman.sh"       
         "${CMAKE_CURRENT_BINARY_DIR}/create_db.sh"
         "${CMAKE_CURRENT_BINARY_DIR}/update_db.sh"
-        "${CMAKE_CURRENT_BINARY_DIR}/rasdaman_insertdemo.sh"  
-        "${CMAKE_CURRENT_BINARY_DIR}/watch_rasdaman.sh"  
-        "${CMAKE_SOURCE_DIR}/bin/update_properties.sh"  
+        "${CMAKE_CURRENT_BINARY_DIR}/rasdaman_insertdemo.sh"
+        "${CMAKE_CURRENT_BINARY_DIR}/watch_rasdaman.sh"
+        "${CMAKE_CURRENT_BINARY_DIR}/prepare_issue_report.sh"
+        "${CMAKE_SOURCE_DIR}/bin/update_properties.sh"
         DESTINATION ${BIN_DIR})     
 
-# Only install the files if they are not installed. This allows the user to update his installation without having the files overwritten.
+# Only install the files if they are not installed. This allows the user to 
+# update his installation without having the files overwritten.
 install_if_not_exists("${CMAKE_CURRENT_BINARY_DIR}/rasmgr.conf" ${CONF_DIR})
 install_log_file(log-client.conf ${CONF_DIR})
 install_log_file(log-server.conf ${CONF_DIR})

@@ -252,8 +252,8 @@ public class RasMInterval {
     public RasMInterval(String mIntStr) throws RasResultIsNoIntervalException {
         dimensionality = 1;
         streamInitCnt = 0;
-
-        if (mIntStr.trim().charAt(0) != '[') {
+        
+        if (mIntStr.trim().isEmpty() || mIntStr.trim().charAt(0) != '[') {
             // error
             dimensionality = 0;
             return;

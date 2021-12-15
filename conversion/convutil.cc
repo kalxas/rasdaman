@@ -38,6 +38,25 @@ using namespace std;
 
 #ifdef HAVE_GDAL
 
+void customGdalErrorHandler(CPLErr errCat, int errNum, const char* errMsg)
+{
+  std::string msg = "GDAL library error " + std::to_string(errNum) + ": ";
+  msg += errMsg;
+  if (msg.back() == '\n')
+    msg[msg.size() - 1] = ' ';
+  
+  switch (errCat)
+  {
+    case CE_Warning: LWARNING << msg; break;
+    case CE_Failure: LERROR << msg; break;
+    case CE_Fatal: LERROR << msg; throw r_Error(r_Error::r_Error_Conversion, msg);
+    case CE_None:
+    case CE_Debug:
+    default:
+      LDEBUG << msg; break;
+  }
+}
+
 const string ConvUtil::GDAL_KEY_IMAGE_STRUCTURE{"IMAGE_STRUCTURE"};
 const string ConvUtil::GDAL_KEY_PIXELTYPE{"PIXELTYPE"};
 const string ConvUtil::GDAL_VAL_SIGNEDBYTE{"SIGNEDBYTE"};

@@ -35,7 +35,6 @@ import org.odmg.OQLQuery;
 import org.odmg.QueryException;
 import org.odmg.Transaction;
 import rasj.RasImplementation;
-import rasj.rnp.RasRNPImplementation;
 import rasj.RasQueryExecutionFailedException;
 
 class RasjQuery implements Runnable {

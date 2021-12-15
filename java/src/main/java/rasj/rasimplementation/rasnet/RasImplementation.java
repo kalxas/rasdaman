@@ -4,7 +4,6 @@ import org.rasdaman.rasnet.communication.RasRasnetImplementation;
 import org.rasdaman.rasnet.communication.RasnetServiceFactoryImpl;
 import rasj.odmg.*;
 import rasj.global.*;       // RASJ_VERSION
-import rasj.rnp.*;
 import org.odmg.*;
 import rasj.clientcommhttp.*;
 
@@ -60,17 +59,6 @@ public class RasImplementation implements Implementation {
      **/
     private RasImplementationInterface imp = null;
 
-    private static boolean isRNP           = false; // use RASNET by default
-
-    /**
-     * C/s protocol indicators.
-     */
-    public static final String PROTOCOL_RNP  = "RNP" ;  // RNP protocol indicator
-    public static final String PROTOCOL_RPC  = "RPC" ;  // RPC protocol indicator
-    public static final String PROTOCOL_HTTP = "HTTP" ; // HTTP protocol indicator
-    public static final String PROTOCOL_COMP = "COMPAT" ;   // "compatiblity", means: using RNP (legacy)
-    public static final String PROTOCOL_RASNET = "RASNET";
-
     public static final int TYPE_TYPE_SET       = 1;
     public static final int TYPE_TYPE_MDD       = 2;
     public static final int TYPE_TYPE_BASE      = 3;
@@ -82,79 +70,8 @@ public class RasImplementation implements Implementation {
     public RasImplementation(String server) {
         Debug.talkSparse(RasGlobalDefs.RASJ_VERSION);
         Debug.talkSparse(" Using server " + server);
-
-        String envVar = System.getProperty("RMANPROTOCOL"); // uses "-D" option
-
-        boolean useRNP = isRNP;
-        boolean useRasnet = !isRNP;
-
-        if (envVar != null) {
-            Debug.talkWarning("environment variable RMANPROTOCOL enforces protocol " + envVar);
-            if (envVar.equalsIgnoreCase(PROTOCOL_RNP)) {
-                useRNP = true;
-            } else if (envVar.equalsIgnoreCase(PROTOCOL_RPC)) {
-                Debug.talkCritical("Error: protocol " + PROTOCOL_RPC + " not supported by rasj: using " + PROTOCOL_RNP + " instead.");
-                useRNP = true;
-            } else if (envVar.equalsIgnoreCase(PROTOCOL_HTTP)) {
-                useRNP = false;
-            } else if (envVar.equalsIgnoreCase(PROTOCOL_COMP)) {
-                Debug.talkCritical("Compatibility mode specified, using " + PROTOCOL_RNP + ".");
-                useRNP = true;
-            } else if (envVar.equalsIgnoreCase(PROTOCOL_RASNET)) {
-                useRNP = false;
-                useRasnet = true;
-            } else {
-                Debug.talkCritical("Error: unknown protocol: " + envVar + "; using protocol " + PROTOCOL_RNP + ".");
-                useRNP = true;
-            }
-        }
-
-        if (useRNP) {
-            Debug.talkVerbose("RasImplementation.constructor: using protocol " + PROTOCOL_RNP + ".");
-            imp = new RasRNPImplementation(server);
-        } else if (useRasnet) {
-            imp = new RasRasnetImplementation(new RasnetServiceFactoryImpl(), server);
-        } else {
-            Debug.talkVerbose("RasImplementation.constructor: using protocol " + PROTOCOL_HTTP + ".");
-            imp = new RasODMGImplementation(server);
-        }
+        imp = new RasRasnetImplementation(new RasnetServiceFactoryImpl(), server);
     } // RasImplementation()
-
-    /**
-     * Extended constructor, allowing to set protocol (does not query env var).
-     * If the protocol is illegal, RNP is assumed as default.
-     * @param server - Complete URL of the RasDaMan httpserver (including port number)
-     * @param protocol - c/s communication protocol selector, one of: "RNP", "HTTP"
-     */
-    public RasImplementation(String server, String protocol) {
-        Debug.talkSparse(RasGlobalDefs.RASJ_VERSION);
-        Debug.talkSparse(" Using server " + server);
-
-        if (protocol.equalsIgnoreCase(PROTOCOL_RNP)) {
-            Debug.talkVerbose("Using protocol " + PROTOCOL_RNP + ".");
-            imp = new RasRNPImplementation(server);
-        } else if (protocol.equalsIgnoreCase(PROTOCOL_HTTP)) {
-            Debug.talkVerbose("Using protocol " + PROTOCOL_HTTP + ".");
-            imp = new RasODMGImplementation(server);
-        } else {
-            Debug.talkCritical("Error: unknown protocol: " + protocol + "; using " + PROTOCOL_RNP + " instead.");
-            imp = new RasRNPImplementation(server);
-        }
-
-    } // RasImplementation()
-
-    public static void setRNP() {
-        isRNP = true;
-    }
-
-    public static void setHTTP() {
-        isRNP = false;
-    }
-
-    public boolean isDefaultRNP() {
-        Debug.talkVerbose("RasImplementation.isDefaultRNP: RNP=" + isRNP + ".");
-        return isRNP;
-    }
 
     /**
      *  returns 1 if an openDB command is executed (closeDB sets it back to 0).
@@ -304,6 +221,20 @@ public class RasImplementation implements Implementation {
      */
     public void setUserIdentification(String userName, String plainPass) {
         imp.setUserIdentification(userName, plainPass);
+    }
+
+    /**
+     * Connect as a new client with the given userName and md5 encoded password.
+     */
+    public void connectClient(String userName, String passwordHash) {
+        imp.connectClient(userName, passwordHash);
+    }
+
+    /**
+     * Disconnect as a client from rasmgr.
+     */
+    public void disconnectClient() {
+        imp.disconnectClient();
     }
 
     /**

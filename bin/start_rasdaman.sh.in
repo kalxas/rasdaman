@@ -50,6 +50,11 @@
 # --- CONSTANTS -----------------------------------------------------
 
 PROG=$(basename "$0")
+
+# load configuration file if it exists
+#config_file="/etc/default/rasdaman"
+#[ -f "$config_file" ] && . "$config_file"
+
 VERSION="@VERSION_FULL@"
 BUILD="@GIT_HASH@"
 

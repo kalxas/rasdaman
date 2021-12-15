@@ -751,6 +751,10 @@ public class RasODMGImplementation implements RasImplementationInterface, RasCom
         Debug.leaveVerbose("RasODMGImplementation.setUserIdentification done.");
     }
 
+    public void connectClient(String userName, String passwordHash) {}
+
+    public void disconnectClient() {}
+
     private String strHostID = null;
     static private int idcounter = 0;
 

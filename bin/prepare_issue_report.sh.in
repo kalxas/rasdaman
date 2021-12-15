@@ -153,19 +153,19 @@ Examples
   1. Describe the issue, including config files and 100 most recent log files,
      as well as a screenshot illustrating the problem:
 
-     $ prepare_issue_report.sh --include-recent-logs 100 -f screenshot.png \
+     $ prepare_issue_report.sh --include-recent-logs 100 -f screenshot.png \\
                                --no-coverage-id
 
   2. Describe the issue, include config files, all log files, petascopedb and
      RASBASE, as well as sample data and ingredients:
 
-     $ prepare_issue_report.sh --include-all-logs --include-petascopedb \
-                               --include-rasbase -f sample_data.tar.gz \
+     $ prepare_issue_report.sh --include-all-logs --include-petascopedb \\
+                               --include-rasbase -f sample_data.tar.gz \\
                                -f ingredients.json --no-coverage-id
 
   3. Like the first example, but also include information about coverage TestCov:
 
-     $ prepare_issue_report.sh --include-recent-logs 100 --coverage-id TestCov \
+     $ prepare_issue_report.sh --include-recent-logs 100 --coverage-id TestCov \\
                                -f screenshot.png
 
   4. Provide a screenshot and include details up to a maximum archive size of 
@@ -433,7 +433,7 @@ if [ "$dry_run" = false ]; then
   read -p "$PROG: continue creating issue report (y/n)? " -n 1 -r
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    ;
+    :
   else
     log "exiting."
     exit $RC_OK

@@ -170,8 +170,6 @@
                                 <include>rasj/clientcommhttp/*.java</include>
                                 <include>rasj/odmg/*.java</include>
                                 <include>org/odmg/*.java</include>
-                                <include>rasj/rnp/*.java</include>
-
                                 <include>org/rasdaman/rasnet/**</include>
                                 <include>rasj/rasimplementation/rasnet/RasImplementation.java</include>
                             </includes>

@@ -364,7 +364,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         connectClient(userName, DigestUtils.MD5(plainPass));
     }
 
-    private void connectClient(String userName, String passwordHash) {
+    public void connectClient(String userName, String passwordHash) {
         try {
             ConnectReq connectReq = ConnectReq.newBuilder()
                                     .setUserName(userName)
@@ -816,7 +816,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         return this.rasServerService;
     }
 
-    private void disconnectClient() {
+    public void disconnectClient() {
         try {
             DisconnectReq disconnectReq = DisconnectReq.newBuilder()
                                           .setClientUUID(clientUUID)
