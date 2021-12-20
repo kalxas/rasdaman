@@ -79,7 +79,7 @@ public class DeleteCoverageHandler {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DeleteCoverageHandler.class);
 
-    public Response handle(DeleteCoverageRequest request) throws PetascopeException, SecoreException, IOException {
+    public Response handle(DeleteCoverageRequest request) throws Exception {
         
         AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         

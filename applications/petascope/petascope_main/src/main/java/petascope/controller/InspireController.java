@@ -73,8 +73,6 @@ public class InspireController extends AbstractController {
     @Override
     protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
         
-        // If user has petascope admin credentials (e.g: logged in from WSClient) from external place,
-        // then no need to check if his IP is allowed anymore.
         AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         
         String coverageId = this.getValueByKeyAllowNull(kvpParameters, KEY_INSPIRE_COVERAGE_ID);

@@ -166,7 +166,7 @@ public class AuthenticationService {
     /**
      * The user requests must have the role if basic header is enabled, or his IP must be allowed
      */
-    public static void validateWriteRequestByRoleOrAllowedIP(HttpServletRequest httpServletRequest) throws PetascopeException, IOException {
+    public static void validateWriteRequestByRoleOrAllowedIP(HttpServletRequest httpServletRequest) throws Exception {
         
         Pair<String, String> credentialsPair = getBasicAuthCredentialsOrRasguest(httpServletRequest);
         boolean mustValidate = true;

@@ -98,7 +98,7 @@ public class AuthenticationController extends AbstractController {
      * Return the list of roles for the requesting user via rascontrol
      * @TODO: this can be done faster and better with protobuf/grpc
      */
-    public static Set<String> parseRolesFromRascontrol(String username) throws IOException {
+    public static Set<String> parseRolesFromRascontrol(String username) throws Exception {
         // export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40 && rascontrol -q -e -x list user -rights
         Runtime runtime = Runtime.getRuntime();
         

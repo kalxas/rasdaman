@@ -98,7 +98,7 @@ public class InsertCoverageHandler {
      * @return if the ingestion if successful, a response containing the added
      * coverage id is returned.
      */
-    public Response handle(InsertCoverageRequest request) throws PetascopeException, SecoreException, IOException {
+    public Response handle(InsertCoverageRequest request) throws Exception {
         log.debug("Handling coverage insertion...");
         AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
         

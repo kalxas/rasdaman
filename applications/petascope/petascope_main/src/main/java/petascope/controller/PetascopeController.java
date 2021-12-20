@@ -67,11 +67,6 @@ public class PetascopeController extends AbstractController {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PetascopeController.class);
     
-    // These write requests will need to check if requesting IP address is in petascope's whitelist.
-
-    private static final List WRITE_REQUESTS = Arrays.asList(new String[] { VALUE_INSERT_COVERAGE, VALUE_UPDATE_COVERAGE, VALUE_DELETE_COVERAGE });
-
-
     public PetascopeController() {
 
     }
@@ -205,7 +200,7 @@ public class PetascopeController extends AbstractController {
             long end = System.currentTimeMillis();
             long totalTime = end - start;
             if (requestSuccess) {
-                log.info("Processed request " + requestTmp + " in " + String.valueOf(totalTime) + " ms.");
+                log.info("Processed request: " + requestTmp + " in " + String.valueOf(totalTime) + " ms.");
             }
 
         }

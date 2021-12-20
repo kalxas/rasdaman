@@ -51,32 +51,39 @@ public class AdminCoverageExistController extends AbstractController {
     @Override
     @RequestMapping(path = COVERAGE_EXISTS_PATH,  method = RequestMethod.GET)
     protected void handleGet(HttpServletRequest httpServletRequest) throws Exception {
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.requestDispatcher(httpServletRequest, kvpParameters);
+        this.handle(httpServletRequest, false);
     }
     
     @Override
     @RequestMapping(path = COVERAGE_EXISTS_PATH,  method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest) throws Exception {
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.requestDispatcher(httpServletRequest, kvpParameters);
+        this.handle(httpServletRequest, true);
     }
-
-    @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
-        String coverageId = this.getValueByKeyAllowNull(kvpParameters, KEY_COVERAGEID);
+    
+    private void handle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         
+        if (isPost) {
+            String postBody = this.getPOSTRequestBody(httpServletRequest);
+            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        }
+        
+        String coverageId = this.getValueByKeyAllowNull(kvpParameters, KEY_COVERAGEID);
         Boolean exist = false;
         
         if (coverageId == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
                     "Missing one of mandatory request parameters '" + KEY_COVERAGEID + "'.");
         } else {
+            
             exist = this.coverageRepositoryService.isInLocalCache(coverageId);
             
             this.writeTextResponse(exist);
         }
+    }
+
+    @Override
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
     }
     
 }

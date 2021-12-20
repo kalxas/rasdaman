@@ -158,7 +158,6 @@ public class ExceptionUtil {
             if (detailMessage == null) {
                 detailMessage = ex.getClass().getSimpleName();
             }
-            detailMessage += ". Please check the log for the detail error.";
         }
         
         if (detailMessage == null) {

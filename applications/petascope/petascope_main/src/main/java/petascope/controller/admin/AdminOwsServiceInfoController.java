@@ -42,6 +42,7 @@ import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
+import petascope.controller.RequestHandlerInterface;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ABSTRACT;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ADMINISTRATIVE_AREA;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_CITY;
@@ -87,24 +88,34 @@ public class AdminOwsServiceInfoController extends AbstractController {
     
     @RequestMapping(path = UPDATE_SERVICE_INFO_PATH, method = RequestMethod.GET)
     public void handleUpdateServiceInfoGet(HttpServletRequest httpServletRequest) throws Exception {
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.requestDispatcher(httpServletRequest, kvpParameters);
+        this.handleUpdateServiceInfo(httpServletRequest, false);
     }
     
     @RequestMapping(path = UPDATE_SERVICE_INFO_PATH, method = RequestMethod.POST)
     public void handleUpdateServiceInfoPost(HttpServletRequest httpServletRequest) throws Exception {
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.requestDispatcher(httpServletRequest, kvpParameters);
+        this.handleUpdateServiceInfo(httpServletRequest, true);
     }
     
     private boolean notEmpty(String str) {
         return str != null && !str.equals("undefined");
     }
     
-    @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+    private void handleUpdateServiceInfo(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+        
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.handle(kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
+    }
+    
+    private void handle(Map<String, String[]> kvpParameters) throws Exception {
         
         AbstractAdminService.validateRequiredParameters(kvpParameters, VALID_PARAMETERS);
         
@@ -193,7 +204,12 @@ public class AdminOwsServiceInfoController extends AbstractController {
         
         // Update the new submitted values to ows service metadata object
         owsMetadataRepostioryService.save(owsServiceMetadata);            
-        log.info("OWS service description is updated in local database.");
+        log.info("OWS service description is updated.");
+    }
+    
+    @Override
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
+        // No need to override super's method
     }
     
     

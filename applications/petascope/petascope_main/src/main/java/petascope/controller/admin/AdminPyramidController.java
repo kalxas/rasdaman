@@ -22,6 +22,7 @@
 package petascope.controller.admin;
 
 import com.rasdaman.accesscontrol.service.AuthenticationService;
+import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.rasdaman.admin.pyramid.service.AdminAddPyramidMemberService;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
+import petascope.controller.RequestHandlerInterface;
 import petascope.core.response.Response;
 
 /**
@@ -64,74 +66,113 @@ public class AdminPyramidController extends AbstractController {
     
     @RequestMapping(path = LIST_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleListPyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        Response response = this.listPyramidMemberService.handle(httpServletRequest, kvpParameters);
-        this.writeResponseResult(response);
+        this.handleListPyramidMembers(httpServletRequest, false);
     }
 
     @RequestMapping(path = LIST_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleListPyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        Response response = this.listPyramidMemberService.handle(httpServletRequest, kvpParameters);
-        this.writeResponseResult(response);
+        this.handleListPyramidMembers(httpServletRequest, true);
+    }
+    
+    private void handleListPyramidMembers(HttpServletRequest httpServletRequest, boolean isPost) throws IOException, Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+        
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+
+                Response response = this.listPyramidMemberService.handle(httpServletRequest, kvpParameters);
+                this.writeResponseResult(response);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);        
     }
     
     // --- 2. handle Add pyramid members request
     
     @RequestMapping(path = ADD_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleAddPyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());        
-        this.addPyramidMemberService.handle(httpServletRequest, kvpParameters);
+        this.handleAddPyramidMemebers(httpServletRequest, false);
     }
 
     @RequestMapping(path = ADD_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleAddPyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.handleAddPyramidMemebers(httpServletRequest, true);
+    }
+    
+    private void handleAddPyramidMemebers(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
         
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.addPyramidMemberService.handle(httpServletRequest, kvpParameters);
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+
+                this.addPyramidMemberService.handle(httpServletRequest, kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
     
     // --- 3. handle remove pyramid members request
     
     @RequestMapping(path = REMOVE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleRemovePyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.removePyramidMemberService.handle(httpServletRequest, kvpParameters);
+        this.handleRemovePyramidMembers(httpServletRequest, false);
     }
 
     @RequestMapping(path = REMOVE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleRemovePyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.handleRemovePyramidMembers(httpServletRequest, true);
+    }
+    
+    private void handleRemovePyramidMembers(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
         
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.removePyramidMemberService.handle(httpServletRequest, kvpParameters);
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+
+                this.removePyramidMemberService.handle(httpServletRequest, kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);        
     }
     
     // --- 4. handle Create pyramid members request
     
     @RequestMapping(path = CREATE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleCreatePyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.createPyramidMemberService.handle(httpServletRequest, kvpParameters);
+        this.handleCreatePyramidMembers(httpServletRequest, false);
     }
 
     @RequestMapping(path = CREATE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleCreatePyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.handleCreatePyramidMembers(httpServletRequest, true);
+    }
+    
+    private void handleCreatePyramidMembers(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
         
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.createPyramidMemberService.handle(httpServletRequest, kvpParameters);
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+
+                this.createPyramidMemberService.handle(httpServletRequest, kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
 
             

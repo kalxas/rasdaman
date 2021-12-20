@@ -54,6 +54,7 @@ import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_UPDATE_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
 import static petascope.core.KVPSymbols.WMS_SERVICE;
+import petascope.core.Pair;
 import petascope.core.XMLSymbols;
 import petascope.core.response.MultipartResponse;
 import petascope.core.response.Response;
@@ -761,12 +762,14 @@ public abstract class AbstractController {
     }
     
     public void logReceivedRequest(Map<String, String[]> kvpParameters) throws PetascopeException {
-        String requestTmp = StringUtil.enquoteSingleIfNotEnquotedAlready(this.injectedHttpServletRequest.getRequestURI() + "?" + this.getRequestRepresentation(kvpParameters));      
+        String requestTmp = StringUtil.enquoteSingleIfNotEnquotedAlready(this.injectedHttpServletRequest.getRequestURI() + "?" + this.getRequestRepresentation(kvpParameters));
+      
         log.info("Received request: " + requestTmp);
     }
     
-    public void logHandledRequest(boolean requestSuccess, long start, Map<String, String[]> kvpParameters, Exception ex) {
+    public void logHandledRequest(boolean requestSuccess, long start, Map<String, String[]> kvpParameters, Exception ex) throws PetascopeException {
         String requestTmp = StringUtil.enquoteSingleIfNotEnquotedAlready(this.injectedHttpServletRequest.getRequestURI() + "?" + this.getRequestRepresentation(kvpParameters));
+
         long end = System.currentTimeMillis();
         long totalTime = end - start;
         if (requestSuccess) {
@@ -775,6 +778,67 @@ public abstract class AbstractController {
             String errorMessage = "Failed processing request " + requestTmp 
                                 + ", evaluation time " + String.valueOf(totalTime) + " ms. Reason: " + ex.getMessage();
             log.error(errorMessage);
+        }
+    }
+    
+    /**
+     * This method is used to log the received request and time to process the request if it is successful
+     */
+    private Pair<String, Long> getRequestRepresentationAndTimeForLog(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
+        String requestTmp = httpServletRequest.getRequestURI();
+        
+        if (kvpParameters != null) {
+            requestTmp = httpServletRequest.getRequestURI() + "?" + this.getRequestRepresentation(kvpParameters);
+        }
+        
+        log.info("Received request: " + requestTmp);
+        
+        return new Pair<>(requestTmp, System.currentTimeMillis());
+    } 
+    
+    private void logError(String request, long startTime, Exception ex) throws Exception {
+        String errorMessage = "Failed processing request " + request 
+                                + ", evaluation time " + String.valueOf(System.currentTimeMillis() - startTime) + " ms. Reason: " + ex.getMessage();
+        log.error(errorMessage);        
+    }
+    
+    private void logSuccess(String request, long startTime) {
+        log.info("Processed request: " + request + " in " + String.valueOf(System.currentTimeMillis() - startTime) + " ms.");
+    }
+    
+    /**
+     * Depend on if request is GET/POST to create map of KVP pairs
+     */
+    public Map<String, String[]> parseKvpParametersFromRequest(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
+
+        if (isPost) {
+            String postBody = this.getPOSTRequestBody(httpServletRequest);
+            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        }
+        
+        return kvpParameters;
+    }
+    
+    /**
+     * Handle received requests in child controllers and log which requests received and time to process requests
+     */
+    public void handleRequest(Map<String, String[]> kvpParameters, RequestHandlerInterface requestHandlerInterface) throws Exception {
+        Pair<String, Long> requestStartingTimePair = null;
+        boolean requestSuccess = true;
+        try {
+            requestStartingTimePair = this.getRequestRepresentationAndTimeForLog(this.injectedHttpServletRequest, kvpParameters);
+            requestHandlerInterface.handle();            
+        } catch(Exception ex) {
+            requestSuccess = false;
+            if (requestStartingTimePair != null) {
+                this.logError(requestStartingTimePair.fst, requestStartingTimePair.snd, ex);
+            }
+            throw ex;
+        } finally {
+            if (requestSuccess) {
+                this.logSuccess(requestStartingTimePair.fst, requestStartingTimePair.snd);
+            }
         }
     }
 }

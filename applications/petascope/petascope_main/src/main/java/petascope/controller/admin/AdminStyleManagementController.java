@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
+import petascope.controller.RequestHandlerInterface;
 
 /**
  * Controller to manage WMS styles for admin
@@ -57,57 +58,84 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = ADD_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleAddStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.createOrUpdateStyleService.handleAdd(httpServletRequest, kvpParameters);
+        this.handleAddStyle(httpServletRequest, false);
     }
     
     @RequestMapping(path = ADD_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleAddStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.handleAddStyle(httpServletRequest, true);
+    }
+    
+    private void handleAddStyle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
         
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.createOrUpdateStyleService.handleAdd(httpServletRequest, kvpParameters);
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+
+                this.createOrUpdateStyleService.handleAdd(httpServletRequest, kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
     
     // -- 2. Update an existing style of an existing layer
     
     @RequestMapping(path = UPDATE_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleUpdateStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.createOrUpdateStyleService.handleUpdate(httpServletRequest, kvpParameters);
+        this.handleUpdateStyle(httpServletRequest, false);
     }
     
     @RequestMapping(path = UPDATE_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleUpdateStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.handleUpdateStyle(httpServletRequest, true);
+    }
+    
+    private void handleUpdateStyle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
         
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.createOrUpdateStyleService.handleUpdate(httpServletRequest, kvpParameters);
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+
+                this.createOrUpdateStyleService.handleUpdate(httpServletRequest, kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
     
     // -- 3. Remove an existing style of an existing layer
     
     @RequestMapping(path = REMOVE_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleRemoveStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.adminDeleteStyleService.handle(httpServletRequest, kvpParameters);
+        this.handleRemoveStyle(httpServletRequest, false);
     }
     
     @RequestMapping(path = REMOVE_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleRemoveStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.handleRemoveStyle(httpServletRequest, true);
+    }
+    
+    private void handleRemoveStyle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
         
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.adminDeleteStyleService.handle(httpServletRequest, kvpParameters);
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+
+                this.adminDeleteStyleService.handle(httpServletRequest, kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
 
     @Override

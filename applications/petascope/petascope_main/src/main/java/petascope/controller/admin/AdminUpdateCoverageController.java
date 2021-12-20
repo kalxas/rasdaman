@@ -38,10 +38,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import petascope.controller.AbstractController;
+import petascope.controller.RequestHandlerInterface;
 import static petascope.core.KVPSymbols.KEY_METADATA;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.util.MIMEUtil;
 
 /**
  * Class to handle update coverage (id and metadata) object.
@@ -59,24 +59,39 @@ public class AdminUpdateCoverageController extends AbstractController {
     @Override
     @RequestMapping(path = COVERAGE_UPDATE_PATH, method = RequestMethod.GET)
     protected void handleGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.requestDispatcher(httpServletRequest, kvpParameters);
+        this.handle(httpServletRequest, false);
     }
 
     @Override
     @RequestMapping(path = COVERAGE_UPDATE_PATH, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.handle(httpServletRequest, true);
+    }
+    
+    private void handle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
+        if (isPost) {
+            kvpParameters = this.parsePostRequest(httpServletRequest);
+        }
         
-        Map<String, String[]> kvpParameters = this.parsePostRequest(httpServletRequest);
-        this.requestDispatcher(httpServletRequest, kvpParameters);
+        final Map<String, String[]> tmpKvpParameters = kvpParameters;
+        
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+
+                this.updateCoverageService.handle(httpServletRequest, tmpKvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
 
     @Override
     protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
-        this.updateCoverageService.handle(httpServletRequest, kvpParameters);
+        
     }
 
     /**

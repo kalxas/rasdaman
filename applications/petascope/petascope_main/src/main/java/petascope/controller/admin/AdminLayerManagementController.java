@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
+import petascope.controller.RequestHandlerInterface;
 import petascope.core.response.Response;
 
 /**
@@ -61,51 +62,81 @@ public class AdminLayerManagementController extends AbstractController {
     
     @RequestMapping(path = LAYER_IS_ACTIVE_PATH,  method = RequestMethod.GET)
     protected void handleLayerIsActiveGet(HttpServletRequest httpServletRequest) throws Exception {
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        Response response = this.layerIsActiveService.handle(httpServletRequest, kvpParameters);
-        this.writeResponseResult(response);
+        this.handleLayerIsActive(httpServletRequest, false);        
     }
     
     @RequestMapping(path = LAYER_IS_ACTIVE_PATH,  method = RequestMethod.POST)
     protected void handleLayerIsActivePost(HttpServletRequest httpServletRequest) throws Exception {
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        Response response = this.layerIsActiveService.handle(httpServletRequest, kvpParameters);
-        this.writeResponseResult(response);
+        this.handleLayerIsActive(httpServletRequest, true);
+    }
+     
+    private void handleLayerIsActive(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+        
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                Response response = this.layerIsActiveService.handle(httpServletRequest, kvpParameters);
+                this.writeResponseResult(response);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
     
     // -- 2. Activate layer
     
     @RequestMapping(path = LAYER_ACTIVATE_PATH,  method = RequestMethod.GET)
     protected void handleLayerActivationGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.activateLayerService.handle(httpServletRequest, kvpParameters);
+        this.handleLayerActivation(httpServletRequest, false);
     }
     
     @RequestMapping(path = LAYER_ACTIVATE_PATH,  method = RequestMethod.POST)
     protected void handleLayerActivationPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.activateLayerService.handle(httpServletRequest, kvpParameters);
+        this.handleLayerActivation(httpServletRequest, true);
+    }
+    
+    private void handleLayerActivation(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+        
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.activateLayerService.handle(httpServletRequest, kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
     
     // -- 3. Deactivate layer
     
     @RequestMapping(path = LAYER_DEACTIVATE_PATH,  method = RequestMethod.GET)
     protected void handleLayerDeactivationGet(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.deactivateLayerService.handle(httpServletRequest, kvpParameters);
+        this.handleLayerDeactivation(httpServletRequest, false);
     }
     
     @RequestMapping(path = LAYER_DEACTIVATE_PATH,  method = RequestMethod.POST)
     protected void handleLayerDeactivationPost(HttpServletRequest httpServletRequest) throws Exception {
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-        String postBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        this.deactivateLayerService.handle(httpServletRequest, kvpParameters);
+        this.handleLayerDeactivation(httpServletRequest, true);
+    }
+    
+    private void handleLayerDeactivation(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+        
+        RequestHandlerInterface requestHandlerInterface = () -> {
+            try {
+                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.deactivateLayerService.handle(httpServletRequest, kvpParameters);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
 
     @Override
