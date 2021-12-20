@@ -299,7 +299,7 @@ The domain of coverage with the specific axis and its CRS (geo-referenced CRS or
 for $c in (eobstest) return domain(c, Lat, "http://.../Index2D")
 return (-25:75)
 */
-domainExpression: DOMAIN LEFT_PARENTHESIS coverageExpression COMMA axisName (COMMA crsName)? RIGHT_PARENTHESIS
+domainExpression: DOMAIN LEFT_PARENTHESIS coverageExpression ( COMMA axisName (COMMA crsName)? )? RIGHT_PARENTHESIS
 #DomainExpressionLabel;
 
 

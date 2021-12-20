@@ -48,8 +48,11 @@ import org.springframework.stereotype.Service;
 import org.rasdaman.config.VersionManager;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
-import petascope.core.BoundingBox;
+import static petascope.core.KVPSymbols.VALUE_DELETE_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
+import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
+import static petascope.core.KVPSymbols.VALUE_PROCESS_COVERAGES;
+import static petascope.core.KVPSymbols.VALUE_UPDATE_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
 import petascope.core.Pair;
 import petascope.core.XMLSymbols;
@@ -605,11 +608,26 @@ public class GMLGetCapabilitiesBuilder {
         // Operation name="GetCoverage"
         Element operationGetCoverageElement = this.buildOperationElement(LABEL_GET_COVERAGE);
         
+        // Operation for WCPS
+        Element operationProcessCoveragesElement = this.buildOperationElement(VALUE_PROCESS_COVERAGES);
+        
+        // Operations for WCS-T        
+        Element operationInsertCoverageElement = this.buildOperationElement(VALUE_INSERT_COVERAGE);
+        Element operationUpdateCoverageElement = this.buildOperationElement(VALUE_UPDATE_COVERAGE);
+        Element operationDeleteCoverageElement = this.buildOperationElement(VALUE_DELETE_COVERAGE);
+        
         Element constraintElement = this.buildConstraintElement();
                 
         operationsMetadataElement.appendChild(operationGetCapabilitiesElement);
         operationsMetadataElement.appendChild(operationDescribeCoverageElement);
         operationsMetadataElement.appendChild(operationGetCoverageElement);
+        
+        operationsMetadataElement.appendChild(operationProcessCoveragesElement);
+        
+        operationsMetadataElement.appendChild(operationInsertCoverageElement);
+        operationsMetadataElement.appendChild(operationUpdateCoverageElement);
+        operationsMetadataElement.appendChild(operationDeleteCoverageElement);
+        
         operationsMetadataElement.appendChild(constraintElement);
         
         return operationsMetadataElement;

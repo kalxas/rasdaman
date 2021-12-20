@@ -1664,10 +1664,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // e.g: for c in (mean_summer_airtemp) return domain(c[Lat(0:20)], Lat, "http://.../4326")
         // return: (0:20) as domain of inpurt coverage in Lat is 0:20
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
-        String axisName = ctx.axisName().getText();
+        String axisName = null;
+        if (ctx.axisName() != null) {
+            axisName = ctx.axisName().getText();
+        }
         
         String crsName = null;
-        if (coverageExpr.getMetadata() != null) {        
+        if (axisName != null && coverageExpr.getMetadata() != null) {        
             crsName = coverageExpr.getMetadata().getAxisByName(axisName).getNativeCrsUri();
             // NOTE: Optional parameter since rasdaman 9.8
             if (ctx.crsName() != null) {
@@ -1713,11 +1716,17 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         }
         
         VisitorResult result = new WcpsMetadataResult(metadataResult.getMetadata(), metadataResult.getResult());
-        if ((sdomLowerBound != null) && (!metadataResult.getResult().contains(","))) {
-            try {
-                result = this.domainIntervalsHandler.handle(new WcpsResult(null, metadataResult.getResult()), sdomLowerBound);
-            } catch (PetascopeException ex) {
-                throw new WCPSException(ExceptionCode.WcpsError, "Cannot extract domain interval of " + ctx.getText() + ". Reason: " + ex.getExceptionText() ,ex);
+        if ((sdomLowerBound != null)) {
+            if (!metadataResult.getResult().contains(",")) {
+                try {
+                    result = this.domainIntervalsHandler.handle(new WcpsResult(null, metadataResult.getResult()), sdomLowerBound);
+                } catch (PetascopeException ex) {
+                    throw new WCPSException(ExceptionCode.WcpsError, "Cannot extract domain interval of " + ctx.getText() + ". Reason: " + ex.getExceptionText() ,ex);
+                }
+            } else {
+                throw new WCPSException(ExceptionCode.InvalidRequest, 
+                                        "Cannot extract bound from the list of domain intervals: " + metadataResult.getResult()
+                                        + ". Hint: Please specify a specific axis label in domain() opreator to extract lo/hi bound of this axis.");
             }
         }
         

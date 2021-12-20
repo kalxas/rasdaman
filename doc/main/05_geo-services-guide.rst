@@ -1670,7 +1670,7 @@ The proprietary WMS request type below allows to remove
 a particular style of an existing WMS layer. ::
 
     http://localhost:8080/rasdaman/admin/layer/style/remove
-        ?COVERAGEID=dessert_area
+        ?COVERAGEID=desert_area
         &STYLEID=FireMarkup
 
 
@@ -1697,7 +1697,7 @@ Errors and Workarounds
 **Cannot load new WMS layer in QGIS**
     In this case, the problem is due to QGIS caching the WMS GetCapabilities from the last
     request so the new layer does not exist (see
-    `clear caching solution <http://osgeo-org.1560.x6.nabble.com/WMS-provider-Cannot-calculate-extent-td5250516.html>`__).
+    `clear caching solution <https://lists.osgeo.org/pipermail/qgis-developer/2016-February/041418.html>`__).
 
 .. _wcs-t-non-standard-requests-wms:
 

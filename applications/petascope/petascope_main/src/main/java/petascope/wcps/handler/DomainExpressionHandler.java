@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.wcps.exception.processing.InvalidAxisInDomainExpressionException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSlicing;
@@ -73,22 +74,29 @@ public class DomainExpressionHandler extends AbstractOperatorHandler {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
 
-        WcpsMetadataResult metadataResult;
-        // if axisName and axisCrs is belonge to coverageExpression then can just get the bounding of axis from coverageExpression
-        if (isValid(coverageExpression, axisName, axisCrs)) {
-            String result = getDomainByAxisCrs(coverageExpression, axisName, axisCrs);
-            
-            String coverageId = coverageExpression.getMetadata().getCoverageName();
-            Axis axis = coverageExpression.getMetadata().getAxisByName(axisName);
-            WcpsCoverageMetadata tmpMetadata = this.generateWcpsMetadataWithOneGridAxis.generateWcpsMetadataWithOneGridAxis(coverageId, axis);
-        
-            metadataResult = new WcpsMetadataResult(tmpMetadata, result);            
+        WcpsMetadataResult metadataResult = null;
+        if (axisName != null) {
+            // if axisName and axisCrs is belonge to coverageExpression then can just get the bounding of axis from coverageExpression
+            if (isValid(coverageExpression, axisName, axisCrs)) {
+                String result = getDomainByAxisCrs(coverageExpression, axisName, axisCrs);
+
+                String coverageId = coverageExpression.getMetadata().getCoverageName();
+                Axis axis = coverageExpression.getMetadata().getAxisByName(axisName);
+                WcpsCoverageMetadata tmpMetadata = this.generateWcpsMetadataWithOneGridAxis.generateWcpsMetadataWithOneGridAxis(coverageId, axis);
+
+                metadataResult = new WcpsMetadataResult(tmpMetadata, result);            
+            } else {
+                throw new InvalidAxisInDomainExpressionException(axisName, axisCrs);
+            }
         } else {
-            throw new InvalidAxisInDomainExpressionException(axisName, axisCrs);
+            WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
+            String result = metadata.getCoverageGeoBoundsRepresentation();
+            metadataResult = new WcpsMetadataResult(metadata, result);
         }
+        
         return metadataResult;
     }
-
+    
     /**
      * Get the domain for the axis with the correct crsURI from
      * coverageExpression

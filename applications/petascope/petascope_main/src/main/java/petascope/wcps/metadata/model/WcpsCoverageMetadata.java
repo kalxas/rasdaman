@@ -809,4 +809,19 @@ public class WcpsCoverageMetadata {
         }
     }
     
+    @JsonIgnore 
+    /**
+     * e.g. coverage has 2 axes -> Lat(20.3:30.5),Long(50.5:62.5)
+     */
+    public String getCoverageGeoBoundsRepresentation() throws PetascopeException {
+        List<String> list = new ArrayList<>();
+        for (Axis geoAxis : this.getAxes()) {
+            String tmp = geoAxis.getLabel() + "(" + geoAxis.getLowerGeoBoundRepresentation() + ":" + geoAxis.getUpperGeoBoundRepresentation() + ")";
+            list.add(tmp);
+        }
+        
+        String result = ListUtil.join(list, ",");
+        return result;
+    }
+    
 }
