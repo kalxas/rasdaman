@@ -5718,6 +5718,10 @@ var rasdaman;
             var result = this.$q.defer();
             var requestUrl = this.wcsSettings.adminEndpoint + "/coverage/pyramid/list" + "?" + request.toKVP();
             var requestHeaders = this.adminService.getAuthenticationHeaders();
+            if ($.isEmptyObject(requestHeaders)) {
+                var currentHeaders = {};
+                requestHeaders = this.credentialService.createRequestHeader(this.wcsSettings.wcsEndpoint, currentHeaders);
+            }
             this.$http.get(requestUrl, {
                 headers: requestHeaders
             }).then(function (response) {

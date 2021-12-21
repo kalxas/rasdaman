@@ -167,6 +167,12 @@ module rasdaman {
             var requestUrl = this.wcsSettings.adminEndpoint + "/coverage/pyramid/list" + "?" + request.toKVP();
             var requestHeaders = this.adminService.getAuthenticationHeaders();
 
+            if ($.isEmptyObject(requestHeaders)) {
+                // In case user doesn't log in with admin user in tab Admin, then use the credentials which he logged in in login form
+                var currentHeaders = {};
+                requestHeaders = this.credentialService.createRequestHeader(this.wcsSettings.wcsEndpoint, currentHeaders);
+            }
+                        
             this.$http.get(requestUrl, {
                 headers: requestHeaders,
             }).then(function (response:any) {
