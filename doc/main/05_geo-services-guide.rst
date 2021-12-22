@@ -936,6 +936,10 @@ Clipping Examples
         "application/gml+xml"
       )
 
+.. NOTE::
+
+   :ref:`Subspace <sec-clipping-subspace>` clipping is not supported in WCS or WCPS.
+
 Auto-ratio for scaling X or Y axis in WCPS
 ------------------------------------------
 

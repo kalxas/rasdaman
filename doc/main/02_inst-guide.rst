@@ -422,12 +422,24 @@ take the custom profile into account instead of the default one.
 
 .. _sec-system-install-administration:
 
-Administration
---------------
+****************
+Running rasdaman
+****************
 
-Once all above actions are completed, the rasdaman installation (or
-update) has been accomplished. This section provides additional
-background information for administrators.
+This section provides a *high-level* overview on how start/stop rasdaman and
+petascope, monitor them, and configure for typical usage.
+
+Most of the time the information presented here is sufficient for operating a
+rasdaman service; for deeper understanding on how it works behind the scenes,
+please check the :ref:`sec-server-administration` section.
+
+.. _sec-system-install-service-control:
+
+Service Control
+===============
+
+rasdaman
+--------
 
 A ``rasdaman`` service script allows to start/stop rasdaman, e.g. ::
 
