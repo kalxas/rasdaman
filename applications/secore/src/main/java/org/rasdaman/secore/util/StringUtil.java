@@ -26,8 +26,11 @@ import org.rasdaman.secore.ConfigManager;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,6 +41,7 @@ import java.util.regex.Pattern;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import static org.rasdaman.secore.ConfigManager.DEFAULT_SERVER_CONTEXT_PATH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.db.DbManager;
@@ -130,6 +134,22 @@ public class StringUtil {
             return s.substring(1);
         }
         return s;
+    }
+    
+    /**
+     *  e.g. crs/EPSG/0/4326 -> /def/crs/EPSG/0/4326
+     */
+    public static String addDefPrefix(String s) {
+        String result = s;
+        if (!result.startsWith(DEFAULT_SERVER_CONTEXT_PATH)) {
+            if (!result.startsWith(REST_SEPARATOR)) {
+                result = DEFAULT_SERVER_CONTEXT_PATH + REST_SEPARATOR + result;
+            } else {
+                result = DEFAULT_SERVER_CONTEXT_PATH + result;
+            }
+        }
+        
+        return result;
     }
 
 
@@ -666,5 +686,16 @@ public class StringUtil {
      */
     public static String removeDot(String str) {
         return str.replace(".", "");
+    }
+    
+    /**
+     * e.g. http://localhost:8080/def/crs/EPSG/0/4326//// -> http://localhost:8080/def/crs/EPSG/0/4326
+     */
+    public static String stripTrailingChars(String s, char c) {
+        while (s.length() > 0 && s.charAt(s.length() - 1) == c) {
+            s = s.substring(0, s.length() - 1);
+        }
+        
+        return s;
     }
 }

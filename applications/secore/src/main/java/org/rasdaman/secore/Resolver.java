@@ -35,6 +35,7 @@ import org.rasdaman.secore.util.ExceptionCode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.handler.QueryHandler;
 import org.rasdaman.secore.req.RequestParam;
 import static org.rasdaman.secore.Constants.*;
+import org.rasdaman.secore.util.StringUtil;
 
 /**
  * Resolves a given request.
@@ -114,7 +116,9 @@ public class Resolver {
      * @throws SecoreException when the resolver can not handle the given request, or in
      *  case of a malformed request.
      */
-    public static ResolveResponse resolve(URL url) throws SecoreException {
+    public static ResolveResponse resolve(URL url) throws SecoreException, MalformedURLException {
+        url = new URL(StringUtil.stripTrailingChars(url.toString(), '/'));
+        
         BufferedReader in = null;
         StringBuilder data = new StringBuilder(1000);         
         try {

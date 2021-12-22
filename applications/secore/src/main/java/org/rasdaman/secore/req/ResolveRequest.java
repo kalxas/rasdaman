@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import static org.rasdaman.secore.Constants.*;
 import static org.rasdaman.secore.handler.GeneralHandler.*;
 import org.rasdaman.secore.ConfigManager;
+import static org.rasdaman.secore.ConfigManager.DEFAULT_SERVER_CONTEXT_PATH;
 import org.rasdaman.secore.Constants;
 import org.rasdaman.secore.util.StringUtil;
 
@@ -289,7 +290,9 @@ public class ResolveRequest implements ParamValue {
         if (expand != null) {
             ret.append(expand.getParamSeparator()).append(expand.toString());
         }
-        return ret.toString();
+        
+        String result = StringUtil.addDefPrefix(ret.toString());        
+        return result;
     }
 
     /**

@@ -91,7 +91,6 @@ public class CrsCompoundHandler extends AbstractHandler {
                     try {
                         res = Resolver.resolve(new URL(req.getOriginalRequest())).getData();
                     } catch (MalformedURLException | SecoreException ex) {
-                        log.error("Failed resolving CRS definition: " + component, ex);
                         throw new SecoreException(ExceptionCode.NoSuchDefinition,
                                 "Failed resolving CRS definition: " + component, ex);
                     }
