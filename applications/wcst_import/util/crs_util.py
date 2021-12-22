@@ -37,7 +37,6 @@ else:
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
 from .url_util import validate_and_read_url
-from util.coverage_util import CoverageUtil
 from util.log import log
 from .time_util import DateTimeUtil
 
@@ -140,27 +139,11 @@ class CRSAxis:
 
 class CRSUtil:
 
+    LONG_AXIS_LABEL_EPSG_8_5 = "Long"
+    LONG_AXIS_LABEL_EPSG_0 = "Lon"
+    LAT_AXIS_AXIS = "Lat"
+
     axes = []
-    LAT_AXIS_LABEL = "Lat"
-
-    LONG_AXIS_LABEL_EPSG_VERSION_85 = "Long"
-    LONG_AXIS_LABEL_EPSG_VERSION_0 = "Lon"
-
-    AUTHORITY = "authority"
-    VERSION = "version"
-
-    EPSG = "EPSG"
-    EPSG_VERSION_85 = "8.5"
-    EPSG_VERSION_0 = "0"
-
-    # CRS in REST format
-    EPSG_VERSION_85_REST = EPSG + "/" + EPSG_VERSION_85
-    EPSG_VERSION_0_REST = EPSG + "/" + EPSG_VERSION_0
-
-    # CRS in KVP format
-    EPSG_AUTHORITY_KVP = AUTHORITY + "=" + EPSG
-    EPSG_VERSION_85_KVP = VERSION + "=" + EPSG_VERSION_85
-    EPSG_VERSION_0_KVP = VERSION + "=" + EPSG_VERSION_0
 
     # NOTE: Only fetch coverage axis labels once only for 1 coverage Id
     coverage_axis_labels = []
@@ -183,11 +166,6 @@ class CRSUtil:
         :param dict{ axis1(dict), axis2(dict),... }: dictionary of configurations from ingredient file
         :rtype: list[CRSAxis]
         """
-        # e.g: in case of sentinel 1 customized recipe with coverage_id: test_S1_GRD_${modebeam}_${polarisation}
-        if "${" not in coverage_id:
-            # update crs_axes if necessary for EPSG:4326
-            CRSUtil.update_lon_axis_to_epsg_version_85_if_needed(coverage_id, self.axes, axes_configurations)
-
         return self.axes
 
     def get_crs_code(self):
@@ -215,6 +193,12 @@ class CRSUtil:
             return self.get_compound_crs(found_crses)
         elif len(found_crses) == 1:
             return found_crses[0]
+
+    @staticmethod
+    def axis_label_match(axis_label1, axis_label2):
+
+        return (axis_label1 == axis_label2) \
+                or (CRSUtil.is_longitude_axis(axis_label1) and CRSUtil.is_longitude_axis(axis_label2))
 
     @staticmethod
     def get_crs_url(authority, code):
@@ -252,48 +236,13 @@ class CRSUtil:
         return compound
 
     @staticmethod
-    def update_lon_axis_to_epsg_version_85_if_needed(coverage_id, crs_axes, axes_configurations=None):
-        """
-        NOTE: since rasdaman version 9.7+, in SECORE def/crs/EPSG/0 points to the newest EPSG version (e.g: 9.4.2 instead
-        of 8.5 as before). The problem is for EPSG:4326, Longitude axis's abbreviation changes from "Long" -> "Lon".
-        This method is used to allow import slices to existing coverage ("Lat Long" axes).
-        :param str coverage_id: existing coverage
-        :param list[CRSAxis] crs_axes: parsed CRSAxes from SECORE URL (e.g: def/crs/EPSG/4326 returns 2 CRSAxes: Lat, Lon)
-        :param dict{ axis1(dict), axis2(dict),... }: dictionary of configurations from ingredient file
-        """
-
-        cov = CoverageUtil(coverage_id)
-
-        # Case 1: Coverage exists with "Lat Long" axes
-        if len(CRSUtil.coverage_axis_labels) == 0:
-            if cov.exists():
-                CRSUtil.coverage_axis_labels = cov.get_axes_labels()
-
-                for index, axis_label in enumerate(CRSUtil.coverage_axis_labels):
-                    if axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85:
-                        CRSUtil.log_crs_replacement_epsg_version_0_by_version_85()
-                        crs_axes[index].label = CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
-                        break
-
-        # Case 2: Coverage not exist, but in ingredient file for general recipes, it contains configuration for "Lat Long" axes
-        if axes_configurations is not None:
-            for key, value in axes_configurations.items():
-                CRSUtil.coverage_axis_labels.append(key)
-
-                for crs_axis in crs_axes:
-                    # "Long" axis exists in configuration for ingredient file
-                    if key == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85:
-                        if crs_axis.label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_0:
-                            crs_axis.label = CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
-                            break
-    @staticmethod
     def is_longitude_axis(axis_label):
         """
         Check if axis label is longitude
         :return: boolean
         """
-        return axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_0 \
-                or axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
+        return axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_0 \
+                or axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_8_5
 
     @staticmethod
     def is_latitude_axis(axis_label):
@@ -301,7 +250,7 @@ class CRSUtil:
         Check if axis label is latitude
         :return: boolean
         """
-        return axis_label == CRSUtil.LAT_AXIS_LABEL
+        return axis_label == CRSUtil.LAT_AXIS_AXIS
 
 
     @staticmethod

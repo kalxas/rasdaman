@@ -278,7 +278,7 @@ class Recipe(BaseRecipe):
             for axis_label, axis_configuration_dicts in axes_configurations.items():
                 # If axis label configured in ingredient file does not exist in CRS definition,
                 # then "crsOrder" configuration must match with the crs axis order.
-                if crs_axis.label == axis_label \
+                if CRSUtil.axis_label_match(crs_axis.label, axis_label) \
                         or ("crsOrder" in axis_configuration_dicts
                             and int(axis_configuration_dicts["crsOrder"]) == index):
                     crs_axes[index].label = axis_label
