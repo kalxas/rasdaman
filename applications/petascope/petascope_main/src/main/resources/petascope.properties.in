@@ -201,8 +201,8 @@ inspire_common_url=
 #---------------------------- logging configuration ----------------------------
 
 # Configuration for petascope logging; by default only level INFO or higher is
-# logged, to both file and stdout.
-log4j.rootLogger=INFO, rollingFile, stdout
+# logged, to file.
+log4j.rootLogger=INFO, rollingFile
 
 # Reduce the log information from Spring, Hibernate, Liquibase, GRPC, Netty
 log4j.logger.org.springframework=WARN
@@ -211,12 +211,6 @@ log4j.logger.liquibase=WARN
 log4j.logger.io.grpc=WARN
 log4j.logger.io.netty=WARN
 log4j.logger.org.apache=WARN
-
-# Configure stdout logging
-log4j.appender.stdout=org.apache.log4j.ConsoleAppender
-log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
-log4j.appender.stdout.layout.ConversionPattern=[%d{yyyy-MM-dd HH:mm:ss}] %m%n
-log4j.appender.stdout.Threshold=INFO
 
 # Configure file logging
 # The paths for file logging specified below should be write-accessible by the 

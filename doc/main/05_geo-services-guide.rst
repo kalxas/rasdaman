@@ -4252,10 +4252,7 @@ starting the petascope Web application is different as follows:
 Configuration
 -------------
 
-The petascope service is configured in file
-``$RMANHOME/etc/petascope.properties``. For changes to take effect, system
-Tomcat (if deployment is ``external``) or rasdaman (if deployment is
-``embedded``) needs to be restarted after editing this file.
+.. include:: 05_geo-services-guide-petascope-configuration.rst
 
 
 Security
