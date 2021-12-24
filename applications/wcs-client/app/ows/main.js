@@ -518,15 +518,16 @@ var rasdaman;
             return {
                 require: '^stTable',
                 link: function (scope, element, attr, ctrl) {
-                    scope.$watch(function () {
+                    var rootScope = scope.$root;
+                    scope.$watch(function (rootScope) {
                         var obj = ctrl.getFilteredCollection();
                         if (obj.length > 0) {
                             var objName = obj[0].constructor.name;
                             if (objName == "CoverageSummary") {
-                                $window.localStorage.setItem('wcsGetCapabilitiesFilteredRows', JSON.stringify(obj));
+                                $window.wcsGetCapabilitiesFilteredRows = JSON.stringify(obj);
                             }
                             else if (objName == "Layer") {
-                                $window.localStorage.setItem('wmsGetCapabilitiesFilteredRows', JSON.stringify(obj));
+                                $window.wmsGetCapabilitiesFilteredRows = JSON.stringify(obj);
                             }
                         }
                     });
@@ -1098,6 +1099,8 @@ var ows;
 (function (ows) {
     var CustomizedMetadata = (function () {
         function CustomizedMetadata(source) {
+            this.localCoverageSizeInBytes = 0;
+            this.remoteCoverageSizeInBytes = 0;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             this.parseCoverageLocation(source);
             this.parseCoverageSizeInBytes(source);
@@ -3244,8 +3247,9 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WCSGetCapabilitiesController = (function () {
-        function WCSGetCapabilitiesController($scope, $rootScope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
+        function WCSGetCapabilitiesController($window, $scope, $rootScope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
             var _this = this;
+            this.$window = $window;
             this.$scope = $scope;
             this.$rootScope = $rootScope;
             this.$log = $log;
@@ -3301,7 +3305,7 @@ var rasdaman;
             };
             $scope.displayAllFootprintsOnGlobe = function (status) {
                 if (status == true) {
-                    var filteredRows = JSON.parse(window.localStorage.getItem('wcsGetCapabilitiesFilteredRows'));
+                    var filteredRows = JSON.parse($window.wcsGetCapabilitiesFilteredRows);
                     $scope.hideAllFootprintsOnGlobe();
                     for (var i = 0; i < filteredRows.length; i++) {
                         var obj = filteredRows[i];
@@ -3489,6 +3493,7 @@ var rasdaman;
             };
         }
         WCSGetCapabilitiesController.$inject = [
+            "$window",
             "$scope",
             "$rootScope",
             "$log",
@@ -5835,8 +5840,9 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WMSGetCapabilitiesController = (function () {
-        function WMSGetCapabilitiesController($rootScope, $scope, $log, settings, wmsService, alertService, errorHandlingService, webWorldWindService, adminService) {
+        function WMSGetCapabilitiesController($window, $rootScope, $scope, $log, settings, wmsService, alertService, errorHandlingService, webWorldWindService, adminService) {
             var _this = this;
+            this.$window = $window;
             this.$rootScope = $rootScope;
             this.$scope = $scope;
             this.$log = $log;
@@ -5888,7 +5894,7 @@ var rasdaman;
             };
             $scope.displayAllFootprintsOnGlobe = function (status) {
                 if (status == true) {
-                    var filteredRows = JSON.parse(window.localStorage.getItem('wmsGetCapabilitiesFilteredRows'));
+                    var filteredRows = JSON.parse($window.wmsGetCapabilitiesFilteredRows);
                     $scope.hideAllFootprintsOnGlobe();
                     for (var i = 0; i < filteredRows.length; i++) {
                         var obj = filteredRows[i];
@@ -6050,6 +6056,7 @@ var rasdaman;
             };
         }
         WMSGetCapabilitiesController.$inject = [
+            "$window",
             "$rootScope",
             "$scope",
             "$log",

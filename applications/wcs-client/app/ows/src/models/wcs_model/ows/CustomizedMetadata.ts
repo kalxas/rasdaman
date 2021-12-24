@@ -30,9 +30,10 @@ module ows {
         public petascopeEndPoint:String;
 
         // Convert value of element coverageSizeInBytes to a human-readable value (e.g: 1000 -> 1KB)
+        // "N/A" if size doesn't exist from GetCapabilities result
         public coverageSize:String;
-        public localCoverageSizeInBytes:number;
-        public remoteCoverageSizeInBytes:number;
+        public localCoverageSizeInBytes:number = 0;
+        public remoteCoverageSizeInBytes:number = 0;
         public isBlackedList:boolean;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
@@ -82,6 +83,7 @@ module ows {
          */
         private parseCoverageSizeInBytes(source:rasdaman.common.ISerializedObject):void {
             let childElement = "rasdaman:sizeInBytes";
+
             if (source.doesElementExist(childElement)) {
                 let sizeInBytesElement = source.getChildAsSerializedObject(childElement);
                 let sizeInBytes = sizeInBytesElement.getValueAsString();

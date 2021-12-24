@@ -31,14 +31,16 @@ module rasdaman.common {
         return {
             require: '^stTable',            
             link: function(scope, element, attr, ctrl:any) {
-                scope.$watch(function () {                    
+
+                let rootScope = scope.$root;
+                scope.$watch(function (rootScope) {
                     var obj = ctrl.getFilteredCollection();
                     if (obj.length > 0) {
                         var objName = obj[0].constructor.name;
-                        if (objName == "CoverageSummary") {
-                            $window.localStorage.setItem('wcsGetCapabilitiesFilteredRows', JSON.stringify(obj));
+                        if (objName == "CoverageSummary") {                            
+                            $window.wcsGetCapabilitiesFilteredRows = JSON.stringify(obj);                            
                         } else if(objName == "Layer") {
-                            $window.localStorage.setItem('wmsGetCapabilitiesFilteredRows', JSON.stringify(obj));
+                            $window.wmsGetCapabilitiesFilteredRows = JSON.stringify(obj);                            
                         }
                     }
                 });

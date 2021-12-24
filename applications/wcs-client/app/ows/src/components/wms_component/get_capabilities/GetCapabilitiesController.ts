@@ -33,6 +33,7 @@ module rasdaman {
     export class WMSGetCapabilitiesController {
 
         public static $inject = [
+            "$window",
             "$rootScope",
             "$scope",
             "$log",
@@ -43,7 +44,8 @@ module rasdaman {
             "rasdaman.WebWorldWindService"           
         ];
 
-        public constructor(private $rootScope:angular.IRootScopeService,
+        public constructor(private $window,
+                           private $rootScope:angular.IRootScopeService,
                            private $scope:WMSCapabilitiesControllerScope,
                            private $log:angular.ILogService,
                            private settings:rasdaman.WMSSettingsService,                           
@@ -117,7 +119,7 @@ module rasdaman {
                 if (status == true) {
 
                     // Get filtered rows from smart table
-                    var filteredRows = JSON.parse(window.localStorage.getItem('wmsGetCapabilitiesFilteredRows'));
+                    let filteredRows = JSON.parse($window.wmsGetCapabilitiesFilteredRows);
 
                     $scope.hideAllFootprintsOnGlobe();
 
