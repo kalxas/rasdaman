@@ -93,32 +93,8 @@ public class DataMigration2Handler extends AbstractDataMigrationHandler {
                 baseCoverage.getRasdamanRangeSet().setRasdamanDownscaledCollections(new ArrayList<RasdamanDownscaledCollection>());                
             }
             
-            this.setAxisType((GeneralGridCoverage) baseCoverage);
+            GeneralGridCoverage.setAxisType((GeneralGridCoverage) baseCoverage);
             this.coverageRepositoryService.save(baseCoverage);
-        }
-        
-    }
-    
-    /**
-     * Set the missing axis type for each axis in the envelope and geo axis
-     */
-    private void setAxisType(GeneralGridCoverage baseCoverage) throws PetascopeException {
-        
-        EnvelopeByAxis envelopeByAxis = baseCoverage.getEnvelope().getEnvelopeByAxis();
-        String coverageCRS = envelopeByAxis.getSrsName();
-        int numberOfAxes = envelopeByAxis.getAxisExtents().size();
-        
-        for (int i = 0; i < numberOfAxes; i++) {
-            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
-            AxisExtent axisExtent = envelopeByAxis.getAxisExtents().get(i);
-            axisExtent.setAxisType(axisType);
-            
-            if (axisType == null) {
-                System.out.println("");
-            }
-            
-            GeoAxis geoAxis = baseCoverage.getGeoAxes().get(i);
-            geoAxis.setAxisType(axisType);
         }
         
     }

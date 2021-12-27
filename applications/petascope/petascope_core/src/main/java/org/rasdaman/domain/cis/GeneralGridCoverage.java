@@ -192,21 +192,25 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
     public Pair<GeoAxis, GeoAxis> getXYGeoAxes() throws PetascopeException {
         GeoAxis geoAxisX = null, geoAxisY = null;
         
-        String coverageCRS = this.getEnvelope().getEnvelopeByAxis().getSrsName();
         List<GeoAxis> geoAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGeoAxes();
         
-        int i = 0;
         for (GeoAxis geoAxis : geoAxes) {
             // x, y, t,...
-            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+            String axisType = geoAxis.getAxisType();
 
+            if (axisType == null) {
+                // NOTE: in some rare cases when DataMigration2Handler.java failed, 
+                // this attribute is null, then calculate it now and persist Coverage object to database
+                GeneralGridCoverage.setAxisType(this);
+                
+                axisType = geoAxis.getAxisType();
+            }
+            
             if (axisType.equals(AxisTypes.X_AXIS)) {
                 geoAxisX = geoAxis;
             } else if (axisType.equals(AxisTypes.Y_AXIS)) {
                 geoAxisY = geoAxis;
             }
-            
-            i++;
         }
         
         // Coverage has XY geo axes
@@ -245,6 +249,27 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
         return CrsUtil.axisLabelsMatch(pair.fst.getAxisLabel(), geoAxis.getAxisLabel())
               || CrsUtil.axisLabelsMatch(pair.snd.getAxisLabel(), geoAxis.getAxisLabel());
     }
+    
+    @JsonIgnore
+    /**
+     * Set the missing axis type for each axis in the envelope and geo axis
+     */
+    public static void setAxisType(GeneralGridCoverage baseCoverage) throws PetascopeException {
+        
+        EnvelopeByAxis envelopeByAxis = baseCoverage.getEnvelope().getEnvelopeByAxis();
+        String coverageCRS = envelopeByAxis.getSrsName();
+        int numberOfAxes = envelopeByAxis.getAxisExtents().size();
+        
+        for (int i = 0; i < numberOfAxes; i++) {
+            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+            AxisExtent axisExtent = envelopeByAxis.getAxisExtents().get(i);
+            axisExtent.setAxisType(axisType);
+            
+            GeoAxis geoAxis = baseCoverage.getGeoAxes().get(i);
+            geoAxis.setAxisType(axisType);
+        }
+    }
+    
     
     @Override
     public String toString() {
