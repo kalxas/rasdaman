@@ -62,8 +62,6 @@ public class DataMigration4Handler extends AbstractDataMigrationHandler {
         
         final CoverageRepositoryService coverageRepositoryService = this.coverageRepositoryService;
         
-        List<Callable<Object>> todoList = new ArrayList<>();
-        
         for (Pair<Coverage, Boolean> pair : pairsList) {
             final Coverage localCoverage = pair.fst;
             final String coverageId = localCoverage.getCoverageId();
@@ -83,18 +81,8 @@ public class DataMigration4Handler extends AbstractDataMigrationHandler {
             long coverageSizeInBytes = this.coverageRepositoryService.calculateCoverageSizeInBytes(localCoverage);
             localCoverage.setCoverageSizeInBytes(coverageSizeInBytes);
             
-             Runnable task = new Runnable() {
-                @Override
-                public void run() {
-                    coverageRepositoryService.saveCoverageSizeInBytes(localCoverage);
-                }
-            };
-            
-            todoList.add(Executors.callable(task));
+            coverageRepositoryService.saveCoverageSizeInBytes(localCoverage);
         }
-        
-        // Run multiple threads to save separated coverages' sizeInBytes to database
-        ThreadUtil.executeMultipleTasksInParallel(todoList);
     }
     
 }
