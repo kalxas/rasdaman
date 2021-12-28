@@ -512,6 +512,10 @@ Clipping Examples
                           Polygon((25 40, 30 40, 30 45, 25 45)), discrete )
           &FORMAT=application/gml+xml
 
+.. NOTE::
+
+   :ref:`Subspace <sec-clipping-subspace>` clipping is not supported in WCS or WCPS.
+
 WCS-T
 -----
 
