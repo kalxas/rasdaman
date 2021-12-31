@@ -2885,7 +2885,7 @@ The examples below illustrate importing data in different formats with the
 
 * Example for importing TIFF data with the ``gdal`` driver 
   (full ingredients file `here 
-  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_slice_group_size_7days/ingest.template.json>`__):
+  <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/134-wcs_slice_group_size_7days/ingest.template.json>`__):
 
   .. hidden-code-block:: json
 
