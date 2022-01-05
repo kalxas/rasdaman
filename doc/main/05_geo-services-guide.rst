@@ -4251,7 +4251,7 @@ starting the petascope Web application is different as follows:
 
 - If set to :ref:`embedded <start-stop-embedded-applications>` then petascope is
   managed along with rasdaman; see :ref:`this section
-  <sec-system-install-service-control>` for more details.
+  <sec-system-install-administration>` for more details.
 
 Configuration
 -------------
