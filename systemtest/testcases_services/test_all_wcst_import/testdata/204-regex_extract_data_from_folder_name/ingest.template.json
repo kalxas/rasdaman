@@ -1,0 +1,55 @@
+{
+  "config": {
+	"service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_regex_extract_data_from_folder_name",
+    "paths": [
+      "./data_big/geo/Sentinel-1/GRD/overviews/2020/05/01/S1_GRDH_IW_DV_VH/64/merged_1_1.tif"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+        "coverage": {
+          "crs": "OGC/0/AnsiDate@EPSG/0/4326",
+          "metadata": {
+            "type": "xml",
+            "global": {
+              
+         	 }
+          },
+          "slicer": {
+            "type": "gdal",
+
+            "axes": {
+
+              "Lon": {
+                "min": "${gdal:minX}",
+                "max": "${gdal:maxX}",
+                "gridOrder": 1,
+                "resolution": "${gdal:resolutionX}"
+              },
+              "Lat": {
+                "min": "${gdal:minY}",
+                "max": "${gdal:maxY}",
+                "gridOrder": 2,
+                "resolution": "${gdal:resolutionY}"
+              },
+              "ansi": {
+                    "min": "regex_extract('${file:path}', '/.*/(\\d\\d\\d\\d/\\d\\d/\\d\\d)/.*', 1)",
+                    "gridOrder": 0,
+                    "irregular": true,
+                    "dataBound": false
+              }
+          }
+        }      
+      },
+      "tiling": "ALIGNED [0, 0:366, 0:500]"
+    }
+  }
+}

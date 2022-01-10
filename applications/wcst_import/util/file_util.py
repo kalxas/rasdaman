@@ -47,7 +47,7 @@ class FileUtil:
         log.info("Analyzing file ({}/{}): {} ...".format(current_number, number_of_files, file_path))
 
     @staticmethod
-    def get_file_paths_by_regex(current_dir, file_path_regex):
+    def get_file_paths_by_regex(ingredients_dir_path, file_path_regex):
         """
         From the file path in regular expression (e.g: *.txt, ./txt), return list of file paths
         :return: list of string
@@ -55,18 +55,19 @@ class FileUtil:
         file_paths = []
 
         # If the input file is actually a regex pattern then glob can be used
-        if "*" in file_path_regex or "?" in file_path_regex\
+        if "*" in file_path_regex or "?" in file_path_regex \
+            or "./" in file_path_regex \
             or ".." in file_path_regex:
             glob = import_glob()
             if not file_path_regex.strip().startswith("/"):
-                file_path_regex = current_dir + file_path_regex
+                file_path_regex = ingredients_dir_path + file_path_regex
 
             file_paths = file_paths + glob.glob(file_path_regex, recursive=True)
         else:
             # non regex file path
             if "/" not in file_path_regex:
                 # only file name is listed
-                file_path_regex = current_dir + "/" + file_path_regex
+                file_path_regex = ingredients_dir_path + "/" + file_path_regex
 
             file_paths.append(file_path_regex)
 
