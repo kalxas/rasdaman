@@ -38,6 +38,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_ACCEPTLANGUAGES;
 import static petascope.core.KVPSymbols.KEY_ACCEPTVERSIONS;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import static petascope.core.KVPSymbols.KEY_SECTIONS;
@@ -59,7 +60,7 @@ import petascope.util.SetUtil;
 public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
 
     private static Logger log = LoggerFactory.getLogger(KVPWCSGetCapabilitiesHandler.class);
-    protected static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, KEY_ACCEPTVERSIONS, KEY_SECTIONS);
+    protected static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, KEY_ACCEPTVERSIONS, KEY_ACCEPTLANGUAGES, KEY_SECTIONS);
     
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;

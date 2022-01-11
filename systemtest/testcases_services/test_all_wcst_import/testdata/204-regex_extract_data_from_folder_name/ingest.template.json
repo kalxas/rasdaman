@@ -41,7 +41,7 @@
                 "resolution": "${gdal:resolutionY}"
               },
               "ansi": {
-                    "min": "regex_extract('${file:path}', '/.*/(\\d\\d\\d\\d/\\d\\d/\\d\\d)/.*', 1)",
+                    "min": "datetime(regex_extract('${file:path}', '/.*/(\\d\\d\\d\\d/\\d\\d/\\d\\d)/.*', 1), 'YYYY/MM/DD')",
                     "gridOrder": 0,
                     "irregular": true,
                     "dataBound": false
