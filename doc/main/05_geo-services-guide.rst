@@ -743,15 +743,16 @@ For example, the coverage ``test_mr`` can be marked as INSPIRE coverage as follo
          -F 'METADATAURL=https://inspire-geoportal.ec.europa.eu/16.iso19139.xml' \
          'http://localhost:8080//rasdaman/admin/inspire/metadata/update'
 
-Check if a coverage / layer exists
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Check if a coverage exists
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 In v10+, rasdaman supports nonstandard REST request to check if 
-a coverage / layer exists. The result is ``true/false`` string literal.
+a coverage exists. The result is ``true/false`` string literal.
+For example:
 
 .. code-block:: text
 
-    http://localhost:8080/rasdaman/ows/objectExists?coverageId=${coverageId}
-    http://localhost:8080/rasdaman/ows/objectExists?layer=${layer}
+    http://localhost:8080/rasdaman/admin/coverage/exist?coverageId=cov1
 
 
 OGC Web Coverage Processing Service (WCPS)
