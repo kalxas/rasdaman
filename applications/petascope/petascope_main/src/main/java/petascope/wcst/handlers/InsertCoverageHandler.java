@@ -42,6 +42,7 @@ import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.controller.PetascopeController;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.rasdaman.exceptions.RasdamanCollectionExistsException;
@@ -90,6 +91,8 @@ public class InsertCoverageHandler {
     private CoverageRepositoryService persistedCoverageService;
     @Autowired
     private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;    
 
     /**
      * Handles the InsertCoverage request
@@ -100,7 +103,7 @@ public class InsertCoverageHandler {
      */
     public Response handle(InsertCoverageRequest request) throws Exception {
         log.debug("Handling coverage insertion...");
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.petascopeController.validateWriteRequestFromIP(httpServletRequest);
         
         if (request.getGMLCoverage() != null) {
             return handleGMLCoverageInsert(request);

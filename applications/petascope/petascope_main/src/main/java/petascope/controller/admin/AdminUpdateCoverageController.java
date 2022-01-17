@@ -54,33 +54,28 @@ public class AdminUpdateCoverageController extends AbstractController {
     private static final String COVERAGE_UPDATE_PATH = ADMIN + "/" + COVERAGE + "/update";
 
     @Autowired
-    private AdminUpdateCoverageService updateCoverageService;
+    private AdminUpdateCoverageService adminUpdateCoverageService;
 
     @Override
     @RequestMapping(path = COVERAGE_UPDATE_PATH, method = RequestMethod.GET)
     protected void handleGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handle(httpServletRequest, false);
+        this.handle(httpServletRequest);
     }
 
     @Override
     @RequestMapping(path = COVERAGE_UPDATE_PATH, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handle(httpServletRequest, true);
+        this.handle(httpServletRequest);
     }
     
-    private void handle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        if (isPost) {
-            kvpParameters = this.parsePostRequest(httpServletRequest);
-        }
-        
-        final Map<String, String[]> tmpKvpParameters = kvpParameters;
+    private void handle(HttpServletRequest httpServletRequest) throws Exception {
+        final Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
 
-                this.updateCoverageService.handle(httpServletRequest, tmpKvpParameters);
+                this.adminUpdateCoverageService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
             }

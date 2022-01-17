@@ -101,11 +101,11 @@ public class AdminOwsServiceInfoController extends AbstractController {
     }
     
     private void handleUpdateServiceInfo(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
                 this.handle(kvpParameters);
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);

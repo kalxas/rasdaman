@@ -372,7 +372,7 @@ public class StringUtil {
      *
      * @param aString
      */
-    private static String escapeAmpersands(String aString) {
+    public static String escapeAmpersands(String aString) {
         return aString.replace("&", "&" + XMLSymbols.PREDEFINED_ENTITY_AMPERSAND + ";");
     }
 
@@ -660,8 +660,8 @@ public class StringUtil {
      * e.g. given https://mundi.rasdaman.com/rasdaman/ows or https://mundi.rasdaman.com/rasdaman/ows/
      * return https://mundi.rasdaman.com/rasdaman
      */
-    public static String getPetascopeContextURL(String petascopeEndPoint) {
-        String endpoint = "";
+    public static String getPetascopeContextURLWithoutOWS(String petascopeEndPoint) {
+        String endpoint = petascopeEndPoint;
 
         if (petascopeEndPoint.endsWith("/" + OWS) || petascopeEndPoint.endsWith("/" + OWS + "/")) {
             endpoint = "";

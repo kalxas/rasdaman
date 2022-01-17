@@ -22,14 +22,12 @@
 package petascope.wcst.handlers;
 
 import com.rasdaman.accesscontrol.service.AuthenticationService;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.rasdaman.admin.pyramid.service.AdminRemovePyramidMemberService;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.domain.wms.Layer;
@@ -40,10 +38,9 @@ import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import petascope.core.Pair;
+import petascope.controller.PetascopeController;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
-import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.ras.RasUtil;
 import petascope.core.response.Response;
@@ -76,12 +73,14 @@ public class DeleteCoverageHandler {
     private AdminRemovePyramidMemberService removePyramidMemberService;
     @Autowired
     private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DeleteCoverageHandler.class);
 
     public Response handle(DeleteCoverageRequest request) throws Exception {
         
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        petascopeController.validateWriteRequestFromIP(httpServletRequest);
         
         String username = ConfigManager.RASDAMAN_ADMIN_USER;
         String password = ConfigManager.RASDAMAN_ADMIN_PASS;

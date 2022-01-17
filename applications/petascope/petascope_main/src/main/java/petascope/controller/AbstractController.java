@@ -809,8 +809,9 @@ public abstract class AbstractController {
     /**
      * Depend on if request is GET/POST to create map of KVP pairs
      */
-    public Map<String, String[]> parseKvpParametersFromRequest(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
+    public Map<String, String[]> parseKvpParametersFromRequest(HttpServletRequest httpServletRequest) throws Exception {
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
+        boolean isPost = "POST".equals(httpServletRequest.getMethod());
 
         if (isPost) {
             String postBody = this.getPOSTRequestBody(httpServletRequest);
@@ -840,6 +841,64 @@ public abstract class AbstractController {
                 this.logSuccess(requestStartingTimePair.fst, requestStartingTimePair.snd);
             }
         }
+    }
+    
+    
+    
+    // --------------------------- validate roles / ips
+        
+    /**
+     * Get request IP address from client to petascope
+     */
+    public String getRequesIPAddress(HttpServletRequest httpServletRequest) {
+        // in case, petascope is behind Apache proxy, then get the forwared IP via proxy
+        String sourceIP = httpServletRequest.getHeader("X-FORWARDED-FOR");
+        if (sourceIP == null) {
+            // In case petascope is not proxied by apache
+            sourceIP = httpServletRequest.getRemoteAddr();
+        }
+        
+        return sourceIP;
+    }
+
+    /**
+     * If basic authentication header is not enabled, then petascope checks if write request from IP address is valid or not
+     * before processing.
+     */
+    public void validateWriteRequestFromIP(HttpServletRequest httpServletRequest) throws PetascopeException, Exception {
+        if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
+            
+            String sourceIP = this.getRequesIPAddress(httpServletRequest);
+            // localhost IP in servlet
+            if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
+                sourceIP = "127.0.0.1";
+            }
+
+            if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
+                String requestRepresentation = this.getRequestPresentationWithEncodedAmpersands(httpServletRequest);
+                throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                             "Write request '" + requestRepresentation + "' is not permitted from IP address '" + sourceIP + "'.");
+            }
+        }
+    }
+    
+    private String getRequestPresentation(HttpServletRequest httpServletRequest) throws Exception {
+        String result = httpServletRequest.getRequestURI();
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
+
+        if (kvpParameters != null) {
+            result = httpServletRequest.getRequestURI() + "?" + this.getRequestRepresentation(kvpParameters);
+        }
+        
+        return result;
+    }
+    
+    /**
+     *  e.g a=b&c=d -> a=b&amp;c=d
+     * NOTE: & must be escaped as &amp; in XML string to be valid
+     */
+    public String getRequestPresentationWithEncodedAmpersands(HttpServletRequest httpServletRequest) throws Exception {
+        return StringUtil.escapeAmpersands(this.getRequestPresentation(httpServletRequest));
     }
 }
 

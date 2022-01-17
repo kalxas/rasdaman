@@ -95,6 +95,7 @@ import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 import org.rasdaman.repository.service.WMSRepostioryService;
+import petascope.controller.PetascopeController;
 
 @Service
 public class UpdateCoverageHandler {
@@ -121,6 +122,8 @@ public class UpdateCoverageHandler {
     private AdminCreateOrUpdateLayerService createOrUpdateLayerService;
     @Autowired
     private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;
 
     @Autowired
     private RemoteCoverageUtil remoteCoverageUtil;
@@ -136,7 +139,7 @@ public class UpdateCoverageHandler {
             throws WCSTCoverageParameterNotFound, WCSTInvalidXML, PetascopeException, SecoreException, Exception {
         log.debug("Handling coverage update...");
         
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.petascopeController.validateWriteRequestFromIP(httpServletRequest);
         
         // persisted coverage
         Coverage currentCoverage = persistedCoverageService.readCoverageByIdFromDatabase(request.getCoverageId());

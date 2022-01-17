@@ -51,8 +51,6 @@ public class InspireController extends AbstractController {
     
     private static final String UPDATE_METADATA_PATH = ConfigManager.ADMIN + "/inspire/metadata/update";
     
-    public static final String PRIV_OWS_WCS_UPDATE_COV = "PRIV_OWS_WCS_UPDATE_COV";
-    
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
 
@@ -73,7 +71,7 @@ public class InspireController extends AbstractController {
     @Override
     protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
         
-        AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+        this.validateWriteRequestFromIP(httpServletRequest);
         
         String coverageId = this.getValueByKeyAllowNull(kvpParameters, KEY_INSPIRE_COVERAGE_ID);
         String metadataURL = this.getValueByKeyAllowNull(kvpParameters, KEY_INSPIRE_METADATA_URL);

@@ -58,20 +58,20 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = ADD_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleAddStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleAddStyle(httpServletRequest, false);
+        this.handleAddStyle(httpServletRequest);
     }
     
     @RequestMapping(path = ADD_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleAddStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleAddStyle(httpServletRequest, true);
+        this.handleAddStyle(httpServletRequest);
     }
     
-    private void handleAddStyle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleAddStyle(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
 
                 this.createOrUpdateStyleService.handleAdd(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
@@ -86,20 +86,20 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = UPDATE_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleUpdateStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleUpdateStyle(httpServletRequest, false);
+        this.handleUpdateStyle(httpServletRequest);
     }
     
     @RequestMapping(path = UPDATE_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleUpdateStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleUpdateStyle(httpServletRequest, true);
+        this.handleUpdateStyle(httpServletRequest);
     }
     
-    private void handleUpdateStyle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleUpdateStyle(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
 
                 this.createOrUpdateStyleService.handleUpdate(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
@@ -114,20 +114,20 @@ public class AdminStyleManagementController extends AbstractController {
     
     @RequestMapping(path = REMOVE_STYLE_PATH,  method = RequestMethod.GET)
     protected void handleRemoveStyleGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleRemoveStyle(httpServletRequest, false);
+        this.handleRemoveStyle(httpServletRequest);
     }
     
     @RequestMapping(path = REMOVE_STYLE_PATH,  method = RequestMethod.POST)
     protected void handleRemoveStylePost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleRemoveStyle(httpServletRequest, true);
+        this.handleRemoveStyle(httpServletRequest);
     }
     
-    private void handleRemoveStyle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleRemoveStyle(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
 
                 this.adminDeleteStyleService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {

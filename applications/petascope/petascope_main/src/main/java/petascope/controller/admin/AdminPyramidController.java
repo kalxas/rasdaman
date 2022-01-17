@@ -66,21 +66,19 @@ public class AdminPyramidController extends AbstractController {
     
     @RequestMapping(path = LIST_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleListPyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleListPyramidMembers(httpServletRequest, false);
+        this.handleListPyramidMembers(httpServletRequest);
     }
 
     @RequestMapping(path = LIST_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleListPyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleListPyramidMembers(httpServletRequest, true);
+        this.handleListPyramidMembers(httpServletRequest);
     }
     
-    private void handleListPyramidMembers(HttpServletRequest httpServletRequest, boolean isPost) throws IOException, Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleListPyramidMembers(HttpServletRequest httpServletRequest) throws IOException, Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
-
                 Response response = this.listPyramidMemberService.handle(httpServletRequest, kvpParameters);
                 this.writeResponseResult(response);
             } catch (Exception ex) {
@@ -95,20 +93,20 @@ public class AdminPyramidController extends AbstractController {
     
     @RequestMapping(path = ADD_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleAddPyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleAddPyramidMemebers(httpServletRequest, false);
+        this.handleAddPyramidMemebers(httpServletRequest);
     }
 
     @RequestMapping(path = ADD_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleAddPyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleAddPyramidMemebers(httpServletRequest, true);
+        this.handleAddPyramidMemebers(httpServletRequest);
     }
     
-    private void handleAddPyramidMemebers(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleAddPyramidMemebers(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
 
                 this.addPyramidMemberService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
@@ -123,20 +121,20 @@ public class AdminPyramidController extends AbstractController {
     
     @RequestMapping(path = REMOVE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleRemovePyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleRemovePyramidMembers(httpServletRequest, false);
+        this.handleRemovePyramidMembers(httpServletRequest);
     }
 
     @RequestMapping(path = REMOVE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleRemovePyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleRemovePyramidMembers(httpServletRequest, true);
+        this.handleRemovePyramidMembers(httpServletRequest);
     }
     
-    private void handleRemovePyramidMembers(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleRemovePyramidMembers(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
 
                 this.removePyramidMemberService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
@@ -151,20 +149,20 @@ public class AdminPyramidController extends AbstractController {
     
     @RequestMapping(path = CREATE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.GET)
     protected void handleCreatePyramidMembersGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleCreatePyramidMembers(httpServletRequest, false);
+        this.handleCreatePyramidMembers(httpServletRequest);
     }
 
     @RequestMapping(path = CREATE_PYRAMID_MEMBERS_PATH,  method = RequestMethod.POST)
     protected void handleCreatePyramidMembersPost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleCreatePyramidMembers(httpServletRequest, true);
+        this.handleCreatePyramidMembers(httpServletRequest);
     }
     
-    private void handleCreatePyramidMembers(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleCreatePyramidMembers(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
 
                 this.createPyramidMemberService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
@@ -178,7 +176,6 @@ public class AdminPyramidController extends AbstractController {
             
     @Override
     protected void handleGet(HttpServletRequest httpServletRequest) throws Exception {
-        
     }
     
 

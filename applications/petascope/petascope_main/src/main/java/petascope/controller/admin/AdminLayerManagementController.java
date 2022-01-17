@@ -62,16 +62,16 @@ public class AdminLayerManagementController extends AbstractController {
     
     @RequestMapping(path = LAYER_IS_ACTIVE_PATH,  method = RequestMethod.GET)
     protected void handleLayerIsActiveGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleLayerIsActive(httpServletRequest, false);        
+        this.handleLayerIsActive(httpServletRequest);        
     }
     
     @RequestMapping(path = LAYER_IS_ACTIVE_PATH,  method = RequestMethod.POST)
     protected void handleLayerIsActivePost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleLayerIsActive(httpServletRequest, true);
+        this.handleLayerIsActive(httpServletRequest);
     }
      
-    private void handleLayerIsActive(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleLayerIsActive(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
@@ -89,20 +89,20 @@ public class AdminLayerManagementController extends AbstractController {
     
     @RequestMapping(path = LAYER_ACTIVATE_PATH,  method = RequestMethod.GET)
     protected void handleLayerActivationGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleLayerActivation(httpServletRequest, false);
+        this.handleLayerActivation(httpServletRequest);
     }
     
     @RequestMapping(path = LAYER_ACTIVATE_PATH,  method = RequestMethod.POST)
     protected void handleLayerActivationPost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleLayerActivation(httpServletRequest, true);
+        this.handleLayerActivation(httpServletRequest);
     }
     
-    private void handleLayerActivation(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleLayerActivation(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
                 this.activateLayerService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
@@ -116,20 +116,20 @@ public class AdminLayerManagementController extends AbstractController {
     
     @RequestMapping(path = LAYER_DEACTIVATE_PATH,  method = RequestMethod.GET)
     protected void handleLayerDeactivationGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleLayerDeactivation(httpServletRequest, false);
+        this.handleLayerDeactivation(httpServletRequest);
     }
     
     @RequestMapping(path = LAYER_DEACTIVATE_PATH,  method = RequestMethod.POST)
     protected void handleLayerDeactivationPost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handleLayerDeactivation(httpServletRequest, true);
+        this.handleLayerDeactivation(httpServletRequest);
     }
     
-    private void handleLayerDeactivation(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest, isPost);
+    private void handleLayerDeactivation(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
-                AuthenticationService.validateWriteRequestByRoleOrAllowedIP(httpServletRequest);
+                this.validateWriteRequestFromIP(httpServletRequest);
                 this.deactivateLayerService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
