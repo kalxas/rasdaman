@@ -101,6 +101,28 @@ class RecipeRegistry:
                 log.error("wcst_import terminated on running hook command.")
                 exit(1)
 
+    def __exec_python_command(self, command, abort_on_error=False):
+        """
+        Run a python command and exit wcst_import if needed
+        :param command: python code to be run by exec()
+        """
+        from io import StringIO
+        try:
+            log.info("Executing python command '{}'...".format(command))
+            old_stdout = sys.stdout
+            redirected_output = sys.stdout = StringIO()
+            exec(command)
+            sys.stdout = old_stdout
+
+            output = redirected_output.getvalue()
+            if output != "":
+                log.info("Output result '{}'".format(output))
+        except Exception as ex:
+            log.warn("Failed. Reason: {}".format(str(ex)))
+            if abort_on_error:
+                log.error("wcst_import terminated on running hook python command.")
+                exit(1)
+
     def __run_hooks(self, session, hooks, after_ingestion=False):
         """
         Run some hooks before/after analyzing input files
@@ -124,8 +146,23 @@ class RecipeRegistry:
                 # All replaced input files share same template format (e.g: file:path -> file:path.projected)
                 replace_path_template = hook["replace_path"][0]
 
+            cmd_template = ""
+            python_cmd_template = ""
+
+            has_bash_cmd = False
+            has_python_cmd = False
+
             # Evaluate shell command expression to get a runnable shell command
-            cmd_template = hook["cmd"]
+            if "cmd" in hook:
+                cmd_template = hook["cmd"]
+                has_bash_cmd = True
+
+            if "python_cmd" in hook:
+                python_cmd_template = hook["python_cmd"]
+                has_python_cmd = True
+
+            if has_bash_cmd and has_python_cmd:
+                raise RecipeValidationException("A hook can contain either \"cmd\" or \"python_cmd\" setting.")
 
             files = session.files
             if after_ingestion is True:
@@ -133,10 +170,17 @@ class RecipeRegistry:
 
             for file in files:
                 evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(recipe_type, file)
-                cmd = self.sentence_evaluator.evaluate(cmd_template, evaluator_slice)
-                self.__run_shell_command(cmd, abort_on_error)
 
-                if FileExpressionEvaluator.PREFIX not in cmd_template:
+                if cmd_template != "":
+                    cmd = self.sentence_evaluator.evaluate(cmd_template, evaluator_slice)
+                    self.__run_shell_command(cmd, abort_on_error)
+
+                if python_cmd_template != "":
+                    python_cmd = self.sentence_evaluator.evaluate(python_cmd_template, evaluator_slice)
+                    self.__exec_python_command(python_cmd)
+
+                if FileExpressionEvaluator.PREFIX not in cmd_template \
+                        and FileExpressionEvaluator.PREFIX not in python_cmd_template:
                     # Only need to run hook once if ${...} does not exist in cmd command,
                     # otherwise it runs duplicate commands multiple times (!)
                     if replace_path_template is not None:

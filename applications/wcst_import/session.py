@@ -23,6 +23,7 @@
 """
 import os
 from config_manager import ConfigManager
+from master.error.validate_exception import RecipeValidationException
 from master.helper.inspire import Inspire
 from master.helper.overview import Overview
 from master.importer.resumer import Resumer
@@ -151,6 +152,9 @@ class Session:
                     self.before_hooks.append(hook)
                 elif hook["when"] == "after_import" or hook["when"] == "after_ingestion":
                     self.after_hooks.append(hook)
+                else:
+                    raise RecipeValidationException("Please specify \"before_import\" "
+                                                    "or \"after_import\" for \"when\" setting in a hook. Given: " + hook["when"])
 
         self.setup_config_manager()
 

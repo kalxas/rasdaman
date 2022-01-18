@@ -2032,7 +2032,7 @@ common context path ``/rasdaman``.
     http://localhost:8080/rasdaman/rasql
         ?username=rasguest
         &password=rasguest
-        &uery=select%20encode%28mr2%2C%22png%22%29%20from%20mr
+        &query=select%20encode%28mr2%2C%22png%22%29%20from%20mr
 
   .. NOTE::
 
@@ -2053,9 +2053,9 @@ The diagram below illustrates the OGC service architecture of rasdaman:
     |  +-----------+  |  GetCoverage
     |                 |  ProcessCoverage
     |  +-----------+  |  GetMap
-    |  |wcs_client |  |                 +---------+            +---------+
-    |  +-----------+  | +-------------> |petascope| +--------> |rasserver|
-    |                 |                 +---------+            +---------+
+    |  |wcs_client |  |                 +------------+            +---------+
+    |  +-----------+  | +-------------> |rasdaman-geo| +--------> |rasserver|
+    |                 |                 +------------+            +---------+
     |  +-----------+  |  write:                      write:
     |  |wcst_import|  |
     |  +-----------+  |  InsertCoverage              create type/coll

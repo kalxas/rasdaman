@@ -80,7 +80,7 @@ public class AuthenticationController extends AbstractController {
             
             Set<String> roleNames = this.parseRolesFromRascontrol(username);
             
-            if (roleNames.isEmpty()) {
+            if (!roleNames.isEmpty()) {
                 // Return the list of rolenames for this user
                 // e.g: admin,info,readwrite,PRIV_TYPE_MGMT,PRIV_COLLECTION_MGMT,PRIV_TRIGGER_MGMT,PRIV_USER_MGMT,PRIV_OWS_ADMIN,...
                 result = ListUtil.join(new ArrayList(roleNames), ",");

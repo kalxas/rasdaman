@@ -169,8 +169,7 @@
              "items": {
                  "type": "object",
                  "required": [
-                    "when",
-                    "cmd"
+                    "when"
                  ],
                  "properties": {
                      "description": {
@@ -180,6 +179,9 @@
                          "type": "string"
                      },
                      "cmd": {
+                         "type": "string"
+                     },
+                     "python_cmd": {
                          "type": "string"
                      },
                      "abort_on_error": {

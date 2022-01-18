@@ -402,6 +402,12 @@ Several functions allow to extract metadata information about a coverage ``C``:
 | domain(C, a, c).x         | Where x is one of ``lo`` or ``hi``                 | 
 |                           | returning the lower or upper bounds respectively   |
 +---------------------------+----------------------------------------------------+
+| domain(C, a)              | Geo (lo, hi) bounds for axis a                     |
+|                           | returning the lower and upper bounds respectively  |
++---------------------------+----------------------------------------------------+
+| domain(C, a).x            | Where x is one of ``lo`` or ``hi``                 | 
+|                           | returning the lower or upper bounds respectively   |
++---------------------------+----------------------------------------------------+
 | domain(C)                 | List of comma-separated axes and their bounds      |
 |                           | according to coverage's CRS orders respectively.   |
 |                           | Each list element contains an axis a               |

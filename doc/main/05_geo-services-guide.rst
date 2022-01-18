@@ -144,16 +144,16 @@ Further components include ``Envelope`` which gives a rough, simplified overview
 on the coverage's location in space and time and ``CoverageFunction`` which is
 unused by any implementation known to us.
 
+Coverage CRS
+------------
 
-Coordinate Reference Systems in Coverages
------------------------------------------
-
-Every coverage, as per OGC CIS, must have exactly one Native CRS. Sometimes
-definitions for such CRSs are readily available, such as with the EPSG registry
-where 2-D WGS84 is readily available under its code EPSG:4326. In particular
-spatio-temporal CRSs, however, are not always readily available, at least not
-in all combinations of spatial and temporal axes. To this end, composition
-of CRS is supported so that the single Native CRS can be built from
+Every coverage, as per OGC CIS, must have exactly one *native* Coordinate
+Reference System (CRS). Sometimes definitions for such CRSs are readily
+available, such as with the EPSG registry where 2-D WGS84 is readily available
+under its code EPSG:4326. In particular spatio-temporal CRSs, however, are not
+always readily available, at least not in all combinations of spatial and
+temporal axes. To this end, composition of CRS is supported so that the single
+Native CRS can be built from
 "ingredient" CRSs by concatenating these CRSs into a composite one.
 
 For instance, a time-series of WGS84 images would have the following Native CRS:
@@ -701,7 +701,7 @@ Renaming coverage
 
 .. _rename-coverage:
 
-The ``UpdateCoverageId`` request allows to update 
+The request below allows to update 
 a coverage's id and the associated WMS layer if one exists (v10.0+).
 
 For example, the coverage ``test_mr`` can be renamed to ``test_mr_new`` as follows:
@@ -747,33 +747,35 @@ will be updated from the local XML file at ``/home/rasdaman/Downloads/test_metad
 
 .. _petascope-make_inspire_coverage:
 
-Make a coverage to be INSPIRE coverage
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Create an INSPIRE coverage
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 INSPIRE coverages have an extra XML section
 ``<ows:ExtendedCapabilities>...</ows:ExtendedCapabilities>`` 
-in the result of WCS GetCapabilities, which stores the coverage metadata in format 
+in the result of WCS GetCapabilities, which stores the coverage metadata in a format 
 complying to the INSPIRE standard. Controlling whether a local coverage is treated 
 as an INSPIRE coverage can be done by sending a request to 
 ``/rasdaman/admin/inspire/metadata/update`` with two mandatory parameters:
 
-- ``COVERAGEID`` - the coverage to be marked as INSPIRE coverage
+- ``COVERAGEID`` - the coverage to be converted to an INSPIRE coverage
 - ``METADATAURL`` - a URL to an INSPIRE-compliant catalog entry for this coverage; 
   if set to empty, i.e. ``METADATAURL=`` then the coverage is marked as non-INSPIRE
   coverage.
 
-For example, the coverage ``test_mr`` can be marked as INSPIRE coverage as follows:
+For example, the coverage ``test_inspire_metadata`` can be marked as INSPIRE
+coverage as follows:
 
 .. code-block:: text
 
     curl -X POST \
-         -F 'COVERAGEID=test_inspire_metadata_url' \
+         -F 'COVERAGEID=test_inspire_metadata' \
          -F 'METADATAURL=https://inspire-geoportal.ec.europa.eu/16.iso19139.xml' \
          'http://localhost:8080//rasdaman/admin/inspire/metadata/update'
 
 
 Check if a coverage exists
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
+
 In v10+, rasdaman supports nonstandard REST request to check if 
 a coverage exists. The result is ``true/false`` string literal.
 For example:
@@ -794,7 +796,6 @@ as documented below.
 
   - ``<rasdaman:sizeInBytes>`` - an estimated size (in bytes) of the coverage
   - ``<rasdaman:axisList>`` - the coverage axis labels in geo CRS order
-
 
 OGC Web Coverage Processing Service (WCPS)
 ==========================================
@@ -2286,14 +2287,28 @@ JSON array, with parameters as follows:
 * ``description`` - Describe what this hook does and wcst_import prints this message when processing this hook.
 * ``when`` - mandatory parameter. Run a command before (set to ``before_import``) or after (set to ``after_import``)
   importing files to a coverage.
-* ``cmd`` - mandatory parameter. Bash command which should be run for each input file. 
-  The standard error is redirected to standard output and wcst_import prints the output when running command.
+* With one of the following options either Bash or Python code must be specified,
+  which will be run for each input file.
+
+  * ``cmd`` - specify Bash commands; standard error is redirected to standard output,
+    which wcst_import prints while executing the command. Note that the code
+    is executed in a new Bash process newly forked for every file; if there are many files,
+    this can be costly in terms of performance and memory usage, and it may be better
+    to use ``python_cmd``.
+
+  * ``python_cmd`` - specify Python code, which is evaluated in the same Python
+    instance already running wcst_import with the `exec() method <https://docs.python.org/3/library/functions.html#exec>`__.
+    It may be preferable to Bash ``cmd`` when there are many files to import, or
+    more complex tasks need to be performed with advance math calculations, for
+    example.  
+
 * ``abort_on_error`` - Only valid for ``before_import`` hook. If set to ``true``,
-   when a bash command returns an error, wcst_import terminates immediately.
+  when a ``cmd`` bash command returns an error or when a ``python_cmd`` raises an ``Exception``,
+  wcst_import terminates immediately.
 * ``replace_path`` - Only valid for ``before_import`` hook. wcst_import considers
   the specified absolute paths (globbing is allowed) as the actual absolute file paths to be imported
   after running a hook, rather than the original input file paths configured
-  in  ``paths`` setting, under ``input`` section.
+  in ``paths`` setting, under ``input`` section.
 
 *Example: Import GDAL subdatasets*
 
@@ -2336,7 +2351,7 @@ The ``after_import`` hook runs a bash command after importing to remove the temp
       {
         "description": "Remove projected files.",
         "when": "after_import",
-        "cmd": "rm -rf \"${file:path}.projected\""
+        "cmd": "rm -rf \"${file:path}\""
       }
       ...
   ]
