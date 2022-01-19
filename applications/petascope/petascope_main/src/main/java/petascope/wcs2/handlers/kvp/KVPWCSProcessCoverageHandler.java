@@ -43,7 +43,10 @@ import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.controller.AbstractController;
 import static petascope.controller.AbstractController.getValueByKeyAllowNull;
+import petascope.controller.PetascopeController;
+import petascope.controller.handler.service.XMLWCSServiceHandler;
 import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.KEY_QUERY;
 import static petascope.core.KVPSymbols.KEY_QUERY_SHORT_HAND;
@@ -83,7 +86,8 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
     private TempCoverageRegistry tempCoverageRegistry;
     @Autowired
     private InsertCoverageHandler insertCoverageHandler;
-
+    @Autowired
+    private XMLWCSServiceHandler xmlWCSServiceHandler;
     public KVPWCSProcessCoverageHandler() {
     }
 
@@ -106,6 +110,14 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         String wcpsQuery = getValueByKeyAllowNull(kvpParameters, KEY_QUERY);
         if (wcpsQuery == null) {
             wcpsQuery = getValueByKeyAllowNull(kvpParameters, KEY_QUERY_SHORT_HAND);
+        }
+        
+        wcpsQuery = wcpsQuery.trim();
+        
+        if (wcpsQuery.startsWith("<")) {
+            // In this case, this wcps query is encoded in XML wrapper
+            Map<String, String[]> tmpMaps = this.xmlWCSServiceHandler.parseRequestBodyToKVPMaps(wcpsQuery);
+            wcpsQuery = AbstractController.getValueByKey(tmpMaps, KEY_QUERY);
         }
         
         String newWcpsQuery = this.adjustWcpsQueryByPositionalParameters(kvpParameters, wcpsQuery);

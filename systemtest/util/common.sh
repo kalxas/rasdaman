@@ -1041,6 +1041,17 @@ run_test()
                     fi
                     rm -f "$postdata"
                     ;;
+                xml_wcps) 
+                    QUERY=$(cat "$f")
+                    # WCPS query exists in XML-wrapper
+                    if [[ $? -eq 0 ]]; then
+                        # send XML
+                        post_request_xml "$PETASCOPE_URL?service=WCS&version=2.0.1&requeset=ProcessCoverages" "query=$QUERY" "$out"
+                    else
+                        continue
+                    fi
+                    rm -f "$postdata"
+                    ;;                    
                 *)  error "unknown wcs test type: $test_type"
               esac
               ;;
