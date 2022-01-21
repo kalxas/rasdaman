@@ -2221,7 +2221,9 @@ hooks section
 ^^^^^^^^^^^^^
 
 Since v9.8, it is possible to run shell commands *before/after data import*
-by adding optional ``hooks`` configuration in an ingredient file.
+by adding optional ``hooks`` top-level configuration in an ingredient file
+(on the same level as the ``config``, ``input``, and ``recipe`` sections).
+
 There are 2 types of hooks:
 
 * ``before_import`` - Run shell commands before analyzing the input files,
@@ -2235,47 +2237,22 @@ When import mode is set to non-blocking (``"blocking": false``), wcst_import
 will run before/after hook(s) for the file which is being used to update
 coverage, while the default blocking importing mode will run before/after
 hooks for *all input files* before/after they are updated to a coverage.
-Parameters are explained below.
 
-.. hidden-code-block:: json
+Multiple before/after hooks can be specified, and they will be evaluated in the
+order in which they are specified. Each hook is a JSON object in the ``"hooks"``
+JSON array, with parameters as follows:
 
-  "hooks": [
-      {
-        // Describe what this hook does
-        "description": "reproject input files.",
-
-        // Run bash command before importing file(s) to coverage
-        "when": "before_import",
-
-        // Bash command which should be run for each input file
-        "cmd": "gdalwarp -t_srs EPSG:4326 -tr 0.02 0.02 -overwrite \"${file:path}\" \"${file:path}.projected\"",
-
-        // If set to true, when a bash command line returns any error, wcst_import
-        // terminates immediately. Only valid for before_import hooks.
-        "abort_on_error": true,
-
-        // wcst_import will consider the specified path(s) as the actual file(s)
-        // to be imported after running the hook, rather than the original file.
-        // This is an array of paths where globbing is allowed (same as the
-        // "input":"paths" option. Only valid for before_import hooks.
-        "replace_path": ["${file:path}.projected"]
-      },
-
-      {
-        // Describe what this hook does
-        "description": "Remove projected files.",
-
-        // Run bash command after importing file(s)
-        "when": "after_import",
-
-        // Bash command which should be run after each imported file(s)
-        "cmd": "rm -rf \"${file:path}.projected\""
-      },
-
-      // more hooks if needed
-      ...
-  ]
-
+* ``description`` - Describe what this hook does and wcst_import prints this message when processing this hook.
+* ``when`` - mandatory parameter. Run a command before (set to ``before_import``) or after (set to ``after_import``)
+  importing files to a coverage.
+* ``cmd`` - mandatory parameter. Bash command which should be run for each input file. 
+  The standard error is redirected to standard output and wcst_import prints the output when running command.
+* ``abort_on_error`` - Only valid for ``before_import`` hook. If set to ``true``,
+   when a bash command returns an error, wcst_import terminates immediately.
+* ``replace_path`` - Only valid for ``before_import`` hook. wcst_import considers
+  the specified absolute paths (globbing is allowed) as the actual absolute file paths to be imported
+  after running a hook, rather than the original input file paths configured
+  in  ``paths`` setting, under ``input`` section.
 
 *Example: Import GDAL subdatasets*
 
@@ -2295,6 +2272,33 @@ driver for NetCDF a single variable from the collected NetCDF files is imported.
         "replace_path": ["NETCDF:${file:path}:area"]
       }
    ]
+
+*Example: Preprocessing GDAL files before importing*
+
+This example ingredients below contains one ``before_import`` hook and one ``after_import`` hook. 
+The ``before_import`` hook runs a bash command to project each input tiff file to a temp tiff file
+in *EPSG:4326* CRS, then, it collects these temp file paths to import.
+The ``after_import`` hook runs a bash command after importing to remove the temp file paths above.
+
+
+.. hidden-code-block:: json
+
+  "hooks": [
+      {
+        "description": "reproject input files.",
+        "when": "before_import",
+        "cmd": "gdalwarp -t_srs EPSG:4326 -tr 0.02 0.02 -overwrite \"${file:path}\" \"${file:path}.projected\"",
+        "abort_on_error": true,
+        "replace_path": ["${file:path}.projected"]
+      },
+
+      {
+        "description": "Remove projected files.",
+        "when": "after_import",
+        "cmd": "rm -rf \"${file:path}.projected\""
+      }
+      ...
+  ]
 
 
 .. _data-import-recipe-mosaic-map:
@@ -2627,9 +2631,18 @@ bounds and resolution corresponding to each file.
   ``resolution`` is not applicable.
 
   * ``gridOrder`` - The index of the axis in the input file (0-based);
-  * ``crsOrder`` - Specifies a different name for this axis than the one 
-    configured in the CRS's definition; more details can be found :ref:`here 
-    <customized-axis-labels>`;
+    Note: Each axis must have an unique index ``gridOrder`` specified.
+    For example, in a 2-D coverage in standard EPSG:4326 CRS, the Lat
+    axis would have ``gridOrder`` 0 and the Lon axis would have ``gridOrder``
+    1. In a 3-D coverage with time, Lat, and Lon axes, however, the Lat and Lon 
+    axes would have ``gridOrder`` 1 and 2, and gridOrder 0 would be set for
+    the time axis. For more details, see `this example
+    <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/130-wcs_pml_global_metadata_auto/ingest.template.json>`__ 
+    for importing netCDF files to a 3-D coverage.
+  * ``crsOrder`` - The index of the geo axis in the coverage's CRS (0-based).
+    Note: By default it is not required. Only set when one specifies a different name for this axis,
+    than the one configured in the CRS's definition; more details can be found :ref:`here 
+    <customized-axis-labels>`; In this case, each axis must have an unique index ``crsOrder`` specified.
   * ``min`` - The lower bound of the axis (coordinates in the axis CRS);
   * ``max``- The upper bound of the axis (coordinates in the axis CRS);
   * ``resolution`` - The resolution of the axis from the input file;
