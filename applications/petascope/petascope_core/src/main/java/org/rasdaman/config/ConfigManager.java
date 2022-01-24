@@ -219,10 +219,6 @@ public class ConfigManager {
     // If user doesn't use default postgresql (e.g: H2 database), then user needs to provide a corresponding JDBC driver (h2-jdbc.jar) manually
     public static final String KEY_SOURCE_DATASOURCE_JDBC_JAR_PATH = "metadata_jdbc_jar_path";
 
-    // For simple admin login to update OWS Service metadata
-    private static final String KEY_PETASCOPE_ADMIN_USERNAME = "petascope_admin_user";
-    private static final String KEY_PETASCOPE_ADMIN_PASSWORD = "petascope_admin_pass";
-    
     // How much memory in bytes to allow to cache WMS results
     private static final String KEY_MAX_WMS_CACHE_SIZE = "max_wms_cache_size";
     
@@ -421,10 +417,6 @@ public class ConfigManager {
         SOURCE_DATASOURCE_PASSWORD = get(KEY_SOURCE_DATASOURCE_PASSWORD);
         SOURCE_DATASOURCE_JDBC_JAR_PATH = get(KEY_SOURCE_DATASOURCE_JDBC_JAR_PATH);
 
-        // For simple admin user to update OWS Service metadata
-        PETASCOPE_ADMIN_USERNAME = get(KEY_PETASCOPE_ADMIN_USERNAME);
-        PETASCOPE_ADMIN_PASSWORD = get(KEY_PETASCOPE_ADMIN_PASSWORD);
-        
         String valueMaxWMSCacheSize = "";
         try {
             valueMaxWMSCacheSize = get(KEY_MAX_WMS_CACHE_SIZE);
