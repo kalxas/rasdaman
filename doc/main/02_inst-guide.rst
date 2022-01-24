@@ -1695,9 +1695,16 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 start_rasdaman.sh
 -----------------
 
-Since v9.8, to start a specific service (rasdaman and :ref:`embedded petascope 
-<start-stop-embedded-applications>`) the ``--service (core | secore | petascope)`` 
-option can be used(``core`` refers to ``rasmgr`` + ``rasserver`` only).
+This script starts rasdaman. Normally rasdaman is installed from packages, and
+instead of executing this script directly one would execute ``service rasdaman
+start``. Any options to be passed on to ``start_rasdaman.sh`` can be set in
+``/etc/default/rasdaman`` in this case; see :ref:`more details
+<sec-system-install-administration>`.
+
+To start a specific service (rasdaman and :ref:`embedded petascope 
+<start-stop-embedded-applications>`) the 
+``--service (core | petascope)`` option can be used(``core`` refers to 
+``rasmgr`` + ``rasserver`` only).
 
 Since v10.0 the rasmgr port can be specified with ``-p, --port``. Additionally,
 for security and usability reasons, ``start_rasdaman.sh`` will refuse running
@@ -1706,24 +1713,28 @@ if executed with root user; this can  be overriden if needed with the
 
 Check ``-h, --help`` for all details.
 
-Normally rasdaman is installed from packages, and instead of executing this
-script directly one would execute ``service rasdaman start``. Any options to be
-passed on to ``start_rasdaman.sh`` can be set in ``/etc/default/rasdaman`` in
-this case; see :ref:`more details <sec-system-install-administration>`.
-
 stop_rasdaman.sh
 ----------------
 
-Since v9.8, to stop a specific service the 
-``--service (core | secore | petascope )`` option can be used. Since v10.0 
-the rasmgr port can be specified with ``-p, --port``.
+This script stops rasdaman. Normally rasdaman is installed from packages, and
+instead of executing this script directly one would execute ``service rasdaman
+stop``. Any options to be passed on to ``stop_rasdaman.sh`` can be set in
+``/etc/default/rasdaman`` in this case; see :ref:`more details
+<sec-system-install-administration>`.
+
+The script stops rasmgr, rasservers, rasfed, and petascope (if configured for
+embedded deployment) in the correct order with a regular TERM signal to each
+process; this ensures that the services exit properly. In some cases, a process
+may be hanging instead of exiting on the TERM signal; since rasdaman v10.0,
+``stop_rasdaman.sh`` will detect and report such cases. It is prudent to then
+check the relevant process logs, and if it appears that there is no reason for
+the process hanging one can force-stop it with ``stop_rasdaman.sh --force``, or
+manually do it by sending it a KILL signal (e.g. ``kill -KILL <pid>``).
+
+To stop a specific service the ``--service (core | petascope )`` option
+can be used. Since v10.0 the rasmgr port can be specified with ``-p, --port``.
 
 Check ``-h, --help`` for all details.
-
-Normally rasdaman is installed from packages, and instead of executing this
-script directly one would execute ``service rasdaman start``. Any options to be
-passed on to ``start_rasdaman.sh`` can be set in ``/etc/default/rasdaman`` in
-this case; see :ref:`more details <sec-system-install-administration>`.
 
 migrate_petascopedb.sh
 ----------------------

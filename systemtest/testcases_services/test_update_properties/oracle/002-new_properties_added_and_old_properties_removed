@@ -245,3 +245,4 @@ log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L:
 # Deprecated settings
 spring.old.deprecated.property=123
 metdata_old_deprecated_property=456
+

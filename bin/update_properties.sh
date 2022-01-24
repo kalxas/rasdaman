@@ -32,7 +32,7 @@ RC_OK=0		# everything went fine
 RC_ERROR=1	# something went wrong
 
 # get script name
-PROG=$( basename $0 )
+PROG=$( basename "$0" )
 
 # if no key in properties file exists, value of this key is null
 NULL_VALUE="NULL"
@@ -40,16 +40,16 @@ NULL_VALUE="NULL"
 #
 # logging
 #
-log()   { echo    "$PROG: $@"; }
-logn()  { echo -n "$PROG: $@"; }
-loge()  { echo -e "$PROG: $@"; }
-error() { echo    "$PROG: $@" >&2; _cleanup; exit $RC_ERROR; }
-check() { [ $? -eq 0 ] && echo ok. || echo failed.; }
+log()   { echo    "$PROG: $*"; }
+logn()  { echo -n "$PROG: $*"; }
+loge()  { echo -e "$PROG: $*"; }
+error() { echo    "$PROG: $*" >&2; _cleanup; exit $RC_ERROR; }
+check() { if [ $? -eq 0 ]; then echo ok.; else echo failed.; fi }
 ok()    { echo    "$PROG: Done."; exit $RC_OK; }
 
 # return the value of key=value from properties file ($1: the key, $2: the file)
 get_value(){    
-    key_value=$(grep -E "^$1=" "$2") && echo ${key_value#*=} || echo "$NULL_VALUE"
+    key_value=$(grep -E "^$1=" "$2") && echo "${key_value#*=}" || echo "$NULL_VALUE"
 }
 
 # replace the value of a key from properties file ($1: the key, $2: the new value, $3: the file)
@@ -74,7 +74,7 @@ _cleanup() {
     ok
 }
 
-trap _cleanup HUP INT QUIT KILL
+trap _cleanup HUP INT QUIT
 
 
 # Get filepath to old_file and new_file files
@@ -150,18 +150,13 @@ trim_whitespace() {
     echo -n "$var"
 }
 
-deprecated_settings_exist=1
+deprecated_settings=""
 
 # NOTE: line is read without leading white spaces
-while read line; do
+while read -r line; do
     line=$(trim_whitespace "$line")
+
     first_char=${line:0:1} # get first character of the line
-
-    # copy over the define lines (inpeers / outpeers)
-    if [[ $line == define* ]]; then
-      echo $line >> "$new_file_tmp"
-    fi
-
     if [[ "$first_char" != '#' && "$first_char" != '' && "$line" != *" "* ]]; then # if $line contains with # or spaces -> comments so ignore.
 
         # 5.1 Get the old_file setting (setting name) and value (setting value)
@@ -177,12 +172,7 @@ while read line; do
         if [[ "$new_value" == "$NULL_VALUE" ]]; then # if no old_file setting value in new_file file
             log "$old_setting"
             log "'$old_setting_value' is deprecated and appended to the bottom of properties file."
-            if [ "$deprecated_settings_exist" == 1 ]; then
-                echo "" >> "$new_file_tmp"
-                echo "# Deprecated settings" >> "$new_file_tmp"
-                deprecated_settings_exist=0
-            fi
-            echo "$old_setting_value" >> "$new_file_tmp"            
+            deprecated_settings="$deprecated_settings$old_setting_value\n"           
         elif [[ "$old_setting_value" != "$new_setting_value" ]]; then            
             # 5.3 If the old_file value is not the same as the new_file value 
             # then replace the new_file setting with the old_file setting from new_file.tmp
@@ -194,6 +184,10 @@ while read line; do
     fi # end check line not start with '#' in old_file file
 done < "$old_file" # ending read line in files
 
+if [ -n "$deprecated_settings" ]; then
+    echo -e "\n# Deprecated settings\n${deprecated_settings}" >> "$new_file_tmp"
+fi
+
 ### For new Petascope in 9.5, copy the username and password from old properties (version 9.4) to new Spring properties
 # then user doesn't have to update this petascope.properties for current datasource for Spring.
 if [ "$new_file_name" != "secore.properties" ]; then
@@ -201,17 +195,17 @@ if [ "$new_file_name" != "secore.properties" ]; then
     if [[ "$spring_datasource_url_value" == "$NULL_VALUE" ]]; then
         logn "Configuring Spring datasource for petascope v9.5+ ... "
         metadata_url_value=$(get_value "metadata_url" "$old_file")
-        $(replace_value "spring.datasource.url=" "$metadata_url_value" "$new_file_tmp")
+        replace_value "spring.datasource.url=" "$metadata_url_value" "$new_file_tmp"
         metadata_user_value=$(get_value "metadata_user" "$old_file")           
-        $(replace_value "spring.datasource.username=" "$metadata_user_value" "$new_file_tmp")
+        replace_value "spring.datasource.username=" "$metadata_user_value" "$new_file_tmp"
         metadata_pass_value=$(get_value "metadata_pass" "$old_file")           
-        $(replace_value "spring.datasource.password=" "$metadata_pass_value" "$new_file_tmp")                      
+        replace_value "spring.datasource.password=" "$metadata_pass_value" "$new_file_tmp"                      
         check
     fi
 
     # Update for petascope 9.8 for blocking write requests from any IP addresses
     disable_write_operations=$(get_value "disable_write_operations" "$old_file")
-    [ "$disable_write_operations" == "true" ] && $(replace_value "allow_write_requests_from=" "" "$new_file_tmp")       
+    [ "$disable_write_operations" == "true" ] && replace_value "allow_write_requests_from=" "" "$new_file_tmp"
 fi
 
 # replace misconfiguration for log4j rolling file appender for strategy 2

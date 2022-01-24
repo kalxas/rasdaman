@@ -59,8 +59,6 @@ RC_OK=0
 RC_ERROR=1
 RC_HELP=2
 
-RASMGR_PORT=7001
-
 # binaries
 rasmgr_bin="@bindir@rasmgr"
 rasserver_bin="@bindir@rasserver"
@@ -71,9 +69,14 @@ war_path="@pkgdatadir@war"
 
 ENABLE_JAVA=@ENABLE_JAVA@
 
+# rasmgr port
+DEFAULT_RASMGR_PORT=7001
+[ -z "$RASMGR_PORT" ] && RASMGR_PORT="$DEFAULT_RASMGR_PORT"
+
 # rasadmin/rasadmin
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
-[ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
+[ -z "$RASLOGIN" ] && RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
+export RASLOGIN
 
 log()  { echo "$PROG: $*"; }
 logn() { printf "%s" "$PROG: $*"; }
@@ -87,6 +90,7 @@ get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
 # $1 - process path to match in pgrep
 # $2 - timeout in seconds
 # $3 - [optional] grep the output of pgrep
+# return - 0 if the process shutdown successfully, otherwise 1
 wait_for_process_to_shutdown()
 {
     proc_path="$1"
@@ -110,6 +114,23 @@ wait_for_process_to_shutdown()
     [ $count -lt "$max_count" ]
 }
 
+# should usually follow a call to wait_for_process_to_shutdown, based on the
+# value of $? it prints ok or tries to force-stop the process with pid $pid
+# $1 - process name to be checked in case of failure to stop
+check_process_and_force_shutdown_if_needed()
+{
+    if [ $? -ne 0 ]; then
+        if [ "$force" = true ]; then
+            kill -9 "$pid"
+            echo "failed, had to be force-stopped."
+        else
+            echo "failed, please check the $1 process manually, or stop rasdaman with the --force option."
+        fi
+    else
+        echo "ok."
+    fi
+}
+
 # Read the property of a value by input key from input properties file
 get_property_value() {
     # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
@@ -118,37 +139,6 @@ get_property_value() {
     key="$2"
     # only grep key=value line not commented line (e.g: #key=value)
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
-}
-
-# --- kill embedded petascope if it is running ---------
-
-# Stop embedded tomcat from values in properties file
-# $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
-# $2: the web application name (e.g: petascope).
-stop_embedded()
-{
-    props_path="$1"
-    app_name="$2"
-    war_file_name="$3"
-    war_file="$war_path/$war_file_name"
-
-    if [ -f "$props_path" ]; then
-        # check if java-server is embedded/external
-        java_server=$(get_property_value "$props_path" "java_server")
-        # check if java-server is embedded
-        if [ "$java_server" = "embedded" ]; then
-            logn "  stopping $app_name... "
-            pid="$(ps -Ao pid,args | grep "[^]]$war_file\b" | awk '{print $1}' 2> /dev/null)"
-            if [ -n "$pid" ]; then
-                kill "$pid"
-                check
-            else
-                echo "already stopped."
-            fi
-        fi
-    elif [ "$ENABLE_JAVA" != "OFF" ]; then
-        log "Warning - cannot stop embedded $app_name, $props_path not found."
-    fi
 }
 
 set_rasmgr_port()
@@ -188,6 +178,16 @@ Options:
                         was started with a port different from the standard 7001
                         then the port must be specified with this option as well.
 
+  -f, --force           stop_rasdaman.sh will wait for some time for rasdaman
+                        processes to exit. If they have not exited during this
+                        time of 10-15 seconds, and this option is specified, then
+                        the hanging rasdaman process will be force-stopped with a
+                        SIGKILL signal.
+
+                        Warning: Use this option carefully, as it may lead to data
+                        corruption. It is best to first check the process and its
+                        logs manually, to determine why is it hanging.
+
   -h, --help            show this message and exit.
 EOF
     exit $RC_HELP
@@ -201,6 +201,7 @@ set_all_options()
 
 set_all_options true
 service_already_reset=false
+force=false
 
 # Iterate all input arguments (--service petascope ...)
 option=""
@@ -228,6 +229,7 @@ for i in "$@"; do
         case $i in
           --service)     option="$i";;
           --port|-p)     option="$i";;
+          --force|-f)    force=true;;
           --help|-h)     usage;;
           *) error "unknown option: $i";;
         esac
@@ -238,7 +240,26 @@ log "stopping rasdaman $VERSION build $BUILD... "
 
 # Check if it should stop embedded tomcat
 if [ "$stop_embedded_petascope" = true ]; then
-    stop_embedded "$petascope_props" "petascope" "rasdaman.war"
+    war_file_name="rasdaman.war"
+    war_file="$war_path/$war_file_name"
+
+    if [ -f "$petascope_props" ]; then
+        # check if java-server is embedded/external
+        java_server=$(get_property_value "$petascope_props" "java_server")
+        if [ "$java_server" = "embedded" ]; then
+            logn "  stopping petascope... "
+            pid="$(ps -Ao pid,args | grep "[^]]$war_file\b" | awk '{print $1}' 2> /dev/null)"
+            if [ -n "$pid" ]; then
+                kill "$pid"
+                wait_for_process_to_shutdown "$war_file" 10
+                check_process_and_force_shutdown_if_needed "$war_file_name"
+            else
+                echo "already stopped."
+            fi
+        fi
+    elif [ "$ENABLE_JAVA" != "OFF" ]; then
+        log "  warning - cannot stop petascope, $petascope_props not found."
+    fi
 fi
 
 if [ "$stop_rasmgr_rasservers" = true ]; then
@@ -254,7 +275,8 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
     logn "  stopping rasserver processes... "
     "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x down srv -all -kill
     check
-    wait_for_process_to_shutdown "$rasserver_bin" 10 "port $RASMGR_PORT"
+    wait_for_process_to_shutdown "$rasserver_bin" 10 "mgrport $RASMGR_PORT"
+    rasservers_stopped=$?
 
     # --- stop rasmgr -------------------------------------------------
 
@@ -262,7 +284,25 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
     logn "  "
     "$rascontrol_bin" --port "$RASMGR_PORT" -e -q -x down host -all
     wait_for_process_to_shutdown "$rasmgr_bin" 15 "port $RASMGR_PORT"
+    if [ $? -ne 0 ]; then
+        if [ "$force" = true ]; then
+            # failed to shutdown rasmgr, try with kill -9
+            for pid in $(ps -Ao pid,args | grep "[^]]$rasmgr_bin\b" | grep "$RASMGR_PORT" | awk '{print $1}' 2> /dev/null); do
+                kill -9 "$pid"
+                log "  rasmgr with pid $pid had to be force-stopped."
+            done
+        else
+            log "  failed stopping rasmgr, please check the rasmgr process manually, or stop rasdaman with the --force option."
+        fi
+    fi
 
+    # force stop rasservers if they weren't stopped before
+    if [ "$rasservers_stopped" -ne 0 -a "$force" = true ]; then
+        for pid in $(ps -Ao pid,args | grep "[^]]$rasserver_bin\b" | grep "mgrport $RASMGR_PORT" | awk '{print $1}' 2> /dev/null); do
+            kill -9 "$pid"
+            log "  rasserver with pid $pid had to be force-stopped."
+        done
+    fi
 fi
 
 log "done."

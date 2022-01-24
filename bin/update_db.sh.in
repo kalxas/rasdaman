@@ -61,6 +61,8 @@ export BASEDBMS_PGSQL=pgsql
 
 export DBCONN="@dbconn@"
 
+export RMANHOME="@CMAKE_INSTALL_PREFIX@"
+
 # try to get the db connection from rasmgr.conf if possible
 RASMGR_CONF="@CMAKE_INSTALL_PREFIX@/etc/rasmgr.conf"
 RASDB="$(grep define "$RASMGR_CONF" | grep connect | awk '{ print $5 }')"
