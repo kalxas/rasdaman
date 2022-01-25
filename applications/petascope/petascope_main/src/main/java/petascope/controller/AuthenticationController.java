@@ -80,7 +80,7 @@ public class AuthenticationController extends AbstractController {
             
             Set<String> roleNames = this.parseRolesFromRascontrol(username);
             
-            if (roleNames != null) {
+            if (roleNames.isEmpty()) {
                 // Return the list of rolenames for this user
                 // e.g: admin,info,readwrite,PRIV_TYPE_MGMT,PRIV_COLLECTION_MGMT,PRIV_TRIGGER_MGMT,PRIV_USER_MGMT,PRIV_OWS_ADMIN,...
                 result = ListUtil.join(new ArrayList(roleNames), ",");
@@ -102,7 +102,7 @@ public class AuthenticationController extends AbstractController {
         // export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40 && rascontrol -q -e -x list user -rights
         Runtime runtime = Runtime.getRuntime();
         
-        Set<String> roleNames = null;
+        Set<String> roleNames = new LinkedHashSet<>();
         
         String loginEnv = ConfigManager.RASDAMAN_ADMIN_USER + ":" + DigestUtils.MD5(ConfigManager.RASDAMAN_ADMIN_PASS);
         String[] envp = new String[] {"RASLOGIN=" + loginEnv};
@@ -128,7 +128,7 @@ public class AuthenticationController extends AbstractController {
                     if (rights.contains(".")) {
                         // Here user has a missing right, e.g [R.] so he is not admin
                         break; 
-                    } else if (rights.contains("RW")) {
+                    } else if (rights.contains(READ_WRITE_RIGHTS)) {
                         // e.g rasadmin with rights [AISC] -[RW]
                         
                         // then, the user is admin and it has these mapping roles - NOTE: it is used *internaly* only for WSClient

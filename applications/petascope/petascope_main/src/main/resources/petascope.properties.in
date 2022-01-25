@@ -91,6 +91,8 @@ petascope_servlet_url=
 # from the comma-separated list of IP addresses. By default 127.0.0.1 will allow
 # locally generated requests, usually needed to import data with wcst_import.sh.
 # Setting to empty will block all requests, while * will allow any IP address.
+# Note: This setting (i.e. the origin IP) is ignored when a request contains basic auth 
+# credentials for a valid rasdaman user with RW rights in the HTTP Authorization header.
 allow_write_requests_from=127.0.0.1
 
 # Server directory where files uploaded by a request will be temporarily stored.

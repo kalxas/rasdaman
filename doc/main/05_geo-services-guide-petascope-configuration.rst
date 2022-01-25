@@ -141,6 +141,11 @@ General
     locally generated requests, usually needed to import data with ``wcst_import.sh``.
     Setting to empty will block all requests, while ``*`` will allow any IP address.
 
+    .. NOTE::
+
+        This setting (i.e. the origin IP) is ignored when a request contains basic auth 
+        credentials for a valid rasdaman user with ``RW`` rights in the HTTP Authorization header.
+
     - Default: ``127.0.0.1``
 
     - Need to change: **YES** when more IP addresses are allowed to send write requests

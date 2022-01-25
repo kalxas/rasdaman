@@ -21,6 +21,7 @@
  */
 package petascope.controller;
 
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,6 +33,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +47,7 @@ import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
+import static petascope.controller.AuthenticationController.READ_WRITE_RIGHTS;
 import petascope.controller.handler.service.AbstractHandler;
 import petascope.controller.handler.service.XMLWCSServiceHandler;
 import petascope.core.KVPSymbols;
@@ -70,6 +73,7 @@ import static petascope.util.StringUtil.EQUAL_SIGN;
 import static petascope.util.StringUtil.POST_STRING_CONTENT_TYPE;
 import static petascope.util.StringUtil.POST_TEXT_PLAIN_CONTENT_TYPE;
 import petascope.util.XMLUtil;
+import petascope.util.ras.RasUtil;
 
 /**
  * Abstract class for controllers
@@ -850,7 +854,7 @@ public abstract class AbstractController {
     /**
      * Get request IP address from client to petascope
      */
-    public String getRequesIPAddress(HttpServletRequest httpServletRequest) {
+    public String getRequestIPAddress(HttpServletRequest httpServletRequest) {
         // in case, petascope is behind Apache proxy, then get the forwared IP via proxy
         String sourceIP = httpServletRequest.getHeader("X-FORWARDED-FOR");
         if (sourceIP == null) {
@@ -868,16 +872,43 @@ public abstract class AbstractController {
     public void validateWriteRequestFromIP(HttpServletRequest httpServletRequest) throws PetascopeException, Exception {
         if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
             
-            String sourceIP = this.getRequesIPAddress(httpServletRequest);
+            String sourceIP = this.getRequestIPAddress(httpServletRequest);
             // localhost IP in servlet
             if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
                 sourceIP = "127.0.0.1";
             }
 
             if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
-                String requestRepresentation = this.getRequestPresentationWithEncodedAmpersands(httpServletRequest);
-                throw new PetascopeException(ExceptionCode.AccessDenied, 
-                                             "Write request '" + requestRepresentation + "' is not permitted from IP address '" + sourceIP + "'.");
+                
+                // -- rasdaman community only
+                
+                //  If user's IP is not allowed, check if request contains valid admin credentials in basic header
+                Pair<String, String> resultPair = AuthenticationService.getBasicAuthUsernamePassword(httpServletRequest);
+                if (resultPair != null) {
+                    String username = resultPair.fst;
+                    String password = resultPair.snd;
+        
+                    if (RasUtil.checkValidUserCredentials(username, password)) {
+                        // Check if credentials are valid
+                        Set<String> roleNames = AuthenticationController.parseRolesFromRascontrol(username);
+                        if (!roleNames.contains(AuthenticationController.READ_WRITE_RIGHTS)) {
+                            // and user has RW rights
+                            String requestRepresentation = this.getRequestPresentationWithEncodedAmpersands(httpServletRequest);
+                            throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                    "The user '" + username + "' specified in the request basic header does not have '" + READ_WRITE_RIGHTS 
+                                    + "' permissions for executing the write request '" + requestRepresentation + "'");
+                        }
+                    }
+                }
+                
+                // -- rasdaman community only
+                
+                else {
+                    // no basic header exists, request from non-allowed IP
+                    String requestRepresentation = this.getRequestPresentationWithEncodedAmpersands(httpServletRequest);
+                    throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                                 "Write request '" + requestRepresentation + "' is not permitted from IP address '" + sourceIP + "'.");
+                }
             }
         }
     }
