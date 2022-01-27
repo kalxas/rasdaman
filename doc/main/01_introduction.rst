@@ -65,7 +65,7 @@ kaleidoscope of hands-on interactive demos.
 
 **Historically**, rasdaman has pioneered the field of Array Databases, being the
 first system of this kind. The rasdaman technology has been developed over a
-series of EU funded prjects and then marketed by `rasdaman GmbH
+series of EU funded projects and then marketed by `rasdaman GmbH
 <http://www.rasdaman.com>`__, a research spin-off dedicated to its commercial
 support, since 2003. In 2008/2009, the company has teamed up with `Jacobs
 University <http://www.jacobs-university.de/lsis>`__ for a code split to
@@ -112,7 +112,7 @@ specification even parts of arrays.
 
 As such, rasdaman is prepared for the forthcoming ISO SQL/MDA
 ("Multi-Dimensional Arrays") standard, which actually is crafted along
-rasdaman array model and query language. This standard will define arras
+rasdaman array model and query language. This standard will define arrays
 as new attribute types, following an "array-as-an-attribute" approach
 for optimal integration with relations (as opposed to an
 "attribute-as-table" approach - as pursued, e.g., by SciDB and SciQL -
@@ -144,7 +144,7 @@ incoming imagery.
 Query formulation is done in a declarative style (queries express what
 the result should look like, not how to compute it). This allows for
 extensive optimization on server side. Further, rasql is safe in
-evaluation: every valid query is guaranteed to to terminate in finite
+evaluation: every valid query is guaranteed to terminate in finite
 time.
 
 C++ and Java API
@@ -275,4 +275,117 @@ There are lots of ways to get involved and help out with the rasdaman project:
 **Help plan and design the next version.**
 
     Browse this section of the website, we use "Feature" tickets to hold ideas for new features; add your own and/or discuss a topic on the  `dev list <http://rasdaman.org/wiki/MailingLists>`_.
+
+
+Reporting problems
+==================
+
+Reporting problems should be done by sending an email to the `rasdaman-users 
+mailing list <https://rasdaman.org/wiki/MailingLists>`__. Your email should
+include a report with *relevant information* about the issue, either prepared 
+with help of the :ref:`prepare_issue_report.sh script 
+<executables-prepare-issue-report>`, or manually specified as bellow:
+
+1. OS distribution and version (see /etc/os-release)
+
+2. Rasdaman version
+
+ - Ubuntu: ``apt-cache show rasdaman``
+
+ - CentOS: ``yum info rasdaman``
+
+3. Concise description of your activity that led to the problematic behavior: queries, package management commands, etc.
+
+4. Properties of the data operated on, including (but not limited to) data
+   format, pixel type, coordinate reference system, dimension, along with data
+   ingestion details (ingredients files, scripts); include a small resized data
+   sample if possible, output of WCS DescribeCoverage of affected coverages,
+   dbinfo on the underlying collections and spatial domain:
+
+   .. code-block:: shell
+
+     coverageId=???
+     ows_endpoint="http://localhost:8080/rasdaman/ows"
+     describe_cov_req="service=WCS&version=2.0.1&request=DescribeCoverage&coverageId=${coverageId}"
+
+     curl "${ows_endpoint}?${describe_cov_req}" > DescribeCoverage.xml
+     rasql -q "select dbinfo(c) from $coverageId as c" --out string > dbinfo.json
+     rasql -q "select sdom(c) from $coverageId as c" --out string > sdom.txt
+     tar cfz /tmp/data_details.tar.gz DescribeCoverage.xml dbinfo.json sdom.txt
+
+   Attach ``/tmp/data_details.tar.gz`` to the report, along with the ingredient files.
+   Sample data should be uploaded elsewhere, e.g. Google Drive, if it is larger than
+   20 MB.
+
+5. Relevant log files in ``/opt/rasdaman/log`` and ``/var/log/tomcat*/``; you
+   can compress the last 20 log files as follows (but try to execute the
+   problematic query / operation last, just before the step below):
+
+   .. code-block:: shell
+
+     cd /opt/rasdaman/log
+     petascope_log="$(sudo find /var/log/ -name petascope.log)"
+     tar cfz /tmp/rasdaman_logs.tar.gz $(ls -t | head -n 20) $petascope_log
+                                       
+   Attach ``/tmp/rasdaman_logs.tar.gz`` to the report.
+
+   Prior to sending your request to the please inspect the log files, they may
+   already provide a clue that helps you resolve the issue.
+
+
+.. _executables-prepare-issue-report:
+
+Script for issue reporting
+--------------------------
+
+Rasdaman distributes with a ``prepare_issue_report.sh`` script in
+``/opt/rasdaman/bin``, which helps prepare a report for an issue encountered
+while operating rasdaman. Running the script will open an editor where you can
+enter a description of how the issue got triggered.
+
+Various options can be specified to control what additional information is
+included in order to help developers in understanding and reproducing the
+issue. Following the options, you can specify files to include in the report,
+e.g. screenshots, ingredient files for importing data, sample (downsized if
+possible) data, etc.
+
+Everything is compressed into a single archive in the current working
+directory from which the script is executed, and the path to it is printed at
+the end.
+
+By default the script will try to include config files, latest 200 log files,
+petascopedb, and RASBASE, as long as the resulting archive is not larger than
+20 MB to make it suitable for sending by email. Parts which are too large
+will be left out, in reverse order of priority (first RASBASE, then
+petascopedb, etc). The limit can be changed with --limit-size <N>. As soon as
+a particular --include-* option is specified, the default behavior is no
+longer in effect and exclusively the specified options are considered.
+
+Please check ``prepare_issue_report.sh --help`` for a list of all available
+options.
+
+**Examples**
+
+1. Describe the issue, including config files and 100 most recent log files,
+   as well as a screenshot illustrating the problem: ::
+
+     $ prepare_issue_report.sh --include-recent-logs 100 -f screenshot.png \
+                               --no-coverage-id
+
+2. Describe the issue, include config files, all log files, petascopedb and
+   RASBASE, as well as sample data and ingredients: ::
+
+     $ prepare_issue_report.sh --include-all-logs --include-petascopedb \
+                               --include-rasbase -f sample_data.tar.gz \
+                               -f ingredients.json --no-coverage-id
+
+3. Like the first example, but also include information about coverage TestCov: ::
+
+     $ prepare_issue_report.sh --include-recent-logs 100 --coverage-id TestCov \
+                               -f screenshot.png
+
+4. Provide a screenshot and include details up to a maximum archive size of
+   20 MB (default behavior): ::
+
+     $ prepare_issue_report.sh -f screenshot.png --no-coverage-id
 

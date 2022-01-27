@@ -1672,10 +1672,12 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 |                              |(as assigned by the ``rasmgr``).                                |
 +------------------------------+----------------------------------------------------------------+
 |``start_rasdaman.sh``         |Start ``rasmgr`` and the worker ``rasservers`` as               |
-|                              |configured in ``$RMANHOME/etc/rasmgr.conf``.                    |
+|                              |configured in ``$RMANHOME/etc/rasmgr.conf``. More details       |
+|                              |:ref:`here <executables-start-rasdaman>`.                       |
 +------------------------------+----------------------------------------------------------------+
 |``stop_rasdaman.sh``          |Shutdown rasdaman, embedded petascope and embedded secore       |
-|                              |if enabled.                                                     |
+|                              |if enabled. More details                                        |
+|                              |:ref:`here <executables-stop-rasdaman>`.                        |
 +------------------------------+----------------------------------------------------------------+
 |``create_db.sh``              |Initialize the rasdaman metadata database (RASBASE).            |
 +------------------------------+----------------------------------------------------------------+
@@ -1686,11 +1688,19 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 +------------------------------+----------------------------------------------------------------+
 |``petascope_insertdemo.sh``   |Insert geo-referenced demo coverage in petascope.               |
 +------------------------------+----------------------------------------------------------------+
-|``migrate_petascopedb.sh``    |Applies database migrations on petascopedb.                     |
+|``migrate_petascopedb.sh``    |Applies database migrations on petascopedb. More details        |
+|                              |:ref:`here <executables-migrate-petascopedb>`.                  |
 +------------------------------+----------------------------------------------------------------+
 |``wcst_import.sh``            |Tool for convenient and flexible import of                      |
-|                              |geo-referenced data into petascope.                             |
+|                              |geo-referenced data into petascope. More details                |
+|                              |:ref:`here <data-import>`.                                      |
 +------------------------------+----------------------------------------------------------------+
+|``prepare_issue_report.sh``   |Helps preparing a report for an issue encountered while         |
+|                              |operating rasdaman. More details                                |
+|                              |:ref:`here <executables-prepare-issue-report>`.                 |
++------------------------------+----------------------------------------------------------------+
+
+.. _executables-start-rasdaman:
 
 start_rasdaman.sh
 -----------------
@@ -1711,7 +1721,28 @@ for security and usability reasons, ``start_rasdaman.sh`` will refuse running
 if executed with root user; this can  be overriden if needed with the
 ``--allow-root`` option.
 
+The script will use various environment variables, if they are set before it is
+executed:
+
+- ``RASMGR_PORT`` - the port on which rasmgr will listen when started, and to
+  which client applications will connect in order to send queries to rasdaman.
+  This variable will be overrided by the value of option ``--port``, if 
+  specified. By default if none are specified, the port is set to 7001.
+
+- ``RASLOGIN`` - rasdaman admin credentials which will be used for 
+  starting rasmgr non-interactively. See more details on the format and how is
+  this setting used :ref:`here <sec-rascontrol-script-use>`. If not set, the
+  script defaults to using rasadmin/rasadmin credentials; see
+  :ref:`here <sec-security-reset-passwords>` on how to change these defaults.
+
+- ``JAVA_OPTS`` - options passed on to the ``java`` command when used to start
+  the OGC frontend of rasdaman (petascope) if it is configured for
+  :ref:`embedded deployment <start-stop-embedded-applications>`. If not set,
+  it defaults to ``-Xmx4000m``
+
 Check ``-h, --help`` for all details.
+
+.. _executables-stop-rasdaman:
 
 stop_rasdaman.sh
 ----------------
@@ -1734,7 +1765,22 @@ manually do it by sending it a KILL signal (e.g. ``kill -KILL <pid>``).
 To stop a specific service the ``--service (core | petascope )`` option
 can be used. Since v10.0 the rasmgr port can be specified with ``-p, --port``.
 
+The script will use various environment variables, if they are set before it is
+executed:
+
+- ``RASMGR_PORT`` - the port on which rasmgr was set to listen when it was 
+  started. This variable will be overrided by the value of option ``--port``, if 
+  specified. By default if none are specified, the port is set to 7001.
+
+- ``RASLOGIN`` - rasdaman admin credentials which will be used for 
+  stopping rasmgr non-interactively. See more details on the format and how is
+  this setting used :ref:`here <sec-rascontrol-script-use>`. If not set, the
+  script defaults to using rasadmin/rasadmin credentials; see
+  :ref:`here <sec-security-reset-passwords>` on how to change these defaults.
+
 Check ``-h, --help`` for all details.
+
+.. _executables-migrate-petascopedb:
 
 migrate_petascopedb.sh
 ----------------------
