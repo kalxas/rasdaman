@@ -1992,6 +1992,8 @@ control over the server is provided through several utilities, in
 particular ``rasmgr``; see :ref:`sec-rascontrol-invocation` for details. All
 tools can communicate with local and remote rasdaman servers.
 
+.. _web-services:
+
 Web Services
 ============
 
@@ -2031,6 +2033,12 @@ common context path ``/rasdaman``.
         ?username=rasguest
         &password=rasguest
         &uery=select%20encode%28mr2%2C%22png%22%29%20from%20mr
+
+  .. NOTE::
+
+     rasql servlet also supports rasdaman user credentials in basic authentication header.
+     In this case, ``password`` and ``query`` parameters are not required as the credentials
+     are extracted from the header.
 
 
 The diagram below illustrates the OGC service architecture of rasdaman:

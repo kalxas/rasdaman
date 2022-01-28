@@ -393,11 +393,19 @@ Several functions allow to extract metadata information about a coverage ``C``:
 +===========================+====================================================+
 | imageCrsDomain(C, a)      | Grid (lo, hi) bounds for axis a                    |
 +---------------------------+----------------------------------------------------+
-| imageCrsDomain(C, a).x    | Where x is one of lo or hi                         |      
-|                           | returning the lower and upper bounds respectively  |
+| imageCrsDomain(C, a).x    | Where x is one of ``lo`` or ``hi``                 |      
+|                           | returning the lower or upper bounds respectively   |
 +---------------------------+----------------------------------------------------+
 | domain(C, a, c)           | Geo (lo, hi) bounds for axis a in CRS c            |
 |                           | returning the lower and upper bounds respectively  |
++---------------------------+----------------------------------------------------+
+| domain(C, a, c).x         | Where x is one of ``lo`` or ``hi``                 | 
+|                           | returning the lower or upper bounds respectively   |
++---------------------------+----------------------------------------------------+
+| domain(C)                 | List of comma-separated axes and their bounds      |
+|                           | according to coverage's CRS orders respectively.   |
+|                           | Each list element contains an axis a               |
+|                           | with the lower and upper bounds in the axis CRS    |
 +---------------------------+----------------------------------------------------+
 | crsSet(C)                 | Set of CRS identifiers                             |
 +---------------------------+----------------------------------------------------+

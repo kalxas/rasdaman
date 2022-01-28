@@ -106,7 +106,7 @@ endpoint ``/rasdaman/ows``.
 
 .. NOTE::
 
-   Endpoint ``/rasdaman/rasql``, which by default is also available after
+   Endpoint ``/rasdaman/rasql`` (:ref:`docs <web-services>`), which by default is also available after
    deploying rasdaman, does not know about coverages and their services, but
    only knows domain-agnostic rasql.
 
@@ -266,6 +266,34 @@ Nil (**"null"**) values, as per SWE, are supported by rasdaman in an extended wa
    floating-point numbers in computers. If really desired, **a floating-point
    interval should be defined** around the desired float null value
    (this corresponds to interval arithmetics in numerical mathematics).
+
+
+Errors
+------
+
+Errors from OGC requests to rasdaman are returned to the client formatted as
+``ows:ExceptionReport``s (`OGC Common Specification <https://portal.ogc.org/files/?artifact_id=38867>`__).
+An ``ExceptionReport`` can contain multiple ``Exception``s.
+For example, when running a WCS GetCoverage or a WCPS query which execute
+rasql queries in rasdaman, in case of an error the ``ExceptionReport`` will contain
+two ``Exception`` elements:
+
+1. One with the error message returned from rasdaman.
+2. Another with the rasql query that failed.
+
+For example:
+
+.. code-block:: text
+
+    <ows:ExceptionReport>
+        <ows:Exception exceptionCode="RasdamanRequestFailed">
+            <ows:ExceptionText>The Encode function is applicable to array arguments only.</ows:ExceptionText>
+        </ows:Exception>
+        <ows:Exception exceptionCode="RasdamanRequestFailed">
+            <ows:ExceptionText>Failed internal rasql query: SELECT encode(1, "png" ) FROM mean_summer_airtemp AS c</ows:ExceptionText>
+        </ows:Exception>
+    </ows:ExceptionReport>
+
 
 
 OGC Web Coverage Service
@@ -753,6 +781,19 @@ For example:
 .. code-block:: text
 
     http://localhost:8080/rasdaman/admin/coverage/exist?coverageId=cov1
+
+
+GetCapabilities response extensions
+-----------------------------------
+
+The WCS ``GetCapabilities`` response contains some rasdaman-specific extensions,
+as documented below.
+
+- The ``<ows:Metadata>`` element of each coverage contains some information
+  which is used by clients like the wcs-client:
+
+  - ``<rasdaman:sizeInBytes>`` - an estimated size (in bytes) of the coverage
+  - ``<rasdaman:axisList>`` - the coverage axis labels in geo CRS order
 
 
 OGC Web Coverage Processing Service (WCPS)
