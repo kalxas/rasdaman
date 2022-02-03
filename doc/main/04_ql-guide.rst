@@ -67,7 +67,7 @@ application deployment while a set of cutting-edge intelligent
 optimization techniques in the rasdaman server ensures fast, efficient
 access to large data sets, particularly in networked environments.
 
-rasdaman Overall Architecture
+Rasdaman Overall Architecture
 =============================
 
 The rasdaman client/server DBMS has been designed using internationally
@@ -78,7 +78,7 @@ decomposed into smaller units which are maintained in a conventional
 DBMS, for our purposes called the *base DBMS*.
 
 On the other hand, the base DBMS usually will hold alphanumeric data
-(such as metadata) besides the array data. rasdaman offers means to
+(such as metadata) besides the array data. Rasdaman offers means to
 establish references between arrays and alphanumeric data in both
 directions.
 
@@ -609,7 +609,7 @@ List available types
 A list of all types defined in the database can be obtained in textual
 form, adhering to the rasql type definition syntax. This is done by
 querying virtual collections (similar to the virtual collection
-``RAS_COLLECT­ION_­NAMES``).
+``RAS_COLLECTIONNAMES``).
 
 Technically, the output of such a query is a list of 1-D ``char`` arrays,
 each one containing one type definition.
@@ -2531,6 +2531,7 @@ depending on the size of the collections involved - if the two
 collections contain n and m members, resp., then n*m combinations have
 to be evaluated.
 
+.. _rasql-case-stmt:
 
 Case statement
 --------------
@@ -2611,7 +2612,7 @@ Induction: All Operations
 
 Below is a complete listing of all cell level operations that can be induced,
 both unary and binary. Supported operand types and rules for deriving the result
-types for each operantion are specified in :ref:`type-coercion`.
+types for each operation are specified in :ref:`type-coercion`.
 
 +, -, \*, /
     For each cell within some MDD value (or evaluated MDD expression), add
