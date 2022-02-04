@@ -36,7 +36,7 @@ public class DuplcateRangeNameException extends WCPSException {
      * @param rangeName the name of duplicated range
      */
     public DuplcateRangeNameException(String rangeName) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$rangeName", rangeName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$rangeName", rangeName));
     }
 
     private static final String ERROR_TEMPLATE = "Range name '$rangeName' is duplicated.";

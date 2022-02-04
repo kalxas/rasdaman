@@ -21,7 +21,6 @@
  */
 package petascope.controller.admin;
 
-import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -32,13 +31,17 @@ import org.rasdaman.admin.pyramid.service.AdminRemovePyramidMemberService;
 import static org.rasdaman.config.ConfigManager.ADMIN;
 import static org.rasdaman.config.ConfigManager.COVERAGE;
 import static org.rasdaman.config.ConfigManager.PYRAMID;
+import org.rasdaman.config.VersionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
 import petascope.controller.RequestHandlerInterface;
+import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
+import petascope.exceptions.PetascopeException;
+import petascope.util.ExceptionUtil;
 
 /**
  * Endpoint to handle request related to pyramid
@@ -82,7 +85,7 @@ public class AdminPyramidController extends AbstractController {
                 Response response = this.listPyramidMemberService.handle(httpServletRequest, kvpParameters);
                 this.writeResponseResult(response);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WCS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -110,7 +113,7 @@ public class AdminPyramidController extends AbstractController {
 
                 this.addPyramidMemberService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WCS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -138,7 +141,7 @@ public class AdminPyramidController extends AbstractController {
 
                 this.removePyramidMemberService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WCS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -166,7 +169,7 @@ public class AdminPyramidController extends AbstractController {
 
                 this.createPyramidMemberService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WCS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -180,7 +183,7 @@ public class AdminPyramidController extends AbstractController {
     
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
     }
     
 }

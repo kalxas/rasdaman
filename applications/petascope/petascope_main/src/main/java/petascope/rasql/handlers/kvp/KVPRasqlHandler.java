@@ -22,15 +22,13 @@
 package petascope.rasql.handlers.kvp;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import petascope.core.response.Response;
 import java.util.Map;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import petascope.controller.AbstractController;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import static petascope.core.KVPSymbols.KEY_PASSWORD;
@@ -74,13 +72,12 @@ public class KVPRasqlHandler implements IKVPHandler {
         // Validate before handling request
         this.validate(kvpParameters);
 
-        String userName = kvpParameters.get(KEY_USERNAME)[0];
-        String password = kvpParameters.get(KEY_PASSWORD)[0];
-        String query = kvpParameters.get(KEY_QUERY)[0];
+        String userName = AbstractController.getValueByKey(kvpParameters, KEY_USERNAME);
+        String password = AbstractController.getValueByKey(kvpParameters, KEY_PASSWORD);
+        String query = AbstractController.getValueByKey(kvpParameters, KEY_QUERY);
 
         // check if user wants to upload file to server by find decode() or inv_*() in the requested query
-        String[] filePathValue = kvpParameters.get(KEY_UPLOADED_FILE_VALUE);
-        String filePath = filePathValue == null ? null : filePathValue[0];
+        String filePath = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_UPLOADED_FILE_VALUE);
 
         // select, delete, update without decode()
         Response response = this.executeQuery(userName, password, query, filePath);
@@ -112,9 +109,6 @@ public class KVPRasqlHandler implements IKVPHandler {
                 // decode() or inv_*() in rasql query, no result returned
                 RasUtil.executeInsertUpdateFileStatement(query, filePath, username, password);
             }
-        } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.IOConnectionError,
-                    "Failed writing result to output stream", ex);
         } finally {
             removeUploadedFile(filePath);
         }

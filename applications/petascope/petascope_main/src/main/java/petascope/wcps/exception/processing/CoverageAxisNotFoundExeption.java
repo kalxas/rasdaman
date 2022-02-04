@@ -37,7 +37,7 @@ public class CoverageAxisNotFoundExeption extends WCPSException {
      * @param axisName the axis that was provided
      */
     public CoverageAxisNotFoundExeption(String axisName) {
-        super(ExceptionCode.InvalidAxisLabel, ERROR_TEMPLATE.replace(("$axisName"), axisName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace(("$axisName"), axisName));
     }
 
     private static final String ERROR_TEMPLATE = "Coverage's axis not found '$axisName'.";

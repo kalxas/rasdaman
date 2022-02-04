@@ -24,6 +24,7 @@ package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception to be thrown when an invalid dimension value is requested
@@ -39,15 +40,8 @@ public class WMSInvalidDimensionValue extends WMSException {
      * @param dimensionValue the value of the dimension that was requested
      */
     public WMSInvalidDimensionValue(@NotNull String dimensionValue) {
-        super(ERROR_MESSAGE.replace("$Dimension", dimensionValue));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$Dimension", dimensionValue));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InvalidFormat";
     private static final String ERROR_MESSAGE = "The request contains an invalid sample dimension '$Dimension' value.";
 }

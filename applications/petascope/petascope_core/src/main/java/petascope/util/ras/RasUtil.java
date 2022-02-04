@@ -86,7 +86,7 @@ public class RasUtil {
             try {
                 db.close();
             } catch (Exception ex) {
-                throw new RasdamanException("Failed closing rasdaman db connection: " + ex.getMessage(), ex);
+                throw new RasdamanException("Failed closing rasdaman db connection. Reason: " + ex.getMessage(), ex);
             }
         }
     }
@@ -96,7 +96,7 @@ public class RasUtil {
             try {
                 tr.abort();
             } catch (Exception ex) {
-                throw new RasdamanException("Failed closing rasdaman transaction: " + ex.getMessage(), ex);
+                throw new RasdamanException("Failed closing rasdaman transaction. Reason: " + ex.getMessage(), ex);
             }
         }
     }
@@ -104,7 +104,7 @@ public class RasUtil {
     /**
      * Create a RasGMArray from an array of bytes;
      */
-    private static RasGMArray createRasGMArray(byte[] bytes) throws RasResultIsNoIntervalException, IOException {
+    private static RasGMArray createRasGMArray(byte[] bytes) throws RasResultIsNoIntervalException {
         
         String mIntervals = "[0:" + (bytes.length - 1) + "]";
         // with cell length = 1 (byte)
@@ -145,7 +145,7 @@ public class RasUtil {
             db.open(ConfigManager.RASDAMAN_DATABASE, 
                     rw ? Database.OPEN_READ_WRITE : Database.OPEN_READ_ONLY);
         } catch (Exception ex) {
-            log.error("Failed opening " + (rw ? "rw" : "ro") + " database connection to rasdaman: " + ex.getMessage());
+            log.error("Failed opening " + (rw ? "rw" : "ro") + " database connection to rasdaman. Reason: " + ex.getMessage());
             throw new RasdamanException(ExceptionCode.RasdamanUnavailable, ex, query);
         }
 
@@ -155,7 +155,7 @@ public class RasUtil {
             tr = impl.newTransaction();
             tr.begin();
         } catch (Exception ex) {
-            log.error("Failed opening " + (rw ? "rw" : "ro") + " transaction to rasdaman: " + ex.getMessage());
+            log.error("Failed opening " + (rw ? "rw" : "ro") + " transaction to rasdaman. Reason: " + ex.getMessage());
             closeDB(db);
             throw new RasdamanException(ExceptionCode.RasdamanUnavailable, ex, query);
         }
@@ -191,7 +191,7 @@ public class RasUtil {
             }
         } catch (OutOfMemoryError ex) {
             abortTR(tr);
-            throw new PetascopeException(ExceptionCode.InternalComponentError, "Requested more data than the server can handle at once. "
+            throw new PetascopeException(ExceptionCode.OutOfMemory, "Requested more data than the server can handle at once. "
                     + "Try increasing the maximum memory allowed for Tomcat (-Xmx JVM option).");
         } catch (Exception ex) {
             abortTR(tr);
@@ -284,8 +284,8 @@ public class RasUtil {
         
         // e.g: update test_mr1 as c set c[*:*,*:*] assign scale(d[*:*,*:*], [0:20,0:30]) from test_mr as d
         String rasqlQuery = "UPDATE " + targetDownscaledCollectionName + " as d SET d" + targetAffectedDomain 
-                     + " ASSIGN SCALE(c" + sourceAffectedDomain + ", " + targetAffectedDomain + ")"
-                     + " FROM " + sourceCollectionName + " as c";
+                          + " ASSIGN SCALE(c" + sourceAffectedDomain + ", " + targetAffectedDomain + ")"
+                          + " FROM " + sourceCollectionName + " as c";
         RasUtil.executeRasqlQuery(rasqlQuery, username, password, Boolean.TRUE);
     }
 
@@ -298,7 +298,7 @@ public class RasUtil {
     public static void executeInsertStatement(String collectionName, String values, String tiling, String username, String password) throws RasdamanException, PetascopeException {
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
-                .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
+                                              .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
         executeRasqlQuery(query, username, password, true);
     }
 
@@ -306,7 +306,7 @@ public class RasUtil {
      * Insert an image to an existing collection by decoding file
      */
     public static void executeInsertFileStatement(String collectionName, String filePath, String mime,
-                                                  String tiling, String username, String password) throws RasdamanException, IOException, PetascopeException {
+                                                  String tiling, String username, String password) throws RasdamanException, PetascopeException {
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
 
@@ -315,16 +315,27 @@ public class RasUtil {
                 + "'" + TEMPLATE_INSERT_DECODE_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         log.info("Executing " + query);
 
-        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(new String[] {"bash", "-c", query});
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Failed to run rasql query '" + query + "' with bash. Reason: " + ex.getMessage());
+        }
+        
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
         String errorMessage = "";
-        while ((s = stdError.readLine()) != null) {
-            errorMessage += s + "\n";
+        try {
+            while ((s = stdError.readLine()) != null) {
+                errorMessage += s + "\n";
+            }
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, 
+                    "Failed to get error message from InputStreamReader of rasql '" + query + "' with bash. Reason: " + ex.getMessage());
         }
         if (!errorMessage.isEmpty()) {
             //error occured
-            throw new RasdamanException(errorMessage, query);
+            throw new RasdamanException(ExceptionCode.InternalComponentError, errorMessage, query);
         }
     }
 
@@ -335,7 +346,7 @@ public class RasUtil {
      * decode($1)'
      */
     public static void executeInsertUpdateFileStatement(String orgQuery, String filePath, String username, String password) 
-            throws RasdamanException, IOException {
+            throws RasdamanException, PetascopeException {
         long start = System.currentTimeMillis();
         
         String query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
@@ -344,16 +355,28 @@ public class RasUtil {
                 + "' --file " + filePath;
         log.info("Executing " + query);
 
-        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(new String[] {"bash", "-c", query});
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Failed to run rasql query '" + query + "' with bash. Reason: " + ex.getMessage());
+        }
+        
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
         String errorMessage = "";
-        while ((s = stdError.readLine()) != null) {
-            errorMessage += s + "\n";
+        try {
+            while ((s = stdError.readLine()) != null) {
+                errorMessage += s + "\n";
+            }
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, 
+                    "Failed to get error message from InputStreamReader of rasql '" + query + "' with bash. Reason: " + ex.getMessage());
         }
+        
         if (!errorMessage.isEmpty()) {
             //error occured
-            throw new RasdamanException(errorMessage, query);
+            throw new RasdamanException(ExceptionCode.InternalComponentError, errorMessage, query);
         }
         
         long end = System.currentTimeMillis();
@@ -377,7 +400,7 @@ public class RasUtil {
         try {
             rasGMArray = createRasGMArray(bytes);
         } catch (Exception ex) {
-            throw new PetascopeException(ExceptionCode.IOConnectionError,
+            throw new PetascopeException(ExceptionCode.RuntimeError,
                                          "Cannot create RasGMArray from an array of bytes. Reason: " + ex.getMessage(), ex);
         }
         

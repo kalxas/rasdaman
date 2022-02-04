@@ -21,6 +21,7 @@
  */
 package petascope.wcst.helpers.decodeparameters;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,8 +39,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.rasdaman.domain.cis.GeneralGridCoverage;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
@@ -62,13 +66,18 @@ public class GribMessageConvertor implements RangeParametersConvertor {
     }
 
     @Override
-    public String toRasdamanDecodeParameters() throws IOException, WCSException, PetascopeException, SecoreException {
+    public String toRasdamanDecodeParameters() throws WCSException, PetascopeException, SecoreException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         // Deserialize from JSON string in rangeParameters GML into list of grib message
-        List<GribMessage> gribMessages = objectMapper.readValue(this.messages, new TypeReference<List<GribMessage>>() {
-        });
+        List<GribMessage> gribMessages;
+        try {
+            gribMessages = objectMapper.readValue(this.messages, new TypeReference<List<GribMessage>>() {});
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, 
+                    "Cannot create List of GribMessage object from the list of input grib messages. Reason: " + ex.getMessage());
+        }
         RasdamanGribInternalStructure rasdamanGribInternalStructure = new RasdamanGribInternalStructure();
 
         List<RasdamanGribMessage> rasdamanGribMessages = new ArrayList<RasdamanGribMessage>();
@@ -83,8 +92,12 @@ public class GribMessageConvertor implements RangeParametersConvertor {
         RasdamanDecodeParams rasdamanDecodeParams = new RasdamanDecodeParams();
         rasdamanDecodeParams.setInternalStructure(rasdamanGribInternalStructure);
 
-        // Serialize the grib params object to JSON string as part of rasql update query
-        return objectMapper.writeValueAsString(rasdamanDecodeParams);
+        try {
+            // Serialize the grib params object to JSON string as part of rasql update query
+            return objectMapper.writeValueAsString(rasdamanDecodeParams);
+        } catch (JsonProcessingException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot serialize GRIB messages as parameters of rasdaman decode(). Reason: " + ex.getMessage());
+        }
     }
 
     /**

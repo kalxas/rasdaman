@@ -177,7 +177,7 @@ public class CrsUtil {
             dbSecoreVersion.handle();
             log.debug("Initialzed BaseX dbs successfully.");
         } catch (Exception ex) {
-            throw new SecoreException(ExceptionCode.InternalComponentError, "Cannot initialize database manager", ex);
+            throw new SecoreException(ExceptionCode.InternalComponentError, "Cannot initialize internal SECORE database manager. Reason: " + ex.getMessage(), ex);
         }
     }
     
@@ -340,12 +340,10 @@ public class CrsUtil {
 
         // Check if the URI syntax is valid
         if (!CrsUri.isValid(givenCrsUri)) {
-            log.warn(givenCrsUri + " definition seems not valid.");
-            throw new PetascopeException(ExceptionCode.InvalidMetadata, givenCrsUri + " definition seems not valid.");
+            throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + givenCrsUri + "' definition seems not valid.");
         }
 
         // Need to parse the XML
-        String uom = "";
         String datumOrigin = ""; // for TemporalCRSs
 
         // Prepare fallback URIs in case of service unavailablilty of given resolver
@@ -376,14 +374,12 @@ public class CrsUtil {
                 // Catch some exception in the GML
                 Element exEl = XMLUtil.firstChildRecursivePattern(root, ".*" + XMLSymbols.LABEL_EXCEPTION_TEXT);
                 if (exEl != null) {
-                    log.error(crsUri + ": " + exEl.getValue());
-                    throw new SecoreException(ExceptionCode.ResolverError, exEl.getValue());
+                    throw new SecoreException(ExceptionCode.ResolverError, "Failed to get CRS definition from URL '" + crsUri + "'. Given error message: " + exEl.getValue());
                 }
 
                 // Check if it exists:
                 if (!root.getLocalName().matches(".*" + XMLSymbols.CRS_GMLSUFFIX)) {
-                    log.error(crsUri + " does not seem to be a CRS definition");
-                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS URI: " + crsUri);
+                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' does not seem to be a CRS definition.");
                 }
 
                 // This value will be then stored in the CrsDefinition
@@ -394,8 +390,7 @@ public class CrsUtil {
                 Element csEl = XMLUtil.firstChildPattern(root, ".*" + XMLSymbols.CS_GMLSUFFIX);
                 // Check if it exists
                 if (csEl == null) {
-                    log.error(crsUri + ": missing the Coordinate System element.");
-                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' missing the Coordinate System element.");
                 }
                 log.debug("CS element found: " + csEl.getLocalName());
 
@@ -416,8 +411,7 @@ public class CrsUtil {
 
                 // Check if there is at least one axis definition
                 if (axesList.isEmpty()) {
-                    log.error(crsUri + ": missing the axis element(s).");
-                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' missing the axis element(s).");
                 }
 
                 for (Element axisEl : axesList) {
@@ -425,8 +419,7 @@ public class CrsUtil {
                     // Get CoordinateSystemAxis mandatory element
                     Element csaEl = XMLUtil.firstChildRecursive(axisEl, XMLSymbols.LABEL_CSAXIS);
                     if (csaEl == null) {
-                        log.error(crsUri + ": missing the CoordinateSystemAxis element.");
-                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' missing the CoordinateSystemAxis element.");
                     }
 
                     // Get abbreviation
@@ -435,8 +428,7 @@ public class CrsUtil {
 
                     // Check if they are defined: otherwise exception must be thrown
                     if (axisAbbrevEl == null | axisDirEl == null) {
-                        log.error(crsUri + ": axis definition misses abbreviation and/or direction.");
-                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' misses  abbreviation and/or direction in axis definition.");
                     }
                     String axisAbbrev = axisAbbrevEl.getValue();
                     String axisDir = axisDirEl.getValue();
@@ -472,15 +464,13 @@ public class CrsUtil {
                                     // Catch some exception in the GML
                                     Element uomExEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_EXCEPTION_TEXT);
                                     if (uomExEl != null) {
-                                        log.error(crsUri + ": " + uomExEl.getValue());
-                                        throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
+                                        throw new SecoreException(ExceptionCode.ResolverError, "UoM of CRS '" + crsUri + "' is not valid. Given: " + uomExEl.getValue());
                                     }
 
                                     // Get the UoM value
                                     Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
                                     if (uomNameEl == null) {
-                                        log.error(uom + ": UoM definition misses name.");
-                                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid UoM definition: " + uom);
+                                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "UoM definition of CRS '" + crsUri + "' missses name element.");
                                     }
                                     uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
                                 } else {
@@ -515,8 +505,7 @@ public class CrsUtil {
 
                     Element datumEl = XMLUtil.firstChildRecursivePattern(root, ".*" + XMLSymbols.DATUM_GMLSUFFIX);
                     if (datumEl == null) {
-                        log.warn(crsUri + ": missing the datum element.");
-                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' missing datum element.");
                     }
 
                     log.debug("Datum element found: '" + datumEl.getLocalName() + "'.");
@@ -524,8 +513,7 @@ public class CrsUtil {
                     // Get the origin of the datum
                     Element datumOriginEl = XMLUtil.firstChildRecursive(datumEl, XMLSymbols.LABEL_ORIGIN);
                     if (datumOriginEl == null) {
-                        log.warn(crsUri + ": missing the origin of the datum.");
-                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' missing the origin of the datum.");
                     }
                     datumOrigin = datumOriginEl.getValue();
 
@@ -537,25 +525,25 @@ public class CrsUtil {
                 break; // fallback only on IO problems
             } catch (MalformedURLException ex) {
                 log.error("Malformed URI: " + ex.getMessage());
-                throw new PetascopeException(ExceptionCode.InvalidMetadata, ex);
+                throw new PetascopeException(ExceptionCode.IOConnectionError, ex);
             } catch (ValidityException ex) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                        (null == uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
+                        (null == uomUrl ? crsUri : uomUrl) + " definition is not valid. Reason: " + ex.getMessage(), ex);
             } catch (ParsingException ex) {
-                log.error(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
+                String errorMessage = ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber();
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                        (null == uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
+                        (null == uomUrl ? crsUri : uomUrl) + " definition is malformed. Reason: " + errorMessage, ex);
             } catch (IOException ex) {
                 if (crsUri.equals(lastUri) || null != uomUrl) {
                     throw new PetascopeException(ExceptionCode.InternalComponentError,
-                            (null == uomUrl ? crsUri : uomUrl) + ": resolver exception: " + ex.getMessage(), ex);
+                            (null == uomUrl ? crsUri : uomUrl) + " has IO error. Reason: " + ex.getMessage(), ex);
                 } else {
                     log.warn("Connection problem with " + (null == uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
                     log.warn("Attempting to fetch the CRS definition via fallback resolver.");
                 }
             } catch (Exception ex) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                        (null == uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition. Reason: " + ex.getMessage(), ex);
+                        (null == uomUrl ? crsUri : uomUrl) + " has general exception while parsing definition. Reason: " + ex.getMessage(), ex);
             }
         }
 
@@ -1057,14 +1045,14 @@ public class CrsUtil {
     public static int getEpsgCodeAsInt(String crs) throws PetascopeException {
         String code = CrsUtil.getCode(crs);
         if (code == null || code.equals("")) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+            throw new PetascopeException(ExceptionCode.RuntimeError, 
                     "Failed extracting EPSG code from CRS: " + crs);
         }
         try {
             return Integer.valueOf(code);
         } catch (Exception ex) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, 
-                    "Invalid EPSG code '" + code + "' extracted from CRS '" + crs + "'");
+            throw new PetascopeException(ExceptionCode.RuntimeError, 
+                    "Invalid EPSG code '" + code + "' extracted from CRS '" + crs + "'. Reason: " + ex.getMessage());
         }
     }
 
@@ -1167,7 +1155,7 @@ public class CrsUtil {
         List<CrsDefinition.Axis> axes = new ArrayList<>();
         axes = CrsUtil.getCrsDefinition(uri).getAxes();
         if (axes.isEmpty()) {
-            throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS does not contain any axis, given '" + uri + "'.");
+            throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS does not contain any axis. Given: '" + uri + "'.");
         } else if (axes.get(0).getType().equals(AxisTypes.Y_AXIS)) {
             // YX order
             return false;
@@ -1469,7 +1457,7 @@ public class CrsUtil {
                 }
 
                 if (null == equal) {
-                    throw new SecoreException(ExceptionCode.InternalComponentError,
+                    throw new SecoreException(ExceptionCode.ResolverError,
                             "None of the configured CRS URIs resolvers seems available: please check network or add further fallback endpoints. Please see server logs for further info.");
                 }
 
@@ -1536,14 +1524,14 @@ public class CrsUtil {
 
                 } catch (ValidityException ex) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            equalityUri + " returned an invalid document.", ex);
+                            "CRS '" + equalityUri + "' returned an invalid document. Reason: " + ex.getMessage(), ex);
                 } catch (ParsingException ex) {
                     throw new PetascopeException(ExceptionCode.XmlNotValid.locator(
                             "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
                             ex.getMessage(), ex);
                 } catch (IOException ex) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            equalityUri + ": resolver exception: " + ex.getMessage(), ex);
+                            "CRS '" + equalityUri + "' has IO error. Reason: " + ex.getMessage(), ex);
                 } catch (SecoreException ex) {
                     throw ex;
                 } catch (Exception ex) {

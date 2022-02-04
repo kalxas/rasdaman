@@ -30,7 +30,6 @@ import petascope.core.json.cis11.JSONCoreCIS11Builder;
 import petascope.core.json.cis11.model.rangeset.DataBlock;
 import petascope.core.json.cis11.model.rangeset.RangeSet;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
 /**
@@ -48,7 +47,7 @@ public class JSONGetCoverageBuilder {
      * Build result for GetCoverage request in JSON format
      */
     public JSONCIS11GetCoverage buildWCSGetCoverageResult(WcpsCoverageMetadata wcpsCoverageMetadata, List<Object> pixelValues) 
-                throws PetascopeException, SecoreException {
+                throws PetascopeException {
         JSONCIS11GetCoverage result = this.buildJSONGetCoverage(wcpsCoverageMetadata, pixelValues);
 
         return result;

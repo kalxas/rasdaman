@@ -22,7 +22,6 @@
 package petascope.controller.admin;
 
 import com.rasdaman.admin.service.AbstractAdminService;
-import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import static org.rasdaman.config.ConfigManager.ADMIN;
 import static org.rasdaman.config.ConfigManager.OWS;
+import org.rasdaman.config.VersionManager;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.slf4j.LoggerFactory;
@@ -43,6 +43,7 @@ import petascope.util.ListUtil;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
 import petascope.controller.RequestHandlerInterface;
+import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ABSTRACT;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ADMINISTRATIVE_AREA;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_CITY;
@@ -59,6 +60,7 @@ import static petascope.core.KVPSymbols.KEY_OWS_METADATA_PROVIDER_SITE;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_ROLE;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_SERVICE_TITLE;
 import static petascope.core.KVPSymbols.KEY_OWS_METADATA_VOICE_PHONE;
+import petascope.util.ExceptionUtil;
 import petascope.util.SetUtil;
 
 /**
@@ -108,7 +110,7 @@ public class AdminOwsServiceInfoController extends AbstractController {
                 this.validateWriteRequestFromIP(httpServletRequest);
                 this.handle(kvpParameters);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WCS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -208,7 +210,7 @@ public class AdminOwsServiceInfoController extends AbstractController {
     }
     
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
         // No need to override super's method
     }
     

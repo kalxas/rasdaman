@@ -81,7 +81,7 @@ public abstract class XMLAbstractParser {
      */
     protected void validateRequestVersion(String version) throws WCSException {
         if (!VersionManager.getAllSupportedVersions(KVPSymbols.WCS_SERVICE).contains(version)) {
-            throw new WCSException(ExceptionCode.InvalidRequest, "WCS version '" + version + "' is not supported.");
+            throw new WCSException(ExceptionCode.NoApplicableCode, "WCS version '" + version + "' is not supported.");
         }
     }
 
@@ -142,63 +142,51 @@ public abstract class XMLAbstractParser {
     
     /**
      * Parse a WCS requestBody in XML to a XML document with root element
-     *
-     * @param input
-     * @return
-     * @throws WCSException
      */
     protected Element parseInput(String input) throws WCSException, PetascopeException {
-        try {
-            Document doc = XMLUtil.buildDocument(null, input);
-            Element rootElement = doc.getRootElement();
+        Document doc = XMLUtil.buildDocument(null, input);
+        Element rootElement = doc.getRootElement();
 
-            // Validate the request which must contain the serviceType and the version
-            String service = rootElement.getAttributeValue(ATT_SERVICE);
-            if (service == null) {
-                throw new WCSException(ExceptionCode.InvalidRequest, "Missing attribute '" + ATT_SERVICE + "' from request body.");
-            }
-            // Only WCS GetCapabilities has acceptVersions as element instead of attribute
-            String rootElementName = rootElement.getLocalName();
-            String version = "";
-            if (!rootElementName.equals(XMLSymbols.LABEL_GET_CAPABILITIES)) {
-                version = rootElement.getAttributeValue(ATT_VERSION);
-                if (version == null) {
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Missing attribute '" + ATT_VERSION + "' in request body.");
-                }
-            } else {
-                Element acceptVersionElement = rootElement.getFirstChildElement(XMLSymbols.LABEL_ACCEPT_VERSIONS, XMLSymbols.NAMESPACE_OWS);
-                if (acceptVersionElement == null) {
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Missing element '" + XMLSymbols.LABEL_ACCEPT_VERSIONS + "' in WCS '" + XMLSymbols.LABEL_GET_CAPABILITIES + "' request.");
-                }
-                Element versionElement = acceptVersionElement.getFirstChildElement(XMLSymbols.LABEL_VERSION, XMLSymbols.NAMESPACE_OWS);
-                if (versionElement == null) {
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Missing element '" + XMLSymbols.LABEL_VERSION + "' in WCS '" + XMLSymbols.LABEL_GET_CAPABILITIES + "' request.");
-                }
-                // current only support WCS 2.0.1
-                version = versionElement.getValue();
-            }
-
-            // Then check the service and accepted version
-            if (service.equals(KVPSymbols.WCS_SERVICE)) {
-                if (!version.matches(KVPSymbols.WCS_VERSION_PATTERN)) {
-                    throw new WCSException(ExceptionCode.VersionNegotiationFailed, "WCS version '" + version + "' is not supported.");
-                }
-            } else if (service.equals(KVPSymbols.WCPS_SERVICE)) {
-                if (!version.matches(KVPSymbols.WCPS_VERSION_PATTERN)) {
-                    throw new WCSException(ExceptionCode.VersionNegotiationFailed, "WCPS version '" + version + "' is not supported.");
-                }
-            } else {
-                // neither WCS nor WCPS so not support
-                throw new WCSException(ExceptionCode.InvalidRequest, "Request service '" + service + "' is not supported.");
-            }
-
-            return rootElement;
-        } catch (ParsingException ex) {
-            throw new WCSException(ExceptionCode.XmlNotValid.locator(
-                    "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
-                    ex.getMessage(), ex);
-        } catch (IOException | WCSException ex) {
-            throw new WCSException(ExceptionCode.XmlNotValid, ex.getMessage(), ex);
+        // Validate the request which must contain the serviceType and the version
+        String service = rootElement.getAttributeValue(ATT_SERVICE);
+        if (service == null) {
+            throw new WCSException(ExceptionCode.InvalidRequest, "Missing attribute '" + ATT_SERVICE + "' from request body.");
         }
+        // Only WCS GetCapabilities has acceptVersions as element instead of attribute
+        String rootElementName = rootElement.getLocalName();
+        String version = "";
+        if (!rootElementName.equals(XMLSymbols.LABEL_GET_CAPABILITIES)) {
+            version = rootElement.getAttributeValue(ATT_VERSION);
+            if (version == null) {
+                throw new WCSException(ExceptionCode.InvalidRequest, "Missing attribute '" + ATT_VERSION + "' in request body.");
+            }
+        } else {
+            Element acceptVersionElement = rootElement.getFirstChildElement(XMLSymbols.LABEL_ACCEPT_VERSIONS, XMLSymbols.NAMESPACE_OWS);
+            if (acceptVersionElement == null) {
+                throw new WCSException(ExceptionCode.InvalidRequest, "Missing element '" + XMLSymbols.LABEL_ACCEPT_VERSIONS + "' in WCS '" + XMLSymbols.LABEL_GET_CAPABILITIES + "' request.");
+            }
+            Element versionElement = acceptVersionElement.getFirstChildElement(XMLSymbols.LABEL_VERSION, XMLSymbols.NAMESPACE_OWS);
+            if (versionElement == null) {
+                throw new WCSException(ExceptionCode.InvalidRequest, "Missing element '" + XMLSymbols.LABEL_VERSION + "' in WCS '" + XMLSymbols.LABEL_GET_CAPABILITIES + "' request.");
+            }
+            // current only support WCS 2.0.1
+            version = versionElement.getValue();
+        }
+
+        // Then check the service and accepted version
+        if (service.equals(KVPSymbols.WCS_SERVICE)) {
+            if (!version.matches(KVPSymbols.WCS_VERSION_PATTERN)) {
+                throw new WCSException(ExceptionCode.VersionNegotiationFailed, "WCS version '" + version + "' is not supported.");
+            }
+        } else if (service.equals(KVPSymbols.WCPS_SERVICE)) {
+            if (!version.matches(KVPSymbols.WCPS_VERSION_PATTERN)) {
+                throw new WCSException(ExceptionCode.VersionNegotiationFailed, "WCPS version '" + version + "' is not supported.");
+            }
+        } else {
+            // neither WCS nor WCPS so not support
+            throw new WCSException(ExceptionCode.InvalidRequest, "Request service '" + service + "' is not supported.");
+        }
+
+        return rootElement;
     }
 }

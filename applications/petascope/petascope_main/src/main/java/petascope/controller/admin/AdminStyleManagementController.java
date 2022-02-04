@@ -21,7 +21,6 @@
  */
 package petascope.controller.admin;
 
-import com.rasdaman.accesscontrol.service.AuthenticationService;
 import com.rasdaman.admin.layer.style.service.AdminCreateOrUpdateStyleService;
 import com.rasdaman.admin.layer.style.service.AdminDeleteStyleService;
 import java.util.Map;
@@ -29,12 +28,16 @@ import javax.servlet.http.HttpServletRequest;
 import static org.rasdaman.config.ConfigManager.ADMIN;
 import static org.rasdaman.config.ConfigManager.LAYER;
 import static org.rasdaman.config.ConfigManager.STYLE;
+import org.rasdaman.config.VersionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
 import petascope.controller.RequestHandlerInterface;
+import petascope.core.KVPSymbols;
+import petascope.exceptions.PetascopeException;
+import petascope.util.ExceptionUtil;
 
 /**
  * Controller to manage WMS styles for admin
@@ -75,7 +78,7 @@ public class AdminStyleManagementController extends AbstractController {
 
                 this.createOrUpdateStyleService.handleAdd(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WMS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -103,7 +106,7 @@ public class AdminStyleManagementController extends AbstractController {
 
                 this.createOrUpdateStyleService.handleUpdate(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WMS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -131,7 +134,7 @@ public class AdminStyleManagementController extends AbstractController {
 
                 this.adminDeleteStyleService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WMS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -143,7 +146,7 @@ public class AdminStyleManagementController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
     }
     
 }

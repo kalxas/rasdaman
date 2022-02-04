@@ -76,7 +76,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
     private NetCDFParametersService netCDFParametersFactory;
     
 
-    public WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams) throws PetascopeException, JsonProcessingException, SecoreException {
+    public WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams) throws PetascopeException {
         // get the mime-type before modifying the rasqlFormat
         String mimeType = MIMEUtil.getMimeType(format);
         
@@ -97,12 +97,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
         // + In json style: for c in (test_eobstest) return encode(c, "netcdf", "{\"dimensions\":....}"), then
         //   check if crs and bbox already existed in the JSON extra params, if it does then will not do anything, otherwise, add these param keys-values to this extra param input
         //   then pass it in JSON string as rasql's encode extra parameters
-        String otherParamsString = null;
-        try {
-            otherParamsString = getExtraParams(coverageExpression, format, extraParams, isGML);
-        } catch (IOException ex) {
-            throw new MetadataSerializationException(ex.getMessage(), ex);
-        }
+        String otherParamsString = getExtraParams(coverageExpression, format, extraParams, isGML);
 
         //get the right template for rasql string (the dem() encode still use the old format, other will use the new JSON format)
         String template = getTemplate(format);
@@ -122,7 +117,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
      * @return
      */
     private String getExtraParams(WcpsResult coverageExpression, String rasqlFormat,
-            String extraParams, boolean isGML) throws PetascopeException, JsonProcessingException, IOException, SecoreException {
+            String extraParams, boolean isGML) throws PetascopeException {
         String otherParamsString = "";
         NetCDFExtraParams netCDFExtraParams = null;
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();

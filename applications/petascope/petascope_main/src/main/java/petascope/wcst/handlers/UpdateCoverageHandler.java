@@ -157,12 +157,7 @@ public class UpdateCoverageHandler {
         Coverage inputCoverage = gmlCISParserService.parseDocumentToCoverage(gmlInputCoverageDocument);
         inputCoverage.setId(currentCoverage.getId());
 
-	try {
-            this.handleUpdateCoverageRequest(request, currentCoverage, inputCoverage, gmlInputCoverageDocument);
-	} catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError,
-		                     "Cannot handle UpdateCoverage request. Reason: " + ex.getMessage(), ex);
-	}
+	this.handleUpdateCoverageRequest(request, currentCoverage, inputCoverage, gmlInputCoverageDocument);
         
         persistedCoverageService.createCoverageExtent(currentCoverage);
         
@@ -943,7 +938,7 @@ public class UpdateCoverageHandler {
      * @return the GML coverage representation.
      * @throws WCSException
      */
-    private String getGmlCoverageFromRequest(UpdateCoverageRequest request) throws WCSException {
+    private String getGmlCoverageFromRequest(UpdateCoverageRequest request) throws PetascopeException {
         String gmlCoverage = "";
         if (request.getInputCoverage() != null) {
             gmlCoverage = request.getInputCoverage();

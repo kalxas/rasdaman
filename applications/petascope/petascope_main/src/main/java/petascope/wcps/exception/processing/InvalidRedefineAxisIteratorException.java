@@ -41,7 +41,7 @@ public class InvalidRedefineAxisIteratorException extends WCPSException {
      * @param subsetDimension the offending subsetDimension
      */
     public InvalidRedefineAxisIteratorException(String axisIteratorAlias, WcpsSubsetDimension subsetDimension) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisIteratorAlias", axisIteratorAlias)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisIteratorAlias", axisIteratorAlias)
                             .replace("$subsetDimensionString", subsetDimension.getStringBounds()));
     }
 

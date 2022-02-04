@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.WCSException;
 import petascope.wcst.exceptions.WCSTInvalidRequestException;
-import petascope.wcst.exceptions.WCSTMalformedURL;
 import petascope.wcst.exceptions.WCSTMissingCoverageParameter;
 import petascope.wcst.exceptions.WCSTUnknownUseId;
 import petascope.core.KVPSymbols;
@@ -50,6 +49,7 @@ import static petascope.core.KVPSymbols.KEY_PIXEL_DATA_TYPE;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import static petascope.core.KVPSymbols.KEY_TILING;
 import static petascope.core.KVPSymbols.KEY_USE_ID;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
 import petascope.wcs2.parsers.subsets.SubsetDimensionParserService;
@@ -150,13 +150,14 @@ public class KVPWCSTParser {
     /**
      * Parses the URL from the coverageRef parameter
      */
-    private URL parseCoverageRefUrl(String coverageRef) throws WCSTMalformedURL {
+    private URL parseCoverageRefUrl(String coverageRef) throws PetascopeException {
         URL ret = null;
         if (coverageRef != null) {
             try {
                 ret = new URL(coverageRef);
             } catch (MalformedURLException ex) {
-                throw new WCSTMalformedURL();
+                throw new PetascopeException(ExceptionCode.InvalidRequest,
+                                            "URL " + coverageRef + "' for " + KVPSymbols.KEY_COVERAGE_REF + " is malformed. Reason: " + ex.getMessage());
             }
         }
         return ret;

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.wcps.metadata.model.Subset;
@@ -111,7 +112,7 @@ public class CoverageConstructorHandler extends AbstractOperatorHandler {
             
             errorMessage += ". Please specify integer grid coordinates, or use the imageCrsDomain function to derive them automatically from geo coordinates.";
             
-            throw new WCPSException(errorMessage);
+            throw new WCPSException(ExceptionCode.InvalidRequest, errorMessage);
         }
         
     }

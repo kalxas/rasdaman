@@ -167,11 +167,13 @@ public class OapiHandlersService {
             if (inputBbox != null) {
                 if (dateTime == null || dateFilterPassed) {
                     Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(coverageId);
-                    Wgs84BoundingBox wgs84BBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
-                    
-                    // For only geo-referenced coverages which can be projected bbox to EPSG:4326 
-                    if (wgs84BBox != null && inputBbox.intersects(Bbox.fromWgs84BoundingBox(wgs84BBox))) {
-                        result.add(coverageId);
+                    if (coverage != null) {
+                        Wgs84BoundingBox wgs84BBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
+
+                        // For only geo-referenced coverages which can be projected bbox to EPSG:4326 
+                        if (wgs84BBox != null && inputBbox.intersects(Bbox.fromWgs84BoundingBox(wgs84BBox))) {
+                            result.add(coverageId);
+                        }
                     }
                 }
             }

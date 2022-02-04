@@ -23,6 +23,8 @@ package petascope.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
@@ -56,7 +58,7 @@ public class ExceptionUtil {
     /**
      * Handle exception and write result to client.
      */
-    public static void handle(String version, Exception ex, HttpServletResponse httpServletResponse) throws IOException {
+    public static void handle(String version, Exception ex, HttpServletResponse httpServletResponse) throws RuntimeException {
         httpServletResponse.setContentType(MIMEUtil.MIME_XML);
         
         if (ConfigManager.enableFullStacktrace()) {
@@ -79,14 +81,23 @@ public class ExceptionUtil {
             log.error("Caught an exception: " + ex.getMessage() + " \n " +  errorMessage);
         }
         
-        OutputStream outputStream = httpServletResponse.getOutputStream();
+        OutputStream outputStream;
+        try {
+            outputStream = httpServletResponse.getOutputStream();
+        } catch (IOException tmpEx) {
+            throw new RuntimeException("Cannot get output stream from HttpServletResponse object. Reason: " + tmpEx.getMessage(), tmpEx);
+        }
 
         httpServletResponse.setContentType(MIMEUtil.MIME_XML);
         httpServletResponse.setHeader("Content-disposition", "inline; filename=error.xml");  
 
         ExceptionReport exceptionReport = ExceptionUtil.exceptionToReportString(ex, version);
         httpServletResponse.setStatus(exceptionReport.getHttpCode());
-        IOUtils.write(exceptionReport.getExceptionText(), outputStream);
+        try {
+            IOUtils.write(exceptionReport.getExceptionText(), outputStream);
+        } catch (IOException tmpEx) {
+            throw new RuntimeException("Cannot write exception report to output stream. Reason: " + tmpEx.getMessage());
+        }
         IOUtils.closeQuietly(outputStream);
     }
 
@@ -126,7 +137,8 @@ public class ExceptionUtil {
             // NOTE: WMS use different exception report structure.
             exceptionText = Templates.getTemplate(Templates.GENERAL_WMS_EXCEPTION_REPORT);
             
-            exceptionCodeName = ((WMSException) ex).getExceptionCode();
+            ExceptionCode exceptionCode = ((WMSException) ex).getExceptionCode();
+            exceptionCodeName = exceptionCode.getExceptionCodeName();
             httpCode = ExceptionCode.InvalidRequest.getHttpErrorCode();
             detailMessage = ((WMSException) ex).getMessage();
         } else if (ex instanceof SecoreException) {

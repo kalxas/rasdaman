@@ -23,7 +23,7 @@
 package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
-import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception class for invalid XY bounding box.
@@ -35,20 +35,13 @@ public class WMSInvalidBoundingBoxExcpetion extends WMSException {
      * Constructor for the class.
      */
     public WMSInvalidBoundingBoxExcpetion(String bbox) {
-        super(ERROR_MESSAGE.replace("$bbox", bbox));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$bbox", bbox));
     }
     
     public WMSInvalidBoundingBoxExcpetion(String bbox, String reason) {
-        super(ERROR_MESSAGE_WITH_REASON.replace("$bbox", bbox).replace("$reason", reason));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE_WITH_REASON.replace("$bbox", bbox).replace("$reason", reason));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InvalidBoundingBox";
     private static final String ERROR = "Invalid value for 'bbox' parameter, pattern: 'xMin,yMin,xMax,yMax'";
     private static final String ERROR_MESSAGE = ERROR + ". Given '$bbox'.";
     private static final String ERROR_MESSAGE_WITH_REASON = ERROR + ". Reason: $reason.";

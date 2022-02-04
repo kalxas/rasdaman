@@ -82,7 +82,7 @@ public class GMLCIS11DescribeCoverage extends AbstractGMLCISDescribeCoverage {
     }
 
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         
         // <wcs:CoverageDescription>
         Element coverageDescriptionElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_COVERAGE_DESCRIPTION), NAMESPACE_WCS_21);

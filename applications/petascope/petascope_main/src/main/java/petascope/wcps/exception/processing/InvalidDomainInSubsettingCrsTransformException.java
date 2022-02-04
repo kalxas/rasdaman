@@ -12,13 +12,9 @@ public class InvalidDomainInSubsettingCrsTransformException  extends WCPSExcepti
 
     /**
      * Constructor for the class
-     *
-     * @param axisName
-     * @param subsettingCrs
-     * @param errorMessage
      */
     public InvalidDomainInSubsettingCrsTransformException(String axisName, String subsettingCrs, String errorMessage) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisName", axisName)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisName", axisName)
               .replace("$subsettingCrs", subsettingCrs)
               .replace("$errorMessage", errorMessage));
     }

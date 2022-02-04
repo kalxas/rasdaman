@@ -42,6 +42,6 @@ public class ParserErrorHandler extends BaseErrorListener {
         String offendingToken = recognizer.getTokenErrorDisplay((Token) offendingSymbol);
         String errorMessage = "A parsing error occurred at line '" + line + "', column '" + charPositionInLine + "'. "
                 + "Offending token is " + offendingToken + ". Reason: " + msg.replace("\\n", "").replace("\\r", "") + ".";
-        throw new WCPSException(ExceptionCode.WcpsError, XMLUtil.enquoteCDATA(errorMessage));
+        throw new WCPSException(ExceptionCode.InvalidRequest, XMLUtil.enquoteCDATA(errorMessage));
     }
 }

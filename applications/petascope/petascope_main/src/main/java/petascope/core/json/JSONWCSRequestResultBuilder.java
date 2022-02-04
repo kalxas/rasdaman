@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.json.cis11.JSONCIS11GetCoverage;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.util.JSONUtil;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
@@ -46,7 +45,7 @@ public class JSONWCSRequestResultBuilder {
      * Build result for WCS GetCoverage with result in GML (it can be only 1 coverage)
      */
     public String buildGetCoverageResult(WcpsCoverageMetadata wcpsCoverageMetadata, List<Object> pixelValues) 
-            throws PetascopeException, SecoreException {
+            throws PetascopeException {
         JSONCIS11GetCoverage obj = this.jsonGetCoverageBuilder.buildWCSGetCoverageResult(wcpsCoverageMetadata, pixelValues);
         String result = JSONUtil.serializeObjectToJSONString(obj);
         

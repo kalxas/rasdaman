@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
@@ -66,7 +68,7 @@ public class AuthenticationController extends AbstractController {
         Pair<String, String> resultPair = AuthenticationService.getBasicAuthUsernamePassword(httpServletRequest);
         
         if (resultPair == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing Authorization basic header from request.");
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing Authorization basic header from login request.");
         }
         
         String username = resultPair.fst;
@@ -98,49 +100,54 @@ public class AuthenticationController extends AbstractController {
      * Return the list of roles for the requesting user via rascontrol
      * @TODO: this can be done faster and better with protobuf/grpc
      */
-    public static Set<String> parseRolesFromRascontrol(String username) throws Exception {
-        // export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40 && rascontrol -q -e -x list user -rights
-        Runtime runtime = Runtime.getRuntime();
-        
-        Set<String> roleNames = new LinkedHashSet<>();
-        
-        String loginEnv = ConfigManager.RASDAMAN_ADMIN_USER + ":" + DigestUtils.MD5(ConfigManager.RASDAMAN_ADMIN_PASS);
-        String[] envp = new String[] {"RASLOGIN=" + loginEnv};
-        Process process = runtime.exec(ConfigManager.RASDAMAN_BIN_PATH + "/rascontrol -q -e -x list user -rights", envp);
-
-        BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line = null;
-        Pattern p = Pattern.compile("\\[(.*?)\\]");
-        
-        while ((line = stdInput.readLine()) != null) {
-            if (line.contains("[")) {
-                String[] tmps = line.trim().split(" ");
-                String usernameTmp = tmps[1].trim();
-                
-                if (usernameTmp.equals(username)) {
+    public static Set<String> parseRolesFromRascontrol(String username) throws PetascopeException {
+        try {
+            // export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40 && rascontrol -q -e -x list user -rights
+            Runtime runtime = Runtime.getRuntime();
+            
+            Set<String> roleNames = new LinkedHashSet<>();
+            
+            String loginEnv = ConfigManager.RASDAMAN_ADMIN_USER + ":" + DigestUtils.MD5(ConfigManager.RASDAMAN_ADMIN_PASS);
+            String[] envp = new String[] {"RASLOGIN=" + loginEnv};
+            Process process = runtime.exec(ConfigManager.RASDAMAN_BIN_PATH + "/rascontrol -q -e -x list user -rights", envp);
+            
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = null;
+            Pattern p = Pattern.compile("\\[(.*?)\\]");
+            
+            while ((line = stdInput.readLine()) != null) {
+                if (line.contains("[")) {
+                    String[] tmps = line.trim().split(" ");
+                    String usernameTmp = tmps[1].trim();
                     
-                    Matcher m = p.matcher(line);
-                    String rights = "";
-                    while(m.find()) {
-                        rights += m.group(1);
-                    }
-                    
-                    if (rights.contains(".")) {
-                        // Here user has a missing right, e.g [R.] so he is not admin
-                        break; 
-                    } else if (rights.contains(READ_WRITE_RIGHTS)) {
-                        // e.g rasadmin with rights [AISC] -[RW]
+                    if (usernameTmp.equals(username)) {
                         
-                        // then, the user is admin and it has these mapping roles - NOTE: it is used *internaly* only for WSClient
-                        roleNames = new LinkedHashSet<>(Arrays.asList(READ_WRITE_RIGHTS));
+                        Matcher m = p.matcher(line);
+                        String rights = "";
+                        while(m.find()) {
+                            rights += m.group(1);
+                        }
+                        
+                        if (rights.contains(".")) {
+                            // Here user has a missing right, e.g [R.] so he is not admin
+                            break;
+                        } else if (rights.contains(READ_WRITE_RIGHTS)) {
+                            // e.g rasadmin with rights [AISC] -[RW]
+                            
+                            // then, the user is admin and it has these mapping roles - NOTE: it is used *internaly* only for WSClient
+                            roleNames = new LinkedHashSet<>(Arrays.asList(READ_WRITE_RIGHTS));
+                        }
+                        
+                        break;
                     }
-                    
-                    break;
                 }
             }
+            
+            return roleNames;
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                    "Cannot get rights for user '" + username + "' via rascontrol with bash command. Reason: " + ex.getMessage(), ex);
         }
-        
-        return roleNames;
     }
     
     @Override
@@ -148,7 +155,7 @@ public class AuthenticationController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
     }
     
 }

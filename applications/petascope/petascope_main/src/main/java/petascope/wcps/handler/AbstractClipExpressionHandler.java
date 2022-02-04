@@ -21,12 +21,12 @@
  */
 package petascope.wcps.handler;
 
-import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import com.rasdaman.accesscontrol.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;
@@ -217,13 +217,13 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
             try {
                 geoCoordinateX = new BigDecimal(valueX);
             } catch (Exception ex) {
-                throw new PetascopeException(ExceptionCode.InvalidRequest, "Coordinate of X axis is not valid number for clipping, given: " + valueX);
+                throw new PetascopeException(ExceptionCode.InvalidRequest, "Coordinate of X axis is not valid number for clipping. Given: " + valueX);
             }
             
             try {
                 geoCoordinateY = new BigDecimal(valueY);
             } catch (Exception ex) {
-                throw new PetascopeException(ExceptionCode.InvalidRequest, "Coordinate of Y axis is not valid number for clipping, given: " + valueY);
+                throw new PetascopeException(ExceptionCode.InvalidRequest, "Coordinate of Y axis is not valid number for clipping. Given: " + valueY);
             }
             
             if (xmin == null) {

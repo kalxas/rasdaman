@@ -33,5 +33,5 @@ import petascope.exceptions.WCSException;
  */
 public interface RangeParametersConvertor {
 
-    public String toRasdamanDecodeParameters() throws IOException, SecoreException, WCSException, PetascopeException;
+    public String toRasdamanDecodeParameters() throws SecoreException, WCSException, PetascopeException;
 }

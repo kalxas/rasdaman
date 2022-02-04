@@ -33,7 +33,7 @@ import petascope.exceptions.ExceptionCode;
 public class InvalidSdomExtractionException extends WCPSException {
     
     public InvalidSdomExtractionException(String errorMessage) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$errorMessage", errorMessage));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$errorMessage", errorMessage));
     }
 
     private static final String ERROR_TEMPLATE = "Invalid domain extraction. Reason: $errorMessage.";

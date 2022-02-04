@@ -82,11 +82,11 @@ public class AdminDeleteStyleService extends AbstractAdminService {
         String styleName = AbstractController.getValueByKey(kvpParameters, KEY_STYLE_ID);
         
         if (!this.wmsRepostioryService.isInLocalCache(layerName)) {
-            throw new PetascopeException(ExceptionCode.NoSuchLayer, "Layer '" + layerName + "' does not exist in local database.");
+            throw new WMSException(ExceptionCode.NoSuchLayer, "Layer '" + layerName + "' does not exist in local database.");
         }
         Layer layer = this.wmsRepostioryService.readLayerByNameFromLocalCache(layerName);
         if (!layer.hasStyle(styleName)) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Style '" + styleName + "' does not exist in layer '" + layerName + "'.");
+            throw new WMSException(ExceptionCode.InvalidRequest, "Style '" + styleName + "' does not exist in layer '" + layerName + "'.");
         }
         
         layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);

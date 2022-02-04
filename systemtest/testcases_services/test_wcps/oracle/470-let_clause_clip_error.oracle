@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+    xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+    xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Execution error 455 in line 1, column 36, near token <: Operation not supported on operand of complex type.</ows:ExceptionText>
+    </ows:Exception>
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Failed internal rasql query: SELECT encode(clip( CASE WHEN ( 30 < c[0:44,299:343] ) THEN ( 1 ) ELSE ( 0 ) END, POLYGON((0 343,3 343)) ), "csv" , "{\"metadata\":{\"resolution\":\"1\"},\"nodata\":[119.0]}") FROM test_rgb AS c</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

@@ -82,7 +82,7 @@ public class GridLimits implements ISerializeToXMElement {
     }
     
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         Element gridLimitsElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_GRID_LIMITS), NAMESPACE_CIS_11);
         
         Attribute srsNameAttribute = new Attribute(ATT_SRS_NAME, NAMESPACE_CIS_11);

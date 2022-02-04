@@ -29,7 +29,7 @@ import petascope.exceptions.ExceptionCode;
  */
 public class IncompatibleExtentsOnAxisException extends WCPSException {
     public IncompatibleExtentsOnAxisException(String firstCovName, String secondCovName, int axisNumber) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
               .replace("$axisNumber", String.valueOf(axisNumber)));
     }
 

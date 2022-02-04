@@ -694,7 +694,7 @@ public class GMLGetCapabilitiesBuilder {
     /**
      * Build wcs:Content element
      */
-    private Element buildContentsElement(Element operationsMetadataElement, String version) throws PetascopeException, SecoreException {
+    private Element buildContentsElement(Element operationsMetadataElement, String version) throws PetascopeException {
 
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
         List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllLocalCoveragesBasicMetatataFromCache();
@@ -958,7 +958,7 @@ public class GMLGetCapabilitiesBuilder {
         }
     }
        
-    public Element serializeToXMLElement(String version) throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement(String version) throws PetascopeException {
         
         OwsServiceMetadata owsServiceMetadata = this.persistedOwsServiceMetadataService.read();
         
@@ -1000,7 +1000,7 @@ public class GMLGetCapabilitiesBuilder {
     /**
      * Build result for WCS GetCapabilities request by a specific version (e.g: 2.0.1).
      */
-    public Element buildWCSGetCapabilitiesResult(String version) throws PetascopeException, SecoreException {
+    public Element buildWCSGetCapabilitiesResult(String version) throws PetascopeException {
         
         Element capabilitiesElement = this.serializeToXMLElement(version);
         

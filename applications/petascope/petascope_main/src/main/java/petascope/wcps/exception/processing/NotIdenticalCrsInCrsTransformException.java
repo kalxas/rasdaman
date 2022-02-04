@@ -37,7 +37,7 @@ public class NotIdenticalCrsInCrsTransformException extends WCPSException {
      * @param crsY outputCrs in axis Y
      */
     public NotIdenticalCrsInCrsTransformException(String crsX, String crsY) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$CRS_X", crsX)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$CRS_X", crsX)
                             .replace("$CRS_Y", crsY));
     }
 

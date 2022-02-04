@@ -53,10 +53,10 @@ public class DescribeCoverageHandler {
     // For General Grid Coverage in CIS 1.1
     public static final String EXTRA_PARAMETER_KEY_OUTPUT_TYPE = "outputType";
     
-    public WcpsMetadataResult handle(WcpsResult coverageExpression, String outputFormat, String extraParams) throws PetascopeException, SecoreException {
+    public WcpsMetadataResult handle(WcpsResult coverageExpression, String outputFormat, String extraParams) throws PetascopeException {
 
         if (!(MIMEUtil.isGML(outputFormat) || MIMEUtil.isJSON(outputFormat))) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Format value is not supported. Given '" + outputFormat + "'");
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Format value is not supported. Given '" + outputFormat + "'");
         }
         
         // to differentiate GML CIS 1.0 and CIS 1.1 GeneralGridCoverage
@@ -73,7 +73,7 @@ public class DescribeCoverageHandler {
         }
         
         if (!coverageOutputType.isEmpty() && !coverageOutputType.equals(LABEL_GENERAL_GRID_COVERAGE)) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Value for 'outputType' parameter is not supported. Given '" + coverageOutputType + "'");
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Value for 'outputType' parameter is not supported. Given '" + coverageOutputType + "'");
         }
         
         if (MIMEUtil.isJSON(outputFormat) && !coverageOutputType.equals(LABEL_GENERAL_GRID_COVERAGE)) {

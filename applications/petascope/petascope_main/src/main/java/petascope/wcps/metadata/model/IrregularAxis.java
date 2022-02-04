@@ -247,11 +247,11 @@ public class IrregularAxis extends Axis {
         BigDecimal coefficientUpperBound = this.directPositions.get(this.directPositions.size() - 1);
         
         if (minInput.compareTo(coefficientLowerBound) < 0) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, "Input coefficient lower bound '" + minInput 
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Input coefficient lower bound '" + minInput 
                                                     + "' is lower than the direct positions' lower bound '" + coefficientLowerBound.toPlainString() 
                                                     + "' of irregular axis '" + this.getLabel() + "'.");
         } else if (maxInput.compareTo(coefficientUpperBound.add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON)) > 0) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, "Input upper bound '" + maxInput
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Input upper bound '" + maxInput
                                                     + "' is greater than the direct positions' upper bound '" + coefficientUpperBound 
                                                     + "' of irregular axis '" + this.getLabel() + "'.");
         }

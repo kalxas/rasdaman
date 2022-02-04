@@ -24,6 +24,7 @@ package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception to be thrown when an invalid height
@@ -36,7 +37,7 @@ public class WMSInvalidHeight extends WMSException {
      * Constructor for the class if parameter is null
      */
     public WMSInvalidHeight() {
-        super("No height parameter requested.");
+        super(ExceptionCode.InvalidRequest, "No height parameter requested.");
     }
 
     /**
@@ -45,15 +46,8 @@ public class WMSInvalidHeight extends WMSException {
      * @param height the invalid height
      */
     public WMSInvalidHeight(@NotNull String height) {
-        super(ERROR_MESSAGE.replace("$height", height));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$height", height));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InvalidHeight";
     private static final String ERROR_MESSAGE = "Invalid value for 'height' parameter, must be positive integer. Given '$height'.";
 }

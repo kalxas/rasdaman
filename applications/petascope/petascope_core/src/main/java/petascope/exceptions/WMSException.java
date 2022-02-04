@@ -22,7 +22,6 @@
 
 package petascope.exceptions;
 
-import org.jetbrains.annotations.NotNull;
 
 /**
  * General WMS Exception class conformant to the standard. Any compliant exception should subclass
@@ -31,26 +30,26 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
-public abstract class WMSException extends Exception {
+public class WMSException extends PetascopeException {
 
     /**
      * Constructor for the class
      *
-     * @param errorMessage a user friendly error message
+     * @param exceptionText a user friendly error message
      */
-    public WMSException(String errorMessage) {
-        super(errorMessage);
+    public WMSException(String exceptionText) {
+        super(ExceptionCode.WmsError, exceptionText);
     }
     
-    public WMSException(String errorMessage, Exception ex) {
-        super(errorMessage, ex);
+    public WMSException(String errorMessage, PetascopeException ex) {
+        super(ex.getExceptionCode(), errorMessage, ex);
     }
-
-    /**
-     * Returns the exception code
-     *
-     * @return the exception code associated with this exception
-     */
-    @NotNull
-    public abstract String getExceptionCode();
+    
+    public WMSException(ExceptionCode exceptionCode, String exceptionText) {
+        super(exceptionCode, exceptionText, null);
+    }
+    
+    public WMSException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
+        super(exceptionCode, exceptionText, ex);
+    }
 }

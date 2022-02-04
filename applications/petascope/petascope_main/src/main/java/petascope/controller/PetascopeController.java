@@ -101,13 +101,12 @@ public class PetascopeController extends AbstractController {
      *
      */
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
         // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)     
         
         if (startException != null) {
            throwStartException();
         }
-        
 
         String requestTmp = StringUtil.enquoteSingleIfNotEnquotedAlready(this.getRequestRepresentation(kvpParameters));
 

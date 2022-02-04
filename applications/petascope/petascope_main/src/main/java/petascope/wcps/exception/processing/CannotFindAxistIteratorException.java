@@ -36,7 +36,7 @@ public class CannotFindAxistIteratorException extends WCPSException {
      * @param axisIteratorAliasName axis iterator alias name (e.g: $px)
      */
     public CannotFindAxistIteratorException(String axisIteratorAliasName) {        
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisIteratorAliasName", axisIteratorAliasName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisIteratorAliasName", axisIteratorAliasName));
     }
 
     public static final String ERROR_TEMPLATE = "Cannot find axis iterator with alias '$axisIteratorAliasName'.";

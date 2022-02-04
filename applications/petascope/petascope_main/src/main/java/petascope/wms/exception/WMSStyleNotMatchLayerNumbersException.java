@@ -21,7 +21,7 @@
  */
 package petascope.wms.exception;
 
-import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
 
 /**
@@ -33,15 +33,8 @@ import petascope.exceptions.WMSException;
 public class WMSStyleNotMatchLayerNumbersException extends WMSException {
 
     public WMSStyleNotMatchLayerNumbersException(Integer numberOfLayers, Integer numberOfStyles) {
-        super(ERROR_MESSAGE_ONE_LAYER.replace("$NUMBER_OF_LAYERS", numberOfLayers.toString()).replace("$NUMBER_OF_STYLES", numberOfStyles.toString()));
-    }
-
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE_ONE_LAYER.replace("$NUMBER_OF_LAYERS", numberOfLayers.toString()).replace("$NUMBER_OF_STYLES", numberOfStyles.toString()));
     }
 
     private final static String ERROR_MESSAGE_ONE_LAYER = "Number of given layers ($NUMBER_OF_LAYERS) does not match the number of styles ($NUMBER_OF_STYLES).";
-    private final static String EXCEPTION_CODE = "StyleLayerNumberMismatch";
 }

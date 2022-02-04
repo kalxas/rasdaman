@@ -86,7 +86,7 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         }
         
         if (!result) {
-            throw new WCPSException("Scaling axis label '" + scaleAxisLabel + "' does not exist in coverage '" + metadata.getCoverageName() + "'.");
+            throw new WCPSException(ExceptionCode.InvalidRequest, "Scaling axis label '" + scaleAxisLabel + "' does not exist in coverage '" + metadata.getCoverageName() + "'.");
         }
     }
     

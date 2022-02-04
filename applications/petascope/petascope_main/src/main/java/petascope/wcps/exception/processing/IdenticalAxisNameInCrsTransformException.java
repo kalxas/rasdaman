@@ -37,7 +37,7 @@ public class IdenticalAxisNameInCrsTransformException extends WCPSException {
      * @param axisNameY axis name of outputCrs Y
      */
     public IdenticalAxisNameInCrsTransformException(String axisNameX, String axisNameY) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$AXIS_NAME_X", axisNameX).replace("$AXIS_NAMEY", axisNameY));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$AXIS_NAME_X", axisNameX).replace("$AXIS_NAMEY", axisNameY));
     }
 
     private static final String ERROR_TEMPLATE = "crsTransform does not allow the identical axisName to project, received '$AXIS_NAME_X' and '$AXIS_NAME_Y'.";

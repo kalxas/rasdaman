@@ -36,7 +36,7 @@ public class InvalidWKTClippingException extends WCPSException {
      * @param errorMessage error message
      */
     public InvalidWKTClippingException(String errorMessage) {
-        super(ExceptionCode.InvalidParameterValue, ERROR_TEMPLATE.replace("$errorMessage", errorMessage));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$errorMessage", errorMessage));
     }
 
     private static final String ERROR_TEMPLATE = "Invalid input WKT for clipping operator. Reason: $errorMessage";

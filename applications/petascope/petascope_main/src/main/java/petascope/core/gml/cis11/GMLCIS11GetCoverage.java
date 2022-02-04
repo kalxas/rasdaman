@@ -88,7 +88,7 @@ public class GMLCIS11GetCoverage extends AbstractGMLCISGetCoverage {
     }
 
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         
         // <cis11:GeneralGridCoverage>
         Element coverageTypeElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, this.coverageType), NAMESPACE_CIS_11);

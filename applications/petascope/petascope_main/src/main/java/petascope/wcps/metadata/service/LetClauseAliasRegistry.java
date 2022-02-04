@@ -21,23 +21,14 @@
  */
 package petascope.wcps.metadata.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import petascope.core.Pair;
-import petascope.exceptions.PetascopeException;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.JSONUtil;
-import petascope.util.ListUtil;
-import static petascope.wcps.handler.ForClauseHandler.AS;
-import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -89,7 +80,7 @@ public class LetClauseAliasRegistry {
         try {
             result = (WcpsResult) JSONUtil.clone(tmp);
         } catch (Exception ex) {
-            throw new WCPSException("Cannot clone WCPS metadata object to another object. Reason: " + ex.getMessage(), ex);
+            throw new WCPSException(ExceptionCode.InternalComponentError, "Cannot clone WCPS metadata object to another object. Reason: " + ex.getMessage(), ex);
         }            
         
         return result;

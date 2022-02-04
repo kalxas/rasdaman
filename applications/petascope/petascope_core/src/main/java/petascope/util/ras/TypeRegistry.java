@@ -78,7 +78,7 @@ public class TypeRegistry {
     public TypeRegistryEntry getTypeEntry(String typeName) throws PetascopeException {
         TypeRegistryEntry type = typeRegistry.get(typeName);
         if (type == null) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, "Could not find the requested type: " + typeName);
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Could not find the requested type: " + typeName + " from type regitries.");
         }
         return type;
     }

@@ -33,11 +33,7 @@ public class WCPSException extends RuntimeException {
         super(message);
         this.exceptionCode = exceptionCode;
     }
-    
-    public WCPSException(String message, Exception cause) {
-        super(message, cause);
-    }
-    
+
     public WCPSException(ExceptionCode exceptionCode, String message, Exception cause) {
         super(message, cause);
         this.exceptionCode = exceptionCode;

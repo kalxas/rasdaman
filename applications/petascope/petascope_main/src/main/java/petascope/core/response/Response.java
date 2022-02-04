@@ -31,10 +31,10 @@ import petascope.util.MIMEUtil;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class Response {
-    
+
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Response.class);
     
-    private static final int DEFAULT_HTTP_RESPONSE_CODE = 200;
+    public static final int DEFAULT_HTTP_RESPONSE_CODE = 200;
     public static final String DEFAULT_COVERAGE_ID = "ows";
     
     // Multiparts responses (e.g: a request which returns multipart on multi coverages)
@@ -89,7 +89,7 @@ public class Response {
             mimeType = MIMEUtil.MIME_XML;
         }
         return mimeType;
-    }    
+    }
     
     public void setFormatType(String formatType) {
         this.formatType = formatType;

@@ -93,7 +93,7 @@ public class GdalFileToCoverageTranslatorService {
         
         String mimeType = dataset.GetDriver().getShortName();
         if (this.UNSUPPORTED_FORMATS.contains(mimeType)) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, 
                     "MIME type of the uploaded file '" + filePath + "' is not supported. Given '" + mimeType + "'.");
         }
 
@@ -106,7 +106,7 @@ public class GdalFileToCoverageTranslatorService {
             spatialReference.AutoIdentifyEPSG();
         } catch (Exception ex) {
             throw new PetascopeException(ExceptionCode.InternalComponentError,
-                    "Cannot detect EPSG CRS code from the input file '" + filePath + "' by gdal. "
+                    "Cannot detect EPSG CRS code from the input file '" + filePath + "' by gdal. Reason: " + ex.getMessage()
                     + "Hint: try to set the proper EPSG CRS to the file first.");
         }
         // e.g: 4326

@@ -38,7 +38,7 @@ public class MetaResultMultipartException extends WCPSException {
      *
      */
     public MetaResultMultipartException() {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE);
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE);
     }
 
     private static final String ERROR_TEMPLATE = "Cannot return multipart with metadata result from multiple coverages.";

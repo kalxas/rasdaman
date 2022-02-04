@@ -21,8 +21,8 @@
  */
 package petascope.wms.exception;
 
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Exception to be thrown when a layer already existed in database but another
@@ -38,15 +38,8 @@ public class WMSDuplicateLayerException extends WMSException {
      * @param layerName the requested layer by the client
      */
     public WMSDuplicateLayerException(String layerName) {
-        super(ERROR_MESSAGE.replace("$LayerName", layerName));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$LayerName", layerName));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private final static String EXCEPTION_CODE = "LayerExisted";
     private final static String ERROR_MESSAGE = "The requested layer '$LayerName' already existed in database.";
 }

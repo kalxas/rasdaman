@@ -51,22 +51,17 @@ public class AdminCoverageExistController extends AbstractController {
     @Override
     @RequestMapping(path = COVERAGE_EXISTS_PATH,  method = RequestMethod.GET)
     protected void handleGet(HttpServletRequest httpServletRequest) throws Exception {
-        this.handle(httpServletRequest, false);
+        this.handle(httpServletRequest);
     }
     
     @Override
     @RequestMapping(path = COVERAGE_EXISTS_PATH,  method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest) throws Exception {
-        this.handle(httpServletRequest, true);
+        this.handle(httpServletRequest);
     }
     
-    private void handle(HttpServletRequest httpServletRequest, boolean isPost) throws Exception {
-        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        
-        if (isPost) {
-            String postBody = this.getPOSTRequestBody(httpServletRequest);
-            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        }
+    private void handle(HttpServletRequest httpServletRequest) throws Exception {
+        Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
         
         String coverageId = this.getValueByKeyAllowNull(kvpParameters, KEY_COVERAGEID);
         Boolean exist = false;
@@ -83,7 +78,7 @@ public class AdminCoverageExistController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
     }
     
 }

@@ -33,12 +33,9 @@ import petascope.exceptions.ExceptionCode;
 public class InvalidAxisInDomainExpressionException extends WCPSException {
     /**
      * Constructor for the class
-     *
-     * @param axisName
-     * @param crsUri
      */
     public InvalidAxisInDomainExpressionException(String axisName, String crsUri) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisName", axisName).replace("$crsUri", crsUri));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisName", axisName).replace("$crsUri", crsUri));
     }
 
     private static final String ERROR_TEMPLATE = "CRS: '$crsUri' does not belong to axis '$axisName'.";

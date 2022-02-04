@@ -30,7 +30,7 @@ import petascope.exceptions.ExceptionCode;
 public class InvalidDomainIntervalsForAxisIteratorException extends WCPSException {
 
     public InvalidDomainIntervalsForAxisIteratorException(String axisIteratorVariableName, int dimension) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisIteratorVariableName", axisIteratorVariableName)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisIteratorVariableName", axisIteratorVariableName)
               .replace("$dimension", String.valueOf(dimension)));
     }
 

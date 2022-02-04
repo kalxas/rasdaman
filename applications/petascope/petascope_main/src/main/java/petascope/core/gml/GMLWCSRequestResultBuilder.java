@@ -78,7 +78,7 @@ public class GMLWCSRequestResultBuilder {
     /**
      * Build result for WCS GetCapabilities request.
      */
-    public Element buildGetCapabilitiesResult(String version) throws PetascopeException, SecoreException {
+    public Element buildGetCapabilitiesResult(String version) throws PetascopeException {
         Element rootElement = this.gmlGetCapabilitiesBuilder.buildWCSGetCapabilitiesResult(version);
         
         return rootElement;
@@ -87,7 +87,7 @@ public class GMLWCSRequestResultBuilder {
     /**
      * Build result for WCS DescribeCoverage with result in GML (it can be multiple coverageIds)
      */
-    public Element buildDescribeCoverageResult(String outputType, List<String> coverageIds) throws PetascopeException, SecoreException {
+    public Element buildDescribeCoverageResult(String outputType, List<String> coverageIds) throws PetascopeException {
         Element rootElement = this.gmlDescribeCoverageBuilder.buildWCSDescribeCoverageResult(outputType, coverageIds);
         
         return rootElement;
@@ -96,7 +96,7 @@ public class GMLWCSRequestResultBuilder {
     /**
      * Build result for WCS GetCoverage with result in GML (it can be only 1 coverage)
      */
-    public Element buildGetCoverageResult(WcpsCoverageMetadata wcpsCoverageMetadata, String pixelValues) throws PetascopeException, SecoreException {
+    public Element buildGetCoverageResult(WcpsCoverageMetadata wcpsCoverageMetadata, String pixelValues) throws PetascopeException {
         Element rootElement = this.gmlGetCoverageBuilder.buildWCSGetCoverageResult(wcpsCoverageMetadata, pixelValues);
         
         return rootElement;

@@ -34,7 +34,7 @@ import petascope.exceptions.WMSException;
  */
 public interface IKVPHandler {
 
-    public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException;
+    public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException, Exception;
     /**
      * Validate the KVP parameters passing to service class handlers
      * @param kvpParameters

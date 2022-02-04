@@ -157,7 +157,7 @@ public class WMSGetMapSubsetTranslatingService {
     public String createGridScalingOutputNonProjection(String subsetCollectionExpression,
                                                        WMSLayer wmsLayer, 
                                                        BoundingBox originalRequestBBox, String outputCRS)
-            throws PetascopeException, SecoreException {
+            throws PetascopeException {
         
         WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
         

@@ -98,8 +98,6 @@ public class WcpsTranslator {
 
         } catch (WCPSException ex) {
             throw new WCSException(ex.getExceptionCode(), ex.getMessage(), ex);
-        } catch (Exception ex) {
-            throw new WCSException(ExceptionCode.WcpsError, ex.getMessage(), ex);
         }
         return translationTree;
     }

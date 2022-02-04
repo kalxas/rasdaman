@@ -109,18 +109,20 @@ public class OapiCollectionService {
         if (wcpsCoverage.hasXYAxes() && CrsUtil.isValidTransform(wcpsCoverage.getXYAxes().get(0).getNativeCrsUri())) {
             List<List<BigDecimal>> bboxValues = new ArrayList<>();
             
-            Coverage coverage  = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(coverageId);
-            Wgs84BoundingBox wgs84BBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
-            
-            if (wgs84BBox != null) {
-                // coverage is geo-referenced
-                List<BigDecimal> values = Arrays.asList(wgs84BBox.getMinLong(),
-                                                        wgs84BBox.getMinLat(),
-                                                        wgs84BBox.getMaxLong(),
-                                                        wgs84BBox.getMaxLat());
+            Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(coverageId);
+            if (coverage != null) {
+                Wgs84BoundingBox wgs84BBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
 
-                bboxValues.add(values);
-                result = new Spatial(bboxValues);                
+                if (wgs84BBox != null) {
+                    // coverage is geo-referenced
+                    List<BigDecimal> values = Arrays.asList(wgs84BBox.getMinLong(),
+                                                            wgs84BBox.getMinLat(),
+                                                            wgs84BBox.getMaxLong(),
+                                                            wgs84BBox.getMaxLat());
+
+                    bboxValues.add(values);
+                    result = new Spatial(bboxValues);                
+                }
             }
             
         }

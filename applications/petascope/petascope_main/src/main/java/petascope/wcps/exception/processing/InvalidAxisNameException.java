@@ -37,7 +37,7 @@ public class InvalidAxisNameException extends WCPSException {
      * @param axisName the name of the axis that is invalid
      */
     public InvalidAxisNameException(String axisName) {
-        super(ExceptionCode.InvalidAxisLabel, ERROR_TEMPLATE.replace("$axisName", axisName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisName", axisName));
     }
 
     private static final String ERROR_TEMPLATE = "Invalid axis name '$axisName'.";

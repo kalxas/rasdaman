@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.controller.PetascopeController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -66,6 +67,8 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
     @Autowired
     private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;
 
     public KVPWCSGetCapabilitiesHandler() {
 

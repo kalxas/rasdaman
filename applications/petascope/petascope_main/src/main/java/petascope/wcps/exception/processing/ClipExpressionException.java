@@ -21,6 +21,7 @@
  */
 package petascope.wcps.exception.processing;
 
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 
 /**
@@ -31,7 +32,7 @@ import petascope.exceptions.WCPSException;
 public class ClipExpressionException extends WCPSException {
     
     public ClipExpressionException(String errorMessage, Exception cause) {
-        super(ERROR_TEMPLATE.replace("$errorMessage", errorMessage), cause);
+        super(ExceptionCode.InternalComponentError, ERROR_TEMPLATE.replace("$errorMessage", errorMessage), cause);
     }
     
     private static final String ERROR_TEMPLATE = "Error processing clip() operator expression. Reason: $errorMessage";

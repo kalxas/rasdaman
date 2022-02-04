@@ -74,7 +74,7 @@ public class CrsComputerService {
      * From the input subset (E.g: subset=Lat(0,20) or subset=ansi("2012-02-03")) of input slice, parse the domain(lowerBound,uppperBound)
      * from String to big decimal numbers.
      */
-    public static ParsedSubset<BigDecimal> parseSubsetDimensionToNumbers(String axisCRS, String axisUoM, AbstractSubsetDimension subset) throws PetascopeException, SecoreException {
+    public static ParsedSubset<BigDecimal> parseSubsetDimensionToNumbers(String axisCRS, String axisUoM, AbstractSubsetDimension subset) throws PetascopeException {
         String lowerBound, upperBound;
         
         if (subset instanceof TrimmingSubsetDimension) {

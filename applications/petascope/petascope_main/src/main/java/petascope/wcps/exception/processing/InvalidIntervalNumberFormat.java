@@ -30,13 +30,13 @@ import petascope.exceptions.ExceptionCode;
 public class InvalidIntervalNumberFormat extends WCPSException {
     
     public InvalidIntervalNumberFormat(String low, String high, String errorMessage) {
-        super(ExceptionCode.WcpsError, EXCEPTION_TEXT.replace("$low", low)
+        super(ExceptionCode.InvalidRequest, EXCEPTION_TEXT.replace("$low", low)
               .replace("$high", high)
               .replace("$errorMessage", errorMessage));
     }
     
     public InvalidIntervalNumberFormat(String low, String high, String errorMessage, Exception cause) {
-        super(ExceptionCode.WcpsError, EXCEPTION_TEXT.replace("$low", low)
+        super(ExceptionCode.InvalidRequest, EXCEPTION_TEXT.replace("$low", low)
               .replace("$high", high)
               .replace("$errorMessage", errorMessage), cause);
     }

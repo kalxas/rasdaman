@@ -53,6 +53,7 @@ import petascope.util.MIMEUtil;
 import petascope.util.SetUtil;
 import petascope.util.XMLUtil;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
+import petascope.exceptions.WMSException;
 
 /**
  * Service to create or update a style of a layer
@@ -92,9 +93,9 @@ public class AdminCreateOrUpdateStyleService extends AbstractAdminService {
         
         Layer layer = this.wmsRepostioryService.readLayerByNameFromLocalCache(layerName);
         if (layer == null) {
-            throw new PetascopeException(ExceptionCode.NoSuchLayer, "Layer '" + layerName + "' does not exist in local database.");
+            throw new WMSException(ExceptionCode.NoSuchLayer, "Layer '" + layerName + "' does not exist in local database.");
         } else if (layer.hasStyle(styleName)) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Style '" + styleName + "' already exists in layer '" + layerName + "'.");
+            throw new WMSException(ExceptionCode.InvalidRequest, "Style '" + styleName + "' already exists in layer '" + layerName + "'.");
         }
         
         return this.handle(httpServletRequest, kvpParameters);
@@ -110,11 +111,11 @@ public class AdminCreateOrUpdateStyleService extends AbstractAdminService {
         
         Layer layer = this.wmsRepostioryService.readLayerByNameFromLocalCache(layerName);
         if (layer == null) {
-            throw new PetascopeException(ExceptionCode.NoSuchLayer, "Layer '" + layerName + "' does not exist in local database.");
+            throw new WMSException(ExceptionCode.NoSuchLayer, "Layer '" + layerName + "' does not exist in local database.");
         } else if (!layer.hasStyle(styleName)) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Style '" + styleName + "' does not exist in layer '" + layerName + "'.");
+            throw new WMSException(ExceptionCode.InvalidRequest, "Style '" + styleName + "' does not exist in layer '" + layerName + "'.");
         } else if (newStyleName != null && layer.getStyle(newStyleName) != null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "New style '" + newStyleName + "' already exists in layer '" + layerName + "'.");
+            throw new WMSException(ExceptionCode.InvalidRequest, "New style '" + newStyleName + "' already exists in layer '" + layerName + "'.");
         }
         
         return this.handle(httpServletRequest, kvpParameters);
@@ -202,7 +203,7 @@ public class AdminCreateOrUpdateStyleService extends AbstractAdminService {
                 try {
                     new Builder().build(new StringReader(colorTableDefinition)).getRootElement();
                 } catch (Exception ex) {
-                    throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    throw new WMSException(ExceptionCode.InvalidRequest, 
                                                  "The provided SLD text is not valid XML format for style '" + styleName + "' of layer '" + layerName + "'"
                                                 + ". Reason: " + XMLUtil.enquoteCDATA(ex.getMessage()), ex);
                 }

@@ -27,7 +27,7 @@ package petascope.wcps.metadata.model;
 public class Subset {
 
     private NumericSubset numericSubset;
-    private final String crs;
+    private String crs;
     private final String axisName;
 
     public Subset(NumericSubset numericSubset, String crs, String axisName) {
@@ -42,6 +42,10 @@ public class Subset {
 
     public NumericSubset getNumericSubset() {
         return numericSubset;
+    }
+    
+    public void setCrs(String crs) {
+        this.crs = crs;
     }
 
     public String getCrs() {

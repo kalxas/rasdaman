@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
+import javax.servlet.http.HttpServletRequest;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
@@ -87,7 +88,12 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
     @Autowired
     private InsertCoverageHandler insertCoverageHandler;
     @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;    
+    @Autowired
     private XMLWCSServiceHandler xmlWCSServiceHandler;
+    
     public KVPWCSProcessCoverageHandler() {
     }
 

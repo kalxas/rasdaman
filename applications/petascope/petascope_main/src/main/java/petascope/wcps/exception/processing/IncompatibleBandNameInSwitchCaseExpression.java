@@ -30,7 +30,7 @@ import petascope.exceptions.ExceptionCode;
 public class IncompatibleBandNameInSwitchCaseExpression extends WCPSException {
 
     public IncompatibleBandNameInSwitchCaseExpression(String firstBandName, String secondBandName) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$firstBandName", firstBandName).replace("$secondBandName", secondBandName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$firstBandName", firstBandName).replace("$secondBandName", secondBandName));
     }
 
     public static final String ERROR_TEMPLATE = "Incompatible band name between cases, 'first case: $firstBandName and current case: $secondBandName'";

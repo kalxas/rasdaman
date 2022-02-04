@@ -93,14 +93,13 @@ public class WcpsController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException, Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
         
         if (startException != null) {
             throwStartException();
         }        
         
         Response response = null;
-        boolean requestSuccess = true;
         
         log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
         long start = System.currentTimeMillis();
@@ -112,13 +111,12 @@ public class WcpsController extends AbstractController {
                 String abstractWcpsQuery = xmlProcessCoverageParser.parseWCPSQueryFromXML(requestBody);
                 // Parsed the WCPS query to abstract syntax and handle it as a POST KVP
                 kvpParameters.remove(KVPSymbols.KEY_REQUEST_BODY);
-                kvpParameters.put(KVPSymbols.KEY_QUERY, new String[]{abstractWcpsQuery});
+                kvpParameters.put(KVPSymbols.KEY_QUERY, new String[] {abstractWcpsQuery});
             }        
 
             response = kvpProcessCoverageHandler.handle(kvpParameters);
             this.writeResponseResult(response);            
-        } catch(Exception ex) {
-            requestSuccess = false;
+        } catch (Exception ex) {
             ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WCPS_SERVICE), ex, injectedHttpServletResponse);
         } finally {
             long end = System.currentTimeMillis();

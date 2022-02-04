@@ -24,6 +24,7 @@ package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception to be thrown when an invalid width
@@ -36,7 +37,7 @@ public class WMSInvalidWidth extends WMSException {
      * Constructor for the class if parameter is null
      */
     public WMSInvalidWidth() {
-        super("No width parameter requested.");
+        super(ExceptionCode.InvalidRequest, "No width parameter requested.");
     }
 
     /**
@@ -45,15 +46,8 @@ public class WMSInvalidWidth extends WMSException {
      * @param width the invalid width
      */
     public WMSInvalidWidth(@NotNull String width) {
-        super(ERROR_MESSAGE.replace("$width", width));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$width", width));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InvalidWidth";
     private static final String ERROR_MESSAGE = "Invalid value for 'width' parameter, must be positive integer. Given '$width'.";
 }

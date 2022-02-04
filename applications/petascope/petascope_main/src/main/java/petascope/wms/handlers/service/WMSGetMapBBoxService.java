@@ -205,7 +205,7 @@ public class WMSGetMapBBoxService {
      * to fit with coverage's geo XY axes bounds to avoid server killed by Rasql
      * query.
      */
-    public void fitBBoxToCoverageGeoXYBounds(BoundingBox bbox, String layerName) throws PetascopeException, SecoreException {
+    public void fitBBoxToCoverageGeoXYBounds(BoundingBox bbox, String layerName) throws PetascopeException {
         WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.translate(layerName);
 
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
@@ -325,7 +325,7 @@ public class WMSGetMapBBoxService {
      * This allows rasdaman to query result without missing values in the
      * corners because of projection() will return a rotated result.
      */
-    public BoundingBox createExtendedGeoBBox(WMSLayer wmsLayer) throws PetascopeException, SecoreException {
+    public BoundingBox createExtendedGeoBBox(WMSLayer wmsLayer) throws PetascopeException {
 
         WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();

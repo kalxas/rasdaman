@@ -54,7 +54,7 @@ public class WcpsExecutorFactory {
         else if (result instanceof WcpsResult) {
             return wcpsRasqlExecutor;
         } else {
-            throw new WCPSException(ExceptionCode.WcpsError, "Cannot get the executor to get the result from translated tree.");
+            throw new WCPSException(ExceptionCode.NoApplicableCode, "Cannot get the executor to get the result from translated tree.");
         }
     }
 }

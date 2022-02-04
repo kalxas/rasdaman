@@ -57,7 +57,7 @@ public class RasdamanFileInserter extends AbstractRasdamanInserter {
     }
 
     @Override
-    public void insert() throws RasdamanException, IOException, PetascopeException {
+    public void insert() throws RasdamanException, PetascopeException {
         RasUtil.executeInsertFileStatement(collectionName, filePath, mimetype, tiling, username, password);
     }
 }

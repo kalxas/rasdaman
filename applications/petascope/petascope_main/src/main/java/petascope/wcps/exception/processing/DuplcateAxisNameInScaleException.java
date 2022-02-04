@@ -36,7 +36,7 @@ public class DuplcateAxisNameInScaleException extends WCPSException {
      * @param axisName the name of duplicated axis name
      */
     public DuplcateAxisNameInScaleException(String axisName) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisName", axisName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisName", axisName));
     }
 
     private static final String ERROR_TEMPLATE = "Axis name '$axisName' is duplicated in scaling expression.";

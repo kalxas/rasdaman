@@ -57,7 +57,7 @@ public class ScaleExpressionByImageCrsDomainHandler extends AbstractOperatorHand
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslatorService;
 
-    public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) throws PetascopeException, SecoreException {
+    public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) throws PetascopeException {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR);  
 

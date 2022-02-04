@@ -32,7 +32,7 @@ import petascope.exceptions.ExceptionCode;
 public class Coverage0DMetadataNullException extends WCPSException {
 
     public Coverage0DMetadataNullException(String operator) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$operator", operator));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$operator", operator));
     }
 
     private static final String ERROR_TEMPLATE = "Coverage is 0D, cannot apply '$operator' operator on it.";

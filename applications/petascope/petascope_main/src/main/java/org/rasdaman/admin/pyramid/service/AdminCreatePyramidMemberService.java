@@ -102,7 +102,7 @@ public class AdminCreatePyramidMemberService extends AbstractAdminService {
     private String parseBaseCoverageId(Map<String, String[]> kvpParameters) throws PetascopeException {
         String baseCoverageId = getValueByKey(kvpParameters, KEY_COVERAGE_ID);
         if (!this.coverageRepositoryService.isInLocalCache(baseCoverageId)) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Base coverage '" + baseCoverageId + "' does not exist in local database.");
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Base coverage '" + baseCoverageId + "' does not exist in local database.");
         }
         
         return baseCoverageId;
@@ -182,7 +182,7 @@ public class AdminCreatePyramidMemberService extends AbstractAdminService {
             for (String value : tmpValues) {
                 value = value.trim();
                 if (!SUPPORTED_SCALING_AXIS_INTERPOLATIONS.contains(value)) {
-                    throw new PetascopeException(ExceptionCode.InvalidRequest, "Interpolation method is not supported. Given '" + value + "'.");
+                    throw new PetascopeException(ExceptionCode.NoApplicableCode, "Interpolation method is not supported. Given '" + value + "'.");
                 }
             }
         } else {

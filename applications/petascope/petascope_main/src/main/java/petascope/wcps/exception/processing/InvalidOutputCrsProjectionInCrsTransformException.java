@@ -39,7 +39,7 @@ public class InvalidOutputCrsProjectionInCrsTransformException  extends WCPSExce
      * @param outputCrs the source Crs
      */
     public InvalidOutputCrsProjectionInCrsTransformException(String outputCrs, String axisName) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$outputCrs", outputCrs)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$outputCrs", outputCrs)
               .replace("$axis", axisName));
     }
 

@@ -37,6 +37,6 @@ public class NotRasqlException extends WCPSException {
      * @param metaValue the Meta value (e.g idenfier(c) = mr)
      */
     public NotRasqlException(String query, String metaValue) {
-        super(ExceptionCode.WcpsError, "This WCPS query: " + query + " returns meta value " + metaValue + ", not Rasql query.");
+        super(ExceptionCode.InvalidRequest, "This WCPS query: " + query + " returns meta value " + metaValue + ", not Rasql query.");
     }
 }

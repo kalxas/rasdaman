@@ -24,6 +24,7 @@ package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception to be thrown when an invalid interpolation
@@ -33,15 +34,8 @@ import org.jetbrains.annotations.NotNull;
 public class WMSInvalidInterpolation extends WMSException {
 
     public WMSInvalidInterpolation(@NotNull String interpolation) {
-        super(ERROR_MESSAGE.replace("$interpolation", interpolation));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$interpolation", interpolation));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InvalidInterpolation";
     private static final String ERROR_MESSAGE = "Invalid value for 'interpolation' parameter. Given '$interpolation'.";
 }

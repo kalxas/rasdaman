@@ -35,12 +35,9 @@ public class InvalidScaleExtentException extends WCPSException {
 
     /**
      * Constructor for the class
-     *
-     * @param axisName
-     * @param bound
      */
     public InvalidScaleExtentException(String axisName, String bound) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisName", axisName).replace("$bound", bound));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisName", axisName).replace("$bound", bound));
     }
 
     private static final String ERROR_TEMPLATE = "Scale extent domain must be interval (lowerBound:upperBound) for axis: $axisName, given: ($bound).";

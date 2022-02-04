@@ -24,7 +24,7 @@
 package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
-import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception to be used when the service requested is invalid
@@ -38,15 +38,8 @@ public class WMSInvalidServiceException extends WMSException {
      * @param suppliedService the user indicated service
      */
     public WMSInvalidServiceException(String suppliedService) {
-        super(ERROR_MESSAGE.replace("$Service", suppliedService));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$Service", suppliedService));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InvalidService";
     private static final String ERROR_MESSAGE = "The requested service '$Service' is invalid.";
 }

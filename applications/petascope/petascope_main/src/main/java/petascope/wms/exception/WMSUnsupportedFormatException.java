@@ -25,6 +25,7 @@ package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Class description
@@ -39,15 +40,8 @@ public class WMSUnsupportedFormatException extends WMSException {
      * @param format the format supplied by the user
      */
     public WMSUnsupportedFormatException(@NotNull String format) {
-        super(ERROR_MESSAGE.replace("$format", format));
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$format", format));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "UnsupportedFormat";
     private static final String ERROR_MESSAGE = "Invalid value for 'format' parameter. Given '$format'.";
 }

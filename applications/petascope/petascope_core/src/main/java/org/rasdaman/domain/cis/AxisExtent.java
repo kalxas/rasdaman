@@ -160,7 +160,7 @@ public class AxisExtent implements Serializable {
      * @throws SecoreException
      */
     @JsonIgnore
-    public BigDecimal getLowerBoundNumber() throws PetascopeException, SecoreException {
+    public BigDecimal getLowerBoundNumber() throws PetascopeException {
         BigDecimal number = null;
         if (this.lowerBound.contains("\"")) {
             String axisUoM = this.getUomLabel();
@@ -181,7 +181,7 @@ public class AxisExtent implements Serializable {
      * @throws SecoreException
      */
     @JsonIgnore
-    public BigDecimal getUpperBoundNumber() throws PetascopeException, SecoreException {
+    public BigDecimal getUpperBoundNumber() throws PetascopeException {
         BigDecimal number = null;
         if (this.upperBound.contains("\"")) {
             String axisUoM = this.getUomLabel();

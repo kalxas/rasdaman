@@ -32,7 +32,7 @@ import petascope.exceptions.ExceptionCode;
 public class CoverageNotEncodedInReturnClauseException extends WCPSException {
 
     public CoverageNotEncodedInReturnClauseException() {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE);
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE);
     }
 
     private static final String ERROR_TEMPLATE = "Coverage result must use encode() as it is non-scalar value.";

@@ -21,7 +21,6 @@
  */
 package petascope.wcst.helpers.decodeparameters;
 
-import java.io.IOException;
 
 /**
  * A convertor that will simply pass on the range parameters to rasdaman, without modification.
@@ -36,7 +35,7 @@ public class GeneralMessageConvertor implements RangeParametersConvertor {
     }
 
     @Override
-    public String toRasdamanDecodeParameters() throws IOException {
+    public String toRasdamanDecodeParameters() {
         return messages;
     }
 }

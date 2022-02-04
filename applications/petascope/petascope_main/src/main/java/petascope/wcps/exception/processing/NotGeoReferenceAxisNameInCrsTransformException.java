@@ -36,7 +36,7 @@ public class NotGeoReferenceAxisNameInCrsTransformException extends WCPSExceptio
      * @param axisName the offending axisName
      */
     public NotGeoReferenceAxisNameInCrsTransformException(String axisName) {
-        super(ExceptionCode.WcsError, ERROR_TEMPLATE.replace("$AXIS_NAME", axisName));
+        super(ExceptionCode.NoApplicableCode, ERROR_TEMPLATE.replace("$AXIS_NAME", axisName));
     }
 
     private static final String ERROR_TEMPLATE = "Non-georeferenced axis '$AXIS_NAME' is not supported in CRS reprojection.";

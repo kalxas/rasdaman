@@ -35,12 +35,9 @@ public class InvalidNumberOfNodataValuesException extends WCPSException {
 
     /**
      * Constructor for the class
-     *
-     * @param numberOfRange
-     * @param numberOfNodata
      */
     public InvalidNumberOfNodataValuesException(int numberOfRange, int numberOfNodata) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$numberOfRange", String.valueOf(numberOfRange))
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$numberOfRange", String.valueOf(numberOfRange))
                             .replace("$numberOfNodata", String.valueOf(numberOfNodata)));
     }
 

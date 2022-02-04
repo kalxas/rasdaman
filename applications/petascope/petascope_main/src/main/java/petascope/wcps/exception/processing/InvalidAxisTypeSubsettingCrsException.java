@@ -37,7 +37,7 @@ public class InvalidAxisTypeSubsettingCrsException extends WCPSException {
      * @param subsettingCrs
      */
     public InvalidAxisTypeSubsettingCrsException(String axisName, String subsettingCrs) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisName", axisName).replace("$subsettingCrs", subsettingCrs));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisName", axisName).replace("$subsettingCrs", subsettingCrs));
     }
 
     private static final String ERROR_TEMPLATE = "subsettingCrs '$subsettingCrs' is not supported on axis '$axisName'.";

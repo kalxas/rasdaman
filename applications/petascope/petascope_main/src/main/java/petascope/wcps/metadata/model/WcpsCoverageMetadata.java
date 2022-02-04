@@ -803,7 +803,7 @@ public class WcpsCoverageMetadata {
                 WcpsCoverageMetadata cloneMetadata = (WcpsCoverageMetadata) JSONUtil.clone(metadata);
                 this.contributingRasqlWcpsCoverageMetadataMap.put(rasql, cloneMetadata);
             } catch (PetascopeException ex) {
-                throw new WCPSException(ExceptionCode.InternalComponentError, "Cannot clone Object. Reason: " + ex.getMessage(), ex);
+                throw new WCPSException(ExceptionCode.InternalComponentError, "Cannot clone WcpsCoverageMetadata object via JSON. Reason: " + ex.getMessage(), ex);
             }
             
         }

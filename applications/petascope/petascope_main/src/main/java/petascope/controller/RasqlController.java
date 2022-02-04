@@ -77,7 +77,7 @@ public class RasqlController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException, Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
         
         Pair<String, String> resultPair = AuthenticationService.getBasicAuthUsernamePassword(httpServletRequest);
         if (!kvpParameters.containsKey(KEY_USERNAME) && !kvpParameters.containsKey(KEY_PASSWORD)) {
@@ -87,7 +87,7 @@ public class RasqlController extends AbstractController {
                 kvpParameters.put(KEY_PASSWORD, new String[] {resultPair.snd});
             }
         }
-  
+
         if (startException != null) {
             throwStartException();
         }

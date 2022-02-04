@@ -32,7 +32,7 @@ import petascope.exceptions.ExceptionCode;
 public class IncompatibleCoveragesException extends WCPSException {
 
     public IncompatibleCoveragesException(String firstCovName, String secondCovName, String errorMessage) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
              .replace("$errorMessage", errorMessage));
     }
 

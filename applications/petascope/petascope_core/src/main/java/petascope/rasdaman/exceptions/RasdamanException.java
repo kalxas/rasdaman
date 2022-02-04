@@ -30,7 +30,7 @@ public class RasdamanException extends PetascopeException {
     private String query;
 
     public RasdamanException(String exceptionText, String query) {
-        this(ExceptionCode.RasdamanError, exceptionText);
+        this(ExceptionCode.RasdamanError, exceptionText, null, query);
     }
     
     public RasdamanException(String exceptionText, Exception ex) {

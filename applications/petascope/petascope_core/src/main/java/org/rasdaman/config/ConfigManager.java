@@ -123,9 +123,6 @@ public class ConfigManager {
     public static String PETASCOPE_DATASOURCE_PASSWORD;
     // path to JDBC driver jar file if user doesn't use postgresql
     public static String PETASCOPE_DATASOURCE_JDBC_JAR_PATH;
-    // simple user name for admin to update the OWS Service metadata
-    public static String PETASCOPE_ADMIN_USERNAME;
-    public static String PETASCOPE_ADMIN_PASSWORD;
 
     // For old Petascopedb to migrate (source data source)
     public static String POSTGRESQL_DATASOURCE_DRIVER = "org.postgresql.Driver";
@@ -335,9 +332,9 @@ public class ConfigManager {
         try {
             props = new Properties();
             props.load(new FileInputStream(petaPropsPath));
-        } catch (IOException e) {
-            log.error("Failed loading the settings file " + petaPropsPath, e);
-            throw new RuntimeException("Failed loading the settings file " + petaPropsPath, e);
+        } catch (IOException ex) {
+            log.error("Failed loading the settings file " + petaPropsPath, ex);
+            throw new RuntimeException("Failed loading the settings file " + petaPropsPath + ". Reason: " + ex.getMessage(), ex);
         }
         
         loadApplicationProperties();
@@ -361,7 +358,7 @@ public class ConfigManager {
         try {
             props.load(ConfigManager.class.getClassLoader().getResourceAsStream(APPLICATION_PROPERTIES));
         } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.IOConnectionError, 
+            throw new PetascopeException(ExceptionCode.RuntimeError, 
                                         "Cannot load properties file from resource file '" + APPLICATION_PROPERTIES + "'. Reason: " + ex.getMessage(), ex);
         }
         PETASCOPE_VERSION = props.getProperty("version");
@@ -379,7 +376,7 @@ public class ConfigManager {
         if (props.containsKey(key)) {
             result = props.getProperty(key).trim();
         } else {
-            throw new PetascopeException(ExceptionCode.MissingPropertyKey, "Property key '" + key + " is not found in petascope.properties file.");
+            throw new PetascopeException(ExceptionCode.MissingPropertyKey, "Property key '" + key + "' is not found in petascope.properties file.");
         }
          
         return result;
@@ -435,7 +432,7 @@ public class ConfigManager {
         try {
             FULL_STACK_TRACE = Boolean.valueOf(get(KEY_FULL_STACK_TRACE));
         } catch (PetascopeException ex) {
-            log.warn("Property key '" + KEY_FULL_STACK_TRACE + "' does not exist in petascope.properties or is invalid boolean,"
+            log.warn("Property key '" + KEY_FULL_STACK_TRACE + "' does not exist in petascope.properties or is invalid boolean, "
                     + "will use default value '" + FULL_STACK_TRACE + "' for this key.");
         }
         

@@ -95,7 +95,7 @@ public class GeneralGrid implements ISerializeToXMElement {
     }
     
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         Element generalGridElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_GENERAL_GRID), NAMESPACE_CIS_11);
         
         Attribute srsNameAttribute = new Attribute(ATT_SRS_NAME, NAMESPACE_CIS_11);

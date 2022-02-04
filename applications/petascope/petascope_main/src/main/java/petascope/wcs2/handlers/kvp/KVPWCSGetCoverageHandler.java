@@ -26,11 +26,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.controller.AbstractController;
+import petascope.controller.PetascopeController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -99,6 +102,10 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
     private KVPWCSGetCoverageScalingService kvpGetCoverageScalingService;
     @Autowired
     private KVPWCSGetcoverageClipService kvpGetCoverageClipService;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;
     
     private static final Logger log = LoggerFactory.getLogger(KVPWCSGetCoverageHandler.class);
     
@@ -247,17 +254,17 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
             if (subsettingCrs != null) {
                 CrsUtil.getCrsDefinition(subsettingCrs);
             }
-        } catch (Exception ex) {
-            throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
-                                   "Given subsettingCRS '" + subsettingCrs + "' is not valid. Reason: " + ex.getMessage(), ex);
+        } catch (PetascopeException ex) {
+            throw new WCSException(ex.getExceptionCode(),
+                                   "Failed get CRS defintion from subsettingCRS '" + subsettingCrs + "'. Reason: " + ex.getMessage(), ex);
         }
         try {
             if (outputCrs != null) {
                 CrsUtil.getCrsDefinition(outputCrs);
             }
-        } catch (Exception ex) {
-            throw new WCSException(ExceptionCode.OutputCrsNotSupported,
-                                   "Given outputCRS '" + outputCrs + "' is not valid. Reason: " + ex.getMessage(), ex);
+        } catch (PetascopeException ex) {
+            throw new WCSException(ex.getExceptionCode(),
+                                   "Failed get CRS defintion from outputCRS '" + outputCrs + "'. Reason: " + ex.getMessage(), ex);
         }
 
         List<String> intervals = new ArrayList<>();

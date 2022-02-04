@@ -30,14 +30,14 @@ import petascope.exceptions.ExceptionCode;
 public class IncompatibleAxesNumberException extends WCPSException {
 
     public IncompatibleAxesNumberException(String firstCovName, String secondCovName, Integer firstCovAxes, Integer secondCovAxes) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE_BINARY_COVERAGE_EXPRESSION.replace("$firstCov", firstCovName)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE_BINARY_COVERAGE_EXPRESSION.replace("$firstCov", firstCovName)
                                                                                 .replace("$secondCov", secondCovName)
                                                                                 .replace("$numberOfAxes1", firstCovAxes.toString())
                                                                                 .replace("$numberOfAxes2", secondCovAxes.toString()));
     }
     
     public IncompatibleAxesNumberException(String coverageName, int coverageAxes, int dimensionsIntervalsAxes) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE_SCALE_OR_EXTEND_EXPRESSION.replace("$coverageName", coverageName)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE_SCALE_OR_EXTEND_EXPRESSION.replace("$coverageName", coverageName)
               .replace("$coverageAxes", String.valueOf(coverageAxes))
               .replace("$dimensionsIntervalsAxes", String.valueOf(dimensionsIntervalsAxes)));
     }

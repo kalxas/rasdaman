@@ -21,7 +21,7 @@
  */
 package petascope.wms.exception;
 
-import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
 
 /**
@@ -35,19 +35,10 @@ public class WMSStyleNotFoundException extends WMSException {
     /**
      * Constructor for the class
      *
-     * @param styleName
-     * @param layerName
      */
     public WMSStyleNotFoundException(String styleName, String layerName) {
-        super(ERROR_MESSAGE_ONE_LAYER.replace("$styleName", styleName).replace("$layerName", layerName));
-    }
-
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE_ONE_LAYER.replace("$styleName", styleName).replace("$layerName", layerName));
     }
 
     private final static String ERROR_MESSAGE_ONE_LAYER = "The given style name '$styleName' of layer '$layerName' does not exist in database.";
-    private final static String EXCEPTION_CODE = "StyleNotFound";
 }

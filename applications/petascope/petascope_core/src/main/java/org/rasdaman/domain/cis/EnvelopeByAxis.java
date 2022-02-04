@@ -223,7 +223,7 @@ public class EnvelopeByAxis implements Serializable {
      * @throws petascope.exceptions.SecoreException
      */
     @JsonIgnore
-    public String getLowerCornerRepresentation() throws PetascopeException, SecoreException {
+    public String getLowerCornerRepresentation() throws PetascopeException {
 
         String lowerCorner = "";
         for (AxisExtent axisExtent : this.axisExtents) {
@@ -275,13 +275,9 @@ public class EnvelopeByAxis implements Serializable {
      * NOTE: although display DateTime for LowerCorner, UpperCorner of
      * coverage's boundingbox is nice, but it is not valid Schema, so just
      * display the raw numbers when OGC CITE testing is not enabled.
-     *
-     * @return
-     * @throws petascope.exceptions.PetascopeException
-     * @throws petascope.exceptions.SecoreException
      */
     @JsonIgnore
-    public String getUpperCornerRepresentation() throws PetascopeException, SecoreException {
+    public String getUpperCornerRepresentation() throws PetascopeException {
 
         String upperCorner = "";
         for (AxisExtent axisExtent : this.axisExtents) {

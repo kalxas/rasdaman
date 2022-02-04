@@ -22,8 +22,8 @@
 
 package petascope.wms.exception;
 
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Exception to be thrown when the client update sequence larger than the server update sequence
@@ -39,16 +39,9 @@ public class WMSInvalidUpdateSequenceException extends WMSException {
      * @param serverUpdateSequence the server update sequence
      */
     public WMSInvalidUpdateSequenceException(long clientUpdateSequence, long serverUpdateSequence) {
-        super(ERROR_MESSAGE.replace("$ClientUpdateSequence", String.valueOf(clientUpdateSequence))
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$ClientUpdateSequence", String.valueOf(clientUpdateSequence))
               .replace("$ServerUpdateSequence", String.valueOf(serverUpdateSequence)));
     }
 
-    @Override
-    @NotNull
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InvalidUpdateSequence";
     private static final String ERROR_MESSAGE = "The update sequence on the server is higher than the one provided '$ClientUpdateSequence'. The current update sequence is '$ServerUpdateSequence'";
 }

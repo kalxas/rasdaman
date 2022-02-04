@@ -210,21 +210,17 @@ public class MIMEUtil {
         }
 
         // if encoding does not exist, mean it is not supported
-        throw new PetascopeException(ExceptionCode.UnsupportedEncodingFormat, "Encoding format '" + encodingType + "' is not supported.");
+        throw new PetascopeException(ExceptionCode.UnsupportedEncodingFormat, "Encoding format '" + encodingType + "' is not supported");
     }
 
     /**
      * Return the encoding type of a mimeType (e.g: image/jpeg -> [jpg
      * (not supported), jpeg])
-     *
-     * @param mimeType
-     * @return
-     * @throws petascope.exceptions.PetascopeException
      */
     public static String getFormatType(String mimeType) throws PetascopeException {
         String formatType = getInstance().get(mimeType);
         if (formatType == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "MIME type is not supported, given '" + mimeType + "'.");
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "MIME type is not supported. Given: '" + mimeType + "'.");
         }
         return formatType;
     }

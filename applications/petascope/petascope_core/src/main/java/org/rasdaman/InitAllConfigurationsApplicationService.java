@@ -14,7 +14,7 @@
   *  You should have received a copy of the GNU  General Public License
   *  along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
   * 
-  *  Copyright 2003 - 2020 Peter Baumann / rasdaman GmbH.
+  *  Copyright 2003 - 2022 Peter Baumann / rasdaman GmbH.
   * 
   *  For more information please see <http://www.rasdaman.org>
   *  or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -66,7 +66,7 @@ public class InitAllConfigurationsApplicationService {
             urls[0] = jdbcJarFile.toURI().toURL();            
         } catch (MalformedURLException ex) {
             throw new PetascopeException(ExceptionCode.IOConnectionError, 
-                    "Cannot get the URI from given JDBC jar driver file path, given '" + pathToJarFile + "', error " + ex.getMessage());
+                    "Cannot get the URI from given JDBC jar driver file path, given '" + pathToJarFile + "'. Reason: " + ex.getMessage());
         }
         
         // Add this jar file to class path
@@ -90,14 +90,14 @@ public class InitAllConfigurationsApplicationService {
             driver = (Driver) Class.forName(className, true, loader).newInstance();
         } catch (Exception ex) {
             throw new PetascopeException(ExceptionCode.InternalSqlError, 
-                    "Cannot register JDBC Driver from file path '" + pathToJarFile + "', error message '" + ex.getMessage() + "'.", ex);
+                    "Cannot register JDBC Driver from file path '" + pathToJarFile + "'. Reason: '" + ex.getMessage(), ex);
         }
         
         try {
             DriverManager.registerDriver(new DriverShim(driver));
         } catch (Exception ex) {
             throw new PetascopeException(ExceptionCode.InternalSqlError, 
-                    "Cannot register Java SQSL Driver, error message '" + ex.getMessage() + "'.", ex);
+                    "Cannot register Java SQSL Driver. Reason: " + ex.getMessage(), ex);
         }
     }
 }

@@ -41,7 +41,7 @@ public class CoverageIdentifierNotFoundException extends WCPSException {
      * @param coverageVariableName the coverage variable name that was provided
      */
     public CoverageIdentifierNotFoundException(String coverageVariableName) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$coverageVariableName", coverageVariableName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$coverageVariableName", coverageVariableName));
         this.coverageVariableName = coverageVariableName;
     }
 

@@ -37,13 +37,10 @@ import java.util.List;
 import java.util.Map;
 import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 import org.rasdaman.domain.cis.NilValue;
-import org.rasdaman.repository.service.CoverageRepositoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.wcps.encodeparameters.model.AxesMetadata;
 import petascope.wcps.encodeparameters.model.BandsMetadata;
 import petascope.core.gml.metadata.model.CoverageMetadata;
-import petascope.exceptions.SecoreException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -60,9 +57,6 @@ import petascope.wcps.metadata.service.AxesOrderComparator;
 @Service
 public class NetCDFParametersService {
 
-    @Autowired
-    private CoverageRepositoryService persistedCoverageService;
-    
     public NetCDFParametersService() {
 
     }
@@ -73,7 +67,7 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    public NetCDFExtraParams buildParameters(WcpsCoverageMetadata metadata) throws PetascopeException, SecoreException {
+    public NetCDFExtraParams buildParameters(WcpsCoverageMetadata metadata) throws PetascopeException {
         // NOTE: this needs to write with grid axis order
         List<String> dimensions = this.buildDimensions(metadata.getSortedAxesByGridOrder());
         List<Variable> vars = this.buildVariables(metadata);
@@ -114,7 +108,7 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    private List<DimensionVariable> buildDimensionVariables(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException, SecoreException {
+    private List<DimensionVariable> buildDimensionVariables(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
         String covName = wcpsCoverageMetadata.getCoverageName();
         List<Axis> axes = wcpsCoverageMetadata.getSortedAxesByGridOrder();        
         List<DimensionVariable> dimensionVariables = new ArrayList<>();
@@ -137,7 +131,7 @@ public class NetCDFParametersService {
                 }
             }
             DimensionVariableMetadata dimensionVariableMetadata = new DimensionVariableMetadata(axesMetadataMap);
-            dimensionVariables.add(new DimensionVariable<>(RangeField.DATA_TYPE, this.buildPoisitionData(covName, axis), axis.getLabel(), dimensionVariableMetadata));
+            dimensionVariables.add(new DimensionVariable<>(RangeField.DATA_TYPE, this.buildPoisitionData(axis), axis.getLabel(), dimensionVariableMetadata));
         }
         return dimensionVariables;
     }
@@ -183,7 +177,7 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    private List<Variable> buildVariables(WcpsCoverageMetadata metadata) throws PetascopeException, SecoreException {
+    private List<Variable> buildVariables(WcpsCoverageMetadata metadata) throws PetascopeException {
         List<Variable> variables = new ArrayList<>();
         // NOTE: this needs to write with grid axis order
         variables.addAll(this.buildDimensionVariables(metadata));
@@ -200,7 +194,7 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    private List<Double> buildPoisitionData(String covName, Axis axis) throws PetascopeException, SecoreException {
+    private List<Double> buildPoisitionData(Axis axis) throws PetascopeException {
 
         // data=[geoLow, geoLow+res, geoLow+2*res, ...., geoHigh]
         List<Double> data = new ArrayList<>();

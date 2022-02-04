@@ -32,10 +32,10 @@ import petascope.exceptions.ExceptionCode;
 public class InvalidSubsettingCrsToTransform extends WCPSException {
 
     public InvalidSubsettingCrsToTransform(String subsettingCRS, String errorMessage) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$subsettingCRS", subsettingCRS)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$subsettingCRS", subsettingCRS)
                 .replace("$errorMessage", errorMessage));
     }
 
-    private static final String ERROR_TEMPLATE = "Invalid subsettingCRS '$subsettingCRS' to transform. \n Reason '$errorMessage'.";
+    private static final String ERROR_TEMPLATE = "Invalid subsettingCRS '$subsettingCRS' to transform. Reason: $errorMessage.";
 
 }

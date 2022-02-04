@@ -21,7 +21,6 @@
  */
 package petascope.controller.admin;
 
-import com.rasdaman.accesscontrol.service.AuthenticationService;
 import com.rasdaman.admin.coverage.service.AdminUpdateCoverageService;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -31,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import static org.rasdaman.config.ConfigManager.ADMIN;
 import static org.rasdaman.config.ConfigManager.COVERAGE;
+import org.rasdaman.config.VersionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,9 +39,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import petascope.controller.AbstractController;
 import petascope.controller.RequestHandlerInterface;
+import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.KEY_METADATA;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.util.ExceptionUtil;
 
 /**
  * Class to handle update coverage (id and metadata) object.
@@ -69,7 +71,13 @@ public class AdminUpdateCoverageController extends AbstractController {
     }
     
     private void handle(HttpServletRequest httpServletRequest) throws Exception {
-        final Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
+        Map<String, String[]> tmpKvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
+        if (this.isPostRequest(httpServletRequest)) {
+            // NOTE: this Update Coverage's metadata API allows to upload file in POST body, cannot reuse the method for parsing POST body from the super class
+            tmpKvpParameters = this.parsePostRequestWithMetadataFile(httpServletRequest);
+        }
+        
+        final Map<String, String[]> kvpParameters = tmpKvpParameters;
         
         RequestHandlerInterface requestHandlerInterface = () -> {
             try {
@@ -77,7 +85,7 @@ public class AdminUpdateCoverageController extends AbstractController {
 
                 this.adminUpdateCoverageService.handle(httpServletRequest, kvpParameters);
             } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
+                ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WCS_SERVICE), ex, this.injectedHttpServletResponse);
             }
         };
         
@@ -85,7 +93,7 @@ public class AdminUpdateCoverageController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
         
     }
 
@@ -93,7 +101,7 @@ public class AdminUpdateCoverageController extends AbstractController {
      * Parse and validate post request to get coverageId and a stored file path
      * from uploaded file to server.
      */
-    private Map<String, String[]> parsePostRequest(HttpServletRequest httpServletRequest)
+    private Map<String, String[]> parsePostRequestWithMetadataFile(HttpServletRequest httpServletRequest)
             throws IOException, ServletException, PetascopeException, Exception {
         
         Map<String, String[]> kvpParameters = new LinkedHashMap<>();
@@ -131,7 +139,7 @@ public class AdminUpdateCoverageController extends AbstractController {
         } else {
             // normal POST request (metadata exists in a POST parameter)
             
-            // curl --user petauser:petapasswd -d "metadata=<a>This is a metadata</a>" "http://localhost:8080/rasdaman/admin/UpdateCoverageMetadata" -d "coverageId=test"            
+            // curl --user rasadmin:rasadmin -d "metadata=<a>This is a metadata</a>" "http://localhost:8080/rasdaman/admin/coverage/update" -d "coverageId=test_upload_metadata" 
             String postBody = this.getPOSTRequestBody(httpServletRequest);
             kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         }

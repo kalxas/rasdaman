@@ -38,7 +38,7 @@ public class RangeFieldNotFound extends WCPSException {
      * @param rangeField the range field that was not found
      */
     public RangeFieldNotFound(String rangeField) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$rangeField", rangeField));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$rangeField", rangeField));
     }
 
     private static final String ERROR_TEMPLATE = "Range field not found '$rangeField'.";

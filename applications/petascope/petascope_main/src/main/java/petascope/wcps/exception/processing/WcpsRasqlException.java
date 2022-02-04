@@ -33,6 +33,6 @@ import petascope.exceptions.ExceptionCode;
 public class WcpsRasqlException extends WCPSException {
     
     public WcpsRasqlException(String query, String errorMessage, Exception ex) {
-        super(ExceptionCode.WcpsError, "Error querying rasdaman with rasql '" + query + ". \n Reason '" + errorMessage + "'.", ex);
+        super(ExceptionCode.RasdamanRequestFailed, "Error querying rasdaman with rasql '" + query + "'. Reason: " + errorMessage, ex);
     }
 }

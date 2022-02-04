@@ -43,13 +43,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.gdal.ogr.Geometry;
 import org.gdal.ogr.ogr;
 import static org.rasdaman.config.ConfigManager.OWS;
+import static org.rasdaman.config.ConfigManager.PETASCOPE_CONNETION_TIMEOUT;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 
@@ -690,6 +699,14 @@ public class StringUtil {
         }
         
         return input1.equals(input2);
+    }
+    
+    public static String decodeUTF8(String input) throws PetascopeException {
+        try {
+            return URLDecoder.decode(input, "utf-8");
+        } catch (UnsupportedEncodingException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot decode string: " + input + " to UTF-8. Reason: " + ex.getMessage());
+        }
     }
     
 }

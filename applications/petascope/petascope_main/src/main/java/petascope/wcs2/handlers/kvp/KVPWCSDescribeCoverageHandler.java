@@ -25,10 +25,12 @@ import java.util.Arrays;
 import petascope.core.response.Response;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import nu.xom.Element;
-import org.rasdaman.repository.service.CoverageRepositoryService;
+import org.rasdaman.config.ConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.controller.PetascopeController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -59,7 +61,9 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
     @Autowired
-    private CoverageRepositoryService coverageRepositoryService;
+    private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;
     
     protected static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, 
                                                                                   KEY_COVERAGEID, KEY_OUTPUT_TYPE);

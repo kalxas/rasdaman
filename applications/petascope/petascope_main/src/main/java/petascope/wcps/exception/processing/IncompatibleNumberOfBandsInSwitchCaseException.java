@@ -30,7 +30,7 @@ import petascope.exceptions.ExceptionCode;
 public class IncompatibleNumberOfBandsInSwitchCaseException extends WCPSException {
 
     public IncompatibleNumberOfBandsInSwitchCaseException(int firstBandNumbers, int secondBandNumbers) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$firstBandNumbers", String.valueOf(firstBandNumbers))
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$firstBandNumbers", String.valueOf(firstBandNumbers))
               .replace("$secondBandNumbers", String.valueOf(secondBandNumbers)));
     }
 

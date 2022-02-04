@@ -22,6 +22,7 @@
 package petascope.wms.exception;
 
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WMSException;
 
 /**
@@ -37,16 +38,9 @@ public class WMSInternalException extends WMSException {
      * @param errorMessage the error from the catched exception
      * @param exception
      */
-    public WMSInternalException(@NotNull String errorMessage, @NotNull Exception exception) {
+    public WMSInternalException(@NotNull String errorMessage, @NotNull PetascopeException exception) {
         super(ERROR_MESSAGE.replace("$errorMessage", errorMessage), exception);
     }
-
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InternalError";
+    
     private static final String ERROR_MESSAGE = "Failed when processing WMS request: $errorMessage";
 }

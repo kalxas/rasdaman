@@ -119,7 +119,7 @@ public class GMLGetCoverageBuilder {
     /**
      * Build result for GetCoverage request in GML format
      */
-    public Element buildWCSGetCoverageResult(WcpsCoverageMetadata wcpsCoverageMetadata, String pixelValues) throws PetascopeException, SecoreException {
+    public Element buildWCSGetCoverageResult(WcpsCoverageMetadata wcpsCoverageMetadata, String pixelValues) throws PetascopeException {
 
         Map<String, String> xmlNameSpacesMap = GMLWCSRequestResultBuilder.getMandatoryXMLNameSpacesMap();
         

@@ -313,29 +313,33 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
 
         BoundingBox bbox = new BoundingBox();
         String[] values = input.split(",");
+        String xMin = values[0].trim();
+        String yMin = values[1].trim();
+        String xMax = values[2].trim();
+        String yMax = values[3].trim();
         
         try {
-            bbox.setXMin(new BigDecimal(values[0]));
+            bbox.setXMin(new BigDecimal(xMin));
         } catch (NumberFormatException ex) {
-            throw new WMSInvalidBoundingBoxExcpetion(input, "xMin is not a number. Given: '" + values[0] + "'");
+            throw new WMSInvalidBoundingBoxExcpetion(input, "xMin is not a number. Given: '" + xMin + "'");
         }
         
         try {
-            bbox.setYMin(new BigDecimal(values[1]));
+            bbox.setYMin(new BigDecimal(yMin));
         } catch (NumberFormatException ex) {
-            throw new WMSInvalidBoundingBoxExcpetion(input, "yMin is not a number. Given: '" + values[1] + "'");
+            throw new WMSInvalidBoundingBoxExcpetion(input, "yMin is not a number. Given: '" + yMin + "'");
         }
         
         try {
-            bbox.setXMax(new BigDecimal(values[2]));
+            bbox.setXMax(new BigDecimal(xMax));
         } catch (NumberFormatException ex) {
-            throw new WMSInvalidBoundingBoxExcpetion(input, "xMax is not a number. Given: '" + values[2] + "'");
+            throw new WMSInvalidBoundingBoxExcpetion(input, "xMax is not a number. Given: '" + xMax + "'");
         }
         
         try {
-            bbox.setYMax(new BigDecimal(values[3]));
+            bbox.setYMax(new BigDecimal(yMax));
         } catch (NumberFormatException ex) {
-            throw new WMSInvalidBoundingBoxExcpetion(input, "yMax is not a number. Given: '" + values[3] + "'");
+            throw new WMSInvalidBoundingBoxExcpetion(input, "yMax is not a number. Given: '" + yMax + "'");
         }
 
         return bbox;

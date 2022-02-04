@@ -32,7 +32,7 @@ import petascope.exceptions.ExceptionCode;
 public class EncodingCoverageMetadataIsNullException extends WCPSException {
 
     public EncodingCoverageMetadataIsNullException() {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE);
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE);
     }
 
     public static final String ERROR_TEMPLATE = "Encoding coverage's metadata is null, cannot use encode expression.";

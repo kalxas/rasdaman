@@ -30,7 +30,7 @@ import petascope.exceptions.ExceptionCode;
 public class InvalidJsonDeserializationException extends WCPSException {
     
     public InvalidJsonDeserializationException() {
-        super(ExceptionCode.WcsError, EXCEPTION_TEXT);
+        super(ExceptionCode.InvalidRequest, EXCEPTION_TEXT);
     }
 
     private final static String EXCEPTION_TEXT = "Extra parameters string is not valid JSON style format.";

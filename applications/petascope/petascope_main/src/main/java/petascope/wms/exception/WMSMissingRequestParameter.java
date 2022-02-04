@@ -24,6 +24,7 @@ package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception to be used when a request parameter is missing or empty.
@@ -37,17 +38,10 @@ public class WMSMissingRequestParameter extends WMSException {
      * @param parameterName the request parameter which is missing or is empty.
      */
     public WMSMissingRequestParameter(@NotNull final String parameterName) {
-        super(ERROR_MESSAGE.replace(TOKEN_PARAMETER, parameterName));
-    }
-
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace(TOKEN_PARAMETER, parameterName));
     }
 
     private static final String TOKEN_PARAMETER = "$parameter$";
-    private static final String EXCEPTION_CODE = "MissingRequestParameter";
     private static final String ERROR_MESSAGE = "The request parameter '" + TOKEN_PARAMETER + "' is missing.";
 
 }

@@ -34,12 +34,9 @@ public class InvalidNonRegularAxisTypeAsScaleDimensionException extends WCPSExce
 
     /**
      * Constructor for the class
-     *
-     * @param axisName
-     * @param bound
      */
     public InvalidNonRegularAxisTypeAsScaleDimensionException(String axisName) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisName", axisName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisName", axisName));
     }
 
     private static final String ERROR_TEMPLATE = "Scale operation is only supported on regular axis, given '$axisName' is irregular axis." ;

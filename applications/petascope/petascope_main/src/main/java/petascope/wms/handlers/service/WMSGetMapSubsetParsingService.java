@@ -54,8 +54,6 @@ import petascope.wcs2.parsers.subsets.TrimmingSubsetDimension;
 public class WMSGetMapSubsetParsingService {
     
     @Autowired
-    private WMSGetMapWCPSMetadataTranslatorService wmsGetMapWCPSMetadataTranslatorService;
-    @Autowired
     private CoordinateTranslationService coordinateTranslationService;
     
     /**
@@ -66,7 +64,7 @@ public class WMSGetMapSubsetParsingService {
      * e.g: GetMap request with 2 layers, layers=layer_3D,layer_2D&time=... then the time subset only be translated on layer_3D.
      */
     public List<List<WcpsSliceSubsetDimension>> translateGridDimensionsSubsetsLayers(WcpsCoverageMetadata wcpsCoverageMetadata,
-                                                                                Map<String, String> dimSubsetsMap) throws PetascopeException, SecoreException {
+                                                                                Map<String, String> dimSubsetsMap) throws PetascopeException {
         // Each nested list is the translated grids for an non-XY axis (e.g: ansi -> [0, 3, 5])
         List<List<WcpsSliceSubsetDimension>> parsedNonXYAxesGridSlicings = new ArrayList<>();
         // First, parse all the dimension subsets (e.g: time=...,dim_pressure=....) as one parsed dimension subset is one of layer's overlay operator's operand.
@@ -152,7 +150,7 @@ public class WMSGetMapSubsetParsingService {
      * + List of values: e.g: dim_pressure=20,30,50
      * + Multiple intervals: e.g: dim_pressure=20/100,150/300
      */
-    private List<ParsedSubset<BigDecimal>> parseDimensionSubset(Axis axis, String dimensionSubset) throws PetascopeException, SecoreException {
+    private List<ParsedSubset<BigDecimal>> parseDimensionSubset(Axis axis, String dimensionSubset) throws PetascopeException {
         List<ParsedSubset<BigDecimal>> parsedSubsets = new ArrayList<>();
         String[] parts = dimensionSubset.split(KVPSymbols.VALUE_WMS_SUBSET_SEPARATE_CHARACTER);
         

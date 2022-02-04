@@ -134,7 +134,7 @@ public class SerializationEncodingService {
      */
     public String serializeOldStyleExtraParamsToJson(String rasqlFormat, WcpsCoverageMetadata wcpsCoverageMetadata,
                                             NetCDFExtraParams netCDFExtraParams, GeoReference geoReference, boolean hasNoData,
-                                                    boolean isGML) throws JsonProcessingException, PetascopeException {
+                                                    boolean isGML) throws PetascopeException {
         JsonExtraParams jsonExtraParams = new JsonExtraParams();
         if (netCDFExtraParams != null) {
             jsonExtraParams.setDimensions(new Dimensions(netCDFExtraParams.getDimensions()));
@@ -169,17 +169,10 @@ public class SerializationEncodingService {
 
     /**
      * Generate Rasql extra parameters in Json string from *new style* extra params of WCPS query (e.g: "{...\"nodata\": [0,1,2,3]...}"
-     * @param rasqlFormat
-     * @param extraParams
-     * @param wcpsCoverageMetadata
-     * @param netCDFExtraParams
-     * @param geoReference
-     * @return
-     * @throws JsonProcessingException
      */
     public String serializeNewStyleExtraParamsToJson(String rasqlFormat, String extraParams, WcpsCoverageMetadata wcpsCoverageMetadata,
                                              NetCDFExtraParams netCDFExtraParams, GeoReference geoReference,
-                                             boolean isGML) throws JsonProcessingException, IOException, PetascopeException {
+                                             boolean isGML) throws PetascopeException {
         ObjectMapper objectMapper = new ObjectMapper();        
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

@@ -212,7 +212,7 @@ public class Templates {
         } else if (prefix.equals(WMS_PREFIX)) {
             return WMS_TEMPLATE_FOLDER;
         }
-        throw new PetascopeException(ExceptionCode.InternalComponentError, "Prefix is not supported, given: " + prefix);
+        throw new PetascopeException(ExceptionCode.NoApplicableCode, "Prefix is not supported. Given: " + prefix);
     }
 
     /**

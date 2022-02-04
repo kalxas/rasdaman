@@ -33,5 +33,5 @@ import petascope.exceptions.SecoreException;
  */
 public interface ISerializeToXMElement {
     
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException;
+    public Element serializeToXMLElement() throws PetascopeException;
 }

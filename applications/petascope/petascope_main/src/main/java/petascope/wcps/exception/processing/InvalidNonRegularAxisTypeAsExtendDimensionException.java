@@ -34,12 +34,9 @@ public class InvalidNonRegularAxisTypeAsExtendDimensionException extends WCPSExc
 
     /**
      * Constructor for the class
-     *
-     * @param axisName
-     * @param bound
      */
     public InvalidNonRegularAxisTypeAsExtendDimensionException(String axisName) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisName", axisName));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$axisName", axisName));
     }
 
     private static final String ERROR_TEMPLATE = "Extend operation is only supported on regular axis, given '$axisName' is irregular axis." ;

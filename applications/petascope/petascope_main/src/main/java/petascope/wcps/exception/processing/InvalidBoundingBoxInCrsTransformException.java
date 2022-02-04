@@ -18,7 +18,7 @@ public class InvalidBoundingBoxInCrsTransformException  extends WCPSException {
      * @param errorMessage
      */
     public InvalidBoundingBoxInCrsTransformException(String boundingBox, String outputCrs, String errorMessage, Exception ex) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$boundingBox", boundingBox)
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$boundingBox", boundingBox)
               .replace("$outputCrs", outputCrs)
               .replace("$errorMessage", errorMessage), ex);
     }

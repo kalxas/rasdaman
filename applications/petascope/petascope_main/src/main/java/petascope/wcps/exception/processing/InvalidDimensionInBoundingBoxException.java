@@ -16,7 +16,7 @@ public class InvalidDimensionInBoundingBoxException  extends WCPSException {
      * @param dimension number of dimension which is not equal to 2
      */
     public InvalidDimensionInBoundingBoxException(String dimension) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$dimension", dimension));
+        super(ExceptionCode.NoApplicableCode, ERROR_TEMPLATE.replace("$dimension", dimension));
     }
 
     private static final String ERROR_TEMPLATE = "Only support encoding with bounding box in 2D, received '$dimensionD'.";

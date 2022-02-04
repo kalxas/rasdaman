@@ -122,8 +122,6 @@ public class UpdateCoverageValidator {
             String dimensionName = subset.getDimensionName();
             AxisExtent axisExtent = currentCoverage.getEnvelope().getEnvelopeByAxis().getAxisExtentByLabel(dimensionName);
             if (axisExtent == null) {
-                log.error("Subset dimension " + subset.getDimensionName() + " was not found in the list of subsets of the "
-                        + "target coverage.");
                 throw new WCSTSubsetDimensionMismatchException(subset.getDimensionName());
             }
         }
@@ -145,8 +143,6 @@ public class UpdateCoverageValidator {
         if (rangeComponents == null || rangeComponents.isEmpty()) {
             //check if the coverages have the same number of bands
             if (currentCoverage.getNumberOfBands() != inputCoverage.getNumberOfBands()) {
-                log.error("The number of bands (swe:field elements) of target coverage (found " + currentCoverage.getNumberOfBands() + " ) "
-                        + "and input coverage (found " + inputCoverage.getNumberOfBands() + ") don't match.");
                 throw new WCSTRangeFieldNumberMismatchException(currentCoverage.getNumberOfBands(), inputCoverage.getNumberOfBands());
             }
             //check if the names of the bands are the same
@@ -158,8 +154,6 @@ public class UpdateCoverageValidator {
                 Field currentField = currentRangeType.getDataRecord().getFields().get(i);
                 Field inputField = inputRangeType.getDataRecord().getFields().get(i);
                 if (!currentField.getName().equals(inputField.getName())) {
-                    log.error("Band (swe:field element) name mismatch, found " + currentField.getName() + " in target coverage, "
-                            + currentField.getName() + " in input coverage.");
                     throw new WCSTRangeFieldNameMismatchException(currentField.getName(), inputField.getName());
                 }
             }
@@ -226,8 +220,6 @@ public class UpdateCoverageValidator {
             AxisExtent currentAxisExtent = currentCoverage.getEnvelope().getEnvelopeByAxis().getAxisExtentByLabel(inputAxisName);
             if (currentAxisExtent == null) {
                 //axis need to have same names
-                log.error("Axis label " + inputAxisName + " from the input coverage was not found in the target coverage.");
-
                 throw new WCSTAxisLabelMismatchException(inputAxisName);
             }
 
@@ -238,11 +230,6 @@ public class UpdateCoverageValidator {
             if (!CrsUtil.CrsUri.toDbRepresentation(currentAxisSrsName)
                 .equals(CrsUtil.CrsUri.toDbRepresentation(inputAxisSrsName))) {
                 //axis need to have same native crs
-                log.error("Native crs of axis " + inputAxisName
-                        + " from the input coverage (found " + inputAxisSrsName + ") "
-                        + "doesn't match with one in the target coverage (found "
-                        + currentAxisSrsName + ").");
-
                 throw new WCSTAxisCrsMismatchException(inputAxisName,
                         inputAxisSrsName, currentAxisSrsName);
             }

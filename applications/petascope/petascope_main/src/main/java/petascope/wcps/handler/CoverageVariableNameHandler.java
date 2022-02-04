@@ -58,7 +58,7 @@ public class CoverageVariableNameHandler extends AbstractOperatorHandler {
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
 
-    public WcpsResult handle(String coverageAlias) throws PetascopeException, SecoreException {
+    public WcpsResult handle(String coverageAlias) throws PetascopeException {
         String rasql;
         WcpsCoverageMetadata metadata;
         String coverageName = coverageAliasRegistry.getCoverageName(coverageAlias);

@@ -89,7 +89,7 @@ public class TypeResolverUtil {
         // Validate each pixel data type
         for (String pixelDataType : pixelDataTypes) {
             if (!GDAL_TYPES_TO_RAS_TYPES.containsKey(pixelDataType)) {
-                throw new PetascopeException(ExceptionCode.InvalidRequest, "Unknown pixel data type: " + pixelDataType);
+                throw new PetascopeException(ExceptionCode.NoApplicableCode, "Unknown GDAL data type: " + pixelDataType);
             }
         }
         

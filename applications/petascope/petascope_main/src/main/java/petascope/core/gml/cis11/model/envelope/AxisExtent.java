@@ -89,7 +89,7 @@ public class AxisExtent implements ISerializeToXMElement {
     }
 
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         Element axisExtentElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_AXIS_EXTENT), NAMESPACE_CIS_11);
         
         Attribute axisLabelAttribute = new Attribute(ATT_AXIS_LABEL, NAMESPACE_CIS_11);

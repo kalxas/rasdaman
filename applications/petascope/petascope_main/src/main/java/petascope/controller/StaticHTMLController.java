@@ -43,13 +43,13 @@ public class StaticHTMLController {
     @RequestMapping("/")
     public String handle() throws IOException, PetascopeException {
         if (STATIC_HTML_DIR_PATH.isEmpty()) {
-            throw new PetascopeException(ExceptionCode.NoApplicableCode, 
+            throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
                                          "No valid demo web pages folder is configured in petascope.properties.");
         }
         
         File file = new File(STATIC_HTML_DIR_PATH + "/index.html");
         if (!file.exists()) {
-            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Missing the required 'index.html' file"
+            throw new PetascopeException(ExceptionCode.InvalidPropertyValue, "Missing the required 'index.html' file"
                                                                          + " as entry web page in static HTML directory '" + STATIC_HTML_DIR_PATH + "'.");
         }
         

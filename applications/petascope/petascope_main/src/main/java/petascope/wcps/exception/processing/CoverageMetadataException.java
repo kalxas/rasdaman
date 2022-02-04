@@ -38,7 +38,7 @@ public class CoverageMetadataException extends WCPSException {
      * @param originalCause the exception that caused the error
      */
     public CoverageMetadataException(Exception originalCause) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$metadataError", originalCause.getMessage()), originalCause);
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$metadataError", originalCause.getMessage()), originalCause);
     }
 
     /**
@@ -49,7 +49,7 @@ public class CoverageMetadataException extends WCPSException {
      * @param errorMessage the error message from subclass
      */
     public CoverageMetadataException(Exception originalCause, String errorMessage) {
-        super(ExceptionCode.WcpsError, errorMessage);
+        super(ExceptionCode.InvalidRequest, errorMessage);
     }
 
     private static final String ERROR_TEMPLATE = "Error in processing coverage metadata '$metadataError'.";

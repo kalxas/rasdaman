@@ -33,27 +33,55 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_CONNETION_TIMEOUT;
+import org.slf4j.LoggerFactory;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  *
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 public class HttpUtil {
-
-    /*
-     * Rasfed sends HTTP requests to a local/remote petascope endpoint to collect 
-     * required metadata from coverages/layers which returned in String JSON format.
+    
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(HttpUtil.class);
+    
+    /**
+     * Check if an URL returns some valid output (not server error code)
      */
-    public static String getObjectFromEndpoint(String requestURL) throws Exception {
+    public static boolean urlExists(String endpoint) {
+        try {
+            URL url = new URL(endpoint);
+        
+            // We want to check the current URL
+            HttpURLConnection.setFollowRedirects(true);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        
+            // We don't need to get data
+            httpURLConnection.setRequestMethod("HEAD");
+            httpURLConnection.setConnectTimeout(PETASCOPE_CONNETION_TIMEOUT);
+
+            return httpURLConnection.getResponseCode() < 500;
+        } catch (Exception ex) {
+            log.warn("URL '" + endpoint + "' is not available. Reason: " + ex.getMessage());
+            return false;
+        }
+
+    }
+
+    /**
+     * Get String content from a URL endpoint
+     */
+    public static String getObjectFromEndpoint(String requestURL) throws PetascopeException {
+        
         String result = null;
         try {
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(PETASCOPE_CONNETION_TIMEOUT).build();
-            HttpGet httpGet = new HttpGet(requestURL);
+            HttpGet httpGet = new HttpGet(requestURL);         
             HttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
             HttpResponse httpResponse = httpClient.execute(httpGet);
             result = IOUtils.toString(httpResponse.getEntity().getContent());
-        } catch (Throwable ex) {
-            throw new Exception("Cannot get result from URL: " + requestURL + ". Reason: " + ex.getMessage(), ex);
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot get result from URL '" + requestURL + "'. Reason: " + ex.getMessage(), ex);
         }
 
         return result;

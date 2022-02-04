@@ -68,7 +68,6 @@ import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.encodeparameters.model.NoData;
 import petascope.wcps.encodeparameters.service.SerializationEncodingService;
 import petascope.wcps.encodeparameters.service.TranslateColorTableService;
-import petascope.wcps.handler.SubsetExpressionHandler;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wms.exception.WMSStyleNotFoundException;
 import petascope.wms.handlers.model.WMSLayer;
@@ -373,7 +372,7 @@ public class WMSGetMapService {
             
             Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
             bytes = RasUtil.getRasqlResultAsBytes(finalRasqlQuery, userPair.fst, userPair.snd);
-        } catch (PetascopeException | SecoreException ex) {
+        } catch (PetascopeException ex) {
             throw new WMSInternalException(ex.getMessage(), ex);
         }
 
@@ -383,7 +382,7 @@ public class WMSGetMapService {
     /**
      * Return a list of WcpsCoverageMetadata objects from the request layer names
      */
-    private List<WcpsCoverageMetadata> getWcpsCoverageMetadataByLayernames() throws PetascopeException, SecoreException {
+    private List<WcpsCoverageMetadata> getWcpsCoverageMetadataByLayernames() throws PetascopeException {
         List<WcpsCoverageMetadata> wcpsCoverageMetadatas = new ArrayList<>();
         
         for (String layerName : this.layerNames) {
@@ -440,6 +439,7 @@ public class WMSGetMapService {
         
         // If request BBox contains the layer (layer is inside the request BBox)
         // then no point to create extended request geo BBox as there are no more pixels to fill gaps
+        
         return (isProjection && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(this.layerBBoxRequestCRS));
     }
     
@@ -450,7 +450,7 @@ public class WMSGetMapService {
     private String createCollectionExpressionsLayer(String styleName, 
                                                     WcpsCoverageMetadata wcpsCoverageMetadata,
                                                     WMSLayer wmsLayer) 
-            throws PetascopeException, SecoreException, WMSStyleNotFoundException, WCPSException {
+            throws PetascopeException, WMSStyleNotFoundException, WCPSException {
         
         String layerName = wmsLayer.getLayerName();
         List<String> coverageExpressionsLayer = new ArrayList<>();
@@ -524,7 +524,7 @@ public class WMSGetMapService {
     /**
      * Check if request BBox in native CRS intersects with first layer's BBox.
      */
-    private boolean intersectLayerXYBBox() throws PetascopeException, SecoreException {
+    private boolean intersectLayerXYBBox() throws PetascopeException {
         // Check if the request BBox (e.g: in EPSG:4326) intersects with layer's BBox (e.g: in UTM 32)
         boolean firstCheck = this.layerBBoxRequestCRS.intersectsXorYAxis(this.originalRequestBBox);
          

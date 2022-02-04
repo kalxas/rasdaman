@@ -89,7 +89,7 @@ public class DatabaseUtil {
                 resultSet.close();
             }
         } catch (SQLException ex) {
-            throw new PetascopeException(ExceptionCode.InternalSqlError, "Cannot close connection to petascopedb", ex);
+            throw new PetascopeException(ExceptionCode.InternalSqlError, "Cannot close connection to petascopedb. Reason: " + ex.getMessage(), ex);
         }
     }
 
@@ -203,7 +203,7 @@ public class DatabaseUtil {
             return false;
         } catch (SQLException ex) {
             throw new PetascopeException(ExceptionCode.InternalSqlError, 
-                    "Cannot check if petascopedb exists in source DMBS to migrate, error '" + ex.getMessage() + "'", ex);
+                    "Cannot check if petascopedb exists in source DMBS to migrate. Reason: " + ex.getMessage(), ex);
         } finally {
             closeDatabaseConnection(connection);
         }
@@ -297,7 +297,8 @@ public class DatabaseUtil {
     public static void createPostgresqlDatabaseIfNotExist(String databaseName) throws SQLException, ClassNotFoundException, PetascopeException {
         // No need to do anything if it is not Postgresql
         if (!checkDefaultDatabase()) {
-            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Cannot create database automatically for this JDBC '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'.");
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, 
+                                        "Cannot create database automatically for this JDBC '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "' as it is not Postgresql.");
         }
 
         Class.forName(ConfigManager.POSTGRESQL_DATASOURCE_DRIVER);

@@ -22,8 +22,8 @@
 
 package petascope.wms.exception;
 
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Exception to be thrown when the requested version is invalid
@@ -38,15 +38,8 @@ public class WMSInvalidVersionException extends WMSException {
      * @param version the version of the service requested
      */
     public WMSInvalidVersionException(String version) {
-        super(ERROR_MESSAGE.replace("$Version", version));
+        super(ExceptionCode.NoApplicableCode, ERROR_MESSAGE.replace("$Version", version));
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private static final String EXCEPTION_CODE = "InvalidVersion";
     private static final String ERROR_MESSAGE = "The requested version '$Version' is invalid.";
 }

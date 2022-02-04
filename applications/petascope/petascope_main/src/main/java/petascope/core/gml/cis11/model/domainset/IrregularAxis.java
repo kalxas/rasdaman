@@ -84,7 +84,7 @@ public class IrregularAxis implements ISerializeToXMElement {
     }
     
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         Element irregularAxisElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_IRREGULAR_AXIS), NAMESPACE_CIS_11);
         
         Attribute axisLabelAttribute = new Attribute(ATT_AXIS_LABEL, NAMESPACE_CIS_11);

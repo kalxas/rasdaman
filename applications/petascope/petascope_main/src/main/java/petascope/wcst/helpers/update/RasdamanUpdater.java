@@ -21,9 +21,12 @@
  */
 package petascope.wcst.helpers.update;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import petascope.exceptions.PetascopeException;
+import petascope.util.ListUtil;
 
 /**
  * Interface for updating rasdaman data.
@@ -67,29 +70,23 @@ public abstract class RasdamanUpdater {
     }
 
     protected String translateToOrigin(String rasqlDomain) {
+        // rasqlDomain, e.g. [3,0:18,0:35] with dataBound:false in the first axis
+        // -> return [0:18,0:35] to be used for UPDATE collection with insitu
+        // UPDATE coll SET coll[3,0:18,0:35] ASSIGN REFERENCING insitu("/home/rasdaman/test.tiff", "gdal", "{\"variables\":[\"Gray\"]}",[0:18,0:35])
+
         String[] dims = rasqlDomain.replace("[", "").replace("]", "").split(",");
-        String result = "[";
-        int dimCounter = 0;
+        List<String> dimsTmp = new ArrayList<>();
         for (String dim: dims) {
             if(dim.contains(":")) {
                 String[] parts = dim.split(":");
-                if(parts.length == 2) {
-                    int low = Integer.parseInt(parts[0].trim());
-                    int high = Integer.parseInt(parts[1].trim());
-                    result += "0:" + String.valueOf(high - low);
-                }
-                else {
-                    result += dim;
-                }
+                int low = Integer.parseInt(parts[0].trim());
+                int high = Integer.parseInt(parts[1].trim());
+                String tmp = "0:" + String.valueOf(high - low);
+                dimsTmp.add(tmp);
             }
-            else {
-                result += dim;
-            }
-            if (dimCounter < dims.length - 1) {
-                result += ",";
-            }
-            dimCounter++;
         }
-        return result + "]";
+        
+        String result = "[" + ListUtil.join(dimsTmp, ",") + "]";
+        return result;
     }
 }

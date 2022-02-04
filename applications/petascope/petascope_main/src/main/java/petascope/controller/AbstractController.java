@@ -198,12 +198,12 @@ public abstract class AbstractController {
      * Depend on the requested service then pass the map of keys, values
      * parameters to the corresponding handler
      */
-    abstract protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception;
+    abstract protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException;
 
     /**
      * From the GET request query string to map of key / values which is encoded
      */
-    public Map<String, String[]> buildGetRequestKvpParametersMap(String queryString) throws Exception {
+    public Map<String, String[]> buildGetRequestKvpParametersMap(String queryString) throws PetascopeException {
         if (queryString == null) {
             queryString = "";
         }
@@ -220,7 +220,7 @@ public abstract class AbstractController {
      * From the POST request query string to a map of keys, values which is
      * encoded or raw.
      */
-    protected Map<String, String[]> buildPostRequestKvpParametersMap(String queryString) throws Exception {
+    protected Map<String, String[]> buildPostRequestKvpParametersMap(String queryString) throws PetascopeException {
         if (queryString == null) {
             queryString = "";
         }
@@ -240,7 +240,7 @@ public abstract class AbstractController {
     /**
      * Build the map of keys values for both GET/POST request
      */
-    private Map<String, String[]> buildKvpParametersMap(String queryString) throws Exception {
+    private Map<String, String[]> buildKvpParametersMap(String queryString) throws PetascopeException {
         // It needs to relax the key parameters with case insensitive, e.g: request=DescribeCoverage or REQUEST=DescribeCoverage is ok
         Map<String, String[]> kvpParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         
@@ -255,7 +255,7 @@ public abstract class AbstractController {
             || queryString.contains(KVPSymbols.KEY_INPUT_COVERAGE + "="))) {
             // NOTE: WCS-T Insert/Update coverage requests posted by wcst_import with character & between key value pairs
             // are not encoded.
-            queryString = URLDecoder.decode(queryString, "utf-8");
+            queryString = StringUtil.decodeUTF8(queryString);
             decoded = true;
         }
 
@@ -369,7 +369,7 @@ public abstract class AbstractController {
     /**
      * Parse the POST request body from the input HTTP request
      */
-    protected String getPOSTRequestBody(HttpServletRequest httpServletRequest) throws IOException {
+    protected String getPOSTRequestBody(HttpServletRequest httpServletRequest) throws PetascopeException {
         String requestBody = "";
         if (httpServletRequest.getQueryString() != null) {
             // case 1: POST a file with a KVP request to server (e.g: rasql post file to server to import)    
@@ -377,28 +377,35 @@ public abstract class AbstractController {
             requestBody = httpServletRequest.getQueryString();
         }
         
-        if (httpServletRequest.getReader() != null) {
-            // case 2: a POST XML, SOAP body
-            if (requestBody.isEmpty()) {
-                requestBody = IOUtils.toString(httpServletRequest.getReader());
-            } else {
-                requestBody += "&" + IOUtils.toString(httpServletRequest.getReader());
+        try {
+            if (httpServletRequest.getReader() != null) {
+                // case 2: a POST XML, SOAP body
+                if (requestBody.isEmpty()) {
+                    requestBody = IOUtils.toString(httpServletRequest.getReader());
+                } else {
+                    requestBody += "&" + IOUtils.toString(httpServletRequest.getReader());
+                }
             }
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot get POST request body from HTTPServlet header. Reason: " + ex.getMessage());
         }
+            
         return requestBody;
     }
 
     /**
      * Write the response as text or binary to the requesting client.
      */
-    protected void writeResponseResult(Response response) throws IOException, PetascopeException {
+    protected void writeResponseResult(Response response) throws PetascopeException {
         // This one is needed as normally it write the result with HTTP:200, 
         // but for SOAP case when error message is enclosed in envelope, it can return HTTP:400, 404
         injectedHttpServletResponse.setStatus(response.getHTTPCode());
         injectedHttpServletResponse.setContentType(response.getMimeType());
         addFileNameToHeader(response);
-        OutputStream os = injectedHttpServletResponse.getOutputStream();
+        OutputStream os = null;
+        
         try {
+            os = injectedHttpServletResponse.getOutputStream();
             String mimeType = getMimeType(response);
             if (!response.hasDatas())
                 writeEmptyResponse(os);
@@ -411,8 +418,15 @@ public abstract class AbstractController {
                 // e.g: when client sends a request to return large data and it cancels when the download is not finished yet
                 log.error("Lost connection to client.");
             }
+            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot write respond result to client. Reason: " + ex.getMessage(), ex);
         } finally {
-            IOUtils.closeQuietly(os);
+            try {
+                if (os != null) {
+                    IOUtils.closeQuietly(os);
+                }
+            } catch(Exception ex) {
+                throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot close OutputStream while writing response. Reason: " + ex.getMessage(), ex);
+            }
             runGarbageCollectionIfNeeded(response);
             // Release the data occupied by byte[] right now
             response = null;
@@ -428,7 +442,7 @@ public abstract class AbstractController {
         return mimeType;
     }
     
-    protected void addFileNameToHeader(Response response) throws IOException, PetascopeException {
+    protected void addFileNameToHeader(Response response) throws PetascopeException {
         
         String mimeType = response.getFormatType();
         String fileName = response.getCoverageID() + "." + MIMEUtil.getFileNameExtension(mimeType);
@@ -544,7 +558,7 @@ public abstract class AbstractController {
     /**
      * Write response as string
      */
-    protected void writeTextResponse(Object obj) throws IOException, PetascopeException {
+    protected void writeTextResponse(Object obj) throws PetascopeException {
         byte[] bytes = obj.toString().getBytes();
         List<byte[]> bytesList = new ArrayList<>();
         bytesList.add(bytes);
@@ -556,7 +570,7 @@ public abstract class AbstractController {
     /**
      * Parse the KVP parameters to map of keys and values
      */
-    private static Map<String, String[]> parseKVPParameters(String queryString, boolean decoded) throws UnsupportedEncodingException, PetascopeException {
+    private static Map<String, String[]> parseKVPParameters(String queryString, boolean decoded) throws PetascopeException {
         Map<String, String[]> parametersMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (!queryString.equals("")) {
             
@@ -609,7 +623,7 @@ public abstract class AbstractController {
                 }
                 
                 if (!decoded) {                    
-                    value = URLDecoder.decode(value, "utf-8");
+                    value = StringUtil.decodeUTF8(value);
                 }
                 
                 if (key.startsWith(DOLLAR_SIGN) && parametersMap.get(key) != null) {
@@ -813,11 +827,9 @@ public abstract class AbstractController {
     /**
      * Depend on if request is GET/POST to create map of KVP pairs
      */
-    public Map<String, String[]> parseKvpParametersFromRequest(HttpServletRequest httpServletRequest) throws Exception {
+    public Map<String, String[]> parseKvpParametersFromRequest(HttpServletRequest httpServletRequest) throws PetascopeException {
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        boolean isPost = "POST".equals(httpServletRequest.getMethod());
-
-        if (isPost) {
+        if (this.isPostRequest(httpServletRequest)) {
             String postBody = this.getPOSTRequestBody(httpServletRequest);
             kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         }
@@ -850,6 +862,7 @@ public abstract class AbstractController {
     
     
     // --------------------------- validate roles / ips
+   
         
     /**
      * Get request IP address from client to petascope
@@ -869,7 +882,7 @@ public abstract class AbstractController {
      * If basic authentication header is not enabled, then petascope checks if write request from IP address is valid or not
      * before processing.
      */
-    public void validateWriteRequestFromIP(HttpServletRequest httpServletRequest) throws PetascopeException, Exception {
+    public void validateWriteRequestFromIP(HttpServletRequest httpServletRequest) throws PetascopeException {
         if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
             
             String sourceIP = this.getRequestIPAddress(httpServletRequest);
@@ -913,7 +926,7 @@ public abstract class AbstractController {
         }
     }
     
-    private String getRequestPresentation(HttpServletRequest httpServletRequest) throws Exception {
+    private String getRequestPresentation(HttpServletRequest httpServletRequest) throws PetascopeException {
         String result = httpServletRequest.getRequestURI();
         Map<String, String[]> kvpParameters = this.parseKvpParametersFromRequest(httpServletRequest);
 
@@ -928,8 +941,12 @@ public abstract class AbstractController {
      *  e.g a=b&c=d -> a=b&amp;c=d
      * NOTE: & must be escaped as &amp; in XML string to be valid
      */
-    public String getRequestPresentationWithEncodedAmpersands(HttpServletRequest httpServletRequest) throws Exception {
+    public String getRequestPresentationWithEncodedAmpersands(HttpServletRequest httpServletRequest) throws PetascopeException {
         return StringUtil.escapeAmpersands(this.getRequestPresentation(httpServletRequest));
+    }
+    
+    public boolean isPostRequest(HttpServletRequest httpServletRequest) {
+        return httpServletRequest.getMethod().toLowerCase().equals("post");
     }
 }
 

@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.controller.AbstractController;
 import petascope.core.response.Response;
+import petascope.exceptions.PetascopeException;
 import static petascope.util.MIMEUtil.MIME_HTML;
 
 /**
@@ -48,7 +49,7 @@ public class AdminController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
     }
     
     /**

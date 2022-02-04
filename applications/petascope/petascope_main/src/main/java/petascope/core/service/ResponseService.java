@@ -97,8 +97,8 @@ public class ResponseService {
         boolean isMultipart = false;
         if (kvpParameters.get(KVPSymbols.KEY_MEDIATYPE) != null) {
             if (!kvpParameters.get(KVPSymbols.KEY_MEDIATYPE)[0].equals(KVPSymbols.VALUE_MULTIPART_RELATED)) {
-                throw new WCSException(ExceptionCode.NoSuchMediaType,
-                        "Mediatype value is not valid, given: " + kvpParameters.get(KVPSymbols.KEY_MEDIATYPE)[0]);
+                throw new WCSException(ExceptionCode.NoApplicableCode,
+                        "Mediatype value is not valid. Given: " + kvpParameters.get(KVPSymbols.KEY_MEDIATYPE)[0]);
             } else {
                 if (kvpParameters.get(KVPSymbols.KEY_FORMAT) != null) {
                     if (!kvpParameters.get(KVPSymbols.KEY_FORMAT)[0].equals(MIMEUtil.MIME_GML)) {

@@ -105,7 +105,7 @@ public class GMLDescribeCoverageBuilder {
      * From the list of input coverageIds, build the result for DescribeCoverage
      * request.
      */
-    public Element buildWCSDescribeCoverageResult(String outputType, List<String> coverageIds) throws PetascopeException, SecoreException {
+    public Element buildWCSDescribeCoverageResult(String outputType, List<String> coverageIds) throws PetascopeException {
 
         Element coverageDescriptionsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_COVERAGE_DESCRIPTIONS), NAMESPACE_WCS_20);
         Map<String, String> xmlNameSpacesMap = GMLWCSRequestResultBuilder.getMandatoryXMLNameSpacesMap();

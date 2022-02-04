@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.1.0"
-    
-      >
-    <ows:Exception exceptionCode="WcpsError">
+    xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+    xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ows:Exception exceptionCode="InvalidRequest" >
         <ows:ExceptionText>Invalid subset expression: Lat(200 + 200). Expressions inside subsets are only allowed on grid axes.
 HINT: Try a grid subset instead. E.g. Lat:"CRS:1"(200 + 200) subsets directly on the grid.</ows:ExceptionText>
     </ows:Exception>

@@ -49,7 +49,7 @@ public class DecodeCoverageHandler extends AbstractOperatorHandler {
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
     
     
-    public WcpsResult handle(String positionalParamater, String extraParams) throws PetascopeException, SecoreException {
+    public WcpsResult handle(String positionalParamater, String extraParams) throws PetascopeException {
         
         // e.g: TEMP_COV_abc_2020011001
         WcpsCoverageMetadata metadata = null;

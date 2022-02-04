@@ -22,6 +22,7 @@
 package petascope.wcps.exception.processing;
 
 import java.math.BigDecimal;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 
 /**
@@ -33,7 +34,7 @@ import petascope.exceptions.WCPSException;
 public class InvalidCoordinatesForClippingException extends WCPSException {
     
     public InvalidCoordinatesForClippingException(BigDecimal coordinateValue, String errorMessage) {
-        super(ERROR_TEMPLATE.replace("$coordinateValue", coordinateValue.toPlainString()).replace("$errorMessage", errorMessage));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$coordinateValue", coordinateValue.toPlainString()).replace("$errorMessage", errorMessage));
     }
     
     private static final String ERROR_TEMPLATE = "Coordinate value '$coordinateValue' is not valid. Reason: $errorMessage";

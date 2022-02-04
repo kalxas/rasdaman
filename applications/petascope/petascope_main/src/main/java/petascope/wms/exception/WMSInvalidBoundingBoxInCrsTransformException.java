@@ -24,6 +24,7 @@ package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception class for invalid XY bounding box to transform from sourceCrs to targetCrs.
@@ -34,29 +35,18 @@ public class WMSInvalidBoundingBoxInCrsTransformException extends WMSException {
     /**
      * Constructor for the class.
      *
-     * @param bbox
-     * @param sourceCRS
-     * @param targetCRS
-     * @param errorMessage
      */
     public WMSInvalidBoundingBoxInCrsTransformException(String bbox, String sourceCRS, String targetCRS, String errorMessage) {
-        super(ERROR_MESSAGE.replace(BBOX_TOKEN, bbox)
+        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace(BBOX_TOKEN, bbox)
                            .replace(SOURCE_CRS_TOKEN, sourceCRS)
                            .replace(TARGET_CRS_TOKEN, targetCRS)
                            .replace(ERROR_MESSAGE_TOKEN, errorMessage));
-    }
-
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
     }
 
     private static final String BBOX_TOKEN = "$bbox$";
     private static final String SOURCE_CRS_TOKEN = "$sourceCRS$";
     private static final String TARGET_CRS_TOKEN = "$targetCRS$";
     private static final String ERROR_MESSAGE_TOKEN = "$errorMessage";
-    private static final String EXCEPTION_CODE = "InvalidBoundingBoxToTransform";
     private static final String ERROR_MESSAGE = "The supplied XY bounding box '" 
                                                + BBOX_TOKEN + "' is invalid to transform from source CRS '" + SOURCE_CRS_TOKEN 
                                                + "', to target CRS '" + TARGET_CRS_TOKEN + "' with error '" + ERROR_MESSAGE_TOKEN + "'." ;

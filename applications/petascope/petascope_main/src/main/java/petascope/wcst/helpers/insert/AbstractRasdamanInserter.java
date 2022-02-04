@@ -40,5 +40,5 @@ public abstract class AbstractRasdamanInserter {
     /**
      * Inserts data into rasdaman.
      */
-    public abstract void insert() throws IOException, RasdamanException, PetascopeException;
+    public abstract void insert() throws RasdamanException, PetascopeException;
 }

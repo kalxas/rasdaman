@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import nu.xom.Element;
 import org.rasdaman.domain.wms.Style;
 import static petascope.core.XMLSymbols.ATT_COLOR;
@@ -59,18 +61,12 @@ public class TranslateColorTableService {
      * Translate a style's color table definition to rasdaman ColorMap format as extra parameter     
      */
     public static void translate(Byte colorTableTypeCode, String colorTableDefinition, JsonExtraParams jsonExtraParams) throws PetascopeException {
-        try {
-            if (colorTableTypeCode.equals(Style.ColorTableType.ColorMap.getTypeCode())) {
-                handleRasdamanColorMap(colorTableDefinition, jsonExtraParams);
-            } else if (colorTableTypeCode.equals(Style.ColorTableType.GDAL.getTypeCode())) {
-                handleGDALFormat(colorTableDefinition, jsonExtraParams);
-            } else if (colorTableTypeCode.equals(Style.ColorTableType.SLD.getTypeCode())) {
-                handleSLDFormat(colorTableDefinition, jsonExtraParams);
-            }
-        } catch (Exception ex) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError, 
-                                        "Cannot translate color table's definition: " + colorTableDefinition + " to rasdaman ColorMap extra parameter. "
-                                        + "Reason: " + ex.getMessage(), ex);
+        if (colorTableTypeCode.equals(Style.ColorTableType.ColorMap.getTypeCode())) {
+            handleRasdamanColorMap(colorTableDefinition, jsonExtraParams);
+        } else if (colorTableTypeCode.equals(Style.ColorTableType.GDAL.getTypeCode())) {
+            handleGDALFormat(colorTableDefinition, jsonExtraParams);
+        } else if (colorTableTypeCode.equals(Style.ColorTableType.SLD.getTypeCode())) {
+            handleSLDFormat(colorTableDefinition, jsonExtraParams);
         }
     }
     
@@ -84,7 +80,7 @@ public class TranslateColorTableService {
         Element colorMapElement = XMLUtil.firstChildRecursive(rootElement, LABEL_COLOR_MAP);
         
         if (colorMapElement == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "SLD style must contain one " + LABEL_COLOR_MAP + " XML element.");
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "SLD style must contain one '" + LABEL_COLOR_MAP + "' XML element.");
         }
         
         ColorMap colorMap = new ColorMap();
@@ -112,10 +108,10 @@ public class TranslateColorTableService {
             }
             
             String opacity = colorMapEntryElement.getAttributeValue(ATT_OPACITY);
-            int alphaBandValue = 255;
+            Integer alphaBandValue = 255;
             if (opacity != null) {
                 // e.g: 0.3 * 255
-                alphaBandValue = (new BigDecimal(opacity).multiply(new BigDecimal("255"))).intValue();
+                alphaBandValue = (new BigDecimal(opacity).multiply(new BigDecimal(alphaBandValue))).intValue();
             }
             
             List<Integer> rgbaColors = convertHexToRGBAColor(color, alphaBandValue);
@@ -153,8 +149,14 @@ public class TranslateColorTableService {
      *   "colorTable": [[255,0,0,255],[216,31,30,255],...,[43,131,186,255]]
      * }
      */
-    private static void handleGDALFormat(String colorTableDefinition, JsonExtraParams jsonExtraParams) throws IOException {
-        ColorPalette colorPalette = objectMapper.readValue(colorTableDefinition, ColorPalette.class);
+    private static void handleGDALFormat(String colorTableDefinition, JsonExtraParams jsonExtraParams) throws PetascopeException {
+        ColorPalette colorPalette;
+        try {
+            colorPalette = objectMapper.readValue(colorTableDefinition, ColorPalette.class);
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, 
+                    "Cannot create ColorPalette object from color table defintion: " + colorTableDefinition + ". Reason: " + ex.getMessage(), ex);
+        }
         jsonExtraParams.setColorPalette(colorPalette);
     }
     
@@ -174,8 +176,14 @@ public class TranslateColorTableService {
           }
      * }
      */
-    private static void handleRasdamanColorMap(String colorTableDefinition, JsonExtraParams jsonExtraParams) throws IOException {
-        ColorMap colorMap = objectMapper.readValue(colorTableDefinition, ColorMap.class);
+    private static void handleRasdamanColorMap(String colorTableDefinition, JsonExtraParams jsonExtraParams) throws PetascopeException {
+        ColorMap colorMap;
+        try {
+            colorMap = objectMapper.readValue(colorTableDefinition, ColorMap.class);
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, 
+                    "Cannot create ColorMap object from color table defintion: " + colorTableDefinition + ". Reason: " + ex.getMessage(), ex);
+        }
         jsonExtraParams.setColorMap(colorMap);
     }
 }

@@ -55,7 +55,7 @@ public class WMSGetMapWCPSMetadataTranslatorService {
     /**
      * Translate a WMS layer name to a WCPS coverage metadata object
      */
-    public WcpsCoverageMetadata translate(String layerName) throws PetascopeException, SecoreException {
+    public WcpsCoverageMetadata translate(String layerName) throws PetascopeException {
         WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(layerName);
         return wcpsCoverageMetadata;
     }
@@ -78,7 +78,7 @@ public class WMSGetMapWCPSMetadataTranslatorService {
     /**
      * Create a WCPS Coverage metadata object based on layerName (coverageId) and input extended BBOX on XY axes which fits on a rasdaman downscaled collection.
      */
-    public WcpsCoverageMetadata createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(WMSLayer wmsLayer) throws PetascopeException, SecoreException {
+    public WcpsCoverageMetadata createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(WMSLayer wmsLayer) throws PetascopeException {
         WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(wmsLayer.getLayerName());
         Pair<BigDecimal, BigDecimal> geoSubsetX = new Pair(wmsLayer.getExtendedRequestBBox().getXMin(), wmsLayer.getExtendedRequestBBox().getXMax());
         Pair<BigDecimal, BigDecimal> geoSubsetY = new Pair(wmsLayer.getExtendedRequestBBox().getYMin(), wmsLayer.getExtendedRequestBBox().getYMax());

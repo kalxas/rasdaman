@@ -100,7 +100,7 @@ public class RegularAxis implements ISerializeToXMElement {
     }
     
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         Element regularAxisElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_REGULAR_AXIS), NAMESPACE_CIS_11);
         
         Attribute axisLabelAttribute = new Attribute(ATT_AXIS_LABEL, NAMESPACE_CIS_11);

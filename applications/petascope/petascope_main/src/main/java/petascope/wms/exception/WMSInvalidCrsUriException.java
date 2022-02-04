@@ -24,6 +24,7 @@ package petascope.wms.exception;
 
 import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception class for invalid crs uris to transform in WMS (current it must be EPSG)
@@ -37,16 +38,9 @@ public class WMSInvalidCrsUriException extends WMSException {
      * @param crs the invalid crs.
      */
     public WMSInvalidCrsUriException(@NotNull String crs) {        
-        super(ERROR_MESSAGE.replace(CRS_TOKEN, crs));
-    }
-
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
+        super(ExceptionCode.NoApplicableCode, ERROR_MESSAGE.replace(CRS_TOKEN, crs));
     }
 
     private static final String CRS_TOKEN = "$crs$";
-    private static final String EXCEPTION_CODE = "InvalidCrs";
     private static final String ERROR_MESSAGE = "The supplied crs uri '" + CRS_TOKEN + "' is invalid, current only supports EPSG code.";
 }

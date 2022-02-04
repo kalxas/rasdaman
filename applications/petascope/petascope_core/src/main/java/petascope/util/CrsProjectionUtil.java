@@ -98,10 +98,10 @@ public class CrsProjectionUtil {
 
         // Use gdal native library to transform the coordinates from source crs to target crs
         CoordinateTransformation coordTrans = CoordinateTransformation.CreateCoordinateTransformation(
-                getSpatialReference(sourceCode), getSpatialReference(targetCode));
+                                                                        getSpatialReference(sourceCode), getSpatialReference(targetCode));
         if (coordTrans == null) {
             throw new PetascopeException(ExceptionCode.InternalComponentError,
-                    "Failed creating coordinate transformation from " + sourceCrs + " to " + targetCrs);
+                    "Failed creating coordinate transformation from source CRS '" + sourceCrs + "' to target CRS '" + targetCrs + "'.");
         }
         // This will returns 3 values, translated X, translated Y and another value which is not used
         double[] translatedCoords = coordTrans.TransformPoint(adjustedSourceCoords[0], adjustedSourceCoords[1]);
@@ -117,7 +117,7 @@ public class CrsProjectionUtil {
             if (Double.isNaN(value) || Double.isInfinite(value)) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError, 
                         "Failed reprojecting XY coordinates '" + Arrays.toString(sourceCoords) + 
-                                "' from sourceCrs '" + sourceCrs + "' to targetCRS '" + targetCrs + ", result is " + value);
+                                "' from source CRS '" + sourceCrs + "' to target CRS '" + targetCrs + "'. Result is: " + value);
             }
             ret.add(new BigDecimal(value.toString()));
         }
@@ -134,7 +134,7 @@ public class CrsProjectionUtil {
         if (Double.isNaN(targetGT.getGeoXResolution()) 
             || Double.isNaN(targetGT.getGeoYResolution())) {
             throw new PetascopeException(ExceptionCode.InternalComponentError, 
-                    "Cannot transform GeoTransform: " + sourceGT.toString() + " to CRS: " + targetCRS + ". Reason: axis X/Y resolution in target GeoTransform is NaN.");
+                    "Cannot transform GeoTransform: " + sourceGT.toString() + " to target CRS '" + targetCRS + "'. Reason: axis X/Y resolution in target GeoTransform is NaN.");
         }
         
         BigDecimal xmin = new BigDecimal(String.valueOf(targetGT.getUpperLeftGeoX()));
@@ -207,7 +207,7 @@ public class CrsProjectionUtil {
             // NOTE: this happens when gdal cannot translate a 2D bounding box from source CRS (e.g: EPSG:4326) to a target CRS (e.g: EPSG:32652)
             throw new PetascopeException(ExceptionCode.RuntimeError, "Failed estimating the input geo domains "
                     + "from source CRS 'EPSG:" + sourceGT.getEPSGCode() + "' to target CRS 'EPSG:" + targetEPSGCode + 
-                    "', given source geoTransform values '" + sourceGT + "'.");
+                    "'. Given source geoTransform values '" + sourceGT + "'.");
         }
         
         GeoTransform targetGT = new GeoTransform();
@@ -235,8 +235,8 @@ public class CrsProjectionUtil {
         try {
             ImageIO.write(img, "PNG", tempFile);
         } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                        "Cannot create a dummy file for gdal VRT at: '" + tempFile.getAbsolutePath() + "'. Reason: " + ex.getMessage(), ex);
+            throw new PetascopeException(ExceptionCode.RuntimeError,
+                                        "Cannot create a dummy file for gdal VRT at '" + tempFile.getAbsolutePath() + "'. Reason: " + ex.getMessage(), ex);
         }
         
     }
@@ -288,7 +288,8 @@ public class CrsProjectionUtil {
         try {
             FileUtils.writeStringToFile(tempVRTFile, vrtXML);
         } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot write temp VRT file. Reason: " + ex.getMessage(), ex);
+            throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                                        "Cannot write temp VRT file at '" + tempVRTFile.getAbsolutePath() + "'. Reason: " + ex.getMessage(), ex);
         }
         
         // Run a quick command to warp VRT file to target CRS with given geo XY axes' resolutions
@@ -324,7 +325,7 @@ public class CrsProjectionUtil {
                 i++;
                 
                 if (i > MAX_RETRIES) {
-                    throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                    throw new PetascopeException(ExceptionCode.RuntimeError, 
                                                 "Cannot project VRT file with gdal bash command: '" + command + "'. Stddout: "  + stdout + ". Stderr: "  + stderr);
                 }
                 log.warn("Failed projecting VRT file with gdal bash command: '" + command + "'. Stddout: "  + stdout + ". Stderr: "  + stderr + ". Retrying " + i + "/" + MAX_RETRIES);

@@ -21,7 +21,7 @@
  */
 package petascope.wms.exception;
 
-import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
 
 /**
@@ -37,15 +37,8 @@ public class WMSLayerNotExistException extends WMSException {
      * @param layerName
      */
     public WMSLayerNotExistException(String layerName) {
-        super(ERROR_MESSAGE.replace("$layerName", layerName));
-    }
-
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
+        super(ExceptionCode.NoSuchLayer, ERROR_MESSAGE.replace("$layerName", layerName));
     }
 
     private final static String ERROR_MESSAGE = "The given layer name '$layerName' does not exist in database.";
-    private final static String EXCEPTION_CODE = "LayerNotFound";
 }

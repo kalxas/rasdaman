@@ -36,7 +36,7 @@ public class Not2DXYGeoreferencedAxesCrsTransformException extends WCPSException
      * @param number
      */
     public Not2DXYGeoreferencedAxesCrsTransformException(Integer number) {
-        super(ExceptionCode.WcsError, ERROR_TEMPLATE.replace("$NUMBER", number.toString()));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$NUMBER", number.toString()));
     }
 
     private static final String ERROR_TEMPLATE = "CrsTransform requires 2D XY geo-referenced axes, received: $NUMBER axis.";

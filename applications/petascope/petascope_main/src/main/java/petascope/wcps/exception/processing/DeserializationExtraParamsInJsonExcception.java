@@ -29,7 +29,7 @@ import petascope.exceptions.ExceptionCode;
  */
 public class DeserializationExtraParamsInJsonExcception extends WCPSException {
     public DeserializationExtraParamsInJsonExcception(Exception cause) {
-        super(ExceptionCode.WcsError, EXCEPTION_TEXT, cause);
+        super(ExceptionCode.InvalidRequest, EXCEPTION_TEXT, cause);
     }
 
     private final static String EXCEPTION_TEXT = "Could not deserialize extra params in JSON format.";

@@ -69,7 +69,7 @@ public class DomainSet implements ISerializeToXMElement {
     }
 
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         
         Element domainSetElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_DOMAIN_SET_CIS11), NAMESPACE_CIS_11);
         

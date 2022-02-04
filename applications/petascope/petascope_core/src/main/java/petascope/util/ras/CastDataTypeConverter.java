@@ -35,7 +35,6 @@ import static petascope.util.ras.TypeResolverUtil.R_Float;
 import static petascope.util.ras.TypeResolverUtil.R_Long;
 import static petascope.util.ras.TypeResolverUtil.R_Octet;
 import static petascope.util.ras.TypeResolverUtil.R_Short;
-import static petascope.util.ras.TypeResolverUtil.R_ULong;
 import static petascope.util.ras.TypeResolverUtil.R_UnsignedLong;
 import static petascope.util.ras.TypeResolverUtil.R_UnsignedShort;
 
@@ -88,7 +87,7 @@ public class CastDataTypeConverter {
             result = R_Float;
         } else if (result.equals(WCPSConstants.MSG_DOUBLE)) {
             result = R_Double;
-        
+            
         } else if (result.equals(WCPSConstants.MSG_COMPLEX_INT16)) {
             result = R_CInt16;
         } else if (result.equals(WCPSConstants.MSG_COMPLEX_INT32)) {
@@ -99,7 +98,7 @@ public class CastDataTypeConverter {
         } else if (result.equals(WCPSConstants.MSG_COMPLEX2)) {
             result = R_CFloat64;
         } else {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Unknown WCPS base type '" + result + "' for casting.");
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Unknown WCPS base type '" + result + "' for casting.");
         }
         //short, unsigned short and complex have identity mapping
         return result;

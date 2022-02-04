@@ -111,7 +111,7 @@ public class WMSGetMapStyleService {
     public String buildRasqlStyleExpressionForRasqFragment(String styleQuery, String layerName, WMSLayer wmsLayer,
                                                 List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions, 
                                                 BoundingBox extendedFittedRequestGeoBBox) 
-                                                throws PetascopeException, SecoreException {
+                                                throws PetascopeException {
         
         WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
         
@@ -153,7 +153,7 @@ public class WMSGetMapStyleService {
     public String buildRasqlStyleExpressionForWCPSFragment(String styleQuery, String layerName, WMSLayer wmsLayer,
                                                            List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions,                                                           
                                                            BoundingBox extendedFittedRequestGeoBBox) 
-                                                           throws PetascopeException, SecoreException {
+                                                           throws PetascopeException {
         
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getRequestBBox(), wmsLayer.getLayerName());
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getExtendedRequestBBox(), wmsLayer.getLayerName());
@@ -222,7 +222,7 @@ public class WMSGetMapStyleService {
     private String getCoverageExpressionForRasqlFragment(String layerNameIterator, WMSLayer wmsLayer, 
                                                          BoundingBox extendedFittedRequestGeoBBox,
                                                          WcpsCoverageMetadata wcpsCoverageMetadata,
-                                                         List<WcpsSliceSubsetDimension> nonXYGridSliceSubsetDimensions) throws PetascopeException, SecoreException {
+                                                         List<WcpsSliceSubsetDimension> nonXYGridSliceSubsetDimensions) throws PetascopeException {
         
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getRequestBBox(), wmsLayer.getLayerName());
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getExtendedRequestBBox(), wmsLayer.getLayerName());
@@ -263,7 +263,7 @@ public class WMSGetMapStyleService {
     private String getCoverageExpressionForWCPSFragment(WMSLayer wmsLayer, 
                                                         String coverageSubset,
                                                         WcpsCoverageMetadata wcpsCoverageMetadata,
-                                                        List<WcpsSliceSubsetDimension> nonXYGridSliceSubsetDimensions) throws PetascopeException, SecoreException {
+                                                        List<WcpsSliceSubsetDimension> nonXYGridSliceSubsetDimensions) throws PetascopeException {
         
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getRequestBBox(), wmsLayer.getLayerName());
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getExtendedRequestBBox(), wmsLayer.getLayerName());
@@ -335,7 +335,7 @@ public class WMSGetMapStyleService {
      */
     public String builRasqlFromExpression(BoundingBox fittedBBox, 
                                           int width, int height) 
-                 throws PetascopeException, SecoreException {
+                 throws PetascopeException {
         
         List<String> collectionAlias = new ArrayList<>();
         for (Map.Entry<String, Pair<String, String>> entryTmp : this.collectionAliasRegistry.getAliasMap().entrySet()) {

@@ -94,7 +94,7 @@ public class Envelope implements ISerializeToXMElement {
     
 
     @Override
-    public Element serializeToXMLElement() throws PetascopeException, SecoreException {
+    public Element serializeToXMLElement() throws PetascopeException {
         Element envelopeElement = new Element(XMLUtil.createXMLLabel(PREFIX_CIS11, LABEL_ENVELOPE), NAMESPACE_CIS_11);
         
         Attribute srsNameAttribute = new Attribute(ATT_SRS_NAME, NAMESPACE_CIS_11);

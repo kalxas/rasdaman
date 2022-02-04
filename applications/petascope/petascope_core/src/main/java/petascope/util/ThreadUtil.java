@@ -34,17 +34,13 @@ import petascope.exceptions.PetascopeException;
  */
 public class ThreadUtil {
     
-    private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
-    
-    public static ExecutorService getExecutorService() {
-        return Executors.newFixedThreadPool(NUMBER_OF_CORES);
-    }
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(
+        Runtime.getRuntime().availableProcessors());
     
     /**
      * Run a list of tasks in parallel in batch mode (max = number of CPU cores)
      */
     public static void executeMultipleTasksInParallel(List<Callable<Object>> todoList) throws PetascopeException {
-        ExecutorService executorService = getExecutorService();
         try {
             executorService.invokeAll(todoList);
         } catch (InterruptedException ex) {

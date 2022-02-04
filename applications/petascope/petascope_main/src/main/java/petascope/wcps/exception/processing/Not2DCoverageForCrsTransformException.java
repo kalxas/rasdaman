@@ -34,7 +34,7 @@ public class Not2DCoverageForCrsTransformException extends WCPSException {
      * Constructor for the class
      */
     public Not2DCoverageForCrsTransformException(Integer number) {
-        super(ExceptionCode.WcsError, ERROR_TEMPLATE.replace("$NUMBER", number.toString()));
+        super(ExceptionCode.InvalidRequest, ERROR_TEMPLATE.replace("$NUMBER", number.toString()));
     }
 
     private static final String ERROR_TEMPLATE = "CrsTransform requires a 2D coverage, given: $NUMBERD coverage.";

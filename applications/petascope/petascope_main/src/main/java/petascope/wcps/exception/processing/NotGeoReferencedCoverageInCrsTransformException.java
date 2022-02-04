@@ -35,7 +35,7 @@ public class NotGeoReferencedCoverageInCrsTransformException extends WCPSExcepti
      *
      */
     public NotGeoReferencedCoverageInCrsTransformException() {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE);
+        super(ExceptionCode.NoApplicableCode, ERROR_TEMPLATE);
     }
 
     private static final String ERROR_TEMPLATE = "Grid coverages are not supported in CRS reprojections.";
