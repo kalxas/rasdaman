@@ -101,6 +101,8 @@ fusion of multi-dimensional coverage expressed in a high-level, declarative, and
 safe language.
 
 
+.. _ogc-services-endpoint:
+
 OGC Web Services Endpoint
 =========================
 
@@ -247,6 +249,8 @@ Nil (null) values, as per SWE, are supported by rasdaman in an extended way:
     - nulls can be intervals
     - a null definnition in a coverage can be a list of all of the above alternatives.
 
+Full details can be found in the null values :ref:`section <sec-nullvalues>`.
+
 .. NOTE::
 
    It is highly recommended to NOT define **single** null values over
@@ -263,8 +267,8 @@ Errors
 ------
 
 Errors from OGC requests to rasdaman are returned to the client formatted as
-``ows:ExceptionReport``s (`OGC Common Specification <https://portal.ogc.org/files/?artifact_id=38867>`__).
-An ``ExceptionReport`` can contain multiple ``Exception``s.
+``ows:ExceptionReport`` (`OGC Common Specification <https://portal.ogc.org/files/?artifact_id=38867>`__).
+An ``ExceptionReport`` can contain multiple ``Exception`` elements.
 For example, when running a WCS GetCoverage or a WCPS query which execute
 rasql queries in rasdaman, in case of an error the ``ExceptionReport`` will contain
 two ``Exception`` elements:
@@ -385,7 +389,7 @@ and the geo bounds of axis ``Lat`` are ``[0:90]``.
 CIS 1.0 to 1.1 Transformation
 -----------------------------
 
-Under WCS 2.1 - ie: with ``SERVICE=2.1.0`` - both ``DescribeCoverage``and
+Under WCS 2.1 - ie: with ``SERVICE=2.1.0`` - both ``DescribeCoverage`` and
 ``GetCoverage`` requests understand the proprietary parameter
 ``OUTPUTTYPE=GeneralGridCoverage`` which formats the result as CIS 1.1
 ``GeneralGridCoverage`` even if it has been imported into the server as a CIS
@@ -713,12 +717,12 @@ For example, the below request will update the metadata of coverage
 Create an INSPIRE coverage
 --------------------------
 
-INSPIRE coverages have an extra XML section
-``<ows:ExtendedCapabilities>...</ows:ExtendedCapabilities>`` 
-in the result of WCS GetCapabilities, which stores the coverage metadata in a format 
-complying to the INSPIRE standard. Controlling whether a local coverage is treated 
-as an INSPIRE coverage can be done by sending a request to 
-``/rasdaman/admin/inspire/metadata/update`` with two mandatory parameters:
+`INSPIRE coverages <https://inspire-wcs.eu/>`__ have an extra XML section
+``<ows:ExtendedCapabilities>`` in the result of WCS GetCapabilities, which
+stores the coverage metadata in a format complying to the INSPIRE standard.
+Controlling whether a local coverage is treated as an INSPIRE coverage can be
+done by sending a request to ``/rasdaman/admin/inspire/metadata/update`` with
+two mandatory parameters:
 
 - ``COVERAGEID`` - the coverage to be converted to an INSPIRE coverage
 - ``METADATAURL`` - a URL to an INSPIRE-compliant catalog entry for this coverage; 
@@ -4335,6 +4339,8 @@ starting the petascope Web application is different as follows:
 - If set to :ref:`embedded <start-stop-embedded-applications>` then petascope is
   managed along with rasdaman; see :ref:`this section
   <sec-system-install-administration>` for more details.
+
+.. _petascope-properties:
 
 Configuration
 -------------

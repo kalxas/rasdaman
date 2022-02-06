@@ -19,13 +19,12 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 # ------------------------------------------------------------------------------
 #
-# rasdaman OGC frontend (petascope) configuration file.
+# rasdaman OGC frontend (petascope) configuration file
 #
-# Notes:
 #  - Settings should be specified in key=value pairs.
-#  - The server needs to be restarted for any changes in this file to take effect.
+#  - The server needs to be restarted for any changes to take effect.
 #  - Full documentation of the settings in this file can be found at
-#    https://doc.rasdaman.org/05_geo-services-guide.html#configuration
+#    https://doc.rasdaman.com/testing/05_geo-services-guide.html#configuration
 
 # --------------------------- Spring configuration -----------------------------
 
@@ -36,17 +35,13 @@ spring.http.multipart.max-request-size=128MB
 
 #--------------------------- Database configuration ----------------------------
 
-# See details on https://doc.rasdaman.org/05_geo-services-guide.html#database
-
 # Default configuration for all DBMS.
 spring.jpa.database=default
 spring.jpa.hibernate.ddl-auto=none
 
-
 spring.datasource.url=jdbc:postgresql://localhost:5432/petascopedb
 spring.datasource.username=petauser
 spring.datasource.password=petapasswd
-
 spring.datasource.jdbc_jar_path=
 
 metadata_url=jdbc:postgresql://localhost:5432/petascopedb
@@ -55,65 +50,47 @@ metadata_pass=petapasswd
 metadata_jdbc_jar_path=
 
 
-#---------------------- General Petascope configuration ------------------------
-
-# See details on https://doc.rasdaman.org/05_geo-services-guide.html#id12
+#---------------------------- General configuration ---------------------------
 
 server.contextPath=/rasdaman
-
 secore_urls=internal
-
 xml_validation=false
-
 ogc_cite_output_optimization=false
-
 petascope_servlet_url=
-
-allow_write_requests_from=127.0.0.1
-
+inspire_common_url=
 uploaded_files_dir_tmp=/tmp/rasdaman_petascope/upload
-
 max_wms_cache_size=100000000
-
 full_stacktraces=false
 
 
-#---------------------- Petascope deployment configuration ---------------------
-
-# See details on https://doc.rasdaman.org/05_geo-services-guide.html#deployment
+#-------------------------- Deployment configuration ---------------------------
 
 java_server=@GENERATED_java_server@
-
 server.port=8080
+static_html_dir_path=
 
 
-#------------------- Rasdaman configuration for Petascope ----------------------
-
-# See details on https://doc.rasdaman.org/05_geo-services-guide.html#rasdaman
+#--------------------------- Rasdaman configuration -----------------------------
 
 rasdaman_url=http://localhost:7001
-
 rasdaman_database=RASBASE
 
 rasdaman_user=rasguest
 rasdaman_pass=rasguest
-
 rasdaman_admin_user=rasadmin
 rasdaman_admin_pass=rasadmin
 
 rasdaman_retry_attempts=5
-
 rasdaman_retry_timeout=10
-
 rasdaman_bin_path=@GENERATED_rasdaman_bin_path@
 
 
-#------------------- HTTPS configuration ------------------------------------
+#---------------------------- Security configuration ---------------------------
 
-# See details on https://doc.rasdaman.org/05_geo-services-guide.html#https
+authentication_type=basic_header
+allow_write_requests_from=127.0.0.1
 
 # Used only for embedded petascope deployment
-
 security.require-ssl=false
 
 # Key-store format for the certificate.
@@ -127,33 +104,10 @@ security.require-ssl=false
 # The password to open the certificate from the configured key-store file.
 #server.ssl.key-store-password=
 
-#------------------- INSPIRE configuration ------------------------------------
-
-# See details on https://doc.rasdaman.org/05_geo-services-guide.html#inspire
-
-inspire_common_url=
-
-#------------------------------ Demo web pages ---------------------------------
-
-# See details on https://doc.rasdaman.org/05_geo-services-guide.html#demo-web
-
-static_html_dir_path=
-
 
 #---------------------------- logging configuration ----------------------------
 
-# See details on https://doc.rasdaman.org/05_geo-services-guide.html#logging
-
 log4j.rootLogger=INFO, rollingFile
-
-# Reduce the log information from Spring, Hibernate, Liquibase, GRPC, Netty
-log4j.logger.org.springframework=WARN
-log4j.logger.org.hibernate=WARN
-log4j.logger.liquibase=WARN
-log4j.logger.io.grpc=WARN
-log4j.logger.io.netty=WARN
-log4j.logger.org.apache=WARN
-
 
 log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout  
 log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}] %c{1}@%L: %m%n
@@ -171,4 +125,11 @@ log4j.appender.rollingFile.rollingPolicy.ActiveFileName=@LOG_DIR@/petascope.log
 log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/petascope.%d{yyyyMMdd}.log.gz
 log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
 log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy
+
+log4j.logger.org.springframework=WARN
+log4j.logger.org.hibernate=WARN
+log4j.logger.liquibase=WARN
+log4j.logger.io.grpc=WARN
+log4j.logger.io.netty=WARN
+log4j.logger.org.apache=WARN
 

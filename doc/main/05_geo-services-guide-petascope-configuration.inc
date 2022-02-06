@@ -1,8 +1,8 @@
-The rasdaman-geo frontend (petascope) can be configured via changing
-settings in ``/opt/rasdaman/etc/petascope.properties``.
-For changes to take effect, system Tomcat (if deployment is ``external``)
-or rasdaman (if deployment is ``embedded``) needs to be restarted after
-editing this file.
+The rasdaman-geo frontend (petascope) can be configured via changing settings in
+``/opt/rasdaman/etc/petascope.properties``. For changes to take effect, system
+Tomcat (if :ref:`deployment <conf-deployment>` is ``external``) or rasdaman
+(if :ref:`deployment <conf-deployment>` is ``embedded``) needs to be restarted
+after editing this file.
 
 .. _conf-database:
 
@@ -142,25 +142,6 @@ General
 
     - Need to change: **YES** when rasdaman-geo runs behind a proxy
 
-.. _conf-allow-write-requests-from:
-
--   ``allow_write_requests_from`` configure from which IP addresses (as a comma-separated
-    list) should the server accept write requests such as WCS-T
-    ``InsertCoverage``, ``UpdateCoverage`` and ``DeleteCoverage``.
-    ``127.0.0.1`` will allow locally generated requests, usually needed to
-    import data with ``wcst_import.sh``; setting to empty will block all
-    requests, while ``*`` will allow any IP address.
-
-    .. NOTE::
-
-        This setting (i.e. the origin IP) is ignored when a request contains basic auth 
-        credentials for a valid rasdaman user with ``RW`` rights in the HTTP Authorization header.
-
-    - Default: ``127.0.0.1``
-
-    - Need to change: NO, unless more IP addresses should be allowed to execute
-      write requests
-
 
 -   ``max_wms_cache_size`` set the maximum amount of memory (in bytes) to use
     for caching WMS ``GetMap`` requests. This setting speeds up repeating WMS
@@ -191,6 +172,16 @@ General
     stacktraces in ``petascope.log``.
 
     - Default: ``false``
+
+    - Need to change: NO
+
+
+-   ``inspire_common_url`` set the URL to an external catalog service 
+    for the INSPIRE standard, to be provided by the user. 
+    If not set then it will be automatically derived from the
+    :ref:`petascope_servlet_url <conf-petascope-servlet-url>` setting.
+
+    - Default: empty
 
     - Need to change: NO
 
@@ -226,6 +217,19 @@ Deployment
 
     - Need to change: **YES** when port ``8080`` is occupied by another process,
       e.g. external Tomcat
+
+
+-   ``static_html_dir_path`` absolute path to a directory containing static demo
+    Web pages (html/css/javascript). If set, rasdaman-geo will serve the
+    ``index.html`` in this directory at the ``/rasdaman`` endpoint, e.g. 
+    ``http://localhost:8080/rasdaman/``.
+    Changes of files in this directory do not require a rasdaman-geo restart.
+    The system user running Tomcat (if ``java_server=external``) or rasdaman 
+    (if ``java_server=embedded``) must have read permission on this directory.
+
+    - Default: empty
+
+    - Need to change: **YES** when demo web pages required under radaman-geo's endpoint
 
 
 Rasdaman
@@ -316,8 +320,31 @@ Rasdaman
     - Need to change: NO
 
 
-HTTPS
-^^^^^
+Security
+^^^^^^^^
+
+
+.. _conf-allow-write-requests-from:
+
+-   ``allow_write_requests_from`` configure from which IP addresses (as a comma-separated
+    list) should the server accept write requests such as WCS-T
+    ``InsertCoverage``, ``UpdateCoverage`` and ``DeleteCoverage``.
+    ``127.0.0.1`` will allow locally generated requests, usually needed to
+    import data with ``wcst_import.sh``; setting to empty will block all
+    requests, while ``*`` will allow any IP address.
+
+    .. NOTE::
+
+        This setting (i.e. the origin IP) is ignored when a request contains basic auth 
+        credentials for a valid rasdaman user with ``RW`` rights in the HTTP Authorization header.
+
+    - Default: ``127.0.0.1``
+
+    - Need to change: NO, unless more IP addresses should be allowed to execute
+      write requests
+
+
+.. _conf-https:
 
 -   ``security.require-ssl`` allow :ref:`embedded <conf-deployment>` petascope
     to work with HTTPS requests from its endpoint.
@@ -326,34 +353,6 @@ HTTPS
 
     - Need to change: NO
 
-
-INSPIRE
-^^^^^^^
-
--   ``inspire_common_url`` set the URL to an external catalog service 
-    for the INSPIRE standard, to be provided by the user. 
-    If not set then it will be automatically derived from the
-    :ref:`petascope_servlet_url <conf-petascope-servlet-url>` setting.
-
-    - Default: empty
-
-    - Need to change: NO
-
-
-Demo Web
-^^^^^^^^
-
--   ``static_html_dir_path`` absolute path to a directory containing static demo
-    Web pages (html/css/javascript). If set, rasdaman-geo will serve the
-    ``index.html`` in this directory at the ``/rasdaman`` endpoint, e.g. 
-    ``http://localhost:8080/rasdaman/``.
-    Changes of files in this directory do not require a rasdaman-geo restart.
-    The system user running Tomcat (if ``java_server=external``) or rasdaman 
-    (if ``java_server=embedded``) must have read permission on this directory.
-
-    - Default: empty
-
-    - Need to change: **YES** when demo web pages required under radaman-geo's endpoint
 
 Logging
 ^^^^^^^

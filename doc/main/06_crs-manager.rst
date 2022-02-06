@@ -1,5 +1,7 @@
 .. highlight:: text
 
+.. _crs-management:
+
 **************
 CRS Management
 **************

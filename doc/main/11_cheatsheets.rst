@@ -202,7 +202,7 @@ requests <https://portal.opengeospatial.org/files/08-059r4>`__, e.g: ::
         &request=ProcessCoverages
         &query=for $covIter in (covName) ...
 
-The *WCS-client* deployed with every rasdaman installation provides a convenient
+The *WSClient* deployed with every rasdaman installation provides a convenient
 console for interactively writing and executing WCPS queries: open
 http://localhost:8080/rasdaman/ows in your Web browser and proceed to the
 *ProcessCoverages* tab.
