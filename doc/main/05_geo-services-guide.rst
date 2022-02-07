@@ -863,14 +863,13 @@ Clipping Examples
     for c in (test_mean_summer_airtemp)
     return
       encode(
-        clip( c, LineString(-29.3822 120.2783, -19.5184 144.4043) ),
+        clip( c, LineString(-29.3822 120.2783, -19.5184 144.4043) ) WITH COORDINATES,
         "text/csv"
       )
 
-  In this case the geo coordinates of the values on the linestring will be
-  included as well in the result. The first band of the result will hold the
-  X coordinate, the second band the Y coordinate, and the remaining bands the
-  original cell values. Example output for the above query: ::
+  In this case with ``WITH COORDINATES`` extra parameter, the geo coordinates of the values on the linestring will be
+  included as well in the result. The first two bands of the result holds the coordinates (by geo CRS order), 
+  and the remaining bands the original cell values. Example output for the above query: ::
 
   .. code-block:: text
 
