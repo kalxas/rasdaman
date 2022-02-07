@@ -553,11 +553,11 @@ components of a composite cell simultaneously. In future it may become possible
 to indicate null values individually per struct component.
 
 
-Example
--------
+Examples
+--------
 
-For example, the following statement defines a set type of 2-D RGB images, based
-on the definition of ``RGBImage``: ::
+The following statement defines a set type of 2-D RGB images, based on the
+definition of ``RGBImage``: ::
 
     create type RGBSet
     as set ( RGBImage )
@@ -568,14 +568,23 @@ can be specified as follows: ::
     create type RGBSet
     as set ( RGBImage null values [ 0, 253 : 255 ] )
 
-Note that these null values will apply equally to every band. It is not possible
-to separate null values per band.
+Note that these null values will apply equally to every band.
+It is not possible to separate null values per band.
 
 As the cell type in this case is char (possible values between 0 and 255), the
 type can be equivalently specified like this: ::
 
     create type RGBSet
     as set ( RGBImage null values [ 0, 253 : * ] )
+
+With the set type below, values which are nan are null values (nanf is the float 
+constant, while nan is the double constant): ::
+
+    create type FloatSetNanNullValue
+    as set ( FloatImage null values [nanf] )
+
+    create type DoubleSetNanNullValue
+    as set ( DoubleImage null values [nan] )
 
 
 .. _sec-drop-types:
@@ -1498,6 +1507,8 @@ Trimming
 
 Reducing the spatial domain of an array while leaving the cell values
 unchanged is called *trimming*. Array dimension remains unchanged.
+Attempting to extend or intersect the array's spatial domain will lead to an
+error; use the :ref:`extend function <sec-extend>` in this case.
 
 
 .. figure:: media/ql-guide/figure7.png
@@ -1505,10 +1516,6 @@ unchanged is called *trimming*. Array dimension remains unchanged.
    :width: 400px
 
    Spatial domain modification through trimming (2-D example)
-
-The *generalized trim operator* allows restriction, extension, and a
-combination of both operations in a shorthand syntax. This operator does
-not check for proper subsetting or supersetting of the domain modifier.
 
 **Syntax**
 
@@ -1555,6 +1562,10 @@ A section is accomplished through a trim expression by indicating the
 slicing position rather than a selection interval. A section can be made
 in any dimension within a trim expression. Each section reduces the
 dimension by one.
+
+Like with trimming, a section must be within the spatial domain of the array,
+otherwise an error indicating that the subset domain extends outside of the
+array spatial domain will be thrown.
 
 **Syntax**
 
