@@ -66,6 +66,10 @@ import org.rasdaman.repository.service.WMSRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import petascope.util.CrsUtil;
 import petascope.util.ras.RasUtil;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class initializes the petascope properties and runs the application as jar file.
@@ -230,7 +234,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
         try {
             gdal.AllRegister(); // should be done once on application startup
             // test projection
-            GeoTransform sourceGT = new GeoTransform(4326, 0, 0, 1, 1, 0.5, 0.5);
+            GeoTransform sourceGT = new GeoTransform(4326, BigDecimal.ZERO, BigDecimal.ZERO, 1, 1, new BigDecimal("0.5"), new BigDecimal("0.5"));
             CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGT, "EPSG:3857");
         } catch (Error | Exception ex) {
             String errorMessage = "Transform test failed, probably due to a problem with adding GDAL native library "

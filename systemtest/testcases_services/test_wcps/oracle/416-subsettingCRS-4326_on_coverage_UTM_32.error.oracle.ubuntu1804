@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.1.0"
->
-<ows:Exception exceptionCode="InvalidSubsetting">
-<ows:ExceptionText>subsetting '5650300.786644998:5788910.753310961' is not within coverage's geo bounds '5690420:5800020' for axis 'N'.</ows:ExceptionText>
-</ows:Exception>
+    xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+    xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ows:Exception exceptionCode="InvalidSubsetting" >
+        <ows:ExceptionText>subsetting '5649943.85773926723056211:5789264.056490733' is not within coverage's geo bounds '5690420:5800020' for axis 'N'.</ows:ExceptionText>
+    </ows:Exception>
 </ows:ExceptionReport>

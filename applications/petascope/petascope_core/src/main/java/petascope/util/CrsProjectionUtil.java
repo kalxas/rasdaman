@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -41,21 +40,17 @@ import org.gdal.osr.CoordinateTransformation;
 import org.gdal.osr.SpatialReference;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.AxisExtent;
-import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.EnvelopeByAxis;
-import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import static org.rasdaman.repository.service.CoverageRepositoryService.COVERAGES_EXTENT_TARGET_CRS_DEFAULT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
-import petascope.core.CrsDefinition;
 import petascope.exceptions.WCSException;
 import petascope.core.GeoTransform;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 
 /**
  * This class will provide utility method for projecting interval in
@@ -78,9 +73,26 @@ public class CrsProjectionUtil {
     // stored the projected GeoTransform to an output crs by specific geo XY resolutions
     private static Map<String, GeoTransform> projectedGeoTransformCacheMap = new HashMap<>();
     
+    // 1 million pixels
+    private static final int NUMBER_OF_GRID_PIXELS_FOR_VRT = 1000000;
+    
+    private static final String VRT_TEMPLATE = "<VRTDataset rasterXSize=\"RASTER_X_SIZE\" rasterYSize=\"RASTER_Y_SIZE\">\n" +
+                                            "  <SRS>SRS_WKT</SRS>\n" +
+                                            "  <GeoTransform> GEO_TRANSFORM </GeoTransform>\n" +
+                                            "  <VRTRasterBand dataType=\"Byte\" band=\"1\">\n" +
+                                            "    <ColorInterp>Red</ColorInterp>\n" +
+                                            "    <SimpleSource>\n" +
+                                            "      <SourceFilename relativeToVRT=\"1\">DUMMY_FILE_PATH</SourceFilename>\n" +
+                                            "      <SourceProperties RasterXSize=\"RASTER_X_SIZE\" RasterYSize=\"RASTER_Y_SIZE\" DataType=\"Byte\" BlockXSize=\"1\" BlockYSize=\"1\" />\n" +
+                                            "\n" +
+                                            "    </SimpleSource>\n" +
+                                            "  </VRTRasterBand>\n" +
+                                            "</VRTDataset>";
+    
     /**
      * Transform a XY values from sourceCRS to targetCRS (e.g: Long Lat (EPSG:4326) to ESPG:3857).
      * NOTE: Not every reprojection is possible, even if both sourceCR and targetCRS are EPSG CRS.
+     * And only used for transforming **POINT** not **BOUND**
      *
      * @param sourceCrs source CRS of axis
      * @param targetCrs target CRS to project
@@ -88,7 +100,7 @@ public class CrsProjectionUtil {
      * max values next. E.g. [xMin,yMin,xMax,yMax].
      * @return List<BigDecimal> Locations transformed to targetCRS (defined at construction time).
      */
-    public static List<BigDecimal> transform(String sourceCrs, String targetCrs, double[] sourceCoords) throws WCSException, PetascopeException {
+    public static List<BigDecimal> transformPoint(String sourceCrs, String targetCrs, double[] sourceCoords) throws WCSException, PetascopeException {
         // e.g: 4326, 32633
         int sourceCode = CrsUtil.getEpsgCodeAsInt(sourceCrs);
         int targetCode = CrsUtil.getEpsgCodeAsInt(targetCrs);
@@ -131,8 +143,8 @@ public class CrsProjectionUtil {
     public static BoundingBox transform(GeoTransform sourceGT, String targetCRS) throws PetascopeException {
         GeoTransform targetGT = getGeoTransformInTargetCRS(sourceGT, targetCRS);
         
-        if (Double.isNaN(targetGT.getGeoXResolution()) 
-            || Double.isNaN(targetGT.getGeoYResolution())) {
+        if (Double.isNaN(targetGT.getGeoXResolution().doubleValue()) 
+            || Double.isNaN(targetGT.getGeoYResolution().doubleValue())) {
             throw new PetascopeException(ExceptionCode.InternalComponentError, 
                     "Cannot transform GeoTransform: " + sourceGT.toString() + " to target CRS '" + targetCRS + "'. Reason: axis X/Y resolution in target GeoTransform is NaN.");
         }
@@ -144,6 +156,50 @@ public class CrsProjectionUtil {
         
         BoundingBox bbox = new BoundingBox(xmin, ymin, xmax, ymax);
         return bbox;
+    }
+    
+    /**
+     * Transform a bbox from sourceCRS (e.g. EPSG:4326) to targetCRS (e.g. EPSG:32632)
+     */
+    public static BoundingBox transformBBox(BoundingBox sourceCRSBBox, String sourceCRS, String targetCRS) throws PetascopeException {
+        boolean isPoint = false;
+        
+        if (sourceCRSBBox.getXMin().equals(sourceCRSBBox.getXMax()) || sourceCRSBBox.getYMin().equals(sourceCRSBBox.getYMax())) {
+            isPoint = true;
+        }
+        
+        BoundingBox result;
+        
+        if (!isPoint) {
+            // transform bbox
+            BigDecimal geoXResolution = BigDecimalUtil.divide(sourceCRSBBox.getXMax().subtract(sourceCRSBBox.getXMin()), new BigDecimal(NUMBER_OF_GRID_PIXELS_FOR_VRT));
+            // negative resolution for lat axis
+            BigDecimal geoYResolution = BigDecimalUtil.negative(BigDecimalUtil.divide(sourceCRSBBox.getYMax().subtract(sourceCRSBBox.getYMin()), new BigDecimal(NUMBER_OF_GRID_PIXELS_FOR_VRT)));
+
+            int epsgCode = Integer.valueOf(CrsUtil.getCode(sourceCRS));
+            GeoTransform sourceGeoTransform = new GeoTransform(epsgCode, sourceCRSBBox.getXMin(), sourceCRSBBox.getYMax(), 
+                                                               NUMBER_OF_GRID_PIXELS_FOR_VRT, NUMBER_OF_GRID_PIXELS_FOR_VRT, geoXResolution, geoYResolution);
+            GeoTransform targetGeoTransform = getGeoTransformInTargetCRS(sourceGeoTransform, targetCRS);
+            result = targetGeoTransform.toBBox();
+        } else {
+            // transform point
+            double[] xyMinArray = { sourceCRSBBox.getXMin().doubleValue(), sourceCRSBBox.getYMin().doubleValue() };
+            double[] xyMaxArray = { sourceCRSBBox.getXMax().doubleValue(), sourceCRSBBox.getYMax().doubleValue() };
+            
+            List<BigDecimal> minLongLatList = null, maxLongLatList = null;
+            
+            minLongLatList = transformPoint(sourceCRS, targetCRS, xyMinArray);
+            maxLongLatList = transformPoint(sourceCRS, targetCRS, xyMaxArray);
+            
+            BigDecimal lonMin = minLongLatList.get(0);
+            BigDecimal latMin = minLongLatList.get(1);
+            BigDecimal lonMax = maxLongLatList.get(0);
+            BigDecimal latMax = maxLongLatList.get(1);
+            
+            result = new BoundingBox(lonMin, latMin, lonMax, latMax);
+        }
+        
+        return result;
     }
     
     /**
@@ -190,8 +246,8 @@ public class CrsProjectionUtil {
         Dataset sourceDS = gdal.GetDriverByName("VRT").Create("", sourceGT.getGridWidth(), sourceGT.getGridHeight());
         // e.g: test_mean_summer_airtemp ([111.9750000, 0.05, 0, -8.9750000, 0, -0.05])
         double[] gdalGeoTransform = new double[] {
-            sourceGT.getUpperLeftGeoX(), sourceGT.getGeoXResolution(), 0,
-            sourceGT.getUpperLeftGeoY(), 0, sourceGT.getGeoYResolution()};
+            sourceGT.getUpperLeftGeoX().doubleValue(), sourceGT.getGeoXResolution().doubleValue(), 0,
+            sourceGT.getUpperLeftGeoY().doubleValue(), 0, sourceGT.getGeoYResolution().doubleValue()};
         sourceDS.SetGeoTransform(gdalGeoTransform);
         
         String sourceCRSWKT = getSpatialReference(sourceGT.getEPSGCode()).ExportToWkt();
@@ -207,7 +263,7 @@ public class CrsProjectionUtil {
             // NOTE: this happens when gdal cannot translate a 2D bounding box from source CRS (e.g: EPSG:4326) to a target CRS (e.g: EPSG:32652)
             throw new PetascopeException(ExceptionCode.RuntimeError, "Failed estimating the input geo domains "
                     + "from source CRS 'EPSG:" + sourceGT.getEPSGCode() + "' to target CRS 'EPSG:" + targetEPSGCode + 
-                    "'. Given source geoTransform values '" + sourceGT + "'.");
+                    "'. Given source geoTransform values '" + sourceGT + "'");
         }
         
         GeoTransform targetGT = new GeoTransform();
@@ -264,19 +320,8 @@ public class CrsProjectionUtil {
         String sourceCRSWKT = getSpatialReference(sourceGeoTransform.getEPSGCode()).ExportToWkt();
         String targetEPSGCode = CrsUtil.getEPSGCode(targetEPSGCRS);
         
-        String vtrTemplate = "<VRTDataset rasterXSize=\"RASTER_X_SIZE\" rasterYSize=\"RASTER_Y_SIZE\">\n" +
-                            "  <SRS>SRS_WKT</SRS>\n" +
-                            "  <GeoTransform> GEO_TRANSFORM </GeoTransform>\n" +
-                            "  <VRTRasterBand dataType=\"Byte\" band=\"1\">\n" +
-                            "    <ColorInterp>Red</ColorInterp>\n" +
-                            "    <SimpleSource>\n" +
-                            "      <SourceFilename relativeToVRT=\"1\">DUMMY_FILE_PATH</SourceFilename>\n" +
-                            "      <SourceProperties RasterXSize=\"RASTER_X_SIZE\" RasterYSize=\"RASTER_Y_SIZE\" DataType=\"Byte\" BlockXSize=\"1\" BlockYSize=\"1\" />\n" +
-                            "\n" +
-                            "    </SimpleSource>\n" +
-                            "  </VRTRasterBand>\n" +
-                            "</VRTDataset>";
-        String vrtXML = vtrTemplate.replace("RASTER_X_SIZE", String.valueOf(sourceGeoTransform.getGridWidth()))
+
+        String vrtXML = VRT_TEMPLATE.replace("RASTER_X_SIZE", String.valueOf(sourceGeoTransform.getGridWidth()))
                                    .replace("RASTER_Y_SIZE", String.valueOf(sourceGeoTransform.getGridHeight()))
                                    .replace("SRS_WKT", sourceCRSWKT)
                                    .replace("GEO_TRANSFORM", sourceGeoTransform.toGdalString())
@@ -293,13 +338,26 @@ public class CrsProjectionUtil {
         }
         
         // Run a quick command to warp VRT file to target CRS with given geo XY axes' resolutions
-        String command = "gdalwarp -overwrite -t_srs EPSG_CODE -tr RES_X RES_Y -tap VRT_FILE -of VRT VRT_WARPED_FILE"
+        String bashCommand = "gdalwarp -overwrite -t_srs EPSG_CODE -tr RES_X RES_Y -tap VRT_FILE -of VRT VRT_WARPED_FILE"
                             .replace("EPSG_CODE", targetEPSGCode)
                             .replace("RES_X", targetCRSGeoXResolution.abs().toPlainString())
                             .replace("RES_Y", targetCRSGeoYResolution.abs().toPlainString())
                             .replace("VRT_FILE", tempVRTFile.getAbsolutePath())
                             .replace("VRT_WARPED_FILE", tempWarpedVRTFile.getAbsolutePath());
         
+        result = getGeoTransformViaGdalBash(bashCommand, tempVRTFile, tempWarpedVRTFile);        
+        
+        projectedGeoTransformCacheMap.put(keyMap, result);
+        
+        return result;
+    }
+    
+    
+    /**
+     * Project a VRT file in sourceCRS to a targetCRS, then create GeoTransform object from the projected VRT file
+     */
+    private static GeoTransform getGeoTransformViaGdalBash(String bashCommand, File tempVRTFile, File tempWarpedVRTFile) throws PetascopeException {
+        GeoTransform result = null;
         // If gdalwarp cannot return valid VRT output, then retry 3 more times
         int MAX_RETRIES = 3;
         int i = 1;
@@ -308,13 +366,13 @@ public class CrsProjectionUtil {
         
             String stdout = "", stderr = "";
             try {
-                Process process = Runtime.getRuntime().exec(command);
+                Process process = Runtime.getRuntime().exec(bashCommand);
                 process.waitFor();
                 stderr = IOUtils.toString(process.getErrorStream());
                 stdout = IOUtils.toString(process.getInputStream());
 
             } catch (Exception ex) {
-                throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot execute gdalwarp command: " + command + ". Reason: " + ex.getMessage(), ex);
+                throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot execute gdalwarp command: " + bashCommand + ". Reason: " + ex.getMessage(), ex);
             }
 
             // Then, read the warped VRT file to collect the calculated result
@@ -326,9 +384,9 @@ public class CrsProjectionUtil {
                 
                 if (i > MAX_RETRIES) {
                     throw new PetascopeException(ExceptionCode.RuntimeError, 
-                                                "Cannot project VRT file with gdal bash command: '" + command + "'. Stddout: "  + stdout + ". Stderr: "  + stderr);
+                                                "Cannot project VRT file with gdal bash command: '" + bashCommand + "'. Stddout: "  + stdout + ". Stderr: "  + stderr);
                 }
-                log.warn("Failed projecting VRT file with gdal bash command: '" + command + "'. Stddout: "  + stdout + ". Stderr: "  + stderr + ". Retrying " + i + "/" + MAX_RETRIES);
+                log.warn("Failed projecting VRT file with gdal bash command: '" + bashCommand + "'. Stddout: "  + stdout + ". Stderr: "  + stderr + ". Retrying " + i + "/" + MAX_RETRIES);
             } else {
                 result = new GeoTransform(dataset);
                 break;
@@ -339,10 +397,10 @@ public class CrsProjectionUtil {
         FileUtils.deleteQuietly(tempVRTFile);
         FileUtils.deleteQuietly(tempWarpedVRTFile);
         
-        projectedGeoTransformCacheMap.put(keyMap, result);
-        
         return result;
     }
+    
+    
     
     /**
      * Manage caching of SpatialReference objects.
@@ -423,11 +481,11 @@ public class CrsProjectionUtil {
             throws PetascopeException {
         // NOTE: this one is used only for older peernode petascope which doesn't have Wgs84BoundingBox object in envelope
         // It returns less precisely bounding box, but it is used for backward compatibility
-        double[] xyMinArray = {xMin.doubleValue(), yMin.doubleValue()};
-        double[] xyMaxArray = {xMax.doubleValue(), yMax.doubleValue()};
+        double[] xyMinArray = { xMin.doubleValue(), yMin.doubleValue() };
+        double[] xyMaxArray = { xMax.doubleValue(), yMax.doubleValue() };
         List<BigDecimal> minLongLatList = null, maxLongLatList = null;
-        minLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMinArray);
-        maxLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMaxArray);
+        minLongLatList = CrsProjectionUtil.transformPoint(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMinArray);
+        maxLongLatList = CrsProjectionUtil.transformPoint(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMaxArray);
 
         BigDecimal lonMin = minLongLatList.get(0);
         BigDecimal latMin = minLongLatList.get(1);

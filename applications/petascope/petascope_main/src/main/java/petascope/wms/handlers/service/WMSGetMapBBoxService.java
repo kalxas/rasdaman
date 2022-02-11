@@ -23,6 +23,7 @@ package petascope.wms.handlers.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -175,29 +176,20 @@ public class WMSGetMapBBoxService {
     /**
      * Transform the input BBox from sourceCrs to targetCrs
      */
-    public BoundingBox transformBoundingBox(BoundingBox inputBBox, String sourceCrs, String targetCrs)
+    public BoundingBox transformBoundingBox(BoundingBox inputBBox, String sourceCRS, String targetCRS)
             throws WCSException, PetascopeException, SecoreException {
 
-        BoundingBox bboxTmp = new BoundingBox();
         // Beware! Inserted values pairs needs to be in order X-coordinate and then Y-coordinate.
         // If you are inserting latitude/longitude values in decimal format, then the longitude should be first value of the pair (X-coordinate) and latitude the second value (Y-coordinate).        
-        double minX = inputBBox.getXMin().doubleValue();
-        double minY = inputBBox.getYMin().doubleValue();
-        double maxX = inputBBox.getXMax().doubleValue();
-        double maxY = inputBBox.getYMax().doubleValue();
-
-        // NOTE: GDAL transform returns to XY order (e.g: EPSG:3857 (XY) -> EPSG:4326 (also XY))        
-        double[] minXY = new double[]{minX, minY};
-        List<BigDecimal> minValues = CrsProjectionUtil.transform(sourceCrs, targetCrs, minXY);
-        double[] maxXY = new double[]{maxX, maxY};
-        List<BigDecimal> maxValues = CrsProjectionUtil.transform(sourceCrs, targetCrs, maxXY);
-
-        bboxTmp.setXMin(minValues.get(0));
-        bboxTmp.setYMin(minValues.get(1));
-        bboxTmp.setXMax(maxValues.get(0));
-        bboxTmp.setYMax(maxValues.get(1));
-
-        return bboxTmp;
+        BigDecimal xMin = inputBBox.getXMin();
+        BigDecimal yMin = inputBBox.getYMin();
+        BigDecimal xMax = inputBBox.getXMax();
+        BigDecimal yMax = inputBBox.getYMax();
+        
+        BoundingBox sourceCRSBBOX = new BoundingBox(xMin, yMin, xMax, yMax);
+        BoundingBox targetCRSBBox = CrsProjectionUtil.transformBBox(sourceCRSBBOX, sourceCRS, targetCRS);
+        
+        return targetCRSBBox;
     }
 
     /**

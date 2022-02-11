@@ -203,8 +203,8 @@ public class AdminCreateOrUpdateLayerService {
             int gridWidth = axisX.getGridBounds().getUpperLimit().subtract(axisX.getGridBounds().getLowerLimit()).intValue() + 1;
             int gridHeight = axisY.getGridBounds().getUpperLimit().subtract(axisY.getGridBounds().getLowerLimit()).intValue() + 1;
 
-            GeoTransform geoTransform = new GeoTransform(epsgCode, minGeoBoundX.doubleValue(), maxGeoBoundY.doubleValue(),
-                    gridWidth, gridHeight, axisX.getResolution().doubleValue(), axisY.getResolution().doubleValue());
+            GeoTransform geoTransform = new GeoTransform(epsgCode, minGeoBoundX, maxGeoBoundY,
+                                                        gridWidth, gridHeight, axisX.getResolution(), axisY.getResolution());
 
             // Need to transform from native CRS of XY geo axes (e.g: EPSG:3857) to EPSG:4326
             String targetCrs = CrsUtil.getEPSGFullUri(DEFAULT_EPSG_CRS);

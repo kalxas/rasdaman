@@ -571,8 +571,8 @@ public class CoverageRepositoryService {
                     int epsgCode = CrsUtil.getEpsgCodeAsInt(bbox.getGeoXYCrs());
                     int gridWidth = (int)(indexAxisX.getUpperBound() - indexAxisX.getLowerBound() + 1);
                     int gridHigh = (int)(indexAxisY.getUpperBound() - indexAxisY.getLowerBound() + 1);
-                    GeoTransform sourceGeoTransform = new GeoTransform(epsgCode, geoAxisX.getLowerBoundNumber().doubleValue(), geoAxisY.getUpperBoundNumber().doubleValue(), 
-                                                                       gridWidth, gridHigh, geoAxisX.getResolution().doubleValue(), geoAxisY.getResolution().doubleValue());
+                    GeoTransform sourceGeoTransform = new GeoTransform(epsgCode, geoAxisX.getLowerBoundNumber(), geoAxisY.getUpperBoundNumber(), 
+                                                                       gridWidth, gridHigh, geoAxisX.getResolution(), geoAxisY.getResolution());
 
                     try {
                         BoundingBox bboxTmp = CrsProjectionUtil.transform(sourceGeoTransform, COVERAGES_EXTENT_TARGET_CRS_DEFAULT);

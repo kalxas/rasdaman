@@ -1,71 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage id="test_sf"
->
-<boundedBy>
-<Envelope axisLabels="E N" srsDimension="2"
-srsName="/crs/EPSG/0/32610" uomLabels="metre metre">
-<lowerCorner>542859.6822438798 4175169.477475078</lowerCorner>
-<upperCorner>553861.639562108 4186171.434793306</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<RectifiedGrid dimension="2" id="test_sf-grid">
-<limits>
-<GridEnvelope>
-<low>0 0</low>
-<high>4 4</high>
-</GridEnvelope>
-</limits>
-<axisLabels>E N</axisLabels>
-<origin>
-<Point
-id="test_sf-point" srsName="/crs/EPSG/0/32610">
-<pos>543959.8779757026185 4185071.2390614831815</pos>
-</Point>
-</origin>
-<offsetVector srsName="/crs/EPSG/0/32610">2200.391463645637 0</offsetVector>
-<offsetVector srsName="/crs/EPSG/0/32610">0 -2200.391463645637</offsetVector>
-</RectifiedGrid>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>0 0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="Red">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Red</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="Green">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Green</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="Blue">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Blue</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:RectifiedGridCoverage gml:id="test_sf"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:rasdaman="http://www.rasdaman.org"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+    <gml:boundedBy>
+        <gml:Envelope axisLabels="E N" srsDimension="2"
+            srsName="http://localhost:8080/def/crs/EPSG/0/32610" uomLabels="metre metre">
+            <gml:lowerCorner>542859.682243879774 4175169.477475077719</gml:lowerCorner>
+            <gml:upperCorner>553861.639562107959 4186171.434793305904</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:RectifiedGrid dimension="2" gml:id="test_sf-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0 0</gml:low>
+                    <gml:high>4 4</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>E N</gml:axisLabels>
+            <gml:origin>
+                <gml:Point gml:id="test_sf-point" srsName="http://localhost:8080/def/crs/EPSG/0/32610">
+                    <gml:pos>543959.8779757025925 4185071.2390614830855</gml:pos>
+                </gml:Point>
+            </gml:origin>
+            <gml:offsetVector srsName="http://localhost:8080/def/crs/EPSG/0/32610">2200.391463645637 0</gml:offsetVector>
+            <gml:offsetVector srsName="http://localhost:8080/def/crs/EPSG/0/32610">0 -2200.391463645637</gml:offsetVector>
+        </gml:RectifiedGrid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0,0 0 0</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>0 0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="Red">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>Red</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="Green">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>Green</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="Blue">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>Blue</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
 </gmlcov:RectifiedGridCoverage>

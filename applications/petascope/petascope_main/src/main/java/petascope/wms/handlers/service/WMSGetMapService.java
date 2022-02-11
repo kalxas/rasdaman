@@ -420,14 +420,16 @@ public class WMSGetMapService {
         Axis axisY = xyAxesNativeCRS.get(1);
         String nativeCRS = CrsUtil.getEPSGCode(axisX.getNativeCrsUri());
         
-        double[] sourceCoordinatesMin = {axisX.getGeoBounds().getLowerLimit().doubleValue(), axisY.getGeoBounds().getLowerLimit().doubleValue()};
-        double[] sourceCoordinatesMax = {axisX.getGeoBounds().getUpperLimit().doubleValue(), axisY.getGeoBounds().getUpperLimit().doubleValue()};
+        BigDecimal xMin = axisX.getGeoBounds().getLowerLimit();
+        BigDecimal yMin = axisY.getGeoBounds().getLowerLimit();
+        BigDecimal xMax = axisX.getGeoBounds().getUpperLimit();
+        BigDecimal yMax = axisY.getGeoBounds().getUpperLimit();
+
+        // e.g: native layer's CRS: UTM 32 to request CRS: EPSG:4326        
+        BoundingBox sourceCRSBBOX = new BoundingBox(xMin, yMin, xMax, yMax);
+        BoundingBox targetCRSBBox = CrsProjectionUtil.transformBBox(sourceCRSBBOX, nativeCRS, this.outputCRS);
         
-        // e.g: native layer's CRS: UTM 32 to request CRS: EPSG:4326
-        List<BigDecimal> mins = CrsProjectionUtil.transform(nativeCRS, this.outputCRS, sourceCoordinatesMin);
-        List<BigDecimal> maxs = CrsProjectionUtil.transform(nativeCRS, this.outputCRS, sourceCoordinatesMax);
-        
-        this.layerBBoxRequestCRS = new BoundingBox(mins.get(0), mins.get(1), maxs.get(0), maxs.get(1));
+        this.layerBBoxRequestCRS = targetCRSBBox;
     }
     
     /**
