@@ -68,8 +68,8 @@ public class WMSGetMapBBoxService {
      * by CRS order. So request from WMS must be swapped from YX order to XY
      * order for bounding box.
      */
-    public BoundingBox swapYXBoundingBox(BoundingBox inputBBox, String sourceCrs) throws PetascopeException, SecoreException {
-        String crsUri = CrsUtil.getEPSGFullUri(sourceCrs);
+    public BoundingBox swapYXBoundingBox(BoundingBox inputBBox, String sourceCRS) throws PetascopeException, SecoreException {
+        String crsUri = CrsUtil.getFullCRSURLByAuthorityCode(sourceCRS);
         CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crsUri);        // x, y, t,... 
         BigDecimal minX = inputBBox.getXMin();
         BigDecimal minY = inputBBox.getYMin();

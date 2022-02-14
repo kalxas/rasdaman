@@ -292,5 +292,9 @@ public class BigDecimalUtil {
     public static BigDecimal negative(BigDecimal input) {
         return input.multiply(new BigDecimal("-1"));
     }
+    
+    public static double toDouble(BigDecimal number) {
+        return Double.valueOf(number.toPlainString());
+    }
 
 }

@@ -356,7 +356,7 @@ public class EnvelopeByAxis implements Serializable {
         Set<String> results = new LinkedHashSet<>();
         
         for (AxisExtent axisExtent : this.axisExtents) {
-            String shortenedCrs = CrsUtil.getAuthorityCodeFormat(axisExtent.getSrsName());
+            String shortenedCrs = CrsUtil.getAuthorityCode(axisExtent.getSrsName());
             results.add(shortenedCrs);
         }
         
@@ -370,7 +370,7 @@ public class EnvelopeByAxis implements Serializable {
     public BoundingBox getGeoXYBoundingBox() throws PetascopeException {
         List<AxisExtent> axisExtents = this.axisExtents;
         boolean foundX = false, foundY = false;
-        String xyAxesCRS = null;
+        String xyAxesCRSURL = null;
         String coverageCRS = this.srsName;
         BigDecimal xMin = null, yMin = null, xMax = null, yMax = null;
         
@@ -378,18 +378,18 @@ public class EnvelopeByAxis implements Serializable {
         
         int i = 0;
         for (AxisExtent axisExtent : axisExtents) {
-            String axisExtentCrs = axisExtent.getSrsName();
+            String axisExtentCRSURL = axisExtent.getSrsName();
             // NOTE: the basic coverage metadata can have the abstract SECORE URL, so must replace it first
-            axisExtentCrs = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCrs);
+            axisExtentCRSURL = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCRSURL);
             
-            if (axisExtentCrs.contains(CrsUtil.EPSG_AUTH)) {
+            if (CrsProjectionUtil.isValidTransform(axisExtentCRSURL)) {
                 // x, y
                 String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
                 if (axisType.equals(AxisTypes.X_AXIS)) {
                     foundX = true;
                     xMin = new BigDecimal(axisExtent.getLowerBound());
                     xMax = new BigDecimal(axisExtent.getUpperBound());
-                    xyAxesCRS = axisExtentCrs;
+                    xyAxesCRSURL = axisExtentCRSURL;
                 } else if (axisType.equals(AxisTypes.Y_AXIS)) {
                     foundY = true;
                     yMin = new BigDecimal(axisExtent.getLowerBound());
@@ -403,8 +403,8 @@ public class EnvelopeByAxis implements Serializable {
             i++;
         }
         
-        if (foundX && foundY && CrsUtil.isValidTransform(xyAxesCRS)) {
-            result = new BoundingBox(xMin, yMin, xMax, yMax, xyAxesCRS);
+        if (foundX && foundY && CrsProjectionUtil.isValidTransform(xyAxesCRSURL)) {
+            result = new BoundingBox(xMin, yMin, xMax, yMax, xyAxesCRSURL);
         }
         
         return result;

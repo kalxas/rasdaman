@@ -22,6 +22,7 @@
 package petascope.core;
 
 import java.math.BigDecimal;
+import org.apache.commons.lang3.StringUtils;
 import org.gdal.gdal.Dataset;
 
 /**
@@ -44,7 +45,7 @@ import org.gdal.gdal.Dataset;
  */
 public class GeoTransform {
     
-    private int epsgCode;
+    private String wkt;
     private BigDecimal upperLeftGeoX;
     private BigDecimal upperLeftGeoY;
     private int gridWidth;
@@ -56,8 +57,8 @@ public class GeoTransform {
         
     }
     
-    public GeoTransform(int epsgCode, BigDecimal upperLeftGeoX, BigDecimal upperLeftGeoY, int gridWidth, int gridHeight, BigDecimal geoXResolution, BigDecimal geoYResolution) {
-        this.epsgCode = epsgCode;
+    public GeoTransform(String wkt, BigDecimal upperLeftGeoX, BigDecimal upperLeftGeoY, int gridWidth, int gridHeight, BigDecimal geoXResolution, BigDecimal geoYResolution) {
+        this.wkt = StringUtils.normalizeSpace(wkt);
         this.upperLeftGeoX = upperLeftGeoX;
         this.upperLeftGeoY = upperLeftGeoY;
         this.gridWidth = gridWidth;
@@ -84,12 +85,12 @@ public class GeoTransform {
         this.geoYResolution = new BigDecimal(String.valueOf(gdalValues[5]));
     }        
 
-    public int getEPSGCode() {
-        return epsgCode;
+    public String getWKT() {
+        return wkt;
     }
 
-    public void setEPSGCode(int epsgCode) {
-        this.epsgCode = epsgCode;
+    public void setWKT(String wkt) {
+        this.wkt = wkt;
     }
 
     public BigDecimal getUpperLeftGeoX() {
@@ -188,9 +189,9 @@ public class GeoTransform {
     
     @Override
     public String toString() {
-        String output = "epsgCode:" + epsgCode + ", xMin:" + upperLeftGeoX  + ", yMin: " + this.getLowerRightGeoY()
-                + ", xMax:" + this.getLowerRightGeoX() + ", yMax: " + upperLeftGeoY + ", width:" + gridWidth
-                + ", height:" + gridHeight + ", geoXResolution:" + geoXResolution + ", geoYResolution:" + geoYResolution;
+        String output = "xMin: " + upperLeftGeoX  + ", yMin: " + this.getLowerRightGeoY()
+                    + ", xMax: " + this.getLowerRightGeoX() + ", yMax: " + upperLeftGeoY + ", width: " + gridWidth
+                    + ", height: " + gridHeight + ", geoXResolution: " + geoXResolution + ", geoYResolution: " + geoYResolution;
         return output;
     }
     

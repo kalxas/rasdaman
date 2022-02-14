@@ -154,8 +154,8 @@ public class WcpsCoverageMetadataGeneralService {
      * @return
      */
     public void transformSubsettingCrsXYSubsets(WcpsCoverageMetadata metadata, List<Subset> subsets) throws PetascopeException {
-        String xyAxis = metadata.getXYCrs();
-        if (!CrsUtil.isValidTransform(xyAxis)) {
+        String xyAxisCRSURL = metadata.getXYCrs();
+        if (!CrsProjectionUtil.isValidTransform(xyAxisCRSURL)) {
             // No need to transform if XY axis is not geo-referenced or Authority is not EPSG
             return;
         }
@@ -177,10 +177,10 @@ public class WcpsCoverageMetadataGeneralService {
         for (Subset subset : subsets) {
             if (CrsUtil.axisLabelsMatch(xAxisName, subset.getAxisName())) {
                 // subset can contain CRS or not (e.g: Long(0:20) is not, but Long:"http://.../4326" is)
-                String crs = subset.getCrs();
-                if (crs != null) {
-                    if (CrsUtil.isValidTransform(crs)) {
-                        subsettingCrsX = crs;
+                String crsURL = subset.getCrs();
+                if (crsURL != null) {
+                    if (CrsProjectionUtil.isValidTransform(crsURL)) {
+                        subsettingCrsX = crsURL;
                         xMin = subset.getNumericSubset().getLowerLimit();
                         xMax = subset.getNumericSubset().getUpperLimit();
                     }
@@ -188,10 +188,10 @@ public class WcpsCoverageMetadataGeneralService {
             }
             if (CrsUtil.axisLabelsMatch(yAxisName, subset.getAxisName())) {
                 // subset can contain CRS or not (e.g: Long(0:20) is not, but Long:"http://.../4326" is)
-                String crs = subset.getCrs();
-                if (crs != null) {
-                    if (CrsUtil.isValidTransform(crs)) {
-                        subsettingCrsY = crs;
+                String crsURL = subset.getCrs();
+                if (crsURL != null) {
+                    if (CrsProjectionUtil.isValidTransform(crsURL)) {
+                        subsettingCrsY = crsURL;
                         yMin = subset.getNumericSubset().getLowerLimit();
                         yMax = subset.getNumericSubset().getUpperLimit();
                     }
@@ -752,13 +752,8 @@ public class WcpsCoverageMetadataGeneralService {
         boolean lessThanHalfPixel = geoDistance.compareTo(halfGeoResolution) < 0;
         
         if (axis instanceof RegularAxis && !lessThanHalfPixel) {
-            
-            // e.g: 4326 from EPSG:4326
-            int code = 0;
-            if (CrsUtil.isEPSGCrs(axis.getNativeCrsUri())) {
-                String epsgCode = CrsUtil.getEPSGCode(axis.getNativeCrsUri());
-                code = CrsUtil.getEpsgCodeAsInt(epsgCode);
-            }
+            String sourceCRS = axis.getNativeCrsUri();
+            String sourceCRSWKT = CrsUtil.getWKT(sourceCRS);
             
             // e.g: [0:4] = 4 - 0 + 1 = 5 pixels
             int numberOfGridPixels = gridDomainMax.subtract(gridDomainMin).intValue() + 1;
@@ -766,7 +761,7 @@ public class WcpsCoverageMetadataGeneralService {
             if (axis.getResolution().compareTo(BigDecimal.ZERO) > 0) {
                 // axis X
                 
-                GeoTransform adfGeoTransform = new GeoTransform(code, geoDomainMin, BigDecimal.ZERO, numberOfGridPixels, 0, axis.getResolution(), BigDecimal.ZERO);
+                GeoTransform adfGeoTransform = new GeoTransform(sourceCRSWKT, geoDomainMin, BigDecimal.ZERO, numberOfGridPixels, 0, axis.getResolution(), BigDecimal.ZERO);
                 Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = coordinateTranslationService.calculateGeoGridXBounds(axis, adfGeoTransform, lowerLimit, upperLimit);
                 parsedSubset = pairX.fst;
                 translatedSubset = pairX.snd;
@@ -775,7 +770,7 @@ public class WcpsCoverageMetadataGeneralService {
             } else if (axis.getResolution().compareTo(BigDecimal.ZERO) < 0) {
                 // axis Y
             
-                GeoTransform adfGeoTransform = new GeoTransform(code, BigDecimal.ZERO, geoDomainMax, 0, numberOfGridPixels, BigDecimal.ZERO, axis.getResolution());
+                GeoTransform adfGeoTransform = new GeoTransform(sourceCRSWKT, BigDecimal.ZERO, geoDomainMax, 0, numberOfGridPixels, BigDecimal.ZERO, axis.getResolution());
                 Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = coordinateTranslationService.calculateGeoGridYBounds(axis, adfGeoTransform, lowerLimit, upperLimit);
                 parsedSubset = pairY.fst;
                 translatedSubset = pairY.snd;

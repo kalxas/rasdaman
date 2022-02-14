@@ -26,10 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +40,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.ServletException;
@@ -54,6 +51,8 @@ import nu.xom.Element;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.gdal.osr.SpatialReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.config.ConfigManager;
@@ -125,9 +124,14 @@ public class CrsUtil {
 
     // TODO: do not rely on a static set of auths, but ask SECORE to return the supported authorities: ./def/crs/
     public static final String EPSG_AUTH = "EPSG";
+    public static final String EPSG_4326_AUTHORITY_CODE = EPSG_AUTH + ":4326";
     public static final String ISO_AUTH = "ISO";
     public static final String AUTO_AUTH = "AUTO";
     public static final String OGC_AUTH = "OGC";
+    // rotated-CRS netCDF
+    public static final String COSMO_AUTH = "COSMO";
+    // COSMO 101 CRS
+    public static final String COSMO_101_AUTHORITY_CODE = COSMO_AUTH + ":101";
     //public static final String IAU_AUTH  = "IAU2000";
     //public static final String UMC_AUTH  = "UMC";
     public static final List<String> SUPPORTED_AUTHS = Arrays.asList(EPSG_AUTH, ISO_AUTH, AUTO_AUTH, OGC_AUTH); // IAU_AUTH, UMC_AUTH);
@@ -143,12 +147,35 @@ public class CrsUtil {
     private static Map<String, CrsDefinition> parsedCRSs = new HashMap<String, CrsDefinition>();        // CRS definitions
     private static Map<List<String>, Boolean> crsComparisons = new HashMap<List<String>, Boolean>();        // CRS equality tests
     private static Map<List<String>, Long[]> gridIndexConversions = new HashMap<List<String>, Long[]>();         // subset2gridIndex conversions
+    
+    private static Map<String, String> crsWKTCache = new HashMap<>();
 
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
     
     
     private static final String APPLICATION_PROPERTIES_FILE = "application.properties";
     private static final String KEY_SECORE_CONF_DIR = "secore.confDir";
+    
+    // NOTE: this is the hard-coded WKT of rorated CRS from https://github.com/Geomatys/MetOceanDWG/blob/main/MetOceanDWG%20Projects/Authority%20Codes%20for%20CRS/RotatedPole.xml
+    private static final String COSMO_CRS_101_WKT = "GEODCRS[\"COSMO-DWD rotated pole grid\",\n" +
+                                                    "  BASEGEODCRS[\"COSMO DWD base geodetic CRS (Spherical)\",\n" +
+                                                    "    DATUM[\"COSMO DWD geodetic datum (Spherical)\",\n" +
+                                                    "      ELLIPSOID[\"DWD Models Sphere\", 6371229.0, 0.0, LENGTHUNIT[\"metre\", 1]]],\n" +
+                                                    "      PRIMEM[\"Greenwich\", 0.0, ANGLEUNIT[\"degree\", 0.017453292519943295]]],\n" +
+                                                    "  DERIVINGCONVERSION[\"COSMO-DE pole rotation\",\n" +
+                                                    "    METHOD[\"Pole rotation (netCDF CF convention)\"],\n" +
+                                                    "    PARAMETER[\"Grid north pole latitude (netCDF CF convention)\", 40.0, ANGLEUNIT[\"degree\", 0.017453292519943295]],\n" +
+                                                    "    PARAMETER[\"Grid north pole longitude (netCDF CF convention)\", -170.0, ANGLEUNIT[\"degree\", 0.017453292519943295]],\n" +
+                                                    "    PARAMETER[\"North pole grid longitude (netCDF CF convention)\", 0.0, ANGLEUNIT[\"degree\", 0.017453292519943295]]],\n" +
+                                                    "  CS[ellipsoidal, 2],\n" +
+                                                    "    AXIS[\"Rotated latitude (B)\", north, ORDER[1]],\n" +
+                                                    "    AXIS[\"Rotated longitude (L)\", east, ORDER[2]],\n" +
+                                                    "    ANGLEUNIT[\"degree\", 0.017453292519943295],\n" +
+                                                    "  SCOPE[\"Atmospheric model data.\"],\n" +
+                                                    "  AREA[\"Central Germany.\"],\n" +
+                                                    "  BBOX[47.00, 5.00, 55.00, 15.00],\n" +
+                                                    "  ID[\"COSMO\", 101],\n" +
+                                                    "  REMARK[\"Used with grid spacing of 0.025 degree in rotated coordinates.\"]]";
     
     /**
      * Invoke embedded SECORE in petascope before petascope starts to migrate 
@@ -387,10 +414,19 @@ public class CrsUtil {
                 log.debug("CRS element found: '" + crsType + "'.");
 
                 // Get the *CS element: **don't** look recursive otherwise you can getinto the underlying geodetic CRS of a projected one (eg EPSG:32634)
+                // e.g. ellipsoidalCS or CartesianCS element
                 Element csEl = XMLUtil.firstChildPattern(root, ".*" + XMLSymbols.CS_GMLSUFFIX);
                 // Check if it exists
                 if (csEl == null) {
-                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' missing the Coordinate System element.");
+                    // NOTE: in case, e.g. ellipsoidalCS element doesn't exist as the first child of root element, but deep down in root's child elements,
+                    // then try this recursive method before throwing error
+                    // for COSMO 101 CRS, the real CRS gml:EllipsoidalCS inside gml:coordinateSystem element
+                    Element coordinateSystemElement = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_COORDINATE_SYSTEM);
+                    csEl = XMLUtil.firstChildRecursive(coordinateSystemElement, XMLSymbols.LABEL_ELLIPSOIDALS_CS);
+                    
+                    if (csEl == null) {
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS '" + crsUri + "' missing the Coordinate System element.");
+                    }
                 }
                 log.debug("CS element found: " + csEl.getLocalName());
 
@@ -602,13 +638,6 @@ public class CrsUtil {
             return true;
         }
         return false;
-    }
-    
-    /**
-     * Simple check if CRS URI is EPSG
-     */
-    public static boolean isEPSGCrs(String axisCrs) {
-        return axisCrs.contains(EPSG_AUTH);
     }
 
     /**
@@ -993,21 +1022,25 @@ public class CrsUtil {
     public static String getResolverUri() {
         return ConfigManager.SECORE_URLS.get(0);
     }
-
-    /**
-     * Utility to get the epsg code from CRS URI
-     * e.g: http://opengis.net/def/crs/EPSG/0/4326 -> EPSG:4326
-     */
-    public static String getEPSGCode(String crs) {
-        return EPSG_AUTH + ":" + getCode(crs);
+    
+    public static String getEPSG4326FullURL() {
+        return getResolverUri() + "/crs/EPSG/0/4326";
     }
 
     /**
      * Return the opengis full uri for EPSG code, e.g: EPSG:4326 ->
      * http://www.opengis.net/def/crs/EPSG/0/4326
      */
-    public static String getEPSGFullUri(String epsgCode) {
-        return getEPSGVersion0CRS() + "/" + epsgCode.split(":")[1];
+    public static String getFullCRSURLByAuthorityCode(String authorityCode) {
+        // e.g. EPSG:4326
+        String[] tmps = authorityCode.split(":");
+        // e.g. EPSG
+        String authortiy = tmps[0];
+        // e.g. 4326
+        String code = tmps[1];
+        
+        // e.g. http://localhost:8080/def/crs/EPSG/0/4326
+        return getResolverUri() + "/crs/" + authortiy + "/0/" + code;
     }
     
     /**
@@ -1021,59 +1054,101 @@ public class CrsUtil {
      * Ultility to get the code from CRS (e.g: EPSG:4326 -> 4326)
      */
     public static String getCode(String crs) {
-        if (crs.contains(EPSG_AUTH + ":")) {
+        if (crs.contains(":")) {
             return crs.split(":")[1];
         }
         return CrsUri.getCode(crs);
     }
 
     /**
-     * e.g: localhost:8080/def/crs/EPSG/0/4326 -> EPSG:4326
+     * Given a CRS URL or Authority:Code, return authority:code
+     * e.g: http://localhost:8080/def/crs/EPSG/0/4326 -> EPSG:4326
      */
-    public static String getAuthorityCodeFormat(String crs) {
+    public static String getAuthorityCode(String crs) {
+        crs = crs.trim();
+        
+        if (isAuthorityCode(crs)) {
+            return crs;
+        }
+        
         String prefix = "/crs/";
         String[] values = crs.substring(crs.indexOf(prefix), crs.length()).replace(prefix, "").split("/");
         String result = values[0] + ":" + values[2];
         return result;
     }    
-
     
     /**
-     * Ultility to get the code from CRS (e.g: "EPSG:4326" -> 4326).
-     * or ("http://opengis.net/def/crs/EPSG/0/4326" -> 4326)
+     * Given a CRS URL, return the WKT content of this CRS
+     * 
+     * @param crs a CRS URL or AuthorityCode e.g. EPSG:4326
      */
-    public static int getEpsgCodeAsInt(String crs) throws PetascopeException {
-        String code = CrsUtil.getCode(crs);
-        if (code == null || code.equals("")) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, 
-                    "Failed extracting EPSG code from CRS: " + crs);
+    public static String getWKT(String crs) throws PetascopeException {
+        if (!CrsProjectionUtil.isValidTransform(crs)) {
+            return null;
         }
-        try {
-            return Integer.valueOf(code);
-        } catch (Exception ex) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, 
-                    "Invalid EPSG code '" + code + "' extracted from CRS '" + crs + "'. Reason: " + ex.getMessage());
+        
+         // OGRSpatialReference is expensive, cache CRS
+        if (crsWKTCache.containsKey(crs)) {
+            return crsWKTCache.get(crs);
         }
+        
+        String wkt = null;
+        SpatialReference spatialReference = new SpatialReference();
+        
+        // e.g. EPSG:4326 or COSMO:101
+        String authorityCode = getAuthorityCode(crs);
+        if (authorityCode.contains(EPSG_AUTH)) {
+            // e.g. EPSG:4326 -> 4326
+            int epsgCode = Integer.valueOf(authorityCode.split(":")[1]);
+            spatialReference.ImportFromEPSG(epsgCode);
+            wkt = spatialReference.ExportToWkt();
+        } else if (authorityCode.contains(COSMO_101_AUTHORITY_CODE)) {
+            // COSMO:101
+            wkt = getWKTCOSMO101CRS();
+        } else {
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Getting WKT from CRS '" + crs + "' is not supported.");
+        }
+        
+        String result = wkt.trim();
+        crsWKTCache.put(crs, result);
+        
+        return result;
     }
-
+    
     /**
-     * Check if 2D geo-referenced CRS is valid to transform
-     *
-     * @param uri
-     * @return
+     * Check if two input CRSs (AuthorityCode) or fullCRS have the same WKT string
      */
-    public static boolean isValidTransform(String uri) {
-        if (CrsUtil.isGridCrs(uri)) {
-            return false;
-        } else if (CrsUtil.isIndexCrs(uri)) {
-            return false;
-        } else if (!CrsUtil.CrsUri.getAuthority(uri).equals(EPSG_AUTH)) {
-            // Not EPSG CRS so cannot transform
-            return false;
-        }
-
-        return true;
+    public static boolean equalsWKT(String sourceWKT, String targetWKT) throws PetascopeException {
+        return StringUtils.normalizeSpace(sourceWKT).equalsIgnoreCase(targetWKT);
     }
+    
+    /**
+     * Get the WKT for rotated CRS COSMO 101 (Juelich) CRS.
+     * @TODO: it is hard-coded for now as no possibility for converting GML to
+     */
+    private static String getWKTCOSMO101CRS() {
+        return COSMO_CRS_101_WKT;
+    }
+    
+    /**
+     * Given a CRS URL, return a EPSG:code (e.g. EPSG:4326) or a WKT of the CRS (for non-EPSG CRS)
+     * if possible of the input CRS.
+     */
+    public static String getAuthorityEPSGCodeOrWKT(String crs) throws PetascopeException {
+        // e.g. EPSG:4326 or COSMO:101
+        String authorityCode = getAuthorityCode(crs);
+        String result = null;
+        if (authorityCode.contains(EPSG_AUTH)) {
+            result = authorityCode;
+        } else if (authorityCode.contains(COSMO_AUTH)) {
+            result = getWKTCOSMO101CRS();
+        } else {
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Not supported for getting EPSG authority code or WKT from CRS '" + crs + "'.");
+        }
+        
+        return result;
+    }
+
     /**
      * return true if both axis labels are longitude axes
      */
@@ -1137,10 +1212,10 @@ public class CrsUtil {
     }
     
     /**
-     * Check if input string contains EPSG:CODE pattern (e.g: EPSG:4326)
+     * Check if input string contains Authority:CODE pattern (e.g: EPSG:4326)
      */
-    public static boolean isEPSGIdentifier(String input) {
-        return input.contains(EPSG_AUTH + ":");
+    public static boolean isAuthorityCode(String input) {
+        return input.contains(":") && !input.contains("/");
     }
     
     /**
@@ -1148,9 +1223,9 @@ public class CrsUtil {
      * @param uri URL to CRS definition from SECORE
      */
     public static boolean isXYAxesOrder(String uri) throws PetascopeException {
-        if (isEPSGIdentifier(uri)) {
-            // e.g: EPSG:4326
-            uri = getEPSGFullUri(uri);
+        if (isAuthorityCode(uri)) {
+            // e.g: EPSG:4326 -> http://localhost:8080/def/crs/EPSG/0/4326
+            uri = getFullCRSURLByAuthorityCode(uri);
         }
         List<CrsDefinition.Axis> axes = new ArrayList<>();
         axes = CrsUtil.getCrsDefinition(uri).getAxes();

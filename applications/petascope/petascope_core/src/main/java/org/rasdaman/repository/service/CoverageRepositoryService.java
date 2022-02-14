@@ -73,6 +73,7 @@ import petascope.core.BoundingBox;
 import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
+import static petascope.util.CrsUtil.EPSG_4326_AUTHORITY_CODE;
 import petascope.util.ListUtil;
 import static petascope.util.StringUtil.TEMP_COVERAGE_PREFIX;
 import petascope.util.ThreadUtil;
@@ -119,11 +120,6 @@ public class CoverageRepositoryService {
     // map of qualified coverage id (e.g: hostname:7000:covA) -> coverage
     private static final Map<String, Pair<Coverage, Boolean>> localCoveragesCacheMap = new ConcurrentSkipListMap<>();
     
-    /**
-     * Store the coverages's extents (only geo-referenced XY axes). First String
-     * is minLong, minLat, second String is maxLong, maxLat.
-     */
-    public static final String COVERAGES_EXTENT_TARGET_CRS_DEFAULT = "EPSG:4326";
 
     public CoverageRepositoryService() {
 
@@ -562,20 +558,24 @@ public class CoverageRepositoryService {
                 IndexAxis indexAxisX = ((GeneralGridCoverage)coverage).getIndexAxisByName(geoAxisX.getAxisLabel());
                 GeoAxis geoAxisY = xyAxesPair.snd;
                 IndexAxis indexAxisY = ((GeneralGridCoverage)coverage).getIndexAxisByName(geoAxisY.getAxisLabel());
+                
+                // e.g. EPSG:4326
+                String sourceCRSAuthorityCode = CrsUtil.getAuthorityCode(bbox.getGeoXYCrs());
+                String targetCRSAuthorityCode = EPSG_4326_AUTHORITY_CODE;
 
-                if (CrsUtil.getEPSGCode(bbox.getGeoXYCrs()).equals(COVERAGES_EXTENT_TARGET_CRS_DEFAULT)) {
+                if (sourceCRSAuthorityCode.equals(targetCRSAuthorityCode)) {
                     wgs84BoundingBox = new Wgs84BoundingBox(geoAxisX.getLowerBoundNumber(), geoAxisY.getLowerBoundNumber(), 
                                                             geoAxisX.getUpperBoundNumber(), geoAxisY.getUpperBoundNumber());
                 } else {
                     // coverage in different CRS than EPSG:4326
-                    int epsgCode = CrsUtil.getEpsgCodeAsInt(bbox.getGeoXYCrs());
+                    String sourceCRSWKT = CrsUtil.getWKT(bbox.getGeoXYCrs());
                     int gridWidth = (int)(indexAxisX.getUpperBound() - indexAxisX.getLowerBound() + 1);
                     int gridHigh = (int)(indexAxisY.getUpperBound() - indexAxisY.getLowerBound() + 1);
-                    GeoTransform sourceGeoTransform = new GeoTransform(epsgCode, geoAxisX.getLowerBoundNumber(), geoAxisY.getUpperBoundNumber(), 
+                    GeoTransform sourceGeoTransform = new GeoTransform(sourceCRSWKT, geoAxisX.getLowerBoundNumber(), geoAxisY.getUpperBoundNumber(), 
                                                                        gridWidth, gridHigh, geoAxisX.getResolution(), geoAxisY.getResolution());
 
                     try {
-                        BoundingBox bboxTmp = CrsProjectionUtil.transform(sourceGeoTransform, COVERAGES_EXTENT_TARGET_CRS_DEFAULT);
+                        BoundingBox bboxTmp = CrsProjectionUtil.transform(sourceGeoTransform, CrsUtil.getEPSG4326FullURL());
                         BigDecimal lonMin = bboxTmp.getXMin();
                         BigDecimal latMin = bboxTmp.getYMin();
                         BigDecimal lonMax = bboxTmp.getXMax();

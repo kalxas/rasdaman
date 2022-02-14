@@ -410,6 +410,8 @@ public interface XMLSymbols {
     String LABEL_AXISABBREV = "axisAbbrev";
     String LABEL_AXISDIRECTION = "axisDirection";
     String LABEL_CSA = "CoordinateSystemAxis";
+    String LABEL_COORDINATE_SYSTEM = "coordinateSystem";
+    String LABEL_ELLIPSOIDALS_CS = "EllipsoidalCS";
     String LABEL_NAME = "name";
     String LABEL_OFFSET_VECTOR = "offsetVector";
     String LABEL_ORIGIN = "origin";

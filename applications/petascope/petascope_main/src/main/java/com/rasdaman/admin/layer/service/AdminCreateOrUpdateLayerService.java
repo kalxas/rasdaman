@@ -112,7 +112,7 @@ public class AdminCreateOrUpdateLayerService {
         layer.setTitle(layerName);
 
         // Only set 1 crs for 1 layer now
-        layer.setCrss(ListUtil.valuesToList(CrsUtil.getEPSGCode(crs)));
+        layer.setCrss(ListUtil.valuesToList(crs));
 
         // These attributes are fixed by default (cascaded, fixedHeight,...)
         LayerAttribute layerAttribute = new LayerAttribute();
@@ -180,7 +180,8 @@ public class AdminCreateOrUpdateLayerService {
      */
     public EXGeographicBoundingBox createEXGeographicBoundingBox(List<Axis> xyAxes) throws WCSException, WMSInvalidBoundingBoxInCrsTransformException, PetascopeException {
         EXGeographicBoundingBox exBBox = new EXGeographicBoundingBox();
-        String crs = CrsUtil.getCode(xyAxes.get(0).getNativeCrsUri());
+        // e.g 4326
+        String crsCode = CrsUtil.getCode(xyAxes.get(0).getNativeCrsUri());
 
         // No need to transform as EPSG:4326 is same coordinates as WGS:84
         // NOTE: xyAxes in CRS:4326 is Lat (X), Long (Y) order              
@@ -194,29 +195,29 @@ public class AdminCreateOrUpdateLayerService {
         BigDecimal maxLong = maxGeoBoundX;
         BigDecimal maxLat = maxGeoBoundY;
 
-        if (!crs.equals(DEFAULT_CRS_CODE)) {
-            String sourceCrs = xyAxes.get(0).getNativeCrsUri();
-            int epsgCode = CrsUtil.getEpsgCodeAsInt(sourceCrs);
+        if (!crsCode.equals(DEFAULT_CRS_CODE)) {
+            String sourceCRS = xyAxes.get(0).getNativeCrsUri();
+            String sourceCRSWKT = CrsUtil.getWKT(sourceCRS);
 
             Axis axisX = xyAxes.get(0);
             Axis axisY = xyAxes.get(1);
             int gridWidth = axisX.getGridBounds().getUpperLimit().subtract(axisX.getGridBounds().getLowerLimit()).intValue() + 1;
             int gridHeight = axisY.getGridBounds().getUpperLimit().subtract(axisY.getGridBounds().getLowerLimit()).intValue() + 1;
 
-            GeoTransform geoTransform = new GeoTransform(epsgCode, minGeoBoundX, maxGeoBoundY,
-                                                        gridWidth, gridHeight, axisX.getResolution(), axisY.getResolution());
+            GeoTransform geoTransform = new GeoTransform(sourceCRSWKT, minGeoBoundX, maxGeoBoundY,
+                                                         gridWidth, gridHeight, axisX.getResolution(), axisY.getResolution());
 
             // Need to transform from native CRS of XY geo axes (e.g: EPSG:3857) to EPSG:4326
-            String targetCrs = CrsUtil.getEPSGFullUri(DEFAULT_EPSG_CRS);
+            String targetCRSURL = CrsUtil.getFullCRSURLByAuthorityCode(DEFAULT_EPSG_CRS);
             petascope.core.BoundingBox wgs84bbox;
             try {
-                wgs84bbox = CrsProjectionUtil.transform(geoTransform, DEFAULT_EPSG_CRS);
+                wgs84bbox = CrsProjectionUtil.transform(geoTransform, targetCRSURL);
             } catch (PetascopeException ex) {
                 String bbox = "xmin=" + minGeoBoundX.doubleValue() + ", ymin=" + minGeoBoundY.doubleValue()
-                        + "xmax=" + maxGeoBoundX.doubleValue() + ", ymax=" + maxGeoBoundY.doubleValue();
-                throw new WMSInvalidBoundingBoxInCrsTransformException(bbox, sourceCrs, targetCrs, ex.getExceptionText());
+                        + ", xmax=" + maxGeoBoundX.doubleValue() + ", ymax=" + maxGeoBoundY.doubleValue();
+                throw new WMSInvalidBoundingBoxInCrsTransformException(bbox, sourceCRS, targetCRSURL, ex.getExceptionText());
             }
-
+            
             // Output is EPSG:4326 (but GDAL always show Long, Lat)
             minLong = wgs84bbox.getXMin();
             minLat = wgs84bbox.getYMin();
@@ -238,7 +239,7 @@ public class AdminCreateOrUpdateLayerService {
     private BoundingBox createBoundingBox(boolean isXYOrder, List<Axis> xyAxes) {
 
         BoundingBox bbox = new BoundingBox();
-        bbox.setCrs(CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri()));
+        bbox.setCrs(xyAxes.get(0).getNativeCrsUri());
 
         if (isXYOrder) {
             // EPSG:3857 is XY order

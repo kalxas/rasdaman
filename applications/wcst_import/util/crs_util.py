@@ -330,7 +330,16 @@ class CRSUtil:
 
             gml = validate_and_read_url(crs, None, timeout_in_seconds)
             root = etree.fromstring(gml)
-            cselem = root.xpath("./*[contains(local-name(), 'CS')]")[0]
+            # e.g. ellipsoidalCS or CartesianCS elements
+            elements = root.xpath("./*[contains(local-name(), 'CS')]")
+
+            if len(elements) > 0:
+                # normal CRS
+                cselem = elements[0]
+            else:
+                # NOTE: for COSMO 101 CRS, <gml:coordinateSystem> is nested inside <gml:baseCRS>
+                cselem = root.xpath(".//*[contains(local-name(), 'CS')]")[0]
+
             xml_axes = cselem.xpath(".//*[contains(local-name(), 'SystemAxis')]")
             return xml_axes
         except Exception as ex:

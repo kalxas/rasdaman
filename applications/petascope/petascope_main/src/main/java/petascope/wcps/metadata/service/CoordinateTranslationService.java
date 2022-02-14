@@ -137,16 +137,13 @@ public class CoordinateTranslationService {
      * Return a pair of geo / grid bboxes as same as gdal from an input bbox on XY axes
      */
     public Pair<BoundingBox, BoundingBox> calculateGridGeoXYBoundingBoxes(Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
-        int epsgCode = -1;
-        
-        if (!CrsUtil.isIndexCrs(axisX.getNativeCrsUri())) {
-            epsgCode = CrsUtil.getEpsgCodeAsInt(axisX.getNativeCrsUri());
-        }
+        String sourceCRS = axisX.getNativeCrsUri();
+        String sourceCRSWKT = CrsUtil.getWKT(sourceCRS);
         
         // axis X
         int gridWidth = axisX.getTotalNumberOfGridPixels();
 
-        GeoTransform adfGeoTransformX = new GeoTransform(epsgCode, axisX.getGeoBounds().getLowerLimit(), BigDecimal.ZERO,
+        GeoTransform adfGeoTransformX = new GeoTransform(sourceCRSWKT, axisX.getGeoBounds().getLowerLimit(), BigDecimal.ZERO,
                                                          gridWidth, 0, axisX.getResolution(), BigDecimal.ZERO);
         Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = this.calculateGeoGridXBounds(axisX, adfGeoTransformX,
                                                                                                 inputBBoxNativeCRS.getXMin(), inputBBoxNativeCRS.getXMax());
@@ -154,7 +151,7 @@ public class CoordinateTranslationService {
         // axis Y
         int gridHeight = axisY.getTotalNumberOfGridPixels();
 
-        GeoTransform adfGeoTransformY = new GeoTransform(epsgCode, BigDecimal.ZERO, axisY.getGeoBounds().getUpperLimit(),
+        GeoTransform adfGeoTransformY = new GeoTransform(sourceCRSWKT, BigDecimal.ZERO, axisY.getGeoBounds().getUpperLimit(),
                                                          0, gridHeight, BigDecimal.ZERO, axisY.getResolution());
         Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = this.calculateGeoGridYBounds(axisY, adfGeoTransformY,
                                                                                                 inputBBoxNativeCRS.getYMin(), inputBBoxNativeCRS.getYMax());

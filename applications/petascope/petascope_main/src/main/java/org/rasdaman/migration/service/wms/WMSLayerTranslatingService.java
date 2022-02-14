@@ -83,7 +83,7 @@ public class WMSLayerTranslatingService {
         }
                
         // e.g: EPSG:4326 as WMS legacy only supports EPSG code
-        String crs = CrsUtil.getEPSGCode(coverage.getEnvelope().getEnvelopeByAxis().getSrsName());
+        String crs = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
 
         layer.setName(layerName);
         layer.setTitle(legacyLayer.getTitle());

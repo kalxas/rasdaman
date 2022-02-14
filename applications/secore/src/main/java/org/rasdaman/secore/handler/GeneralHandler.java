@@ -117,6 +117,8 @@ public class GeneralHandler extends AbstractHandler {
         String resultDefInUserDB = SecoreUtil.existsDefInUserDB(url, versionNumber);
         this.validateCRSDefRequiredParameters(resultDefInUserDB, request.getParams());
         
+        ResolveResponse ret = new ResolveResponse(resultDefInUserDB);
+        
         String versionTmp = versionNumber;
 
         // If versionNumber does not exist in userdb, then it should be from GML dictionaries.
@@ -127,10 +129,10 @@ public class GeneralHandler extends AbstractHandler {
             if (!DbManager.collectionExistByVersionNumber(versionTmp)) {
                 throw new SecoreException(ExceptionCode.InvalidRequest, "Failed resolving request '" + request.toString() + "', check if version number is valid or crs definition exists first.");
             }
+            
+            ret = resolveId(parseRequest(request).snd, versionTmp, versionNumber, request.getExpandDepth(), new ArrayList<Parameter>());            
         }
         
-        ResolveResponse ret = resolveId(parseRequest(request).snd, versionTmp, versionNumber, request.getExpandDepth(), new ArrayList<Parameter>());
-
         // check if the result is a parameterized CRS, and forward to the ParameterizedCrsHandler
         if (ParameterizedCrsHandler.isParameterizedCrsDefinition(ret.getData())) {
             ret = resolveId(parseRequest(request).snd, versionTmp, versionNumber, ZERO, new ArrayList<Parameter>());

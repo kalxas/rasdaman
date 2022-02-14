@@ -115,8 +115,8 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         if (crsParam == null) {
             throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_CRS);
         } else {
-            // Check if crs is EPSG code (only supports now)
-            if (!CrsProjectionUtil.validTransformation(crsParam[0])) {
+            // Check if crs is supported for projection
+            if (!CrsProjectionUtil.isValidTransform(crsParam[0])) {
                 throw new WMSInvalidCrsUriException(crsParam[0]);
             }
         }

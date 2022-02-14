@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import org.rasdaman.domain.cis.Coverage;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
 import petascope.core.CrsDefinition;
@@ -37,6 +37,7 @@ import petascope.core.GeoTransform;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsProjectionUtil;
+import petascope.util.StringUtil;
 import petascope.wcps.exception.processing.IdenticalAxisNameInCrsTransformException;
 import petascope.wcps.exception.processing.InvalidOutputCrsProjectionInCrsTransformException;
 import petascope.wcps.exception.processing.Not2DCoverageForCrsTransformException;
@@ -161,8 +162,10 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
 
         GeoTransform geoTransform = new GeoTransform();
         
-        int sourceEPSGCode = new Integer(CrsUtil.getCode(axisX.getNativeCrsUri()));
-        geoTransform.setEPSGCode(sourceEPSGCode);
+        String sourceCRS = axisX.getNativeCrsUri();
+        String sourceCRSWKT = CrsUtil.getWKT(sourceCRS);
+        
+        geoTransform.setWKT(sourceCRSWKT);
         
         geoTransform.setGeoXResolution(axisX.getResolution().doubleValue());
         geoTransform.setGeoYResolution(axisY.getResolution().doubleValue());
@@ -278,8 +281,16 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
             throw new InvalidOutputCrsProjectionInCrsTransformException(axisCrss2, axisNameArray[1]);
         }
     }
+    
+    /**
+     * If EPSG:code just returns normally, if WKT then the wkt is quoted and breaklines removed
+     */
+    public static String getEscapedAuthorityEPSGCodeOrWKT(String crs) throws PetascopeException {
+        String result = StringUtils.normalizeSpace(StringUtil.escapeQuotes(CrsUtil.getAuthorityEPSGCodeOrWKT(crs)));
+        return result;
+    }
 
-    public String getRasqlExpression(WcpsResult coverageExpression, HashMap<String, String> axisCrss, String interpolationType) {
+    public String getRasqlExpression(WcpsResult coverageExpression, HashMap<String, String> axisCrss, String interpolationType) throws PetascopeException {
         String outputStr = "";
 
         // Get the calculated coverage in grid axis with Rasql
@@ -306,17 +317,21 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         // (NOTE: sourceCrs can be compoundCrs, e.g: irr_cube_2) then need to get the crsUri from axis not from coverage metadata
         String axisName = axisCrss.keySet().iterator().next();
         Axis axis = covMetadata.getAxisByName(axisName);
-        String covCRS = axis.getNativeCrsUri();
-        String outputCrs = axisCrss.values().toArray()[0].toString();
-        String sourceCRS = CrsUtil.CrsUri.getAuthorityCode(covCRS);
-        String targetCRS = CrsUtil.CrsUri.getAuthorityCode(outputCrs);
+        String sourceCRS = axis.getNativeCrsUri();
+        String outputCRS = axisCrss.values().toArray()[0].toString();
+        
+        // NOTE: 
+        // 1. If CRS is EPSG then return e.g. EPSG:4326 or the WKT of the CRS (rotated CRS COSMO 101) if possible which gdal can parse
+        // 2. If the WKT is returned, then it needs to be enquoted e.g. "CRS[\"GeodeticCRS\": ...]"
+        String sourceCRSParam = getEscapedAuthorityEPSGCodeOrWKT(sourceCRS);
+        String targetCRSParam = getEscapedAuthorityEPSGCodeOrWKT(outputCRS);
         
         if (interpolationType == null) {
             interpolationType = DEFAULT_INTERPOLATION_TYPE;
         }
         
         outputStr = TEMPLATE.replace("$COVERAGE_EXPRESSION", covRasql).replace("$BOUNDING_BOX", bbox)
-                            .replace("$SOURCE_CRS", sourceCRS).replace("$TARGET_CRS", targetCRS)
+                            .replace("$SOURCE_CRS", sourceCRSParam).replace("$TARGET_CRS", targetCRSParam)
                             .replace("$INTERPOLATION_TYPE", interpolationType);
 
         return outputStr;

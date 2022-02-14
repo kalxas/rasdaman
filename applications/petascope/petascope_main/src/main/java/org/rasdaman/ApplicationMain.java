@@ -233,9 +233,13 @@ public class ApplicationMain extends SpringBootServletInitializer {
         // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
         try {
             gdal.AllRegister(); // should be done once on application startup
-            // test projection
-            GeoTransform sourceGT = new GeoTransform(4326, BigDecimal.ZERO, BigDecimal.ZERO, 1, 1, new BigDecimal("0.5"), new BigDecimal("0.5"));
-            CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGT, "EPSG:3857");
+            // test projection to check if gdal-java library works
+            String sourceCRS = "http://localhost:8080/def/crs/EPSG/0/4326";
+            String targetCRS = "http://localhost:8080/def/crs/EPSG/0/3857";
+            
+            String wkt = CrsUtil.getWKT(sourceCRS);
+            GeoTransform sourceGT = new GeoTransform(wkt, new BigDecimal("111.975"), new BigDecimal("-8.975"), 89, 71, new BigDecimal("0.5"), new BigDecimal("-0.5"));
+            CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGT, targetCRS);
         } catch (Error | Exception ex) {
             String errorMessage = "Transform test failed, probably due to a problem with adding GDAL native library "
                                 + "to java library path; please restart Tomcat to fix this problem. Reason: " + ex;

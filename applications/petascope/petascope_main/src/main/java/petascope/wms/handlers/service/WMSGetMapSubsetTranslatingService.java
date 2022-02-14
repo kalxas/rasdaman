@@ -33,6 +33,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsProjectionUtil;
+import petascope.util.CrsUtil;
 import petascope.wcps.handler.CrsTransformHandler;
 import petascope.wcps.handler.SubsetExpressionHandler;
 import petascope.wcps.metadata.model.Axis;
@@ -311,7 +312,11 @@ public class WMSGetMapSubsetTranslatingService {
                                                     WMSLayer wmsLayer,
                                                     BoundingBox originalRequestBBox,
                                                     String outputCRS,
-                                                    String interpolation) {
+                                                    String interpolation) throws PetascopeException {
+        
+        // e.g. EPSG:4326 or WKT of COSMO:101
+        String sourceCRS = CrsTransformHandler.getEscapedAuthorityEPSGCodeOrWKT(nativeCRS);
+        String targetCRS = CrsTransformHandler.getEscapedAuthorityEPSGCodeOrWKT(outputCRS);
         
         // NOTE: this one is in coverage's native CRS (e.g: EPSG:32632), while originalRequestBBox is in request CRS (e.g: EPSG:4326)
         BoundingBox extendedFittedGeoBBbox = wmsLayer.getExtendedRequestBBox();
@@ -321,12 +326,12 @@ public class WMSGetMapSubsetTranslatingService {
                 .replace(YMIN_NATIVCE_CRS, extendedFittedGeoBBbox.getYMin().toPlainString())
                 .replace(XMAX_NATIVCE_CRS, extendedFittedGeoBBbox.getXMax().toPlainString())
                 .replace(YMAX_NATIVCE_CRS, extendedFittedGeoBBbox.getYMax().toPlainString())
-                .replace(NATIVE_CRS, nativeCRS)
+                .replace(NATIVE_CRS, sourceCRS)
                 .replace(XMIN_OUTPUT_CRS, originalRequestBBox.getXMin().toPlainString())
                 .replace(YMIN_OUTPUT_CRS, originalRequestBBox.getYMin().toPlainString())
                 .replace(XMAX_OUTPUT_CRS, originalRequestBBox.getXMax().toPlainString())
                 .replace(YMAX_OUTPUT_CRS, originalRequestBBox.getYMax().toPlainString())
-                .replace(OUTPUT_CRS, outputCRS)
+                .replace(OUTPUT_CRS, targetCRS)
                 .replace(WIDTH, wmsLayer.getWidth().toString())
                 .replace(HEIGHT, wmsLayer.getHeight().toString())
                 .replace(RESAMPLE_ALG, interpolation)

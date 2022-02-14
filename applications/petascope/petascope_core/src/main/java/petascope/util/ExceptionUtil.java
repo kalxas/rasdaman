@@ -23,9 +23,11 @@ package petascope.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -55,6 +57,30 @@ public class ExceptionUtil {
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ExceptionUtil.class);
     
+    private static Set<String> getFilteredExceptionStacktrace(Set<String> errorMessages, Throwable ex) {
+        if (ex == null) {
+            return errorMessages;
+        }
+        
+        errorMessages.add("Caused by: " + ex.getMessage());
+        
+        for (StackTraceElement element : ex.getStackTrace()) {
+            // e.g. petascope.controller.AbstractController
+            String classNamePath = element.getClassName();
+
+            // Only log the error lines in files from petascope's source codes
+            if (classNamePath.contains("rasdaman") || classNamePath.contains("petascope")) {    
+                String errorMessage = "	at " + classNamePath + "." + element.getMethodName() 
+                             + "(" + element.getFileName() + ":" + element.getLineNumber() + ")";
+                if (!errorMessages.contains(errorMessage)) {
+                    errorMessages.add(errorMessage);
+                }
+            }
+        }
+        
+        return getFilteredExceptionStacktrace(errorMessages, ex.getCause());
+    }
+    
     /**
      * Handle exception and write result to client.
      */
@@ -64,21 +90,15 @@ public class ExceptionUtil {
         if (ConfigManager.enableFullStacktrace()) {
             log.error("Caught an exception ", ex);
         } else {
-            String errorMessage = "";
-            for (StackTraceElement element : ex.getStackTrace()) {
-                // e.g. petascope.controller.AbstractController
-                String classNamePath = element.getClassName();
-                
-                // Only log the error lines in files from petascope's source codes
-                if (classNamePath.contains("rasdaman") || classNamePath.contains("petascope")) {    
-                    if (!classNamePath.contains("$")) {
-                        errorMessage += "	at " + classNamePath + "." + element.getMethodName() 
-                                     + "(" + element.getFileName() + ":" + element.getLineNumber() + ")"  + "\n";
-                    }
-                }
-            }
+            Set<String> errorMessages = getFilteredExceptionStacktrace(new LinkedHashSet<String>(), ex);
+            String result = "";
             
-            log.error("Caught an exception: " + ex.getMessage() + " \n " +  errorMessage);
+            for (String errorMessage: errorMessages) {
+                // do something with it.next()
+                result += errorMessage + "\n";
+            }
+
+            log.error("Caught an exception: " + ex.getMessage() + " \n " +  result);
         }
         
         OutputStream outputStream;

@@ -384,7 +384,11 @@ public class StringUtil {
     public static String escapeAmpersands(String aString) {
         return aString.replace("&", "&" + XMLSymbols.PREDEFINED_ENTITY_AMPERSAND + ";");
     }
-
+    
+    public static String escapeQuotes(String str) {
+        return str.replace("\"", "\\\"");
+    }
+    
     /**
      * Replaces all <tt>'\''</tt> characters with <tt>'&apos;'</tt>
      *
@@ -410,15 +414,6 @@ public class StringUtil {
      */
     private static String escapeGreaterThanSigns(String aString) {
         return aString.replace(">", "&" + XMLSymbols.PREDEFINED_ENTITY_GREATERTHAN_SIGN + ";");
-    }
-
-    /**
-     * Replaces all <tt>'\"'</tt> characters with <tt>'&quot;'</tt>
-     *
-     * @param aString
-     */
-    private static String escapeQuotes(String aString) {
-        return aString.replace("\"", "&" + XMLSymbols.PREDEFINED_ENTITY_QUOTES + ";");
     }
 
     /**

@@ -265,8 +265,8 @@ public class WMSGetMapService {
         WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
 
-        String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
-        this.isProjection = !this.outputCRS.equalsIgnoreCase(nativeCRS);
+        String nativeCRS = xyAxes.get(0).getNativeCrsUri();
+        this.isProjection = !CrsUtil.equalsWKT(CrsUtil.getWKT(this.outputCRS), CrsUtil.getWKT(nativeCRS));
         if (isProjection) {
             // e.g: layer's nativeCRS is EPSG:32632 and request BBox is EPSG:4326            
             this.transformNativeCRSBBoxToRequestCRS(xyAxes);
@@ -316,7 +316,7 @@ public class WMSGetMapService {
                 }
                 
                 List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
-                String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
+                String nativeCRS = xyAxes.get(0).getNativeCrsUri();
                 
                 // Apply style if necessary on the geo subsetted coverage expressions and translate to Rasql collection expressions
                 String collectionExpressionLayer = this.createCollectionExpressionsLayer(styleName, wcpsCoverageMetadata, wmsLayer);
@@ -418,7 +418,7 @@ public class WMSGetMapService {
     private void transformNativeCRSBBoxToRequestCRS(List<Axis> xyAxesNativeCRS) throws PetascopeException {
         Axis axisX = xyAxesNativeCRS.get(0);
         Axis axisY = xyAxesNativeCRS.get(1);
-        String nativeCRS = CrsUtil.getEPSGCode(axisX.getNativeCrsUri());
+        String nativeCRS = axisX.getNativeCrsUri();
         
         BigDecimal xMin = axisX.getGeoBounds().getLowerLimit();
         BigDecimal yMin = axisY.getGeoBounds().getLowerLimit();

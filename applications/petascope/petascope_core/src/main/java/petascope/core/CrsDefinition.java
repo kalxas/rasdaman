@@ -53,7 +53,8 @@ public class CrsDefinition {
                 "e(x)", // eg CS EPSG:4496  |
                 "long", // eg CS EPSG:6422 ELLISPOIDAL CS
                 "lon",  // eg PS:1 (gdalsrsinfo)
-                "i"     // eg ImageCRS
+                "i",    // eg ImageCRS
+                "rlon"  // COSMO 101 rotated cRS
             );
     public static final List<String> Y_ALIASES = Arrays.asList(
                 "y",    // eg CS EPSG:6507 \
@@ -61,7 +62,8 @@ public class CrsDefinition {
                 "p",    // eg CS EPSG:1024  |- CARTESIAN CS
                 "e(y)", // eg CS EPSG:4496  |
                 "lat",  // eg CS EPSG:6422 ELLISPOIDAL CS
-                "j"     // eg ImageCRS
+                "j",    // eg ImageCRS
+                "rlat"  // COSMO 101 rotated CRS
             );
     
     public static final String LONGITUDE_AXIS_LABEL_EPGS_VERSION_85 = "Long";
