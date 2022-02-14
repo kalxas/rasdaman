@@ -11,12 +11,16 @@ std::string StringUtil::concat(const std::vector<std::string>& v, char sep) {
 }
 
 std::string StringUtil::concat(const std::vector<std::string>& v, std::string sep) {
-  std::string ret{};
-  for (const std::string& item: v) {
-    if (!ret.empty()) ret += sep;
-    ret += item;
+  if (v.size() == 1)
+    return v.front();
+  else {
+    std::string ret{};
+    for (const std::string& item: v) {
+      if (!ret.empty()) ret += sep;
+      ret += item;
+    }
+    return ret;
   }
-  return ret;
 }
 
 std::vector<std::string> StringUtil::split(const std::string& v, char sep) {
@@ -29,23 +33,19 @@ std::vector<std::string> StringUtil::split(const std::string& v, char sep) {
   return ret;
 }
 
-void StringUtil::explode(std::string containserStr, const std::string &delimitor,
-                         std::vector<std::string> &results)
+std::vector<std::string> StringUtil::split(const std::string &s, const std::string &sep)
 {
-    auto found = containserStr.find_first_of(delimitor);
-    while (found != std::string::npos)
+    std::vector<std::string> ret;
+    auto start = 0U;
+    auto end = s.find(sep);
+    while (end != std::string::npos)
     {
-        if (found > 0)
-        {
-            results.push_back(containserStr.substr(0, found));
-        }
-        containserStr = containserStr.substr(found + 1);
-        found = containserStr.find_first_of(delimitor);
+        ret.push_back(s.substr(start, end - start));
+        start = end + sep.length();
+        end = s.find(sep, start);
     }
-    if (containserStr.length() > 0)
-    {
-        results.push_back(containserStr);
-    }
+    ret.push_back(s.substr(start, end));
+    return ret;
 }
 
 std::string StringUtil::toLowerCase(std::string s) {
@@ -114,6 +114,16 @@ bool StringUtil::startsWith(const char *s, const char *prefix)
       ++prefix;
     }
   }
+  return true;
+}
+
+bool StringUtil::equalsCaseInsensitive(const std::string &a, const std::string &b)
+{
+  if (a.size() != b.size())
+    return false;
+  for (size_t i = 0; i < a.size(); ++i)
+    if (tolower(a[i]) != tolower(b[i]))
+      return false;
   return true;
 }
 
@@ -224,6 +234,18 @@ std::string StringUtil::getRandomAlphaNumString(const int length)
         s[i] = alphanum[static_cast<size_t>(rand()) % (sizeof(alphanum) - 1)];
 
     return s;
+}
+
+void StringUtil::removeCharacters(std::string &s, char c)
+{
+  s.erase(remove_if(s.begin(), s.end(),
+                    [c](const char& sc) { return sc == c; }),
+          s.end());
+}
+
+void StringUtil::unescapeCharacters(std::string &s)
+{
+  removeCharacters(s, '\\');
 }
 
 

@@ -24,10 +24,10 @@ struct GeoBbox {
   std::string toString() const;
 
   double gt[6];
-  float xmin{};
-  float ymin{};
-  float xmax{};
-  float ymax{};
+  double xmin{};
+  double ymin{};
+  double xmax{};
+  double ymax{};
   int width{};
   int height{};
   std::string crs;

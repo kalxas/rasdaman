@@ -1,14 +1,10 @@
+#include "config.h"
 #include "geobbox.hh"
 #include "common/exceptions/exception.hh"
+#include "common/string/stringutil.hh"
 #include <cstring>                                   // for strtok, NULL
 #include <cassert>
 #include <unordered_map>
-
-#ifdef PROJECT_RASENGINE
-#include "config.hh"
-#else
-#include "config.h"
-#endif
 
 #ifdef HAVE_GDAL
 #include <ogr_core.h>                                // for OGRERR_NONE, OGRErr
@@ -21,12 +17,12 @@ namespace common {
 using std::string;
 using std::to_string;
 
-float parseNumber(const char *input);
+double parseNumber(const char *input);
 string crsToWkt(const string &crs);
 
-float parseNumber(const char *input) {
+double parseNumber(const char *input) {
   char* end;
-  float f = strtof(input, &end);
+  double f = strtod(input, &end);
   if (end == input + strlen(input))
     return f;
   else
@@ -56,18 +52,19 @@ string crsToWkt(const string &crs) {
 }
 
 GeoBbox::GeoBbox(const string &crsArg, const string &boundsArg, int w, int h)
-  : gt{0,0,0,0,0}, width{w}, height{h}, crs{crsArg}, wkt{crsToWkt(crsArg)},
-    bounds{boundsArg}
+  : gt{0,0,0,0,0}, width{w}, height{h}, crs{crsArg}, bounds{boundsArg}
 {
+  common::StringUtil::unescapeCharacters(crs); // translate \" to "
+  wkt = crsToWkt(crs);
   // parse bounds
   if (!bounds.empty()) {
     char *str = new char[bounds.size() + 1];
     strcpy(str, bounds.c_str());
     char *split;
-    split = strtok(str, ", "),  xmin = parseNumber(split);
-    split = strtok(NULL, ", "), ymin = parseNumber(split);
-    split = strtok(NULL, ", "), xmax = parseNumber(split);
-    split = strtok(NULL, ", "), ymax = parseNumber(split);
+    split = strtok(str, ", ");  xmin = parseNumber(split);
+    split = strtok(NULL, ", "); ymin = parseNumber(split);
+    split = strtok(NULL, ", "); xmax = parseNumber(split);
+    split = strtok(NULL, ", "); ymax = parseNumber(split);
     delete[] str;
 
     updateGeoTransform();

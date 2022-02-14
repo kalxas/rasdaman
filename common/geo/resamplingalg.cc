@@ -11,12 +11,12 @@ using std::string;
 
 std::string raToString(ResampleAlg alg) {
   switch (alg) {
-    case RA_NearestNeighbour: return "nearest_neighbour";
+    case RA_NearestNeighbour: return "near";
     case RA_Bilinear: return "bilinear";
     case RA_Cubic: return "cubic";
-    case RA_CubicSpline: return "cubic_spline";
+    case RA_CubicSpline: return "cubicspline";
     case RA_Lanczos: return "lanczos";
-    case RA_Average: return "avg";
+    case RA_Average: return "average";
     case RA_Mode: return "mode";
     case RA_Max: return "max";
     case RA_Min: return "min";

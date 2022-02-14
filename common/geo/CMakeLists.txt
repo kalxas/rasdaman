@@ -26,7 +26,7 @@ add_library(common_geo
     resamplingalg.cc resamplingalg.hh
     )
 
-target_link_libraries(common_geo PUBLIC common_exceptions)
+target_link_libraries(common_geo PUBLIC common_exceptions common_string)
 
 if (USE_GDAL)
     target_include_directories(common_geo SYSTEM PUBLIC ${GDAL_INCLUDE_DIR})

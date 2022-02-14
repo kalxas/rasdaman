@@ -16,11 +16,10 @@ class StringUtil {
   
   /**
    * Splits a string into pieces based on a separator
-   * @param containerStr the string to be split
-   * @param delimitor the separator to split on
-   * @param results a container in which the results can be deposited
+   * @param s the string to be split
+   * @param sep the separator to split on
    */
-  static void explode(std::string containerStr, const std::string &delimitor, std::vector<std::string> &results);
+  static std::vector<std::string> split(const std::string &s, const std::string &sep);
 
   static std::string toLowerCase(std::string s);
 
@@ -29,29 +28,29 @@ class StringUtil {
   /**
    * Capitalizes the string, i.e. makes first letter uppercase
    */
-  static std::string capitalize(std::string s);
+  static std::string capitalize(std::string str);
   
   /**
   * Trims all space characters from the left of the string
-  * @param s the string to be trimmed
+  * @param str the string to be trimmed
   * @return the trimmed string
   */
-  static std::string trimLeft(const std::string &s);
+  static std::string trimLeft(const std::string &str);
 
   /**
   * Trims all space characters from the right of the string
-  * @param s the string to be trimmed
+  * @param str the string to be trimmed
   * @return the trimmed string
   */
-  static std::string trimRight(const std::string &s);
+  static std::string trimRight(const std::string &str);
 
   /**
   * Trims all space characters from both left and right of the string.
-  * @param s the string to be trimmed
+  * @param str the string to be trimmed
   * @return the trimmed string
   */
-  static std::string trim(const std::string &s);
-
+  static std::string trim(const std::string &str);
+  
   /**
    * Check if a string s starts with string prefix, ignoring whitespace 
    * (isspace) and case of s. Preconditions:
@@ -62,6 +61,14 @@ class StringUtil {
    * @return true if s starts with prefix, otherwise false.
    */
   static bool startsWith(const char *s, const char *prefix);
+  
+  /**
+   * Check if a string a is equal to b (case-insensitive).
+   * a and b must be NUL-delimited and must not be NULL.
+   *
+   * @return true if a is equal to b, false otherwise.
+   */
+  static bool equalsCaseInsensitive(const std::string &a, const std::string &b);
   
   /**
    * Check if a string s starts with string prefix, ignoring whitespace 
@@ -107,6 +114,15 @@ class StringUtil {
    */
   static std::string getRandomAlphaNumString(const int length);
   
+  /**
+   * Remove all characters in s matching c in place.
+   */
+  static void removeCharacters(std::string &s, char c);
+  
+  /**
+   * Remove any escape characters '\' from s in place.
+   */
+  static void unescapeCharacters(std::string &s);
 };
 
 } // namespace common
