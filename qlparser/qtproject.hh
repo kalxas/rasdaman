@@ -87,7 +87,8 @@ private:
 #ifdef HAVE_GDAL
 
     // Conversion methods between rasdaman and GDAL
-    std::unique_ptr<Tile> reprojectTile(Tile *srcTile, int ni, r_Primitive_Type *rBandType);
+    std::unique_ptr<Tile> reprojectTile(Tile *srcTile, int ni, r_Primitive_Type *rBandType,
+                                        const r_Nullvalues *nullValues);
 
 #endif
 

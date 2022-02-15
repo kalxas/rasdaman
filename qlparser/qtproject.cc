@@ -229,16 +229,17 @@ QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
     // create one single tile with the load domain
     std::unique_ptr<Tile> sourceTile;
     sourceTile.reset(new Tile(tiles.get(), qtMDD->getLoadDomain()));
+    auto *nullValues = currentMDDObj->getNullValues();
 
     // Convert tile "sourceTile" to GDAL format
-    auto resultTile = reprojectTile(sourceTile.get(), numBands, bandType.get());
+    auto resultTile = reprojectTile(sourceTile.get(), numBands, bandType.get(), nullValues);
     sourceTile.release();
 
     //
     // create a transient MDD object for the query result
     //
     const auto *mddBaseType = qtMDD->getMDDObject()->getMDDBaseType();
-    auto *resultMDD = new MDDObj(mddBaseType, resultTile->getDomain(), currentMDDObj->getNullValues());
+    auto *resultMDD = new MDDObj(mddBaseType, resultTile->getDomain(), nullValues);
     resultMDD->insertTile(resultTile.get());
     resultTile.release();
     return new QtMDD(resultMDD);
@@ -250,7 +251,8 @@ QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
 
 #ifdef HAVE_GDAL
 
-std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitive_Type *rBandType)
+std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitive_Type *rBandType,
+                                               const r_Nullvalues *nullValues)
 {
     const auto &domain = srcTile->getDomain();
     auto wi = static_cast<int>(domain[0].high() - domain[0].low() + 1);
@@ -285,9 +287,18 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
                          deleteGDALDataset);
     srcDs->SetGeoTransform(in.gt);
     srcDs->SetProjection(in.wkt.c_str());
+    
+    // set null values in the source dataset
+    double nullValue = 0;
+    if (nullValues != NULL && !nullValues->getNullvalues().empty()) {
+      LDEBUG << "set null value to " << nullValue << " in " << ni << " source bands.";
+      nullValue = nullValues->getFirstNullValue();
+      for (int band = 1; band <= ni; ++band)
+        srcDs->GetRasterBand(band)->SetNoDataValue(nullValue);
+    }
     GDALReferenceDataset(srcDs.get());
 
-    const char *srcCells = srcTile->getContents();
+    const char *srcCells = reinterpret_cast<const char*>(srcTile->getContents());
     char *dstCells RAS_ALIGNED = static_cast<char *>(mymalloc(w * h * bandCellSz));
 
     //
@@ -334,15 +345,48 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     // ----------------------------------------------------------------------------------------
 
     LDEBUG << "Reprojecting dataset...";
+    
+    GDALDatasetPtr dstDs(nullptr, deleteGDALDataset);
 
     auto interpolation = static_cast<GDALResampleAlg>(resampleAlg);
-    GDALDatasetPtr dstDs(nullptr, deleteGDALDataset);
+    GDALWarpOptions *psWO = GDALCreateWarpOptions();
+    
+    psWO->eWorkingDataType = gBandType;
+    psWO->eResampleAlg = interpolation;
+    psWO->hSrcDS = srcDs.get();
+    psWO->nBandCount = n;
+    psWO->panSrcBands = static_cast<int *>(CPLMalloc(n * sizeof(int)));
+    psWO->panDstBands = static_cast<int *>(CPLMalloc(n * sizeof(int)));
+    for (int i = 0; i < psWO->nBandCount; i++)
+        psWO->panSrcBands[i] = psWO->panDstBands[i] = i + 1;
+    
+    if (nullValues != NULL && !nullValues->getNullvalues().empty()) {
+      LDEBUG << "set null value to " << nullValue;
+      psWO->padfSrcNoDataReal = static_cast<double *>(CPLMalloc(n*sizeof(double)));
+      psWO->padfSrcNoDataImag = static_cast<double *>(CPLMalloc(n*sizeof(double)));
+      psWO->padfDstNoDataReal = static_cast<double *>(CPLMalloc(n*sizeof(double)));
+      psWO->padfDstNoDataImag = static_cast<double *>(CPLMalloc(n*sizeof(double)));
+      for(size_t i = 0; i < n; i++) {
+        psWO->padfSrcNoDataReal[i] = psWO->padfDstNoDataReal[i] = nullValue;
+        psWO->padfSrcNoDataImag[i] = psWO->padfDstNoDataImag[i] = 0.0;
+      }
+      
+      psWO->papszWarpOptions = CSLSetNameValue(psWO->papszWarpOptions,
+                                               "INIT_DEST", "NO_DATA" );
+    }
+    psWO->papszWarpOptions = CSLSetNameValue(psWO->papszWarpOptions,
+                                             "STRIP_VERT_CS", "YES" );
+    
+    const auto freeWarpOptions = common::make_scope_guard([psWO]() noexcept {
+        GDALDestroyWarpOptions(psWO);
+    });
+    
     if (!out.bounds.empty())
     {
         // verify bounds are > 0
         if (out.width <= 0 || out.height <= 0)
         {
-            LERROR << "Reason: Projection output must have width/height > 0.";
+            LERROR << "Projection output must have width/height > 0.";
             throw r_Error(r_Error::r_Error_InvalidProjectionResultGridExtents);
         }
 
@@ -350,58 +394,60 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
         dstDs.reset(driver->Create("mem_out", out.width, out.height, ni, gBandType, NULL));
         dstDs->SetGeoTransform(out.gt);
         dstDs->SetProjection(out.wkt.c_str());
-
+        if (nullValues != NULL && !nullValues->getNullvalues().empty()) {
+          LDEBUG << "set null value to " << nullValue << " in " << ni << " target bands.";
+          for (int band = 1; band <= ni; ++band)
+            dstDs->GetRasterBand(band)->SetNoDataValue(nullValue);
+        }
+#define USE_GDALWARP_OPERATION
 #ifdef USE_GDALWARP_OPERATION
         //
         // The gdalwarp way: the code below works if replaced instead of the
         //                   the GDALReprojectImage method. Keeping it in case it
         //                   is needed for more advanced use case in future.
-
-        void *hTransformArg = GDALCreateGenImgProjTransformer2(srcDs.get(), nullptr, nullptr);
+        
+        GDALTransformerFunc pfnTransformer = nullptr;
+        void *hTransformArg = nullptr;
+        void* hUniqueTransformArg = nullptr;
+        
+        hTransformArg = GDALCreateGenImgProjTransformer2(srcDs.get(), dstDs.get(), nullptr);
+        if (hTransformArg == nullptr) {
+          LERROR << "cannot reproject image, reason: " << CPLGetLastErrorMsg();
+          throw r_Error(r_Error::r_Error_RuntimeProjectionError);
+        }
         void *phTransformArg = hTransformArg;
         GDALSetGenImgProjTransformerDstGeoTransform(phTransformArg, out.gt);
-        GDALTransformerFunc pfnTransformer = GDALGenImgProjTransform;
+        pfnTransformer = GDALGenImgProjTransform;
 
-        GDALWarpOptions *psWO = GDALCreateWarpOptions();
-        psWO->eWorkingDataType = gBandType;
-        psWO->eResampleAlg = interpolation;
-        psWO->hSrcDS = srcDs.get();
-        psWO->hDstDS = dstDs.get();
-        psWO->nBandCount = n;
-        psWO->panSrcBands = static_cast<int *>(CPLMalloc(n * sizeof(int)));
-        psWO->panDstBands = static_cast<int *>(CPLMalloc(n * sizeof(int)));
-        for (int i = 0; i < psWO->nBandCount; i++)
-        {
-            psWO->panSrcBands[i] = psWO->panDstBands[i] = i + 1;
-        }
         hTransformArg = GDALCreateApproxTransformer(
                             GDALGenImgProjTransform, hTransformArg, errThreshold);
         pfnTransformer = GDALApproxTransform;
         GDALApproxTransformerOwnsSubtransformer(hTransformArg, TRUE);
         psWO->pfnTransformer = pfnTransformer;
         psWO->pTransformerArg = hTransformArg;
+        psWO->hDstDS = dstDs.get();
 
+        LDEBUG << "projecting with ChunkAndWarpImage";
         GDALWarpOperation oWO;
         if (oWO.Initialize(psWO) == CE_None)
         {
             if (oWO.ChunkAndWarpImage(0, 0, out.width, out.height) != CE_None)
             {
                 LERROR << "failed reprojecting image, reason: " << CPLGetLastErrorMsg();
-                return GDALDatasetPtr(nullptr, deleteGDALDataset);
+                throw r_Error(r_Error::r_Error_RuntimeProjectionError);
             }
         }
         else
         {
             LERROR << "failed initializing warp operation, reason: " << CPLGetLastErrorMsg();
-            return GDALDatasetPtr(nullptr, deleteGDALDataset);
+            throw r_Error(r_Error::r_Error_RuntimeProjectionError);
         }
 
         GDALDestroyTransformer(hTransformArg);
-        GDALDestroyWarpOptions(psWO);
 #else
-        // Simple GDALReprojectImage version
+        LDEBUG << "Reprojecting with GDALReprojectImage";
         if (GDALReprojectImage(srcDs.get(), NULL, dstDs.get(), NULL, interpolation, 0.0,
-                               errThreshold, NULL, NULL, NULL) != CE_None)
+                               errThreshold, NULL, NULL, psWO) != CE_None)
         {
             LERROR << "failed reprojecting image, reason: " << CPLGetLastErrorMsg();
             throw r_Error(r_Error::r_Error_RuntimeProjectionError);
@@ -410,9 +456,9 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     }
     else
     {
-        // output bounds are _not_ set, use GDALAutoCreateWarpedVRT
+        LDEBUG << "Reprojecting with GDALAutoCreateWarpedVRT as output bounds were not set";
         dstDs.reset((GDALDataset *) GDALAutoCreateWarpedVRT(srcDs.get(), in.wkt.c_str(), out.wkt.c_str(),
-                    interpolation, errThreshold, NULL));
+                    interpolation, errThreshold, psWO));
         if (!dstDs)
         {
             LERROR << "failed reprojecting image, reason: " << CPLGetLastErrorMsg();
@@ -481,7 +527,7 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
                      << r_Sinterval(0ll, static_cast<r_Range>(hi) - 1);
     // And finally build the tile
     std::unique_ptr<Tile> resultTile;
-    resultTile.reset(new Tile(resDomain, srcTile->getType(), true, tileCells, static_cast<r_Bytes>(0), r_Array));
+    resultTile.reset(new Tile(resDomain, srcTile->getType(), true, reinterpret_cast<char*>(tileCells), static_cast<r_Bytes>(0), r_Array));
     tileCells = NULL; // important to avoid free by the freeData scope guard
     return resultTile;
 }

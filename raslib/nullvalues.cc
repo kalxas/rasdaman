@@ -22,10 +22,35 @@ rasdaman GmbH.
 */
 
 #include "raslib/nullvalues.hh"
+#include <limits>
+#include <cassert>
+
+const double_t r_Nullvalues::unlimitedLow = std::numeric_limits<double>::lowest();
+const double_t r_Nullvalues::unlimitedHigh = std::numeric_limits<double>::max();
 
 r_Nullvalues::r_Nullvalues(std::vector<std::pair<r_Double, r_Double>> &&nullvaluesArg)
     : nullvalues{nullvaluesArg}
 {
+}
+
+double r_Nullvalues::getFirstNullValue() const
+{
+    assert(!nullvalues.empty());
+    // check first the non-interval null values
+    for (const auto &p : nullvalues) {
+      if (p.first == p.second)
+        return p.first;
+    }
+    // check interval null values
+    for (const auto &p : nullvalues) {
+      if (p.first != unlimitedLow)
+        return p.first;
+      if (p.second != unlimitedHigh)
+        return p.second;
+    }
+    // nothing found, should never happen
+    assert(false && "there must be at least one non-unlimited null value");
+    return 0.0;
 }
 
 std::string r_Nullvalues::toString() const

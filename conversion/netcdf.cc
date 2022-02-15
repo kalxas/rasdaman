@@ -388,14 +388,18 @@ void r_Conv_NETCDF::validateJsonEncodeOptions()
     Json::Value vars = encodeOptions[FormatParamKeys::General::VARIABLES];
     for (const auto& varName : vars.getMemberNames())
     {
-        if (find(dimNames.begin(), dimNames.end(), varName) == dimNames.end() &&
-                !vars[varName].isMember(FormatParamKeys::Encode::NetCDF::DATA))
+        bool isDimName = find(dimNames.begin(), dimNames.end(), varName) != dimNames.end();
+        bool hasDataAttribute = vars[varName].isMember(FormatParamKeys::Encode::NetCDF::DATA);
+        if (hasDataAttribute)
         {
-            varNames.push_back(varName);
+            if (isDimName)
+                dimVarNames.push_back(varName);
+            else
+                nondataVarNames.push_back(varName);
         }
         else
         {
-            dimVarNames.push_back(varName);
+            varNames.push_back(varName);
         }
     }
 }
@@ -792,6 +796,36 @@ void r_Conv_NETCDF::addMetadata()
             {
                 LWARNING << "invalid value of field '" << FormatParamKeys::Encode::NetCDF::DATA <<
                          "' of variable " << dimVarName << ", expected an array.";
+            }
+        }
+        
+        // add non-data variables
+        for (const auto& varName : nondataVarNames)
+        {
+            Json::Value jsonVar = jvars[varName];
+            if (!jsonVar.isMember(FormatParamKeys::Encode::NetCDF::TYPE))
+            {
+                LWARNING << "variable " << varName << " has no type, it will not be added to the exported netCDF file.";
+                continue;
+            }
+
+            nc_type nctype = stringToNcType(jsonVar[FormatParamKeys::Encode::NetCDF::TYPE].asCString());
+            if (nctype == NC_NAT)
+            {
+                LWARNING << "unknown netCDF variable type '" << jsonVar[FormatParamKeys::Encode::NetCDF::TYPE] <<
+                         "' in variable " << varName
+                         << ", expected one of: byte/char, short/ushort, int/uint, float, double.";
+                continue;
+            }
+
+            int newVar{};
+            status = nc_def_var(dataFile, varName.c_str(), nctype, 0, NULL, &newVar);
+            throwOnError(status, "failed creating non-data variable " << varName << " in netCDF file");
+            
+            if (jsonVar.isMember(FormatParamKeys::Encode::METADATA))
+            {
+                Json::Value jsonVarMetadata = jsonVar[FormatParamKeys::Encode::METADATA];
+                addJsonAttributes(jsonVarMetadata, newVar);
             }
         }
 

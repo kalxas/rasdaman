@@ -211,9 +211,12 @@ private:
 
     // dimension names
     std::vector<std::string> dimNames;
-
+    
     // dimension variables
     std::vector<std::string> dimVarNames;
+    
+    // non-data variables
+    std::vector<std::string> nondataVarNames;
 
     // length of each dimension
     std::vector<size_t> dimSizes;

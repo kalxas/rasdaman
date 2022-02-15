@@ -105,6 +105,7 @@ TEST_CINT16=test_cint16
 TEST_CINT32=test_cint32
 TEST_NULL=nulltest
 TEST_NULL_FLOAT=test_nulltest_float
+TEST_GREY_NULL=test_grey_null
 TEST_NULL3D=test_nulltest3d
 TEST_SUBSETTING_1D=test_subsetting_1d
 TEST_SUBSETTING=test_subsetting

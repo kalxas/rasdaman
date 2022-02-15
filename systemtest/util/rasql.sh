@@ -375,10 +375,18 @@ function import_nullvalues_data()
     $RASQL -q "create type $set_flt_type as set ( $mdd_flt_type null values [nan, 3.14:3.33] )" > /dev/null | tee -a $LOG
   fi
 
+  local mdd_type_grey=TestGreyMddNull
+  local set_type_grey=TestGreySetNull
+  check_user_type $set_type_grey
+  if [ $? -ne 0 ]; then
+    $RASQL -q "create type $mdd_type_grey as char mdarray [ x, y ]" > /dev/null | tee -a $LOG
+    $RASQL -q "create type $set_type_grey as set ( $mdd_type_grey null values [255] )" > /dev/null | tee -a $LOG
+  fi
+
   #
   # drop any existing data and insert again
   #
-  drop_colls $TEST_NULL $TEST_NULL_FLOAT $TEST_NULL3D
+  drop_colls $TEST_NULL $TEST_NULL_FLOAT $TEST_NULL3D $TEST_GREY_NULL
 
   create_coll $TEST_NULL $set_type
   $RASQL -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
@@ -388,6 +396,9 @@ function import_nullvalues_data()
 
   create_coll $TEST_NULL_FLOAT $set_flt_type
   $RASQL -q "insert into $TEST_NULL_FLOAT values (float) <[0:2,0:2] nanf, 0.0f, 3.13f; 3.14f, 3.15f, 3.33f; 3.33334f, 3.34f, nanf>" > /dev/null | tee -a $LOG
+
+  create_coll $TEST_GREY_NULL $set_type_grey
+  $RASQL -q "insert into $TEST_GREY_NULL values decode(\$1)" -f "$SCRIPT_DIR/testdata/mr_1.png" > /dev/null | tee -a $LOG
 }
 
 #
@@ -466,10 +477,11 @@ function import_subsetting_data()
 #
 drop_nullvalues_data()
 {
-  drop_colls $TEST_NULL $TEST_NULL3D $TEST_NULL_FLOAT
-  drop_types NullValueSetTest3D NullValueArrayTest3D
+  drop_colls $TEST_NULL $TEST_NULL3D $TEST_NULL_FLOAT $TEST_GREY_NULL
+  drop_types NullValueSetTest3D NullValueArrayTest3D 
   drop_types NullValueFloatSetTest NullValueFloatArrayTest
   drop_types NullValueSetTest NullValueArrayTest 
+  drop_types TestGreySetNull TestGreyMddNull
 }
 
 #

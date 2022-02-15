@@ -33,6 +33,12 @@ rasdaman GmbH.
 class r_Nullvalues
 {
 public:
+    
+    /// the * in *:hi, it is the smallest double number
+    static const double_t unlimitedLow;
+    /// the * in lo:*, it is the maximum double number
+    static const double_t unlimitedHigh;
+    
     r_Nullvalues() = default;
     r_Nullvalues(std::vector<std::pair<r_Double, r_Double>> &&nullvaluesArg);
 
@@ -70,6 +76,12 @@ public:
         }
         return false;
     }
+    
+    /// if the null set contains any non-interval null values, then the first such 
+    /// null value is returned, otherwise the first interval bound which is not
+    /// '*' is returned; useful in cases where a single nodata value is needed,
+    /// e.g. when encoding the data
+    double getFirstNullValue() const;
 
     std::string toString() const;
 
