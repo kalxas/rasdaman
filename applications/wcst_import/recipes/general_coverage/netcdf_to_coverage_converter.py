@@ -215,6 +215,60 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         return global_metadata
 
     @staticmethod
+    def parse_netcdf_grid_mapping_metadata(global_metadata_dict, file_path, user_bands):
+        """
+        :param global_metadata_dict: coverage's global metadata
+        :param file_path: path to an input netCDF file
+        :param user_bands: list of band variables specified in the ingredients file
+        If an input netCDF with the user specified band contains grid_mapping metadata (e.g. grid_mapping = rotated_pole),
+        then this method parses all metadata of the associated grid_mapping variable (e.g. rotated_pole)
+        and puts that to coverage's global metadata under "grid_mapping" section.  
+        """
+        netCDF4 = import_netcdf4()
+
+        # NOTE: all files should have same global metadata for each file
+        dataset = netCDF4.Dataset(file_path, 'r')
+
+        first_user_band = user_bands[0]
+
+        band_id = first_user_band.identifier
+        attrs_list = dataset.variables[band_id].ncattrs()
+
+        # NOTE: this metadata only exists on netCDF with rotated CRS (rlat,rlon axes)
+        # In this case, band variable contains this metadata, e.g.
+        # float CAPE_ML(time, rlon, rlat) ;
+        #    CAPE_ML:grid_mapping = "rotated_pole" ;
+        GRID_MAPPING_BAND_METADATA = "grid_mapping"
+        GRID_MAPPING_IDENTIFIER = "identifier"
+        for attr in attrs_list:
+            if attr == GRID_MAPPING_BAND_METADATA:
+                # e.g. rotated_pole
+                grid_mapping_variable = str(getattr(dataset.variables[band_id], attr))
+
+                if grid_mapping_variable in dataset.variables:
+
+                    # Then, get all metadata from the associated non-dimension variable
+                    tmp_dict = NetcdfToCoverageConverter.parse_netcdf_bands_metadata(file_path,
+                                                                                       [UserBand(
+                                                                                           grid_mapping_variable,
+                                                                                           None,
+                                                                                           None,
+                                                                                           None)])
+                    grid_mapping_variable_metadata_dict = {
+                        # NOTE: this "identifier": "rotated_pole" will be used by petascope
+                        # when encoding output to netCDF as non-dimension variable
+                        GRID_MAPPING_IDENTIFIER: grid_mapping_variable
+                    }
+
+                    for key, value in tmp_dict[grid_mapping_variable].items():
+                        grid_mapping_variable_metadata_dict[key] = value
+
+                    # and put that to coverage's global metadata
+                    global_metadata_dict[GRID_MAPPING_BAND_METADATA] = grid_mapping_variable_metadata_dict
+
+                return
+
+    @staticmethod
     def parse_netcdf_bands_metadata(file_path, user_bands):
         """
         Parse the netCDF file to extract the bands' metadata for the coverage's global metadata

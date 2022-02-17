@@ -54,6 +54,9 @@ public class CoverageMetadata {
     @JsonProperty(value = LocalMetadata.LOCAL_METADATATAG)    
     private LocalMetadata localMetadata;
     
+    @JsonProperty(value = "grid_mapping")
+    private GridMapping gridMapping;
+    
     @JsonAnySetter
     // NOTE: To map an unknown list of properties, must use this annotation
     public void addKeyValue(String key, String value) {
@@ -65,6 +68,7 @@ public class CoverageMetadata {
         this.bandsMetadata = new BandsMetadata();
         this.axesMetadata = new AxesMetadata();
         this.localMetadata = new LocalMetadata();
+        this.gridMapping = null;
     }
     
     /**
@@ -113,6 +117,14 @@ public class CoverageMetadata {
         this.localMetadata = localMetadata;
     }
 
+    public GridMapping getGridMapping() {
+        return gridMapping;
+    }
+
+    public void setGridMapping(GridMapping gridMapping) {
+        this.gridMapping = gridMapping;
+    }
+    
     /**
     * If coverage's metadata is not deserializable by Jackson, then 
     * result of DescribeCoverage or GetCoverage in GML should use the persisted metadata string in database

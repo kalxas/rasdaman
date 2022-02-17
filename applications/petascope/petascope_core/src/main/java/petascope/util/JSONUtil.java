@@ -54,7 +54,6 @@ public class JSONUtil {
      */
     public static String serializeObjectToJSONString(Object obj) throws PetascopeException {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String result = serializeObjectToString(obj);
         
@@ -66,7 +65,6 @@ public class JSONUtil {
      */
     public static String serializeObjectToJSONStringNoIndentation(Object obj) throws PetascopeException {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
         String result = serializeObjectToString(obj);
         

@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import petascope.wcps.encodeparameters.model.AxesMetadata;
 import petascope.wcps.encodeparameters.model.BandsMetadata;
 import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.core.gml.metadata.model.GridMapping;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -109,7 +110,6 @@ public class NetCDFParametersService {
      * @throws PetascopeException 
      */
     private List<DimensionVariable> buildDimensionVariables(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
-        String covName = wcpsCoverageMetadata.getCoverageName();
         List<Axis> axes = wcpsCoverageMetadata.getSortedAxesByGridOrder();        
         List<DimensionVariable> dimensionVariables = new ArrayList<>();
                         
@@ -117,6 +117,16 @@ public class NetCDFParametersService {
         CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
         
         AxesMetadata axesMetadata = coverageMetadata.getAxesMetadata();
+        
+        GridMapping gridMappingVariable = wcpsCoverageMetadata.getCoverageMetadata().getGridMapping();
+        
+        if (gridMappingVariable != null) {
+            // NOTE: In case, this coverage is rotated grid mapping, then it needs to add the grid mapping variable in encode() netCDF
+            // e.g. rotated_pole
+            String gridMappingName = gridMappingVariable.getGlobalAttributesMap().get(GridMapping.IDENTIFIER);
+            dimensionVariables.add(new DimensionVariable("int", new ArrayList<>(), gridMappingName, 
+                                  new DimensionVariableMetadata(gridMappingVariable.getGlobalAttributesMap())));
+        }
         
         for (Axis axis : axes) {
             Map<String, String> axesMetadataMap = null;
@@ -248,22 +258,5 @@ public class NetCDFParametersService {
         }
 
         return data;
-    }
-
-    /**
-     * Parse a list of nilValues to collect all the numeric nodata values
-     * @param nullValues
-     * @return 
-     */
-    private List<BigDecimal> parseNodataValues(List<NilValue> nullValues) {
-        List<BigDecimal> result = new ArrayList<>();
-        for (NilValue nullValue : nullValues) {
-            String value = nullValue.getValue();
-            if (isNumber(value)) {
-                result.add(new BigDecimal(value));
-            }
-        }
-
-        return result;
     }
 }

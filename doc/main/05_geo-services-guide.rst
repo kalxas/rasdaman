@@ -2606,6 +2606,13 @@ petascope) the maximum size is 2GB (`source
 * ``global`` - Specifies fields which should be saved once for the whole
   coverage (e.g. the data licence, the creator etc). For example a "Title" 
   metadata value can be set with ``"global": { "Title": "'Drought code'", ... }``.
+  Global metadata is *collected automatically* (only for netCDF / gdal recipe)
+  from the first input file, if: 1) ``"global"`` setting is omitted. 
+  2) ``"global"`` is set to ``"auto"``.
+  This automatic collection is *not* done when additional global metadata 
+  needs to be added on top of the metadata present in the input file;
+  in this case both the metadata from the file and the additional metadata
+  have to be specified explicitly.
 
 * ``local`` - Specifies fields which are fetched from each input file to be
   stored in coverage's metadata. When subsetting in the output coverage only
@@ -3469,8 +3476,8 @@ band metadata
 
 * For netCDF: If ``"bands"`` is set to ``"auto"`` or does not exist under ``"metadata"``
   in the ingredient file, all user-specified bands will have metadata which is
-  fetched directly from the netCDF file. Metadata for 1 band is
-  **collected automatically** if: 1) band is not added. 2) band is set to ``"auto"``.
+  fetched directly from the netCDF file. Metadata for one band is
+  collected automatically if: 1) band is not added. 2) band is set to ``"auto"``.
 
 * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
   Example:
@@ -3501,9 +3508,9 @@ axis metadata
 
 * For netCDF: If ``"axes"`` is set to ``"auto"`` or does not exist under ``"metadata"``
   in the ingredient file, all user-specified axes will have metadata which is
-  fetched directly from the netCDF file. Metadata for 1 axis is 
-  **collected automatically** if: 1) axis is not added. 2) axis is set
-  to ``"auto"``. 3) axis is set with ``${netcdf:variable:Name:metadata}``.
+  fetched directly from the netCDF file. Metadata for one axis is 
+  collected automatically if: 1) the axis is not specified, 2) the axis is set
+  to ``"auto"``, or 3) the axis is set to ``${netcdf:variable:Name:metadata}``.
   The axis label for variable is detected from the ``min`` or ``max`` value
   of CRS axis configuration under ``"slicer/axes"`` section. For example:
 
@@ -3541,6 +3548,133 @@ axis metadata
           }
         }
       }
+
+
+Rotated CRS support
+^^^^^^^^^^^^^^^^^^^
+
+If rasdaman is compiled with GDAL v3.4.1+, importing and querying data
+with rotated CRS `COSMO:101 <https://github.com/Geomatys/MetOceanDWG/blob/main/MetOceanDWG%20Projects/Authority%20Codes%20for%20CRS/Pole%20rotation.md>`__
+is supported. The netCDF data usually has to be preprocessed before import:
+
+1. Invert the latitude axis when it is south to north order (lower to upper coordinates):
+
+   ::
+
+      cdo invertlat input.nc inverted_input.nc
+
+2. Swap the order of the rotated latitude (*rlat*) and rotated longitude (*rlon*) axes
+   when the data variable has *rlat,rlon* order. For example, the
+   ``float CAPE_ML(time, rlat, rlon)`` variable can be transformed to
+   ``float CAPE_ML(time, rlon, rlat)`` with the following command:
+
+   ::
+
+      ncpdq --rdr=time,rlon,rlat inverted_input.nc correct_lon_lat.nc
+
+Example ingredient file for importing the CAPE_ML variable from
+preprocessed COSMO netCDF data:
+
+.. hidden-code-block:: json
+
+    {
+       "config":{
+          "service_url":"http://localhost:8080/rasdaman/ows",
+          "tmp_directory":"/tmp/",
+          "automated":true,
+          "mock":false,
+          "track_files":false
+       },
+       "input":{
+          "coverage_id":"rotated_crs_coverage",
+          "paths":[
+             "correct_lon_lat.nc"
+          ]
+       },
+       "recipe":{
+          "name":"general_coverage",
+          "options":{
+             "wms_import":false,
+             "coverage":{
+                "crs":"OGC/0/AnsiDate@COSMO/0/101",
+                "metadata":{
+                   "type":"json",
+                   "global":"auto"
+                },
+                "slicer":{
+                   "type":"netcdf",
+                   "pixelIsPoint":true,
+                   "bands":[
+                      {
+                         "name":"CAPE_ML",
+                         "identifier":"CAPE_ML",
+                         "description":"Count of the number of observations from the SeaWiFS sensor contributing to this bin cell",
+                         "nilReason":"The nil value represents an error in the sensor."
+                      }
+                   ],
+                   "axes":{
+                      "ansi":{
+                         "min":"(datetime(2016,12,1,0,0,0) + timedelta(hours=${netcdf:variable:time:min})).strftime(\"%Y-%m-%dT%H:%M\")",
+                         "max":"(datetime(2016,12,1,0,0,0) + timedelta(hours=${netcdf:variable:time:max})).strftime(\"%Y-%m-%dT%H:%M\")",
+                         "directPositions":"[(datetime(2016,12,1,0,0,0) + timedelta(hours=x)).strftime(\"%Y-%m-%dT%H:%M\") for x in ${netcdf:variable:time}]",
+                         "statements":"from datetime import datetime, timedelta",
+                         "resolution":1,
+                         "gridOrder":0,
+                         "type":"ansidate",
+                         "crsOrder":0,
+                         "irregular":true
+                      },
+                      "rlat":{
+                         "min":"${netcdf:variable:rlat:min}",
+                         "max":"${netcdf:variable:rlat:max}",
+                         "gridOrder":2,
+                         "crsOrder":1,
+                         "resolution":"${netcdf:variable:rlat:resolution}"
+                      },
+                      "rlon":{
+                         "min":"${netcdf:variable:rlon:min}",
+                         "max":"${netcdf:variable:rlon:max}",
+                         "gridOrder":1,
+                         "crsOrder":2,
+                         "resolution":"${netcdf:variable:rlon:resolution}"
+                      }
+                   }
+                }
+             },
+             "tiling":"ALIGNED [0:0, 0:1023, 0:1023]"
+          }
+       }
+    }
+
+wcst_import automatically checks if the specified band variables 
+(*CAPE_ML* in the above example) have a ``grid_mapping`` metadata 
+entry (e.g. ``CAPE_ML:grid_mapping = "rotated_pole"``), and adds 
+all metadata from the grid mapping variable (``rotated_pole``) to 
+the global metadata of the imported coverage.
+With the added ``grid_mapping`` section, the global metadata of
+the coverage might look as below, for example:
+
+.. hidden-code-block:: json
+
+      .. more global metadata
+
+      "CDO": "Climate Data Operators version 1.9.6 (http://mpimet.mpg.de/cdo)",
+      "nco_openmp_thread_number": "1",
+
+      "grid_mapping": {
+        "identifier": "rotated_pole",
+        "grid_mapping_name": "rotated_latitude_longitude",
+        "grid_north_pole_longitude": "-170.0",
+        "grid_north_pole_latitude": "40.0",
+        "semi_major_axis": "6371229.0",
+        "semi_minor_axis": "6371229.0"
+      },
+
+When encoding to netCDF in WCS or WCPS requests with the same
+``COSMO:101`` CRS, rasdaman will add this grid mapping metadata 
+as a non-dimension variable in the output, so that it has the correct
+CRS information. The name of the non-dimension variable in the output
+is set from the ``identifier`` value (``rotated_pole`` above).
 
 
 .. _data-import-recipe-wcs_extract:
@@ -3760,7 +3894,6 @@ following options in the ``"input"`` section:
 
 - ``crss`` - specify a list of CRSs (EPSG codes as strings) to import; if not
   specified or empty, data of any CRS will be imported.
-
 
 .. _data-import-recipe-create-own:
 

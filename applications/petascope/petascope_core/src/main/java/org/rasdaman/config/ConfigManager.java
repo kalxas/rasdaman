@@ -398,6 +398,9 @@ public class ConfigManager {
     }
     
     private void initPetascopeSettings() throws PetascopeException {
+        // server.port
+        EMBEDDED_PETASCOPE_PORT = this.get(KEY_EMBEDDED_PETASCOPE_PORT);
+        
         PETASCOPE_ENDPOINT_URL = get(KEY_PETASCOPE_SERVLET_URL);
         INSPIRE_COMMON_URL = getOptionalPropertyValue(KEY_INSPIRE_METADATA_URL, "");
         
@@ -536,8 +539,6 @@ public class ConfigManager {
         String tmp = DEFAULT_SECORE_INTERNAL_URL;
         results.add(tmp);
 
-        // server.port
-        EMBEDDED_PETASCOPE_PORT = this.get(KEY_EMBEDDED_PETASCOPE_PORT);
         if (!EMBEDDED_PETASCOPE_PORT.equals(DEFAULT_PETASCOPE_PORT)) {
             tmp = tmp.replace(DEFAULT_PETASCOPE_PORT, EMBEDDED_PETASCOPE_PORT);
             results.add(tmp);

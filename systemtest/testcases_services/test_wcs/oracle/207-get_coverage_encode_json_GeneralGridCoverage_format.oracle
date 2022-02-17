@@ -79,8 +79,10 @@
     "field" : [ {
       "type" : "QuantityType",
       "name" : "b1",
+      "description" : "",
       "nilValues" : {
         "nilValues" : [ {
+          "reason" : "",
           "value" : "-9.22337204e+18"
         } ]
       },
@@ -92,8 +94,10 @@
     }, {
       "type" : "QuantityType",
       "name" : "b2",
+      "description" : "",
       "nilValues" : {
         "nilValues" : [ {
+          "reason" : "",
           "value" : "-9.22337204e+18"
         } ]
       },

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<identifiers  >
-<identifier>/datum/OGC</identifier>
-<identifier>/datum/EPSG</identifier>
+<identifiers at='http://localhost:8080/def/datum' xmlns='http://www.opengis.net/crs-nts/1.0' xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd">
+ <identifier>http://localhost:8080/def/datum/OGC</identifier>
+ <identifier>http://localhost:8080/def/datum/COSMO</identifier>
+ <identifier>http://localhost:8080/def/datum/EPSG</identifier>
 </identifiers>

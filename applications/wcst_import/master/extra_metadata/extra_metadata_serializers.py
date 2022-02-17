@@ -151,7 +151,17 @@ class XMLExtraMetadataSerializer(ExtraMetadataSerializer):
             # 1. handle keys not in last_keys
             for key, value in result_dict.items():
                 if key not in last_keys:
-                    xml_return.append("<{0}>{1}</{0}>".format(self.__xml_key(key), value))
+                    if isinstance(value, dict):
+                        result = "<" + key + ">"
+                        for sub_key, sub_value in value.items():
+                            xml_key = self.__xml_key(sub_key)
+                            xml = "<{0}>{1}</{0}>".format(xml_key, sub_value)
+                            result += xml
+
+                        result += "</" + key + ">"
+                        xml_return.append(result)
+                    else:
+                        xml_return.append("<{0}>{1}</{0}>".format(self.__xml_key(key), value))
 
             # 2. handle these keys finally, to prevent random serialization order
             for key in last_keys:

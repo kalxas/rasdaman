@@ -302,7 +302,7 @@ public class CrsUtil {
      * Check if the crs should go to the internal SECORE or not
      */
     public static boolean isInternalSecoreURL(String url) {
-        if (url.contains(LOCALHOST)) {
+        if (url.contains(LOCALHOST + ":" + ConfigManager.EMBEDDED_PETASCOPE_PORT)) {
             // If SECORE url is localhost, then check it should be resolved internally by petascope or not
             String tmpCRS = url.replace(ConfigManager.DEFAULT_PETASCOPE_PORT, ConfigManager.EMBEDDED_PETASCOPE_PORT);
             return url.startsWith(ConfigManager.DEFAULT_SECORE_INTERNAL_URL) || url.startsWith(tmpCRS);

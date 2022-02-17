@@ -66,10 +66,15 @@ class ExtraGlobalMetadataCollector:
         for key, value in self.extra_metadata_info.global_attributes.items():
             # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
             # output of extra metadata should be string in any cases
-            if str(value) != "":
-                global_metadata[key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
+            if isinstance(value, dict):
+                global_metadata[key] = {}
+                for sub_key, sub_value in value.items():
+                    global_metadata[key][sub_key] = str(self.evaluator.evaluate(sub_value, self.metadata_entry.evalutor_slice))
             else:
-                global_metadata[key] = str(value)
+                if str(value) != "":
+                    global_metadata[key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
+                else:
+                    global_metadata[key] = str(value)
 
         global_metadata = escape_metadata_nested_dicts(global_metadata)
 

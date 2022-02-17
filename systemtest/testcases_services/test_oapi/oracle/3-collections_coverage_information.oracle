@@ -1,6 +1,7 @@
 {
   "id" : "test_mean_summer_airtemp",
   "title" : "test_mean_summer_airtemp",
+  "description" : "",
   "extent" : {
     "spatial" : {
       "bbox" : [ [ 111.975, -44.474999999999987, 156.475, -8.974999999999987 ] ],

@@ -1,0 +1,71 @@
+{
+  "config": {
+    	"service_url": "PETASCOPE_URL",
+        "tmp_directory": "/tmp/",
+    "automated": true,
+    "mock": false,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "test_cosmo_101_netcdf_rotated_crs",
+    "paths": [
+      "germany_crop.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "wms_import": false,
+      "coverage": {
+        "crs": "OGC/0/AnsiDate@COSMO/0/101",
+        "metadata": {
+          "type": "json",
+          "global": "auto"
+
+	},
+	"slicer": {
+          "type": "netcdf",
+	       "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "CAPE_ML",
+              "identifier": "CAPE_ML",
+              "description": "Count of the number of observations from the SeaWiFS sensor contributing to this bin cell",
+              "nilReason": "The nil value represents an error in the sensor."
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "(datetime(2016,12,1,0,0,0) + timedelta(hours=${netcdf:variable:time:min})).strftime(\"%Y-%m-%dT%H:%M\")",
+              "max": "(datetime(2016,12,1,0,0,0) + timedelta(hours=${netcdf:variable:time:max})).strftime(\"%Y-%m-%dT%H:%M\")",
+              "directPositions": "[(datetime(2016,12,1,0,0,0) + timedelta(hours=x)).strftime(\"%Y-%m-%dT%H:%M\") for x in ${netcdf:variable:time}]",
+              "statements": "from datetime import datetime, timedelta",
+              "resolution": 1,
+              "gridOrder": 0,
+              "type": "ansidate",
+              "crsOrder": 0,
+              "irregular": true
+            },
+            "rlat": {
+              "min": "${netcdf:variable:rlat:min}",
+              "max": "${netcdf:variable:rlat:max}",
+              "gridOrder": 2,
+              "crsOrder": 1,
+              "resolution": "${netcdf:variable:rlat:resolution}"
+            },
+            "rlon": {
+              "min": "${netcdf:variable:rlon:min}",
+              "max": "${netcdf:variable:rlon:max}",
+              "gridOrder": 1,
+              "crsOrder": 2,
+              "resolution": "${netcdf:variable:rlon:resolution}"
+            }
+          }
+	}
+      },
+      "tiling": "ALIGNED [0:0, 0:1023, 0:1023]"
+    }
+  }
+}
+

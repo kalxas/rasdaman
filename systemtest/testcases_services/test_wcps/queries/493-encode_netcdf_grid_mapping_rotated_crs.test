@@ -1,0 +1,1 @@
+for $c in (test_cosmo_101_netcdf_rotated_crs) return encode($c, "netcdf")

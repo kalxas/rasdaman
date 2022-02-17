@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<identifiers  >
-<identifier>/crs/AUTO</identifier>
-<identifier>/crs/OGC</identifier>
-<identifier>/crs/EPSG</identifier>
+<identifiers at='http://localhost:8080/def/crs' xmlns='http://www.opengis.net/crs-nts/1.0' xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd">
+ <identifier>http://localhost:8080/def/crs/AUTO</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC</identifier>
+ <identifier>http://localhost:8080/def/crs/COSMO</identifier>
+ <identifier>http://localhost:8080/def/crs/EPSG</identifier>
 </identifiers>

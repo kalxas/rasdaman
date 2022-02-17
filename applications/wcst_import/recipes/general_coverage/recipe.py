@@ -405,7 +405,6 @@ class Recipe(BaseRecipe):
         """
 
         if "coverage" in self.options and "metadata" in self.options['coverage']:
-
             for file_path in self.session.get_files():
                 try:
                     if "global" in self.options['coverage']['metadata']:
@@ -434,7 +433,13 @@ class Recipe(BaseRecipe):
 
                     self.__add_color_palette_table_to_global_metadata(metadata_dict, file_path)
 
-                    result = escape_metadata_dict(metadata_dict)
+                    if self.options['coverage']['slicer']['type'] == "netcdf":
+                        # In case, netCDF is rotated CRS (with grid_mapping in band variables)
+                        user_bands = self._read_bands()
+                        NetcdfToCoverageConverter.parse_netcdf_grid_mapping_metadata(metadata_dict, file_path,
+                                                                                     user_bands)
+
+                    result = escape_metadata_nested_dicts(metadata_dict)
                     return result
                 except Exception as e:
                     if ConfigManager.skip == True:
