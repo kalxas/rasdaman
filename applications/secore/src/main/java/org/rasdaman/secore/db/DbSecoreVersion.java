@@ -24,13 +24,15 @@ package org.rasdaman.secore.db;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.ConfigManager;
 import org.rasdaman.secore.Constants;
 import static org.rasdaman.secore.db.DbManager.FIX_GML_VERSION_ALIAS;
+import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.SecoreException;
 import org.rasdaman.secore.util.SecoreUtil;
 import org.rasdaman.secore.util.StringUtil;
@@ -137,9 +139,15 @@ public class DbSecoreVersion {
      *      2-delete, then it will remove the GML definition by gml:identifier in file content.
      * @param file
      */
-    private void updateChangeFromFile(File file) throws FileNotFoundException, SecoreException {
+    private void updateChangeFromFile(File file) throws SecoreException {
         String type = file.getName().split("-")[1];
-        String content = new Scanner(file).useDelimiter("\\Z").next();
+        String content = null;
+        try {
+            content = new String (Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+        } catch (Exception ex) {
+            throw new SecoreException(ExceptionCode.IOConnectionError, 
+                    "Cannot read content from SECORE db update file '" + file.getAbsolutePath() + "'. Reason: " + ex.getMessage(), ex);
+        }
         // delete file should contain only gml:identifier (e.g: crs/EPSG/0/4326) to delete the CRS definition.
         if (type.equals(this.DELETE_FILE)) {
             SecoreUtil.deleteDef(content, "");

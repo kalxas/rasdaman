@@ -323,7 +323,7 @@ public class EnvelopeByAxis implements Serializable {
     }
     
     /**
-     * If this coverage has a time axis, then returns it lower and uppe bounds in date time format
+     * If this coverage has a time axis, then returns it lower and upper bounds in date time format
      */
     @JsonIgnore
     public List<AxisExtent> getTimeAxisExtents() throws PetascopeException, SecoreException {

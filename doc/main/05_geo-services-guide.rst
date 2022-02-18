@@ -4425,6 +4425,39 @@ In case of *encode* processing expressions, besides MIME types **WCPS** (and
 *rasql*) can also accept GDAL format identifiers or other commonly-used format
 abbreviations like "CSV" for Comma-Separated-Values for instance.
 
+Support for time in netCDF output
+---------------------------------
+
+
+If the global metadata of a coverage contains ``"units"`` and ``"calendar"``
+settings for the time axis,  when encoding to netCDF rasdaman will 
+adjust the coordinates of the time variable based on the origin specified
+in the ``"units"`` and ``"calendar"`` setting instead of the time CRS.
+Only ``standard`` and ``proleptic_gregorian`` calendars are currently
+supported. More details on these standard attributes of time variables
+can be found in the `CF conventions docs 
+<https://cfconventions.org/Data/cf-conventions/cf-conventions-1.9/cf-conventions.html#time-coordinate>`__.
+
+For example, a coverage might have this metadata for the ``ansi``
+time axis:
+
+.. hidden-code-block:: xml
+
+    <axes>
+        <ansi>
+            <standard_name>time</standard_name>
+            <units>hours since 2016-12-01 00:00:00</units>
+            <calendar>proleptic_gregorian</calendar>
+            <axis>T</axis>
+        </ansi>
+        ...
+   </axes>
+
+The values of ``ansi`` variable in the output netCDF file will be
+based on the origin ``2016-12-01 00:00:00`` as specified by the
+``<units>`` above, instead of ``1600-12-31``, the origin of the
+``AnsiDate`` CRS associated with this axis.
+
 
 rasdaman / petascope Geo Service Administration
 ===============================================

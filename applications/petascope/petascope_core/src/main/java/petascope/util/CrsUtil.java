@@ -1261,6 +1261,10 @@ public class CrsUtil {
         return isXAxis(axisType) || isYAxis(axisType);
     }
     
+    public static boolean isTimeAxis(String axisType) {
+        return axisType.equals(AxisTypes.T_AXIS);
+    }
+    
     /**
      * Return X and Y crs axes from a CRS URI.
      * NOTE: The axes order is dependent from the CRS definition.

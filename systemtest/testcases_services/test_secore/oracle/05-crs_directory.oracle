@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<identifiers  >
-<identifier>/crs/OGC/0/_Temporal_template</identifier>
-<identifier>/crs/OGC/0/Temporal</identifier>
-<identifier>/crs/OGC/0/_AnsiDate_template</identifier>
-<identifier>/crs/OGC/0/_ChronometricGeologicTime_template</identifier>
-<identifier>/crs/OGC/0/_JulianDate_template</identifier>
-<identifier>/crs/OGC/0/_TruncatedJulianDate_template</identifier>
-<identifier>/crs/OGC/0/AnsiDate</identifier>
-<identifier>/crs/OGC/0/ChronometricGeologicTime</identifier>
-<identifier>/crs/OGC/0/JulianDate</identifier>
-<identifier>/crs/OGC/0/TruncatedJulianDate</identifier>
-<identifier>/crs/OGC/0/UnixTime</identifier>
-<identifier>/crs/OGC/0/_Index1D_template</identifier>
-<identifier>/crs/OGC/0/_Index2D_template</identifier>
-<identifier>/crs/OGC/0/_Index3D_template</identifier>
-<identifier>/crs/OGC/0/_Index4D_template</identifier>
-<identifier>/crs/OGC/0/_Index5D_template</identifier>
-<identifier>/crs/OGC/0/Index1D</identifier>
-<identifier>/crs/OGC/0/Index2D</identifier>
-<identifier>/crs/OGC/0/Index3D</identifier>
-<identifier>/crs/OGC/0/Index4D</identifier>
-<identifier>/crs/OGC/0/Index5D</identifier>
-<identifier>/crs/OGC/0/_UnixTime_template</identifier>
+<identifiers at='http://localhost:8080/def/crs?authority=OGC&amp;version=0' xmlns='http://www.opengis.net/crs-nts/1.0' xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd">
+ <identifier>http://localhost:8080/def/crs/OGC/0/_Temporal_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/Temporal</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_AnsiDate_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_ChronometricGeologicTime_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_JulianDate_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_TruncatedJulianDate_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_UnixTime_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/AnsiDate</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/ChronometricGeologicTime</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/JulianDate</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/TruncatedJulianDate</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/UnixTime</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_Index1D_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_Index2D_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_Index3D_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_Index4D_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_Index5D_template</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/Index1D</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/Index2D</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/Index3D</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/Index4D</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/Index5D</identifier>
 </identifiers>

@@ -3450,6 +3450,20 @@ be considered for inclusion in a backup:
       # restore backup petascopedb.sql.gz (use cat if it's not a gzip archive)
       zcat petascopedb.sql.gz | sudo -u postgres psql -d petascopedb --quiet
 
+   Alternatively, petascopedb can be backup with this command in parallel (``-j`` is number of used cpus):
+
+   .. code-block:: shell
+
+      # /backup/petascopedb_backup contains a large number of compressed files
+      sudo -u postgres pg_dump -j 8 -Fd petascopedb -f /backup/petascopedb_backup
+
+   Then, it can be restored with
+
+   .. code-block:: shell
+
+      sudo -u postgres pg_restore -j 8 -d petascopedb /backup/petascopedb_backup
+     
+
 3. The rasdaman configuration files in ``/opt/rasdaman/etc``, but also consider
    the ``bin`` and ``share`` directories which may be useful in case of package 
    update problems, as well as maybe log files in the  ``log`` directory.

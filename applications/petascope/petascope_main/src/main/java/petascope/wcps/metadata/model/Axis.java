@@ -199,11 +199,25 @@ public abstract class Axis<T> {
      * @throws petascope.exceptions.PetascopeException
      */
     public String getOriginRepresentation() throws PetascopeException {
-        if (this.axisType.equals(AxisTypes.T_AXIS)) {
+        if (CrsUtil.isTimeAxis(this.axisType)) {
             // Translate the origin in number to dateTime format            
             return TimeUtil.valueToISODateTime(BigDecimal.ZERO, this.getOrigin(), crsDefinition);
         } else {
             return this.getOrigin().toPlainString();
+        }
+    }
+    
+     /**
+     * Return the translated original origin for the axis in String with dateTime axis is
+     * in dateTime format and non dateTime axis is raw value.
+     *
+    */
+    public String getOriginalOriginRepresentation() throws PetascopeException {
+        if (CrsUtil.isTimeAxis(this.axisType)) {
+            // Translate the origin in number to dateTime format            
+            return TimeUtil.valueToISODateTime(BigDecimal.ZERO, this.getOriginalOrigin(), crsDefinition);
+        } else {
+            return this.getOriginalOrigin().toPlainString();
         }
     }
 

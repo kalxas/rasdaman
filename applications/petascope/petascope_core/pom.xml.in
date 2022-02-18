@@ -198,6 +198,14 @@
             <version>2.2.11</version>
         </dependency>
         <!-- End for JDK 1.9+ -->
+
+        <!-- netCDF time units conversion -->
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>udunits</artifactId>
+            <version>4.5.5</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>rasdaman-geo-core</finalName>
