@@ -36,23 +36,20 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
+WCST_IMPORT="$RMANHOME/bin/wcst_import.sh"
 ingredients_file_testdata="$SCRIPT_DIR/../../test_all_wcst_import/testdata/112-wcs_import_order_descending_test_import_order_descending_irregular_time_netcdf/ingest.template.json"
-
-relpath() { 
-    python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')"
-}
-ingest_json=$(relpath "$SCRIPT_DIR/ingest.json")
+ingest_json="$SCRIPT_DIR/ingest.json"
 
 sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$ingredients_file_testdata" > "$ingest_json"
 
 # array for holding posible daemon commands
 # in case the daemon's functionality is extended, add the new commands at the end of the array
 declare -a daemon_commands=( \
-    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon start" \
-    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon status" \
-    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon restart" \
-    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon stop" \
-    "wcst_import.sh -i $RASADMIN_CREDENTIALS_FILE $ingest_json --watch 0.5")
+    "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon start" \
+    "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon status" \
+    "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon restart" \
+    "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon stop" \
+    "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --watch 0.5")
 
 get_daemon_pid() {
     ps aux | grep "$ingest_json" | grep -v "grep" | tr -s " " | cut -d " " -f2

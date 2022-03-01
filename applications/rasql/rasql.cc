@@ -1106,7 +1106,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
             // read data in each tile chunk
             long offset = 0;
             fileContentsChunked.reset(new r_Set<r_GMarray *>());
-            for (const auto chunkDom: tiles)
+            for (const auto &chunkDom: tiles)
             {
                 r_Area chunkSize = chunkDom.cell_count();
                 char *chunkData = NULL;

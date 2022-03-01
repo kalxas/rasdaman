@@ -105,10 +105,10 @@ exclude_patterns = ['_build', 'README.rst']
 #show_authors = False
 
 def setup(sphinx):
-    sphinx.add_lexer('rasql', RasqlLexer())
-    sphinx.add_lexer('json', JSONLexer())
+    sphinx.add_lexer('rasql', RasqlLexer)
+    sphinx.add_lexer('json', JSONLexer)
+    sphinx.add_css_file('css/custom.css')
     # sphinx.add_domain(RasqlDomain)
-    sphinx.add_stylesheet('css/custom.css')
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'trac'

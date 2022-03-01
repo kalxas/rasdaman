@@ -65,6 +65,16 @@ export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 export PETASCOPE_PROPERTIES_FILE="$RMANHOME/etc/petascope.properties"
 
 
+PYTHONBIN=
+for b in python3 python python2; do
+  if $b --version > /dev/null 2>&1; then
+    PYTHONBIN=$b; break;
+  fi
+done
+[ -n "$PYTHONBIN" ] || error "python/python2/python3 not found, please install python first."
+export PYTHONBIN
+
+
 # -------------------
 # script return codes
 #
@@ -158,7 +168,7 @@ C_GREEN="$C_BOLD\e[32m"
 C_YELLOW="$C_BOLD\e[33m"
 
 # print the color passed as an argument only if it's a terminal
-get_color() { [ -t 0 -o -t 1 -o -t 2 ] && echo "$1"; }
+get_color() { [[ -t 0 || -t 1 || -t 2 ]] && echo "$1"; }
 
 # colors set properly depending on whether the test is run in a terminal
 # (rather than output redirected for example)
@@ -183,33 +193,33 @@ get_status_color()
 # log as is to stdout, but remove colors from file output
 log_colored()
 {
-  echo -e "$PROG: $@"
-  echo -e "$PROG: $@" | sed -r "s/[[:cntrl:]]\[[0-9]{1,3}m//g" >> "$LOG_FILE"
+  echo -e "$PROG: $*"
+  echo -e "$PROG: $*" | sed -r "s/[[:cntrl:]]\[[0-9]{1,3}m//g" >> "$LOG_FILE"
 }
 log_colored_failed()
 {
-  echo -e "$PROG: ${c_red}$@${c_off}"
-  echo -e "$PROG: $@" >> "$LOG_FILE"
+  echo -e "$PROG: ${c_red}$*${c_off}"
+  echo -e "$PROG: $*" >> "$LOG_FILE"
 }
 loge_colored()
 {
-  echo -e "$@"
-  echo -e "$@" | sed -r "s/[[:cntrl:]]\[[0-9]{1,3}m//g" >> "$LOG_FILE"
+  echo -e "$*"
+  echo -e "$*" | sed -r "s/[[:cntrl:]]\[[0-9]{1,3}m//g" >> "$LOG_FILE"
 }
 loge_colored_failed()
 {
-  echo -e "${c_red}$@${c_off}"
-  echo -e "$@" >> "$LOG_FILE"
+  echo -e "${c_red}$*${c_off}"
+  echo -e "$*" >> "$LOG_FILE"
 }
 
 # normal log
-log()   { echo -e "$PROG: $@" | tee -a "$LOG_FILE"; }
-loge()  { echo -e "$@" | tee -a "$LOG_FILE"; }
-logn()  { echo -n -e "$PROG: $@" | tee -a "$LOG_FILE"; }
-error() { log_colored_failed "$@"; log_colored_failed "exiting."; exit $RC_ERROR; }
-log_failed() { echo "$PROG: $@" >> "$FAILED_LOG_FILE"; }
+log()   { echo -e "$PROG: $*" | tee -a "$LOG_FILE"; }
+loge()  { echo -e "$*" | tee -a "$LOG_FILE"; }
+logn()  { echo -n -e "$PROG: $*" | tee -a "$LOG_FILE"; }
+error() { log_colored_failed "$*"; log_colored_failed "exiting."; exit $RC_ERROR; }
+log_failed() { echo "$PROG: $*" >> "$FAILED_LOG_FILE"; }
 
-feedback()   { [ $? -ne 0 ] && loge_colored_failed failed. || loge ok.; }
+feedback()   { [ $? -ne 0 ] ? loge_colored_failed failed. : loge ok.; }
 check_exit() {
   if [ $? -ne 0 ]; then
     log_colored_failed "failed, exiting."
@@ -262,8 +272,10 @@ print_testcase_result() {
   local status=$2
   local total_test_no=$3
   local curr_test_no=$4
-  local c_on=$(get_status_color "$status")
-  local msg=$(printf "%3d/$total_test_no ${c_on}%5s${c_off} %5ss   $test_case_name\n" $curr_test_no $status $(get_time_s))
+  local c_on
+  c_on=$(get_status_color "$status")
+  local msg
+  msg=$(printf "%3d/$total_test_no ${c_on}%5s${c_off} %5ss   $test_case_name\n" "$curr_test_no" "$status" "$(get_time_s)")
   log_colored "$msg"
 }
 
@@ -282,7 +294,8 @@ get_os()
     grep -q "CentOS Linux release 8" /etc/centos-release
     [ $? -eq 0 ] && OS_VERSION=$OS_CENTOS8
   else
-    local version=$(lsb_release -a 2>&1 | grep Description \
+    local version
+    version=$(lsb_release -a 2>&1 | grep Description \
       | sed 's/Description: *//' | tr -d '[:space:]')
 
     case "$version" in
@@ -326,12 +339,10 @@ check_rasdaman()
 check_rasdaman_available()
 {
   # check if rasdaman is running and exit if not
-  $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null
-  if [ $? -ne 0 ]; then
+  if ! $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null; then
     # retry test
     sleep 2
-    $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null
-    if [ $? -ne 0 ]; then
+    if ! $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null; then
         log "rasdaman down, exiting..."
         # cleanup if cleanup function is defined
         if declare -f "cleanup" &> /dev/null; then
@@ -458,7 +469,7 @@ export CURL="curl -u $RASADMIN_USER:$RASADMIN_PASS -s"
 print_summary()
 {
   if [ $NUM_TOTAL -eq 0 ]; then
-    NUM_TOTAL=$(($NUM_FAIL + $NUM_SUC))
+    NUM_TOTAL=$((NUM_FAIL + NUM_SUC))
   fi
 
   local test_name="$0"
@@ -485,7 +496,7 @@ print_summary()
   if [ $NUM_FAIL -gt 0 ]; then
   log_colored_failed "  Failed tests    : $NUM_FAIL"
   fi
-  local skipped_tests=$(($NUM_TOTAL - ($NUM_FAIL + $NUM_SUC)))
+  local skipped_tests=$((NUM_TOTAL - (NUM_FAIL + NUM_SUC)))
   if [ $skipped_tests -gt 0 ]; then
   log "  Skipped tests   : $skipped_tests"
   fi
@@ -514,21 +525,21 @@ check_result()
 
   [ -n "$msg" ] && logn "$msg... "
   if [ "$exp" != "$res" ]; then
-    NUM_FAIL=$(($NUM_FAIL + 1))
+    NUM_FAIL=$((NUM_FAIL + 1))
     loge_colored_failed "failed, expected: '$exp', got '$res'."
   else
-    NUM_SUC=$(($NUM_SUC + 1))
+    NUM_SUC=$((NUM_SUC + 1))
     loge "ok."
   fi
-  NUM_TOTAL=$(($NUM_TOTAL + 1))
+  NUM_TOTAL=$((NUM_TOTAL + 1))
 }
 # this test case is failed (and cannot check by the return of $?)
 # if $1 is specified then the test is silent (doesn't print anything)
 check_failed()
 {
   [ -z "$1" ] && loge_colored_failed failed.
-  NUM_FAIL=$(($NUM_FAIL + 1))
-  NUM_TOTAL=$(($NUM_TOTAL + 1))
+  NUM_FAIL=$((NUM_FAIL + 1))
+  NUM_TOTAL=$((NUM_TOTAL + 1))
   return $RC_ERROR
 }
 # this test case is passed (and does not check by the return of $?)
@@ -536,13 +547,13 @@ check_failed()
 check_passed()
 {
   [ -z "$1" ] && loge ok.
-  NUM_SUC=$(($NUM_SUC + 1))
-  NUM_TOTAL=$(($NUM_TOTAL + 1))
+  NUM_SUC=$((NUM_SUC + 1))
+  NUM_TOTAL=$((NUM_TOTAL + 1))
   return $RC_OK
 }
 # check the result of previously executed command ($? variable)
 # and print failed/ok accordingly + update NUM_* variables
-check() { if [ $? -ne 0 ]; then check_failed "$1"; else check_passed "$1"; fi }
+check() { [ $? -ne 0 ] ? check_failed "$1" : check_passed "$1"; }
 
 #
 # Ultilities functions
@@ -557,7 +568,7 @@ check_known_fail()
   local testcase="$f"
   [ -n "$1" ] && testcase="$1"
 
-  if [ -f "$KNOWN_FAILS" -a -n "$testcase" ]; then
+  if [[ -f "$KNOWN_FAILS" && -n "$testcase" ]]; then
     grep -F "$testcase" "$KNOWN_FAILS" --quiet
     return $? # 0 if "$f" is a known fail
   fi
@@ -577,24 +588,30 @@ update_result()
 
   if [ $rc -ne 0 ]; then 
     # failed
-    [ $known_fail -eq 0 ] && status=$ST_SKIP || {
+    if [ $known_fail -eq 0 ]; then
+      status=$ST_SKIP
+    else
       status=$ST_FAIL
-      NUM_FAIL=$(($NUM_FAIL + 1))
-      [ -n "$FAILED_LOG_FILE" -a -n "$f" ] && echo "$f" >> "$FAILED_LOG_FILE"
-    }
+      NUM_FAIL=$((NUM_FAIL + 1))
+      [[ -n "$FAILED_LOG_FILE" && -n "$f" ]] && echo "$f" >> "$FAILED_LOG_FILE"
+    fi
   else
     # passed
-    [ $known_fail -eq 0 ] && status=$ST_FIX || status=$ST_PASS
-    NUM_SUC=$(($NUM_SUC + 1))
+    if [ $known_fail -eq 0 ]; then
+      status=$ST_FIX
+    else
+      status=$ST_PASS
+    fi
+    NUM_SUC=$((NUM_SUC + 1))
   fi
-  NUM_TOTAL=$(($NUM_TOTAL + 1))
+  NUM_TOTAL=$((NUM_TOTAL + 1))
   return $rc
 }
 
 prepare_json_file()
 {
   local json_file="$1"
-  if [ -n "$json_file" -a -f "$json_file" ]; then
+  if [[ -n "$json_file" && -f "$json_file" ]]; then
     sed -i -e '/href/d' \
            "$json_file"
   fi
@@ -604,7 +621,7 @@ prepare_json_file()
 prepare_xml_file()
 {
   local xml_file="$1"
-  if [ -n "$xml_file" -a -f "$xml_file" ]; then
+  if [[ -n "$xml_file" && -f "$xml_file" ]]; then
     sed -i -e 's/gml://g' \
            -e $'s/\r//g' \
            -e '/xlink:href/d' \
@@ -690,9 +707,9 @@ urlencode() {
 
 # Get all available coverage Ids
 get_coverage_ids() {
-  local xml=$($WGET -qO- "$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCapabilities")
-  local coverage_ids=($(grep -oP "(?<=<wcs:CoverageId>)[^<]+"  <<< "$xml"))
-  echo ${coverage_ids[@]}
+  $WGET -qO- "$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCapabilities" | \
+    grep -oP "(?<=<wcs:CoverageId>)[^<]+" | \
+    tr '\n' ' '
 }
 
 delete_coverage() {
@@ -701,41 +718,36 @@ delete_coverage() {
   # It it is set to true, make a GetCapabitilies request first before deleting it
   local check_coverage_exist="$2"
 
-  local WCS_END_POINT="$PETASCOPE_URL?service=WCS&version=2.0.1&request=DeleteCoverage&CoverageId=$input_coverage_id"
-
-  local OUTPUT_DIR="$SCRIPT_DIR/output"
-  mkdir -p "$OUTPUT_DIR"
-  local OUTPUT_FILE="$OUTPUT_DIR/DeleteCoverage-$1.out"
-  local result=0
-
-  local coverage_ids=("$input_coverage_id")
-
+  local delete_coverage=false
   if [ "$check_coverage_exist" = "true" ]; then
-    coverage_ids=($(get_coverage_ids))
-  fi
-  
-  local coverage_id=
-  for coverage_id in "${coverage_ids[@]}"; do
-
-    if [ "$coverage_id" == "$input_coverage_id" ]; then
-
-        # Store the result of deleting request to a temp file
-        $CURL -i "$WCS_END_POINT" > "$OUTPUT_FILE"
-
-        # Check HTTP code is 200, coverage is deleted successfully
-        cat "$OUTPUT_FILE" | head -n 1 | grep "200" --quiet
-
-        if [ $? -ne 0 ]; then
-            # In case of error, grap error message from Petascope to test.log
-            cat "$OUTPUT_FILE" | tail -n +6 >> "$LOG_FILE"
-            result=1
-        fi
-
+    local coverage_id=
+    for coverage_id in $(get_coverage_ids); do
+      if [ "$coverage_id" == "$input_coverage_id" ]; then
+        delete_coverage=true
         break
-    fi
-  done
+      fi
+    done
+  else
+    delete_coverage=true
+  fi
 
-  return $result
+  if [[ "$delete_coverage" = "true" ]]; then
+    local OUTPUT_DIR="$SCRIPT_DIR/output"
+    mkdir -p "$OUTPUT_DIR"
+    local OUTPUT_FILE="$OUTPUT_DIR/DeleteCoverage-$1.out"
+    # Store the result of deleting request to a temp file
+    local delete_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=DeleteCoverage&CoverageId=$input_coverage_id"
+    $CURL -i "$delete_request" > "$OUTPUT_FILE"
+
+    # Check HTTP code is 200, coverage is deleted successfully
+    if ! head -n1 < "$OUTPUT_FILE" | grep "200" --quiet; then
+      # In case of error, put error message from Petascope to test.log
+      tail -n6 <"$OUTPUT_FILE" >> "$LOG_FILE"
+      return 1
+    fi
+  fi
+
+  return 0
 }
 
 # -----------------------------------------------------------------------------
@@ -745,7 +757,8 @@ get_request_rest() {
   # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/oapi)
   # $2 is the request contex path and KVP if any
   local url="$1"
-  local context=$(echo "$2" | tr -d '\n')
+  local context
+  context=$(echo "$2" | tr -d '\n')
   $CURL -G -X GET "$url/$context" > "$3" 
 }
 
@@ -757,7 +770,8 @@ get_request_kvp() {
   # $4 only use for SECORE as it will only GET KVP in the URL directly without encoding
   local url="$1"
   # replace the "\n" in the query to be a valid GET request without break lines
-  local kvpValues=$(echo "$2" | tr -d '\n')
+  local kvpValues
+  kvpValues=$(echo "$2" | tr -d '\n')
   if [ -z "$4" ]; then
     $CURL -G -X GET "$url" --data-urlencode "$kvpValues" > "$3"
   else
@@ -772,7 +786,8 @@ post_request_kvp() {
   # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&query=....)
   # $3 is output file
   local url="$1"
-  local kvpValues=$(echo "$2" | tr -d '\n')
+  local kvpValues
+  kvpValues$(echo "$2" | tr -d '\n')
   $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
@@ -780,7 +795,8 @@ post_request_kvp() {
 post_request_xml() {
   # curl -s -X POST --data-urlencode "$kvpValues" "$PETASCOPE_URL" -o "$2"
   local url="$1"
-  local kvpValues=$(echo "$2" | tr -d '\n')
+  local kvpValues
+  kvpValues=$(echo "$2" | tr -d '\n')
   $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
@@ -792,7 +808,8 @@ post_request_file() {
   # $3 is the path to the file to be uploaded to server
   # $4 is output file from HTTP response
   local url="$1"
-  local kvpValues=$(echo "$2" | tr -d '\n')
+  local kvpValues
+  kvpValues=$(echo "$2" | tr -d '\n')
   local upload_file="$3"
   $CURL -F "file=@$upload_file" "$url?$kvpValues" > "$4"
 }
@@ -803,7 +820,7 @@ compare_output_to_oracle() {
   local out="$1"
   local ora="$2"
 
-  if [ -n "$check_script" -a -f "$check_script" ]; then
+  if [[ -n "$check_script" && -f "$check_script" ]]; then
     export -f prepare_xml_file
     "$check_script" "$out" "$ora"
   else
@@ -811,7 +828,8 @@ compare_output_to_oracle() {
     local out_tmp="$out.output_tmp"
     cp "$ora" "$ora_tmp"
     cp "$out" "$out_tmp"
-    local orafiletype=$(file "$ora" | awk -F ':' '{print $2;}')
+    local orafiletype
+    orafiletype=$(file "$ora" | awk -F ':' '{print $2;}')
 
     # normalize files to remove irrelevant differences across systems
     if gdalinfo "$ora" &> /dev/null; then
@@ -866,7 +884,8 @@ run_test()
   fi
 
   # get test type - file extension
-  local test_type=$(echo "$f" | sed 's/.*\.//')
+  local test_type
+  test_type=$(echo "$f" | sed 's/.*\.//')
 
   # various other files expected  by the run_*_test functions
   # NOTE: remove input protocol extension: all queries with the same basename
@@ -885,8 +904,7 @@ run_test()
   # run pre script if present
   #
   if [ -f "$pre_script" ]; then
-    $pre_script
-    if [ $? -ne 0 ]; then
+    if ! $pre_script; then
       log "warning: pre script failed execution - $pre_script"
     fi
   fi
@@ -902,7 +920,8 @@ run_test()
   else
     # error: if file contents has "*" then it replaces it with file name, 
     # then must turn off this feature
-    local QUERY=$(cat "$f" | tr -d '\n')
+    local QUERY
+    QUERY=$(tr '\n' ' ' < "$f")
 
     #
     # 1. execute test query (NOTE: rasql is actually test_rasql_servlet)
@@ -913,10 +932,7 @@ run_test()
               case "$test_type" in
                 kvp)
                     QUERY=$(cat "$f")
-                    # check if query contains "jpeg2000"-approx_stats and gdal 
-                    # supports this format, then the query should be run.
-                    check_query_runable "$QUERY"
-                    if [[ $? -eq 0 ]]; then
+                    if check_query_runable "$QUERY"; then
                       get_request_kvp "$RASQL_SERVLET" "$QUERY" "$out"
                     fi
                     ;;
@@ -924,7 +940,8 @@ run_test()
                     local templateFile="$SCRIPT_DIR/queries/post-upload.template"
                     local inputFile="$SCRIPT_DIR/queries/$f"
                     # read parameters from *.input file (NOTE: need to escape special characters like: &)
-                    local parameters=$(cat "$inputFile")
+                    local parameters
+                    parameters=$(cat "$inputFile")
                     # replace the parameters from current .input file into templateFile
                     sed "s#PARAMETERS#$parameters#g" "$templateFile" > "$templateFile.tmp.sh"
                     # run the replaced script to upload file and rasql query to 
@@ -940,54 +957,38 @@ run_test()
                     # It will send a WCS POST request with a file to petascope 
                     # (e.g: for WCS clipping extension: &clip=$1 and file=FILE_PATH_TO_WKT)
                     # NOTE: $ is not valid character for curl, it must be escaped inside test request file
-                    QUERY=$(cat "$f" | sed 's/\$/%24/g')
+                    QUERY=$(sed 's/\$/%24/g' "$f")
                     
                     # File to upload to server, same name with test request file but with .file                
                     local upload_file="${f%.*}.file"
-                    check_query_runable "$QUERY"
-                    if [[ $? -eq 0 ]]; then
+                    if check_query_runable "$QUERY"; then
                       post_request_file "$PETASCOPE_URL" "query=$QUERY" "$upload_file" "$out"
                     else
-                      continue
+                      return
                     fi
                     ;;
                 test)
 
                     if [[ ( "$OS_VERSION" == "$OS_CENTOS7" || "$OS_VERSION" == "$OS_UBUNTU1604" ) && "$f" == *"overview"* ]]; then
                         # NOTE: centos 7 and ubuntu 16.04 with gdal version 1.x does not support importing overview
-                        continue
+                        return
                     fi
 
                     QUERY=$(cat "$f")
-                    # check if query contains "jpeg2000"-approx_stats and gdal 
-                    # supports this format, then the query should be run.
-                    check_query_runable "$QUERY"
-                    if [[ $? -eq 0 ]]; then
-
-                      if [[ "$f" =~ "post.test" ]]; then
-                        # big WCPS query goes with POST (prepend the KVP parameter for WCPS extension)
-                        post_request_kvp "$PETASCOPE_URL" "query=$QUERY" "$out"
-                      else
-                        # small WCPS query goes with GET (prepend the KVP parameter for WCPS extension)
-                        get_request_kvp "$PETASCOPE_URL" "query=$QUERY" "$out"
-                      fi
+                    if check_query_runable "$QUERY"; then
+                      post_request_kvp "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
-                      continue
+                      return
                     fi
                     ;;
                 xml)
                     QUERY=$(cat "$f")
-
-                    # check if query contains "jpeg2000"-approx_stats and gdal 
-                    # supports this format, then the query should be run.
-                    check_query_runable "$QUERY"
-                    if [[ $? -eq 0 ]]; then
+                    if check_query_runable "$QUERY"; then
                       # send POST/SOAP to petascope
                       post_request_xml "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
-                        continue
+                      return
                     fi
-                    rm -f "$postdata"
                     ;;
                 *)  error "unknown wcps test type: $test_type"
               esac
@@ -998,60 +999,44 @@ run_test()
                     # It will send a WCS POST request with a file to petascope 
                     # (e.g: for WCS clipping extension: &clip=$1 and file=FILE_PATH_TO_WKT)
                     # NOTE: $ is not valid character for curl, it must be escaped inside test request file
-                    QUERY=$(cat "$f" | sed 's/\$/%24/g')
-                    
+                    QUERY=$(sed 's/\$/%24/g' "$f")
                     # File to upload to server, same name with test request file but with .file                
                     local upload_file="${f%.*}.file"
-                    check_query_runable "$QUERY"
-                    if [[ $? -eq 0 ]]; then
+                    if check_query_runable "$QUERY"; then
                       post_request_file "$PETASCOPE_URL" "$QUERY" "$upload_file" "$out"
                     else
-                      continue
+                      return
                     fi
                     ;;
                 kvp)
-
                     if [[ ( "$OS_VERSION" == "$OS_CENTOS7" || "$OS_VERSION" == "$OS_UBUNTU1604" ) && "$f" == *"overview"* ]]; then
-                        # NOTE: centos 7 and ubuntu 16.04 with gdal version 1.x does not support importing overview
-                        continue
+                      # NOTE: centos 7 and ubuntu 16.04 with gdal version 1.x does not support importing overview
+                      return
                     fi
-                    
                     QUERY=$(cat "$f")
-                    # check if query contains "jpeg2000"-approx_stats and gdal 
-                    # supports this format, then the query should be run.
-                    check_query_runable "$QUERY"
-                    if [[ $? -eq 0 ]]; then
+                    if check_query_runable "$QUERY"; then
                       get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
                     else
-                      continue
+                      return
                     fi
-                    # SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages&query=for c in (test_mr) return avg(c)
-                    # this query will need to be encoded for value of parameter "query" only
                     ;;
                 xml) 
                     QUERY=$(cat "$f")
-
-                    # check if query contains "jpeg2000"-approx_stats and gdal 
-                    # supports this format, then the query should be run.
-                    check_query_runable "$QUERY"
-                    if [[ $? -eq 0 ]]; then
-                        # send POST/SOAP XML
-                        post_request_xml "$PETASCOPE_URL" "query=$QUERY" "$out"
+                    if check_query_runable "$QUERY"; then
+                      # send POST/SOAP XML
+                      post_request_xml "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
-                        continue
+                      return
                     fi
-                    rm -f "$postdata"
                     ;;
                 xml_wcps) 
-                    QUERY=$(cat "$f")
                     # WCPS query exists in XML-wrapper
-                    if [[ $? -eq 0 ]]; then
-                        # send XML
-                        post_request_xml "$PETASCOPE_URL?service=WCS&version=2.0.1&request=ProcessCoverages" "query=$QUERY" "$out"
+                    if [[ -f "$f" ]]; then
+                      QUERY=$(cat "$f")
+                      post_request_xml "$PETASCOPE_URL?service=WCS&version=2.0.1&request=ProcessCoverages" "query=$QUERY" "$out"
                     else
-                        continue
+                      return
                     fi
-                    rm -f "$postdata"
                     ;;                    
                 *)  error "unknown wcs test type: $test_type"
               esac
@@ -1068,14 +1053,16 @@ run_test()
               get_request_kvp "$endpoint" "$QUERY" "$out"
               ;;
 
-      oapi)   get_request_rest "$PETASCOPE_OAPI" "$QUERY" "$out"
+      oapi)   
+              get_request_rest "$PETASCOPE_OAPI" "$QUERY" "$out"
               ;;
 
-      secore) QUERY=$(echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g')
+      secore) 
+              QUERY=$(echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g')
               get_request_kvp "$SECORE_URL" "$QUERY" "$out" "secore"
               ;;
 
-      select|rasql|nullvalues|subsetting|clipping|rasdapy3)
+      select|nullvalues|subsetting|clipping|rasdapy3)
 
               QUERY=$(cat "$f")
 
@@ -1083,11 +1070,12 @@ run_test()
               [ "$SVC_NAME" = "rasdapy3" ] && RASQL_CMD="$PY_RASQL"
               local out_scalar="${out}_scalar"
 
-              $RASQL_CMD -q "$QUERY" --out file --outfile "$out" 2> "$err" | grep "  Result " > $out_scalar
+              $RASQL_CMD -q "$QUERY" --out file --outfile "$out" 2> "$err" | grep "  Result " > "$out_scalar"
 
               # if an exception was thrown, then the err file has non-zero size
               grep -q "Warning 6: PNG" "$err"
-              if [ -s "$err" -a $? -ne 0 ]; then
+              rc=$?
+              if [[ -s "$err" && $rc -ne 0 ]]; then
                 mv "$err" "$out"
               else
                 # move to proper output file (e.g: output.rasql.out.uknown to output.rasql.out)
@@ -1101,7 +1089,7 @@ run_test()
 
                 # if the result is a scalar, there will be no tmp file by rasql,
                 # here we move the Result lines in stdout to $out
-                if [ ! -f "$out" -a -f "$out_scalar" ]; then
+                if [[ ! -f "$out" && -f "$out_scalar" ]]; then
                     mv "$out_scalar" "$out"
                 fi
               fi
@@ -1113,7 +1101,8 @@ run_test()
     #
     # 2a. create $oracle from $output, if missing
     #
-    local outfiletype=$(file "$out" | awk -F ':' '{print $2;}')
+    local outfiletype
+    outfiletype=$(file "$out" | awk -F ':' '{print $2;}')
     if [ ! -f "$oracle" ]; then
       status=$ST_COPY
       if [[ "$outfiletype" == *XML* ]]; then
@@ -1133,8 +1122,7 @@ run_test()
   # run post script if present
   #
   if [ -f "$post_script" ]; then
-    $post_script
-    if [ $? -ne 0 ]; then
+    if ! $post_script; then
       log "warning: post script failed execution - $post_script"
     fi
   fi
@@ -1143,7 +1131,7 @@ run_test()
 # ------------------------------------------------------------------------------
 # exit test script with/without error code
 #
-exit_script() { [ $NUM_FAIL -ne 0 ] && exit $RC_ERROR || exit $RC_OK; }
+exit_script() { [ $NUM_FAIL -ne 0 ] ? exit $RC_ERROR : exit $RC_OK; }
 
 # ------------------------------------------------------------------------------
 # rasdaman administration
@@ -1196,15 +1184,17 @@ prepare_configuration()
   echo "define db RASBASE -dbh rasdaman_host" >> "$RASMGR_CONF"
   echo "" >> "$RASMGR_CONF"
   for i in $(seq 1 "$server_no"); do
-    local port=$(($i + 1))
-    echo "define srv N$i -host blade -type n -port 700$port -dbh rasdaman_host" >> "$RASMGR_CONF"
-    echo "change srv N$i -countdown 200000 -autorestart on -xp --timeout 300000" >> "$RASMGR_CONF"
-    echo "" >> "$RASMGR_CONF"
+    local port=$((i + 1))
+    {
+      echo "define srv N$i -host blade -type n -port 700$port -dbh rasdaman_host"
+      echo "change srv N$i -countdown 200000 -autorestart on -xp --timeout 300000"
+      echo ""
+    } >> "$RASMGR_CONF"
   done
 }
 restore_configuration()
 {
-  if [ -n "$BACKUP_RASMGR_CONF" -a -f "$BACKUP_RASMGR_CONF" ]; then
+  if [[ -n "$BACKUP_RASMGR_CONF" && -f "$BACKUP_RASMGR_CONF" ]]; then
     logn "restoring $RASMGR_CONF from $BACKUP_RASMGR_CONF... "
     cp "$BACKUP_RASMGR_CONF" "$RASMGR_CONF"
     feedback
@@ -1214,7 +1204,7 @@ restore_configuration()
 recreate_rasbase()
 {
   rm -rf "$DB_DIR"; mkdir -p "$DB_DIR"
-  rm -rf "$LOG_DIR"/*
+  rm -rf "${LOG_DIR:?}"/*
   logn "recreating RASBASE... "
   "$RMANHOME"/bin/create_db.sh
   check

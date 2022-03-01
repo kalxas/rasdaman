@@ -404,9 +404,10 @@ std::vector<std::string> MDDColl::getVirtualCollection(const char *collName)
     {
         std::unique_ptr<OIdSet> list(ObjectBroker::getAllObjects(OId::MDDCOLLOID));
         ret.reserve(list->size());
-        for (const DBMDDSetId &tmpdbset : *list)
+        for (const auto &tmpdbset : *list)
         {
-            ret.emplace_back(tmpdbset->getName());
+            const auto dbmddsetId = static_cast<DBMDDSetId>(tmpdbset);
+            ret.emplace_back(dbmddsetId->getName());
         }
         list->clear();
     }

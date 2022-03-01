@@ -39,7 +39,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 WCPS_ENDPOINT=$PETASCOPE_URL
 QUERY='for c in (test_mr) return encode (c[i(0:20),j(0:20)] + 5, "png")'
 
-python "$SCRIPT_DIR"/test.py "$WCPS_ENDPOINT" "$QUERY" "$RASADMIN_USER" "$RASADMIN_PASS"
+$PYTHONBIN "$SCRIPT_DIR"/test.py "$WCPS_ENDPOINT" "$QUERY" "$RASADMIN_USER" "$RASADMIN_PASS"
 
 # defined in common.sh
 check_result 0 $? "test encoded WCPS query"

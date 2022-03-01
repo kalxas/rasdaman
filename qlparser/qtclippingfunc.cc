@@ -547,7 +547,7 @@ QtClipping::extractLinestring(const MDDObj *op,
             }
         }
         //add result tiles to result MDDObj
-        for (const auto resTile : resultTiles)
+        for (const auto &resTile : resultTiles)
         {
             resultMDD->insertTile(resTile);
         }

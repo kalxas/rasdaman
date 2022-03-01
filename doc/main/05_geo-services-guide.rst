@@ -2606,9 +2606,9 @@ petascope) the maximum size is 2GB (`source
 * ``global`` - Specifies fields which should be saved once for the whole
   coverage (e.g. the data licence, the creator etc). For example a "Title" 
   metadata value can be set with ``"global": { "Title": "'Drought code'", ... }``.
-  Global metadata is *collected automatically* (only for netCDF / gdal recipe)
-  from the first input file, if: 1) ``"global"`` setting is omitted. 
-  2) ``"global"`` is set to ``"auto"``.
+  Global metadata is collected automatically (only for netCDF / gdal recipe)
+  from the first input file, if the ``"global"`` setting is omitted, or
+  it is set to ``"auto"``.
   This automatic collection is *not* done when additional global metadata 
   needs to be added on top of the metadata present in the input file;
   in this case both the metadata from the file and the additional metadata
@@ -3477,7 +3477,7 @@ band metadata
 * For netCDF: If ``"bands"`` is set to ``"auto"`` or does not exist under ``"metadata"``
   in the ingredient file, all user-specified bands will have metadata which is
   fetched directly from the netCDF file. Metadata for one band is
-  collected automatically if: 1) band is not added. 2) band is set to ``"auto"``.
+  collected automatically if the band is not added or it is set to ``"auto"``.
 
 * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
   Example:
@@ -4427,7 +4427,6 @@ abbreviations like "CSV" for Comma-Separated-Values for instance.
 
 Support for time in netCDF output
 ---------------------------------
-
 
 If the global metadata of a coverage contains ``"units"`` and ``"calendar"``
 settings for the time axis,  when encoding to netCDF rasdaman will 

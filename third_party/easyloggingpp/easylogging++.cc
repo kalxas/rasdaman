@@ -1852,8 +1852,7 @@ Logger* RegisteredLoggers::get(const std::string& id, bool forceCreation) {
     logger_->m_logBuilder = m_defaultLogBuilder;
     registerNew(id, logger_);
     LoggerRegistrationCallback* callback = nullptr;
-    for (const std::pair<std::string, base::type::LoggerRegistrationCallbackPtr>& h
-         : m_loggerRegistrationCallbacks) {
+    for (const auto& h: m_loggerRegistrationCallbacks) {
       callback = h.second.get();
       if (callback != nullptr && callback->enabled()) {
         callback->handle(logger_);

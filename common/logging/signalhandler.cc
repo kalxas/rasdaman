@@ -14,9 +14,9 @@ namespace common {
 
 void SignalHandler::ignoreSignals(const std::initializer_list<int> &signals)
 {
-    for (auto signal: signals)
+    for (auto s: signals)
     {
-        sigignore(signal);
+        signal(s, SIG_IGN);
     }
 }
 

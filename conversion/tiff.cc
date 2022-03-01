@@ -235,12 +235,12 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
 #ifdef HAVE_TIFF
     TIFF* tif = NULL;
     char dummyFile[256];
-    uint16 cmap[256];             // Colour map (for greyscale images)
-    uint32 pixelAdd = 0, lineAdd = 0; // number of _bytes_ to add to a pointer
+    uint16_t cmap[256];             // Colour map (for greyscale images)
+    uint32_t pixelAdd = 0, lineAdd = 0; // number of _bytes_ to add to a pointer
     // to the source data to get the address
     // of the pixel to the right / downwards.
-    uint16 bps = 0, bpp = 0;
-    uint32 width = 0, height = 0, i = 0;
+    uint16_t bps = 0, bpp = 0;
+    uint32_t width = 0, height = 0, i = 0;
     int tiffcomp = COMPRESSION_NONE;
 
     int sampleFormat = SAMPLEFORMAT_INT;
@@ -256,8 +256,8 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     }
 
     // Set dimensions
-    width  = static_cast<uint32>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
-    height = static_cast<uint32>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
+    width  = static_cast<uint32_t>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    height = static_cast<uint32_t>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
 
     switch (desc.baseType)
     {
@@ -387,25 +387,25 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     TIFFSetField(tif, TIFFTAG_ARTIST, "rasdaman");
     TIFFSetField(tif, TIFFTAG_DOCUMENTNAME, "exported from rasdaman database");
     TIFFSetField(tif, TIFFTAG_SOFTWARE, "rasdaman");
-    //TIFFSetField(tif, TIFFTAG_SUBFILETYPE, (uint32)0);
+    //TIFFSetField(tif, TIFFTAG_SUBFILETYPE, (uint32_t)0);
     TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, width);
     TIFFSetField(tif, TIFFTAG_IMAGELENGTH, height);
     TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, bps);
     // UNIX doesn't mind which fill-order. NT only understands this one.
     TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
-    TIFFSetField(tif, TIFFTAG_COMPRESSION, static_cast<uint16>(tiffcomp));
-    TIFFSetField(tif, TIFFTAG_ORIENTATION, (uint16)ORIENTATION_TOPLEFT);
+    TIFFSetField(tif, TIFFTAG_COMPRESSION, static_cast<uint16_t>(tiffcomp));
+    TIFFSetField(tif, TIFFTAG_ORIENTATION, (uint16_t)ORIENTATION_TOPLEFT);
     // Format-dependent tags
     if (desc.baseType == ctype_rgb)
     {
-        TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, (uint16)PHOTOMETRIC_RGB);
-        TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16>(3));
+        TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, (uint16_t)PHOTOMETRIC_RGB);
+        TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16_t>(3));
     }
     else
     {
         if (desc.baseType == ctype_char)
         {
-            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16>(1));
+            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16_t>(1));
         }
         else if (desc.baseType == ctype_struct)
         {
@@ -413,9 +413,9 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
         }
         else
         {
-            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16>(1));
+            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16_t>(1));
         }
-        TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, (uint16)PHOTOMETRIC_MINISBLACK);
+        TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, (uint16_t)PHOTOMETRIC_MINISBLACK);
 
         // set sample format tag
         switch (desc.baseType)
@@ -444,11 +444,11 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
             break;
         }
     }
-    TIFFSetField(tif, TIFFTAG_PLANARCONFIG, (uint16)PLANARCONFIG_CONTIG);
-    TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, static_cast<uint32>(-1)));
-    //TIFFSetField(tif, TIFFTAG_MINSAMPLEVALUE, (uint16)0);
-    //TIFFSetField(tif, TIFFTAG_MAXSAMPLEVALUE, (uint16)255);
-    TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, (uint16)RESUNIT_INCH);
+    TIFFSetField(tif, TIFFTAG_PLANARCONFIG, (uint16_t)PLANARCONFIG_CONTIG);
+    TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, static_cast<uint32_t>(-1)));
+    //TIFFSetField(tif, TIFFTAG_MINSAMPLEVALUE, (uint16_t)0);
+    //TIFFSetField(tif, TIFFTAG_MAXSAMPLEVALUE, (uint16_t)255);
+    TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, (uint16_t)RESUNIT_INCH);
     TIFFSetField(tif, TIFFTAG_XRESOLUTION, static_cast<float>(90.0));
     TIFFSetField(tif, TIFFTAG_YRESOLUTION, static_cast<float>(90.0));
     TIFFSetField(tif, TIFFTAG_XPOSITION, static_cast<float>(0.0));
@@ -471,25 +471,25 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     {
         for (i = 0; i < 256; i++)
         {
-            cmap[i] = static_cast<uint16>(i * ((1L << 16) - 1) / 255);
+            cmap[i] = static_cast<uint16_t>(i * ((1L << 16) - 1) / 255);
         }
         TIFFSetField(tif, TIFFTAG_COLORMAP, cmap, cmap, cmap);
     }
 
     // Be VERY, VERY careful about the order and the items you write
     // out. TIFFWriteDirectory, e.g.,  has very ugly side-effects.
-    uint32* tbuff = NULL;
+    uint32_t* tbuff = NULL;
     const char* l = NULL, *line = desc.src;
-    uint8* normal = NULL; // normalised source data
-    uint32 row = 0;
+    uint8_t* normal = NULL; // normalised source data
+    uint32_t row = 0;
 
-    if ((tbuff = static_cast<uint32*>(mymalloc(((width * height * bpp) >> 5) * sizeof(uint32)))) != NULL)
+    if ((tbuff = static_cast<uint32_t*>(mymalloc(((width * height * bpp) >> 5) * sizeof(uint32_t)))) != NULL)
     {
         int error = 0; // indicates if writing succeeded
         // now go line by line
         for (row = 0; row < height && !error; row++, line += lineAdd)
         {
-            normal = (uint8*)tbuff;
+            normal = (uint8_t*)tbuff;
             l = line;
 
             // copy data in the correct format to the buffer
@@ -497,7 +497,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
             {
             case ctype_bool:
             {
-                uint8 val = 0, mask = _R_TIFF_MASK_VALUE;
+                uint8_t val = 0, mask = _R_TIFF_MASK_VALUE;
 
                 // convert 8bpp bitmap to 1bpp bitmap
                 for (i = 0; i < width; i++, l += pixelAdd)
@@ -598,10 +598,10 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
     char dummyFile[256];
     unsigned int typeSize = 0;
     int bandType = ctype_void;
-    uint16 sampleFormat = 0;
-    uint16 bps = 0, bpp = 0, spp = 0, planar = 0, photometric = 0, Bpp = 0, Bps = 0;
-    uint32 width = 0, height = 0, pixelAdd = 0, lineAdd = 0, i = 0;
-    uint16* reds = NULL, *greens = NULL, *blues = NULL;
+    uint16_t sampleFormat = 0;
+    uint16_t bps = 0, bpp = 0, spp = 0, planar = 0, photometric = 0, Bpp = 0, Bps = 0;
+    uint32_t width = 0, height = 0, pixelAdd = 0, lineAdd = 0, i = 0;
+    uint16_t* reds = NULL, *greens = NULL, *blues = NULL;
 
     // Init simple (chunky) memFS
 
@@ -829,12 +829,12 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
         }
         else
         {
-            uint32* tbuff = NULL;
+            uint32_t* tbuff = NULL;
             char* l = NULL, *line = desc.dest;
-            uint8* normal = NULL;
-            uint32 row = 0;
+            uint8_t* normal = NULL;
+            uint32_t row = 0;
 
-            if ((tbuff = new uint32[(width * bpp + 31) >> 5]) != NULL)
+            if ((tbuff = new uint32_t[(width * bpp + 31) >> 5]) != NULL)
             {
                 for (row = 0; row < height; row++, line += lineAdd)
                 {
@@ -844,14 +844,14 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                         {
                             break;
                         }
-                        normal = (uint8*)tbuff;
+                        normal = (uint8_t*)tbuff;
                         l = line;
                     }
                     switch (desc.baseType)
                     {
                     case ctype_bool: // when cytpe is bool
                     {
-                        uint8 mask = _R_TIFF_MASK_VALUE;
+                        uint8_t mask = _R_TIFF_MASK_VALUE;
                         for (i = 0; i < width; i++, l += pixelAdd)
                         {
                             *l = (((*normal) & mask) == 0) ? 0 : 1;
@@ -890,7 +890,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                         {
                             for (i = 0; i < width; i++, l += pixelAdd)
                             {
-                                uint8 val = *normal++;
+                                uint8_t val = *normal++;
                                 l[0] = (reds[val]) >> 8;
                                 l[1] = (greens[val]) >> 8;
                                 l[2] = (blues[val]) >> 8;
@@ -915,7 +915,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
 
                             int offset = j * Bps; // an offset to the j-th band
                             l = line + offset;
-                            normal = (uint8*)tbuff + offset;
+                            normal = (uint8_t*)tbuff + offset;
                             for (i = 0; i < width; i++, l += pixelAdd, normal += lineAdd)
                             {
                                 memcpy(l, normal, Bps);
@@ -936,7 +936,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                 } // for loop CLOSED
                 delete [] tbuff;
                 tbuff = NULL;
-            } // if ((tbuff = new uint32[(width * bpp + 31) >> 5]) != NULL) CLOSED
+            } // if ((tbuff = new uint32_t[(width * bpp + 31) >> 5]) != NULL) CLOSED
 
             if (row < height)
             {

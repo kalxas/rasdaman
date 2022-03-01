@@ -3450,14 +3450,14 @@ be considered for inclusion in a backup:
       # restore backup petascopedb.sql.gz (use cat if it's not a gzip archive)
       zcat petascopedb.sql.gz | sudo -u postgres psql -d petascopedb --quiet
 
-   Alternatively, petascopedb can be backup with this command in parallel (``-j`` is number of used cpus):
+   Alternatively, if the above fails for some reason, petascopedb can be backup with this command:
 
    .. code-block:: shell
 
-      # /backup/petascopedb_backup contains a large number of compressed files
+      # note that /backup/petascopedb_backup will contain a large number of compressed files
       sudo -u postgres pg_dump -j 8 -Fd petascopedb -f /backup/petascopedb_backup
 
-   Then, it can be restored with
+   If necessary, it can be restored with
 
    .. code-block:: shell
 
