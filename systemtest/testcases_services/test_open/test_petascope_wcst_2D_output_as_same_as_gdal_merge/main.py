@@ -29,7 +29,21 @@ import sys
 import shutil
 
 from shutil import copyfile
-from osgeo import gdal   
+from osgeo import gdal
+
+
+def binary_to_string(s):
+    if s is not None:
+        try:
+            if type(s) == bytes:
+                return s.decode("utf-8", "replace")
+            else:
+                return s
+        except Exception as e:
+            return "Failed to serialize to UTF-8: " + e
+    else:
+        return ""
+
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -121,21 +135,21 @@ for x in range(len(list_files)):
     subprocess.call("wget --auth-no-challenge --user '" + RASADMIN_USER + "' --password '" + RASADMIN_PASS + "' -q '" + delete_coverage_request + "' -O /dev/null", shell=True, stdout=open(os.devnull, 'wb'))
 
     if src_tmp[2] != dst_tmp[2]:
-        print(prog + "Size is different, gdal_merge: " + src_tmp[2] + ", petascope: " + dst_tmp[2] + ".")
+        print(prog + "Size is different, gdal_merge: " + binary_to_string(src_tmp[2]) + ", petascope: " + binary_to_string(dst_tmp[2]) + ".")
         exit(1)
     # output from petascope containing nodata_value in tiff metadata while gdal_merge doesn't, 
     # hence different indices in string array.
     elif src_tmp[19] != dst_tmp[20]:
-        print(prog + "Upper Left is different, gdal_merge: " + src_tmp[19] + ", petascope: " + dst_tmp[20] + ".")
+        print(prog + "Upper Left is different, gdal_merge: " + binary_to_string(src_tmp[19]) + ", petascope: " + binary_to_string(dst_tmp[20]) + ".")
         exit(1)
     elif src_tmp[20] != dst_tmp[21]:
-        print(prog + "Lower Left is different, gdal_merge: " + src_tmp[20] + ", petascope: " + dst_tmp[21] + ".")
+        print(prog + "Lower Left is different, gdal_merge: " + binary_to_string(src_tmp[20]) + ", petascope: " + binary_to_string(dst_tmp[21]) + ".")
         exit(1)
     elif src_tmp[21] != dst_tmp[22]:
-        print(prog + "Upper Right is different, gdal_merge: " + src_tmp[21] + ", petascope: " + dst_tmp[22] + ".")
+        print(prog + "Upper Right is different, gdal_merge: " + binary_to_string(src_tmp[21]) + ", petascope: " + binary_to_string(dst_tmp[22]) + ".")
         exit(1)
     elif src_tmp[22] != dst_tmp[23]:
-        print(prog + "Lower Right is different, gdal_merge: " + src_tmp[22] + ", petascope: " + dst_tmp[23] + ".")
+        print(prog + "Lower Right is different, gdal_merge: " + binary_to_string(src_tmp[22]) + ", petascope: " + binary_to_string(dst_tmp[23]) + ".")
         exit(1)
 
     # Finally, rotate the list_files and continue testing different file combinations

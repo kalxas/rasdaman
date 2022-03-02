@@ -6,7 +6,6 @@
  <identifier>http://localhost:8080/def/crs/OGC/0/_ChronometricGeologicTime_template</identifier>
  <identifier>http://localhost:8080/def/crs/OGC/0/_JulianDate_template</identifier>
  <identifier>http://localhost:8080/def/crs/OGC/0/_TruncatedJulianDate_template</identifier>
- <identifier>http://localhost:8080/def/crs/OGC/0/_UnixTime_template</identifier>
  <identifier>http://localhost:8080/def/crs/OGC/0/AnsiDate</identifier>
  <identifier>http://localhost:8080/def/crs/OGC/0/ChronometricGeologicTime</identifier>
  <identifier>http://localhost:8080/def/crs/OGC/0/JulianDate</identifier>
@@ -22,4 +21,5 @@
  <identifier>http://localhost:8080/def/crs/OGC/0/Index3D</identifier>
  <identifier>http://localhost:8080/def/crs/OGC/0/Index4D</identifier>
  <identifier>http://localhost:8080/def/crs/OGC/0/Index5D</identifier>
+ <identifier>http://localhost:8080/def/crs/OGC/0/_UnixTime_template</identifier>
 </identifiers>

@@ -1,2 +1,6 @@
 # The result from internal SECORE is not correct, it needs to fix later
 11-crs_inequality.kvp
+
+# Seems to change order of output lines
+05-crs_directory.kvp
+05-crs_directory.rest

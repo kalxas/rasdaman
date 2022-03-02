@@ -219,7 +219,7 @@ logn()  { echo -n -e "$PROG: $*" | tee -a "$LOG_FILE"; }
 error() { log_colored_failed "$*"; log_colored_failed "exiting."; exit $RC_ERROR; }
 log_failed() { echo "$PROG: $*" >> "$FAILED_LOG_FILE"; }
 
-feedback()   { [ $? -ne 0 ] ? loge_colored_failed failed. : loge ok.; }
+feedback()   { if [ $? -ne 0 ]; then loge_colored_failed failed.; else loge ok.; fi; }
 check_exit() {
   if [ $? -ne 0 ]; then
     log_colored_failed "failed, exiting."
@@ -553,7 +553,7 @@ check_passed()
 }
 # check the result of previously executed command ($? variable)
 # and print failed/ok accordingly + update NUM_* variables
-check() { [ $? -ne 0 ] ? check_failed "$1" : check_passed "$1"; }
+check() { if [ $? -ne 0 ]; then check_failed "$1"; else check_passed "$1"; fi; }
 
 #
 # Ultilities functions
@@ -771,7 +771,7 @@ get_request_kvp() {
   local url="$1"
   # replace the "\n" in the query to be a valid GET request without break lines
   local kvpValues
-  kvpValues=$(echo "$2" | tr -d '\n')
+  kvpValues="$(echo "$2" | tr -d '\n')"
   if [ -z "$4" ]; then
     $CURL -G -X GET "$url" --data-urlencode "$kvpValues" > "$3"
   else
@@ -787,7 +787,7 @@ post_request_kvp() {
   # $3 is output file
   local url="$1"
   local kvpValues
-  kvpValues$(echo "$2" | tr -d '\n')
+  kvpValues="$(echo "$2" | tr -d '\n')"
   $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
@@ -796,7 +796,7 @@ post_request_xml() {
   # curl -s -X POST --data-urlencode "$kvpValues" "$PETASCOPE_URL" -o "$2"
   local url="$1"
   local kvpValues
-  kvpValues=$(echo "$2" | tr -d '\n')
+  kvpValues="$(echo "$2" | tr -d '\n')"
   $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
@@ -809,7 +809,7 @@ post_request_file() {
   # $4 is output file from HTTP response
   local url="$1"
   local kvpValues
-  kvpValues=$(echo "$2" | tr -d '\n')
+  kvpValues="$(echo "$2" | tr -d '\n')"
   local upload_file="$3"
   $CURL -F "file=@$upload_file" "$url?$kvpValues" > "$4"
 }
@@ -921,7 +921,7 @@ run_test()
     # error: if file contents has "*" then it replaces it with file name, 
     # then must turn off this feature
     local QUERY
-    QUERY=$(tr '\n' ' ' < "$f")
+    QUERY=$(cat "$f" | tr -d '\n')
 
     #
     # 1. execute test query (NOTE: rasql is actually test_rasql_servlet)
@@ -1131,7 +1131,7 @@ run_test()
 # ------------------------------------------------------------------------------
 # exit test script with/without error code
 #
-exit_script() { [ $NUM_FAIL -ne 0 ] ? exit $RC_ERROR : exit $RC_OK; }
+exit_script() { if [ $NUM_FAIL -ne 0 ]; then exit $RC_ERROR; else exit $RC_OK; fi; }
 
 # ------------------------------------------------------------------------------
 # rasdaman administration
