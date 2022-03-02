@@ -726,9 +726,23 @@ class Recipe(BaseRecipe):
         first_band_variable_identifier = first_band.identifier
 
         netCDF4 = import_netcdf4()
+        number_of_dimensions = None
+
         # Get the number of dimensions of band variable to validate with number of axes specified in the ingredients file
-        number_of_dimensions = len(netCDF4.Dataset(input_files[0], 'r').variables[first_band_variable_identifier].dimensions)
-        self.__validate_data_bound_axes(user_axes, number_of_dimensions)
+        for input_file in input_files:
+            try:
+                number_of_dimensions = len(netCDF4.Dataset(input_file, 'r').variables[first_band_variable_identifier].dimensions)
+                self.__validate_data_bound_axes(user_axes, number_of_dimensions)
+                break
+            except Exception as e:
+                if ConfigManager.skip == True:
+                    continue
+                else:
+                    raise e
+
+        if number_of_dimensions is None:
+            raise RuntimeException("Cannot get the number of dimensions from one of input netCDF files. "
+                                   "Hint: make sure at least one file is readable.")
 
         coverage = NetcdfToCoverageConverter(self.resumer, self.session.default_null_values,
                                              recipe_type, sentence_evaluator, self.session.get_coverage_id(),

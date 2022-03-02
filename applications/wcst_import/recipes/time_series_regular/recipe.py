@@ -198,7 +198,16 @@ class Recipe(BaseRecipe):
 
             valid_coverage_slice = True
 
-            gdal_file = GDALGmlUtil(file.get_filepath())
+            try:
+                gdal_file = GDALGmlUtil(file.get_filepath())
+            except Exception as ex:
+                if ConfigManager.skip == True:
+                    log.warn("wcst_import will ignore this file as \"skip\" is set to true in the ingredient file."
+                             " \nReason: " + str(ex))
+                    continue
+                else:
+                    raise ex
+
             try:
                 subsets = GdalAxisFiller(crs_axes, gdal_file).fill(True)
                 subsets = self._fill_time_axis(tpair, subsets)

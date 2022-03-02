@@ -23,6 +23,8 @@
 """
 import decimal
 import re
+
+from config_manager import ConfigManager
 from lib import arrow
 from master.helper.irregular_user_axis import IrregularUserAxis
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
@@ -115,8 +117,23 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
 
         netCDF4 = import_netcdf4()
 
+        nci = None
+
         # NOTE: all files should have same bands's metadata for each file
-        nci = netCDF4.Dataset(self.files[0].get_filepath(), 'r')
+        for input_file in self.files:
+            try:
+                nci = netCDF4.Dataset(input_file.get_filepath(), 'r')
+                break
+            except Exception as e:
+                if ConfigManager.skip == True:
+                    continue
+                else:
+                    raise e
+
+        if nci is None:
+            raise RuntimeException("Cannot get null values from one of input netCDF files. "
+                                   "Hint: make sure at least one file is readable.")
+
         try:
             nil_value = nci.variables[self.bands[index].identifier].missing_value
         except AttributeError:
