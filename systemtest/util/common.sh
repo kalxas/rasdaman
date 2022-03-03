@@ -147,6 +147,7 @@ OS_UBUNTU1810="ubuntu1810"
 OS_UBUNTU1904="ubuntu1904"
 OS_UBUNTU1910="ubuntu1910"
 OS_UBUNTU2004="ubuntu2004"
+OS_UBUNTU2204="ubuntu2204"
 
 # ------------------------------------------------------------------------------
 # logging
@@ -312,6 +313,7 @@ get_os()
       Ubuntu19.0*)       OS_VERSION=$OS_UBUNTU1904;;
       Ubuntu19.1*)       OS_VERSION=$OS_UBUNTU1910;;
       Ubuntu20.0*)       OS_VERSION=$OS_UBUNTU2004;;
+      UbuntuJammy*)      OS_VERSION=$OS_UBUNTU2204;;
       Debian*8*)         OS_VERSION=$OS_DEBIAN8;;
       Debian*9*)         OS_VERSION=$OS_DEBIAN9;;
       Debian*buster*)    OS_VERSION=$OS_DEBIAN10;;
@@ -933,7 +935,7 @@ run_test()
                 kvp)
                     QUERY=$(cat "$f")
                     if check_query_runable "$QUERY"; then
-                      get_request_kvp "$RASQL_SERVLET" "$QUERY" "$out"
+                      post_request_kvp "$RASQL_SERVLET" "$QUERY" "$out"
                     fi
                     ;;
                 input)
@@ -1015,7 +1017,7 @@ run_test()
                     fi
                     QUERY=$(cat "$f")
                     if check_query_runable "$QUERY"; then
-                      get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
+                      post_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
                     else
                       return
                     fi
@@ -1050,7 +1052,7 @@ run_test()
                 endpoint="$PETASCOPE_ADMIN_URL/layer/style/remove"
               fi
               
-              get_request_kvp "$endpoint" "$QUERY" "$out"
+              post_request_kvp "$endpoint" "$QUERY" "$out"
               ;;
 
       oapi)   

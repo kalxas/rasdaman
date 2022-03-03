@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cis11:GeneralGridCoverage gml:id="test_irr_cube_2"
+    xmlns:cis11="http://www.opengis.net/cis/1.1/gml"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:rasdaman="http://www.rasdaman.org"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/cis/1.1/gml http://schemas.opengis.net/cis/1.1/gml/cisAll.xsd">
+    <cis11:Envelope axisLabels="E N" srsDimension="2" srsName="http://localhost:8080/def/crs/EPSG/0/32633">
+        <cis11:AxisExtent axisLabel="E" lowerBound="75042.72735943"
+            uomLabel="metre" upperBound="85042.72735943"/>
+        <cis11:AxisExtent axisLabel="N" lowerBound="5094865.557938452"
+            uomLabel="metre" upperBound="5104865.557938452"/>
+    </cis11:Envelope>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>0 35</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <cis11:DomainSet>
+        <cis11:GeneralGrid axisLabels="E N" srsName="http://localhost:8080/def/crs/EPSG/0/32633">
+            <cis11:RegularAxis axisLabel="E" lowerBound="75042.72735943"
+                resolution="10000" uomLabel="metre" upperBound="85042.72735943"/>
+            <cis11:RegularAxis axisLabel="N"
+                lowerBound="5094865.557938452" resolution="-10000"
+                uomLabel="metre" upperBound="5104865.557938452"/>
+            <cis11:GridLimits axisLabels="i j" srsName="http://www.opengis.net/def/crs/OGC/0/Index2D">
+                <cis11:IndexAxis axisLabel="i" lowerBound="0" upperBound="0"/>
+                <cis11:IndexAxis axisLabel="j" lowerBound="35" upperBound="35"/>
+            </cis11:GridLimits>
+        </cis11:GeneralGrid>
+    </cis11:DomainSet>
+    <cis11:RangeType>
+        <swe:DataRecord>
+            <swe:field name="b1">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                    <swe:label>b1</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-9.223372036854776e+18</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="b2">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                    <swe:label>b2</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-9.223372036854776e+18</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </cis11:RangeType>
+    <gml:RangeSet>
+        <gml:DataBlock>
+            <cis11:V>9.697354 4.181835</cis11:V>
+        </gml:DataBlock>
+    </gml:RangeSet>
+    <cis11:metadata/>
+</cis11:GeneralGridCoverage>

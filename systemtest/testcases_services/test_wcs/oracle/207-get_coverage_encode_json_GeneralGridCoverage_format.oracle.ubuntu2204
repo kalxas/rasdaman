@@ -1,0 +1,118 @@
+{
+  "type" : "CoverageByDomainAndRangeType",
+  "id" : "test_irr_cube_2",
+  "envelope" : {
+    "type" : "EnvelopeByAxisType",
+    "srsName" : "http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&2=http://localhost:8080/def/crs/EPSG/0/32633",
+    "axisLabels" : [ "ansi", "E", "N" ],
+    "axis" : [ {
+      "type" : "AxisExtentType",
+      "axisLabel" : "ansi",
+      "lowerBound" : "2008-01-01T02:01:20.000Z",
+      "upperBound" : "2008-01-08T00:02:58.000Z",
+      "uomLabel" : "d"
+    }, {
+      "type" : "AxisExtentType",
+      "axisLabel" : "E",
+      "lowerBound" : 75042.72735943,
+      "upperBound" : 75042.72735943,
+      "uomLabel" : "metre"
+    }, {
+      "type" : "AxisExtentType",
+      "axisLabel" : "N",
+      "lowerBound" : 5094865.557938452,
+      "upperBound" : 5094865.557938452,
+      "uomLabel" : "metre"
+    } ]
+  },
+  "domainSet" : {
+    "type" : "DomainSetType",
+    "generalGrid" : {
+      "type" : "GeneralGridCoverageType",
+      "srsName" : "http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&2=http://localhost:8080/def/crs/EPSG/0/32633",
+      "axisLabels" : [ "ansi", "E", "N" ],
+      "axis" : [ {
+        "type" : "IrregularAxisType",
+        "axisLabel" : "ansi",
+        "uomLabel" : "d",
+        "coordinate" : [ "2008-01-01T02:01:20.000Z", "2008-01-03T23:59:55.000Z", "2008-01-05T01:58:30.000Z", "2008-01-08T00:02:58.000Z" ]
+      }, {
+        "type" : "RegularAxisType",
+        "axisLabel" : "E",
+        "lowerBound" : 75042.72735943,
+        "upperBound" : 75042.72735943,
+        "uomLabel" : "metre",
+        "resolution" : 10000
+      }, {
+        "type" : "RegularAxisType",
+        "axisLabel" : "N",
+        "lowerBound" : 5094865.557938452,
+        "upperBound" : 5094865.557938452,
+        "uomLabel" : "metre",
+        "resolution" : -10000
+      } ],
+      "gridLimits" : {
+        "type" : "GridLimitsType",
+        "srsName" : "http://www.opengis.net/def/crs/OGC/0/Index3D",
+        "axisLabels" : [ "i", "j", "k" ],
+        "axis" : [ {
+          "type" : "IndexAxisType",
+          "axisLabel" : "i",
+          "lowerBound" : 0,
+          "upperBound" : 3
+        }, {
+          "type" : "IndexAxisType",
+          "axisLabel" : "j",
+          "lowerBound" : 0,
+          "upperBound" : 0
+        }, {
+          "type" : "IndexAxisType",
+          "axisLabel" : "k",
+          "lowerBound" : 35,
+          "upperBound" : 35
+        } ]
+      }
+    }
+  },
+  "rangeType" : {
+    "type" : "DataRecordType",
+    "field" : [ {
+      "type" : "QuantityType",
+      "name" : "b1",
+      "description" : "",
+      "nilValues" : {
+        "nilValues" : [ {
+          "reason" : "",
+          "value" : "-9.223372036854776e+18"
+        } ]
+      },
+      "uom" : {
+        "type" : "UnitReference",
+        "code" : "10^0"
+      },
+      "definition" : "ogcType:float32"
+    }, {
+      "type" : "QuantityType",
+      "name" : "b2",
+      "description" : "",
+      "nilValues" : {
+        "nilValues" : [ {
+          "reason" : "",
+          "value" : "-9.223372036854776e+18"
+        } ]
+      },
+      "uom" : {
+        "type" : "UnitReference",
+        "code" : "10^0"
+      },
+      "definition" : "ogcType:float32"
+    } ]
+  },
+  "rangeSet" : {
+    "type" : "RangeSetType",
+    "dataBlock" : {
+      "type" : "VDataBlockType",
+      "values" : [ "9.697354 4.181835", "9.697354 4.181835", "9.697354 4.181835", "9.697354 4.181835" ]
+    }
+  }
+}

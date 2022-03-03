@@ -25,6 +25,13 @@ PROG=$(basename $0)
 VERSION="@VERSION_FULL@"
 BUILD="@GIT_HASH@"
 
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+. "$SCRIPT_DIR"/util/common.sh
+
+
 log()   { echo -e "$PROG: $@"; }
 error() { log "$@; exiting."; exit 1; }
 
