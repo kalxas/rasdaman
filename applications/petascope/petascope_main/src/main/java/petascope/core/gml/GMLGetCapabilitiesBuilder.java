@@ -69,6 +69,10 @@ import static petascope.core.XMLSymbols.ATT_NAME;
 import static petascope.core.XMLSymbols.ATT_VALUE_POST_ENDCODING;
 import static petascope.core.XMLSymbols.LABEL_ABSTRACT;
 import static petascope.core.XMLSymbols.LABEL_ACCESS_CONSTRAINTS;
+import static petascope.core.XMLSymbols.LABEL_ADDITIONAL_PARAMETER;
+import static petascope.core.XMLSymbols.LABEL_ADDITIONAL_PARAMETERS;
+import static petascope.core.XMLSymbols.LABEL_ADDITIONAL_PARAMETER_NAME;
+import static petascope.core.XMLSymbols.LABEL_ADDITIONAL_PARAMETER_VALUE;
 import static petascope.core.XMLSymbols.LABEL_ADDRESS;
 import static petascope.core.XMLSymbols.LABEL_ADMINISTRATIVE_AREA;
 import static petascope.core.XMLSymbols.LABEL_ALLOWED_VALUES;
@@ -82,12 +86,10 @@ import static petascope.core.XMLSymbols.LABEL_CONTENTS;
 import static petascope.core.XMLSymbols.LABEL_COUNTRY;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_ID;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
+import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUBTYPE_PARENT;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUMMARY;
 import static petascope.core.XMLSymbols.LABEL_CRS_METADATA;
 import static petascope.core.XMLSymbols.LABEL_CRS_SUPPORTED;
-import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA;
-import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA_AXIS_NAMES_LIST;
-import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES;
 
 import static petascope.core.XMLSymbols.LABEL_DCP;
 import static petascope.core.XMLSymbols.LABEL_DELIVERY_POINT;
@@ -144,7 +146,6 @@ import static petascope.core.XMLSymbols.LABEL_VOICE;
 import static petascope.core.XMLSymbols.LABEL_WGS84_BOUNDING_BOX;
 import static petascope.core.XMLSymbols.NAMESPACE_INTERPOLATION;
 import static petascope.core.XMLSymbols.NAMESPACE_OWS;
-import static petascope.core.XMLSymbols.NAMESPACE_RASDAMAN;
 import static petascope.core.XMLSymbols.NAMESPACE_XLINK;
 import static petascope.core.XMLSymbols.PREFIX_INT;
 import static petascope.core.XMLSymbols.PREFIX_OWS;
@@ -154,12 +155,10 @@ import static petascope.core.XMLSymbols.VALUE_CONSTRAINT_POST_ENCODING_SOAP;
 import static petascope.core.XMLSymbols.VALUE_CONSTRAINT_POST_ENCODING_XML;
 import static petascope.core.XMLSymbols.NAMESPACE_WCS_20;
 import static petascope.core.XMLSymbols.NAMESPACE_WCS_21;
-import static petascope.core.XMLSymbols.PREFIX_RASDAMAN;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_20_GET_CAPABILITIES;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_21_GET_CAPABILITIES;
 import static petascope.core.XMLSymbols.VALUE_FALSE;
 import static petascope.core.XMLSymbols.VALUE_TRUE;
-
 import petascope.util.ras.RasUtil;
 import static petascope.core.XMLSymbols.NAMESPACE_CRS;
 import static petascope.core.XMLSymbols.NAMESPACE_INSPIRE_COMMON;
@@ -169,6 +168,8 @@ import static petascope.core.XMLSymbols.PREFIX_INSPIRE_COMMON;
 import static petascope.core.XMLSymbols.PREFIX_INSPIRE_DLS;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_INSPIRE1;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_INSPIRE2;
+import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES;
+import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_AXIS_NAMES_LIST;
 
 /**
  * Class to represent result of WCS GetCapabilities request.
@@ -882,43 +883,77 @@ public class GMLGetCapabilitiesBuilder {
      * 
      * e.g: 
      * 
-     * <ows:Metadata>
-     *   <rasdaman:location>
-     *      <rasdaman:hostname>code-de</rasdaman:hostname>
-     *      <rasdaman:endpoint>http://code-de.bigdatacube.org:8080/rasdaman/ows</rasdaman:endpoint>
-     *   <rasdaman:location>
-     * </ows:Metadata>
+        <ows:AdditionalParameters>
+
+            <ows:AdditionalParameter>
+                <ows:Name>sizeInBytes</ows:Name>
+                <ows:Value>224775000</ows:Value>
+            </ows:AdditionalParameter>
+            
+            <ows:AdditionalParameter>
+                <ows:Name>axisList</ows:Name>
+                <ows:Value>Lat,Long</ows:Value>
+            </ows:AdditionalParameter>
+             
+            <ows:AdditionalParameter>
+                <ows:Name>hostname</ows:Name>
+                <ows:Value>mundi.earthserver.xyz</ows:Value>
+            </ows:AdditionalParameter>
+            
+            <ows:AdditionalParameter>
+                <ows:Name>endpoint</ows:Name>
+                <ows:Value>http://mundi.earthserver.xyz:8080/rasdaman/ows</ows:Value>
+            </ows:AdditionalParameter>
+            
+            <ows:AdditionalParameter>
+                <ows:Name>blackListed</ows:Name>
+                <ows:Value>false</ows:Value>
+            </ows:AdditionalParameter>
+
+        </ows:AdditionalParameters>   
      */
     public Element createCustomizedCoverageMetadataElement(Coverage coverage) throws PetascopeException {
-	Element metadataElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CUSTOMIZED_METADATA), NAMESPACE_OWS);
+	Element additonalParametersElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDITIONAL_PARAMETERS), NAMESPACE_OWS);
 
         // Coverage size in bytes
-        Element coverageSizeInBytesElement = new Element(XMLUtil.createXMLLabel(PREFIX_RASDAMAN, LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES), NAMESPACE_RASDAMAN);
         Long sizeInBytes = coverage.getCoverageSizeInBytes();
         if (sizeInBytes != null && sizeInBytes > 0) {
-            coverageSizeInBytesElement.appendChild(sizeInBytes.toString());
-            metadataElement.appendChild(coverageSizeInBytesElement);
+            Element coverageSizeInBytesElement = this.createAdditionalElement(VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES, sizeInBytes.toString());
+            additonalParametersElement.appendChild(coverageSizeInBytesElement);
         }
         
         // List of axis names
-        Element axisListElement = new Element(XMLUtil.createXMLLabel(PREFIX_RASDAMAN, LABEL_CUSTOMIZED_METADATA_AXIS_NAMES_LIST), NAMESPACE_RASDAMAN);
-        axisListElement.appendChild(coverage.getEnvelope().getEnvelopeByAxis().getAxisNamesRepresentation());
-        metadataElement.appendChild(axisListElement);
-
-        // Downscaled collection levels of a coverage if exist
-        List<String> downscaledCollectionLevels = new ArrayList<>();
-        if (coverage.getRasdamanRangeSet() != null) {
-            for (RasdamanDownscaledCollection rasdamanDownscaledCollection : coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
-                downscaledCollectionLevels.add(rasdamanDownscaledCollection.getLevel().toPlainString());
-            }
-        }
+        Element axisListElement = createAdditionalElement(VALUE_CUSTOMIZED_METADATA_AXIS_NAMES_LIST, 
+                                                         coverage.getEnvelope().getEnvelopeByAxis().getAxisNamesRepresentation());
+        additonalParametersElement.appendChild(axisListElement);
 
         // No customized metadata is added for coverage, not show it to client
-        if (metadataElement.getChildElements().size() == 0) {
-            metadataElement = null;            
+        if (additonalParametersElement.getChildElements().size() == 0) {
+            additonalParametersElement = null;            
         }
         
-        return metadataElement;
+        return additonalParametersElement;
+    }
+    /**
+     * return extra additional element for coverage's metadata
+     with name is axisList and value is Lat,Long
+     <ows:AdditionalParameter>
+        <ows:Name>axisList</ows:Name>
+        <ows:Value>Lat,Long</ows:Value>
+    </ows:AdditionalParameter>
+     */
+    private Element createAdditionalElement(String name, String value) {
+        Element element = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDITIONAL_PARAMETER), NAMESPACE_OWS);
+
+        Element nameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDITIONAL_PARAMETER_NAME), NAMESPACE_OWS);
+        Element valueElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDITIONAL_PARAMETER_VALUE), NAMESPACE_OWS);
+        nameElement.appendChild(name);
+        valueElement.appendChild(value);
+
+        element.appendChild(nameElement);
+        element.appendChild(valueElement);
+        
+        return element;
     }
     
     /**

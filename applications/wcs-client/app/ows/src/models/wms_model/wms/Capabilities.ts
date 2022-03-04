@@ -115,7 +115,7 @@ module wms {
                             this.showLayerSizesColumn = true;
                         }
 
-                        if (customizedMetadata.hostname === undefined) {
+                        if (customizedMetadata.hostname === null) {
                             totalLocalLayerSizesInBytes += customizedMetadata.localCoverageSizeInBytes;
                         } else {
                             totalRemoteLayerSizesInBytes += customizedMetadata.remoteCoverageSizeInBytes;
@@ -166,7 +166,7 @@ module wms {
          * Parse layer's customized metadata (if any)
          */
         private parseLayerCustomizedMetadata(source:rasdaman.common.ISerializedObject) {
-            let childElement = "ows:Metadata";
+            let childElement = "ows:AdditionalParameters";
             let customizedMetadata:ows.CustomizedMetadata = null;
 
             if (source.doesElementExist(childElement)) {

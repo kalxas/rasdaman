@@ -1107,38 +1107,26 @@ var ows;
             this.parseBlackListed(source);
         }
         CustomizedMetadata.prototype.parseBlackListed = function (source) {
-            var childElement = "rasdaman:blackListed";
-            if (source.doesElementExist(childElement)) {
-                var blackListedElement = source.getChildAsSerializedObject(childElement);
-                this.isBlackedList = blackListedElement.getValueAsBool();
-            }
-            else {
-                this.isBlackedList = null;
-            }
+            this.isBlackedList = JSON.parse(this.parseAdditionalElementValueByName(source, "blackListed"));
         };
         CustomizedMetadata.prototype.parseCoverageLocation = function (source) {
-            var childElement = "rasdaman:location";
-            if (source.doesElementExist(childElement)) {
-                var locationElement = source.getChildAsSerializedObject(childElement);
-                this.hostname = locationElement.getChildAsSerializedObject("rasdaman:hostname").getValueAsString();
-                this.petascopeEndPoint = locationElement.getChildAsSerializedObject("rasdaman:endpoint").getValueAsString();
-            }
+            this.hostname = this.parseAdditionalElementValueByName(source, "hostname");
+            this.petascopeEndPoint = this.parseAdditionalElementValueByName(source, "endpoint");
         };
         CustomizedMetadata.prototype.parseCoverageSizeInBytes = function (source) {
-            var childElement = "rasdaman:sizeInBytes";
-            if (source.doesElementExist(childElement)) {
-                var sizeInBytesElement = source.getChildAsSerializedObject(childElement);
-                var sizeInBytes = sizeInBytesElement.getValueAsString();
-                this.coverageSize = CustomizedMetadata.convertNumberOfBytesToHumanReadable(sizeInBytes);
-                if (this.hostname === undefined) {
-                    this.localCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
-                }
-                else {
-                    this.remoteCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
-                }
+            var sizeInBytesValue = this.parseAdditionalElementValueByName(source, "sizeInBytes");
+            if (sizeInBytesValue === null) {
+                this.coverageSize = "N/A";
             }
             else {
-                this.coverageSize = "N/A";
+                var number = parseInt(sizeInBytesValue);
+                this.coverageSize = CustomizedMetadata.convertNumberOfBytesToHumanReadable(number);
+                if (this.hostname === null) {
+                    this.localCoverageSizeInBytes = number;
+                }
+                else {
+                    this.remoteCoverageSizeInBytes = number;
+                }
             }
         };
         CustomizedMetadata.convertNumberOfBytesToHumanReadable = function (numberOfBytes) {
@@ -1150,6 +1138,18 @@ var ows;
             var i = Math.floor(Math.log(numberOfBytes) / Math.log(k));
             var result = parseFloat((numberOfBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             return result;
+        };
+        CustomizedMetadata.prototype.parseAdditionalElementValueByName = function (source, inputNameElement) {
+            var additionalElements = source.getChildrenAsSerializedObjects("AdditionalParameter");
+            for (var i = 0; i < additionalElements.length; i++) {
+                var nameElement = additionalElements[i].getChildAsSerializedObject("Name");
+                var name_1 = nameElement.getValueAsString();
+                if (name_1 === inputNameElement) {
+                    var valueElement = additionalElements[i].getChildAsSerializedObject("Value");
+                    return valueElement.getValueAsString();
+                }
+            }
+            return null;
         };
         return CustomizedMetadata;
     }());
@@ -1219,7 +1219,7 @@ var wcs;
             if (source.doesElementExist(childElement)) {
                 _this.boundingBox = new ows.BoundingBox(source.getChildAsSerializedObject(childElement));
             }
-            childElement = "ows:Metadata";
+            childElement = "ows:AdditionalParameters";
             if (source.doesElementExist(childElement)) {
                 _this.customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
                 if (_this.customizedMetadata.hostname != null) {
@@ -1256,7 +1256,7 @@ var wcs;
                     if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
                         _this.showCoverageSizesColumn = true;
                         if (!coverageSummary.isVirtualCoverage) {
-                            if (coverageSummary.customizedMetadata.hostname === undefined) {
+                            if (coverageSummary.customizedMetadata.hostname === null) {
                                 totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
                             }
                             else {
@@ -5190,7 +5190,7 @@ var wms;
                         if (customizedMetadata.coverageSize != null) {
                             _this.showLayerSizesColumn = true;
                         }
-                        if (customizedMetadata.hostname === undefined) {
+                        if (customizedMetadata.hostname === null) {
                             totalLocalLayerSizesInBytes_1 += customizedMetadata.localCoverageSizeInBytes;
                         }
                         else {
@@ -5223,7 +5223,7 @@ var wms;
             }
         }
         Capabilities.prototype.parseLayerCustomizedMetadata = function (source) {
-            var childElement = "ows:Metadata";
+            var childElement = "ows:AdditionalParameters";
             var customizedMetadata = null;
             if (source.doesElementExist(childElement)) {
                 customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));

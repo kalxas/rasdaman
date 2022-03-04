@@ -284,12 +284,16 @@ public interface XMLSymbols {
     
     // Rasdaman
     String LABEL_CUSTOMIZED_METADATA = "Metadata";
-    String LABEL_CUSTOMIZED_METADATA_LOCATION = "location";
-    String LABEL_CUSTOMIZED_METADATA_SOURCE_COVERAGE_IDS = "sourceCoverageIds";
-    String LABEL_CUSTOMIZED_METADATA_HOSTNAME = "hostname";
-    String LABEL_CUSTOMIZED_METADATA_PETASCOPE_ENDPOINT = "endpoint";
-    String LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES = "sizeInBytes";
-    String LABEL_CUSTOMIZED_METADATA_AXIS_NAMES_LIST = "axisList";
+    
+    
+    // for WCS coverage's metadata in WCS GetCapabilities
+    String LABEL_ADDITIONAL_PARAMETERS = "AdditionalParameters";
+    String LABEL_ADDITIONAL_PARAMETER = "AdditionalParameter";
+    String LABEL_ADDITIONAL_PARAMETER_NAME = "Name";
+    String LABEL_ADDITIONAL_PARAMETER_VALUE = "Value";
+    
+    String VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES = "sizeInBytes";
+    String VALUE_CUSTOMIZED_METADATA_AXIS_NAMES_LIST = "axisList";
 
     // ows
     // // Service Identification

@@ -37,7 +37,7 @@ module ows {
         public isBlackedList:boolean;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
-            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");            
 
             this.parseCoverageLocation(source);
             this.parseCoverageSizeInBytes(source);
@@ -47,57 +47,56 @@ module ows {
         /**
          * If rasdaman:blackListed exists, then get it as true or false
          * 
-         * <rasdaman:blackListed>true</rasdaman:blackListed>
+        <ows:AdditionalParameter>
+            <ows:Name>blackListed</ows:Name>
+            <ows:Value>false</ows:Value>
+        </ows:AdditionalParameter>
          */
-        private parseBlackListed(source:rasdaman.common.ISerializedObject):void {
-            let childElement = "rasdaman:blackListed";
-            if (source.doesElementExist(childElement)) {
-                let blackListedElement = source.getChildAsSerializedObject(childElement);
-                this.isBlackedList = blackListedElement.getValueAsBool();
-            } else {
-                this.isBlackedList = null;
-            }
+        private parseBlackListed(source:rasdaman.common.ISerializedObject):void {            
+            this.isBlackedList = JSON.parse(this.parseAdditionalElementValueByName(source, "blackListed"));            
         }
 
         /**
          If in customized metadata it exists, then, get hostname and endpoint from location element.
 
-        <rasdaman:location>
-            <rasdaman:hostname>locahost</rasdaman:hostname>
-            <rasdaman:endpoint>http://localhost:8080/rasdaman/ows</rasdaman:endpoint>
-        </rasdaman:location>
+        <ows:AdditionalParameter>
+            <ows:Name>hostname</ows:Name>
+            <ows:Value>mundi.earthserver.xyz</ows:Value>
+        </ows:AdditionalParameter>
+        <ows:AdditionalParameter>
+            <ows:Name>endpoint</ows:Name>
+            <ows:Value>http://mundi.earthserver.xyz:8080/rasdaman/ows</ows:Value>
+        </ows:AdditionalParameter>
+
           */        
-        private parseCoverageLocation(source:rasdaman.common.ISerializedObject):void {
-            let childElement = "rasdaman:location";
-            if (source.doesElementExist(childElement)) {
-                let locationElement = source.getChildAsSerializedObject(childElement);
-                this.hostname = locationElement.getChildAsSerializedObject("rasdaman:hostname").getValueAsString();
-                this.petascopeEndPoint = locationElement.getChildAsSerializedObject("rasdaman:endpoint").getValueAsString();
-            }
+        private parseCoverageLocation(source:rasdaman.common.ISerializedObject):void {           
+            this.hostname = this.parseAdditionalElementValueByName(source, "hostname");            
+            this.petascopeEndPoint = this.parseAdditionalElementValueByName(source, "endpoint");
         }
 
         /**
          * If rasdaman:sizeInbytes exists, then parse it and convert to human-readable value.
          * 
-         * <rasdaman:sizeInBytes>6912</rasdaman:sizeInBytes>
+        <ows:AdditionalParameter>
+            <ows:Name>sizeInBytes</ows:Name>
+            <ows:Value>224775000</ows:Value>
+        </ows:AdditionalParameter>
          */
         private parseCoverageSizeInBytes(source:rasdaman.common.ISerializedObject):void {
-            let childElement = "rasdaman:sizeInBytes";
-
-            if (source.doesElementExist(childElement)) {
-                let sizeInBytesElement = source.getChildAsSerializedObject(childElement);
-                let sizeInBytes = sizeInBytesElement.getValueAsString();
-
-                this.coverageSize = CustomizedMetadata.convertNumberOfBytesToHumanReadable(sizeInBytes);
-
-                if (this.hostname === undefined) {
-                    this.localCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
-                } else {
-                    this.remoteCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
-                }
-            } else {
-                // if <sizeInBytes> element not exist                
+            let sizeInBytesValue = this.parseAdditionalElementValueByName(source, "sizeInBytes");
+            if (sizeInBytesValue === null) {
                 this.coverageSize = "N/A";
+            } else {
+                let number = parseInt(sizeInBytesValue);
+                this.coverageSize = CustomizedMetadata.convertNumberOfBytesToHumanReadable(number);
+
+                if (this.hostname === null) {
+                    // local node
+                    this.localCoverageSizeInBytes = number;
+                } else {
+                    // remote node
+                    this.remoteCoverageSizeInBytes = number;
+                }
             }
         }
 
@@ -115,6 +114,26 @@ module ows {
             let result = parseFloat((numberOfBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];           
 
             return result;
+        }
+
+        /**
+         * Given AdditionalParameters element, return the nested child AdditionalParameter element's value
+         * which has Name element matches with the input name          
+         */
+        private parseAdditionalElementValueByName(source:rasdaman.common.ISerializedObject, inputNameElement:string): string {
+            let additionalElements = source.getChildrenAsSerializedObjects("AdditionalParameter");
+
+            for (let i = 0; i < additionalElements.length; i++) {
+                let nameElement = additionalElements[i].getChildAsSerializedObject("Name");
+                let name = nameElement.getValueAsString();                
+
+                if (name === inputNameElement) {
+                    let valueElement = additionalElements[i].getChildAsSerializedObject("Value");                    
+                    return valueElement.getValueAsString();
+                }                
+            }
+
+            return null;
         }
     }
 }

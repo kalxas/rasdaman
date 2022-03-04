@@ -73,7 +73,7 @@ module wcs {
 
                         // NOTE: don't count the size of virtual coverages
                         if (!coverageSummary.isVirtualCoverage) {
-                            if (coverageSummary.customizedMetadata.hostname === undefined) {
+                            if (coverageSummary.customizedMetadata.hostname === null) {
                                 totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
                             } else {
                                 totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;

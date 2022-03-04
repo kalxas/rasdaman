@@ -68,7 +68,7 @@ module wcs {
                 this.boundingBox = new ows.BoundingBox(source.getChildAsSerializedObject(childElement));
             }
 
-            childElement = "ows:Metadata";
+            childElement = "ows:AdditionalParameters";
             if (source.doesElementExist(childElement)) {
                 this.customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
                 if (this.customizedMetadata.hostname != null) {
