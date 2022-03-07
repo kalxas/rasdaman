@@ -147,4 +147,9 @@ class Resumer:
 
         return collected_files
 
+    @staticmethod
+    def clear_caches():
+        Resumer.__RESUMER_FILE_NAME_DICT.clear()
+        Resumer.__IMPORTED_DATA_DICT.clear()
+
     __RESUMER_FILE_SUFFIX = ".resume.json"

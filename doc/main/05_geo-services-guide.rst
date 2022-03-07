@@ -759,11 +759,26 @@ GetCapabilities response extensions
 The WCS ``GetCapabilities`` response contains some rasdaman-specific extensions,
 as documented below.
 
-- The ``<ows:Metadata>`` element of each coverage contains some information
-  which is used by clients like the wcs-client:
+- The ``<ows:AdditionalParameters>`` element of each coverage contains some information
+  which can be useful to clients:
 
-  - ``<rasdaman:sizeInBytes>`` - an estimated size (in bytes) of the coverage
-  - ``<rasdaman:axisList>`` - the coverage axis labels in geo CRS order
+  - ``sizeInBytes`` - an estimated size (in bytes) of the coverage
+  - ``axisList`` - the coverage axis labels in geo CRS order
+
+  Example:
+
+  .. hidden-code-block:: xml
+
+        <ows:AdditionalParameters>
+            <ows:AdditionalParameter>
+                <ows:Name>sizeInBytes</ows:Name>
+                <ows:Value>224775000</ows:Value>
+            </ows:AdditionalParameter>          
+            <ows:AdditionalParameter>
+                <ows:Name>axisList</ows:Name>
+                <ows:Value>Lat,Long</ows:Value>
+            </ows:AdditionalParameter>
+        </ows:AdditionalParameters> 
 
 OGC Web Coverage Processing Service (WCPS)
 ==========================================

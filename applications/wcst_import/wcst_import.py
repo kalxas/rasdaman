@@ -173,6 +173,10 @@ def main():
     command = "export GDAL_PAM_ENABLED=NO"
     os.system(command)
 
+    # for each time interval, daemon must have new caches loaded from .resume.json
+    from master.importer.resumer import Resumer
+    Resumer.clear_caches()
+
     reg = RecipeRegistry()
     validate()
 
