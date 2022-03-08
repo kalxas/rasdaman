@@ -46,7 +46,7 @@ import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.rasdaman.config.VersionManager;
-import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
+import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import static petascope.core.KVPSymbols.VALUE_DELETE_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
@@ -170,6 +170,7 @@ import static petascope.core.XMLSymbols.SCHEMA_LOCATION_INSPIRE1;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_INSPIRE2;
 import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES;
 import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_AXIS_NAMES_LIST;
+import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES_WITH_PYRAMID_LEVELS;
 
 /**
  * Class to represent result of WCS GetCapabilities request.
@@ -180,9 +181,9 @@ import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_AXIS_NAMES_LIS
 public class GMLGetCapabilitiesBuilder {
 
     @Autowired
-    private CoverageRepositoryService persistedCoverageService;
+    private CoverageRepositoryService coverageRepositoryService;
     @Autowired
-    private OWSMetadataRepostioryService persistedOwsServiceMetadataService;
+    private OWSMetadataRepostioryService owsMetadataRepositoryService;
     @Autowired
     private HttpServletRequest httpServletRequest;
     
@@ -698,7 +699,7 @@ public class GMLGetCapabilitiesBuilder {
     private Element buildContentsElement(Element operationsMetadataElement, String version) throws PetascopeException {
 
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
-        List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllLocalCoveragesBasicMetatataFromCache();
+        List<Pair<Coverage, Boolean>> importedCoveragePairs = this.coverageRepositoryService.readAllLocalCoveragesBasicMetatataFromCache();
         List<Coverage> inspireCoverages = new ArrayList<>();
 
         // Children elements (list of all imported coverage)
@@ -887,8 +888,13 @@ public class GMLGetCapabilitiesBuilder {
 
             <ows:AdditionalParameter>
                 <ows:Name>sizeInBytes</ows:Name>
-                <ows:Value>224775000</ows:Value>
+                <ows:Value>155</ows:Value>
             </ows:AdditionalParameter>
+            
+            <ows:AdditionalParameter>
+                <ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+                <ows:Value>186</ows:Value>
+            </ows:AdditionalParameter>            
             
             <ows:AdditionalParameter>
                 <ows:Name>axisList</ows:Name>
@@ -919,6 +925,19 @@ public class GMLGetCapabilitiesBuilder {
         Long sizeInBytes = coverage.getCoverageSizeInBytes();
         if (sizeInBytes != null && sizeInBytes > 0) {
             Element coverageSizeInBytesElement = this.createAdditionalElement(VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES, sizeInBytes.toString());
+            additonalParametersElement.appendChild(coverageSizeInBytesElement);
+        }
+        
+        // Base coverage + pyramid members sizes in bytes if any
+        if (!coverage.getPyramid().isEmpty()) {
+            Long sizeInBytesWithPyramidLevels = coverage.getCoverageSizeInBytes();
+            for (CoveragePyramid pyramid : coverage.getPyramid()) {
+                Coverage pyramidMemberCoverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(pyramid.getPyramidMemberCoverageId());
+                sizeInBytesWithPyramidLevels += pyramidMemberCoverage.getCoverageSizeInBytes();
+            }
+
+            Element coverageSizeInBytesElement = this.createAdditionalElement(VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES_WITH_PYRAMID_LEVELS, 
+                                                                              sizeInBytesWithPyramidLevels.toString());
             additonalParametersElement.appendChild(coverageSizeInBytesElement);
         }
         
@@ -995,7 +1014,7 @@ public class GMLGetCapabilitiesBuilder {
        
     public Element serializeToXMLElement(String version) throws PetascopeException {
         
-        OwsServiceMetadata owsServiceMetadata = this.persistedOwsServiceMetadataService.read();
+        OwsServiceMetadata owsServiceMetadata = this.owsMetadataRepositoryService.read();
         
         Map<String, String> xmlNameSpacesMap = GMLWCSRequestResultBuilder.getMandatoryXMLNameSpacesMap();
         Set<String> schemaLocations = new LinkedHashSet<>();

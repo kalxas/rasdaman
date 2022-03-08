@@ -763,6 +763,7 @@ as documented below.
   which can be useful to clients:
 
   - ``sizeInBytes`` - an estimated size (in bytes) of the coverage
+  - ``sizeInBytesWithPyramidLevels`` - an estimated size (in bytes) of the base coverage plus sizes of its pyramid coverages; only available if this coverage has pyramid
   - ``axisList`` - the coverage axis labels in geo CRS order
 
   Example:
@@ -772,8 +773,12 @@ as documented below.
         <ows:AdditionalParameters>
             <ows:AdditionalParameter>
                 <ows:Name>sizeInBytes</ows:Name>
-                <ows:Value>224775000</ows:Value>
-            </ows:AdditionalParameter>          
+                <ows:Value>155</ows:Value>
+            </ows:AdditionalParameter>
+            <ows:AdditionalParameter>
+                <ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+                <ows:Value>1869</ows:Value>
+            </ows:AdditionalParameter>         
             <ows:AdditionalParameter>
                 <ows:Name>axisList</ows:Name>
                 <ows:Value>Lat,Long</ows:Value>

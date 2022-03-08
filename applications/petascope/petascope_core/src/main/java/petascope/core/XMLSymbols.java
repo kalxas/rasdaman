@@ -293,6 +293,7 @@ public interface XMLSymbols {
     String LABEL_ADDITIONAL_PARAMETER_VALUE = "Value";
     
     String VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES = "sizeInBytes";
+    String VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES_WITH_PYRAMID_LEVELS = "sizeInBytesWithPyramidLevels";
     String VALUE_CUSTOMIZED_METADATA_AXIS_NAMES_LIST = "axisList";
 
     // ows
