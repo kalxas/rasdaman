@@ -167,12 +167,12 @@ Installation
 
       .. hidden-code-block:: bash
 
-        # For ubuntu 16.04
-        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb xenial stable" \
-        | sudo tee /etc/apt/sources.list.d/rasdaman.list
-
         # For ubuntu 18.04
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic stable" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
+
+        # For ubuntu 16.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb xenial stable" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
     - **testing:** updated more frequently with beta releases, so aimed for
@@ -180,12 +180,12 @@ Installation
 
       .. hidden-code-block:: bash
 
-        # For ubuntu 18.04
-        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic testing" \
-        | sudo tee /etc/apt/sources.list.d/rasdaman.list
-
         # For ubuntu 20.04
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb focal testing" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
+
+        # For ubuntu 18.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic testing" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
     - **nightly:** updated nightly, so that they have the latest patches.
@@ -194,12 +194,16 @@ Installation
 
       .. hidden-code-block:: bash
 
-        # For ubuntu 18.04
-        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic nightly" \
+        # For ubuntu 22.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb jammy nightly" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
         # For ubuntu 20.04
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb focal nightly" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
+
+        # For ubuntu 18.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic nightly" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
 3. rasdaman can be installed now: ::

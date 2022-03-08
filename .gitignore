@@ -231,6 +231,7 @@ ingest.json
 test.log.save
 systemtest/logtmp
 systemtest/testcases_services/test_update_properties/tmp/
+systemtest/testcases_services/test_open/test_petascope_wcst_2D_output_as_same_as_gdal_merge/tmp/
 
 # documentation
 manuals_and_examples/manuals/doc-all/
