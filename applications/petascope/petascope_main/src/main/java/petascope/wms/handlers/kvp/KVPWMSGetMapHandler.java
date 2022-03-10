@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.repository.service.WMSRepostioryService;
@@ -33,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.controller.AbstractController;
+import petascope.controller.PetascopeController;
 import petascope.core.BoundingBox;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
@@ -81,6 +84,10 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
     private WMSGetMapExceptionService wmsGetMapExceptionService;
     @Autowired
     private WMSGetMapCachingService wmsGetMapCachingService;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;    
 
     public KVPWMSGetMapHandler() {
 
@@ -189,12 +196,12 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             }
             // Validate before handling the request
             this.validate(kvpParameters);
-
+            
             // Collect all the parameters (mandatory)
-            List<String> layerNames = ListUtil.valuesToList(kvpParameters.get(KVPSymbols.KEY_WMS_LAYERS)[0].split(","));
+            List<String> layerNames = ListUtil.valuesToList(AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_LAYERS).split(","));
             
             List<String> styleNames = new ArrayList<>();
-            String styleValue = kvpParameters.get(KVPSymbols.KEY_WMS_STYLES)[0];
+            String styleValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_STYLES);
             if (!styleValue.isEmpty()) {
                 styleNames = ListUtil.valuesToList(styleValue.split(","));
             }
@@ -204,11 +211,11 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
                 throw new WMSStyleNotMatchLayerNumbersException(layerNames.size(), styleNames.size());
             }
 
-            String outputCRS = kvpParameters.get(KVPSymbols.KEY_WMS_CRS)[0];
-            String bboxParam = kvpParameters.get(KVPSymbols.KEY_WMS_BBOX)[0];
+            String outputCRS = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_CRS);
+            String bboxParam = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_BBOX);
             BoundingBox bbox = this.createBoundingBox(bboxParam);
             
-            String widthValue = kvpParameters.get(KVPSymbols.KEY_WMS_WIDTH)[0];
+            String widthValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_WIDTH);
             try {
                 width = Integer.parseInt(widthValue);
             } catch (NumberFormatException ex) {
@@ -219,7 +226,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
                 throw new WMSInvalidWidth(widthValue);
             }
             
-            String heightValue = kvpParameters.get(KVPSymbols.KEY_WMS_HEIGHT)[0];
+            String heightValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_HEIGHT);
             try {
                 height = Integer.parseInt(heightValue);
             } catch (NumberFormatException ex) {
@@ -230,23 +237,23 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
                 throw new WMSInvalidHeight(heightValue);
             }
             
-            format = kvpParameters.get(KVPSymbols.KEY_WMS_FORMAT)[0];
+            format = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_FORMAT);
 
             // Optional values
             boolean transparent = false;
             if (kvpParameters.get(KVPSymbols.KEY_WMS_TRANSPARENT) != null) {
-                transparent = Boolean.parseBoolean(kvpParameters.get(KVPSymbols.KEY_WMS_TRANSPARENT)[0]);
+                transparent = Boolean.parseBoolean(AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_TRANSPARENT));
             }
             
             // Optional non XY axes subsets (e.g: time=...,dim_pressure=...)
             Map<String, String> dimSubsetsMap = new HashMap<>();
             if (kvpParameters.get(KVPSymbols.KEY_WMS_TIME) != null) {
-                String timeSubset = kvpParameters.get(KVPSymbols.KEY_WMS_TIME)[0].trim();
+                String timeSubset = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_TIME);
                 dimSubsetsMap.put(KVPSymbols.KEY_WMS_TIME, timeSubset);
             } 
             
             if (kvpParameters.get(KVPSymbols.KEY_WMS_ELEVATION) != null) {
-                String elevationSubset = kvpParameters.get(KVPSymbols.KEY_WMS_ELEVATION)[0].trim();
+                String elevationSubset = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_ELEVATION);
                 dimSubsetsMap.put(KVPSymbols.KEY_WMS_ELEVATION, elevationSubset);
             } 
             
@@ -263,7 +270,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             
             // Optional value (used only when requesting different CRS from layer's native CRS)
             if (kvpParameters.get(KVPSymbols.KEY_WMS_INTERPOLATION) != null) {
-                interpolation = kvpParameters.get(KVPSymbols.KEY_WMS_INTERPOLATION)[0].trim();
+                interpolation = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_INTERPOLATION);
                 if (!WMSGetMapService.validInterpolations.contains(interpolation)) {
                     throw new WMSInvalidInterpolation(interpolation);
                 }

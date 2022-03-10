@@ -778,7 +778,7 @@ as documented below.
             <ows:AdditionalParameter>
                 <ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
                 <ows:Value>1869</ows:Value>
-            </ows:AdditionalParameter>         
+            </ows:AdditionalParameter>          
             <ows:AdditionalParameter>
                 <ows:Name>axisList</ows:Name>
                 <ows:Value>Lat,Long</ows:Value>
@@ -1538,6 +1538,26 @@ Layers can be easily created from existing WCS coverages in two ways:
   Indirectly a layer will be removed when :ref:`deleting the associated WCS 
   coverage <delete-coverage>` 
 
+.. _style-behavior:
+
+Style Behavior
+--------------
+
+When a client sends ``GetMap`` requests, the rules below define
+(in conformance with the WMS 1.3 standard) how a style is applied
+to the requested layers:
+
+- If no styles are defined then rasdaman returns the data as-is,
+  encoded in the requested format.
+- If some styles are defined, e.g. X, Y, and Z, then:
+
+  - If the client specifies a style Y, then Y is applied.
+  - If the client does not specify a style, then:
+
+    - If the admin has set a style as default, e.g. Z, then Z is applied.
+    - Otherwise, if no style has been set as default,
+      then the first style from the list of styles (X) is applied.
+
 .. _style-management:
 
 Style Management
@@ -1591,7 +1611,10 @@ request.
 
 Additionally the updating endpoint supports:
 
-- ``NEWSTYLEID`` - allows to rename the style specified with ``STYLEID``.
+- ``NEWSTYLEID`` - optional parameter; allows to rename the style specified with ``STYLEID``.
+
+- ``DEFAULT`` - optional parameter; if set to ``true`` (default is ``false``),
+  then this style is set as the default style of the layer, see more details :ref:`here <style-behavior>`.
 
 
 Below the supported values for ``COLORTABLETYPE`` are explained:
@@ -1675,7 +1698,7 @@ Removing a style from an existing WMS layer can be done via the
 Examples
 ^^^^^^^^
 
--  Create a style with a WCPS query fragment:
+-  Create a style with a WCPS query fragment and set this style as default style:
 
    .. hidden-code-block:: text
 
@@ -1684,6 +1707,7 @@ Examples
         &STYLEID=wcps_style
         &ABSTRACT=This style marks the areas where fires are in progress with the color red
         &WCPSQUERYFRAGMENT=switch case $c > 1000 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14})
+        &DEFAULT=true
 
    Variable ``$c`` will be replaced by a layer name when sending a ``GetMap``
    request containing this layer's style.

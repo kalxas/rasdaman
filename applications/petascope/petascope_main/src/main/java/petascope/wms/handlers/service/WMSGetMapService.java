@@ -473,13 +473,21 @@ public class WMSGetMapService {
         
         List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions = this.wmsGetMapSubsetParsingService.translateGridDimensionsSubsetsLayers(wcpsCoverageMetadata, dimSubsetsMap);
 
-        Style style = layer.getStyle(styleName);
+        Style style = null;
+        if (styleName == null) {
+            // GetMap request without style specified, then if layer has at least one style, the default style is the first, else null
+            style = layer.getDefaultStyle();
+        } else {
+            // GetMap request with style specified
+            style = layer.getStyle(styleName);            
+        }
+        
         if (style == null) {
+            // Layer has no style
             String styleQuery = FRAGMENT_ITERATOR_PREFIX + layerName;
             collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
                                                                         wmsLayer, nonXYGridSliceSubsetDimensions,
                                                                         extendedFittedRequestGeoBBox);
-            
         } else {
             if (!StringUtils.isEmpty(style.getRasqlQueryFragment())) {
                 // rasqlTransformFragment

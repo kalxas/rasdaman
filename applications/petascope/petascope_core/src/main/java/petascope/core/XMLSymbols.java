@@ -444,6 +444,7 @@ public interface XMLSymbols {
     String LABEL_WMS_COLOR_TABLE = "ColorTable";
     String LABEL_WMS_COLOR_TABLE_TYPE = "ColorTableType";
     String LABEL_WMS_COLOR_TABLE_DEFINITION = "ColorTableDefinition";
+    String LABEL_WMS_DEFAULT_STYLE = "default";
     
     // CIS 1.1
     // -- partitoned coverage

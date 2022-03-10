@@ -146,7 +146,10 @@ public class WMSGetMapCachingService {
                 }
             }
             
-            if (layers != null && layers.contains(layerName) && styles != null && styles.contains(styleName)) {
+            if (styleName == null && layers != null && layers.contains(layerName)) {
+                // Remove GetMap request without style defined
+                iterator.remove();
+            } else if (layers != null && layers.contains(layerName) && styles != null && styles.contains(styleName)) {
                 // Remove the cache for this layer's style
                 iterator.remove();
             }

@@ -304,8 +304,6 @@ public class Layer implements Serializable {
     /**
      * Check if style already existed in list styles of a layer
      *
-     * @param styleName
-     * @return
      */
     public Style getStyle(String styleName) {
         for (Style style : this.styles) {
@@ -315,6 +313,33 @@ public class Layer implements Serializable {
         }
 
         return null;
+    }
+    
+    public Style getDefaultStyle() {
+        if (this.styles.isEmpty()) {
+            return null;
+        } else {
+            for (Style style : this.styles) {
+                if (style.isDefaultStyle() == true) {
+                    return style;
+                }
+            }
+            
+            // if no available style is set to default, then default is the first style
+            return styles.get(0);
+        }
+    }
+    
+    /**
+     * Check if input style is the default style of layer
+     */
+    public boolean isDefaultStyle(Style style) {
+        Style defaultStyle = this.getDefaultStyle();
+        if (defaultStyle == null) {
+            return false;
+        }
+        
+        return defaultStyle.getName().equals(style.getName());
     }
     
     @JsonIgnore

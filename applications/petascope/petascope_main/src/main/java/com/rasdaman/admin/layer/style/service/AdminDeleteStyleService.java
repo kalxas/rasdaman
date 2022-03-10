@@ -100,6 +100,13 @@ public class AdminDeleteStyleService extends AbstractAdminService {
         
         Style style = layer.getStyle(styleName);
         this.wmsRepostioryService.deleteStyle(style);
+        
+        // In this case, this default style is removed, then GetMap cache with styles= 
+        // will need to be cleaned as a new style will be set implicitly as default style
+        if (layer.isDefaultStyle(style)) {
+            this.wmsGetMapCachingService.removeStyleGetMapInCache(layerName, null);
+        }
+        
 
         layer.getStyles().remove(i);
         

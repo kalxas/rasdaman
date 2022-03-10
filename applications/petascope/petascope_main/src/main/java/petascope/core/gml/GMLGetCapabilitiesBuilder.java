@@ -961,7 +961,7 @@ public class GMLGetCapabilitiesBuilder {
         <ows:Value>Lat,Long</ows:Value>
     </ows:AdditionalParameter>
      */
-    private Element createAdditionalElement(String name, String value) {
+    public static Element createAdditionalElement(String name, String value) {
         Element element = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDITIONAL_PARAMETER), NAMESPACE_OWS);
 
         Element nameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDITIONAL_PARAMETER_NAME), NAMESPACE_OWS);

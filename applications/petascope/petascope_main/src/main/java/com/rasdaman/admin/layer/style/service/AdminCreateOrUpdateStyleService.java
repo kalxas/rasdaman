@@ -43,6 +43,7 @@ import static petascope.core.KVPSymbols.KEY_STYLE_ID;
 import static petascope.core.KVPSymbols.KEY_WMS_ABSTRACT;
 import static petascope.core.KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION;
 import static petascope.core.KVPSymbols.KEY_WMS_COLOR_TABLE_TYPE;
+import static petascope.core.KVPSymbols.KEY_WMS_DEFAULT_STYLE;
 import static petascope.core.KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT;
 import static petascope.core.KVPSymbols.KEY_WMS_TITLE;
 import static petascope.core.KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT;
@@ -68,7 +69,8 @@ public class AdminCreateOrUpdateStyleService extends AbstractAdminService {
     private static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_COVERAGE_ID, KEY_STYLE_ID, KEY_NEW_STYLE_ID,
                                                                                 KEY_WMS_TITLE, KEY_WMS_ABSTRACT,
                                                                                 KEY_WMS_WCPS_QUERY_FRAGMENT, KEY_WMS_RASQL_TRANSFORM_FRAGMENT,
-                                                                                KEY_WMS_COLOR_TABLE_TYPE, KEY_WMS_COLOR_TABLE_DEFINITION
+                                                                                KEY_WMS_COLOR_TABLE_TYPE, KEY_WMS_COLOR_TABLE_DEFINITION,
+                                                                                KEY_WMS_DEFAULT_STYLE
                                                                                 );
     
     @Autowired
@@ -209,6 +211,33 @@ public class AdminCreateOrUpdateStyleService extends AbstractAdminService {
                 }
             }
             style.setColorTableDefinition(colorTableDefinition);
+        }
+              
+        String defaultStyleTmp = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_WMS_DEFAULT_STYLE);
+        if (defaultStyleTmp != null) {
+            boolean defaultStyle = Boolean.valueOf(defaultStyleTmp);
+            if (defaultStyle == true) {
+                // admin explicitly sets this style as default style, then other styles must not be default style
+                for (Style styleTmp : layer.getStyles()) {
+                    if (styleTmp.getName().equals(style.getName())) {
+                        styleTmp.setDefaultStyle(true);
+                    } else {
+                        styleTmp.setDefaultStyle(false);
+                    }
+                }
+                
+                // Then remove the GetMap request which contains layers and no style from cache as there is a new style set to default
+                this.wmsGetMapCachingService.removeStyleGetMapInCache(layerName, null);
+            } else {
+                // style is unset as default style, then the first style is set as default style
+                if (layer.isDefaultStyle(style)) {
+                    style.setDefaultStyle(false);
+                    layer.getStyles().get(0).setDefaultStyle(true);
+                    
+                    // Then remove the GetMap request which contains layers and no style from cache as there is a new style set to default
+                    this.wmsGetMapCachingService.removeStyleGetMapInCache(layerName, null);
+                }
+            }
         }
 
         // Then update the layer with the new updated/added style to database.

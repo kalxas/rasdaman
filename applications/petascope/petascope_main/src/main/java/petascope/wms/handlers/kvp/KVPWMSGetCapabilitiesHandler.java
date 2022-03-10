@@ -53,6 +53,8 @@ import org.springframework.stereotype.Service;
 import petascope.core.KVPSymbols;
 import petascope.core.Templates;
 import petascope.core.XMLSymbols;
+import static petascope.core.XMLSymbols.LABEL_ADDITIONAL_PARAMETER_NAME;
+import static petascope.core.XMLSymbols.LABEL_ADDITIONAL_PARAMETER_VALUE;
 import petascope.core.gml.GMLGetCapabilitiesBuilder;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -107,7 +109,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     }
 
     @Override
-    public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
+    public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException, Exception {
         // Validate before handling the request
         this.validate(kvpParameters);
 
@@ -454,7 +456,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
         // Each layer contains zero or multiple styles (by default, style is as same as layer).
         if (!layer.getStyles().isEmpty()) {
-            String styles = this.buildStyles(layer.getName(), layer.getStyles());
+            String styles = this.buildStyles(layer, layer.getStyles());
             layerElement.appendChild(styles);
         }
 
@@ -464,18 +466,16 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     /**
      * Build a list of Style elements for a layer
      *
-     * @param styles
-     * @return
      */
-    private String buildStyles(String layerName, List<Style> styles) throws PetascopeException {
+    private String buildStyles(Layer layer, List<Style> styles) throws PetascopeException {
         StringBuilder result = new StringBuilder();
         for (Style style : styles) {
             String styleRepresentation = "";
             try {
-                styleRepresentation = this.getRepresentation(style);
-            } catch (Exception ex) {
-                throw new PetascopeException(ExceptionCode.InternalComponentError, 
-                                            "Cannot create representation for style '" + style.getName() + "' of layer '" + layerName + "'"
+                styleRepresentation = this.getRepresentation(layer, style);
+            } catch (PetascopeException ex) {
+                throw new PetascopeException(ex.getExceptionCode(), 
+                                            "Cannot create representation for style '" + style.getName() + "' of layer '" + layer.getName() + "'"
                                             + ". Reason: " + ex.getMessage(), ex);
             }
             
@@ -490,7 +490,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      *
      * @return
      */
-    public String getRepresentation(Style style) throws PetascopeException {
+    public String getRepresentation(Layer layer, Style style) throws PetascopeException {
         Element styleElement = new Element(XMLSymbols.LABEL_WMS_STYLE);
 
         // Name
@@ -504,7 +504,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         styleElement.appendChild(titleElement);
 
         // Abstract
-        Element abstractElement = this.buildStyleAbstractElemt(style);
+        Element abstractElement = this.buildStyleAbstractElemt(layer, style);
         styleElement.appendChild(abstractElement);
 
         if (style.getLegendURL() != null) {
@@ -518,7 +518,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      *
      * Build XML element for a style's abstract.
      */
-    private Element buildStyleAbstractElemt(Style style) throws PetascopeException {
+    private Element buildStyleAbstractElemt(Layer layer, Style style) throws PetascopeException {
         Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
         
         // User's abstract for the style
@@ -537,6 +537,12 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         }
         
         Element rasdamanElement = new Element(XMLSymbols.LABEL_RASDAMAN);
+        
+        if (layer.isDefaultStyle(style)) {
+            Element defaultStyleElement = new Element(XMLSymbols.LABEL_WMS_DEFAULT_STYLE);
+            defaultStyleElement.appendChild(Boolean.TRUE.toString());
+            rasdamanElement.appendChild(defaultStyleElement);
+        }
         
         if (!StringUtils.isEmpty(rasqlQueryFragment)) {
             Element rasqlQueryFragmentElement = new Element(XMLSymbols.LABEL_WMS_RASQL_QUERY_FRAGMENT);

@@ -1,0 +1,5 @@
+STYLEID=second_style&
+COVERAGEID=test_wms_4326&
+abstract=This style marks the areas where fires are in progress with the color red&
+wcpsQueryFragment=$c + 150&
+DEFAULT=true

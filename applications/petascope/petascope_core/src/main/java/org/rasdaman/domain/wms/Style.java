@@ -138,11 +138,14 @@ public class Style implements Serializable {
     @Column(name = "colortable_definition")
     @Lob
     private String colorTableDefinition;
+    
+    @Column(name = "default_style")
+    private Boolean defaultStyle = false;
 
     // Constructor with mandatory parameters for a style
     public Style(String name, String title, String styleAbstract, 
                  String rasqlQueryTransformFragment, String wcpsQueryFragment,
-                 Byte colorTableType, String colorTableDefinition) {
+                 Byte colorTableType, String colorTableDefinition, boolean defaultStyle) {
         this.name = name;
         this.title = title;
         this.styleAbstract = styleAbstract;
@@ -150,6 +153,7 @@ public class Style implements Serializable {
         this.wcpsQueryFragment = wcpsQueryFragment;
         this.colorTableType = colorTableType;
         this.colorTableDefinition = colorTableDefinition;
+        this.defaultStyle = defaultStyle;
     }
     
     public String getName() {
@@ -215,6 +219,18 @@ public class Style implements Serializable {
     public void setColorTableDefinition(String colorTableDefinition) {
         this.colorTableDefinition = colorTableDefinition;
     }      
+
+    public boolean isDefaultStyle() {
+        if (defaultStyle == null) {
+            return false;
+        }
+        
+        return defaultStyle;
+    }
+
+    public void setDefaultStyle(boolean defaultStyle) {
+        this.defaultStyle = defaultStyle;
+    }
 
     // ----- For ColorTable style -----
 
