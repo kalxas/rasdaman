@@ -137,6 +137,8 @@ module rasdaman {
                 $("#styleName").val("");
                 $("#styleAbstract").val("");
 
+                $("#overviewLegendImage").attr("src", "");
+
                 for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {                        
 
@@ -588,6 +590,26 @@ module rasdaman {
                     };
                     reader.readAsText(this.files[0]);
                 });
+
+                /**
+                 * Select a legend image from a local file
+                 */
+                $("#legendImageFileInput").change(function() {                    
+                    var selectedfile = this.files;
+                    if (selectedfile.length > 0) {
+                        var imageFile = selectedfile[0];
+                        var fileReader = new FileReader();
+                        fileReader.onload = function(fileLoadedEvent) {
+                            var srcData:any = fileLoadedEvent.target.result;
+                            // put the base64 to textarea for submit
+                            $("#hiddenLegendBase64Textarea").val(srcData);
+
+                            $("#overviewLegendImage").attr("src", srcData);
+                        }
+                    fileReader.readAsDataURL(imageFile);
+                    }
+                });
+
             }
             
             $scope.isStyleNameValid = (styleName:string)=> {                
@@ -600,6 +622,25 @@ module rasdaman {
                 return false;
             };
 
+            // Set this style as default style of the selected layer
+            $scope.setDefaultStyle = (styleName:string) => {
+                $scope.describeStyleToUpdate(styleName);
+
+                if ($scope.layer.styles.length == 1) {
+                    return;
+                } else if ($scope.layer.styles.length > 1) {
+                    // Send request to petascope to set this style as the default of layer
+                    $scope.defaultStyleName = styleName;
+
+                    // If admin doesn't set defaultStyle via checkbox, but via the radio button in the table of styles, then this style is set to default
+                    if ($scope.defaultStyleName === styleName) {
+                        $("#defaultStyle").prop("checked", true);
+                    }
+
+                    $scope.updateStyle();    
+                }
+            }
+
             // Display the selected style's metadata to the form for updating
             $scope.describeStyleToUpdate = (styleName:string)=> {
                 for (var i = 0; i < $scope.layer.styles.length; i++) {
@@ -607,6 +648,12 @@ module rasdaman {
                     if (styleObj.name == styleName) {
                         $("#styleName").val(styleObj.name);                        
                         $("#styleAbstract").val(styleObj.abstract);
+
+                        if (styleObj.defaultStyle == true) {
+                            $("#defaultStyle").prop("checked", true);
+                        } else {
+                            $("#defaultStyle").prop("checked", false);
+                        }
 
                         var styleQueryType = styleObj.queryType;
                         if (styleQueryType === "") {
@@ -622,9 +669,15 @@ module rasdaman {
                         $("#styleColorTableType").val(colorTableType);
                         $("#styleColorTableDefinition").val(styleObj.colorTableDefinition);
 
-                        // Show/hide query/color table defintiion divs
+                        // Show/hide query/color table definition divs
                         $("#styleQueryType").change();
                         $("#styleColorTableType").change();
+                        
+                        
+                        if (styleObj.legendGraphicURL != null) {
+                            // suffix date to avoid cache image in web browser
+                            $("#overviewLegendImage").attr("src", styleObj.legendGraphicURL + "&" + new Date().getTime());
+                        }                        
 
                         break;
                     }
@@ -673,19 +726,31 @@ module rasdaman {
                     var styleColorTableType = $("#styleColorTableType").val();
                     var styleColorTableDefintion = $("#styleColorTableDefinition").val();
 
+                    // If admin changes in defaultStyle checkbox to true, then this style is set to default
+                    var defaultStyle = $("#defaultStyle").prop("checked");                    
+
                     // Check if style of current layer exists
                     if (!$scope.isStyleNameValid(styleName)) {
                         alertService.error("Style name '" + styleName + "' does not exist to update.");
                         return;
                     }
 
+                    var legendGraphicBase64 = null;
+                    var base64String = $("#hiddenLegendBase64Textarea").val();
+                    if (base64String !== "") {
+                        legendGraphicBase64 = base64String;
+                    }
+
                     // Then, send the update layer's style request to server
-                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion);
+                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, 
+                                                                    styleQuery, styleColorTableType, styleColorTableDefintion, defaultStyle, legendGraphicBase64);
                     wmsService.updateLayerStyleRequest(updateLayerStyle).then(
                         (...args:any[])=> {
                             alertService.success("Successfully update style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");                            
                             // reload WMS GetCapabilities 
                             $scope.wmsStateInformation.reloadServerCapabilities = true;
+
+                            $scope.describeStyleToUpdate(styleName);
                         }, (...args:any[])=> {
                             errorHandlingService.handleError(args);                            
                         }).finally(function () {                        
@@ -703,6 +768,7 @@ module rasdaman {
                     var styleQuery = $("#styleQuery").val();
                     var styleColorTableType = $("#styleColorTableType").val();
                     var styleColorTableDefintion = $("#styleColorTableDefinition").val();
+                    var defaultStyle = $("#defaultStyle").prop("checked");
 
                     // Check if style of current layer exists
                     if ($scope.isStyleNameValid(styleName)) {
@@ -710,13 +776,20 @@ module rasdaman {
                         return;
                     }
 
+                    var legendGraphicBase64 = null;
+                    var base64String = $("#hiddenLegendBase64Textarea").val();
+                    if (base64String !== "") {
+                        legendGraphicBase64 = base64String;
+                    }
+
                     // Then, send the insert layer's style request to server
-                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion);
+                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion, defaultStyle, legendGraphicBase64);
                     wmsService.insertLayerStyleRequest(insertLayerStyle).then(
                         (...args:any[])=> {
                             alertService.success("Successfully insert style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                             // reload WMS GetCapabilities 
                             $scope.wmsStateInformation.reloadServerCapabilities = true;
+                            $scope.describeStyleToUpdate(styleName);
                         }, (...args:any[])=> {
                             errorHandlingService.handleError(args);
                         }).finally(function () {                        
@@ -778,6 +851,9 @@ module rasdaman {
 	    insertStyle():void;
 	    updateStyle():void;
         describeStyleToUpdate(styleName:string):void;
+
+        defaultStyleName:string;
+        setDefaultStyle(styleName:string):void;
         
         coverageDescription:wcs.CoverageDescription;
 

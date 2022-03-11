@@ -32,14 +32,21 @@ module ows {
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            this.exceptionText = source.getChildAsSerializedObject("ExceptionText").getValueAsString();
+            // for WMS
+            if (!source.doesElementExist("ExceptionText")) {
+                this.exceptionText = source.getValueAsString();
+                this.exceptionCode = null;
+            } else {
+                // for WCS
+                this.exceptionText = source.getChildAsSerializedObject("ExceptionText").getValueAsString();
 
-            if (source.doesAttributeExist("exceptionCode")) {
-                this.exceptionCode = source.getAttributeAsString("exceptionCode");
-            }
+                if (source.doesAttributeExist("exceptionCode")) {
+                    this.exceptionCode = source.getAttributeAsString("exceptionCode");
+                }
 
-            if (source.doesAttributeExist("locator")) {
-                this.locator = source.getAttributeAsString("locator");
+                if (source.doesAttributeExist("locator")) {
+                    this.locator = source.getAttributeAsString("locator");
+                }
             }
         }
     }

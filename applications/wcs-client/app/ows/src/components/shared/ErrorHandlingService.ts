@@ -62,7 +62,12 @@ module rasdaman {
                         var serializedResponse = this.serializedObjectFactory.getSerializedObject(responseDocument);
                         var exceptionReport = new ows.ExceptionReport(serializedResponse);
 
-                        this.notificationService.error(exceptionReport.exception.exceptionText + "</br> Exception code: " + exceptionReport.exception.exceptionCode);
+                        var exceptionText = exceptionReport.exception.exceptionText;
+                        if (exceptionReport.exception.exceptionCode != null || exceptionReport.exception.exceptionCode != undefined) {
+                            exceptionText += "</br> Exception code: " + exceptionReport.exception.exceptionCode;
+                        }
+
+                        this.notificationService.error(exceptionText);
                     } catch (err) {
                         ///This means that the exception is not a valid WCS exception
                         this.$log.error(err);

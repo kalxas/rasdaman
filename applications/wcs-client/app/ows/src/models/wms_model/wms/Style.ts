@@ -33,14 +33,21 @@ module wms {
         public query:string;
         public colorTableType:string;
         public colorTableDefinition:string;
+        public defaultStyle:boolean = false;
+        // e.g. https://ahocevar.com/geoserver/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ne%3Ane
+        public legendGraphicURL:string;
 
-        public constructor(name:string, abstract:string, queryType:string, query:string, colorTableType:string, colorTableDefinition:string) {
+        public constructor(name:string, abstract:string, queryType:string, query:string, colorTableType:string, 
+                            colorTableDefinition:string, defaultStyle:boolean,
+                            legendGraphicURL:string) {
             this.name = name;
             this.abstract = abstract;
             this.queryType = queryType;
             this.query = query;
             this.colorTableType = colorTableType;
-            this.colorTableDefinition = colorTableDefinition;
+            this.colorTableDefinition = colorTableDefinition;            
+            this.defaultStyle = defaultStyle;
+            this.legendGraphicURL = legendGraphicURL;
         }
     }
 }

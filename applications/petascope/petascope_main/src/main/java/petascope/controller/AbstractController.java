@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import static org.rasdaman.config.ConfigManager.UPLOAD_FILE_PREFIX;
@@ -530,6 +531,8 @@ public abstract class AbstractController {
         }
         
         for (Map.Entry<String, String[]> entry : kvpParametersMap.entrySet()) {
+            String key = entry.getKey();
+            
             for (String value : entry.getValue()) {
                 
                 // As they contain long GML text, no need to show
@@ -542,6 +545,15 @@ public abstract class AbstractController {
                         }
                         value = value.substring(0, size) + "...";
                     }
+                }
+                
+                if (key.equalsIgnoreCase(KVPSymbols.KEY_WMS_LEGEND_GRAPHIC)) {
+                    int size = 50;
+                    if (value.length() < 50) {
+                        size = value.length();
+                    }
+                    
+                    value = value.substring(0, size) + "...";
                 }
                 
                 request = request + entry.getKey() + "=";
@@ -558,7 +570,7 @@ public abstract class AbstractController {
     /**
      * Write response as string
      */
-    protected void writeTextResponse(Object obj) throws PetascopeException {
+    protected void writeTextResponse(Object obj) throws IOException, PetascopeException {
         byte[] bytes = obj.toString().getBytes();
         List<byte[]> bytesList = new ArrayList<>();
         bytesList.add(bytes);
@@ -571,6 +583,10 @@ public abstract class AbstractController {
      * Parse the KVP parameters to map of keys and values
      */
     private static Map<String, String[]> parseKVPParameters(String queryString, boolean decoded) throws PetascopeException {
+        
+        // decode e.g. request=GetMap&amp;format=png -> request=GetMap&format=png
+        queryString = StringEscapeUtils.unescapeHtml4(queryString);
+        
         Map<String, String[]> parametersMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (!queryString.equals("")) {
             

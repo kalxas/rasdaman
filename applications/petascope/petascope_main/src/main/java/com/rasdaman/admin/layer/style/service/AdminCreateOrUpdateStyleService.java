@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import nu.xom.Builder;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.wms.Layer;
+import org.rasdaman.domain.wms.LegendURL;
 import org.rasdaman.domain.wms.Style;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.controller.AbstractController;
+import petascope.controller.PetascopeController;
 import static petascope.core.KVPSymbols.KEY_COVERAGE_ID;
 import static petascope.core.KVPSymbols.KEY_NEW_STYLE_ID;
 import static petascope.core.KVPSymbols.KEY_STYLE_ID;
@@ -44,6 +46,7 @@ import static petascope.core.KVPSymbols.KEY_WMS_ABSTRACT;
 import static petascope.core.KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION;
 import static petascope.core.KVPSymbols.KEY_WMS_COLOR_TABLE_TYPE;
 import static petascope.core.KVPSymbols.KEY_WMS_DEFAULT_STYLE;
+import static petascope.core.KVPSymbols.KEY_WMS_LEGEND_GRAPHIC;
 import static petascope.core.KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT;
 import static petascope.core.KVPSymbols.KEY_WMS_TITLE;
 import static petascope.core.KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT;
@@ -70,7 +73,7 @@ public class AdminCreateOrUpdateStyleService extends AbstractAdminService {
                                                                                 KEY_WMS_TITLE, KEY_WMS_ABSTRACT,
                                                                                 KEY_WMS_WCPS_QUERY_FRAGMENT, KEY_WMS_RASQL_TRANSFORM_FRAGMENT,
                                                                                 KEY_WMS_COLOR_TABLE_TYPE, KEY_WMS_COLOR_TABLE_DEFINITION,
-                                                                                KEY_WMS_DEFAULT_STYLE
+                                                                                KEY_WMS_DEFAULT_STYLE, KEY_WMS_LEGEND_GRAPHIC
                                                                                 );
     
     @Autowired
@@ -212,6 +215,34 @@ public class AdminCreateOrUpdateStyleService extends AbstractAdminService {
             }
             style.setColorTableDefinition(colorTableDefinition);
         }
+        
+        String legendGraphicBase64 = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_WMS_LEGEND_GRAPHIC);
+        if (legendGraphicBase64 != null) {
+            if (legendGraphicBase64.trim().isEmpty()) {
+                // LEGENDGRAPHIC=& -> remove the existing legendgraphic
+                style.setLegendURL(null);
+            } else {
+                // get MIME from the base64 (e.g. image/png)
+                if (!(legendGraphicBase64.startsWith("data:image/png") || legendGraphicBase64.startsWith("data:image/jpeg"))) {
+                    throw new WMSException(ExceptionCode.InvalidRequest, 
+                                 "Parameter " + KEY_WMS_LEGEND_GRAPHIC + " requires PNG/JPEG image encoded in base64 string."); 
+                }
+
+                // data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAAB+CA....
+                String format = legendGraphicBase64.split(";")[0].split("data:")[1];
+                String onlineResourceURL = "service=WMS&request=GetLegendGraphic&format=" + format + "&layer=" + layerName + "&style=" + styleName;
+                LegendURL legendURL = new LegendURL(format, legendGraphicBase64, onlineResourceURL);
+                if (style.getLegendURL() != null) {
+                    // updating existing object
+                    style.getLegendURL().setFormat(format);
+                    style.getLegendURL().setLegendGraphicBase64(legendGraphicBase64);
+                    style.getLegendURL().setOnlineResourceURL(onlineResourceURL);
+                } else {
+                    // create new object
+                    style.setLegendURL(legendURL);
+                }
+            }
+        }
               
         String defaultStyleTmp = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_WMS_DEFAULT_STYLE);
         if (defaultStyleTmp != null) {
@@ -239,7 +270,7 @@ public class AdminCreateOrUpdateStyleService extends AbstractAdminService {
                 }
             }
         }
-
+        
         // Then update the layer with the new updated/added style to database.
         this.wmsRepostioryService.saveLayer(layer);
         log.info("WMS Style '" + style.getName() + "' is persisted in database.");

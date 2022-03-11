@@ -57,7 +57,7 @@ import javax.persistence.Table;
  * <ElectronicMailAddress>user@host.com</ElectronicMailAddress>
  * </Address>
  * </ContactInfo>
- * <ows:OnlineResource xlink:href="http://geoserver.org"/>
+ * <ows:OnlineResource xlink:href="http://rasdaman.org"/>
  * <ows:Role>string</ows:Role>
  * </ServiceContact>
  *

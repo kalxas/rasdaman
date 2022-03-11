@@ -108,14 +108,7 @@ public interface KVPSymbols {
 
     // WMS
     // Not standard request (only Rasdaman supports)    
-    String VALUE_WMS_INSERT_WCS_LAYER = "InsertWCSLayer";
-    String VALUE_WMS_UPDATE_WCS_LAYER = "UpdateWCSLayer";
-    // Delete a WMS layer but not delete the associated WCS coverage
-    String VALUE_WMS_DELETE_LAYER = "DeleteLayer";
-    String VALUE_WMS_DESCRIBE_LAYER = "DescribeLayer";
-    String VALUE_WMS_INSERT_STYLE = "InsertStyle";
-    String VALUE_WMS_UPDATE_STYLE = "UpdateStyle";
-    String VALUE_WMS_DELETE_STYLE = "DeleteStyle";
+    String VALUE_WMS_GET_LEGEND_GRAPHIC = "GetLegendGraphic";
     String VALUE_WMS_GET_MAP = "GetMap";
     String KEY_WMS_LAYER = "layer";
     String KEY_WMS_LAYER_NAME = "layerName";
@@ -138,6 +131,7 @@ public interface KVPSymbols {
     String KEY_WMS_COLOR_TABLE_TYPE = "ColorTableType";
     String KEY_WMS_COLOR_TABLE_DEFINITION = "ColorTableDefinition";
     String KEY_WMS_DEFAULT_STYLE = "default";
+    String KEY_WMS_LEGEND_GRAPHIC = "legendGraphic";
 
     // used for non XY axes, time axis, elevation axis, (e.g: dim_pressure with axis name is pressure) 
     String KEY_WMS_DIM_PREFIX = "dim_";

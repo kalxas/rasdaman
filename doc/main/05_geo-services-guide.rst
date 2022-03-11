@@ -1504,6 +1504,47 @@ Examples:
 - Multiple values on `time axis of a 3D coverage <http://rasdaman.org/browser/systemtest/testcases_services/test_wms/queries/29-get_map_on_3d_time_series_irregular_time_specified.test>`__
 - Multiple values on `time and dim_pressure axes of a 4d coverage <http://rasdaman.org/browser/systemtest/testcases_services/test_wms/queries/31-get_map_on_4d_coverage_dim_pressure_and_time_irregular_specified.test>`__
 
+.. _get-legend-graphic:
+
+GetLegendGraphic request
+------------------------
+
+WMS ``GetLegendGraphic`` allows to get a legend PNG/JPEG image
+associated with a style of a layer. Admin can set a legend image 
+for a style via a :ref:`style creation <style-creation>` request.
+
+Required request parameters:
+
+- ``format`` - data format in which the legend image is returned; only 
+  ``image/png`` and ``image/jpeg`` are supported.
+- ``layer`` - the WMS layer which contains the specified style.
+- ``style`` - the style which contains the legend image.
+
+   .. NOTE::
+
+      Any further extra parameters will be ignored by rasdaman.
+
+This request, for example, will return the legend image for style color
+of layer cov1:
+
+.. code-block:: text
+
+     http://localhost:8080/rasdaman/ows?service=WMS&request=GetLegendGraphic
+         &format=image/png&layer=cov1&style=color
+ 
+When a style of a layer has an associated legend graphic, WMS ``GetCapabilities``
+will have an additional ``<LegendURL>`` XML section for this style. For example:
+
+.. hidden-code-block:: xml
+
+    <LegendURL>
+        <Format>image/jpeg</Format>
+        <OnlineResource
+            xlink:href="http://localhost:8080/rasdaman/ows?service=WMS&amp;request=GetLegendGraphic
+               &amp;format=image/jpeg&amp;layer=cov_1&amp;style=NDVI"/>
+    </LegendURL>
+
+
 
 Layer Management
 ----------------
@@ -1609,13 +1650,19 @@ understand the following parameters:
 At least a query fragment, or a color table, or both, must be specified in the
 request.
 
-Additionally the updating endpoint supports:
+Additionally the updating endpoint supports the 
+following optional parameters:
 
-- ``NEWSTYLEID`` - optional parameter; allows to rename the style specified with ``STYLEID``.
+- ``NEWSTYLEID`` - the style specified with ``STYLEID`` will be renamed to the new id
+  specified by this parameter.
 
-- ``DEFAULT`` - optional parameter; if set to ``true`` (default is ``false``),
-  then this style is set as the default style of the layer, see more details :ref:`here <style-behavior>`.
+- ``DEFAULT`` - if set to ``true`` then this style is set as the default of the layer
+  (more details :ref:`here <style-behavior>`); if not specified, it is ``false`` by default.
 
+- ``LEGENDGRAPHIC`` - associate a PNG/JPEG legend image to this style, specified
+  in Base64 string format; clients can get the legend with a ``GetLegendGraphic``
+  request (more details :ref:`here <get-legend-graphic>`). The legend can be removed
+  by setting this parameter to empty, i.e. ``LEGENDGRAPHIC=``.
 
 Below the supported values for ``COLORTABLETYPE`` are explained:
 

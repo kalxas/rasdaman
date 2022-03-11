@@ -1060,12 +1060,18 @@ var ows;
     var Exception = (function () {
         function Exception(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.exceptionText = source.getChildAsSerializedObject("ExceptionText").getValueAsString();
-            if (source.doesAttributeExist("exceptionCode")) {
-                this.exceptionCode = source.getAttributeAsString("exceptionCode");
+            if (!source.doesElementExist("ExceptionText")) {
+                this.exceptionText = source.getValueAsString();
+                this.exceptionCode = null;
             }
-            if (source.doesAttributeExist("locator")) {
-                this.locator = source.getAttributeAsString("locator");
+            else {
+                this.exceptionText = source.getChildAsSerializedObject("ExceptionText").getValueAsString();
+                if (source.doesAttributeExist("exceptionCode")) {
+                    this.exceptionCode = source.getAttributeAsString("exceptionCode");
+                }
+                if (source.doesAttributeExist("locator")) {
+                    this.locator = source.getAttributeAsString("locator");
+                }
             }
         }
         return Exception;
@@ -1077,7 +1083,12 @@ var ows;
     var ExceptionReport = (function () {
         function ExceptionReport(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.exception = new ows.Exception(source.getChildAsSerializedObject("Exception"));
+            if (source.doesElementExist("Exception")) {
+                this.exception = new ows.Exception(source.getChildAsSerializedObject("Exception"));
+            }
+            else if (source.doesElementExist("ServiceException")) {
+                this.exception = new ows.Exception(source.getChildAsSerializedObject("ServiceException"));
+            }
         }
         return ExceptionReport;
     }());
@@ -2553,7 +2564,11 @@ var rasdaman;
                         var responseDocument = new rasdaman.common.ResponseDocument(errorInformation.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = this.serializedObjectFactory.getSerializedObject(responseDocument);
                         var exceptionReport = new ows.ExceptionReport(serializedResponse);
-                        this.notificationService.error(exceptionReport.exception.exceptionText + "</br> Exception code: " + exceptionReport.exception.exceptionCode);
+                        var exceptionText = exceptionReport.exception.exceptionText;
+                        if (exceptionReport.exception.exceptionCode != null || exceptionReport.exception.exceptionCode != undefined) {
+                            exceptionText += "</br> Exception code: " + exceptionReport.exception.exceptionCode;
+                        }
+                        this.notificationService.error(exceptionText);
                     }
                     catch (err) {
                         this.$log.error(err);
@@ -5569,7 +5584,18 @@ var wms;
                 if ($(rasdamanXML).find("ColorTableDefinition").text() != "") {
                     colorTableDefinition = rasdamanAbstract.match(/<ColorTableDefinition>([\s\S]*?)<\/ColorTableDefinition>/im)[1];
                 }
-                this.styles.push(new wms.Style(name, userAbstract, queryType, query, colorTableType, colorTableDefinition));
+                var defaultStyle = false;
+                if ($(rasdamanXML).find("default").text() != "") {
+                    var text = $(rasdamanXML).find("default").text();
+                    defaultStyle = JSON.parse(text);
+                }
+                var legendGraphicURL = null;
+                var legendURL = styleXML.find("LegendURL");
+                if (legendURL != null) {
+                    legendGraphicURL = legendURL.find("OnlineResource").attr("xlink:href");
+                }
+                var style = new wms.Style(name, userAbstract, queryType, query, colorTableType, colorTableDefinition, defaultStyle, legendGraphicURL);
+                this.styles.push(style);
             }
         };
         return Layer;
@@ -6128,6 +6154,7 @@ var rasdaman;
                 $scope.selectedStyleName = "";
                 $("#styleName").val("");
                 $("#styleAbstract").val("");
+                $("#overviewLegendImage").attr("src", "");
                 for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
                         $scope.layer = $scope.layers[i];
@@ -6443,6 +6470,19 @@ var rasdaman;
                     };
                     reader.readAsText(this.files[0]);
                 });
+                $("#legendImageFileInput").change(function () {
+                    var selectedfile = this.files;
+                    if (selectedfile.length > 0) {
+                        var imageFile = selectedfile[0];
+                        var fileReader = new FileReader();
+                        fileReader.onload = function (fileLoadedEvent) {
+                            var srcData = fileLoadedEvent.target.result;
+                            $("#hiddenLegendBase64Textarea").val(srcData);
+                            $("#overviewLegendImage").attr("src", srcData);
+                        };
+                        fileReader.readAsDataURL(imageFile);
+                    }
+                });
             }
             $scope.isStyleNameValid = function (styleName) {
                 for (var i = 0; i < $scope.layer.styles.length; ++i) {
@@ -6452,12 +6492,31 @@ var rasdaman;
                 }
                 return false;
             };
+            $scope.setDefaultStyle = function (styleName) {
+                $scope.describeStyleToUpdate(styleName);
+                if ($scope.layer.styles.length == 1) {
+                    return;
+                }
+                else if ($scope.layer.styles.length > 1) {
+                    $scope.defaultStyleName = styleName;
+                    if ($scope.defaultStyleName === styleName) {
+                        $("#defaultStyle").prop("checked", true);
+                    }
+                    $scope.updateStyle();
+                }
+            };
             $scope.describeStyleToUpdate = function (styleName) {
                 for (var i = 0; i < $scope.layer.styles.length; i++) {
                     var styleObj = $scope.layer.styles[i];
                     if (styleObj.name == styleName) {
                         $("#styleName").val(styleObj.name);
                         $("#styleAbstract").val(styleObj.abstract);
+                        if (styleObj.defaultStyle == true) {
+                            $("#defaultStyle").prop("checked", true);
+                        }
+                        else {
+                            $("#defaultStyle").prop("checked", false);
+                        }
                         var styleQueryType = styleObj.queryType;
                         if (styleQueryType === "") {
                             styleQueryType = "none";
@@ -6472,6 +6531,9 @@ var rasdaman;
                         $("#styleColorTableDefinition").val(styleObj.colorTableDefinition);
                         $("#styleQueryType").change();
                         $("#styleColorTableType").change();
+                        if (styleObj.legendGraphicURL != null) {
+                            $("#overviewLegendImage").attr("src", styleObj.legendGraphicURL + "&" + new Date().getTime());
+                        }
                         break;
                     }
                 }
@@ -6509,11 +6571,17 @@ var rasdaman;
                     var styleQuery = $("#styleQuery").val();
                     var styleColorTableType = $("#styleColorTableType").val();
                     var styleColorTableDefintion = $("#styleColorTableDefinition").val();
+                    var defaultStyle = $("#defaultStyle").prop("checked");
                     if (!$scope.isStyleNameValid(styleName)) {
                         alertService.error("Style name '" + styleName + "' does not exist to update.");
                         return;
                     }
-                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion);
+                    var legendGraphicBase64 = null;
+                    var base64String = $("#hiddenLegendBase64Textarea").val();
+                    if (base64String !== "") {
+                        legendGraphicBase64 = base64String;
+                    }
+                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion, defaultStyle, legendGraphicBase64);
                     wmsService.updateLayerStyleRequest(updateLayerStyle).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -6521,6 +6589,7 @@ var rasdaman;
                         }
                         alertService.success("Successfully update style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                         $scope.wmsStateInformation.reloadServerCapabilities = true;
+                        $scope.describeStyleToUpdate(styleName);
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -6539,11 +6608,17 @@ var rasdaman;
                     var styleQuery = $("#styleQuery").val();
                     var styleColorTableType = $("#styleColorTableType").val();
                     var styleColorTableDefintion = $("#styleColorTableDefinition").val();
+                    var defaultStyle = $("#defaultStyle").prop("checked");
                     if ($scope.isStyleNameValid(styleName)) {
                         alertService.error("Style name '" + styleName + "' already exists, cannot insert same name.");
                         return;
                     }
-                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion);
+                    var legendGraphicBase64 = null;
+                    var base64String = $("#hiddenLegendBase64Textarea").val();
+                    if (base64String !== "") {
+                        legendGraphicBase64 = base64String;
+                    }
+                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion, defaultStyle, legendGraphicBase64);
                     wmsService.insertLayerStyleRequest(insertLayerStyle).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -6551,6 +6626,7 @@ var rasdaman;
                         }
                         alertService.success("Successfully insert style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                         $scope.wmsStateInformation.reloadServerCapabilities = true;
+                        $scope.describeStyleToUpdate(styleName);
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -7182,7 +7258,7 @@ var wms;
 var wms;
 (function (wms) {
     var InsertLayerStyle = (function () {
-        function InsertLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion) {
+        function InsertLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion, defaultStyle, legendGraphicBase64) {
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
@@ -7190,6 +7266,8 @@ var wms;
             this.query = query;
             this.colorTableType = colorTableType;
             this.colorTableDefinition = colorTableDefintion;
+            this.defaultStyle = defaultStyle;
+            this.legendGraphicBase64 = legendGraphicBase64;
         }
         InsertLayerStyle.prototype.toKVP = function () {
             var result = "COVERAGEID=" + this.layerName +
@@ -7201,6 +7279,10 @@ var wms;
             if (this.colorTableType != "none") {
                 result += "&ColorTableType=" + this.colorTableType +
                     "&ColorTableDefinition=" + this.colorTableDefinition;
+            }
+            result += "&default=" + this.defaultStyle;
+            if (this.legendGraphicBase64 != null) {
+                result += "&legendGraphic=" + this.legendGraphicBase64;
             }
             return result;
         };
@@ -7250,13 +7332,16 @@ var wms;
 var wms;
 (function (wms) {
     var Style = (function () {
-        function Style(name, abstract, queryType, query, colorTableType, colorTableDefinition) {
+        function Style(name, abstract, queryType, query, colorTableType, colorTableDefinition, defaultStyle, legendGraphicURL) {
+            this.defaultStyle = false;
             this.name = name;
             this.abstract = abstract;
             this.queryType = queryType;
             this.query = query;
             this.colorTableType = colorTableType;
             this.colorTableDefinition = colorTableDefinition;
+            this.defaultStyle = defaultStyle;
+            this.legendGraphicURL = legendGraphicURL;
         }
         return Style;
     }());
@@ -7265,7 +7350,7 @@ var wms;
 var wms;
 (function (wms) {
     var UpdateLayerStyle = (function () {
-        function UpdateLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion) {
+        function UpdateLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion, defaultStyle, legendGraphicBase64) {
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
@@ -7273,6 +7358,8 @@ var wms;
             this.query = query;
             this.colorTableType = colorTableType;
             this.colorTableDefinition = colorTableDefintion;
+            this.defaultStyle = defaultStyle;
+            this.legendGraphicBase64 = legendGraphicBase64;
         }
         UpdateLayerStyle.prototype.toKVP = function () {
             var result = "COVERAGEID=" + this.layerName +
@@ -7284,6 +7371,10 @@ var wms;
             if (this.colorTableType != "none") {
                 result += "&ColorTableType=" + this.colorTableType +
                     "&ColorTableDefinition=" + this.colorTableDefinition;
+            }
+            result += "&default=" + this.defaultStyle;
+            if (this.legendGraphicBase64 != null) {
+                result += "&legendGraphic=" + this.legendGraphicBase64;
             }
             return result;
         };

@@ -30,9 +30,11 @@ module wms {
         public query:string;
         public colorTableType:string;
         public colorTableDefinition:string;
+        public defaultStyle:boolean;
+        public legendGraphicBase64:string;
 
         public constructor(layerName:string, name:string, abstract:string, queryType:string, query:string,
-                            colorTableType:string, colorTableDefintion:string) {            
+                            colorTableType:string, colorTableDefintion:string, defaultStyle:boolean, legendGraphicBase64:string) {            
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
@@ -40,6 +42,8 @@ module wms {
             this.query = query;
             this.colorTableType = colorTableType;
             this.colorTableDefinition = colorTableDefintion;
+            this.defaultStyle = defaultStyle;
+            this.legendGraphicBase64 = legendGraphicBase64;
         }
 
         public toKVP():string {
@@ -55,7 +59,14 @@ module wms {
                 result += "&ColorTableType=" + this.colorTableType + 
                             "&ColorTableDefinition=" + this.colorTableDefinition;         
             }
-                        
+
+            result += "&default=" + this.defaultStyle;
+
+            // base64 string
+            if (this.legendGraphicBase64 != null) {
+                result += "&legendGraphic=" + this.legendGraphicBase64;
+            }
+
             return result;
         }
     }

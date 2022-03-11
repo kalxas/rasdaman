@@ -78,7 +78,7 @@ public class ContactInfo {
     // Zero or one, optional
     @Column(name = "online_resource", length = 1000)
     // NOTE: As this could be long text, so varchar(255) is not enough
-    // e.g: <ows:OnlineResource xlink:href="http://geoserver.org"/>
+    // e.g: <ows:OnlineResource xlink:href="http://rasadaman.org"/>
     private String onlineResource;
 
     // Zero or one, optional

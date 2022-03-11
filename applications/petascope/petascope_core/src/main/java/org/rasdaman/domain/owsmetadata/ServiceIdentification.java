@@ -55,7 +55,7 @@ import javax.persistence.Table;
  * <ows:Keywords>
  * <ows:Keyword>WCS</ows:Keyword>
  * <ows:Keyword>WMS</ows:Keyword>
- * <ows:Keyword>GEOSERVER</ows:Keyword>
+ * <ows:Keyword>RASDAMAN</ows:Keyword>
  * </ows:Keywords>
  * <ows:ServiceType>OGC WCS</ows:ServiceType>
  * <ows:ServiceTypeVersion>2.0.1</ows:ServiceTypeVersion>

@@ -1048,6 +1048,8 @@ run_test()
               endpoint="$PETASCOPE_URL"
               if [[ "$f" =~ "insert" ]]; then                
                 endpoint="$PETASCOPE_ADMIN_URL/layer/style/add"
+              elif [[ "$f" =~ "update" ]]; then
+                endpoint="$PETASCOPE_ADMIN_URL/layer/style/update"              
               elif [[ "$f" =~ "delete" ]]; then
                 endpoint="$PETASCOPE_ADMIN_URL/layer/style/remove"
               fi

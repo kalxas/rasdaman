@@ -304,7 +304,23 @@ module wms {
                     colorTableDefinition = rasdamanAbstract.match(/<ColorTableDefinition>([\s\S]*?)<\/ColorTableDefinition>/im)[1];
                 }
 
-                this.styles.push(new Style(name, userAbstract, queryType, query, colorTableType, colorTableDefinition));
+                let defaultStyle:boolean = false;
+                if ($(rasdamanXML).find("default").text() != "") {
+                    // as the content as SLD format is XML as well, it needs to show the raw text                    
+                    let text = $(rasdamanXML).find("default").text();                    
+                    defaultStyle = JSON.parse(text);
+                }
+
+                var legendGraphicURL = null;
+
+                var legendURL = styleXML.find("LegendURL");
+                if (legendURL != null) {
+                    // e.g https://ahocevar.com/geoserver/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ne%3Ane
+                    legendGraphicURL = legendURL.find("OnlineResource").attr("xlink:href");
+                }
+
+                let style = new Style(name, userAbstract, queryType, query, colorTableType, colorTableDefinition, defaultStyle, legendGraphicURL);
+                this.styles.push(style);
             }
         }
     }

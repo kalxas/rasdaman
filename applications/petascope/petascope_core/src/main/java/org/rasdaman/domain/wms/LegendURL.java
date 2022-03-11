@@ -27,9 +27,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import nu.xom.Attribute;
 import nu.xom.Element;
+import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
 import petascope.core.XMLSymbols;
 
@@ -41,7 +43,7 @@ import petascope.core.XMLSymbols;
  *
  * e.g: <LegendURL width="20" height="20">
  * <Format>image/png</Format>
- * <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://access.planetserver.eu:8083/geoserver/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=global_dem%3Atiles_cut"/>
+ * <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://localhost:8080/rasdaman/ows?service=WMS&request=GetLegendGraphic&format=image/png&layer=cov1&style=color"/>
  * </LegendURL>
  *
  *
@@ -59,13 +61,9 @@ public class LegendURL implements Serializable {
     @Column(name = COLUMN_ID)
     private long id;
 
-    public LegendURL() {
-
-    }
-
     // MIME type of logo (e.g: image/png)
     @Column(name = "format")
-    private String logoFormat;
+    private String format;
 
     @Column(name = "online_resource_url", length = 1000)
     // NOTE: As this could be long text, so varchar(255) is not enough
@@ -76,17 +74,46 @@ public class LegendURL implements Serializable {
 
     @Column(name = "logo_height")
     private int height;
+    
+    @Column(name = "legend_graphic_base64")
+    @Lob
+    private String legendGraphicBase64;
+    
+    public LegendURL() {
 
-    public String getLogoFormat() {
-        return logoFormat;
+    }
+    
+    public LegendURL(String format, String legendGraphicBase64, String onlineResourceURL) {
+        this.format = format;
+        this.legendGraphicBase64 = legendGraphicBase64;
+        this.onlineResourceURL = onlineResourceURL;
+    }
+    
+    public LegendURL(String format, String onlineResourceURL) {
+        this(format, null, onlineResourceURL);
     }
 
-    public void setLogoFormat(String logoFormat) {
-        this.logoFormat = logoFormat;
+    public String getFormat() {
+        return format;
     }
 
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    /**
+     * e.g. http://localhost:8080/rasdaman/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ne%3Ane
+     */
     public String getOnlineResourceURL() {
-        return onlineResourceURL;
+        if (onlineResourceURL != null) {
+            if (!onlineResourceURL.contains("?")) {
+                return ConfigManager.PETASCOPE_ENDPOINT_URL + "?" + onlineResourceURL;
+            } else {
+                return onlineResourceURL;
+            }
+        }
+        
+        return null;
     }
 
     public void setOnlineResourceURL(String onlineResourceURL) {
@@ -108,30 +135,12 @@ public class LegendURL implements Serializable {
     public void setHeight(int height) {
         this.height = height;
     }
-    
-    /**
-     * Return the representation of a LegendURL XML element in string
-     * @return 
-     */
-    public String getRepresentation() {
-        Element legendURLElement = new Element(XMLSymbols.LABEL_WMS_LEGEND_URL);
-        Attribute widthAttribute = new Attribute(XMLSymbols.ATT_WMS_WIDTH, String.valueOf(this.width));
-        Attribute heightAttribute = new Attribute(XMLSymbols.ATT_WMS_WIDTH, String.valueOf(this.height));
-        legendURLElement.addAttribute(widthAttribute);
-        legendURLElement.addAttribute(heightAttribute);
-        
-        // Format
-        Element formatElement = new Element(XMLSymbols.LABEL_WMS_FORMAT);
-        formatElement.appendChild(this.logoFormat);
-        legendURLElement.appendChild(formatElement);
-        
-        // OnlineResource
-        Element onlineResourceElement = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE);
-        Attribute hrefAttribute = new Attribute(XMLSymbols.PREFIX_XLINK + ":" + XMLSymbols.ATT_HREF, this.getOnlineResourceURL());
-        onlineResourceElement.addAttribute(hrefAttribute);
-        legendURLElement.appendChild(onlineResourceElement);
-        
-        return legendURLElement.toXML();
+
+    public String getLegendGraphicBase64() {
+        return legendGraphicBase64;
     }
 
+    public void setLegendGraphicBase64(String legendGraphicBase64) {
+        this.legendGraphicBase64 = legendGraphicBase64;
+    }
 }

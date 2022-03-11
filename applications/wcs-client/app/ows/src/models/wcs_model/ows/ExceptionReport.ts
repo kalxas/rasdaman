@@ -31,7 +31,12 @@ module ows {
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            this.exception = new Exception(source.getChildAsSerializedObject("Exception"));
+            if (source.doesElementExist("Exception")) {
+                this.exception = new Exception(source.getChildAsSerializedObject("Exception"));
+            } else if (source.doesElementExist("ServiceException")) {
+                // for WMS error
+                this.exception = new Exception(source.getChildAsSerializedObject("ServiceException"));
+            }
         }
     }
 }

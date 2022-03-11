@@ -26,6 +26,8 @@ import petascope.core.response.Response;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +43,7 @@ import org.rasdaman.domain.wms.Dimension;
 import org.rasdaman.domain.wms.EXGeographicBoundingBox;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.LayerAttribute;
+import org.rasdaman.domain.wms.LegendURL;
 import org.rasdaman.domain.wms.Style;
 import org.rasdaman.domain.wms.Style.ColorTableType;
 import org.rasdaman.repository.service.CoverageRepositoryService;
@@ -50,11 +53,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.controller.PetascopeController;
 import petascope.core.KVPSymbols;
 import petascope.core.Templates;
 import petascope.core.XMLSymbols;
+import static petascope.core.XMLSymbols.ATT_HREF;
 import static petascope.core.XMLSymbols.LABEL_ADDITIONAL_PARAMETER_NAME;
 import static petascope.core.XMLSymbols.LABEL_ADDITIONAL_PARAMETER_VALUE;
+import static petascope.core.XMLSymbols.NAMESPACE_XLINK;
+import static petascope.core.XMLSymbols.PREFIX_XLINK;
 import petascope.core.gml.GMLGetCapabilitiesBuilder;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -65,6 +72,7 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ListUtil;
 import petascope.util.XMLUtil;
 import petascope.wms.exception.WMSLayerNotExistException;
+import petascope.util.StringUtil;
 
 /**
  * Handle the GetCapabilities WMS 1.3 request. A model result, see:
@@ -508,7 +516,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         styleElement.appendChild(abstractElement);
 
         if (style.getLegendURL() != null) {
-            styleElement.appendChild(style.getLegendURL().getRepresentation());
+            styleElement.appendChild(this.buildLegendURLElement(style));
         }
 
         return styleElement.toXML();
@@ -604,4 +612,32 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
         return keywordsElement;
     }
+    
+     /**
+     * If a style has legendURL then it shows in WMS GetCapabilities
+     */
+    private Element buildLegendURLElement(Style style) {
+        LegendURL legendURL = style.getLegendURL();
+        
+        Element legendURLElement = new Element(XMLSymbols.LABEL_WMS_LEGEND_URL);
+        
+        // Format (required)
+        Element formatElement = new Element(XMLSymbols.LABEL_WMS_FORMAT);
+        formatElement.appendChild(legendURL.getFormat());
+        legendURLElement.appendChild(formatElement);
+        
+        // OnlineResource (required)
+        Element onlineResourceElement = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE);
+        
+        // e.g. https://localhost:8080/rasdaman/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ne%3Ane
+        String getLegendGraphicURL = StringUtil.escapeAmpersands(legendURL.getOnlineResourceURL());
+        // xlink:href="URL"
+        Attribute hrefAttribute = new Attribute(XMLSymbols.PREFIX_XLINK + ":" + XMLSymbols.ATT_HREF,
+                                                XMLSymbols.NAMESPACE_XLINK, getLegendGraphicURL);
+        onlineResourceElement.addAttribute(hrefAttribute);
+        legendURLElement.appendChild(onlineResourceElement);
+        
+        return legendURLElement;
+    }
+
 }

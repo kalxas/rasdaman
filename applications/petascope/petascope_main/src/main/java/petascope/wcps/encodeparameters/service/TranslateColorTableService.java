@@ -72,8 +72,6 @@ public class TranslateColorTableService {
     
     /**
      * Translate a style in WMS SLD format in XML which contains ColorMap element to rasdaman ColorMap extra parameter.
-     * 
-     * https://docs.geoserver.org/stable/en/user/styling/sld/reference/rastersymbolizer.html#colormap
      */
     private static void handleSLDFormat(String colorTableDefinition, JsonExtraParams jsonExtraParams) throws PetascopeException {
         Element rootElement = XMLUtil.parseXML(colorTableDefinition);

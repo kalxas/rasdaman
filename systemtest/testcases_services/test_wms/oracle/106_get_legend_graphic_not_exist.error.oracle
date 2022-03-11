@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<ServiceException code="InvalidRequest">
+Style: legend_graphic of layer: test_wms_4326 does not have legend graphic.
+</ServiceException>
+</ServiceExceptionReport>

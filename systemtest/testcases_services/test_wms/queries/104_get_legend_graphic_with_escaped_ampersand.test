@@ -1,0 +1,6 @@
+service=WMS&amp;
+version=1.3.0&amp;
+request=GetLegendGraphic&amp;
+layer=test_wms_4326&amp;
+style=legend_graphic&amp;
+format=image/jpeg
