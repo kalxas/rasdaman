@@ -932,8 +932,10 @@ public class GMLGetCapabilitiesBuilder {
         if (!coverage.getPyramid().isEmpty()) {
             Long sizeInBytesWithPyramidLevels = coverage.getCoverageSizeInBytes();
             for (CoveragePyramid pyramid : coverage.getPyramid()) {
-                Coverage pyramidMemberCoverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(pyramid.getPyramidMemberCoverageId());
-                sizeInBytesWithPyramidLevels += pyramidMemberCoverage.getCoverageSizeInBytes();
+                if (pyramid.getPyramidMemberCoverageId() != null) {
+                    Coverage pyramidMemberCoverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(pyramid.getPyramidMemberCoverageId());
+                    sizeInBytesWithPyramidLevels += pyramidMemberCoverage.getCoverageSizeInBytes();
+                }
             }
 
             Element coverageSizeInBytesElement = this.createAdditionalElement(VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES_WITH_PYRAMID_LEVELS, 

@@ -23,7 +23,7 @@
 """
 import copy
 
-
+from config_manager import ConfigManager
 from lib import arrow
 from util.time_util import DateTimeUtil
 from util import list_util
@@ -128,6 +128,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         self.dataset = None
         self.data_type = None
         self.session = session
+
+        ConfigManager.mime_type = self.MIMETYPE
 
     def _file_band_nil_values(self, index):
         """

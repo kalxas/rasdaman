@@ -58,3 +58,6 @@ class ConfigManager:
 
     user = ""
     passwd = ""
+
+    # Default mimeType is none -> gdal driver for petascope
+    mime_type = None

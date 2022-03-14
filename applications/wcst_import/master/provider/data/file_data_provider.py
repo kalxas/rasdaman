@@ -24,6 +24,7 @@
 
 import mimetypes
 
+from config_manager import ConfigManager
 from master.provider.data.data_provider import DataProvider
 from util.file_util import File, FilePair
 
@@ -38,7 +39,12 @@ class FileDataProvider(DataProvider):
         """
         self.file = file
         self.structure = structure
-        self.mimetype = mimetype
+        self.mimetype = None
+        if mimetype is not None:
+            self.mimetype = mimetype
+        elif ConfigManager.mime_type is not None:
+            # e.g application/x-netcdf
+            self.mimetype = ConfigManager.mime_type
 
     def get_file_path(self):
         """

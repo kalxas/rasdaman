@@ -49,6 +49,7 @@ from util.log import log
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
     RECIPE_TYPE = "netcdf"
+    MIME_TYPE = "application/x-netcdf"
 
     def __init__(self, resumer, default_null_values, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields,
@@ -94,6 +95,8 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         self.pixel_is_point = pixel_is_point
         self.data_type = None
         self.session = session
+
+        ConfigManager.mime_type = self.MIME_TYPE
 
     def _data_type(self):
         """
