@@ -342,7 +342,7 @@ public class WMSGetMapService {
             // NOTE: WMS request first layer is always on top, rasdaman is reversed (a overlay b, then b is ontop of a)
             String finalCollectionExpressionLayers = "";
             for (int i = finalCollectionExpressions.size() - 1; i >= 0; i--) {
-                finalCollectionExpressionLayers += finalCollectionExpressions.get(i);
+                finalCollectionExpressionLayers += "( " + finalCollectionExpressions.get(i) + " )";
                 if (i > 0) {
                     finalCollectionExpressionLayers += " " + OVERLAY + " ";
                 }

@@ -147,7 +147,7 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
     }
 
     @Override
-    public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, WCSException, SecoreException, WMSException {
+    public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, WCSException, SecoreException, WMSException, Exception {
         // Validate before handling the request
         this.validate(kvpParameters);
         

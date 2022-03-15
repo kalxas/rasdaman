@@ -62,7 +62,7 @@ public class KVPWCSServiceHandler extends AbstractHandler {
     }
 
     @Override
-    public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException, WMSException {
+    public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException, WMSException, Exception {
         String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
         Response response = null;
 

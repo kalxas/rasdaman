@@ -1,0 +1,3 @@
+for c in (test_mean_summer_airtemp_black, test_mean_summer_airtemp)
+where some(c > 150)
+return encode(c, "png")

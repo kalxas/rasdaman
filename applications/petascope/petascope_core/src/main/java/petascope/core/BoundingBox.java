@@ -22,7 +22,9 @@
 
 package petascope.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
+import petascope.util.StringUtil;
 
 /**
  * Model class to store bbox values from WCPS encode()
@@ -107,6 +109,7 @@ public class BoundingBox {
     /**
      * return xmin,ymin,xmax,ymax representation
      */
+    @JsonIgnore
     public String getRepresentation() {
         return "\"" + this.xmin.toPlainString() + "," + this.ymin.toPlainString() + "," + this.xmax.toPlainString() + "," + this.ymax.toPlainString() + "\"";
     }
@@ -128,7 +131,7 @@ public class BoundingBox {
      * Parse a string representation, e.g: xmin,ymin,xmax,ymax to a BoundingBox object
      */
     public static BoundingBox parse(String representation) {
-        String[] values = representation.split(",");
+        String[] values = StringUtil.stripQuotes(representation).split(",");
         return new BoundingBox(new BigDecimal(values[0]), new BigDecimal(values[1]), new BigDecimal(values[2]), new BigDecimal(values[3]));
     }
     

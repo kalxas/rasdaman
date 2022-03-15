@@ -55,7 +55,7 @@ public class KVPWCPSServiceHandler extends AbstractHandler {
     }
 
     @Override
-    public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException, WMSException {
+    public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException, WMSException, Exception {
         if (getValueByKeyAllowNull(kvpParameters, KEY_QUERY) != null
             && getValueByKeyAllowNull(kvpParameters, KEY_QUERY_SHORT_HAND) != null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, ""

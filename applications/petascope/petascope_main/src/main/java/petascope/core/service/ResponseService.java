@@ -90,7 +90,7 @@ public class ResponseService {
      * @param wcpsQuery
      * @param encodeFormat
      */
-    public Response handleWCPSResponse(Map<String, String[]> kvpParameters, String wcpsQuery, String encodeFormat) throws PetascopeException, WCSException, SecoreException, WMSException {
+    public Response handleWCPSResponse(Map<String, String[]> kvpParameters, String wcpsQuery, String encodeFormat) throws PetascopeException, WCSException, SecoreException, WMSException, Exception {
         
         Response response = null;
         // e.g: mediaType=multipart/related        

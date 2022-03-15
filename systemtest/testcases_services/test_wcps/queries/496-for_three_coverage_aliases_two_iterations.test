@@ -1,0 +1,4 @@
+for c in (test_mean_summer_airtemp, test_mean_summer_airtemp_repeat),
+    d in (test_mean_summer_airtemp_black, test_mean_summer_airtemp),
+    e in (test_mean_summer_airtemp_repeat, test_mean_summer_airtemp)
+return encode(c + d - e - 20, "png")

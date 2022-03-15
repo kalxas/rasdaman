@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
+import petascope.util.StringUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -92,7 +93,16 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
-        
+
+        String beforeCoverageId = metadata.getCoverageName();
+        String aliasTmp = this.coverageAliasRegistry.getAliasByCoverageName(beforeCoverageId);
+        if (aliasTmp != null) {
+            aliasTmp = StringUtil.stripDollarSign(aliasTmp);
+        }
+
+        // c0 -> Pair<collectionName,coverageId>
+        this.collectionAliasRegistry.add(aliasTmp, metadata.getRasdamanCollectionName(), metadata.getCoverageName());
+
         // Validate axis name before doing other processes.
         validateSubsets(metadata, subsetDimensions);
 

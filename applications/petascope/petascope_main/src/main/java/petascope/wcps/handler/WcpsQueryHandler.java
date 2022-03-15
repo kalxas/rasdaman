@@ -21,10 +21,18 @@
  */
 package petascope.wcps.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
+import petascope.util.ListUtil;
+import petascope.util.StringUtil;
+import static petascope.wcps.handler.ForClauseHandler.AS;
 import static petascope.wcps.handler.ForClauseListHandler.FROM;
+import petascope.wcps.metadata.service.CollectionAliasRegistry;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.result.WcpsResult;
 
@@ -44,32 +52,95 @@ public class WcpsQueryHandler {
     
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
+    @Autowired
+    private CollectionAliasRegistry collectionAliasRegistry;
     
-    /**
-     * Invoked in case collection names should be updated in the rasql FROM clause
-     */
-    public String getUpdatedForClauseListRasql() {
-        String rasql = this.coverageAliasRegistry.getRasqlFromClause();
-        if (!rasql.trim().isEmpty()) {
-            rasql = FROM + " " + rasql;
-        }
-        return rasql;
-    }
 
     public WcpsResult handle(WcpsResult forClauseList, WcpsResult whereClause, WcpsResult returnClause) throws PetascopeException {
-        //SELECT c1+c2
+        // SELECT c1 + c2
         String rasql = returnClause.getRasql();
 
-        //FROM cov1 as c1, cov2 as c2
-        String updatedRasql = this.getUpdatedForClauseListRasql();
-        rasql = rasql.concat(updatedRasql);
+        String whereClauseStr = null;
         
-        //append where if exists
         if (whereClause != null) {
-            rasql = rasql.concat(whereClause.getRasql());
+            whereClauseStr = whereClause.getRasql();
         }
-
-        returnClause.setRasql(rasql);
+        
+        List<String> finalRasqlQueries = this.createFinalRasqlQueries(rasql, whereClauseStr);
+        returnClause.setFinalRasqlQueries(finalRasqlQueries);
+        
         return returnClause;
     }
+    
+    
+    /***
+     * Normally for c in (cov1) return c; returns 1 query, 
+     * but if for c in (cov1, cov2) then it returns 2 rasql queries (one for collection1 as c and one for collection2 as c)
+     * 
+     */
+    private List<String> createFinalRasqlQueries(String defaultRasql, String whereClause) throws PetascopeException {
+        List<String> finalRaslQueries = new ArrayList<>();
+        
+        List<List<String>> listsTmp = new ArrayList<>();
+        // e.g. c -> [ (cov11:collection11), (cov12: collection12), ...]
+        for (Map.Entry<String, List<Pair<String, String>>> entry : this.coverageAliasRegistry.getCoverageMappings().entrySet()) {
+            // e.g. c
+            String coverageVarableName = entry.getKey();
+            List<String> collectionVariableNamesList = new ArrayList<>();
+
+            // e.g. [ (cov11:collection11), (cov12: collection12), ...]
+            List<Pair<String, String>> coverageIdsCollectionNamesList = entry.getValue();
+            for (Pair<String, String> pair : coverageIdsCollectionNamesList) {
+                String collectionName = pair.snd;
+                if (collectionName != null) {
+                    // e.g collection11 as c
+                    String clause = pair.snd + " AS " + StringUtil.stripDollarSign(coverageVarableName);
+                    collectionVariableNamesList.add(clause);
+                }
+
+            }            
+            
+            if (!collectionVariableNamesList.isEmpty()) {
+                listsTmp.add(collectionVariableNamesList);
+            }
+        }
+        
+        
+        // for virtual coverages, their rasdaman collection names are null -> collect source coverages' collections
+        for (Map.Entry<String, Pair<String, String>> entry : this.collectionAliasRegistry.getAliasMap().entrySet()) {
+            // e.g: utm31 as c0
+            String clause = entry.getValue().fst + " " + AS + " " + entry.getKey();
+            boolean mustAdd = true;
+            for (List<String> list : listsTmp) {
+                for (String str : list) {
+                    if (str.equals(clause)) {
+                        mustAdd = false;
+                        break;
+                    }
+                }
+            }
+            
+            if (mustAdd) {
+                List<String> collectionVariableNamesList = new ArrayList<>();            
+                collectionVariableNamesList.add(clause);
+
+                listsTmp.add(collectionVariableNamesList);
+            }
+        }  
+        
+        // e.g. with list1[ collection11 as c, collection12 as c ], list2[ collection21 as d]
+        // returns list[ list1[ collection 11 as c, collection21 as d ], list2[ collection12 as c, collection21 as d ] ]
+        List<List<String>> catersianProductList = ListUtil.cartesianProduct(listsTmp);
+        for (List<String> list : catersianProductList) {
+            String fromClause = " FROM " + ListUtil.join(list, ", ");
+            String rasqlQuery = defaultRasql + fromClause;
+            if (whereClause != null) {
+                rasqlQuery += " " + whereClause;
+            }
+            finalRaslQueries.add(rasqlQuery);
+        }
+        
+        return finalRaslQueries;
+    }
+    
 }

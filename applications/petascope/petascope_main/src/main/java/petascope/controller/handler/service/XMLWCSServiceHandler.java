@@ -80,7 +80,7 @@ public class XMLWCSServiceHandler extends AbstractHandler {
     }
 
     @Override
-    public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException, WMSException {
+    public Response handle(Map<String, String[]> kvpParameters) throws WCSException, IOException, PetascopeException, SecoreException, WMSException, Exception {
         // Here it will need to parse the XML document and build a WCS query with query String in KVP
         String requestBody = kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY)[0];
         Response response = null;

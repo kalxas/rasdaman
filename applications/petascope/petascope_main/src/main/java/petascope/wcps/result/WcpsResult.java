@@ -22,6 +22,8 @@
 package petascope.wcps.result;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import petascope.util.MIMEUtil;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -38,6 +40,8 @@ public class WcpsResult extends VisitorResult {
 
     //the rasql string resulting from the evaluation
     private String rasql;
+    // list of rasql queries to be executed to rasdaman
+    private List<String> finalRasqlQueries = new ArrayList<>();
     
     private DimensionIntervalList dimensionIntervalList;
     
@@ -75,6 +79,14 @@ public class WcpsResult extends VisitorResult {
 
     public String getRasql() {
         return rasql;
+    }
+
+    public List<String> getFinalRasqlQueries() {
+        return finalRasqlQueries;
+    }
+
+    public void setFinalRasqlQueries(List<String> finalRasqlQueries) {
+        this.finalRasqlQueries = finalRasqlQueries;
     }
 
     public WcpsCoverageMetadata getMetadata() {
