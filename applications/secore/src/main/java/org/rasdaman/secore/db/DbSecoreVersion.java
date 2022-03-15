@@ -27,11 +27,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.ConfigManager;
 import org.rasdaman.secore.Constants;
 import static org.rasdaman.secore.db.DbManager.FIX_GML_VERSION_ALIAS;
+import org.rasdaman.secore.handler.AbstractHandler;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.SecoreException;
 import org.rasdaman.secore.util.SecoreUtil;
@@ -83,6 +85,22 @@ public class DbSecoreVersion {
         if (!updateFilesLatestVersion.equals(Constants.EMPTY)) {
             // Update the value for SecoreVersion
             this.updateVersion(updateFilesLatestVersion);
+        }
+        
+
+        // Also check which is the latest GML version SECORE can handle
+        Iterator<String> iterator = DbManager.getSupportedGMLCollectionVersions().descendingIterator();
+        while (iterator.hasNext()) {
+            String gmlVersion = iterator.next();
+            try {
+                AbstractHandler.resolve("identifier", "/crs/EPSG/VERSION_NUMBER/4326", gmlVersion, "2", null);
+                DbManager.LATEST_GML_VERSION_SUPPORTED = gmlVersion;
+                log.info("GML database version: " + gmlVersion + " is set as alias for GML version 0.");
+                break;
+            } catch (Exception ex) {
+                log.error("GML database version: " + gmlVersion + " is broken when resolving request /crs/EPSG/" + gmlVersion + "/4326. Reason: " + ex.getMessage() 
+                        + ". Hint: SECORE will try with a lower working GML database version.");
+            }
         }
     }
 

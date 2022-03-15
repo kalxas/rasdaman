@@ -128,7 +128,7 @@ public abstract class AbstractHandler implements Handler {
      * @throws SecoreException usually if the text content of el hasn't been
      * matched with id
      */
-    protected String resolve(String el, String id, String versionNumber, String depth, List<Parameter> parameters) throws SecoreException {
+    public static String resolve(String el, String id, String versionNumber, String depth, List<Parameter> parameters) throws SecoreException {
         // NOTE: this will query in userdb first then later with the gml db.
         String work = null;
         
@@ -140,7 +140,7 @@ public abstract class AbstractHandler implements Handler {
         String keys = "let $keys := (";
         String values = "let $values := (";
 
-        if (!parameters.isEmpty()) {
+        if (parameters != null && !parameters.isEmpty()) {
             String targets = EMPTY;
             int i = 0;            
             // keys, values for parameters
@@ -333,7 +333,7 @@ public abstract class AbstractHandler implements Handler {
                         + "\n"
                         + "local:work('" + id + "')";
 
-        return DbManager.getInstance().getDb().queryUser(query, versionNumber);
+        return DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
     }
 
     /**

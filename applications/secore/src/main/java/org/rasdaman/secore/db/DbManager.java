@@ -23,13 +23,13 @@ package org.rasdaman.secore.db;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.ConfigManager;
 import org.rasdaman.secore.Constants;
+import org.rasdaman.secore.handler.AbstractHandler;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.IOUtil;
 import org.rasdaman.secore.util.Pair;
@@ -85,6 +86,9 @@ public class DbManager {
     
     private Database db;
     private static DbManager instance;
+    
+    // for example version 9.4.2, but if it is broken then version 8.9.2
+    public static String LATEST_GML_VERSION_SUPPORTED = "0";
 
     /**
      * To notify Servlet when should clear the cache (i.e: when BaseX update/delete/insert definitions) then need to clear cache from BaseX query and also on Servlet.
@@ -101,7 +105,7 @@ public class DbManager {
      * and full path to XML dictionary files. (e.g: .../ect/gml/$VERSION/GmlDictionary.xml)
      */
     public static Map<DbCollection, String> collections;
-    private TreeSet<String> supportedGMLCollectionVersions;
+    private static TreeSet<String> supportedGMLCollectionVersions;
     
     /**
      * Append zeros to this format number1.number2.number3
@@ -165,7 +169,7 @@ public class DbManager {
     private DbManager() throws SecoreException {
         
         this.collections = new TreeMap<DbCollection, String>(sortByNumbersMap);
-        this.supportedGMLCollectionVersions = new TreeSet<>(sortByNumbersSet);
+        supportedGMLCollectionVersions = new TreeSet<>(sortByNumbersSet);
         
         boolean hasFixVersion = false;
         boolean hasUserDBFile = false;
@@ -251,6 +255,7 @@ public class DbManager {
 
         // initialise the database from dictionary files
         db = new BaseX(collections);
+      
     }
     
     /**
@@ -371,8 +376,8 @@ public class DbManager {
         return false;
     }
     
-    public TreeSet<String> getSupportedGMLCollectionVersions() {
-        return this.supportedGMLCollectionVersions;
+    public static TreeSet<String> getSupportedGMLCollectionVersions() {
+        return supportedGMLCollectionVersions;
     }
     
     
@@ -380,7 +385,7 @@ public class DbManager {
      * Get the latest supported EPSG GML version in SECORE (e.g: 9.4.2)
      */
     public String getLatestGMLCollectionVersion() {
-        return this.supportedGMLCollectionVersions.last();
+        return this.LATEST_GML_VERSION_SUPPORTED;        
     }
 
     public Database getDb() {
