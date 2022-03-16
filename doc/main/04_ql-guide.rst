@@ -2617,6 +2617,7 @@ be overcome by factoring divergingly tiled arrays out of a query, or by
 resorting to the query equivalent in the above example using
 multiplication and addition.
 
+.. _induction-all-ops:
 
 Induction: All Operations
 -------------------------
@@ -3716,6 +3717,7 @@ The following parameters are common to GDAL, NetCDF, and GRIB data formats:
       "domain": "[0:100,0:100]"
     }
 
+.. _decode-gdal:
 
 GDAL
 ^^^^
@@ -4135,9 +4137,11 @@ NetCDF
 
 The following are mandatory options when encoding to NetCDF:
 
-- ``variables`` -  Specify variable names for each band of the MDD, as well as
+- ``variables`` -  Specify variable names for each band of the MDD,
   dimension names if they need to be saved as `coordinate variables
-  <https://www.unidata.ucar.edu/software/netcdf/docs/netcdf_data_set_components.html#coordinate_variables>`__.
+  <https://www.unidata.ucar.edu/software/netcdf/docs/netcdf_data_set_components.html#coordinate_variables>`__,
+  as well as non-data `grid mapping variables 
+  <https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html#grid-mappings-and-projections>`__.
   There are two ways to specify the variables:
 
   1. An array of strings for each variable name, e.g. ``["var1", "var2"]``;
@@ -4151,13 +4155,19 @@ The following are mandatory options when encoding to NetCDF:
        attributes to the variable;
 
      - ``type`` - Type of the data values this variable contains relevant (and 
-       required) only for coordinate variables; allowed values are "byte",
+       required) for coordinate or non-data variables; allowed values are "byte",
        "char", "short", "ushort", "int", "uint", "float", and "double";
 
      - ``data`` - An array of data values for the variable relevant (and 
        required) only for coordinate variables (as regular variables get
        their data values from the array to be encoded); the number of values
        must match the dimension extent;
+
+     If the variable name is not listed in the ``dimensions`` array and still
+     has a ``data`` attribute, then it will be considered to be a non-data
+     variable and will not be used for storing MDD band data; the ``data``
+     attribute is ignored in this case, so the value for it can be an empty
+     JSON array ``[]``.
 
 - ``dimensions`` - An array of names for each dimension, e.g. ``["Lat","Long"]``.
 
@@ -4274,6 +4284,69 @@ the array data.
       }
     }
   }
+
+
+Below format parameters for a rotated grid are specified, which define a
+``"rotated_pole"`` grid mapping variable in addition to the dimension variables
+(``rlong`` and ``rlat``) and the band variable ``CAPE_ML``. More information on
+grid mappings can be found `here <https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html#grid-mappings-and-projections>`__.
+
+.. hidden-code-block:: json
+
+  "dimensions": [
+    "rlon",
+    "rlat"
+  ],
+  "variables": {
+    "rotated_pole": {
+      "type": "int",
+      "name": "rotated_pole",
+      "metadata": {
+        "grid_mapping_name": "rotated_latitude_longitude",
+        "grid_north_pole_longitude": "-170",
+        "units": "degrees",
+        "axis": "X"
+      },
+      "data": []
+    },
+    "rlon": {
+      "type": "double",
+      "data": [-5,-4.975,-4.95,-4.925],
+      "name": "rlon",
+      "metadata": {
+        "standard_name": "grid_longitude",
+        "long_name": "longitude in rotated pole grid",
+        "grid_north_pole_latitude": "40",
+        "semi_major_axis": "6371229."
+      }
+    },
+    "rlat": {
+      "type": "double",
+      "data": [-4.925,-4.95,-4.975,-5],
+      "name": "rlat",
+      "metadata": {
+        "standard_name": "grid_latitude",
+        "long_name": "latitude in rotated pole grid",
+        "units": "degrees",
+        "axis": "Y"
+      }
+    },
+    "CAPE_ML": {
+      "type": "float",
+      "name": "CAPE_ML",
+      "metadata": {
+        "description": "Count of the number of observations from the SeaWiFS sensor",
+        "units": "J kg-1",
+        "long_name": "Convective Available Potential Energy, mean layer",
+        "param": "6.7.0",
+        "grid_mapping": "rotated_pole",
+        "realization": "1",
+        "ensemble_members": "20",
+        "forecast_init_type": "192"
+      }
+    }
+  }
+
 
 CSV / JSON
 ^^^^^^^^^^
@@ -4437,6 +4510,7 @@ to the following:
     The message syntax is not standardized in any way and may
     change in any rasdaman version without notice.
 
+.. _retrieving-object-metadata:
 
 Retrieving Object Metadata
 ==========================
@@ -4766,6 +4840,7 @@ dimensionality) as the existing type of the collection before setting it.
     alter collection mr2
     set type GreySetWithNullValues
 
+.. _retrieve-all-collection-names:
 
 Retrieve All Collection Names
 -----------------------------

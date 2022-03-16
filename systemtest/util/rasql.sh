@@ -386,7 +386,7 @@ function import_nullvalues_data()
   #
   # drop any existing data and insert again
   #
-  drop_colls $TEST_NULL $TEST_NULL_FLOAT $TEST_NULL3D $TEST_GREY_NULL
+  drop_colls $TEST_NULL $TEST_NULL_FLOAT $TEST_NULL3D $TEST_GREY_NULL $TEST_RGB2
 
   create_coll $TEST_NULL $set_type
   $RASQL -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
@@ -399,6 +399,9 @@ function import_nullvalues_data()
 
   create_coll $TEST_GREY_NULL $set_type_grey
   $RASQL -q "insert into $TEST_GREY_NULL values decode(\$1)" -f "$SCRIPT_DIR/testdata/mr_1.png" > /dev/null | tee -a $LOG
+
+  create_coll $TEST_RGB2 RGBSet
+  insert_into $TEST_RGB2 "$SCRIPT_DIR/../test_select/testdata/rgb.png" "" "decode" "" "tiling aligned [0:49,0:49] tile size 7500 $STORAGE_CLAUSE"
 }
 
 #

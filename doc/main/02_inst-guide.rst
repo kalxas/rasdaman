@@ -1652,6 +1652,8 @@ directories found in ``$RMANHOME`` after a fresh installation.
 |                     |clients, example data, migration scripts, etc.               |
 +---------------------+-------------------------------------------------------------+
 
+.. _sec-executables:
+
 Executables
 ===========
 
@@ -2041,7 +2043,7 @@ common context path ``/rasdaman``.
   .. NOTE::
 
      rasql servlet also supports rasdaman user credentials in basic authentication header.
-     In this case, ``password`` and ``query`` parameters are not required as the credentials
+     In this case, ``username`` and ``password`` parameters are not required as the credentials
      are extracted from the header.
 
 
@@ -2526,6 +2528,8 @@ Here is an example session (``mypasswd`` will not be echoed on screen):
     mylogin:localhost> save
     mylogin:localhost> exit
     $
+
+.. _sec-rascontrol-script-use:
 
 Script Use
 ----------
@@ -3389,10 +3393,14 @@ permanent.
 
 terminates ``rascontrol``.
 
+.. _rasdaman-security:
 
 ********
 Security
 ********
+
+General
+=======
 
 There are several security measures available, which should be considered
 seriously. Among them are the access right mechanisms found in Tomcat,

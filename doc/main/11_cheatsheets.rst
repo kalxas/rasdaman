@@ -382,6 +382,7 @@ comparison.
     | ``complex2``       | 128 bit    | double precision floating point complex  |
     +--------------------+------------+------------------------------------------+
 
+.. _wcps-metadata-operations:
 
 Metadata operations
 -------------------
@@ -871,6 +872,16 @@ terminal. Examples with ``curl`` follow.
     curl "http://ows.rasdaman.org/rasdaman/ows" --out test.png --data-urlencode \
     'service=WCS&version=2.0.1&request=ProcessCoverages&query=\
     for c in (mean_summer_airtemp) return encode(c, "png")'
+
+When the server requires basic authentication for a request, the rasdaman
+user credentials can be specified with the ``--user`` option, e.g.
+
+  .. code-block:: shell
+
+    curl --user "rasadmin:rasadmin" \
+         "http://localhost:8080/rasdaman/ows?
+          service=WCS&version=2.0.1&request=DeleteCoverage&coverageId=test_coverage"
+
 
 Rasql Web Console
 -----------------

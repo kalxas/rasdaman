@@ -277,6 +277,8 @@ There are lots of ways to get involved and help out with the rasdaman project:
     Browse this section of the website, we use "Feature" tickets to hold ideas for new features; add your own and/or discuss a topic on the  `dev list <http://rasdaman.org/wiki/MailingLists>`_.
 
 
+.. _reporting-problems:
+
 Reporting problems
 ==================
 

@@ -1,3 +1,5 @@
+.. _petascope-configuration:
+
 The rasdaman-geo frontend (petascope) can be configured via changing settings in
 ``/opt/rasdaman/etc/petascope.properties``. For changes to take effect, system
 Tomcat (if :ref:`deployment <conf-deployment>` is ``external``) or rasdaman
@@ -231,6 +233,7 @@ Deployment
 
     - Need to change: **YES** when demo web pages required under radaman-geo's endpoint
 
+.. _conf-rasdaman:
 
 Rasdaman
 ^^^^^^^^
@@ -319,6 +322,8 @@ Rasdaman
 
     - Need to change: NO
 
+
+.. _conf-authentication:
 
 Security
 ^^^^^^^^

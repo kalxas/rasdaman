@@ -737,6 +737,7 @@ coverage as follows: ::
          -F 'METADATAURL=https://inspire-geoportal.ec.europa.eu/16.iso19139.xml' \
          'http://localhost:8080//rasdaman/admin/inspire/metadata/update'
 
+.. _petascope-check-coverage-exists:
 
 Check if a coverage exists
 --------------------------
@@ -752,6 +753,7 @@ Example:
 
     http://localhost:8080/rasdaman/admin/coverage/exist?coverageId=cov1
 
+.. _wcs-getcap-extensions:
 
 GetCapabilities response extensions
 -----------------------------------
@@ -975,6 +977,7 @@ Clipping Examples
         "application/gml+xml"
       )
 
+.. _wcps-auto-ratio-scaling:
 
 Auto-ratio for spatial scaling
 ------------------------------
@@ -993,6 +996,7 @@ set to a value that preserves the ratio in the output result:
    return
      encode( scale( $c, { Long:"CRS:1"(0:160) } ), "image/png" )
 
+.. _wcps-optional-non-scaled-axes:
 
 Non-scaled axes are optional
 ----------------------------
@@ -1059,6 +1063,7 @@ expressions and their results:
    * - ``domain($c, Long).hi``
      - ``180``
 
+.. _wcps-let-clause:
 
 LET clause
 ----------
@@ -1096,6 +1101,9 @@ used in subset expression, e.g: ::
   let $dom := [i(20), j(40)]
   return
     encode( $c[ $dom ] + 10, "itext/json" )
+
+
+.. _wcps-min-max-functions:
 
 min and max functions
 ---------------------
@@ -1154,6 +1162,7 @@ result encoded in ``png`` format (specified by positional parameter ``$3``):
         -F "2=@/home/rasdaman/file2.tiff" \
         -F "3=png" > test.png
 
+.. _wcps-decode-operator:
 
 Decode Operator in WCPS
 -----------------------
@@ -1288,6 +1297,7 @@ For output format ``application/gml+xml`` WCPS supports delivery as CIS 1.1
     return encode( c, "application/gml+xml", 
                       "{\"outputType\":\"GeneralGridCoverage\"}" ) 
 
+.. _wcps-query-parameter:
 
 Query Parameter
 ---------------
@@ -1299,6 +1309,7 @@ contain only one ``q`` or ``query`` parameter. ::
     http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
       &REQUEST=ProcessCoverage&q=<wcps-query>
 
+.. _wcps-describe-operator:
 
 Describe Operator in WCPS
 -------------------------
@@ -1545,6 +1556,7 @@ will have an additional ``<LegendURL>`` XML section for this style. For example:
     </LegendURL>
 
 
+.. _wms-layer-management:
 
 Layer Management
 ----------------
@@ -2184,6 +2196,7 @@ input section
     :ref:`here <petascope-make_inspire_coverage>`. If set to empty string or omitted,
     then the coverage will be updated as non-INSPIRE coverage.
 
+.. _recipe-section:
 
 recipe section
 ^^^^^^^^^^^^^^
@@ -2364,6 +2377,8 @@ Example ingredients specification to create two downscaled levels which are
 Two new WCS-T non-standard requests are utilized by wcst_import for this feature,
 see :ref:`here for more information <wms-pyramids-management>`.
 
+
+.. _hooks-section:
 
 hooks section
 ^^^^^^^^^^^^^
@@ -3206,6 +3221,8 @@ Relevant for TIFF, PNG, JPEG, and other 2D data formats.
 |           |one of the originX|originY                           |                             |
 +-----------+-----------------------------------------------------+-----------------------------+
 
+.. _data-import-expressions-grib:
+
 GRIB
 ~~~~
 
@@ -3218,6 +3235,8 @@ GRIB
 |           |to get the current processed GRIB message index |                                          |
 |           |(starting from 1)                               |                                          |
 +-----------+------------------------------------------------+------------------------------------------+
+
+.. _data-import-expressions-file:
 
 File
 ~~~~
