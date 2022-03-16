@@ -531,6 +531,8 @@ class AbstractToCoverageConverter:
             coverage_slices_dict = self._create_coverage_slices(crs_axes)
 
         global_metadata = None
+        first_coverage_slice = None
+
         if len(coverage_slices_dict) > 0:
             for coverage_level, slices in coverage_slices_dict.items():
                 if len(slices) > 0:
