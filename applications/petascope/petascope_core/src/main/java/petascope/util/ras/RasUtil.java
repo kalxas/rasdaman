@@ -26,17 +26,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 import org.odmg.Database;
 import org.odmg.ODMGException;
 import org.odmg.OQLQuery;
@@ -49,17 +43,14 @@ import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.rasdaman.exceptions.RasdamanCollectionDoesNotExistException;
 import petascope.rasdaman.exceptions.RasdamanCollectionExistsException;
-import petascope.util.BigDecimalUtil;
 import petascope.core.Pair;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
-import static petascope.util.ras.RasConstants.RASQL_VERSION;
 import rasj.RasImplementation;
 import rasj.odmg.RasBag;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
-import static petascope.util.ras.RasConstants.RASQL_ENCODE;
 import rasj.RasGMArray;
 import rasj.RasMInterval;
 import rasj.RasResultIsNoIntervalException;
@@ -73,14 +64,6 @@ public class RasUtil {
 
     private static final Logger log = LoggerFactory.getLogger(RasUtil.class);
 
-    /**
-     * Execute a RasQL query with configured credentials.
-     * executed by petascope itself when it starts and not external user
-     */
-    public static Object executeInternalRasqlQuery(String query) throws PetascopeException {
-        return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS, false);
-    }
-    
     private static void closeDB(Database db) throws RasdamanException {
         if (db != null) {
             try {
