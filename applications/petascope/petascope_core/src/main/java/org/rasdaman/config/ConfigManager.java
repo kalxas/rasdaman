@@ -172,8 +172,8 @@ public class ConfigManager {
     /* ***** SECORE configuration ***** */
     public static List<String> SECORE_URLS;
     public static final String SECORE_INTERNAL = "internal";
-    // this is used internally inside petascope as a valid URI, loaded from secore.properties, default it is "http://localhost:8080/def"
-    public static final String DEFAULT_SECORE_INTERNAL_URL = "http://localhost:8080/def";
+    // this is used internally inside petascope as a valid URI, loaded from secore.properties, default it is "http://localhost:8080/rasdaman/def"
+    public static final String DEFAULT_SECORE_INTERNAL_URL = "http://localhost:8080/rasdaman/def";
     
     /* ***** AJP connector configuration for embedded tomcat ***** */
     public static int EMBEDDED_AJP_PORT = 0;
@@ -517,34 +517,20 @@ public class ConfigManager {
             log.error("Failed loading secore urls from petascope.properties");
             throw new RuntimeException("Failed loading secore urls from petascope.properties");
         }
-        
-        Set<String> tmps = new LinkedHashSet<>();
-        for (String secoreURL : SECORE_URLS) {
-            if (secoreURL.equals(SECORE_INTERNAL)) {
-                tmps.addAll(this.getInternalSecoreURLs());
-            } else {
-                tmps.add(secoreURL);
-            }
-        }
-        
-        SECORE_URLS = new ArrayList<>(tmps);
     }
     
     /**
      * Get the internal SECORE URLs (in case, embedded server.port is different than 8080,
      * then it is added as well to the result)
      */
-    public List<String> getInternalSecoreURLs() throws PetascopeException {
-        List<String> results = new ArrayList<>();
+    public String getInternalSecoreURL() throws PetascopeException {
         String tmp = DEFAULT_SECORE_INTERNAL_URL;
-        results.add(tmp);
 
         if (!EMBEDDED_PETASCOPE_PORT.equals(DEFAULT_PETASCOPE_PORT)) {
             tmp = tmp.replace(DEFAULT_PETASCOPE_PORT, EMBEDDED_PETASCOPE_PORT);
-            results.add(tmp);
         }
         
-        return results;
+        return tmp;
     }
     
     private void initTempUploadDirs() throws PetascopeException {

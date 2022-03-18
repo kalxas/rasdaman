@@ -3,7 +3,7 @@
   "id" : "test_mean_summer_airtemp",
   "envelope" : {
     "type" : "EnvelopeByAxisType",
-    "srsName" : "http://localhost:8080/def/crs/EPSG/0/4326",
+    "srsName" : "http://localhost:8080/rasdaman/def/crs/EPSG/0/4326",
     "axisLabels" : [ "Lat", "Lon" ],
     "axis" : [ {
       "type" : "AxisExtentType",
@@ -23,7 +23,7 @@
     "type" : "DomainSetType",
     "generalGrid" : {
       "type" : "GeneralGridCoverageType",
-      "srsName" : "http://localhost:8080/def/crs/EPSG/0/4326",
+      "srsName" : "http://localhost:8080/rasdaman/def/crs/EPSG/0/4326",
       "axisLabels" : [ "Lat", "Lon" ],
       "axis" : [ {
         "type" : "RegularAxisType",

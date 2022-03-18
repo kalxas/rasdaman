@@ -961,7 +961,7 @@ public class UpdateCoverageHandler {
         Element dataBlock = GMLCIS10ParserService.parseDataBlock(rangeSet);
         String collectionName = coverage.getCoverageId();
         Pair<String, List<String>> collectionType = TypeResolverUtil.guessCollectionType(collectionName, coverage.getNumberOfBands(), coverage.getNumberOfDimensions(),
-                coverage.getAllUniqueNullValues(), pixelDataType);
+                coverage.getNilValues(), pixelDataType);
 
         // Only support GeneralGridCoverage now
         List<IndexAxis> indexAxes = ((GeneralGridCoverage) coverage).getIndexAxes();

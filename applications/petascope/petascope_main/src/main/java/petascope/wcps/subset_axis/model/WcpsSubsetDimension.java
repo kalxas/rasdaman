@@ -22,6 +22,7 @@
 package petascope.wcps.subset_axis.model;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import petascope.util.CrsUtil;
 import petascope.wcps.result.ParameterResult;
 
 /**
@@ -53,7 +54,7 @@ public abstract class WcpsSubsetDimension extends ParameterResult {
      */
     public WcpsSubsetDimension(String axisName, String crs) {
         this.axisName = axisName;
-        this.crs = crs;
+        this.crs = CrsUtil.replaceOldURLWithNewURL(crs);
     }
 
     /**
@@ -79,7 +80,7 @@ public abstract class WcpsSubsetDimension extends ParameterResult {
     }
 
     public void setCrs(String crsUri) {
-        this.crs = crsUri;
+        this.crs = CrsUtil.replaceOldURLWithNewURL(crsUri);
     }
 
     public boolean isTemporal() {

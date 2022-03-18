@@ -295,15 +295,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
             log.info("petascopedb migrated successfully.");
             System.exit(ExitCode.SUCCESS.getExitCode());
         }
-        
-        // ### check if SECORE is running first
 
-        if (!CrsUtil.isSecoreAvailable()) {
-            ConfigManager.SECORE_URLS = ConfigManager.getInstance(ConfigManager.CONF_DIR).getInternalSecoreURLs();
-            log.warn("SECORE endpoints configured in secore_urls setting in petascope.properties failed to return response; "
-                    + "petascope will use internal SECORE instead. "
-                    + "Hint: add \"internal\" as the first value of secure_urls in petascope.properties to avoid this warning in future."); 
-        }
+        CrsUtil.checkSECOREURLsForInternalMigration();
 
         // ### data migration
 

@@ -199,7 +199,7 @@ public class InsertCoverageHandler {
         String tiling = request.getTiling();
         
         // List of unique nullValues for all bands (quantities) to create rasdaman range set
-        List<NilValue> nullValues = coverage.getAllUniqueNullValues();
+        List<NilValue> nullValues = coverage.getNilValues();
 
         //add coverage id
         if (generateId) {

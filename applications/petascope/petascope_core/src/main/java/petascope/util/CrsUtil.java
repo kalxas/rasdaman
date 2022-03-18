@@ -56,6 +56,7 @@ import org.gdal.osr.SpatialReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.config.ConfigManager;
+import static org.rasdaman.config.ConfigManager.SECORE_INTERNAL;
 import org.rasdaman.secore.Resolver;
 import org.rasdaman.secore.db.DbManager;
 import org.rasdaman.secore.db.DbSecoreVersion;
@@ -142,6 +143,9 @@ public class CrsUtil {
     // e.g: <identifier>http://localhost:8080/def/crs/EPSG/0/4326</identifier>
     public static final String SECORE_IDENTIFIER_PATTERN = "<identifier>(.+?)</identifier>";
     
+    private static final String REGEX = "localhost(:[0-9]+)?/def";
+    private static final Pattern localhostPattern = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
+    
 
     /* CACHES: avoid EPSG db and SECORE redundant access */
     private static Map<String, CrsDefinition> parsedCRSs = new HashMap<String, CrsDefinition>();        // CRS definitions
@@ -177,34 +181,42 @@ public class CrsUtil {
                                                     "  ID[\"COSMO\", 101],\n" +
                                                     "  REMARK[\"Used with grid spacing of 0.025 degree in rotated coordinates.\"]]";
     
+    private static boolean isSECOREloaded = false;
+    
     /**
      * Invoke embedded SECORE in petascope before petascope starts to migrate 
      * 
      */
     public static void loadInternalSecore(boolean embedded, String webappsDir) throws IOException, org.rasdaman.secore.util.SecoreException, SecoreException {
+        
+        if (isSECOREloaded == false) {
 
-        Properties properties = new Properties();
-        InputStream resourceStream = new ClassPathResource(APPLICATION_PROPERTIES_FILE).getInputStream();
-        properties.load(resourceStream);
+            Properties properties = new Properties();
+            InputStream resourceStream = new ClassPathResource(APPLICATION_PROPERTIES_FILE).getInputStream();
+            properties.load(resourceStream);
 
-        PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        File initialFile = new File(properties.getProperty(KEY_SECORE_CONF_DIR) + "/" + org.rasdaman.secore.ConfigManager.SECORE_PROPERTIES_FILE);
-        propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
+            PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
+            File initialFile = new File(properties.getProperty(KEY_SECORE_CONF_DIR) + "/" + org.rasdaman.secore.ConfigManager.SECORE_PROPERTIES_FILE);
+            propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
 
-        String confDir = properties.getProperty(KEY_SECORE_CONF_DIR);
-        try {
-            org.rasdaman.secore.ConfigManager.initInstance(confDir, embedded, webappsDir);
-            //  Create (first time load) or Get the BaseX database from caches.
-            DbManager dbManager = DbManager.getInstance();
+            String confDir = properties.getProperty(KEY_SECORE_CONF_DIR);
+            try {
+                org.rasdaman.secore.ConfigManager.initInstance(confDir, embedded, webappsDir);
+                //  Create (first time load) or Get the BaseX database from caches.
+                DbManager dbManager = DbManager.getInstance();
 
-            // NOTE: we need to check current version of Secoredb first, if it is not latest, then run the update definition files with the current version to the newest versionNumber from files.
-            // in $RMANHOME/share/rasdaman/secore.
-            // if current version of Secoredb is empty then add SecoreVersion element to BaseX database and run all the db_updates files.
-            DbSecoreVersion dbSecoreVersion = new DbSecoreVersion(dbManager.getDb());
-            dbSecoreVersion.handle();
-            log.debug("Initialzed BaseX dbs successfully.");
-        } catch (Exception ex) {
-            throw new SecoreException(ExceptionCode.InternalComponentError, "Cannot initialize internal SECORE database manager. Reason: " + ex.getMessage(), ex);
+                // NOTE: we need to check current version of Secoredb first, if it is not latest, then run the update definition files with the current version to the newest versionNumber from files.
+                // in $RMANHOME/share/rasdaman/secore.
+                // if current version of Secoredb is empty then add SecoreVersion element to BaseX database and run all the db_updates files.
+                DbSecoreVersion dbSecoreVersion = new DbSecoreVersion(dbManager.getDb());
+                dbSecoreVersion.handle();
+                log.debug("Initialzed BaseX dbs successfully.");
+                
+                isSECOREloaded = true;
+            } catch (Exception ex) {
+                throw new SecoreException(ExceptionCode.InternalComponentError, "Cannot initialize internal SECORE database manager. Reason: " + ex.getMessage(), ex);
+            }
+            
         }
     }
     
@@ -1266,6 +1278,22 @@ public class CrsUtil {
     }
     
     /**
+     * e.g. if input crsURL is http://localhost:8080/def/crs/EPSG/0/4326 -> http://localhost:8080/rasdaman/def/crs/EPSG/0/4326
+     */
+    public static String replaceOldURLWithNewURL(String crsURL) {
+        String result = crsURL;
+        
+        if (result != null) {
+            Matcher m = localhostPattern.matcher(crsURL);
+            if (m.find()) {
+                result = result.replace("/def", "/rasdaman/def");
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
      * Return X and Y crs axes from a CRS URI.
      * NOTE: The axes order is dependent from the CRS definition.
      * e.g: EPSG:4326 returns Lat, Long axes (YX order)
@@ -1287,25 +1315,29 @@ public class CrsUtil {
     }
     
     /**
-     * Check if SECORE urls configured in petascope.properties work when petascope starts
+     * Check if user has secore_urls=http://localhost:8080/def in petascope.properties
+     * to migrate to secore_urls=internal
+     * 
      */
-    public static boolean isSecoreAvailable() {
-        boolean secoreRunning = false;
-        for (String secoreURL : ConfigManager.SECORE_URLS) {
+    public static void checkSECOREURLsForInternalMigration() throws PetascopeException {
+        
+        
+        // e.g. http://localhost:8080/rasdaman/def
+        final String internalSECOREURL = ConfigManager.getInstance(ConfigManager.CONF_DIR).getInternalSecoreURL();
+        
+        for (int i = 0; i < ConfigManager.SECORE_URLS.size(); i++) {
+            String url = ConfigManager.SECORE_URLS.get(i);
             
-            String testURL = secoreURL + "/crs/EPSG/0/4326";
-            log.info("Checking if SECORE is running at '" + secoreURL + "'");
-            
-            try {
-                CrsUtil.getCrsDefinition(testURL);
-                secoreRunning = true;
-                break;
-            } catch (Exception ex) {
-                log.warn("SECORE request '" + testURL + "' failed, reason: " + ex.getMessage() + ".");
+            if (url.trim().equals(SECORE_INTERNAL)) {
+                ConfigManager.SECORE_URLS.set(i, internalSECOREURL);
+            } else {
+                Matcher m = localhostPattern.matcher(url);
+                if (m.find()) {
+                    ConfigManager.SECORE_URLS.set(i, internalSECOREURL);
+                    log.warn("Please set secore_urls=internal in petascope.properties, as http://localhost:8080/def is not valid anymore.");
+                }
             }
         }
-        
-        return secoreRunning;
     }
 
     /**

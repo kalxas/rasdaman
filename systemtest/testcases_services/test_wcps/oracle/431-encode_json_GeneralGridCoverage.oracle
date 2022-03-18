@@ -3,7 +3,7 @@
   "id" : "test_irr_cube_2",
   "envelope" : {
     "type" : "EnvelopeByAxisType",
-    "srsName" : "http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&2=http://localhost:8080/def/crs/EPSG/0/32633",
+    "srsName" : "http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633",
     "axisLabels" : [ "ansi", "E", "N" ],
     "axis" : [ {
       "type" : "AxisExtentType",
@@ -29,7 +29,7 @@
     "type" : "DomainSetType",
     "generalGrid" : {
       "type" : "GeneralGridCoverageType",
-      "srsName" : "http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&2=http://localhost:8080/def/crs/EPSG/0/32633",
+      "srsName" : "http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633",
       "axisLabels" : [ "ansi", "E", "N" ],
       "axis" : [ {
         "type" : "IrregularAxisType",

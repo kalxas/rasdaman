@@ -628,6 +628,7 @@ prepare_xml_file()
            -e $'s/\r//g' \
            -e '/xlink:href/d' \
            -e '/identifier /d' \
+           -e 's@rasdaman/def@def@g' \
            -e 's|xmlns[^"]*"[^"]*"||g' \
            -e 's|xsi:schemaLocation="[^"]*"||g' \
            -e 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' \

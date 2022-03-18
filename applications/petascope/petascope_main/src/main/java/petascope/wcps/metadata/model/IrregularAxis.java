@@ -100,6 +100,17 @@ public class IrregularAxis extends Axis {
     @JsonIgnore
     public int getIndexOfCoefficient(BigDecimal inputCoefficient) {
         int i = Collections.binarySearch(this.directPositions, inputCoefficient);
+        
+        if (i < 0) {
+            for (int j = 0; j < this.directPositions.size(); j++) {
+                BigDecimal coefficient = this.directPositions.get(j);
+                
+                if (BigDecimalUtil.approximateEquals(coefficient, inputCoefficient)) {
+                    i = j;
+                    break;
+                }
+            }
+        }
         return i;
     }
     

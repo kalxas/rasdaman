@@ -295,7 +295,7 @@ public abstract class Coverage implements Serializable {
      * @return
      */
     @JsonIgnore
-    public List<NilValue> getAllUniqueNullValues() {
+    public List<NilValue> getNilValues() {
         List<NilValue> uniqueNilValues = new ArrayList<NilValue>();
 
         List<Field> fields = this.getRangeType().getDataRecord().getFields();

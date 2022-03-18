@@ -220,6 +220,16 @@ public class BigDecimalUtil {
     public static boolean smallerThan(BigDecimal firstValue, BigDecimal secondValue) {        
         return firstValue.compareTo(secondValue.add(COEFFICIENT_DECIMAL_EPSILON)) < 0;
     }
+    
+    /**
+     * Check if two numbers are almost equals, for example:
+     * "0.04166666666666666666666666667"
+     * "0.04166666666666666666666666666666666666666666666667"
+     * are equal
+     */
+    public static boolean approximateEquals(BigDecimal firstValue, BigDecimal secondValue) {
+        return firstValue.subtract(secondValue).abs().compareTo(COEFFICIENT_DECIMAL_EPSILON) < 0;
+    }
    
     public static boolean isNumber(String value) {
         try {
