@@ -167,18 +167,26 @@ Installation
 
       .. hidden-code-block:: bash
 
-        # For ubuntu 18.04
-        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic stable" \
+        # For ubuntu 22.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb jammy stable" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
-        # For ubuntu 16.04
-        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb xenial stable" \
+        # For ubuntu 20.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb focal stable" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
+
+        # For ubuntu 18.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb bionic stable" \
         | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
     - **testing:** updated more frequently with beta releases, so aimed for
       feature testing in non-critical installations.
 
       .. hidden-code-block:: bash
+
+        # For ubuntu 22.04
+        $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb jammy testing" \
+        | sudo tee /etc/apt/sources.list.d/rasdaman.list
 
         # For ubuntu 20.04
         $ echo "deb [arch=amd64] https://download.rasdaman.org/packages/deb focal testing" \
