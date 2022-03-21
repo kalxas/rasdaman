@@ -54,7 +54,7 @@ public class TypeResolverUtil {
      * @return the rasdaman collection type
      * @throws IOException
      */
-    public static String guessCollectionTypeFromFile(String collectionName, String filePath, int dimension, List<NilValue> nullValues) throws PetascopeException {
+    public static String guessCollectionTypeFromFile(String collectionName, String filePath, int dimension, List<List<NilValue>> nullValues) throws PetascopeException {
         Pair<Integer, ArrayList<String>> dimTypes = Gdalinfo.getDimensionAndTypes(filePath);
         
         return guessCollectionType(collectionName, dimension, dimTypes.snd, nullValues);
@@ -71,7 +71,7 @@ public class TypeResolverUtil {
      * @param inputPixelDataType      the pixel data type, if not given assumed Float32
      * @return pair containing the collection type and a list of cell types suffixes (e.g. <"GreySet", ["c"]>)
      */
-    public static Pair<String, List<String>> guessCollectionType(String collectionName, Integer numberOfBands, Integer numberOfDimensions, List<NilValue> nullValues, String inputPixelDataType) throws PetascopeException {
+    public static Pair<String, List<String>> guessCollectionType(String collectionName, Integer numberOfBands, Integer numberOfDimensions, List<List<NilValue>> nullValues, String inputPixelDataType) throws PetascopeException {
         if (inputPixelDataType == null) {
             inputPixelDataType = GDT_Float32;
         }
@@ -207,7 +207,8 @@ public class TypeResolverUtil {
      * Guesses the collection type. If no type is found, a new one is created.
      */
     private static String guessCollectionType(String collectionName, Integer numberOfDimensions, 
-                                              List<String> gdalBandTypes, List<NilValue> nilValues) throws PetascopeException {
+                                              List<String> gdalBandTypes, List<List<NilValue>> nilValues) throws PetascopeException {
+        
         String result = "";
 
         //get the type registry
@@ -282,17 +283,29 @@ public class TypeResolverUtil {
     
     /**
      * Check if both 2 input lists have same scalar nilValues for each band
+     * e.g. old values: [ [1,2],   [3], [4] ] 
+     *      new values  [ [1,3,4], [5]      ]
      * @return 
      */
-    private static boolean allNilValuesMatch(List<NilValue> oldNilValues, List<NilValue> newNilValues) {
+    private static boolean allNilValuesMatch(List<List<NilValue>> oldNilValues, List<List<NilValue>> newNilValues) {
         // NOTE: Only check null values (scalar) not null values object as it can contain different null reason but the values are the same
         if (oldNilValues.size() == newNilValues.size()) {
-            int i = 0;                                        
-            for (NilValue newNilValue : newNilValues) {
-                if (!newNilValue.getValue().equals(oldNilValues.get(i).getValue())) {                    
+            for (int i = 0; i < oldNilValues.size(); i++) {
+                List<NilValue> oldTmps = oldNilValues.get(i);
+                List<NilValue> newTmps = newNilValues.get(i);
+                
+                if (oldTmps.size() != newTmps.size()) {
                     return false;
                 }
-                i++;
+                
+                for (int j = 0; j < oldTmps.size(); j++) {
+                    String oldValue = StringUtil.stripZerosAfterDecimal(oldTmps.get(j).getValue());
+                    String newValue = StringUtil.stripZerosAfterDecimal(newTmps.get(j).getValue());
+                    
+                    if (!oldValue.equals(newValue)) {
+                        return false;
+                    }
+                }
             }
 
             // The new coverage's data type existed in rasdaman's collection type, so don't create a new type            

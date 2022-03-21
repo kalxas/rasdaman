@@ -82,7 +82,7 @@ public class WcpsCoverageMetadata {
     // use in crsTransform()
     protected String outputCrsUri;
     protected List<RangeField> rangeFields;
-    protected List<NilValue> nilValues;
+    protected List<List<NilValue>> nilValues;
     protected String metadata;
     protected CoverageMetadata coverageMetadata;
     
@@ -109,7 +109,7 @@ public class WcpsCoverageMetadata {
     
     
     public WcpsCoverageMetadata(String coverageName, String rasdamanCollectionName, String coverageType, List<Axis> axes, String crsUri,
-            List<RangeField> rangeFields, List<NilValue> nilValues, String metadata, List<Axis> originalAxes) throws PetascopeException {
+            List<RangeField> rangeFields, List<List<NilValue>> nilValues, String metadata, List<Axis> originalAxes) throws PetascopeException {
         this.crsUri = crsUri;
         // this axes could be stripped when a slicing expression is processed
         this.axes = axes;
@@ -185,7 +185,7 @@ public class WcpsCoverageMetadata {
             i++;
         }
         
-        throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot find original axis '" + axisName + "' from WCPS coverage metadata.");
+        throw new PetascopeException(ExceptionCode.InvalidRequest, "Cannot find original axis '" + axisName + "' from WCPS coverage metadata.");
     }
 
     /**
@@ -559,11 +559,11 @@ public class WcpsCoverageMetadata {
         this.coverageType = coverageType;
     }
 
-    public List<NilValue> getNilValues() {
+    public List<List<NilValue>> getNilValues() {
         return nilValues;
     }
 
-    public void setNilValues(List<NilValue> nilValues) {
+    public void setNilValues(List<List<NilValue>> nilValues) {
         this.nilValues = nilValues;
     }
 

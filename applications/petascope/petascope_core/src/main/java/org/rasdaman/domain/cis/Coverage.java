@@ -295,24 +295,19 @@ public abstract class Coverage implements Serializable {
      * @return
      */
     @JsonIgnore
-    public List<NilValue> getNilValues() {
-        List<NilValue> uniqueNilValues = new ArrayList<NilValue>();
+    public List<List<NilValue>> getNilValues() {
+        // e.g. [ [1, 2], [3], [5, 6] ] 
+        List<List<NilValue>> results = new ArrayList<>();
 
         List<Field> fields = this.getRangeType().getDataRecord().getFields();
 
         for (Field field : fields) {
             Quantity quantity = field.getQuantity();
             
-            if (quantity.getNilValues() != null) {
-                for (NilValue nilValue : quantity.getNilValues()) {
-                    if (!uniqueNilValues.contains(nilValue)) {
-                        uniqueNilValues.add(nilValue);
-                    }
-                }
-            }
+            results.add(quantity.getNilValues());
         }
 
-        return uniqueNilValues;
+        return results;
     }
     
     @JsonIgnore

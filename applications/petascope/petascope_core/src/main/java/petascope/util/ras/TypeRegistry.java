@@ -22,9 +22,13 @@
 package petascope.util.ras;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +41,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.ListUtil;
-import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import petascope.util.StringUtil;
 
 /**
  * Keeps track of the types that exist in the tracked rasdaman instance.
@@ -83,7 +87,7 @@ public class TypeRegistry {
         return type;
     }
 
-    public HashMap<String, TypeRegistryEntry> getTypeRegistry() {
+    public Map<String, TypeRegistryEntry> getTypeRegistry() {
         return typeRegistry;
     }
 
@@ -104,17 +108,32 @@ public class TypeRegistry {
         return result;
     }
 
-    private String generateNullValuesRepresentation(List<NilValue> nullValues) {
+    private String generateNullValuesRepresentation(List<List<NilValue>> nullValues) {
         String result = "";
         if (!nullValues.isEmpty()) {
-            String values = "";
-            for (NilValue nullValue : nullValues) {
-                if (!values.isEmpty())
-                    values += ",";
-                values += nullValue.getValue();
+            
+            // all bands have same null value
+            Set<String> set = new LinkedHashSet<>();
+            // e.g. [ 1,3,4,5 ]
+            for (List<NilValue> bandValues : nullValues) {
+                // [1,2]               
+                for (NilValue nilValue : bandValues) {
+                    if (!nilValue.getValue().trim().isEmpty()) {
+                        set.add(nilValue.getValue());
+                    }
+                }
             }
-            result = NULL_VALUES_TEMPLATE.replace("$values", values);
+            
+            if (set.isEmpty()) {
+                // no null values
+                return result;
+            }
+            
+            String value = ListUtil.join(Arrays.asList(set), ",");
+            // e.g. result =  [ "1", "2", "3", "6" ]
+            result = NULL_VALUES_TEMPLATE +  value;
         }
+        
         return result;
     }
 
@@ -133,20 +152,29 @@ public class TypeRegistry {
     /**
      * @return the name of the created set (collection) type.
      */
-    public String createNewType(String collectionName, Integer dimNo, List<String> bandBaseTypes, List<NilValue> nullValues) throws PetascopeException {
+    public String createNewType(String collectionName, Integer dimNo, List<String> bandBaseTypes, List<List<NilValue>> nullValues) throws PetascopeException {
         log.debug("Creating new type for collection '" + collectionName + "' of dimension " + dimNo + 
                   ", base types: " + bandBaseTypes.toString() + ", with null values: " + (!nullValues.isEmpty()) + ".");
         String cellName = collectionName + CELL_TYPE_SUFFIX;
         String marrayName = collectionName + ARRAY_TYPE_SUFFIX;
         String setName = collectionName + SET_TYPE_SUFFIX;
         
+        final String EXIST_TYPE_ERROR_MESSAGE = "already exists";
+        
         if (bandBaseTypes.size() == 1) {
             //simple types
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
                                  .replace("$typeStructure", bandBaseTypes.get(0))
                                  .replace("$dimensions", expandDimensions(dimNo));
-            //create the marray type
-            RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+            // create the marray type
+            // e.g CREATE TYPE meris_lai_resolution_automatic AS float MDARRAY [D0,D1,D2]
+            try {
+                RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+            } catch (RasdamanException ex) {
+                if (!ex.getMessage().contains(EXIST_TYPE_ERROR_MESSAGE)) {
+                    throw ex;
+                }
+            }
             
             this.parseMarrayType(queryMarray);
         } else {
@@ -154,13 +182,26 @@ public class TypeRegistry {
             String queryStruct = QUERY_CREATE_STRUCT_TYPE.replace("$structTypeName", cellName)
                                  .replace("$structStructure", generateStructStructure(bandBaseTypes));
             //create the struct type
-            RasUtil.executeRasqlQuery(queryStruct, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+            try {
+                RasUtil.executeRasqlQuery(queryStruct, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+            }  catch (RasdamanException ex) {
+                if (!ex.getMessage().contains(EXIST_TYPE_ERROR_MESSAGE)) {
+                    throw ex;
+                }
+            }
+            
             //marray type
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
                                  .replace("$typeStructure", cellName)
                                  .replace("$dimensions", expandDimensions(dimNo));
             //create it
-            RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+            try {
+                RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+            } catch (RasdamanException ex) {
+                if (!ex.getMessage().contains(EXIST_TYPE_ERROR_MESSAGE)) {
+                    throw ex;
+                }
+            }
             
             this.parseStructType(queryStruct);
             this.parseMarrayType(queryMarray);
@@ -170,7 +211,13 @@ public class TypeRegistry {
                           .replace("$marrayTypeName", marrayName)
                           .replace("$nullValues", generateNullValuesRepresentation(nullValues));
         //create it
-        RasUtil.executeRasqlQuery(querySet, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        try {
+            RasUtil.executeRasqlQuery(querySet, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        }  catch (RasdamanException ex) {
+            if (!ex.getMessage().contains(EXIST_TYPE_ERROR_MESSAGE)) {
+                throw ex;
+            }
+        }
         
         Pair<String, String> setTypePair = this.parseSetType(querySet);
         TypeRegistryEntry typeRegistryEntry = this.createTypeRegistryEntry(setTypePair);
@@ -220,7 +267,7 @@ public class TypeRegistry {
         String setName = parseSetName(setTypeQuery);
         String marrayName = parseSetMarrayName(setTypeQuery);   
                 
-        String nilValues = parseSetNullValues(setTypeQuery);
+        List<String> nilValues = parseSetNullValues(setTypeQuery);
         setTypeNullValues.put(setName, nilValues);
         
         Pair<String, String> setTypePair = new Pair(setName, marrayName);
@@ -244,17 +291,16 @@ public class TypeRegistry {
         }
     }
 
-    private String parseSetNullValues(String setLine) throws RasdamanException {
-        // e.g:  NULL VALUES [-999999.000000]
-        String[] parts = setLine.split("NULL VALUES \\[");
-        if (parts.length < 2) { //no nil values
-            return "";
-        }
-        String[] nilParts = parts[1].split("]");
-        if (nilParts.length < 1) { //invalid line
-            throw new RasdamanException(ExceptionCode.RuntimeError, "Null values cannot be parsed from rasdaman result: '" + setLine + "'.");
-        }
-        return nilParts[0].trim();
+    /**
+     * NULL VALUES [-999.000000]
+     *      return ["-999"]
+     * 
+     * or
+     */
+    private List<String> parseSetNullValues(String setLine) throws RasdamanException {
+        List<String> results = StringUtil.extractStringsBetweenSquareBrackets(setLine);
+        return results;
+        
     }
 
     private String parseSetName(String setLine) throws RasdamanException {
@@ -430,25 +476,27 @@ public class TypeRegistry {
                 String[] baseTypeParts = ArrayUtils.remove(domainTypeParts, domainTypeParts.length - 1);
                 // e.g: struct {band0 char, band1 char, band2 char}
                 String baseType = StringUtils.join(baseTypeParts, ",");
-                String[] nullParts = setTypeNullValues.get(setTypePair.fst).split(",");
-                List<NilValue> nullValues = new ArrayList<>();
-                for (String val : nullParts) {
-                    if (!val.isEmpty()) {
-                        //if the value that is parsed is an interval with the same limits (e.g. 5:5), add only 1
-                        //value. This is needed because currently there is a bug when creating types via rasql,
-                        //which doesn't allow single values to be specified. However, petascope needs to display single
-                        //values when presenting the output to the user.
-                        if (val.contains(RASQL_BOUND_SEPARATION)) {
-                            String[] parts = val.split(RASQL_BOUND_SEPARATION);
-                            if (parts.length == 2 & parts[0].equals(parts[1])) {
-                                val = parts[0];
-                            }
-                        }
-                        NilValue nullValue = new NilValue(val, "");
-                        nullValues.add(nullValue);
+                
+                // e.g. if all bands have same values ["1,2,3,4"] or null values per bands ["1,2", "3", "4,5"]
+                List<String> nullParts = setTypeNullValues.get(setTypePair.fst);
+                
+                List<List<NilValue>> nilValues = new ArrayList<>();
+                
+                // each part is a set of null values per band OR a set of null values for all band
+                for (String nullPart : nullParts) {
+                    // e.g. 1,2
+                    String[] values = nullPart.split(",");
+                    
+                    List<NilValue> nullValuesPerBand = new ArrayList<>();
+                    for (String value : values) {
+                        NilValue nilValue = new NilValue(value, null);
+                        nullValuesPerBand.add(nilValue);
                     }
+                    
+                    nilValues.add(nullValuesPerBand);
                 }
-                TypeRegistryEntry typeRegistryEntry = new TypeRegistryEntry(baseType, domainType, nullValues);
+                
+                TypeRegistryEntry typeRegistryEntry = new TypeRegistryEntry(baseType, domainType, nilValues);
                 return typeRegistryEntry;
             }
         }
@@ -474,7 +522,7 @@ public class TypeRegistry {
      */
     public class TypeRegistryEntry {
 
-        private TypeRegistryEntry(String cellType, String mddArrayType, List<NilValue> nilValues) {
+        private TypeRegistryEntry(String cellType, String mddArrayType, List<List<NilValue>> nilValues) {
             this.cellType = cellType;
             this.mdArrayType = mddArrayType;
             this.nilValues = nilValues;
@@ -553,13 +601,13 @@ public class TypeRegistry {
                    another.getMDArrayType().equals(this.mdArrayType);
         }
 
-        public List<NilValue> getNilValues() {
+        public List<List<NilValue>> getNilValues() {
             return nilValues;
         }
 
         private String cellType;
         private String mdArrayType;
-        private List<NilValue> nilValues;
+        private List<List<NilValue>> nilValues;
     }
     
     public static final String SET_TYPE_SUFFIX = "_Set";
@@ -569,17 +617,18 @@ public class TypeRegistry {
     private static final String AS = " AS ";
     public static final String STRUCT = "struct";
 
-    private final HashMap<String, TypeRegistryEntry> typeRegistry = new HashMap<String, TypeRegistryEntry>();
-    private final HashMap<String, String> marrayTypeDefinitions = new HashMap<String, String>();
-    private final ArrayList<Pair<String, String>> setTypeDefinitions = new ArrayList<Pair<String, String>>();
-    private HashMap<String, String> setTypeNullValues = new HashMap<String, String>();
-    private HashMap<String, String> structTypeDefinitions = new HashMap<String, String>();
+    private final Map<String, TypeRegistryEntry> typeRegistry = new LinkedHashMap<>();
+    private final Map<String, String> marrayTypeDefinitions = new LinkedHashMap<>();
+    private final List<Pair<String, String>> setTypeDefinitions = new ArrayList<>();
+    private Map<String, List<String>> setTypeNullValues = new LinkedHashMap<>();
+    private Map<String, String> structTypeDefinitions = new LinkedHashMap();
     private final Logger log = LoggerFactory.getLogger(TypeRegistry.class);
     private final static String QUERY_MARRAY_TYPES = "SELECT a FROM RAS_MARRAY_TYPES a";
     private final static String QUERY_STRUCT_TYPES = "SELECT a FROM RAS_STRUCT_TYPES a";
     private final static String QUERY_SET_TYPES = "SELECT a FROM RAS_SET_TYPES a";
     private final static String QUERY_CREATE_MARRAY_TYPE = "CREATE TYPE $typeName AS $typeStructure MDARRAY [$dimensions]";
     private final static String QUERY_CREATE_SET_TYPE = "CREATE TYPE $typeName AS SET ($marrayTypeName $nullValues)";
-    private final static String NULL_VALUES_TEMPLATE = "NULL VALUES [$values]";
+    private final static String NULL_VALUES_TEMPLATE = "NULL VALUES ";
+    // e.g. NULL VALUES { [1,3], [5], [8], [9] } // band1 has [1,3], band2 has [5], band3 has [8] and band4 has [9]
     private final static String QUERY_CREATE_STRUCT_TYPE = "CREATE TYPE $structTypeName AS ( $structStructure )";
 }

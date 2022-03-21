@@ -141,18 +141,38 @@ public class DeleteCoverageHandler {
                     boolean mddTypeExist = typeRegistry.deleteMDDTypeFromRegistry(mddType);
                     boolean cellTypeExist = typeRegistry.deleteCellTypeFromRegistry(cellType);
                     
+                    final String TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE = "currently in use by another stored object";
+                    
                      // Then, delete these types from Rasdaman
                     if (setTypeExist) {
-                        RasUtil.dropRasdamanType(collectionType);
+                        try {
+                            RasUtil.dropRasdamanType(collectionType);
+                        } catch (RasdamanException ex) {
+                            if (!ex.getMessage().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
+                                throw ex;
+                            }
+                        }
                     }
                     if (mddTypeExist) {
                         if (!setTypeExist) { 
                             log.warn("mdd type found but corresponding set type '" + collectionType + "'  not found in rasdaman.");
                         }
-                        RasUtil.dropRasdamanType(mddType);
+                        try {
+                            RasUtil.dropRasdamanType(mddType);
+                        } catch (RasdamanException ex) {
+                            if (!ex.getMessage().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
+                                throw ex;
+                            }
+                        }
                     }
                     if (cellTypeExist) {
-                        RasUtil.dropRasdamanType(cellType);
+                        try {
+                            RasUtil.dropRasdamanType(cellType);
+                        } catch (RasdamanException ex) {
+                            if (!ex.getMessage().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
+                                throw ex;
+                            }
+                        }
                     }
                 }
             }

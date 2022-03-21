@@ -765,6 +765,14 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
                 if (actualNilValues.size() != 0) {
                     for (int i = 0; i < actualNilValues.size(); i++) {
                         String value = actualNilValues.get(i).getValue().trim();
+                        if (value.contains(":")) {
+                            String tmps[] = value.split(":");
+                            tmps[0] = StringUtil.stripZerosAfterDecimal(tmps[0]);
+                            tmps[1] = StringUtil.stripZerosAfterDecimal(tmps[1]);
+                            value = tmps[0] + ":" + tmps[1];
+                        } else {
+                            value = StringUtil.stripZerosAfterDecimal(value);
+                        }
                         // Don't add the nilValue is "" to the list of nilValues
                         if (!value.equals("")) {                            
                             validateNilValue(value);
@@ -961,9 +969,11 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
                 innerMostDimensionSize = indexAxis.getUpperBound() - indexAxis.getLowerBound() + 1;
             }
         }
+        
         if (totalNumberOfPoints != points.length) {
             throw new WCSTWrongNumberOfPixels();
         }
+        
         //iterate through all points
         for (int i = 0; i < totalNumberOfPoints; i++) {
             rasdamanValues += parsePointValue(points[i], cs, typeSuffixes);
@@ -1009,7 +1019,15 @@ public class GMLCIS10ParserService extends AbstractGMLCISParserService {
      * e.g: -999,-999,0 with data types (float,float,short) 
      * return -999f,-999f,0s
      */
-    private static String parsePointValue(String point, String separator, List<String> typeSuffixes) {
+    private static String parsePointValue(String point, String separator, List<String> typeSuffixes) {        
+        List<String> tmps = Arrays.asList(point.split(","));
+        for (int i = 0; i < tmps.size(); i++) {
+            // e.g. 999.0 -> 999 to match with data type char in rasdaman
+            tmps.set(i, StringUtil.stripZerosAfterDecimal(tmps.get(i)));
+        }
+        
+        point = ListUtil.join(tmps, ",");
+        
         //multiband image
         if (point.contains(separator)) {
             String[] pointValues = point.split(separator);

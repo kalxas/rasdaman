@@ -311,7 +311,9 @@ public class WMSGetMapService {
                 
                 if (nodataValues.isEmpty()) {
                     if (wcpsCoverageMetadata.getNilValues().size() > 0) {
-                        nodataValues.add(new BigDecimal(wcpsCoverageMetadata.getNilValues().get(0).getValue()));
+                        if (wcpsCoverageMetadata.getNilValues().get(0).size() > 0) {
+                            nodataValues.add(new BigDecimal(wcpsCoverageMetadata.getNilValues().get(0).get(0).getValue()));
+                        }
                     }
                 }
                 

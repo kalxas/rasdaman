@@ -562,7 +562,7 @@ public class WcpsCoverageMetadataGeneralService {
         String coverageType = sourceMetadata.getCoverageType();
         String crsURI = CrsUtil.OPENGIS_INDEX_ND_PATTERN.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, numberOfAxes.toString());
         List<RangeField> rangeFields = sourceMetadata.getRangeFields();
-        List<NilValue> nilValues = sourceMetadata.getNilValues();
+        List<List<NilValue>> nilValues = sourceMetadata.getNilValues();
         String metadata = sourceMetadata.getMetadata();
         
         // Create index axes
@@ -654,7 +654,7 @@ public class WcpsCoverageMetadataGeneralService {
         RangeField rangeField = new RangeField(RangeField.DATA_TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<NilValue>(), RangeField.UOM_CODE, null, null);
         rangeFields.add(rangeField);
 
-        List<NilValue> nilValues = new ArrayList<>();
+        List<List<NilValue>> nilValues = new ArrayList<>();
 
         WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, "", axes);
         return result;

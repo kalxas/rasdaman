@@ -84,6 +84,8 @@ public class StringUtil {
     public static final String POST_STRING_CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String POST_TEXT_PLAIN_CONTENT_TYPE = "text/plain";
     
+    public static final Pattern squareBracketsPattern = Pattern.compile("\\[(.*?)\\]");
+    
     /**
      * For coverages created temporarily, used for WCPS decode() from uploaded files
      */
@@ -702,6 +704,31 @@ public class StringUtil {
         } catch (UnsupportedEncodingException ex) {
             throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot decode string: " + input + " to UTF-8. Reason: " + ex.getMessage());
         }
+    }
+
+    /**
+     * Extract substring inside square brackets, e.g. "{[1,2,], [4,5], [6,7]}"
+     * returns a list of "1,2", "4,5", "6,7"
+     */    
+    public static List<String> extractStringsBetweenSquareBrackets(String str) {
+        List<String> results = new ArrayList<>();
+        // extract values inside [ ]        
+        Matcher m = squareBracketsPattern.matcher(str);
+
+        while (m.find()) {
+            String v = m.group(1);
+            results.add(v);
+        }
+        
+        return results;
+    }
+    
+    /**
+     * e.g. 123.567000000000000000000 -> 123.567
+     *      123.000 -> 123
+     */
+    public static String stripZerosAfterDecimal(String str) {
+        return str.replaceAll("^([-?\\d,]+)$|^([-?\\d,]+)\\.0*$|^([-?\\d,]+\\.[0-9]*?)0*$", "$1$2$3");
     }
     
 }

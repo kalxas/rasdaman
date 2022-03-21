@@ -1,68 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:GridCoverage id="test_float_4d"
->
-<boundedBy>
-<Envelope axisLabels="i j" srsDimension="2"
-srsName="/crs/OGC/0/Index4D" uomLabels="GridSpacing GridSpacing">
-<lowerCorner>0 0</lowerCorner>
-<upperCorner>0 0</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<Grid dimension="2" id="test_float_4d-grid">
-<limits>
-<GridEnvelope>
-<low>0 0</low>
-<high>0 0</high>
-</GridEnvelope>
-</limits>
-<axisLabels>i j</axisLabels>
-</Grid>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">-150</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>0 0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="value">
-<swe:Quantity definition="/dataType/OGC/0/float32">
-<swe:label>value</swe:label>
-<swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="The nil value represents an error in the sensor.">NaN</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<bands>
-<value>
-<missing_value>NaNf</missing_value>
-<definition>/dataType/OGC/0/float32</definition>
-<description>primitive</description>
-<units>10</units>
-</value>
-</bands>
-<Title>This is a test file</Title>
-<Project>This is another test file</Project>
-<Creator>This is a test creator file</Creator>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:GridCoverage gml:id="test_float_4d"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:rasdaman="http://www.rasdaman.org"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+    <gml:boundedBy>
+        <gml:Envelope axisLabels="i j" srsDimension="2"
+            srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index4D" uomLabels="GridSpacing GridSpacing">
+            <gml:lowerCorner>0 0</gml:lowerCorner>
+            <gml:upperCorner>0 0</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:Grid dimension="2" gml:id="test_float_4d-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0 0</gml:low>
+                    <gml:high>0 0</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>i j</gml:axisLabels>
+        </gml:Grid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">-150</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>0 0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="value">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                    <swe:label>value</swe:label>
+                    <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents an error in the sensor.">NaNf</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <rasdaman:covMetadata>
+                <bands>
+                    <value>
+                        <missing_value>NaNf</missing_value>
+                        <definition>http://www.opengis.net/def/dataType/OGC/0/float32</definition>
+                        <description>primitive</description>
+                        <units>10</units>
+                    </value>
+                </bands>
+                <Title>This is a test file</Title>
+                <Project>This is another test file</Project>
+                <Creator>This is a test creator file</Creator>
+            </rasdaman:covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:GridCoverage>

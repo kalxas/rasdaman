@@ -27,6 +27,7 @@ import math
 from collections import OrderedDict
 
 from lib import arrow
+from master.error.validate_exception import RecipeValidationException
 from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
 from util.coverage_util import CoverageUtil
 from util.gdal_util import GDALGmlUtil
@@ -340,6 +341,28 @@ class AbstractToCoverageConverter:
 
         return metadata_str
 
+    def __validate_null_values(self, input_nil_value):
+        tmp = [input_nil_value]
+        if isinstance(input_nil_value, list):
+            tmp = input_nil_value
+
+        for nil_value in tmp:
+            # null_value could be 9999 (gdal), "9999", or "'9999'" (netcdf, grib) so remove the redundant quotes
+            nil_value = str(nil_value).replace("'", "")
+
+            # nill value can be single (e.g: "-9999") or interval (e.g: "-9999:-9998")
+            values = nil_value.split(":")
+
+            for value in values:
+                if "-nan" in value.lower():
+                    value = "-NaN"
+                if "nan" in value.lower():
+                    value = "NaN"
+
+                if not (value == "*" or is_number(value)):
+                    # nilValue is invalid number
+                    raise RuntimeException("NilValue of band: {} is not valid.".format(nil_value))
+
     def _get_nil_values(self, index):
         """
         Returns the null values for a band of coverage by band index
@@ -359,28 +382,24 @@ class AbstractToCoverageConverter:
 
         if nil_values is not None:
             range_nils = []
-            # This should contain only 1 nilValue for 1 band
+            # nil_values = [[2,3], [1], [4]] or [999:9999, 999:*, 20]
+            has_all_nested_lists = []
+
             for nil_value in nil_values:
-                # null_value could be 9999 (gdal), "9999", or "'9999'" (netcdf, grib) so remove the redundant quotes
-                nil_value = str(nil_value).replace("'", "")
+                has_all_nested_lists.append(isinstance(nil_value, list))
 
-                # nill value can be single (e.g: "-9999") or interval (e.g: "-9999:-9998")
-                values = nil_value.split(":")
-                valid_values = []
+            if True in has_all_nested_lists and False in has_all_nested_lists:
+                # e.g. [ [2,3], 4, [5,7] ]
+                raise RecipeValidationException("default_null_values setting must contain a list for each band.")
 
-                for value in values:
-                    if "-nan" in value.lower():
-                        value = "-NaN"
-                    if "nan" in value.lower():
-                        value = "NaN"
+            if True in has_all_nested_lists:
+                # default_null_values contains list of null values per band
+                nil_values = nil_values[index]
 
-                    if not(value == "*" or is_number(value)):
-                        # nilValue is invalid number
-                        raise RuntimeException("NilValue of band: {} is not valid.".format(nil_value))
+            for nil_value in nil_values:
+                self.__validate_null_values(nil_value)
 
-                    valid_values.append(value)
-
-                range_nils.append(RangeTypeNilValue(band.nilReason, ":".join(valid_values)))
+                range_nils.append(RangeTypeNilValue(band.nilReason, nil_value))
 
             return range_nils
         else:

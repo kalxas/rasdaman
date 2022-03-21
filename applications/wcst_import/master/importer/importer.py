@@ -545,8 +545,23 @@ class Importer:
             # If band doesn't have null value, default insert value is 0
             insert_value = self.DEFAULT_INSERT_VALUE
             if (range_field.nilValues is not None) and (len(range_field.nilValues) > 0):
-                insert_value = strip_trailing_zeros(range_field.nilValues[0].value.split(":")[0])
-                if insert_value == "":
+                # e.g. band has null values  ["9.96921e+35:*", 9.96921e+36]
+                # 9.96921e+35 is used inside <gml:tupleList> when inserting first empty point with INSERT INTO query
+                # e.g. INSERT INTO test VALUES <[0:0,0:0] 9.96921e+35f> TILING ALIGNED [0:366, 0:500]
+                insert_value = str(range_field.nilValues[0].value)
+
+                if ":" in insert_value:
+                    tmps = insert_value.split(":")
+                    first = tmps[0]
+                    second = tmps[1]
+                    if first != "*":
+                       insert_value = first
+                    elif second != "*":
+                        insert_value = second
+                    else:
+                        insert_value = None
+
+                if insert_value is None or insert_value == "":
                     insert_value = self.DEFAULT_INSERT_VALUE
 
             tuple_list.append(insert_value)

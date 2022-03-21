@@ -106,7 +106,7 @@ public class WcpsCoverageMetadataTranslator {
         List<RangeField> rangeFields = buildRangeFields(coverage.getRangeType().getDataRecord().getFields());
         // parse extra metadata of coverage to map
         String extraMetadata = coverage.getMetadata();
-        List<NilValue> nilValues = coverage.getNilValues();
+        List<List<NilValue>> nilValues = coverage.getNilValues();
         
         String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
         

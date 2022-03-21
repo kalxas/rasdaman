@@ -67,7 +67,7 @@ public class RangeConstructorSwitchCaseHandler extends AbstractOperatorHandler {
             rangeFields.add(rangeField);
         }
 
-        List<NilValue> nilValues = new ArrayList<>();
+        List<List<NilValue>> nilValues = new ArrayList<>();
 
         //for now no metadata is forwarded, but it can be constructed from the fields (we need this to set extrametadata with netcdf)
         WcpsCoverageMetadata metadata = new WcpsCoverageMetadata(null, null, null, new ArrayList<Axis>(), "", rangeFields, nilValues, "", new ArrayList<Axis>());
