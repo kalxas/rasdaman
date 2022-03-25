@@ -94,24 +94,24 @@ public abstract class Coverage implements Serializable {
     // this is the id of coverage (or coverage name)
     protected String coverageId;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = CoverageFunction.COLUMN_ID)
     private CoverageFunction coverageFunction;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Envelope.COLUMN_ID)
     // persist this object before persist the container object (i.e: it needs the PK of the cascading to make the FK)    
     protected Envelope envelope;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = DomainSet.COLUMN_ID)
     protected DomainSet domainSet;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = RasdamanRangeSet.COLUMN_ID)
     protected RasdamanRangeSet rasdamanRangeSet;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = RangeType.COLUMN_ID)
     protected RangeType rangeType;
 
@@ -129,7 +129,7 @@ public abstract class Coverage implements Serializable {
     // Store the calculated size of coverage in bytes for overview
     protected Long coverageSizeInBytes = 0L;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)    
     @JoinColumn(name = FK_COVERAGE_ID)
     @OrderColumn
     protected List<CoveragePyramid> pyramid = new ArrayList<>();

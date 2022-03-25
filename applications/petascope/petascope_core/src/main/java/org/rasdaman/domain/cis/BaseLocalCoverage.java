@@ -83,7 +83,7 @@ public class BaseLocalCoverage implements Serializable {
     // this is the id of coverage (or coverage name)
     protected String coverageId;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Envelope.COLUMN_ID)
     // persist this object before persist the container object (i.e: it needs the PK of the cascading to make the FK)    
     protected Envelope envelope;

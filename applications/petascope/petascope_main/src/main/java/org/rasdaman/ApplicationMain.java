@@ -70,6 +70,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 
 /**
  * This class initializes the petascope properties and runs the application as jar file.
@@ -126,6 +127,10 @@ public class ApplicationMain extends SpringBootServletInitializer {
     
     @Autowired
     private DataMigrationService dataMigrationService;
+    
+    @Autowired
+    private OWSMetadataRepostioryService owsMetadataRepostioryService;
+
 
     /**
      * Invoked when running Petascope (rasdaman.war) only in an external servlet container. 
@@ -317,12 +322,13 @@ public class ApplicationMain extends SpringBootServletInitializer {
         this.dataMigrationService.runMigration();
 
         log.info("Checked data migrations.");
+        
+        owsMetadataRepostioryService.read();
 
         // load coverages / layers to caches in background thread
         this.loadCoveragesLayersCaches(this);
 
     }
-
     /**
      * Run in a background thread to load coverages and layers to caches.
      * Log warnings if something don't work (later WCS / WMS Getcapabilities requests will retry to read from database to caches)
@@ -336,7 +342,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
                 try {
                     log.info("Loading coverages to caches ...");
                     coverageRepositoryService.readAllCoveragesBasicMetadata();
-                } catch (PetascopeException ex) {
+                } catch (Exception ex) {
                     log.warn("Cannot load coverages to cache. Reason: " + ex.getMessage(), ex);
                 }
 

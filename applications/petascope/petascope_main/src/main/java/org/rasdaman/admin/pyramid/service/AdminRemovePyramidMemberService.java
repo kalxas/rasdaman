@@ -133,19 +133,19 @@ public class AdminRemovePyramidMemberService extends AbstractAdminService {
      * For example, cov2 contains cov4, then remove cov4 from cov2's pyramid
      */
     public void removePyramidMemberCoverage(GeneralGridCoverage baseCoverage, String pyramidMemberCoverageId) throws PetascopeException {
-        
-        Iterator<CoveragePyramid> iterator = baseCoverage.getPyramid().iterator();
-        while (iterator.hasNext()) {
-            CoveragePyramid coveragePyramid = iterator.next();
-            
+        int index = -1;
+        for (int i = 0; i < baseCoverage.getPyramid().size(); i++) {
+            CoveragePyramid coveragePyramid = baseCoverage.getPyramid().get(i);
             if (coveragePyramid.getPyramidMemberCoverageId().equals(pyramidMemberCoverageId)) {
-                iterator.remove();
-                this.coverageRepositoryService.save(baseCoverage);
-                
-                log.debug("Removed pyramid member coverage '"  + pyramidMemberCoverageId + "' from base coverage '" + baseCoverage.getCoverageId() + "'.");
-                
+                index = i;
                 break;
             }
+        }
+        
+        if (index >= 0) {
+            baseCoverage.getPyramid().remove(index);
+            this.coverageRepositoryService.save(baseCoverage);
+            log.info("Removed pyramid member coverage '"  + pyramidMemberCoverageId + "' from base coverage '" + baseCoverage.getCoverageId() + "'.");
         }
         
     }

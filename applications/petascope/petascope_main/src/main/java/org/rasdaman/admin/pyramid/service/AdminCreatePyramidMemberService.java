@@ -222,7 +222,7 @@ public class AdminCreatePyramidMemberService extends AbstractAdminService {
                                           List<BigDecimal> scaleFactors, List<String> interpolations) throws PetascopeException, SecoreException, IOException {
         
         GeneralGridCoverage downscaledLevelCoverage = (GeneralGridCoverage) JSONUtil.clone(baseCoverage);
-        downscaledLevelCoverage.setPyramid(new ArrayList<CoveragePyramid>());
+        downscaledLevelCoverage.setPyramid(new ArrayList<>());
         downscaledLevelCoverage.setCoverageId(pyramidMemberCoverageId);
         downscaledLevelCoverage.getRasdamanRangeSet().setRasdamanDownscaledCollections(new ArrayList<RasdamanDownscaledCollection>());
         
@@ -231,19 +231,19 @@ public class AdminCreatePyramidMemberService extends AbstractAdminService {
         // create a rasdaman downscaled collection for this pyramid member coverage
         this.createDownscaledLevelCollection(baseCoverage, downscaledLevelCoverage, coveragePyramid, scaleFactors);
         
-        // then, add this pyramid member coverage to the base coverage's pyramid set
-        baseCoverage.getPyramid().add(coveragePyramid);
-        
         // and persit both coverages to databases
         this.coverageRepositoryService.save(downscaledLevelCoverage);
+        
+        // then, add this pyramid member coverage to the base coverage's pyramid set
+        baseCoverage.getPyramid().add(coveragePyramid);
+        this.coverageRepositoryService.save(baseCoverage);        
+        
         
         // for example: request to create with base coverage: cov4 and pyramid member: cov8
         // first, find all coverages (e.g. cov1 and cov2) containing base coverage cov4
         // then, add newly created cov8 to these cov1 and cov2 coverages
         this.addPyramidMemberService.addPyramidMemeberCoverageToAllContainingCoverages(baseCoverage, downscaledLevelCoverage, false);        
         
-        this.coverageRepositoryService.save(baseCoverage);
-
         log.debug("Created pyramid member coverage '"  + pyramidMemberCoverageId + "' of base coverage '" + baseCoverage.getCoverageId() + "'.");
     }
     

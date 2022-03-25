@@ -45,7 +45,7 @@ public class GeneralGridDomainSet extends DomainSet implements Serializable {
     public static final String TABLE_NAME = "general_grid_domain_set";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
     
-    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn (name = GeneralGrid.COLUMN_ID)
     private GeneralGrid generalGrid;
     

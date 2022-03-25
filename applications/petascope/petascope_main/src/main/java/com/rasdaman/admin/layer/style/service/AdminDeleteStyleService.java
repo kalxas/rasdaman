@@ -99,7 +99,6 @@ public class AdminDeleteStyleService extends AbstractAdminService {
         }
         
         Style style = layer.getStyle(styleName);
-        this.wmsRepostioryService.deleteStyle(style);
         
         // In this case, this default style is removed, then GetMap cache with styles= 
         // will need to be cleaned as a new style will be set implicitly as default style
@@ -107,7 +106,6 @@ public class AdminDeleteStyleService extends AbstractAdminService {
             this.wmsGetMapCachingService.removeStyleGetMapInCache(layerName, null);
         }
         
-
         layer.getStyles().remove(i);
         
         // Then delete the style of the layer from database.

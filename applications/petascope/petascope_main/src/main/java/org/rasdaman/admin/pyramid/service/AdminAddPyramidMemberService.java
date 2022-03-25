@@ -196,9 +196,6 @@ public class AdminAddPyramidMemberService extends AbstractAdminService {
             // then, find all coverages (e.g. cov1) containing base coverage cov2
             // then add cov4 (and its nested pyramid member coverages) to cov1
             this.addPyramidMemeberCoverageToAllContainingCoverages(baseCoverage, pyramidMemberCoverage, pyramidHarvesting);
-
-            // Persist the newly added pyramid member of base coverages to database
-            this.coverageRepositoryService.save(baseCoverage);
             
             log.debug("Added pyramid member coverage '"  + pyramidMemberCoverageId + "' to base coverage '" + baseCoverageId + "'.");
         }
@@ -243,6 +240,9 @@ public class AdminAddPyramidMemberService extends AbstractAdminService {
         // before persisting to database with this order
         List<CoveragePyramid> sortedCoveragePyramids = this.pyramidService.sortByScaleFactors(baseCoverage.getPyramid());
         baseCoverage.setPyramid(sortedCoveragePyramids);
+
+        // Persist the newly added pyramid member of base coverages to database
+        this.coverageRepositoryService.save(baseCoverage);
     }
 
     /**

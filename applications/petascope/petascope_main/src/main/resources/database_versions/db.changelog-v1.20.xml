@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+
+<changeSet id="1648111156772" author="BPH" failOnError="false">
+    <sql>
+       CREATE EXTENSION lo;
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156777" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_contact_instructions BEFORE UPDATE OR DELETE ON contact_info
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(contact_instructions);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156782" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_metadata BEFORE UPDATE OR DELETE ON coverage
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(metadata);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156787" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_inspire_metadata_url BEFORE UPDATE OR DELETE ON coverage
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(inspire_metadata_url);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156792" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_scale_factors BEFORE UPDATE OR DELETE ON coverage_pyramid
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(scale_factors);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156797" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_reason BEFORE UPDATE OR DELETE ON nil_value
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(reason);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156802" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_description BEFORE UPDATE OR DELETE ON quantity
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(description);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156807" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_definition BEFORE UPDATE OR DELETE ON quantity
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(definition);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156813" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_service_abstract BEFORE UPDATE OR DELETE ON service_identification
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(service_abstract);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156818" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_extent BEFORE UPDATE OR DELETE ON wms13__dimension
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(extent);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156823" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_layer_abstract BEFORE UPDATE OR DELETE ON wms13__layer
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(layer_abstract);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156828" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_legend_graphic_base64 BEFORE UPDATE OR DELETE ON wms13__legend_url
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(legend_graphic_base64);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156833" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_wcps_query_fragment BEFORE UPDATE OR DELETE ON wms13__style
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(wcps_query_fragment);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156838" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_colortable_definition BEFORE UPDATE OR DELETE ON wms13__style
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(colortable_definition);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156843" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_style_abstract BEFORE UPDATE OR DELETE ON wms13__style
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(style_abstract);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1648111156848" author="BPH" failOnError="false">
+    <sql>
+       
+     CREATE TRIGGER trigger_delete_large_object_on_rasql_query_transform_fragment BEFORE UPDATE OR DELETE ON wms13__style
+     FOR EACH ROW EXECUTE PROCEDURE lo_manage(rasql_query_transform_fragment);
+
+    </sql>
+</changeSet>
+
+
+</databaseChangeLog>

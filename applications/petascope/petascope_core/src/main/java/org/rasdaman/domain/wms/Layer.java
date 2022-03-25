@@ -90,7 +90,7 @@ public class Layer implements Serializable {
     private String layerAbstract;
 
     // One, but its properties are optional values (use default)
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = LayerAttribute.COLUMN_ID)
     private LayerAttribute layerAttribute;
 
@@ -100,7 +100,7 @@ public class Layer implements Serializable {
     private List<String> keywordList = new ArrayList<>();
 
     // Zero Or Many, mandatory
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<Style> styles = new ArrayList<>();
@@ -113,47 +113,47 @@ public class Layer implements Serializable {
     private List<String> crss = new ArrayList<>();
 
     // One, mandatory
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = EXGeographicBoundingBox.COLUMN_ID)
     private EXGeographicBoundingBox exGeographicBoundingBox;
 
     // One or Many, mandatory
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<BoundingBox> boundingBoxes = new ArrayList<>();
 
     // Zero Or Many, mandatory
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<Dimension> dimensions = new ArrayList<>();
 
     // Zero Or One, optional
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Attribution.COLUMN_ID)
     private Attribution attribution;
 
     // Zero Or Many, optional
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<AuthorityURL> authorityURLs = new ArrayList<>();
 
     // Zero Or Many, optional
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<Identifier> identifiers = new ArrayList<>();
 
     // Zero Or Many, optional
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<MetadataURL> metadataURLs = new ArrayList<>();
 
     // Zero Or One, optional
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = DataURL.COLUMN_ID)
     private DataURL dataURL;
 
@@ -249,7 +249,8 @@ public class Layer implements Serializable {
     }
 
     public void setBoundingBoxes(List<BoundingBox> boundingBoxes) {
-        this.boundingBoxes = boundingBoxes;
+        this.boundingBoxes.clear();
+        this.boundingBoxes.addAll(boundingBoxes);
     }
 
     public List<Dimension> getDimensions() {
@@ -257,7 +258,8 @@ public class Layer implements Serializable {
     }
 
     public void setDimensions(List<Dimension> dimensions) {
-        this.dimensions = dimensions;
+        this.dimensions.clear();
+        this.dimensions.addAll(dimensions);
     }
 
     public Attribution getAttribution() {
@@ -273,7 +275,8 @@ public class Layer implements Serializable {
     }
 
     public void setAuthorityURLs(List<AuthorityURL> authorityURLs) {
-        this.authorityURLs = authorityURLs;
+        this.authorityURLs.clear();
+        this.authorityURLs.addAll(authorityURLs);
     }
 
     public List<Identifier> getIdentifiers() {
@@ -281,7 +284,8 @@ public class Layer implements Serializable {
     }
 
     public void setIdentifiers(List<Identifier> identifiers) {
-        this.identifiers = identifiers;
+        this.identifiers.clear();
+        this.identifiers.addAll(identifiers);
     }
 
     public List<MetadataURL> getMetadataURLs() {
@@ -289,7 +293,8 @@ public class Layer implements Serializable {
     }
 
     public void setMetadataURLs(List<MetadataURL> metadataURLs) {
-        this.metadataURLs = metadataURLs;
+        this.metadataURLs.clear();
+        this.metadataURLs.addAll(metadataURLs);
     }
 
     public DataURL getDataURL() {

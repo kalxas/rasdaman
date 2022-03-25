@@ -3464,7 +3464,11 @@ be considered for inclusion in a backup:
 
    .. code-block:: shell
 
-      # create petascopedb in case it does not exist
+      # if a petascopedb already exists it needs to be renamed, as otherwise
+      # restoring over an existing petascopedb will corrupt it
+      sudo -u postgres psql -c "ALTER DATABASE petascopedb RENAME TO petascopedb_existing_backup"
+
+      # create an empty petascopedb
       sudo -u postgres createdb petascopedb
 
       # restore backup petascopedb.sql.gz (use cat if it's not a gzip archive)

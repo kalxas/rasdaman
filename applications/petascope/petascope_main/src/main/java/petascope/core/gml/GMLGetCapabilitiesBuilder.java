@@ -929,7 +929,7 @@ public class GMLGetCapabilitiesBuilder {
         }
         
         // Base coverage + pyramid members sizes in bytes if any
-        if (!coverage.getPyramid().isEmpty()) {
+        if (coverage.getPyramid() != null && !coverage.getPyramid().isEmpty()) {
             Long sizeInBytesWithPyramidLevels = coverage.getCoverageSizeInBytes();
             for (CoveragePyramid pyramid : coverage.getPyramid()) {
                 if (pyramid.getPyramidMemberCoverageId() != null) {

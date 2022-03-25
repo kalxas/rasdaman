@@ -71,7 +71,7 @@ public class RasdamanRangeSet implements Serializable {
     @Column(name = "tiling")
     private String tiling;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval = true)
     @OrderColumn
     @JoinColumn(name = RasdamanRangeSet.COLUMN_ID)
     private List<RasdamanDownscaledCollection> rasdamanDownscaledCollections = new ArrayList<>();

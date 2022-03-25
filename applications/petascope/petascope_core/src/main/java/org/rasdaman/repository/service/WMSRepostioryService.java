@@ -28,9 +28,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.rasdaman.domain.wms.Layer;
-import org.rasdaman.domain.wms.Style;
 import org.rasdaman.repository.interfaces.LayerRepository;
-import org.rasdaman.repository.interfaces.StyleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +49,6 @@ public class WMSRepostioryService {
 
     @Autowired
     private LayerRepository layerRepository;
-    @Autowired
-    private StyleRepository styleRepository;
 
     // NOTE: for migration, Hibernate caches the object in first-level cache internally
     // and recheck everytime a new entity is saved, then with thousands of cached objects for nothing
@@ -244,31 +240,6 @@ public class WMSRepostioryService {
         localLayersCacheMap.remove(layerName);
     }
 
-    /**
-     * Delete a WMS Style object to persistent database
-     */
-    public void saveStyle(Style style) {
-        this.styleRepository.save(style);
-
-        entityManager.flush();
-        entityManager.clear();
-
-        log.debug("WMS Style: " + style.getName() + " is persited to database.");
-    }
-
-    /**
-     * Delete a WMS Style object to persistent database
-     */
-    public void deleteStyle(Style style) {
-
-        this.styleRepository.delete(style);
-
-        entityManager.flush();
-        entityManager.clear();
-
-        log.debug("WMS Style: " + style.getName() + " is removed from database.");
-    }
-    
     /**
      * Rename a WMS layer to a new name, e.g: layerA -> layerB
      */

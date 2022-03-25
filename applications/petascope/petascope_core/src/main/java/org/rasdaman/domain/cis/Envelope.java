@@ -49,7 +49,7 @@ public class Envelope implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = EnvelopeByAxis.COLUMN_ID)
     private EnvelopeByAxis envelopeByAxis;
     

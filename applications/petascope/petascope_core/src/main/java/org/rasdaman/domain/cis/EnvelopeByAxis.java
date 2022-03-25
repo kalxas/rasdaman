@@ -85,12 +85,12 @@ public class EnvelopeByAxis implements Serializable {
     @Column(name = "axis_Labels")
     private String axisLabels;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = EnvelopeByAxis.COLUMN_ID)
     @OrderColumn
     private List<AxisExtent> axisExtents;
     
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = Wgs84BoundingBox.COLUMN_ID)
     private Wgs84BoundingBox wgs84BBox;
 

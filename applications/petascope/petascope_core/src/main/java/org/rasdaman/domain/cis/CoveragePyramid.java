@@ -25,8 +25,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -116,25 +116,45 @@ public class CoveragePyramid implements Serializable {
     public boolean isSynced() {
         return this.synced;
     }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        
-        CoveragePyramid that = (CoveragePyramid) o;
 
-        return pyramidMemberCoverageId.equals(that.pyramidMemberCoverageId);
-    }
-    
     @Override
     public int hashCode() {
-        return pyramidMemberCoverageId.hashCode();
+        int hash = 7;
+        hash = 97 * hash + (int) (this.id ^ (this.id >>> 32));
+        hash = 97 * hash + Objects.hashCode(this.pyramidMemberCoverageId);
+        hash = 97 * hash + Objects.hashCode(this.scaleFactors);
+        hash = 97 * hash + (this.synced ? 1 : 0);
+        return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CoveragePyramid other = (CoveragePyramid) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        if (this.synced != other.synced) {
+            return false;
+        }
+        if (!Objects.equals(this.pyramidMemberCoverageId, other.pyramidMemberCoverageId)) {
+            return false;
+        }
+        if (!Objects.equals(this.scaleFactors, other.scaleFactors)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
     
     public String toString() {
         return "Coverage id '" + pyramidMemberCoverageId + "'.";

@@ -61,12 +61,12 @@ public class RangeType implements Serializable {
     @Column(name = COLUMN_ID)
     private long id;
 
-    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = DataRecord.COLUMN_ID)
     // contains all the data type of all ranges (bands)
     private DataRecord dataRecord;
 
-    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = InterpolationRestriction.COLUMN_ID)
     // Optional
     private InterpolationRestriction interpolationRestriction;

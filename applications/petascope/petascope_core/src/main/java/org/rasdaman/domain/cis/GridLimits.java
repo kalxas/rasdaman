@@ -58,7 +58,7 @@ public class GridLimits implements Serializable {
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String srsName;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = GridLimits.COLUMN_ID)
     @OrderColumn(name = "index_axes_order")
     // all axes of the Index CRS referenced in srsName, in proper sequence

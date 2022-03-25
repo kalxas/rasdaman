@@ -71,7 +71,7 @@ public class OWSMetadataRepostioryService {
      */
     public OwsServiceMetadata read() throws WCSException {
 
-        OwsServiceMetadata owsServiceMetadata = new OwsServiceMetadata();
+        OwsServiceMetadata owsServiceMetadata;
         if (owsServiceMetadataCache != null) {
             // Read from the cache
             owsServiceMetadata = owsServiceMetadataCache;
@@ -79,7 +79,6 @@ public class OWSMetadataRepostioryService {
             // This should contain only 1 object for all services
             List<OwsServiceMetadata> metadatas = (List<OwsServiceMetadata>) owsServiceMetadataRepository.findAll();
             if (metadatas.isEmpty()) {
-                //throw new WCSException(ExceptionCode.InternalComponentError, "There is no OWS Service metadata persisted in database, please migrate it first.");
                 // If database is empty and not migrate from old database, yet, then create a default object and persist it.
                 owsServiceMetadata = this.createDefaultOWSMetadataService();
                 this.save(owsServiceMetadata);

@@ -63,7 +63,7 @@ public class DataRecord implements Serializable {
     @Column(name = COLUMN_ID)
     private long id;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = DataRecord.COLUMN_ID)
     @OrderColumn
     private List<Field> fields;

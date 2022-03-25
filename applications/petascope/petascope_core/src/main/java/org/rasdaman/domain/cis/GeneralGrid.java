@@ -53,13 +53,13 @@ public class GeneralGrid implements Serializable {
     // Compound CRSs of all geo axes    
     private String srsName;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = GeneralGrid.COLUMN_ID)
     @OrderColumn(name = "geo_axes_order")
     // GeoAxis means it could be RegularAxis or IrregularAxis
     private List<GeoAxis> geoAxes;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = GridLimits.COLUMN_ID)
     // not needed in case grid consists of index axes only
     private GridLimits gridLimits;
