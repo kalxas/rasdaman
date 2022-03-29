@@ -95,6 +95,10 @@ public class BaseLocalCoverage implements Serializable {
     @Column(name = "coverage_size_in_bytes")
     // Store the calculated size of coverage in bytes for overview
     protected Long coverageSizeInBytes = 0L;
+    
+    @Column(name = "coverage_size_in_bytes_with_pyramid")
+    // Store the calculated size of coverage in bytes for overview
+    protected Long coverageSizeInBytesWithPyramid = 0L;    
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = Coverage.FK_COVERAGE_ID)
@@ -154,6 +158,17 @@ public class BaseLocalCoverage implements Serializable {
     public void setCoverageSizeInBytes(long coverageSizeInBytes) {
         this.coverageSizeInBytes = coverageSizeInBytes;
     }
+    
+    public Long getCoverageSizeInBytesWithPyramid() {
+        if (coverageSizeInBytesWithPyramid == null) {
+            coverageSizeInBytesWithPyramid = 0L;
+        }
+        return coverageSizeInBytesWithPyramid;
+    }
+
+    public void setCoverageSizeInBytesWithPyramid(long coverageSizeInBytesWithPyramid) {
+        this.coverageSizeInBytesWithPyramid = coverageSizeInBytesWithPyramid;
+    }    
 
     public List<CoveragePyramid> getPyramid() {
         return pyramid;

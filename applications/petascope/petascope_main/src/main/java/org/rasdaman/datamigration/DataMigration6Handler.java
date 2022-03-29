@@ -21,7 +21,9 @@
  */
 package org.rasdaman.datamigration;
 import java.util.List;
+import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.wms.Layer;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,31 +31,31 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 
 /**
- * Class to handle data migration version number 5
+ * Class to handle data migration version number 6
  * 
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 @Service
-public class DataMigration5Handler extends AbstractDataMigrationHandler {
+public class DataMigration6Handler extends AbstractDataMigrationHandler {
     
     @Autowired
-    private WMSRepostioryService wmsRepostioryService;
+    private CoverageRepositoryService coverageRepositoryService;
     
-    public DataMigration5Handler() {
+    public DataMigration6Handler() {
         // NOTE: update this by one for new handler class
-        this.migrationVersion = 5;
-        this.handlerId = "d96d9e26-9fbb-11ec-887a-509a4cb4e064";
+        this.migrationVersion = 6;
+        this.handlerId = "36e950ca-af77-11ec-8597-509a4cb4e064";
     }
 
     @Override
     public void migrate() throws PetascopeException, SecoreException {
         
-        List<Layer> layers = this.wmsRepostioryService.readAllLocalLayers();
-        for (Layer layer : layers) {
-            if (layer.getStyles().size() > 0) {
-                // NOTE: v10, if a layer has at least one style, then this style is set as default style
-                layer.getStyles().get(0).setDefaultStyle(true);
-                wmsRepostioryService.saveLayer(layer);
+        for (String coverageId : this.coverageRepositoryService.readAllLocalCoverageIds()) {
+            Coverage baseCoverage = this.coverageRepositoryService.readCoverageFullMetadataByIdFromCache(coverageId);
+            if (baseCoverage.getPyramid() != null && !baseCoverage.getPyramid().isEmpty()) {
+                this.coverageRepositoryService.calculateCoverageSizeInBytesWithPyramid(baseCoverage);
+            
+                this.coverageRepositoryService.saveCoverageSizeInBytesWithPyramid(baseCoverage);
             }
         }
         

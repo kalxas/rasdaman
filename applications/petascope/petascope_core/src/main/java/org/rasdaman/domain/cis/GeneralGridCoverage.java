@@ -65,11 +65,13 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
         this.rasdamanRangeSet = baseCoverage.getRasdamanRangeSet();
         
         this.inspireMetadataURL = baseCoverage.getInspireMetadataURL();
+        this.coverageSizeInBytesWithPyramid = baseCoverage.getCoverageSizeInBytesWithPyramid();
     }
 
     public GeneralGridCoverage(String coverageId, String coverageType, long coverageSizeInBytes, 
-                               Envelope envelope, DomainSet domainSet, RangeType rangeType, RasdamanRangeSet rasdamanRangeSet, String metadata) {
-        super(coverageId, coverageType, coverageSizeInBytes, envelope, domainSet, rangeType, rasdamanRangeSet, metadata);
+                               Envelope envelope, DomainSet domainSet, RangeType rangeType, RasdamanRangeSet rasdamanRangeSet, String metadata, 
+                               long coverageSizeInBytesWithPyramid) {
+        super(coverageId, coverageType, coverageSizeInBytes, envelope, domainSet, rangeType, rasdamanRangeSet, metadata, coverageSizeInBytesWithPyramid);
     }
     
     // DomainSet here is GeneralGridDomainSet

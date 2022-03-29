@@ -97,9 +97,7 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
 //        </wcs:CoverageDescriptions>
 
         Element coverageDescriptionsElement = this.gmlWCSRequestResultBuilder.buildDescribeCoverageResult(outputType, Arrays.asList(coverageIds));
-        String result = coverageDescriptionsElement.toXML();
-
-        result = XMLUtil.formatXML(result);
+        String result = XMLUtil.formatXML(coverageDescriptionsElement.toXML());
 
         return new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_GML, coverageIds[0]);
     }

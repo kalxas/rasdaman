@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +79,7 @@ import nu.xom.Node;
 import nu.xom.Nodes;
 import nu.xom.ParentNode;
 import nu.xom.ParsingException;
+import nu.xom.Serializer;
 import nu.xom.Text;
 import nu.xom.XPathContext;
 import nu.xom.converters.DOMConverter;
@@ -1252,6 +1254,28 @@ public class XMLUtil {
         }
         return null;*/
         return inputXML.replaceAll(">\\s*<", "><");
+    }
+    
+    public static String formatXML(Element rootElement) throws PetascopeException {
+        Document document = new Document(rootElement);
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Serializer serializer = new Serializer(baos);
+        serializer.setIndent(4);
+        try {
+            serializer.write(document);
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Failed writing XML document. Reason: " + ex.getMessage());
+        }
+        
+        // indented XML
+        String result = new String(baos.toByteArray());
+        
+        if (ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+            return formatXMLForOGCCITE(result);
+        }
+        
+        return result;
     }
 
     /**

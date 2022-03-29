@@ -34,15 +34,14 @@ import petascope.exceptions.PetascopeException;
  */
 public class ThreadUtil {
     
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(
-        Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     
     /**
      * Run a list of tasks in parallel in batch mode (max = number of CPU cores)
      */
-    public static void executeMultipleTasksInParallel(List<Callable<Object>> todoList) throws PetascopeException {
+    public static void executeMultipleTasksInParallel(List<Callable<Object>> tasks) throws PetascopeException {
         try {
-            executorService.invokeAll(todoList);
+            executorService.invokeAll(tasks);
         } catch (InterruptedException ex) {
             throw new PetascopeException(ExceptionCode.RuntimeError, 
                       "Error while running multiple threads. Reason: " + ex.getMessage(), ex);

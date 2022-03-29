@@ -111,9 +111,10 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
         for (String version : versions) {
             if (VersionManager.getAllSupportedVersions(KVPSymbols.WCS_SERVICE).contains(version)) {
                 Element capabilitiesElement = this.gmlWCSRequestResultBuilder.buildGetCapabilitiesResult(version);
-
-                // format XML to have indentation
-                gml = XMLUtil.formatXML(capabilitiesElement.toXML());
+                
+                // format XML to have indentation                
+                gml = XMLUtil.formatXML(capabilitiesElement);
+                
                 
                 break;
             }

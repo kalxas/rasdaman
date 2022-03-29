@@ -106,7 +106,12 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
     
     @Transactional
     @Modifying
+    @Query("update Coverage set coverageSizeInBytesWithPyramid = :coverageSizeInBytesWithPyramid where id = :coverageAutoId")
+    void saveCoverageSizeInBytesWithPyramid(@Param("coverageAutoId") long coverageAutoId, @Param("coverageSizeInBytesWithPyramid") long coverageSizeInBytesWithPyramid);
+    
+    @Transactional
+    @Modifying
     @Query("update Coverage set inspireMetadataURL = :inspireMetadataURL where id = :coverageAutoId")
-    void saveCoverageInspireMetadataURL(@Param("coverageAutoId") long coverageAutoId, @Param("inspireMetadataURL") String coverageSizeInBytes);
+    void saveCoverageInspireMetadataURL(@Param("coverageAutoId") long coverageAutoId, @Param("inspireMetadataURL") String inspireMetadataURL);
 }
 

@@ -128,6 +128,9 @@ public abstract class Coverage implements Serializable {
     @Column(name = "coverage_size_in_bytes")
     // Store the calculated size of coverage in bytes for overview
     protected Long coverageSizeInBytes = 0L;
+    
+    @Column(name = "coverage_size_in_bytes_with_pyramid")
+    protected Long coverageSizeInBytesWithPyramid = 0L;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)    
     @JoinColumn(name = FK_COVERAGE_ID)
@@ -143,7 +146,7 @@ public abstract class Coverage implements Serializable {
     }
 
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, 
-                    Envelope envelope, DomainSet domainSet, RangeType rangeType, RasdamanRangeSet rasdamanRangeSet, String metadata) {
+                    Envelope envelope, DomainSet domainSet, RangeType rangeType, RasdamanRangeSet rasdamanRangeSet, String metadata, long coverageSizeInBytesWithPyramid) {
         this.coverageId = coverageId;
         this.envelope = envelope;
         this.domainSet = domainSet;
@@ -155,11 +158,11 @@ public abstract class Coverage implements Serializable {
     }
     
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet) {
-        this(coverageId, coverageType, 0, envelope, rasdamanRangeSet, new ArrayList<CoveragePyramid>(), null);
+        this(coverageId, coverageType, 0, envelope, rasdamanRangeSet, null, new ArrayList<CoveragePyramid>(), null, 0L);
     }
     
     public Coverage(String coverageId, String coverageType, long coverageSizeInBytes, Envelope envelope, RasdamanRangeSet rasdamanRangeSet,
-                    List<CoveragePyramid> pyramid, String inspireMetadataURL) {
+                    List<String> sourceCoverageIds, List<CoveragePyramid> pyramid, String inspireMetadataURL, long coverageSizeInBytesWithPyramid) {
         this.coverageId = coverageId;
         this.coverageType = coverageType;
         this.coverageSizeInBytes = coverageSizeInBytes;
@@ -248,13 +251,28 @@ public abstract class Coverage implements Serializable {
         }
         return coverageSizeInBytes;
     }
-
+    
     public void setCoverageSizeInBytes(Long coverageSizeInBytes) {
         if (coverageSizeInBytes == null) {
             coverageSizeInBytes = 0L;
         }
         this.coverageSizeInBytes = coverageSizeInBytes;
     }
+    
+    public Long getCoverageSizeInBytesWithPyramid() {
+        if (this.coverageSizeInBytesWithPyramid == null) {
+            this.coverageSizeInBytesWithPyramid = 0L;
+        }
+        return this.coverageSizeInBytesWithPyramid;
+    }    
+    
+    public void setCoverageSizeInBytesWithPyramid(Long inputValue) {
+        if (inputValue == null) {
+            inputValue = 0L;
+        }
+        this.coverageSizeInBytesWithPyramid = inputValue;
+    }    
+    
 
     public List<CoveragePyramid> getPyramid() {
         return pyramid;

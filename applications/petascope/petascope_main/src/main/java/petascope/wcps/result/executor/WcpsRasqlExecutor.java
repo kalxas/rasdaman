@@ -199,11 +199,9 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
         String tupleList = new String(arrayData);
         tupleList = this.rasJsonToTupleList(tupleList);
 
-        Element gmlGetCoverageElement = this.gmlWCSRequestResultBuilder.buildGetCoverageResult(wcpsCoverageMetadata, tupleList);
-        String gml = gmlGetCoverageElement.toXML();
-                
+        Element gmlGetCoverageElement = this.gmlWCSRequestResultBuilder.buildGetCoverageResult(wcpsCoverageMetadata, tupleList);              
         // format the output with indentation
-        gml = XMLUtil.formatXML(gml);
+        String gml = XMLUtil.formatXML(gmlGetCoverageElement.toXML());
 
         return gml.getBytes();
     }

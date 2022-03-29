@@ -48,6 +48,8 @@ import org.springframework.stereotype.Service;
 import org.rasdaman.config.VersionManager;
 import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static petascope.core.KVPSymbols.VALUE_DELETE_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
@@ -179,6 +181,8 @@ import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_
  */
 @Service
 public class GMLGetCapabilitiesBuilder {
+    
+    private static final Logger log = LoggerFactory.getLogger(GMLGetCapabilitiesBuilder.class);
 
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
@@ -701,6 +705,9 @@ public class GMLGetCapabilitiesBuilder {
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
         List<Pair<Coverage, Boolean>> importedCoveragePairs = this.coverageRepositoryService.readAllLocalCoveragesBasicMetatataFromCache();
         List<Coverage> inspireCoverages = new ArrayList<>();
+        
+        long startTime = System.currentTimeMillis();
+        
 
         // Children elements (list of all imported coverage)
         for (Pair<Coverage, Boolean> coveragePair : importedCoveragePairs) {
@@ -754,11 +761,18 @@ public class GMLGetCapabilitiesBuilder {
             coverageSummaryElement.appendChild(boundingBox);
             
             if (!ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+                
+                long startTimeTmp = System.currentTimeMillis();
+                
                 // NOTE: Rasdaman customized metatadata is not valid from GML 3.2.1 schema validating in WCS GetCapabilities
                 Element customizedMetadataElement = this.createCustomizedCoverageMetadataElement(coveragePair.fst);
                 if (customizedMetadataElement != null) {
                     coverageSummaryElement.appendChild(customizedMetadataElement);
                 }
+                
+                long endTimeTmp = System.currentTimeMillis();
+            
+                log.debug("Time to create customized metadata for coverage: " + coverageId + " is: " + (endTimeTmp - startTimeTmp) + " ms.");
             }
 
             // 1.1.1.1 Children elements of BoundingBox element
@@ -770,6 +784,9 @@ public class GMLGetCapabilitiesBuilder {
             upperCornerElement.appendChild(envelopeByAxis.getUpperCornerRepresentation());
             boundingBox.appendChild(upperCornerElement);
         }
+        
+        long endTime = System.currentTimeMillis();
+        log.debug("Time to build GetCapabilities Content element is: " + (endTime - startTime) + " ms.");
         
         this.buildInpsireExtendedCapabilitiesElement(inspireCoverages, operationsMetadataElement);
 
@@ -920,7 +937,7 @@ public class GMLGetCapabilitiesBuilder {
      */
     public Element createCustomizedCoverageMetadataElement(Coverage coverage) throws PetascopeException {
 	Element additonalParametersElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDITIONAL_PARAMETERS), NAMESPACE_OWS);
-
+        
         // Coverage size in bytes
         Long sizeInBytes = coverage.getCoverageSizeInBytes();
         if (sizeInBytes != null && sizeInBytes > 0) {
@@ -928,19 +945,13 @@ public class GMLGetCapabilitiesBuilder {
             additonalParametersElement.appendChild(coverageSizeInBytesElement);
         }
         
-        // Base coverage + pyramid members sizes in bytes if any
         if (coverage.getPyramid() != null && !coverage.getPyramid().isEmpty()) {
-            Long sizeInBytesWithPyramidLevels = coverage.getCoverageSizeInBytes();
-            for (CoveragePyramid pyramid : coverage.getPyramid()) {
-                if (pyramid.getPyramidMemberCoverageId() != null) {
-                    Coverage pyramidMemberCoverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(pyramid.getPyramidMemberCoverageId());
-                    sizeInBytesWithPyramidLevels += pyramidMemberCoverage.getCoverageSizeInBytes();
-                }
+            Long sizeInBytesWithPyramid = coverage.getCoverageSizeInBytesWithPyramid();
+            if (sizeInBytesWithPyramid != null && sizeInBytesWithPyramid > 0) {
+                Element coverageSizeInBytesElement = this.createAdditionalElement(VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES_WITH_PYRAMID_LEVELS, 
+                                                                                  sizeInBytesWithPyramid.toString());
+                additonalParametersElement.appendChild(coverageSizeInBytesElement);
             }
-
-            Element coverageSizeInBytesElement = this.createAdditionalElement(VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES_WITH_PYRAMID_LEVELS, 
-                                                                              sizeInBytesWithPyramidLevels.toString());
-            additonalParametersElement.appendChild(coverageSizeInBytesElement);
         }
         
         // List of axis names

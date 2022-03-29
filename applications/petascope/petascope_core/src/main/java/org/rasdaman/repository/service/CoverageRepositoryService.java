@@ -616,6 +616,29 @@ public class CoverageRepositoryService {
     }
     
     /**
+     * Return the size of base coverage size + all its pyramid sizes
+     */
+    public Long calculateCoverageSizeInBytesWithPyramid(Coverage coverage) throws PetascopeException {
+        // base coverage size
+        Long sizeInBytesWithPyramidLevels = coverage.getCoverageSizeInBytes();
+
+        if (coverage.getPyramid() != null && !coverage.getPyramid().isEmpty()) {
+            for (CoveragePyramid pyramid : coverage.getPyramid()) {
+                // pyramid coverage size
+                if (pyramid.getPyramidMemberCoverageId() != null) {
+                    Coverage pyramidMemberCoverage = this.readCoverageBasicMetadataByIdFromCache(pyramid.getPyramidMemberCoverageId());
+                    sizeInBytesWithPyramidLevels += pyramidMemberCoverage.getCoverageSizeInBytes();
+                }
+            }
+        }
+        
+        coverage.setCoverageSizeInBytesWithPyramid(sizeInBytesWithPyramidLevels);
+        
+        return sizeInBytesWithPyramidLevels;
+    }    
+    
+    
+    /**
      * Add a new coverage to database
      */
     public void add(Coverage coverage) throws PetascopeException {
@@ -647,6 +670,8 @@ public class CoverageRepositoryService {
         
         long coverageSize = this.calculateCoverageSizeInBytes(coverage);
         coverage.setCoverageSizeInBytes(coverageSize);
+        
+        this.calculateCoverageSizeInBytesWithPyramid(coverage);
         
         long start = System.currentTimeMillis();
         // then it can save (insert/update) the coverage to database
@@ -793,6 +818,16 @@ public class CoverageRepositoryService {
         long coverageSizeInBytes = localCoverage.getCoverageSizeInBytes();
         this.coverageRepository.saveCoverageSizeInBytes(coverageAutoId, coverageSizeInBytes);
     }
+    
+    /**
+     * Persist coverageSizeInBytes to database of the selected coverage
+     */
+    @Transactional
+    public void saveCoverageSizeInBytesWithPyramid(Coverage localCoverage) {
+        long coverageAutoId = localCoverage.getId();
+        long coverageSizeInBytesWithPyramid = localCoverage.getCoverageSizeInBytesWithPyramid();
+        this.coverageRepository.saveCoverageSizeInBytesWithPyramid(coverageAutoId, coverageSizeInBytesWithPyramid);
+    }    
     
     /**
      * Persist inspireMetadataURL to database of the selected coverage
