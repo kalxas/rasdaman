@@ -113,8 +113,14 @@ public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscal
 
     @Override
     public int compareTo(RasdamanDownscaledCollection inputObject) {
-        BigDecimal inputLevel = inputObject.getLevel();
-        int result = new BigDecimal(this.level).subtract(inputLevel).intValue();
-        return result;
+        int result = -1;        
+        if (inputObject != null) {
+            BigDecimal inputLevel = inputObject.getLevel();
+            if (this.level != null && inputLevel != null) {
+                result = new BigDecimal(this.level).subtract(inputLevel).intValue();
+            }
+        }
+        
+        return result;        
     }
 }

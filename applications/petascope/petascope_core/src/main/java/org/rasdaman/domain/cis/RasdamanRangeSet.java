@@ -85,7 +85,9 @@ public class RasdamanRangeSet implements Serializable {
         this.collectionType = collectionType;
         this.mddType = mddType;
         this.tiling = tiling;
-        this.rasdamanDownscaledCollections = rasdamanDownscaledCollections;
+        if (rasdamanDownscaledCollections != null) {
+            this.rasdamanDownscaledCollections = rasdamanDownscaledCollections;
+        }
     }
 
     public void setId(long id) {
@@ -157,6 +159,10 @@ public class RasdamanRangeSet implements Serializable {
         return resultList;
     }
 
+    /**
+     * @deprecated 
+     * obsoleted list, no use
+     */
     public List<RasdamanDownscaledCollection> getRasdamanDownscaledCollections() {
         List<RasdamanDownscaledCollection> resultList = new ArrayList<>();
         if (rasdamanDownscaledCollections == null) {
@@ -191,6 +197,9 @@ public class RasdamanRangeSet implements Serializable {
     }
     
     public void setRasdamanDownscaledCollections(List<RasdamanDownscaledCollection> rasdamanDownscaledCollections) {
+        if (rasdamanDownscaledCollections == null) {
+            rasdamanDownscaledCollections = new ArrayList<>();
+        }
         this.rasdamanDownscaledCollections = rasdamanDownscaledCollections;
     }
     

@@ -78,6 +78,19 @@ public class IrregularAxis extends Axis {
         this.directPositions = directPositions;
     }
     
+    public List<BigDecimal> getOriginalDirectPositions() {
+        return this.originalDirectPositions;
+    }
+    
+    public List<String> getOriginalDirectPositionsAsString() {
+        List<String> results = new ArrayList<>();
+        for (BigDecimal value : this.originalDirectPositions) {
+            results.add(value.toPlainString());
+        }
+        
+        return results;
+    }
+    
     public void setOriginalDirectPositions() {
         this.originalDirectPositions = new ArrayList<>();
         for (BigDecimal value : this.directPositions) {
@@ -419,6 +432,33 @@ public class IrregularAxis extends Axis {
         return coefficients;
 
     }
+    
+    /**
+     * Return the list of all original coefficients (DateTime axis) or raw
+     * coefficients (non-datetime axis)
+     */
+    public List<String> getRepresentationOriginalCoefficientsList() throws PetascopeException  {
+        
+        List<String> coefficients = new ArrayList<>();
+        
+        // date time axis, need to translate from raw coefficients to datetime format based on CRS origin
+        if (this.getAxisType().equals(T_AXIS)) {
+            List<String> translatedCoefficients = TimeUtil.listValuesToISODateTime(this.getGeoBounds().getLowerLimit(),
+                    this.originalDirectPositions, this.getCrsDefinition());
+            
+            coefficients.addAll(translatedCoefficients);
+        } else {
+            List<BigDecimal> adjustedDirectPositions = this.adjustCoefficientsForPresentation(this.originalDirectPositions);
+            
+            // non date time axis
+            for (BigDecimal coefficient : adjustedDirectPositions) {
+                coefficients.add(BigDecimalUtil.stripDecimalZeros(coefficient).toPlainString());
+            }            
+        }
+        
+        return coefficients;
+
+    }    
 
     @Override
     public IrregularAxis clone() {
