@@ -108,21 +108,21 @@ public class Wgs84BoundingBox implements Serializable {
         
         // NOTE: postgis does not allow full world's map (-180 -90 180 90)
         BigDecimal minX = new BigDecimal(this.minLong);
-        if (minX.compareTo(new BigDecimal("-180")) <= 0) {
-            minX = new BigDecimal("-179.999");
+        if (minX.compareTo(new BigDecimal("-179.9999999999")) <= 0) {
+            minX = new BigDecimal("-179.9999999999");
         }
         BigDecimal minY = new BigDecimal(this.minLat);
-        if (minY.compareTo(new BigDecimal("-90")) <= 0) {
-            minY = new BigDecimal("-89.999");
+        if (minY.compareTo(new BigDecimal("-89.9999999999")) <= 0) {
+            minY = new BigDecimal("-89.9999999999");
         }
         
         BigDecimal maxX = new BigDecimal(this.maxLong);
-        if (maxX.compareTo(new BigDecimal("180")) >= 0) {
-            maxX = new BigDecimal("179.999");
+        if (maxX.compareTo(new BigDecimal("179.9999999999")) >= 0) {
+            maxX = new BigDecimal("179.9999999999");
         }
         BigDecimal maxY = new BigDecimal(this.maxLat);
-        if (maxY.compareTo(new BigDecimal("90")) >= 0) {
-            maxY = new BigDecimal("89.999");
+        if (maxY.compareTo(new BigDecimal("89.9999999999")) >= 0) {
+            maxY = new BigDecimal("89.9999999999");
         }
         
         String wkt = "POLYGON((";

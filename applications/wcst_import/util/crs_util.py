@@ -139,9 +139,9 @@ class CRSAxis:
 
 class CRSUtil:
 
-    LONG_AXIS_LABEL_EPSG_8_5 = "Long"
-    LONG_AXIS_LABEL_EPSG_0 = "Lon"
-    LAT_AXIS_AXIS = "Lat"
+    LONG_AXIS_LABEL_EPSG_8_5 = "Long".lower()
+    LONG_AXIS_LABEL_EPSG_0 = "Lon".lower()
+    LAT_AXIS_AXIS = "Lat".lower()
 
     axes = []
 
@@ -196,6 +196,8 @@ class CRSUtil:
 
     @staticmethod
     def axis_label_match(axis_label1, axis_label2):
+        axis_label1 = str(axis_label1).lower()
+        axis_label2 = str(axis_label2).lower()
 
         return (axis_label1 == axis_label2) \
                 or (CRSUtil.is_longitude_axis(axis_label1) and CRSUtil.is_longitude_axis(axis_label2))
