@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage gml:id="test_mean_summer_airtemp"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:rasdaman="http://www.rasdaman.org"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+    <gml:boundedBy>
+        <gml:Envelope axisLabels="Lat Lon" srsDimension="2"
+            srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" uomLabels="degree degree">
+            <gml:lowerCorner>-44.474999999999987 111.975</gml:lowerCorner>
+            <gml:upperCorner>-8.974999999999987 156.475</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:RectifiedGrid dimension="2" gml:id="test_mean_summer_airtemp-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0 0</gml:low>
+                    <gml:high>10 5</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>Lat Lon</gml:axisLabels>
+            <gml:origin>
+                <gml:Point gml:id="test_mean_summer_airtemp-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
+                    <gml:pos>-10.588636363636350636363636363636363636363636363636365 115.683333333333333333333333333333333333333333333333335</gml:pos>
+                </gml:Point>
+            </gml:origin>
+            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">-3.22727272727272727272727272727272727272727272727273 0</gml:offsetVector>
+            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 7.41666666666666666666666666666666666666666666666667</gml:offsetVector>
+        </gml:RectifiedGrid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">0,0,0,0,0,79,0,0,0,0,0,0,0,0,0,108,61,87,70,0,0,0,0,0,69,49,107,100,105,96,0,0,0,0,99,56,35,51,136,129,20,0,0,0,0,0,15,74,111,187,187,166,95,1,0,0,0,0,0,125,165,166,178,137,0,0</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+1 +2">Linear</gml:sequenceRule>
+            <gml:startPoint>0 0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="Gray">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>Gray</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
+</gmlcov:RectifiedGridCoverage>

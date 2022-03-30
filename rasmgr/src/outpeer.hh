@@ -39,6 +39,8 @@ namespace rasmgr
 /**
  * @brief The OutPeer class represents a remote rasmgr to which this rasmgr
  * can forward requests.
+ * 
+ * This class is not thread-safe, the thread-safety is managed in PeerManager.
  */
 class OutPeer
 {
@@ -50,12 +52,13 @@ public:
      */
     OutPeer(const std::string &hostName, const std::uint32_t port);
 
-    std::string getHostName() const;
+    const std::string &getHostName() const;
 
     std::uint32_t getPort() const;
 
     /**
-     * @brief isBusy Check if the peer has active client sessions i.e. a server was requested and acquired from the remote host
+     * @brief isBusy Check if the peer has active client sessions i.e. a server 
+     * was requested and acquired from the remote host
      * @return TRUE if the peer has at least one server running, FALSE otherwise.
      */
     bool isBusy() const;
@@ -63,8 +66,8 @@ public:
     /**
      * @brief tryGetRemoteServer Try to acquire an available server from the remote rasmgr.
      * @param request Object containing the necessary information for acquiring a server
-     * @param out_reply Object containing the necessary information for the client to connect to the server
-     * and for the rasmgr to identify the connection
+     * @param out_reply Object containing the necessary information for the client to 
+     * connect to the server and for the rasmgr to identify the connection
      * @return TRUE if a server was acquired, FALSE otherwise.
      */
     bool tryGetRemoteServer(const ClientServerRequest &request,
@@ -72,7 +75,6 @@ public:
 
     /**
      * @brief releaseServer Release a previously acquired remote server
-     * @param clientSession
      */
     void releaseServer(const RemoteClientSession &clientSession);
 

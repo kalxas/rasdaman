@@ -28,24 +28,92 @@ from util.file_util import FileUtil
 from util.gdal_field import GDALField
 from decimal import Decimal
 import json
+from util.log import log
+from util.import_util import decode_res
 
 _spatial_ref_cache = {}
+_gdal_dataset_cache = {}
 
 
 class GDALGmlUtil:
     def __init__(self, gdal_file_path):
         """
-        Utility class to extract information from a gdal file. Best to isolate all gdal fuctionality to one class
-        as gdallib is known to be problematic in imports
+        Utility class to extract information from a gdal file. Best to isolate
+        all gdal fuctionality to one class as gdallib is known to be problematic
+        in imports.
         :param str gdal_file_path: the file path to the gdal supported file
         """
-        # GDAL wants filename in utf8 or filename with spaces could not open.
-        import osgeo.gdal as gdal
+        # GDAL wants filename in utf8 or filename with spaces could not open
+        filepath = str(gdal_file_path).encode('utf8')
+        gdal_file_path = filepath
 
         self.gdal_file_path = gdal_file_path
-        self.gdal_dataset = gdal.Open(str(self.gdal_file_path).encode('utf8'))
-        if self.gdal_dataset is None:
-            raise RuntimeException("The file at path " + gdal_file_path + " is not a valid GDAL decodable file.")
+        self.gdal_dataset = None  # properly set below
+
+        gdal_cache_size = ConfigManager.gdal_cache_size
+        if gdal_cache_size != 0:
+            # cache of gdal datasets is enabled
+            # to avoid costs for opening the same file multiple times
+            # (-1: unlimited or N > 0: maximum number of files in cache)
+            global _gdal_dataset_cache
+
+            if filepath not in _gdal_dataset_cache:
+                self.gdal_dataset = self._gdal_open(filepath)
+                _gdal_dataset_cache[filepath] = self.gdal_dataset
+            else:
+                self.gdal_dataset = _gdal_dataset_cache[gdal_file_path]
+
+            if (gdal_cache_size > 0) and (len(_gdal_dataset_cache) > gdal_cache_size):
+                # clear the cache as it's larger than allowed by --gdal-cache-size
+                self.__clear_gdal_dataset_cache()
+
+        else:
+            # cache of gdal datasets is not enabled (--gdal-cache-size is set to 0)
+            self.gdal_dataset = self._gdal_open(filepath)
+
+    def __clear_gdal_dataset_cache(self):
+        """
+        Clear gdal dataset cache when it reaches the maximum size (default it is unlimited) if
+         -c, --gdal-cache-size is not set as argument for wcst_import.sh
+        :return: True if the cache was cleared, False otherwise
+        """
+        if ConfigManager.gdal_cache_size != 0:
+            global _gdal_dataset_cache
+            for _, ds in _gdal_dataset_cache.items():
+                ds = None
+            _gdal_dataset_cache = {}
+            return True
+        else:
+            return False
+
+    def _gdal_open(self, filepath):
+        """
+        :param str filepath: path to a valid file which gdal can decode
+        :return: gdal_dataset for further analyzing
+        """
+        import osgeo.gdal as gdal
+        gdal_dataset = None
+        try:
+            gdal_dataset = gdal.Open(filepath)
+        except RuntimeError as e:
+            msg = str(e)
+            if "Too many open files" in msg:
+                # this error can be triggered if the cache holds too many
+                # gdal datasets (1000+ usually), so we retry to open the
+                # the file again after clearing the cache
+                if self.__clear_gdal_dataset_cache():
+                    log.warn("GDAL dataset cache had to be cleared because of a "
+                             "'too many open files' error; consider increasing "
+                             "the limit on open files (see 'ulimit -n').")
+                    gdal_dataset = gdal.Open(filepath)
+            else:
+                raise e
+
+        if gdal_dataset is None:
+            # not sure if this could ever happen, but just in case
+            raise RuntimeException("The file at path '" + filepath +
+                                   "' is not a valid GDAL decodable file.")
+        return gdal_dataset
     
     def close(self):
         """

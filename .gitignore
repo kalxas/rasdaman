@@ -270,3 +270,4 @@ systemtest/testcases_manual/test_rasql/outputs
 doc/main/conf.py
 doc/main/_build
 __pycache__
+pylint.check

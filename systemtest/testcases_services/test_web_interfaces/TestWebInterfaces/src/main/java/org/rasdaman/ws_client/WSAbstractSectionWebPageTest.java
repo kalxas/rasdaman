@@ -34,4 +34,5 @@ public abstract class WSAbstractSectionWebPageTest extends AbstractWebPageTest {
         super(Config.WS_CLIENT_CONTEXT_PATH);
         this.testFolder = "ws_client";
     } 
+ 
 }

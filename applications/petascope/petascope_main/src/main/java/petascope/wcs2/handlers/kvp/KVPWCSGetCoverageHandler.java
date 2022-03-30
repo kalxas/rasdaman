@@ -255,7 +255,7 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
                 CrsUtil.getCrsDefinition(subsettingCrs);
             }
         } catch (PetascopeException ex) {
-            throw new WCSException(ex.getExceptionCode(),
+            throw new WCSException(ExceptionCode.SubsettingCRSNotSupported,
                                    "Failed get CRS defintion from subsettingCRS '" + subsettingCrs + "'. Reason: " + ex.getMessage(), ex);
         }
         try {
@@ -263,7 +263,7 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
                 CrsUtil.getCrsDefinition(outputCrs);
             }
         } catch (PetascopeException ex) {
-            throw new WCSException(ex.getExceptionCode(),
+            throw new WCSException(ExceptionCode.OutputCRSNotSupported,
                                    "Failed get CRS defintion from outputCRS '" + outputCrs + "'. Reason: " + ex.getMessage(), ex);
         }
 

@@ -2916,3 +2916,22 @@ from http://your.server/def/EPSG/. Example:
      <identifier>http://localhost:8080/def/crs/EPSG/8.9.2</identifier>
      <identifier>http://localhost:8080/def/crs/EPSG/9.4.2</identifier>
   </identifiers>
+
+
+wcst_import Developer's Documentation
+=====================================
+
+Development is best done by opening ``applications/wcst_import/`` in the 
+PyCharm IDE. It is recommended to install pylint as follows: ::
+
+    pip3 install pylint=2.13.4
+
+Then it will be automatically executed when you do ``make`` to build rasdaman,
+or manually do ``make pylint.check`` in ``applications/wcst_import/``. It uses
+the configuration file ``applications/wcst_import/pylint.cfg`` to customize the
+execution.
+
+In pycharm one can install the pylint plugin, and set the
+``applications/wcst_import/pylint.cfg`` file as configuration file. If the 
+plugin does not work as expected, pylint can be setup as an External Tool and
+manually invoked as needed.

@@ -49,7 +49,7 @@ public:
      */
     DatabaseManager(std::shared_ptr<DatabaseHostManager> dbHostManager);
 
-    virtual ~DatabaseManager();
+    virtual ~DatabaseManager() = default;
 
     /**
      * Define a new database if there is no other database with the same name and

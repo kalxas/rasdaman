@@ -36,6 +36,7 @@ class InexistentClientException: public common::MissingResourceException
 {
 public:
     InexistentClientException(const std::string& clientId);
+    InexistentClientException(const std::string& clientId, const std::string &details);
 
     virtual ~InexistentClientException() noexcept;
 };

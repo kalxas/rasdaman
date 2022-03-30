@@ -41,7 +41,7 @@ class RasControl;
 class ControlCommandExecutor
 {
 public:
-    ControlCommandExecutor(std::shared_ptr<RasControl> control);
+    explicit ControlCommandExecutor(std::shared_ptr<RasControl> control);
 
     virtual ~ControlCommandExecutor();
 
@@ -70,10 +70,7 @@ private:
 
     /**
      * @brief canRunCommand Check if the user can run the command.
-     * @param userName
-     * @param password
-     * @param command
-     * @return
+     * @return true if yes, false otherwise.
      */
     bool canRunCommand(const std::string &userName, const std::string &password, const std::string &command);
 };

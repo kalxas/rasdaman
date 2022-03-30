@@ -49,6 +49,7 @@ import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeRuntimeException;
 import petascope.util.ExceptionUtil;
+import petascope.util.StringUtil;
 
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
@@ -110,6 +111,13 @@ public class PetascopeController extends AbstractController {
             throwStartException();
         }
         
+        if (kvpParameters.isEmpty()) {               
+            Response response = this.returnWSClientPage();
+            // Dump the response result to client
+            this.writeResponseResult(response);
+            return;
+        }
+        
         RequestHandlerInterface requestHandlerInterface = () -> {
 
             String service = null;
@@ -130,32 +138,27 @@ public class PetascopeController extends AbstractController {
                     INSPIRE_COMMON_URL = PETASCOPE_ENDPOINT_URL;
                 }
 
-                if (kvpParameters.isEmpty()) {               
-                    response = this.returnWSClientPage();
-                } else {
+                // e.g: WCS, WMS
+                service = getValueByKey(kvpParameters, KVPSymbols.KEY_SERVICE);
+                // e.g: 2.0.1, 2.1.0 (WCS)
+                String[] versions = getValuesByKey(kvpParameters, KVPSymbols.KEY_VERSION);
+                // e.g: GetCapabilities, DescribeCoverage
+                String requestService = getValueByKey(kvpParameters, KVPSymbols.KEY_REQUEST);
+                request = requestService;
 
-                    // e.g: WCS, WMS
-                    service = getValueByKey(kvpParameters, KVPSymbols.KEY_SERVICE);
-                    // e.g: 2.0.1, 2.1.0 (WCS)
-                    String[] versions = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
-                    // e.g: GetCapabilities, DescribeCoverage
-                    String requestService = getValueByKey(kvpParameters, KVPSymbols.KEY_REQUEST);
-                    request = requestService;
-
-                    // Check if any handlers can handle the request
-                    for (AbstractHandler handler : handlers) {
-                        if (handler.canHandle(service, versions, requestService)) {                    
-                            response = handler.handle(kvpParameters);
-                            service = handler.getService();
-                            break;
-                        }
-                    }
-                    if (response == null) {
-                        throw new PetascopeException(ExceptionCode.NoApplicableCode, 
-                                                    "Cannot find the handler for the request '" + this.getRequestRepresentation(kvpParameters) + "'.");
+                // Check if any handlers can handle the request
+                for (AbstractHandler handler : handlers) {
+                    if (handler.canHandle(service, versions, requestService)) {                    
+                        response = handler.handle(kvpParameters);
+                        service = handler.getService();
+                        break;
                     }
                 }
-                
+                if (response == null) {
+                    throw new PetascopeException(ExceptionCode.NoApplicableCode, 
+                                                "Cannot find the handler for the request '" + StringUtil.escapeAmpersands(this.getRequestRepresentation(kvpParameters)) + "'.");
+                }
+
                 version = this.getValueByKey(kvpParameters, KVPSymbols.KEY_VERSION);
 
                 // Dump the response result to client

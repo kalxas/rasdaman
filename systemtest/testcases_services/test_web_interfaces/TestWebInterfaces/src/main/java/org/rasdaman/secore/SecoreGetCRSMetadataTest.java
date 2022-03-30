@@ -44,6 +44,8 @@ public class SecoreGetCRSMetadataTest extends SecoreAbstractSectionWebPageTest {
     @Override
     public void runTest(WebDriver webDriver) throws InterruptedException, IOException {
         webDriver.navigate().to(this.testURL);
+        
+        this.waitForPageLoad(webDriver);
 
         String testCaseName = this.getSectionTestCaseName("view_crs_metadata");
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");

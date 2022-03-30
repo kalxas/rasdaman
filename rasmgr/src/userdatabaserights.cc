@@ -26,20 +26,11 @@
 namespace rasmgr
 {
 
-UserDatabaseRights::UserDatabaseRights(bool readAccess, bool writeAccess)
+UserDatabaseRights::UserDatabaseRights(bool readAccess_, bool writeAccess_)
 {
-    this->readAccess = readAccess;
-    this->writeAccess = writeAccess;
+    this->readAccess = readAccess_;
+    this->writeAccess = writeAccess_;
 }
-
-UserDatabaseRights::UserDatabaseRights()
-{
-    this->readAccess = false;
-    this->writeAccess = false;
-}
-
-UserDatabaseRights::~UserDatabaseRights()
-{}
 
 bool UserDatabaseRights::hasReadAccess() const
 {

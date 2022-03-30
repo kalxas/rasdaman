@@ -21,21 +21,18 @@
  */
 package org.rasdaman;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
-import javax.mail.MessagingException;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import static org.rasdaman.Config.PATH_TO_PHANTOMJS_FILE;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxDriverLogLevel;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.rasdaman.admin.AdminOWSMetadataManagementTest;
 import org.rasdaman.secore.SecoreBrowseCRSMetadataTest;
 import org.rasdaman.secore.SecoreCompare2CRSsMetadataTest;
@@ -46,6 +43,7 @@ import org.rasdaman.secore.SecoreLogoutTest;
 import org.rasdaman.ws_client.WCSDeleteCoverageTest;
 import org.rasdaman.ws_client.WCSDescribeCoverageTest;
 import org.rasdaman.ws_client.WCSGetCapabilitiesTest;
+import org.rasdaman.ws_client.WCSGetCoverageMoreTest;
 import org.rasdaman.ws_client.WCSGetCoverageTest;
 import org.rasdaman.ws_client.WCSInsertCoverageTest;
 import org.rasdaman.ws_client.WCSProcessCoverageTest;
@@ -62,94 +60,163 @@ public class Application {
     final static Logger log = Logger.getLogger(Application.class);
 
     public static void main(String args[]) throws IOException {
-                        
         // Read the input command arguments for petascope port, secore port in test.cfg file
         Config.PETASCOPE_PORT = args[0];
         Config.SECORE_PORT = args[1];
-        // Initialize context paths to Petascope and Secore web applications
-        Config config = new Config();
         
-        // NOTE: remove log from .phantomjs.PhantomJSDriverService
-        LogManager.getLogManager().reset();
+        Config config = new Config();
+        config.init();
 
         // No test failed, so the test is done
         int exitCode = 0;
+        
+        long startTime = System.currentTimeMillis();
+        
+        List<WebDriver> webDrivers = new ArrayList<>();
+        
         try {
-            log.debug("Phantomjs full path at /tmp directory '" + PATH_TO_PHANTOMJS_FILE + "'.");
 
-            // For PhantomJS
-            // Path to the binary to run web browser
-            System.setProperty("phantomjs.binary.path", PATH_TO_PHANTOMJS_FILE);
-            DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
-            capabilities.setJavascriptEnabled(true);
-            String[] phantomArgs = new String[]{"--webdriver-loglevel=NONE", "--webdriver-logfile=/dev/null"};
-            // NOTE: Disable all the logs from phantomjs ( phantomjs://platform/console++.js)
-            capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, phantomArgs);
-            WebDriver webDriver = new PhantomJSDriver(capabilities);
-            webDriver.manage().window().setSize(new Dimension(800, 800));
-
-            // List of test classes
-            List<AbstractWebPageTest> webPageTests = new ArrayList<>();
-            
-            /*
-            
-            NOTE: WSClient cannot display the web page on phantomjs headless browser anymore
-            after the patch with commit: 012d503d718ff6ce84353908ab41fa0e3db34723. Hence, disable this test.
-            
-            // TEST Admin            
-            webPageTests.add(new AdminOWSMetadataManagementTest());
-            
             // TEST WCS
-            webPageTests.add(new WCSGetCapabilitiesTest());
-            webPageTests.add(new WCSDescribeCoverageTest());
-            webPageTests.add(new WCSGetCoverageTest());
-            webPageTests.add(new WCSProcessCoverageTest());
-            webPageTests.add(new WCSInsertCoverageTest());
-            webPageTests.add(new WCSDeleteCoverageTest());
+            final List<AbstractWebPageTest> wcsTests1 = new ArrayList<>();
+            wcsTests1.add(new WCSGetCoverageTest());
+            
+            final List<AbstractWebPageTest> wcsTests2 = new ArrayList<>();
+            wcsTests2.add(new WCSGetCoverageMoreTest());
+            
+            final List<AbstractWebPageTest> wcsTests3 = new ArrayList<>();
+            wcsTests3.add(new WCSGetCapabilitiesTest());
+            wcsTests3.add(new WCSDescribeCoverageTest());
+            
+            final List<AbstractWebPageTest> wcsTests4 = new ArrayList<>();
+            // TEST Admin (NOTE: need to login to admin tab before it shows InsertCoverage and DeleteCoverage tabs)
+            wcsTests4.add(new AdminOWSMetadataManagementTest());
+            wcsTests4.add(new WCSInsertCoverageTest());
+            wcsTests4.add(new WCSDeleteCoverageTest());
+            
+            final List<AbstractWebPageTest> wcsTests5 = new ArrayList<>();
+            wcsTests5.add(new WCSProcessCoverageTest());
+            
             
             // TEST WMS
-            webPageTests.add(new WMSGetCapabilitiesTest());
-            webPageTests.add(new WMSDescribeLayerTest());
-
-            */
-
+            final  List<AbstractWebPageTest> wmsTests = new ArrayList<>();
+            wmsTests.add(new WMSGetCapabilitiesTest());
+            wmsTests.add(new WMSDescribeLayerTest());
+            
             // Test SECORE
-/*
-            http://rasdaman.org/ticket/2471
-
-            webPageTests.add(new SecoreGetCRSMetadataTest());
-            webPageTests.add(new SecoreCompare2CRSsMetadataTest());
-            webPageTests.add(new SecoreBrowseCRSMetadataTest());
-            webPageTests.add(new SecoreDeleteCRSMetadataTest());
-            webPageTests.add(new SecoreExecuteXQueryTest());
-            webPageTests.add(new SecoreLogoutTest()); */
-
+            List<AbstractWebPageTest> secoreTests = new ArrayList<>();
+            secoreTests.add(new SecoreGetCRSMetadataTest());
+            secoreTests.add(new SecoreCompare2CRSsMetadataTest());
+            secoreTests.add(new SecoreBrowseCRSMetadataTest());
+            secoreTests.add(new SecoreExecuteXQueryTest());
+            secoreTests.add(new SecoreLogoutTest());
+            
             log.info("----------------------- Test Start ------------------");
 
             // Run each test web page
-            for (AbstractWebPageTest webPageTest : webPageTests) {
-                webPageTest.runTest(webDriver);
+            
+            List<List<AbstractWebPageTest>> testsList = Arrays.asList(
+                                                    wcsTests1, wcsTests2, wcsTests3, wcsTests4, wcsTests5,
+                                                    wmsTests,
+                                                    secoreTests
+            );
+            
+            runTestsInParallel(testsList);
+            
+            // ------------------------- Check result -------------------------
+            
+            List<AbstractWebPageTest> webPageTests = new ArrayList<>();
+            for (List<AbstractWebPageTest> tests : testsList) {
+                webPageTests.addAll(tests);
             }
-
-            log.debug("Close the web browser.");
-            webDriver.close();
-            webDriver.quit();
+            
+            List<String> failedTests = new ArrayList<>();
 
             // Check if any test returns error
             for (AbstractWebPageTest webPageTest : webPageTests) {
                 if (webPageTest.hasErrorTest()) {
                     exitCode = 1;
-                    break;
+                    failedTests.add(webPageTest.getSectionName());
                 }
             }
 
             log.info("----------------------- Test Done ------------------");
+            
+            
+            if (exitCode == 1) {
+                log.info("List of failed tests:");
+                for (String failedTest : failedTests) {
+                    log.info(failedTest);
+                }
+            }
         } catch (Exception ex) {
             log.info("The test process failed with an unexpected exception '" + ex.getMessage() + "'. ", ex);
             exitCode = 1;
+        } finally {
+            for (WebDriver webDriver : webDrivers) {
+                webDriver.close();
+                webDriver.quit();
+            }
+            
+            long endTime = System.currentTimeMillis();
+            log.info("Time to run all tests is: " + ((endTime - startTime) / 1000) + " s.");
+            
+            // Return the code to the console
+            System.exit(exitCode);
+        }
+        
+    }
+    
+    private static List<WebDriver> runTestsInParallel(List<List<AbstractWebPageTest>> inputTestsList) throws InterruptedException {
+        List<Thread> threads = new ArrayList<>();
+        List<WebDriver> webDrivers = new ArrayList<>();
+        
+        for (List<AbstractWebPageTest> testsList : inputTestsList) {
+            WebDriver webDriver = createWebDriver();
+            webDrivers.add(webDriver);
+            
+            Thread thread = createThread(webDriver, testsList);
+            threads.add(thread);
+        }
+        
+        for (Thread thread : threads) {
+            thread.start();
         }
 
-        // Return the code to the console
-        System.exit(exitCode);
+        for (Thread thread : threads) {
+            thread.join();
+        }
+        
+        return webDrivers;
+    }
+    
+    private static WebDriver createWebDriver() {
+        System.setProperty("webdriver.gecko.driver", Config.PATH_TO_GECKO_DRIVER);
+        System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
+        System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
+        FirefoxOptions options = new FirefoxOptions();
+        options.setBinary(Config.PATH_TO_FIREFOX);
+        // no GUI
+        options.setHeadless(true);
+        options.setLogLevel(FirefoxDriverLogLevel.FATAL);
+        WebDriver webDriver = new FirefoxDriver(options);
+        webDriver.manage().window().setSize(new Dimension(1024, 768));
+        
+        return webDriver;
+    }
+    
+    private static Thread createThread(final WebDriver webDriver, final List<AbstractWebPageTest> webpageTests) {
+        Thread thread = new Thread() {
+            public void run() {
+                for (AbstractWebPageTest webPageTest : webpageTests) {
+                    try {
+                        webPageTest.runTest(webDriver);
+                    } catch (Exception ex) {
+                        throw new RuntimeException("Failed to run test: "+ webPageTest.getSectionName() + ". Reason: " + ex.getMessage(), ex);
+                    }
+                }
+            }
+        };
+        
+        return thread;
     }
 }

@@ -33,6 +33,7 @@ public class PetascopeException extends Exception {
 
     private ExceptionCode exceptionCode;
     private String exceptionText;
+    private boolean isSoap = false;
 
     private PetascopeException() {
     }
@@ -67,6 +68,11 @@ public class PetascopeException extends Exception {
      */
     public PetascopeException(ExceptionCode exceptionCode, Exception ex) {
         this(exceptionCode, ex.getLocalizedMessage(), ex);
+    }
+    
+    public PetascopeException(ExceptionCode exceptionCode, Exception ex, boolean isSoap) {
+        this(exceptionCode, ex.getLocalizedMessage(), ex);
+        this.isSoap = isSoap;
     }
 
     /**
@@ -112,4 +118,14 @@ public class PetascopeException extends Exception {
     public String getExceptionText() {
         return exceptionText;
     }
+
+    public boolean isSoap() {
+        return isSoap;
+    }
+
+    public void setSoap(boolean isSoap) {
+        this.isSoap = isSoap;
+    }
+    
+    
 }

@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,22 +42,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.gdal.ogr.Geometry;
 import org.gdal.ogr.ogr;
 import static org.rasdaman.config.ConfigManager.OWS;
-import static org.rasdaman.config.ConfigManager.PETASCOPE_CONNETION_TIMEOUT;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 
@@ -83,6 +73,10 @@ public class StringUtil {
     
     public static final String POST_STRING_CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String POST_TEXT_PLAIN_CONTENT_TYPE = "text/plain";
+
+    public static final String POST_XML_CONTENT_TYPE = "text/xml";
+    public static final String POST_XML_SOAP_CONTENT_TYPE = "application/soap+xml";
+
     
     public static final Pattern squareBracketsPattern = Pattern.compile("\\[(.*?)\\]");
     
@@ -90,6 +84,7 @@ public class StringUtil {
      * For coverages created temporarily, used for WCPS decode() from uploaded files
      */
     public static final String TEMP_COVERAGE_PREFIX = "WCPS_TEMP_COV";
+
 
     private static String COMMA = ",";
 

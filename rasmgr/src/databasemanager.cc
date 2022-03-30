@@ -37,40 +37,34 @@ using std::shared_ptr;
 using std::runtime_error;
 using std::list;
 using std::mutex;
-using std::unique_lock;
+using std::lock_guard;
 
 DatabaseManager::DatabaseManager(std::shared_ptr<DatabaseHostManager> m) : dbHostManager(m)
-{}
-
-DatabaseManager::~DatabaseManager()
 {}
 
 void DatabaseManager::defineDatabase(const std::string &dbHostName,
                                      const std::string &databaseName)
 {
-    unique_lock<mutex> lock(this->mut);
+    lock_guard<mutex> lock(this->mut);
 
     //Get and lock access to the database host
     auto dbHost = this->dbHostManager->getAndLockDatabaseHost(dbHostName);
     //Release the lock as we do not care if the database host is removed in between
     dbHost->decreaseServerCount();
 
-    std::shared_ptr<Database> db;
-    bool dbExists = false;
-
     //Check if there already is a database with this name in the list
+    std::shared_ptr<Database> db{nullptr};
     for (auto it = this->databases.begin(); it != this->databases.end(); ++it)
     {
         if ((*it)->getDbName() == databaseName)
         {
             db = (*it);
-            dbExists  = true;
             break;
         }
     }
 
     //Create new database if it does not exist
-    if (!dbExists)
+    if (!db)
     {
         db.reset(new Database(databaseName));
     }
@@ -80,22 +74,23 @@ void DatabaseManager::defineDatabase(const std::string &dbHostName,
 
     //If adding to the host was successful, add it to the list of active dbs
     databases.push_back(db);
+    
+    LDEBUG << "Added database \"" + databaseName + "\" to database host name \"" + dbHostName + "\"";
 }
 
 void DatabaseManager::changeDatabase(const std::string &oldDbName, const DatabasePropertiesProto &newDbProp)
 {
-    unique_lock<mutex> lock(this->mut);
+    lock_guard<mutex> lock(this->mut);
     bool changedDb = false;
 
     //Check if there already is a database with this name in the list
-    for (std::list<std::shared_ptr<Database>>::iterator it = this->databases.begin();
-            it != this->databases.end(); ++it)
+    for (auto it = this->databases.begin(); it != this->databases.end(); ++it)
     {
         if ((*it)->getDbName() == oldDbName)
         {
             if ((*it)->isBusy())
             {
-                throw DbBusyException((*it)->getDbName());
+                throw DbBusyException((*it)->getDbName(), "cannot change database.");
             }
             else
             {
@@ -112,34 +107,25 @@ void DatabaseManager::changeDatabase(const std::string &oldDbName, const Databas
 
     if (!changedDb)
     {
-        throw InexistentDatabaseException(oldDbName);
+        throw InexistentDatabaseException(oldDbName, "cannot change database.");
     }
 }
 
-void DatabaseManager::removeDatabase(const std::string &databaseHostName, const std::string &databaseName)
+void DatabaseManager::removeDatabase(const std::string &dbHostName, const std::string &databaseName)
 {
-    unique_lock<mutex> lock(this->mut);
+    lock_guard<mutex> lock(this->mut);
 
     //Get and lock access to the database host
-    std::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDatabaseHost(databaseHostName);
+    auto dbHost = this->dbHostManager->getAndLockDatabaseHost(dbHostName);
     //Release the lock as we do not care if the database host is removed in between
     dbHost->decreaseServerCount();
-
     dbHost->removeDbFromHost(databaseName);
 
-    LDEBUG << "Removed database \"" + databaseName + "\" from database host name \"" + databaseHostName + "\"";
-
-    for (std::list<std::shared_ptr<Database>>::iterator it = this->databases.begin();
-            it != this->databases.end(); ++it)
-    {
-        if ((*it)->getDbName() == databaseName)
-        {
-            LDEBUG << "Removed database from list of active databases.";
-            this->databases.remove(*it);
-
-            break;
-        }
-    }
+    databases.remove_if([&databaseName](const std::shared_ptr<Database> &db) {
+      return db->getDbName() == databaseName;
+    });
+    
+    LDEBUG << "Removed database \"" + databaseName + "\" from database host name \"" + dbHostName + "\"";
 }
 
 const std::list<std::shared_ptr<Database> > &DatabaseManager::getDatabases() const
@@ -154,23 +140,19 @@ const std::shared_ptr<DatabaseHostManager> &DatabaseManager::getDbHostManager() 
 
 DatabaseMgrProto DatabaseManager::serializeToProto()
 {
+    lock_guard<mutex> lock(this->mut);
+
+    auto dbhList = this->dbHostManager->getDatabaseHostList();
+    
     DatabaseMgrProto result;
-
-    unique_lock<mutex> lock(this->mut);
-
-    list<shared_ptr<DatabaseHost>> dbhList = this->dbHostManager->getDatabaseHostList();
-
-    for (list<shared_ptr<DatabaseHost>>::iterator it = dbhList.begin(); it != dbhList.end(); ++it)
+    for (auto it = dbhList.begin(); it != dbhList.end(); ++it)
     {
         DatabaseHostProto dbhProto = DatabaseHost::serializeToProto(*(*it));
-
         for (int i = 0; i < dbhProto.databases_size(); i++)
         {
             DatabaseMgrProto::DbAndDbHostPair *p =  result.add_databases();
-
             DatabaseProto *dbProto = new DatabaseProto();
             dbProto->CopyFrom(dbhProto.databases(i));
-
             p->set_database_host(dbhProto.host_name());
             p->set_allocated_database(dbProto);
         }

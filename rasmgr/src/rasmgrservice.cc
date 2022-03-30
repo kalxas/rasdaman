@@ -40,12 +40,10 @@ RasmgrService::RasmgrService(std::shared_ptr<ClientManager> m)
     : clientManager(m)
 {}
 
-RasmgrService::~RasmgrService()
-{}
-
-grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(__attribute__((unused)) grpc::ServerContext *context,
-        const rasnet::service::GetRemoteServerRequest *request,
-        rasnet::service::GetRemoteServerReply *response)
+grpc::Status RasmgrService::TryGetRemoteServer(
+    __attribute__((unused)) grpc::ServerContext *context,
+    const rasnet::service::GetRemoteServerRequest *request,
+    rasnet::service::GetRemoteServerReply *response)
 {
     grpc::Status status = Status::OK;
 
@@ -73,43 +71,40 @@ grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(__attribute__((unused)) g
     }
     catch (std::exception &ex)
     {
-        LERROR << ex.what();
+        LERROR << "Connect request failed: " << ex.what();
         status  = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
         string failureReason = "Connect request failed for unknown reason.";
         LERROR << failureReason;
-
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
 
     return status;
 }
 
-grpc::Status RasmgrService::ReleaseServer(__attribute__((unused)) grpc::ServerContext *context,
-        const rasnet::service::ReleaseServerRequest *request,
-        __attribute__((unused)) rasnet::service::Void *response)
+grpc::Status RasmgrService::ReleaseServer(
+    __attribute__((unused)) grpc::ServerContext *context,
+    const rasnet::service::ReleaseServerRequest *request,
+    __attribute__((unused)) rasnet::service::Void *response)
 {
     grpc::Status status;
 
     try
     {
         this->clientManager->closeClientDbSession(request->client_session_id(), request->db_session_id());
-
         this->clientManager->disconnectClient(request->client_session_id());
     }
     catch (std::exception &ex)
     {
-        LERROR << ex.what();
-
+        LERROR << "Disconnect request failed: " << ex.what();
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "Releasing server failed with unknown exception";
+        string failureReason = "Disconnect request failed with unknown exception";
         LERROR << failureReason;
-
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
 

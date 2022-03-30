@@ -38,9 +38,6 @@ ServerManagementService::ServerManagementService(std::shared_ptr<ServerManager> 
     this->serverManager = m;
 }
 
-ServerManagementService::~ServerManagementService()
-{}
-
 grpc::Status ServerManagementService::RegisterServer(__attribute__((unused)) grpc::ServerContext *context,
         const rasnet::service::RegisterServerReq *request,
         __attribute__((unused)) rasnet::service::Void *response)

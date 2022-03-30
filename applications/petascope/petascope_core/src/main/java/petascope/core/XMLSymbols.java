@@ -408,7 +408,7 @@ public interface XMLSymbols {
 
     // soap
     String LABEL_BODY = "Body";
-
+    
     // CRS definitions
     String LABEL_CRSAXIS = "axis";
     String LABEL_CSAXIS = "CoordinateSystemAxis";

@@ -27,6 +27,7 @@
 #include <string>
 #include <set>
 #include <utility>
+#include <boost/thread/shared_mutex.hpp>
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 
@@ -46,11 +47,10 @@ public:
      */
     Database(const std::string &dbName);
 
-    virtual ~Database();
+    virtual ~Database() = default;
 
     /**
-     * When a server requests this database, the transaction count
-     * MUST be increased.
+     * When a server requests this database, the transaction count MUST be increased.
      * This allows for preventing the removal of the database while it still has running
      * transactions.
      */
@@ -58,8 +58,6 @@ public:
 
     /**
      * @brief removeClientSession Remove the session with the given client ID and session ID
-     * @param clientId
-     * @param sessionId
      * @return The number of sessions removed.
      */
     int removeClientSession(const std::string &clientId, const std::string &sessionId);
@@ -75,8 +73,6 @@ public:
      * @brief serializeToProto Serialize the information related to the
      * given database so that the information can be saved to a file
      * or transfered to the user.
-     * @param db
-     * @return
      */
     static DatabaseProto serializeToProto(const Database &db);
 
@@ -86,7 +82,9 @@ public:
 
 private:
     std::string dbName; /*!< Name of this database */
-    std::set<std::pair<std::string, std::string>> sessionList; /* List of <clientId,sessionId> pairs representing open sessions on the db*/
+    
+    std::set<std::pair<std::string, std::string>> sessionList; /*! List of <clientId,sessionId> pairs representing open sessions on the db*/
+    mutable boost::shared_mutex sessionListMutex; /*! For thread-safe access to sessionList */
 };
 
 } /* namespace rasmgr */

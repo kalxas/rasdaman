@@ -503,30 +503,36 @@ public class CrsUtil {
                         if (!uomCrsUrlTmp.startsWith(HTTP_PREFIX)) {
                             uomName = uomAtt.getValue().split(" ")[0]; // UoM is meant as one word only
                         } else {
-                            // Need to parse a new XML definition
                             uomUrl = new URL(uomCrsUrlTmp);
-                            try {
-                                Element uomRoot = crsDefUrlToXml(uomCrsUrlTmp);
-                                if (uomRoot != null) {
+                            if (uomCrsUrlTmp.contains(TimeUtil.UCUM)) {
+                                // e.g. http://crs.rasdaman.com/def/uom/UCUM/0/d which is reirected to non-existing link http://opengis.net/def/uom/UCUM/0/d 
+                                // hence, it returns d from URL
+                                uomName = extractUomNameFromUri(uomUrl);
+                            } else {
+                                // Need to parse a new XML definition
+                                try {
+                                    Element uomRoot = crsDefUrlToXml(uomCrsUrlTmp);
+                                    if (uomRoot != null) {
 
-                                    // Catch some exception in the GML
-                                    Element uomExEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_EXCEPTION_TEXT);
-                                    if (uomExEl != null) {
-                                        throw new SecoreException(ExceptionCode.ResolverError, "UoM of CRS '" + crsUri + "' is not valid. Given: " + uomExEl.getValue());
-                                    }
+                                        // Catch some exception in the GML
+                                        Element uomExEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_EXCEPTION_TEXT);
+                                        if (uomExEl != null) {
+                                            throw new SecoreException(ExceptionCode.ResolverError, "UoM of CRS '" + crsUri + "' is not valid. Given: " + uomExEl.getValue());
+                                        }
 
-                                    // Get the UoM value
-                                    Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
-                                    if (uomNameEl == null) {
-                                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "UoM definition of CRS '" + crsUri + "' missses name element.");
+                                        // Get the UoM value
+                                        Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
+                                        if (uomNameEl == null) {
+                                            throw new PetascopeException(ExceptionCode.InvalidMetadata, "UoM definition of CRS '" + crsUri + "' missses name element.");
+                                        }
+                                        uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
+                                    } else {
+                                        uomName = extractUomNameFromUri(uomUrl);
                                     }
-                                    uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
-                                } else {
+                                } catch (Exception ex) {
+                                    // In case UOM CRS doesn't exist, just extract the uom label from the last part of the crs
                                     uomName = extractUomNameFromUri(uomUrl);
                                 }
-                            } catch (Exception ex) {
-                                // In case UOM CRS doesn't exist, just extract the uom label from the last part of the crs
-                                uomName = extractUomNameFromUri(uomUrl);
                             }
                         }
                     }
@@ -1165,10 +1171,10 @@ public class CrsUtil {
      * return true if both axis labels are longitude axes
      */
     private static boolean isLongitudeAxis(String axisLabel1, String axisLabel2) {
-        if (axisLabel1.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85) 
-           || axisLabel1.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_0)) {
-            if (axisLabel2.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85)
-                || axisLabel2.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_0)) {
+        if (axisLabel1.equalsIgnoreCase(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85) 
+           || axisLabel1.equalsIgnoreCase(LONGITUDE_AXIS_LABEL_EPGS_VERSION_0)) {
+            if (axisLabel2.equalsIgnoreCase(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85)
+                || axisLabel2.equalsIgnoreCase(LONGITUDE_AXIS_LABEL_EPGS_VERSION_0)) {
                return true;
             }
         }
@@ -1215,6 +1221,8 @@ public class CrsUtil {
      * Return true if aixs labels have same name ("Long" or "Lon" is also accepted).
      */
     public static boolean axisLabelsMatch(String axisLabel1, String axisLabel2) {
+        axisLabel1 = axisLabel1.toLowerCase();
+        axisLabel2 = axisLabel2.toLowerCase();
         if (axisLabel1.equals(axisLabel2)
            || isLongitudeAxis(axisLabel1, axisLabel2)) {
             return true;

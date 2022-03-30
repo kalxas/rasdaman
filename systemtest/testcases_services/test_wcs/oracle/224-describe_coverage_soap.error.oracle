@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header/>
+    <soap:Body>
+        <soap:Fault>
+            <soap:Code>
+                <soap:Value>soap:server</soap:Value>
+            </soap:Code>
+            <soap:Reason>
+                <soap:Text xml:lang="en-US">A server exception was encountered.</soap:Text>
+            </soap:Reason>
+            <soap:Detail>
+                <ows:ExceptionReport version="2.1.0"
+    xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+    xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ows:Exception exceptionCode="InvalidRequest" >
+        <ows:ExceptionText>A DescribeCoverage request must specify at least one coverageId.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>
+
+            </soap:Detail>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

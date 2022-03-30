@@ -40,15 +40,19 @@ namespace rasmgr
 class InPeer;
 class OutPeer;
 
+/**
+ * @brief Allow adding/removing inpeers/outpeers.
+ */
 class PeerManager
 {
 public:
-    PeerManager();
+    PeerManager() = default;
 
-    virtual ~PeerManager();
+    virtual ~PeerManager() = default;
 
     /**
-     * @brief defineInPeer Create a new InPeer and insert it into the list of InPeers if a InPeer with the same time doesn't exist.
+     * @brief defineInPeer Create a new InPeer and insert it into the list of 
+     * InPeers if a InPeer with the same time doesn't exist.
      * @param peerHostName The name of the host on which the peer is running
      * @throws An exception is thrown if an InPeer with the same name exists
      */
@@ -62,9 +66,10 @@ public:
     virtual void removeInPeer(const std::string &peerHostName);
 
     /**
-     * @brief defineInPeer Create a new InPeer and insert it into the list of InPeers if a InPeer with the same time doesn't exist.
+     * @brief defineOutPeer Create a new OutPeer and insert it into the list of 
+     * OutPeers if a OutPeer with the same time doesn't exist.
      * @param peerHostName The name of the host on which the peer is running
-     * @param port
+     * @param port the port on which the peer is listening
      * @throws An exception is thrown if an InPeer with the same name exists
      */
     virtual void defineOutPeer(const std::string &peerHostName, const std::uint32_t port);
@@ -110,15 +115,13 @@ private:
     std::mutex mut;/*!< Mutex used to synchronize access to the resources managed by this class.*/
 
     std::list<std::shared_ptr<InPeer>> inPeers;
-
     std::list<std::shared_ptr<OutPeer>> outPeers;
 
     std::map<std::string, std::shared_ptr<OutPeer>> remoteSessions;/*!< Mapping between a string identifying a remote session and the peer on which the remote session is active*/
 
     /**
-     * @brief remoteClientSessionToString Generate a string uniquely identifying a remote session from a RemoteClientSession struct.
-     * @param clientSession
-     * @return
+     * @brief remoteClientSessionToString Generate a string uniquely identifying 
+     * a remote session from a RemoteClientSession struct.
      */
     std::string remoteClientSessionToString(const RemoteClientSession &clientSession);
 };

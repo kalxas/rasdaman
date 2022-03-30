@@ -197,6 +197,7 @@ public interface KVPSymbols {
     String KEY_COVERAGE_ID = "coverageId";
     String KEY_NEW_COVERAGE_ID = "newCoverageId";
     String KEY_LAYER_ID = "layerId";
+    String KEY_SOAP = "SOAP";
 
     // Style name of a layer
     String KEY_STYLE_ID = "styleId";

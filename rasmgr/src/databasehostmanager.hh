@@ -23,9 +23,10 @@
 #ifndef RASMGR_X_SRC_DATABASEHOSTMANAGER_HH_
 #define RASMGR_X_SRC_DATABASEHOSTMANAGER_HH_
 
+#include "rasmgr/src/messages/rasmgrmess.pb.h"
+#include <boost/thread/shared_mutex.hpp>
 #include <list>
 
-#include "rasmgr/src/messages/rasmgrmess.pb.h"
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 
 namespace rasmgr
@@ -41,10 +42,9 @@ class DatabaseHost;
 class DatabaseHostManager
 {
 public:
-    virtual ~DatabaseHostManager();
+    virtual ~DatabaseHostManager() = default;
 
     /**
-     * @brief addNewDatabaseHost
      * @param newDbHost Configuration information required to define a new database host
      * @throws If the host name is not specified, it throws an exception.
      */
@@ -77,20 +77,18 @@ public:
     virtual std::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string &dbHostName);
     
     virtual std::shared_ptr<DatabaseHost> getDatabaseHost(const std::string &dbHostName);
-
+  
     /**
      * @brief getDatabaseHostList Retrieve a list containing the list of database hosts
      * currently registered with this rasmgr.
-     * @return
      */
     virtual std::list<std::shared_ptr<DatabaseHost>> getDatabaseHostList() const;
-
 
     virtual DatabaseHostMgrProto serializeToProto();
 
 private:
     std::list<std::shared_ptr<DatabaseHost>> hostList;
-    std::mutex mut;
+    boost::shared_mutex hostListMutex;
 };
 
 } /* namespace rasmgr */

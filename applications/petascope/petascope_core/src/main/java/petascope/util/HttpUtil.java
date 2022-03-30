@@ -58,7 +58,7 @@ public class HttpUtil {
         
             // We don't need to get data
             httpURLConnection.setRequestMethod("HEAD");
-            httpURLConnection.setConnectTimeout(PETASCOPE_CONNETION_TIMEOUT);
+            httpURLConnection.setConnectTimeout(3000);
 
             return httpURLConnection.getResponseCode() < 500;
         } catch (Exception ex) {

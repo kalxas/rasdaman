@@ -24,6 +24,7 @@
 
 import decimal
 import math
+from abc import abstractmethod
 from collections import OrderedDict
 
 from lib import arrow
@@ -85,6 +86,32 @@ class AbstractToCoverageConverter:
         self.import_order = import_order
         self.coverage_slices = OrderedDict()
         self.session = session
+        self.evaluator_slice = None
+
+        self.user_axes = None
+        self.crs = None
+        self.coverage_id = None
+        self.bands = None
+        self.global_metadata_fields = None
+        self.bands_metadata_fields = None
+        self.axes_metadata_fields = None
+        self.local_metadata_fields = None
+        self.metadata_type = None
+        self.files = None
+        self.tiling = None
+        self.data_type = None
+
+    # Override by subclasses
+    @abstractmethod
+    def _file_band_nil_values(self, index):
+        pass
+
+    @abstractmethod
+    def _axis_subset(self, crs_axis, evaluator_slice, resolution=None):
+        pass
+
+    def _data_type(self):
+        return self.data_type
 
     def _user_axis(self, user_axis, evaluator_slice):
         """
@@ -109,11 +136,10 @@ class AbstractToCoverageConverter:
             return RegularUserAxis(user_axis.name, resolution, user_axis.order, min, max, user_axis.type,
                                    user_axis.dataBound)
         else:
-            if GribExpressionEvaluator.FORMAT_TYPE in user_axis.directPositions:
-                # grib irregular axis will be calculated later when all the messages is evaluated
-                direct_positions = user_axis.directPositions
-            else:
-                direct_positions = self.sentence_evaluator.evaluate(user_axis.directPositions, evaluator_slice, user_axis.statements)
+            direct_positions = user_axis.directPositions
+            if GribExpressionEvaluator.FORMAT_TYPE not in user_axis.directPositions:
+                if user_axis.directPositions != AbstractToCoverageConverter.DIRECT_POSITIONS_SLICING:
+                    direct_positions = self.sentence_evaluator.evaluate(user_axis.directPositions, evaluator_slice, user_axis.statements)
 
             return IrregularUserAxis(user_axis.name, resolution, user_axis.order, min, direct_positions, max,
                                      user_axis.type, user_axis.dataBound, [], user_axis.slice_group_size)

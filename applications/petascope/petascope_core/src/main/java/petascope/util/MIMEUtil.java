@@ -279,6 +279,8 @@ public class MIMEUtil {
             return ".data";
         } else if (mimeType.equals(MIME_TEXT)) {
             return ".txt";
+        } else if (mimeType.equals(MIME_XML)) {
+          return ".xml";  
         } else if (mimeType.equals("")) {
             // It is used in case result returns a number, e.g: return avg(c)
             // MIME XML so Browser will display result instead of downloading as a file if set to MIME csv 

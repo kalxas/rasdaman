@@ -334,17 +334,24 @@ class CRSUtil:
 
             gml = validate_and_read_url(crs, None, timeout_in_seconds)
             root = etree.fromstring(gml)
+
+            xpath_str = ".//*[not(ancestor::gml:baseCRS) and contains(local-name(), 'CS')]"
+
             # e.g. ellipsoidalCS or CartesianCS elements
-            elements = root.xpath("./*[contains(local-name(), 'CS')]")
+            # but they must be not nested inside <gml:baseCRS> (COSMO 101 CRS has this special case)
+            elements = root.xpath(xpath_str,
+                                  namespaces={"gml": "http://www.opengis.net/gml/3.2"})
 
             if len(elements) > 0:
-                # normal CRS
-                cselem = elements[0]
-            else:
-                # NOTE: for COSMO 101 CRS, <gml:coordinateSystem> is nested inside <gml:baseCRS>
-                cselem = root.xpath(".//*[contains(local-name(), 'CS')]")[0]
+                # as proper CRS axes definitions are at the bottom of CRS definition
+                cselem = elements[len(elements) - 1]
 
-            xml_axes = cselem.xpath(".//*[contains(local-name(), 'SystemAxis')]")
+                xml_axes = cselem.xpath(".//*[contains(local-name(), 'SystemAxis')]")
+            else:
+                # Not sure when it can happen
+                raise RuntimeException("Cannot parse axes elements from CRS '" + crs
+                                       + "' with xpath: " + xpath_str + ". Hint: the CRS may have invalid definition.")
+
             return xml_axes
         except Exception as ex:
             raise RuntimeException("Failed parsing the crs at: {}. "

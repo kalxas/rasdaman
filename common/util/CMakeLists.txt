@@ -25,6 +25,8 @@
 set(SRC_FILES
     vectorutils.hh
     timer.hh
+    networkutils.cc networkutils.hh
+    system.hh system.cc
     fileutils.hh fileutils.cc
     math.hh
     )

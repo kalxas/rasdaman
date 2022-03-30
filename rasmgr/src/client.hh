@@ -60,7 +60,6 @@ public:
      * @brief getUser Get the user information(user name, password, access rights) associated with this client.
      * The returned value is a constant to prevent accidental modification of the user information.
      * User data should be modified only through the UserManager.
-     * @return
      */
     const std::shared_ptr<const User> getUser() const;
 

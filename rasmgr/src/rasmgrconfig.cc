@@ -34,7 +34,7 @@ boost::shared_ptr<RasMgrConfig> RasMgrConfig::instance;
 
 boost::shared_ptr<RasMgrConfig> RasMgrConfig::getInstance()
 {
-    boost::unique_lock<boost::mutex> lock(RasMgrConfig::instanceMutex);
+    boost::lock_guard<boost::mutex> lock(RasMgrConfig::instanceMutex);
     if (!instance)
     {
         LDEBUG << "Started RasMgrConfig initialization";

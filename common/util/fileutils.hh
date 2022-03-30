@@ -30,21 +30,19 @@ namespace common
 {
 class FileUtils {
 public:
-    /**
-     * Check if a file exists.
-     * @param fileName The name of the file it is checking for.
-     * @return A boolean value of whether the file exists.
-     */
-    static bool fileExists(const std::string& fileName);
+    /// Check if a file exists.
+    /// @return A boolean value of whether the file exists.
+    static bool fileExists(const std::string& path);
+    /// Check if a directory exists.
+    /// @return A boolean value of whether a directory at the given path exists.
+    static bool dirExists(const std::string& path);
 
-    /**
-     * Copies a file.
-     * @param srcFile The source file.
-     * @param destFile The destination file.
-     */
+    /// Copies a file.
+    /// @param srcFile The source file.
+    /// @param destFile The destination file.
     static void copyFile(const std::string& srcFile, const std::string& destFile);
-
-    /// read contents of file fp
+    
+    /// @return contents of file fp
     static std::string readFile(FILE *fp);
     
 private:

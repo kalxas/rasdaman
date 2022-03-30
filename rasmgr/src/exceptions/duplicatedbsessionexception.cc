@@ -26,7 +26,7 @@ namespace rasmgr
 {
 
 DuplicateDbSessionException::DuplicateDbSessionException(const std::string& dbName, const std::string& sessionUID)
-    : common::RuntimeException("Database " + dbName + " already contains session:" + sessionUID)
+    : common::RuntimeException("Database " + dbName + " already contains session " + sessionUID)
 {}
 
 DuplicateDbSessionException::~DuplicateDbSessionException() noexcept

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.CIS_SERVICE;
 import static petascope.core.KVPSymbols.RASQL_SERVICE;
 import static petascope.core.KVPSymbols.WCPS_SERVICE;
@@ -63,6 +64,8 @@ public class VersionManager {
         serviceVersionsMap.put(WMS_SERVICE,  Arrays.asList(WMS_VERSION_13));
         
         serviceVersionsMap.put(RASQL_SERVICE,  Arrays.asList(RASQL_SERVLET_VERSION));
+        
+        serviceVersionsMap.put(KVPSymbols.KEY_SOAP,  Arrays.asList(WCS_VERSION_20, WCS_VERSION_21));
     }
     
     /**

@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 
 /**
  * Class to test wcs_client, tab WCS/GetCapabilities
@@ -36,6 +35,8 @@ import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
 
     private static final Logger log = Logger.getLogger(WCSGetCapabilitiesTest.class);
+    
+    protected String downloadCoverageButtonXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div[1]/div[5]/button";
 
     public WCSGetCoverageTest() {
         super();
@@ -48,49 +49,39 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
      * @param webDriver
      * @throws InterruptedException
      */
-    private void focusOnTheIFrameTab(WebDriver webDriver) throws InterruptedException, IOException {
+    protected void focusOnGetCoverageTab(WebDriver webDriver) throws InterruptedException, IOException {
         // NOTE: As the first window lost focus, so it has to refous to iframe and GetCoverage tab, before it can select elements in this tab.
         // Switch to iframe to parse the web element
-        this.switchToIFirstIframe(webDriver);
+//        this.switchToIFirstIframe(webDriver);
         
         // First, change to tab GetCoverage
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[3]/a");
+        this.clickOnElement(webDriver, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[3]/a");
     }
-
+    
     @Override
     public void runTest(WebDriver webDriver) throws InterruptedException, IOException {
         webDriver.navigate().to(this.testURL);
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
+        
+        this.waitForPageLoad(webDriver);
+        
+        // First, change to tab GetCoverage
+        this.clickOnElement(webDriver, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[3]/a");
 
         String testCaseName;
         Select dropdown;
-
-        this.focusOnTheIFrameTab(webDriver);
 
         // Then get coverage's metadata on this tab
         testCaseName = this.getSectionTestCaseName("get_a_coverage_metadata");
         log.info("Testing get coverage's metadata...");
         // First change the coverage id in text box
-        this.addTextToTextBox(webDriver, "test_mean_summer_airtemp", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[1]/div/input");
+        this.addTextToTextBox(webDriver, "test_mean_summer_airtemp", "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div[1]/div[1]/div/input");
 
-        String selectCoverageButtonXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[1]/div/span[2]/button";
+        String selectCoverageButtonXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div[1]/div[1]/div/span[2]/button";
         // Then click on the Get Coverage button
         this.runTestByClickingOnElement(webDriver, testCaseName, selectCoverageButtonXPath);
 
         // ******************** Test HTTP GET request ***********************
-        String downloadCoverageButtonXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/button";
-        
-        // Download a whole coverage in PNG (GML cannot be captured by PhantomJS)
-        testCaseName = this.getSectionTestCaseName("get_whole_2D_coverage_in_png");
-        log.info("Testing get whole coverage with encoding as 2D PNG...");
-        // Then select coverage as png
-        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
-        dropdown.selectByVisibleText("image/png");
-        // Then click on the Download Coverage button which will open a new window
-        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadCoverageButtonXPath);
-
-        // Refocus on the tab
-        this.focusOnTheIFrameTab(webDriver);
         
         // Download a coverage in PNG with subsettingCRS, outputCRS and clipping polygon
         testCaseName = this.getSectionTestCaseName("get_clipped_crs_2D_coverage_in_png");
@@ -98,9 +89,9 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         // Then select coverage as png
         dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
         dropdown.selectByVisibleText("image/png");
-        // Then need to click on dropdown tab to show contents or it cannot add values to text boxes (CRS and clipping dropdowns)
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div/div[5]/uib-accordion/div/div/div[1]/h4/a/span/i");
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div/div[6]/uib-accordion/div/div/div[1]/h4/a/span/i");
+        // Then need to click on dropdown tab to show contents otherwise it cannot add values to text boxes (CRS and clipping dropdowns)
+        this.clickOnElement(webDriver, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div[1]/div[4]/div[5]/uib-accordion/div/div/div[1]/h4/a/span/i");
+        this.clickOnElement(webDriver, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div[1]/div[4]/div[6]/uib-accordion/div/div/div[1]/h4/a/span/i");
 
         // Then add URL for subsettingCRS
         this.addTextToTextBox(webDriver, "http://localhost:8080/def/crs/EPSG/0/3857", "//*[@id=\"wcs-get-coverage-subsetting-crs\"]");
@@ -118,13 +109,10 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         // Then click on the Download Coverage button which will open a new window
         this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadCoverageButtonXPath);
 
-        // Refocus on the tab
-        this.focusOnTheIFrameTab(webDriver);
-
-        String minLatXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div/div[2]/uib-accordion/div/div/div[2]/div/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[3]";
-        String minLongXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div/div[2]/uib-accordion/div/div/div[2]/div/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[3]";
-
-        // Download a subset coverage in PNG (GML cannot be captured by PhantomJS)
+        // Download a subset coverage in PNG 
+        String minLatXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div[1]/div[4]/div[2]/uib-accordion/div/div/div[2]/div/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[3]";
+        String minLongXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div[1]/div[4]/div[2]/uib-accordion/div/div/div[2]/div/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[3]";
+        
         testCaseName = this.getSectionTestCaseName("get_subset_2D_coverage_in_png");
         log.info("Testing get subset coverage with encoding as 2D PNG...");
         // Clear what has been done above
@@ -142,56 +130,7 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadCoverageButtonXPath);
 
         // Refocus on the tab
-        this.focusOnTheIFrameTab(webDriver);
-
-        // Download a subset coverage in JSON
-        testCaseName = this.getSectionTestCaseName("get_subset_2D_coverage_in_json");
-        log.info("Testing get subset coverage with encoding as 2D JSON...");
-        // Then select coverage as png
-        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
-        dropdown.selectByVisibleText("application/json");
-        // Then subset on Lat axis (min lat)
-        this.addTextToTextBox(webDriver, "-10.5", minLatXPath);
-        // Then subset on Lon axis (min Lon)
-        this.addTextToTextBox(webDriver, "154.275", minLongXPath);
-        // Then click on the Download Coverage button which will open a new window
-        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadCoverageButtonXPath);
-
-        // ******************** Test HTTP POST request ***********************
-        // Refocus on the tab
-        this.focusOnTheIFrameTab(webDriver);
-        // then change to POST HTTP request
-        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"selectHTTPRequest\"]")));
-        dropdown.selectByVisibleText("POST");
-
-        testCaseName = this.getSectionTestCaseName("get_subset_2D_coverage_in_png_http_post");
-        log.info("Testing get subset coverage with encoding as 2D PNG in HTTP POST...");
-        // Then select coverage as png
-        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
-        dropdown.selectByVisibleText("image/png");
-        // Then subset on Lat axis (min lat)
-        this.addTextToTextBox(webDriver, "-20.5", minLatXPath);
-        // Then subset on Lon axis (min Lon)
-        this.addTextToTextBox(webDriver, "135.5", minLongXPath);
-        // Then click on the Download Coverage button which will open a new window
-        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadCoverageButtonXPath);
-
-        // NOTE: Disable this test due to http://rasdaman.org/ticket/1912
-        // @TODO: to reopen it
-            
-//        // Refocus on the tab
-//        this.focusOnTheIFrameTab(webDriver);
-//        testCaseName = this.getSectionTestCaseName("get_subset_2D_coverage_in_jp2_http_post");
-//        log.info("Testing get subset coverage with encoding as 2D JP2 in HTTP POST...");
-//        // Then select coverage as png
-//        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
-//        dropdown.selectByVisibleText("image/jp2");
-//        // Then subset on Lat axis (min lat)
-//        this.addTextToTextBox(webDriver, "-20.5", minLatXPath);
-//        // Then subset on Lon axis (min Lon)
-//        this.addTextToTextBox(webDriver, "135.5", minLongXPath);
-//        // Then click on the Download Coverage button which will open a new window
-//        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadCoverageButtonXPath);
+        this.focusOnGetCoverageTab(webDriver);
 
     }
 }

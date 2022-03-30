@@ -38,6 +38,7 @@ public interface Constants {
     String DEMO_JSP = "demo.jsp";
 
     String WEB_APPLICATION_NAME = "def";
+    String WEB_APPLICATION_NAME_EMBEDDED = "rasdaman/def";
     String URN_SEPARATOR = ":";
     String URN_PREFIX = "urn:ogc:def";
     String URN_SHORT_PREFIX = "urn:ogc";

@@ -12,7 +12,7 @@ class ServerGroupFactoryImpl: public ServerGroupFactory
 {
 public:
     ServerGroupFactoryImpl(std::shared_ptr<DatabaseHostManager> dbhManager, std::shared_ptr<ServerFactory> serverFactory);
-    virtual ~ServerGroupFactoryImpl();
+    virtual ~ServerGroupFactoryImpl() = default;
 
     virtual std::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto &config);
 private:

@@ -48,18 +48,15 @@ public class SecoreDeleteCRSMetadataTest extends SecoreAbstractSectionWebPageTes
         webDriver.navigate().to(this.testURL);
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
 
-        String testCaseName = this.getSectionTestCaseName("delete_epsg_4326_from_user_database");
-        log.info("Testing delete imported CRS metadata EPSG:4326 from user database...");
-        webDriver.findElement(By.xpath("/html/body/table/tbody/tr[2175]/td[2]/a")).click();
-        // NOTE: It has to click 2 times to delete a definition in PhantomJS
+        String testCaseName = this.getSectionTestCaseName("delete_epsg_4269_from_user_database");
+        log.info("Testing delete imported CRS metadata EPSG:4269 from user database...");
+        webDriver.findElement(By.xpath("/html/body/table/tbody/tr[2124]/td[1]/a")).click();
         // then, click on the Ok button in the confirm dialog to remove it from database        
         this.clickOkInConfirmDialog(webDriver);
-        webDriver.findElement(By.xpath("/html/body/table/tbody/tr[2175]/td[2]/a")).click();
-        // then, click on the Ok button in the confirm dialog to remove it from database        
-        this.clickOkInConfirmDialog(webDriver);
-                
-        // then, back to the browse CRS metadata, it should show the Add button isntead of Update        
-        webDriver.navigate().to(Config.SECORE_CONTEXT_PATH + "crs/EPSG/0/4326/browse.jsp");        
+
+        
+        // then, back to the browse CRS metadata, it should show the Add button instead of Update        
+        webDriver.navigate().to(Config.SECORE_CONTEXT_PATH + "crs/EPSG/0/4269/browse.jsp");        
         // then, capture the result
         this.runTestByNonElementEvent(webDriver, testCaseName);
     }

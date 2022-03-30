@@ -31,6 +31,8 @@ import re
 from master.error.runtime_exception import RuntimeException
 import stat
 from util.import_util import import_glob
+import os
+import getpass
 
 class FileUtil:
 
@@ -164,6 +166,34 @@ class FileUtil:
 
             return data
 
+    @staticmethod
+    def delete_file_ignore_error(file_path):
+        """
+        :param str file_path: path to a file
+        """
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            log.warn("Cannot remove file '" + file_path + "'. Reason: " + str(e))
+            pass
+
+    @staticmethod
+    def can_write_file_in_dir(dir_path, filename):
+        """
+        Check if the script can create/write to a filename in directory dir_path, and
+        throw an Exception if not.
+        """
+        path = dir_path + '/' + filename
+        if not os.access(path, os.F_OK):
+            # resume file does not exist
+            if not os.access(dir_path, os.F_OK):
+                raise Exception('Directory "' + dir_path + '" does not exist, please create it first.')
+            elif not os.access(dir_path, os.W_OK | os.X_OK):
+                raise Exception('Directory "' + dir_path + '" exists, but user "' + getpass.getuser() + '" has no permissions to create a file in it.')
+        elif not os.access(path, os.W_OK):
+            raise Exception(
+                'File "' + path + '" exists, but user "' + getpass.getuser() + '" has no permissions to write to it.')
 
 class TmpFile:
     def __init__(self):

@@ -23,8 +23,10 @@ package org.rasdaman.ws_client;
 
 import java.io.IOException;
 import org.apache.log4j.Logger;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * Class to test wcs_client, tab WCS/GetCapabilities
@@ -42,42 +44,33 @@ public class WCSGetCapabilitiesTest extends WSAbstractSectionWebPageTest {
 
     @Override
     public void runTest(WebDriver webDriver) throws InterruptedException, IOException {
-        webDriver.navigate().to(this.testURL);
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
-
+        webDriver.navigate().to(this.testURL);
+        
         String testCaseName;
 
-        // Switch to iframe to parse the web element
-        this.switchToIFirstIframe(webDriver);
-
+        this.waitForPageLoad(webDriver);
+        
         // Click on get capabilities button
         testCaseName = this.getSectionTestCaseName("click_on_GetCapabilities_button");
         log.info("Testing change current tab to GetCapabilities...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[1]/a");
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
-        /* 
-        As the returned coverages from Petascope are produced from a Map, so they can show different coverageIds in second page.
-        // Click on paging button        
-        testCaseName = this.getSectionTestCaseName("click_on_Paging_button");
-        log.info("Testing click on another paging button...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/tfoot/tr/td/div/nav/ul/li[2]/a"); 
-         */
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[1]/a");
 
         // Click on GML server Capabilities document dropdown button
         testCaseName = this.getSectionTestCaseName("click_on_ServiceIdentification_dropdown_button");
         log.info("Testing click on Service identification dropdown button...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[3]/div[1]/h4/a/span/i");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[5]/div[1]/h4/a/span/i");
 
         // Search the coverage by id
         // NOTE: this one lists only one coverage and has no paging button, so must put it at the last test case
         testCaseName = this.getSectionTestCaseName("search_coverage_by_id");
-        log.info("Testing search coverage by Id textbox...");        
-        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_mr", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/thead/tr[2]/th/input");
+        log.info("Testing search coverage by Id textbox...");
+        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_mr", "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/thead/tr[2]/td/input");
 
         // Click on the search result (only one result) to move to next tab
         testCaseName = this.getSectionTestCaseName("click_on_a_search_result");
-        log.info("Testing click on a found result of searching by coverageId...");        
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/tbody/tr/td[1]/a");
+        log.info("Testing click on a found result of searching by coverageId...");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/tbody/tr/td[1]/a");
 
     }
 }

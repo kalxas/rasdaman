@@ -301,6 +301,7 @@ void SQLiteQuery::closeConnection()
 {
     if (sqliteConn != nullptr)
     {
+        sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT_MS);
         if (sqlite3_close(sqliteConn) != SQLITE_OK)
         {
             warnOnError("close RASBASE connection");
@@ -328,6 +329,13 @@ void SQLiteQuery::openConnection(const char *globalConnectId)
         failOnError(options.c_str());
         sqlite3_extended_result_codes(sqliteConn, 1);
         warnOnError("enable extended result codes");
+    }
+}
+
+void SQLiteQuery::interruptTransaction()
+{
+    if (sqliteConn != nullptr) {
+        sqlite3_interrupt(sqliteConn);
     }
 }
 

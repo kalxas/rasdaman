@@ -21,22 +21,15 @@
  */
 package petascope.wcps.handler;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
-import petascope.util.CrsUtil;
+import static petascope.util.CrsUtil.GRID_CRS;
 import petascope.wcps.exception.processing.InvalidScaleExtentException;
 import petascope.wcps.metadata.model.Axis;
-import petascope.wcps.metadata.model.NumericSubset;
-import petascope.wcps.metadata.model.NumericTrimming;
-import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.WcpsScaleDimensionIntevalList;
 import petascope.wcps.subset_axis.model.AbstractWcpsScaleDimension;
@@ -51,8 +44,10 @@ import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
  *    SCALE_EXTENT($coverageExpression, [$scaleDimensionInteverlList]) *
  * </code>
  *
- * e.g: scale_extent(c, [i(25:50), j(25:50)]) then number of grid points for i
+ * e.g: scale_extent(c, [Lat(10:20), Lon(100:200)]) then number of grid points for i
  * is 26 and j is 26 in the output
+ * The result to be correct with OGC CITE test is with grid domains:
+ * Lat(0:10) and Long(0:100)
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
@@ -75,8 +70,11 @@ public class WcsScaleExpressionByScaleExtentHandler extends AbstractWcsScaleHand
             }
             
             WcpsTrimScaleDimension trimScaleDimension = ((WcpsTrimScaleDimension)dimension);
-            WcpsTrimSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(),
-                                                                                    trimScaleDimension.getLowerBound(), trimScaleDimension.getUpperBound());
+            // e.g scale_extent(Lat, [10:20]) -> output in grid domain of Lat is: [0:10]
+            Long lowerBound = 0l;
+            Long upperBound = Long.valueOf(trimScaleDimension.getUpperBound()) - Long.valueOf(trimScaleDimension.getLowerBound());
+            WcpsTrimSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), GRID_CRS,
+                                                                                    lowerBound.toString(), upperBound.toString());
             
             wcpsSubsetDimensions.add(trimSubsetDimension);
         }

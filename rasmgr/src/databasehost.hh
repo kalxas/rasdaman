@@ -25,8 +25,8 @@
 
 #include <string>
 #include <memory>
-#include <mutex>
 #include <list>
+#include <boost/thread/shared_mutex.hpp>
 
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 
@@ -133,12 +133,10 @@ private:
     int sessionCount; /*!< Counter used to track the number of active sessions*/
     int serverCount;/*!< Counter used to track the number of server groups using this host*/
     std::list<std::shared_ptr<Database>> databaseList;/*!< List of databases located on this host */
-    mutable std::mutex mut;/*!< Mutex used for syncrhonizing access to this object*/
+    mutable boost::shared_mutex databaseListMutex;/*!< Mutex used for syncrhonizing access to this object*/
 
     /**
      * Check if this host contains the database identified by the given name.
-     * @param dbName
-     * @return
      */
     bool containsDatabase(const std::string &dbName);
 };

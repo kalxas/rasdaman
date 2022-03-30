@@ -39,6 +39,8 @@ watch_interval=3600
 user=""
 passwd=""
 identity_file_path=""
+# (no limit, cache all files)
+gdal_cache_size=-1
 
 # logging
 log()  { echo "$PROG: $*"; }
@@ -80,6 +82,13 @@ Options:
     asked interactively by wcst_import.sh
   -q, --quiet
     suppress regular output
+  -c, --gdal-cache-size <size>
+    the number of open gdal datasets to keep in cache in order
+    to avoid reopening the same files, which can be costly. The
+    specified value can be one of: -1 (no limit, cache all files),
+    0 (fully disable caching), N (clear the cache whenever it has
+    more than N datasets, N should be greater than 0). The
+    default value is -1 if this option is not specified.
   --version
     print version
   -h, --help
@@ -95,13 +104,14 @@ EOF
 quiet=false 
 while [ "$1" != "" ]; do
     case $1 in
-      -h|--help)          usage;;
-      -q|--quiet)         quiet=true;;
-      -d|--daemon)        shift; daemon_flag=true; daemon_action="$1";;
-      -w|--watch)         shift; watch_flag=true; watch_interval=$1;;
-      -i|--identity-file) shift; identity_file_path=$(readlink -f "$1");;
-      -u|--user)          shift; user="$1";;
-      *)                  ingredients_file=$(readlink -f "$1");;
+      -h|--help)                 usage;;
+      -q|--quiet)                quiet=true;;
+      -d|--daemon)               shift; daemon_flag=true; daemon_action="$1";;
+      -w|--watch)                shift; watch_flag=true; watch_interval=$1;;
+      -i|--identity-file)        shift; identity_file_path=$(readlink -f "$1");;
+      -u|--user)                 shift; user="$1";;
+      -c|--gdal-cache-size)      shift; gdal_cache_size="$1";;
+      *)                         ingredients_file=$(readlink -f "$1");;
     esac
     shift
 done
@@ -174,6 +184,7 @@ add_args "-d" "$daemon_action"
 add_args "--user" "$user"
 add_args "--passwd" "$passwd"
 add_args "--identity-file" "$identity_file_path"
+add_args "--gdal-cache-size" "$gdal_cache_size"
 
 if [ "$quiet" = true ]; then
     eval "$wcst_import_py_args" > /dev/null 2>&1

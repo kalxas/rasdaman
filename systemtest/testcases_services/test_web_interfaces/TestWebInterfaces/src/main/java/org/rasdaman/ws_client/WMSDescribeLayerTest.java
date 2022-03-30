@@ -24,9 +24,6 @@ package org.rasdaman.ws_client;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.rasdaman.Config;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 import static org.rasdaman.Config.TIME_TO_WAIT_BEFORE_CLICK;
 
 /**
@@ -68,23 +65,19 @@ public class WMSDescribeLayerTest extends WSAbstractSectionWebPageTest {
     public void runTest(WebDriver webDriver) throws InterruptedException, IOException {
         webDriver.navigate().to(this.testURL);
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
-
-        // Switch to iframe to parse the web element
-        this.switchToIFirstIframe(webDriver);
-
+        
         // Focus on the second parent tab (WMS)
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/ul/li[2]/a");
+        this.clickOnElement(webDriver, "/html/body/div[2]/div/div/div/div/div/ul/li[2]/a");
 
         String testCaseName;
 
         // First, change to tab DescribeLayer
         testCaseName = this.getSectionTestCaseName("change_to_describe_layer_tab");
         log.info("Testing change current tab to DescribeLayer...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/ul/li[2]/a");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[2]/div/ul/div/div/ul/li[2]/a");
 
-        String layerNameTextBoxXPath = "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/input";
-        String describeLayerButtonXPath = "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/span[2]/button";
-
+        String layerNameTextBoxXPath = "/html/body/div[2]/div/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/input";
+        String describeLayerButtonXPath = "/html/body/div[2]/div/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/span[2]/button";
         
         // Sometimes it captures the whole page, sometimes only a part of page, so it makes the test on Centos 7 fail randomly.
         // Describe a EPSG:3857 layer
@@ -93,8 +86,7 @@ public class WMSDescribeLayerTest extends WSAbstractSectionWebPageTest {
         // First change the layer name in text box
         this.addTextToTextBox(webDriver, "test_wms_3857", layerNameTextBoxXPath);
         // Then click on the Describe Layer button and will not compare the oracle file
-        this.runTestByClickingOnElementWithoutComparingOracle(webDriver, testCaseName, describeLayerButtonXPath);
-        log.info("TEST PASSED");
+        this.runTestByClickingOnElement(webDriver, testCaseName, describeLayerButtonXPath);
 
         // Describe a EPSG:4326 layer 
         testCaseName = this.getSectionTestCaseName("describe_a_epsg_4326_layer");

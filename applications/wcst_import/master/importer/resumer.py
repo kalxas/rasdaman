@@ -55,7 +55,7 @@ class Resumer:
         :param str coverage_id: coverage id of current importer to find the resume file.
         """
         if coverage_id not in Resumer.__IMPORTED_DATA_DICT:
-            resume_file_path = ConfigManager.resumer_dir_path + coverage_id + Resumer.__RESUMER_FILE_SUFFIX
+            resume_file_path = Resumer.get_resume_file_path(ConfigManager.resumer_dir_path, coverage_id)
             Resumer.__RESUMER_FILE_NAME_DICT[coverage_id] = resume_file_path
             try:
                 if os.path.isfile(resume_file_path) \
@@ -81,13 +81,23 @@ class Resumer:
         """
         if ConfigManager.track_files and not ConfigManager.mock:
             resume_file_path = self.__RESUMER_FILE_NAME_DICT[self.coverage_id]
+            file = None
 
             try:
                 file = open(resume_file_path, "w")
+            except Exception as e:
+                log.error("Cannot create resume file '{}'. \n"
+                          "Reason: " + str(e) + ". \n"
+                          "Hint: make sure the folder containing the resume file is writeable "
+                          "for the user running wcst_import.sh.".format(resume_file_path))
+                exit(1)
+
+            try:
                 json.dump(Resumer.__IMPORTED_DATA_DICT[self.coverage_id], file)
                 file.close()
             except Exception as e:
-                log.error("Cannot create resume file '{}'. \n"
+                log.error("Cannot write JSON data to resume file '{}'. \n"
+                          "Reason: " + str(e) + ". \n"
                           "Hint: make sure the folder containing the resume file is writeable "
                           "for the user running wcst_import.sh.".format(resume_file_path))
                 exit(1)
@@ -152,4 +162,14 @@ class Resumer:
         Resumer.__RESUMER_FILE_NAME_DICT.clear()
         Resumer.__IMPORTED_DATA_DICT.clear()
 
-    __RESUMER_FILE_SUFFIX = ".resume.json"
+    @staticmethod
+    def get_resume_file_path(dir_path, coverage_id):
+        """
+        :param coverage_id:
+        :return:
+        """
+        return dir_path + "/" + Resumer.get_resume_file_name(coverage_id)
+
+    @staticmethod
+    def get_resume_file_name(coverage_id):
+        return coverage_id + ".resume.json"

@@ -1,4 +1,4 @@
-/*
+  /*
  * This file is part of rasdaman community.
  *
  * Rasdaman community is free software: you can redistribute it and/or modify
@@ -39,20 +39,14 @@ using std::string;
 using common::InvalidArgumentException;
 using common::ResourceBusyException;
 
-PeerManager::PeerManager()
-{}
-
-PeerManager::~PeerManager()
-{}
-
 void PeerManager::defineInPeer(const std::string &peerHostName)
 {
     if (peerHostName.empty())
     {
-        throw InvalidArgumentException("Invalid peer host name.");
+        throw InvalidArgumentException("Invalid peer host name, given an empty string.");
     }
 
-    std::unique_lock<std::mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     // Check for duplicates
     for (const auto &inPeer : this->inPeers)
@@ -64,18 +58,17 @@ void PeerManager::defineInPeer(const std::string &peerHostName)
     }
 
     // Create the peer
-    std::shared_ptr<InPeer> peer = std::make_shared<InPeer>(peerHostName);
-    this->inPeers.push_back(peer);
+    this->inPeers.push_back(std::make_shared<InPeer>(peerHostName));
 }
 
 void PeerManager::removeInPeer(const std::string &peerHostName)
 {
     if (peerHostName.empty())
     {
-        throw InvalidArgumentException("Invalid peer host name.");
+        throw InvalidArgumentException("Invalid peer host name, given an empty string.");
     }
 
-    std::unique_lock<std::mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     bool removed = false;
     for (auto inPeer = this->inPeers.begin(); inPeer != this->inPeers.end(); ++inPeer)
@@ -84,7 +77,6 @@ void PeerManager::removeInPeer(const std::string &peerHostName)
         {
             this->inPeers.erase(inPeer);
             removed = true;
-
             break;
         }
     }
@@ -99,10 +91,10 @@ void PeerManager::defineOutPeer(const std::string &peerHostName, const std::uint
 {
     if (peerHostName.empty())
     {
-        throw InvalidArgumentException("Invalid peer host name.");
+        throw InvalidArgumentException("Invalid peer host name, given an empty string.");
     }
 
-    std::unique_lock<std::mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     // Check for duplicates
     for (const auto &outPeer : this->outPeers)
@@ -114,18 +106,17 @@ void PeerManager::defineOutPeer(const std::string &peerHostName, const std::uint
     }
 
     // Create the peer
-    std::shared_ptr<OutPeer> peer = std::make_shared<OutPeer>(peerHostName, port);
-    this->outPeers.push_back(peer);
+    this->outPeers.push_back(std::make_shared<OutPeer>(peerHostName, port));
 }
 
 void PeerManager::removeOutPeer(const std::string &peerHostName)
 {
     if (peerHostName.empty())
     {
-        throw InvalidArgumentException("Invalid peer host name.");
+        throw InvalidArgumentException("Invalid peer host name, given an empty string.");
     }
 
-    std::unique_lock<std::mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     bool removed = false;
     for (auto outPeer = this->outPeers.begin(); outPeer != this->outPeers.end(); ++outPeer)
@@ -135,12 +126,11 @@ void PeerManager::removeOutPeer(const std::string &peerHostName)
             // If the peer is busy, throw an exception
             if ((*outPeer)->isBusy())
             {
-                throw ResourceBusyException("The peer has active client sessions.");
+                throw ResourceBusyException("The peer has active client sessions, cannot be removed.");
             }
 
             this->outPeers.erase(outPeer);
             removed = true;
-
             break;
         }
     }
@@ -153,17 +143,15 @@ void PeerManager::removeOutPeer(const std::string &peerHostName)
 
 bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientServerSession &out_reply)
 {
-    std::unique_lock<std::mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     for (const auto &outpeer : this->outPeers)
     {
         if (outpeer->tryGetRemoteServer(request, out_reply))
         {
             RemoteClientSession clientSession(out_reply.clientSessionId, out_reply.dbSessionId);
-
             std::string remoteSessionId = this->remoteClientSessionToString(clientSession);
             this->remoteSessions[remoteSessionId] = outpeer;
-
             return true;
         }
     }
@@ -173,19 +161,15 @@ bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientS
 
 bool PeerManager::isRemoteClientSession(const RemoteClientSession &clientSession)
 {
-    std::unique_lock<std::mutex> lock(this->mut);
-
+    std::lock_guard<std::mutex> lock(this->mut);
     string sessionKey = this->remoteClientSessionToString(clientSession);
-
     return this->remoteSessions.find(sessionKey) != this->remoteSessions.end();
 }
 
 void PeerManager::releaseServer(const RemoteClientSession &clientSession)
 {
-    std::unique_lock<std::mutex> lock(this->mut);
-
+    std::lock_guard<std::mutex> lock(this->mut);
     string sessionKey = this->remoteClientSessionToString(clientSession);
-
     auto session = this->remoteSessions.find(sessionKey);
     if (session != this->remoteSessions.end())
     {
@@ -196,24 +180,20 @@ void PeerManager::releaseServer(const RemoteClientSession &clientSession)
 
 PeerMgrProto PeerManager::serializeToProto()
 {
-    std::unique_lock<std::mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     PeerMgrProto result;
-
     for (const auto &outPeer : this->outPeers)
     {
         OutPeerProto outPeerProto;
         outPeerProto.set_host_name(outPeer->getHostName());
         outPeerProto.set_port(outPeer->getPort());
-
         result.add_outpeers()->CopyFrom(outPeerProto);
     }
-
     for (const auto &inPeer : this->inPeers)
     {
         InPeerProto inPeerProto;
         inPeerProto.set_host_name(inPeer->getHostName());
-
         result.add_inpeers()->CopyFrom(inPeerProto);
     }
 
@@ -222,7 +202,6 @@ PeerMgrProto PeerManager::serializeToProto()
 
 std::string PeerManager::remoteClientSessionToString(const RemoteClientSession &clientSession)
 {
-    return clientSession.getClientSessionId()
-           + ":" + clientSession.getDbSessionId();
+    return clientSession.getClientSessionId() + ":" + clientSession.getDbSessionId();
 }
 }

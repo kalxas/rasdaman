@@ -42,7 +42,7 @@ class ServerGroup;
 class ServerGroupFactory;
 
 /**
- * @brief The ServerManager class Responsible for the management of server groups (creation, destruction, change),
+ * Responsible for the management of server groups (creation, destruction, change),
  * and registering new server processes with the parent group.
  * The ServerManager has a thread that performs management tasks on the owned servergroups
  * at a certain interval.
@@ -50,9 +50,7 @@ class ServerGroupFactory;
 class ServerManager
 {
 public:
-    /**
-      * @brief ServerManager ServerManager Initialize a new instance of the ServerManager class.
-      */
+  
     ServerManager(const ServerManagerConfig &config, std::shared_ptr<ServerGroupFactory> serverGroupFactory);
 
     virtual ~ServerManager();

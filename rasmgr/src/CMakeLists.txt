@@ -183,6 +183,7 @@ target_link_libraries(rasmgr_lib
         common_time
         common_uuid 
         common_util 
+        common_string
         ${Boost_THREAD_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
         ${CMAKE_THREAD_LIBS_INIT}

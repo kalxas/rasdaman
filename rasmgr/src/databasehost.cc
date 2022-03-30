@@ -29,6 +29,8 @@
 
 #include "databasehost.hh"
 
+#include <boost/thread/shared_lock_guard.hpp>
+
 namespace rasmgr
 {
 using std::runtime_error;
@@ -46,8 +48,7 @@ DatabaseHost::DatabaseHost(std::string hostName, std::string connectString,
 
 void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, const std::string &clientId, const std::string &sessionId)
 {
-    unique_lock<mutex> lock(this->mut);
-
+    boost::upgrade_lock<boost::shared_mutex> lock(databaseListMutex);
     bool foundDb = false;
     for (auto it = this->databaseList.begin(); !foundDb &&  it != this->databaseList.end(); it++)
     {
@@ -58,20 +59,21 @@ void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, const s
             //on this db, the next line will throw an exception
             //and the counter will not be incremented
             (*it)->addClientSession(clientId, sessionId);
+            
+            boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
             this->sessionCount++;
         }
     }
 
     if (!foundDb)
     {
-        throw InexistentDatabaseException(databaseName);
+        throw InexistentDatabaseException(databaseName, "cannot add client session to database.");
     }
 }
 
 void DatabaseHost::removeClientSessionFromDB(const std::string &clientId, const std::string &sessionId)
 {
-    unique_lock<mutex> lock(this->mut);
-
+    boost::lock_guard<boost::shared_mutex> lock(this->databaseListMutex);
     for (auto it = this->databaseList.begin(); it != this->databaseList.end(); it++)
     {
         this->sessionCount -= (*it)->removeClientSession(clientId, sessionId);
@@ -80,45 +82,40 @@ void DatabaseHost::removeClientSessionFromDB(const std::string &clientId, const 
 
 void DatabaseHost::increaseServerCount()
 {
-    unique_lock<mutex> lock(this->mut);
+    boost::lock_guard<boost::shared_mutex> lock(this->databaseListMutex);
     this->serverCount++;
 }
 
 void DatabaseHost::decreaseServerCount()
 {
-    unique_lock<mutex> lock(this->mut);
+    boost::lock_guard<boost::shared_mutex> lock(this->databaseListMutex);
     if (this->serverCount == 0)
     {
-        throw common::LogicException("serverCount==0");
+        throw common::LogicException("Cannot decrease server count, as it is already 0.");
     }
-
     this->serverCount--;
 }
 
 bool DatabaseHost::isBusy() const
 {
-    unique_lock<mutex> lock(this->mut);
-
+    boost::shared_lock<boost::shared_mutex> lock(this->databaseListMutex);
     return (this->sessionCount > 0 || this->serverCount > 0);
 }
 
 bool DatabaseHost::ownsDatabase(const std::string &databaseName)
 {
-    unique_lock<mutex> lock(this->mut);
-
     return this->containsDatabase(databaseName);
 }
 
 void DatabaseHost::addDbToHost(std::shared_ptr<Database> db)
 {
-    unique_lock<mutex> lock(this->mut);
-
     if (this->containsDatabase(db->getDbName()))
     {
         throw DatabaseAlreadyExistsException(db->getDbName(), this->getHostName());
     }
     else
     {
+        boost::lock_guard<boost::shared_mutex> lock(databaseListMutex);
         this->databaseList.push_back(db);
     }
 }
@@ -127,29 +124,34 @@ void DatabaseHost::removeDbFromHost(const std::string &dbName)
 {
     bool removedDb = false;
 
-    unique_lock<mutex> lock(this->mut);
+    boost::upgrade_lock<boost::shared_mutex> lock(databaseListMutex);
 
-    for (auto it = this->databaseList.begin(); !removedDb && it != this->databaseList.end(); it++)
+    auto it = this->databaseList.begin();
+    while (it != this->databaseList.end())
     {
         if ((*it)->getDbName() == dbName)
         {
-            if ((*it)->isBusy())
+            if (!(*it)->isBusy())
             {
-                throw DbBusyException((*it)->getDbName());
+                boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
+                it = this->databaseList.erase(it);
+                removedDb = true;
             }
             else
             {
-                this->databaseList.erase(it);
-                removedDb = true;
+                throw DbBusyException((*it)->getDbName(), "cannot remove database from database host " + hostName);
             }
-
             break;
+        }
+        else
+        {
+            ++it;
         }
     }
 
     if (!removedDb)
     {
-        throw InexistentDatabaseException(dbName);
+        throw InexistentDatabaseException(dbName, "cannot remove it from database host " + hostName);
     }
 }
 
@@ -165,6 +167,7 @@ DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
     result.set_session_count(dbHost.sessionCount);
     result.set_server_count(dbHost.serverCount);
 
+    boost::shared_lock<boost::shared_mutex> lock(dbHost.databaseListMutex);
     for (auto it = dbHost.databaseList.begin(); it != dbHost.databaseList.end(); it++)
     {
         result.add_databases()->CopyFrom(Database::serializeToProto(**it));
@@ -182,9 +185,8 @@ void DatabaseHost::setHostName(const std::string &hostName)
 {
     if (hostName.empty())
     {
-        throw common::LogicException("hostName.empty()");
+        throw common::LogicException("Cannot set empty hostname for database host.");
     }
-
     this->hostName = hostName;
 }
 
@@ -207,9 +209,8 @@ void DatabaseHost::setUserName(const std::string &userName)
 {
     if (userName.empty())
     {
-        throw common::LogicException("userName.empty()");
+        throw common::LogicException("Cannot set empty username for database host.");
     }
-
     this->userName = userName;
 }
 
@@ -225,6 +226,7 @@ void DatabaseHost::setPasswdString(const std::string &passwdString)
 
 bool DatabaseHost::containsDatabase(const std::string &dbName)
 {
+    boost::shared_lock<boost::shared_mutex> lock(databaseListMutex);
     for (auto it = this->databaseList.begin(); it != this->databaseList.end(); it++)
     {
         if ((*it)->getDbName() == dbName)
@@ -232,7 +234,6 @@ bool DatabaseHost::containsDatabase(const std::string &dbName)
             return true;
         }
     }
-
     return false;
 }
 }

@@ -332,7 +332,7 @@ public abstract class AbstractHandler implements Handler {
                 
                         + "\n"
                         + "local:work('" + id + "')";
-
+        
         return DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
     }
 

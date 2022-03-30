@@ -40,7 +40,7 @@ class ControlCommandExecutor;
 class ControlService: public ::rasnet::service::RasMgrRasCtrlService::Service
 {
 public:
-    ControlService(std::shared_ptr<ControlCommandExecutor> commandExecutor);
+    explicit ControlService(std::shared_ptr<ControlCommandExecutor> commandExecutor);
 
     virtual ~ControlService();
 

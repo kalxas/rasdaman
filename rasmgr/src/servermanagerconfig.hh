@@ -9,7 +9,7 @@ class ServerManagerConfig
 {
 public:
     ServerManagerConfig();
-    virtual ~ServerManagerConfig();
+    virtual ~ServerManagerConfig() = default;
 
     std::int32_t getCleanupInterval() const;
     void setCleanupInterval(const std::int32_t &value);

@@ -29,17 +29,13 @@
 #include "databasehost.hh"
 
 #include "databasehostmanager.hh"
+#include <boost/thread/shared_lock_guard.hpp>
 
 namespace rasmgr
 {
 using std::list;
 using std::shared_ptr;
-using std::unique_lock;
-using std::mutex;
 using std::runtime_error;
-
-DatabaseHostManager::~DatabaseHostManager()
-{}
 
 void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &newDbHost)
 {
@@ -48,77 +44,52 @@ void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &
         throw common::InvalidArgumentException("Invalid database host configuration:\n" + newDbHost.DebugString());
     }
 
-    list<shared_ptr<DatabaseHost>>::iterator it;
-    bool duplicate = false;
-
-    unique_lock<mutex> lock(this->mut);
-
-    for (it = this->hostList.begin(); it != this->hostList.end(); ++it)
+    // make sure it's not a duplicate database host
+    boost::upgrade_lock<boost::shared_mutex> lock(this->hostListMutex);
+    for (auto it = this->hostList.begin(); it != this->hostList.end(); ++it)
     {
         if ((*it)->getHostName() == newDbHost.host_name())
         {
-            duplicate = true;
-            break;
+            throw DbHostAlreadyExistsException(newDbHost.host_name());
         }
     }
 
-    if (duplicate)
-    {
-        throw DbHostAlreadyExistsException(newDbHost.host_name());
-    }
-    else
-    {
-        std::string empty = "";
-        std::string connectStr = newDbHost.has_connect_string() ? newDbHost.connect_string() : empty;
-        std::string userName = newDbHost.has_user_name() ? newDbHost.user_name() : empty;
-        std::string password = newDbHost.has_password() ? newDbHost.password() : empty;
-        auto dbHost = std::make_shared<DatabaseHost>(newDbHost.host_name(), connectStr, userName, password);
+    std::string empty = "";
+    std::string connectStr = newDbHost.has_connect_string() ? newDbHost.connect_string() : empty;
+    std::string userName = newDbHost.has_user_name() ? newDbHost.user_name() : empty;
+    std::string password = newDbHost.has_password() ? newDbHost.password() : empty;
+    auto dbHost = std::make_shared<DatabaseHost>(newDbHost.host_name(), connectStr, userName, password);
 
-        this->hostList.push_back(dbHost);
-    }
+    boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
+    this->hostList.push_back(dbHost);
 }
 
 void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const DatabaseHostPropertiesProto &newProperties)
 {
-    list<shared_ptr<DatabaseHost>>::iterator it;
     bool changed = false;
 
-    unique_lock<mutex> lock(this->mut);
-
-    for (it = this->hostList.begin(); it != this->hostList.end(); ++it)
+    boost::lock_guard<boost::shared_mutex> lock(this->hostListMutex);
+    for (auto it = this->hostList.begin(); it != this->hostList.end(); ++it)
     {
         if ((*it)->getHostName() == oldName)
         {
-            if ((*it)->isBusy())
+            if (!(*it)->isBusy())
             {
-                throw DbHostBusyException((*it)->getHostName());
+              if (newProperties.has_connect_string())
+                  (*it)->setConnectString(newProperties.connect_string());
+              if (newProperties.has_host_name() && !newProperties.host_name().empty())
+                  (*it)->setHostName(newProperties.host_name());
+              if (newProperties.has_password())
+                  (*it)->setPasswdString(newProperties.password());
+              if (newProperties.has_user_name())
+                  (*it)->setUserName(newProperties.user_name());
+              changed = true;
+              break;
             }
             else
             {
-                if (newProperties.has_connect_string())
-                {
-                    (*it)->setConnectString(newProperties.connect_string());
-                }
-
-                if (newProperties.has_host_name() && !newProperties.host_name().empty())
-                {
-                    (*it)->setHostName(newProperties.host_name());
-                }
-
-                if (newProperties.has_password())
-                {
-                    (*it)->setPasswdString(newProperties.password());
-                }
-
-                if (newProperties.has_user_name())
-                {
-                    (*it)->setUserName(newProperties.user_name());
-                }
-
-                changed = true;
+                throw DbHostBusyException((*it)->getHostName());
             }
-
-            break;
         }
     }
 
@@ -131,11 +102,10 @@ void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const D
 void DatabaseHostManager::removeDatabaseHost(const std::string &dbHostName)
 {
     bool erased = false;
-    list<shared_ptr<DatabaseHost>>::iterator it;
 
-    unique_lock<mutex> lock(this->mut);
+    boost::upgrade_lock<boost::shared_mutex> lock(this->hostListMutex);
 
-    for (it = this->hostList.begin(); it != this->hostList.end(); ++it)
+    for (auto it = this->hostList.begin(); it != this->hostList.end(); ++it)
     {
         if ((*it)->getHostName() == dbHostName)
         {
@@ -145,9 +115,9 @@ void DatabaseHostManager::removeDatabaseHost(const std::string &dbHostName)
             }
             else
             {
+                boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
                 this->hostList.erase(it);
                 erased = true;
-
                 break;
             }
         }
@@ -161,11 +131,8 @@ void DatabaseHostManager::removeDatabaseHost(const std::string &dbHostName)
 
 std::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(const std::string &dbHostName)
 {
-    list<shared_ptr<DatabaseHost>>::iterator it;
-
-    unique_lock<mutex> lock(this->mut);
-
-    for (it = this->hostList.begin(); it != this->hostList.end(); ++it)
+    boost::shared_lock<boost::shared_mutex> lock(this->hostListMutex);
+    for (auto it = this->hostList.begin(); it != this->hostList.end(); ++it)
     {
         if ((*it)->getHostName() == dbHostName)
         {
@@ -173,13 +140,12 @@ std::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(const 
             return (*it);
         }
     }
-
     throw InexistentDbHostException(dbHostName);
 }
 
 std::shared_ptr<DatabaseHost> DatabaseHostManager::getDatabaseHost(const std::string &dbName)
 {
-    unique_lock<mutex> lock(this->mut);
+    boost::shared_lock<boost::shared_mutex> lock(this->hostListMutex);
     for (auto it = this->hostList.begin(); it != this->hostList.end(); ++it)
     {
         if ((*it)->ownsDatabase(dbName))
@@ -190,24 +156,19 @@ std::shared_ptr<DatabaseHost> DatabaseHostManager::getDatabaseHost(const std::st
     throw common::RuntimeException("Host containing database " + dbName + " not found.");
 }
 
-std::list<std::shared_ptr<DatabaseHost>> DatabaseHostManager::getDatabaseHostList() const
+std::list<std::shared_ptr<DatabaseHost> > DatabaseHostManager::getDatabaseHostList() const
 {
     return this->hostList;
 }
 
 DatabaseHostMgrProto DatabaseHostManager::serializeToProto()
 {
+    boost::shared_lock<boost::shared_mutex> lock(this->hostListMutex);
     DatabaseHostMgrProto result;
-
-    list<shared_ptr<DatabaseHost>> dbhList = this->getDatabaseHostList();
-
-    list<shared_ptr<DatabaseHost>>::iterator it;
-
-    for (it = dbhList.begin(); it != dbhList.end(); ++it)
+    for (auto it = this->hostList.begin(); it != this->hostList.end(); ++it)
     {
         result.add_database_hosts()->CopyFrom(DatabaseHost::serializeToProto(*(*it)));
     }
-
     return result;
 }
 

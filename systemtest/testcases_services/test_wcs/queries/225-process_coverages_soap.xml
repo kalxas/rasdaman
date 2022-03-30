@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap-env:Envelope
+    xmlns:soap-env="http://www.w3.org/2003/05/soap-envelope">
+    <soap-env:Body>
+        <proc:ProcessCoverages
+            xmlns:proc="http://www.opengis.net/wcs_service-extension_processing/2.0"
+            xmlns:tems="java:com.occamlab.te.web.MonitorServlet"
+            xmlns:wcs="http://www.opengis.net/wcs/2.0"
+            xmlns:gml="http://www.opengis.net/gml/3.2"
+            xmlns:parsers="http://www.occamlab.com/te/parsers"
+            xmlns:ows="http://www.opengis.net/ows/2.0"
+            xmlns:wcseo="http://www.opengis.net/wcseo/1.0"
+            xmlns:saxon="http://saxon.sf.net/"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:gen="java:com.occamlab.te.Generator"
+            xmlns:te="http://www.occamlab.com/te"
+            xmlns:tec="java:com.occamlab.te.TECore"
+            xmlns:wcps="http://www.opengis.net/wcps/1.0/"
+            xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+            xmlns:ctl="http://www.occamlab.com/ctl"
+            xmlns:ctlp="http://www.occamlab.com/te/parsers"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:wcs2="http://www.opengis.net/wcs/2.0"
+            xmlns:xlink="http://www.w3.org/1999/xlink" service="WCS" version="2.0.1">
+            <proc:query>
+        for c in ( test_mr )
+        return  encode (c[i(0:1),j(0:1)], "png")
+        </proc:query>
+        </proc:ProcessCoverages>
+    </soap-env:Body>
+</soap-env:Envelope>

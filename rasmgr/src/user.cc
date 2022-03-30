@@ -28,15 +28,15 @@ namespace rasmgr
 using std::pair;
 using std::map;
 using std::string;
+using std::move;
 
-User::User(std::string name, std::string password, const UserDatabaseRights &defaultDbRights, const UserAdminRights &adminRights) :
-    name(name), password(password), defaultDbRights(defaultDbRights), adminRights(adminRights)
+User::User(std::string name, std::string password,
+           const UserDatabaseRights &defaultDbRights, const UserAdminRights &adminRights) :
+    name(move(name)), password(move(password)),
+    defaultDbRights(defaultDbRights), adminRights(adminRights)
 {}
 
-User::~User()
-{}
-
-UserAdminRights User::getAdminRights() const
+const UserAdminRights &User::getAdminRights() const
 {
     return this->adminRights;
 }
@@ -80,20 +80,16 @@ User User::parseFromProto(const UserProto &user)
 {
     UserDatabaseRights defaultDbRights = UserDatabaseRights::parseFromProto(user.default_db_rights());
     UserAdminRights adminRights = UserAdminRights::parseFromProto(user.admin_rights());
-    User result(user.name(), user.password(), defaultDbRights, adminRights);
-
-    return result;
+    return User(user.name(), user.password(), defaultDbRights, adminRights);
 }
 
 UserProto User::serializeToProto(const User &user)
 {
     UserProto result;
-
     result.set_name(user.getName());
     result.set_password(user.getPassword());
     result.mutable_admin_rights()->CopyFrom(UserAdminRights::serializeToProto(user.adminRights));
     result.mutable_default_db_rights()->CopyFrom(UserDatabaseRights::serializeToProto(user.defaultDbRights));
-
     return result;
 }
 

@@ -204,6 +204,8 @@ public:
     static void closeConnection();
 
     static void openConnection(const char *globalConnectId);
+    
+    static void interruptTransaction();
 
     static bool isConnected();
 

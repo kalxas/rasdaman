@@ -42,36 +42,37 @@ grpc::Status rasmgr::ControlService::ExecuteCommand(__attribute__((unused)) grpc
         const rasnet::service::RasCtrlRequest *request,
         rasnet::service::RasCtrlResponse *response)
 {
-    grpc::Status status = grpc::Status::OK;
-
+    auto status = grpc::Status::OK;
+    const auto &cmd = request->command();
     try
     {
         std::string result;
         if (request->user_name().empty() || request->password_hash().empty())
         {
-            result = "The user's credentials are not set";
+            result = "The user's credentials are not set, cannot execute command '" + cmd + "'.";
         }
         else
         {
-            result = this->commandExecutor->executeCommand(request->command(), request->user_name(), request->password_hash());
+            result = this->commandExecutor->executeCommand(cmd, request->user_name(), request->password_hash());
         }
 
         response->set_message(result);
     }
     catch (std::exception &ex)
     {
-        LERROR << "caught std::exception: " << ex.what();
+        LERROR << "Failed executing rascontrol command '" << cmd << "': " << ex.what();
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (common::Exception &ex)
     {
-        LERROR << "caught Exception: " << ex.what();
+        LERROR << "Failed executing rascontrol command '" << cmd << "': " << ex.what();
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        LERROR << "caught unknown exception";
-        status = common::GrpcUtils::convertExceptionToStatus("Command execution failed for an unknown reason.");
+        auto err = "Failed executing rascontrol command '" + cmd + "'.";
+        LERROR << err;
+        status = common::GrpcUtils::convertExceptionToStatus(err);
     }
 
     return status;

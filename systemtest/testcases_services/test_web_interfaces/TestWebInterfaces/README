@@ -20,7 +20,7 @@
   *  or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 This is a Java application to test WS-Client and SECORE user interfaces. 
-It uses Selenium and Phantomjs to run a headless Web Browser and can imitate 
+It uses Selenium and Firefox (geckodriver) to run a headless Web Browser and can imitate 
 user's behavior by clicking on the buttons of test cases which belong to web pages. 
 It cannot test WebWorldWind because WebGL is not supported by Selenium.
 

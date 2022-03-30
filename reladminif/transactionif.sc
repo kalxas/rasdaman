@@ -126,6 +126,7 @@ void TransactionIf::abort()
     OId::deinitialize();
     AdminIf::setReadOnlyTA(false);
 
+//    SQLiteQuery::interruptTransaction();
     if (SQLiteQuery::isTransactionActive())
         SQLiteQuery::execute("ROLLBACK TRANSACTION");
 

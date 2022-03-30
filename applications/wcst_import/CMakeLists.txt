@@ -25,6 +25,14 @@ if (ENABLE_JAVA)
     set(WCST_IMPORT_PY_SCRIPT "${INSTALL_DIR}/wcst_import.py")
     set(WCST_IMPORT_DAEMON_PY_SCRIPT "${INSTALL_DIR}/wcst_import_daemon.py")
 
+    # Run pylint with `make pylint.check` on every rasdaman build; note that
+    # the make will run only if python files have changed since the last run.
+    add_custom_target(wcst_import_pylint ALL
+        COMMAND make pylint.check
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Run pylint on wcst_import sources...")
+
+
     configure_file(wcst_import.sh.in "${CMAKE_CURRENT_BINARY_DIR}/wcst_import.sh" @ONLY)
 
     install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/wcst_import.sh"

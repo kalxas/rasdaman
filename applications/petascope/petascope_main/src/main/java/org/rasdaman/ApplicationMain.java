@@ -70,7 +70,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
+import petascope.core.Pair;
 
 /**
  * This class initializes the petascope properties and runs the application as jar file.
@@ -110,6 +112,10 @@ public class ApplicationMain extends SpringBootServletInitializer {
     private static Properties applicationProperties = null;
     
     public static boolean COVERAGES_CACHES_LOADED = false;
+    
+    // NOTE: this set is not updated when insert/delete local coverages, it only contains
+    // the list of local collection from rasdaman when petascope starts
+    public static Set<String> localRasdamanCollectionNames = new HashSet<>();
     
     /**
      * Check if petascope runs with embedded tomcat or external tomcat
@@ -327,8 +333,12 @@ public class ApplicationMain extends SpringBootServletInitializer {
 
         // load coverages / layers to caches in background thread
         this.loadCoveragesLayersCaches(this);
-
+        
+        // then, check if local rasdaman collections of local coverages exist in RASBASE
+        this.checkLocalCollectionsOfCoveragesExist(this);
+        
     }
+
     /**
      * Run in a background thread to load coverages and layers to caches.
      * Log warnings if something don't work (later WCS / WMS Getcapabilities requests will retry to read from database to caches)
@@ -374,6 +384,51 @@ public class ApplicationMain extends SpringBootServletInitializer {
         
         Thread thread2 = new Thread(runnable2);
         thread2.start();
+    }
+    
+    private void checkLocalCollectionsOfCoveragesExist(final ApplicationMain self) {
+        Runnable runnable = new Runnable() {            
+            public void run() {
+                log.info("Checking that collections corresponding to the coverages in petascope exist in rasdaman...");
+                
+                List<Pair<Coverage, Boolean>> localCoveragesList = new ArrayList<>();
+                try {
+                    localCoveragesList = self.coverageRepositoryService.readAllLocalCoveragesBasicMetatata();
+                } catch (PetascopeException ex) {
+                    log.warn("Checking that collections corresponding to coverages exist in rasdaman failed, "
+                            + "cannot read list of basic coverage metadata objects. Reason: " + ex.getMessage());
+                }
+                
+                try {
+                    localRasdamanCollectionNames = RasUtil.getLocalCollectionNames();
+                } catch (Exception ex) {
+                    log.warn("Checking that collections corresponding to coverages exist in rasdaman failed, "
+                            + "cannot get list of local collections from rasdaman. Reason: " + ex.getMessage(), ex);
+                }
+                
+                
+                if (!localRasdamanCollectionNames.isEmpty()) {
+                    // Only check if collection name exists for coverages, if rasdaman can be up for collecting collection names
+                
+                    for (Pair<Coverage, Boolean> pair : localCoveragesList) {
+                        Coverage coverage = pair.fst;
+                        String coverageId = coverage.getCoverageId();
+
+                        String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
+                        if (!localRasdamanCollectionNames.contains(rasdamanCollectionName)) {
+                            log.warn("Collection name '" + rasdamanCollectionName + "' of coverage '" + coverageId + "' does not exist in rasdaman; "
+                                    + "it is best to delete this coverage and reimport it.");
+                        }
+                    }
+                    
+                }
+
+                log.info("Done checking that collections corresponding to the coverages in petascope exist in rasdaman.");
+            }
+        };
+        
+        Thread thread = new Thread(runnable);
+        thread.start();  
     }
 
     /**

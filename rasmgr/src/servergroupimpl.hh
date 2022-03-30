@@ -18,6 +18,11 @@ class DatabaseHostManager;
 class Server;
 class ServerFactory;
 
+/**
+ * A group of servers with the same properties, running on a set of predetermined ports.
+ * The Group is responsible for managing its servers and maintaining the number of alive
+ * and available servers.
+ */
 class ServerGroupImpl: public ServerGroup
 {
 public:
@@ -27,9 +32,11 @@ public:
       * Default values will be set and a validation will be performed on the configuration
       * @param dbhManager Database Host Manager used to retrieve the database host
       * used by servers of this server group.
-      * @param serverFactory
+      * @param serverFactory the server creationg factory
       */
-    ServerGroupImpl(const ServerGroupConfigProto &config, std::shared_ptr<DatabaseHostManager> dbhManager, std::shared_ptr<ServerFactory> serverFactory);
+    ServerGroupImpl(const ServerGroupConfigProto &config,
+                    std::shared_ptr<DatabaseHostManager> dbhManager,
+                    std::shared_ptr<ServerFactory> serverFactory);
 
     virtual ~ServerGroupImpl();
 
@@ -37,19 +44,19 @@ public:
      * @brief start Mark this server group as active and start the minimum number of
      * servers as specified in the server group config
      */
-    virtual void start();
+    virtual void start() override;
 
     /**
      * @brief isStopped Check if the server group has been stopped.
      * @return TRUE if the server group was stopped, FALSE otherwise
      */
-    virtual bool isStopped();
+    virtual bool isStopped() override;
 
     /**
      * @brief stop Stop the running servers of this group and
      * prevent any other servers from being started.
      */
-    virtual void stop(KillLevel level);
+    virtual void stop(KillLevel level) override;
 
     /**
      * @brief tryRegisterServer Register the server with the given ID as running.
@@ -57,7 +64,7 @@ public:
      * @return TRUE if there was a server with the given serverId that was
      * starting and was successfully started, FALSE otherwise
      */
-    virtual bool tryRegisterServer(const std::string &serverId);
+    virtual bool tryRegisterServer(const std::string &serverId) override;
 
     /**
      * @brief evaluateServerGroup Evaluate each server in this server group.
@@ -66,10 +73,10 @@ public:
      * 3. Keep the configured minimum number of running servers
      * 4. Remove servers if there is extra, unused capacity
      */
-    virtual void evaluateServerGroup();
+    virtual void evaluateServerGroup() override;
 
     /**
-     * @brief getAvailableServer If this server group has a server containing the
+     * If this server group has a server containing the
      * database given by dbName which has capacity for at least one more client,
      * assign a reference to RasServer to out_server. If the method returns TRUE,
      * out_server will contain a reference to the server, otherwise, the contents of
@@ -78,29 +85,15 @@ public:
      * @param out_server shared_ptr to the RasServer instance
      * @return TRUE if there is a free server, false otherwise.
      */
-    virtual bool tryGetAvailableServer(const std::string &dbName, std::shared_ptr<Server> &out_server);
+    virtual bool tryGetAvailableServer(const std::string &dbName, std::shared_ptr<Server> &out_server) override;
 
-    /**
-     * @brief getConfig Get a copy of the ServerGroupConfig
-     * object used to create this ServerGroup.
-     * @return
-     */
-    virtual ServerGroupConfigProto getConfig() const;
+    virtual ServerGroupConfigProto getConfig() const override;
 
-    /**
-     * @brief setConfig Set a new configuration for
-     * this ServerGroup object.
-     * @param value
-     */
-    virtual void changeGroupConfig(const ServerGroupConfigProto &value) ;
+    virtual void changeGroupConfig(const ServerGroupConfigProto &value) override;
 
-    /**
-     * @brief getGroupName Get the name of this group.
-     * @return
-     */
-    virtual std::string getGroupName() const;
+    virtual std::string getGroupName() const override;
 
-    virtual ServerGroupProto serializeToProto();
+    virtual ServerGroupProto serializeToProto() override;
 
 private:
     ServerGroupConfigProto config;/*!< Configuration for this group */
@@ -116,7 +109,7 @@ private:
     std::shared_ptr<DatabaseHost> databaseHost;
 
     /**
-     * @brief startingServers List of servers that are starting but have not yet registered
+     * List of servers that are starting but have not yet registered
      */
     std::map<std::string, std::pair<std::shared_ptr<Server>, common::Timer>> startingServers;
 
@@ -129,7 +122,6 @@ private:
     int failedRegistrations{};/*!< number of consecutive times a server failed to register */
 
     /**
-     * @brief hasAvailableServers
      * @return TRUE if there is at least one server with capacity for one more client,
      * FALSE otherwise
      */
@@ -137,19 +129,18 @@ private:
 
     void evaluateGroup();
 
-    void evaluateRestartingServers();
+    /**
+     * Check if any servers need to be restarted.
+     */
+    void evaluateServersToRestart();
 
     /**
-     * @brief cleanupServerList Remove dead servers and return the configuration
-     * data to the pool.
+     * Remove dead servers and return the configuration data to the pool.
      */
     void removeDeadServers();
 
     /**
-     * @brief startServer Start a new server if there are any servers
-     * that has not already been started.
-     * @return Reference to the RasServer object that represents the
-     * RasServer process.
+     * Start a new server if there are any servers that has not already been started.
      */
     void startServer();
 

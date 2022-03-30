@@ -196,6 +196,19 @@ class Session:
         ConfigManager.track_files = self.track_files
         ConfigManager.ingredient_file_name = self.ingredient_file_name
 
+        self.validate()
+
+    def validate(self):
+        if ConfigManager.track_files:
+            try:
+                # e.g. mr.resume.json
+                resume_file_name = Resumer.get_resume_file_name(self.coverage_id)
+                FileUtil.can_write_file_in_dir(ConfigManager.resumer_dir_path, resume_file_name)
+            except Exception as ex:
+                log.error("Cannot create resume file in directory \"{}\".\nReason: {}".format(
+                    ConfigManager.resumer_dir_path, str(ex)))
+                exit(1)
+
     def __get_import_overviews(self):
         """
         Get the OVERVIEWs in the ingredients file if user wants to import

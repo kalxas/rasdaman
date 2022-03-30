@@ -44,46 +44,35 @@ public class WMSGetCapabilitiesTest extends WSAbstractSectionWebPageTest {
     public void runTest(WebDriver webDriver) throws InterruptedException, IOException {
         webDriver.navigate().to(this.testURL);
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
+        
+        this.waitForPageLoad(webDriver);
 
         String testCaseName;
 
-        // Switch to iframe to parse the web element
-        this.switchToIFirstIframe(webDriver);
-        
         // Focus on the second parent tab (WMS)
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/ul/li[2]/a");
+        this.clickOnElement(webDriver, "/html/body/div[2]/div/div/div/div/div/ul/li[2]/a");
         
         // Click on get capabilities button
         testCaseName = this.getSectionTestCaseName("click_on_GetCapabilities_button");
         log.info("Testing change current tab to GetCapabilities...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/ul/li[1]/a");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "//*[@id=\"wmsGetServerCapabilitiesBtn\"]");
         Thread.sleep(TIME_TO_WAIT_BEFORE_CLICK);
-        /* 
-        As the returned coverages from Petascope are produced from a Map, so they can show different coverageIds in second page.
-        // Click on paging button        
-        testCaseName = this.getSectionTestCaseName("click_on_Paging_button");
-        log.info("Testing click on another paging button...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/tfoot/tr/td/div/nav/ul/li[2]/a"); 
-        */
 
         // Click on GML server Capabilities document dropdown button
         testCaseName = this.getSectionTestCaseName("click_on_ServiceIdentification_dropdown_button");
         log.info("Testing click on Service identification dropdown button...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[5]/div[1]/h4/a/span/i");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[2]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[5]/div[1]/h4/a/span/i");
         
         // Search the coverage by id
         // NOTE: this one lists only one coverage and has no paging button, so must put it at the last test case
         testCaseName = this.getSectionTestCaseName("search_layer_by_name");
         log.info("Testing search layer by name textbox...");
-        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_wms_4326", "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/thead/tr[2]/td/input");
+        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_wms_4326", "/html/body/div[2]/div/div/div/div/div/div/div[2]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/thead/tr[2]/td/input");
         
-        /* // Click on the search result (only one result) to move to next tab
+        // Click on the search result (only one result) to move to next tab
         testCaseName = this.getSectionTestCaseName("click_on_a_search_result");
         log.info("Testing click on a found result of searching by layer name...");
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/tbody/tr[1]/td[1]/a");
-        Thread.sleep(1000);
+        this.clickOnElement(webDriver, "/html/body/div[2]/div/div/div/div/div/div/div[2]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/tbody/tr[1]/td[1]/a");
         this.runTestByNonElementEvent(webDriver, testCaseName);
-	// random output, sometime is short page, sometime is long page
-	*/
     }
 }

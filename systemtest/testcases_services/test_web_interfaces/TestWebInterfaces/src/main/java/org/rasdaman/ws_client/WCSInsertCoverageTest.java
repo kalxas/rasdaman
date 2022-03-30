@@ -24,7 +24,7 @@ package org.rasdaman.ws_client;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
+import org.rasdaman.Config;
 
 /**
  * Class to test wcs_client, tab WCS/DescribeCoverage
@@ -35,7 +35,7 @@ public class WCSInsertCoverageTest extends WSAbstractSectionWebPageTest {
 
     private static final Logger log = Logger.getLogger(WCSInsertCoverageTest.class);
     
-    public static final String coverageId = "test_wcs_extract_selenium";
+    public static final String coverageId = "test_mr_TO_BE_DELETED";
 
     public WCSInsertCoverageTest() {
         super();
@@ -47,25 +47,25 @@ public class WCSInsertCoverageTest extends WSAbstractSectionWebPageTest {
         webDriver.navigate().to(this.testURL);
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
 
-        // Switch to iframe to parse the web element
-        this.switchToIFirstIframe(webDriver);
-
         String testCaseName;
 
         // First, change to tab InsertCoverage
         testCaseName = this.getSectionTestCaseName("change_to_insert_coverage_tab");
         log.info("Testing change current tab to InsertCoverage...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[6]/a");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[6]/a");
 
-        // Then add a URL from kahlua to a GML file which contain a GML for a coverage (3D domain is[0:0, 0:0, 0:0]
+        // Then add a URL from kahlua to a GML file which contain a GML to insert a coverage
         // It is used to test for InsertCoverage tab in wcs-client and later can be deleted in DeleteCoverage in wcs-lcient
         testCaseName = this.getSectionTestCaseName("insert_coverage_empty_grid_domain_by_gml");
+        
         log.info("Testing insert coverage with coverageId '" + coverageId + "' from a GML file at online URL...");
         // First add the URL to the GML file for the input coverage
-        String urlToGMLFile = "http://kahlua.eecs.jacobs-university.de:8080/test_wcsclient_insertcoverage/example.gml";
-        this.addTextToTextBox(webDriver, urlToGMLFile, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[6]/div/div/div/div[1]/input");
+        String urlToGMLFile = "https://rasdaman.org/raw-attachment/wiki/test_web_interfaces_test_InsertCoverage/insertcoverage.gml";
+        this.addTextToTextBox(webDriver, urlToGMLFile, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[6]/div/div/div/div[1]/input");
+        
         // Then click on the Insert Coverage button
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[6]/div/div/div/div[1]/span[2]/button");
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[6]/div/div/div/div[1]/span[2]/button");
+        
+        Thread.sleep(Config.TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE);
     }
 }

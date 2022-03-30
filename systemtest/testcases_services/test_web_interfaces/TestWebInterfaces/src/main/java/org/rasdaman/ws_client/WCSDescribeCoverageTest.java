@@ -44,18 +44,17 @@ public class WCSDescribeCoverageTest extends WSAbstractSectionWebPageTest {
         webDriver.navigate().to(this.testURL);
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
 
-        // Switch to iframe to parse the web element
-        this.switchToIFirstIframe(webDriver);
+        this.waitForPageLoad(webDriver);
 
         String testCaseName;
 
         // First, change to tab DescribeCoverage
         testCaseName = this.getSectionTestCaseName("change_to_describe_coverage_tab");
         log.info("Testing change current tab to DescribeCoverage...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[2]/a");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[2]/a");
 
-        String coverageIdTextBoxXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/input";
-        String describeCoverageXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/span[2]/button";
+        String coverageIdTextBoxXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/input";
+        String describeCoverageButtonXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/span[2]/button";
         
         // Describe a rectified coverage
         testCaseName = this.getSectionTestCaseName("describe_a_rectified_grid_coverage");
@@ -63,7 +62,7 @@ public class WCSDescribeCoverageTest extends WSAbstractSectionWebPageTest {
         // First change the coverage id in text box
         this.addTextToTextBox(webDriver, "test_mean_summer_airtemp", coverageIdTextBoxXPath);
         // Then click on the Describe Coverage button
-        this.runTestByClickingOnElement(webDriver, testCaseName, describeCoverageXPath);
+        this.runTestByClickingOnElement(webDriver, testCaseName, describeCoverageButtonXPath);
 
         // Describe a referenceable rectified coverage
         testCaseName = this.getSectionTestCaseName("describe_a_referenceable_rectified_grid_coverage");
@@ -71,7 +70,7 @@ public class WCSDescribeCoverageTest extends WSAbstractSectionWebPageTest {
         // First change the coverage id in text box
         this.addTextToTextBox(webDriver, "test_irr_cube_2", coverageIdTextBoxXPath);
         // Then click on the Describe Coverage button
-        this.runTestByClickingOnElement(webDriver, testCaseName, describeCoverageXPath);
+        this.runTestByClickingOnElement(webDriver, testCaseName, describeCoverageButtonXPath);
 
         // Describe a grid coverage
         testCaseName = this.getSectionTestCaseName("describe_a_grid_coverage");
@@ -79,12 +78,12 @@ public class WCSDescribeCoverageTest extends WSAbstractSectionWebPageTest {
         // First change the coverage id in text box
         this.addTextToTextBox(webDriver, "test_mr", coverageIdTextBoxXPath);
         // Then click on the Describe Coverage button
-        this.runTestByClickingOnElement(webDriver, testCaseName, describeCoverageXPath);
+        this.runTestByClickingOnElement(webDriver, testCaseName, describeCoverageButtonXPath);
 
         // Click on a DescribeCoverage GML dropdown button
         testCaseName = this.getSectionTestCaseName("click_on_coverage_descriptions_dropdown_button");
         log.info("Testing click on GML coverage descriptions dropdown button...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[5]/uib-accordion/div/div/div[1]/h4/a/span/i");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[5]/uib-accordion/div/div/div[1]/h4/a/span/span");
     }
 
 }

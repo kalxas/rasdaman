@@ -111,7 +111,11 @@ public class ExceptionUtil {
         httpServletResponse.setContentType(MIMEUtil.MIME_XML);
         httpServletResponse.setHeader("Content-disposition", "inline; filename=error.xml");  
 
-        ExceptionReport exceptionReport = ExceptionUtil.exceptionToReportString(ex, version);
+        ExceptionReport exceptionReport = ExceptionUtil.exceptionToReportString(ex, version);        
+        if (ex instanceof PetascopeException && ((PetascopeException)ex).isSoap()) {
+            exceptionReport = ExceptionUtil.exceptionToReportStringSOAP(ex);
+        }
+        
         httpServletResponse.setStatus(exceptionReport.getHttpCode());
         try {
             IOUtils.write(exceptionReport.getExceptionText(), outputStream);

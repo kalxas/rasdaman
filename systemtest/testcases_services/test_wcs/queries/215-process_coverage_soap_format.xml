@@ -3,8 +3,8 @@
     <env:Header/>
     <env:Body>
 
-<ProcessCoveragesRequest xmlns="http://www.opengis.net/wcps/1.0" service="WCPS" version="1.0.0">  <query>    <abstractSyntax>
-      for c in (test_mean_summer_airtemp) return 1 </abstractSyntax>  </query></ProcessCoveragesRequest>
+<ProcessCoverages xmlns="http://www.opengis.net/wcps/1.0" service="WCS" version="2.0.1">  <query>    
+      for c in (test_mean_summer_airtemp) return 1  </query></ProcessCoverages>
 
     </env:Body>
 </env:Envelope>

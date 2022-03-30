@@ -25,6 +25,7 @@ import decimal
 import os
 import time
 import json
+import signal
 
 from lib import arrow
 from collections import OrderedDict
@@ -78,6 +79,10 @@ class Importer:
         self.session = session
         self.scale_factors = scale_factors
 
+        self.current_data_provider = None
+
+        self.__register_signal_handlers()
+
     def ingest(self):
         """
         Ingests the given coverage
@@ -122,6 +127,7 @@ class Importer:
         current_str = ""
 
         for attempt in range(0, ConfigManager.retries):
+            self.current_data_provider = current.data_provider
             try:
                 current_str = str(current)
                 gml_obj = self._generate_gml_slice(current)
@@ -135,10 +141,10 @@ class Importer:
 
                 executor = ConfigManager.executor
                 executor.execute(request, mock=ConfigManager.mock)
-                self.resumer.add_imported_data(current.data_provider)
-            except Exception as e:
 
-                if ConfigManager.retry == True:
+                self.resumer.add_imported_data(self.current_data_provider)
+            except Exception as e:
+                if ConfigManager.retry is True:
                     log.warn(
                         "\nException thrown when trying to insert slice: \n" + current_str + "Retrying, you can safely ignore the warning for now. Tried " + str(
                             attempt + 1) + " times.\n")
@@ -400,7 +406,7 @@ class Importer:
 
         return []
 
-    def update_coverage_inspire_metadata(selfs, base_coverage_id, inspire_metadata_url):
+    def update_coverage_inspire_metadata(self, base_coverage_id, inspire_metadata_url):
         """
         Update coverage's INSPIRE metadata
         :param base_coverage_id: str
@@ -623,3 +629,18 @@ class Importer:
 
         result = Importer.coverage_exists_dict[self.coverage.coverage_id]
         return not result
+
+    def __signal_handler(self, signum, sigframe):
+        """
+        NOTE: if wcst_import sends an UpdateCoverage request and it is terminated by ctrl + c or pkill -f
+        then this method will be invoked
+        """
+        if self.current_data_provider is not None:
+            self.resumer.add_imported_data(self.current_data_provider)
+
+    def __register_signal_handlers(self):
+        """
+        Register event handlers when wcst_import is terminated
+        """
+        signal.signal(signal.SIGINT, self.__signal_handler)
+        signal.signal(signal.SIGTERM, self.__signal_handler)

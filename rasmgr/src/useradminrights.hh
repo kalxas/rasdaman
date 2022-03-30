@@ -39,9 +39,9 @@ public:
      * Initialize a new instance of the UserAdminRights object
      * with NO rights
      */
-    UserAdminRights();
+    UserAdminRights() = default;
 
-    virtual ~UserAdminRights();
+    virtual ~UserAdminRights() = default;
 
     bool hasAccessControlRights() const;
     void setAccessControlRights(bool hasAccessControlRights);
@@ -59,10 +59,10 @@ public:
     static UserAdminRightsProto serializeToProto(const UserAdminRights &rights);
 
 private:
-    bool systemConfigRights;/*!< Rights to configure the system*/
-    bool accessControlRights;/*!< Rights to modify access control*/
-    bool serverAdminRights;/*!< Rights to administer servers*/
-    bool infoRights;/*!< Rights to list information about this rasdaman instance*/
+    bool systemConfigRights{false};/*!< Rights to configure the system*/
+    bool accessControlRights{false};/*!< Rights to modify access control*/
+    bool serverAdminRights{false};/*!< Rights to administer servers*/
+    bool infoRights{false};/*!< Rights to list information about this rasdaman instance*/
 };
 
 } /* namespace rasmgr */

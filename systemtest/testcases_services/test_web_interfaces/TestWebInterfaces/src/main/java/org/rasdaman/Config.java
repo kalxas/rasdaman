@@ -43,10 +43,9 @@ public class Config {
     public static String WS_CLIENT_CONTEXT_PATH;
     public static String SECORE_CONTEXT_PATH;
 
-    /**
-     * Wait few seconds before taking the image of web page as test result
-     */
-    public static final String PATH_TO_PHANTOMJS_FILE = "/tmp/phantomjs";
+    
+    public static final String PATH_TO_GECKO_DRIVER = "/tmp/test_web_interfaces/geckodriver";
+    public static final String PATH_TO_FIREFOX = "/tmp/test_web_interfaces/firefox/firefox";
 
     public static final String PATH_TO_PROPERTIES_FILE = "/opt/rasdaman/etc";
     public static final String PATH_TO_PETASCOPE_PROPERTIES_FILE = PATH_TO_PROPERTIES_FILE + "/petascope.properties";
@@ -64,12 +63,12 @@ public class Config {
     
     /* ************************ petascope.properties **************************** */
     // KEYS in petascope.properties 
-    private static final String PETASCOPE_KEY_PETASCOPE_ADMIN_USER = "petascope_admin_user";
-    private static final String PETASCOPE_KEY_PETASCOPE_ADMIN_PASS = "petascope_admin_pass";
+    private static final String RASDAMAN_ADMIN_USER_KEY = "rasdaman_admin_user";
+    private static final String RASDAMAN_ADMIN_PASS_KEY = "rasdaman_admin_pass";
     
     // VALUES in petascope.properties 
-    public static String PETASCOPE_VALUE_PETASCOPE_ADMIN_USER;
-    public static String PETASCOPE_VALUE_PETASCOPE_ADMIN_PASS;
+    public static String RASDAMAN_ADMIN_USER;
+    public static String RASDAMAN_ADMIN_PASS;
     
     /* ************************ secore.properties **************************** */
     // KEYS in secore.properties 
@@ -85,19 +84,13 @@ public class Config {
     /**
      * Wait milliseconds after clicking button to get result
      */
-    public static final int TIME_TO_WAIT_BEFORE_CLICK = 5000;
+    public static final int TIME_TO_WAIT_BEFORE_CLICK = 1500;
 
     /**
      * Wait milliseconds before taking the image of web page as test result
      */
-    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 5000;
+    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 4000;
     
-    /**
-     * Wait milliseconds after switching to another iframe
-     */
-    public static final int TIME_TO_WAIT_AFTER_SWITCHING_IFRAME = 6000;
-    
-    public static final int FIRST_TIME_TO_VISIT_WS_CLIENT = 10000;
 
     private void loadPropertiesFile(Properties properties, String filePath) throws IOException {
         InputStream input = null;
@@ -107,8 +100,8 @@ public class Config {
     }
     
     private void loadPetascopePropertiesValues() {
-        PETASCOPE_VALUE_PETASCOPE_ADMIN_USER = this.petascopeProperties.getProperty(PETASCOPE_KEY_PETASCOPE_ADMIN_USER);
-        PETASCOPE_VALUE_PETASCOPE_ADMIN_PASS = this.petascopeProperties.getProperty(PETASCOPE_KEY_PETASCOPE_ADMIN_PASS);
+        RASDAMAN_ADMIN_USER = this.petascopeProperties.getProperty(RASDAMAN_ADMIN_USER_KEY);
+        RASDAMAN_ADMIN_PASS = this.petascopeProperties.getProperty(RASDAMAN_ADMIN_PASS_KEY);
     }
     
     private void loadSecorePropertiesValues() {
@@ -116,8 +109,12 @@ public class Config {
         SECORE_VALUE_SECORE_ADMIN_PASS = this.secoreProperties.getProperty(SECORE_KEY_SECORE_ADMIN_PASS);
     }
 
-    public Config() throws IOException {
-        // Current directory of the jar application
+    public Config() {
+
+    }
+    
+    public void init() throws IOException {
+        //  Current directory of the jar application
         String currentDirectory = Paths.get(".").toAbsolutePath().normalize().toString();
         String scriptDirectory = new File(currentDirectory).getParent();
         ORACLE_FOLDER_PATH = scriptDirectory + "/oracle/";
@@ -125,7 +122,7 @@ public class Config {
         LOG_FILE = scriptDirectory + "/test.log";
 
         WS_CLIENT_CONTEXT_PATH = WEB_CONTEXT_PATH + PETASCOPE_PORT + "/rasdaman/ows";
-        SECORE_CONTEXT_PATH = WEB_CONTEXT_PATH + SECORE_PORT + "/def/";
+        SECORE_CONTEXT_PATH = WEB_CONTEXT_PATH + SECORE_PORT + "/rasdaman/def/";
 
         // Load properties for testing web applications
         this.loadPropertiesFile(petascopeProperties, PATH_TO_PETASCOPE_PROPERTIES_FILE);

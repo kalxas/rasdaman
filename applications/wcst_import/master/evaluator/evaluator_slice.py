@@ -137,7 +137,7 @@ class NetcdfEvaluatorSlice(FileEvaluatorSlice):
         netCDF4 = import_netcdf4()
         if self.dataset is None:
             file_path = self.get_file().get_filepath()
-            self.dataset = netCDF4.Dataset(file_path, "r")
+            self.dataset = netCDF4.Dataset(file_path, "r") # pylint: disable=no-member
 
         return self.dataset
 

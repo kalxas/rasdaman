@@ -48,24 +48,16 @@ public class AdminOWSMetadataManagementTest extends AdminAbstractSectionWebPageT
         
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
         
-        // Switch to iframe to parse the web element
-        this.switchToIFirstIframe(webDriver);
-
-        String testCaseName;
-
-        // First, change to tab Administration     
-        testCaseName = this.getSectionTestCaseName("change_to_administration_tab");
-        log.info("Testing change current tab to Administration...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/ul/li[3]/a");
+        String testCaseName = this.getSectionTestCaseName("change_to_admin_tab");
+        log.info("Testing change current tab to OWS Admin tab...");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/ul/li[3]/a");
         
-        // It needs to login with Petascope admin and password first
-        testCaseName = this.getSectionTestCaseName("login_admin_page");        
-        log.info("Testing login with username, password in admin page: " + this.testURL + " URI...");
-        String username = Config.PETASCOPE_VALUE_PETASCOPE_ADMIN_USER;
-        this.addTextToTextBox(webDriver, username, "/html/body/div/div/div/div/div/div[3]/div/ul/div/div/div/div/div/div/div/uib-accordion/div/div/div[2]/div/div/div[1]/input");
-        String password = Config.PETASCOPE_VALUE_PETASCOPE_ADMIN_PASS;
-        this.addTextToTextBox(webDriver, password, "/html/body/div/div/div/div/div/div[3]/div/ul/div/div/div/div/div/div/div/uib-accordion/div/div/div[2]/div/div/div[2]/input");
-        // then, login and capture the result
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[3]/div/ul/div/div/div/div/div/div/div/uib-accordion/div/div/div[2]/div/div/div[3]/input");
+        
+        testCaseName = this.getSectionTestCaseName("login_in_admin_tab");
+        log.info("Testing login in admin tab...");
+        this.addTextToTextBox(webDriver, Config.RASDAMAN_ADMIN_USER, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/ul/div/div/div/div/div/div/div/uib-accordion/div/div/div[2]/div/div/div[1]/input");
+        this.addTextToTextBox(webDriver, Config.RASDAMAN_ADMIN_PASS, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/ul/div/div/div/div/div/div/div/uib-accordion/div/div/div[2]/div/div/div[2]/input");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/ul/div/div/div/div/div/div/div/uib-accordion/div/div/div[2]/div/div/div[3]/input[1]");
+
     }
 }

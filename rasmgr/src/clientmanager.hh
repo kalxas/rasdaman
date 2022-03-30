@@ -81,6 +81,7 @@ public:
      * If the authentication is successful, the UUID assigned to the client will be returned.
      * If the authentication fails, an exception is thrown.
      * @param clientCredentials Credentials used to authenticate the client.
+     * @param rasmgrHost The rasmgr hostname to which to connect
      * @param out_clientUUID If the method is successful, it will contain the UUID assigned to the client.
      * @throws std::runtime_error
      */
@@ -126,9 +127,12 @@ private:
 
     std::map<std::string, std::shared_ptr<Client>> clients; /*! list of active clients */
     boost::shared_mutex clientsMutex; /*! Mutex used to synchronize access to the clients object*/
-    std::mutex serverManagerMutex; /*! Mutex used to prevent a free server being assigned to two different clients when tryGetFreeServer is called*/
+    
     std::shared_ptr<UserManager> userManager;
+    
     std::shared_ptr<ServerManager> serverManager;
+    std::mutex serverManagerMutex; /*! Mutex used to prevent a free server being assigned to two different clients when tryGetFreeLocalServer is called*/
+    
     std::shared_ptr<PeerManager> peerManager;
 
     std::mutex threadMutex;/*! Mutex used to safely stop the worker thread */

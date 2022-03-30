@@ -5,5 +5,5 @@ coverageId=test_wcs_irregular_time_series_slices_number&
 subset=Lat(10,11)&
 subset=Long(10,11)&
 subset=date("2001-01-01","2009-01-01")&
-scaleextent=date("2004-01-01":"2006-01-01")&
+scaleextent=date(10:12)&
 format=application/netcdf

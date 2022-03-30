@@ -341,13 +341,6 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
             if user_axis.name == crs_axis_name:
                 return user_axis
 
-    def _data_type(self):
-        """
-        Returns the data type for this grib dataset
-        :rtype: str
-        """
-        return self.data_type
-
     def _create_coverage_slice(self, grib_file, crs_axes, evaluator_slice=None, axis_resolutions=None):
         """
         Returns a slice for a grib file

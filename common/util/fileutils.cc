@@ -40,10 +40,18 @@
 #include <sys/stat.h>
 namespace common
 {
-bool FileUtils::fileExists(const std::string& fileName) 
+bool FileUtils::fileExists(const std::string& path) 
 {
-    struct stat buffer;   
-    return (stat(fileName.c_str(), &buffer) == 0); 
+    struct stat info;
+    return (stat(path.c_str(), &info) == 0); 
+}
+
+bool FileUtils::dirExists(const std::string &path)
+{
+  struct stat info;
+  if (stat(path.c_str(), &info) != 0)
+      return false;
+  return (info.st_mode & S_IFDIR) != 0;
 }
 
 void FileUtils::copyFile(const std::string& srcFile, const std::string& destFile )
@@ -61,7 +69,7 @@ std::string FileUtils::readFile(FILE *fp)
     static const size_t BUFFER_SIZE = 1000;
     char buffer[BUFFER_SIZE];
     std::string ret;
-    while (fgets(buffer, BUFFER_SIZE, fp) != NULL)
+    while (fgets(buffer, BUFFER_SIZE, fp) != nullptr)
     {
         ret += buffer;
     }

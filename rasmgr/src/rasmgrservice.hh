@@ -41,7 +41,7 @@ class RasmgrService: public rasnet::service::RasmgrRasmgrService::Service
 public:
     RasmgrService(std::shared_ptr<ClientManager> clientManager);
 
-    virtual ~RasmgrService();
+    virtual ~RasmgrService() = default;
 
     virtual grpc::Status TryGetRemoteServer(grpc::ServerContext *context, const rasnet::service::GetRemoteServerRequest *request, rasnet::service::GetRemoteServerReply *response);
 

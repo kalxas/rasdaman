@@ -52,6 +52,7 @@ class BaseRecipe:
         :param Session session: the session for the import tun
         """
         self.session = session
+        self.options = {}
 
     def validate(self):
         """

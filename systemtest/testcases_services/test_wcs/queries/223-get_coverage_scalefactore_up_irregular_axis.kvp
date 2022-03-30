@@ -1,0 +1,1 @@
+SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&CoverageId=test_irr_cube_1&SCALEFACTOR=2.0

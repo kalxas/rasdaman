@@ -1,0 +1,1 @@
+coverageid=test_mean_summer_airtemp&request=GetCoverage&scaleextent=Lat(10:20),Lon(15:20)&service=WCS&version=2.0.1

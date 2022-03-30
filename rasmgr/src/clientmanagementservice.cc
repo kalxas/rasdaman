@@ -56,7 +56,9 @@ ClientManagementService::ClientManagementService(std::shared_ptr<ClientManager> 
 {}
 
 
-grpc::Status ClientManagementService::Connect(__attribute__((unused)) grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response)
+grpc::Status ClientManagementService::Connect(__attribute__((unused)) grpc::ServerContext *context,
+                                              const rasnet::service::ConnectReq *request,
+                                              rasnet::service::ConnectRepl *response)
 {
     grpc::Status status = Status::OK;
     /**

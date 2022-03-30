@@ -78,11 +78,13 @@ class SliceRestricter:
         :param int index: the axis index
         :rtype: (float | DateTimeUtil, float | DateTimeUtil)
         """
+        if ConfigManager.slice_restriction is None:
+            return False
         if len(ConfigManager.slice_restriction) <= index:
             raise RuntimeException(
                 "You have provided less slice restriction intervals then there are axes. Please provide one restriction interval per axis")
 
-        restriction = ConfigManager.slice_restriction[index]
+        restriction = ConfigManager.slice_restriction[index] # pylint: disable=unsubscriptable-object
         if "low" not in restriction or "high" not in restriction:
             raise RuntimeException("You have to provide a low and a high for each restriction interval")
         low, high = None, None

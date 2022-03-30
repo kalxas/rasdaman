@@ -30,7 +30,7 @@ namespace rasmgr
 class ServerFactoryRasNet: public ServerFactory
 {
 public:
-    virtual ~ServerFactoryRasNet();
+    virtual ~ServerFactoryRasNet() = default;
 
     std::shared_ptr<Server> createServer(const ServerConfig &configuration);
 };

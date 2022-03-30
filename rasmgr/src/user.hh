@@ -49,13 +49,13 @@ public:
      */
     User(std::string name, std::string password, const UserDatabaseRights &defaultDbRights, const UserAdminRights &adminRights);
 
-    virtual ~User();
+    virtual ~User() = default;
 
     /**
      * @return UserAdminRights object that is a copy of the user's rights of administrating
      * this rasdaman instance.
      */
-    UserAdminRights getAdminRights() const;
+    const UserAdminRights &getAdminRights() const;
     void setAdminRights(const UserAdminRights &adminRights);
 
     const std::string &getName() const;
@@ -88,6 +88,7 @@ public:
 private:
     std::string name;
     std::string password;
+    std::string token;
     UserDatabaseRights defaultDbRights;
     UserAdminRights adminRights;
 };

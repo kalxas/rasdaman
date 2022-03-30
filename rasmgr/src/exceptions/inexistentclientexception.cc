@@ -24,7 +24,11 @@
 namespace rasmgr
 {
 InexistentClientException::InexistentClientException(const std::string& clientId)
-    : common::MissingResourceException("The client with client ID " + clientId + " does not exist.")
+  : common::MissingResourceException("The client with client ID " + clientId + " does not exist.")
+{}
+
+InexistentClientException::InexistentClientException(const std::string &clientId, const std::string &details)
+  : common::MissingResourceException("The client with client ID " + clientId + " does not exist: " + details)
 {}
 
 InexistentClientException::~InexistentClientException() noexcept

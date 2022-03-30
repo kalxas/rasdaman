@@ -23,6 +23,8 @@
 #include <stdexcept>
 
 #include <logging.hh>
+#include <boost/thread/shared_lock_guard.hpp>
+
 #include "common/exceptions/logicexception.hh"
 
 #include "exceptions/rasmgrexceptions.hh"
@@ -40,12 +42,11 @@ Database::Database(const std::string &dbName):
     dbName(dbName)
 {}
 
-Database::~Database()
-{}
-
 void Database::addClientSession(const std::string &clientId, const std::string &sessionId)
 {
-    pair<set<pair<string, string>>::iterator, bool> insertResult = this->sessionList.insert(std::make_pair(clientId, sessionId));
+    boost::lock_guard<boost::shared_mutex> lock(sessionListMutex);
+    
+    auto insertResult = this->sessionList.emplace(clientId, sessionId);
     if (!insertResult.second)
     {
         std::string sessionUID = "<" + clientId + ", " + sessionId + ">";
@@ -56,11 +57,14 @@ void Database::addClientSession(const std::string &clientId, const std::string &
 int Database::removeClientSession(const std::string &clientId, const std::string &sessionId)
 {
     pair<string, string> toRemove(clientId, sessionId);
+    
+    boost::lock_guard<boost::shared_mutex> lock(sessionListMutex);
     return this->sessionList.erase(toRemove);
 }
 
 bool Database::isBusy() const
 {
+    boost::lock_guard<boost::shared_mutex> lock(sessionListMutex);
     return !this->sessionList.empty();
 }
 
@@ -68,8 +72,9 @@ DatabaseProto Database::serializeToProto(const Database &db)
 {
     DatabaseProto result;
     result.set_name(db.getDbName());
-
-    for (set<pair<string, string>>::iterator it = db.sessionList.begin(); it != db.sessionList.end(); ++it)
+    
+    boost::shared_lock<boost::shared_mutex> lock(db.sessionListMutex);
+    for (auto it = db.sessionList.begin(); it != db.sessionList.end(); ++it)
     {
         StringPair *session = result.add_sessions();
         session->set_first(it->first);
@@ -90,12 +95,10 @@ void Database::setDbName(const std::string &value)
     {
         throw DbBusyException(this->dbName);
     }
-
     if (value.empty())
     {
-        throw common::LogicException("value.empty()");
+        throw common::LogicException("Cannot set database name to an empty value.");
     }
-
     dbName = value;
 }
 

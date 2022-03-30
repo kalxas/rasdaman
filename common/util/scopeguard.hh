@@ -154,7 +154,6 @@ namespace common
 
 } // namespace sg
 
-////////////////////////////////////////////////////////////////////////////////
 template<typename Callback>
 common::detail::scope_guard<Callback>::scope_guard(Callback&& callback)
 noexcept(std::is_nothrow_constructible<Callback, Callback&&>::value)
@@ -165,7 +164,6 @@ noexcept(std::is_nothrow_constructible<Callback, Callback&&>::value)
   , m_active{true}
 {}
 
-////////////////////////////////////////////////////////////////////////////////
 template<typename Callback>
 common::detail::scope_guard<Callback>::~scope_guard() noexcept
 {
@@ -173,7 +171,6 @@ common::detail::scope_guard<Callback>::~scope_guard() noexcept
     m_callback();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 template<typename Callback>
 common::detail::scope_guard<Callback>::scope_guard(scope_guard&& other)
 noexcept(std::is_nothrow_constructible<Callback, Callback&&>::value)
@@ -183,14 +180,12 @@ noexcept(std::is_nothrow_constructible<Callback, Callback&&>::value)
   other.m_active = false;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 template<typename Callback>
 inline void common::detail::scope_guard<Callback>::dismiss() noexcept
 {
   m_active = false;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 template<typename Callback>
 inline auto common::detail::make_scope_guard(Callback&& callback)
 noexcept(std::is_nothrow_constructible<Callback, Callback&&>::value)

@@ -31,16 +31,16 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import static org.rasdaman.Config.FIRST_TIME_TO_VISIT_WS_CLIENT;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import static org.rasdaman.Config.ORACLE_FOLDER_PATH;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 
 /**
  * Abstract class for all the classes which are used to test Web Page from
@@ -83,6 +83,10 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
         return this.sectionName + "/" + testCaseName;
     }
 
+    public String getSectionName() {
+        return sectionName;
+    }
+
     /**
      * Save the test result as and image to temp folder /tmp
      *
@@ -95,14 +99,14 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
         // convert output in png to jpg
         this.convertPNGToJPG(captureOne);
 
-        String testCaseResultFilePath = Config.OUTPUT_FOLDER_PATH + "/" + testFolder + "/" + testCaseName;
+        String testCaseResultFilePath = Config.OUTPUT_FOLDER_PATH + "/" + testFolder + "/" + testCaseName + ".jpeg";
         FileUtils.copyFile(captureOne, new File(testCaseResultFilePath));
 
         return testCaseResultFilePath;
     }
 
     /**
-     * Convert the captured image result from PhantomJS in PNG to JPG
+     * Convert the captured image result from Firefox in PNG to JPG
      *
      * @param pngImage
      * @throws IOException
@@ -129,7 +133,7 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      * @throws java.io.IOException
      */
     private void compareOutputAndOracleFile(WebDriver webDriver, String testCaseName) throws IOException {
-        String oracleFilePath = ORACLE_FOLDER_PATH + this.testFolder + "/" + testCaseName;
+        String oracleFilePath = ORACLE_FOLDER_PATH + this.testFolder + "/" + testCaseName + ".jpeg";
 
         // Always capture the web page as image file
         String outputFilePath = this.captureOutputFile(webDriver, testCaseName);
@@ -142,9 +146,9 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
             // Then, compare oracle and output files
             // this.testResults.put(testCaseName, testResult);
             if (testResult) {
-                log.info("TEST PASSED");
+                log.info(testCaseName + " - TEST PASSED");
             } else {
-                log.info("TEST FAILED");
+                log.info(testCaseName + " - TEST FAILED");
                 this.errorTest = true;
             }
         } else {
@@ -179,29 +183,13 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      *
      * Just click on Ok button of dialog Javascript.
      *
-     * NOTE: PhantomJS does not support alert/confirm/prompt dialog in
-     * Javascript, so must use a trick to simulate this click on Ok button of
      * dialog.
      *
      * @param webDriver
      */
     protected void clickOkInConfirmDialog(WebDriver webDriver) {
-        ((JavascriptExecutor) webDriver).executeScript("window.confirm = function(msg) { return true; }");
-    }
-
-    /**
-     * Switch to the first iframe inside the web page.
-     */
-    protected void switchToIFirstIframe(WebDriver webDriver) throws InterruptedException, IOException {
-        try {
-            Thread.sleep(FIRST_TIME_TO_VISIT_WS_CLIENT); 
-            webDriver.switchTo().frame(0);
-            Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
-        } catch (Exception ex) {
-            log.error("Cannot switch to the first iframe. Reason: " + ex.getMessage(), ex);
-            this.captureOutputFile(webDriver, getSectionTestCaseName("switch_to_first_iframe"));
-            this.errorTest = true;
-        }
+        Alert alert = webDriver.switchTo().alert();
+        alert.accept();
     }
 
     /**
@@ -237,7 +225,7 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      */
     protected void runTestByClickingOnElementWithoutComparingOracle(WebDriver webDriver, String testCaseName, String xPathToElement) throws InterruptedException, IOException {
         this.clickOnElement(webDriver, xPathToElement);
-        Thread.sleep(2000);
+        Thread.sleep(Config.TIME_TO_WAIT_BEFORE_CLICK);
         //this.compareOutputAndOracleFile(webDriver, testCaseName);
     }
 
@@ -294,8 +282,9 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
     protected void addTextToTextBox(WebDriver webDriver, String text, String xPathToElement) throws InterruptedException, IOException {
         try {
             WebElement webElement = webDriver.findElement(By.xpath(xPathToElement));
-            // select all the text in the text box then override it with the new text
-            webElement.sendKeys(Keys.chord(Keys.CONTROL, "a"), text);
+            // clear the text box
+            webElement.clear();
+            webElement.sendKeys(text);
         } catch (Exception ex) {
             log.error("Cannot find text box '" + xPathToElement + "'. Reason: " + ex.getMessage(), ex);
             this.errorTest = true;
@@ -367,5 +356,21 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      */
     public boolean hasErrorTest() {
         return this.errorTest;
+    }
+    
+       
+    /**
+     * Wait for WSClient to shows webpage first
+     */
+    public void waitForPageLoad(WebDriver webDriver) {
+        WebDriverWait wait = new WebDriverWait(webDriver, 30);
+
+        wait.until(new ExpectedCondition<Boolean>() {
+            @Override
+            public Boolean apply(WebDriver driver) {
+                return ((JavascriptExecutor) driver).executeScript(
+                        "return document.readyState").equals("complete");
+            }
+        });
     }
 }

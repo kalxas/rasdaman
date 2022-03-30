@@ -60,6 +60,13 @@ public class BaseX implements Database {
     private java.util.Set<DbCollection> collections;
     
     /**
+     * NOTE: SECORE must initialize databases with this default URL
+     * (not http://localhost:8080/rasdaman/def)
+     * as it can create databases, but later it will hang up when querying http://localhost:8080/rasdaman/def/crs/EPSG/0/4326 due to BaseX.
+     */
+    private static final String DEFAULT_SECORE_URL = "http://localhost:8080/def";
+    
+    /**
      * Return the target GML file to be loaded by a collection name (e.g: gml_0)
      */
     private String getGMLFile(Map<DbCollection, String> collectionsMap, DbCollection dbCollection) {
@@ -122,7 +129,7 @@ public class BaseX implements Database {
                     }
 
                     // This will change the URN to URI (e.g: urn:ogc:def:crs:EPSG::4326) to "/def/crs/EPSG/$VERSION/4326)
-                    xml = StringUtil.fixLinks(xml, ConfigManager.getInstance().getServiceUrl(), versionNumber);
+                    xml = StringUtil.fixLinks(xml, DEFAULT_SECORE_URL, versionNumber);
                     /*log.trace("Creating database with content (trimmed to first 3000 characters):\n{}",
                         xml.substring(0, Math.min(xml.length(), 3000)));*/
 
@@ -173,7 +180,7 @@ public class BaseX implements Database {
             }
             long end = System.currentTimeMillis();
             if (!StringUtil.emptyQueryResult(ret)) {
-                log.trace("Query successfully executed in " + (end - start) + "ms");
+                log.trace("Query on collection: " + collectionName + " successfully executed in " + (end - start) + " ms");
                 log.trace("Result (trimmed to first 300 characters):\n" + ret.substring(0, Math.min(300, ret.length())));
                 if (!cached) {
                     DbManager.updateCache(query, ret, collectionName);

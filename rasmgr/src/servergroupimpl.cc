@@ -20,15 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <unistd.h>
-
-#include <stdexcept>
-#include <algorithm>
-#include <cstdint>
-
-#include <logging.hh>
-#include "common/exceptions/rasexceptions.hh"
-
 #include "constants.hh"
 #include "databasehost.hh"
 #include "databasehostmanager.hh"
@@ -37,6 +28,14 @@
 #include "serverconfig.hh"
 #include "serverfactory.hh"
 #include "servergroupimpl.hh"
+#include "common/exceptions/rasexceptions.hh"
+#include <logging.hh>
+#include <unistd.h>
+
+#include <stdexcept>
+#include <algorithm>
+#include <cstdint>
+
 
 namespace rasmgr
 {
@@ -49,6 +48,7 @@ using std::runtime_error;
 using boost::unique_lock;
 using boost::shared_lock;
 using boost::shared_mutex;
+using boost::lock_guard;
 
 using common::Timer;
 
@@ -93,12 +93,11 @@ void ServerGroupImpl::start()
     /**
       1. Get exclusive access and start the minimum number of alive servers
       */
-    boost::unique_lock<shared_mutex> groupLock(this->groupMutex);
+    lock_guard<shared_mutex> groupLock(this->groupMutex);
     // Start is idempotent
     if (this->stopped)
     {
         this->stopped = false;
-
         for (std::uint32_t i = 0; i < this->config.min_alive_server_no(); i++)
         {
             this->startServer();
@@ -108,17 +107,17 @@ void ServerGroupImpl::start()
 
 bool ServerGroupImpl::isStopped()
 {
-    unique_lock<shared_mutex> groupLock(this->groupMutex);
+    lock_guard<shared_mutex> groupLock(this->groupMutex);
     return this->stopped;
 }
 
 void ServerGroupImpl::stop(KillLevel level)
 {
-    unique_lock<shared_mutex> groupLock(this->groupMutex);
+    lock_guard<shared_mutex> groupLock(this->groupMutex);
 
     if (this->stopped)
     {
-        throw common::InvalidStateException("ServerGroup is already stopped");
+        throw common::InvalidStateException("Server group is already stopped.");
     }
     else
     {
@@ -137,24 +136,25 @@ bool ServerGroupImpl::tryRegisterServer(const std::string &serverId)
       * servers and remove it from the list of starting servers.
       */
     bool registered = false;
-
-    unique_lock<shared_mutex> groupLock(this->groupMutex);
+    
+    lock_guard<shared_mutex> groupLock(this->groupMutex);
     LDEBUG << "Try register server " << serverId;
 
     //If the server group is stopped, we cannot register new servers.
     if (this->stopped)
     {
         throw common::InvalidStateException(
-            "Server group is already stopped, no new servers can register.");
+            "Server group is already stopped, server " + serverId + " cannot be registered.");
     }
-
+    
     auto it = this->startingServers.find(serverId);
     if (it != this->startingServers.end())
     {
         try
         {
-            it->second.first->registerServer(serverId);
-            this->runningServers.push_back(it->second.first);
+            std::shared_ptr<Server> server = it->second.first;
+            server->registerServer(serverId);
+            this->runningServers.push_back(server);
             this->startingServers.erase(it);
             registered = true;
         }
@@ -179,21 +179,22 @@ bool ServerGroupImpl::tryRegisterServer(const std::string &serverId)
             this->stop(KillLevel::KILL);
         }
     }
+    // else: the serverId is not found in this server group, nothing to do
 
     return registered;
 }
 
 void ServerGroupImpl::evaluateServerGroup()
 {
-    unique_lock<shared_mutex> groupLock(this->groupMutex);
+    lock_guard<shared_mutex> groupLock(this->groupMutex);
     this->evaluateGroup();
 }
 
-bool ServerGroupImpl::tryGetAvailableServer(const std::string &dbName, std::shared_ptr<Server> &out_server)
+bool ServerGroupImpl::tryGetAvailableServer(const std::string &dbName,
+                                            std::shared_ptr<Server> &out_server)
 {
-    unique_lock<shared_mutex> groupLock(this->groupMutex);
+    lock_guard<shared_mutex> groupLock(this->groupMutex);
 
-    std::shared_ptr<Server> result;
     if (this->databaseHost->ownsDatabase(dbName))
     {
         for (auto it = this->runningServers.begin(); it != this->runningServers.end(); ++it)
@@ -219,7 +220,7 @@ ServerGroupConfigProto ServerGroupImpl::getConfig() const
 
 void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
 {
-    unique_lock<shared_mutex> groupLock(this->groupMutex);
+    lock_guard<shared_mutex> groupLock(this->groupMutex);
 
     if (!this->stopped)
     {
@@ -313,7 +314,7 @@ ServerGroupProto ServerGroupImpl::serializeToProto()
 {
     ServerGroupProto result;
 
-    unique_lock<shared_mutex> groupLock(this->groupMutex);
+    lock_guard<shared_mutex> groupLock(this->groupMutex);
 
     result.set_name(this->config.name());
     result.set_host(this->config.host());
@@ -339,29 +340,26 @@ ServerGroupProto ServerGroupImpl::serializeToProto()
 
 bool ServerGroupImpl::hasAvailableServers()
 {
-    bool result = false;
-
-    for (auto runningServer = this->runningServers.begin(); runningServer != this->runningServers.end(); ++runningServer)
+    for (auto s = this->runningServers.begin(); s != this->runningServers.end(); ++s)
     {
         try
         {
-            if ((*runningServer)->isAvailable())
+            if ((*s)->isAvailable())
             {
-                result = true;
-                break;
+                return true;
             }
         }
         catch (std::exception &ex)
         {
-            LERROR << "Failed to check if running server is available: " << ex.what();
+            LERROR << "Failed to check if any running server is available: " << ex.what();
         }
         catch (...)
         {
-            LERROR << "Failed to check if running server is available for an unkown reason";
+            LERROR << "Failed to check if any running server is available.";
         }
     }
 
-    return result;
+    return false;
 }
 
 void ServerGroupImpl::evaluateGroup()
@@ -372,145 +370,78 @@ void ServerGroupImpl::evaluateGroup()
     3. Try to keep the minimum number of alive servers
     */
     LTRACE << "Evaluating server group " << getGroupName();
+    
     uint32_t availableServerNo = 0;
     uint32_t idleServerNo = 0;
 
     this->removeDeadServers();
-    this->evaluateRestartingServers();
+    this->evaluateServersToRestart();
 
-    if (!this->stopped)
+    if (this->stopped)
     {
-        for (auto it = this->runningServers.begin(); it != this->runningServers.end(); ++it)
+        return;
+    }
+    
+    for (const auto &s: this->runningServers)
+    {
+        //If the server is free, it is also available
+        //If it is not free, there is still a chance that it is available
+        //depeding on the capacity
+        if (s->isFree())
         {
-            //If the server is free, it is also available
-            //If it is not free, there is still a chance that it is available
-            //depeding on the capacity
+            idleServerNo++;
+            availableServerNo++;
+        }
+        else if (s->isAvailable())
+        {
+            availableServerNo++;
+        }
+    }
+
+    LTRACE << "Total servers in group: " << this->runningServers.size()
+           << ", of which free: " << idleServerNo << " and available: " << availableServerNo;
+
+    if (availableServerNo < this->config.min_available_server_no())
+    {
+        uint32_t maxNoServersToStart = this->config.min_available_server_no() - availableServerNo;
+        uint32_t notStartedServerNo = uint32_t(this->config.ports_size())
+                                      - (this->startingServers.size() + this->runningServers.size() + this->restartingServers.size());
+        uint32_t serversToStartNo = std::min(maxNoServersToStart, notStartedServerNo);
+        LTRACE << "Server group " << this->getGroupName() << " will start " << serversToStartNo << " new servers";
+
+        for (uint32_t i = 0; i < serversToStartNo; i++)
+        {
+            // startServer() is not thread-safe and modifies startingServers and availablePorts
+            this->startServer();
+        }
+    }
+    else if (availableServerNo > this->config.min_available_server_no() && 
+             idleServerNo > this->config.max_idle_server_no())
+    {
+        //Stopping this many servers will bring us to the maximum number of idle servers
+        uint32_t maxServersToStop = idleServerNo - this->config.max_idle_server_no();
+        //Stopping this many servers will keep the minimum number of available servers
+        uint32_t availableServersToStop =  availableServerNo - this->config.min_available_server_no();
+        uint32_t serversToStop = std::min(availableServersToStop, maxServersToStop);
+        LTRACE << "Server group " << this->getGroupName() << " will stop " << serversToStop << " free servers";
+
+        uint32_t stoppedCount{0};
+        for (auto it = this->runningServers.begin(); stoppedCount != serversToStop && it != this->runningServers.end(); ++it)
+        {
             if ((*it)->isFree())
             {
-                idleServerNo++;
-                availableServerNo++;
-            }
-            else if ((*it)->isAvailable())
-            {
-                availableServerNo++;
+                (*it)->stop(NONE);
+                ++stoppedCount;
             }
         }
-
-        LTRACE << "Total servers in group: " << this->runningServers.size()
-               << ", of which free: " << idleServerNo
-               << " and available: " << availableServerNo;
-
-        if (availableServerNo < this->config.min_available_server_no())
-        {
-            uint32_t maxNoServersToStart = this->config.min_available_server_no() - availableServerNo;
-            uint32_t notStartedServerNo = uint32_t(this->config.ports_size())
-                                          - (this->startingServers.size() + this->runningServers.size() + this->restartingServers.size());
-
-            uint32_t serversToStartNo = std::min(maxNoServersToStart, notStartedServerNo);
-            LTRACE << "Server group " << this->getGroupName() << " will start " << serversToStartNo << " new servers";
-
-            for (uint32_t i = 0; i < serversToStartNo; i++)
-            {
-                this->startServer();
-            }
-        }
-        else if (availableServerNo > this->config.min_available_server_no() && idleServerNo > this->config.max_idle_server_no())
-        {
-            //Stopping this many servers will bring us to the maximum number of idle servers
-            uint32_t maxServersToStop = idleServerNo - this->config.max_idle_server_no();
-            //Stopping this many servers will keep the minimum number of available servers
-            uint32_t availableServersToStop =  availableServerNo - this->config.min_available_server_no();
-
-            uint32_t serversToStop = std::min(availableServersToStop, maxServersToStop);
-
-            LTRACE << "Server group " << this->getGroupName() << " will stop " << serversToStop << " free servers";
-
-            uint32_t stoppedCount{0};
-            for (auto it = this->runningServers.begin(); stoppedCount != serversToStop && it != this->runningServers.end(); ++it)
-            {
-                if ((*it)->isFree())
-                {
-                    (*it)->stop(NONE);
-                    ++stoppedCount;
-                }
-            }
-            LOG_IF(stoppedCount != serversToStop, TRACE) << "Stopped only " << stoppedCount << " servers";
-        }
+        LOG_IF(stoppedCount != serversToStop, TRACE) << "Stopped only " << stoppedCount << " servers";
     }
 }
 
-void ServerGroupImpl::evaluateRestartingServers()
-{
-    LTRACE << "Evaluate which servers have to be restarted in group " << this->getGroupName();
-
-    if (this->config.countdown() > 0)
-    {
-        //Go through all the running servers, find the ones that have to
-        //be restarted, and add them to the list
-        auto runningServerIt = this->runningServers.begin();
-        while (runningServerIt != this->runningServers.end())
-        {
-            auto runningServerToEraseIt = runningServerIt;
-            ++runningServerIt;
-
-            const auto totalSessionNo = (*runningServerToEraseIt)->getTotalSessionNo();
-            if (totalSessionNo >= this->config.countdown())
-            {
-                LTRACE << "Server " << (*runningServerToEraseIt)->getServerId()
-                       << " has had " << totalSessionNo << " sessions; this is "
-                       << " greater than the configured session countdown of "
-                       << this->config.countdown() << ", so it will be restarted.";
-                this->restartingServers.push_back((*runningServerToEraseIt));
-                this->runningServers.erase(runningServerToEraseIt);
-            }
-        }
-
-        //Go through the list of restarting servers
-        //Close the ones that have to be restarted and add the port
-        //back to the pool of available servers
-        auto restartingServerIt = this->restartingServers.begin();
-        while (restartingServerIt != this->restartingServers.end())
-        {
-            auto restartingServerToEraseIt = restartingServerIt;
-            ++restartingServerIt;
-            try
-            {
-                if ((*restartingServerToEraseIt)->isFree())
-                {
-                    LTRACE << "Stopping server with ID " << (*restartingServerToEraseIt)->getServerId()
-                           << " because it has to be restarted.";
-                    (*restartingServerToEraseIt)->stop(KILL);
-
-                    //add the port back to the pool
-                    this->availablePorts.insert((*restartingServerToEraseIt)->getPort());
-                    //restart the server
-                    this->restartingServers.erase(restartingServerToEraseIt);
-                }
-            }
-            catch (std::exception &ex)
-            {
-                LWARNING << "Failed to stop server with ID "
-                         << (*restartingServerToEraseIt)->getServerId()
-                         << ", reason: " << ex.what();
-            }
-            catch (...)
-            {
-                LWARNING << "Failed to stop server with ID "
-                         << (*restartingServerToEraseIt)->getServerId();
-            }
-        }
-    }
-    else
-    {
-        LTRACE << "The countdown is set to 0. Servers will never be restarted.";
-    }
-
-    LTRACE << "Finished evaluating which servers have to be restarted in group " << this->getGroupName();
-}
-
+// called only from evaluateGroup()
 void ServerGroupImpl::removeDeadServers()
 {
-    LTRACE << "Remove any dead servers in group " << this->getGroupName();
+    LTRACE << "Remove any dead servers in group " << getGroupName();
 
     /**
       1.Remove servers that have failed to register in the allocated time.
@@ -521,72 +452,79 @@ void ServerGroupImpl::removeDeadServers()
         auto runningIt = this->runningServers.begin();
         while (runningIt != this->runningServers.end())
         {
-            auto runningToErase = runningIt;
-            ++runningIt;
+            const auto &serverId = (*runningIt)->getServerId();
 
             bool processIsDead{};
             try
             {
-                processIsDead = !(*runningToErase)->isAlive();
+                processIsDead = !(*runningIt)->isAlive();
             }
             catch (std::exception &ex)
             {
                 processIsDead = true;
-                LWARNING << "Server " << (*runningToErase)->getServerId()
-                         << " is not responding to pings: " << ex.what();
+                LWARNING << "Server " << serverId << " is not responding to pings, "
+                         << "cannot remove from running list: " << ex.what();
             }
             catch (...)
             {
                 processIsDead = true;
-                LWARNING << "Server " << (*runningToErase)->getServerId()
-                         << " is not responding to pings.";
+                LWARNING << "Server " << serverId << " is not responding to pings, "
+                         << "cannot remove from running list.";
             }
+            
             if (processIsDead)
             {
                 try
                 {
-                    LTRACE << "Stopping dead server " << (*runningToErase)->getServerId();
-                    (*runningToErase)->stop(KILL);
-                    this->availablePorts.insert((*runningToErase)->getPort());
-                    this->runningServers.erase(runningToErase);
+                    LTRACE << "Stopping dead server " << serverId;
+                    (*runningIt)->stop(KILL);
+                    this->availablePorts.insert((*runningIt)->getPort());
+                    runningIt = this->runningServers.erase(runningIt);
                 }
                 catch (std::exception &ex)
                 {
-                    LWARNING << "Failed to stop server " << (*runningToErase)->getServerId()
-                             << ": " << ex.what();
+                    LWARNING << "Failed to stop server " << serverId << ": " << ex.what();
                 }
                 catch (...)
                 {
-                    LWARNING << "Failed to stop server " << (*runningToErase)->getServerId();
+                    LWARNING << "Failed to stop server " << serverId;
                 }
+            }
+            else
+            {
+                ++runningIt;
             }
         }
 
         auto startingIt = this->startingServers.begin();
         while (startingIt != this->startingServers.end())
         {
-            auto startingToEraseIt = startingIt;
-            ++startingIt;
-
-            const auto &serverId = startingToEraseIt->second.first->getServerId();
+            const auto &server = startingIt->second.first;
+            auto &timer = startingIt->second.second;
+            const auto &serverId = server->getServerId();
             try
             {
-                if (startingToEraseIt->second.second.hasExpired())
+                if (timer.hasExpired())
                 {
                     LDEBUG << "Removing server that failed to start: " << serverId;
-                    startingToEraseIt->second.first->stop(KILL);
-                    this->availablePorts.insert(startingToEraseIt->second.first->getPort());
-                    this->startingServers.erase(startingToEraseIt);
+                    server->stop(KILL);
+                    this->availablePorts.insert(server->getPort());
+                    startingIt = this->startingServers.erase(startingIt);
+                }
+                else
+                {
+                    ++startingIt;
                 }
             }
             catch (std::exception &ex)
             {
-                LTRACE << "Server " << serverId << " is not responding to pings: "
-                       << ex.what();
+                LTRACE << "Server " << serverId << " is not responding to pings, "
+                       << "cannot remove from starting list " << ex.what();
             }
             catch (...)
             {
-                LTRACE << "Server " << serverId << " is not responding to pings.";
+                LTRACE << "Server " << serverId << " is not responding to pings, "
+                       << "cannot remove from starting list.";
             }
         }
     }
@@ -602,11 +540,84 @@ void ServerGroupImpl::removeDeadServers()
     LTRACE << "Finished removing dead servers in group " << this->getGroupName();
 }
 
+// called only from evaluateGroup()
+void ServerGroupImpl::evaluateServersToRestart()
+{
+    LTRACE << "Evaluate which servers have to be restarted in group " << this->getGroupName();
+
+    if (this->config.countdown() > 0)
+    {
+        //Go through all the running servers, find the ones that have to
+        //be restarted, and add them to the restartingServers list
+        auto runningIt = this->runningServers.begin();
+        while (runningIt != this->runningServers.end())
+        {
+            const auto totalSessionNo = (*runningIt)->getTotalSessionNo();
+            if (totalSessionNo >= this->config.countdown())
+            {
+                LTRACE << "Server " << (*runningIt)->getServerId()
+                       << " has had " << totalSessionNo << " sessions; this is "
+                       << " greater than the configured session countdown of "
+                       << this->config.countdown() << ", so it will be restarted.";
+                this->restartingServers.push_back(*runningIt);
+                runningIt = this->runningServers.erase(runningIt);
+            }
+            else
+            {
+                ++runningIt;
+            }
+        }
+
+        //Go through the list of restarting servers
+        //Close the ones that have to be restarted and add the port
+        //back to the pool of available servers
+        auto restartingIt = this->restartingServers.begin();
+        while (restartingIt != this->restartingServers.end())
+        {
+            const auto &serverId = (*restartingIt)->getServerId();
+            // flag to help increasing the restartingIt correctly
+            bool removedFromRestarting = false;
+            try
+            {
+                if ((*restartingIt)->isFree())
+                {
+                    LTRACE << "Stopping server with ID " << serverId << " because it has to be restarted.";
+                    (*restartingIt)->stop(KILL);
+
+                    //add the port back to the pool
+                    this->availablePorts.insert((*restartingIt)->getPort());
+                    //restart the server
+                    restartingIt = this->restartingServers.erase(restartingIt);
+                    removedFromRestarting = true;
+                }
+            }
+            catch (std::exception &ex)
+            {
+                LWARNING << "Failed to stop server with ID " << serverId << ", reason: " << ex.what();
+            }
+            catch (...)
+            {
+                LWARNING << "Failed to stop server with ID " << serverId;
+            }
+            if (!removedFromRestarting)
+            {
+                ++restartingIt;
+            }
+        }
+    }
+    else
+    {
+        LTRACE << "The countdown is set to 0. Servers will never be restarted.";
+    }
+
+    LTRACE << "Finished evaluating which servers have to be restarted in group " << this->getGroupName();
+}
+
 void ServerGroupImpl::startServer()
 {
-    //This should never happen
     if (this->availablePorts.empty())
     {
+        //This should never happen
         throw common::InvalidStateException(
             "The ServerGroup has reached capacity, no more servers can be started.");
     }
@@ -616,46 +627,45 @@ void ServerGroupImpl::startServer()
         int32_t port = *it;
         this->availablePorts.erase(port);
 
-        std::string host = this->config.host();
+        const auto &host = this->config.host();
         ServerConfig serverConfig(host, static_cast<uint32_t>(port), this->databaseHost);
+        serverConfig.setOptions(this->config.server_options());
+        
         LTRACE << "Starting server in group " << this->getGroupName() << " on " << host << ":" << port;
 
-        serverConfig.setOptions(this->config.server_options());
-
         auto server = this->serverFactory->createServer(serverConfig);
-        pair<std::shared_ptr<Server>, Timer> startingServerEntry(server, Timer(this->config.starting_server_lifetime()));
+        pair<std::shared_ptr<Server>, Timer> startingServerEntry(
+              server, Timer(this->config.starting_server_lifetime()));
 
         this->startingServers.emplace(server->getServerId(), startingServerEntry);
 
         server->startProcess();
         LTRACE << "Server in group " << this->getGroupName() << " started.";
     }
-
 }
 
 void ServerGroupImpl::stopActiveServers(KillLevel level)
 {
-    LTRACE << "Stopping running servers in group " << this->getGroupName();
+    LTRACE << "Stopping servers in group " << this->getGroupName();
 
     //Stop the running servers
-    for (auto runningServer = this->runningServers.begin(); runningServer != this->runningServers.end(); ++runningServer)
+    for (auto s = this->runningServers.begin(); s != this->runningServers.end(); ++s)
     {
         try
         {
-            (*runningServer)->stop(level);
-
+            (*s)->stop(level);
             if (level == KILL)
             {
-                this->availablePorts.insert((*runningServer)->getPort());
+                this->availablePorts.insert((*s)->getPort());
             }
         }
         catch (std::exception &ex)
         {
-            LERROR << "Failed to stop running server: " << ex.what();
+            LERROR << "Failed to stop running server " << (*s)->getServerId() << ": " << ex.what();
         }
         catch (...)
         {
-            LERROR << "Failed to stop running server for an unkown reason";
+            LERROR << "Failed to stop running server " << (*s)->getServerId();
         }
     }
 
@@ -668,20 +678,21 @@ void ServerGroupImpl::stopActiveServers(KillLevel level)
     //The servers that are starting but have not yet registered
     //will be stoped forcibly and the ports they used will be returned
     //to the pool of available ports
-    for (auto startingServerEntry = this->startingServers.begin(); startingServerEntry != this->startingServers.end(); ++startingServerEntry)
+    for (auto s = this->startingServers.begin(); s != this->startingServers.end(); ++s)
     {
+        auto server = s->second.first;
         try
         {
-            startingServerEntry->second.first->stop(KILL);
-            this->availablePorts.insert(startingServerEntry->second.first->getPort());
+            server->stop(KILL);
+            this->availablePorts.insert(server->getPort());
         }
         catch (std::exception &ex)
         {
-            LERROR << "Failed to stop starting server: " << ex.what();
+            LERROR << "Failed to stop starting server " << server->getServerId() << ": " << ex.what();
         }
         catch (...)
         {
-            LERROR << "Failed to stop starting server";
+            LERROR << "Failed to stop starting server " << server->getServerId();
         }
     }
 

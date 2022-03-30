@@ -40,6 +40,7 @@ public:
      * @param dbName Name of the database
      */
     DbBusyException(const std::string& dbName);
+    DbBusyException(const std::string& dbName, const std::string &details);
 
     virtual ~DbBusyException() noexcept;
 };

@@ -50,6 +50,8 @@ public class TimeUtil {
 
     // Standard codes for supported temporal Unit of Measures (which provide ISO8601 interface to the user)
     // http://unitsofmeasure.org/ucum.html
+    public static final String UCUM = "UCUM";
+    
     public static final String UCUM_MILLIS = "ms";
     public static final String UCUM_SECOND = "s";
     public static final String UCUM_MINUTE = "min";

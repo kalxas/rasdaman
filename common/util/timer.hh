@@ -24,6 +24,8 @@ rasdaman GmbH.
 #define _COMMON_TIMER_HH_
 
 #include <chrono>
+#include <ctime>
+#include <string>
 
 namespace common {
 
@@ -56,6 +58,23 @@ class Stopwatch {
   }
 
   long startTime;
+};
+
+class TimerUtil {
+public:
+  static std::string getCurrentDateTime() {
+    using system_clock = std::chrono::system_clock;
+    auto currTime = system_clock::to_time_t(system_clock::now());
+    char buf[80];
+    auto tstruct = *localtime(&currTime);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+    return std::string(buf);
+  }
+  
+  static uintmax_t getSecondsSinceEpoch() {
+    auto result = time(NULL);
+    return uintmax_t(result);
+  }
 };
 
 }

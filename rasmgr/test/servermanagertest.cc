@@ -419,6 +419,7 @@ TEST_F(ServerManagerTest, stopServerGroupByName)
     EXPECT_CALL(serverGroupMockRef, stop(FORCE)).Times(1);
     EXPECT_CALL(serverGroupMockRef, getGroupName())
     .WillOnce(Return(""))
+    .WillOnce(Return(groupName))
     .WillOnce(Return(groupName));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);

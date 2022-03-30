@@ -42,7 +42,6 @@
               "directPositions": "[(datetime(2016,12,1,0,0,0) + timedelta(hours=x)).strftime(\"%Y-%m-%dT%H:%M\") for x in ${netcdf:variable:time}]",
               "statements": "from datetime import datetime, timedelta",
               "resolution": 1,
-              "gridOrder": 0,
               "type": "ansidate",
               "crsOrder": 0,
               "irregular": true
@@ -51,14 +50,12 @@
               "min": "${netcdf:variable:rlat:min}",
               "max": "${netcdf:variable:rlat:max}",
               "gridOrder": 2,
-              "crsOrder": 1,
               "resolution": "${netcdf:variable:rlat:resolution}"
             },
             "rlon": {
               "min": "${netcdf:variable:rlon:min}",
               "max": "${netcdf:variable:rlon:max}",
               "gridOrder": 1,
-              "crsOrder": 2,
               "resolution": "${netcdf:variable:rlon:resolution}"
             }
           }

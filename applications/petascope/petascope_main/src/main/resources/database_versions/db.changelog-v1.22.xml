@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+
+<changeSet id="1649079911529" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_address_id_address_deliverypoints
+on address_deliverypoints (address_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911567" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_address_id_address_electronicmailaddresses
+on address_electronicmailaddresses (address_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911605" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_quantity_id_allowed_value
+on allowed_value (quantity_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911643" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_envelope_by_axis_id_axis_extent
+on axis_extent (envelope_by_axis_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911694" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_address_id_contact_info
+on contact_info (address_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911700" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_phone_id_contact_info
+on contact_info (phone_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911739" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_coverage_function_id_coverage
+on coverage (coverage_function_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911745" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_domain_set_id_coverage
+on coverage (domain_set_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911750" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_envelope_id_coverage
+on coverage (envelope_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911755" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_range_type_id_coverage
+on coverage (range_type_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079911760" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_rasdaman_range_set_id_coverage
+on coverage (rasdaman_range_set_id);
+
+    </sql>
+</changeSet>
+
+<changeSet id="1649079911906" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_fk_id_coverage_pyramid
+on coverage_pyramid (fk_id);
+
+    </sql>
+</changeSet>
+
+<changeSet id="1649079911999" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_envelope_by_axis_id_envelope
+on envelope (envelope_by_axis_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912034" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wgs84_bounding_box_id_envelope_by_axis
+on envelope_by_axis (wgs84_bounding_box_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912068" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_data_record_id_field
+on field (data_record_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912073" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_quantity_id_field
+on field (quantity_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912106" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_grid_limits_id_general_grid
+on general_grid (grid_limits_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912146" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_general_grid_coverage_id_general_grid_coverage
+on general_grid_coverage (general_grid_coverage_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912178" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_general_grid_domain_set_id_general_grid_domain_set
+on general_grid_domain_set (general_grid_domain_set_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912183" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_general_grid_id_general_grid_domain_set
+on general_grid_domain_set (general_grid_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912215" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_geo_axis_id_geo_axis
+on geo_axis (geo_axis_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912220" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_general_grid_id_geo_axis
+on geo_axis (general_grid_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912259" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_index_axis_id_index_axis
+on index_axis (index_axis_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912264" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_grid_limits_id_index_axis
+on index_axis (grid_limits_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912300" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_interpolation_restriction_id_interpolationrestriction_allowedinterpolations
+on interpolationrestriction_allowedinterpolations (interpolation_restriction_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912333" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_irregular_axis_id_irregular_axis
+on irregular_axis (irregular_axis_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912368" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_irregular_axis_id_irregular_axis_direct_positions
+on irregular_axis_direct_positions (irregular_axis_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912400" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_id_layer_crss
+on layer_crss (wms13__layer_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912433" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_id_layer_keywordlist
+on layer_keywordlist (wms13__layer_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912469" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_quantity_id_nil_value
+on nil_value (quantity_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912503" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_service_identification_id_ows_service_metadata
+on ows_service_metadata (service_identification_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912508" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_service_provider_id_ows_service_metadata
+on ows_service_metadata (service_provider_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912544" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_phone_id_phone_facsimilephones
+on phone_facsimilephones (phone_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912579" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_phone_id_phone_voicephones
+on phone_voicephones (phone_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912611" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_uom_id_quantity
+on quantity (uom_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912646" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_data_record_id_range_type
+on range_type (data_record_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912651" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_interpolation_restriction_id_range_type
+on range_type (interpolation_restriction_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912685" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_rasdaman_range_set_id_rasdaman_down_scaled_collection
+on rasdaman_down_scaled_collection (rasdaman_range_set_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912724" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_regular_axis_id_regular_axis
+on regular_axis (regular_axis_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912756" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_contact_info_id_service_contact
+on service_contact (contact_info_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912795" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_service_identification_id_serviceidentification_accessconstraints
+on serviceidentification_accessconstraints (service_identification_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912829" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_service_identification_id_serviceidentification_keywords
+on serviceidentification_keywords (service_identification_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912863" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_service_identification_id_serviceidentification_servicetypeversions
+on serviceidentification_servicetypeversions (service_identification_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079912896" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_service_contact_id_service_provider
+on service_provider (service_contact_id);
+
+    </sql>
+</changeSet>
+
+<changeSet id="1649079912988" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_id_wms13__authority_url
+on wms13__authority_url (wms13__layer_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913022" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_id_wms13__bounding_box
+on wms13__bounding_box (wms13__layer_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913059" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_id_wms13__dimension
+on wms13__dimension (wms13__layer_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913095" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_id_wms13__identifier
+on wms13__identifier (wms13__layer_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913129" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__attribution_id_wms13__layer
+on wms13__layer (wms13__attribution_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913134" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__data_url_id_wms13__layer
+on wms13__layer (wms13__data_url_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913139" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__ex_geographic_bounding_box_id_wms13__layer
+on wms13__layer (wms13__ex_geographic_bounding_box_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913144" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_attribute_id_wms13__layer
+on wms13__layer (wms13__layer_attribute_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913184" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_id_wms13__metadata_url
+on wms13__metadata_url (wms13__layer_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913216" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__layer_id_wms13__style
+on wms13__style (wms13__layer_id);
+
+    </sql>
+</changeSet>
+
+
+<changeSet id="1649079913221" author="BPH" failOnError="false">
+    <sql>
+       
+CREATE INDEX index_wms13__legend_url_id_wms13__style
+on wms13__style (wms13__legend_url_id);
+
+    </sql>
+</changeSet>
+
+
+</databaseChangeLog>

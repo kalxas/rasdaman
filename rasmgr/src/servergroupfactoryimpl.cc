@@ -11,13 +11,9 @@ ServerGroupFactoryImpl::ServerGroupFactoryImpl(std::shared_ptr<DatabaseHostManag
     this->serverFactory = f;
 }
 
-ServerGroupFactoryImpl::~ServerGroupFactoryImpl()
-{}
-
 std::shared_ptr<ServerGroup> ServerGroupFactoryImpl::createServerGroup(const ServerGroupConfigProto &config)
 {
     std::shared_ptr<ServerGroup> result(new ServerGroupImpl(config, this->dbhManager, this->serverFactory));
-
     return result;
 }
 

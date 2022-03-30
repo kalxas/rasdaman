@@ -36,21 +36,16 @@ all: $(target)
 $(target): pom.xml $(shell find -name '*.java')
 
 	# in case def.war file is needed
-	if [ "${PACKAGING}" == "war" ] ; then \
-    	$(MVN) -q -B package -DbuildDir=$(BUILD_DIR) \
-                         -Dversion=$(PROJECT_VERSION) \
-						 -Dpackaging=${PACKAGING} \
-						 -P ${PACKAGING} ; \
-    fi
+	if [ "${PACKAGING}" = "war" ]; then \
+		$(MVN) -q -B package -DbuildDir=$(BUILD_DIR) -Dversion=$(PROJECT_VERSION) -Dpackaging=${PACKAGING} -P ${PACKAGING}; \
+	fi
 
-	$(MVN) -q -B package -DbuildDir=$(BUILD_DIR) \
-                     -Dversion=$(PROJECT_VERSION) \
-					 -Dpackaging=jar
+	$(MVN) -q -B package -DbuildDir=$(BUILD_DIR) -Dversion=$(PROJECT_VERSION) -Dpackaging=jar
 
 	# petascope needs def.jar in any cases
 	$(MVN) -q install:install-file \
-			   -Dfile=$(targetwithdeps) \
-			   -DgroupId=org.rasdaman \
-			   -DartifactId=secore \
-			   -Dversion=$(PROJECT_VERSION) \
-			   -Dpackaging=jar
+			-Dfile=$(targetwithdeps) \
+			-DgroupId=org.rasdaman \
+			-DartifactId=secore \
+			-Dversion=$(PROJECT_VERSION) \
+			-Dpackaging=jar

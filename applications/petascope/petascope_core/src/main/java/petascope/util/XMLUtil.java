@@ -583,8 +583,11 @@ public class XMLUtil {
             }
             if (xml.charAt(start + 1) != '?') {
                 int end = start + 1;
-                while (end < xml.length() && xml.charAt(end) != ' ' && xml.charAt(end) != '>') {
-                    if (xml.charAt(end) == ':') {
+                String charTmp = String.valueOf(xml.charAt(end)).trim();
+                
+                while (end < xml.length() && !charTmp.equals("") && !charTmp.equals(">")) {
+                    charTmp = String.valueOf(xml.charAt(end)).trim();
+                    if (charTmp.equals(":")) {
                         start = end;
                     }
                     ++end;

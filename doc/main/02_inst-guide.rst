@@ -3472,7 +3472,7 @@ be considered for inclusion in a backup:
       sudo -u postgres createdb petascopedb
 
       # restore backup petascopedb.sql.gz (use cat if it's not a gzip archive)
-      zcat petascopedb.sql.gz | sudo -u postgres psql -d petascopedb --quiet
+      zcat petascopedb.sql.gz | sudo -u postgres psql -d petascopedb --quiet > /dev/null
 
    Alternatively, if the above fails for some reason, petascopedb can be backup with this command:
 
@@ -3496,6 +3496,61 @@ be considered for inclusion in a backup:
 
       # backup everything except the data dir, which is handled in step 1. above
       rsync -avz --exclude='data/' /opt/rasdaman /backup/
+
+.. _rasdaman-migration:
+
+*********
+Migration
+*********
+
+Sometimes it is necessary to migrate the installation from one machine (*OLD*) to
+another (*NEW*). This section outlines the steps on how to do this.
+
+1. Make sure rasdaman is installed and functional on the NEW machine.
+
+2. Stop rasdaman and an external tomcat if installed on both the OLD and NEW
+   machine, e.g:
+
+   .. code-block:: shell
+
+      sudo service rasdaman stop
+      sudo service tomcat9 stop
+
+3. Make a backup of the rasdaman and petascope databases on the OLD machine by
+   following step 1. of the :ref:`backup guide <rasdaman-backup>` and copy the
+   backup to the NEW machine.
+
+4. Restore the database backups on the NEW machine by following step
+   2. of the :ref:`backup guide <rasdaman-backup>`.
+
+5. Make a backup of the config files on the NEW machine (``/opt/rasdaman/etc``),
+   then copy relevant configuration from the OLD to the NEW machine, in 
+   particular:
+
+   - ``rasmgr.conf`` can probably copied as is, but check if the -host setting is
+     correct for the NEW machine;
+   
+   - most settings from ``petascope.properties`` can be copied as is, except the
+     ones for database configuration (spring.* and metadata*);
+
+   - ``/etc/default/rasdaman`` can be copied as is usually;
+
+7. Make sure that the ``/opt/rasdaman`` directory is owned by the ``rasdaman``
+   user, to avoid any permission issues caused by copying with other system 
+   users:
+
+   .. code-block:: shell
+
+      sudo chown -R rasdaman: /opt/rasdaman
+
+8. Finally start rasdaman and tomcat:
+
+   .. code-block:: shell
+
+      sudo service rasdaman start
+      sudo service tomcat9 start
+
+
 
 
 **************

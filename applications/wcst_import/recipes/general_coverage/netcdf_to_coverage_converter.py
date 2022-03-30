@@ -98,13 +98,6 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
 
         ConfigManager.mime_type = self.MIME_TYPE
 
-    def _data_type(self):
-        """
-        Returns the data type for this netcdf dataset
-        :rtype: str
-        """
-        return self.data_type
-
     def _file_band_nil_values(self, index):
         """
         This is used to get the null values (Only 1) from the given band index if one exists when nilValue was not defined

@@ -29,6 +29,7 @@
 #include "common/crypto/crypto.hh"
 #include "common/grpc/grpcutils.hh"
 #include "common/logging/signalhandler.hh"
+#include "common/exceptions/exception.hh"
 #include "loggingutils.hh"
 
 
@@ -149,6 +150,12 @@ int main(int argc, char **argv)
     try
     {
         manager->start();
+    }
+    catch (common::Exception &ex)
+    {
+        LERROR << "rasmanager failed with exception: " << ex.what();
+        std::cerr << "rasmanager failed with exception: " << ex.what() << std::endl;
+        ret = RASMGR_RESULT_FAILED;
     }
     catch (std::exception &ex)
     {

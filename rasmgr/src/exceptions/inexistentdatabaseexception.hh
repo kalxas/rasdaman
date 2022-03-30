@@ -35,6 +35,7 @@ class InexistentDatabaseException: public common::MissingResourceException
 {
 public:
     InexistentDatabaseException(const std::string& dbName);
+    InexistentDatabaseException(const std::string& dbName, const std::string &details);
 
     virtual ~InexistentDatabaseException() noexcept;
 };

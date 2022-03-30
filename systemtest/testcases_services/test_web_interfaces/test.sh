@@ -37,9 +37,6 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
-# TODO: temporarily disabled this test, as it fails with phantomjs driver on jenkins.
-exit 0
-
 OUTPUT_PATH="$SCRIPT_DIR/output"
 # NOTE: before running any test queries in test directory, remove all the output files to make it clean first
 if [ -d "$OUTPUT_PATH" ]; then
@@ -58,23 +55,42 @@ if [ $? -ne 0 ]; then
    exit 0
 fi
 
-phantomjs_path="/tmp/phantomjs"
+temp_dir="/tmp/test_web_interfaces"
+mkdir -p "$temp_dir"
 
-if [ ! -f "$phantomjs_path" ]; then
-    log "Preparing to download phantomjs..."
-    wget -q http://kahlua.eecs.jacobs-university.de:8080/test_wcsclient_insertcoverage/phantomjs -O "$phantomjs_path"
+firefox_download_path="$temp_dir/firefox.tar.bz2"
+geckodriver_download_path="$temp_dir/geckodriver.tar.gz"
+
+firefox_binary_path="$temp_dir/firefox/firefox"
+geckodriver_binary_path="$temp_dir/geckodriver"
+
+if [ ! -f "$firefox_binary_path" ]; then
+   log "Downloading firefox v99 from server..."
+
+   curl -sS "https://download-installer.cdn.mozilla.net/pub/firefox/releases/99.0.1/linux-x86_64/en-GB/firefox-99.0.1.tar.bz2" -o "$firefox_download_path"
+   cd "$temp_dir" && tar -xf "$firefox_download_path"
 fi
 
-if [ ! -f "$phantomjs_path" ]; then
-   log "phantomjs ***does not exist*** in $phantomjs_path." 
+if [ ! -f "$geckodriver_binary_path" ]; then
+   log "Downloading firefox - geckodriver v0.31 from server..."
+
+   curl -sSL "https://github.com/mozilla/geckodriver/releases/download/v0.31.0/geckodriver-v0.31.0-linux64.tar.gz" -o "$geckodriver_download_path"
+   cd "$temp_dir" && tar -xf "$geckodriver_download_path"
+fi
+
+
+
+if [ ! -f "$firefox_binary_path" ]; then
+   log "firefox binary does not exist at $firefox_binary_path." 
    exit 1
-else
-   log "phantomjs does exist in $phantomjs_path."    
 fi
 
-chmod +x "/tmp/phantomjs"
+if [ ! -f "$geckodriver_binary_path" ]; then
+   log "firefox - geckodriver binary does not exist at $geckodriver_binary_path." 
+   exit 1
+fi
 
-log "Building test web interface application..."
+log "Building test web interfaces application..."
 
 # then, build the Java application
 cd "$SCRIPT_DIR/TestWebInterfaces"
@@ -83,8 +99,19 @@ mvn -q clean && mvn -q package > $OUTPUT_PATH/mvn_package.log 2>&1
 # NOTE: run jar file at source folder not target folder
 mv "$SCRIPT_DIR/TestWebInterfaces/target/test_web_interfaces-spring-boot.jar" "$SCRIPT_DIR/TestWebInterfaces/"
 
-log "Running test web interface application..."
+log "Running test web interfaces application..."
 
 # It will need petascope and secore ports from test.cfg file for test application
 java -jar test_web_interfaces-spring-boot.jar $PETASCOPE_PORT $SECORE_PORT > $OUTPUT_PATH/test.log 2>&1
-exit $?
+result="$?"
+
+# remove any leftover firefox instances on this temp dir
+pkill -f "$temp_dir"
+
+if [ "$result" -eq 0 ]; then
+    log "TEST PASSED"
+    exit 0
+else
+    log "TEST FAILED"
+    exit 1
+fi

@@ -86,7 +86,7 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         }
         
         if (!result) {
-            throw new WCPSException(ExceptionCode.InvalidRequest, "Scaling axis label '" + scaleAxisLabel + "' does not exist in coverage '" + metadata.getCoverageName() + "'.");
+            throw new WCPSException(ExceptionCode.InvalidAxisLabel, "Scaling axis label '" + scaleAxisLabel + "' does not exist in coverage '" + metadata.getCoverageName() + "'.");
         }
     }
     
@@ -322,8 +322,12 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
                         // e.g: before scale time("2001":"2010") has 6 coefficients: 2001, 2002, 2005, 2007, 2008, 2009, 2010 with grid [0:5]
                         //      after scale  time("2001":"2010") has 301 coefficients: 2001, ... 2010 with grid [0:300]
                         // @TODO: how to calculate the newly added coefficients in the middle of irregular axis?                        
-                        throw new WCPSException(ExceptionCode.NoApplicableCode, 
-                                "Cannot scale up on irregular axis '" + axisLabel + "', only scale down is supported.");
+                        if (CrsUtil.isGridCrs(axis.getNativeCrsUri())) {
+                            throw new WCPSException(ExceptionCode.NoApplicableCode, 
+                                    "Cannot scale up on irregular axis '" + axisLabel + "', only scale down is supported.");
+                        } else {
+                            this.applyScaleUpOnIrregularAxisWithGridCRS((IrregularAxis) axis);
+                        }
                     }
                                         
                 }
@@ -367,6 +371,22 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         }
         
         axis.setDirectPositions(selectedCoefficients);        
+    }
+    
+    /**
+     * e.g: irregular time axis has 11 coefficients (time slices) with grid bounds [0:10] and scaling's grid interval is [0:3]
+     * then after scaling, only 4 coefficients are left on time axis
+     */
+    private void applyScaleUpOnIrregularAxisWithGridCRS(IrregularAxis axis) {
+        // e.g: scale grid domain to [0:10]
+        long destLowerBound = axis.getGridBounds().getLowerLimit().longValue();        
+        long destUpperBound = axis.getGridBounds().getUpperLimit().longValue();
+        long destGridPoints = destUpperBound - destLowerBound;
+        axis.setDirectPositions(new ArrayList<>());
+        
+        for (int i = 0; i <= destGridPoints; i++) {
+            axis.getDirectPositions().add(new BigDecimal(i));
+        }
     }
     
     /**

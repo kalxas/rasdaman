@@ -118,7 +118,7 @@ public class SubsetDimensionParserService {
                 String nextSubsetName = subsetDimensions.get(j).getDimensionName();
                 if (subsetName.equals(nextSubsetName)) {
                     // There are duplicated names for one subset and is not valid
-                    throw new WCSException(ExceptionCode.WCSBadRequest, "Duplicated subsets with given name: " + subsetName + ".");
+                    throw new WCSException(ExceptionCode.InvalidAxisLabel, "Duplicated subsets with given name: " + subsetName + ".");
                 }
             }
         }

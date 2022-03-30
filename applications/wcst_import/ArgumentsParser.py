@@ -41,5 +41,12 @@ def parse_arguments():
     parser.add_argument("--identity-file", help="specify a file from which credentials of a valid rasdaman user are read; "
                                                 "the credentials must be specified as username:password", type=str)
 
+    parser.add_argument("-c", "--gdal-cache-size",
+                        help="the number of open gdal datasets to keep in cache in order to avoid reopening"
+                             " the same files, which can be costly. The specified value can be one of: -1 "
+                             "(no limit, cache all files), 0 (fully disable caching), N (clear the cache"
+                             " whenever it has more than N datasets, N should be greater than 0). "
+                             "The default value is -1 if this option is not specified.", type=int)
+
     result = parser.parse_args()
     return result

@@ -44,7 +44,8 @@ grpc::Status rasserver::RasServerServiceImpl::AllocateClient(__attribute__ ((unu
 
     if (!clientManager->allocateClient(request->clientid(), request->sessionid()))
     {
-        result = grpc::Status(grpc::StatusCode::ALREADY_EXISTS, "The client is already allocated to this server");
+        result = grpc::Status(grpc::StatusCode::ALREADY_EXISTS,
+                              "The client is already allocated to this server");
     }
     else
     {
@@ -53,9 +54,10 @@ grpc::Status rasserver::RasServerServiceImpl::AllocateClient(__attribute__ ((unu
         {
             rasServerEntry.connectNewClient(request->capabilities().c_str());
         }
-        catch (r_Error &)
+        catch (r_Error &err)
         {
-            result = grpc::Status(grpc::StatusCode::ALREADY_EXISTS, "The client is already allocated to this server");
+            result = grpc::Status(grpc::StatusCode::ALREADY_EXISTS,
+                                  std::string("The client is already connected to this server: ") + err.what());
         }
     }
 

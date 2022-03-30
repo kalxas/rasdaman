@@ -91,8 +91,6 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         self.data_type = None
         self.session = session
 
-    def _data_type(self):
-        return self.data_type
 
     @staticmethod
     def parse_gdal_global_metadata(file_path):

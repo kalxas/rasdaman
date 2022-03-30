@@ -42,7 +42,7 @@ class ServerManagementService: public ::rasnet::service::RasMgrRasServerService:
 public:
     ServerManagementService(std::shared_ptr<ServerManager> serverManager);
 
-    virtual ~ServerManagementService();
+    virtual ~ServerManagementService() = default;
 
     virtual grpc::Status RegisterServer(grpc::ServerContext *context, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *response) override;
 

@@ -36,6 +36,7 @@ import petascope.wcs2.handlers.kvp.KVPWCSDescribeCoverageHandler;
 import petascope.wcs2.handlers.kvp.KVPWCSGetCapabilitiesHandler;
 import petascope.core.response.Response;
 import petascope.core.XMLSymbols;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
 import petascope.wcs2.handlers.kvp.KVPWCSGetCoverageHandler;
 import petascope.wcs2.handlers.kvp.KVPWCSProcessCoverageHandler;
@@ -84,6 +85,8 @@ public class XMLWCSServiceHandler extends AbstractHandler {
         // Here it will need to parse the XML document and build a WCS query with query String in KVP
         String requestBody = kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY)[0];
         Response response = null;
+        
+        kvpParameters.remove(KVPSymbols.KEY_REQUEST_BODY);
 
         Map<String, String[]> parsedKvpParameters = null;
         // GetCapabilities
@@ -110,7 +113,8 @@ public class XMLWCSServiceHandler extends AbstractHandler {
     
     
     public Map<String, String[]> parseRequestBodyToKVPMaps(String requestBody) throws PetascopeException {
-       Map<String, String[]> parsedKvpParameters = null;
+        Map<String, String[]> parsedKvpParameters = null;
+       
         // GetCapabilities
         if (requestBody.contains(XMLSymbols.LABEL_GET_CAPABILITIES)) {
             parsedKvpParameters = getCapabilitiesXMLParser.parse(requestBody);
@@ -124,6 +128,10 @@ public class XMLWCSServiceHandler extends AbstractHandler {
             // ProcessCoverages
             // NOTE: There are 3 types of WCPS (XML in xml syntax, text in abstractSyntax and text in OGC WCPS POST), but all of them contains the <query> element
             parsedKvpParameters = processCoverageXMLParser.parse(requestBody);
+        } else {
+            String errorMessage = "POST XML body contains unsupported request.";
+            log.error(errorMessage + " Given: " + requestBody);
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, errorMessage);
         }
         
         return parsedKvpParameters;

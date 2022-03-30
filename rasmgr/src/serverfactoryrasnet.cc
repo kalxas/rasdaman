@@ -26,10 +26,6 @@
 namespace rasmgr
 {
 
-ServerFactoryRasNet::~ServerFactoryRasNet()
-{
-}
-
 std::shared_ptr<Server> ServerFactoryRasNet::createServer(const ServerConfig &configuration)
 {
     std::shared_ptr<Server> result(new ServerRasNet(configuration));

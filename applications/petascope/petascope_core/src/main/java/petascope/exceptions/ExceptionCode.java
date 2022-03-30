@@ -197,7 +197,7 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidServiceConfiguration = new ExceptionCode("InvalidServiceConfiguration");
     public static final ExceptionCode InvalidSubsetting = new ExceptionCode("InvalidSubsetting",
             "Operation request contains an invalid subsetting value; either a trim or slice parameter value "
-            + "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", SC_BAD_REQUEST);
+            + "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", SC_NOT_FOUND);
     public static final ExceptionCode InvalidTemporalMetadata = new ExceptionCode("InvalidTemporalMetadata");
     public static final ExceptionCode InvalidUpdateSequence = new ExceptionCode("InvalidUpdateSequence",
             "Value of (optional) updateSequence parameter in GetCapabilities operation request "
@@ -221,6 +221,11 @@ public class ExceptionCode {
             + "Locator: List of violating coverage identifiers", SC_NOT_FOUND);
     public static final ExceptionCode NoSuchMediaType = new ExceptionCode("NoSuchMediaType",
             "The requested mediatype is not valid", SC_NOT_FOUND);
+    
+    public static final ExceptionCode SubsettingCRSNotSupported = new ExceptionCode("SubsettingCrs-NotSupported", "The requested subsettingCRS is not supported", SC_NOT_FOUND);
+    public static final ExceptionCode OutputCRSNotSupported = new ExceptionCode("OutputCrs-NotSupported", "The requested outputCRS is not supported", SC_NOT_FOUND);
+    
+    
     public static final ExceptionCode NotEnoughStorage = new ExceptionCode("NotEnoughStorage");
     public static final ExceptionCode OperationNotSupported = new ExceptionCode("OperationNotSupported",
             "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", SC_NOT_IMPLEMENTED);

@@ -20,13 +20,30 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+#include "include/globals.hh"
+#include "common/exceptions/rasexceptions.hh"
+#include "common/grpc/grpcutils.hh"
+#include "common/uuid/uuid.hh"
+#include "common/crypto/crypto.hh"
+#include "common/logging/signalhandler.hh"
+#include "common/util/networkutils.hh"
+#include "common/util/system.hh"
+#include "common/util/vectorutils.hh"
+#include "common/string/stringutil.hh"
+#include <logging.hh>
+
+#include "rasnet/messages/rassrvr_rasmgr_service.pb.h"
+
+#include "exceptions/rasmgrexceptions.hh"
+
+#include "constants.hh"
+#include "serverrasnet.hh"
+#include "rasmgrconfig.hh"
+#include "userdatabaserights.hh"
+
 #include <unistd.h>
 #include <signal.h>
-#include <sys/wait.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
 
 #include <cstring>
 #include <iostream>
@@ -39,23 +56,9 @@
 #include <grpc++/grpc++.h>
 #include <grpc++/security/credentials.h>
 
-#include "include/globals.hh"
-#include "common/exceptions/rasexceptions.hh"
-
-#include "common/grpc/grpcutils.hh"
-#include "common/uuid/uuid.hh"
-#include "common/crypto/crypto.hh"
-#include "common/logging/signalhandler.hh"
-#include <logging.hh>
-
-#include "rasnet/messages/rassrvr_rasmgr_service.pb.h"
-
-#include "exceptions/rasmgrexceptions.hh"
-
-#include "constants.hh"
-#include "serverrasnet.hh"
-#include "rasmgrconfig.hh"
-#include "userdatabaserights.hh"
+// waitpid
+#include <sys/types.h>
+#include <sys/wait.h>
 
 namespace rasmgr
 {
@@ -94,40 +97,31 @@ const std::int32_t ServerRasNet::SERVER_CLEANUP_TIMEOUT = 3000000;
 // 10 milliseconds
 const std::int32_t ServerRasNet::SERVER_CHECK_INTERVAL = 10000;
 
-ServerRasNet::ServerRasNet(const ServerConfig &config)
+ServerRasNet::ServerRasNet(const ServerConfig &config):
+  hostName{config.getHostName()}, port(int32_t(config.getPort())), dbHost(config.getDbHost()),
+  options{config.getOptions()}, processId{-1}, serverId{UUID::generateUUID()},
+  registered{false}, allocatedClientsNo{0}, started{false}, sessionNo{0}
 {
-    this->hostName = config.getHostName();
-    this->port = static_cast<int32_t>(config.getPort());
-    this->dbHost = config.getDbHost();
-    this->options = config.getOptions();
-    this->serverId = UUID::generateUUID();
-
-    this->registered = false;
-    this->started = false;
-    this->allocatedClientsNo = 0;
-    this->processId = -1;
-    this->sessionNo = 0;
-
     // Initialize the service
     std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, std::uint32_t(this->port));
-    this->service.reset(new ::rasnet::service::RasServerService::Stub(grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials())));
+    this->service.reset(new ::rasnet::service::RasServerService::Stub(
+                          grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials())));
 }
 
 ServerRasNet::~ServerRasNet()
 {
-    set<pair<string, string>> ::iterator it;
-    for (it = this->sessionList.begin(); it != this->sessionList.end(); ++it)
+    boost::lock_guard<boost::shared_mutex> lock(sessionListMutex);
+    for (const auto &s: this->sessionList)
     {
-        this->dbHost->removeClientSessionFromDB(it->first, it->second);
+        this->dbHost->removeClientSessionFromDB(s.first, s.second);
     }
-
     this->sessionList.clear();
 
     //Wait for the process to finish
     if (this->started)
     {
-        LWARNING << "The server process is running; "
-                 << "waiting for the process will cause this thread to block.";
+        LWARNING << "The server process " << serverId << " is running; "
+                 << "blocking thread to wait for process " << processId << " to exit.";
     }
 
     int status;
@@ -139,18 +133,21 @@ ServerRasNet::~ServerRasNet()
 
 void ServerRasNet::startProcess()
 {
-    unique_lock<shared_mutex> lock(this->stateMtx);
-
-    if (this->started)
     {
-        throw common::InvalidStateException("The server process has already been started.");
+        boost::lock_guard<shared_mutex> lock(this->stateMutex);
+        if (this->started)
+        {
+            throw common::InvalidStateException(
+                "The server process " + std::to_string(processId) + " has already been started.");
+        }
     }
 
-    lock.unlock();
-
-    std::string command = this->getStartProcessCommand();
-    LDEBUG << "Starting server process " << serverId << " with command: " << command;
-
+    auto commandVec = this->getStartProcessCommand();
+#ifdef RASDEBUG
+    LDEBUG << "Starting server process " << serverId << " with command: "
+           << common::VectorUtils::join(commandVec, " ");
+#endif
+    
     this->processId = fork();
 
     switch (this->processId)
@@ -161,54 +158,40 @@ void ServerRasNet::startProcess()
         LERROR << "Server spawning failed to fork process. Reason: " << strerror(errno);
         return;
     }
-    break;
-
     case 0:
     {
         //Child process
-
-        boost::char_separator<char> sep(" \t\r\n");
-        boost::tokenizer<boost::char_separator<char>> tokens(command, sep);
-
-        std::vector<std::string> commandVec;
-
-        for (auto it = tokens.begin(); it != tokens.end(); ++it)
-        {
-            commandVec.push_back((*it));
-        }
-
-        char **commandArr = new char *[commandVec.size() + 1];
-
+        char **commandArgs = new char *[commandVec.size() + 1];
         for (std::size_t i = 0; i < commandVec.size(); ++i)
         {
-            commandArr[i] = new char[commandVec[i].size() + 1];
-            strcpy(commandArr[i], commandVec[i].c_str());
-            commandArr[i][commandVec[i].size()] = '\0';
+            commandArgs[i] = new char[commandVec[i].size() + 1];
+            strcpy(commandArgs[i], commandVec[i].c_str());
         }
+        commandArgs[commandVec.size()] = (char *)NULL;
 
-        commandArr[commandVec.size()] = (char *)NULL;
-
-        if (execv(RASEXECUTABLE, commandArr) == -1)
+        if (execv(RASEXECUTABLE, commandArgs) == -1)
         {
-            LERROR << "Starting server process failed: " << strerror(errno);
-            LERROR << "Failed command: " << command;
+            LERROR << "Starting server process with command\n"
+                   << common::VectorUtils::join(commandVec, " ") 
+                   << "\nfailed: " << strerror(errno);
             exit(EXIT_FAILURE);
         }
 
         // free
         for (std::size_t i = 0; i < commandVec.size(); ++i)
         {
-            free(commandArr[i]);
-            commandArr[i] = NULL;
+            delete [] commandArgs[i];
+            commandArgs[i] = NULL;
         }
-        delete [] commandArr;
-        commandArr = NULL;
+        delete [] commandArgs;
+        commandArgs = NULL;
     }
     break;
 
     default:
     {
-        //Parent process
+        //Parent rasmgr process
+        LDEBUG << "Server process started: " << serverId;
         this->started = true;
     }
     }
@@ -219,8 +202,8 @@ bool ServerRasNet::isAlive()
     //Assume the process is dead
     bool result = false;
 
-    unique_lock<shared_mutex> lock(this->stateMtx);
-    if (this->started && isProcessAlive())
+    boost::lock_guard<shared_mutex> lock(this->stateMutex);
+    if (this->started && common::SystemUtil::isProcessAlive(processId))
     {
         // If the process is alive and the server is responding.
         ServerStatusReq request = ServerStatusReq::default_instance();
@@ -236,31 +219,30 @@ bool ServerRasNet::isAlive()
         //If the communication has not failed, the server is alive
         result = status.ok();
         if (!result)
+        {
             LDEBUG << "Failed getting status from server " << serverId
                    << ", error: " << status.error_message();
+        }
         else
         {
-            LDEBUG << "Server " << this->serverId << " is alive.";
+            LDEBUG << "Server " << serverId << " is alive.";
         }
     }
 
     return result;
 }
 
-
 bool ServerRasNet::isClientAlive(const std::string &clientId)
 {
     bool result = false;
 
-    unique_lock<shared_mutex> lock(this->stateMtx);
+    boost::lock_guard<shared_mutex> lock(this->stateMutex);
     // The server must be started and responding to messages
     if (this->started)
     {
         ClientStatusRepl response;
         ClientStatusReq request;
-
         request.set_clientid(clientId);
-
         ClientContext context;
         this->configureClientContext(context);
 
@@ -281,24 +263,22 @@ bool ServerRasNet::isClientAlive(const std::string &clientId)
 }
 
 void ServerRasNet::allocateClientSession(const std::string &clientId,
-        const std::string &sessionId,
-        const std::string &dbName,
-        const UserDatabaseRights &dbRights)
+                                         const std::string &sessionId,
+                                         const std::string &dbName,
+                                         const UserDatabaseRights &dbRights)
 {
     // Check if the server is responding to requests before trying to assign it a new client.
     if (!this->isAvailable())
     {
-        throw common::RuntimeException("The server cannot accept any new clients.");
+        throw common::RuntimeException("The server cannot accept any new clients, "
+                                       "it is serving the maximum number of clients " + 
+                                       std::to_string(allocatedClientsNo) + " already.");
     }
 
     AllocateClientReq request;
     Void response;
-    DatabaseRights *rights = new DatabaseRights;
-
-    rights->set_read(dbRights.hasReadAccess());
-    rights->set_write(dbRights.hasWriteAccess());
-
-    const char *capabilities =  this->getCapability(this->serverId.c_str(), dbName.c_str(), dbRights);
+     
+    auto capabilities =  this->getCapability(serverId.c_str(), dbName.c_str(), dbRights);
     request.set_capabilities(capabilities);
     request.set_clientid(clientId);
     request.set_sessionid(sessionId);
@@ -311,20 +291,18 @@ void ServerRasNet::allocateClientSession(const std::string &clientId,
 
     if (!status.ok())
     {
-        LDEBUG << "Failed allocating client " << clientId;
+        LDEBUG << "Failed allocating client " << clientId << " on server " << serverId;
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 
     //If everything went well so far, increase the session count for this database
     this->dbHost->addClientSessionOnDB(dbName, clientId, sessionId);
-
     {
-        unique_lock<shared_mutex> listLock(this->sessionMtx);
+        boost::lock_guard<shared_mutex> listLock(this->sessionListMutex);
         this->sessionList.insert(std::make_pair(clientId, sessionId));
     }
-
     {
-        unique_lock<shared_mutex> stateLock(this->stateMtx);
+        boost::lock_guard<shared_mutex> stateLock(this->stateMutex);
         this->allocatedClientsNo++;
     }
 
@@ -335,26 +313,24 @@ void ServerRasNet::allocateClientSession(const std::string &clientId,
            << "; session counter: " << this->sessionNo;
 }
 
-void ServerRasNet::deallocateClientSession(const std::string &clientId, const std::string &sessionId)
+void ServerRasNet::deallocateClientSession(const std::string &clientId,
+                                           const std::string &sessionId)
 {
     // Remove the client session from rasmgr objects.
     //Decrease the session count
     this->dbHost->removeClientSessionFromDB(clientId, sessionId);
-
     {
-        unique_lock<shared_mutex> listLock(this->sessionMtx);
+        boost::lock_guard<shared_mutex> listLock(this->sessionListMutex);
         this->sessionList.erase(std::make_pair(clientId, sessionId));
     }
-
     {
-        unique_lock<shared_mutex> stateLock(this->stateMtx);
+        boost::lock_guard<shared_mutex> stateLock(this->stateMutex);
         this->allocatedClientsNo--;
     }
 
     // Check if the server is alive
     Void response;
     DeallocateClientReq request;
-
     request.set_clientid(clientId);
     request.set_sessionid(sessionId);
 
@@ -371,13 +347,12 @@ void ServerRasNet::deallocateClientSession(const std::string &clientId, const st
     LDEBUG << "Deallocated client" << clientId << " on server " << serverId;
 }
 
-
 void ServerRasNet::registerServer(const std::string &serverId)
 {
-    unique_lock<shared_mutex> stateLock(this->stateMtx);
+    boost::lock_guard<shared_mutex> stateLock(this->stateMutex);
     if (this->started && serverId == this->serverId)
     {
-        if (isProcessAlive())
+        if (common::SystemUtil::isProcessAlive(processId))
         {
             ServerStatusReq request = ServerStatusReq::default_instance();
             ServerStatusRepl reply;
@@ -392,7 +367,7 @@ void ServerRasNet::registerServer(const std::string &serverId)
             }
             else
             {
-                if (this->isAddressValid())
+                if (networkutils::isAddressValid(hostName, port))
                 {
                     GrpcUtils::convertStatusToExceptionAndThrow(status);
                 }
@@ -434,7 +409,7 @@ void ServerRasNet::stop(KillLevel level)
 {
 
     LDEBUG << "Stopping server " << serverId;
-    if (isProcessAlive())
+    if (common::SystemUtil::isProcessAlive(processId))
     {
         switch (level)
         {
@@ -448,20 +423,22 @@ void ServerRasNet::stop(KillLevel level)
 
             // wait until the server process is dead
             std::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
-            while (cleanupTimeout > 0 && isProcessAlive())
+            while (cleanupTimeout > 0 && common::SystemUtil::isProcessAlive(processId))
             {
                 usleep(SERVER_CHECK_INTERVAL);
                 cleanupTimeout -= SERVER_CHECK_INTERVAL;
             }
 
             // if the server is still alive after SERVER_CLEANUP_TIMEOUT, send a SIGKILL
-            if (isProcessAlive())
+            if (common::SystemUtil::isProcessAlive(processId))
             {
-                LDEBUG << "Stopping server with a SIGKILL signal.";
+                LWARNING << "Failed stopping server with PID " << processId 
+                         << " cleanly with a SIGTERM, force-stopping it with a SIGKILL signal.";
                 sendSignal(SIGKILL);
             }
         }
         break;
+            
         default:
             sendSignal(SIGTERM);
             break;
@@ -472,24 +449,25 @@ void ServerRasNet::stop(KillLevel level)
         LDEBUG << "Process with pid " << processId << " for server " << serverId << " not found.";
     }
 
-    unique_lock<shared_mutex> lock(this->stateMtx);
+    boost::lock_guard<shared_mutex> lock(this->stateMutex);
     this->started = false;
 }
 
 bool ServerRasNet::isStarting()
 {
-    unique_lock<shared_mutex> stateLock(this->stateMtx);
-    return !this->registered;
+    boost::lock_guard<shared_mutex> stateLock(this->stateMutex);
+    return this->started && !this->registered;
 }
 
 bool ServerRasNet::isFree()
 {
     LDEBUG << "Checking if server " << serverId << " is free";
-    unique_lock<shared_mutex> stateLock(this->stateMtx);
+    boost::lock_guard<shared_mutex> stateLock(this->stateMutex);
     if (!this->registered || !this->started)
     {
         LDEBUG << "Error, server " << serverId << " not registered or not started.";
-        throw common::InvalidStateException("The server is not registered with rasmgr.");
+        throw common::InvalidStateException("The server " + serverId +
+                                            " is not started or not registered with rasmgr.");
     }
     try
     {
@@ -513,7 +491,7 @@ bool ServerRasNet::isFree()
 bool ServerRasNet::isAvailable()
 {
     LDEBUG << "Checking if server " << serverId << " is available";
-    unique_lock<shared_mutex> stateLock(this->stateMtx);
+    boost::lock_guard<shared_mutex> stateLock(this->stateMutex);
     if (!this->registered || !this->started)
     {
         LDEBUG << "Error, server " << serverId << " not registered or not started.";
@@ -533,8 +511,10 @@ bool ServerRasNet::isAvailable()
         LDEBUG << "Caught exception, server  " << serverId << " is not available.";
         return false;
     }
-    const auto ret = (this->allocatedClientsNo < RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer());
-    LDEBUG << "Server  " << serverId << " is available: " << ret;
+    const auto maxClientsPerServer = RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer();
+    const auto ret = this->allocatedClientsNo < maxClientsPerServer;
+    LDEBUG << "Server  " << serverId << " has allocated " << allocatedClientsNo
+           << "/" << maxClientsPerServer << "; is it available: " << ret;
     return ret;
 }
 
@@ -571,105 +551,69 @@ std::uint32_t ServerRasNet::getClientQueueSize()
     }
 
     LDEBUG << "Client queue size for " << serverId << ": " << reply.clientqueuesize();
-    return (reply.clientqueuesize());
+    return reply.clientqueuesize();
 }
 
-std::string ServerRasNet::getStartProcessCommand()
+std::vector<std::string> ServerRasNet::getStartProcessCommand()
 {
-    //TODO:Factor this out
     auto globalConfig = RasMgrConfig::getInstance();
-    std::stringstream ss;
-    ss << globalConfig->getRasServerExecPath() << " ";
-    ss << "--lport" << " " << std::to_string(port) << " ";
-    ss << "--serverId" << " " << this->getServerId() << " ";
-    ss << "--mgr" << " " << globalConfig->getConnectHostName() << " ";
-    ss << "--rsn" << " " << this->getServerId() << " ";
-    ss << "--mgrport" << " " << std::to_string(globalConfig->getRasMgrPort()) << " ";
-    ss << "--connect" << " " << this->dbHost->getConnectString();
-    // add extra options (following -xp parameter in rasmgr.conf)
-    ss << " " << this->options;
-    return ss.str();
+    std::vector<std::string> ret{
+        globalConfig->getRasServerExecPath(),
+        "--lport" , std::to_string(port),
+        "--serverId", this->getServerId(),
+        "--mgr", globalConfig->getConnectHostName(),
+        "--rsn", this->getServerId(),
+        "--mgrport", std::to_string(globalConfig->getRasMgrPort()),
+        "--connect", this->dbHost->getConnectString()
+    };
+    // extra options (following -xp parameter in rasmgr.conf
+    auto optsVec = common::StringUtil::split(this->options, ' ');
+    for (const auto &opt: optsVec)
+      ret.push_back(opt);
+    
+    return ret;
 }
 
 void ServerRasNet::configureClientContext(grpc::ClientContext &context)
 {
     // The server should be able to reply to any call within this window.
-    std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVER_CALL_TIMEOUT);
-
+    auto deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVER_CALL_TIMEOUT);
     context.set_deadline(deadline);
 }
 
-const char *ServerRasNet::getCapability(const char *serverName, const char *databaseName, const UserDatabaseRights &rights)
+std::string ServerRasNet::getCapability(const char *serverName, const char *databaseName,
+                                        const UserDatabaseRights &rights)
 {
     //Format of Capability (no brackets())
     //$I(userID)$E(effectivRights)$B(databaseName)$T(timeout)$N(serverName)$D(messageDigest)$K
 
     time_t tmx = time(NULL) + 180;
     tm *b = localtime(&tmx);
-    static char formattedTime[30];
+    char formattedTime[30];
     sprintf(formattedTime, "%d:%d:%d:%d:%d:%d", b->tm_mday,
             b->tm_mon + 1, b->tm_year + 1900, b->tm_hour, b->tm_min, b->tm_sec);
 
-
-    const char *rString = this->convertDatabRights(rights);
-
+    auto rString = this->convertDatabRights(rights);
     long userID = 0;
 
     char capaS[300];
-    sprintf(capaS, "$I%ld$E%s$B%s$T%s$N%s", userID, rString, databaseName, formattedTime, serverName);
+    sprintf(capaS, "$I%ld$E%s$B%s$T%s$N%s",
+            userID, rString.c_str(), databaseName, formattedTime, serverName);
 
-    static char capaQ[360];
+    char capaQ[360];
     sprintf(capaQ, "$Canci%s", capaS);
+    auto digest = common::Crypto::messageDigest(capaQ, DEFAULT_DIGEST);
 
-    char digest[50]; // 33 is enough
-    messageDigest(capaQ, digest, DEFAULT_DIGEST);
-
-    sprintf(capaQ, "%s$D%s$K", capaS, digest);
-
+    sprintf(capaQ, "%s$D%s$K", capaS, digest.c_str());
     return capaQ;
 }
 
-int ServerRasNet::messageDigest(const char *input, char *output, const char *mdName)
+std::string ServerRasNet::convertDatabRights(const UserDatabaseRights &dbRights)
 {
-    std::string mdNameStr{mdName};
-    std::string inputStr{input};
-    
-    auto result = common::Crypto::messageDigest(inputStr, mdNameStr);
-    if (result.empty())
-        return 0;
-    
-    strcpy(output, result.c_str());
-    return int(result.size());
-}
-
-const char *ServerRasNet::convertDatabRights(const UserDatabaseRights &dbRights)
-{
-    static char buffer[20];
-    char R = (dbRights.hasReadAccess())  ? 'R' : '.';
-    char W = (dbRights.hasWriteAccess()) ? 'W' : '.';
-
-    sprintf(buffer, "%c%c", R, W);
-    return buffer;
-}
-
-bool ServerRasNet::isProcessAlive() const
-{
-    int status;
-    waitpid(processId, &status, WNOHANG) == 0;
-    return kill(processId, 0) == 0;
-}
-
-bool ServerRasNet::isAddressValid() const
-{
-    struct addrinfo *addr = NULL;
-    std::string portStr = std::to_string(port);
-    int ret = getaddrinfo(hostName.c_str(), portStr.c_str(), NULL, &addr);
-    if (addr)
-    {
-        freeaddrinfo(addr);
-        addr = NULL;
-    }
-    return ret == 0;
+    string ret;
+    ret += (dbRights.hasReadAccess())  ? 'R' : '.';
+    ret += (dbRights.hasWriteAccess()) ? 'W' : '.';
+    return ret;
 }
 
 }

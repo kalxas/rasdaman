@@ -50,7 +50,7 @@ OutPeer::OutPeer(const std::string &hostName, const uint32_t port)
     this->rasmgrService = std::make_shared<::rasnet::service::RasmgrRasmgrService::Stub>(channel);
 }
 
-std::string OutPeer::getHostName() const
+const std::string &OutPeer::getHostName() const
 {
     return hostName;
 }
@@ -65,14 +65,13 @@ bool OutPeer::isBusy() const
     return !this->openSessions.empty();
 }
 
-bool rasmgr::OutPeer::tryGetRemoteServer(const ClientServerRequest &request,
-        ClientServerSession &out_reply)
+bool rasmgr::OutPeer::tryGetRemoteServer(
+    const ClientServerRequest &request, ClientServerSession &out_reply)
 {
     // Before initiating a request check if the rasmgr is alive.
     if (!GrpcUtils::isServerAlive(this->healthService, SERVER_CALL_TIMEOUT))
     {
-        LERROR << "Failed to contact rasmgr running on " << this->hostName << ":" << this->port << ".";
-
+        LERROR << "Failed to contact remote rasmgr on " << this->hostName << ":" << this->port << ".";
         return false;
     }
 
@@ -94,15 +93,14 @@ bool rasmgr::OutPeer::tryGetRemoteServer(const ClientServerRequest &request,
         out_reply.serverPort = reply.server_port();
 
         RemoteClientSession remoteSession(reply.client_session_id(), reply.db_session_id());
-
         this->openSessions.insert(this->createSessionId(remoteSession));
     }
     else
     {
-        LDEBUG << "Failed to get remote server from " << this->hostName << ":" << this->port << "."
-               << "Error message:" << status.error_code() << "(" << status.error_message() << ")"
-               << req.DebugString()
-               << reply.DebugString();
+        LDEBUG << "Failed to get remote server from " << this->hostName << ":" << this->port << ". "
+               << "Error message: " << status.error_code() << "(" << status.error_message() << ") "
+               << ", request: " << req.DebugString()
+               << ", response: " << reply.DebugString();
     }
 
     return status.ok();
@@ -130,27 +128,27 @@ void OutPeer::releaseServer(const RemoteClientSession &clientSession)
             Status status = this->rasmgrService->ReleaseServer(&context, request, &reply);
             if (!status.ok())
             {
-                LERROR << "Failed to release remote server on rasmgr"
-                       << this->hostName << ":" << this->port << ". Error message:" << status.error_message();
+                LERROR << "Failed to release remote server on rasmgr "
+                       << this->hostName << ":" << this->port << ". Error message: "
+                       << status.error_message();
             }
             else
             {
-                LDEBUG << "Released remote server on rasmgr" << this->hostName << ":" << this->port;
+                LDEBUG << "Released remote server on rasmgr " << this->hostName << ":" << this->port;
             }
         }
         else
         {
-            LERROR << "Failed to release remote server on rasmgr"
-                   << this->hostName << ":" << this->port << "."
-                   << "Remote rasmgr is not responding to health checks.";
+            LERROR << "Failed to release remote server on rasmgr "
+                   << this->hostName << ":" << this->port << "; "
+                   << "remote rasmgr is not responding to health checks.";
         }
     }
 }
 
 std::string OutPeer::createSessionId(const RemoteClientSession &clientSession)
 {
-    return clientSession.getClientSessionId()
-           + ":" + clientSession.getDbSessionId();
+    return clientSession.getClientSessionId() + ":" + clientSession.getDbSessionId();
 }
 
 }

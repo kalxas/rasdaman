@@ -59,5 +59,8 @@ class ConfigManager:
     user = ""
     passwd = ""
 
+    # (no limit, cache all files)
+    gdal_cache_size=-1
+
     # Default mimeType is none -> gdal driver for petascope
     mime_type = None

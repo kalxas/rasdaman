@@ -381,7 +381,7 @@ public class SecoreUtil {
         urlTmps.add(urlTmp1);
         // try with version 0
         urlTmps.add(urlTmp2);
-
+        
         for (String tmpid : ids) {
             String[] pair = tmpid.split(" ");
             String id = pair[0];
@@ -396,13 +396,17 @@ public class SecoreUtil {
             if (!id.isEmpty()) {
                 id = StringUtil.wrapUri(id);
                 String tmp = id;
-
+                
                 int ind = 0;
                 String urlTmp = "";
 
                 // Check if the result CRS has the identifier
                 for (String s : urlTmps) {
                     ind = tmp.indexOf(s);
+                    if (ind == -1) {
+                        tmp = tmp.replace("/" + Constants.WEB_APPLICATION_NAME, "/" + Constants.WEB_APPLICATION_NAME_EMBEDDED);
+                        ind = tmp.indexOf(s);
+                    }
                     if (ind != -1) {
                         urlTmp = s;
                         break;
@@ -412,6 +416,7 @@ public class SecoreUtil {
                 if (ind == -1) {
                     continue;
                 } else {
+                    
                     tmp = tmp.substring(ind + urlTmp.length());
                     if (tmp.startsWith(REST_SEPARATOR)) {
                         tmp = tmp.substring(1);

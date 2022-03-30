@@ -160,7 +160,7 @@ void Client::removeClientFromServers()
 
 const std::shared_ptr<const User> Client::getUser() const
 {
-    return user;
+  return user;
 }
 
 bool Client::isClientAliveOnServers()

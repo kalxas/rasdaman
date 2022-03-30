@@ -25,8 +25,8 @@ import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,8 +52,9 @@ import static petascope.controller.AuthenticationController.READ_WRITE_RIGHTS;
 import petascope.controller.handler.service.AbstractHandler;
 import petascope.controller.handler.service.XMLWCSServiceHandler;
 import petascope.core.KVPSymbols;
+
+
 import static petascope.core.KVPSymbols.KEY_REQUEST;
-import static petascope.core.KVPSymbols.KEY_VERSION;
 import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_UPDATE_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
@@ -68,13 +69,14 @@ import petascope.exceptions.PetascopeRuntimeException;
 import petascope.util.ExceptionUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
-import static petascope.util.MIMEUtil.MIME_BINARY;
 import petascope.util.StringUtil;
 import static petascope.util.StringUtil.AND_SIGN;
 import static petascope.util.StringUtil.DOLLAR_SIGN;
 import static petascope.util.StringUtil.EQUAL_SIGN;
 import static petascope.util.StringUtil.POST_STRING_CONTENT_TYPE;
 import static petascope.util.StringUtil.POST_TEXT_PLAIN_CONTENT_TYPE;
+import static petascope.util.StringUtil.POST_XML_CONTENT_TYPE;
+import static petascope.util.StringUtil.POST_XML_SOAP_CONTENT_TYPE;
 import petascope.util.XMLUtil;
 import petascope.util.ras.RasUtil;
 
@@ -136,7 +138,7 @@ public abstract class AbstractController {
      * Handler for GET requests.
      */
     abstract protected void handleGet(HttpServletRequest httpServletRequest) throws Exception;
-    
+
     private static String getSubmittedFileName(Part part) {
         for (String cd : part.getHeader("content-disposition").split(";")) {
             if (cd.trim().startsWith("filename")) {
@@ -166,7 +168,9 @@ public abstract class AbstractController {
             
         String requestContentType = httpServletRequest.getContentType();
         if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)
-            || requestContentType.contains(POST_TEXT_PLAIN_CONTENT_TYPE)) {
+            || requestContentType.contains(POST_TEXT_PLAIN_CONTENT_TYPE)
+            || requestContentType.contains(POST_XML_CONTENT_TYPE)
+            || requestContentType.contains(POST_XML_SOAP_CONTENT_TYPE)) {
             // post request without files in body
             String postBody = this.getPOSTRequestBody(httpServletRequest);
             kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -196,7 +200,7 @@ public abstract class AbstractController {
         
         return kvpParameters;
     }
-    
+
     /**
      * Depend on the requested service then pass the map of keys, values
      * parameters to the corresponding handler
@@ -236,7 +240,7 @@ public abstract class AbstractController {
             // If queryString is not encoded (raw in POST request), so must keep "+" by encoding it correctly      
             queryString = queryString.replaceAll("\\+", "%2B");
         }
-
+        
         return this.buildKvpParametersMap(queryString);
     }
 
@@ -275,12 +279,31 @@ public abstract class AbstractController {
             }
 
             // The request is in POST XML or SOAP requests with XML syntax
-            String root = XMLUtil.getRootElementName(requestBody);      
+            String root = XMLUtil.getRootElementName(requestBody);   
+            boolean isSoap = false;
             if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
+                isSoap = true;
                 requestBody = XMLUtil.extractWcsRequest(queryString);
             }
-            kvpParameters = xmlWCSServiceHandler.parseRequestBodyToKVPMaps(requestBody);
             
+            try {
+                kvpParameters = xmlWCSServiceHandler.parseRequestBodyToKVPMaps(requestBody);
+            } catch (PetascopeException ex) {
+                // NOTE: SOAP request exception must be wrapped by SOAP body for OGC CITEs tests
+                throw new PetascopeException(ex.getExceptionCode(), ex, isSoap);
+            }
+            
+            if (isSoap) {
+                // NOTE: In case request is SOAP (e.g. from OGC CITE tests), then it needs special treatment for output encoded in SOAP body
+                // This is very important, otherwise the SOAP tests from OGC CITE test will fail (!)
+                if (this.getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_SERVICE) != null) {
+                    kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] { KVPSymbols.KEY_SOAP });
+                    kvpParameters.put(KVPSymbols.KEY_REQUEST_BODY, new String[] { requestBody });
+                    
+                    return kvpParameters;
+                }
+            }
+
         }
 
         // Validate the parsed KVP maps for all requirement parameters (only when it has at least 1 parameter as an empty request will return WCS-Client)
@@ -392,6 +415,8 @@ public abstract class AbstractController {
         } catch (IOException ex) {
             throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot get POST request body from HTTPServlet header. Reason: " + ex.getMessage());
         }
+        
+        log.debug("Received POST body: " + requestBody);
             
         return requestBody;
     }
@@ -675,7 +700,7 @@ public abstract class AbstractController {
         String[] values = kvpParameters.get(key.toLowerCase());
         if (values == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
-                    "Cannot find value from KVP parameters map for key' " + key + "'.");
+                    "Cannot find value from KVP parameters map for key '" + key + "'.");
         }
         
         if (values[0].contains(",")) {

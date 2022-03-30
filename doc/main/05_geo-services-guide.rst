@@ -4505,6 +4505,35 @@ see how it works.
             return "my_custom_recipe"
 
 
+Importing many files
+--------------------
+
+When an ingredient contains many paths to be imported, usually more than 1000,
+this may lead to hitting some system limits during the import. 
+
+In particular when data is imported with the GDAL driver, wcst_import has a 
+cache of open GDAL datasets to avoid reopening files, which is costly. With
+too many open GDAL datasets limit on max open files can be reached, which
+is often 1024 (see ``ulimit -n``). wcst_import handles this case by clearing
+its cache; however, this may degrade import performance, so increasing the 
+limit on open files should be considered.
+
+Furthermore, limits on maximum number of threads may be reached as well,
+as each open GDAL dataset creates several threads. This will lead to
+errors such as ``fork: retry: Resource temporarily unavailable``.
+The maximum allowed number can be observed with
+``cat /sys/fs/cgroup/pids/user.slice/user-<id>.slice/pids.max``, where
+``<id>`` can be found with ``id -u <user>`` for the user with which
+wcst_import is executed. Increasing to a larger value, e.g. 4194304,
+should solve this issue.
+
+Finally, wcst_import.sh allows to control the gdal cache size with the
+``-c, --gdal-cache-size <size>`` option. The
+specified value can be one of: ``-1`` (no limit, cache all files),
+``0`` (fully disable caching), ``N`` (clear the cache whenever it has
+more than ``N`` datasets, ``N`` should be greater than 0). The
+default value is ``-1`` if this option is not specified.
+
 
 Data export
 ===========

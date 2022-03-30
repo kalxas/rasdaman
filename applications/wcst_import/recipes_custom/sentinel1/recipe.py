@@ -145,6 +145,7 @@ class Recipe(GeneralCoverageRecipe):
     #
 
     def _init_options(self):
+        self.importer = None
         self._init_input_options()
         self._init_coverage_options()
         self.coverage_id = self.session.get_coverage_id()
