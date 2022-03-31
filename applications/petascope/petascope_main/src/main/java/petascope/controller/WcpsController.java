@@ -22,12 +22,12 @@
 package petascope.controller;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
+import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.WCPS;
 import org.rasdaman.config.VersionManager;
@@ -39,10 +39,9 @@ import org.springframework.web.bind.annotation.RestController;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.PetascopeRuntimeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
-import petascope.exceptions.WMSException;
-import petascope.util.ExceptionUtil;
 import petascope.wcs2.handlers.kvp.KVPWCSProcessCoverageHandler;
 import petascope.wcs2.parsers.request.xml.XMLProcessCoverageParser;
 
@@ -93,37 +92,38 @@ public class WcpsController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException, Exception {
         
         if (startException != null) {
             throwStartException();
         }        
         
-        Response response = null;
+        RequestHandlerInterface requestHandlerInterface = () -> {
         
-        log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
-        long start = System.currentTimeMillis();
-        try {
-            // NOTE: this posted WCPS query in requestBody can be WCPS in XML syntax beside the abstract syntax
-            if (kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY) != null) {
-                String requestBody = kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY)[0];
-                // It should be WCPS in XML elements
-                String abstractWcpsQuery = xmlProcessCoverageParser.parseWCPSQueryFromXML(requestBody);
-                // Parsed the WCPS query to abstract syntax and handle it as a POST KVP
-                kvpParameters.remove(KVPSymbols.KEY_REQUEST_BODY);
-                kvpParameters.put(KVPSymbols.KEY_QUERY, new String[] {abstractWcpsQuery});
-            }        
+            Response response = null;
+            boolean requestSuccess = true;
+        
+            long startTime = System.currentTimeMillis();
+            try {
+                // NOTE: this posted WCPS query in requestBody can be WCPS in XML syntax beside the abstract syntax
+                if (kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY) != null) {
+                    String requestBody = kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY)[0];
+                    // It should be WCPS in XML elements
+                    String abstractWcpsQuery = xmlProcessCoverageParser.parseWCPSQueryFromXML(requestBody);
+                    // Parsed the WCPS query to abstract syntax and handle it as a POST KVP
+                    kvpParameters.remove(KVPSymbols.KEY_REQUEST_BODY);
+                    kvpParameters.put(KVPSymbols.KEY_QUERY, new String[]{abstractWcpsQuery});
+                }        
 
-            response = kvpProcessCoverageHandler.handle(kvpParameters);
-            this.writeResponseResult(response);            
-        } catch (Exception ex) {
-            ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.WCPS_SERVICE), ex, injectedHttpServletResponse);
-        } finally {
-            long end = System.currentTimeMillis();
-            long totalTime = end - start;
-            log.info("Request processed in " + String.valueOf(totalTime) + " ms.");
-
-        }
+                response = kvpProcessCoverageHandler.handle(kvpParameters);
+                this.writeResponseResult(response);            
+            } catch (Exception ex) {
+                requestSuccess = false;
+                throw new PetascopeRuntimeException(VersionManager.getLatestVersion(KVPSymbols.WCPS_SERVICE), ex);
+            }
+        };
+        
+        super.handleRequest(kvpParameters, requestHandlerInterface);
     }
 
     @Override

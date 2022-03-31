@@ -63,7 +63,8 @@ import rasj.RasResultIsNoIntervalException;
 public class RasUtil {
 
     private static final Logger log = LoggerFactory.getLogger(RasUtil.class);
-
+    static long QUERY_COUNTER = 0;
+    
     private static void closeDB(Database db) throws RasdamanException {
         if (db != null) {
             try {
@@ -117,7 +118,10 @@ public class RasUtil {
      */
     public static Object executeRasqlQuery(String query, String username, String password, boolean rw, RasGMArray rasGMArray) throws PetascopeException {
         final long start = System.currentTimeMillis();
-        log.info("Executing rasql query: " + query);
+        String queryCounter = QUERY_COUNTER_PREFIX + QUERY_COUNTER;
+        QUERY_COUNTER++;
+        
+        log.info("Executing rasql query " + queryCounter + ": " + query);
         
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
@@ -152,7 +156,7 @@ public class RasUtil {
             }
         } catch (Exception ex) {
             // not really supposed to ever throw an exception
-            log.error("Failed creating query object: " + ex.getMessage());
+            log.error("Failed creating query object. Reason: " + ex.getMessage());
             abortTR(tr);
             closeDB(db);
             throw new RasdamanException(ExceptionCode.InternalComponentError, ex, query);
@@ -190,7 +194,7 @@ public class RasUtil {
 
         final long end = System.currentTimeMillis();
         final long totalTime = end - start;
-        log.info("Rasql query executed in " + String.valueOf(totalTime) + " ms.");
+        log.info("Rasql query " + queryCounter + " executed in " + totalTime + " ms.");
 
         return ret;
     }
@@ -689,4 +693,6 @@ public class RasUtil {
     private static final String TEMPLATE_SDOM = "SELECT sdom(m) FROM " + TOKEN_COLLECTION_NAME + " m";
     private static final String TEMPLATE_DROP_COLLECTION = "DROP COLLECTION " + TOKEN_COLLECTION_NAME;
     private static final String TEMPLATE_DROP_RASDAMAN_TYPE = "DROP TYPE " + RASDAMAN_TYPE;
+    
+    private static final String QUERY_COUNTER_PREFIX = "rasql-";
 }

@@ -64,6 +64,8 @@ import petascope.core.response.MultipartResponse;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.PetascopeRuntimeException;
+import petascope.util.ExceptionUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import static petascope.util.MIMEUtil.MIME_BINARY;
@@ -85,8 +87,8 @@ public abstract class AbstractController {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractController.class);
     
-    // NOTE: if WCS GetCapabilities does not have version or acceptversions parameter, it uses this default version.
-    public static final String WCS_GETCAPABILITIES_DEFAULT_ACCEPTVERSIONS = "2.0.1";
+    private static long REQUEST_COUNTER = 0;
+    private static final String REQUEST_COUNTER_PREFIX = "req-";
     
     // When petascope cannot start for some reasons, just not throw the exception until it can start the web application and throw exception to user via HTTP request
     public static Exception startException;
@@ -199,7 +201,7 @@ public abstract class AbstractController {
      * Depend on the requested service then pass the map of keys, values
      * parameters to the corresponding handler
      */
-    abstract protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws PetascopeException;
+    abstract protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception;
 
     /**
      * From the GET request query string to map of key / values which is encoded
@@ -784,7 +786,7 @@ public abstract class AbstractController {
     /**
      * Get request IP address from client to petascope
      */
-    protected String getRequesIPAddress() {
+    protected String getRequestIPAddress() {
         // in case, petascope is behind Apache proxy, then get the forwared IP via proxy
         String sourceIP = this.injectedHttpServletRequest.getHeader("X-FORWARDED-FOR");
         if (sourceIP == null) {
@@ -825,19 +827,31 @@ public abstract class AbstractController {
             requestTmp = httpServletRequest.getRequestURI() + "?" + this.getRequestRepresentation(kvpParameters);
         }
         
-        log.info("Received request: " + requestTmp);
+        // e.g req-10
+        String requestCounter = REQUEST_COUNTER_PREFIX + REQUEST_COUNTER;
+        REQUEST_COUNTER++;
         
-        return new Pair<>(requestTmp, System.currentTimeMillis());
+        log.info("Received request " + requestCounter + ": " + requestTmp);
+        
+        return new Pair<>(requestCounter, System.currentTimeMillis());
     } 
     
-    private void logError(String request, long startTime, Exception ex) throws Exception {
-        String errorMessage = "Failed processing request " + request 
+    private void logError(String requestCounter, long startTime, Exception ex) throws Exception {
+        // default it is 2.0.1
+        String version = VersionManager.WCS_VERSION_20;
+        if (ex instanceof PetascopeRuntimeException) {
+            PetascopeRuntimeException pex = ((PetascopeRuntimeException)ex);
+            ex = pex.getException();
+            version = pex.getVersion();
+        }
+        String errorMessage = "Failed processing request " + requestCounter 
                                 + ", evaluation time " + String.valueOf(System.currentTimeMillis() - startTime) + " ms. Reason: " + ex.getMessage();
-        log.error(errorMessage);        
+        log.error(errorMessage);      
+        ExceptionUtil.handle(version, ex, injectedHttpServletResponse);
     }
     
-    private void logSuccess(String request, long startTime) {
-        log.info("Processed request: " + request + " in " + String.valueOf(System.currentTimeMillis() - startTime) + " ms.");
+    private void logSuccess(String requestCounter, long startTime) {
+        log.info("Processed request " + requestCounter + " in " + String.valueOf(System.currentTimeMillis() - startTime) + " ms.");
     }
     
     /**
@@ -867,7 +881,6 @@ public abstract class AbstractController {
             if (requestStartingTimePair != null) {
                 this.logError(requestStartingTimePair.fst, requestStartingTimePair.snd, ex);
             }
-            throw ex;
         } finally {
             if (requestSuccess) {
                 this.logSuccess(requestStartingTimePair.fst, requestStartingTimePair.snd);
