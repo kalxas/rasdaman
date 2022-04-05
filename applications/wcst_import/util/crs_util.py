@@ -55,11 +55,11 @@ class CRSAxis:
     AXIS_TYPE_UNKNOWN = "UNKNOWN"
 
     # These axis abbreviations are collected from EPSG database, http://localhost:8080/def/cs/EPSG
-    X_AXES = ["X", "E", "M", "E(X)", "x", "e", "Long", "Lon", "i"]
-    Y_AXES = ["Y", "N", "P", "E(Y)", "y", "n", "Lat", "j"]
+    X_AXES = ["X".lower(), "E".lower(), "M".lower(), "E(X)".lower(), "Long".lower(), "Lon".lower(), "i"]
+    Y_AXES = ["Y".lower(), "N".lower(), "P".lower(), "E(Y)".lower(), "Lat".lower(), "j"]
 
-    ELEVATION_UP_AXES = ["h", "H"]
-    ELEVATION_DOWN_AXES = ["D"]
+    ELEVATION_UP_AXES = ["H".lower()]
+    ELEVATION_DOWN_AXES = ["D".lower()]
 
     UOM_UCUM = "uom/UCUM"
 
@@ -108,6 +108,8 @@ class CRSAxis:
         :param str axis_label: name of axis
         :return: str type of axis
         """
+        axis_label = axis_label.lower()
+
         if axis_label in CRSAxis.X_AXES:
             return CRSAxis.AXIS_TYPE_X
         elif axis_label in CRSAxis.Y_AXES:
