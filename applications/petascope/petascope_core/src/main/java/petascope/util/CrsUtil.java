@@ -504,7 +504,7 @@ public class CrsUtil {
                             uomName = uomAtt.getValue().split(" ")[0]; // UoM is meant as one word only
                         } else {
                             uomUrl = new URL(uomCrsUrlTmp);
-                            if (uomCrsUrlTmp.contains(TimeUtil.UCUM)) {
+                            if (uomCrsUrlTmp.contains(TimeUtil.UCUM) || uomCrsUrlTmp.contains(INDEX_UOM)) {
                                 // e.g. http://crs.rasdaman.com/def/uom/UCUM/0/d which is reirected to non-existing link http://opengis.net/def/uom/UCUM/0/d 
                                 // hence, it returns d from URL
                                 uomName = extractUomNameFromUri(uomUrl);

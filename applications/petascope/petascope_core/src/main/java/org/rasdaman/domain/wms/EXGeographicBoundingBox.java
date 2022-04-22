@@ -146,10 +146,15 @@ public class EXGeographicBoundingBox implements Serializable {
      * Return the values of min, max of 2 axes to put inside
      * EX_GeographicBoundingBox XML element.
      *
-     * @return
      */
     @JsonIgnore
     public String getReprenstation() {
+        return getElement().toXML();
+    }
+    
+    
+    @JsonIgnore
+    public Element getElement() {
         Element exBBoxElement = new Element(XMLSymbols.LABEL_WMS_EX_BBOX);
 
         Element westBoundLongitudeElement = new Element(LABEL_WMS_WEST_BOUND_LONGITUDE);
@@ -165,8 +170,8 @@ public class EXGeographicBoundingBox implements Serializable {
         exBBoxElement.appendChild(eastBoundLongitudeElement);
         exBBoxElement.appendChild(southBoundLatitudeElement);
         exBBoxElement.appendChild(northBoundLatitudeElement);
-
-        return exBBoxElement.toXML();
+        
+        return exBBoxElement;
     }
 
 }

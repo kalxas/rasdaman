@@ -118,7 +118,7 @@ public class AdminUpdateCoverageController extends AbstractController {
                 String mimeType = firstMultipartFile.getContentType().toLowerCase();
                 
                 if (!(mimeType.contains("text")
-                    || mimeType.contains("json")
+                    || mimeType.contains("json") || mimeType.contains("application/octet-stream")
                     || mimeType.contains("xml"))) {
                     throw new PetascopeException(ExceptionCode.InvalidRequest, 
                                                 "Uploaded metadata file must be text/XML/JSON format. Given: '" + mimeType + "'.");

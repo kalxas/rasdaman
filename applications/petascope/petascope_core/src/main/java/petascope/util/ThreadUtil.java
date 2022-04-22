@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 
@@ -35,6 +36,7 @@ import petascope.exceptions.PetascopeException;
 public class ThreadUtil {
     
     private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ThreadUtil.class);    
     
     /**
      * Run a list of tasks in parallel in batch mode (max = number of CPU cores)
@@ -46,5 +48,24 @@ public class ThreadUtil {
             throw new PetascopeException(ExceptionCode.RuntimeError, 
                       "Error while running multiple threads. Reason: " + ex.getMessage(), ex);
         }
+    }
+    
+    /**
+     * Given a list of tasks, run them in a separated thread
+     */
+    public static void executeTasksInParallelInBackground(final String tasksDescription, final List<Callable<Object>> tasks) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ThreadUtil.executeMultipleTasksInParallel(tasks);
+                } catch (PetascopeException ex) {
+                    log.warn("Failed to run tasks to " + tasksDescription + ". Reason: " + ex.getMessage(), ex);
+                }
+            }
+        };
+        
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 }

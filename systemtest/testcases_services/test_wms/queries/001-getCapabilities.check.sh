@@ -35,7 +35,7 @@ cp "$oracle" "$nora"
 for file in "$nout" "$nora"
 do
   prepare_xml_file "$file"
-  sed -i -n 1,60p "$file"
+  sed -i -n 1,50p "$file"
 done
 
 diff -b "$nout" "$nora" > /dev/null 2>&1

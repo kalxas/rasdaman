@@ -80,7 +80,8 @@ public class WaitingTimer {
     /**
      * Check if the task should run by the current time and its stored time in milliseconds
      */
-    public boolean shouldRun(long currentTimeMillis) {
+    public boolean shouldRun() {
+        long currentTimeMillis = System.currentTimeMillis();
         // By default, this task should run, when it doesn't have any failed request
         if (currentWaitInSeconds == initialWaitInSeconds) {
             return true;

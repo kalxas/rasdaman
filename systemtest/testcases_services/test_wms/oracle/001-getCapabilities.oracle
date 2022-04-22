@@ -1,4 +1,3 @@
->
 <Service>
 <Name>WMS</Name>
 <Title>rasdaman</Title>
@@ -26,12 +25,10 @@
 <Format>text/xml</Format>
 <DCPType>
 <HTTP>
-<Get>
-<OnlineResource
-</Get>
-<Post>
-<OnlineResource
-</Post>
+<GET>
+</GET>
+<POST>
+</POST>
 </HTTP>
 </DCPType>
 </GetCapabilities>
@@ -41,20 +38,13 @@
 <Format>image/tiff</Format>
 <DCPType>
 <HTTP>
-<Get>
-<OnlineResource
-</Get>
+<GET>
+</GET>
+<POST>
+</POST>
 </HTTP>
 </DCPType>
 </GetMap>
 </Request>
-<Exception>
-<Format>XML</Format>
-<Format>INIMAGE</Format>
-<Format>BLANK</Format>
-</Exception>
 <Layer>
-<Title>Rasdaman Web Map Service</Title>
-<Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
-<Layer cascaded="0" fixedHeight="0" fixedWidth="0"
-noSubsets="0" opaque="1" queryable="0">
+<Title>asdaman Web Map Service</Title>

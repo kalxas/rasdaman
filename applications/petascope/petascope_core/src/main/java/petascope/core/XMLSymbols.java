@@ -92,6 +92,7 @@ public interface XMLSymbols {
     String NAMESPACE_WCS_21 = "http://www.opengis.net/wcs/2.1";
     // nu xom to get the child element must need the namespace beside the nu
     String NAMESPACE_WCPS = "http://www.opengis.net/wcps/1.0";
+    String NAMESPACE_WMS = "http://www.opengis.net/wms";
     String NAMESPACE_WSDL = "http://schemas.xmlsoap.org/wsdl/";
     String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
@@ -189,9 +190,16 @@ public interface XMLSymbols {
     String LABEL_WMS_CONTACT_VOICE_TELEPHONE = "ContactVoiceTelephone";
     String LABEL_WMS_CONTACT_FACSIMILE_TELEPHONE = "ContactFacsimileTelephone";
     String LABEL_WMS_CONTACT_EMAIL = "ContactElectronicMailAddress";
+    String LABEL_WMS_DCPTYPE = "DCPType";
+    String LABEL_WMS_HTTP = "HTTP";
+    String LABEL_WMS_GET = "GET";
+    String LABEL_WMS_POST = "POST";    
+    
+    String LABEL_WMS_DIMENSION = "Dimension";    
     String LABEL_WMS_FEES = "Fees";
     String LABEL_WMS_ACCESS_CONSTRAINTS = "AccessConstraints";
     String LABEL_WMS_CAPABILITY = "Capability";
+    String LABEL_WMS_WMS_CAPABILITIES = "WMS_Capabilities";
     String LABEL_WMS_REQUEST = "Request";
     String LABEL_WMS_GET_CAPABILITIES = "GetCapabilities";
     String LABEL_WMS_GET_MAP = "GetMap";
@@ -205,11 +213,11 @@ public interface XMLSymbols {
     String LABEL_WMS_SOUTH_BOUND_LATITUDE = "southBoundLatitude";
     String LABEL_WMS_NORTH_BOUND_LATITUDE = "northBoundLatitude";
     String LABEL_WMS_BOUNDING_BOX = "BoundingBox";
+    String ATT_WMS_UPDATE_SEQUENCE = "updateSequence";
     String ATT_WMS_MIN_X = "minx";
     String ATT_WMS_MIN_Y = "miny";
     String ATT_WMS_MAX_X = "maxx";
     String ATT_WMS_MAX_Y = "maxy";
-    String LABEL_WMS_DIMENSION = "Dimension";
     String ATT_WMS_NAME = "name";
     String ATT_WMS_UNITS = "units";
     String ATT_WMS_UNIT_SYMBOLS = "units";
@@ -408,7 +416,7 @@ public interface XMLSymbols {
 
     // soap
     String LABEL_BODY = "Body";
-    
+
     // CRS definitions
     String LABEL_CRSAXIS = "axis";
     String LABEL_CSAXIS = "CoordinateSystemAxis";
@@ -562,6 +570,8 @@ public interface XMLSymbols {
     
     String SCHEMA_LOCATION_INSPIRE1 = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0";
     String SCHEMA_LOCATION_INSPIRE2 = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0/inspire_dls.xsd";
+    
+    String SCHEMA_LOCATION_WMS = "http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd";
     
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

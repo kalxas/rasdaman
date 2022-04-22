@@ -154,12 +154,14 @@ public class BoundingBox implements Serializable {
 
     /**
      * Create a BoundingBox XML element and get the XML string
-     *
-     * @return
      */
     @JsonIgnore
     public String getRepresentation() {
-        
+        return getElement().toXML();
+    }
+    
+    @JsonIgnore
+    public Element getElement() {
         Element bboxElement = new Element(XMLSymbols.LABEL_WMS_BOUNDING_BOX);
         Attribute crsAttribute = new Attribute(XMLSymbols.LABEL_WMS_CRS, this.getCrs());
         Attribute minxAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_X, xmin);
@@ -173,8 +175,8 @@ public class BoundingBox implements Serializable {
         bboxElement.addAttribute(maxxAttribute);
         bboxElement.addAttribute(maxyAttribute);
 
-        return bboxElement.toXML();
-    }
+        return bboxElement;
+    }    
 
     @Override
     public int hashCode() {
