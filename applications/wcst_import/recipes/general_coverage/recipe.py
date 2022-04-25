@@ -509,6 +509,18 @@ class Recipe(BaseRecipe):
                     # Just fetch all metadata for user specified bands
                     bands_metadata = NetcdfToCoverageConverter.parse_netcdf_bands_metadata(file_path, user_bands)
 
+                    bands = self.options["coverage"]["slicer"]["bands"]
+                    for band in bands:
+                        # coverage's customized band name by user, e.g. band1
+                        band_name = band["name"]
+                        # file's band name, e.g. ndvi
+                        band_identifier = band["identifier"]
+
+                        if band_name != band_identifier:
+                            # user defined a customized band name as a coverages' band instead of using band_identifier
+                            bands_metadata[band_name] = bands_metadata[band_identifier]
+                            del bands_metadata[band_identifier]
+
                     if "bands" in self.options['coverage']['metadata']:
                         # a dictionary of user defined bands' metadata
                         bands_metadata_configured = self.options['coverage']['metadata']['bands']

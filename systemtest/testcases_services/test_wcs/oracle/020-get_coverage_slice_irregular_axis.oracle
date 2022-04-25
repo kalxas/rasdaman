@@ -1,93 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage
-id="test_irr_cube_1"
->
-<boundedBy>
-<Envelope axisLabels="i j" srsDimension="2"
-srsName="/crs/OGC/0/Index3D" uomLabels="GridSpacing GridSpacing">
-<lowerCorner>-0.5 3.5</lowerCorner>
-<upperCorner>1.5 5.5</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<gmlrgrid:ReferenceableGridByVectors dimension="2" gmlrgrid:id="test_irr_cube_1-grid">
-<limits>
-<GridEnvelope>
-<low>0 4</low>
-<high>1 5</high>
-</GridEnvelope>
-</limits>
-<axisLabels>i j</axisLabels>
-<gmlrgrid:origin>
-<Point
-id="test_irr_cube_1-point" srsName="/crs/OGC/0/Index3D">
-<pos>0 5</pos>
-</Point>
-</gmlrgrid:origin>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">1 0</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 -1</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-</gmlrgrid:ReferenceableGridByVectors>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">504,505,514,515</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>0 4</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="band_1">
-<swe:Quantity definition="/dataType/OGC/0/signedInt">
-<swe:label>band_1</swe:label>
-<swe:description>Test values</swe:description>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<bands>
-<value>
-<valid_min>0</valid_min>
-<valid_max>65535</valid_max>
-<definition>/dataType/OGC/0/unsignedShort</definition>
-<description>primitive</description>
-<units>10</units>
-</value>
-</bands>
-<axes>
-<k/>
-</axes>
-<description>This is a test coverage</description>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:ReferenceableGridCoverage gml:id="test_irr_cube_1"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+    xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:rasdaman="http://www.rasdaman.org"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+    <gml:boundedBy>
+        <gml:Envelope axisLabels="i j" srsDimension="2"
+            srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index3D" uomLabels="GridSpacing GridSpacing">
+            <gml:lowerCorner>-0.5 3.5</gml:lowerCorner>
+            <gml:upperCorner>1.5 5.5</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="2" gmlrgrid:id="test_irr_cube_1-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0 4</gml:low>
+                    <gml:high>1 5</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>i j</gml:axisLabels>
+            <gmlrgrid:origin>
+                <gml:Point gml:id="test_irr_cube_1-point" srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index3D">
+                    <gml:pos>0 5</gml:pos>
+                </gml:Point>
+            </gmlrgrid:origin>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index3D">1 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index3D">0 -1</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">504,505,514,515</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>0 4</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="band_1">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedInt">
+                    <swe:label>band_1</swe:label>
+                    <swe:description>Test values</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <rasdaman:covMetadata>
+                <bands>
+                    <band_1>
+                        <valid_min>0</valid_min>
+                        <valid_max>65535</valid_max>
+                        <definition>http://www.opengis.net/def/dataType/OGC/0/unsignedShort</definition>
+                        <description>primitive</description>
+                        <units>10</units>
+                    </band_1>
+                </bands>
+                <axes>
+                    <k/>
+                </axes>
+                <description>This is a test coverage</description>
+            </rasdaman:covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

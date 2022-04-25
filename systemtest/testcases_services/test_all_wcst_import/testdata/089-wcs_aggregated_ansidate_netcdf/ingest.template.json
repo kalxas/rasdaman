@@ -28,7 +28,7 @@
           "pixelIsPoint": true,
           "bands": [
             {
-              "name": "1",
+              "name": "b1",
               "description": "Nadir BRDF Adjusted Reflectance 0.43-0.45 microns (Coastal Aerosol)",
               "identifier": "b1",
               "nilValue": "-999"

@@ -88,13 +88,13 @@
         <gmlcov:Extension>
             <rasdaman:covMetadata>
                 <bands>
-                    <value>
+                    <band_1>
                         <valid_min>0</valid_min>
                         <valid_max>65535</valid_max>
                         <definition>http://www.opengis.net/def/dataType/OGC/0/unsignedShort</definition>
                         <description>primitive</description>
                         <units>10</units>
-                    </value>
+                    </band_1>
                 </bands>
                 <axes>
                     <k/>

@@ -8,7 +8,7 @@
     "subset_correction": false
   },
   "input": {
-    "coverage_id": "test_CCI_V2_monthly_chlor_a",
+    "coverage_id": "test_wcs_band_name_different_identifier_in_coverage_global_metadata",
     "paths": [
       "*.nc"
     ]
@@ -20,7 +20,7 @@
         "crs": "EPSG/0/4326@OGC/0/AnsiDate",
         "metadata": {
           "type": "xml",
-          "global": {}
+          "global": "auto"
 	},
 	"slicer": {
           "type": "netcdf",
