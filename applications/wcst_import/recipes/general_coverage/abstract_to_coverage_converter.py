@@ -584,8 +584,9 @@ class AbstractToCoverageConverter:
                     first_coverage_slice = slices[0]
                     break
 
-            # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
-            global_metadata = self._generate_global_metadata(first_coverage_slice)
+            if first_coverage_slice is not None:
+                # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
+                global_metadata = self._generate_global_metadata(first_coverage_slice)
 
         # Evaluate all the swe bands's metadata (each file should have same swe bands's metadata), so first file is ok
         self._evaluate_swe_bands_metadata(self.files[0], self.bands)
