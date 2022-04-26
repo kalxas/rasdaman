@@ -162,6 +162,7 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options)
         if (messageDomainsMap.count(messageIndex) == 0)
         {
             // skip message, it was not specified for ingestion in the format parameters
+            ++messageIndex;
             continue;
         }
         validateMessageDomain(in, h, messageIndex, messageWidth, messageHeight, messageArea);
