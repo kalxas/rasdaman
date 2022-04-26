@@ -180,10 +180,15 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param String grib_file: path to a grib file
         :rtype: list[GRIBMessage]
         """
+        # NOTE: grib only supports 1 band
+        band = self.bands[0]
+
         pygrib = import_pygrib()
 
         self.dataset = pygrib.open(grib_file.filepath)
         evaluated_messages = []
+
+        collected_messages = []
 
         # Message id starts with "1"
         for i in range(1, self.dataset.messages + 1):
@@ -224,7 +229,18 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                         evaluated_user_axis.interval.low, evaluated_user_axis.interval.high = evaluated_user_axis.interval.high, evaluated_user_axis.interval.low
                 evaluated_user_axis.statements = user_axis.statements
                 axes.append(evaluated_user_axis)
-            evaluated_messages.append(GRIBMessage(i, axes, grib_message))
+
+            # e.g. 2d for 2m_dewpoint_temperature
+            band_name = grib_message["shortName"]
+            if band_name == band.identifier:
+                evaluated_messages.append(GRIBMessage(i, axes, grib_message))
+
+            collected_messages.append(GRIBMessage(i, axes, grib_message))
+
+        if len(evaluated_messages) == 0:
+            # NOTE: in case, input file has only 1 band, but user defined random band identifier (backward compatibility),
+            # instead of the one from shortName then, this collect every available messages from the input files
+            evaluated_messages = collected_messages
 
         return evaluated_messages
 

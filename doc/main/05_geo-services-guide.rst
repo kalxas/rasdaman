@@ -2795,7 +2795,12 @@ bounds and resolution corresponding to each file.
   the following options, of which ``identifier`` and ``name`` are mandatory to 
   specify while the rest are optional:
 
-  * ``identifier`` - The name of the band in the input file;
+  * ``identifier`` - The name of the band in the input file; With GRIB recipe,
+    only one band can be specified in the ingredients file and the band identifier must be
+    fetched from ``shortName`` attribute from GRIB messsages. wcst_import only collects the messages
+    matching this selected band identifier. If no messages containing ``shortName`` matched
+    with the specified band identifier, then all GRIB messages will be collected
+    (only works for input GRIB files with only one band).
   * ``name`` - The name of the band which will be used in the created coverage;
     this can be set to different from the ``indentifier``;
   * ``description`` - Metadata description of the band;

@@ -198,7 +198,7 @@ class Recipe(BaseRecipe):
             # NOTE: rasdaman supports 1 band grib only to import
             recipe_type = self.options['coverage']['slicer']['type']
             if recipe_type == GRIBToCoverageConverter.RECIPE_TYPE and number_of_bands > 1:
-                raise RuntimeError("Only single band grib files are currently supported. "
+                raise RecipeValidationException("Only single band grib files are currently supported. "
                                    "Given " + str(number_of_bands) + " bands in ingredient file.")
 
             ret_bands = []
