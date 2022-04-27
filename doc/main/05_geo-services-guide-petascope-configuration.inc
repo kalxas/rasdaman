@@ -48,6 +48,27 @@ Database
     - Need to change: **YES** when a DMBS other than PostgreSQL is used
 
 
+-   ``spring.datasource.tomcat.initial-size`` set the initial size for JDBC connections in pool.
+
+    - Default: ``30 connections``
+
+    - Need to change: NO
+
+
+-   ``spring.datasource.tomcat.max-active`` set the maximum number of active JDBC connections in pool.
+
+    - Default: ``70 connections``
+
+    - Need to change: NO
+
+
+-   ``spring.datasource.tomcat.max-idle`` set the maximum number of idle JDBC connections in pool.
+
+    - Default: ``30 connections``
+
+    - Need to change: NO
+
+
 -   ``metadata_url`` set the connectivity string to the database administered by
     rasdaman-geo. This setting is only used for *database migration* from one
     DBMS to another (e.g. PostgreSQL to H2) with 

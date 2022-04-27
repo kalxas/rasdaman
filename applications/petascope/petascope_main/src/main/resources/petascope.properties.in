@@ -44,6 +44,11 @@ spring.datasource.username=petauser
 spring.datasource.password=petapasswd
 spring.datasource.jdbc_jar_path=
 
+# configurations for Tomcat JDBC Connection Pool
+spring.datasource.tomcat.initial-size=30
+spring.datasource.tomcat.max-active=70
+spring.datasource.tomcat.max-idle=30
+
 metadata_url=jdbc:postgresql://localhost:5432/petascopedb
 metadata_user=petauser
 metadata_pass=petapasswd
