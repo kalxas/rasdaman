@@ -2846,14 +2846,45 @@ bounds and resolution corresponding to each file.
   * ``irregular`` - Set to ``true`` to specify that this axis is irregular, e.g.
     a time axis with irregular datetime indexes; if not specified, it is set to 
     ``false`` by default;
-  * ``directPositions`` - A list of coefficients which are extracted or 
-    calculated from the axis values specified in the input file; for an example 
-    see this `ingredients file
-    <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/089-wcs_aggregated_ansidate_netcdf/ingest.template.json#L46>`__;
+  * ``directPositions`` - A list of coefficients which are extracted and 
+    calculated based on the axis's lower bound from the irregular axis values
+    specified in the input netCDF/GRIB file. 
+    For example, a netCDF file has ``time`` dimension with ``units``: ``"days since 1970-01-01 00:00:00"``,
+    then, all stored valued of ``time`` axis must be calculated as datetime,
+    based on the lower bound value (``"1970-01-01"``), see `ingredients file <https://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/132-wcs_scientfic_null_value_with_trailing_zero/ingest.template.json#L42>`__.
+
+    .. hidden-code-block:: json
+    
+        "axes": {
+            "time": {
+                "statements": "from datetime import datetime, timedelta",
+                "min": "(datetime(1970,12,31,12,0,0) + timedelta(days=${netcdf:variable:time:min})).strftime(\"%Y-%m-%dT%H:%M\")",
+                "max": "(datetime(1970,12,31,12,0,0) + timedelta(days=${netcdf:variable:time:max})).strftime(\"%Y-%m-%dT%H:%M\")",
+                "directPositions": "[(datetime(1970,12,31,12,0,0) + timedelta(days=x)).strftime(\"%Y-%m-%dT%H:%M\") for x in ${netcdf:variable:time}]",
+                "irregular": true,
+  	            "resolution": 1,
+                "gridOrder": 0
+             },
+           ...
+
   * ``dataBound`` - Set to ``false`` to specify that this axis should be 
     imported as a slicing point instead of a subset with lower and upper bounds;
     typical use case for this is when extracting irregular datetime values from 
     the input file names. When not specified it is set to ``true`` by default.
+    For example, a coverage has an irregular axis ``ansi`` with values fetched from
+    input netCDF file names (e.g. ``GlobLAI-20030101-20030110-H01V06-1.0_MERIS-FR-LAI-HA.nc``).
+
+    .. hidden-code-block:: json
+
+         "axes": {
+            "ansi": {
+                "min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
+                "gridOrder": 0,
+                "irregular": true,
+                "dataBound": false
+            },
+         ...
+
   * ``sliceGroupSize`` - Group multiple input slices into a single slice in the
     created coverage, e.g., multiple daily data files onto a single week index
     on the coverage time axis; explained in more detail :ref:`here <slice-group-size>`;

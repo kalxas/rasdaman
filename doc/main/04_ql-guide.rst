@@ -3896,6 +3896,7 @@ is not supported. As not all base types supported by rasdaman (char, octet,
 float, etc.) are necessarily supported by each format, care must be taken to
 cast the MDD beforehand.
 
+.. _rasql-encode-function-data-format:
 
 Data format
 -----------
