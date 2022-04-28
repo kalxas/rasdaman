@@ -27,10 +27,10 @@
 	       "b1",
                "b2"
 	    ]
-        },
-     
-        "tiling": "ALIGNED [0:0, 0:1000, 0:500]"
+        }     
+
     },
+  "tiling": "ALIGNED [0:0, 0:1000, 0:500]",
   "hooks": [
       {
         "description": "create a struct type manually and petascope needs to create a different cell type to avoid duplicate.",

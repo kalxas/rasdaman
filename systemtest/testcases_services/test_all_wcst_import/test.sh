@@ -146,7 +146,7 @@ for test_case in "$TEST_DATA"/*; do
     [ "$test_case_name" = "$COLLECTION_EXISTS" ] && create_coll "$COLLECTION_NAME" RGBSet > /dev/null 2>&1
 
     # 1.4 execute wcst_import with $recipe_file
-    if [[ "$test_case" == *error_* ]]; then
+    if [[ "$test_case" == *error* ]]; then
         # This test returns error, then check with test.oracle
         outputError=$($WCST_IMPORT "$recipe_file" 2>&1)
 	    echo "$outputError" > "$OUTPUT_DIR/$test_case_name/test.output"

@@ -7,32 +7,20 @@
                 "service_url": {
                     "type": "string"
                 },
-                "tmp_directory": {
-                    "type": "string"
+                "mock": {
+                    "type": [ "boolean", "string" ]
                 },
                 "automated": {
-                    "type": "boolean"
-                },
-                "track_files": {
-                    "type": "boolean"
-                },
-                "subset_correction": {
-                    "type": "boolean"
-                },
-                "insitu": {
-                    "type": "boolean"
-                },
-                "black_listed": {
-                    "type": "boolean"
-                },
-                "mock": {
-                    "type": "boolean"
+                    "type": [ "boolean", "string" ]
                 },
                 "blocking": {
-                    "type": "boolean"
+                    "type": [ "boolean", "string" ]
                 },
                 "default_null_values": {
                     "type": "array"
+                },
+                "tmp_directory": {
+                    "type": "string"
                 },
                 "crs_resolver": {
                     "type": "string"
@@ -41,14 +29,21 @@
                     "type": "string"
                 },
                 "skip": {
-                    "type": "boolean"
+                    "type": [ "boolean", "string" ]
                 },
                 "retry": {
-                    "type": "boolean"
+                    "type": [ "boolean", "string" ]
                 },
                 "retries": {
                     "type": "number",
                     "default": 5
+                },
+                "retry_sleep": {
+                    "type": "number",
+                    "default": 1
+                },
+                "track_files": {
+                    "type": [ "boolean", "string" ]
                 },
                 "resumer_dir_path": {
                     "type": "string"
@@ -58,6 +53,15 @@
                 },
                 "description_max_no_slices": {
                     "type": "number"
+                },
+                "insitu": {
+                    "type": [ "boolean", "string" ]
+                },
+                "black_listed": {
+                    "type": [ "boolean", "string" ]
+                },
+                "subset_correction": {
+                    "type": [ "boolean", "string" ]
                 },
                 "default_crs": {
                     "type": "string"
@@ -106,62 +110,214 @@
                    "type": "string"
                 },
                 "options": {
+                    "type": "object",
                     "properties": {
-                            "import_order": {
-                                "type": "string",
-                                "default": "ascending"
-                            },
-                            "coverage": {
-                                "type": "object",
-                                "properties": {
-                                    "crs": {},
-                                    "grid_coverage": {},
-                                    "metadata": {},
-                                    "slicer": {},
-                                    "__comment__": {
-                                        "type": "string"
+                        "import_order": {
+                            "type": "string",
+                            "default": "ascending"
+                        },
+                        "tiling": {},
+                        "wms_import": {},
+                        "scale_levels": {},
+                        "scale_factors": {},
+                        "import_overviews": {
+                             "type": "array",
+                             "items": {
+                                 "type": "number"
+                             }
+                        },
+                        "import_all_overviews": {
+                            "type": [ "boolean", "string" ]
+                        },
+                        "import_overviews_only": {
+                            "type": [ "boolean", "string" ]
+                        },
+                        "pyramid_members": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "pyramid_harvesting": {
+                            "type": [ "boolean", "string" ]
+                        },
+                        "pyramid_bases": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "band_names": {},
+                        "__comment__": {
+                            "type": "string"
+                        },
+                        "coverage_id": {
+                            "type": "string"
+                        },
+                        "partitioning_scheme": {
+                            "type": "array",
+                            "items": {
+                                "type": [ "number", "string" ]
+                            }
+                        },
+
+
+                        "time_crs": {
+                            "type": "string"
+                        },
+                        "time_format": {
+                            "type": "string"
+                        },
+                        "time_parameter": {
+                            "type": "object"
+                        },
+                        "time_start": {
+                            "type": "string"
+                        },
+                        "time_step": {
+                            "type": "string"
+                        },
+                        "time_tag": {
+                            "type": "string"
+                        },
+                        "wcs_endpoint": {
+                            "type": "string"
+                        },
+                        "envelope": {},
+
+                        "coverage": {
+                            "type": "object",
+                            "properties": {
+                                "crs": {},
+
+                                "metadata": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "global": {
+                                            "type": ["object", "string"]
+                                        },
+                                        "local": {
+                                            "type": ["object", "string"]
+                                        }
                                     }
                                 },
-                                "additionalProperties": false
-                            },
-                            "band_names": {},
-                            "__comment__": {},
-                            "coverage_id": {},
-                            "partitioning_scheme": {},
-                            "scale_levels": {},
-                            "scale_factors": {},
-                            "pyramid_members": {},
-                            "pyramid_bases": {},
-                            "pyramid_harvesting": {
-                                "type": "boolean"
-                            },
-                            "import_overviews_only": {
-                                "type": "boolean"
-                            },
-                            "tiling": {},
-                            "time_crs": {},
-                            "time_format": {},
-                            "time_parameter": {},
-                            "time_start": {},
-                            "time_step": {},
-                            "time_tag": {},
-                            "wcs_endpoint": {},
-                            "wms_import": {},
-                            "envelope": {},
-                            "import_all_overviews": {
-                                "type": "boolean"
-                            },
-                            "import_overviews": {
-                                 "type": "array",
-                                 "items": {
-                                     "type": "number"
-                                 }
-                            }
 
+                                "grid_coverage": {
+                                    "type": [ "boolean", "string" ]
+                                },
+
+                                "slicer": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+
+                                        "pixelIsPoint": {
+                                            "type": [ "boolean", "string" ]
+                                        },
+
+                                        "bands": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "patternProperties": {
+                                                    "^[a-zA-Z_]+[a-zA-Z_0-9]+$": {
+                                                        "properties": {
+                                                            "identifier": {
+                                                               "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": "string"
+                                                            },
+                                                            "nilValue": {
+                                                                "type": "string"
+                                                            },
+                                                            "nilReason": {
+                                                                "type": "string"
+                                                            },
+                                                            "uomCode": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "additionalProperties": false
+                                                    }
+                                                },
+                                                "additionalProperties": false
+                                            }
+                                        },
+
+
+                                        "axes": {
+                                            "type": "object",
+                                            "patternProperties": {
+                                                "^[a-zA-Z_]+[a-zA-Z_0-9]+$": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "min": {
+                                                           "type": "string"
+                                                        },
+                                                        "max": {
+                                                           "type": "string"
+                                                        },
+                                                        "resolution": {
+                                                            "type": [ "number", "string" ]
+                                                        },
+                                                        "gridOrder": {
+                                                            "type": "number"
+                                                        },
+                                                        "crsOrder": {
+                                                            "type": "number"
+                                                        },
+                                                        "irregular": {
+                                                            "type": [ "boolean", "string" ]
+                                                        },
+                                                        "regular": {
+                                                            "type": [ "boolean", "string" ]
+                                                        },
+                                                        "statements": {
+                                                            "type": "string"
+                                                        },
+                                                        "directPositions": {
+                                                            "type": "string"
+                                                        },
+                                                        "dataBound": {
+                                                            "type": [ "boolean", "string" ]
+                                                        },
+                                                        "sliceGroupSize": {
+                                                            "type": "number"
+                                                        },
+                                                        "type": {
+                                                            "type": "string"
+                                                        },
+                                                        "crs_origin": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "additionalProperties": false
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                },
+                                "__comment__": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
                     },
                     "additionalProperties": false
                 }
-            }
+            },
+            "additionalProperties": false
         },
 
         "hooks": {
