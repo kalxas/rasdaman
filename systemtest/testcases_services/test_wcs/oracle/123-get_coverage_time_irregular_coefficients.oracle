@@ -1,96 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage
-id="test_time_irregular_coefficients_subset"
->
-<boundedBy>
-<Envelope axisLabels="ansi E N" srsDimension="3"
-srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre metre">
-<lowerCorner>"2016-01-02T00:00:06.000Z" 75042.72735943 5054865.557938452</lowerCorner>
-<upperCorner>"2016-01-04T00:00:00.000Z" 675042.72735943 5454865.557938452</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_time_irregular_coefficients_subset-grid">
-<limits>
-<GridEnvelope>
-<low>5 0 0</low>
-<high>12 5 3</high>
-</GridEnvelope>
-</limits>
-<axisLabels>ansi E N</axisLabels>
-<gmlrgrid:origin>
-<Point
-id="test_time_irregular_coefficients_subset-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-<pos>"2016-01-02T00:00:06.000Z" 125042.72735943 5404865.557938452</pos>
-</Point>
-</gmlrgrid:origin>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">1 0 0</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients>"2016-01-02T00:00:06.000Z" "2016-01-02T00:00:12.000Z" "2016-01-02T00:00:18.000Z" "2016-01-03T00:00:00.000Z" "2016-01-03T00:00:06.000Z" "2016-01-03T00:00:12.000Z" "2016-01-03T00:00:18.000Z" "2016-01-04T00:00:00.000Z"</gmlrgrid:coefficients>
-<gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">0 100000 0</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">0 0 -100000</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-</gmlrgrid:ReferenceableGridByVectors>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">3.883555 0.4515569,2.945775 0.4387834,3.978196 0.43945,3.145458 0.4520614,3.393346 0.4513209,4.456496 0.4123786,4.405383 0.3900426,3.031146 0.4517835,3.951529 0.4375794,4.459467 0.3293608,5.800313 0.3373345,2.791195 0.4481353,4.159879 0.4051462,6.715069 0.3234848,5.069576 0.3121709,4.648451 0.4319846,3.698811 0.3607255,2.908488 0.3400914,9.972501 0.269757,4.707361 0.4477586,5.866592 0.3738307,5.70548 0.2950116,5.882939 0.4207436,4.550846 0.452123,2.965984 0.6170288,2.799754 0.6179516,4.339519 0.6173605,7.899784 0.6182226,5.21782 0.617385,3.812742 0.6176075,6.672873 0.6183344,7.98151 0.6181859,4.107188 0.6171698,3.667704 0.6184191,7.620751 0.6179394,6.23123 0.6180235,3.590653 0.6170641,4.697378 0.6186657,6.143163 0.6186599,7.024965 0.6189556,6.690255 0.6174664,5.32112 0.6180047,6.811113 0.6170899,5.62766 0.618189,4.932951 0.6178241,6.475331 0.6137584,6.407063 0.6175515,5.635087 0.6175415,7.549829 1.967234,5.24165 1.815737,2.697591 1.807954,2.539595 1.96067,7.168699 1.949419,5.47122 1.618211,1.367949 1.58965,3.118073 1.944279,7.282836 1.819154,5.248769 1.473109,4.803569 1.531494,4.005803 1.848598,7.71364 1.609735,7.075313 1.430198,5.83957 1.414813,5.150891 1.71222,4.173413 1.532864,6.771255 1.420871,12.36355 1.38591,8.062559 1.817706,4.571552 1.590689,2.786179 1.426095,10.04468 1.696358,8.620003 1.939727,17.92287 4.183589,14.30461 4.138851,11.63093 4.133152,7.909182 4.165964,14.56521 4.160999,10.67193 4.047249,4.704924 4.035863,5.620835 4.153101,12.54115 4.11391,8.831658 3.946721,7.237466 3.937696,6.841255 4.141668,10.02777 4.041971,7.091461 3.917505,6.388295 3.898051,10.62523 4.103829,8.171938 3.993828,6.21068 3.926302,14.49727 3.739195,12.11429 4.11524,11.57932 4.017334,6.774798 3.815695,12.85061 4.073048,16.03979 4.155209,3.883555 0.4515569,2.945775 0.4387834,3.978196 0.43945,3.145458 0.4520614,3.393346 0.4513209,4.456496 0.4123786,4.405383 0.3900426,3.031146 0.4517835,3.951529 0.4375794,4.459467 0.3293608,5.800313 0.3373345,2.791195 0.4481353,4.159879 0.4051462,6.715069 0.3234848,5.069576 0.3121709,4.648451 0.4319846,3.698811 0.3607255,2.908488 0.3400914,9.972501 0.269757,4.707361 0.4477586,5.866592 0.3738307,5.70548 0.2950116,5.882939 0.4207436,4.550846 0.452123,2.965984 0.6170288,2.799754 0.6179516,4.339519 0.6173605,7.899784 0.6182226,5.21782 0.617385,3.812742 0.6176075,6.672873 0.6183344,7.98151 0.6181859,4.107188 0.6171698,3.667704 0.6184191,7.620751 0.6179394,6.23123 0.6180235,3.590653 0.6170641,4.697378 0.6186657,6.143163 0.6186599,7.024965 0.6189556,6.690255 0.6174664,5.32112 0.6180047,6.811113 0.6170899,5.62766 0.618189,4.932951 0.6178241,6.475331 0.6137584,6.407063 0.6175515,5.635087 0.6175415,7.549829 1.967234,5.24165 1.815737,2.697591 1.807954,2.539595 1.96067,7.168699 1.949419,5.47122 1.618211,1.367949 1.58965,3.118073 1.944279,7.282836 1.819154,5.248769 1.473109,4.803569 1.531494,4.005803 1.848598,7.71364 1.609735,7.075313 1.430198,5.83957 1.414813,5.150891 1.71222,4.173413 1.532864,6.771255 1.420871,12.36355 1.38591,8.062559 1.817706,4.571552 1.590689,2.786179 1.426095,10.04468 1.696358,8.620003 1.939727,17.92287 4.183589,14.30461 4.138851,11.63093 4.133152,7.909182 4.165964,14.56521 4.160999,10.67193 4.047249,4.704924 4.035863,5.620835 4.153101,12.54115 4.11391,8.831658 3.946721,7.237466 3.937696,6.841255 4.141668,10.02777 4.041971,7.091461 3.917505,6.388295 3.898051,10.62523 4.103829,8.171938 3.993828,6.21068 3.926302,14.49727 3.739195,12.11429 4.11524,11.57932 4.017334,6.774798 3.815695,12.85061 4.073048,16.03979 4.155209</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-<startPoint>5 0 0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="b1">
-<swe:Quantity definition="/dataType/OGC/0/float32">
-<swe:label>b1</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-3.4e+38</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="b2">
-<swe:Quantity definition="/dataType/OGC/0/float32">
-<swe:label>b2</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-3.4e+38</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:ReferenceableGridCoverage gml:id="test_time_irregular_coefficients_subset" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid">
+    <gml:boundedBy>
+        <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633" axisLabels="ansi E N" uomLabels="d metre metre" srsDimension="3">
+            <gml:lowerCorner>"2016-01-02T00:00:06.000Z" 75042.72735943 5054865.557938452</gml:lowerCorner>
+            <gml:upperCorner>"2016-01-04T00:00:00.000Z" 675042.72735943 5454865.557938452</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_time_irregular_coefficients_subset-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>5 0 0</gml:low>
+                    <gml:high>12 5 3</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>ansi E N</gml:axisLabels>
+            <gmlrgrid:origin>
+                <gml:Point gml:id="test_time_irregular_coefficients_subset-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633">
+                    <gml:pos>"2016-01-02T00:00:06.000Z" 125042.72735943 5404865.557938452</gml:pos>
+                </gml:Point>
+            </gmlrgrid:origin>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633">1 0 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients>"2016-01-02T00:00:06.000Z" "2016-01-02T00:00:12.000Z" "2016-01-02T00:00:18.000Z" "2016-01-03T00:00:00.000Z" "2016-01-03T00:00:06.000Z" "2016-01-03T00:00:12.000Z" "2016-01-03T00:00:18.000Z" "2016-01-04T00:00:00.000Z"</gmlrgrid:coefficients>
+                    <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633">0 100000 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633">0 0 -100000</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">3.883555 0.4515569,2.945775 0.4387834,3.978196 0.43945,3.145458 0.4520614,3.393346 0.4513209,4.456496 0.4123786,4.405383 0.3900426,3.031146 0.4517835,3.951529 0.4375794,4.459467 0.3293608,5.800313 0.3373345,2.791195 0.4481353,4.159879 0.4051462,6.715069 0.3234848,5.069576 0.3121709,4.648451 0.4319846,3.698811 0.3607255,2.908488 0.3400914,9.972501 0.269757,4.707361 0.4477586,5.866592 0.3738307,5.70548 0.2950116,5.882939 0.4207436,4.550846 0.452123,2.965984 0.6170288,2.799754 0.6179516,4.339519 0.6173605,7.899784 0.6182226,5.21782 0.617385,3.812742 0.6176075,6.672873 0.6183344,7.98151 0.6181859,4.107188 0.6171698,3.667704 0.6184191,7.620751 0.6179394,6.23123 0.6180235,3.590653 0.6170641,4.697378 0.6186657,6.143163 0.6186599,7.024965 0.6189556,6.690255 0.6174664,5.32112 0.6180047,6.811113 0.6170899,5.62766 0.618189,4.932951 0.6178241,6.475331 0.6137584,6.407063 0.6175515,5.635087 0.6175415,7.549829 1.967234,5.24165 1.815737,2.697591 1.807954,2.539595 1.96067,7.168699 1.949419,5.47122 1.618211,1.367949 1.58965,3.118073 1.944279,7.282836 1.819154,5.248769 1.473109,4.803569 1.531494,4.005803 1.848598,7.71364 1.609735,7.075313 1.430198,5.83957 1.414813,5.150891 1.71222,4.173413 1.532864,6.771255 1.420871,12.36355 1.38591,8.062559 1.817706,4.571552 1.590689,2.786179 1.426095,10.04468 1.696358,8.620003 1.939727,17.92287 4.183589,14.30461 4.138851,11.63093 4.133152,7.909182 4.165964,14.56521 4.160999,10.67193 4.047249,4.704924 4.035863,5.620835 4.153101,12.54115 4.11391,8.831658 3.946721,7.237466 3.937696,6.841255 4.141668,10.02777 4.041971,7.091461 3.917505,6.388295 3.898051,10.62523 4.103829,8.171938 3.993828,6.21068 3.926302,14.49727 3.739195,12.11429 4.11524,11.57932 4.017334,6.774798 3.815695,12.85061 4.073048,16.03979 4.155209,3.883555 0.4515569,2.945775 0.4387834,3.978196 0.43945,3.145458 0.4520614,3.393346 0.4513209,4.456496 0.4123786,4.405383 0.3900426,3.031146 0.4517835,3.951529 0.4375794,4.459467 0.3293608,5.800313 0.3373345,2.791195 0.4481353,4.159879 0.4051462,6.715069 0.3234848,5.069576 0.3121709,4.648451 0.4319846,3.698811 0.3607255,2.908488 0.3400914,9.972501 0.269757,4.707361 0.4477586,5.866592 0.3738307,5.70548 0.2950116,5.882939 0.4207436,4.550846 0.452123,2.965984 0.6170288,2.799754 0.6179516,4.339519 0.6173605,7.899784 0.6182226,5.21782 0.617385,3.812742 0.6176075,6.672873 0.6183344,7.98151 0.6181859,4.107188 0.6171698,3.667704 0.6184191,7.620751 0.6179394,6.23123 0.6180235,3.590653 0.6170641,4.697378 0.6186657,6.143163 0.6186599,7.024965 0.6189556,6.690255 0.6174664,5.32112 0.6180047,6.811113 0.6170899,5.62766 0.618189,4.932951 0.6178241,6.475331 0.6137584,6.407063 0.6175515,5.635087 0.6175415,7.549829 1.967234,5.24165 1.815737,2.697591 1.807954,2.539595 1.96067,7.168699 1.949419,5.47122 1.618211,1.367949 1.58965,3.118073 1.944279,7.282836 1.819154,5.248769 1.473109,4.803569 1.531494,4.005803 1.848598,7.71364 1.609735,7.075313 1.430198,5.83957 1.414813,5.150891 1.71222,4.173413 1.532864,6.771255 1.420871,12.36355 1.38591,8.062559 1.817706,4.571552 1.590689,2.786179 1.426095,10.04468 1.696358,8.620003 1.939727,17.92287 4.183589,14.30461 4.138851,11.63093 4.133152,7.909182 4.165964,14.56521 4.160999,10.67193 4.047249,4.704924 4.035863,5.620835 4.153101,12.54115 4.11391,8.831658 3.946721,7.237466 3.937696,6.841255 4.141668,10.02777 4.041971,7.091461 3.917505,6.388295 3.898051,10.62523 4.103829,8.171938 3.993828,6.21068 3.926302,14.49727 3.739195,12.11429 4.11524,11.57932 4.017334,6.774798 3.815695,12.85061 4.073048,16.03979 4.155209</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+3 +2 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>5 0 0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="b1">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                    <swe:label>b1</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="b2">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                    <swe:label>b2</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
 </gmlcov:ReferenceableGridCoverage>

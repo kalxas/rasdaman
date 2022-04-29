@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage gml:id="test_sf"
-    xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+<gmlcov:RectifiedGridCoverage gml:id="test_sf" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
-        <gml:Envelope axisLabels="E N" srsDimension="2"
-            srsName="http://localhost:8080/def/crs/EPSG/0/32610" uomLabels="metre metre">
+        <gml:Envelope srsName="http://localhost:8080/def/crs/EPSG/0/32610" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
             <gml:lowerCorner>542859.682243879774 4175169.477475077719</gml:lowerCorner>
             <gml:upperCorner>553861.639562107959 4186171.434793305904</gml:upperCorner>
         </gml:Envelope>

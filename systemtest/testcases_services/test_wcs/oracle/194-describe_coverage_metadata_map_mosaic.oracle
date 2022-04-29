@@ -1,333 +1,330 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions 
->
-<wcs:CoverageDescription id="test_wcs_metadata_map_mosaic">
-<boundedBy>
-<Envelope axisLabels="Lat Lon" srsDimension="2"
-srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
-<lowerCorner>-44.975 111.975</lowerCorner>
-<upperCorner>-8.975 155.975</upperCorner>
-</Envelope>
-</boundedBy>
-<wcs:CoverageId>test_wcs_metadata_map_mosaic</wcs:CoverageId>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-<startPoint>0 0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<slices>
-<slice>
-<boundedBy>
-<Envelope>
-<axisLabels>Lat Lon</axisLabels>
-<srsDimension>2</srsDimension>
-<lowerCorner>-44.975 111.975</lowerCorner>
-<upperCorner>-8.975 130.975</upperCorner>
-</Envelope>
-</boundedBy>
-<local_metadata_key>value_1</local_metadata_key>
-<INSPIRE>
-<oi-cov:OrthoimageCoverageMetadata
->
-<oi-cov:inspireId>
-<base:Identifier>
-<base:localId>FILE 1</base:localId>
-<base:namespace>catalunya</base:namespace>
-</base:Identifier>
-</oi-cov:inspireId>
-<oi-cov:domainExtent>
-<gmd:EX_Extent>
-<gmd:description>
-<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7623.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
-</gmd:description>
-<gmd:geographicElement>
-<gmd:EX_GeographicBoundingBox>
-<gmd:westBoundLonitude>
-<gco:Decimal>2.645040265</gco:Decimal>
-</gmd:westBoundLonitude>
-<gmd:eastBoundLonitude>
-<gco:Decimal>2.813051159</gco:Decimal>
-</gmd:eastBoundLonitude>
-<gmd:southBoundLatitude>
-<gco:Decimal>42.083102736</gco:Decimal>
-</gmd:southBoundLatitude>
-<gmd:northBoundLatitude>
-<gco:Decimal>42.166893882</gco:Decimal>
-</gmd:northBoundLatitude>
-</gmd:EX_GeographicBoundingBox>
-</gmd:geographicElement>
-</gmd:EX_Extent>
-</oi-cov:domainExtent>
-<oi-cov:footprint>
-<MultiSurface>
-<surfaceMember>
-<Polygon>
-<exterior>
-<LinearRing>
-<posList>
-42.166893882 2.645040265 42.166893882 2.813051159 42.083102736 2.813051159 42.083102736 2.645040265 42.166893882 2.645040265</posList>
-</LinearRing>
-</exterior>
-</Polygon>
-</surfaceMember>
-</MultiSurface>
-</oi-cov:footprint>
-<oi-cov:name>oi25m7623.tif</oi-cov:name>
-<oi-cov:phenomenonTime>
-<TimePeriod>
-<beginPosition>2018-06-26T10:15:35+01:00</beginPosition>
-<endPosition>2018-07-04T11:09:36+01:00</endPosition>
-</TimePeriod>
-</oi-cov:phenomenonTime>
-<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
-</oi-cov:OrthoimageCoverageMetadata>
-</INSPIRE>
-</slice>
-<slice>
-<boundedBy>
-<Envelope>
-<axisLabels>Lat Lon</axisLabels>
-<srsDimension>2</srsDimension>
-<lowerCorner>-44.975 129.975</lowerCorner>
-<upperCorner>-8.975 135.975</upperCorner>
-</Envelope>
-</boundedBy>
-<local_metadata_key>value_2</local_metadata_key>
-<INSPIRE>
-<oi-cov:OrthoimageCoverageMetadata
->
-<oi-cov:inspireId>
-<base:Identifier>
-<base:localId>FILE 2</base:localId>
-<base:namespace>catalunya</base:namespace>
-</base:Identifier>
-</oi-cov:inspireId>
-<oi-cov:domainExtent>
-<gmd:EX_Extent>
-<gmd:description>
-<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7624.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
-</gmd:description>
-<gmd:geographicElement>
-<gmd:EX_GeographicBoundingBox>
-<gmd:westBoundLonitude>
-<gco:Decimal>2.645051737</gco:Decimal>
-</gmd:westBoundLonitude>
-<gmd:eastBoundLonitude>
-<gco:Decimal>2.813053781</gco:Decimal>
-</gmd:eastBoundLonitude>
-<gmd:southBoundLatitude>
-<gco:Decimal>41.999769197</gco:Decimal>
-</gmd:southBoundLatitude>
-<gmd:northBoundLatitude>
-<gco:Decimal>42.083561712</gco:Decimal>
-</gmd:northBoundLatitude>
-</gmd:EX_GeographicBoundingBox>
-</gmd:geographicElement>
-</gmd:EX_Extent>
-</oi-cov:domainExtent>
-<oi-cov:footprint>
-<MultiSurface>
-<surfaceMember>
-<Polygon>
-<exterior>
-<LinearRing>
-<posList>
-42.083561712 2.645051737 42.083561712 2.813053781 41.999769197 2.813053781 41.999769197 2.645051737 42.083561712 2.645051737</posList>
-</LinearRing>
-</exterior>
-</Polygon>
-</surfaceMember>
-</MultiSurface>
-</oi-cov:footprint>
-<oi-cov:name>oi25m7624.tif</oi-cov:name>
-<oi-cov:phenomenonTime>
-<TimePeriod>
-<beginPosition>2018-06-26T09:42:44+01:00</beginPosition>
-<endPosition>2018-07-25T09:30:41+01:00</endPosition>
-</TimePeriod>
-</oi-cov:phenomenonTime>
-<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
-</oi-cov:OrthoimageCoverageMetadata>
-</INSPIRE>
-</slice>
-<slice>
-<boundedBy>
-<Envelope>
-<axisLabels>Lat Lon</axisLabels>
-<srsDimension>2</srsDimension>
-<lowerCorner>-44.975 134.975</lowerCorner>
-<upperCorner>-8.975 145.975</upperCorner>
-</Envelope>
-</boundedBy>
-<local_metadata_key>value_3</local_metadata_key>
-<INSPIRE>
-<oi-cov:OrthoimageCoverageMetadata
->
-<oi-cov:inspireId>
-<base:Identifier>
-<base:localId>FILE 3</base:localId>
-<base:namespace>catalunya</base:namespace>
-</base:Identifier>
-</oi-cov:inspireId>
-<oi-cov:domainExtent>
-<gmd:EX_Extent>
-<gmd:description>
-<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7723.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
-</gmd:description>
-<gmd:geographicElement>
-<gmd:EX_GeographicBoundingBox>
-<gmd:westBoundLonitude>
-<gco:Decimal>2.811926906</gco:Decimal>
-</gmd:westBoundLonitude>
-<gmd:eastBoundLonitude>
-<gco:Decimal>2.979506658</gco:Decimal>
-</gmd:eastBoundLonitude>
-<gmd:southBoundLatitude>
-<gco:Decimal>42.083095563</gco:Decimal>
-</gmd:southBoundLatitude>
-<gmd:northBoundLatitude>
-<gco:Decimal>42.166906064</gco:Decimal>
-</gmd:northBoundLatitude>
-</gmd:EX_GeographicBoundingBox>
-</gmd:geographicElement>
-</gmd:EX_Extent>
-</oi-cov:domainExtent>
-<oi-cov:footprint>
-<MultiSurface>
-<surfaceMember>
-<Polygon>
-<exterior>
-<LinearRing>
-<posList>
-42.166906064 2.811926906 42.166906064 2.979506658 42.083095563 2.979506658 42.083095563 2.811926906 42.166906064 2.811926906</posList>
-</LinearRing>
-</exterior>
-</Polygon>
-</surfaceMember>
-</MultiSurface>
-</oi-cov:footprint>
-<oi-cov:name>oi25m7723.tif</oi-cov:name>
-<oi-cov:phenomenonTime>
-<TimePeriod>
-<beginPosition>2018-06-26T10:15:35+01:00</beginPosition>
-<endPosition>2018-07-04T11:09:36+01:00</endPosition>
-</TimePeriod>
-</oi-cov:phenomenonTime>
-<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
-</oi-cov:OrthoimageCoverageMetadata>
-</INSPIRE>
-</slice>
-<slice>
-<boundedBy>
-<Envelope>
-<axisLabels>Lat Lon</axisLabels>
-<srsDimension>2</srsDimension>
-<lowerCorner>-44.975 144.975</lowerCorner>
-<upperCorner>-8.975 155.975</upperCorner>
-</Envelope>
-</boundedBy>
-<local_metadata_key>value_4</local_metadata_key>
-<INSPIRE>
-<oi-cov:OrthoimageCoverageMetadata
->
-<oi-cov:inspireId>
-<base:Identifier>
-<base:localId>FILE 4</base:localId>
-<base:namespace>catalunya</base:namespace>
-</base:Identifier>
-</oi-cov:inspireId>
-<oi-cov:domainExtent>
-<gmd:EX_Extent>
-<gmd:description>
-<gco:CharacterString>Territory of Catalonia covered by raster file oi25m7724.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
-</gmd:description>
-<gmd:geographicElement>
-<gmd:EX_GeographicBoundingBox>
-<gmd:westBoundLonitude>
-<gco:Decimal>2.811931401</gco:Decimal>
-</gmd:westBoundLonitude>
-<gmd:eastBoundLonitude>
-<gco:Decimal>2.979503231</gco:Decimal>
-</gmd:eastBoundLonitude>
-<gmd:southBoundLatitude>
-<gco:Decimal>41.999761973</gco:Decimal>
-</gmd:southBoundLatitude>
-<gmd:northBoundLatitude>
-<gco:Decimal>42.083573749</gco:Decimal>
-</gmd:northBoundLatitude>
-</gmd:EX_GeographicBoundingBox>
-</gmd:geographicElement>
-</gmd:EX_Extent>
-</oi-cov:domainExtent>
-<oi-cov:footprint>
-<MultiSurface>
-<surfaceMember>
-<Polygon>
-<exterior>
-<LinearRing>
-<posList>
-42.083573749 2.811931401 42.083573749 2.979503231 41.999761973 2.979503231 41.999761973 2.811931401 42.083573749 2.811931401</posList>
-</LinearRing>
-</exterior>
-</Polygon>
-</surfaceMember>
-</MultiSurface>
-</oi-cov:footprint>
-<oi-cov:name>oi25m7724.tif</oi-cov:name>
-<oi-cov:phenomenonTime>
-<TimePeriod>
-<beginPosition>2018-06-26T09:42:44+01:00</beginPosition>
-<endPosition>2018-07-25T09:28:43+01:00</endPosition>
-</TimePeriod>
-</oi-cov:phenomenonTime>
-<oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
-</oi-cov:OrthoimageCoverageMetadata>
-</INSPIRE>
-</slice>
-</slices>
-<AREA_OR_POINT>Area</AREA_OR_POINT>
-<local_metadata_key>value_1</local_metadata_key>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
-<domainSet>
-<RectifiedGrid dimension="2" id="test_wcs_metadata_map_mosaic-grid">
-<limits>
-<GridEnvelope>
-<low>0 0</low>
-<high>35 43</high>
-</GridEnvelope>
-</limits>
-<axisLabels>Lat Lon</axisLabels>
-<origin>
-<Point
-id="test_wcs_metadata_map_mosaic-point" srsName="/crs/EPSG/0/4326">
-<pos>-9.475 112.475</pos>
-</Point>
-</origin>
-<offsetVector srsName="/crs/EPSG/0/4326">-1 0</offsetVector>
-<offsetVector srsName="/crs/EPSG/0/4326">0 1</offsetVector>
-</RectifiedGrid>
-</domainSet>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="Gray">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Gray</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<wcs:ServiceParameters>
-<wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
-<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-</wcs:ServiceParameters>
-</wcs:CoverageDescription>
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
+    <wcs:CoverageDescription gml:id="test_wcs_metadata_map_mosaic">
+        <gml:boundedBy>
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Lon" uomLabels="degree degree" srsDimension="2">
+                <gml:lowerCorner>-44.975 111.975</gml:lowerCorner>
+                <gml:upperCorner>-8.975 155.975</gml:upperCorner>
+            </gml:Envelope>
+        </gml:boundedBy>
+        <wcs:CoverageId>test_wcs_metadata_map_mosaic</wcs:CoverageId>
+        <gml:coverageFunction>
+            <gml:GridFunction>
+                <gml:sequenceRule axisOrder="+1 +2">Linear</gml:sequenceRule>
+                <gml:startPoint>0 0</gml:startPoint>
+            </gml:GridFunction>
+        </gml:coverageFunction>
+        <gmlcov:metadata>
+            <gmlcov:Extension>
+                <rasdaman:covMetadata>
+                    <slices>
+                        <slice>
+                            <boundedBy>
+                                <Envelope>
+                                    <axisLabels>Lat Lon</axisLabels>
+                                    <srsDimension>2</srsDimension>
+                                    <lowerCorner>-44.975 111.975</lowerCorner>
+                                    <upperCorner>-8.975 130.975</upperCorner>
+                                </Envelope>
+                            </boundedBy>
+                            <local_metadata_key>value_1</local_metadata_key>
+                            <INSPIRE>
+                                <oi-cov:OrthoimageCoverageMetadata xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/oi/4.0 https://schema.datacove.eu/OrthoimageryMetadata.xsd" xmlns:oi-cov="http://inspire.ec.europa.eu/schemas/oi/4.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3" xmlns:gco="http://www.isotc211.org/2005/gco">
+                                    <oi-cov:inspireId>
+                                        <base:Identifier>
+                                            <base:localId>FILE 1</base:localId>
+                                            <base:namespace>catalunya</base:namespace>
+                                        </base:Identifier>
+                                    </oi-cov:inspireId>
+                                    <oi-cov:domainExtent>
+                                        <gmd:EX_Extent>
+                                            <gmd:description>
+                                                <gco:CharacterString>Territory of Catalonia covered by raster file oi25m7623.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+                                            </gmd:description>
+                                            <gmd:geographicElement>
+                                                <gmd:EX_GeographicBoundingBox>
+                                                    <gmd:westBoundLongitude>
+                                                        <gco:Decimal>2.645040265</gco:Decimal>
+                                                    </gmd:westBoundLongitude>
+                                                    <gmd:eastBoundLongitude>
+                                                        <gco:Decimal>2.813051159</gco:Decimal>
+                                                    </gmd:eastBoundLongitude>
+                                                    <gmd:southBoundLatitude>
+                                                        <gco:Decimal>42.083102736</gco:Decimal>
+                                                    </gmd:southBoundLatitude>
+                                                    <gmd:northBoundLatitude>
+                                                        <gco:Decimal>42.166893882</gco:Decimal>
+                                                    </gmd:northBoundLatitude>
+                                                </gmd:EX_GeographicBoundingBox>
+                                            </gmd:geographicElement>
+                                        </gmd:EX_Extent>
+                                    </oi-cov:domainExtent>
+                                    <oi-cov:footprint>
+                                        <gml:MultiSurface>
+                                            <gml:surfaceMember>
+                                                <gml:Polygon>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <gml:posList> 42.166893882 2.645040265 42.166893882 2.813051159 42.083102736 2.813051159 42.083102736 2.645040265 42.166893882 2.645040265</gml:posList>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:Polygon>
+                                            </gml:surfaceMember>
+                                        </gml:MultiSurface>
+                                    </oi-cov:footprint>
+                                    <oi-cov:interpolationType xlink:href="http://inspire.ec.europa.eu/codelist/InterpolationMethodValue/bilinear"/>
+                                    <oi-cov:name>oi25m7623.tif</oi-cov:name>
+                                    <oi-cov:phenomenonTime>
+                                        <gml:TimePeriod>
+                                            <gml:beginPosition>2018-06-26T10:15:35+01:00</gml:beginPosition>
+                                            <gml:endPosition>2018-07-04T11:09:36+01:00</gml:endPosition>
+                                        </gml:TimePeriod>
+                                    </oi-cov:phenomenonTime>
+                                    <oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+                                </oi-cov:OrthoimageCoverageMetadata>
+                            </INSPIRE>
+                            <fileReferenceHistory>/home/rasdaman/rasdaman_enterprise/stable_repository/rasdaman-enterprise/systemtest/testcases_services/test_all_wcst_import/testdata/121-wcs_metadata_map_mosaic/../120-wcs_metadata_irregular_time_series/SCALED_CHLORA_2015-01.tiff</fileReferenceHistory>
+                        </slice>
+                        <slice>
+                            <boundedBy>
+                                <Envelope>
+                                    <axisLabels>Lat Lon</axisLabels>
+                                    <srsDimension>2</srsDimension>
+                                    <lowerCorner>-44.975 129.975</lowerCorner>
+                                    <upperCorner>-8.975 135.975</upperCorner>
+                                </Envelope>
+                            </boundedBy>
+                            <local_metadata_key>value_2</local_metadata_key>
+                            <INSPIRE>
+                                <oi-cov:OrthoimageCoverageMetadata xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/oi/4.0 https://schema.datacove.eu/OrthoimageryMetadata.xsd" xmlns:oi-cov="http://inspire.ec.europa.eu/schemas/oi/4.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3" xmlns:gco="http://www.isotc211.org/2005/gco">
+                                    <oi-cov:inspireId>
+                                        <base:Identifier>
+                                            <base:localId>FILE 2</base:localId>
+                                            <base:namespace>catalunya</base:namespace>
+                                        </base:Identifier>
+                                    </oi-cov:inspireId>
+                                    <oi-cov:domainExtent>
+                                        <gmd:EX_Extent>
+                                            <gmd:description>
+                                                <gco:CharacterString>Territory of Catalonia covered by raster file oi25m7624.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+                                            </gmd:description>
+                                            <gmd:geographicElement>
+                                                <gmd:EX_GeographicBoundingBox>
+                                                    <gmd:westBoundLongitude>
+                                                        <gco:Decimal>2.645051737</gco:Decimal>
+                                                    </gmd:westBoundLongitude>
+                                                    <gmd:eastBoundLongitude>
+                                                        <gco:Decimal>2.813053781</gco:Decimal>
+                                                    </gmd:eastBoundLongitude>
+                                                    <gmd:southBoundLatitude>
+                                                        <gco:Decimal>41.999769197</gco:Decimal>
+                                                    </gmd:southBoundLatitude>
+                                                    <gmd:northBoundLatitude>
+                                                        <gco:Decimal>42.083561712</gco:Decimal>
+                                                    </gmd:northBoundLatitude>
+                                                </gmd:EX_GeographicBoundingBox>
+                                            </gmd:geographicElement>
+                                        </gmd:EX_Extent>
+                                    </oi-cov:domainExtent>
+                                    <oi-cov:footprint>
+                                        <gml:MultiSurface>
+                                            <gml:surfaceMember>
+                                                <gml:Polygon>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <gml:posList> 42.083561712 2.645051737 42.083561712 2.813053781 41.999769197 2.813053781 41.999769197 2.645051737 42.083561712 2.645051737</gml:posList>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:Polygon>
+                                            </gml:surfaceMember>
+                                        </gml:MultiSurface>
+                                    </oi-cov:footprint>
+                                    <oi-cov:interpolationType xlink:href="http://inspire.ec.europa.eu/codelist/InterpolationMethodValue/bilinear"/>
+                                    <oi-cov:name>oi25m7624.tif</oi-cov:name>
+                                    <oi-cov:phenomenonTime>
+                                        <gml:TimePeriod>
+                                            <gml:beginPosition>2018-06-26T09:42:44+01:00</gml:beginPosition>
+                                            <gml:endPosition>2018-07-25T09:30:41+01:00</gml:endPosition>
+                                        </gml:TimePeriod>
+                                    </oi-cov:phenomenonTime>
+                                    <oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+                                </oi-cov:OrthoimageCoverageMetadata>
+                            </INSPIRE>
+                            <fileReferenceHistory>/home/rasdaman/rasdaman_enterprise/stable_repository/rasdaman-enterprise/systemtest/testcases_services/test_all_wcst_import/testdata/121-wcs_metadata_map_mosaic/../120-wcs_metadata_irregular_time_series/SCALED_CHLORA_2015-02.tiff</fileReferenceHistory>
+                        </slice>
+                        <slice>
+                            <boundedBy>
+                                <Envelope>
+                                    <axisLabels>Lat Lon</axisLabels>
+                                    <srsDimension>2</srsDimension>
+                                    <lowerCorner>-44.975 134.975</lowerCorner>
+                                    <upperCorner>-8.975 145.975</upperCorner>
+                                </Envelope>
+                            </boundedBy>
+                            <local_metadata_key>value_3</local_metadata_key>
+                            <INSPIRE>
+                                <oi-cov:OrthoimageCoverageMetadata xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/oi/4.0 https://schema.datacove.eu/OrthoimageryMetadata.xsd" xmlns:oi-cov="http://inspire.ec.europa.eu/schemas/oi/4.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3" xmlns:gco="http://www.isotc211.org/2005/gco">
+                                    <oi-cov:inspireId>
+                                        <base:Identifier>
+                                            <base:localId>FILE 3</base:localId>
+                                            <base:namespace>catalunya</base:namespace>
+                                        </base:Identifier>
+                                    </oi-cov:inspireId>
+                                    <oi-cov:domainExtent>
+                                        <gmd:EX_Extent>
+                                            <gmd:description>
+                                                <gco:CharacterString>Territory of Catalonia covered by raster file oi25m7723.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+                                            </gmd:description>
+                                            <gmd:geographicElement>
+                                                <gmd:EX_GeographicBoundingBox>
+                                                    <gmd:westBoundLongitude>
+                                                        <gco:Decimal>2.811926906</gco:Decimal>
+                                                    </gmd:westBoundLongitude>
+                                                    <gmd:eastBoundLongitude>
+                                                        <gco:Decimal>2.979506658</gco:Decimal>
+                                                    </gmd:eastBoundLongitude>
+                                                    <gmd:southBoundLatitude>
+                                                        <gco:Decimal>42.083095563</gco:Decimal>
+                                                    </gmd:southBoundLatitude>
+                                                    <gmd:northBoundLatitude>
+                                                        <gco:Decimal>42.166906064</gco:Decimal>
+                                                    </gmd:northBoundLatitude>
+                                                </gmd:EX_GeographicBoundingBox>
+                                            </gmd:geographicElement>
+                                        </gmd:EX_Extent>
+                                    </oi-cov:domainExtent>
+                                    <oi-cov:footprint>
+                                        <gml:MultiSurface>
+                                            <gml:surfaceMember>
+                                                <gml:Polygon>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <gml:posList> 42.166906064 2.811926906 42.166906064 2.979506658 42.083095563 2.979506658 42.083095563 2.811926906 42.166906064 2.811926906</gml:posList>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:Polygon>
+                                            </gml:surfaceMember>
+                                        </gml:MultiSurface>
+                                    </oi-cov:footprint>
+                                    <oi-cov:interpolationType xlink:href="http://inspire.ec.europa.eu/codelist/InterpolationMethodValue/bilinear"/>
+                                    <oi-cov:name>oi25m7723.tif</oi-cov:name>
+                                    <oi-cov:phenomenonTime>
+                                        <gml:TimePeriod>
+                                            <gml:beginPosition>2018-06-26T10:15:35+01:00</gml:beginPosition>
+                                            <gml:endPosition>2018-07-04T11:09:36+01:00</gml:endPosition>
+                                        </gml:TimePeriod>
+                                    </oi-cov:phenomenonTime>
+                                    <oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+                                </oi-cov:OrthoimageCoverageMetadata>
+                            </INSPIRE>
+                            <fileReferenceHistory>/home/rasdaman/rasdaman_enterprise/stable_repository/rasdaman-enterprise/systemtest/testcases_services/test_all_wcst_import/testdata/121-wcs_metadata_map_mosaic/../120-wcs_metadata_irregular_time_series/SCALED_CHLORA_2015-05.tiff</fileReferenceHistory>
+                        </slice>
+                        <slice>
+                            <boundedBy>
+                                <Envelope>
+                                    <axisLabels>Lat Lon</axisLabels>
+                                    <srsDimension>2</srsDimension>
+                                    <lowerCorner>-44.975 144.975</lowerCorner>
+                                    <upperCorner>-8.975 155.975</upperCorner>
+                                </Envelope>
+                            </boundedBy>
+                            <local_metadata_key>value_4</local_metadata_key>
+                            <INSPIRE>
+                                <oi-cov:OrthoimageCoverageMetadata xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/oi/4.0 https://schema.datacove.eu/OrthoimageryMetadata.xsd" xmlns:oi-cov="http://inspire.ec.europa.eu/schemas/oi/4.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3" xmlns:gco="http://www.isotc211.org/2005/gco">
+                                    <oi-cov:inspireId>
+                                        <base:Identifier>
+                                            <base:localId>FILE 4</base:localId>
+                                            <base:namespace>catalunya</base:namespace>
+                                        </base:Identifier>
+                                    </oi-cov:inspireId>
+                                    <oi-cov:domainExtent>
+                                        <gmd:EX_Extent>
+                                            <gmd:description>
+                                                <gco:CharacterString>Territory of Catalonia covered by raster file oi25m7724.tif of the Infrared Orthophoto of Catalonia 250cm (OI-25M) v7r0 2018 produced by ICGC</gco:CharacterString>
+                                            </gmd:description>
+                                            <gmd:geographicElement>
+                                                <gmd:EX_GeographicBoundingBox>
+                                                    <gmd:westBoundLongitude>
+                                                        <gco:Decimal>2.811931401</gco:Decimal>
+                                                    </gmd:westBoundLongitude>
+                                                    <gmd:eastBoundLongitude>
+                                                        <gco:Decimal>2.979503231</gco:Decimal>
+                                                    </gmd:eastBoundLongitude>
+                                                    <gmd:southBoundLatitude>
+                                                        <gco:Decimal>41.999761973</gco:Decimal>
+                                                    </gmd:southBoundLatitude>
+                                                    <gmd:northBoundLatitude>
+                                                        <gco:Decimal>42.083573749</gco:Decimal>
+                                                    </gmd:northBoundLatitude>
+                                                </gmd:EX_GeographicBoundingBox>
+                                            </gmd:geographicElement>
+                                        </gmd:EX_Extent>
+                                    </oi-cov:domainExtent>
+                                    <oi-cov:footprint>
+                                        <gml:MultiSurface>
+                                            <gml:surfaceMember>
+                                                <gml:Polygon>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <gml:posList> 42.083573749 2.811931401 42.083573749 2.979503231 41.999761973 2.979503231 41.999761973 2.811931401 42.083573749 2.811931401</gml:posList>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:Polygon>
+                                            </gml:surfaceMember>
+                                        </gml:MultiSurface>
+                                    </oi-cov:footprint>
+                                    <oi-cov:interpolationType xlink:href="http://inspire.ec.europa.eu/codelist/InterpolationMethodValue/bilinear"/>
+                                    <oi-cov:name>oi25m7724.tif</oi-cov:name>
+                                    <oi-cov:phenomenonTime>
+                                        <gml:TimePeriod>
+                                            <gml:beginPosition>2018-06-26T09:42:44+01:00</gml:beginPosition>
+                                            <gml:endPosition>2018-07-25T09:28:43+01:00</gml:endPosition>
+                                        </gml:TimePeriod>
+                                    </oi-cov:phenomenonTime>
+                                    <oi-cov:beginLifespanVersion>20190319</oi-cov:beginLifespanVersion>
+                                </oi-cov:OrthoimageCoverageMetadata>
+                            </INSPIRE>
+                            <fileReferenceHistory>/home/rasdaman/rasdaman_enterprise/stable_repository/rasdaman-enterprise/systemtest/testcases_services/test_all_wcst_import/testdata/121-wcs_metadata_map_mosaic/../120-wcs_metadata_irregular_time_series/SCALED_CHLORA_2015-07.tiff</fileReferenceHistory>
+                        </slice>
+                    </slices>
+                    <AREA_OR_POINT>Area</AREA_OR_POINT>
+                    <local_metadata_key>value_1</local_metadata_key>
+                </rasdaman:covMetadata>
+            </gmlcov:Extension>
+        </gmlcov:metadata>
+        <gml:domainSet>
+            <gml:RectifiedGrid dimension="2" gml:id="test_wcs_metadata_map_mosaic-grid">
+                <gml:limits>
+                    <gml:GridEnvelope>
+                        <gml:low>0 0</gml:low>
+                        <gml:high>35 43</gml:high>
+                    </gml:GridEnvelope>
+                </gml:limits>
+                <gml:axisLabels>Lat Lon</gml:axisLabels>
+                <gml:origin>
+                    <gml:Point gml:id="test_wcs_metadata_map_mosaic-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
+                        <gml:pos>-9.475 112.475</gml:pos>
+                    </gml:Point>
+                </gml:origin>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">-1 0</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 1</gml:offsetVector>
+            </gml:RectifiedGrid>
+        </gml:domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="Gray">
+                    <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                        <swe:label>Gray</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
 </wcs:CoverageDescriptions>

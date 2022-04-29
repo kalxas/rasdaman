@@ -1,54 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage id="test_wms_4326"
->
-<boundedBy>
-<Envelope axisLabels="i" srsDimension="1"
-srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
-<lowerCorner>0</lowerCorner>
-<upperCorner>53</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<RectifiedGrid dimension="1" id="test_wms_4326-grid">
-<limits>
-<GridEnvelope>
-<low>0</low>
-<high>53</high>
-</GridEnvelope>
-</limits>
-<axisLabels>i</axisLabels>
-<origin>
-<Point
-id="test_wms_4326-point" srsName="/crs/OGC/0/Index1D">
-<pos>0.5</pos>
-</Point>
-</origin>
-<offsetVector srsName="/crs/OGC/0/Index1D">1</offsetVector>
-</RectifiedGrid>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">87,84,85,93,87,92,98,100,100,109,116,121,126,115,113,98,107,95,71,82,85,98,101,113,121,125,125,126,141,151,182,219,228,209,194,170,181,182,184,175,168,162,161,157,145,125,132,126,121,109,97,99,74,81</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+1">Linear</sequenceRule>
-<startPoint>0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="Gray">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Gray</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:RectifiedGridCoverage gml:id="test_wms_4326" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+    <gml:boundedBy>
+        <gml:Envelope srsName="http://www.opengis.net/def/crs/OGC/0/Index1D" axisLabels="i" uomLabels="GridSpacing" srsDimension="1">
+            <gml:lowerCorner>0</gml:lowerCorner>
+            <gml:upperCorner>53</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:RectifiedGrid dimension="1" gml:id="test_wms_4326-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0</gml:low>
+                    <gml:high>53</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>i</gml:axisLabels>
+            <gml:origin>
+                <gml:Point gml:id="test_wms_4326-point" srsName="http://www.opengis.net/def/crs/OGC/0/Index1D">
+                    <gml:pos>0.5</gml:pos>
+                </gml:Point>
+            </gml:origin>
+            <gml:offsetVector srsName="http://www.opengis.net/def/crs/OGC/0/Index1D">1</gml:offsetVector>
+        </gml:RectifiedGrid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">87,84,85,93,87,92,98,100,100,109,116,121,126,115,113,98,107,95,71,82,85,98,101,113,121,125,125,126,141,151,182,219,228,209,194,170,181,182,184,175,168,162,161,157,145,125,132,126,121,109,97,99,74,81</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+1">Linear</gml:sequenceRule>
+            <gml:startPoint>0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="Gray">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>Gray</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
 </gmlcov:RectifiedGridCoverage>

@@ -1,134 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions 
->
-<wcs:CoverageDescription id="test_wcs_scientfic_null_value_with_trailing_zero">
-<boundedBy>
-<Envelope axisLabels="ansi depth lat lon"
-srsDimension="4"
-srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=/crs/EPSG/0/4326" uomLabels="d GridSpacing degree degree">
-<lowerCorner>"1979-01-16T12:00:00.000Z" 2.5 53.83375 15.075</lowerCorner>
-<upperCorner>"1979-01-16T12:00:00.000Z" 6.5 53.90125 15.165</upperCorner>
-</Envelope>
-</boundedBy>
-<wcs:CoverageId>test_wcs_scientfic_null_value_with_trailing_zero</wcs:CoverageId>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+4 +3 +2 +1">Linear</sequenceRule>
-<startPoint>0 0 0 0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<bands>
-<OXY>
-<long_name>Oxygen content</long_name>
-<units>ml/l</units>
-<_MinValue>-1.0443836450576782</_MinValue>
-<_MaxValue>10.37404727935791</_MaxValue>
-<_FillValue>1E+30</_FillValue>
-<code>16.0</code>
-<comment>Tracer grid</comment>
-<cell_methods>time: mean</cell_methods>
-</OXY>
-</bands>
-<axes>
-<ansi>
-<axis>T</axis>
-<units>Days since 1978-12-31 12:00:00</units>
-<calendar>gregorian</calendar>
-<time_origin>31-DEC-1978 12:00:00</time_origin>
-<cell_methods>time: mean</cell_methods>
-</ansi>
-<lon>
-<axis>X</axis>
-<long_name>longitude [Tracer grid]</long_name>
-<units>degrees_east</units>
-</lon>
-<lat>
-<axis>Y</axis>
-<long_name>Latitude  [Tracer grid]</long_name>
-<units>degrees_north</units>
-</lat>
-<depth>
-<axis>Z</axis>
-<long_name>depth [bottom model grid box]</long_name>
-<units>m</units>
-</depth>
-</axes>
-<Title>Drought code</Title>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
-<domainSet>
-<gmlrgrid:ReferenceableGridByVectors dimension="4" gmlrgrid:id="test_wcs_scientfic_null_value_with_trailing_zero-grid">
-<limits>
-<GridEnvelope>
-<low>0 0 0 0</low>
-<high>0 3 2 1</high>
-</GridEnvelope>
-</limits>
-<axisLabels>ansi depth lat lon</axisLabels>
-<gmlrgrid:origin>
-<Point
-id="test_wcs_scientfic_null_value_with_trailing_zero-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=/crs/EPSG/0/4326">
-<pos>"1979-01-16T12:00:00.000Z" 3 53.845 15.0975</pos>
-</Point>
-</gmlrgrid:origin>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=/crs/EPSG/0/4326">1 0 0 0</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients>"1979-01-16T12:00:00.000Z"</gmlrgrid:coefficients>
-<gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=/crs/EPSG/0/4326">0 1 0 0</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>depth</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=/crs/EPSG/0/4326">0 0 0.0225 0</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>lat</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=/crs/EPSG/0/4326">0 0 0 0.045</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>lon</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-</gmlrgrid:ReferenceableGridByVectors>
-</domainSet>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="OXY">
-<swe:Quantity definition="/dataType/OGC/0/float32">
-<swe:label>OXY</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">1e+30</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<wcs:ServiceParameters>
-<wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
-<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-</wcs:ServiceParameters>
-</wcs:CoverageDescription>
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
+    <wcs:CoverageDescription gml:id="test_wcs_scientfic_null_value_with_trailing_zero">
+        <gml:boundedBy>
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="ansi depth lat lon" uomLabels="d GridSpacing degree degree" srsDimension="4">
+                <gml:lowerCorner>"1979-01-16T12:00:00.000Z" 2.5 53.83375 15.075</gml:lowerCorner>
+                <gml:upperCorner>"1979-01-16T12:00:00.000Z" 6.5 53.90125 15.165</gml:upperCorner>
+            </gml:Envelope>
+        </gml:boundedBy>
+        <wcs:CoverageId>test_wcs_scientfic_null_value_with_trailing_zero</wcs:CoverageId>
+        <gml:coverageFunction>
+            <gml:GridFunction>
+                <gml:sequenceRule axisOrder="+4 +3 +2 +1">Linear</gml:sequenceRule>
+                <gml:startPoint>0 0 0 0</gml:startPoint>
+            </gml:GridFunction>
+        </gml:coverageFunction>
+        <gmlcov:metadata>
+            <gmlcov:Extension>
+                <rasdaman:covMetadata>
+                    <bands>
+                        <OXY>
+                            <long_name>Oxygen content</long_name>
+                            <units>ml/l</units>
+                            <_MinValue>-1.0443836450576782</_MinValue>
+                            <_MaxValue>10.37404727935791</_MaxValue>
+                            <_FillValue>1E+30</_FillValue>
+                            <code>16.0</code>
+                            <comment>Tracer grid</comment>
+                            <cell_methods>time: mean</cell_methods>
+                        </OXY>
+                    </bands>
+                    <axes>
+                        <ansi>
+                            <axis>T</axis>
+                            <units>Days since 1978-12-31 12:00:00</units>
+                            <calendar>gregorian</calendar>
+                            <time_origin>31-DEC-1978 12:00:00</time_origin>
+                            <cell_methods>time: mean</cell_methods>
+                        </ansi>
+                        <lon>
+                            <axis>X</axis>
+                            <long_name>longitude [Tracer grid]</long_name>
+                            <units>degrees_east</units>
+                        </lon>
+                        <lat>
+                            <axis>Y</axis>
+                            <long_name>Latitude [Tracer grid]</long_name>
+                            <units>degrees_north</units>
+                        </lat>
+                        <depth>
+                            <axis>Z</axis>
+                            <long_name>depth [bottom model grid box]</long_name>
+                            <units>m</units>
+                        </depth>
+                    </axes>
+                    <Title>Drought code</Title>
+                </rasdaman:covMetadata>
+            </gmlcov:Extension>
+        </gmlcov:metadata>
+        <gml:domainSet>
+            <gmlrgrid:ReferenceableGridByVectors dimension="4" gmlrgrid:id="test_wcs_scientfic_null_value_with_trailing_zero-grid">
+                <gml:limits>
+                    <gml:GridEnvelope>
+                        <gml:low>0 0 0 0</gml:low>
+                        <gml:high>0 3 2 1</gml:high>
+                    </gml:GridEnvelope>
+                </gml:limits>
+                <gml:axisLabels>ansi depth lat lon</gml:axisLabels>
+                <gmlrgrid:origin>
+                    <gml:Point gml:id="test_wcs_scientfic_null_value_with_trailing_zero-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
+                        <gml:pos>"1979-01-16T12:00:00.000Z" 3 53.845 15.0975</gml:pos>
+                    </gml:Point>
+                </gmlrgrid:origin>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">1 0 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients>"1979-01-16T12:00:00.000Z"</gmlrgrid:coefficients>
+                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 1 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>depth</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 0.0225 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>lat</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;depth&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 0 0.045</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>lon</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+            </gmlrgrid:ReferenceableGridByVectors>
+        </gml:domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="OXY">
+                    <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                        <swe:label>OXY</swe:label>
+                        <swe:description/>
+                        <swe:nilValues>
+                            <swe:NilValues>
+                                <swe:nilValue reason="">1e+30</swe:nilValue>
+                            </swe:NilValues>
+                        </swe:nilValues>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
 </wcs:CoverageDescriptions>

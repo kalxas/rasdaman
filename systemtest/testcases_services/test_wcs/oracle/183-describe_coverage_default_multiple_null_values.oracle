@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:wcs="http://www.opengis.net/wcs/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd">
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
     <wcs:CoverageDescription gml:id="test_wcs_default_multiple_null_values">
         <gml:boundedBy>
-            <gml:Envelope axisLabels="Lat Lon" srsDimension="2"
-                srsName="http://localhost:8080/def/crs/EPSG/0/4326" uomLabels="degree degree">
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Lon" uomLabels="degree degree" srsDimension="2">
                 <gml:lowerCorner>-90 -180</gml:lowerCorner>
                 <gml:upperCorner>90 180</gml:upperCorner>
             </gml:Envelope>
@@ -33,13 +25,12 @@
                 </gml:limits>
                 <gml:axisLabels>Lat Lon</gml:axisLabels>
                 <gml:origin>
-                    <gml:Point
-                        gml:id="test_wcs_default_multiple_null_values-point" srsName="http://localhost:8080/def/crs/EPSG/0/4326">
+                    <gml:Point gml:id="test_wcs_default_multiple_null_values-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
                         <gml:pos>85 -175</gml:pos>
                     </gml:Point>
                 </gml:origin>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs/EPSG/0/4326">-10 0</gml:offsetVector>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs/EPSG/0/4326">0 10</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">-10 0</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 10</gml:offsetVector>
             </gml:RectifiedGrid>
         </gml:domainSet>
         <gmlcov:rangeType>

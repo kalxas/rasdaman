@@ -1,47 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:GridCoverage id="temp"
->
-<boundedBy>
-<Envelope axisLabels="t" srsDimension="1"
-srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
-<lowerCorner>0</lowerCorner>
-<upperCorner>4</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<Grid dimension="1" id="temp-grid">
-<limits>
-<GridEnvelope>
-<low>0</low>
-<high>4</high>
-</GridEnvelope>
-</limits>
-<axisLabels>t</axisLabels>
-</Grid>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">0,0,0,0,0</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+1">Linear</sequenceRule>
-<startPoint>0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="band1">
-<swe:Quantity definition="/dataType/OGC/0/float64">
-<swe:label>band1</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:GridCoverage gml:id="temp" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+    <gml:boundedBy>
+        <gml:Envelope srsName="http://www.opengis.net/def/crs/OGC/0/Index1D" axisLabels="t" uomLabels="GridSpacing" srsDimension="1">
+            <gml:lowerCorner>0</gml:lowerCorner>
+            <gml:upperCorner>4</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:Grid dimension="1" gml:id="temp-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0</gml:low>
+                    <gml:high>4</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>t</gml:axisLabels>
+        </gml:Grid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">0,0,0,0,0</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+1">Linear</gml:sequenceRule>
+            <gml:startPoint>0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="band1">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float64">
+                    <swe:label>band1</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
 </gmlcov:GridCoverage>

@@ -40,6 +40,7 @@ import petascope.util.ras.RasUtil;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
 import petascope.util.MIMEUtil;
+import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
@@ -201,7 +202,7 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
 
         Element gmlGetCoverageElement = this.gmlWCSRequestResultBuilder.buildGetCoverageResult(wcpsCoverageMetadata, tupleList);              
         // format the output with indentation
-        String gml = XMLUtil.formatXML(gmlGetCoverageElement.toXML());
+        String gml = XMLUtil.formatXML(gmlGetCoverageElement);
 
         return gml.getBytes();
     }

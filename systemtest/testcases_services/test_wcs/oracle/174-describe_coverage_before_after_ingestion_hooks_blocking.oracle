@@ -1,72 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions 
->
-<wcs:CoverageDescription id="test_before_after_hooks_blocking">
-<boundedBy>
-<Envelope axisLabels="E N" srsDimension="2"
-srsName="/crs/EPSG/0/32615" uomLabels="metre metre">
-<lowerCorner>618885 3230195</lowerCorner>
-<upperCorner>688885 3300195</upperCorner>
-</Envelope>
-</boundedBy>
-<wcs:CoverageId>test_before_after_hooks_blocking</wcs:CoverageId>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>0 0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:metadata/>
-<domainSet>
-<RectifiedGrid dimension="2" id="test_before_after_hooks_blocking-grid">
-<limits>
-<GridEnvelope>
-<low>0 0</low>
-<high>13 13</high>
-</GridEnvelope>
-</limits>
-<axisLabels>E N</axisLabels>
-<origin>
-<Point
-id="test_before_after_hooks_blocking-point" srsName="/crs/EPSG/0/32615">
-<pos>621385 3297695</pos>
-</Point>
-</origin>
-<offsetVector srsName="/crs/EPSG/0/32615">5000 0</offsetVector>
-<offsetVector srsName="/crs/EPSG/0/32615">0 -5000</offsetVector>
-</RectifiedGrid>
-</domainSet>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="Red">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Red</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="Green">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Green</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="Blue">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Blue</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<wcs:ServiceParameters>
-<wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
-<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-</wcs:ServiceParameters>
-</wcs:CoverageDescription>
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
+    <wcs:CoverageDescription gml:id="test_before_after_hooks_blocking">
+        <gml:boundedBy>
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/32615" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
+                <gml:lowerCorner>618885 3230195</gml:lowerCorner>
+                <gml:upperCorner>688885 3300195</gml:upperCorner>
+            </gml:Envelope>
+        </gml:boundedBy>
+        <wcs:CoverageId>test_before_after_hooks_blocking</wcs:CoverageId>
+        <gml:coverageFunction>
+            <gml:GridFunction>
+                <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
+                <gml:startPoint>0 0</gml:startPoint>
+            </gml:GridFunction>
+        </gml:coverageFunction>
+        <gmlcov:metadata/>
+        <gml:domainSet>
+            <gml:RectifiedGrid dimension="2" gml:id="test_before_after_hooks_blocking-grid">
+                <gml:limits>
+                    <gml:GridEnvelope>
+                        <gml:low>0 0</gml:low>
+                        <gml:high>13 13</gml:high>
+                    </gml:GridEnvelope>
+                </gml:limits>
+                <gml:axisLabels>E N</gml:axisLabels>
+                <gml:origin>
+                    <gml:Point gml:id="test_before_after_hooks_blocking-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/32615">
+                        <gml:pos>621385 3297695</gml:pos>
+                    </gml:Point>
+                </gml:origin>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/32615">5000 0</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/32615">0 -5000</gml:offsetVector>
+            </gml:RectifiedGrid>
+        </gml:domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="Red">
+                    <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                        <swe:label>Red</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+                <swe:field name="Green">
+                    <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                        <swe:label>Green</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+                <swe:field name="Blue">
+                    <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                        <swe:label>Blue</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
 </wcs:CoverageDescriptions>

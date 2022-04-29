@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:wcs="http://www.opengis.net/wcs/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd">
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
     <wcs:CoverageDescription gml:id="test_ecmwf_fire_4d_color_palette_table_metadata_xml">
         <gml:boundedBy>
-            <gml:Envelope axisLabels="Lat Long ansi forecast"
-                srsDimension="4"
-                srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" uomLabels="degree degree d GridSpacing">
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" axisLabels="Lat Long ansi forecast" uomLabels="degree degree d GridSpacing" srsDimension="4">
                 <gml:lowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00.000Z" 0</gml:lowerCorner>
                 <gml:upperCorner>34.7208095 29.8828125 "2017-12-15T00:00:00.000Z" 22</gml:upperCorner>
             </gml:Envelope>
@@ -51,11 +41,7 @@
                         </Lat>
                     </axes>
                     <Title>Drought code</Title>
-                    <colorPaletteTable># Example of color palette table
-30	p200/16	80	-	 	 	 	 	 
-80	-	100	-	 	 	 	 	 
-100	200	0	0	200	255	255	0	 
-200	yellow	300	green</colorPaletteTable>
+                    <colorPaletteTable># Example of color palette table 30 p200/16 80 - 80 - 100 - 100 200 0 0 200 255 255 0 200 yellow 300 green</colorPaletteTable>
                 </rasdaman:covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
@@ -69,8 +55,7 @@
                 </gml:limits>
                 <gml:axisLabels>Lat Long ansi forecast</gml:axisLabels>
                 <gmlrgrid:origin>
-                    <gml:Point
-                        gml:id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
+                    <gml:Point gml:id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
                         <gml:pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z" 0</gml:pos>
                     </gml:Point>
                 </gmlrgrid:origin>

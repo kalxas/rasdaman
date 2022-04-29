@@ -1,80 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage
-id="test_irr_cube_2"
->
-<boundedBy>
-<Envelope axisLabels="i" srsDimension="1"
-srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
-<lowerCorner>0</lowerCorner>
-<upperCorner>62</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<gmlrgrid:ReferenceableGridByVectors dimension="1" gmlrgrid:id="test_irr_cube_2-grid">
-<limits>
-<GridEnvelope>
-<low>0</low>
-<high>62</high>
-</GridEnvelope>
-</limits>
-<axisLabels>i</axisLabels>
-<gmlrgrid:origin>
-<Point
-id="test_irr_cube_2-point" srsName="/crs/OGC/0/Index1D">
-<pos>0.5</pos>
-</Point>
-</gmlrgrid:origin>
-<gmlrgrid:generalGridAxis>
-<gmlrgrid:GeneralGridAxis>
-<gmlrgrid:offsetVector srsName="/crs/OGC/0/Index1D">1</gmlrgrid:offsetVector>
-<gmlrgrid:coefficients/>
-<gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
-<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-</gmlrgrid:GeneralGridAxis>
-</gmlrgrid:generalGridAxis>
-</gmlrgrid:ReferenceableGridByVectors>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">9.697354 4.181835,9.060192 4.173973,8.714869 4.170761,8.650765 4.166338,8.330251 4.16378,7.62148 4.157081,6.808952 4.153413,5.779952 4.146463,5.545979 4.139184,5.431634 4.135451,5.728638 4.125397,5.455315 4.121453,5.472735 4.108531,5.28911 4.103312,4.811388 4.08543,5.057184 4.079683,5.478716 4.057391,6.560706 4.032788,7.406361 4.036151,7.998177 4.01721,8.252942 4.021902,8.197317 4.006969,8.123823 4.00884,7.908616 3.99948,7.888954 3.992639,7.696205 3.989587,7.768653 3.974256,7.506474 3.963359,7.420908 3.932346,7.313322 3.93448,7.356509 3.926022,7.330281 3.925596,7.208728 3.936869,7.055015 3.924505,6.962566 3.930103,7.091461 3.917505,7.161482 3.915648,7.085306 3.875046,7.045103 3.86995,6.693735 3.843686,6.524566 3.866455,6.803687 3.902571,6.75315 3.892996,6.753028 3.813771,6.773052 3.864898,6.721125 3.845165,6.164939 3.77979,6.235096 3.822256,6.071073 3.823813,6.651602 3.898445,6.668388 3.894047,7.824168 3.946228,8.417478 3.937162,10.0004 3.985867,10.79587 3.99478,12.10144 4.052842,12.97039 4.090049,13.56621 4.101761,14.03827 4.124241,14.48025 4.13177,14.79086 4.145535,15.01319 4.150309,15.2434 4.159624</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+1">Linear</sequenceRule>
-<startPoint>0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="b1">
-<swe:Quantity definition="/dataType/OGC/0/float32">
-<swe:label>b1</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-<swe:field name="b2">
-<swe:Quantity definition="/dataType/OGC/0/float32">
-<swe:label>b2</swe:label>
-<swe:description/>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata/>
+<gmlcov:ReferenceableGridCoverage gml:id="test_irr_cube_2" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid">
+    <gml:boundedBy>
+        <gml:Envelope srsName="http://www.opengis.net/def/crs/OGC/0/Index1D" axisLabels="i" uomLabels="GridSpacing" srsDimension="1">
+            <gml:lowerCorner>0</gml:lowerCorner>
+            <gml:upperCorner>62</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="1" gmlrgrid:id="test_irr_cube_2-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0</gml:low>
+                    <gml:high>62</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>i</gml:axisLabels>
+            <gmlrgrid:origin>
+                <gml:Point gml:id="test_irr_cube_2-point" srsName="http://www.opengis.net/def/crs/OGC/0/Index1D">
+                    <gml:pos>0.5</gml:pos>
+                </gml:Point>
+            </gmlrgrid:origin>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://www.opengis.net/def/crs/OGC/0/Index1D">1</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">9.697354 4.181835,9.060192 4.173973,8.714869 4.170761,8.650765 4.166338,8.330251 4.16378,7.62148 4.157081,6.808952 4.153413,5.779952 4.146463,5.545979 4.139184,5.431634 4.135451,5.728638 4.125397,5.455315 4.121453,5.472735 4.108531,5.28911 4.103312,4.811388 4.08543,5.057184 4.079683,5.478716 4.057391,6.560706 4.032788,7.406361 4.036151,7.998177 4.01721,8.252942 4.021902,8.197317 4.006969,8.123823 4.00884,7.908616 3.99948,7.888954 3.992639,7.696205 3.989587,7.768653 3.974256,7.506474 3.963359,7.420908 3.932346,7.313322 3.93448,7.356509 3.926022,7.330281 3.925596,7.208728 3.936869,7.055015 3.924505,6.962566 3.930103,7.091461 3.917505,7.161482 3.915648,7.085306 3.875046,7.045103 3.86995,6.693735 3.843686,6.524566 3.866455,6.803687 3.902571,6.75315 3.892996,6.753028 3.813771,6.773052 3.864898,6.721125 3.845165,6.164939 3.77979,6.235096 3.822256,6.071073 3.823813,6.651602 3.898445,6.668388 3.894047,7.824168 3.946228,8.417478 3.937162,10.0004 3.985867,10.79587 3.99478,12.10144 4.052842,12.97039 4.090049,13.56621 4.101761,14.03827 4.124241,14.48025 4.13177,14.79086 4.145535,15.01319 4.150309,15.2434 4.159624</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+1">Linear</gml:sequenceRule>
+            <gml:startPoint>0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="b1">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                    <swe:label>b1</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="b2">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                    <swe:label>b2</swe:label>
+                    <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
 </gmlcov:ReferenceableGridCoverage>

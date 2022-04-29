@@ -89,7 +89,7 @@ public class DescribeCoverageHandler {
             }
             
             Element element = this.gmlWCSRequestResultBuilder.buildGetCoverageResult(wcpsCoverageMetadata, null);
-            output = XMLUtil.formatXML(element.toXML());
+            output = XMLUtil.formatXML(element);
             
             outputFormat = MIMEUtil.MIME_GML;
             

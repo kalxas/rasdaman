@@ -1,58 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage id="test_mr"
->
-<boundedBy>
-<Envelope axisLabels="" srsDimension="0" srsName="" uomLabels="">
-<lowerCorner/>
-<upperCorner/>
-</Envelope>
-</boundedBy>
-<domainSet>
-<RectifiedGrid dimension="0" id="test_mr-grid">
-<limits>
-<GridEnvelope>
-<low/>
-<high/>
-</GridEnvelope>
-</limits>
-<axisLabels/>
-<origin>
-<Point
-id="test_mr-point" srsName="">
-<pos/>
-</Point>
-</origin>
-</RectifiedGrid>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">10</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="">Linear</sequenceRule>
-<startPoint/>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="value">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>value</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>{
-"resolution" : "1"
-}</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:RectifiedGridCoverage gml:id="test_mr" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+    <gml:boundedBy>
+        <gml:Envelope srsName="" axisLabels="" uomLabels="" srsDimension="0">
+            <gml:lowerCorner/>
+            <gml:upperCorner/>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:RectifiedGrid dimension="0" gml:id="test_mr-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low/>
+                    <gml:high/>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels/>
+            <gml:origin>
+                <gml:Point gml:id="test_mr-point" srsName="">
+                    <gml:pos/>
+                </gml:Point>
+            </gml:origin>
+        </gml:RectifiedGrid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">10</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="">Linear</gml:sequenceRule>
+            <gml:startPoint/>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="value">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>value</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <rasdaman:covMetadata>{ "resolution" : "1" }</rasdaman:covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

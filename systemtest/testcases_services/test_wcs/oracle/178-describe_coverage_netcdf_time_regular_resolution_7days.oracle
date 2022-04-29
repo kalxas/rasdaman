@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:wcs="http://www.opengis.net/wcs/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd">
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
     <wcs:CoverageDescription gml:id="test_netcdf_regular_time_extent_resolution_7_days">
         <gml:boundedBy>
-            <gml:Envelope
-                axisLabels="timeeeeeeeeeeeeeee laaaaaaaaaaaaaaat longgggggggggggggg"
-                srsDimension="3"
-                srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/EPSG/0/4326" uomLabels="d degree degree">
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="timeeeeeeeeeeeeeee laaaaaaaaaaaaaaat longgggggggggggggg" uomLabels="d degree degree" srsDimension="3">
                 <gml:lowerCorner>"2003-12-18T12:00:00.000Z" 20.99999811002785515320334262 -167.9999988873435326842837274</gml:lowerCorner>
                 <gml:upperCorner>"2004-01-02T12:00:00.000Z" 21.99999888997214484679665738 -166.0000011126564673157162726</gml:upperCorner>
             </gml:Envelope>
@@ -72,14 +62,13 @@
                 </gml:limits>
                 <gml:axisLabels>timeeeeeeeeeeeeeee laaaaaaaaaaaaaaat longgggggggggggggg</gml:axisLabels>
                 <gml:origin>
-                    <gml:Point
-                        gml:id="test_netcdf_regular_time_extent_resolution_7_days-point" srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/EPSG/0/4326">
+                    <gml:Point gml:id="test_netcdf_regular_time_extent_resolution_7_days-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
                         <gml:pos>"2003-12-22T00:00:00.000Z" 21.9986099999999999999999999983845 -167.9986100000000000000000000008345</gml:pos>
                     </gml:Point>
                 </gml:origin>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/EPSG/0/4326">7 0 0</gml:offsetVector>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/EPSG/0/4326">0 -0.002777779944289693593314763231 0</gml:offsetVector>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/EPSG/0/4326">0 0 0.002777774687065368567454798331</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">7 0 0</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 -0.002777779944289693593314763231 0</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 0.002777774687065368567454798331</gml:offsetVector>
             </gml:RectifiedGrid>
         </gml:domainSet>
         <gmlcov:rangeType>

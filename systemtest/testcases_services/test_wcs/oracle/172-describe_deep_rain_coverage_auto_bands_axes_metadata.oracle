@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:wcs="http://www.opengis.net/wcs/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd">
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
     <wcs:CoverageDescription gml:id="test_deeprain_auto_bands_axes_metadata">
         <gml:boundedBy>
-            <gml:Envelope axisLabels="ansi i Lat Long" srsDimension="4"
-                srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/def/crs/EPSG/0/4326" uomLabels="d GridSpacing degree degree">
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="ansi i Lat Long" uomLabels="d GridSpacing degree degree" srsDimension="4">
                 <gml:lowerCorner>"1970-01-07T12:00:00.000Z" 1.5 -5.0125 -5.0125</gml:lowerCorner>
                 <gml:upperCorner>"1970-01-08T12:00:00.000Z" 2.5 -4.9375 -4.8875</gml:upperCorner>
             </gml:Envelope>
@@ -69,8 +61,7 @@
                     </grid_mapping>
                     <CDI>Climate Data Interface version 1.9.5 (http://mpimet.mpg.de/cdi)</CDI>
                     <Conventions>CF-1.6</Conventions>
-                    <history>Thu Jan 31 11:39:32 2019: ncks -d rlat,-5.0,-4.95 -d rlon,-5.0,-4.90 cosmo_test1.nc input.nc
-Wed Jan 30 11:08:32 2019: cdo -f nc copy download cosmo_test1.nc</history>
+                    <history>Thu Jan 31 11:39:32 2019: ncks -d rlat,-5.0,-4.95 -d rlon,-5.0,-4.90 cosmo_test1.nc input.nc Wed Jan 30 11:08:32 2019: cdo -f nc copy download cosmo_test1.nc</history>
                     <institution>Deutscher Wetterdienst</institution>
                     <CDO>Climate Data Operators version 1.9.5 (http://mpimet.mpg.de/cdo)</CDO>
                     <NCO>4.4.4</NCO>
@@ -87,15 +78,14 @@ Wed Jan 30 11:08:32 2019: cdo -f nc copy download cosmo_test1.nc</history>
                 </gml:limits>
                 <gml:axisLabels>ansi i Lat Long</gml:axisLabels>
                 <gml:origin>
-                    <gml:Point
-                        gml:id="test_deeprain_auto_bands_axes_metadata-point" srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/def/crs/EPSG/0/4326">
+                    <gml:Point gml:id="test_deeprain_auto_bands_axes_metadata-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
                         <gml:pos>"1970-01-08T00:00:00.000Z" 2 -5 -5</gml:pos>
                     </gml:Point>
                 </gml:origin>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/def/crs/EPSG/0/4326">1 0 0 0</gml:offsetVector>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/def/crs/EPSG/0/4326">0 1 0 0</gml:offsetVector>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/def/crs/EPSG/0/4326">0 0 0.025 0</gml:offsetVector>
-                <gml:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/def/crs/EPSG/0/4326">0 0 0 0.025</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">1 0 0 0</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 1 0 0</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 0.025 0</gml:offsetVector>
+                <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 0 0.025</gml:offsetVector>
             </gml:RectifiedGrid>
         </gml:domainSet>
         <gmlcov:rangeType>

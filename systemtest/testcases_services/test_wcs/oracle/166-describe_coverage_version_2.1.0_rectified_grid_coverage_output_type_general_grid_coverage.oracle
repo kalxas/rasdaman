@@ -1,49 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions
->
-<wcs:CoverageDescription id="test_mean_summer_airtemp">
-<cis11:Envelope axisLabels="Lat Lon" srsDimension="2" srsName="/crs/EPSG/0/4326">
-<cis11:AxisExtent axisLabel="Lat"
-lowerBound="-44.474999999999987" uomLabel="degree" upperBound="-8.974999999999987"/>
-<cis11:AxisExtent axisLabel="Lon" lowerBound="111.975"
-uomLabel="degree" upperBound="156.475"/>
-</cis11:Envelope>
-<wcs:CoverageId>test_mean_summer_airtemp</wcs:CoverageId>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-<startPoint>0 0</startPoint>
-</GridFunction>
-</coverageFunction>
-<cis11:DomainSet>
-<cis11:GeneralGrid axisLabels="Lat Lon" srsName="/crs/EPSG/0/4326">
-<cis11:RegularAxis axisLabel="Lat"
-lowerBound="-44.474999999999987" resolution="-0.5"
-uomLabel="degree" upperBound="-8.974999999999987"/>
-<cis11:RegularAxis axisLabel="Lon" lowerBound="111.975"
-resolution="0.5" uomLabel="degree" upperBound="156.475"/>
-<cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-<cis11:IndexAxis axisLabel="i" lowerBound="0" upperBound="70"/>
-<cis11:IndexAxis axisLabel="j" lowerBound="0" upperBound="88"/>
-</cis11:GridLimits>
-</cis11:GeneralGrid>
-</cis11:DomainSet>
-<cis11:RangeType>
-<swe:DataRecord>
-<swe:field name="Gray">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Gray</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</cis11:RangeType>
-<cis11:metadata/>
-<wcs:ServiceParameters>
-<wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>
-<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-</wcs:ServiceParameters>
-</wcs:CoverageDescription>
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.1/gml http://schemas.opengis.net/wcs/2.1/gml/wcsAll.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:cis11="http://www.opengis.net/cis/1.1/gml">
+    <wcs:CoverageDescription gml:id="test_mean_summer_airtemp">
+        <cis11:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Lon" srsDimension="2">
+            <cis11:AxisExtent axisLabel="Lat" uomLabel="degree" lowerBound="-44.474999999999987" upperBound="-8.974999999999987"/>
+            <cis11:AxisExtent axisLabel="Lon" uomLabel="degree" lowerBound="111.975" upperBound="156.475"/>
+        </cis11:Envelope>
+        <wcs:CoverageId>test_mean_summer_airtemp</wcs:CoverageId>
+        <gml:coverageFunction>
+            <gml:GridFunction>
+                <gml:sequenceRule axisOrder="+1 +2">Linear</gml:sequenceRule>
+                <gml:startPoint>0 0</gml:startPoint>
+            </gml:GridFunction>
+        </gml:coverageFunction>
+        <cis11:DomainSet>
+            <cis11:GeneralGrid srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Lon">
+                <cis11:RegularAxis axisLabel="Lat" uomLabel="degree" lowerBound="-44.474999999999987" upperBound="-8.974999999999987" resolution="-0.5"/>
+                <cis11:RegularAxis axisLabel="Lon" uomLabel="degree" lowerBound="111.975" upperBound="156.475" resolution="0.5"/>
+                <cis11:GridLimits srsName="http://www.opengis.net/def/crs/OGC/0/Index2D" axisLabels="i j">
+                    <cis11:IndexAxis axisLabel="i" lowerBound="0" upperBound="70"/>
+                    <cis11:IndexAxis axisLabel="j" lowerBound="0" upperBound="88"/>
+                </cis11:GridLimits>
+            </cis11:GeneralGrid>
+        </cis11:DomainSet>
+        <cis11:RangeType>
+            <swe:DataRecord>
+                <swe:field name="Gray">
+                    <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                        <swe:label>Gray</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </cis11:RangeType>
+        <cis11:metadata/>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
 </wcs:CoverageDescriptions>

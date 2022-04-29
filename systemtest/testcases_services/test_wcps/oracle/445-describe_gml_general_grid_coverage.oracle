@@ -1,42 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cis11:GeneralGridCoverage id="test_mean_summer_airtemp"
->
-<cis11:Envelope axisLabels="Lat Lon" srsDimension="2" srsName="/crs/EPSG/0/4326">
-<cis11:AxisExtent axisLabel="Lat"
-lowerBound="-12.974999999999987" uomLabel="degree" upperBound="-11.974999999999987"/>
-<cis11:AxisExtent axisLabel="Lon" lowerBound="129.975"
-uomLabel="degree" upperBound="130.975"/>
-</cis11:Envelope>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-<startPoint>6 36</startPoint>
-</GridFunction>
-</coverageFunction>
-<cis11:DomainSet>
-<cis11:GeneralGrid axisLabels="Lat Lon" srsName="/crs/EPSG/0/4326">
-<cis11:RegularAxis axisLabel="Lat"
-lowerBound="-12.974999999999987" resolution="-0.5"
-uomLabel="degree" upperBound="-11.974999999999987"/>
-<cis11:RegularAxis axisLabel="Lon" lowerBound="129.975"
-resolution="0.5" uomLabel="degree" upperBound="130.975"/>
-<cis11:GridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-<cis11:IndexAxis axisLabel="i" lowerBound="6" upperBound="7"/>
-<cis11:IndexAxis axisLabel="j" lowerBound="36" upperBound="37"/>
-</cis11:GridLimits>
-</cis11:GeneralGrid>
-</cis11:DomainSet>
-<cis11:RangeType>
-<swe:DataRecord>
-<swe:field name="Gray">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>Gray</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</cis11:RangeType>
-<cis11:metadata/>
+<cis11:GeneralGridCoverage gml:id="test_mean_summer_airtemp" xsi:schemaLocation="http://www.opengis.net/cis/1.1/gml http://schemas.opengis.net/cis/1.1/gml/cisAll.xsd" xmlns:cis11="http://www.opengis.net/cis/1.1/gml" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+    <cis11:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Lon" srsDimension="2">
+        <cis11:AxisExtent axisLabel="Lat" uomLabel="degree" lowerBound="-12.974999999999987" upperBound="-11.974999999999987"/>
+        <cis11:AxisExtent axisLabel="Lon" uomLabel="degree" lowerBound="129.975" upperBound="130.975"/>
+    </cis11:Envelope>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+1 +2">Linear</gml:sequenceRule>
+            <gml:startPoint>6 36</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <cis11:DomainSet>
+        <cis11:GeneralGrid srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Lon">
+            <cis11:RegularAxis axisLabel="Lat" uomLabel="degree" lowerBound="-12.974999999999987" upperBound="-11.974999999999987" resolution="-0.5"/>
+            <cis11:RegularAxis axisLabel="Lon" uomLabel="degree" lowerBound="129.975" upperBound="130.975" resolution="0.5"/>
+            <cis11:GridLimits srsName="http://www.opengis.net/def/crs/OGC/0/Index2D" axisLabels="i j">
+                <cis11:IndexAxis axisLabel="i" lowerBound="6" upperBound="7"/>
+                <cis11:IndexAxis axisLabel="j" lowerBound="36" upperBound="37"/>
+            </cis11:GridLimits>
+        </cis11:GeneralGrid>
+    </cis11:DomainSet>
+    <cis11:RangeType>
+        <swe:DataRecord>
+            <swe:field name="Gray">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>Gray</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </cis11:RangeType>
+    <cis11:metadata/>
 </cis11:GeneralGridCoverage>

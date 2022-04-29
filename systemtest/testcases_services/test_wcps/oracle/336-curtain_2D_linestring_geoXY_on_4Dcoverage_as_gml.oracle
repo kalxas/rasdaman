@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage gml:id="test_wms_4d_ecmwf_fire_netcdf"
-    xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+<gmlcov:ReferenceableGridCoverage gml:id="test_wms_4d_ecmwf_fire_netcdf" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid">
     <gml:boundedBy>
-        <gml:Envelope axisLabels="Lat Long ansi forecast"
-            srsDimension="4"
-            srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" uomLabels="degree degree d GridSpacing">
+        <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" axisLabels="Lat Long ansi forecast" uomLabels="degree degree d GridSpacing" srsDimension="4">
             <gml:lowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00.000Z" 0</gml:lowerCorner>
             <gml:upperCorner>34.7208095 29.8828125 "2017-09-18T00:00:00.000Z" 10</gml:upperCorner>
         </gml:Envelope>

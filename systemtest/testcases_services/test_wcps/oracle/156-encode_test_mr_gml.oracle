@@ -1,61 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage id="test_mr"
->
-<boundedBy>
-<Envelope axisLabels="i j" srsDimension="2"
-srsName="/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
-<lowerCorner>0 0</lowerCorner>
-<upperCorner>10 20</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<RectifiedGrid dimension="2" id="test_mr-grid">
-<limits>
-<GridEnvelope>
-<low>0 20</low>
-<high>9 39</high>
-</GridEnvelope>
-</limits>
-<axisLabels>i j</axisLabels>
-<origin>
-<Point
-id="test_mr-point" srsName="/crs/OGC/0/Index2D">
-<pos>0.5 19.5</pos>
-</Point>
-</origin>
-<offsetVector srsName="/crs/OGC/0/Index2D">1 0</offsetVector>
-<offsetVector srsName="/crs/OGC/0/Index2D">0 -1</offsetVector>
-</RectifiedGrid>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">666,765,776,666,138,-5,490,567,1073,336,809,666,765,655,743,754,-5,281,-5,-5,325,281,391,149,-5,413,699,699,182,875,-5,424,765,666,501,633,710,611,-5,-5,303,105,-5,6,182,248,226,-5,743,743,589,-5,391,776,435,523,710,171,-5,-5,-5,-5,-5,-5,-5,-5,39,523,-5,237,732,798,534,644,369,171,710,446,-5,-5,-5,-5,-5,-5,-5,-5,-5,270,6,644,105,567,633,732,325,94,-5,622,215,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,83,358,-5,413,589,622,6,83,413,358,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,380,347,215,457,171,39,149,248,50,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,171,380,358,6,325,182,-5,149,17,17,17,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,897,435,314,-5,248,50,193,-5,105,138,50,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,237,138,-5,94,17,-5,83</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-<startPoint>0 20</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="value">
-<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
-<swe:label>value</swe:label>
-<swe:description/>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>{
-"resolution" : "1"
-}</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:RectifiedGridCoverage gml:id="test_mr" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+    <gml:boundedBy>
+        <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+            <gml:lowerCorner>0 0</gml:lowerCorner>
+            <gml:upperCorner>10 20</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:RectifiedGrid dimension="2" gml:id="test_mr-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0 20</gml:low>
+                    <gml:high>9 39</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>i j</gml:axisLabels>
+            <gml:origin>
+                <gml:Point gml:id="test_mr-point" srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index2D">
+                    <gml:pos>0.5 19.5</gml:pos>
+                </gml:Point>
+            </gml:origin>
+            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index2D">1 0</gml:offsetVector>
+            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index2D">0 -1</gml:offsetVector>
+        </gml:RectifiedGrid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">666,765,776,666,138,-5,490,567,1073,336,809,666,765,655,743,754,-5,281,-5,-5,325,281,391,149,-5,413,699,699,182,875,-5,424,765,666,501,633,710,611,-5,-5,303,105,-5,6,182,248,226,-5,743,743,589,-5,391,776,435,523,710,171,-5,-5,-5,-5,-5,-5,-5,-5,39,523,-5,237,732,798,534,644,369,171,710,446,-5,-5,-5,-5,-5,-5,-5,-5,-5,270,6,644,105,567,633,732,325,94,-5,622,215,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,83,358,-5,413,589,622,6,83,413,358,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,380,347,215,457,171,39,149,248,50,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,171,380,358,6,325,182,-5,149,17,17,17,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,897,435,314,-5,248,50,193,-5,105,138,50,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,237,138,-5,94,17,-5,83</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>0 20</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="value">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>value</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <rasdaman:covMetadata>{ "resolution" : "1" }</rasdaman:covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

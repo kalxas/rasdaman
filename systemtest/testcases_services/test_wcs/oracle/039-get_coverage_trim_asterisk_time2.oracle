@@ -1,88 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage id="test_eobstest"
->
-<boundedBy>
-<Envelope axisLabels="t" srsDimension="1"
-srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="d">
-<lowerCorner>"1949-12-31T12:00:00.000Z"</lowerCorner>
-<upperCorner>"1950-01-05T12:00:00.000Z"</upperCorner>
-</Envelope>
-</boundedBy>
-<domainSet>
-<RectifiedGrid dimension="1" id="test_eobstest-grid">
-<limits>
-<GridEnvelope>
-<low>0</low>
-<high>4</high>
-</GridEnvelope>
-</limits>
-<axisLabels>t</axisLabels>
-<origin>
-<Point
-id="test_eobstest-point" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
-<pos>"1950-01-01T00:00:00.000Z"</pos>
-</Point>
-</origin>
-<offsetVector srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">1</offsetVector>
-</RectifiedGrid>
-</domainSet>
-<rangeSet>
-<DataBlock>
-<rangeParameters/>
-<tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999</tupleList>
-</DataBlock>
-</rangeSet>
-<coverageFunction>
-<GridFunction>
-<sequenceRule axisOrder="+1">Linear</sequenceRule>
-<startPoint>0</startPoint>
-</GridFunction>
-</coverageFunction>
-<gmlcov:rangeType>
-<swe:DataRecord>
-<swe:field name="tg">
-<swe:Quantity definition="/dataType/OGC/0/signedShort">
-<swe:label>tg</swe:label>
-<swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
-<swe:nilValues>
-<swe:NilValues>
-<swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
-</swe:NilValues>
-</swe:nilValues>
-<swe:uom code="10^0"/>
-<swe:constraint/>
-</swe:Quantity>
-</swe:field>
-</swe:DataRecord>
-</gmlcov:rangeType>
-<gmlcov:metadata>
-<gmlcov:Extension>
-<rasdaman:covMetadata>
-<bands>
-<tg>
-<long_name>mean temperature</long_name>
-<units>Celsius</units>
-<standard_name>air_temperature</standard_name>
-<_FillValue>-9999</_FillValue>
-<scale_factor>0.01</scale_factor>
-</tg>
-</bands>
-<axes>
-<Lat>
-<long_name>Latitude values</long_name>
-<units>degrees_N</units>
-<standard_name>latitude</standard_name>
-</Lat>
-<Lon>
-<long_name>Lonitude values</long_name>
-<units>degrees_E</units>
-<standard_name>longitude</standard_name>
-</Lon>
-</axes>
-<Title>This is a test file</Title>
-<Project>This is another test file</Project>
-<Creator>This is a test creator file</Creator>
-</rasdaman:covMetadata>
-</gmlcov:Extension>
-</gmlcov:metadata>
+<gmlcov:RectifiedGridCoverage gml:id="test_eobstest" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+    <gml:boundedBy>
+        <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+            <gml:lowerCorner>"1949-12-31T12:00:00.000Z"</gml:lowerCorner>
+            <gml:upperCorner>"1950-01-05T12:00:00.000Z"</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:RectifiedGrid dimension="1" gml:id="test_eobstest-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>0</gml:low>
+                    <gml:high>4</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>t</gml:axisLabels>
+            <gml:origin>
+                <gml:Point gml:id="test_eobstest-point" srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
+                    <gml:pos>"1950-01-01T00:00:00.000Z"</gml:pos>
+                </gml:Point>
+            </gml:origin>
+            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">1</gml:offsetVector>
+        </gml:RectifiedGrid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+1">Linear</gml:sequenceRule>
+            <gml:startPoint>0</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="tg">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/signedShort">
+                    <swe:label>tg</swe:label>
+                    <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <rasdaman:covMetadata>
+                <bands>
+                    <tg>
+                        <long_name>mean temperature</long_name>
+                        <units>Celsius</units>
+                        <standard_name>air_temperature</standard_name>
+                        <_FillValue>-9999</_FillValue>
+                        <scale_factor>0.01</scale_factor>
+                    </tg>
+                </bands>
+                <axes>
+                    <Lat>
+                        <long_name>Latitude values</long_name>
+                        <units>degrees_N</units>
+                        <standard_name>latitude</standard_name>
+                    </Lat>
+                    <Long>
+                        <long_name>Longitude values</long_name>
+                        <units>degrees_E</units>
+                        <standard_name>longitude</standard_name>
+                    </Long>
+                </axes>
+                <Title>This is a test file</Title>
+                <Project>This is another test file</Project>
+                <Creator>This is a test creator file</Creator>
+            </rasdaman:covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

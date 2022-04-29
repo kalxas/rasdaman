@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage gml:id="test_irr_cube_2"
-    xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+<gmlcov:ReferenceableGridCoverage gml:id="test_irr_cube_2" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid">
     <gml:boundedBy>
-        <gml:Envelope axisLabels="i" srsDimension="1"
-            srsName="http://www.opengis.net/def/crs/OGC/0/Index1D" uomLabels="GridSpacing">
+        <gml:Envelope srsName="http://www.opengis.net/def/crs/OGC/0/Index1D" axisLabels="i" uomLabels="GridSpacing" srsDimension="1">
             <gml:lowerCorner>0</gml:lowerCorner>
             <gml:upperCorner>62</gml:upperCorner>
         </gml:Envelope>

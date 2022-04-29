@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:wcs="http://www.opengis.net/wcs/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd">
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
     <wcs:CoverageDescription gml:id="test_wcps_rgb_gzip">
         <gml:boundedBy>
-            <gml:Envelope axisLabels="i j" srsDimension="2"
-                srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
                 <gml:lowerCorner>0 0</gml:lowerCorner>
                 <gml:upperCorner>400 344</gml:upperCorner>
             </gml:Envelope>
@@ -24,9 +16,7 @@
         </gml:coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <rasdaman:covMetadata>{
-  "resolution" : "1"
-}</rasdaman:covMetadata>
+                <rasdaman:covMetadata>{ "resolution" : "1" }</rasdaman:covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <gml:domainSet>

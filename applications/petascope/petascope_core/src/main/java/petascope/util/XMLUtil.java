@@ -1283,10 +1283,9 @@ public class XMLUtil {
 
     /**
      * Format a string in XML with indentation
-     *
-     * @param inputXML
-     * @return
+     * NOTE: much slower than formatXML(Element)
      */
+    @Deprecated
     public static String formatXML(String inputXML) {
         
         // Add XML declaration if not exist

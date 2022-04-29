@@ -1,17 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cis11:GeneralGridCoverage gml:id="test_irr_cube_2"
-    xmlns:cis11="http://www.opengis.net/cis/1.1/gml"
-    xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:rasdaman="http://www.rasdaman.org"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/cis/1.1/gml http://schemas.opengis.net/cis/1.1/gml/cisAll.xsd">
-    <cis11:Envelope axisLabels="E N" srsDimension="2" srsName="http://localhost:8080/def/crs/EPSG/0/32633">
-        <cis11:AxisExtent axisLabel="E" lowerBound="75042.72735943"
-            uomLabel="metre" upperBound="85042.72735943"/>
-        <cis11:AxisExtent axisLabel="N" lowerBound="5094865.557938452"
-            uomLabel="metre" upperBound="5104865.557938452"/>
+<cis11:GeneralGridCoverage gml:id="test_irr_cube_2" xsi:schemaLocation="http://www.opengis.net/cis/1.1/gml http://schemas.opengis.net/cis/1.1/gml/cisAll.xsd" xmlns:cis11="http://www.opengis.net/cis/1.1/gml" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+    <cis11:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/32633" axisLabels="E N" srsDimension="2">
+        <cis11:AxisExtent axisLabel="E" uomLabel="metre" lowerBound="75042.72735943" upperBound="85042.72735943"/>
+        <cis11:AxisExtent axisLabel="N" uomLabel="metre" lowerBound="5094865.557938452" upperBound="5104865.557938452"/>
     </cis11:Envelope>
     <gml:coverageFunction>
         <gml:GridFunction>
@@ -20,13 +11,10 @@
         </gml:GridFunction>
     </gml:coverageFunction>
     <cis11:DomainSet>
-        <cis11:GeneralGrid axisLabels="E N" srsName="http://localhost:8080/def/crs/EPSG/0/32633">
-            <cis11:RegularAxis axisLabel="E" lowerBound="75042.72735943"
-                resolution="10000" uomLabel="metre" upperBound="85042.72735943"/>
-            <cis11:RegularAxis axisLabel="N"
-                lowerBound="5094865.557938452" resolution="-10000"
-                uomLabel="metre" upperBound="5104865.557938452"/>
-            <cis11:GridLimits axisLabels="i j" srsName="http://www.opengis.net/def/crs/OGC/0/Index2D">
+        <cis11:GeneralGrid srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/32633" axisLabels="E N">
+            <cis11:RegularAxis axisLabel="E" uomLabel="metre" lowerBound="75042.72735943" upperBound="85042.72735943" resolution="10000"/>
+            <cis11:RegularAxis axisLabel="N" uomLabel="metre" lowerBound="5094865.557938452" upperBound="5104865.557938452" resolution="-10000"/>
+            <cis11:GridLimits srsName="http://www.opengis.net/def/crs/OGC/0/Index2D" axisLabels="i j">
                 <cis11:IndexAxis axisLabel="i" lowerBound="0" upperBound="0"/>
                 <cis11:IndexAxis axisLabel="j" lowerBound="35" upperBound="35"/>
             </cis11:GridLimits>
