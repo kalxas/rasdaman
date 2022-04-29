@@ -340,6 +340,9 @@ Coverage operations
 
     encode(covExpr, "image/jpeg")
 
+   WCPS supports ``application/gml+xml`` format corresponding to OGC WCS ``GetCoverage`` request.
+   Many further formats are supported, see :ref:`here <rasql-encode-function-data-format>` for details.
+
 
 Atomic types
 ------------
@@ -420,18 +423,6 @@ Several functions allow to extract metadata information about a coverage ``C``:
 +---------------------------+----------------------------------------------------+
 | nullSet(C)                | Set of null values                                 |
 +---------------------------+----------------------------------------------------+
-
-.. _wcps-encode-format:
-
-Encode formats
---------------
-
-For ``encode()`` operator, a mandatory format must be specified as the second parameter,
-indicating the data format to which the coverage expression will be encoded.
-
-WCPS supports the standard ``application/gml+xml`` (according to OGC WCS ``GetCoverage`` request)
-format for coverages, besides other supported encode formats in rasdaman, 
-see :ref:`details <rasql-encode-function-data-format>`.
 
 
 .. _cheatsheet-wms:

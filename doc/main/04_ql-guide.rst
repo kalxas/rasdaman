@@ -1277,7 +1277,7 @@ The local OID is an integer number.
 
 **Syntax**
 
-::
+.. code-block:: text
 
     < systemName | baseName | objectID >
     objectID
@@ -1288,7 +1288,7 @@ an *integerExp*.
 
 **Example**
 
-::
+.. code-block:: text
 
     < acme.com | RASBASE | 42 >
     42
