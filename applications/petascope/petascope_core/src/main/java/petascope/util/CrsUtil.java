@@ -1049,9 +1049,12 @@ public class CrsUtil {
      * Return the opengis full uri for EPSG code, e.g: EPSG:4326 ->
      * http://www.opengis.net/def/crs/EPSG/0/4326
      */
-    public static String getFullCRSURLByAuthorityCode(String authorityCode) {
+    public static String getFullCRSURLByAuthorityCode(String authorityCode) throws PetascopeException {
         // e.g. EPSG:4326
         String[] tmps = authorityCode.split(":");
+        if (tmps.length != 2) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "CRS authority code is not valid. Given: " + authorityCode);
+        }
         // e.g. EPSG
         String authortiy = tmps[0];
         // e.g. 4326
@@ -1082,7 +1085,7 @@ public class CrsUtil {
      * Given a CRS URL or Authority:Code, return authority:code
      * e.g: http://localhost:8080/def/crs/EPSG/0/4326 -> EPSG:4326
      */
-    public static String getAuthorityCode(String crs) {
+    public static String getAuthorityCode(String crs) throws PetascopeException {
         crs = crs.trim();
         
         if (isAuthorityCode(crs)) {
@@ -1090,6 +1093,10 @@ public class CrsUtil {
         }
         
         String prefix = "/crs/";
+        if (!crs.contains(prefix)) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Cannot get authority code from the given CRS: " + crs);
+        }
+        
         String[] values = crs.substring(crs.indexOf(prefix), crs.length()).replace(prefix, "").split("/");
         String result = values[0] + ":" + values[2];
         return result;

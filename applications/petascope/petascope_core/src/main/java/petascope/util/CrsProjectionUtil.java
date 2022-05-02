@@ -527,7 +527,7 @@ public class CrsProjectionUtil {
      * Current only support transformation between EPSG crss and COSMO:101 rotated CRS
      * @param crs = AuthorityCode: EPSG:4326 or fullCRSURL: http://localhost:8080/def/crs/EPSG/0/4326
      */
-    public static boolean isValidTransform(String crs) {
+    public static boolean isValidTransform(String crs) throws PetascopeException {
         crs = crs.trim();
         
         // e.g EPSG:4326

@@ -1,0 +1,2 @@
+for $c in (test_mean_summer_airtemp)  return encode(crsTransform($c + 150,
+"http://localhost:8080/def/crs/EPSG/0/3857"), "image/jpeg", "nodata=0")

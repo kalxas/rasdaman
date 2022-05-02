@@ -443,6 +443,8 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionClipCorridorLabel
                   | crsTransformExpression
                     #CoverageExpressionCrsTransformLabel
+                  | crsTransformShorthandExpression
+                    #CoverageExpressionCrsTransformShorthandLabel
 		          | switchCaseExpression
                     #CoverageExpressionSwitchCaseLabel
                   | SCALE LEFT_PARENTHESIS
@@ -765,6 +767,12 @@ crsTransformExpression: CRS_TRANSFORM LEFT_PARENTHESIS
                           (COMMA LEFT_BRACE interpolationType? RIGHT_BRACE)?
                         RIGHT_PARENTHESIS
 #CrsTransformExpressionLabel;
+
+crsTransformShorthandExpression: CRS_TRANSFORM LEFT_PARENTHESIS
+                              coverageExpression COMMA crsName
+                          (COMMA LEFT_BRACE interpolationType? RIGHT_BRACE)?
+                        RIGHT_PARENTHESIS
+#CrsTransformShorthandExpressionLabel;
 
 
 /*

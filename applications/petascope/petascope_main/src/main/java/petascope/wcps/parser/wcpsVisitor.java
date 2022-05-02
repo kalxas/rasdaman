@@ -523,6 +523,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitClipCurtainExpressionLabel(@NotNull wcpsParser.ClipCurtainExpressionLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CrsTransformShorthandExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCrsTransformShorthandExpressionLabel(@NotNull wcpsParser.CrsTransformShorthandExpressionLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#letClauseDimensionIntervalListLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -654,6 +661,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNumericalComplexNumberConstant(@NotNull wcpsParser.NumericalComplexNumberConstantContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformShorthandLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageExpressionCrsTransformShorthandLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformShorthandLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#DescribeCoverageExpressionLabel}.

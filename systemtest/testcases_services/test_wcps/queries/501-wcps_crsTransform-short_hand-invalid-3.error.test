@@ -1,0 +1,4 @@
+for $c in (test_mean_summer_airtemp)  return encode(crsTransform($c,
+"EPSG/3857", 
+{     bilinear             
+         }), "image/jpeg", "nodata=0")

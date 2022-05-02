@@ -812,6 +812,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitClipCurtainExpressionLabel(@NotNull wcpsParser.ClipCurtainExpressionLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CrsTransformShorthandExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCrsTransformShorthandExpressionLabel(@NotNull wcpsParser.CrsTransformShorthandExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CrsTransformShorthandExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCrsTransformShorthandExpressionLabel(@NotNull wcpsParser.CrsTransformShorthandExpressionLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#letClauseDimensionIntervalListLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1019,6 +1030,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNumericalComplexNumberConstant(@NotNull wcpsParser.NumericalComplexNumberConstantContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformShorthandLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionCrsTransformShorthandLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformShorthandLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformShorthandLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionCrsTransformShorthandLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformShorthandLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#DescribeCoverageExpressionLabel}.

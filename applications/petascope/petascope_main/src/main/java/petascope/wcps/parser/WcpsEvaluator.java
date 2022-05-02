@@ -770,6 +770,71 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
     }
     
+    
+    @Override 
+    public VisitorResult visitCrsTransformShorthandExpressionLabel(@NotNull wcpsParser.CrsTransformShorthandExpressionLabelContext ctx) { 
+        // Handle crsTransform($COVERAGE_EXPRESSION, "CRS", {$INTERPOLATION})
+        // e.g: crsTransform(c, "EPSG:4326", { near })
+        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
+        
+        WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
+        
+        String errorMessage = "The coverage operand of crsTransform() must be 2D and has spatial X and Y geo axes.";
+        if (!metadata.hasXYAxes()) {
+            throw new WCPSException(ExceptionCode.InvalidRequest, errorMessage);
+        } else if (metadata.getAxes().size() != 2) {
+            throw new WCPSException(ExceptionCode.InvalidRequest, errorMessage);
+        }
+        
+        List<Axis> xyAxes = metadata.getXYAxes();
+        Axis axisX = xyAxes.get(0);
+        Axis axisY = xyAxes.get(1);
+        
+        String outputCRSAuthorityCode = ctx.crsName().getText();
+        String outputCRS = "";
+        if (outputCRSAuthorityCode.contains("/")) {
+            // e.g. http://localhost:8080/def/crs/EPSG/0/4326
+            outputCRS = ctx.crsName().getText();
+        } else {
+            // e.g. EPSG:4326
+            try {
+                outputCRS = CrsUtil.getFullCRSURLByAuthorityCode(outputCRSAuthorityCode);
+            } catch (PetascopeException ex) {
+                throw new WCPSException(ex.getExceptionCode(), ex.getExceptionText(), ex);
+            }
+        }
+        
+        log.debug("Given output CRS: " + outputCRS);
+        outputCRS = StringUtil.stripQuotes(outputCRS);
+        
+        // axisLabel (e.g. X) -> outputCRS (e.g. "http://localhost:8080/rasdaman/def/crs/EPSG/0/4326")
+        HashMap<String, String> axisLabelCrss = new LinkedHashMap<>();
+        axisLabelCrss.put(axisX.getLabel(), outputCRS);
+        axisLabelCrss.put(axisY.getLabel(), outputCRS);
+
+        String interpolationType = null;
+
+        if (ctx.interpolationType() != null) {
+            interpolationType = ctx.interpolationType().getText();
+        }
+        
+        WcpsResult result = null;
+        try {
+            result = crsTransformHandler.handle(coverageExpression, axisLabelCrss, interpolationType);
+        } catch (PetascopeException | SecoreException ex) {
+            errorMessage = "Error processing crsTransform() operator expression. Reason: " + ex.getMessage();
+            ExceptionCode exceptionCode = null;
+            if (ex instanceof PetascopeException) {
+                exceptionCode = ((PetascopeException)ex).getExceptionCode();
+            } else if (ex instanceof SecoreException) {
+                exceptionCode = ((SecoreException)ex).getExceptionCode();
+            }
+            throw new WCPSException(exceptionCode, errorMessage, ex);
+        }
+        return result;
+
+    }
+    
     @Override
     public VisitorResult visitCoverageVariableNameLabel(@NotNull wcpsParser.CoverageVariableNameLabelContext ctx) {
         // Identifier, e.g: $c or c
