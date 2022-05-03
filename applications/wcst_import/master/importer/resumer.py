@@ -63,6 +63,7 @@ class Resumer:
                     log.info(
                         "We found a resumer file in the ingredients folder. The slices listed in '" + resume_file_path
                         + "' will not be imported.")
+                    ConfigManager.has_resume_file = True
                     file = open(Resumer.__RESUMER_FILE_NAME_DICT[coverage_id])
                     data = json.loads(file.read())
 

@@ -55,6 +55,7 @@ import petascope.util.ras.RasUtil;
 
 import org.gdal.gdal.gdal;
 import static petascope.util.CrsUtil.isInternalSecoreURL;
+import petascope.util.ListUtil;
 
 /**
  * Configuration Manager class: a single entry point for all server settings.
@@ -627,6 +628,7 @@ public class ConfigManager {
         log.info("Version " + PETASCOPE_VERSION);
         log.info("DB URL  " + PETASCOPE_DATASOURCE_URL);
         log.info("DB User " + PETASCOPE_DATASOURCE_USERNAME);
+        log.info("Allow write requests from: " + ListUtil.join(ConfigManager.ALLOW_WRITE_REQUESTS_FROM, ","));
         log.info("");
 
         log.info("-- RASDAMAN --");

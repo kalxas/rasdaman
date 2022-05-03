@@ -629,7 +629,7 @@ public class RasUtil {
     /**
      * Send a simple rasql query to rasdaman to check if username and passWord are correct.
      */
-    public static boolean checkValidUserCredentials(String username, String inputPassword) throws RasdamanException {
+    public static void checkValidUserCredentials(String username, String inputPassword) throws RasdamanException, PetascopeException {
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         try {
             impl.setUserIdentification(username, inputPassword);
@@ -638,13 +638,12 @@ public class RasUtil {
             boolean userNotExist = errorMessage.contains("user") && errorMessage.contains("does not exist");
             boolean passwordInCorrect = errorMessage.contains("password") && errorMessage.contains("is invalid");
             if (userNotExist || passwordInCorrect) {
-                return false;
+                throw new PetascopeException(ExceptionCode.InvalidCredentials, "rasdaman credentials are invalid for user: " + username);
             } else {
                 throw new RasdamanException("Could not check if credentials for user '" + username + "' are valid in rasdaman. Reason: " + ex.getMessage(), ex);
             }
         }
         
-        return true;
     }
     
     /**
