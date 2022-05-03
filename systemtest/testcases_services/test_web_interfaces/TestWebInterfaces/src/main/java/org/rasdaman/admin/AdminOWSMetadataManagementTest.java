@@ -59,5 +59,34 @@ public class AdminOWSMetadataManagementTest extends AdminAbstractSectionWebPageT
         this.addTextToTextBox(webDriver, Config.RASDAMAN_ADMIN_PASS, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/ul/div/div/div/div/div/div/div/uib-accordion/div/div/div[2]/div/div/div[2]/input");
         this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/ul/div/div/div/div/div/div/div/uib-accordion/div/div/div[2]/div/div/div[3]/input[1]");
 
+        
+        // Then, switch back to WCS / DescribeCoverage to test rename coverage id
+        this.runTestByClickingOnElementWithoutComparingOracle(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/ul/li[1]/a");
+                
+        testCaseName = this.getSectionTestCaseName("change_to_describe_coverage_tab");
+        log.info("Testing change current tab to DescribeCoverage...");
+        this.runTestByClickingOnElementWithoutComparingOracle(webDriver, testCaseName, "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[2]/a");
+        
+        String coverageIdTextBoxXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/input";
+        String describeCoverageButtonXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/span[2]/button";
+        
+        // Describe a coverage first
+        testCaseName = this.getSectionTestCaseName("select_coverage_to_rename");
+        log.info("Testing describe a coverage to rename...");
+        // First change the coverage id in text box
+        this.addTextToTextBox(webDriver, "test_TO_RENAME", coverageIdTextBoxXPath);
+        // Then click on the Describe Coverage button
+        this.runTestByClickingOnElementWithoutComparingOracle(webDriver, testCaseName, describeCoverageButtonXPath);
+        
+        String newCoverageIdTextBoxXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div[2]/input";
+        String renameCoverageIdButtonXPath = "/html/body/div[2]/div/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div[2]/span[2]/button";
+        
+        // Then, rename this coverage
+        testCaseName = this.getSectionTestCaseName("rename_coverage_id");
+        log.info("Testing rename this coverage...");
+        // Add to text box the new name
+        this.addTextToTextBox(webDriver, "test_TO_RENAME_123456789", newCoverageIdTextBoxXPath);
+        // Then click on the Rename Coverage Id button
+        this.runTestByClickingOnElement(webDriver, testCaseName, renameCoverageIdButtonXPath);
     }
 }

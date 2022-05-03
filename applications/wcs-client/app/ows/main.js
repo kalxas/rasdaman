@@ -2469,6 +2469,25 @@ var rasdaman;
             });
             return result.promise;
         };
+        WCSService.prototype.renameCoverageId = function (formData) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.adminEndpoint + "/coverage/update";
+            var requestHeaders = this.adminService.getAuthenticationHeaders();
+            requestHeaders["Content-Type"] = undefined;
+            var request = {
+                method: 'POST',
+                url: requestUrl,
+                transformResponse: null,
+                headers: requestHeaders,
+                data: formData
+            };
+            this.$http(request).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
         WCSService.prototype.blackListOneCoverage = function (coverageId) {
             var result = this.$q.defer();
             var requestUrl = this.settings.adminEndpoint + "/wcs/blacklist?COVERAGELIST=" + coverageId;
@@ -3527,6 +3546,7 @@ var rasdaman;
     var WCSDescribeCoverageController = (function () {
         function WCSDescribeCoverageController($scope, $rootScope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
             $scope.selectedCoverageId = null;
+            $scope.newCoverageId = null;
             $scope.REGULAR_AXIS = "regular";
             $scope.IRREGULAR_AXIS = "irregular";
             $scope.NOT_AVALIABLE = "N/A";
@@ -3589,6 +3609,28 @@ var rasdaman;
                 formData.append("fileName", fileInput.files[0]);
                 wcsService.updateCoverageMetadata(formData).then(function (response) {
                     alertService.success("Successfully update coverage's metadata from file.");
+                    $scope.describeCoverage();
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                    $log.error(args);
+                });
+            };
+            $scope.renameCoverageId = function () {
+                if ($scope.newCoverageId == null || $scope.newCoverageId.trim() == "") {
+                    alertService.error("New coverage id cannot be empty.");
+                    return;
+                }
+                var formData = new FormData();
+                formData.append("coverageId", $scope.selectedCoverageId);
+                formData.append("newCoverageId", $scope.newCoverageId);
+                wcsService.updateCoverageMetadata(formData).then(function (response) {
+                    alertService.success("Successfully rename coverage's id.");
+                    $scope.selectedCoverageId = $scope.newCoverageId;
+                    $scope.newCoverageId = null;
                     $scope.describeCoverage();
                 }, function () {
                     var args = [];
