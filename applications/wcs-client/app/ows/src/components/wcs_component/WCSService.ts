@@ -249,6 +249,34 @@ module rasdaman {
             return result.promise;
         }    
 
+        // rename coverage'is and the associated layer name (if exists)
+        public renameCoverageId(formData):angular.IPromise<any> {
+            var result = this.$q.defer();                                               
+            var requestUrl = this.settings.adminEndpoint + "/coverage/update"; 
+            
+            var requestHeaders = this.adminService.getAuthenticationHeaders();
+            requestHeaders["Content-Type"] = undefined;
+
+            var request:angular.IRequestConfig = {
+                method: 'POST',
+                url: requestUrl,
+                //Removed the transformResponse to prevent angular from parsing non-JSON objects.
+                transformResponse: null,                
+                headers: requestHeaders,
+                data: formData
+            };
+
+            // send request to Petascope and get response (headers and contents)
+            this.$http(request).then(function (data:any) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+
+            return result.promise;
+        } 
+
+
         // --------------- black list
 
         // Set a coverage id to the blacklist

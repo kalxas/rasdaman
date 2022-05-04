@@ -42,6 +42,7 @@ from recipes.general_coverage.recipe import Recipe as GeneralRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from recipes.virtual_coverage.recipe import Recipe as virtual_coverage_recipe
 from util.import_util import import_glob, decode_res
+from config_manager import ConfigManager
 
 glob = import_glob()
 
@@ -256,7 +257,10 @@ class RecipeRegistry:
 
             if recipe_name != virtual_coverage_recipe.RECIPE_NAME:
                 number_of_files = len(session.get_files())
-                if number_of_files > 10:
+                if ConfigManager.has_resume_file is True and number_of_files == 0:
+                    log.info("All filepaths are already imported according to the resumer file.")
+                    exit(0)
+                elif number_of_files > 10:
                     number_of_files = 10
                 log.info("Collected first " + str(number_of_files) + " files: "
                          + str([str(f) for f in session.get_files()[:10]]) + "...")

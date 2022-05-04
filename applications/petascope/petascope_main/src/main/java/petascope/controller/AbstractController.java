@@ -955,17 +955,18 @@ public abstract class AbstractController {
                     String username = resultPair.fst;
                     String password = resultPair.snd;
         
-                    if (RasUtil.checkValidUserCredentials(username, password)) {
-                        // Check if credentials are valid
-                        Set<String> roleNames = AuthenticationController.parseRolesFromRascontrol(username);
-                        if (!roleNames.contains(AuthenticationController.READ_WRITE_RIGHTS)) {
-                            // and user has RW rights
-                            String requestRepresentation = this.getRequestPresentationWithEncodedAmpersands(httpServletRequest);
-                            throw new PetascopeException(ExceptionCode.AccessDenied, 
-                                    "The user '" + username + "' specified in the request basic header does not have '" + READ_WRITE_RIGHTS 
-                                    + "' permissions for executing the write request '" + requestRepresentation + "'");
-                        }
+                    RasUtil.checkValidUserCredentials(username, password);
+
+                    // Check if credentials are valid
+                    Set<String> roleNames = AuthenticationController.parseRolesFromRascontrol(username);
+                    if (!roleNames.contains(AuthenticationController.READ_WRITE_RIGHTS)) {
+                        // and user has RW rights
+                        String requestRepresentation = this.getRequestPresentationWithEncodedAmpersands(httpServletRequest);
+                        throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                "The user '" + username + "' specified in the request basic header does not have '" + READ_WRITE_RIGHTS 
+                                + "' permissions for executing the write request '" + requestRepresentation + "'");
                     }
+                    
                 }
                 
                 // -- rasdaman community only

@@ -31,28 +31,44 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
+port="9090"
 petascope_war_file="$RMANHOME/share/rasdaman/war/rasdaman.war"
 
 etc_dir="$RMANHOME/etc"
 etc_dir_tmp="/tmp/etc_tmp"
 cp -r "$etc_dir" "$etc_dir_tmp"
 
-port="9090"
+temp_petascope_properties="$etc_dir_tmp/petascope.properties"
 
 # replace port from default one to 9090
-sed -i "/server.port=/c\server.port=$port" "$etc_dir_tmp/petascope.properties"
+sed -i "/server.port=/c\server.port=$port" "$temp_petascope_properties"
+sed -i "s@allow_write_requests_from=127.0.0.1@allow_write_requests_from=1.2.3.4@g" "$temp_petascope_properties"
 
-logn "Starting embedded petascope (wait for 20 seconds)..."
+sleep_time=40
+
+logn "Starting embedded petascope (wait for $sleep_time seconds)..."
 nohup java -jar "$petascope_war_file" --petascope.confDir="$etc_dir_tmp" > nohup.out 2>&1 &
 pid=$!
 
 # Wait embedded petascope starts
-sleep 20
+sleep "$sleep_time"
 
 $WGET -q --spider "http://localhost:$port/rasdaman/ows?service=WCS&version=2.0.1&request=GetCapabilities"
 
 # defined in common.sh
 check_result 0 $? "test embedded petascope with customized etc dir"
+
+# Try to delete a coverage, but the IP is not allowed in petascope.properties
+wget -q --spider "http://localhost:$port/rasdaman/ows?service=WCS&version=2.0.1&request=DeleteCoverage&coverageId=test_123"
+check_result 8 $? "test write request: DeleteCoverage is not allowed from localhost"
+
+# Try to insert a test coverage with rasadmin and it should bypass IP check
+$WGET -q --spider "http://localhost:$port/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=InsertCoverage&coverageRef=https://rasdaman.org/raw-attachment/wiki/test_web_interfaces_test_InsertCoverage/insertcoverage.gml"
+check_result 0 $? "test write request: InsertCoverage is allowed for rasadmin user"
+
+# Try to delete a test coverage with rasadmin and it should bypass IP check
+$WGET -q --spider "http://localhost:$port/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=DeleteCoverage&coverageId=test_mr_TO_BE_DELETED"
+check_result 0 $? "test write request: DeleteCoverage is allowed for rasadmin user"
 
 # Then kill embedded petascope
 kill -9 "$pid"

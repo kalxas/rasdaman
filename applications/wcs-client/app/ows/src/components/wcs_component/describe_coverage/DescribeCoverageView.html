@@ -14,6 +14,22 @@
                     </button>
                 </span>
             </div>
+
+            <br/>
+
+            <!-- Only when admin user logged in -->
+            <div class="col-sm-12 input-group input-group-lg" ng-show="adminUserLoggedIn && coverageDescription && hasRole">                
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-globe"></span>
+                </span>
+                <input type="text" class="form-control" ng-model="newCoverageId" placeholder="New coverage id" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-warning"                           
+                            ng-click="renameCoverageId()">
+                        Rename Coverage
+                    </button>
+                </span>
+            </div>
         </div>
 
         <div class="row top15" ng-show="coverageDescription">

@@ -64,3 +64,5 @@ class ConfigManager:
 
     # Default mimeType is none -> gdal driver for petascope
     mime_type = None
+
+    has_resume_file = False

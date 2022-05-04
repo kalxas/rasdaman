@@ -26,8 +26,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
 import org.rasdaman.secore.util.ExceptionCode;
@@ -144,17 +147,29 @@ public class ConfigManager {
                 // not by java -jar def.war, so need to change to java_server=embedded first.
                 // embedded servlet container, war file is not extracted, need to extract the gml folder temporarily for BaseX to create secoredb
                 InputStream inputStream = new ClassPathResource(ConfigManager.GML_ZIPPED_NAME).getInputStream();
+                String targetCompressedGML = EXTRACTED_GML_DIR_TMP + "/" + ConfigManager.GML_ZIPPED_NAME;
+                gmlDir = EXTRACTED_GML_DIR_TMP + "/gml";
+                
                 try {
-                    File tempFile = new File(EXTRACTED_GML_DIR_TMP + "/" + ConfigManager.GML_ZIPPED_NAME);
-                    // copy tar.gz from resource to /tmp folder
-                    FileUtils.copyInputStreamToFile(inputStream, tempFile);
-                    File extractedGmlFolder = new File(EXTRACTED_GML_DIR_TMP);
-                    Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-                    // extract this tar file to a temp folder
-                    archiver.extract(tempFile, extractedGmlFolder);
+                    File targetCompressedGMLFile = new File(targetCompressedGML);
+                    byte[] bytesArray = IOUtils.toByteArray(inputStream);
+                    long sourceCompressedGMLFileSize = bytesArray.length;
+                    boolean mustExtract = true;
+                    if (Files.exists(Paths.get(targetCompressedGML)) && (sourceCompressedGMLFileSize == Files.size(Paths.get(targetCompressedGML)))) {
+                        // If no changes in gml.tar.gz then don't need to extract it
+                        mustExtract = false;
+                    }
                     
-                    gmlDir = EXTRACTED_GML_DIR_TMP + "/gml";
-                    log.info("Extracted gml.zip to tmp folder '" + gmlDir + "'.");
+                    if (mustExtract) {
+                        // copy tar.gz from resource to /tmp folder
+                        FileUtils.writeByteArrayToFile(targetCompressedGMLFile, bytesArray);
+                        File extractedGmlFolder = new File(EXTRACTED_GML_DIR_TMP);
+                        Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+                        // extract this tar file to a temp folder
+                        archiver.extract(targetCompressedGMLFile, extractedGmlFolder);
+
+                        log.info("Extracted gml.zip to tmp folder '" + gmlDir + "'.");
+                    }
                 } catch (Exception ex) {
                     throw new RuntimeException("Cannot extract gml.tar.gz to folder '" + ConfigManager.EMBEDDED_SECOREDB_FOLDER_PATH 
                             + ", reason: " + ex.getMessage() + ". Hint: make sure user running petascope has write permission for this folder.", ex);

@@ -76,20 +76,16 @@ public class AuthenticationController extends AbstractController {
         
         String result = "";
         
-        if (RasUtil.checkValidUserCredentials(username, password)) {
-            // NOTE: with rasdaman community, if user has permissions CASIRW permissions in rascontrol, then he is admin user
-            // export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40 && rascontrol -q -e -x list user -rights
-            
-            Set<String> roleNames = this.parseRolesFromRascontrol(username);
-            
-            if (!roleNames.isEmpty()) {
-                // Return the list of rolenames for this user
-                // e.g: admin,info,readwrite,PRIV_TYPE_MGMT,PRIV_COLLECTION_MGMT,PRIV_TRIGGER_MGMT,PRIV_USER_MGMT,PRIV_OWS_ADMIN,...
-                result = ListUtil.join(new ArrayList(roleNames), ",");
-            }
-        } else {
-            // user does not exist or password is wrong
-            throw new PetascopeException(ExceptionCode.InvalidCredentials);
+        RasUtil.checkValidUserCredentials(username, password);
+        // NOTE: with rasdaman community, if user has permissions CASIRW permissions in rascontrol, then he is admin user
+        // export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40 && rascontrol -q -e -x list user -rights
+
+        Set<String> roleNames = this.parseRolesFromRascontrol(username);
+
+        if (!roleNames.isEmpty()) {
+            // Return the list of rolenames for this user
+            // e.g: admin,info,readwrite,PRIV_TYPE_MGMT,PRIV_COLLECTION_MGMT,PRIV_TRIGGER_MGMT,PRIV_USER_MGMT,PRIV_OWS_ADMIN,...
+            result = ListUtil.join(new ArrayList(roleNames), ",");
         }
         
         Response response = new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_TEXT);
