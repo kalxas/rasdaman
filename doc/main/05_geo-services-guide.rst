@@ -419,111 +419,266 @@ Further clipping patterns include ``curtain`` and ``corridor`` on 3D+ coverages
 from ``Polygon (2D)`` and ``Linestring (1D)``. The result of ``curtain``
 clipping has the same dimensionality as the input coverage whereas the result of
 ``corridor`` clipping is always a 3D coverage, with the first axis being the
-*trackline* of the corridor by convention.
+*trackline* of the corridor by convention. 
 
-Below some examples are presented expaining the mimics for WCS.
-
-Syntactically, clipping is expressed by adding a ``&CLIP=`` parameter to the
+In WCS, clipping is expressed by adding a ``&CLIP=`` parameter to the
 request. If the ``SUBSETTINGCRS`` parameter is specified then this CRS also
 applies to the clipping WKT, otherwise it is assumed that the WKT is in the
-Native coverage CRS.
+Native coverage CRS. In WCPS, clipping is done with a ``clip`` function, much
+like in :ref:`rasql <ql-guide-clipping>`.
+
+Further information can be found in the :ref:`rasql clipping section <ql-guide-clipping>`.
+Below we list examples illustrating the functionality in WCS and WCPS.
 
 Clipping Examples
 ^^^^^^^^^^^^^^^^^
 
 -  Polygon clipping on coverage with Native CRS ``EPSG:4326``, for example:
 
-   .. hidden-code-block:: text
+   - WCS:
 
-        http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&
-          &REQUEST=GetCoverage
-          &COVERAGEID=test_wms_4326
-          &CLIP=POLYGON((55.8 -96.6, 15.0 -17.3))
-          &FORMAT=image/png
+        .. hidden-code-block:: text
+
+            http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&
+              &REQUEST=GetCoverage
+              &COVERAGEID=test_wms_4326
+              &CLIP=POLYGON((-40.3130 144.8657, -40.8969 146.3818, -40.7140 148.5352,
+                             -43.2612 148.4253, -43.6122 146.9531, -43.4689 145.6348,
+                             -42.4721 145.0854, -41.4757 144.778))
+              &FORMAT=image/png
+
+   - WCPS:
+
+        .. hidden-code-block:: text
+
+            for $c in (test_wms_4326)
+            return 
+                    encode(
+                            clip( 
+                                  $c, POLYGON((-40.3130 144.8657, -40.8969 146.3818, -40.7140 148.5352,
+                                               -43.2612 148.4253, -43.6122 146.9531, -43.4689 145.6348,
+                                               -42.4721 145.0854, -41.4757 144.778)) 
+                                )
+                            , "image/png"
+                          )
+ 
 
 -  Polygon clipping with coordinates in ``EPSG:3857`` (from ``subsettingCRS`` parameter)
    on coverage with Native CRS ``EPSG:4326``, for example:
 
-   .. hidden-code-block:: text
+   - WCS:
 
-        http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
-          &REQUEST=GetCoverage
-          &COVERAGEID=test_wms_4326
-          &CLIP=POLYGON((13589894.568 -2015496.69612, 15086830.0246 -1780682.3822))
-          &SUBSETTINGCRS=http://opengis.net/def/crs/EPSG/0/3857
-          &FORMAT=image/png
+       .. hidden-code-block:: text
+
+            http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
+              &REQUEST=GetCoverage
+              &COVERAGEID=test_wms_4326
+              &CLIP=POLYGON((13589894.568 -2015496.69612, 15086830.0246 -1780682.3822))
+              &SUBSETTINGCRS=http://localhost:8080/rasdaman/def/crs/EPSG/0/3857
+              &FORMAT=image/png
+
+   - WCPS:
+
+       .. hidden-code-block:: text
+
+            for $c in (test_wms_4326) 
+            return 
+                    encode( 
+                            clip(
+                                  $c, 
+                                  POLYGON((13589894.568 -2015496.69612, 15086830.0246 -1780682.3822)),
+                                  "http://localhost:8080/def/crs/EPSG/0/3857" 
+                                )
+                            , "image/png"
+                         )
 
 -  Linestring clipping on a 3D coverage with axes ``X``, ``Y``, ``ansidate``,
    for example:
 
-   .. hidden-code-block:: text
+   - WCS:
 
-        http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
-          &REQUEST=GetCoverage
-          &COVERAGEID=test_irr_cube_2
-          &CLIP=LineStringZ(75042.7273594 5094865.55794 "2008-01-01T02:01:20.000Z",
-                            705042.727359 5454865.55794 "2008-01-08T00:02:58.000Z")
-          &FORMAT=text/csv
+       .. hidden-code-block:: text
+
+            http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
+              &REQUEST=GetCoverage
+              &COVERAGEID=test_irr_cube_2
+              &CLIP=LineString("2008-01-01T02:01:20.000Z" 75042.7273594 5094865.55794,
+                               "2008-01-08T00:02:58.000Z" 705042.727359 5454865.55794)
+              &FORMAT=text/csv
+
+   - WCPS:
+
+       .. hidden-code-block:: text
+
+            for $c in (test_irr_cube_2) 
+            return 
+                   encode( 
+                            clip(
+                                   $c, 
+                                   LineString("2008-01-01T02:01:20.000Z" 75042.7273594 5094865.55794,
+                                              "2008-01-08T00:02:58.000Z" 705042.727359 5454865.55794)
+                                )
+                                , "text/csv"
+                         )
 
 -  Multipolygon clipping on 2D coverage, for example:
 
-   .. hidden-code-block:: text
+   - WCS:
 
-        http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
-          &REQUEST=GetCoverage
-          &COVERAGEID=test_mean_summer_airtemp
-          &CLIP=Multipolygon( ((-23.189600 118.432617, -27.458321 117.421875,
-                                -30.020354 126.562500, -24.295789 125.244141)),
-                              ((-27.380304 137.768555, -30.967012 147.700195,
-                                -25.491629 151.259766, -18.050561 142.075195)) )
-          &FORMAT=image/png
+       .. hidden-code-block:: text
+
+            http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
+              &REQUEST=GetCoverage
+              &COVERAGEID=test_mean_summer_airtemp
+              &CLIP=Multipolygon( ((-23.189600 118.432617, -27.458321 117.421875,
+                                    -30.020354 126.562500, -24.295789 125.244141)),
+                                  ((-27.380304 137.768555, -30.967012 147.700195,
+                                    -25.491629 151.259766, -18.050561 142.075195)) )
+              &FORMAT=image/png
+
+   - WCPS:
+
+       .. hidden-code-block:: text
+
+            for $c in (test_mean_summer_airtemp) 
+            return 
+                   encode( 
+                            clip($c, 
+                                     Multipolygon( 
+                                       ((-23.189600 118.432617, -27.458321 117.421875,
+                                        -30.020354 126.562500, -24.295789 125.244141)),
+                                       ((-27.380304 137.768555, -30.967012 147.700195,
+                                        -25.491629 151.259766, -18.050561 142.075195)) 
+                                     )
+                                )
+                               , "image/png"
+                         )
 
 -  Curtain clipping by a Linestring on 3D coverage, for example:
 
-   .. hidden-code-block:: text
+    - WCS:
 
-        http://localhost:8080/rasdaman/ows?SERVICE=WCSVERSION=2.0.1
-          &REQUEST=GetCoverage
-          &COVERAGEID=test_eobstest
-          &CLIP=CURTAIN( projection(Lat, Long), linestring(25 41, 30 41, 30 45, 30 42) )
-          &FORMAT=text/csv
+       .. hidden-code-block:: text
+
+            http://localhost:8080/rasdaman/ows?SERVICE=WCSVERSION=2.0.1
+              &REQUEST=GetCoverage
+              &COVERAGEID=test_eobstest
+              &CLIP=CURTAIN( projection(Lat, Long), 
+                             linestring(25 41, 30 41, 30 45, 30 42) )
+              &FORMAT=text/csv
+
+    - WCPS:
+
+       .. hidden-code-block:: text
+
+            for $c in (test_eobstest) 
+            return 
+                   encode( 
+                            clip($c, 
+                                     CURTAIN( 
+                                              projection(Lat, Long), 
+                                              linestring(25 41, 30 41, 30 45, 30 42) 
+                                            )
+                                )
+                               , "text/csv"
+                         )
 
 -  Curtain clipping by a Polygon on 3D coverage, for example:
 
-   .. hidden-code-block:: text
+    - WCS:
 
-        http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
-          &REQUEST=GetCoverage
-          &COVERAGEID=test_eobstest
-          &CLIP=CURTAIN(projection(Lat, Long), Polygon((25 40, 30 40, 30 45, 30 42)))
-          &FORMAT=text/csv
+       .. hidden-code-block:: text
+
+            http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
+              &REQUEST=GetCoverage
+              &COVERAGEID=test_eobstest
+              &CLIP=CURTAIN(projection(Lat, Long), 
+                            Polygon((25 40, 30 40, 30 45, 30 42)))
+              &FORMAT=text/csv
+
+    - WCPS:
+
+       .. hidden-code-block:: text
+
+            for $c in (test_eobstest) 
+            return 
+                   encode( 
+                            clip($c, 
+                                     CURTAIN(
+                                              projection(Lat, Long), 
+                                              Polygon((25 40, 30 40, 30 45, 30 42))
+                                            )
+                                )
+                               , "text/csv"
+                         )
 
 -  Corridor clipping by a Linestring on 3D coverage, for example:
 
-   .. hidden-code-block:: text
+    - WCS:
 
-        http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
-          &REQUEST=GetCoverage
-          &COVERAGEID=test_irr_cube_2
-          &CLIP=CORRIDOR( projection(E, N),
-               &LineString(75042.7273594  5094865.55794 "2008-01-01T02:01:20.000Z",
-                          &75042.7273594 5194865.55794 "2008-01-01T02:01:20.000Z"),
-               &LineString(75042.7273594 5094865.55794, 75042.7273594 5094865.55794,
-                          &85042.7273594 5194865.55794, 95042.7273594 5194865.55794)
-              &)
-          &FORMAT=application/gml+xml
+       .. hidden-code-block:: text
+
+            http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
+              &REQUEST=GetCoverage
+              &COVERAGEID=test_irr_cube_2
+              &CLIP=CORRIDOR( projection(E, N),
+                   LineString("2008-01-01T02:01:20.000Z" 75042.7273594  5094865.55794,
+                              "2008-01-01T02:01:20.000Z" 75042.7273594 5194865.55794),
+                   LineString(75042.7273594 5094865.55794, 75042.7273594 5094865.55794,
+                              85042.7273594 5194865.55794, 95042.7273594 5194865.55794)
+                  )
+              &FORMAT=application/gml+xml
+
+    - WCPS:
+
+       .. hidden-code-block:: text
+
+            for $c in (test_irr_cube_2) 
+            return 
+                   encode( 
+                            clip($c, 
+                                     CORRIDOR( 
+                                               projection(E, N),
+                                               LineString("2008-01-01T02:01:20.000Z" 75042.7273594  5094865.55794,
+                                                          "2008-01-01T02:01:20.000Z" 75042.7273594 5194865.55794),
+                                               LineString(75042.7273594 5094865.55794, 75042.7273594 5094865.55794,
+                                                          85042.7273594 5194865.55794, 95042.7273594 5194865.55794)
+                                             )
+                                )
+                               , "application/gml+xml"
+                         )
 
 -  Corridor clipping by a Polygon on 3D coverage, for example:
 
-   .. hidden-code-block:: text
+    - WCS:
 
-        http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
-          &REQUEST=GetCoverage
-          &COVERAGEID=test_eobstest
-          &CLIP=corridor( projection(Lat, Long),
-                          LineString(26 41 "1950-01-01", 28 41 "1950-01-02"),
-                          Polygon((25 40, 30 40, 30 45, 25 45)), discrete )
-          &FORMAT=application/gml+xml
+       .. hidden-code-block:: text
+
+            http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1
+              &REQUEST=GetCoverage
+              &COVERAGEID=test_eobstest
+              &CLIP=corridor( projection(Lat, Long),
+                              LineString(26 41 "1950-01-01", 28 41 "1950-01-02"),
+                              Polygon((25 40, 30 40, 30 45, 25 45)), discrete )
+              &FORMAT=application/gml+xml
+
+    - WCPS:
+
+       .. hidden-code-block:: text
+
+            for $c in (test_eobstest) 
+            return 
+                   encode( 
+                            clip($c, 
+                                     CORRIDOR( 
+                                                projection(Lat, Long),
+                                                LineString(26 41 "1950-01-01", 28 41 "1950-01-02"),
+                                                Polygon((25 40, 30 40, 30 45, 25 45))
+                                                , discrete 
+                                             )
+                                 )
+                               , "application/gml+xml"
+                         )
 
 .. NOTE::
 
@@ -834,7 +989,7 @@ where
    ``POLYGON((...))``, ``LineString(...)``;
 
 -  ``subsettingCrs`` is an optional CRS URL in which the ``wkt`` coordinates are 
-   expressed, e.g. ``"http://opengis.net/def/crs/EPSG/0/4326"``.
+   expressed, e.g. ``"http://localhost:8080/rasdaman/def/crs/EPSG/0/4326"``.
 
 Clipping Examples
 ^^^^^^^^^^^^^^^^^
@@ -860,7 +1015,7 @@ Clipping Examples
                 -27.1374 114.0820, -23.2413 120.5859,
                 -22.3501 114.7852, -21.4531 118.5645
               )),
-              "http://opengis.net/def/crs/EPSG/0/4326"
+              "http://localhost:8080/rasdaman/def/crs/EPSG/0/4326"
         ),
         "image/png"
       )
@@ -2615,7 +2770,7 @@ particular use case:
             "datetime_format": "YYYY"
           },
           // CRS to be used for the time axis
-          "time_crs": "http://opengis.net/def/crs/OGC/0/AnsiDate",
+          "time_crs": "http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate",
           // The tiling to be applied in rasdaman
           "tiling": "ALIGNED [0:10, 0:1000, 0:500]"
         }
@@ -2683,7 +2838,7 @@ any coverage model directly in the options of the ingredients file. Each
 coverage model contains the following parts:
 
 * ``crs`` - Indicates the crs of the coverage to be constructed. Either a CRS 
-  url can be used e.g. http://opengis.net/def/crs/EPSG/0/4326 or the shorthand 
+  url can be used e.g. http://localhost:8080/rasdaman/def/crs/EPSG/0/4326 or the shorthand 
   notation ``CRS1@CRS2@CRS3``, e.g. ``OGC/0/AnsiDate@EPSG/0/4326`` for 
   indicating a time/date + spatial CRS.
 
