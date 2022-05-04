@@ -23,6 +23,7 @@
 """
 
 from master.error.runtime_exception import RuntimeException
+from master.evaluator.bbox_expression_evaluator import BBoxExpressionEvaluator
 from master.evaluator.file_expression_evaluator import FileExpressionEvaluator
 from master.evaluator.gdal_expression_evaluator import GdalExpressionEvaluator
 from master.evaluator.grib_expression_evaluator import GribExpressionEvaluator
@@ -35,7 +36,7 @@ class ExpressionEvaluatorFactory:
         An evaluator factory decides if
         """
         self.evaluators = [FileExpressionEvaluator(), GdalExpressionEvaluator(), GribExpressionEvaluator(),
-                           NetcdfExpressionEvaluator()]
+                           NetcdfExpressionEvaluator(), BBoxExpressionEvaluator()]
 
     def get_expression_evaluator(self, expression):
         """

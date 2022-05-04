@@ -81,7 +81,7 @@ class BaseRecipe:
         log.info(make_bold("WMS Import: ") + str(self.session.wms_import))
 
         # Blocking means analyzing all input files before importing all coverage slices
-        # Non-blocking means analazying 1 file then import 1 file then continue with next file.
+        # Non-blocking means analyzing 1 file then import 1 file then continue with next file.
         import_mode = "Blocking"
         if not self.session.blocking:
             import_mode = "Non-blocking"

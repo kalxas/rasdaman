@@ -3447,6 +3447,23 @@ File
 |                 |This variable is used only in ``after_import`` hooks.               |                             |
 +-----------------+--------------------------------------------------------------------+-----------------------------+
 
+
+.. _data-import-expressions-bbox:
+
+BBox
+~~~~
+
++----------------------------------+--------------------------------------------------------------------+-----------------------------+
+|  **Type**                        |                **Description**                                     |  **Examples**               |
++==================================+====================================================================+=============================+
+|Coverage axis information         |``${bbox:AXIS_LABEL:PROPERTY}`` where axis_label is one of          |                             |
+|                                  |coverage's axis name and property can be one of ``min|max`` (return |``${bbox:Lat:min}``          |
+|                                  |the lower/upper geo bound of the selected axis).                    |                             |
+|                                  |Used only in ``after_import`` hooks where each bbox containing      |                             |
+|                                  |the multi-dimensional bounding box of the data region affected      |                             |
+|                                  |by the update of an input file                                      |                             |
++----------------------------------+--------------------------------------------------------------------+-----------------------------+
+
 .. _data-import-expressions-special-functions:
 
 Special functions

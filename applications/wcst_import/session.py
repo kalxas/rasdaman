@@ -22,6 +22,8 @@
  *
 """
 import os
+from collections import OrderedDict
+
 from config_manager import ConfigManager
 from master.error.validate_exception import RecipeValidationException
 from master.helper.inspire import Inspire
@@ -50,13 +52,16 @@ class Session:
 
     RUNNING_SECORE_URL = None
 
+    # store the map of import files and their axis bboxes dict
+    IMPORTED_FILE_AXIS_BBOX_DICT = OrderedDict()
+
     def __init__(self, config, inp, recipe, hooks, ingredient_file_name, ingredients_dir_path):
         """
         This class is used to hold the configuration for this importing session
         :param dict[str,str] config: the config part of the json input
         :param dict[str,str] inp: the input part of the json input
         :param dict[str,dict|str] recipe: the recipe configuration
-        :param list[dict{}] hooks: list of command shoud be run before/after importing data
+        :param list[dict{}] hooks: list of command shoud be run befbeore/after importing data
         :param str ingredient_file_name: the input file name of wcst_import.sh
         :param str ingredients_dir_path: the filepath to the directory containing the ingredients to be used
         for relative paths
@@ -528,3 +533,7 @@ class Session:
         As petascope currently does not seem to support acceptversions parameter, use the exact version
         """
         return "2.0.1"
+
+    @staticmethod
+    def clear_caches():
+        Session.IMPORTED_FILE_AXIS_BBOX_DICT.clear()

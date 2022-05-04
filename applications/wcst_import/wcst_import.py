@@ -185,6 +185,8 @@ def main():
     from util.coverage_util import CoverageUtilCache
     CoverageUtilCache.clear_caches()
 
+    Session.clear_caches()
+
     reg = RecipeRegistry()
     validate()
 
