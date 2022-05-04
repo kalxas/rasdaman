@@ -29,6 +29,8 @@ from lxml import etree
 import sys
 
 
+from master.error.validate_exception import RecipeValidationException
+
 if sys.version_info[0] < 3:
     import urlparse
 else:
@@ -372,6 +374,12 @@ class CRSUtil:
 
         return axis_labels
 
+    @staticmethod
+    def validate_crs(coverage_crs, geo_axis_crs):
+        if geo_axis_crs not in coverage_crs:
+            error_message = "File CRS '" + geo_axis_crs + "' does not match coverage CRS '" + coverage_crs + "'."
+            raise RecipeValidationException(error_message)
+
     def _parse_single_crs(self, crs):
         """
         Parses the axes out of the CRS definition
@@ -440,5 +448,4 @@ def replace_crs_by_working_crs(crs):
     from session import Session
     result = Session.RUNNING_SECORE_URL + "/" + crs.split("/def/")[1]
     return result
-
 

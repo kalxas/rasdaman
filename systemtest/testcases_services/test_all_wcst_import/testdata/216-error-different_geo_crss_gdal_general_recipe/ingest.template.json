@@ -1,0 +1,50 @@
+{
+  "config": {
+	"service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_error-different_geo_crss_gdal_general_recipe",
+    "paths": [
+      "*.tiff"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+
+        "coverage": {
+          "crs": "OGC/0/AnsiDate@EPSG/0/32631",          
+          "slicer": {
+            "type": "gdal",
+
+            "axes": {
+
+                "ansi": {
+                  "min": "datetime(regex_extract('${file:name}', '(.*).tif', 1), 'YYYY-MM-DD')",
+                  "gridOrder": 0,
+                  "irregular": true,
+                  "dataBound": false
+                },
+
+              "E": {
+                "min": "${gdal:minX}",
+                "max": "${gdal:maxX}",
+                "gridOrder": 1,
+                "resolution": "${gdal:resolutionX}"
+              },
+              "N": {
+                "min": "${gdal:minY}",
+                "max": "${gdal:maxY}",
+                "gridOrder": 2,
+                "resolution": "${gdal:resolutionY}"
+              }
+          }
+        }      
+      },
+      "tiling": "ALIGNED [0:0, 0:366, 0:500]"
+    }
+  }
+}

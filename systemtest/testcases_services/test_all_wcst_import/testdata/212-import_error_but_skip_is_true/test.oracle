@@ -1,0 +1,1 @@
+wcst_import will ignore this file as "skip" is set to true in the ingredient file. Reason: Could not match input to any of ['YYYY-MM-DD HH:mmZ'] on 'datetime(regex_extract('GlobLAI-20030101-20030110-H01V06-1.0_MERIS-FR-LAI-HA.nc', '(NOT_MATCH-)(.+?)(-.+?)\.(.*)', 2), 'YYYYMMDD')'

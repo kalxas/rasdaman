@@ -41,7 +41,7 @@ from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.metadata_provider import MetadataProvider
 from master.request.admin import InspireUpdateMetadataURLRequest
-from util.coverage_util import CoverageUtil
+from util.coverage_util import CoverageUtil, CoverageUtilCache
 from util.file_util import File
 from util.import_util import decode_res
 from util.log import log, prepend_time
@@ -624,7 +624,7 @@ class Importer:
         :rtype: bool
         """
         if self.coverage.coverage_id not in Importer.coverage_exists_dict:
-            cov = CoverageUtil(self.coverage.coverage_id)
+            cov = CoverageUtilCache.get_cov_util(self.coverage.coverage_id)
             Importer.coverage_exists_dict[self.coverage.coverage_id] = cov.exists()
 
         result = Importer.coverage_exists_dict[self.coverage.coverage_id]

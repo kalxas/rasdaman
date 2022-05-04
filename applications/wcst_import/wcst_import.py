@@ -182,6 +182,9 @@ def main():
     from master.importer.resumer import Resumer
     Resumer.clear_caches()
 
+    from util.coverage_util import CoverageUtilCache
+    CoverageUtilCache.clear_caches()
+
     reg = RecipeRegistry()
     validate()
 

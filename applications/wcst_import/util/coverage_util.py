@@ -39,41 +39,48 @@ class CoverageUtil:
         self.wcs_service = ConfigManager.wcs_service
         self.admin_service = ConfigManager.admin_service
         self.coverage_id = coverage_id
+        # this value is cached in CoverageUtilCache
+        self.cov_exist = None
 
     def exists(self):
         """
         Returns true if the coverage exist, false otherwise
         :rtype bool
         """
-        try:
-            # Check if coverage exists via the Non-standard REST endpoint
-            service_call = self.admin_service + "/coverage/exist?COVERAGEID=" + self.coverage_id
-            response = decode_res(validate_and_read_url(service_call))
+        if self.cov_exist is None:
+            try:
+                # Check if coverage exists via the Non-standard REST endpoint
+                service_call = self.admin_service + "/coverage/exist?COVERAGEID=" + self.coverage_id
+                response = decode_res(validate_and_read_url(service_call))
 
-            return response == "true"
-        except Exception as ex:
-            # Something is wrong, try with the standard WCS DescribeCoverage request
-            pass
+                self.cov_exist = (response == "true")
+                return self.cov_exist
+            except Exception as ex:
+                # Something is wrong, try with the standard WCS DescribeCoverage request
+                pass
 
-        try:
-            # Check if coverage exists in WCS DescribeCoverage result
-            service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
-                           Session.get_WCS_VERSION_SUPPORTED() \
-                           + "&coverageId=" + self.coverage_id
+            try:
+                # Check if coverage exists in WCS DescribeCoverage result
+                service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
+                               Session.get_WCS_VERSION_SUPPORTED() \
+                               + "&coverageId=" + self.coverage_id
 
-            response = validate_and_read_url(service_call)
-            if decode_res(response).strip() != "":
-                return True
-            return False
-        except Exception as ex:
-            exception_text = str(ex)
+                response = validate_and_read_url(service_call)
+                if decode_res(response).strip() != "":
+                    self.cov_exist = True
+                else:
+                    self.cov_exist = False
+            except Exception as ex:
+                exception_text = str(ex)
 
-            if not "NoSuchCoverage" in exception_text:
-                raise RuntimeException("Could not check if the coverage exists. "
-                                   "Reason: {}".format(exception_text))
-            else:
-                # coverage doesn't exist
-                return False
+                if not "NoSuchCoverage" in exception_text:
+                    raise RuntimeException("Could not check if the coverage exists. "
+                                       "Reason: {}".format(exception_text))
+                else:
+                    # coverage doesn't exist
+                    self.cov_exist = False
+
+        return self.cov_exist
 
     def __describe_coverage(self):
         """
@@ -116,3 +123,17 @@ class CoverageUtil:
 
         return lower_bounds
 
+
+class CoverageUtilCache:
+    COVERAGE_UTIL_CACHES_DICT = {}
+
+    @staticmethod
+    def get_cov_util(cov_id):
+        if cov_id not in CoverageUtilCache.COVERAGE_UTIL_CACHES_DICT:
+            CoverageUtilCache.COVERAGE_UTIL_CACHES_DICT[cov_id] = CoverageUtil(cov_id)
+
+        return CoverageUtilCache.COVERAGE_UTIL_CACHES_DICT[cov_id]
+
+    @staticmethod
+    def clear_caches():
+        CoverageUtilCache.COVERAGE_UTIL_CACHES_DICT.clear()

@@ -30,7 +30,7 @@ from collections import OrderedDict
 from lib import arrow
 from master.error.validate_exception import RecipeValidationException
 from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
-from util.coverage_util import CoverageUtil
+from util.coverage_util import CoverageUtil, CoverageUtilCache
 from util.gdal_util import GDALGmlUtil
 
 from util.list_util import sort_slices_by_datetime
@@ -186,7 +186,7 @@ class AbstractToCoverageConverter:
 
         if axis_label not in self.irregular_axis_geo_lower_bound_dict:
             # Need to parse it from coverage's DescribeCoverage result
-            cov = CoverageUtil(coverage_id)
+            cov = CoverageUtilCache.get_cov_util(coverage_id)
             if cov.exists():
                 axes_labels = cov.get_axes_labels()
 
@@ -474,7 +474,7 @@ class AbstractToCoverageConverter:
                 # after that, the band's metadata for the current attribute is evaluated
                 setattr(band, key, evaluated_value)
 
-    def _create_coverage_slices(self, crs_axes, calculated_evaluator_slice=None, axis_resolutions=None):
+    def _create_coverage_slices(self, coverage_crs, crs_axes, calculated_evaluator_slice=None, axis_resolutions=None):
         """
         Returns the slices for the collection of files given
         :param crs_axes:
@@ -512,21 +512,32 @@ class AbstractToCoverageConverter:
                 valid_coverage_slice = False
 
             if valid_coverage_slice:
-                if self.session.import_overviews_only is False:
-                    slices_dict["base"].append(coverage_slice)
-
                 if self.session.recipe["options"]["coverage"]["slicer"]["type"] == "gdal":
                     gdal_file = GDALGmlUtil(file.get_filepath())
+                    geo_axis_crs = gdal_file.get_crs()
+                    try:
+                        CRSUtil.validate_crs(coverage_crs, geo_axis_crs)
+                    except Exception as ex:
+                        FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
+                        valid_coverage_slice = False
 
-                    # Then, create slices for selected overviews from user
-                    for overview_index in self.session.import_overviews:
-                        axis_subsets_overview = BaseRecipe.create_subsets_for_overview(coverage_slice.axis_subsets,
-                                                                                       overview_index, gdal_file)
+                    if valid_coverage_slice:
 
-                        coverage_slice_overview = copy.deepcopy(coverage_slice)
-                        coverage_slice_overview.axis_subsets = axis_subsets_overview
+                        if self.session.import_overviews_only is False:
+                            slices_dict["base"].append(coverage_slice)
 
-                        slices_dict[str(overview_index)].append(coverage_slice_overview)
+                        # Then, create slices for selected overviews from user
+                        for overview_index in self.session.import_overviews:
+                            axis_subsets_overview = BaseRecipe.create_subsets_for_overview(coverage_slice.axis_subsets,
+                                                                                           overview_index, gdal_file)
+
+                            coverage_slice_overview = copy.deepcopy(coverage_slice)
+                            coverage_slice_overview.axis_subsets = axis_subsets_overview
+
+                            slices_dict[str(overview_index)].append(coverage_slice_overview)
+                else:
+                    if self.session.import_overviews_only is False:
+                        slices_dict["base"].append(coverage_slice)
 
             timer.print_elapsed_time()
             count += 1
@@ -573,7 +584,7 @@ class AbstractToCoverageConverter:
 
         if coverage_slices_dict is None:
             # Build list of coverage slices from input files
-            coverage_slices_dict = self._create_coverage_slices(crs_axes)
+            coverage_slices_dict = self._create_coverage_slices(self.crs, crs_axes)
 
         global_metadata = None
         first_coverage_slice = None
