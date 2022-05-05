@@ -203,21 +203,21 @@ class Recipe(BaseRecipe):
             valid_coverage_slice = True
             try:
                 gdal_file = GDALGmlUtil(file_path)
-            except Exception as ex:
-                if ConfigManager.skip == True:
-                    log.warn("wcst_import will ignore this file as \"skip\" is set to true in the ingredient file."
-                             " \nReason: " + str(ex))
-                    continue
-                else:
-                    raise ex
 
-            try:
-                subsets = GdalAxisFiller(crs_axes, gdal_file).fill(True)
-                subsets = self._fill_time_axis(tpair, subsets)
+                geo_axis_crs = gdal_file.get_crs()
+                CRSUtil.validate_crs(crs, geo_axis_crs)
             except Exception as ex:
-                # If skip: true then just ignore this file from importing, else raise exception
-                FileUtil.ignore_coverage_slice_from_file_if_possible(file_path, ex)
+                FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
                 valid_coverage_slice = False
+
+            if valid_coverage_slice:
+                try:
+                    subsets = GdalAxisFiller(crs_axes, gdal_file).fill(True)
+                    subsets = self._fill_time_axis(tpair, subsets)
+                except Exception as ex:
+                    # If skip: true then just ignore this file from importing, else raise exception
+                    FileUtil.ignore_coverage_slice_from_file_if_possible(file_path, ex)
+                    valid_coverage_slice = False
 
             if valid_coverage_slice:
                 # Generate local metadata string for current coverage slice

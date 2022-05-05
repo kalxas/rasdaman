@@ -32,7 +32,7 @@ from master.helper.overview import Overview
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 
 from session import Session
-from util.coverage_util import CoverageUtil
+from util.coverage_util import CoverageUtil, CoverageUtilCache
 from util.log import log, make_bold
 from util.file_util import FileUtil
 import copy
@@ -69,7 +69,7 @@ class BaseRecipe:
         regarding the operations that you will perform via log.info to inform the user. You should explicitly state
         the information that you deduced (e.g. timestamps for a timeseries) so that the consequences are clear.
         """
-        cov = CoverageUtil(self.session.get_coverage_id())
+        cov = CoverageUtilCache.get_cov_util(self.session.get_coverage_id())
         operation_type = "UPDATE" if cov.exists() else "INSERT"
         log.info("The recipe has been validated and is ready to run.")
         log.info(make_bold("Recipe: ") + self.session.get_recipe()['name'])
@@ -173,14 +173,14 @@ class BaseRecipe:
                                             "setting can exist in the ingredients file.")
         if self.options['scale_factors'] is not None:
             # as scale_factors and scale_levels are only valid when initializing a new coverage
-            cov = CoverageUtil(self.session.get_coverage_id())
+            cov = CoverageUtilCache.get_cov_util(self.session.get_coverage_id())
             if not cov.exists():
                 for obj in self.options['scale_factors']:
                     if 'coverage_id' not in obj or 'factors' not in obj:
                         raise RecipeValidationException("All elements of 'scale_factors' list must contain "
                                                         "'coverage_id' and 'factors' properties")
                     coverage_id = obj['coverage_id']
-                    cov = CoverageUtil(coverage_id)
+                    cov = CoverageUtilCache.get_cov_util(coverage_id)
                     if cov.exists():
                         raise RecipeValidationException("Downscaled level coverage '" + coverage_id + "' already exists, "
                                                         "please use a different 'coverage_id' in 'scale_factors' list")
@@ -205,7 +205,7 @@ class BaseRecipe:
         """
         if 'pyramid_members' in self.options:
             for pyramid_member_coverage_id in self.options['pyramid_members']:
-                cov = CoverageUtil(pyramid_member_coverage_id)
+                cov = CoverageUtilCache.get_cov_util(pyramid_member_coverage_id)
                 if not cov.exists():
                     error_message = "Pyramid member coverage '" + pyramid_member_coverage_id \
                                     + "' does not exist locally'"
@@ -217,7 +217,7 @@ class BaseRecipe:
         """
         if 'pyramid_bases' in self.options:
             for pyramid_base_coverage_id in self.options['pyramid_bases']:
-                cov = CoverageUtil(pyramid_base_coverage_id)
+                cov = CoverageUtilCache.get_cov_util(pyramid_base_coverage_id)
                 if not cov.exists():
                     error_message = "Pyramid base coverage '" + pyramid_base_coverage_id \
                                     + "' does not exist locally'"

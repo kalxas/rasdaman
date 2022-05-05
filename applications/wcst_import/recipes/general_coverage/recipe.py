@@ -696,7 +696,8 @@ class Recipe(BaseRecipe):
         :param string: recipe_type the type of recipe
         :rtype: master.importer.coverage.Coverage
         """
-        crs = self._resolve_crs(self.options['coverage']['crs'])
+        ConfigManager.default_crs = self._resolve_crs(self.options["coverage"]["crs"])
+        crs = self._resolve_crs(self.options["coverage"]["crs"])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
 
         input_files = self.session.get_files()
@@ -724,7 +725,8 @@ class Recipe(BaseRecipe):
         :param: string recipe_type the type of netcdf
         :rtype: master.importer.coverage.Coverage
         """
-        crs = self._resolve_crs(self.options['coverage']['crs'])
+        ConfigManager.default_crs = self._resolve_crs(self.options["coverage"]["crs"])
+        crs = self._resolve_crs(self.options["coverage"]["crs"])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
         # by default pixelIsPoint is not set to true in ingredient file
         pixel_is_point = False
@@ -747,7 +749,7 @@ class Recipe(BaseRecipe):
                 self.__validate_data_bound_axes(user_axes, number_of_dimensions)
                 break
             except Exception as e:
-                if ConfigManager.skip == True:
+                if ConfigManager.skip is True:
                     continue
                 else:
                     raise e
@@ -776,7 +778,8 @@ class Recipe(BaseRecipe):
         :param: string recipe_type the type of grib
         :rtype: master.importer.coverage.Coverage
         """
-        crs = self._resolve_crs(self.options['coverage']['crs'])
+        ConfigManager.default_crs = self._resolve_crs(self.options["coverage"]["crs"])
+        crs = self._resolve_crs(self.options["coverage"]["crs"])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
         pixel_is_point = False
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:

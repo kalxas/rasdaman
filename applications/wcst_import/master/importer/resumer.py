@@ -60,16 +60,20 @@ class Resumer:
             try:
                 if os.path.isfile(resume_file_path) \
                         and os.access(resume_file_path, os.R_OK):
-                    log.info(
-                        "We found a resumer file in the ingredients folder. The slices listed in '" + resume_file_path
-                        + "' will not be imported.")
-                    ConfigManager.has_resume_file = True
-                    file = open(Resumer.__RESUMER_FILE_NAME_DICT[coverage_id])
-                    data = json.loads(file.read())
+                    from util.coverage_util import CoverageUtilCache
+                    cov = CoverageUtilCache.get_cov_util(coverage_id)
+                    if not cov.exists():
+                        log.info(
+                            "Coverage " + coverage_id + " does not exist, the existing resumer file '" + resume_file_path + "' will be reset.")
+                        FileUtil.delete_file_ignore_error(resume_file_path)
+                    else:
+                        log.info(
+                            "The slices listed in the resumer file '" + resume_file_path + "' will not be imported.")
 
-                    Resumer.__IMPORTED_DATA_DICT[coverage_id] = data
-
-                    file.close()
+                        ConfigManager.has_resume_file = True
+                        with open(Resumer.__RESUMER_FILE_NAME_DICT[coverage_id], "r") as f:
+                            data = json.loads(f.read())
+                            Resumer.__IMPORTED_DATA_DICT[coverage_id] = data
             except IOError as e:
                 raise RuntimeException("Could not read the resume file, full error message: " + str(e))
             except ValueError as e:

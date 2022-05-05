@@ -340,7 +340,7 @@ class Recipe(GeneralCoverageRecipe):
                                 GdalToCoverageConverter.RECIPE_TYPE, file)
 
             conv.data_type = band_data_type
-            slices_dict = conv._create_coverage_slices(crs_axes, evaluator_slice)
+            slices_dict = conv._create_coverage_slices(conv.crs, crs_axes, evaluator_slice)
             slices_dict = self.__filter_invalid_geo_bounds(slices_dict)
 
             if conv.coverage_slices == {}:

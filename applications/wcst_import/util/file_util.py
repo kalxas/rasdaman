@@ -26,6 +26,7 @@ import os
 import sys
 import uuid
 from config_manager import ConfigManager
+from master.error.validate_exception import RecipeValidationException
 from util.log import log
 import re
 from master.error.runtime_exception import RuntimeException
@@ -122,8 +123,11 @@ class FileUtil:
             log.warn("WARNING: input file '" + file_path + "' cannot be processed,\n"
                      "wcst_import will ignore this file as \"skip\" is set to true in the ingredient file. Reason: " + str(exception))
         else:
-            # Throws the original source of exception(!)
-            raise Exception(sys.exc_info()[1]).with_traceback(sys.exc_info()[2])
+            if isinstance(exception, RecipeValidationException):
+                raise exception
+            else:
+                # Throws the original source of exception(!)
+                raise Exception(sys.exc_info()[1]).with_traceback(sys.exc_info()[2])
 
 
     @staticmethod
