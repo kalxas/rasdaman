@@ -258,6 +258,8 @@ public class WMSGetMapBBoxService {
         BigDecimal offsetGeoX = requestBBox.getXMax().subtract(requestBBox.getXMin());
         BigDecimal offsetGeoY = requestBBox.getYMax().subtract(requestBBox.getYMin());
         
+        // TESTING
+        
         // This is used only when zooming to maximum level to not show gaps 
         // or at the corners of layer
         BigDecimal minOffsetGeoX = axisX.getResolution().multiply(new BigDecimal(2)).abs();
@@ -270,7 +272,7 @@ public class WMSGetMapBBoxService {
         if (offsetGeoY.compareTo(minOffsetGeoY) < 0) {
             offsetGeoY = minOffsetGeoY;
         }
-        
+
         BigDecimal newGeoLowerBoundX = requestBBox.getXMin().subtract(offsetGeoX);
         BigDecimal newGeoUpperBoundX = requestBBox.getXMax().add(offsetGeoX);
         

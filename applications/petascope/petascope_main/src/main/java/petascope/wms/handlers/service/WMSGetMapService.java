@@ -62,6 +62,7 @@ import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wms.exception.WMSInternalException;
 import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.JSONUtil;
 import petascope.wcps.encodeparameters.model.JsonExtraParams;
@@ -286,6 +287,8 @@ public class WMSGetMapService {
     public Response createGetMapResponse() throws WMSException, PetascopeException {
         byte[] bytes = null;
         
+        String finalRasqlQuery = "";
+        
         try {
             if (!this.intersectLayerXYBBox()) {
                 Response response = this.createBlankImage();
@@ -362,7 +365,7 @@ public class WMSGetMapService {
             String encodeFormatParameters = this.createEncodeFormatParameters(nodataValues, wcpsCoverageMetadata);
             
             // Create the final Rasql query for all layers's styles of this GetMap request.
-            String finalRasqlQuery = FINAL_TRANSLATED_RASQL_TEMPLATE
+            finalRasqlQuery = FINAL_TRANSLATED_RASQL_TEMPLATE
                                 .replace(COLLECTION_EXPRESSION_TEMPLATE, finalCollectionExpressionLayers)
                                 .replace(ENCODE_FORMAT_PARAMETERS_TEMPLATE, encodeFormatParameters)
                                 .replace(FORMAT_TYPE_TEMPLATE, formatType)
@@ -375,7 +378,11 @@ public class WMSGetMapService {
             Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
             bytes = RasUtil.getRasqlResultAsBytes(finalRasqlQuery, userPair.fst, userPair.snd);
         } catch (PetascopeException ex) {
-            throw new WMSInternalException(ex.getMessage(), ex);
+            if (ex instanceof RasdamanException) {
+                throw new PetascopeException(ex.getExceptionCode(), "Failed to run query: " + finalRasqlQuery + ". Reason: " + ex.getMessage(), ex);
+            } else {
+                throw new WMSInternalException(ex.getMessage(), ex);
+            }
         }
 
         return new Response(Arrays.asList(bytes), this.format, this.layerNames.get(0));

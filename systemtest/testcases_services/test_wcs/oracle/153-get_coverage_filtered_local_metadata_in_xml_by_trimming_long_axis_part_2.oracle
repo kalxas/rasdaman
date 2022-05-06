@@ -2,22 +2,22 @@
 <gmlcov:RectifiedGridCoverage gml:id="test_wcs_local_metadata_tiff_map_mosaic" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
-            <gml:lowerCorner>-44.975 130.975</gml:lowerCorner>
-            <gml:upperCorner>-8.975 132.975</gml:upperCorner>
+            <gml:lowerCorner>-44.975 131.975</gml:lowerCorner>
+            <gml:upperCorner>-8.975 133.975</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
         <gml:RectifiedGrid dimension="2" gml:id="test_wcs_local_metadata_tiff_map_mosaic-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>0 19</gml:low>
-                    <gml:high>35 20</gml:high>
+                    <gml:low>0 20</gml:low>
+                    <gml:high>35 21</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>Lat Long</gml:axisLabels>
             <gml:origin>
                 <gml:Point gml:id="test_wcs_local_metadata_tiff_map_mosaic-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
-                    <gml:pos>-9.475 131.475</gml:pos>
+                    <gml:pos>-9.475 132.475</gml:pos>
                 </gml:Point>
             </gml:origin>
             <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">-1 0</gml:offsetVector>
@@ -27,13 +27,13 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">0,0,0,91,90,84,95,75,47,46,47,51,57,91,121,121,137,132,126,115,101,96,111,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,92,84,64,71,68,47,40,34,36,44,81,120,126,143,136,131,122,113,110,117,0,0,0,0,0,0,0,0,0,0,0,0,0</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">0,0,96,92,84,64,71,68,47,40,34,36,44,81,120,126,143,136,131,122,113,110,117,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,97,86,67,54,54,41,31,26,22,27,61,115,132,131,136,135,125,123,125,116,0,0,0,0,0,0,0,0,0,0,0,0,0</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+1 +2">Linear</gml:sequenceRule>
-            <gml:startPoint>0 19</gml:startPoint>
+            <gml:startPoint>0 20</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>
@@ -62,7 +62,7 @@
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>value_2</local_metadata_key>
-                        <fileReferenceHistory>/home/rasdaman/rasdaman_enterprise/stable_repository/rasdaman-enterprise/systemtest/testcases_services/test_all_wcst_import/testdata/117-wcs_local_metadata_tiff_map_mosaic/part_2.tiff</fileReferenceHistory>
+                        <fileReferenceHistory>/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/117-wcs_local_metadata_tiff_map_mosaic/part_2.tiff</fileReferenceHistory>
                     </slice>
                 </slices>
                 <Title>Drought code</Title>

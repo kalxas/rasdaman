@@ -3,7 +3,7 @@
     <gml:boundedBy>
         <gml:Envelope srsName="http://www.opengis.net/def/crs/OGC/0/Index1D" axisLabels="i" uomLabels="GridSpacing" srsDimension="1">
             <gml:lowerCorner>0</gml:lowerCorner>
-            <gml:upperCorner>53</gml:upperCorner>
+            <gml:upperCorner>54</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
@@ -11,7 +11,7 @@
             <gml:limits>
                 <gml:GridEnvelope>
                     <gml:low>0</gml:low>
-                    <gml:high>53</gml:high>
+                    <gml:high>54</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>i</gml:axisLabels>
@@ -26,7 +26,7 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">87,84,85,93,87,92,98,100,100,109,116,121,126,115,113,98,107,95,71,82,85,98,101,113,121,125,125,126,141,151,182,219,228,209,194,170,181,182,184,175,168,162,161,157,145,125,132,126,121,109,97,99,74,81</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">84,89,93,96,92,98,100,100,113,116,137,143,132,129,127,133,122,95,110,114,108,121,121,125,130,117,118,135,146,171,206,221,214,198,178,192,160,181,184,185,175,168,157,156,157,148,134,131,126,121,129,132,99,95,83</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>

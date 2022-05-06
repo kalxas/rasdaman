@@ -2,8 +2,8 @@
 <gmlcov:RectifiedGridCoverage gml:id="test_sf" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/def/crs/EPSG/0/32610" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
-            <gml:lowerCorner>542859.682243879774 4175169.477475077719</gml:lowerCorner>
-            <gml:upperCorner>553861.639562107959 4186171.434793305904</gml:upperCorner>
+            <gml:lowerCorner>545060.073707525411 4172969.086011432082</gml:lowerCorner>
+            <gml:upperCorner>556062.031025753596 4183971.043329660267</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
@@ -17,7 +17,7 @@
             <gml:axisLabels>E N</gml:axisLabels>
             <gml:origin>
                 <gml:Point gml:id="test_sf-point" srsName="http://localhost:8080/def/crs/EPSG/0/32610">
-                    <gml:pos>543959.8779757025925 4185071.2390614830855</gml:pos>
+                    <gml:pos>546160.2694393482295 4182870.8475978374485</gml:pos>
                 </gml:Point>
             </gml:origin>
             <gml:offsetVector srsName="http://localhost:8080/def/crs/EPSG/0/32610">2200.391463645637 0</gml:offsetVector>

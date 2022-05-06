@@ -2,22 +2,22 @@
 <gmlcov:RectifiedGridCoverage gml:id="test_mean_summer_airtemp" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Lon" uomLabels="degree degree" srsDimension="2">
-            <gml:lowerCorner>-12.974999999999987 129.975</gml:lowerCorner>
-            <gml:upperCorner>-11.974999999999987 130.975</gml:upperCorner>
+            <gml:lowerCorner>-13.474999999999987 130.475</gml:lowerCorner>
+            <gml:upperCorner>-12.474999999999987 131.475</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
         <gml:RectifiedGrid dimension="2" gml:id="test_mean_summer_airtemp-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>6 36</gml:low>
-                    <gml:high>7 37</gml:high>
+                    <gml:low>7 37</gml:low>
+                    <gml:high>8 38</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>Lat Lon</gml:axisLabels>
             <gml:origin>
                 <gml:Point gml:id="test_mean_summer_airtemp-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
-                    <gml:pos>-12.224999999999987 130.225</gml:pos>
+                    <gml:pos>-12.724999999999987 130.725</gml:pos>
                 </gml:Point>
             </gml:origin>
             <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">-0.5 0</gml:offsetVector>
@@ -27,13 +27,13 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">0,0,7,100</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">100,89,91,90</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+1 +2">Linear</gml:sequenceRule>
-            <gml:startPoint>6 36</gml:startPoint>
+            <gml:startPoint>7 37</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>

@@ -2,8 +2,8 @@
 <gmlcov:RectifiedGridCoverage gml:id="test_eobstest" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
-            <gml:lowerCorner>"1949-12-31T12:00:00.000Z"</gml:lowerCorner>
-            <gml:upperCorner>"1950-01-04T12:00:00.000Z"</gml:upperCorner>
+            <gml:lowerCorner>"1950-01-01T00:00:00.000Z"</gml:lowerCorner>
+            <gml:upperCorner>"1950-01-05T00:00:00.000Z"</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
@@ -11,13 +11,13 @@
             <gml:limits>
                 <gml:GridEnvelope>
                     <gml:low>0</gml:low>
-                    <gml:high>3</gml:high>
+                    <gml:high>4</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>t</gml:axisLabels>
             <gml:origin>
                 <gml:Point gml:id="test_eobstest-point" srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
-                    <gml:pos>"1950-01-01T00:00:00.000Z"</gml:pos>
+                    <gml:pos>"1950-01-01T12:00:00.000Z"</gml:pos>
                 </gml:Point>
             </gml:origin>
             <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">1</gml:offsetVector>
@@ -26,7 +26,7 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">-9999,-9999,-9999,-9999</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>

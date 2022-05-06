@@ -2,8 +2,8 @@
 <gmlcov:RectifiedGridCoverage gml:id="test_eobstest" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="i Long t" uomLabels="GridSpacing degree d" srsDimension="3">
-            <gml:lowerCorner>0 40 "1949-12-31T12:00:00.000Z"</gml:lowerCorner>
-            <gml:upperCorner>3 45 "1950-01-02T12:00:00.000Z"</gml:upperCorner>
+            <gml:lowerCorner>0 40 "1950-01-01T00:00:00.000Z"</gml:lowerCorner>
+            <gml:upperCorner>3 45 "1950-01-03T00:00:00.000Z"</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
@@ -17,7 +17,7 @@
             <gml:axisLabels>i Long t</gml:axisLabels>
             <gml:origin>
                 <gml:Point gml:id="test_eobstest-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
-                    <gml:pos>0.5 40.25 "1950-01-01T00:00:00.000Z"</gml:pos>
+                    <gml:pos>0.5 40.25 "1950-01-01T12:00:00.000Z"</gml:pos>
                 </gml:Point>
             </gml:origin>
             <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">1 0 0</gml:offsetVector>

@@ -3,7 +3,7 @@
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
             <gml:lowerCorner>"1949-12-31T12:00:00.000Z"</gml:lowerCorner>
-            <gml:upperCorner>"1950-01-05T12:00:00.000Z"</gml:upperCorner>
+            <gml:upperCorner>"1950-01-05T00:00:00.000Z"</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>

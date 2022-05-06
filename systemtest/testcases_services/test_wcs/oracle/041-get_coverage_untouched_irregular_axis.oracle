@@ -2,22 +2,22 @@
 <gmlcov:ReferenceableGridCoverage gml:id="test_irr_cube_1" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
-            <gml:lowerCorner>-0.5 3.5 0</gml:lowerCorner>
-            <gml:upperCorner>0.5 4.5 8</gml:upperCorner>
+            <gml:lowerCorner>0.5 2.5 0</gml:lowerCorner>
+            <gml:upperCorner>1.5 3.5 8</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
         <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_1-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>0 5 0</gml:low>
-                    <gml:high>0 5 5</gml:high>
+                    <gml:low>1 6 0</gml:low>
+                    <gml:high>1 6 5</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>i j k</gml:axisLabels>
             <gmlrgrid:origin>
                 <gml:Point gml:id="test_irr_cube_1-point" srsName="http://localhost:8080/rasdaman/def/crs/OGC/0/Index3D">
-                    <gml:pos>0 4 0</gml:pos>
+                    <gml:pos>1 3 0</gml:pos>
                 </gml:Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
@@ -49,13 +49,13 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">5,105,205,305,505,805</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">16,116,216,316,516,816</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+3 +2 +1">Linear</gml:sequenceRule>
-            <gml:startPoint>0 5 0</gml:startPoint>
+            <gml:startPoint>1 6 0</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>

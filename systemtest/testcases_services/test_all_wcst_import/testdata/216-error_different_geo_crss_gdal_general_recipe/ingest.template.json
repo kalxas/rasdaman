@@ -6,7 +6,7 @@
     "track_files": false
   },
   "input": {
-    "coverage_id": "test_error-different_geo_crss_gdal_general_recipe",
+    "coverage_id": "test_error_different_geo_crss_gdal_general_recipe",
     "paths": [
       "*.tiff"
     ]

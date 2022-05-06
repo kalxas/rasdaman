@@ -7,7 +7,7 @@
     "automated": true
   },
   "input": {
-    "coverage_id": "test_error-different_geo_crss_time_series",
+    "coverage_id": "test_error_different_geo_crss_time_series",
     "paths": [
       "*.tiff"
     ]

@@ -2,22 +2,22 @@
 <gmlcov:ReferenceableGridCoverage gml:id="test_irr_cube_2" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633" axisLabels="ansi E N" uomLabels="d metre metre" srsDimension="3">
-            <gml:lowerCorner>"2008-01-01T02:01:20.000Z" 75042.72735943 5104865.557938452</gml:lowerCorner>
-            <gml:upperCorner>"2008-01-08T00:02:58.000Z" 85042.72735943 5114865.557938452</gml:upperCorner>
+            <gml:lowerCorner>"2008-01-01T02:01:20.000Z" 85042.72735943 5094865.557938452</gml:lowerCorner>
+            <gml:upperCorner>"2008-01-08T00:02:58.000Z" 95042.72735943 5104865.557938452</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
         <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_2-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>0 0 34</gml:low>
-                    <gml:high>3 0 34</gml:high>
+                    <gml:low>0 2 35</gml:low>
+                    <gml:high>3 2 35</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>ansi E N</gml:axisLabels>
             <gmlrgrid:origin>
                 <gml:Point gml:id="test_irr_cube_2-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/32633">
-                    <gml:pos>"2008-01-01T02:01:20.000Z" 80042.72735943 5109865.557938452</gml:pos>
+                    <gml:pos>"2008-01-01T02:01:20.000Z" 90042.72735943 5099865.557938452</gml:pos>
                 </gml:Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
@@ -49,13 +49,13 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">9.63844 4.179067,9.63844 4.179067,9.63844 4.179067,9.63844 4.179067</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">9.039942 4.17602,9.039942 4.17602,9.039942 4.17602,9.039942 4.17602</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+3 +2 +1">Linear</gml:sequenceRule>
-            <gml:startPoint>0 0 34</gml:startPoint>
+            <gml:startPoint>0 2 35</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>

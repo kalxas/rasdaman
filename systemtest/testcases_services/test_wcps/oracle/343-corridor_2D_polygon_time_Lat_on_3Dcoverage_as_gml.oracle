@@ -2,8 +2,8 @@
 <gmlcov:RectifiedGridCoverage gml:id="test_eobstest" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="i t Lat" uomLabels="GridSpacing d degree" srsDimension="3">
-            <gml:lowerCorner>0 "1949-12-31T12:00:00.000Z" 25</gml:lowerCorner>
-            <gml:upperCorner>3 "1950-01-02T12:00:00.000Z" 31</gml:upperCorner>
+            <gml:lowerCorner>0 "1950-01-01T00:00:00.000Z" 25</gml:lowerCorner>
+            <gml:upperCorner>3 "1950-01-03T00:00:00.000Z" 31</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
@@ -17,7 +17,7 @@
             <gml:axisLabels>i t Lat</gml:axisLabels>
             <gml:origin>
                 <gml:Point gml:id="test_eobstest-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
-                    <gml:pos>0.5 "1950-01-01T00:00:00.000Z" 30.75</gml:pos>
+                    <gml:pos>0.5 "1950-01-01T12:00:00.000Z" 30.75</gml:pos>
                 </gml:Point>
             </gml:origin>
             <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">1 0 0</gml:offsetVector>
@@ -28,7 +28,7 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999,-9999,559,273,225,87,-559,-991,-1180,-9999,-9999,-9999,-9999,-9999,-9999,562,209,73,-117,-567,-917,-1098,-9999,-9999,-9999,-9999,-9999,-9999,-152,-489,-499,-603,-1350,-1804,-1997,-9999,-9999,-9999,-9999,-9999,-9999,-9999,559,273,225,87,-559,-991,-9999,-9999,-9999,-9999,-9999,-9999,-9999,562,209,73,-117,-567,-917,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-152,-489,-499,-603,-1350,-1804,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,562,209,73,-117,-567,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-152,-489,-499,-603,-1350,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,698,444,345,163,-376,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,562,209,73,-117,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-152,-489,-499,-603,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,698,444,345,163</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999,-9999,409,206,203,81,-474,-921,-1026,-9999,-9999,-9999,-9999,-9999,-9999,523,283,134,-50,-509,-896,-1000,-9999,-9999,-9999,-9999,-9999,-9999,-109,-324,-314,-521,-1229,-1768,-1872,-9999,-9999,-9999,-9999,-9999,-9999,-9999,409,206,203,81,-474,-921,-9999,-9999,-9999,-9999,-9999,-9999,-9999,523,283,134,-50,-509,-896,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-109,-324,-314,-521,-1229,-1768,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,523,283,134,-50,-509,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-109,-324,-314,-521,-1229,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,544,294,239,165,-254,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,523,283,134,-50,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-109,-324,-314,-521,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,544,294,239,165</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>

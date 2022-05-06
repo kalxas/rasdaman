@@ -21,6 +21,7 @@
  */
 package petascope.wms.handlers.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -37,10 +38,8 @@ import org.springframework.stereotype.Service;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
-import static petascope.wcps.handler.ForClauseHandler.AS;
 import static petascope.wcps.handler.ForClauseListHandler.FROM;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -229,6 +228,8 @@ public class WMSGetMapStyleService {
         
         List<WcpsSubsetDimension> wcpsSubsetDimensions = this.wmsGetMapSubsetTranslatingService.parseWcpsSubsetDimensions(wcpsCoverageMetadata, 
                                                                                                            wmsLayer.getExtendedRequestBBox());
+        
+        
         if (nonXYGridSliceSubsetDimensions != null) {
             // Only for 3rd+ layers
             wcpsSubsetDimensions.addAll(nonXYGridSliceSubsetDimensions);
@@ -244,7 +245,7 @@ public class WMSGetMapStyleService {
         List<Axis> xyAxes = wcpsResult.getMetadata().getXYAxes();
         Axis axisX = xyAxes.get(0);
         Axis axisY = xyAxes.get(1);
-
+        
         this.updateFittedBBoxByXYAxes(extendedFittedRequestGeoBBox, axisX, axisY);
         
         String collectionExpression = wcpsResult.getRasql();
@@ -253,7 +254,7 @@ public class WMSGetMapStyleService {
             Pair<String, String> extendedXYGridDomainsPair = this.createExtendedXYGridDomains(wcpsCoverageMetadataTmp, extendedFittedRequestGeoBBox);
             collectionExpression += "[" + extendedXYGridDomainsPair.fst + "," + extendedXYGridDomainsPair.snd + "]";
         }
-
+        
         return collectionExpression;
     }
     

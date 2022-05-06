@@ -714,7 +714,7 @@ public class WcpsCoverageMetadataGeneralService {
             // Apply subset from geo domain to grid domain
             unAppliedNumericSubset = (NumericTrimming) axis.getGeoBounds();
             unTranslatedNumericSubset = (NumericTrimming) axis.getGridBounds();
-            this.translateTrimmingGeoToGridSubset(axis, subsetDimension, numericSubset, unAppliedNumericSubset, unTranslatedNumericSubset);
+            this.translateTrimmingGeoToGridSubset(checkBoundary, axis, subsetDimension, numericSubset, unAppliedNumericSubset, unTranslatedNumericSubset);
         } else {
             // Lat:"CRS:1"[0:50] -> Lat(0:20)
             // Apply subset from grid domain to geo domain
@@ -728,7 +728,7 @@ public class WcpsCoverageMetadataGeneralService {
      * Apply the trimming subset on the unAppliedNumericSubset (geo bound) and
      * calculate this bound to unTranslatedNumericSubset (grid bound)
      */
-    private void translateTrimmingGeoToGridSubset(Axis axis, WcpsSubsetDimension subsetDimension, Subset numericSubset,
+    private void translateTrimmingGeoToGridSubset(boolean checkBoundary, Axis axis, WcpsSubsetDimension subsetDimension, Subset numericSubset,
             NumericTrimming unAppliedNumericSubset, NumericTrimming unTranslatedNumericSubset) throws PetascopeException {
         
         BigDecimal geoDomainMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
@@ -751,7 +751,7 @@ public class WcpsCoverageMetadataGeneralService {
         // NOTE: gdal_translate doesn't allow to subset by projwin with less than half grid pixel
         boolean lessThanHalfPixel = geoDistance.compareTo(halfGeoResolution) < 0;
         
-        if (axis instanceof RegularAxis && !lessThanHalfPixel) {
+        if (axis instanceof RegularAxis && !lessThanHalfPixel && !axis.isNonXYAxis()) {
             String sourceCRS = axis.getNativeCrsUri();
             String sourceCRSWKT = CrsUtil.getWKT(sourceCRS);
             
@@ -762,7 +762,7 @@ public class WcpsCoverageMetadataGeneralService {
                 // axis X
                 
                 GeoTransform adfGeoTransform = new GeoTransform(sourceCRSWKT, geoDomainMin, BigDecimal.ZERO, numberOfGridPixels, 0, axis.getResolution(), BigDecimal.ZERO);
-                Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = coordinateTranslationService.calculateGeoGridXBounds(axis, adfGeoTransform, lowerLimit, upperLimit);
+                Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = coordinateTranslationService.calculateGeoGridXBounds(checkBoundary, axis, adfGeoTransform, lowerLimit, upperLimit);
                 parsedSubset = pairX.fst;
                 translatedSubset = pairX.snd;
                 
@@ -771,7 +771,7 @@ public class WcpsCoverageMetadataGeneralService {
                 // axis Y
             
                 GeoTransform adfGeoTransform = new GeoTransform(sourceCRSWKT, BigDecimal.ZERO, geoDomainMax, 0, numberOfGridPixels, BigDecimal.ZERO, axis.getResolution());
-                Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = coordinateTranslationService.calculateGeoGridYBounds(axis, adfGeoTransform, lowerLimit, upperLimit);
+                Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = coordinateTranslationService.calculateGeoGridYBounds(checkBoundary, axis, adfGeoTransform, lowerLimit, upperLimit);
                 parsedSubset = pairY.fst;
                 translatedSubset = pairY.snd;
                 
