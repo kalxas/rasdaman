@@ -203,8 +203,8 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
             self._translate_decimal_to_datetime(user_axis, geo_axis)
         # NOTE: current, gdal recipe supports only has 2 axes which are "bounded" (i.e: they exist as 2D axes in file)
         # and 1 or more another axes gotten (i.e: from fileName) which are not "bounded" to create 3D+ coverage.
-        data_bound = crs_axis.is_y_axis() or crs_axis.is_x_axis()
+        dataBound = crs_axis.is_y_axis() or crs_axis.is_x_axis()
 
-        return AxisSubset(CoverageAxis(geo_axis, grid_axis, data_bound),
+        return AxisSubset(CoverageAxis(geo_axis, grid_axis, dataBound),
                           Interval(user_axis.interval.low, user_axis.interval.high))
 

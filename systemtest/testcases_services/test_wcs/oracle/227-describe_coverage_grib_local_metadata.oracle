@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
+    <wcs:CoverageDescription gml:id="test_grib_with_local_metadata">
+        <gml:boundedBy>
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;ansi&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="ansi isobaric Lat Long" uomLabels="d GridSpacing degree degree" srsDimension="4">
+                <gml:lowerCorner>"2015-02-03T00:00:00.000Z" 975 19.75 9.75</gml:lowerCorner>
+                <gml:upperCorner>"2015-06-09T00:00:00.000Z" 1000 20.75 10.75</gml:upperCorner>
+            </gml:Envelope>
+        </gml:boundedBy>
+        <wcs:CoverageId>test_grib_with_local_metadata</wcs:CoverageId>
+        <gml:coverageFunction>
+            <gml:GridFunction>
+                <gml:sequenceRule axisOrder="+3 +4 +2 +1">Linear</gml:sequenceRule>
+                <gml:startPoint>0 0 0 0</gml:startPoint>
+            </gml:GridFunction>
+        </gml:coverageFunction>
+        <gmlcov:metadata>
+            <gmlcov:Extension>
+                <rasdaman:covMetadata>
+                    <slices>
+                        <slice>
+                            <boundedBy>
+                                <Envelope>
+                                    <axisLabels>ansi isobaric Lat Long</axisLabels>
+                                    <srsDimension>4</srsDimension>
+                                    <lowerCorner>"2015-02-03T00:00:00+00:00" 975 19.75 9.75</lowerCorner>
+                                    <upperCorner>"2015-02-03T00:00:00+00:00" 1000 20.75 10.75</upperCorner>
+                                </Envelope>
+                            </boundedBy>
+                            <shapeOfTheEarth>6</shapeOfTheEarth>
+                            <fileReferenceHistory>/opt/rasdaman/source/systemtest/testcases_services/test_all_wcst_import/testdata/219-wcs_grib_with_local_metadata/20150203.grib</fileReferenceHistory>
+                        </slice>
+                        <slice>
+                            <boundedBy>
+                                <Envelope>
+                                    <axisLabels>ansi isobaric Lat Long</axisLabels>
+                                    <srsDimension>4</srsDimension>
+                                    <lowerCorner>"2015-06-09T00:00:00+00:00" 975 19.75 9.75</lowerCorner>
+                                    <upperCorner>"2015-06-09T00:00:00+00:00" 1000 20.75 10.75</upperCorner>
+                                </Envelope>
+                            </boundedBy>
+                            <shapeOfTheEarth>6</shapeOfTheEarth>
+                            <fileReferenceHistory>/opt/rasdaman/source/systemtest/testcases_services/test_all_wcst_import/testdata/219-wcs_grib_with_local_metadata/20150609.grib</fileReferenceHistory>
+                        </slice>
+                    </slices>
+                    <Originating_or_generating_Center>European Centre for Medium-Range Weather Forecasts</Originating_or_generating_Center>
+                    <GRIB_table_version>Mars Param</GRIB_table_version>
+                    <Grib1_Parameter_name>Parameter name</Grib1_Parameter_name>
+                    <Grib1_Parameter_id>Parameter id</Grib1_Parameter_id>
+                    <MARS_type>MARS type</MARS_type>
+                    <Type_of_level>Type of level</Type_of_level>
+                </rasdaman:covMetadata>
+            </gmlcov:Extension>
+        </gmlcov:metadata>
+        <gml:domainSet>
+            <gmlrgrid:ReferenceableGridByVectors dimension="4" gmlrgrid:id="test_grib_with_local_metadata-grid">
+                <gml:limits>
+                    <gml:GridEnvelope>
+                        <gml:low>0 0 0 0</gml:low>
+                        <gml:high>1 1 1 1</gml:high>
+                    </gml:GridEnvelope>
+                </gml:limits>
+                <gml:axisLabels>ansi isobaric Lat Long</gml:axisLabels>
+                <gmlrgrid:origin>
+                    <gml:Point gml:id="test_grib_with_local_metadata-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;ansi&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
+                        <gml:pos>"2015-02-03T00:00:00.000Z" 975 20.5 10</gml:pos>
+                    </gml:Point>
+                </gmlrgrid:origin>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;ansi&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">1 0 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients>"2015-02-03T00:00:00.000Z" "2015-06-09T00:00:00.000Z"</gmlrgrid:coefficients>
+                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;ansi&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 1 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients>975 1000</gmlrgrid:coefficients>
+                        <gmlrgrid:gridAxesSpanned>isobaric</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;ansi&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 -0.5 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate?axis-label=&quot;ansi&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 0 0.5</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+            </gmlrgrid:ReferenceableGridByVectors>
+        </gml:domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="Temperature_isobaric">
+                    <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float64">
+                        <swe:label>Temperature_isobaric</swe:label>
+                        <swe:description>Bands description</swe:description>
+                        <swe:nilValues>
+                            <swe:NilValues>
+                                <swe:nilValue reason="Nil value represents missing values.">9999</swe:nilValue>
+                            </swe:NilValues>
+                        </swe:nilValues>
+                        <swe:uom code="Pa"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

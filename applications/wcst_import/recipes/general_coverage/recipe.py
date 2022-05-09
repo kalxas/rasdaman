@@ -299,7 +299,7 @@ class Recipe(BaseRecipe):
 
             order = axis["gridOrder"] if "gridOrder" in axis else default_order
             irregular = axis["irregular"] if "irregular" in axis else False
-            data_bound = axis["dataBound"] if "dataBound" in axis else True
+            dataBound = axis["dataBound"] if "dataBound" in axis else True
             # for irregular axes we consider the resolution 1 / -1 as gmlcov requires resolution for all axis types,
             # even irregular
             if "resolution" in axis:
@@ -338,7 +338,7 @@ class Recipe(BaseRecipe):
 
             if not irregular:
                 user_axes.append(
-                    RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound,
+                    RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, dataBound,
                                     statements))
             else:
                 # NOTE: irregular axis cannot set any resolution != 1
@@ -348,7 +348,7 @@ class Recipe(BaseRecipe):
 
                 user_axes.append(
                     IrregularUserAxis(crs_axis.label, resolution, order, axis["min"], axis["directPositions"], max,
-                                      type, data_bound, statements, slice_group_size))
+                                      type, dataBound, statements, slice_group_size))
 
         number_of_specified_axes = len(axes_configurations.items())
         number_of_crs_axes = len(crs_axes)
@@ -791,8 +791,8 @@ class Recipe(BaseRecipe):
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
-                                           self._bands_metadata_fields(),
                                            self._local_metadata_fields(),
+                                           self._bands_metadata_fields(),
                                            self._axes_metadata_fields(),
                                            self._metadata_type(),
                                            self.options['coverage']['grid_coverage'], pixel_is_point,
@@ -808,7 +808,7 @@ class Recipe(BaseRecipe):
         """
         number_of_data_bounded_axes = 0
         for user_axis in user_axes:
-            if user_axis.dataBound == True:
+            if user_axis.dataBound is True:
                 number_of_data_bounded_axes += 1
 
         if number_of_data_bounded_axes != number_of_dimensions:

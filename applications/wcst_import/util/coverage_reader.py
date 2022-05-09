@@ -230,8 +230,8 @@ class CoverageReader():
                 geo_axis = RegularAxis(crs_axis.label, crs_axis.uom,
                                        geo_coords[axis_index].low, geo_coords[axis_index].high,
                                        origin[axis_index], crs_axis)
-            data_bound = crs_axis.is_x_axis() or crs_axis.is_y_axis()
-            coverage_axis = CoverageAxis(geo_axis, grid_axis, data_bound)
+            dataBound = crs_axis.is_x_axis() or crs_axis.is_y_axis()
+            coverage_axis = CoverageAxis(geo_axis, grid_axis, dataBound)
             coverage_axes.append(coverage_axis)
             axis_index += 1
         return coverage_axes
