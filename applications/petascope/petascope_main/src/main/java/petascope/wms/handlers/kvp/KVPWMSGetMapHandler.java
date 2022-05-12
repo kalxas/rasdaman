@@ -283,10 +283,10 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             wmsGetMapService.setOutputCRS(outputCRS);
             wmsGetMapService.setWidth(width);
             wmsGetMapService.setHeight(height);
+            wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
             wmsGetMapService.setBBoxes(bbox);
             wmsGetMapService.setFormat(format);
-            wmsGetMapService.setTransparent(transparent);
-            wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
+            wmsGetMapService.setTransparent(transparent);            
             wmsGetMapService.setInterpolation(interpolation);
 
             response = wmsGetMapService.createGetMapResponse();

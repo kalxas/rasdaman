@@ -69,7 +69,9 @@ import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.encodeparameters.model.NoData;
 import petascope.wcps.encodeparameters.service.SerializationEncodingService;
 import petascope.wcps.encodeparameters.service.TranslateColorTableService;
+import petascope.wcps.handler.SubsetExpressionHandler;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import petascope.wms.exception.WMSStyleNotFoundException;
 import petascope.wms.handlers.model.WMSLayer;
 import static petascope.wms.handlers.service.WMSGetMapStyleService.ENCODE;
@@ -174,6 +176,8 @@ public class WMSGetMapService {
     
     private Map<String, String> dimSubsetsMap = new HashMap<>();
     
+    private List<WcpsSubsetDimension> nonXYSubsetDimensions = new ArrayList<>();
+    
     private static final Map<String, Response> blankTileMap = new ConcurrentHashMap<>();
     
     public static final Set<String> validInterpolations = new LinkedHashSet<>();
@@ -258,12 +262,15 @@ public class WMSGetMapService {
 
         String firstLayerName = this.layerNames.get(0);
         WcpsCoverageMetadata wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.translate(firstLayerName);
+        this.nonXYSubsetDimensions = this.wmsGetMapSubsetParsingService.translateDimensionsMap(wcpsCoverageMetadataTmp, this.dimSubsetsMap);
         BoundingBox layerBBoxNativeCRS = wcpsCoverageMetadataTmp.getOrginalGeoXYBoundingBox();
         this.layerBBoxRequestCRS = layerBBoxNativeCRS;
 
         WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(firstLayerName, layerBBoxNativeCRS,
-                                                                                       this.fittedRequestBBox, this.fittedRequestBBox, this.width, this.height);
-        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
+                                                                                       this.fittedRequestBBox, this.fittedRequestBBox, this.width, this.height,
+                                                                                       this.nonXYSubsetDimensions);
+        
+        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
 
         String nativeCRS = xyAxes.get(0).getNativeCrsUri();
@@ -310,7 +317,8 @@ public class WMSGetMapService {
                 if (this.styleNames.size() > 0) {
                     styleName = this.styleNames.get(styleIndex);
                 }
-                WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
+
+                WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
                 
                 if (nodataValues.isEmpty()) {
                     if (wcpsCoverageMetadata.getNilValues().size() > 0) {
@@ -413,7 +421,9 @@ public class WMSGetMapService {
 
             WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(wcpsCoverageMetadata.getCoverageName(), this.layerBBoxRequestCRS,
                                                                                 this.fittedRequestBBox,
-                                                                                this.extendedFittedRequestGeoBBox, this.width, this.height);
+                                                                                this.extendedFittedRequestGeoBBox, this.width, this.height,
+                                                                                this.nonXYSubsetDimensions
+                                                                            );
             wmsLayers.add(wmsLayer);
         }
         
@@ -475,7 +485,8 @@ public class WMSGetMapService {
             throw new WMSStyleNotFoundException(styleName, layerName);
         }
 
-        if (this.needExtendedGeoXYBBox(wmsLayer)) {
+        if (this.needExtendedGeoXYBBox(wmsLayer) 
+            ) {
             this.extendedFittedRequestGeoBBox = this.wmsGetMapBBoxService.createExtendedGeoBBox(wmsLayer);
             wmsLayer.setExtendedRequestBBox(this.extendedFittedRequestGeoBBox);
         }

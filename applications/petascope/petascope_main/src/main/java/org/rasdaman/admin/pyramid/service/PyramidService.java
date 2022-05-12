@@ -24,12 +24,14 @@ package org.rasdaman.admin.pyramid.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.cis.IndexAxis;
+import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,9 @@ import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_INTERVAL_SEPARATION;
 import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.metadata.service.CoordinateTranslationService;
+import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * Utility class to create downscaled collections for input WCS Coverage on
@@ -518,6 +523,64 @@ public class PyramidService {
         return result;
     }
     
+    /**
+     * Check if this pyramid member also contains the subsets for non-XY axes (e.g. time).
+     */
+    private boolean isGoodPyramidMemberForNonXYSubsets(List<WcpsSubsetDimension> nonXYSubsetDimensions, CoveragePyramid coveragePyramid) throws PetascopeException {
+        
+        if (nonXYSubsetDimensions != null && !nonXYSubsetDimensions.isEmpty()) {
+            // e.g. pyramid_member_2
+            String coverageId = coveragePyramid.getPyramidMemberCoverageId();
+            GeneralGridCoverage pyramidMemberCoverage = (GeneralGridCoverage)this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coverageId);
+            
+            for (WcpsSubsetDimension subsetDimension : nonXYSubsetDimensions) {
+                String axisLabel = subsetDimension.getAxisName();
+                GeoAxis geoAxis = pyramidMemberCoverage.getGeoAxisByName(axisLabel);
+                
+                BigDecimal geoLowerBound = null;
+                BigDecimal geoUpperBound = null;
+                
+                if (subsetDimension instanceof WcpsSliceSubsetDimension) {
+                    WcpsSliceSubsetDimension sliceSubset = (WcpsSliceSubsetDimension)subsetDimension;
+                    geoLowerBound = new BigDecimal((sliceSubset.getBound()));
+                } else {
+                    WcpsTrimSubsetDimension trimSubset = (WcpsTrimSubsetDimension)subsetDimension;
+                    geoLowerBound = new BigDecimal((trimSubset.getLowerBound()));
+                    geoUpperBound = new BigDecimal((trimSubset.getUpperBound()));
+                }
+                
+                if (!BigDecimalUtil.isValidValue(geoAxis.getLowerBoundNumber(), geoAxis.getUpperBoundNumber(), geoLowerBound)) {
+                    return false;
+                }
+                if (!BigDecimalUtil.isValidValue(geoAxis.getLowerBoundNumber(), geoAxis.getUpperBoundNumber(), geoUpperBound)) {
+                    return false;
+                }
+                
+                if (geoAxis instanceof IrregularAxis) {
+                    IrregularAxis irregularAxis = (IrregularAxis)geoAxis;
+                    BigDecimal coefficientZeroGeoBound = irregularAxis.getCoefficientZeroBoundNumber();
+                    
+                    // Check if subset on irregular axis of this pyramid member touches the existing coefficients
+                    // NOTE: a pyramid member can contain less coefficients than the base coverage
+                    BigDecimal geoLowerBoundCoefficient = geoLowerBound.subtract(coefficientZeroGeoBound);
+                    BigDecimal geoUpperBoundCoefficient = geoLowerBoundCoefficient;
+                    if (geoUpperBound != null) {
+                        geoUpperBoundCoefficient = geoUpperBound.subtract(coefficientZeroGeoBound);
+                    }
+
+                    Pair<Long, Long> pair = irregularAxis.getGridIndices(geoLowerBoundCoefficient, geoUpperBoundCoefficient);
+                    if (pair.fst == null || pair.snd == null) {
+                        return false;
+                    }
+                    
+                }
+            }
+            
+        }
+        
+        return true;
+    }
+    
     
     /**
     *  Given geo subsets on X and Y axes, and their scale target grid domains,
@@ -525,9 +588,8 @@ public class PyramidService {
     */
     public CoveragePyramid getSuitableCoveragePyramidForScaling(GeneralGridCoverage baseCoverage, 
                                              Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY, 
-                                             int width, int height) throws PetascopeException {
-        CoveragePyramid result = this.createBaseCoveragePyramid(baseCoverage);
-        
+                                             int width, int height,
+                                             List<WcpsSubsetDimension> nonXYSubsetDimensions) throws PetascopeException {
         Pair<GeoAxis, GeoAxis> baseXYGeoAxes = baseCoverage.getXYGeoAxes();
         GeoAxis baseXGeoAxis = baseXYGeoAxes.fst;
         GeoAxis baseYGeoAxis = baseXYGeoAxes.snd;
@@ -547,7 +609,13 @@ public class PyramidService {
                                                                                                        new BigDecimal(baseYIndexAxis.getLowerBound()));
         long numberOfBaseYGridPixels = baseYGridBounds.getUpperLimit() - baseYGridBounds.getLowerLimit() + 1;
         
-        for (CoveragePyramid coveragePyramid : baseCoverage.getPyramid()) {
+        CoveragePyramid result = this.createBaseCoveragePyramid(baseCoverage);
+        
+        List<CoveragePyramid> coveragePyramids = new ArrayList<>();
+        coveragePyramids.add(result);
+        coveragePyramids.addAll(baseCoverage.getPyramid());
+        
+        for (CoveragePyramid coveragePyramid : coveragePyramids) {
             GeneralGridCoverage pyramidMemberCoverage = (GeneralGridCoverage)this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coveragePyramid.getPyramidMemberCoverageId());
             Pair<GeoAxis, GeoAxis> pyramidMemberXYGeoAxes = pyramidMemberCoverage.getXYGeoAxes();
             
@@ -583,12 +651,18 @@ public class PyramidService {
                                                                                                        new BigDecimal(pyramidMemberYIndexAxis.getLowerBound()));
                 long numberOfPyramidMemberYGridPixels = pyramidMemberYGridBounds.getUpperLimit() - pyramidMemberYGridBounds.getLowerLimit() + 1;
                 
-                if ((numberOfPyramidMemberXGridPixels <= numberOfBaseXGridPixels && numberOfPyramidMemberXGridPixels > width)
-                    || (numberOfPyramidMemberYGridPixels <= numberOfBaseYGridPixels && numberOfPyramidMemberYGridPixels > height)) {
-                    result = coveragePyramid;
-                } else {
-                    return result;
+                
+                // NOTE: if a pyramid member also contains subsetting coefficients for irregular axis (e.g. time), then it can be considered as a candidate
+                if (this.isGoodPyramidMemberForNonXYSubsets(nonXYSubsetDimensions, coveragePyramid)) {
+                    if ((numberOfPyramidMemberXGridPixels <= numberOfBaseXGridPixels && numberOfPyramidMemberXGridPixels > width)
+                        || (numberOfPyramidMemberYGridPixels <= numberOfBaseYGridPixels && numberOfPyramidMemberYGridPixels > height)) {
+                        result = coveragePyramid;
+                    } else {
+                        return result;
+                    }
                 }
+            } else {
+                result = coveragePyramid;
             }
             
         }

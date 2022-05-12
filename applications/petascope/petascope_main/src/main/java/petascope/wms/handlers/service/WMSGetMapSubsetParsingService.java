@@ -57,6 +57,39 @@ public class WMSGetMapSubsetParsingService {
     private CoordinateTranslationService coordinateTranslationService;
     
     /**
+     * Given WMS request which contain the dim subsets (in case coverage is 3D+), parse them to the list of WCPS subsets
+     */
+    public List<WcpsSubsetDimension> translateDimensionsMap(WcpsCoverageMetadata wcpsCoverageMetadata, Map<String, String> dimSubsetsMap) throws PetascopeException {
+        List<WcpsSubsetDimension> results = new ArrayList<>();
+        for (Axis axis : wcpsCoverageMetadata.getNonXYAxes()) {
+            String axisLabel = axis.getLabel();
+            if (axis.isTimeAxis()) {
+                axisLabel = KVPSymbols.KEY_WMS_TIME;
+            } else if (axis.isElevationAxis()) {
+                axisLabel = KVPSymbols.KEY_WMS_ELEVATION;
+            }
+            
+            String dimSubset = dimSubsetsMap.get(axisLabel);
+            if (dimSubset != null) {
+                List<ParsedSubset<BigDecimal>> parsedSubsets = this.parseDimensionSubset(axis, dimSubset);
+
+                for (ParsedSubset<BigDecimal> parsedSubset : parsedSubsets) {
+                    String geoLowerBound = parsedSubset.getLowerLimit().toPlainString();
+                    String geoUpperBound = parsedSubset.getUpperLimit().toPlainString();
+
+                    WcpsSubsetDimension subsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), 
+                                                                    geoLowerBound,
+                                                                    geoUpperBound);
+
+                    results.add(subsetDimension);
+                }
+            }
+        }
+        
+        return results;
+    }
+    
+    /**
      * From the input params time=..., elevation=..., dim_* (optional))
      * translate all these geo subsets to grid domains for all layers.
      * 

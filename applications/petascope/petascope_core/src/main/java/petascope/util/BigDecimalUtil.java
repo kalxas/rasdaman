@@ -332,5 +332,12 @@ public class BigDecimalUtil {
         
         return result;
     }
+    
+    /**
+     * The value must be in the inveral [min, max]
+     */
+    public static boolean isValidValue(BigDecimal minLowerBound, BigDecimal maxLowerBound, BigDecimal bound) {
+        return bound.compareTo(minLowerBound) >=0 && bound.compareTo(maxLowerBound) <= 0;
+    }
 
 }

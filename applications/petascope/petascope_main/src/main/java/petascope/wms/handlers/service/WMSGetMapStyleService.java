@@ -226,17 +226,17 @@ public class WMSGetMapStyleService {
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getRequestBBox(), wmsLayer.getLayerName());
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getExtendedRequestBBox(), wmsLayer.getLayerName());
         
-        List<WcpsSubsetDimension> wcpsSubsetDimensions = this.wmsGetMapSubsetTranslatingService.parseWcpsSubsetDimensions(wcpsCoverageMetadata, 
+        WcpsCoverageMetadata wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
+        
+        List<WcpsSubsetDimension> wcpsSubsetDimensions = this.wmsGetMapSubsetTranslatingService.parseWcpsSubsetDimensions(wcpsCoverageMetadataTmp, 
                                                                                                            wmsLayer.getExtendedRequestBBox());
-        
-        
         if (nonXYGridSliceSubsetDimensions != null) {
             // Only for 3rd+ layers
             wcpsSubsetDimensions.addAll(nonXYGridSliceSubsetDimensions);
         }
 
-        wmsLayer.setLayerName(this.stripDollarSign(layerNameIterator));
-        WcpsCoverageMetadata wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
+        wmsLayer.setLayerName(this.stripDollarSign(layerNameIterator));        
+
 
         WcpsResult wcpsResult = this.wmsGetMapSubsetTranslatingService.applyWCPSGeoSubsets(wcpsCoverageMetadataTmp, 
                                                                                 wcpsSubsetDimensions);

@@ -21,7 +21,10 @@
  */
 package petascope.wms.handlers.model;
 
+import java.util.List;
+import java.util.Map;
 import petascope.core.BoundingBox;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 
 /**
  * Model class contains some basic properties for a WMS layer
@@ -39,14 +42,19 @@ public class WMSLayer {
    private BoundingBox extendedRequestBBox;
    private final Integer width;
    private final Integer height;
+   
+   // List of WCPS subsets on nonXY axes (e.g. time / elevation,...)
+   private List<WcpsSubsetDimension> nonXYSubsetDimensions;
 
-    public WMSLayer(String layerName, BoundingBox originalXYBoundsBBox, BoundingBox requestBBox, BoundingBox extendedRequestBBox, Integer width, Integer height) {
+    public WMSLayer(String layerName, BoundingBox originalXYBoundsBBox, BoundingBox requestBBox, BoundingBox extendedRequestBBox, Integer width, Integer height,
+                    List<WcpsSubsetDimension> subsetDimensions) {
         this.layerName = layerName;
         this.originalXYBoundsBBox = originalXYBoundsBBox;
         this.requestBBox = requestBBox;
         this.extendedRequestBBox = extendedRequestBBox;
         this.width = width;
         this.height = height;
+        this.nonXYSubsetDimensions = subsetDimensions;
     }
 
     public void setLayerName(String layerName) {
@@ -83,6 +91,10 @@ public class WMSLayer {
 
     public BoundingBox getExtendedRequestBBox() {
         return extendedRequestBBox;
+    }
+
+    public List<WcpsSubsetDimension> getNonXYSubsetDimensions() {
+        return nonXYSubsetDimensions;
     }
     
 }
