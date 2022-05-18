@@ -14,9 +14,9 @@
 
   "input": {
 
-    "coverage_id": "test_world_temp", 
+    "coverage_id": "test_world_temperature_subset", 
     "paths": [
-      "world_temperature.tiff"
+      "*.tiff"
     ]
 
   },
@@ -26,7 +26,6 @@
     "name": "map_mosaic", 
 
     "options": {
-
       "wms_import": true,
  	  "tiling": "ALIGNED [0:500, 0:500]"
     }

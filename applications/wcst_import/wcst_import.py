@@ -197,7 +197,8 @@ def main():
     try:
         ConfigManager.gdal_cache_size = int(arguments.gdal_cache_size)
         if ConfigManager.gdal_cache_size < -1:
-            raise RuntimeException()
+            # this exception will be caught in the except below
+            raise RuntimeException("")
     except Exception as ex:
         raise RecipeValidationException("Value for gdal-cache-size must be integer >= -1. Given: " + str(arguments.gdal_cache_size))
 

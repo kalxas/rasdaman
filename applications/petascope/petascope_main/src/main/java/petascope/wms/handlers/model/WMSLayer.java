@@ -97,4 +97,8 @@ public class WMSLayer {
         return nonXYSubsetDimensions;
     }
     
+    @Override
+    public String toString() {
+        return this.layerName;
+    }
 }
