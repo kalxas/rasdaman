@@ -147,21 +147,6 @@ public class XMLUtil {
         
         return result;
     }
-
-    static class MyBuilder extends ThreadLocal<Builder> {
-
-        boolean validating;
-
-        public MyBuilder(boolean validating) {
-            this.validating = validating;
-        }
-
-        @Override
-        protected Builder initialValue() {
-            factory.setValidating(validating);
-            return newBuilder(!validating);
-        }
-    }
     /**
      * Separator, for debugging
      */
@@ -172,7 +157,7 @@ public class XMLUtil {
      */
     private static SchemaFactory schemaFactory;
     private static SAXParserFactory factory;
-    private static MyBuilder builder;
+    private static Builder builder;
     private static File wcsSchema;
     public static final String XML_STD_ENCODING = "UTF-8";
     public static final String WCS_SCHEMA = "xml/ogc/wcs/2.0.0/wcsAll.xsd";
@@ -210,43 +195,7 @@ public class XMLUtil {
 
         factory.setNamespaceAware(true);
         factory.setValidating(true);
-        builder = new MyBuilder(false);
-        builder.get();
-    }
-
-    private static Builder newBuilder(boolean ignoreDTD) {
-        XMLReader xmlReader = null;
-        try {
-            xmlReader = factory.newSAXParser().getXMLReader();
-            if (ignoreDTD) {
-                xmlReader.setEntityResolver(new EntityResolver() {
-
-                    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                        return new InputSource(new StringReader(""));
-                    }
-                });
-                xmlReader.setErrorHandler(new ErrorHandler() {
-
-                    @Override
-                    public void warning(SAXParseException saxpe) throws SAXException {
-                        log.warn("XML parser warning: ", saxpe.getMessage());
-                    }
-
-                    @Override
-                    public void error(SAXParseException saxpe) throws SAXException {
-                        throw saxpe;
-                    }
-
-                    @Override
-                    public void fatalError(SAXParseException saxpe) throws SAXException {
-                        throw saxpe;
-                    }
-                });
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return new Builder(xmlReader);
+        builder = new Builder(false);
     }
 
     /**
@@ -294,7 +243,7 @@ public class XMLUtil {
         Document doc = null;
 
         try {
-            doc = builder.get().build(in, baseURI);
+            doc = builder.build(in, baseURI);
         } catch (ParsingException ex) {
             throw new PetascopeException(ExceptionCode.InternalComponentError, "Error while building XML document '" + baseURI + "'. error '" + ex.getMessage() + "', line '" + ex.getLineNumber() + "', column '" + ex.getColumnNumber() + "'.");
         } catch (IOException ex) {
