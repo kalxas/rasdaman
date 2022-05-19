@@ -168,12 +168,38 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 #
+# Optimization flags for particular instruction sets
+#
+set(ENABLE_AVX512 OFF CACHE BOOL "Enable compiling for the AVX-512 instruction set.")
+set(ENABLE_AVX2 OFF CACHE BOOL "Enable compiling for the AVX2 instruction set.")
+set(ENABLE_AVX OFF CACHE BOOL "Enable compiling for the AVX instruction set.")
+set(ENABLE_SSE42 ON CACHE BOOL "Enable compiling for the SSE4.2 instruction set.")
+set(OPT_FLAGS "")
+if (ENABLE_AVX512)
+    # skylake-x (2015+)
+    set(OPT_FLAGS "-mavx -mavx2 -mfma -mavx512f -mavx512cd -mavx512vl -mavx512dq -mavx512bw")
+    message(STATUS "AVX-512 enabled (-ENABLE_AVX512=${ENABLE_AVX512}).")
+elseif (ENABLE_AVX2)
+    # Haswell (2013+)
+    set(OPT_FLAGS "-mavx -mavx2 -mfma")
+    message(STATUS "AVX2 enabled (-ENABLE_AVX2=${ENABLE_AVX2}).")
+elseif (ENABLE_AVX)
+    # Sandy Bridge (2011+)
+    set(OPT_FLAGS "-mavx")
+    message(STATUS "AVX enabled (-ENABLE_AVX=${ENABLE_AVX}).")
+elseif (ENABLE_SSE42)
+    # 2008+
+    set(OPT_FLAGS "-msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2")
+    message(STATUS "SSE4.2 enabled (-ENABLE_SSE42=${ENABLE_SSE42}).")
+endif ()
+
+#
 # Set compiler flags
 #
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG} ${OPT_FLAGS}")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG} ${OPT_FLAGS}")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG} ${OPT_FLAGS}")
+SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG} ${OPT_FLAGS}")
 
 set(PROJECT_RASDAMAN 1)
 add_definitions(-DPROJECT_RASDAMAN)
