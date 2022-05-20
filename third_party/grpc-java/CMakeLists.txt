@@ -35,22 +35,16 @@ if (ENABLE_JAVA)
     set(GRPC_JAVA_PLUGIN_EXECUTABLE_PATH ${GRPC_JAVA_BINARY_DIR}/protoc-gen-grpc-java)
     set(GRPC_JAVA_PLUGIN_EXECUTABLE protoc-gen-grpc-java)
 
-    # Compile the plugin
-    add_executable(${GRPC_JAVA_PLUGIN_EXECUTABLE}
-            ${GRPC_JAVA_SOURCE_DIR}/java_generator.cpp
-            ${GRPC_JAVA_SOURCE_DIR}/java_generator.h
-            ${GRPC_JAVA_SOURCE_DIR}/java_plugin.cpp)
-    add_dependencies(${GRPC_JAVA_PLUGIN_EXECUTABLE} google-grpc)
-    include_directories(${PROTOBUF_INCLUDE_DIR})
-    target_link_libraries(${GRPC_JAVA_PLUGIN_EXECUTABLE}
-            ${PROTOBUF_BINARY_DIR}/lib/libprotoc.a ${PROTOBUF_BINARY_DIR}/lib/libprotobuf.a)
+    add_custom_command(
+        OUTPUT ${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH}
+        COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${GRPC_JAVA_BINARY_DIR}"
+        COMMAND ${CMAKE_CXX_COMPILER} ARGS -std=c++11 -O2 -pthread -I${PROTOBUF_INCLUDE_DIR} ${GRPC_JAVA_SOURCE_DIR}/java_generator.cpp ${GRPC_JAVA_SOURCE_DIR}/java_generator.h ${GRPC_JAVA_SOURCE_DIR}/java_plugin.cpp -o ${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH} ${PROTOBUF_BINARY_DIR}/lib/libprotoc.a ${PROTOBUF_BINARY_DIR}/lib/libprotobuf.a
+        DEPENDS google-grpc
+        COMMENT "Building GRPC Java plugin."
+    )
 
-    # Install the plugin
-    add_custom_command(TARGET ${GRPC_JAVA_PLUGIN_EXECUTABLE} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${GRPC_JAVA_BINARY_DIR}"
-            COMMAND ${CMAKE_COMMAND} -E copy
-                    "${GRPC_JAVA_PLUGIN_EXECUTABLE}"
-                    "${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH}")
+    add_custom_target(${GRPC_JAVA_PLUGIN_EXECUTABLE}
+        DEPENDS ${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH})
 
     set_property(TARGET ${GRPC_JAVA_PLUGIN_EXECUTABLE} PROPERTY IMPORTED_LOCATION
             ${GRPC_JAVA_PLUGIN_EXECUTABLE_PATH})
