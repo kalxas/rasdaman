@@ -294,6 +294,7 @@ QtConversion::evaluate(QtDataList *inputList)
             }
             else
             {
+                LERROR << "Format conversion failed: " << err.what();
                 parseInfo.setErrorNo(381);
             }
             throw parseInfo;

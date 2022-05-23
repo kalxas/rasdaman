@@ -123,6 +123,11 @@ class StringUtil {
    * Remove any escape characters '\' from s in place.
    */
   static void unescapeCharacters(std::string &s);
+  
+  /**
+   * @return true if s contains subString, false otherwise.
+   */
+  static bool contains(const std::string &s, const std::string &subString);
 };
 
 } // namespace common
