@@ -25,12 +25,14 @@ import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,13 +43,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.maven.wagon.util.FileUtils;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import static org.rasdaman.config.ConfigManager.UPLOAD_FILE_PREFIX;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import static petascope.controller.AuthenticationController.READ_WRITE_RIGHTS;
 import petascope.controller.handler.service.AbstractHandler;
 import petascope.controller.handler.service.XMLWCSServiceHandler;
@@ -67,6 +72,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.PetascopeRuntimeException;
 import petascope.util.ExceptionUtil;
+import petascope.util.IOUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.StringUtil;
@@ -162,41 +168,62 @@ public abstract class AbstractController {
      * Parse the content of POST request to a map of key values pair
      */
     protected Map<String, String[]> parsePostRequestToKVPMap(HttpServletRequest httpServletRequest) throws IOException, Exception {
-        Map<String, String[]> kvpParameters;
+        Map<String, String[]> kvpParameters = new LinkedHashMap<>();;
         String queryString = httpServletRequest.getQueryString();
         // in case with POST KVP format
-            
-        String requestContentType = httpServletRequest.getContentType();
-        if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)
-            || requestContentType.contains(POST_TEXT_PLAIN_CONTENT_TYPE)
-            || requestContentType.contains(POST_XML_CONTENT_TYPE)
-            || requestContentType.contains(POST_XML_SOAP_CONTENT_TYPE)) {
-            // post request without files in body
-            String postBody = this.getPOSTRequestBody(httpServletRequest);
-            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-        } else {
-            // post request with files in body
-            for (Part part : httpServletRequest.getParts()) {
-                // e.g: query=for ...
-                String key = part.getName();
-                byte[] bytes = IOUtils.toByteArray(part.getInputStream());
-
-                if (part.getContentType() == null) {
-                    // KEY=VALUE as string                        
-                    String value = new String(bytes);
-                    queryString += AND_SIGN + key + EQUAL_SIGN + value;
-                } else {
-                    // KEY=Uploaded_File_Content as binary (e.g: $1=/tmp/test.tif)                        
-                    String fileName = getSubmittedFileName(part);
-                    // stored file in servere.g: /tmp/rasdaman_petascope/rasdman.test.1122332.tif
-                    String uploadedFilePath = this.storeUploadFileOnServer(fileName, bytes);
-                    queryString += AND_SIGN + key + EQUAL_SIGN + uploadedFilePath;
-                }
-            }
-
-            kvpParameters = this.buildPostRequestKvpParametersMap(queryString);
-        }            
         
+        boolean isMultipart = httpServletRequest instanceof StandardMultipartHttpServletRequest;
+            
+        if (isMultipart) {
+            StandardMultipartHttpServletRequest request = (StandardMultipartHttpServletRequest)httpServletRequest;
+            for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+                String key = entry.getKey().toLowerCase();
+                String[] values = entry.getValue();
+                kvpParameters.put(key, values);
+            }
+            
+            for (Map.Entry<String, List<MultipartFile>> entry : request.getMultiFileMap().entrySet()) {
+                MultipartFile firstMultipartFile = entry.getValue().get(0);
+                String fileName = firstMultipartFile.getOriginalFilename();
+                
+                String uploadedFilePath = this.getUploadedFilePathOnServer(fileName, firstMultipartFile.getBytes());
+                kvpParameters.put(KVPSymbols.KEY_INTERNAL_UPLOADED_FILE_PATH.toLowerCase(), new String[] { uploadedFilePath });
+                
+                break;
+            }
+            
+        } else {
+            String requestContentType = httpServletRequest.getContentType();
+            if (requestContentType == null || requestContentType.equals(POST_STRING_CONTENT_TYPE)
+                || requestContentType.contains(POST_TEXT_PLAIN_CONTENT_TYPE)
+                || requestContentType.contains(POST_XML_CONTENT_TYPE)
+                || requestContentType.contains(POST_XML_SOAP_CONTENT_TYPE)) {
+                // post request without files in body
+                String postBody = this.getPOSTRequestBody(httpServletRequest);
+                kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+            } else {
+                // post request with files in body
+                for (Part part : httpServletRequest.getParts()) {
+                    // e.g: query=for ...
+                    String key = part.getName();
+                    byte[] bytes = IOUtils.toByteArray(part.getInputStream());
+
+                    if (part.getContentType() == null) {
+                        // KEY=VALUE as string                        
+                        String value = new String(bytes);
+                        queryString += AND_SIGN + key + EQUAL_SIGN + value;
+                    } else {
+                        // KEY=Uploaded_File_Content as binary (e.g: $1=/tmp/test.tif)                        
+                        String fileName = getSubmittedFileName(part);
+                        // stored file in servere.g: /tmp/rasdaman_petascope/rasdman.test.1122332.tif
+                        String uploadedFilePath = this.getUploadedFilePathOnServer(fileName, bytes);
+                        queryString += AND_SIGN + key + EQUAL_SIGN + uploadedFilePath;
+                    }
+                }
+
+                kvpParameters = this.buildPostRequestKvpParametersMap(queryString);
+            }
+        }        
         
         return kvpParameters;
     }
@@ -249,7 +276,8 @@ public abstract class AbstractController {
      */
     private Map<String, String[]> buildKvpParametersMap(String queryString) throws PetascopeException {
         // It needs to relax the key parameters with case insensitive, e.g: request=DescribeCoverage or REQUEST=DescribeCoverage is ok
-        Map<String, String[]> kvpParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        
+        Map<String, String[]> kvpParameters = new LinkedCaseInsensitiveMap<>();
         
         final String QUERY = "query=";
 
@@ -368,17 +396,19 @@ public abstract class AbstractController {
      * Write the uploaded file from client and store to a folder in server
      * @return the stored file path in server
      */
-    protected String storeUploadFileOnServer(String uploadedFileName, byte[] bytes) throws PetascopeException {
+    protected String getUploadedFilePathOnServer(String uploadedFileName, byte[] bytes) throws PetascopeException {
+        
+        DateFormat formatter = new SimpleDateFormat("yyyy_MM_dd");
+        String date = formatter.format(new Date());
+        String dataDirPath = ConfigManager.UPLOADED_FILE_DIR_TMP + "/" + date;
+        IOUtil.makeDir(dataDirPath);
         
         uploadedFileName = StringUtil.replaceSpecialCharacters(uploadedFileName);
-
-        // Check if temp folder exist first
-        File folderPath = new File(UPLOADED_FILE_DIR_TMP);
-        if (!folderPath.exists()) {
-            folderPath.mkdir();
+        String filePath = dataDirPath + "/" + uploadedFileName;
+        if (Files.exists(Paths.get(filePath))) {
+            filePath = StringUtil.addDateTimeSuffix(filePath);
         }
-        String fileName = StringUtil.addDateTimeSuffix(UPLOAD_FILE_PREFIX + uploadedFileName);
-        String filePath = UPLOADED_FILE_DIR_TMP + "/" + fileName;
+
         Path path = Paths.get(filePath);
         try {
             Files.write(path, bytes);
@@ -614,7 +644,7 @@ public abstract class AbstractController {
         // decode e.g. request=GetMap&amp;format=png -> request=GetMap&format=png
         queryString = StringEscapeUtils.unescapeHtml4(queryString);
         
-        Map<String, String[]> parametersMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, String[]> parametersMap = new LinkedCaseInsensitiveMap<>();
         if (!queryString.equals("")) {
             
             String[] keyValuesTmp = queryString.split("&");

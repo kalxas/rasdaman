@@ -167,17 +167,6 @@ public class PetascopeController extends AbstractController {
                 requestSuccess = false;
                 throw new PetascopeRuntimeException(version, ex);
             } finally {
-                 // Here, the uploaded file (if exists) should be removed
-                for (String[] values : kvpParameters.values()) {
-                    for (String value : values) {
-                        if (value.startsWith(UPLOADED_FILE_DIR_TMP)) {
-                            File file = new File(value);
-                            if (file.exists()) {
-                                file.delete();
-                            }
-                        }
-                    }
-                }
 
                 long endTime = System.currentTimeMillis();
                 long totalTime = endTime - startTime;

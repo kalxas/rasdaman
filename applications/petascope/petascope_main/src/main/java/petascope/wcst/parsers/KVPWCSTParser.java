@@ -32,6 +32,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import petascope.controller.AbstractController;
 import petascope.exceptions.WCSException;
 import petascope.wcst.exceptions.WCSTInvalidRequestException;
 import petascope.wcst.exceptions.WCSTMissingCoverageParameter;
@@ -49,6 +50,8 @@ import static petascope.core.KVPSymbols.KEY_PIXEL_DATA_TYPE;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import static petascope.core.KVPSymbols.KEY_TILING;
 import static petascope.core.KVPSymbols.KEY_USE_ID;
+import static petascope.core.KVPSymbols.USE_EXISTING_ID;
+import static petascope.core.KVPSymbols.USE_NEW_ID;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
@@ -82,13 +85,15 @@ public class KVPWCSTParser {
             //validate the request against WCS-T spec requirements
             validateInsertCoverageRequest(kvpParameters);
             String useId = "";
-            if (kvpParameters.get(KEY_USE_ID) != null) {
-                useId = kvpParameters.get(KEY_USE_ID)[0];
+            String value = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_USE_ID);
+            if (value != null) {
+                useId = value;
             }
-            String gmlCoverage = kvpParameters.get(KEY_COVERAGE) == null ? null : kvpParameters.get(KEY_COVERAGE)[0];
-            String coverageRef = kvpParameters.get(KEY_COVERAGE_REF) == null ? null : kvpParameters.get(KEY_COVERAGE_REF)[0];
-            String pixelDataType = kvpParameters.get(KEY_PIXEL_DATA_TYPE) == null ? null : kvpParameters.get(KEY_PIXEL_DATA_TYPE)[0];
-            String tiling = kvpParameters.get(KEY_TILING) == null ? null : kvpParameters.get(KEY_TILING)[0];
+            
+            String gmlCoverage = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_COVERAGE);
+            String coverageRef = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_COVERAGE_REF);
+            String pixelDataType = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_PIXEL_DATA_TYPE);
+            String tiling = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_TILING);
             InsertCoverageRequest insertCoverageRequest = new InsertCoverageRequest(
                     gmlCoverage,
                     parseCoverageRefUrl(coverageRef),
@@ -98,53 +103,35 @@ public class KVPWCSTParser {
 
             return insertCoverageRequest;
         } else if (requestType.equals(KVPSymbols.VALUE_DELETE_COVERAGE)) {
-            String coverageId = kvpParameters.get(KEY_COVERAGEID) == null ? null : kvpParameters.get(KEY_COVERAGEID)[0];
+            String coverageId = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_COVERAGEID);
 
             return new DeleteCoverageRequest(coverageId);
         } else if (requestType.equals(KVPSymbols.VALUE_UPDATE_COVERAGE)) {
             //update coverage request received
-            String coverageId = kvpParameters.get(KEY_COVERAGEID) == null ? null : kvpParameters.get(KEY_COVERAGEID)[0];
-            String inputCoverage = kvpParameters.get(KEY_INPUT_COVERAGE) == null ? null : kvpParameters.get(KEY_INPUT_COVERAGE)[0];
-            String inputCoverageRef = kvpParameters.get(KEY_INPUT_COVERAGE_REF) == null ? null : kvpParameters.get(KEY_INPUT_COVERAGE_REF)[0];
+            String coverageId = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_COVERAGEID);
+            String inputCoverage = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_INPUT_COVERAGE);
+            String inputCoverageRef = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_INPUT_COVERAGE_REF);
             URL inputCoverageRefURL = parseCoverageRefUrl(inputCoverageRef);
 
-            String maskGrid = kvpParameters.get(KEY_MASK_GRID) == null ? null : kvpParameters.get(KEY_MASK_GRID)[0];
-            String maskGridRef = kvpParameters.get(KEY_MASK_GRID_REF) == null ? null : kvpParameters.get(KEY_MASK_GRID_REF)[0];
+            String maskGrid = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_MASK_GRID);
+            String maskGridRef = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_MASK_GRID_REF);
             URL maskGridRefURL = parseCoverageRefUrl(maskGridRef);
 
             List<AbstractSubsetDimension> subsets = SubsetDimensionParserService.parseSubsets(kvpParameters.get(KVPSymbols.KEY_SUBSET));
             List<Pair<String, String>> rangeComponents = new ArrayList<>();
-            String tiling = kvpParameters.get(KEY_TILING) == null ? null : kvpParameters.get(KEY_TILING)[0];
-
+            String tiling = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_TILING);
+            
+            String uploadedFilePath = AbstractController.getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_INTERNAL_UPLOADED_FILE_PATH);
+            
             UpdateCoverageRequest updateCoverageRequest = new UpdateCoverageRequest(coverageId, inputCoverage, inputCoverageRefURL,
-                    maskGrid, maskGridRefURL, subsets, rangeComponents, null, tiling);
+                    maskGrid, maskGridRefURL, subsets, rangeComponents, null, tiling, uploadedFilePath);
 
             return updateCoverageRequest;
         }
 
         //not a request that this parser can parse, but canParse returned true
         //should never happen
-        log.error("Invalid request type: " + kvpParameters.get(KEY_REQUEST)[0] + ". This parser can not parse requests of this type.");
         throw new WCSTInvalidRequestException(kvpParameters.get(KEY_REQUEST)[0]);
-    }
-    
-    /**
-     * Check if level parameter for InsertScaleLevel request should be integer and greater than 1.
-     */
-    private BigDecimal getScaleLevel(Map<String, String[]> kvpParameters) throws WCSTScaleLevelNotValid, WCSTMissingMandatoryParameter {
-        BigDecimal level = BigDecimal.ONE;
-        try {
-            level = kvpParameters.get(KEY_LEVEL) == null ? null : new BigDecimal(kvpParameters.get(KEY_LEVEL)[0]);
-            if (level == null) {
-                throw new WCSTMissingMandatoryParameter(KEY_LEVEL);
-            } else if (level.compareTo(BigDecimal.ONE) <= 0) {
-                throw new NumberFormatException();
-            }
-        } catch (NumberFormatException ex) {
-            throw new WCSTScaleLevelNotValid(kvpParameters.get(KEY_LEVEL)[0]);
-        }
-        
-        return level;
     }
 
     /**
@@ -191,15 +178,5 @@ public class KVPWCSTParser {
     }
 
     private final static String WCTS_OPERATION_NAME = "WCSTOperation";
-
-    /**
-     * Values: case sensitive!
-     */
-    private final static String USE_EXISTING_ID = "existing";
-    private final static String USE_NEW_ID = "new";
-
-    /**
-     * Keys: case INsensitive!
-     */
 
 }

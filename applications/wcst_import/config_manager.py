@@ -31,6 +31,8 @@ class ConfigManager:
      below serve only as documentation
     """
     wcs_service = "http://localhost:8080/rasdaman/ows"
+    service_is_local = True
+
     admin_service = "http://localhost:8080/rasdaman/admin"
     crs_resolver = ""
     default_crs = "http://localhost:8080/def/OGC/0/Index2D"

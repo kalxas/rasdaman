@@ -27,6 +27,7 @@ from collections import OrderedDict
 
 from util.log import log, make_bold
 from util.url_util import validate_and_read_url
+from util.url_util import send_post_request
 from util.import_util import encode_res, decode_res
 
 import sys
@@ -192,7 +193,7 @@ class WCSTUpdateRequest(WCSTRequest):
     Class to perform WCST update requests
     """
 
-    def __init__(self, coverage_id, input_coverage_ref, subsets, insitu=None, input_coverage=None):
+    def __init__(self, coverage_id, input_coverage_ref, subsets, insitu=None, input_coverage=None, file_path=None):
         """
         Constructor for the class
 
@@ -206,6 +207,7 @@ class WCSTUpdateRequest(WCSTRequest):
         self.subsets = subsets
         self.insitu = insitu
         self.input_coverage = input_coverage
+        self.file_path = file_path
 
     def _get_request_type(self):
         return self.__REQUEST_TYPE
@@ -232,11 +234,40 @@ class WCSTUpdateRequest(WCSTRequest):
 
         return request_kvp
 
+    def get_request_params(self):
+        key_values_dict = OrderedDict()
+        key_values_dict[self.SERVICE_PARAMETER] = self.SERVICE_VALUE
+        key_values_dict[self.VERSION_PARAMETER] = self.VERSION_VALUE
+        key_values_dict[self.REQUEST_PARAMETER] = self._get_request_type()
+        key_values_dict[self.__COVERAGE_ID_PARAMETER] = self.coverage_id
+
+        subsets = []
+        for subset in self.subsets:
+            # e.g. Lat(20:30)
+            subsets.append(subset.to_request_kvp())
+
+        key_values_dict[self.__SUBSET_PARAM_NAME] = subsets
+
+        if self.input_coverage is not None:
+            key_values_dict[self.__INPUT_COVERAGE_PARAMATER] = self.input_coverage
+
+        if self.input_coverage_ref is not None:
+            key_values_dict[self.__INPUT_COVERAGE_REF_PARAMETER] = self.input_coverage_ref
+
+        if self.insitu is not None and self.insitu is not False:
+            key_values_dict[self.__INSITU_PARAMETER] = True
+
+        return key_values_dict
+
+    def _get_file_path(self):
+        return self.file_path
+
     __SUBSET_PARAM_NAME = "subset"
     __COVERAGE_ID_PARAMETER = "coverageId"
     __INPUT_COVERAGE_PARAMATER = "inputCoverage"
     __INPUT_COVERAGE_REF_PARAMETER = "inputCoverageRef"
     __REQUEST_TYPE = "UpdateCoverage"
+    __INSITU_PARAMETER = "insitu"
 
 
 class WCSTDeleteRequest(WCSTRequest):
@@ -356,11 +387,19 @@ class WCSTExecutor(WCSTBaseExecutor):
             log.info(make_bold("This is just a mocked request, no data will be changed."))
             log.info(service_call)
             return
-        try:
-            response = decode_res(validate_and_read_url(base_url_tmp, request.get_query_string()))
-        except Exception as ex:
-            raise WCSTException(404, "Failed reading response from WCS service. "
-                                     "Detailed error: {}".format(str(ex)), service_call)
+
+        from config_manager import ConfigManager
+        if ConfigManager.service_is_local is False and isinstance(request, WCSTUpdateRequest):
+            # NOTE: WCS-T UpdateRequest can send file in case endpoint is not localhost
+            request_params = request.get_request_params()
+            file_path = request._get_file_path()
+            response = send_post_request(base_url_tmp, request_params, file_path)
+        else:
+            try:
+                response = decode_res(validate_and_read_url(base_url_tmp, request.get_query_string()))
+            except Exception as ex:
+                raise WCSTException(404, "Failed reading response from WCS service. "
+                                         "Detailed error: {}".format(str(ex)), service_call)
 
         namespaces = ""
 

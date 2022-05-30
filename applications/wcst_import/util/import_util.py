@@ -24,6 +24,13 @@
 from master.error.runtime_exception import RuntimeException
 from util.log import log
 import sys
+import urllib, base64
+if sys.version_info[0] < 3:
+    from urllib2 import Request, urlopen
+    from urllib import urlencode
+else:
+    from urllib.request import Request, urlopen
+    from urllib.parse import urlencode
 
 """
   Utilities to import optional dependencies and throw proper exceptions for user to install these missing libraries. 
@@ -120,3 +127,15 @@ def import_glob():
         log.warning("The glob package is not installed, ingredient file validation will be skipped. \
         To enable validation please install glob (sudo pip3 install glob)")
         pass
+
+
+def import_requests():
+    """
+    Import requests library
+    """
+    try:
+        import requests
+        return requests
+    except ImportError as e:
+        raise RuntimeException("Cannot import requests library, please install it first (sudo pip3 install requests). "
+                               "Reason: {}.".format(e))

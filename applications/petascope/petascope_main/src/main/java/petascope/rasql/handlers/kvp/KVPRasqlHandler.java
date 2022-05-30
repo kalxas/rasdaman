@@ -29,6 +29,7 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import petascope.controller.AbstractController;
+import petascope.core.KVPSymbols;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import static petascope.core.KVPSymbols.KEY_PASSWORD;
@@ -78,6 +79,9 @@ public class KVPRasqlHandler implements IKVPHandler {
 
         // check if user wants to upload file to server by find decode() or inv_*() in the requested query
         String filePath = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_UPLOADED_FILE_VALUE);
+        if (filePath == null) {
+            filePath = AbstractController.getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_INTERNAL_UPLOADED_FILE_PATH.toLowerCase());
+        }
 
         // select, delete, update without decode()
         Response response = this.executeQuery(userName, password, query, filePath);

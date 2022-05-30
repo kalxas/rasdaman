@@ -87,6 +87,7 @@ class Session:
         self.recipe = recipe
         self.input = inp
         self.wcs_service = config['service_url'] if "service_url" in config else None
+        self.service_is_local = bool(config['service_is_local']) if "service_is_local" in config else True
         if "tmp_directory" in config:
             self.tmp_directory = config['tmp_directory']
         else:
@@ -187,6 +188,10 @@ class Session:
         ConfigManager.tmp_directory = self.tmp_directory if self.tmp_directory[-1] == "/" else self.tmp_directory + "/"
         ConfigManager.root_url = self.root_url
         ConfigManager.wcs_service = self.wcs_service
+        ConfigManager.service_is_local = self.service_is_local
+        if ConfigManager.service_is_local is False and ConfigManager.insitu is True:
+            raise RecipeValidationException("Setting \"service_is_local\": false is not supported for registering data as insitu.")
+
         ConfigManager.admin_service = get_petascope_endpoint_without_ows(self.wcs_service) + "/admin"
 
         ConfigManager.executor = self.get_executor()

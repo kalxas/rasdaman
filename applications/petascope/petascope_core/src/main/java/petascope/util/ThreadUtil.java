@@ -36,6 +36,7 @@ import petascope.exceptions.PetascopeException;
 public class ThreadUtil {
     
     private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ThreadUtil.class);    
     
     /**

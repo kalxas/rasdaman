@@ -61,6 +61,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import nu.xom.Elements;
@@ -234,6 +236,12 @@ public class UpdateCoverageHandler {
             if (isLocalFile(fileUrl)) {
                 fileUrl = fileUrl.replace(FILE_PROTOCOL, "");
                 isLocal = true;
+                
+                // NOTE: In case the input file has been uploaded to the local server
+                // then use this file path instead of the client file path created inside the GML.
+                if (request.getUploadedFilePath() != null) {
+                    fileUrl = request.getUploadedFilePath();
+                }
             } else {
                 // remote file, get it as bytes
                 bytes = getReplacementValuesFromFileAsBytes(rangeSet);
@@ -252,7 +260,11 @@ public class UpdateCoverageHandler {
                     affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters, username, password,
                     isLocal, overviewIndex);
             if (isLocal) {
-                updater.updateWithFile();
+                updater.updateWithFile();                
+                if (request.getUploadedFilePath() != null) {
+                    // Remove the uploaded file after it has been updated to rasdaman
+                    Files.deleteIfExists(Paths.get(fileUrl));
+                }
             } else {
                 updater.updateWithBytes(bytes);                    
             }

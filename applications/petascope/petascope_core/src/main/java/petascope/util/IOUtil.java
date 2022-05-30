@@ -26,6 +26,8 @@ import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -245,6 +247,17 @@ public class IOUtil {
         } catch (Exception ex) {
             throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot make path '" + file.getAbsolutePath() + "' with full permission. "
                                          + "Reason: " + ex.getMessage(), ex);
+        }
+    }
+    
+    /**
+     * Creates a directory by creating all nonexistent parent directories first. Don't throw exception if the folder already exists.
+     */
+    public static void makeDir(String dirPath) throws PetascopeException {
+        try {
+            Files.createDirectories(Paths.get(dirPath));
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot create folder '" + dirPath + "'. Reason: " + ex.getMessage(), ex);
         }
     }
 

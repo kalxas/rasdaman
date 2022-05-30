@@ -138,7 +138,11 @@ class Importer:
                 if ConfigManager.mock:
                     request = WCSTUpdateRequest(self.coverage.coverage_id, gml_obj.get_url(), subsets, ConfigManager.insitu, None)
                 else:
-                    request = WCSTUpdateRequest(self.coverage.coverage_id, None, subsets, ConfigManager.insitu, gml_obj)
+                    file_path = None
+                    if hasattr(current.data_provider, "file"):
+                        file_path = current.data_provider.file.filepath
+
+                    request = WCSTUpdateRequest(self.coverage.coverage_id, None, subsets, ConfigManager.insitu, gml_obj, file_path)
 
                 executor = ConfigManager.executor
                 executor.execute(request, mock=ConfigManager.mock)

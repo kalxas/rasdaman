@@ -76,8 +76,7 @@ public class StringUtil {
 
     public static final String POST_XML_CONTENT_TYPE = "text/xml";
     public static final String POST_XML_SOAP_CONTENT_TYPE = "application/soap+xml";
-
-    
+  
     public static final Pattern squareBracketsPattern = Pattern.compile("\\[(.*?)\\]");
     
     /**

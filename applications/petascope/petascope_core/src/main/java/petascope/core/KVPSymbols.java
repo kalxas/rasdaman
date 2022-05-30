@@ -94,6 +94,14 @@ public interface KVPSymbols {
     String KEY_TILING = "tiling";
     String KEY_LEVEL = "level";
     
+
+    String USE_EXISTING_ID = "existing";
+    String USE_NEW_ID = "new";
+
+    
+    // used internally in petascope only
+    String KEY_INTERNAL_UPLOADED_FILE_PATH = "INTERNAL_uploadedFilePath";
+    
     // WCPS
     String VALUE_PROCESS_COVERAGES = "ProcessCoverages";
     String KEY_QUERY = "query";

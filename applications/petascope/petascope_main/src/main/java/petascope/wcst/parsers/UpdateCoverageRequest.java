@@ -56,6 +56,7 @@ public class UpdateCoverageRequest extends AbstractWCSTRequest {
     private String maskPolygon;
     private List<AbstractSubsetDimension> subsets;
     private String pixelDataType;
+    private String uploadedFilePath;
 
     /**
      * Class constructor.
@@ -70,7 +71,7 @@ public class UpdateCoverageRequest extends AbstractWCSTRequest {
      */
     public UpdateCoverageRequest(String coverageId, String inputCoverage, URL inputCoverageRef, String maskGrid,
                                  URL maskGridRef, List<AbstractSubsetDimension> subsets, List<Pair<String, String>> rangeComponent,
-                                 String maskPolygon, String pixelDataType) throws WCSTMissingCoverageIdException, WCSTMissingInputCoverageException {
+                                 String maskPolygon, String pixelDataType, String uploadedFilePath) throws WCSTMissingCoverageIdException, WCSTMissingInputCoverageException {
         this.coverageId = coverageId;
         this.inputCoverage = inputCoverage;
         this.inputCoverageRef = inputCoverageRef;
@@ -81,6 +82,7 @@ public class UpdateCoverageRequest extends AbstractWCSTRequest {
         this.subsets = subsets;
         this.pixelDataType = pixelDataType;
         validateRequestParameters();
+        this.uploadedFilePath = uploadedFilePath;
     }
 
     /**
@@ -170,5 +172,9 @@ public class UpdateCoverageRequest extends AbstractWCSTRequest {
 
     public String getPixelDataType() {
         return pixelDataType;
+    }
+
+    public String getUploadedFilePath() {
+        return uploadedFilePath;
     }
 }

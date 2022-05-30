@@ -2217,6 +2217,13 @@ config section
 
       "service_url": "http://localhost:8080/rasdaman/ows"
 
+* ``service_is_local`` -  ``true`` if the WCS service endpoint runs locally on the same machine,
+   ``false`` otherwise. When set to ``false``, the data to be imported will be uploaded
+   to the remote host. This may also be done even when the WCS service endpoint runs locally
+   but has no read permissions on the data files, in which case the only way to import the data
+   is by uploading it to the server; note, however, that this adds a performance penalty, 
+   so it should be avoided whenever possible. By default this setting is ``true``.
+
 * ``mock`` - Print WCS-T requests but do not execute anything if set to ``true``.
   Set to ``false`` by default.
 

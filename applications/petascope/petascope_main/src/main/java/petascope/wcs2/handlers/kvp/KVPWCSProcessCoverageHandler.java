@@ -21,6 +21,9 @@
  */
 package petascope.wcs2.handlers.kvp;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.exceptions.WCSException;
 import petascope.core.response.Response;
@@ -125,12 +128,12 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         
         String newWcpsQuery = this.adjustWcpsQueryByPositionalParameters(kvpParameters, wcpsQuery);
               
-        VisitorResult visitorResult;
+        VisitorResult visitorResult = wcpsTranslator.translate(newWcpsQuery);
+        WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
+
         List<byte[]> results = new ArrayList<>();
-        
+
         try {
-            visitorResult = wcpsTranslator.translate(newWcpsQuery);
-            WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
 
             if (visitorResult instanceof WcpsMetadataResult) {
                 results.add(executor.execute(visitorResult));
@@ -204,22 +207,32 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
             if (value != null) {            
                 if (value.startsWith(UPLOADED_FILE_DIR_TMP)) {
                     String filePath = value;
-                    // e.g: $1 -> /tmp/rasdaman_petacope/rasdaman...tif (uploaded file in POST body)
-                    //      $2 -> 5 (uploaded value in POST body)
-                    Coverage coverage = this.gdalFileToCoverageTranslatorService.translate(filePath);
+                    try {
+                        // e.g: $1 -> /tmp/rasdaman_petacope/rasdaman...tif (uploaded file in POST body)
+                        //      $2 -> 5 (uploaded value in POST body)
+                        Coverage coverage = this.gdalFileToCoverageTranslatorService.translate(filePath);
 
-                    // @TODO: until rasdaman works without error with SELECT decode() in rasql, a temp collection will be created for a temp coverage
-                    String decodeExpression = coverage.getRasdamanRangeSet().getDecodeExpression();
-                    this.insertCoverageHandler.insertTempCoverage(coverage, decodeExpression);
-                    // @TODO: a coverage from decode() does not have a rasdaman collection name. 
-                    // It sets this temp collection until the rasql SELECT decode() works fine
-                    coverage.getRasdamanRangeSet().setCollectionName(coverage.getCoverageId());
+                        // @TODO: until rasdaman works without error with SELECT decode() in rasql, a temp collection will be created for a temp coverage
+                        String decodeExpression = coverage.getRasdamanRangeSet().getDecodeExpression();
+                        this.insertCoverageHandler.insertTempCoverage(coverage, decodeExpression);
+                        // @TODO: a coverage from decode() does not have a rasdaman collection name. 
+                        // It sets this temp collection until the rasql SELECT decode() works fine
+                        coverage.getRasdamanRangeSet().setCollectionName(coverage.getCoverageId());
 
-                    String coverageId = coverage.getCoverageId();
-                    this.coverageRepositoryService.putToLocalCacheMap(coverageId, new Pair<>(coverage, true));
+                        String coverageId = coverage.getCoverageId();
+                        this.coverageRepositoryService.putToLocalCacheMap(coverageId, new Pair<>(coverage, true));
 
-                    // e.g: $1 -> (TEMP_COV_abc_202001010, /tmp/rasdaman_petacope/rasdaman...tif)
-                    this.tempCoverageRegistry.add(positionalParameter, coverageId, value);
+                        // e.g: $1 -> (TEMP_COV_abc_202001010, /tmp/rasdaman_petacope/rasdaman...tif)
+                        this.tempCoverageRegistry.add(positionalParameter, coverageId, value);
+                    } finally {
+                        try {
+                            // remove the uploaded file afterwards
+                            Files.deleteIfExists(Paths.get(filePath));
+                        } catch (IOException ex) {
+                            throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                                    "Cannot delete file '"  + filePath + "'. Reason: " + ex.getMessage(), ex);
+                        }
+                    }
                 } else {                
                     // e.g: replace $2 in query with 5
                     matcher.appendReplacement(stringBuffer, Matcher.quoteReplacement(value));

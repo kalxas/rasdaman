@@ -7,6 +7,9 @@
                 "service_url": {
                     "type": "string"
                 },
+                "service_is_local": {
+                    "type": "boolean"
+                },
                 "mock": {
                     "type": [ "boolean", "string" ]
                 },

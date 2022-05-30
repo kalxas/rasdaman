@@ -27,13 +27,15 @@ from util.string_util import parse_error_message
 
 if sys.version_info[0] < 3:
     from urllib2 import Request, urlopen
+    from urllib import urlencode
 else:
     from urllib.request import Request, urlopen
+    from urllib.parse import urlencode
 
 import urllib, base64
 import ssl
 from master.error.runtime_exception import RuntimeException
-from util.import_util import decode_res
+from util.import_util import decode_res, import_requests
 
 def __encode_quote(url):
     """
@@ -111,3 +113,39 @@ def url_read_exception(url, exception_message):
 
     # Exception message is not in response and status is not 200, so it is an error
     raise RuntimeException("Failed opening connection to '{}'. Check that the service is up and running.".format(url))
+
+
+def send_post_request(url, request_params_dict, file_path=None):
+    """
+    :param str url: endpoint e.g. http://localhost:8080/rasdaman/ows
+    :param request_params_dict: dict of key value parameters (e.g. {"version":"2.0.1", "service":"WCS", "request":"UpdateCoverage"}
+    :param str file_path: path to the local file which will be uploaded to the input endpoint
+    """
+    requests = import_requests()
+
+    files = {}
+    if file_path is not None:
+        files = {'file': open(file_path, 'rb')}
+
+    headers = {}
+    from config_manager import ConfigManager
+    if ConfigManager.user is not None:
+        tmp = (ConfigManager.user + ":" + ConfigManager.passwd).encode("utf-8")
+        base64string = base64.b64encode(tmp).decode("utf-8")
+        headers["Authorization"] = "Basic %s" % base64string
+
+    response_text = ""
+    ex = None
+
+    try:
+        resp = requests.post(url=url, data=request_params_dict, files=files, headers=headers)
+        response_text = resp.text
+    except Exception as e:
+        request_url = url + "?" + urlencode(request_params_dict)
+        ex = RuntimeException("Server failed to respond to POST request: {}. "
+                              "Reason: {}".format(request_url, str(e)))
+    finally:
+        if ex is not None:
+            raise ex
+
+        return response_text
