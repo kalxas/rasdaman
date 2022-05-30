@@ -223,7 +223,7 @@ public class XMLUtil {
             InputStream in = new ByteArrayInputStream(document.getBytes(XML_STD_ENCODING));
             return buildDocument(baseURI, in);
         } catch (Exception ex) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot build XOM document from XML string: " + document + ". Reason: " + ex.getMessage());
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot build XOM document from XML string: " + document + ". Reason: " + ex.getMessage(), ex);
         }
     }
 
@@ -239,7 +239,7 @@ public class XMLUtil {
      * @param in an input stream
      * @return the document
      */
-    public static Document buildDocument(String baseURI, InputStream in) throws PetascopeException {
+    public synchronized static Document buildDocument(String baseURI, InputStream in) throws PetascopeException {
         Document doc = null;
 
         try {
