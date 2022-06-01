@@ -2,22 +2,22 @@
 <gmlcov:RectifiedGridCoverage gml:id="test_wcs_eomap_clip_polygon_10m" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/3857" axisLabels="X Y" uomLabels="metre metre" srsDimension="2">
-            <gml:lowerCorner>3510769.862135311 -1767652.241771274</gml:lowerCorner>
-            <gml:upperCorner>3510779.862135311 -1767642.241771274</gml:upperCorner>
+            <gml:lowerCorner>3510779.862135311 -1767662.241771274</gml:lowerCorner>
+            <gml:upperCorner>3510789.862135311 -1767652.241771274</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
         <gml:RectifiedGrid dimension="2" gml:id="test_wcs_eomap_clip_polygon_10m-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>30 30</gml:low>
-                    <gml:high>30 30</gml:high>
+                    <gml:low>31 31</gml:low>
+                    <gml:high>31 31</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>X Y</gml:axisLabels>
             <gml:origin>
                 <gml:Point gml:id="test_wcs_eomap_clip_polygon_10m-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/3857">
-                    <gml:pos>3510774.862135311 -1767647.241771274</gml:pos>
+                    <gml:pos>3510784.862135311 -1767657.241771274</gml:pos>
                 </gml:Point>
             </gml:origin>
             <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/3857">10 0</gml:offsetVector>
@@ -27,13 +27,13 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">255</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">0</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
-            <gml:startPoint>30 30</gml:startPoint>
+            <gml:startPoint>31 31</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>

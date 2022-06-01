@@ -1077,6 +1077,20 @@ that can be specified with ``-D<option>``, along with the default settings.
     |                                 |                   | allow controlling the JPEG library paths: ``-DJPEG_LIBRARY`` and         |
     |                                 |                   | ``-DJPEG_INCLUDE_DIR``                                                   |
     +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_SSE42``                | **ON** / OFF      | Enable building for CPUs with SSE4.2 support (adds -msse, -msse2,        |
+    |                                 |                   | -msse3, -mssse3, -msse4, -msse4.1, and -msse4.2, to the                  |
+    |                                 |                   | compiler options).                                                       |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_AVX``                  | ON / **OFF**      | Enable building for CPUs with AVX support (adds -mavx to the             |
+    |                                 |                   | compiler options).                                                       |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_AVX2``                 | ON / **OFF**      | Enable building for CPUs with AVX2 support (adds -mavx, -mavx2, -mfma,   |
+    |                                 |                   | to the compiler options).                                                |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``ENABLE_AVX512``               | ON / **OFF**      | Enable building for CPUs with AVX-512 support (adds -mavx, -mavx2,       |
+    |                                 |                   | -mfma, -mavx512f, -mavx512cd, -mavx512vl, -mavx512dq, and -mavx512bw     |
+    |                                 |                   | to the compiler options).                                                |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
     | ``FILE_DATA_DIR``               | <path> (default   |                                                                          |
     |                                 | $RMANHOME/data)   | The path where the server stores array tiles as files.                   |
     +---------------------------------+-------------------+--------------------------------------------------------------------------+

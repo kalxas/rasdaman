@@ -1266,13 +1266,11 @@ var wcs;
                     }
                     if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
                         _this.showCoverageSizesColumn = true;
-                        if (!coverageSummary.isVirtualCoverage) {
-                            if (coverageSummary.customizedMetadata.hostname === null) {
-                                totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
-                            }
-                            else {
-                                totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
-                            }
+                        if (coverageSummary.customizedMetadata.localCoverageSizeInBytes > 0) {
+                            totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
+                        }
+                        else {
+                            totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
                         }
                     }
                     if (coverageSummary.customizedMetadata.isBlackedList != null) {
@@ -5247,7 +5245,7 @@ var wms;
                         if (customizedMetadata.coverageSize != null) {
                             _this.showLayerSizesColumn = true;
                         }
-                        if (customizedMetadata.hostname === null) {
+                        if (customizedMetadata.localCoverageSizeInBytes > 0) {
                             totalLocalLayerSizesInBytes_1 += customizedMetadata.localCoverageSizeInBytes;
                         }
                         else {

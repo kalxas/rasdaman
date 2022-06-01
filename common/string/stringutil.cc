@@ -248,5 +248,10 @@ void StringUtil::unescapeCharacters(std::string &s)
   removeCharacters(s, '\\');
 }
 
+bool StringUtil::contains(const std::string &s, const std::string &subString)
+{
+  return s.find(subString) != std::string::npos;
+}
+
 
 } // namespace common

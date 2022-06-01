@@ -270,7 +270,7 @@ public class WMSGetMapBBoxService {
         if (offsetGeoY.compareTo(minOffsetGeoY) < 0) {
             offsetGeoY = minOffsetGeoY;
         }
-        
+
         BigDecimal newGeoLowerBoundX = requestBBox.getXMin().subtract(offsetGeoX);
         BigDecimal newGeoUpperBoundX = requestBBox.getXMax().add(offsetGeoX);
         
@@ -319,7 +319,7 @@ public class WMSGetMapBBoxService {
      */
     public BoundingBox createExtendedGeoBBox(WMSLayer wmsLayer) throws PetascopeException {
 
-        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
+        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
 
         Axis axisX = xyAxes.get(0);

@@ -73,7 +73,7 @@ class Coverage:
         """
         axes = OrderedDict()
         for axis_subset in self.slices[0].axis_subsets:
-            if axis_subset.coverage_axis.data_bound:
+            if axis_subset.coverage_axis.dataBound:
                 axes[axis_subset.coverage_axis.axis] = axis_subset.coverage_axis.grid_axis
         return axes
 

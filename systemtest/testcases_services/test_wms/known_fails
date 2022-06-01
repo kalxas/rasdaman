@@ -1,6 +1,2 @@
-# cannot overlay collection 3 bands and 1 collection 1 band, http://rasdaman.org/ticket/1776
-021_request_3_layers_styles.test
-022_project_3_layers_styles_4326_to_3857.test
-
 # result is slightly different from community
 050-get_map_gap_fillings_downscaled_collection.test

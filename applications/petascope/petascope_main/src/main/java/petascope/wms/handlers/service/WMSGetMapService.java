@@ -62,13 +62,16 @@ import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wms.exception.WMSInternalException;
 import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.JSONUtil;
 import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.encodeparameters.model.NoData;
 import petascope.wcps.encodeparameters.service.SerializationEncodingService;
 import petascope.wcps.encodeparameters.service.TranslateColorTableService;
+import petascope.wcps.handler.SubsetExpressionHandler;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import petascope.wms.exception.WMSStyleNotFoundException;
 import petascope.wms.handlers.model.WMSLayer;
 import static petascope.wms.handlers.service.WMSGetMapStyleService.ENCODE;
@@ -155,23 +158,25 @@ public class WMSGetMapService {
     private BoundingBox originalRequestBBox;
     
     // If layer has different CRS (e.g: UTM 32 CRS) and request BBOX from client is EPSG:4326, then transform the CRS from UTM32 -> EPSG:4326
-    private BoundingBox layerBBoxRequestCRS;
+    private Map<String, BoundingBox> layerRequestCRSBBoxesMap = new LinkedHashMap<>();
     
     // NOTE: this fittedBBox is used to fit input BBox to coverage's geo XY axes' domains 
     // to avoid server killed by subsetting collection (e.g: c[-20:30] instead of c[0:30])
-    private BoundingBox fittedRequestBBox;
+    private Map<String, BoundingBox> fittedRequestBBoxesMap = new LinkedHashMap<>();
 
     // Used when requesting a BBox which is not layer's nativeCRS
     // because of projection() the result does not fill the bounding box and shows gaps (null values) in the result
     // then, it needs to select a bigger subsets (e.g: [lower_width -10% : upper_width + 10%, lower_height - 10% : upper_height + 10%]
     // in rasdaman to cover the gaps then apply the original subset [lower_width:upper_width, lower_height:upper_height]
     // to show the result without gaps in the borders.
-    private BoundingBox extendedFittedRequestGeoBBox = new BoundingBox();
+    private Map<String, BoundingBox> extendedFittedRequestGeoBBoxesMap = new LinkedHashMap<>();
     
     // If request BoundingBox in different CRS from layer's CRS, it is true
     private boolean isProjection = false;
     
     private Map<String, String> dimSubsetsMap = new HashMap<>();
+    
+    private List<WcpsSubsetDimension> nonXYSubsetDimensions = new ArrayList<>();
     
     private static final Map<String, Response> blankTileMap = new ConcurrentHashMap<>();
     
@@ -249,34 +254,45 @@ public class WMSGetMapService {
         this.interpolation = interpolation;
     }
     
-    public void setBBoxes(BoundingBox bbox) throws PetascopeException, SecoreException {
+    public void setBBoxes(BoundingBox bbox, List<String> layerNames) throws PetascopeException, SecoreException {
         // If request is in YX order for bounding box (e.g: EPSG:4326 Lat, Long, swap it to XY order Long, Lat)
         // NOTE: as all layers requested with same outputCRS so only do this one time
         this.originalRequestBBox = this.wmsGetMapBBoxService.swapYXBoundingBox(bbox, outputCRS);
-        this.fittedRequestBBox = this.wmsGetMapBBoxService.swapYXBoundingBox(bbox, outputCRS);
+        
+        for (String layerName : layerNames) {
+            BoundingBox fittedRequestBBox = this.wmsGetMapBBoxService.swapYXBoundingBox(bbox, outputCRS);
+            this.fittedRequestBBoxesMap.put(layerName, fittedRequestBBox);
 
-        String firstLayerName = this.layerNames.get(0);
-        WcpsCoverageMetadata wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.translate(firstLayerName);
-        BoundingBox layerBBoxNativeCRS = wcpsCoverageMetadataTmp.getOrginalGeoXYBoundingBox();
-        this.layerBBoxRequestCRS = layerBBoxNativeCRS;
+            WcpsCoverageMetadata wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.translate(layerName);
+            this.nonXYSubsetDimensions = this.wmsGetMapSubsetParsingService.translateDimensionsMap(wcpsCoverageMetadataTmp, this.dimSubsetsMap);
+            BoundingBox layerBBoxNativeCRS = wcpsCoverageMetadataTmp.getOrginalGeoXYBoundingBox();
+            this.layerRequestCRSBBoxesMap.put(layerName, layerBBoxNativeCRS);
 
-        WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(firstLayerName, layerBBoxNativeCRS,
-                                                                                       this.fittedRequestBBox, this.fittedRequestBBox, this.width, this.height);
-        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
-        List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
 
-        String nativeCRS = xyAxes.get(0).getNativeCrsUri();
-        this.isProjection = !CrsUtil.equalsWKT(CrsUtil.getWKT(this.outputCRS), CrsUtil.getWKT(nativeCRS));
-        if (isProjection) {
-            // e.g: layer's nativeCRS is EPSG:32632 and request BBox is EPSG:4326            
-            this.transformNativeCRSBBoxToRequestCRS(xyAxes);
-            
-            // Get the intersected geo bbox in layer's native CRS (e.g: UTM 32) by the original request bbox (e.g: in EPSG:4326) with the layer's bbox (e.g: in EPSG:4326)
-            this.fittedRequestBBox = this.wmsGetMapBBoxService.getIntersectedBBoxInNativeCRS(originalRequestBBox, layerBBoxRequestCRS, layerBBoxNativeCRS, outputCRS, nativeCRS);
-            
+            WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(layerName, layerBBoxNativeCRS,
+                                                                                           fittedRequestBBox, fittedRequestBBox, 
+                                                                                           this.width, this.height,
+                                                                                           this.nonXYSubsetDimensions);
+
+            WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
+            List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
+
+            String nativeCRS = xyAxes.get(0).getNativeCrsUri();
+            this.isProjection = !CrsUtil.equalsWKT(CrsUtil.getWKT(this.outputCRS), CrsUtil.getWKT(nativeCRS));
+            if (isProjection) {
+                // e.g: layer's nativeCRS is EPSG:32632 and request BBox is EPSG:4326            
+                this.transformNativeCRSBBoxToRequestCRS(layerName, xyAxes);
+                
+                BoundingBox layerBBoxRequestCRS = this.layerRequestCRSBBoxesMap.get(layerName);
+
+                // Get the intersected geo bbox in layer's native CRS (e.g: UTM 32) by the original request bbox (e.g: in EPSG:4326) with the layer's bbox (e.g: in EPSG:4326)
+                fittedRequestBBox = this.wmsGetMapBBoxService.getIntersectedBBoxInNativeCRS(originalRequestBBox, layerBBoxRequestCRS, layerBBoxNativeCRS, outputCRS, nativeCRS);
+                this.fittedRequestBBoxesMap.put(layerName, fittedRequestBBox);
+
+            }
         }
         
-        this.extendedFittedRequestGeoBBox = this.fittedRequestBBox;
+        this.extendedFittedRequestGeoBBoxesMap = this.fittedRequestBBoxesMap;
     }
     
     /**
@@ -285,6 +301,8 @@ public class WMSGetMapService {
      */
     public Response createGetMapResponse() throws WMSException, PetascopeException {
         byte[] bytes = null;
+        
+        String finalRasqlQuery = "";
         
         try {
             if (!this.intersectLayerXYBBox()) {
@@ -300,14 +318,17 @@ public class WMSGetMapService {
             List<BigDecimal> nodataValues = new ArrayList<>();
             
             int styleIndex = 0;
-                        
+                       
+            // e.g layers=layer1,layer2,layer3 then according to WMS standard (leftmost = bottommost)
+            // layer1 at the bottom, layer2 at the middle, layer3 on top (same with OVERLAY() operator)
             for (WMSLayer wmsLayer : wmsLayers) {
                 
                 String styleName = null;
                 if (this.styleNames.size() > 0) {
                     styleName = this.styleNames.get(styleIndex);
                 }
-                WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByOriginalXYBBox(wmsLayer);
+
+                WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
                 
                 if (nodataValues.isEmpty()) {
                     if (wcpsCoverageMetadata.getNilValues().size() > 0) {
@@ -341,17 +362,17 @@ public class WMSGetMapService {
             }
             
             // Now, create the final Rasql query from all WMS layers
-            // NOTE: WMS request first layer is always on top, rasdaman is reversed (a overlay b, then b is ontop of a)
+            // NOTE: WMS 1.3.0 - A WMS shall render the requested layers by drawing the leftmost in the list bottommost, the next one over that, and so on. 
             String finalCollectionExpressionLayers = "";
-            for (int i = finalCollectionExpressions.size() - 1; i >= 0; i--) {
+            for (int i = 0; i < finalCollectionExpressions.size(); i++) {
                 finalCollectionExpressionLayers += "( " + finalCollectionExpressions.get(i) + " )";
-                if (i > 0) {
+                if (i != finalCollectionExpressions.size() - 1) {
                     finalCollectionExpressionLayers += " " + OVERLAY + " ";
                 }
             }
 
             String formatType = MIMEUtil.getFormatType(this.format);
-            String collections = this.wmsGetMapStyleService.builRasqlFromExpression(this.fittedRequestBBox, this.width, this.height);
+            String collections = this.wmsGetMapStyleService.builRasqlFromExpression(this.width, this.height);
             
             WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadatas.get(0);
             
@@ -362,7 +383,7 @@ public class WMSGetMapService {
             String encodeFormatParameters = this.createEncodeFormatParameters(nodataValues, wcpsCoverageMetadata);
             
             // Create the final Rasql query for all layers's styles of this GetMap request.
-            String finalRasqlQuery = FINAL_TRANSLATED_RASQL_TEMPLATE
+            finalRasqlQuery = FINAL_TRANSLATED_RASQL_TEMPLATE
                                 .replace(COLLECTION_EXPRESSION_TEMPLATE, finalCollectionExpressionLayers)
                                 .replace(ENCODE_FORMAT_PARAMETERS_TEMPLATE, encodeFormatParameters)
                                 .replace(FORMAT_TYPE_TEMPLATE, formatType)
@@ -375,7 +396,11 @@ public class WMSGetMapService {
             Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
             bytes = RasUtil.getRasqlResultAsBytes(finalRasqlQuery, userPair.fst, userPair.snd);
         } catch (PetascopeException ex) {
-            throw new WMSInternalException(ex.getMessage(), ex);
+            if (ex instanceof RasdamanException) {
+                throw new PetascopeException(ex.getExceptionCode(), "Failed to run query: " + finalRasqlQuery + ". Reason: " + ex.getMessage(), ex);
+            } else {
+                throw new WMSInternalException(ex.getMessage(), ex);
+            }
         }
 
         return new Response(Arrays.asList(bytes), this.format, this.layerNames.get(0));
@@ -404,9 +429,14 @@ public class WMSGetMapService {
         
         for (WcpsCoverageMetadata wcpsCoverageMetadata : wcpsCoverageMetadatas) {
 
-            WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(wcpsCoverageMetadata.getCoverageName(), this.layerBBoxRequestCRS,
-                                                                                this.fittedRequestBBox,
-                                                                                this.extendedFittedRequestGeoBBox, this.width, this.height);
+            String layerName = wcpsCoverageMetadata.getCoverageName();
+            WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(
+                                                                                layerName, this.layerRequestCRSBBoxesMap.get(layerName),
+                                                                                this.fittedRequestBBoxesMap.get(layerName),
+                                                                                this.extendedFittedRequestGeoBBoxesMap.get(layerName),
+                                                                                this.width, this.height,
+                                                                                this.nonXYSubsetDimensions
+                                                                            );
             wmsLayers.add(wmsLayer);
         }
         
@@ -417,7 +447,7 @@ public class WMSGetMapService {
      * In case of requesting different CRS (e.g: EPSG:4326) than layer's native CRS (e.g: UTM 32) for XY axes, then
      * transform the layer's geo XY bounds from UTM 32 to ESPG:4326
      */
-    private void transformNativeCRSBBoxToRequestCRS(List<Axis> xyAxesNativeCRS) throws PetascopeException {
+    private void transformNativeCRSBBoxToRequestCRS(String layerName, List<Axis> xyAxesNativeCRS) throws PetascopeException {
         Axis axisX = xyAxesNativeCRS.get(0);
         Axis axisY = xyAxesNativeCRS.get(1);
         String nativeCRS = axisX.getNativeCrsUri();
@@ -431,7 +461,7 @@ public class WMSGetMapService {
         BoundingBox sourceCRSBBOX = new BoundingBox(xMin, yMin, xMax, yMax);
         BoundingBox targetCRSBBox = CrsProjectionUtil.transformBBox(sourceCRSBBOX, nativeCRS, this.outputCRS);
         
-        this.layerBBoxRequestCRS = targetCRSBBox;
+        this.layerRequestCRSBBoxesMap.put(layerName, targetCRSBBox);
     }
     
     /**
@@ -439,12 +469,11 @@ public class WMSGetMapService {
      * (especially in case of requesting in different CRS to layer's native geo XY CRS)
      */
     private boolean needExtendedGeoXYBBox(WMSLayer wmsLayer) throws PetascopeException {
-        Coverage coverage = this.coverageRepositoryService.readCoverageFullMetadataByIdFromCache(wmsLayer.getLayerName());
-        
+        BoundingBox bbox = this.layerRequestCRSBBoxesMap.get(wmsLayer.getLayerName());
         // If request BBox contains the layer (layer is inside the request BBox)
         // then no point to create extended request geo BBox as there are no more pixels to fill gaps
         
-        return (isProjection && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(this.layerBBoxRequestCRS));
+        return (isProjection && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(bbox));
     }
     
     /**
@@ -468,9 +497,11 @@ public class WMSGetMapService {
             throw new WMSStyleNotFoundException(styleName, layerName);
         }
 
-        if (this.needExtendedGeoXYBBox(wmsLayer)) {
-            this.extendedFittedRequestGeoBBox = this.wmsGetMapBBoxService.createExtendedGeoBBox(wmsLayer);
-            wmsLayer.setExtendedRequestBBox(this.extendedFittedRequestGeoBBox);
+        if (this.needExtendedGeoXYBBox(wmsLayer) 
+            ) {
+            BoundingBox bbox = this.wmsGetMapBBoxService.createExtendedGeoBBox(wmsLayer);
+            this.extendedFittedRequestGeoBBoxesMap.put(layerName, bbox);
+            wmsLayer.setExtendedRequestBBox(bbox);
         }
         
         List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions = this.wmsGetMapSubsetParsingService.translateGridDimensionsSubsetsLayers(wcpsCoverageMetadata, dimSubsetsMap);
@@ -489,7 +520,7 @@ public class WMSGetMapService {
             String styleQuery = FRAGMENT_ITERATOR_PREFIX + layerName;
             collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
                                                                         wmsLayer, nonXYGridSliceSubsetDimensions,
-                                                                        extendedFittedRequestGeoBBox);
+                                                                        extendedFittedRequestGeoBBoxesMap.get(layerName));
         } else {
             if (!StringUtils.isEmpty(style.getRasqlQueryFragment())) {
                 // rasqlTransformFragment
@@ -497,7 +528,7 @@ public class WMSGetMapService {
                 String styleQuery = style.getRasqlQueryFragment().replace(RASQL_FRAGMENT_ITERATOR, FRAGMENT_ITERATOR_PREFIX + layerName);
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
                                                                         wmsLayer, nonXYGridSliceSubsetDimensions,
-                                                                        extendedFittedRequestGeoBBox);
+                                                                        extendedFittedRequestGeoBBoxesMap.get(layerName));
             } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
                 // wcpsQueryFragment
                 // e.g: $c -> $covA
@@ -505,13 +536,13 @@ public class WMSGetMapService {
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForWCPSFragment(
                                                                         styleQuery, layerName,
                                                                         wmsLayer, nonXYGridSliceSubsetDimensions,
-                                                                        extendedFittedRequestGeoBBox);
+                                                                        extendedFittedRequestGeoBBoxesMap.get(layerName));
             } else {
                 // Style is not null, but no query fragment was defined, e.g: only contains colorTable value
                 String styleQuery = FRAGMENT_ITERATOR_PREFIX + layerName;
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
                                                                         wmsLayer, nonXYGridSliceSubsetDimensions,
-                                                                        extendedFittedRequestGeoBBox);                
+                                                                        extendedFittedRequestGeoBBoxesMap.get(layerName));                
             }
 
             if (!StringUtils.isEmpty(style.getColorTableDefinition())) {
@@ -538,9 +569,13 @@ public class WMSGetMapService {
      */
     private boolean intersectLayerXYBBox() throws PetascopeException {
         // Check if the request BBox (e.g: in EPSG:4326) intersects with layer's BBox (e.g: in UTM 32)
-        boolean firstCheck = this.layerBBoxRequestCRS.intersectsXorYAxis(this.originalRequestBBox);
-         
-        return firstCheck;
+        for (String layerName : this.layerNames) {
+            BoundingBox bbox = this.layerRequestCRSBBoxesMap.get(layerName);
+            if (bbox.intersectsXorYAxis(this.originalRequestBBox)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**

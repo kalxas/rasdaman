@@ -298,7 +298,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
             this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
         }
 
-        Pair<BoundingBox, BoundingBox> bboxesPair = this.coordinateTranslationService.calculateGridGeoXYBoundingBoxes(axisX, axisY, convexHullXYBBox);
+        Pair<BoundingBox, BoundingBox> bboxesPair = this.coordinateTranslationService.calculateGridGeoXYBoundingBoxes(true, axisX, axisY, convexHullXYBBox);
         BoundingBox adjustedConvexHullGeoXYBBox = bboxesPair.fst;
         BoundingBox adjustedConvexHullGridXYBBox = bboxesPair.snd;
 
@@ -334,7 +334,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
 
         BoundingBox geoBBox = new BoundingBox(lowerBoundX, lowerBoundY,
                                               upperBoundX, upperBoundY);
-        BoundingBox gridBBox = this.coordinateTranslationService.calculageGridXYBoundingBox(axisX, axisY, geoBBox);
+        BoundingBox gridBBox = this.coordinateTranslationService.calculageGridXYBoundingBox(true, axisX, axisY, geoBBox);
 
         BigDecimal boundX = gridBBox.getXMin();
 

@@ -115,7 +115,7 @@ module wms {
                             this.showLayerSizesColumn = true;
                         }
 
-                        if (customizedMetadata.hostname === null) {
+                        if (customizedMetadata.localCoverageSizeInBytes > 0) {
                             totalLocalLayerSizesInBytes += customizedMetadata.localCoverageSizeInBytes;
                         } else {
                             totalRemoteLayerSizesInBytes += customizedMetadata.remoteCoverageSizeInBytes;

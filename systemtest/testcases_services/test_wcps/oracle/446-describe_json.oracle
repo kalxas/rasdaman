@@ -8,14 +8,14 @@
     "axis" : [ {
       "type" : "AxisExtentType",
       "axisLabel" : "Lat",
-      "lowerBound" : -12.974999999999987,
-      "upperBound" : -11.974999999999987,
+      "lowerBound" : -13.474999999999987,
+      "upperBound" : -12.474999999999987,
       "uomLabel" : "degree"
     }, {
       "type" : "AxisExtentType",
       "axisLabel" : "Lon",
-      "lowerBound" : 129.975,
-      "upperBound" : 130.975,
+      "lowerBound" : 130.475,
+      "upperBound" : 131.475,
       "uomLabel" : "degree"
     } ]
   },
@@ -28,15 +28,15 @@
       "axis" : [ {
         "type" : "RegularAxisType",
         "axisLabel" : "Lat",
-        "lowerBound" : -12.974999999999987,
-        "upperBound" : -11.974999999999987,
+        "lowerBound" : -13.474999999999987,
+        "upperBound" : -12.474999999999987,
         "uomLabel" : "degree",
         "resolution" : -0.5
       }, {
         "type" : "RegularAxisType",
         "axisLabel" : "Lon",
-        "lowerBound" : 129.975,
-        "upperBound" : 130.975,
+        "lowerBound" : 130.475,
+        "upperBound" : 131.475,
         "uomLabel" : "degree",
         "resolution" : 0.5
       } ],
@@ -47,13 +47,13 @@
         "axis" : [ {
           "type" : "IndexAxisType",
           "axisLabel" : "i",
-          "lowerBound" : 6,
-          "upperBound" : 7
+          "lowerBound" : 7,
+          "upperBound" : 8
         }, {
           "type" : "IndexAxisType",
           "axisLabel" : "j",
-          "lowerBound" : 36,
-          "upperBound" : 37
+          "lowerBound" : 37,
+          "upperBound" : 38
         } ]
       }
     }

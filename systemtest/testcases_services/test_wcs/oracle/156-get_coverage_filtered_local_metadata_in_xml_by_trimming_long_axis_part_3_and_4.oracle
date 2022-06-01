@@ -2,22 +2,22 @@
 <gmlcov:RectifiedGridCoverage gml:id="test_wcs_local_metadata_tiff_map_mosaic" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
-            <gml:lowerCorner>-44.975 139.975</gml:lowerCorner>
-            <gml:upperCorner>-8.975 155.975</gml:upperCorner>
+            <gml:lowerCorner>-44.975 140.975</gml:lowerCorner>
+            <gml:upperCorner>-8.975 156.975</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
         <gml:RectifiedGrid dimension="2" gml:id="test_wcs_local_metadata_tiff_map_mosaic-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>0 28</gml:low>
+                    <gml:low>0 29</gml:low>
                     <gml:high>35 43</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>Lat Long</gml:axisLabels>
             <gml:origin>
                 <gml:Point gml:id="test_wcs_local_metadata_tiff_map_mosaic-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
-                    <gml:pos>-9.475 140.475</gml:pos>
+                    <gml:pos>-9.475 141.475</gml:pos>
                 </gml:Point>
             </gml:origin>
             <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">-1 0</gml:offsetVector>
@@ -27,13 +27,13 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">0,0,0,0,0,0,0,0,2,70,77,85,92,114,138,144,171,187,173,163,173,175,167,132,119,118,111,88,90,0,0,0,0,0,0,0,0,0,0,0,0,0,104,91,77,80,86,98,108,117,130,146,165,197,210,187,179,184,185,170,144,131,113,91,92,11,0,0,0,0,0,0,0,0,125,132,121,102,102,95,90,92,101,112,121,126,129,137,157,192,221,204,190,190,182,184,164,135,113,89,90,0,0,0,0,0,0,0,0,0,0,6,118,90,75,80,108,114,113,121,125,125,126,141,151,182,219,228,209,194,170,181,167,121,111,99,94,95,0,0,0,0,0,0,0,0,0,0,0,92,92,95,109,116,114,125,130,117,118,135,146,171,206,221,214,198,178,192,160,118,110,105,100,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,108,101,95,100,116,112,115,126,145,165,187,196,210,202,182,182,166,142,120,116,110,107,0,0,92,91,0,0,0,0,0,0,0,0,0,0,0,31,100,99,114,127,125,136,153,167,180,186,188,189,188,184,180,168,142,128,120,114,0,0,102,106,113,0,0,0,0,0,0,0,0,0,0,0,79,119,125,137,141,144,158,174,173,177,180,182,195,189,184,175,164,139,124,13,0,0,115,116,0,0,0,0,0,0,0,0,0,0,0,0,0,112,122,137,147,146,156,168,163,170,176,171,175,183,185,173,169,141,127,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,127,141,145,155,165,160,172,171,165,170,172,173,163,146,125,122,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,120,133,145,164,169,169,157,157,160,159,151,138,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,126,136,142,151,151,142,139,144,148,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,131,126,136,134,130,131,136,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,144,128,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">0,0,0,0,0,0,104,91,77,80,86,98,108,117,130,146,165,197,210,187,179,184,185,170,144,131,113,91,92,11,0,0,0,0,0,0,0,0,125,132,121,102,102,95,90,92,101,112,121,126,129,137,157,192,221,204,190,190,182,184,164,135,113,89,90,0,0,0,0,0,0,0,0,0,0,6,118,90,75,80,108,114,113,121,125,125,126,141,151,182,219,228,209,194,170,181,167,121,111,99,94,95,0,0,0,0,0,0,0,0,0,0,0,92,92,95,109,116,114,125,130,117,118,135,146,171,206,221,214,198,178,192,160,118,110,105,100,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,108,101,95,100,116,112,115,126,145,165,187,196,210,202,182,182,166,142,120,116,110,107,0,0,92,91,0,0,0,0,0,0,0,0,0,0,0,31,100,99,114,127,125,136,153,167,180,186,188,189,188,184,180,168,142,128,120,114,0,0,102,106,113,0,0,0,0,0,0,0,0,0,0,0,79,119,125,137,141,144,158,174,173,177,180,182,195,189,184,175,164,139,124,13,0,0,115,116,0,0,0,0,0,0,0,0,0,0,0,0,0,112,122,137,147,146,156,168,163,170,176,171,175,183,185,173,169,141,127,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,127,141,145,155,165,160,172,171,165,170,172,173,163,146,125,122,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,120,133,145,164,169,169,157,157,160,159,151,138,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,126,136,142,151,151,142,139,144,148,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,131,126,136,134,130,131,136,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,144,128,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+1 +2">Linear</gml:sequenceRule>
-            <gml:startPoint>0 28</gml:startPoint>
+            <gml:startPoint>0 29</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>
@@ -62,7 +62,7 @@
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>value_3</local_metadata_key>
-                        <fileReferenceHistory>/home/rasdaman/rasdaman_enterprise/stable_repository/rasdaman-enterprise/systemtest/testcases_services/test_all_wcst_import/testdata/117-wcs_local_metadata_tiff_map_mosaic/part_3.tiff</fileReferenceHistory>
+                        <fileReferenceHistory>/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/117-wcs_local_metadata_tiff_map_mosaic/part_3.tiff</fileReferenceHistory>
                     </slice>
                     <slice>
                         <boundedBy>
@@ -74,7 +74,7 @@
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>value_4</local_metadata_key>
-                        <fileReferenceHistory>/home/rasdaman/rasdaman_enterprise/stable_repository/rasdaman-enterprise/systemtest/testcases_services/test_all_wcst_import/testdata/117-wcs_local_metadata_tiff_map_mosaic/part_4.tiff</fileReferenceHistory>
+                        <fileReferenceHistory>/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/117-wcs_local_metadata_tiff_map_mosaic/part_4.tiff</fileReferenceHistory>
                     </slice>
                 </slices>
                 <Title>Drought code</Title>

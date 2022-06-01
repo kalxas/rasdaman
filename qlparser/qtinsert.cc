@@ -59,6 +59,7 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 
 #include "qlparser/qtmintervaldata.hh"
+#include "qlparser/qtpointdata.hh"
 #include "raslib/basetype.hh"
 #include "raslib/collectiontype.hh"
 #include "storagemgr/sstoragelayout.hh"
@@ -67,6 +68,7 @@ rasdaman GmbH.
 #include "relcatalogif/mddbasetype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/collectiontype.hh"
+#include "common/string/stringutil.hh"
 
 #include <logging.hh>
 
@@ -80,7 +82,7 @@ QtInsert::QtInsert(const QtCollection &initCollection, QtOperation *initSource)
     : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(NULL), collection(initCollection)
 {
     source->setParent(this);
-    if (collection.getHostname() != "" && collection.getHostname() != "localhost")
+    if (collection.getHostname() != "" && !common::StringUtil::equalsCaseInsensitive(collection.getHostname(), "localhost"))
     {
         LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
         parseInfo.setErrorNo(499);
@@ -788,8 +790,17 @@ QtInsert::getTileConfig(QtMDDConfig *cfg, int baseTypeSize, r_Dimension sourceDi
     }
     QtNode::QtDataList *nextTuple = new QtNode::QtDataList(0);
     QtData *data = op->evaluate(nextTuple);
-    QtMintervalData *intervalData = static_cast<QtMintervalData *>(data);
-    tileConfig = intervalData->getMintervalData();
+    if (data->getDataType() == QT_MINTERVAL)
+    {
+        QtMintervalData *intervalData = static_cast<QtMintervalData *>(data);
+        tileConfig = intervalData->getMintervalData();
+    }
+    else if (data->getDataType() == QT_POINT)
+    {
+        QtPointData *intervalData = static_cast<QtPointData *>(data);
+        const auto &point = intervalData->getPointData();
+        tileConfig = r_Minterval::fromPoint(point);
+    }
     delete data;
     delete nextTuple;
     return tileConfig;

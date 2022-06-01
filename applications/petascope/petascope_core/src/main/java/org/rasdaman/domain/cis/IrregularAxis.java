@@ -206,9 +206,10 @@ public class IrregularAxis extends GeoAxis implements Serializable {
         boolean foundMinIndex = false;
 
         Long i = Long.valueOf("0");
+        List<BigDecimal> coefficients = this.getDirectPositionsAsNumbers();
 
         // coefficient in numbers for legacy coverages
-        for (BigDecimal coefficient : this.getDirectPositionsAsNumbers()) {
+        for (BigDecimal coefficient : coefficients) {
             
             // NOTE: from WCST_Import coefficient (especially DateTime from arrow) will return double and it can be larger than BigDecimal value calculated in Petascope.
             // Therefore, we need to check this comparison with a small epsilon to make sure it is actually same number more or less.
@@ -244,6 +245,14 @@ public class IrregularAxis extends GeoAxis implements Serializable {
         if (maxIndex != null) {
             maxIndex = maxIndex - i;
         }
+        
+        if (minIndex != null && maxIndex != null) {
+            if (minIndex > maxIndex) {
+                // In this case coefficient doesn't exist in the list of coefficients
+                minIndex = null;
+                maxIndex = null;
+            }
+        }
 
         return new Pair<>(minIndex, maxIndex);
     }
@@ -277,7 +286,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
      * NOTE: This one is used as the anchor when needs to normalize other coefficients (greater than or lower than).
      */
     @JsonIgnore
-    public BigDecimal getCoefficientZeroBoundNumber() throws PetascopeException, SecoreException {        
+    public BigDecimal getCoefficientZeroBoundNumber() throws PetascopeException {        
         Long coefficientZeroIndex = this.getIndexOfCoefficientZero();
         BigDecimal lowestCoefficient = this.getDirectPositionsAsNumbers().get(0);
         // Distance value between lowest coefficient and coeffcient zero

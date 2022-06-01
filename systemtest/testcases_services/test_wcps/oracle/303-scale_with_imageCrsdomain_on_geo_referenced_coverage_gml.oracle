@@ -10,8 +10,8 @@
         <gml:RectifiedGrid dimension="2" gml:id="test_mean_summer_airtemp-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>20 16</gml:low>
-                    <gml:high>21 17</gml:high>
+                    <gml:low>21 17</gml:low>
+                    <gml:high>22 18</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>Lat Lon</gml:axisLabels>
@@ -33,7 +33,7 @@
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+1 +2">Linear</gml:sequenceRule>
-            <gml:startPoint>20 16</gml:startPoint>
+            <gml:startPoint>21 17</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>

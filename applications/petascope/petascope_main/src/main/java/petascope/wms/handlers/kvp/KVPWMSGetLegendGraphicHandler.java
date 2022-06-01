@@ -75,7 +75,8 @@ public class KVPWMSGetLegendGraphicHandler extends KVPWMSAbstractHandler {
         this.validate(kvpParameters);
         
         String layerName = AbstractController.getValueByKey(kvpParameters, KEY_WMS_LAYER);
-        String styleName = AbstractController.getValueByKey(kvpParameters, KEY_WMS_STYLE);
+        // NOTE: GetLegendGraphic does not need style parameter
+        String styleName = AbstractController.getValueByKeyAllowNull(kvpParameters, KEY_WMS_STYLE);
         // e.g. image/png
         String format = AbstractController.getValueByKey(kvpParameters, KEY_WMS_FORMAT);
         
@@ -85,9 +86,14 @@ public class KVPWMSGetLegendGraphicHandler extends KVPWMSAbstractHandler {
             throw new WMSLayerNotExistException(layerName);
         }
         
-        Style style = layer.getStyle(styleName);
-        if (style == null) {
-            throw new WMSStyleNotFoundException(styleName, layerName);
+        Style style;
+        if (styleName == null) {
+            style = layer.getDefaultStyle();
+        } else {
+            style = layer.getStyle(styleName);
+            if (style == null) {
+                throw new WMSStyleNotFoundException(styleName, layerName);
+            }
         }
         
         if (style.getLegendURL() == null) {

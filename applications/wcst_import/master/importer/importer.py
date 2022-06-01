@@ -220,7 +220,7 @@ class Importer:
         for axis_subset in slice.axis_subsets:
             grid_axis = axis_subset.coverage_axis.grid_axis
 
-            if axis_subset.coverage_axis.data_bound is False:
+            if axis_subset.coverage_axis.dataBound is False:
                 values.append(str(grid_axis.grid_low))
             else:
                 values.append(str(grid_axis.grid_low) + ":" + str(grid_axis.grid_high))
@@ -512,7 +512,7 @@ class Importer:
         """
         crsAxes = []
         for axis_subset in slice.axis_subsets:
-            if axis_subset.coverage_axis.data_bound:
+            if axis_subset.coverage_axis.dataBound:
                 crsAxes.append(axis_subset.coverage_axis.axis.crs_axis)
         crsUtil = CRSUtil(crs)
         return crsUtil.get_crs_for_axes(crsAxes)
@@ -538,7 +538,7 @@ class Importer:
         """
         axes = OrderedDict()
         for axis_subset in slice.axis_subsets:
-            if axis_subset.coverage_axis.data_bound:
+            if axis_subset.coverage_axis.dataBound:
                 axes[axis_subset.coverage_axis.axis] = axis_subset.coverage_axis.grid_axis
         return axes
 
