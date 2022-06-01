@@ -25,7 +25,6 @@
 
                 "ansi": {
                   "min": "datetime(regex_extract('${file:name}', '(.*).tif', 1), 'YYYYMMDD')",
-                  "gridOrder": 0,
                   "irregular": true,
                   "dataBound": false
                 },
@@ -33,13 +32,11 @@
               "Long": {
                 "min": "${gdal:minX}",
                 "max": "${gdal:maxX}",
-                "gridOrder": 1,
                 "resolution": "${gdal:resolutionX}"
               },
               "Lat": {
                 "min": "${gdal:minY}",
                 "max": "${gdal:maxY}",
-                "gridOrder": 2,
                 "resolution": "${gdal:resolutionY}"
               }
           }

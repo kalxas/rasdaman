@@ -38,19 +38,16 @@
             "ansi": {
               "min": "${netcdf:variable:time:min} * 3600 - 62135596800.0 - 0.020833333333333332 * 3600",
               "max": "${netcdf:variable:time:max} * 3600 - 62135596800.0 + 0.020833333333333332 * 3600",
-              "resolution": 0.041666666666666664,
-              "gridOrder": 0
+              "resolution": 0.041666666666666664
             },
             "Long": {
               "min": "30 - 0.1 / 2",
               "max": "30.1 + 0.1 / 2",
-              "gridOrder": 2,
               "resolution":"0.1"
             },
             "Lat": {
               "min": "25 - 0.1 / 2",
               "max": "25.1 + 0.1 / 2",
-              "gridOrder": 1,
               "resolution": "-0.1"
             }
           } 

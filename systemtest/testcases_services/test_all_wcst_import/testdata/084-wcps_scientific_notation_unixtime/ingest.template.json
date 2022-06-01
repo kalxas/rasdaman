@@ -41,19 +41,16 @@
               "min": "${netcdf:variable:time:min}",
               "max": "${netcdf:variable:time:max}",
               "directPositions": "${netcdf:variable:time}",
-              "irregular": true,
-              "gridOrder": 0
+              "irregular": true
             },
             "Long": {
               "min": "${netcdf:variable:x:min}",
               "max": "${netcdf:variable:x:max}",            
-              "gridOrder": 1,
               "resolution": 0.0014732905811623237 
             },
             "Lat": {
               "min": "${netcdf:variable:y:min}",
               "max": "${netcdf:variable:y:max}",
-              "gridOrder": 2,
               "resolution": -0.0014732905811623237
             }
           }

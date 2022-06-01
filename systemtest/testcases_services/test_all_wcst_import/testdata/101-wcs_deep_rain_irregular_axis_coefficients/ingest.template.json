@@ -30,7 +30,6 @@
           "axes": {
             "ansi": {
               "min": "datetime('20170101', 'YYYYMMDD')",
-              "gridOrder": 0,
               "type": "ansidate",
               "irregular": true,
 	          "resolution": "1",
@@ -38,7 +37,6 @@
             },
             "ensemble": {
               "min": "int(regex_extract('${file:name}', '(.*).m(.*).nc', 2))",
-              "gridOrder": 1,
               "irregular": true,
               "dataBound": false
             },
@@ -47,27 +45,23 @@
               "max": "${netcdf:variable:time:max}",
               "directPositions": "${netcdf:variable:time}",
               "irregular": true,
-	          "resolution": "1",
-              "gridOrder": 2
+	          "resolution": "1"
             }, 
             "isobaric": {
               "min": "${netcdf:variable:plev:min}",
               "max": "${netcdf:variable:plev:max}",
               "irregular": true,
               "directPositions": "[50000, 70000, 85000, 95000, 97500, 100000]",
-	          "resolution": "1",
-              "gridOrder": 3
+	          "resolution": "1"
             }, 
             "Lat": {
               "min": "${netcdf:variable:rlat:min}",
               "max": "${netcdf:variable:rlat:max}",
-              "gridOrder": 5,
               "resolution": "-((${netcdf:variable:rlat:max} - ${netcdf:variable:rlat:min}) / (${netcdf:dimension:x} - 1.0))"
             },
             "Long": {
               "min": "${netcdf:variable:rlon:min}",
               "max": "${netcdf:variable:rlon:max}",
-              "gridOrder": 4,
               "resolution": "((${netcdf:variable:rlon:max} - ${netcdf:variable:rlon:min}) / (${netcdf:dimension:y} - 1.0))"
             }
           }

@@ -2,15 +2,15 @@
 <wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0">
     <wcs:CoverageDescription gml:id="test_ecmwf_fire_4d_color_palette_table_metadata_xml">
         <gml:boundedBy>
-            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" axisLabels="Lat Long ansi forecast" uomLabels="degree degree d GridSpacing" srsDimension="4">
-                <gml:lowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00.000Z" 0</gml:lowerCorner>
-                <gml:upperCorner>34.7208095 29.8828125 "2017-12-15T00:00:00.000Z" 22</gml:upperCorner>
+            <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="ansi forecast Lat Long" uomLabels="d GridSpacing degree degree" srsDimension="4">
+                <gml:lowerCorner>"2017-01-10T00:00:00.000Z" 0 34.4396675 29.6015625</gml:lowerCorner>
+                <gml:upperCorner>"2017-12-15T00:00:00.000Z" 22 34.7208095 29.8828125</gml:upperCorner>
             </gml:Envelope>
         </gml:boundedBy>
         <wcs:CoverageId>test_ecmwf_fire_4d_color_palette_table_metadata_xml</wcs:CoverageId>
         <gml:coverageFunction>
             <gml:GridFunction>
-                <gml:sequenceRule axisOrder="+4 +2 +1 +3">Linear</gml:sequenceRule>
+                <gml:sequenceRule axisOrder="+4 +3 +2 +1">Linear</gml:sequenceRule>
                 <gml:startPoint>0 0 0 0</gml:startPoint>
             </gml:GridFunction>
         </gml:coverageFunction>
@@ -50,34 +50,18 @@
                 <gml:limits>
                     <gml:GridEnvelope>
                         <gml:low>0 0 0 0</gml:low>
-                        <gml:high>1 1 5 5</gml:high>
+                        <gml:high>5 5 1 1</gml:high>
                     </gml:GridEnvelope>
                 </gml:limits>
-                <gml:axisLabels>Lat Long ansi forecast</gml:axisLabels>
+                <gml:axisLabels>ansi forecast Lat Long</gml:axisLabels>
                 <gmlrgrid:origin>
-                    <gml:Point gml:id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
-                        <gml:pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z" 0</gml:pos>
+                    <gml:Point gml:id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
+                        <gml:pos>"2017-01-10T00:00:00.000Z" 0 34.650524 29.671875</gml:pos>
                     </gml:Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">-0.140571 0 0 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0.140625 0 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0 1 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">1 0 0 0</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients>"2017-01-10T00:00:00.000Z" "2017-02-10T00:00:00.000Z" "2017-06-20T00:00:00.000Z" "2017-09-18T00:00:00.000Z" "2017-11-18T00:00:00.000Z" "2017-12-15T00:00:00.000Z"</gmlrgrid:coefficients>
                         <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -85,9 +69,25 @@
                 </gmlrgrid:generalGridAxis>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;3=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0 0 1</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 1 0 0</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients>0 3 5 8 15 22</gmlrgrid:coefficients>
                         <gmlrgrid:gridAxesSpanned>forecast</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 -0.140571 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;3=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 0 0.140625</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                     </gmlrgrid:GeneralGridAxis>
                 </gmlrgrid:generalGridAxis>

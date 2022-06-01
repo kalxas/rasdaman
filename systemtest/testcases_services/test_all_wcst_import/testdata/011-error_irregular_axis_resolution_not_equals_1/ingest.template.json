@@ -47,7 +47,6 @@
             "reftime": {
               "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
 	      "max": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
-              "gridOrder": 0,
               "type": "ansidate",
               "irregular": true,
 	      "resolution": "15",
@@ -56,19 +55,16 @@
             "Long": {
               "min": "${grib:longitudeOfFirstGridPointInDegrees}",
               "max": "${grib:longitudeOfLastGridPointInDegrees}",
-              "gridOrder": 2,
               "resolution": "${grib:iDirectionIncrementInDegrees}"
             },
             "Lat": {
               "min": "${grib:latitudeOfLastGridPointInDegrees}",
               "max": "${grib:latitudeOfFirstGridPointInDegrees}",
-              "gridOrder": 3,
               "resolution": "-${grib:jDirectionIncrementInDegrees}"
             },
             "isobaric": {
               "min": "${grib:level}",
               "max": "${grib:level}",
-              "gridOrder": 1,
               "irregular": true,
               "directPositions": "${grib:axis:isobraric}"
            }

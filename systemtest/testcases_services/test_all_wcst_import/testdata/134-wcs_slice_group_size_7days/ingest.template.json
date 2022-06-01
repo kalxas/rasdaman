@@ -36,7 +36,6 @@
                         "timeeeeeeeeeeeeeee": {
                             "min": "datetime(regex_extract('${file:name}', '(.*)\\.(.*)',1), 'YYYYMMDD')",
 			                "crsOrder": 0,
-                            "gridOrder": 0,
                             "type": "ansidate",
                             "irregular": true,
                             "sliceGroupSize": 7,
@@ -46,14 +45,12 @@
                             "min": "${gdal:minX}",
                             "max": "${gdal:maxX}",
 			                "crsOrder": 2,
-                            "gridOrder": 1,
                             "resolution": "${gdal:resolutionX}"
                         },
                         "laaaaaaaaaaaaaaat": {
                             "min": "${gdal:minY}",
                             "max": "${gdal:maxY}",
 			                "crsOrder": 1,
-                            "gridOrder": 2,
                             "resolution": "${gdal:resolutionY}"
                         }
                     }

@@ -44,20 +44,17 @@
               "directPositions": "[(datetime(1970,1,1,0,0,0) + timedelta(minutes=x)).strftime(\"%Y-%m-%dT%H:%M\") for x in ${netcdf:variable:time}]",
               "statements": "from datetime import datetime, timedelta",
               "resolution": 1,
-              "gridOrder": 0,
               "type": "ansidate",
               "irregular": true
             },
             "Lat": {
               "min": "${netcdf:variable:y:min}",
               "max": "${netcdf:variable:y:max}",
-              "gridOrder": 1,
               "resolution": "${netcdf:variable:y:resolution}"
             },
             "Long": {
               "min": "${netcdf:variable:x:min}",
               "max": "${netcdf:variable:x:max}",
-              "gridOrder": 2,
               "resolution": "${netcdf:variable:x:resolution}"
             }
           }

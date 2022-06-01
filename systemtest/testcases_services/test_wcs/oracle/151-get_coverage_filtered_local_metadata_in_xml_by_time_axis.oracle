@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage gml:id="test_wcs_local_metadata_netcdf_in_xml" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org" xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid">
     <gml:boundedBy>
-        <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" axisLabels="Lat Long forecast" uomLabels="degree degree GridSpacing" srsDimension="3">
-            <gml:lowerCorner>34.4396675 29.6015625 0</gml:lowerCorner>
-            <gml:upperCorner>34.7208095 29.8828125 3</gml:upperCorner>
+        <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="forecast Lat Long" uomLabels="GridSpacing degree degree" srsDimension="3">
+            <gml:lowerCorner>0 34.4396675 29.6015625</gml:lowerCorner>
+            <gml:upperCorner>3 34.7208095 29.8828125</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
@@ -14,15 +14,23 @@
                     <gml:high>1 1 1</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
-            <gml:axisLabels>Lat Long forecast</gml:axisLabels>
+            <gml:axisLabels>forecast Lat Long</gml:axisLabels>
             <gmlrgrid:origin>
-                <gml:Point gml:id="test_wcs_local_metadata_netcdf_in_xml-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
-                    <gml:pos>34.650524 29.671875 0</gml:pos>
+                <gml:Point gml:id="test_wcs_local_metadata_netcdf_in_xml-point" srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
+                    <gml:pos>0 34.650524 29.671875</gml:pos>
                 </gml:Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">-0.140571 0 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">1 0 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients>0 3</gmlrgrid:coefficients>
+                    <gmlrgrid:gridAxesSpanned>forecast</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 -0.140571 0</gmlrgrid:offsetVector>
                     <gmlrgrid:coefficients/>
                     <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
                     <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -30,17 +38,9 @@
             </gmlrgrid:generalGridAxis>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0.140625 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;&amp;2=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 0 0.140625</gmlrgrid:offsetVector>
                     <gmlrgrid:coefficients/>
                     <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="http://localhost:8080/rasdaman/def/crs-compound?1=http://localhost:8080/rasdaman/def/crs/EPSG/0/4326&amp;2=http://localhost:8080/rasdaman/def/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0 1</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients>0 3</gmlrgrid:coefficients>
-                    <gmlrgrid:gridAxesSpanned>forecast</gmlrgrid:gridAxesSpanned>
                     <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                 </gmlrgrid:GeneralGridAxis>
             </gmlrgrid:generalGridAxis>
@@ -49,7 +49,7 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">0,-9999,0,-9999,0,-9999,0,-9999</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">0,0,0,0,-9999,-9999,-9999,-9999</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>
@@ -105,10 +105,10 @@
                     <slice>
                         <boundedBy>
                             <Envelope>
-                                <axisLabels>Lat Long ansi forecast</axisLabels>
+                                <axisLabels>ansi forecast Lat Long</axisLabels>
                                 <srsDimension>4</srsDimension>
-                                <lowerCorner>34.4396675 29.6015625 "2017-02-10T00:00:00+00:00" 3</lowerCorner>
-                                <upperCorner>34.7208095 29.8828125 "2017-02-10T00:00:00+00:00" 3</upperCorner>
+                                <lowerCorner>"2017-02-10T00:00:00+00:00" 3 34.4396675 29.6015625</lowerCorner>
+                                <upperCorner>"2017-02-10T00:00:00+00:00" 3 34.7208095 29.8828125</upperCorner>
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>FROM FILE 2</local_metadata_key>

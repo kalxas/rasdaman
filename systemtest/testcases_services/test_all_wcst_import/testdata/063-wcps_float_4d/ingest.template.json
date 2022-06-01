@@ -42,25 +42,21 @@
             "i": {
               "min": "0",
               "max": "0",
-              "resolution": 1,
-              "gridOrder": 0
+              "resolution": 1
             },	    
             "j": {
               "min": "0",
               "max": "0",
-              "gridOrder": 1,
               "resolution": 1
             },
             "k": {
               "min": "0",
               "max": "39",
-              "gridOrder": 2,
               "resolution": 1
             },
             "m": {
               "min": "-20",
               "max": "19",
-              "gridOrder": 3,
               "resolution": 1
             }
           }

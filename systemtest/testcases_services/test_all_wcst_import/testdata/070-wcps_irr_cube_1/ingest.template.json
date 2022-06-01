@@ -39,20 +39,17 @@
             "i": {
               "min": "0",
               "max": "9",
-              "gridOrder": 0,
               "resolution": 1.0
             },
             "j": {
               "min": "0",
               "max": "9",
-              "gridOrder": 1,
               "resolution": -1.0
             },
  	    "k": {
               "min": "${netcdf:variable:k:min}",
               "max": "${netcdf:variable:k:max}",
               "directPositions": "${netcdf:variable:k}",
-              "gridOrder": 2,
               "irregular": true
             }
           }

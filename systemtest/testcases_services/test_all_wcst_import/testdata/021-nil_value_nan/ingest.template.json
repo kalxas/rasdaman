@@ -55,14 +55,12 @@
             "Lat": {
               "min": "${gdal:minY}",
               "max": "${gdal:maxY}",
-              "resolution": "${gdal:resolutionY}",
-              "gridOrder": 1
+              "resolution": "${gdal:resolutionY}"
             },
             "Long": {
               "min": "${gdal:minX}",
               "max": "${gdal:maxX}",
-              "resolution": "${gdal:resolutionX}",
-              "gridOrder": 0
+              "resolution": "${gdal:resolutionX}"
             }
           }
         }

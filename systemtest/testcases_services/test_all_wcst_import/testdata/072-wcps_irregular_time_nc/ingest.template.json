@@ -94,19 +94,16 @@
               "min": "${netcdf:variable:unix:min}",
               "max": "${netcdf:variable:unix:max}",
               "directPositions": "${netcdf:variable:unix}",
-              "gridOrder": 0,
               "irregular": true
             },
             "E": {
               "min": "${netcdf:variable:E:min}",
               "max": "${netcdf:variable:E:max}",
-              "gridOrder": 2,
               "resolution": 25.0
             },
             "N": {
               "min": "${netcdf:variable:N:min}",
               "max": "${netcdf:variable:N:max}",
-              "gridOrder": 1,
               "resolution": -25.0
             }
           }

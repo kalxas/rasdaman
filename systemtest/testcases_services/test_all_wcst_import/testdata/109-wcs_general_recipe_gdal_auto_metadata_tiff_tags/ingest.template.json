@@ -32,13 +32,11 @@
               "Long": {
                 "min": "${gdal:minX}",
                 "max": "${gdal:maxX}",
-                "gridOrder": 0,
                 "resolution": "${gdal:resolutionX}"
               },
               "Lat": {
                 "min": "${gdal:minY}",
                 "max": "${gdal:maxY}",
-                "gridOrder": 1,
                 "resolution": "${gdal:resolutionY}"
               }
           }

@@ -43,7 +43,6 @@
           "axes": {
             "ansi": {
               "min": "datetime(regex_extract('${file:name}', '(.+?)(Z.+)', 1), 'YYYY-MM-DDTHH:mm:ss.SSS')",
-              "gridOrder": 0,
               "type": "ansidate",
               "irregular": true,
 	      "dataBound": false
@@ -51,13 +50,11 @@
           "Long": {
               "min": "${netcdf:variable:lon:min}",
               "max": "${netcdf:variable:lon:max}",
-              "gridOrder": 2,
               "resolution": "0.0027777771603223114"
             },
             "Lat": {
               "min": "${netcdf:variable:lat:min}",
               "max": "${netcdf:variable:lat:max}",
-              "gridOrder": 1,
               "resolution": "-0.0027777771603223114"
             }
           }

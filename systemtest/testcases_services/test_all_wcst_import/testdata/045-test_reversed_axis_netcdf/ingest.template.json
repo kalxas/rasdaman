@@ -17,7 +17,7 @@
     "name": "general_coverage",
     "options": {
       "coverage": {
-        "crs": "EPSG/0/4326@OGC/0/AnsiDate",
+        "crs": "OGC/0/AnsiDate@EPSG/0/4326",
         "metadata": {
           "type": "xml",
           "global": {
@@ -41,20 +41,17 @@
               "min": "datetime(regex_extract('${file:name}', 'dis_(.*)_(.*)', 1), 'YYYYMMDD')",
               "max": "datetime(regex_extract('${file:name}', 'dis_(.*)_(.*)', 2), 'YYYYMMDD')",
 	      "resolution": "1",
-              "gridOrder": 0,
               "type": "ansidate",
               "regular": true
             },
             "Long": {
               "min": "${netcdf:variable:lon:min} - 0.05",
               "max": "${netcdf:variable:lon:max} + 0.05",
-              "gridOrder": 2,
               "resolution":"0.1"
             },
             "Lat": {
               "min": "${netcdf:variable:lat:min} - 0.05",
               "max": "${netcdf:variable:lat:max} + 0.05",
-              "gridOrder": 1,
               "resolution": "-0.1"
             }
           } 

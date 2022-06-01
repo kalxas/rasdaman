@@ -44,28 +44,24 @@
                 "directPositions": "[(datetime(1978,12,31,12,0,0) + timedelta(days=x)).strftime(\"%Y-%m-%dT%H:%M\") for x in ${netcdf:variable:time}]",
                 "irregular": true,
   	            "resolution": "1",
-                "gridOrder": 0,
                 "crsOrder": 0,
                 "type": "ansidate"
               },
               "lon": {
                 "min": "${netcdf:variable:longitude_ts:min}",
                 "max": "${netcdf:variable:longitude_ts:max}",
-                "gridOrder": 3,
                 "crsOrder": 3,
                 "resolution": "${netcdf:variable:longitude_ts:resolution}"
               },
               "lat": {
                 "min": "${netcdf:variable:latitude_ts:min}",
                 "max": "${netcdf:variable:latitude_ts:max}",
-                "gridOrder": 2,
                 "crsOrder": 2,
                 "resolution": "${netcdf:variable:latitude_ts:resolution}"
               }, 
               "depth": {
                 "min": "${netcdf:variable:depth:min}",
                 "max": "${netcdf:variable:depth:max}",
-                "gridOrder": 2,
                 "crsOrder": 1,
                 "resolution": 1
               }

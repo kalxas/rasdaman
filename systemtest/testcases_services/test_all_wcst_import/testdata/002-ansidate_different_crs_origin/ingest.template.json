@@ -44,7 +44,6 @@
               "min": "${netcdf:variable:time:min}",
               "max": "${netcdf:variable:time:max}",
               "directPositions": "${netcdf:variable:time}",
-              "gridOrder": 0,
               "type": "ansidate",
          "resolution": "1",
          "crs_origin": "1970-01-01"
@@ -52,13 +51,11 @@
             "Long": {
               "min": "${netcdf:variable:lon:min}",
               "max": "${netcdf:variable:lon:max}",
-              "gridOrder": 2,
               "resolution": "0.04166666666666666666"
             },
             "Lat": {
               "min": "${netcdf:variable:lat:min}",
               "max": "${netcdf:variable:lat:max}",
-              "gridOrder": 1,
               "resolution": "-0.04166666666666666666"
             }
           }

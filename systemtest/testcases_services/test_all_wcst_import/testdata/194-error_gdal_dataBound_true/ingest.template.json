@@ -34,18 +34,15 @@
               "Long": {
                 "min": "${gdal:minX}",
                 "max": "${gdal:maxX}",
-                "gridOrder": 1,
                 "resolution": "${gdal:resolutionX}"
               },
               "Lat": {
                 "min": "${gdal:minY}",
                 "max": "${gdal:maxY}",
-                "gridOrder": 2,
                 "resolution": "${gdal:resolutionY}"
               },
               "i": {
                     "min": "int(regex_extract('${file:name}', 'test_(.*).tiff', 1))",
-                    "gridOrder": 0,
                     "irregular": true,
                     "dataBound": true
               }

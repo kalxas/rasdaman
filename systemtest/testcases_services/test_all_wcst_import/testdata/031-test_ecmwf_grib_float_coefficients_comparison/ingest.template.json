@@ -20,7 +20,7 @@
     "name": "general_coverage",
     "options": {
       "coverage": {
-        "crs": "EPSG/0/4326@OGC/0/AnsiDate?axis-label=\"reftime\"",
+        "crs": "OGC/0/AnsiDate?axis-label=\"reftime\"@EPSG/0/4326",
         "metadata": {
           "type": "json",
           "global": {
@@ -48,7 +48,6 @@
           "axes": {
             "reftime": {
               "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
-              "gridOrder": 0,
               "type": "ansidate",
               "irregular": true,
               "directPositions": "${grib:axis:reftime}",
@@ -57,14 +56,12 @@
             "Long": {
               "min": "${grib:longitudeOfFirstGridPointInDegrees}",
               "max": "${grib:longitudeOfLastGridPointInDegrees}",
-              "gridOrder": 1,
               "dataBound" : true,
               "resolution": "-${grib:iDirectionIncrementInDegrees} if bool(${grib:iScansNegatively}) else ${grib:iDirectionIncrementInDegrees}"
             },
             "Lat": {
               "min": "${grib:latitudeOfLastGridPointInDegrees}",
               "max": "${grib:latitudeOfFirstGridPointInDegrees}",
-              "gridOrder": 2,
               "dataBound" : true,
               "resolution": "${grib:jDirectionIncrementInDegrees} if bool(${grib:jScansPositively}) else -${grib:jDirectionIncrementInDegrees}"
             }

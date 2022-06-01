@@ -78,7 +78,7 @@
     </gml:rangeSet>
     <gml:coverageFunction>
         <gml:GridFunction>
-            <gml:sequenceRule axisOrder="+5 +6 +4 +3 +2 +1">Linear</gml:sequenceRule>
+            <gml:sequenceRule axisOrder="+6 +5 +4 +3 +2 +1">Linear</gml:sequenceRule>
             <gml:startPoint>0 0 2 2 0 0</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>

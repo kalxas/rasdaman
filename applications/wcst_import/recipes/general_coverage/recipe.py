@@ -260,6 +260,31 @@ class Recipe(BaseRecipe):
             else:
                 raise RuntimeError("'bands' must be specified in ingredient file for netCDF/GRIB recipes.")
 
+    def _update_crs_axes_grid_orders(self, crs_axes):
+        """
+        Set gridOrder implicitly per CRSAxis
+        """
+        slicer_type = self.options['coverage']['slicer']["type"]
+        i = 0
+        previous_crs_axis = None
+        for crs_axis in crs_axes:
+            if slicer_type == GdalToCoverageConverter.RECIPE_TYPE or slicer_type == GRIBToCoverageConverter.RECIPE_TYPE:
+                if crs_axis.is_x_axis() and previous_crs_axis is not None and previous_crs_axis.is_y_axis():
+                    # e.g. EPSG:4326 (GDAL and GRIB is always X and Y gridOrder)
+                    grid_order_tmp = i
+                    crs_axis.grid_order = previous_crs_axis.grid_order
+                    previous_crs_axis.grid_order = grid_order_tmp
+                else:
+                    # XY geoCRS order
+                    crs_axis.grid_order = i
+            else:
+                # NOTE: for netCDF, the typical case is with Y,X gridOrder, hence, does nothing
+                crs_axis.grid_order = i
+
+            i += 1
+            if i > 0 and i < len(crs_axes):
+                previous_crs_axis = crs_axes[i - 1]
+
     def _read_axes(self, crs):
         """
         Returns a list of user axes extracted from the ingredients file
@@ -270,8 +295,8 @@ class Recipe(BaseRecipe):
         user_axes = []
 
         crs_axes = CRSUtil(crs).get_axes(self.session.coverage_id, axes_configurations)
+        self._update_crs_axes_grid_orders(crs_axes)
 
-        default_order = 0
         for index, crs_axis in enumerate(crs_axes):
             exist = False
 
@@ -297,7 +322,9 @@ class Recipe(BaseRecipe):
             else:
                 type = UserAxisType.NUMBER
 
-            order = axis["gridOrder"] if "gridOrder" in axis else default_order
+            # In case users specified gridOrder in the ingredients file
+            order = axis["gridOrder"] if "gridOrder" in axis else crs_axis.grid_order
+
             irregular = axis["irregular"] if "irregular" in axis else False
             dataBound = axis["dataBound"] if "dataBound" in axis else True
             # for irregular axes we consider the resolution 1 / -1 as gmlcov requires resolution for all axis types,
@@ -306,7 +333,6 @@ class Recipe(BaseRecipe):
                 resolution = axis["resolution"]
             else:
                 resolution = 1
-            default_order += 1
 
             if "statements" in axis:
                 if isinstance(axis["statements"], list):

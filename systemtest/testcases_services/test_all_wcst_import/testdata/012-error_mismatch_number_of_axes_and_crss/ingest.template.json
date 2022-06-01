@@ -39,25 +39,21 @@
                 "min": "datetime(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 1), 'YYYYMMDD')",
                 "max": "datetime(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 1), 'YYYYMMDD')",
   	          "resolution": "1",
-                "gridOrder": 0,
                 "type": "ansidate",
                 "irregular": true
               },
               "Long": {
                 "min": "${netcdf:variable:lon:min}",
                 "max": "${netcdf:variable:lon:max}",
-                "gridOrder": 2,
                 "resolution": "${netcdf:variable:lon:resolution}"
               },
               "Lat": {
                 "min": "${netcdf:variable:lat:min}",
                 "max": "${netcdf:variable:lat:max}",
-                "gridOrder": 1,
                 "resolution": "${netcdf:variable:lat:resolution}"
               }, 
               "forecast": {
                 "min": "int(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 2))",
-                "gridOrder": 3,
    	        "dataBound": false,
                 "resolution": 1,
                 "irregular": true

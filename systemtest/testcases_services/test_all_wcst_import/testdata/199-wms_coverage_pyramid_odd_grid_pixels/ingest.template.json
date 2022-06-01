@@ -45,13 +45,11 @@
             "Y": {
               "min": "${gdal:minY}",
               "max": "${gdal:maxY}",
-              "gridOrder": 1,
               "resolution": "${gdal:resolutionY}"
             },
             "X": {
               "min": "${gdal:minX}",
               "max": "${gdal:maxX}",
-              "gridOrder": 0,
               "resolution": "${gdal:resolutionX}"
             }
           }

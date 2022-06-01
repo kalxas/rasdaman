@@ -52,20 +52,17 @@
                                         "axes": {
                                                 "DATE": {
                                                         "min": "datetime(regex_extract('S2A_MSIL1C_20181114T104301_N0207', '(.*)_(.*)_(.*)_(.*)',3), 'YYYYMMDD')",
-                                                        "gridOrder": 0,
                                                         "irregular": true,
                                                         "dataBound": false
                                                 },
                                                 "E": {
                                                         "min": "${gdal:minX}",
                                                         "max": "${gdal:maxX}",
-                                                        "gridOrder": 1,
                                                         "resolution": "${gdal:resolutionX}"
                                                 },
                                                 "N": {
                                                         "min": "${gdal:minY}",
                                                         "max": "${gdal:maxY}",
-                                                        "gridOrder": 2,
                                                         "resolution": "${gdal:resolutionY}"
                                                 }
                                         }

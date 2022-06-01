@@ -2981,15 +2981,34 @@ bounds and resolution corresponding to each file.
   and ``resolution`` have to be specified, except for irregular axes where
   ``resolution`` is not applicable.
 
-  * ``gridOrder`` - The index of the axis in the input file (0-based);
-    Note: Each axis must have an unique index ``gridOrder`` specified.
-    For example, in a 2-D coverage in standard EPSG:4326 CRS, the Lat
-    axis would have ``gridOrder`` 0 and the Lon axis would have ``gridOrder``
-    1. In a 3-D coverage with time, Lat, and Lon axes, however, the Lat and Lon 
-    axes would have ``gridOrder`` 1 and 2, and gridOrder 0 would be set for
-    the time axis. For more details, see `this example
-    <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/130-wcs_pml_global_metadata_auto/ingest.template.json>`__ 
-    for importing netCDF files to a 3-D coverage.
+  * ``gridOrder`` - specify the grid order of axes defined by the coverage CRS.
+    If not specified, wcst_import will try to automatically derive the gridOrder
+    according to the documentation below. That may fail with unusual data, in which
+    case it will be necessary to set this setting manually for each axis.
+
+    Axes of a CRS which is not part of the file CRS have gridOrder that is 
+    same as the order in the CRS definition. For example, if the coverage CRS is
+    a compound CRS ``OGC/0/AnsiDate@EPSG/0/4326`` and data files themselves have CRS
+    ``EPSG/0/4326``, then gridOrder for the ansi axis in ``OGC/0/AnsiDate`` will be
+    0, and the gridOrder of the ``EPSG/0/4326`` axes will follow with 1 and 2. If
+    the CRS order was reversed to ``EPSG/0/4326@OGC/0/AnsiDate``, then the gridOrder
+    of 4326 axes (Long/Lat) would be 0 and 1, and of AnsiDate (ansi) would be 2.
+    Usually axes of non-file CRS (AnsiDate in this example) will also have setting
+    ``dataBound: false``.
+
+    Below we give hints on how to determine the gridOrder of axes in the file CRS.
+
+    * When data is imported with the ``gdal`` or ``grib`` slicer, generally the gridOrder is ``n``
+    for X axes (Longitude, E, ...), and ``n+1`` for Y axes (Latitude, N, ...).
+
+    * When importing data with the ``netcdf`` slicer, the gridOrder should usually
+    match the dimension order of the imported variable, which can be checked
+    with ``ncdump -h``; e.g. a variable ``float dc(time, lat, lon)`` will have
+    gridOrder ``n`` for time, ``n+1`` for lat, and ``n+2`` for lon. This will work
+    well as long as the data conforms to the `CF-conventions
+    <https://cfconventions.org/Data/cf-conventions/cf-conventions-1.7/cf-conventions.html#dimensions>`,
+    and may otherwise need adjustments if the spatial dimensions are not in Y/X
+    order.
   * ``crsOrder`` - The index of the geo axis in the coverage's CRS (0-based).
     Note: By default it is not required. Only set when one specifies a different name for this axis,
     than the one configured in the CRS's definition; more details can be found :ref:`here 

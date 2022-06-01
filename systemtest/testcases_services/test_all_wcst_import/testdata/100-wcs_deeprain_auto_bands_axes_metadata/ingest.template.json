@@ -36,25 +36,21 @@
               "min": "datetime(${netcdf:variable:time:min} * 24 * 3600)",
               "max": "datetime(${netcdf:variable:time:max} * 24 * 3600)",
               "resolution": 1,
-              "gridOrder": 0,
               "type": "ansidate"
             },
             "Long": {
               "min": "${netcdf:variable:rlon:min}",
               "max": "${netcdf:variable:rlon:max}",
-              "gridOrder": 3,
               "resolution": "${netcdf:variable:rlon:resolution}"
             },
             "Lat": {
               "min": "${netcdf:variable:rlat:min}",
               "max": "${netcdf:variable:rlat:max}",
-              "gridOrder": 2,
               "resolution": "${netcdf:variable:rlat:resolution}"
             },
             "i": {
               "min": "${netcdf:variable:height:min}",
               "max": "${netcdf:variable:height:max}",
-              "gridOrder": 1,
               "resolution": 1
             }
           }

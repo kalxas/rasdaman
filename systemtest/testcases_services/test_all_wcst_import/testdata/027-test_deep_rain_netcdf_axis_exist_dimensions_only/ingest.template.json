@@ -35,7 +35,6 @@
           "axes": {
             "ansi": {
               "min": "datetime(regex_extract('${file:name}', 'grib_(.*).nc', 1), 'YYYYMMDDHH')",                       
-              "gridOrder": 0,
               "type": "ansidate",
               "irregular": true,
               "dataBound": false
@@ -43,19 +42,16 @@
             "i": {
               "min": "${netcdf:variable:station:min}",
               "max": "${netcdf:variable:station:max}",
-              "gridOrder": 1,
               "resolution": "${netcdf:variable:station:resolution}"
             },
             "j": {
               "min": "${netcdf:variable:fps:min}",
               "max": "${netcdf:variable:fps:max}",
-              "gridOrder": 2,
               "resolution": "${netcdf:variable:fps:resolution}"
             },
             "k": {
               "min": "${netcdf:variable:nensm:min}",
               "max": "${netcdf:variable:nensm:max}",
-              "gridOrder": 2,
               "resolution": "${netcdf:variable:nensm:resolution}"
             }
           }

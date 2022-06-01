@@ -77,6 +77,7 @@ class CRSAxis:
         self.label = label
         self.type = axis_type
         self.uom = axis_uom
+        self.grid_order = -1
 
     def is_x_axis(self):
         return self.type == self.AXIS_TYPE_X

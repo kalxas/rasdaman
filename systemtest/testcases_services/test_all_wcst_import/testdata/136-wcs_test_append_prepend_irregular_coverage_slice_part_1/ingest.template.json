@@ -39,7 +39,6 @@
                     "axes": {
                         "ansi": {
                             "min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
-                            "gridOrder": 0,
                             "type": "ansidate",
                             "irregular": true,
                             "dataBound": false
@@ -47,13 +46,11 @@
                         "Long": {
                             "min": "${netcdf:variable:lon:min}",
                             "max": "${netcdf:variable:lon:max}",
-                            "gridOrder": 2,
                             "resolution": "${netcdf:variable:lon:resolution}"
                         },
                         "Lat": {
                             "min": "${netcdf:variable:lat:min}",
                             "max": "${netcdf:variable:lat:max}",
-                            "gridOrder": 1,
                             "resolution": "${netcdf:variable:lat:resolution}"
                         }
                     }

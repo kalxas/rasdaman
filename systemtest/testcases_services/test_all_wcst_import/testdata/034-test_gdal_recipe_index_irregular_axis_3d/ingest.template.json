@@ -45,7 +45,6 @@
               },
               "i": {
                     "min": "int(regex_extract('${file:name}', 'test_(.*).tiff', 1))",
-                    "gridOrder": 0,
                     "irregular": true,
                     "dataBound": false
               }

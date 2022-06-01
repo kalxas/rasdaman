@@ -37,24 +37,20 @@
             "Lat": {
               "min": "${grib:latitudeOfLastGridPointInDegrees} - 0.25",
               "max": "${grib:latitudeOfFirstGridPointInDegrees} + 0.25",
-              "resolution": "-0.5",
-              "gridOrder": 3
+              "resolution": "-0.5"
             },
             "Long": {
               "min": "${grib:longitudeOfFirstGridPointInDegrees} - 0.25",
               "max": "${grib:longitudeOfLastGridPointInDegrees} + 0.25",
-              "resolution": "0.5",
-              "gridOrder": 2
+              "resolution": "0.5"
             }, "ansi": {
 	      "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
               "resolution": 1,
-              "gridOrder": 1,
               "irregular": false
             }, "isobaric": {
               "min": "${grib:level} - 12.5",
               "max": "${grib:level} + 12.5",
-              "resolution": "25",
-              "gridOrder": 0
+              "resolution": "25"
             }
           }
         }

@@ -41,7 +41,6 @@
                         "timeeeeeeeeeeeeeee": {
                             "min": "datetime(regex_extract('${file:name}', '(.*)-(.*)\\.(.*)',2), 'YYYYMMDD')",
 			                "crsOrder": 0,
-                            "gridOrder": 0,
                             "type": "ansidate",
                             "resolution": 7,
                             "dataBound": false
@@ -50,14 +49,12 @@
                             "min": "${netcdf:variable:lon:min}",
                             "max": "${netcdf:variable:lon:max}",
 			                "crsOrder": 2,
-                            "gridOrder": 2,
                             "resolution": "${netcdf:variable:lon:resolution}"
                         },
                         "laaaaaaaaaaaaaaat": {
                             "min": "${netcdf:variable:lat:min}",
                             "max": "${netcdf:variable:lat:max}",
 			                "crsOrder": 1,
-                            "gridOrder": 1,
                             "resolution": "${netcdf:variable:lat:resolution}"
                         }
                     }

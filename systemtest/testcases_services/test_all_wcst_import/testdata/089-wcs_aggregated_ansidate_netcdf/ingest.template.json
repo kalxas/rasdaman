@@ -44,19 +44,16 @@
               "min": "${netcdf:variable:ansi:min} * 24 * 3600 - 11644560000.0",
               "max": "${netcdf:variable:ansi:max} * 24 * 3600 - 11644560000.0",
               "directPositions": "[float(x) * 24 * 3600 - 11644560000.0 for x in ${netcdf:variable:ansi}]",
-              "gridOrder": 2,
               "irregular": true
             },
             "E": {
               "min": "${netcdf:variable:E:min}",
               "max": "${netcdf:variable:E:max}",
-              "gridOrder": 0,
               "resolution": 10000.0
             },
             "N": {
               "min": "${netcdf:variable:N:min}",
               "max": "${netcdf:variable:N:max}",
-              "gridOrder": 1,
               "resolution": -10000.0
             }
           }

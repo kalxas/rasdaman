@@ -34,7 +34,6 @@
 					"axes": {
 						"ansi": {
 							"min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
-							"gridOrder": 2,
 							"type": "ansidate",
 							"irregular": true,
 							"dataBound": false
@@ -42,13 +41,11 @@
 						"Long": {
 							"min": "${gdal:minX}",
 							"max": "${gdal:maxX}",
-							"gridOrder": 0,
 							"resolution": "${gdal:resolutionX}"
 						},
 						"Lat": {
 							"min": "${gdal:minY}",
 							"max": "${gdal:maxY}",
-							"gridOrder": 1,
 							"resolution": "${gdal:resolutionY}"
 						}
 					}

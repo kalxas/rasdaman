@@ -17,7 +17,7 @@
     "name": "general_coverage",
     "options": {
       "coverage": {
-        "crs": "EPSG/0/4326@OGC/0/AnsiDate",
+        "crs": "OGC/0/AnsiDate@EPSG/0/4326",
         "metadata": {
           "type": "xml",
           "global": {}
@@ -51,20 +51,17 @@
               "max": "datetime(${netcdf:variable:time:max} * 24 * 3600)",
 	      "directPositions": "[datetime(${netcdf:variable:time:min} * 24 * 3600)]",
               "resolution": 1,
-              "gridOrder": 0,
               "type": "ansidate",
               "irregular": true
             },
             "Long": {
               "min": "${netcdf:variable:lon:min}",
               "max": "${netcdf:variable:lon:max}",
-              "gridOrder": 2,
               "resolution": "${netcdf:variable:lon:resolution}"
             },
             "Lat": {
               "min": "${netcdf:variable:lat:min}",
               "max": "${netcdf:variable:lat:max}",
-              "gridOrder": 1,
               "resolution": "${netcdf:variable:lat:resolution}"
             }
           }

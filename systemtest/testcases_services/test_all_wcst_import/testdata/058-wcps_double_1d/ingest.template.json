@@ -42,8 +42,7 @@
             "i": {
               "min": "0",
               "max": "21",
-              "resolution": 1,
-              "gridOrder": 0
+              "resolution": 1
             }
           }
         }

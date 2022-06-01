@@ -39,20 +39,17 @@
           "axes": {
             "ansi": {
               "min": "regex_extract('${file:name}', '(.*)_\\[(.+?)\\]\\.(.*)', 2)",
-              "gridOrder": 0,
               "irregular": true,
 	      "dataBound": false
             },
           "E": {
               "min": "${gdal:minX}",
               "max": "${gdal:maxX}",
-              "gridOrder": 1,
               "resolution": "${gdal:resolutionX}"
             },
             "N": {
               "min": "${gdal:minY}",
               "max": "${gdal:maxY}",
-              "gridOrder": 2,
               "resolution": "-${gdal:resolutionY}"
             }
           }

@@ -10,7 +10,7 @@
         <wcs:CoverageId>test_awi_axes_band_local_metadata_override</wcs:CoverageId>
         <gml:coverageFunction>
             <gml:GridFunction>
-                <gml:sequenceRule axisOrder="+2 +1 +3">Linear</gml:sequenceRule>
+                <gml:sequenceRule axisOrder="+3 +2 +1">Linear</gml:sequenceRule>
                 <gml:startPoint>0 0 0</gml:startPoint>
             </gml:GridFunction>
         </gml:coverageFunction>
