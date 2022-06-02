@@ -17,3 +17,7 @@
 470-let_clause_clip.test
 
 347-corridor_2D_linestring_E_N_source_CRS_4326_on_3Dcoverage_as_gml.test
+
+
+498-domain_lo_on_non_XY_axis.test
+499-domain_hi_on_non_XY_axis.test

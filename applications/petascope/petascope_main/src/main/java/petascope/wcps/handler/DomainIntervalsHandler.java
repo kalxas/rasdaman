@@ -21,19 +21,9 @@
  */
 package petascope.wcps.handler;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.stereotype.Service;
-import petascope.core.AxisTypes;
-import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
-import petascope.util.CrsUtil;
-import petascope.wcps.exception.processing.InvalidSdomExtractionException;
-import petascope.wcps.metadata.model.Axis;
-import petascope.wcps.metadata.model.NumericTrimming;
-import petascope.wcps.metadata.model.RegularAxis;
-import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.util.StringUtil;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -57,10 +47,21 @@ public class DomainIntervalsHandler extends AbstractOperatorHandler {
         String bounds = domainIntervalsResult.substring(domainIntervalsResult.indexOf("(") + 1, domainIntervalsResult.indexOf(")"));           
 
         result = bounds;
-
+        
         String[] tmp = bounds.split(":");
-        String lowerBound = tmp[0];
+        
+        boolean isTimeAxis = false;
+        if (bounds.contains("\"")) {
+            isTimeAxis = true;
+            // e.g. "2015-01-02":"2015-06-07T01:00:02")
+            tmp = bounds.split("\":");
+        }
+
+        String lowerBound = tmp[0];        
         String upperBound = tmp[1];
+        if (isTimeAxis) {
+            lowerBound = lowerBound + "\"";
+        }
 
         // 0D coverage
         // e.g: imageCrsdomain(c)[0].lo

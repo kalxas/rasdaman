@@ -766,6 +766,15 @@ rasdapy3
 that enables building and executing rasql queries within python. 
 Best practice code snippets are also provided.
 
+
+wcps_rasdaman.py
+^^^^^^^^^^^^^^^^
+
+`wcps_rasdaman.py <https://gitlab.inf.unibz.it/SInCohMap/RoundRobinTutorials/blob/master/wcps_rasdaman.py>`__
+is a python client which sends a WCPS query to a rasdaman server and wraps the response for further use 
+depending on the response format chosen in the query.
+
+
 Access from R
 -------------
 

@@ -124,27 +124,7 @@ public class KVPWCSTParser {
 
         //not a request that this parser can parse, but canParse returned true
         //should never happen
-        log.error("Invalid request type: " + kvpParameters.get(KEY_REQUEST)[0] + ". This parser can not parse requests of this type.");
         throw new WCSTInvalidRequestException(kvpParameters.get(KEY_REQUEST)[0]);
-    }
-    
-    /**
-     * Check if level parameter for InsertScaleLevel request should be integer and greater than 1.
-     */
-    private BigDecimal getScaleLevel(Map<String, String[]> kvpParameters) throws WCSTScaleLevelNotValid, WCSTMissingMandatoryParameter {
-        BigDecimal level = BigDecimal.ONE;
-        try {
-            level = kvpParameters.get(KEY_LEVEL) == null ? null : new BigDecimal(kvpParameters.get(KEY_LEVEL)[0]);
-            if (level == null) {
-                throw new WCSTMissingMandatoryParameter(KEY_LEVEL);
-            } else if (level.compareTo(BigDecimal.ONE) <= 0) {
-                throw new NumberFormatException();
-            }
-        } catch (NumberFormatException ex) {
-            throw new WCSTScaleLevelNotValid(kvpParameters.get(KEY_LEVEL)[0]);
-        }
-        
-        return level;
     }
 
     /**

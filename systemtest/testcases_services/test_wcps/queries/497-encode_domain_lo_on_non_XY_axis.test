@@ -1,0 +1,3 @@
+for c in (test_irr_cube_2)
+return 
+encode(c[ansi(domain(c, ansi).lo)].b2, "jpeg")

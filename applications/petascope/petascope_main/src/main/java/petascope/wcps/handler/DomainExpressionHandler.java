@@ -21,6 +21,8 @@
  */
 package petascope.wcps.handler;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
@@ -106,7 +108,7 @@ public class DomainExpressionHandler extends AbstractOperatorHandler {
      * @param crsUri
      * @return
      */
-    private String getDomainByAxisCrs(WcpsResult coverageExpression, String axisName, String axisCrs) {
+    private String getDomainByAxisCrs(WcpsResult coverageExpression, String axisName, String axisCrs) throws PetascopeException {
         String result = "";
 
         Axis axis = coverageExpression.getMetadata().getAxisByName(axisName);
@@ -121,18 +123,17 @@ public class DomainExpressionHandler extends AbstractOperatorHandler {
                 lowBound = ((NumericTrimming) axis.getGridBounds()).getLowerLimit().toPlainString();
                 highBound = ((NumericTrimming) axis.getGridBounds()).getUpperLimit().toPlainString();
             } else if (axis.getAxisType().equals(AxisTypes.T_AXIS)) {
-                // Time - now only in grid axis
-                lowBound = ((NumericTrimming) axis.getGridBounds()).getLowerLimit().toPlainString();
-                highBound = ((NumericTrimming) axis.getGridBounds()).getUpperLimit().toPlainString();
-            } else if (axis.getAxisType().equals(AxisTypes.X_AXIS)
+                lowBound = axis.getLowerGeoBoundRepresentation();
+                highBound = axis.getUpperGeoBoundRepresentation();
+            } else if (axis.getAxisType().equals(AxisTypes.X_AXIS) 
                     || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
                 // geo-referenced axis , e.g: Lat, Long or Index2D(*)
                 lowBound = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit().toPlainString();
                 highBound = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit().toPlainString();
             } else {
-                // Unknow axisType, use grid bounds
-                lowBound = ((NumericTrimming) axis.getGridBounds()).getLowerLimit().toPlainString();
-                highBound = ((NumericTrimming) axis.getGridBounds()).getUpperLimit().toPlainString();
+                // Unknow axisType
+                lowBound = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit().toPlainString();
+                highBound = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit().toPlainString();
             }
 
             result = TRIMMING_TEMPLATE.replace("$lowBound", lowBound).replace("$highBound", highBound);

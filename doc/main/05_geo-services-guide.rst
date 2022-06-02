@@ -869,28 +869,107 @@ For example, the below request will update the metadata of coverage
 
 .. _petascope-make_inspire_coverage:
 
+INSPIRE Coverages
+-----------------
+
+The INSPIRE Download Service is an implementation of the Technical Guidance
+for the implementation of INSPIRE Download Services using Web Coverage Services (WCS) version 2.0+.
+
+In order to achieve INSPIRE Download Service compliance, the following enhancements
+have been implemented in rasdaman for ``WCS GetCapabilities`` response.
+
+- Under ``<ows:OperationsMetadata>`` there is a new section for INSPIRE metadata for the service. 
+  For example, the result below contains two INSPIRE coverages ``cov_1`` and ``cov_2``.
+
+    .. hidden-code-block:: xml
+
+        <ows:OperationsMetadata>
+            <ows:ExtendedCapabilities>
+                <inspire_dls:ExtendedCapabilities>
+                    <inspire_common:MetadataUrl>
+                        <inspire_common:URL>https://inspire.rasdaman.org/rasdaman/ows</inspire_common:URL>
+                        <inspire_common:MediaType>application/vnd.iso.19139+xml</inspire_common:MediaType>
+                    </inspire_common:MetadataUrl>
+                    <inspire_common:SupportedLanguages>
+                        <inspire_common:DefaultLanguage>
+                            <inspire_common:Language>eng</inspire_common:Language>
+                        </inspire_common:DefaultLanguage>
+                    </inspire_common:SupportedLanguages>
+                    <inspire_common:ResponseLanguage>
+                        <inspire_common:Language>eng</inspire_common:Language>
+                    </inspire_common:ResponseLanguage>
+                    <inspire_dls:SpatialDataSetIdentifier metadataURL="https://inspire-geoportal.ec.europa.eu/resources/INSPIRE-f670705f-f4e9-11e6-81e4-52540023a883_20211012-160902/services/1/PullResults/521-540/16.iso19139.xml">
+                        <inspire_common:Code>cov_1</inspire_common:Code>
+                        <inspire_common:Namespace>https://inspire.rasdaman.org/rasdaman/ows</inspire_common:Namespace>
+                    </inspire_dls:SpatialDataSetIdentifier>
+                    <inspire_dls:SpatialDataSetIdentifier metadataURL="https://sh.de/csw?record_id=SH_DEM">
+                        <inspire_common:Code>cov_2</inspire_common:Code>
+                        <inspire_common:Namespace>https://inspire.rasdaman.org/rasdaman/ows</inspire_common:Namespace>
+                    </inspire_dls:SpatialDataSetIdentifier>
+                </inspire_dls:ExtendedCapabilities>
+            </ows:ExtendedCapabilities>
+        </ows:OperationsMetadata>
+
+- Service Metadata URL field (``<inspire_common:URL>``), a URL containing the location of the metadata associated
+  with the WCS service which is configured by setting ``inspire_common_url`` in ``petascope.properties``.
+
+- Under ``<inspire_common:SupportedLanguages>`` section, the supported language is fixed to ``eng`` (English) only.
+
+- A coverage is considered INSPIRE coverage, if it has a specific URL set by ``metadataURL attribute``.
+  All INSPIRE coverages is listed in the list of XML elements ``<inspire_dls:SpatialDataSetIdentifier>``.
+  The example above contains two INSPIRE coverages, each ``<inspire_dls:SpatialDataSetIdentifier>`` element
+  containing an attribute metadataURL to provide more information about the coverages. 
+  The value for ``<inspire_common:Namespace>`` elements of each INSPIRE coverage is derived from the service endpoint.
+
+
 Create an INSPIRE coverage
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`INSPIRE coverages <https://inspire-wcs.eu/>`__ have an extra XML section
-``<ows:ExtendedCapabilities>`` in the result of WCS GetCapabilities, which
-stores the coverage metadata in a format complying to the INSPIRE standard.
 Controlling whether a local coverage is treated as an INSPIRE coverage can be
-done by sending a request to ``/rasdaman/admin/inspire/metadata/update`` with
-two mandatory parameters:
+done by:
 
-- ``COVERAGEID`` - the coverage to be converted to an INSPIRE coverage
-- ``METADATAURL`` - a URL to an INSPIRE-compliant catalog entry for this coverage; 
-  if set to empty, i.e. ``METADATAURL=`` then the coverage is marked as non-INSPIRE
-  coverage.
+- Manually sending a request to ``/rasdaman/admin/inspire/metadata/update`` with
+  two mandatory parameters:
 
-For example, the coverage ``test_inspire_metadata`` can be marked as INSPIRE
-coverage as follows: ::
+   - ``COVERAGEID`` - the coverage to be converted to an INSPIRE coverage
+   - ``METADATAURL`` - a URL to an INSPIRE-compliant catalog entry for this coverage; 
+     if set to empty, i.e. ``METADATAURL=`` then the coverage is marked as non-INSPIRE
+     coverage.
+
+  For example, the coverage ``test_inspire_metadata`` can be marked as INSPIRE
+  coverage as follows: ::
 
     curl --user rasadmin:rasadmin -X POST \
          -F 'COVERAGEID=test_inspire_metadata' \
          -F 'METADATAURL=https://inspire-geoportal.ec.europa.eu/16.iso19139.xml' \
          'http://localhost:8080//rasdaman/admin/inspire/metadata/update'
+
+- Via ``wcst_import.sh``, in an ingredients files with inspire section contains
+  the settings for importing INSPIRE coverage:
+
+   - ``metadata_url`` - If set to non-empty string, then the importing coverage
+     will be marked as INSPIRE coverage. If set to empty string or omitted, 
+     then the coverage will be updated as non-INSPIRE coverage.
+
+  For example, the coverage ``cov_3`` will be imported as INSPIRE coverage with this configuration in the ingredients file:
+
+     .. hidden-code-block:: json
+
+         { 
+              "config": {
+                 ...
+              },
+              "input": {
+                 "coverage_id": "cov_3", 
+                  "paths": [
+                       "mean_summer_airtemp.tif"
+                  ],
+                  "inspire": {
+                      "metadata_url": "https://inspire-geoportal.ec.europa.eu/resources/INSPIRE-f670705f-f4e9-11e6-81e4-52540023a883_20211012-160902/services/1/PullResults/521-540/16.iso19139.xml"
+                  }
+             },
+             ... 
+         }
 
 .. _petascope-check-coverage-exists:
 
@@ -2578,6 +2657,16 @@ JSON array, with parameters as follows:
     more complex tasks need to be performed with advance math calculations, for
     example.  
 
+    .. _code_security-node: 
+
+    .. NOTE::
+
+       As an ingredients file can contain arbitrary Python or Shell code which wcst_import will
+       execute before/after importing files or during the evaluation of sentence expressions,
+       it can pose a security issue if untrusted users are allowed to write ingredients files
+       to be executed with wcst_import. In this case, it is recommended to make sure the user executing 
+       wcst_import is properly restricted on their ingredients files.
+
 * ``abort_on_error`` - Only valid for ``before_import`` hook. If set to ``true``,
   when a ``cmd`` bash command returns an error or when a ``python_cmd`` raises an ``Exception``,
   wcst_import terminates immediately.
@@ -3516,6 +3605,11 @@ Python functions imported in this way override the :ref:`special functions
 example, the special utility function ``datetime(date_time_string, format)`` to
 convert a string of datetime to an ISO date time format will be overridden when
 the ``datetime`` module is imported with a ``statements`` setting.
+
+.. NOTE::
+
+   See :ref:`details <code_security-node>` about potential issue
+   for running python code in the ingredients file.
 
 
 .. _local-metadata:
