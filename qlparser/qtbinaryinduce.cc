@@ -312,7 +312,7 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
         LERROR << "Domains of the operands are incompatible.";
         LERROR << "areaOp1 " << areaOp1 << " with extent " << areaOp1.get_extent();
         LERROR << "areaOp2 " << areaOp2 << " with extent " << areaOp2.get_extent();
-        throw r_Error(343);
+        throw r_Error(BININDUCE_SDOM_MISMATCH);
     }
 
     return returnValue;
@@ -459,7 +459,7 @@ QtBinaryInduce::checkType(QtTypeTuple *typeTuple)
             const BaseType *resultBaseType;
             try {
                 resultBaseType = Ops::getResultType(opType, baseType1, baseType2);
-                if (!resultBaseType) throw r_Error(363);
+                if (!resultBaseType) throw r_Error(BININDUCE_BASETYPESINCOMPATIBLE);
             } catch (r_Error &e) {
                 LERROR << "operand types of binary induced operation are incompatible.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
@@ -481,7 +481,7 @@ QtBinaryInduce::checkType(QtTypeTuple *typeTuple)
             if (opType != Ops::OP_EQUAL)
             {
                 LERROR << "String op String: operation is not supported on strings.";
-                parseInfo.setErrorNo(385);
+                parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setDataType(QT_BOOL);
@@ -489,7 +489,7 @@ QtBinaryInduce::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "binary induce operation is not supported on these data types.";
-            parseInfo.setErrorNo(403);
+            parseInfo.setErrorNo(BINARYOP_WRONGOPERANDTYPES);
             throw parseInfo;
         }
     }

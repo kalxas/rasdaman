@@ -68,7 +68,7 @@ const QtTypeElement &QtUnaryInduce::checkOperandType(Ops::OpType optype, QtTypeT
             const BaseType *resultBaseType;
             try {
                 resultBaseType = Ops::getResultType(optype, baseType);
-                if (!resultBaseType) throw r_Error(366);
+                if (!resultBaseType) throw r_Error(UNARY_INDUCE_BASETYPENOTSUPPORTED);
             } catch (r_Error &e) {
                 LERROR << "operation not applicable on operand of the given type.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
@@ -88,7 +88,7 @@ const QtTypeElement &QtUnaryInduce::checkOperandType(Ops::OpType optype, QtTypeT
         else
         {
             LERROR << "operation is not supported on the given operand type.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -129,12 +129,12 @@ QtUnaryInduce::computeOp(QtData *operand, Ops::OpType operation, double param)
     else if (operand->isScalarData())
         operandBaseType = static_cast<QtScalarData *>(operand)->getValueType();
     else
-        throw r_Error(360);
+        throw r_Error(OPERANDTYPENOTSUPPORTED);
     
     const BaseType *resultBaseType;
     try {
         resultBaseType = Ops::getResultType(operation, operandBaseType);
-        if (!resultBaseType) throw r_Error(360);
+        if (!resultBaseType) throw r_Error(OPERANDTYPENOTSUPPORTED);
     } catch (r_Error &e) {
         LERROR << "Unary induced operation not applicable on operand of the given type.";
         parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
@@ -189,7 +189,7 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD *operand, const BaseType *resultBaseType,
     {
         LERROR << "could not get operation for result type " <<
                resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation);
-        parseInfo.setErrorNo(366);
+        parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
         throw parseInfo;
     }
     myOp->setNullValues(nullValues);
@@ -603,7 +603,7 @@ QtDot::evaluate(QtDataList *inputList)
             if (!resultCellType)
             {
                 LERROR << "struct selector is not valid.";
-                parseInfo.setErrorNo(370);
+                parseInfo.setErrorNo(UNARY_INDUCE_STRUCTSELECTORINVALID);
                 throw parseInfo;
             }
 
@@ -667,7 +667,7 @@ QtDot::evaluate(QtDataList *inputList)
             if (!resultCellType)
             {
                 LERROR << "struct selector is not valid.";
-                parseInfo.setErrorNo(370);
+                parseInfo.setErrorNo(UNARY_INDUCE_STRUCTSELECTORINVALID);
                 throw parseInfo;
             }
 
@@ -696,7 +696,7 @@ QtDot::evaluate(QtDataList *inputList)
         else
         {
             LERROR << "operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
 
@@ -776,13 +776,13 @@ QtDot::checkType(QtTypeTuple *typeTuple)
         if (baseType == nullptr)
         {
             LERROR << "induced dot operation is not supported on operand of the given type.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
         if (baseType->getType() != STRUCT)
         {
             LERROR << "operand of induce dot operation must be of composite type.";
-            parseInfo.setErrorNo(368);
+            parseInfo.setErrorNo(UNARY_INDUCE_BASETYPEMUSTBECOMPLEX);
             throw parseInfo;
         }
         const StructType *structType = static_cast<const StructType *>(baseType);
@@ -795,7 +795,7 @@ QtDot::checkType(QtTypeTuple *typeTuple)
         if (resultBaseType == nullptr)
         {
             LERROR << "struct selector is not valid.";
-            parseInfo.setErrorNo(370);
+            parseInfo.setErrorNo(UNARY_INDUCE_STRUCTSELECTORINVALID);
             throw parseInfo;
         }
         
@@ -947,7 +947,7 @@ const QtTypeElement &QtCast::checkType(QtTypeTuple *typeTuple)
             else
             {
                 LERROR << "operation is not supported on the given operand type.";
-                parseInfo.setErrorNo(385);
+                parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
                 throw parseInfo;
             }
         }

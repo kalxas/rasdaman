@@ -148,7 +148,7 @@ QtMShapeOp::checkType(QtTypeTuple *typeTuple)
     if (!opTypesValid)
     {
         LERROR << "Error: Operand of point expression must be of type QT_POINT.";
-        parseInfo.setErrorNo(410);
+        parseInfo.setErrorNo(POINTEXP_WRONGOPERANDTYPE);
         throw parseInfo;
     }
 

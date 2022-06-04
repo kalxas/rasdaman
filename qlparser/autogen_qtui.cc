@@ -99,7 +99,7 @@ const QtTypeElement &QtAbs::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtAbs::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -113,7 +113,7 @@ const QtTypeElement &QtAbs::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtAbs::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -121,7 +121,7 @@ const QtTypeElement &QtAbs::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtAbs::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -199,7 +199,7 @@ const QtTypeElement &QtSqrt::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSqrt::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -213,7 +213,7 @@ const QtTypeElement &QtSqrt::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSqrt::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -221,7 +221,7 @@ const QtTypeElement &QtSqrt::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtSqrt::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -299,7 +299,7 @@ const QtTypeElement &QtExp::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtExp::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -313,7 +313,7 @@ const QtTypeElement &QtExp::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtExp::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -321,7 +321,7 @@ const QtTypeElement &QtExp::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtExp::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -404,7 +404,7 @@ const QtTypeElement &QtPow::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtPow::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -418,7 +418,7 @@ const QtTypeElement &QtPow::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtPow::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -426,7 +426,7 @@ const QtTypeElement &QtPow::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtPow::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -504,7 +504,7 @@ const QtTypeElement &QtLog::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtLog::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -518,7 +518,7 @@ const QtTypeElement &QtLog::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtLog::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -526,7 +526,7 @@ const QtTypeElement &QtLog::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtLog::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -604,7 +604,7 @@ const QtTypeElement &QtLn::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtLn::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -618,7 +618,7 @@ const QtTypeElement &QtLn::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtLn::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -626,7 +626,7 @@ const QtTypeElement &QtLn::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtLn::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -704,7 +704,7 @@ const QtTypeElement &QtSin::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSin::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -718,7 +718,7 @@ const QtTypeElement &QtSin::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSin::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -726,7 +726,7 @@ const QtTypeElement &QtSin::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtSin::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -804,7 +804,7 @@ const QtTypeElement &QtCos::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtCos::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -818,7 +818,7 @@ const QtTypeElement &QtCos::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtCos::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -826,7 +826,7 @@ const QtTypeElement &QtCos::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtCos::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -904,7 +904,7 @@ const QtTypeElement &QtTan::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtTan::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -918,7 +918,7 @@ const QtTypeElement &QtTan::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtTan::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -926,7 +926,7 @@ const QtTypeElement &QtTan::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtTan::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -1004,7 +1004,7 @@ const QtTypeElement &QtSinh::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSinh::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -1018,7 +1018,7 @@ const QtTypeElement &QtSinh::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSinh::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -1026,7 +1026,7 @@ const QtTypeElement &QtSinh::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtSinh::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -1104,7 +1104,7 @@ const QtTypeElement &QtCosh::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtCosh::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -1118,7 +1118,7 @@ const QtTypeElement &QtCosh::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtCosh::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -1126,7 +1126,7 @@ const QtTypeElement &QtCosh::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtCosh::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -1204,7 +1204,7 @@ const QtTypeElement &QtTanh::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtTanh::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -1218,7 +1218,7 @@ const QtTypeElement &QtTanh::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtTanh::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -1226,7 +1226,7 @@ const QtTypeElement &QtTanh::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtTanh::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -1304,7 +1304,7 @@ const QtTypeElement &QtArcsin::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArcsin::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -1318,7 +1318,7 @@ const QtTypeElement &QtArcsin::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArcsin::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -1326,7 +1326,7 @@ const QtTypeElement &QtArcsin::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtArcsin::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -1403,7 +1403,7 @@ const QtTypeElement &QtArccos::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArccos::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -1417,7 +1417,7 @@ const QtTypeElement &QtArccos::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArccos::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -1425,7 +1425,7 @@ const QtTypeElement &QtArccos::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtArccos::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }
@@ -1503,7 +1503,7 @@ const QtTypeElement &QtArctan::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArctan::checkType() - induce operand type is not support";
-                parseInfo.setErrorNo(366);
+                parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
                 throw parseInfo;
             }
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -1517,7 +1517,7 @@ const QtTypeElement &QtArctan::checkType(QtTypeTuple *typeTuple)
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArctan::checkType() - operand type is not supported.";
-                parseInfo.setErrorNo(367);
+                parseInfo.setErrorNo(UNARY_SCALARTYPENOTSUPPORTED);
                 throw parseInfo;
             }
             dataStreamType.setType(resultBaseType);
@@ -1525,7 +1525,7 @@ const QtTypeElement &QtArctan::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "Error: QtArctan::checkType() - operation is not supported for strings.";
-            parseInfo.setErrorNo(385);
+            parseInfo.setErrorNo(STRINGSNOTSUPPORTED);
             throw parseInfo;
         }
     }

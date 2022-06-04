@@ -212,7 +212,7 @@ QtMarrayOp::checkType(QtTypeTuple *typeTuple)
         if (domainExp.getDataType() != QT_MINTERVAL && domainExp.getDataType() != QT_INTERVAL)
         {
             LERROR << "Can not evaluate domain expression to an minterval.";
-            parseInfo.setErrorNo(401);
+            parseInfo.setErrorNo(DOMAINEVALUATIONERROR);
             throw parseInfo;
         }
 
@@ -237,7 +237,7 @@ QtMarrayOp::checkType(QtTypeTuple *typeTuple)
         if (!isAtomic && valueExpType != QT_COMPLEX)
         {
             LERROR << "Value expression must be scalar, but was " << valueExpType << ".";
-            parseInfo.setErrorNo(412);
+            parseInfo.setErrorNo(VALUEEXP_WRONGOPERANDTYPE);
             throw parseInfo;
         }
 

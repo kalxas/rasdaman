@@ -116,7 +116,7 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
         const BaseType *resultType;
         try {
             resultType = Ops::getResultType(opType, mdd->getCellType());
-            if (!resultType) throw r_Error(360);
+            if (!resultType) throw r_Error(OPERANDTYPENOTSUPPORTED);
         } catch (r_Error &e) {
             LERROR << "operation " << opType << " is not supported on the given operands.";
             operand->deleteRef();
@@ -147,7 +147,7 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
         if (!condOp)
         {
             LERROR << "condense not supported on operands of type " << mdd->getCellType()->getType();
-            parseInfo.setErrorNo(360);
+            parseInfo.setErrorNo(OPERANDTYPENOTSUPPORTED);
             throw parseInfo;
         }
         condOp->setNullValues(nullValues);
@@ -213,7 +213,7 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
         if (inputType.getDataType() != QT_MDD)
         {
             LERROR << "operand of condenser must be an array, but got " << inputType.getDataType();
-            parseInfo.setErrorNo(353);
+            parseInfo.setErrorNo(QUANTIFIEROPERANDNOTMULTIDIMENSIONAL);
             throw parseInfo;
         }
 
@@ -221,7 +221,7 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
         const BaseType *resultBaseType;
         try {
             resultBaseType = Ops::getResultType(opType, baseType);
-            if (!resultBaseType) throw r_Error(360);
+            if (!resultBaseType) throw r_Error(OPERANDTYPENOTSUPPORTED);
         } catch (r_Error &e) {
             LERROR << "condenser cannot be applied on operand of the given type.";
             parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
@@ -232,7 +232,7 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
         {
             try {
                 resultBaseType = Ops::getResultType(Ops::OP_DIV, resultBaseType, TypeFactory::mapType("Double"));
-                if (!resultBaseType) throw r_Error(363);
+                if (!resultBaseType) throw r_Error(BININDUCE_BASETYPESINCOMPATIBLE);
             } catch (r_Error &e) {
                 LERROR << "division cannot be applied on operands of the given types.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
@@ -243,7 +243,7 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
         {
             try {
                 resultBaseType = Ops::getResultType(Ops::OP_CAST_DOUBLE, resultBaseType);
-                if (!resultBaseType) throw r_Error(360);
+                if (!resultBaseType) throw r_Error(OPERANDTYPENOTSUPPORTED);
             } catch (r_Error &e) {
                 LERROR << "cast cannot be applied on operands of the given types.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));

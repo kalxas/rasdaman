@@ -675,7 +675,7 @@ const QtTypeElement &QtBit::checkType(QtTypeTuple *typeTuple)
         if (inputType2.getDataType() < QT_BOOL || inputType2.getDataType() > QT_LONG)
         {
             LERROR << "second operand of bit operation must be of integral type.";
-            parseInfo.setErrorNo(418);
+            parseInfo.setErrorNo(BIT_WRONGOPERANDTYPE);
             throw parseInfo;
         }
         
@@ -687,7 +687,7 @@ const QtTypeElement &QtBit::checkType(QtTypeTuple *typeTuple)
             const BaseType *resultBaseType;
             try {
                 resultBaseType = Ops::getResultType(opType, baseType1, baseType2);
-                if (!resultBaseType) throw r_Error(364);
+                if (!resultBaseType) throw r_Error(BININDUCE_BASETYPEANDSCALARTYPEINCOMPATIBLE);
             } catch (r_Error &e) {
                 LERROR << "operand types of bit operation are incompatible.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
@@ -707,7 +707,7 @@ const QtTypeElement &QtBit::checkType(QtTypeTuple *typeTuple)
         else
         {
             LERROR << "bit operation is not supported on these data types.";
-            parseInfo.setErrorNo(403);
+            parseInfo.setErrorNo(BINARYOP_WRONGOPERANDTYPES);
             throw parseInfo;
         }
     }

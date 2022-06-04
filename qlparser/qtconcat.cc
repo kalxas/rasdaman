@@ -154,7 +154,7 @@ QtConcat::evaluate(QtDataList *inputList)
                 if (destinationDomain.dimension() <= static_cast<r_Dimension>(dimension))
                 {
                     LERROR << "the operands have less dimensions than the one specified";
-                    parseInfo.setErrorNo(424);
+                    parseInfo.setErrorNo(CONCAT_DIMENSIONMISMATCH);
                     throw parseInfo;
                 }
             }
@@ -176,7 +176,7 @@ QtConcat::evaluate(QtDataList *inputList)
                 else
                 {
                     LERROR << "operands of concat have non-mergeable domains";
-                    parseInfo.setErrorNo(425);
+                    parseInfo.setErrorNo(CONCAT_MINTERVALSNOTMERGEABLE);
                     throw parseInfo;
                 }
             }
@@ -303,7 +303,7 @@ QtConcat::checkType(QtTypeTuple *typeTuple)
             if (inputType.getDataType() != QT_MDD)
             {
                 LERROR << "every operand of concat must be an MDD.";
-                parseInfo.setErrorNo(423);
+                parseInfo.setErrorNo(CONCAT_WRONGOPERANDTYPES);
                 throw parseInfo;
             }
 
@@ -317,7 +317,7 @@ QtConcat::checkType(QtTypeTuple *typeTuple)
                 if (!(*baseType == *opType))
                 {
                     LERROR << "operand types of concat are incompatible";
-                    parseInfo.setErrorNo(352);
+                    parseInfo.setErrorNo(CONCAT_OPERANDTYPESINCOMPATIBLE);
                     throw parseInfo;
                 }
             }

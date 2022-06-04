@@ -74,7 +74,7 @@ QtNullvaluesOp::getDoubleValue(const QtScalarData *data)
     default:
     {
         LERROR << "Unsupported null value data type '" << data->getDataType() << "'.";
-        parseInfo.setErrorNo(499);
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED);
         throw parseInfo;
     }
     }
@@ -215,7 +215,7 @@ QtAddNullvalues::checkType(QtTypeTuple *typeTuple)
         if (inputType1.getDataType() != QT_MDD)
         {
             LERROR << "Cannot add null values to a non-MDD value.";
-            parseInfo.setErrorNo(405);
+            parseInfo.setErrorNo(MDDARGREQUIRED);
             throw parseInfo;
         }
         dataStreamType.setDataType(inputType1.getDataType());

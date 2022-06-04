@@ -68,7 +68,7 @@ void RasServerEntry::connectNewClient(const char* capability)
     else
     {
         LERROR << "Another client is already connected to this server, cannot serve any new clients.";
-        throw r_Error(245u);
+        throw r_Error(SERVEROCCUPIEDWITHOTHERCLIENT);
     }
 }
 
@@ -190,7 +190,7 @@ int RasServerEntry::compat_StartInsertPersMDD(const char* collName, r_Minterval&
 int RasServerEntry::compat_InsertMDD(const char* /*collName*/, RPCMarray* /*rpcMarray*/, const char* /*typeName*/, r_OId& /*oid*/)
 {
     LERROR << "Invoked unsupported server functionality 'insert whole MDD'.";
-    throw r_Error(10000); // Internal error
+    throw r_Error(INTERNALSERVERERROR); // Internal error
 }
 
 int RasServerEntry::compat_InsertCollection(const char* collName, const char* typeName, r_OId& oid)

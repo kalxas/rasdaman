@@ -295,7 +295,7 @@ QtCondenseOp::checkOp(){
         break;
     default: {
         LERROR << "Unsupported condense operator: " << operation << ", expected one of: +, *, max, min, and, or, xor";
-        parseInfo.setErrorNo(450);
+        parseInfo.setErrorNo(CONDENSE_OPERATORINVALID);
         throw parseInfo;
     }
     }
@@ -382,7 +382,7 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
         if (domainExp.getDataType() != QT_MINTERVAL)
         {
             LERROR << "Can not evaluate domain expression to an minterval";
-            parseInfo.setErrorNo(401);
+            parseInfo.setErrorNo(DOMAINEVALUATIONERROR);
             throw parseInfo;
         }
 
@@ -408,7 +408,7 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
         if (!isAtomic && op2Type != QT_COMPLEX && op2Type != QT_MDD)
         {
             LERROR << "Value expression must be either of type atomic, complex or MDD.";
-            parseInfo.setErrorNo(412);
+            parseInfo.setErrorNo(VALUEEXP_WRONGOPERANDTYPE);
             throw parseInfo;
         }
 
@@ -419,7 +419,7 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
             if (op == Ops::OP_PLUS || op == Ops::OP_MULT)
                 op = Ops::OP_SUM;
             resultBaseType = Ops::getResultType(op, opType, opType);
-            if (!resultBaseType) throw r_Error(412);
+            if (!resultBaseType) throw r_Error(VALUEEXP_WRONGOPERANDTYPE);
         } catch (r_Error &e) {
             LERROR << "Failed to determine result type.";
             parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
@@ -462,7 +462,7 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
             if (condExp.getDataType() != QT_BOOL)
             {
                 LERROR << "Condition expression must be of type boolean";
-                parseInfo.setErrorNo(413);
+                parseInfo.setErrorNo(CONDITIONEXP_WRONGOPERANDTYPE);
                 throw parseInfo;
             }
         }

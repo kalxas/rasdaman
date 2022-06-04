@@ -93,7 +93,7 @@ QtDelete::evaluate()
                 delete nextTuple;
                 nextTuple = NULL;
 
-                parseInfo.setErrorNo(951);
+                parseInfo.setErrorNo(UPDATE_SOURCE_INVALID);
                 throw parseInfo;
             }
 
@@ -249,7 +249,7 @@ QtDelete::checkType()
         if (inputType.tuple[0].getDataType() != QT_MDD)
         {
             LERROR << "Error: QtDelete::checkType() - delete target must be an expression resulting in an r_Marray<>";
-            parseInfo.setErrorNo(951);
+            parseInfo.setErrorNo(UPDATE_SOURCE_INVALID);
             throw parseInfo;
         }
     }

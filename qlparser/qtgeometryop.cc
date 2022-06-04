@@ -124,7 +124,7 @@ QtGeometryOp::checkType(QtTypeTuple *typeTuple)
     if (!opTypesValid)
     {
         LERROR << "Error: Operands must consist of geometric data only";
-        parseInfo.setErrorNo(410);
+        parseInfo.setErrorNo(POINTEXP_WRONGOPERANDTYPE);
         throw parseInfo;
     }
 

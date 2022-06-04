@@ -372,7 +372,7 @@ commitExp: COMMIT
 	    catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
 	    FREESTACK($1)
 	    QueryTree::symtab.wipe();
@@ -397,7 +397,7 @@ createExp: CREATE COLLECTION namedCollection typeName
 	    catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
@@ -428,7 +428,7 @@ dropExp: DROP COLLECTION namedCollection
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($2)
@@ -459,7 +459,7 @@ selectIntoExp:
 	    // save the parse error info and stop the parser
             if ( parseError )
                 delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
@@ -524,7 +524,7 @@ selectIntoExp:
 	    // save the parse error info and stop the parser
             if ( parseError )
                 delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
@@ -574,7 +574,7 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
@@ -628,7 +628,7 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
@@ -669,7 +669,7 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  catch(...) {
 	    // save the parse error info and stop the parser
 	    if ( parseError ) delete parseError;
-	    parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+	    parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
 	                                $1.info->getLineNo(), $1.info->getColumnNo() );
 	    FREESTACK($1)
 	    QueryTree::symtab.wipe();
@@ -708,7 +708,7 @@ updateExp:
           catch(...) {
             // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
@@ -754,7 +754,7 @@ updateExp:
           catch(...) {
             // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
@@ -789,7 +789,7 @@ updateExp:
           catch(...) {
             // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
@@ -839,7 +839,7 @@ updateExp:
           catch(...) {
             // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
@@ -900,7 +900,7 @@ alterExp: ALTER COLLECTION namedCollection SET TYPE typeName
       catch(...) {
         // save the parse error info and stop the parser
         if ( parseError ) delete parseError;
-        parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+        parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $1.info->getToken().c_str(),
                                     $1.info->getLineNo(), $1.info->getColumnNo() );
         FREESTACK($1)
         FREESTACK($2)
@@ -933,7 +933,7 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
             FREESTACK($2)
@@ -965,7 +965,7 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
@@ -996,7 +996,7 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
@@ -1032,7 +1032,7 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
@@ -1076,7 +1076,7 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+            parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
@@ -1119,7 +1119,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   {
                     delete parseError;
                   }
-                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                  parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                               $2.info->getLineNo(), $2.info->getColumnNo() );
                   FREESTACK($1)
                   FREESTACK($2)
@@ -1156,7 +1156,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   {
                     delete parseError;
                   }
-                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                  parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                               $2.info->getLineNo(), $2.info->getColumnNo() );
                   FREESTACK($1)
                   FREESTACK($2)
@@ -1194,7 +1194,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                     delete parseError;
                   }
 
-                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                  parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                               $2.info->getLineNo(), $2.info->getColumnNo() );
                   FREESTACK($1)
                   FREESTACK($2)
@@ -1234,7 +1234,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   {
                     delete parseError;
                   }
-                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                  parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                               $2.info->getLineNo(), $2.info->getColumnNo() );
                   FREESTACK($1)
                   FREESTACK($2)
@@ -1272,7 +1272,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   {
                     delete parseError;
                   }
-                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                  parseError = new ParseInfo( NO_PERMISSION_FOR_OPERATION, $2.info->getToken().c_str(),
                                               $2.info->getLineNo(), $2.info->getColumnNo() );
                   FREESTACK($1)
                   FREESTACK($2)
@@ -3903,7 +3903,7 @@ oidLit: LESS StringLit GREATER
 	  catch(...) {
 	    // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
-            parseError = new ParseInfo( 303, $2.info->getToken().c_str(),
+            parseError = new ParseInfo( PARSER_OIDINVALID, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($2)
@@ -3929,7 +3929,7 @@ oidLit: LESS StringLit GREATER
 	  if( mismatch ) {
 	    // save the parse error info and stop the parser
 	    if( parseError ) delete parseError;
-	    parseError = new ParseInfo( 386, $2.info->getToken().c_str(),
+	    parseError = new ParseInfo( OIDBASENAMEMISMATCH, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
@@ -4064,7 +4064,7 @@ atomicLit: BooleanLit
       }
 	  } else {
 	    if(parseError) delete parseError;
-	    parseError = new ParseInfo(311, $2.info->getToken().c_str(),
+	    parseError = new ParseInfo(PARSER_COMPLEXCONSTRUCTORTYPEMISMATCH, $2.info->getToken().c_str(),
 	        $2.info->getLineNo(), $2.info->getColumnNo());
 	    FREESTACK($1)
 	    FREESTACK($2)
@@ -4088,7 +4088,7 @@ atomicLit: BooleanLit
 	    $$ = new QtAtomicData($3.value, $5.value, $3.bytes + $5.bytes);
 	  } else {
 	    if(parseError) delete parseError;
-	    parseError = new ParseInfo(311, $2.info->getToken().c_str(),
+	    parseError = new ParseInfo(PARSER_COMPLEXCONSTRUCTORTYPEMISMATCH, $2.info->getToken().c_str(),
 	        $2.info->getLineNo(), $2.info->getColumnNo());
 	    FREESTACK($1)
 	    FREESTACK($2)
@@ -4465,7 +4465,7 @@ iv: marrayVariable IN mintervalList
 	  	  // save the parse error info and stop the parser
 	  	  if ( parseError ) 
 	  	  	  delete parseError;
-        parseError = new ParseInfo( 312, $1.info->getToken().c_str(),
+        parseError = new ParseInfo( PARSER_VARIABLEALREADYDEFINED, $1.info->getToken().c_str(),
                                          $1.info->getLineNo(), 
 	  	  $1.info->getColumnNo() );
 	  	  parseQueryTree->removeDynamicObject( $3 );
@@ -4809,11 +4809,11 @@ void yyerror(void* /*mflag*/, const char* /*s*/)
 
    if( yytext[0] == '\0' ) {
     // unexpected end of query
-    parseError = new ParseInfo( 308, yytext, lineNo, columnNo - strlen(yytext) );
+    parseError = new ParseInfo( PARSER_UNEXPECTEDQUERYEND, yytext, lineNo, columnNo - strlen(yytext) );
    }
    else {
     // general parse error
-    parseError = new ParseInfo( 300, yytext, lineNo, columnNo - strlen(yytext) );
+    parseError = new ParseInfo( PARSER_UNEXPECTEDTOKEN, yytext, lineNo, columnNo - strlen(yytext) );
    }
   }
 }

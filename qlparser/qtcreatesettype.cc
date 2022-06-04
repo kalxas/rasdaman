@@ -66,7 +66,7 @@ void QtCreateSetType::checkType()
     // check if type already exists
     if (TypeFactory::mapSetType(this->typeName.c_str()) != NULL)
     {
-        parseInfo.setErrorNo(969);
+        parseInfo.setErrorNo(TYPE_ALREADYEXISTS);
         parseInfo.setToken(this->typeName.c_str());
         throw parseInfo;
     }
@@ -74,7 +74,7 @@ void QtCreateSetType::checkType()
     // check if the mdd type exists
     if (TypeFactory::mapMDDType(this->mddTypeName.c_str()) == NULL)
     {
-        parseInfo.setErrorNo(973);
+        parseInfo.setErrorNo(MARRAYTYPE_INVALID);
         parseInfo.setToken(this->mddTypeName.c_str());
         throw parseInfo;
     }

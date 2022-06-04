@@ -99,7 +99,7 @@ QtPointOp::evaluate(QtDataList *inputList)
                 data->deleteRef();
         delete operandList;
         operandList = NULL;
-        parseInfo.setErrorNo(410);
+        parseInfo.setErrorNo(POINTEXP_WRONGOPERANDTYPE);
         throw parseInfo;
     }
 
@@ -181,7 +181,7 @@ QtPointOp::checkType(QtTypeTuple *typeTuple)
     if (!opTypesValid)
     {
         LERROR << "Operand of point expression must be of type integer.";
-        parseInfo.setErrorNo(410);
+        parseInfo.setErrorNo(POINTEXP_WRONGOPERANDTYPE);
         throw parseInfo;
     }
 

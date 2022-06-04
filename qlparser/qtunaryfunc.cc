@@ -85,7 +85,7 @@ QtIntervalLoOp::evaluate(QtDataList *inputList)
                 operand->deleteRef();
             }
 
-            parseInfo.setErrorNo(394);
+            parseInfo.setErrorNo(LOHI_OPENBOUNDNOTSUPPORTED);
             throw parseInfo;
         }
 
@@ -152,7 +152,7 @@ QtIntervalLoOp::checkType(QtTypeTuple *typeTuple)
         if (inputType.getDataType() != QT_INTERVAL)
         {
             LERROR << "Error: QtIntervalLoOp::checkType() - operation lo() must be of type interval.";
-            parseInfo.setErrorNo(393);
+            parseInfo.setErrorNo(LOHI_ARGUMENTNOTINTERVAL);
             throw parseInfo;
         }
 
@@ -223,7 +223,7 @@ QtIntervalHiOp::evaluate(QtDataList *inputList)
                 operand->deleteRef();
             }
 
-            parseInfo.setErrorNo(394);
+            parseInfo.setErrorNo(LOHI_OPENBOUNDNOTSUPPORTED);
             throw parseInfo;
         }
 
@@ -289,7 +289,7 @@ QtIntervalHiOp::checkType(QtTypeTuple *typeTuple)
         if (inputType.getDataType() != QT_INTERVAL)
         {
             LERROR << "Error: QtIntervalHiOp::checkType() - operation lo() must be of type interval.";
-            parseInfo.setErrorNo(393);
+            parseInfo.setErrorNo(LOHI_ARGUMENTNOTINTERVAL);
             throw parseInfo;
         }
 
@@ -434,7 +434,7 @@ QtSDom::checkType(QtTypeTuple *typeTuple)
         if (inputType.getDataType() != QT_MDD)
         {
             LERROR << "Error: QtSDom::checkType() - operand must be of type MDD.";
-            parseInfo.setErrorNo(395);
+            parseInfo.setErrorNo(SDOM_WRONGOPERANDTYPE);
             throw parseInfo;
         }
 

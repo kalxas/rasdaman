@@ -91,19 +91,19 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
     if (xres == 0 || yres == 0)
     {
         LERROR << "Invalid resolution, xres and yres must not be 0";
-        throw r_Error(454);
+        throw r_Error(PROJECT_XY_INVALID);
     }
     out.width = static_cast<int>((out.xmax - out.xmin + (xres/2.0)) / xres);
     out.height = static_cast<int>(std::fabs(out.ymax - out.ymin + (yres/2.0)) / yres);
     if (out.width <= 0 )
     {
         LERROR << "Invalid X resolution " << xres << ", output width is 0.";
-        throw r_Error(452);
+        throw r_Error(PROJECT_X_INVALID);
     }
      if (out.height <= 0)
     {
         LERROR << "Invalid Y resolution " << yres << ", output height is 0.";
-        throw r_Error(453);
+        throw r_Error(PROJECT_Y_INVALID);
     }
     out.gt[0] = out.xmin;
     out.gt[3] = out.ymax;
@@ -549,7 +549,7 @@ QtProject::checkType(QtTypeTuple *typeTuple)
         if (inputType.getDataType() != QT_MDD)
         {
             LERROR << "operand must be an array.";
-            parseInfo.setErrorNo(353);
+            parseInfo.setErrorNo(QUANTIFIEROPERANDNOTMULTIDIMENSIONAL);
             throw parseInfo;
         }
 
@@ -563,7 +563,7 @@ QtProject::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 #else // HAVE_GDAL
     LERROR << "GDAL support has been disabled, hence the project function is not available.";
-    parseInfo.setErrorNo(499);
+    parseInfo.setErrorNo(FEATURENOTSUPPORTED);
     throw parseInfo;
 #endif // HAVE_GDAL
 }

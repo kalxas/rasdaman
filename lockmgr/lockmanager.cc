@@ -136,7 +136,7 @@ void LockManager::connect()
 //    if (!connect_ok)
 //    {
 //        LERROR << "Error: Lock manager -- Database is not connected.";
-//        throw r_Error(r_Error::r_Error_DatabaseClosed, 211);
+//        throw r_Error(r_Error::r_Error_DatabaseClosed, DATABASE_CLOSED);
 //    }
 }
 
@@ -153,7 +153,7 @@ void LockManager::disconnect()
     if (!disconnect_ok)
     {
         LERROR << "Error: Lock manager -- Database cannot be disconnected.";
-        throw r_Error(r_Error::r_Error_DatabaseClosed, 211);
+        throw r_Error(r_Error::r_Error_DatabaseClosed, DATABASE_CLOSED);
     }
 }
 
@@ -212,7 +212,7 @@ void LockManager::lockTileInternal(const char *pRasServerId, OId::OIdCounter pTi
     if (!result)
     {
         LERROR << "Error: Lock manager -- Tile cannot be locked.";
-        throw r_Error(r_Error::r_Error_TileCannotBeLocked, 4000);
+        throw r_Error(r_Error::r_Error_TileCannotBeLocked, LOCKMANAGER_TILELOCKED);
     }
 }
 

@@ -95,7 +95,7 @@ QtOId::evaluate(QtDataList *inputList)
                     operand->deleteRef();
                 }
 
-                parseInfo.setErrorNo(384);
+                parseInfo.setErrorNo(OID_OIDINVALID);
                 throw parseInfo;
             }
         }
@@ -108,7 +108,7 @@ QtOId::evaluate(QtDataList *inputList)
             {
                 operand->deleteRef();
             }
-            parseInfo.setErrorNo(383);
+            parseInfo.setErrorNo(OID_PARAMETERINVALID);
             throw parseInfo;
         }
 
@@ -174,7 +174,7 @@ QtOId::checkType(QtTypeTuple *typeTuple)
         if (inputType.getDataType() != QT_MDD)
         {
             LERROR << "Error: QtOId::checkType() - operand is not of type MDD.";
-            parseInfo.setErrorNo(383);
+            parseInfo.setErrorNo(OID_PARAMETERINVALID);
             throw parseInfo;
         }
 

@@ -169,7 +169,7 @@ QtCaseOp::getCaseOperands(QtDataList *inputList, std::vector<std::pair <QtOperat
                             ;
                             //operand and condition mdds should have the same domain
                             LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
-                            parseInfo.setErrorNo(426);
+                            parseInfo.setErrorNo(CASE_DOMAINMISMATCH);
                             throw parseInfo;
                         }
                     }
@@ -446,7 +446,7 @@ QtCaseOp::evaluateInducedOp(QtDataList *inputList)
             LERROR << "Domains of the operands are incompatible.";
             LERROR << "areaOp1 " << areaOp1 << " with extent " << areaOp1.get_extent();
             LERROR << "areaOp2 " << areaOp2 << " with extent " << areaOp2.get_extent();
-            parseInfo.setErrorNo(351);
+            parseInfo.setErrorNo(BININDUCE_SDOM_MISMATCH);
             throw parseInfo;
         }        
     }
@@ -554,7 +554,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
                     if (aTile == NULL)
                     {
                         LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
-                        parseInfo.setErrorNo(427);
+                        parseInfo.setErrorNo(CASE_TILINGMISMATCH);
                         throw parseInfo;
                     }
                     cachedTiles->push_back(new Tile(*aTile));
@@ -577,7 +577,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
                         if (aTile == NULL)
                         {
                             LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
-                            parseInfo.setErrorNo(427);
+                            parseInfo.setErrorNo(CASE_TILINGMISMATCH);
                             throw parseInfo;
                         }
                         cachedDefaultTiles->push_back(aTile);
@@ -596,7 +596,7 @@ QtData *QtCaseOp::safeEvaluateInducedOp(QtDataList *inputList)
                     {
                         LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
                         delete cacheIterators;
-                        parseInfo.setErrorNo(426);
+                        parseInfo.setErrorNo(CASE_DOMAINMISMATCH);
                         throw parseInfo;
                     }
                 }
@@ -887,7 +887,7 @@ QtCaseOp::checkType(QtTypeTuple *typeTuple)
             {
                 LERROR << "A WHEN condition (operand " << (pos + 1)
                        << ") in CASE expression is not a boolean value.";
-                parseInfo.setErrorNo(this->inducedCase ? 428 : 431);
+                parseInfo.setErrorNo(this->inducedCase ? CASE_INDUCED_NOTBOOLEANMDDCONDITION : CASE_NOTBOOLEANCONDITION);
                 throw parseInfo;
             }
         }
@@ -906,7 +906,7 @@ QtCaseOp::checkType(QtTypeTuple *typeTuple)
             {
                 LERROR << "A THEN or ELSE result (operand " << (pos + 1)
                        << ") in CASE expression is not a scalar or mdd.";
-                parseInfo.setErrorNo(429);
+                parseInfo.setErrorNo(CASE_NOTSCALARORMDDRESULT);
                 throw parseInfo;
             }
 
@@ -916,7 +916,7 @@ QtCaseOp::checkType(QtTypeTuple *typeTuple)
                 {
                     LERROR << "THEN / ELSE results in CASE statement have different base types (at operand " << (pos + 1) << "). "
                            << "Please add casts as necessary to make sure all result expressions are of the same base type.";
-                    parseInfo.setErrorNo(430);
+                    parseInfo.setErrorNo(CASE_RESULTTYPESINCOMPATIBLE);
                     throw parseInfo;
                 }
                 resultType = getResultType(resultType, opBaseType);

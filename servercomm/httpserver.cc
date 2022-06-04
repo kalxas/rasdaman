@@ -70,8 +70,6 @@ rasdaman GmbH.
 #include <iomanip>
 #include <cassert>     // for assert()
 
-#define UNEXPECTED_INTERNAL_ERROR 10000
-
 // --------------------------------------------------------------------------------
 //                          globals
 // --------------------------------------------------------------------------------
@@ -631,11 +629,11 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
     }
     catch (std::exception &e)
     {
-        return encodeError(result, UNEXPECTED_INTERNAL_ERROR, 0, 0, e.what());
+        return encodeError(result, INTERNALSERVERERROR, 0, 0, e.what());
     }
     catch (...)
     {
-        return encodeError(result, UNEXPECTED_INTERNAL_ERROR, 0, 0, "");
+        return encodeError(result, INTERNALSERVERERROR, 0, 0, "");
     }
 }
 
@@ -1095,26 +1093,26 @@ long HttpServer::encodeInsertError(char *&result, unsigned short execResult, vec
     unsigned long errNo{};
     if (strlen(transferredMDDs.back()->objectTypeName) < 1)
     {
-        errNo = 966;
+        errNo = MDDTYPEMISSING;
     }
     else
     {
         switch (execResult)
         {
         case 2:
-            errNo = 965;
+            errNo = MDDTYPEUNKNOWN;
             break;
         case 3:
-            errNo = 959;
+            errNo = MDDANDCOLLECTIONTYPESINCOMPATIBLE;
             break;
         case 4:
-            errNo = 952;
+            errNo = UPDATE_BASETYPEMISMATCH;
             break;
         case 5:
-            errNo = 957;
+            errNo = COMMAND_COLLNAME_UNKNOWN;
             break;
         default:
-            errNo = 350;
+            errNo = GENERALEXECUTIONERROR;
         }
         LERROR << "Failed inserting MDD";
     }

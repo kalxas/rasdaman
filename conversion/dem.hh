@@ -107,9 +107,6 @@ Points are defined as follows for pixel position (i,j) in file (starting with (0
 - height = ( byte[ 2*i + 2*j*sizex] + byte[ 2*i + 2*j*sizex + 1] * 256 ) * hstep
 */
 
-// r_Error code for "empty DEM result generated"; this def should go into a central list
-// -- PB 2003-dec-03
-#define E_DEM_EMPTY 3000
 
 class r_Conv_DEM    :   public r_Convertor
 {

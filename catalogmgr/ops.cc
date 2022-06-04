@@ -887,7 +887,7 @@ const BaseType *Ops::getStructResultType(Ops::OpType op, const BaseType *op1, co
 const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const BaseType *op2)
 {
     if (!op1)
-        throw r_Error(374); // Operation expected at least one operand.
+        throw r_Error(OPS_OPERANDMISSING); // Operation expected at least one operand.
     auto type1 = op1->getType();
     
     //
@@ -904,19 +904,19 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     if (isComplexType(type1) && !op2 &&
         !((op >= OP_REALPART && op <= OP_IMAGINARPARTINT) || op == OP_SUM || op == OP_IS_NULL))
     {
-        throw r_Error(455); // Operation not supported on operand of complex type.
+        throw r_Error(OPS_COMPLEXTYPENOTSUPPORTED); // Operation not supported on operand of complex type.
     }
     
     // condense operations
     switch (op)
     {
     case OP_COUNT:
-        // 415: Operand of count_cells must be a boolean array.
-        return type1 == BOOLTYPE ? TypeFactory::mapType("ULong") : throw r_Error(415);
+        // COUNTCELLS_WRONGOPERANDTYPE: Operand of count_cells must be a boolean array.
+        return type1 == BOOLTYPE ? TypeFactory::mapType("ULong") : throw r_Error(COUNTCELLS_WRONGOPERANDTYPE);
     case OP_MAX:
     case OP_MIN:
         if (isComplexType(type1))
-            throw r_Error(452); // Unsupported condense operator for complex types.
+            throw r_Error(OPS_COMPLEXTYPENOTSUPPORTED); // Unsupported condense operator for complex types.
         else
             return op1;
     case OP_SUM:
@@ -944,8 +944,8 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         return TypeFactory::mapType("Double");
     case OP_SOME:
     case OP_ALL:
-        // 354: Operand of quantifier must be a boolean array.
-        return type1 == BOOLTYPE ? op1 : throw r_Error(354);
+        // OPS_QUANTIFIEROPERANDNOTBOOLEAN: Operand of quantifier must be a boolean array.
+        return type1 == BOOLTYPE ? op1 : throw r_Error(OPS_QUANTIFIEROPERANDNOTBOOLEAN);
     default:
         ;
     }
@@ -977,12 +977,12 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         case COMPLEXTYPE2: return TypeFactory::mapType("Double");
         case CINT16: return TypeFactory::mapType("Short");
         case CINT32: return TypeFactory::mapType("Long");
-        default: throw r_Error(368); // Cell base type for induced dot operation must be complex.
+        default: throw r_Error(UNARY_INDUCE_BASETYPEMUSTBECOMPLEX); // Cell base type for induced dot operation must be complex.
         }
     }
     if (op == OP_NOT)
-        // 375: Operation expected a boolean operand.
-        return type1 == BOOLTYPE ? op1 : throw r_Error(375);
+        // OPS_ONEBOOLEXPECTED: Operation expected a boolean operand.
+        return type1 == BOOLTYPE ? op1 : throw r_Error(OPS_ONEBOOLEXPECTED);
     if (op == OP_IS_NULL)
         return TypeFactory::mapType("Bool");
 
@@ -991,7 +991,7 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     //
     
     if (!op2)
-        throw r_Error(456); // Operation expected more than one operand.
+        throw r_Error(OPS_MORETHANONEOPERANDEXPECTED); // Operation expected more than one operand.
     auto type2 = op2->getType();
     auto maxType = greaterType(type1, type2);
     
@@ -1019,13 +1019,13 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         else if (type1 == SHORT && type2 == SHORT)
             return TypeFactory::mapType("CInt16");
         else
-            throw r_Error(311); // Complex constructor must have both arguments of the same type.
+            throw r_Error(PARSER_COMPLEXCONSTRUCTORTYPEMISMATCH); // Complex constructor must have both arguments of the same type.
     }
     
     if (type1 == STRUCT || type2 == STRUCT)
     {
         if (op > OP_NOTEQUAL && op <= OP_GREATEREQUAL && type1 != type2)
-            throw r_Error(455); // Operation not supported on operand of complex type.
+            throw r_Error(OPS_COMPLEXTYPENOTSUPPORTED); // Operation not supported on operand of complex type.
         auto *res = getStructResultType(op, op1, op2);
         if (op >= OP_EQUAL && op <= OP_GREATEREQUAL)
             return res ? TypeFactory::mapType("Bool") : NULL;
@@ -1035,8 +1035,8 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     
     // logical operators expect bool operands and return bool
     if (op >= OP_IS && op <= OP_XOR)
-        // 376: Operation expected boolean operands.
-        return type1 == BOOLTYPE && type2 == BOOLTYPE ? op1 : throw r_Error(377);
+        // OPS_TWOBOOLSEXPECTED: Operation expected boolean operands.
+        return type1 == BOOLTYPE && type2 == BOOLTYPE ? op1 : throw r_Error(OPS_TWOBOOLSEXPECTED);
     
     // comparison operators always return atomic bool
     if (op >= OP_EQUAL && op <= OP_GREATEREQUAL)
@@ -1045,8 +1045,8 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
             ((isComplexTypeInt(type1) != isComplexTypeInt(type2)) ||
              (isComplexTypeFloat(type1) != isComplexTypeFloat(type2)) ||
              (op != OP_EQUAL && op != OP_NOTEQUAL)))
-            // 363: Cell base types of binary induce operation are incompatible.
-            throw r_Error(363);
+            // BININDUCE_BASETYPESINCOMPATIBLE: Cell base types of binary induce operation are incompatible.
+            throw r_Error(BININDUCE_BASETYPESINCOMPATIBLE);
         else
             return TypeFactory::mapType("Bool");
     }
@@ -1055,9 +1055,9 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     if (op == OP_OVERLAY || op == OP_MAX_BINARY || op == OP_MIN_BINARY)
     {
         if (isComplexType(type1) || isComplexType(type2))
-            throw r_Error(455); // Operation not supported on operand of complex type.
-        // 363: Cell base types of binary induce operation are incompatible.
-        return type1 == type2 ? op1 : throw r_Error(363);
+            throw r_Error(OPS_COMPLEXTYPENOTSUPPORTED); // Operation not supported on operand of complex type.
+        // BININDUCE_BASETYPESINCOMPATIBLE: Cell base types of binary induce operation are incompatible.
+        return type1 == type2 ? op1 : throw r_Error(BININDUCE_BASETYPESINCOMPATIBLE);
     }
 
     // +, *, div(), mod()
@@ -1117,12 +1117,12 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         case COMPLEXTYPE2:
             return TypeFactory::mapType("Complexd");
         default:
-            // 363: Cell base types of binary induce operation are incompatible.
-            throw r_Error(363);
+            // BININDUCE_BASETYPESINCOMPATIBLE: Cell base types of binary induce operation are incompatible.
+            throw r_Error(BININDUCE_BASETYPESINCOMPATIBLE);
         }
     }
 
-    throw r_Error(363); // Cell base types of binary induce operation are incompatible.
+    throw r_Error(BININDUCE_BASETYPESINCOMPATIBLE); // Cell base types of binary induce operation are incompatible.
 }
 
 int
@@ -1189,7 +1189,7 @@ Ops::execUnaryConstOp(Ops::OpType op, const BaseType *resType,
         LERROR << "Ops::execUnaryConstOp: no operation for result type "
                << resType->getName() << ", argument type "
                << opType->getName() << ", operation " << (int)op;
-        throw r_Error(367);
+        throw r_Error(UNARY_SCALARTYPENOTSUPPORTED);
     }
 
     // set exponent for pow operations

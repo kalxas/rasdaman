@@ -85,7 +85,7 @@ QtInsert::QtInsert(const QtCollection &initCollection, QtOperation *initSource)
     if (collection.getHostname() != "" && !common::StringUtil::equalsCaseInsensitive(collection.getHostname(), "localhost"))
     {
         LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
-        parseInfo.setErrorNo(499);
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED);
         throw parseInfo;
     }
 }
@@ -97,7 +97,7 @@ QtInsert::QtInsert(const QtCollection &initCollection, QtOperation *initSource, 
     if (collection.getHostname() != "" && collection.getHostname() != "localhost")
     {
         LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
-        parseInfo.setErrorNo(499);
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED);
         throw parseInfo;
     }
 }
@@ -109,7 +109,7 @@ QtInsert::QtInsert(const QtCollection &initCollection, QtData *data)
     if (collection.getHostname() != "" && collection.getHostname() != "localhost")
     {
         LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
-        parseInfo.setErrorNo(499);
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED);
         throw parseInfo;
     }
 }
@@ -183,13 +183,13 @@ QtInsert::evaluate()
         {
 
             LERROR << "Error: QtInsert::evaluate() - collection name not found";
-            parseInfo.setErrorNo(355);
+            parseInfo.setErrorNo(COLLECTIONNAMEUNKNOWN);
             throw parseInfo;
         }
         if (!almost->isPersistent())
         {
             LERROR << "QtInsert: User tries to insert into system table";
-            parseInfo.setErrorNo(355);
+            parseInfo.setErrorNo(COLLECTIONNAMEUNKNOWN);//needs new err code
             throw parseInfo;
         }
         else
@@ -240,7 +240,7 @@ QtInsert::evaluate()
             persColl = NULL;
             // return error
             LERROR << "Error: QtInsert::evaluate() - MDD and collection types are incompatible";
-            parseInfo.setErrorNo(959);
+            parseInfo.setErrorNo(MDDANDCOLLECTIONTYPESINCOMPATIBLE);
             throw parseInfo;
         }
 
@@ -253,7 +253,7 @@ QtInsert::evaluate()
             persColl = NULL;
             // return error
             LERROR << "Error: QtInsert::evaluate() - MDD and collection domains are incompatible";
-            parseInfo.setErrorNo(959);
+            parseInfo.setErrorNo(MDDANDCOLLECTIONTYPESINCOMPATIBLE);
             throw parseInfo;
         }
 
@@ -392,7 +392,7 @@ QtInsert::evaluate()
             persColl->releaseAll();
             delete persColl;
             persColl = NULL;
-            parseInfo.setErrorNo(958);
+            parseInfo.setErrorNo(OID_NEWOIDALLOCATIONFAILED);
             throw parseInfo;
         }
 #endif
@@ -509,7 +509,7 @@ QtInsert::checkType()
         if (inputType.getDataType() != QT_MDD)
         {
             LERROR << "Error: QtInsert::checkType() - insert expression must be of type r_Marray<T>";
-            parseInfo.setErrorNo(960);
+            parseInfo.setErrorNo(INSERT_INVALIDTYPE);
             throw parseInfo;
         }
     }
@@ -520,7 +520,7 @@ QtInsert::checkType()
         if (dataToInsert->getDataType() != QT_MDD)
         {
             LERROR << "Error: QtInsert::checkType() - inserted data must be of type r_Marray<T>";
-            parseInfo.setErrorNo(960);
+            parseInfo.setErrorNo(INSERT_INVALIDTYPE);
             throw parseInfo;
         }
     }

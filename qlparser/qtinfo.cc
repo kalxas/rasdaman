@@ -84,7 +84,7 @@ QtInfo::QtInfo(QtVariable *newInput, const char *paramsStr)
         }
         else{
             LERROR << "Error: QtInfo::QtInfo() - printtiles argument is not supported.";
-            throw r_Error(379);
+            throw r_Error(INFO_PRINTTILESNOTSUPPORTED);
         }
         if (printParam != NULL)
         {
@@ -141,7 +141,7 @@ QtInfo::evaluate(QtDataList *inputList)
                     operand->deleteRef();
                 }
 
-                parseInfo.setErrorNo(384);
+                parseInfo.setErrorNo(OID_OIDINVALID);
                 throw parseInfo;
             }
 
@@ -283,7 +283,7 @@ QtInfo::evaluate(QtDataList *inputList)
                                 operand->deleteRef();
                             }
 
-                            parseInfo.setErrorNo(449);
+                            parseInfo.setErrorNo(INFO_TILEINFOSVGEXPORTERROR);
                             throw parseInfo;
                         }
                         std::string colors[COLOR_PALET_SIZE] = {"blue", "red", "brown", "grey", "black", "yellow", "purple", "pink", "olive", "gold", "aqua",
@@ -334,7 +334,7 @@ QtInfo::evaluate(QtDataList *inputList)
                         operand->deleteRef();
                     }
 
-                    parseInfo.setErrorNo(432);
+                    parseInfo.setErrorNo(INFO_OBJINFOFAIL);
                     throw parseInfo;
                 }
             }
@@ -348,7 +348,7 @@ QtInfo::evaluate(QtDataList *inputList)
                     operand->deleteRef();
                 }
 
-                parseInfo.setErrorNo(431);
+                parseInfo.setErrorNo(INFO_PERSISTENTOBJINVALID);
                 throw parseInfo;
             }
         }
@@ -361,7 +361,7 @@ QtInfo::evaluate(QtDataList *inputList)
             {
                 operand->deleteRef();
             }
-            parseInfo.setErrorNo(430);
+            parseInfo.setErrorNo(INFO_OPERANDNOTPERSISTENT);
             throw parseInfo;
         }
 
@@ -419,7 +419,7 @@ QtInfo::checkType(QtTypeTuple *typeTuple)
         if (inputType.getDataType() != QT_MDD)
         {
             LERROR << "Error: QtInfo::checkType() - operand is not of type MDD.";
-            parseInfo.setErrorNo(383);
+            parseInfo.setErrorNo(OID_PARAMETERINVALID);
             throw parseInfo;
         }
 

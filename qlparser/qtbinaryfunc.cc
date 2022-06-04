@@ -129,7 +129,7 @@ QtShift::evaluate(QtDataList *inputList)
         if (transPoint.dimension() != qtMDDObj->getLoadDomain().dimension())
         {
             LERROR << "Error: QtShift::evaluate( QtDataList* ) - dimensionality of MDD and point expression do not match.";
-            parseInfo.setErrorNo(407);
+            parseInfo.setErrorNo(SHIFT_DIMENSIONALITYMISMATCH);
             throw parseInfo;
         }
 
@@ -259,7 +259,7 @@ QtShift::optimizeLoad(QtTrimList *trimList)
             trimList = NULL;
 
             LERROR << "Error: QtShift::optimizeLoad() - spatial domain shift of open bounds is not supported";
-            parseInfo.setErrorNo(409);
+            parseInfo.setErrorNo(SHIFT_OPENBOUNDSINCOMPATIBLE);
             throw parseInfo;
         }
 
@@ -277,7 +277,7 @@ QtShift::optimizeLoad(QtTrimList *trimList)
             trimList = NULL;
 
             LERROR <<  "Error: QtShift::optimizeLoad() - second operand of shift function must be a constant expression.";
-            parseInfo.setErrorNo(408);
+            parseInfo.setErrorNo(SHIFT_CONSTEXPREQUIRED);
             throw parseInfo;
         }
 
@@ -295,7 +295,7 @@ QtShift::optimizeLoad(QtTrimList *trimList)
             operand->deleteRef();
 
             LERROR << "Error: QtShift::optimizeLoad() - second operand must be of type Point.";
-            parseInfo.setErrorNo(406);
+            parseInfo.setErrorNo(SHIFT_POINTREQUIRED);
             throw parseInfo;
         }
 
@@ -374,7 +374,7 @@ QtShift::checkType(QtTypeTuple *typeTuple)
         if (inputType2.getDataType() != QT_POINT && inputType2.getDataType() != QT_LONG)
         {
             LERROR << "Error: QtShift::checkType() - second operand must be of type Point.";
-            parseInfo.setErrorNo(406);
+            parseInfo.setErrorNo(SHIFT_POINTREQUIRED);
             throw parseInfo;
         }
 
@@ -442,7 +442,7 @@ QtExtend::evaluate(QtDataList *inputList)
         if (targetDomain.dimension() != qtMDDObj->getLoadDomain().dimension())
         {
             LERROR << "Error: QtExtend::evaluate( QtDataList* ) - dimensionality of MDD and point expression do not match.";
-            parseInfo.setErrorNo(407);
+            parseInfo.setErrorNo(SHIFT_DIMENSIONALITYMISMATCH);
             throw parseInfo;
         }
 
@@ -450,7 +450,7 @@ QtExtend::evaluate(QtDataList *inputList)
         if (! targetDomain.is_origin_fixed() || ! targetDomain.is_high_fixed())
         {
             LERROR << "Error: QtExtend::evaluate( QtDataList* ) - target domain must not have open bounds.";
-            parseInfo.setErrorNo(420);
+            parseInfo.setErrorNo(EXTEND_OPENBOUNDSNOTSUPPORTED);
             throw parseInfo;
         }
         // - M.subset( sdom(C) ); can we relieve this?
@@ -459,7 +459,7 @@ QtExtend::evaluate(QtDataList *inputList)
 //        if( ! targetDomain.covers( qtMDDObj->getLoadDomain() ) )
 //        {
 //            LERROR << "Error: QtExtend::evaluate( QtDataList* ) - new interval does not cover MDD to be extended.";
-//            parseInfo.setErrorNo(421);
+//            parseInfo.setErrorNo(EXTEND_TARGETINTERVALINVALID);
 //            throw parseInfo;
 //        }
 
@@ -711,7 +711,7 @@ QtExtend::optimizeLoad(QtTrimList *trimList)
 
             LERROR << "Error: QtExtend::optimizeLoad() - spatial domain shift of open bounds is not supported";
 // XXX need new error code
-            parseInfo.setErrorNo(409);
+            parseInfo.setErrorNo(SHIFT_OPENBOUNDSINCOMPATIBLE);
             throw parseInfo;
         }
 
@@ -730,7 +730,7 @@ QtExtend::optimizeLoad(QtTrimList *trimList)
 
             LERROR <<  "Error: QtExtend::optimizeLoad() - second operand of extend function must be a constant expression.";
 // XXX correct new error code
-            parseInfo.setErrorNo(408);
+            parseInfo.setErrorNo(SHIFT_CONSTEXPREQUIRED);
             throw parseInfo;
         }
 
@@ -749,7 +749,7 @@ QtExtend::optimizeLoad(QtTrimList *trimList)
 
             LERROR << "Error: QtExtend::optimizeLoad() - second operand must be of type Minterval.";
 // XXX correct new error code
-            parseInfo.setErrorNo(406);
+            parseInfo.setErrorNo(SHIFT_POINTREQUIRED);
             throw parseInfo;
         }
 
@@ -812,7 +812,7 @@ QtExtend::checkType(QtTypeTuple *typeTuple)
         if (inputType2.getDataType() != QT_MINTERVAL)
         {
             LERROR << "Error: QtExtend::checkType() - second operand must be of type Minterval.";
-            parseInfo.setErrorNo(422);
+            parseInfo.setErrorNo(EXTEND_MINTERVALREQUIRED);
             throw parseInfo;
         }
 
@@ -894,7 +894,7 @@ QtScale::evaluate(QtDataList *inputList)
         else
         {
             LERROR << "dimensionalities of MDD and scale expression are not matching.";
-            parseInfo.setErrorNo(418);
+            parseInfo.setErrorNo(BIT_WRONGOPERANDTYPE);
             throw parseInfo;
         }
     }
@@ -934,7 +934,7 @@ QtScale::evaluate(QtDataList *inputList)
         if (wishedTargetDomain.dimension() != sourceDomain.dimension())
         {
             LERROR << "dimensionalities of MDD and scale expression are not matching.";
-            parseInfo.setErrorNo(418);
+            parseInfo.setErrorNo(BIT_WRONGOPERANDTYPE);
             throw parseInfo;
         }
 
@@ -1010,7 +1010,7 @@ QtScale::evaluate(QtDataList *inputList)
     if (!scaleDomain(sourceDomain, scaleVector, targetDomain))
     {
         LERROR << "empty result after scaling.";
-        parseInfo.setErrorNo(419);
+        parseInfo.setErrorNo(DOMAINSCALEFAILED);
         throw parseInfo;
     }
     
@@ -1182,7 +1182,7 @@ QtScale::checkType(QtTypeTuple *typeTuple)
         if (inputType1.getDataType() != QT_MDD)
         {
             LERROR << "Error: QtScale::checkType() - first operand must be of type MDD.";
-            parseInfo.setErrorNo(416);
+            parseInfo.setErrorNo(SCALE_MDDARGREQUIRED);
             throw parseInfo;
         }
 
@@ -1191,7 +1191,7 @@ QtScale::checkType(QtTypeTuple *typeTuple)
                 !inputType2.isInteger())
         {
             LERROR << "Error: QtScale::checkType() - second operand must be either of type Point, Integer or Float.";
-            parseInfo.setErrorNo(417);
+            parseInfo.setErrorNo(SCALE_INDICATORINVALID);
             throw parseInfo;
         }
 

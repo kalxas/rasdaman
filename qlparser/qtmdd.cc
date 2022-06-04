@@ -106,7 +106,7 @@ QtMDD::QtMDD(QtOperation *mintervalOp, list<QtScalarData *> *literalList)
         {
             LERROR << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Can not evaluate domain expression to an minterval." ;
             ParseInfo errorInfo = getParseInfo();
-            errorInfo.setErrorNo(401);
+            errorInfo.setErrorNo(DOMAINEVALUATIONERROR);
             throw errorInfo;
         }
 
@@ -153,7 +153,7 @@ QtMDD::QtMDD(QtOperation *mintervalOp, list<QtScalarData *> *literalList)
                         free(scalarElemTypeStructure);
                         cellBuffer = NULL;
                         ParseInfo errorInfo = getParseInfo();
-                        errorInfo.setErrorNo(301);
+                        errorInfo.setErrorNo(PARSER_MDDCELLTYPEMUSTBEUNIFORM);
                         throw errorInfo;
                     }
                     free(scalarElemTypeStructure);
@@ -172,7 +172,7 @@ QtMDD::QtMDD(QtOperation *mintervalOp, list<QtScalarData *> *literalList)
                 free(cellBuffer);
                 cellBuffer = NULL;
                 ParseInfo errorInfo = getParseInfo();
-                errorInfo.setErrorNo(302);
+                errorInfo.setErrorNo(PARSER_CELLNUMMISMATCHWITHSDOM);
                 throw errorInfo;
             }
 
@@ -199,7 +199,7 @@ QtMDD::QtMDD(QtOperation *mintervalOp, list<QtScalarData *> *literalList)
     {
         LERROR << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Domain of MDD constructor has to be defined.";
         ParseInfo errorInfo = getParseInfo();
-        errorInfo.setErrorNo(400);
+        errorInfo.setErrorNo(MDDCONSTRUCTOR_DOMAINUNDEFINED);
         throw errorInfo;
     }
 
@@ -239,7 +239,7 @@ QtMDD::QtMDD(__attribute__((unused)) int constantNo)
     {
         LERROR << "Error: QtMDD() - Unsatisfied MDD constant parameter.";
         ParseInfo errorInfo = getParseInfo();
-        errorInfo.setErrorNo(373);
+        errorInfo.setErrorNo(UNSATISFIEDMDDCONSTANT);
         throw errorInfo;
     }
 

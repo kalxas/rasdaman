@@ -76,7 +76,7 @@ QtIntervalOp::evaluate(QtDataList *inputList)
             catch (...)
             {
                 LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
-                parseInfo.setErrorNo(389);
+                parseInfo.setErrorNo(INTERVAL_INVALID);
 
                 // delete the old operands
                 if (operand1)
@@ -102,7 +102,7 @@ QtIntervalOp::evaluate(QtDataList *inputList)
             catch (...)
             {
                 LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
-                parseInfo.setErrorNo(389);
+                parseInfo.setErrorNo(INTERVAL_INVALID);
 
                 // delete the old operands
                 if (operand1)
@@ -129,7 +129,7 @@ QtIntervalOp::evaluate(QtDataList *inputList)
             else
             {
                 LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be '*'.";
-                parseInfo.setErrorNo(389);
+                parseInfo.setErrorNo(INTERVAL_INVALID);
 
                 // delete the old operands
                 if (operand1)
@@ -147,7 +147,7 @@ QtIntervalOp::evaluate(QtDataList *inputList)
 
         default:
             LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
-            parseInfo.setErrorNo(388);
+            parseInfo.setErrorNo(INTERVAL_BOUNDINVALID);
 
             // delete the old operands
             if (operand1)
@@ -175,7 +175,7 @@ QtIntervalOp::evaluate(QtDataList *inputList)
             catch (...)
             {
                 LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
-                parseInfo.setErrorNo(389);
+                parseInfo.setErrorNo(INTERVAL_INVALID);
 
                 // delete the old operands
                 if (operand1)
@@ -201,7 +201,7 @@ QtIntervalOp::evaluate(QtDataList *inputList)
             catch (...)
             {
                 LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
-                parseInfo.setErrorNo(389);
+                parseInfo.setErrorNo(INTERVAL_INVALID);
                 // delete the old operands
                 if (operand1)
                 {
@@ -227,7 +227,7 @@ QtIntervalOp::evaluate(QtDataList *inputList)
             else
             {
                 LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be '*'.";
-                parseInfo.setErrorNo(389);
+                parseInfo.setErrorNo(INTERVAL_INVALID);
 
                 // delete the old operands
                 if (operand1)
@@ -245,7 +245,7 @@ QtIntervalOp::evaluate(QtDataList *inputList)
 
         default:
             LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
-            parseInfo.setErrorNo(388);
+            parseInfo.setErrorNo(INTERVAL_BOUNDINVALID);
 
             // delete the old operands
             if (operand1)
@@ -355,7 +355,7 @@ QtIntervalOp::checkType(QtTypeTuple *typeTuple)
         if (!opTypesValid)
         {
             LERROR << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
-            parseInfo.setErrorNo(389);
+            parseInfo.setErrorNo(INTERVAL_INVALID);
             throw parseInfo;
         }
 

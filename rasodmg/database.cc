@@ -219,14 +219,14 @@ void
 r_Database::create(__attribute__((unused)) const char *name)
 {
     // this operation is not supported through this interface; use rasql
-    throw (r_Error(803)); // Access denied, no permission
+    throw (r_Error(NO_PERMISSION_FOR_OPERATION)); // Access denied, no permission
 }
 
 void
 r_Database::destroy(__attribute__((unused)) const char *name)
 {
     // this operation is not supported through this interface; use rasql
-    throw (r_Error(803)); // Access denied, no permission
+    throw (r_Error(NO_PERMISSION_FOR_OPERATION)); // Access denied, no permission
 }
 
 

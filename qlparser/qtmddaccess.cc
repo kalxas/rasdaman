@@ -224,7 +224,7 @@ QtMDDAccess::checkType()
     if (collection.getHostname() != "" && collection.getHostname() != "localhost")
     {
         LERROR << "Non-local collection is unsupported";
-        parseInfo.setErrorNo(499); //to be changed
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED); //to be changed
         throw parseInfo;
     }
 
@@ -248,7 +248,7 @@ QtMDDAccess::checkType()
     catch (...)
     {
         LERROR << "Collection " << collection.getCollectionName() << " is unknown";
-        parseInfo.setErrorNo(355);
+        parseInfo.setErrorNo(COLLECTIONNAMEUNKNOWN);
         throw parseInfo;
     }
 

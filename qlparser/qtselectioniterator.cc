@@ -203,7 +203,7 @@ QtSelectionIterator::next()
                         else
                         {
                             LERROR << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool.";
-                            parseInfo.setErrorNo(359);
+                            parseInfo.setErrorNo(WHERECLAUSE_RESULTNOTBOOLEAN);
                             throw parseInfo;
                         }
 
@@ -260,7 +260,7 @@ QtSelectionIterator::checkType()
         if (type.getDataType() != QT_BOOL)
         {
             LERROR << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool.";
-            parseInfo.setErrorNo(359);
+            parseInfo.setErrorNo(WHERECLAUSE_RESULTNOTBOOLEAN);
             throw parseInfo;
         }
     }

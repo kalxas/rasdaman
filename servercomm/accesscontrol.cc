@@ -60,7 +60,7 @@ void AccessControl::setServerName(const char *newServerName)
     else
     {
         LERROR << "Server name length exceeds the maximum allowed length (" << maxServerNameSize << ").";
-        throw r_Error(10000); // internal error
+        throw r_Error(INTERNALSERVERERROR); // internal error
     }
 }
 

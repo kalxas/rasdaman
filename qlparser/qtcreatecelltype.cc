@@ -41,7 +41,7 @@ void QtCreateCellType::checkType()
     // Check if the type already exists and throw error if necessary
     if (TypeFactory::mapType(this->typeName.c_str()))
     {
-        parseInfo.setErrorNo(969);
+        parseInfo.setErrorNo(TYPE_ALREADYEXISTS);
         parseInfo.setToken(this->typeName.c_str());
         throw parseInfo;
     }
@@ -58,7 +58,7 @@ void QtCreateCellType::checkType()
         // if an attribute type is invalid, throw exception
         if (attributeType == NULL)
         {
-            parseInfo.setErrorNo(970);
+            parseInfo.setErrorNo(ATTRIBUTETYPE_INVALID);
             parseInfo.setToken(attributeTypeType.c_str());
             throw parseInfo;
         }

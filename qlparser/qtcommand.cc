@@ -61,7 +61,7 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollecti
     if (collection.getHostname() != "" && collection.getHostname() != "localhost")
     {
         LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
-        parseInfo.setErrorNo(499);
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED);
         throw parseInfo;
     }
 }
@@ -77,7 +77,7 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollecti
     if (collection.getHostname() != "" && collection.getHostname() != "localhost")
     {
         LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
-        parseInfo.setErrorNo(499);
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED);
         throw parseInfo;
     }
 }
@@ -93,7 +93,7 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollecti
     if (collection.getHostname() != "" && collection.getHostname() != "localhost")
     {
         LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
-        parseInfo.setErrorNo(499);
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED);
         throw parseInfo;
     }
 }
@@ -104,7 +104,7 @@ void QtCommand::dropCollection(const QtCollection &collection2)
     if (!MDDColl::dropMDDCollection(collection2.getCollectionName().c_str()))
     {
         LERROR << "Error during query evaluation: collection name not found: " << collection.getCollectionName().c_str();
-        parseInfo.setErrorNo(957);
+        parseInfo.setErrorNo(COMMAND_COLLNAME_UNKNOWN);
         throw parseInfo;
     }
 
@@ -146,7 +146,7 @@ OId QtCommand::createCollection(const QtCollection &collection2, string typeName
             }
             catch (r_Error &obj)
             {
-                parseInfo.setErrorNo(955);
+                parseInfo.setErrorNo(COMMAND_COLLNAME_ALREADYEXISTS);
                 throw parseInfo;
             }
 #ifdef BASEDB_O2
@@ -154,7 +154,7 @@ OId QtCommand::createCollection(const QtCollection &collection2, string typeName
         else
         {
             LERROR << "Error: QtCommand::evaluate() - oid allocation failed";
-            parseInfo.setErrorNo(958);
+            parseInfo.setErrorNo(OID_NEWOIDALLOCATIONFAILED);
             throw parseInfo;
         }
 #endif
@@ -162,7 +162,7 @@ OId QtCommand::createCollection(const QtCollection &collection2, string typeName
     else
     {
         LERROR << "Error during query evaluation: collection type not found: " << typeName2.c_str();
-        parseInfo.setErrorNo(956);
+        parseInfo.setErrorNo(COMMAND_COLLTYPE_UNKNOWN);
         throw parseInfo;
     }
     return oid;
@@ -184,7 +184,7 @@ void QtCommand::alterCollection(const QtCollection &collection2, string typeName
             if (!coll)
             {
                 LERROR << "Collection name not found: " << collection2.getCollectionName().c_str();
-                parseInfo.setErrorNo(957);
+                parseInfo.setErrorNo(COMMAND_COLLNAME_UNKNOWN);
                 throw parseInfo;
             }
 
@@ -193,7 +193,7 @@ void QtCommand::alterCollection(const QtCollection &collection2, string typeName
             if (!newCollType->compatibleWith(existingMDDType))
             {
                 LERROR << "New collection type is incompatible with the existing collection type.";
-                parseInfo.setErrorNo(959);
+                parseInfo.setErrorNo(MDDANDCOLLECTIONTYPESINCOMPATIBLE);
                 throw parseInfo;
             }
 
@@ -201,14 +201,14 @@ void QtCommand::alterCollection(const QtCollection &collection2, string typeName
         }
         catch (r_Error &obj)
         {
-            parseInfo.setErrorNo(955);
+            parseInfo.setErrorNo(COMMAND_COLLNAME_ALREADYEXISTS);
             throw parseInfo;
         }
     }
     else
     {
         LERROR << "Collection type not found: " << typeName2;
-        parseInfo.setErrorNo(956);
+        parseInfo.setErrorNo(COMMAND_COLLTYPE_UNKNOWN);
         throw parseInfo;
     }
 }
@@ -229,7 +229,7 @@ string QtCommand::getSelectedDataType(vector<QtData *> *data)
     {
         // empty results from SELECT
         LERROR << "Error: no results from the SELECT sub-query.";
-        throw r_Error(r_Error::r_Error_QueryExecutionFailed, 243);
+        throw r_Error(r_Error::r_Error_QueryExecutionFailed, TYPEISINUSE);
     }
 
     LTRACE << "getSelectedDataType() - type structure of the SELECT sub-query results: " << typestr;
@@ -262,7 +262,7 @@ string QtCommand::getSelectedDataType(vector<QtData *> *data)
     else
     {
         LERROR << "Error: the result from the SELECT sub-query is not an MDD, and can not be stored in a collection.";
-        throw r_Error(r_Error::r_Error_QueryExecutionFailed, 243);
+        throw r_Error(r_Error::r_Error_QueryExecutionFailed, TYPEISINUSE);
     }
 
     // this also creates the underlying mddType
@@ -416,7 +416,7 @@ QtCommand::evaluate()
             if (data == NULL)
             {
                 LERROR << "Error: evaluating the SELECT sub-query failed.";
-                throw r_Error(r_Error::r_Error_QueryExecutionFailed, 242);
+                throw r_Error(r_Error::r_Error_QueryExecutionFailed, INVALIDFORMATPARAMETER);
             }
             else
             {

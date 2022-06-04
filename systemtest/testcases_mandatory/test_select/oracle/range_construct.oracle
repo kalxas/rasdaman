@@ -1,1 +1,1 @@
-rasdaman error 351: Execution error 351 in line 0, column 0, near token : Spatial domains of the binary induce operands are incompatible.
+rasdaman error 351: Execution error 351 in line 0, column 0, near token : Spatial domains of the range constructor operands are incompatible.

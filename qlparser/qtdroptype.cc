@@ -68,7 +68,7 @@ QtData *QtDropType::evaluate()
     }
     default:
     {
-        parseInfo.setErrorNo(968);
+        parseInfo.setErrorNo(TYPE_NAMEUNKNOWN);
         parseInfo.setToken(this->typeName.c_str());
         throw parseInfo;
     }
@@ -94,7 +94,7 @@ void QtDropType::checkType()
     }
     else
     {
-        parseInfo.setErrorNo(968);
+        parseInfo.setErrorNo(TYPE_NAMEUNKNOWN);
         parseInfo.setToken(this->typeName.c_str());
         throw parseInfo;
     }

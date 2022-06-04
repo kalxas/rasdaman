@@ -824,7 +824,7 @@ r_Conv_DEM::convertTo(const char* options, const r_Range*)
         if (!lenFile)
         {
             LERROR << "r_Conv_DEM::convertTo(): source contains only NULL values.";
-            throw r_Error(E_DEM_EMPTY);
+            throw r_Error(FORMATCONV_DEMAREA_VALUESNULL);
         }
 
         //--creating the resulting type

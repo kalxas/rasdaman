@@ -172,7 +172,7 @@ QtConversion::evaluate(QtDataList *inputList)
     if (conversionType == QT_UNKNOWN)
     {
         LERROR << "Unknown conversion format.";
-        parseInfo.setErrorNo(382);
+        parseInfo.setErrorNo(CONVERSION_FORMATUNKNOWN);
         throw parseInfo;
     }
 
@@ -215,7 +215,7 @@ QtConversion::evaluate(QtDataList *inputList)
                 // get relevant tiles
                 tiles = currentMDDObj->intersect(qtMDD->getLoadDomain());
             }*/
-            
+
             tiles = currentMDDObj->intersect(qtMDD->getLoadDomain());
             if (!tiles || tiles->empty())
             {
@@ -283,10 +283,10 @@ QtConversion::evaluate(QtDataList *inputList)
         {
             //catch an error based on the error type, if assigned to FeatureNotSupported, or the error number.
             //in case no error number has been set (0 is the initialized value, and does not correspond to any error)
-            //we catch a default error (381 -- conversion format not supported)
+            //we catch a default error (381 -- conversion format not supported)//comment: 381: CONVERSION_CONVERTORERROR
             if (err.get_kind() == r_Error::r_Error_FeatureNotSupported)
             {
-                parseInfo.setErrorNo(218);
+                parseInfo.setErrorNo(CONVERSIONFORMATNOTSUPPORTED);
             }
             else if (err.get_errorno() != 0)
             {
@@ -295,7 +295,7 @@ QtConversion::evaluate(QtDataList *inputList)
             else
             {
                 LERROR << "Format conversion failed: " << err.what();
-                parseInfo.setErrorNo(381);
+                parseInfo.setErrorNo(CONVERSION_CONVERTORERROR);
             }
             throw parseInfo;
         }
@@ -568,7 +568,7 @@ QtConversion::checkType(QtTypeTuple *typeTuple)
         if (conversionType != QT_TOCSV && conversionType != QT_TOJSON && inputType.getDataType() != QT_MDD)
         {
             LERROR << "expected MDD operand in conversion operation.";
-            parseInfo.setErrorNo(380);
+            parseInfo.setErrorNo(CONVERSION_FORMATINCOMPATIBLE);
             throw parseInfo;
         }
 

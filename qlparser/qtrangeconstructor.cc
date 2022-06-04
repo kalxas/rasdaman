@@ -131,7 +131,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                 {
                     LERROR << "invalid scalar type.";
                     delete scalarOperands, scalarOperands = NULL;
-                    parseInfo.setErrorNo(404);
+                    parseInfo.setErrorNo(CELLEXP_WRONGOPERANDTYPE);
                     throw parseInfo;
                 }
             }
@@ -224,7 +224,7 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
             if (destinationDomainSet && currDomain != destinationDomain)
             {
                 LERROR << "the operands have different domains.";
-                parseInfo.setErrorNo(351);
+                parseInfo.setErrorNo(RANGE_DOMAINSINCOMPATIBLE);
                 throw parseInfo;
             }
             //define currDomain if not yet set

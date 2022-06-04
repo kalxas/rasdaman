@@ -656,7 +656,7 @@ ServerComm::isTAOpen(unsigned long)
 #define HANDLE_PARSING_ERROR { \
         if (!parseError) { \
             parseError = new ParseInfo(); \
-            parseError->setErrorNo(309); \
+            parseError->setErrorNo(PARSER_UNKNOWNERROR); \
         } \
         HANDLE_PARSE_INFO(*parseError) \
         delete parseError, parseError = NULL; \
@@ -736,7 +736,7 @@ unsigned short ServerComm::handleExecuteQueryResult(ClientTblElt *context, unsig
                 if (!firstElement)
                 {
                     BLERROR << "Internal error: result object is null.\n";
-                    throw r_Error(10000); // Unexpected internal server error.
+                    throw r_Error(INTERNALSERVERERROR); // Unexpected internal server error.
                 }
 
                 try

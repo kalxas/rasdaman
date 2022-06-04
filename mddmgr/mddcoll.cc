@@ -304,7 +304,7 @@ MDDColl *MDDColl::createMDDCollection(const char *name,
     }
     if (!ct->isPersistent())
     {
-        r_Error t(209);
+        r_Error t(RASTYPEUNKNOWN);
         t.setTextParameter("type", ct->getName());
         LTRACE << "createMDDColl(" << name << ", " << ct->getName() << " not persistent)";
         throw t;
@@ -330,7 +330,7 @@ MDDColl *MDDColl::createMDDCollection(const char *name, const OId &o,
     }
     if (!ct->isPersistent())
     {
-        r_Error t(209);
+        r_Error t(RASTYPEUNKNOWN);
         t.setTextParameter("type", ct->getName());
         LTRACE << "createMDDColl(" << name << ", " << o << ", " << ct->getName()
                << " not persistent)";

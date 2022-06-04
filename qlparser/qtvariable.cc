@@ -232,7 +232,7 @@ QtVariable::evaluate(QtDataList *inputList)
         {
             LERROR << "Error: QtVariable::evaluate() - collection iterator " <<
                    iteratorName.c_str() << " is unknown.";
-            parseInfo.setErrorNo(357);
+            parseInfo.setErrorNo(VARIABLEUNKNOWN);
             throw parseInfo;
         }
 
@@ -265,7 +265,7 @@ QtVariable::evaluate(QtDataList *inputList)
                 {
                     LFATAL << "Specified domain " << loadDomain
                             << " does not intersect with  or extends outdside the spatial domain of MDD" << currentMDDObj->getCurrentDomain();
-                    parseInfo.setErrorNo(356);
+                    parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
                     throw parseInfo;
                 }*/
                 try
@@ -274,20 +274,20 @@ QtVariable::evaluate(QtDataList *inputList)
                 }
                 catch (r_Edim_mismatch &)
                 {
-                    parseInfo.setErrorNo(362);
+                    parseInfo.setErrorNo(DIMENSIONALITYMISMATCH);
                     throw parseInfo;
                 }
                 catch (r_Eno_interval &)
                 {
                     LFATAL << "Specified domain " << loadDomain
                             << " does not intersect with the spatial domain of MDD " << currentMDDObj->getCurrentDomain();
-                    parseInfo.setErrorNo(356);
+                    parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
                     throw parseInfo;
                 }
                 catch (r_Error &err)
                 {
                     LERROR << "Error: QtVariable::evaluate() - general error.";
-                    parseInfo.setErrorNo(350);
+                    parseInfo.setErrorNo(GENERALEXECUTIONERROR);
                     throw parseInfo;
                 }
 
@@ -403,7 +403,7 @@ QtVariable::checkType(QtTypeTuple *typeTuple)
     if ((dataStreamType.getDataType() == QT_TYPE_UNKNOWN))
     {
         LERROR << "Error: QtVariable::checkType() - variable " << iteratorName.c_str() << " is unknwon.";
-        parseInfo.setErrorNo(357);
+        parseInfo.setErrorNo(VARIABLEUNKNOWN);
         throw parseInfo;
     }
 

@@ -1,4 +1,4 @@
-299
+327
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -9,6 +9,7 @@
 # 2003-dec-03  PB     added 3000
 # 2005-jun-19  PB     added 420, 421, 422
 # 2012-dec-04  MR     added 423, 424, 425
+# 2022-may     AAR    added 225, 227, 228, 458, 459, 2024
 #
 # This file contains types and textual descriptions of rasdaman errors.
 # The ascending error numbers are used as index to the descriptions. Each 
@@ -47,6 +48,11 @@
 222^E^Exception: The type name or type structure does not represent a marray type.
 223^E^Exception: The rc index requires a marray type that has a specified domain (with fixed borders in all dimensions).
 224^E^Exception: The tile configuration is incompatible to the marray domain.
+#
+225^E^Exception: The rc index needs to have a regular tiling defined.
+227^E^Exception: Only 2D WKT Points are allowed.
+228^E^Exception: The init string has to start with a '[' and contain valid WKT Point definitions. Only 2 dimensions are allowed per WKT Point.
+#
 229^E^Exception: The parameterized query has invalid parameter format.
 230^E^Exception: The r_Object was already assigned a type.
 231^E^Exception: The Marray has no base type.
@@ -90,7 +96,7 @@
 348^E^Execution error: Remote object in the FROM clause doesn't reference any variable in the SELECT clause.
 349^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand out of range.
 350^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: General. 
-351^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Spatial domains of the binary induce operands are incompatible.
+351^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Spatial domains of the range constructor operands are incompatible.
 352^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand types are incompatible.
 353^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand of quantifier must be multidimensional.
 354^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand of quantifier must be a boolean array.
@@ -117,7 +123,7 @@
 374^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected at least one operand.
 375^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected a boolean operand.
 376^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected boolean operands.
-379^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Printtiles argument is not supported.
+379^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Print tiles argument is not supported.
 380^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Data type can not be converted to selected data exchange format.
 381^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Error in convertor of the selected data exchange format.
 382^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown conversion format.
@@ -175,12 +181,10 @@
 426^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The condition and result MDDs don't have the same domain.
 427^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The condition and result MDDs don't have the same tiling.
 428^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one condition is not boolean MDD.
-429^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one result type is not base type or MDD.
+429^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one result is not a scalar or MDD.
 430^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The results have incompatible types.
 431^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one condition is not boolean.
 #
-430^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Parameter of info function must be a persistent MDD object.
-431^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid persistent object given to the info function.
 432^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Failed retreiving information for the specified object.
 433^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Division by zero.
 434^E^Execution error: Cell base types of binary induce operation are incompatible.
@@ -208,7 +212,9 @@
 456^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operation expected more than one operand.
 #
 457^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: MDD has a non-char cell type, cannot apply color palette table.
-
+#
+458^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Parameter of info function must be a persistent MDD object.
+459^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid persistent object given to the info function.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #
@@ -334,7 +340,7 @@
 975^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The marray type name is longer than 200 characters.
 976^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The set type name is longer than 200 characters.
 977^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The struct type name is longer than 200 characters.
-
+#
 993^E^Referenced file not found or not readable.
 994^E^Referenced file is empty.
 995^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid expansion position, operation breaks tile alignment.
@@ -342,7 +348,6 @@
 997^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The collection name is too long.
 998^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Referenced file not found.
 999^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Referenced path not absolute.
-
 #
 # 1xxx errors: General errors
 #
@@ -388,6 +393,7 @@
 2021^E^Internal error: Binary import for object is not supported.
 2022^E^Internal error: Operands and result types don't match.
 2023^E^Internal error: Subquery execution failed due to remote server misconfiguration.
+2024^E^Internal error: QueryTree Node parent missing.
 #
 # 3xxx errors: Data format conversion errors
 #

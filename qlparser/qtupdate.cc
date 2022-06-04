@@ -172,7 +172,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
     if (!targetObj->isPersistent())
     {
         LERROR << "result of target expression must be an assignable value (l-value).";
-        throwError(nextTuple, target, source, 954);
+        throwError(nextTuple, target, source, UPDATE_TARGETEXP_INVALID);
     }
 
     // check that source base type matches the target base type
@@ -184,7 +184,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
         const char *dstTypeStructure = dstBaseType->getTypeStructure();
         LERROR << "Base type of source object (" << srcTypeStructure
                << ") does not match the base type of the target object (" << dstTypeStructure << ")";
-        throwError(nextTuple, target, source, 434);
+        throwError(nextTuple, target, source, CELLBINARYOPUNAVAILABLE);
     }
 
     // get optional domain
@@ -254,7 +254,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
     if (!targetObj->getMDDBaseType()->compatibleWithDomain(&sourceMDDDomain))
     {
         LERROR << "The update domain is outside the allowed domain of the target mdd.";
-        throwError(nextTuple, target, source, 953, targetDomainData);
+        throwError(nextTuple, target, source, UPDATE_DOMAIN_INCOMPATIBLE, targetDomainData);
     }
 
     // get all source tiles
@@ -323,7 +323,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
         if (!updateOp)
         {
             LERROR << "source MDD base type does not match target MDD base type.";
-            parseInfo.setErrorNo(952);
+            parseInfo.setErrorNo(UPDATE_BASETYPEMISMATCH);
             throw parseInfo;
         }
         updateOp->setNullValues(sourceNullValues);
@@ -452,14 +452,14 @@ QtUpdate::checkOperands(QtNode::QtDataList *nextTuple, QtData *target, QtData *s
         if (target->getDataType() != QT_MDD)
         {
             LERROR << "update target must be an iterator variable.";
-            throwError(nextTuple, target, source, 950);
+            throwError(nextTuple, target, source, UPDATE_TARGET_ITERATOREXPECTED);
         }
 
         // check update source
         if (source->getDataType() != QT_MDD)
         {
             LERROR << "update source must be an expression resulting in an MDD";
-            throwError(nextTuple, target, source, 951);
+            throwError(nextTuple, target, source, UPDATE_SOURCE_INVALID);
         }
     }
     else
@@ -504,7 +504,7 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target
         if (domain.dimension() != targetMDD->getLoadDomain().dimension())
         {
             LERROR << "Update domain dimensionality must match target MDD dimensionaltiy.";
-            throwError(nextTuple, target, source, 963, domainData);
+            throwError(nextTuple, target, source, UPDATE_INVALIDDIMENSIONALITY, domainData);
         }
 
         // The number of interval dimension of the update domain has to be
@@ -520,7 +520,7 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target
         if (updateIntervals != sourceMDD->getLoadDomain().dimension())
         {
             LERROR << "Number of update intervals must match source dimensionality.";
-            throwError(nextTuple, target, source, 962, domainData);
+            throwError(nextTuple, target, source, UPDATE_INVALIDNUMBEROFINTERVALS, domainData);
         }
 
         // Before: Warning: Fixed bounds in update domain specifications are ignored.
@@ -550,7 +550,7 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target
                     delete nextTuple;
                     nextTuple = NULL;
 
-                    parseInfo.setErrorNo(967);
+                    parseInfo.setErrorNo(UPDATE_DOMAININVALID);
                     throw parseInfo;
                 }
                 ++j;
@@ -739,7 +739,7 @@ QtUpdate::checkType()
         if (targetType.getDataType() != QT_MDD)
         {
             LERROR << "update target must be an iterator variable.";
-            parseInfo.setErrorNo(950);
+            parseInfo.setErrorNo(UPDATE_TARGET_ITERATOREXPECTED);
             throw parseInfo;
         }
 
@@ -750,7 +750,7 @@ QtUpdate::checkType()
             if (domainType.getDataType() != QT_MINTERVAL)
             {
                 LERROR << "update domain must be of type Minterval.";
-                parseInfo.setErrorNo(961);
+                parseInfo.setErrorNo(UPDATE_DOMAIN_INVALIDTYPE);
                 throw parseInfo;
             }
         }
@@ -760,7 +760,7 @@ QtUpdate::checkType()
         if (sourceType.getDataType() != QT_MDD)
         {
             LERROR << "update source must be an expression resulting in an MDD.";
-            parseInfo.setErrorNo(951);
+            parseInfo.setErrorNo(UPDATE_SOURCE_INVALID);
             throw parseInfo;
         }
 
@@ -791,7 +791,7 @@ QtUpdate::checkType()
         if (!compatible)
         {
             LERROR << "source MDD base type does not match target MDD base type.";
-            parseInfo.setErrorNo(952);
+            parseInfo.setErrorNo(UPDATE_BASETYPEMISMATCH);
             throw parseInfo;
         }
     }

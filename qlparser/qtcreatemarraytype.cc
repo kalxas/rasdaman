@@ -58,7 +58,7 @@ void QtCreateMarrayType::checkType()
     // Check if type exists and throw exception if it exists
     if (TypeFactory::mapMDDType(this->typeName.c_str()) != NULL)
     {
-        parseInfo.setErrorNo(969);
+        parseInfo.setErrorNo(TYPE_ALREADYEXISTS);
         parseInfo.setToken(this->typeName.c_str());
         throw parseInfo;
     }
@@ -68,7 +68,7 @@ void QtCreateMarrayType::checkType()
         // Check if the cell type exists and throw exception if not
         if (TypeFactory::mapType(this->cellTypeName.c_str()) == NULL)
         {
-            parseInfo.setErrorNo(971);
+            parseInfo.setErrorNo(CELLTYPE_INVALID);
             parseInfo.setToken(this->cellTypeName.c_str());
             throw parseInfo;
         }
@@ -82,7 +82,7 @@ void QtCreateMarrayType::checkType()
     // Check if the dimensionality is < 1 or if the specified domain is valid
     if (this->domainNode == NULL)
     {
-        parseInfo.setErrorNo(972);
+        parseInfo.setErrorNo(DIMENSIONALITY_INVALID);
         throw parseInfo;
     }
     else if (this->domainNode != NULL)
