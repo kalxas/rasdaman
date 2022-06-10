@@ -423,7 +423,7 @@ public class ConfigManager {
         try {
             valueMaxWMSCacheSize = get(KEY_MAX_WMS_CACHE_SIZE);
             MAX_WMS_CACHE_SIZE = new Long(valueMaxWMSCacheSize);
-            if (MAX_WMS_CACHE_SIZE <= 0) {
+            if (MAX_WMS_CACHE_SIZE < 0) {
                 throw new NumberFormatException();
             }
         } catch (PetascopeException ex) {
@@ -431,7 +431,7 @@ public class ConfigManager {
                     + " use default value '" + MAX_WMS_CACHE_SIZE + "' for this key.");
         } catch (NumberFormatException ex) {
             throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
-                    "Value for key '" + KEY_MAX_WMS_CACHE_SIZE + "' must be positive integer. Given '" + valueMaxWMSCacheSize + "'.");
+                    "Value for key '" + KEY_MAX_WMS_CACHE_SIZE + "' must not be negative integer. Given '" + valueMaxWMSCacheSize + "'.");
         }
         
         try {
@@ -629,6 +629,7 @@ public class ConfigManager {
         log.info("DB URL  " + PETASCOPE_DATASOURCE_URL);
         log.info("DB User " + PETASCOPE_DATASOURCE_USERNAME);
         log.info("Allow write requests from: " + ListUtil.join(ConfigManager.ALLOW_WRITE_REQUESTS_FROM, ","));
+        log.info("Max WMS cache size is: " + ConfigManager.MAX_WMS_CACHE_SIZE + " bytes.");
         log.info("");
 
         log.info("-- RASDAMAN --");

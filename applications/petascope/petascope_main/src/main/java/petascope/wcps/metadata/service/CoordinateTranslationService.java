@@ -98,7 +98,7 @@ public class CoordinateTranslationService {
      * Get a pair of lower:upper bounds for geo and grid by geo trimming subset of X axis
      * as gdal_translate -projwin
      */
-    public Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> calculateGeoGridXBounds(boolean checkBoundary, Axis axisX, GeoTransform adfGeoTransform, 
+    public Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> calculateGeoGridXBounds(boolean checkBoundary, boolean checkGridBound, Axis axisX, GeoTransform adfGeoTransform, 
                                                                                       BigDecimal geoXMin, BigDecimal geoXMax) {
         Pair<BigDecimal, BigDecimal> gridPair = this.calculateGridXBounds(adfGeoTransform, geoXMin, geoXMax);
         
@@ -109,7 +109,7 @@ public class CoordinateTranslationService {
         gridXMin = gridXMin.add(axisX.getGridBounds().getLowerLimit());
         gridXMax = gridXMax.add(axisX.getGridBounds().getLowerLimit());
         
-        if (checkBoundary) {
+        if (checkGridBound) {
             gridXMin = BigDecimalUtil.getValidValue(axisX.getGridBounds().getLowerLimit(), axisX.getGridBounds().getUpperLimit(), gridXMin);
             gridXMax = BigDecimalUtil.getValidValue(axisX.getGridBounds().getLowerLimit(), axisX.getGridBounds().getUpperLimit(), gridXMax);
         }
@@ -131,7 +131,7 @@ public class CoordinateTranslationService {
      * Get a pair of lower:upper bounds for geo and grid by geo trimming subset of Y axis
      * as gdal_translate -projwin
      */
-    public Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> calculateGeoGridYBounds(boolean checkBoundary, Axis axisY, GeoTransform adfGeoTransform, 
+    public Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> calculateGeoGridYBounds(boolean checkBoundary, boolean checkGridBound, Axis axisY, GeoTransform adfGeoTransform, 
                                                                                       BigDecimal geoYMin, BigDecimal geoYMax) {
         Pair<BigDecimal, BigDecimal> gridPair = this.calculateGridYBounds(adfGeoTransform, geoYMin, geoYMax);
         
@@ -142,7 +142,7 @@ public class CoordinateTranslationService {
         gridYMin = gridYMin.add(axisY.getGridBounds().getLowerLimit());
         gridYMax = gridYMax.add(axisY.getGridBounds().getLowerLimit());
         
-        if (checkBoundary) {
+        if (checkGridBound) {
             gridYMin = BigDecimalUtil.getValidValue(axisY.getGridBounds().getLowerLimit(), axisY.getGridBounds().getUpperLimit(), gridYMin);
             gridYMax = BigDecimalUtil.getValidValue(axisY.getGridBounds().getLowerLimit(), axisY.getGridBounds().getUpperLimit(), gridYMax);
         }
@@ -163,7 +163,7 @@ public class CoordinateTranslationService {
     /**
      * Return a pair of geo / grid bboxes as same as gdal from an input bbox on XY axes
      */
-    public Pair<BoundingBox, BoundingBox> calculateGridGeoXYBoundingBoxes(boolean checkBoundary, Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
+    public Pair<BoundingBox, BoundingBox> calculateGridGeoXYBoundingBoxes(boolean checkBoundary, boolean checkGridBound, Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
         String sourceCRS = axisX.getNativeCrsUri();
         String sourceCRSWKT = CrsUtil.getWKT(sourceCRS);
         
@@ -172,7 +172,7 @@ public class CoordinateTranslationService {
 
         GeoTransform adfGeoTransformX = new GeoTransform(sourceCRSWKT, axisX.getGeoBounds().getLowerLimit(), BigDecimal.ZERO,
                                                          gridWidth, 0, axisX.getResolution(), BigDecimal.ZERO);
-        Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = this.calculateGeoGridXBounds(checkBoundary, axisX, adfGeoTransformX,
+        Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairX = this.calculateGeoGridXBounds(checkBoundary, checkGridBound, axisX, adfGeoTransformX,
                                                                                                 inputBBoxNativeCRS.getXMin(), inputBBoxNativeCRS.getXMax());
         
         // axis Y
@@ -180,7 +180,7 @@ public class CoordinateTranslationService {
 
         GeoTransform adfGeoTransformY = new GeoTransform(sourceCRSWKT, BigDecimal.ZERO, axisY.getGeoBounds().getUpperLimit(),
                                                          0, gridHeight, BigDecimal.ZERO, axisY.getResolution());
-        Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = this.calculateGeoGridYBounds(checkBoundary, axisY, adfGeoTransformY,
+        Pair<ParsedSubset<BigDecimal>, ParsedSubset<Long>> pairY = this.calculateGeoGridYBounds(checkBoundary, checkGridBound, axisY, adfGeoTransformY,
                                                                                                 inputBBoxNativeCRS.getYMin(), inputBBoxNativeCRS.getYMax());
         
         BoundingBox geoBBox = new BoundingBox(new BigDecimal(pairX.fst.getLowerLimit().toString()), new BigDecimal(pairY.fst.getLowerLimit().toString()),
@@ -203,16 +203,16 @@ public class CoordinateTranslationService {
     /**
      * From a geo XY bounding box with geo bounds calculates an adjusted XY bounding box with geo bounds.
      */
-    public BoundingBox calculageGeoXYBoundingBox(boolean checkBoundary, Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
-        BoundingBox geoBBox = this.calculateGridGeoXYBoundingBoxes(checkBoundary, axisX, axisY, inputBBoxNativeCRS).fst;
+    public BoundingBox calculageGeoXYBoundingBox(boolean checkBoundary, boolean checkGridBound, Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
+        BoundingBox geoBBox = this.calculateGridGeoXYBoundingBoxes(checkBoundary, checkGridBound, axisX, axisY, inputBBoxNativeCRS).fst;
         return geoBBox;
     }
     
      /**
      * From a geo XY bounding box with geo bounds calculates a grid XY bounding box with grid bounds.
      */
-    public BoundingBox calculageGridXYBoundingBox(boolean checkBoundary, Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
-        BoundingBox gridBBox = this.calculateGridGeoXYBoundingBoxes(checkBoundary, axisX, axisY, inputBBoxNativeCRS).snd;
+    public BoundingBox calculageGridXYBoundingBox(boolean checkBoundary, boolean checkGridBound, Axis axisX, Axis axisY, BoundingBox inputBBoxNativeCRS) throws PetascopeException {
+        BoundingBox gridBBox = this.calculateGridGeoXYBoundingBoxes(checkBoundary, checkGridBound, axisX, axisY, inputBBoxNativeCRS).snd;
         return gridBBox;
     }
     

@@ -160,7 +160,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         }
         
         // Update the coverage expression metadata with the new subsets
-        wcpsCoverageMetadataService.applySubsets(checkBounds, metadata, subsetDimensions, numericSubsets);
+        wcpsCoverageMetadataService.applySubsets(checkBounds, checkBounds, metadata, subsetDimensions, numericSubsets);
         
         if (!checkBounds) {
             // As WMS it can query with out of bounds for XY axes domains (e.g: request BBOX only intersects with a corner)
