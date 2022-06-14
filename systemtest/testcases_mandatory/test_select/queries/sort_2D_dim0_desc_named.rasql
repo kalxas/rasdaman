@@ -1,0 +1,1 @@
+select encode(SORT test ALONG time AS i DESC by max_cells(test[i[0], *:*]), "csv" ) from test_twoD_named as test

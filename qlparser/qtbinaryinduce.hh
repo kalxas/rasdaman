@@ -126,7 +126,6 @@ private:
 };
 
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:

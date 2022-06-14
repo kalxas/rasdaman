@@ -202,7 +202,7 @@ QtDomainOperation::setInput(QtOperation *inputOld, QtOperation *inputNew)
 
 void
 QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *intervals)
-{   
+{
     //here is the only place where we have other domainsm they are dimension by dimesnion presented in newTrimList elems
     //however, they are disregarded immediately, and that causes normal execution
     //we want to compare whether that domain fits into domain of the MDD
@@ -284,7 +284,7 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *inter
 
     // pass optimization process to the input tree
     if (input)
-    {   
+    {
         if (input->getNodeType() == QT_DOMAIN_OPERATION)
         {
             static_cast<QtDomainOperation*>(input)->optimizeLoad(trimList, intervals);
@@ -656,13 +656,13 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                             {
                                 LERROR << "Subset domain " << *it << " does not intersect with the spatial domain of MDD" << currentDomain;
                                 parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
-                                throw parseInfo; 
+                                throw parseInfo;
                             }
                             else
                             {
                                 LERROR << "Subset domain " << *it << " extends outside of the spatial domain of MDD" << currentDomain;
                                 parseInfo.setErrorNo(DOMAINOP_SUBSETOUTOFBOUNDS);
-                                throw parseInfo; 
+                                throw parseInfo;
                             }
                         }
                     }
@@ -673,15 +673,15 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                             {
                                 LERROR << "Subset domain " << *it << " does not intersect with the previous subset of MDD" << *(it-1);
                                 parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
-                                throw parseInfo; 
+                                throw parseInfo;
                             }
                             else
                             {
                                 LERROR << "Subset domain " << *it << " extends outside of the previous subset of MDD" << *(it-1);
                                 parseInfo.setErrorNo(DOMAINOP_SUBSETOUTOFBOUNDS);
-                                throw parseInfo; 
+                                throw parseInfo;
                             }
-                        }  
+                        }
                     }
                 }
 
@@ -759,6 +759,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                         // create a new QtMDD object as carrier object for the transient MDD object
                         returnValue = new QtMDD(static_cast<MDDObj *>(resultMDD));
                         returnValue->setNullValues(nullValues);
+
 
                         // delete the tile vector
                         delete relevantTiles;
@@ -1182,7 +1183,7 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
             parseInfo.setErrorNo(SELECT_WRONGOPERANDTYPE);
             throw parseInfo;
         }
-        
+
         if (namedAxisFlag)
         {   r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType.getType())))->getDomain());
             vector<string> axisDef = (&domainDef)->getAxisNames();

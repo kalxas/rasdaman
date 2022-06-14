@@ -1,0 +1,2 @@
+# result in systemtests is non-identical to normal query result.
+sort_two_objects.rasql

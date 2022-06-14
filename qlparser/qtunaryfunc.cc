@@ -28,6 +28,8 @@ rasdaman GmbH.
 #include "qlparser/qtmdd.hh"
 #include "mddmgr/mddobj.hh"
 
+#include "relcatalogif/mdddomaintype.hh"
+
 #include <logging.hh>
 
 const QtNode::QtNodeType QtIntervalLoOp::nodeType = QtNode::QT_LO;
@@ -449,3 +451,166 @@ QtSDom::checkType(QtTypeTuple *typeTuple)
 }
 
 
+
+
+const QtNode::QtNodeType QtAxisSDom::nodeType = QT_AXISSDOM;
+
+
+QtAxisSDom::QtAxisSDom(QtOperation *mdd, r_Dimension axisInput)
+    :  QtUnaryOperation(mdd),
+     axis(axisInput), namedAxisFlag(false)
+{
+}
+
+// named axis
+QtAxisSDom::QtAxisSDom(QtOperation *mdd, const std::string &axisInput)
+    :  QtUnaryOperation(mdd),
+     namedAxisFlag(true), axisName(axisInput)
+{
+}
+
+
+void
+QtAxisSDom::printTree(int tab, std::ostream &s, QtChildType mode)
+{
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtAxisSDom Object " << getEvaluationTime() << std::endl;
+
+    QtUnaryOperation::printTree(tab, s, mode);
+}
+
+
+void
+QtAxisSDom::optimizeLoad(QtTrimList *trimList)
+{
+    // reset trimList because optimization enters a new MDD area
+
+    // delete list
+    std::vector<QtNode::QtTrimElement *>::iterator iter;
+    for (iter = trimList->begin(); iter != trimList->end(); iter++)
+    {
+        delete *iter;
+        *iter = NULL;
+    }
+    delete trimList;
+    trimList = NULL;
+
+    if (input)
+    {
+        input->optimizeLoad(new QtNode::QtTrimList);
+    }
+}
+
+void
+QtAxisSDom::printAlgebraicExpression(std::ostream &s)
+{
+    s << "QtAxisSDom(" << std::flush;
+
+    if (input)
+    {
+        input->printAlgebraicExpression(s);
+    }
+    else
+    {
+        s << "<nn>";
+    }
+
+    s << ")";
+}
+
+
+const QtTypeElement &
+QtAxisSDom::checkType(QtTypeTuple *typeTuple)
+{
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
+
+    // check operand branches
+    if (input)
+    {
+        // get input type
+        const QtTypeElement &inputType = input->checkType(typeTuple);
+
+        if (inputType.getDataType() != QT_MDD)
+        {
+            LERROR << "Error: QtAxisSDom::checkType() - operand must be of type MDD.";
+            parseInfo.setErrorNo(395);
+            throw parseInfo;
+        }
+
+        // if axis input is a name, get actual axes names of input array and save into vector.
+        if(namedAxisFlag)
+        {
+            r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType.getType())))->getDomain());
+            std::vector<std::string> axisDef = (&domainDef)->getAxisNames();
+            axisNamesCorrect = new std::vector<std::string>(axisDef);
+
+            // function to set numeric axis value.
+            this->getAxisFromName();
+        }
+
+        dataStreamType.setDataType(QT_MINTERVAL);
+    }
+    else
+    {
+        LERROR << "Error: QtAxisSDom::checkType() - input operand branch invalid.";
+    }
+
+    return dataStreamType;
+}
+
+void
+QtAxisSDom::getAxisFromName()
+{
+    bool found = false;
+    std::vector<std::string> axisNamesVector = *axisNamesCorrect;
+    std::vector<std::string>::iterator axisNamesVectorIt;
+
+    unsigned int count = 0;// loop through all axes names in the vector.
+    for(axisNamesVectorIt = axisNamesVector.begin(); axisNamesVectorIt != axisNamesVector.end(); axisNamesVectorIt++, count++)
+    {
+        if( (*axisNamesVectorIt).compare(axisName) == 0 )// if the name matches one of the names in the vector, take that axis
+        {
+            axis = count;
+            found = true;
+            break;
+        }
+    }
+    if(!found)// in case the name does not correspond to any axis
+    {
+        LERROR <<"Error: QtAxisSDom::getAxisFromName() - Name of the axis doesn't correspond with any defined axis name of the type.";
+        AxisParseInfo.setErrorNo(347);
+        throw AxisParseInfo;
+    }
+}
+
+QtData *
+QtAxisSDom::evaluate(QtDataList *inputList)
+{
+    QtData *operand = NULL;// operand: input MDD
+    operand = input->evaluate(inputList);
+
+    // get mddobj
+    QtMDD  *qtMDD  = static_cast<QtMDD *>(operand);
+    MDDObj *currentMDDObj = qtMDD->getMDDObject();
+    auto *nullValues = currentMDDObj->getNullValues();
+    // get current minterval
+    r_Minterval currentDomain = currentMDDObj->getCurrentDomain();
+    // check that the axis is within bounds - always parsed as positive int.
+    if(axis >= currentDomain.dimension())
+    {
+        LERROR << "Internal error in QtAxisSDom::evaluate() - "
+                   << "The axis is outside the array's spatial domain.";
+
+        AxisParseInfo.setErrorNo(AXIS_OUTOFBOUNDS);
+        throw AxisParseInfo;
+    }
+
+    // spatial domain at axis:
+    r_Sinterval sdom = currentDomain[axis];
+    std::vector<r_Sinterval> interval;
+    interval.push_back(sdom);// create Minterval
+
+    QtData *returnValue = new QtMintervalData( r_Minterval( interval ) );
+    returnValue->setNullValues(nullValues);
+
+    return returnValue;
+}

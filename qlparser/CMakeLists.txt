@@ -112,6 +112,7 @@ add_library(qlparser
         qtvariable.cc qtvariable.hh qtvariable.icc
         querytree.cc querytree.hh querytree.icc
         symtab.hh symtab.cc
+	qtsort.hh qtsort.cc qtsort.icc
 )
 
 set_source_files_properties(oql.yy oql.cc qtbinaryinduce.cc

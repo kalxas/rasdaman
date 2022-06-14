@@ -24,8 +24,8 @@ rasdaman GmbH.
 
 /*
  * COMMENTS:
- * - token BY unused
- * 
+ *
+ *
  ************************************************************/
 
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -77,6 +77,7 @@ rasdaman GmbH.
 #include "qlparser/qtmshapeop.hh"
 #include "qlparser/qtgeometryop.hh"
 #include "qlparser/qtgeometrydata.hh"
+#include "qlparser/qtsort.hh"
 
 #include "raslib/mddtypes.hh"
 #include "rasodmg/dirdecompose.hh"
@@ -132,6 +133,23 @@ struct QtUpdateSpecElement
     bool         value;
     ParseInfo*   info;
   } booleanToken;
+
+  // structure for Boolean ASC|DESC tokens for the sort operator
+  // ASC is true (default), DESC is false
+  struct {
+    bool         value;
+    ParseInfo*   info;
+  } sortOrderToken;
+
+  // structure helps to minimize duplication in SORT operator.
+  struct {
+    bool          named;
+    QtOperation*  MDD;
+    int           axis;
+    ParseInfo*    axisInfo;
+    char*         namedAxis;
+    ParseInfo*    info;
+  } sortHeaderToken;
 
   struct {
     char         value;
@@ -189,7 +207,7 @@ struct QtUpdateSpecElement
 //---------------------------------------------------
 
   r_Sinterval*                      Sinterval;
-  
+
   QtNode*                           qtNodeValue;
   QtOperation*                      qtOperationValue;
   QtUnaryOperation*                 qtUnaryOperationValue;
@@ -213,15 +231,15 @@ struct QtUpdateSpecElement
   Ops::OpType                       operationValue;
   int                               dummyValue;
   int                               resampleAlgValue;
-  
+
   struct {
       QtScalarData* low;
-      QtScalarData* high; 
+      QtScalarData* high;
   } qtNullvalueInterval;
-  
+
   QtNullvaluesOp::QtNullvaluesList* qtNullvalueIntervalList;
 
-  
+
   struct {
         const char*      value;
         ParseInfo* info;
@@ -252,6 +270,7 @@ struct QtUpdateSpecElement
 
 %token <identifierToken> Identifier TypeName
 %token <booleanToken>    BooleanLit
+%token <sortOrderToken>  sortOrderLit
 %token <characterToken>  CharacterLit
 %token <integerToken>    IntegerLit
 %token <floatToken>      FloatLit
@@ -262,9 +281,9 @@ struct QtUpdateSpecElement
                          SET ASSIGN MARRAY MDARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
-                         MDDPARAM OID SHIFT CLIP CURTAIN CORRIDOR POLYGON LINESTRING MULTIPOLYGON MULTILINESTRING RANGE SCALE SQRT ABS EXP 
+                         MDDPARAM OID SHIFT CLIP CURTAIN CORRIDOR POLYGON LINESTRING MULTIPOLYGON MULTILINESTRING RANGE SCALE SQRT ABS EXP
                          LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN ASIN SUBSPACE DISCRETE COORDINATES
-                         ARCCOS ACOS ARCTAN ATAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST PROJECTION
+                         ARCCOS ACOS ARCTAN ATAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST PROJECTION SORT ASC DESC
 			 INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
@@ -291,17 +310,19 @@ struct QtUpdateSpecElement
 %left COMMA
 %left RRPAR
 
+
+
 // The LEPAR precedence is for the trimming operation. Context dependent
-// precedence would be better in that case but it did not work. 
+// precedence would be better in that case but it did not work.
 
 %type <qtUpdateSpecElement>   updateSpec
 %type <qtMDDAccessValue>      iteratedCollection
 %type <qtONCStreamListValue>  collectionList
 %type <qtUnaryOperationValue> reduceIdent structSelection trimExp namedTrimExp
-%type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp  functionExp spatialOp 
+%type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp  functionExp spatialOp
                               integerExp mintervalExp nullvaluesList nullvaluesExp addNullvaluesExp intervalExp
                               condenseExp variable mddConfiguration mintervalList  concatExp rangeConstructorExp
-                              caseExp typeAttribute projectExp
+                              caseExp typeAttribute projectExp sortExp
                               //namedMintervalExp2,namedIntervalExp2 is for select and similar, namedMintervalExp and namedIntervalExp is for type definition.
 %type <intervalListToken>       namedMintervalExp namedIntervalExp namedMintervalExp2 namedIntervalExp2
 %type <intervalListValueToken>  namedSpatialOpList2 namedSpatialOpList namedSpatialOpList22 namedSpatialOpList1
@@ -310,21 +331,21 @@ struct QtUpdateSpecElement
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType>             indexingAttributes indexTypes
 // %type <stgType>            storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList caseCond caseCondList 
+%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList caseCond caseCondList
                               caseEnd generalExpList typeAttributeList parentheticalLinestring vertex vertexList positiveGenusPolygon polygonVector
 //%type <multiPoly>             polygonVector
 %type <qtNullvalueIntervalList> nullvalueIntervalList
 %type <qtNullvalueInterval>     nullvalueIntervalExp
-%type <integerToken>          intLitExp
-%type <operationValue>        condenseOpLit 
+%type <integerToken>          intLitExp sortAxis
+%type <operationValue>        condenseOpLit
 %type <castTypes>             castType
-%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl 
+%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl
                               createType dropType alterExp
 
 %type <qtCollection>          namedCollection
 
 %type <identifierToken>       collectionIterator typeName attributeIdent createTypeName
-                              marrayVariable condenseVariable hostName
+                              marrayVariable condenseVariable hostName sortAxisIterator
 
 // literal data
 %type <qtDataValue>           generalLit mddLit oidLit
@@ -334,6 +355,10 @@ struct QtUpdateSpecElement
 %type <qtScalarDataListValue> scalarLitList dimensionLitList
 %type <floatToken>            floatLitExp
 
+
+%type <sortOrderToken>        listingOrder //ASC|DSC
+%type <sortHeaderToken>       sortHeader
+
 // vectorized data
 
 // marray2 with multiple intervals
@@ -342,14 +367,14 @@ struct QtUpdateSpecElement
 %parse-param {void * YYPARSE_PARAM}
 %%  // rules section
 /*--------------------------------------------------------------------
- *				Grammar starts here 
+ *				Grammar starts here
  *--------------------------------------------------------------------
  */
 
-qlfile: query 
-	{ 
+qlfile: query
+	{
 	  // clear all symbols in table at the end of parsing
-	  QueryTree::symtab.wipe(); 
+	  QueryTree::symtab.wipe();
 	};
 query: createExp
      | dropExp
@@ -382,10 +407,10 @@ commitExp: COMMIT
 	  // create the command node
 	  QtCommand* commandNode = new QtCommand( QtCommand::QT_COMMIT, QtCollection("dummy") );
 	  commandNode->setParseInfo( *($1.info) );
-	  
+
 	  // set insert node  as root of the Query Tree
 	  parseQueryTree->setRoot( commandNode );
-	  
+
 	  FREESTACK($1)
 }
 
@@ -410,10 +435,10 @@ createExp: CREATE COLLECTION namedCollection typeName
 	  // create the command node
 	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION, *($3.value), $4.value );
 	  commandNode->setParseInfo( *($1.info) );
-	  
+
 	  // set insert node  as root of the Query Tree
 	  parseQueryTree->setRoot( commandNode );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($2)
 	  delete $3.value;
@@ -440,17 +465,17 @@ dropExp: DROP COLLECTION namedCollection
 	  // create the command node
 	  QtCommand* commandNode = new QtCommand( QtCommand::QT_DROP_COLLECTION, *($3.value) );
 	  commandNode->setParseInfo( *($1.info) );
-	  
+
 	  // set insert node  as root of the Query Tree
 	  parseQueryTree->setRoot( commandNode );
-	  	  
+
 	  FREESTACK($1)
 	  FREESTACK($2)
 		delete $3.value;;
 	};
 
 selectIntoExp:
-	SELECT generalExp INTO namedCollection FROM collectionList WHERE generalExp     
+	SELECT generalExp INTO namedCollection FROM collectionList WHERE generalExp
 	{
 	  try {
 	    accessControl.wantToWrite();
@@ -472,27 +497,27 @@ selectIntoExp:
 
 	  for( QtIterator::QtONCStreamList::iterator iter=$6->begin(); iter!=$6->end(); iter++ )
 	    parseQueryTree->removeDynamicObject( *iter );
-	    
+
 	  // create a JoinIterator
 	  QtJoinIterator* ji = new QtJoinIterator();
 	  ji->setStreamInputs( $6 );
 	  parseQueryTree->removeDynamicObject( $6 );
-	  
+
 	  // create a QtONCStreamList and add the Join Iterator
 	  QtIterator::QtONCStreamList* inputListS = new QtIterator::QtONCStreamList(1);
 	  (*inputListS)[0] = ji;
-	  
+
 	  // create a SelectionIterator
 	  QtSelectionIterator* si = new QtSelectionIterator();
 	  si->setStreamInputs( inputListS );
 	  si->setParseInfo( *($7.info) );
 	  si->setConditionTree( $8 );
 	  parseQueryTree->removeDynamicObject( $8 );
-	  
+
 	  // create a QtONCStreamList and add the Selection Iterator
 	  QtIterator::QtONCStreamList* inputListO = new QtIterator::QtONCStreamList(1);
 	  (*inputListO)[0] = si;
-	  
+
 	  // create a OperationIterator and set its inputs
 	  QtOperationIterator* oi = new QtOperationIterator();
 	  oi->setStreamInputs( inputListO );
@@ -504,17 +529,17 @@ selectIntoExp:
 	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION_FROM_QUERY_RESULT, *($4.value), oi );
 
 	  commandNode->setParseInfo( *($3.info) );
-	  
+
 	  // set QtCommand create node as root of the Query Tree
 	  parseQueryTree->setRoot( commandNode );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($3)
       delete $4.value;
 	  FREESTACK($5)
 	  FREESTACK($7)
 	}
-	| 
+	|
 	SELECT generalExp INTO namedCollection FROM collectionList
 	{
 	  try {
@@ -533,40 +558,40 @@ selectIntoExp:
             QueryTree::symtab.wipe();
             YYABORT;
 	  }
-	
+
 	  for( QtIterator::QtONCStreamList::iterator iter=$6->begin(); iter!=$6->end(); iter++ )
 	    parseQueryTree->removeDynamicObject( *iter );
-	  
+
 	  // create a JoinIterator
 	  QtJoinIterator* ji = new QtJoinIterator();
 	  ji->setStreamInputs( $6 );
 	  parseQueryTree->removeDynamicObject( $6 );
-	  
+
 	  // create a QtONCStreamList and add the Join Iterator
 	  QtIterator::QtONCStreamList* inputList = new QtIterator::QtONCStreamList(1);
 	  (*inputList)[0] = ji;
-	  
+
 	  // create a OperationIterator and set its inputs
 	  QtOperationIterator* oi = new QtOperationIterator();
 	  oi->setStreamInputs( inputList );
 	  oi->setParseInfo( *($1.info) );
 	  oi->setOperationTree( $2 );
 	  parseQueryTree->removeDynamicObject( $2 );
-	  
+
 	  // And finally create a QtCommand that creates the final collection
 	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION_FROM_QUERY_RESULT, *($4.value), oi );
 	  commandNode->setParseInfo( *($3.info) );
-	  
+
 	  // set QtCommand create node  as root of the Query Tree
 	  parseQueryTree->setRoot( commandNode );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($3)
       delete $4.value;
 	  FREESTACK($5)
 	};
 
-selectExp: SELECT resultList FROM collectionList WHERE generalExp     
+selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	{
 	  try {
 	    accessControl.wantToRead();
@@ -585,42 +610,42 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 
 	  for( QtIterator::QtONCStreamList::iterator iter=$4->begin(); iter!=$4->end(); iter++ )
 	    parseQueryTree->removeDynamicObject( *iter );
-	    
+
 	  // create a JoinIterator
 	  QtJoinIterator* ji = new QtJoinIterator();
 	  ji->setStreamInputs( $4 );
 	  parseQueryTree->removeDynamicObject( $4 );
-	  
+
 	  // create a QtONCStreamList and add the Join Iterator
 	  QtIterator::QtONCStreamList* inputListS = new QtIterator::QtONCStreamList(1);
 	  (*inputListS)[0] = ji;
-	  
+
 	  // create a SelectionIterator
 	  QtSelectionIterator* si = new QtSelectionIterator();
 	  si->setStreamInputs( inputListS );
 	  si->setParseInfo( *($5.info) );
 	  si->setConditionTree( $6 );
 	  parseQueryTree->removeDynamicObject( $6 );
-	  
+
 	  // create a QtONCStreamList and add the Selection Iterator
 	  QtIterator::QtONCStreamList* inputListO = new QtIterator::QtONCStreamList(1);
 	  (*inputListO)[0] = si;
-	  
+
 	  // create an OperationIterator and set its inputs
 	  QtOperationIterator* oi = new QtOperationIterator();
 	  oi->setStreamInputs( inputListO );
 	  oi->setParseInfo( *($1.info) );
 	  oi->setOperationTree( $2 );
 	  parseQueryTree->removeDynamicObject( $2 );
-	  
+
 	  // set the OperationIterator as root of the Query Tree
 	  parseQueryTree->setRoot( oi );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($3)
 	  FREESTACK($5)
 	}
-	| SELECT resultList FROM collectionList 
+	| SELECT resultList FROM collectionList
 	{
 	  try {
 	    accessControl.wantToRead();
@@ -635,19 +660,19 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	    QueryTree::symtab.wipe();
             YYABORT;
 	  }
-	
+
 	  for( QtIterator::QtONCStreamList::iterator iter=$4->begin(); iter!=$4->end(); iter++ )
 	    parseQueryTree->removeDynamicObject( *iter );
-	  
+
 	  // create a JoinIterator
 	  QtJoinIterator* ji = new QtJoinIterator();
 	  ji->setStreamInputs( $4 );
 	  parseQueryTree->removeDynamicObject( $4 );
-	  
+
 	  // create a QtONCStreamList and add the Join Iterator
 	  QtIterator::QtONCStreamList* inputList = new QtIterator::QtONCStreamList(1);
 	  (*inputList)[0] = ji;
-	  
+
 	  // create a OperationIterator and set its inputs
 	  QtOperationIterator* oi = new QtOperationIterator();
 	  oi->setStreamInputs( inputList );
@@ -657,7 +682,7 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 
 	  // set the OperationIterator as root of the Query Tree
 	  parseQueryTree->setRoot( oi );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($3)
 	}
@@ -698,9 +723,9 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  FREESTACK($3)
 	  FREESTACK($4)
     };
-	
+
 updateExp:
-        UPDATE iteratedCollection SET updateSpec ASSIGN generalExp WHERE generalExp         
+        UPDATE iteratedCollection SET updateSpec ASSIGN generalExp WHERE generalExp
         {
           try {
             accessControl.wantToWrite();
@@ -798,20 +823,20 @@ updateExp:
             QueryTree::symtab.wipe();
             YYABORT;
           }
-  
+
           //is this needed?
           //append the update target to the collection list
           $8->push_back($2);
-          
+
           //create a join for the collectionList
           for( QtIterator::QtONCStreamList::iterator iter=$8->begin(); iter!=$8->end(); iter++ )
 	    parseQueryTree->removeDynamicObject( *iter );
-  
+
           // create a JoinIterator
           QtJoinIterator* ji = new QtJoinIterator();
           ji->setStreamInputs( $8 );
           parseQueryTree->removeDynamicObject( $8 );
-         
+
           // create an update node
           QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, $6 );
           // stream all inputs to the update request
@@ -845,17 +870,17 @@ updateExp:
             FREESTACK($3)
             FREESTACK($5)
             FREESTACK($7)
-            FREESTACK($9)                    
+            FREESTACK($9)
             QueryTree::symtab.wipe();
             YYABORT;
           }
 
           $8->push_back($2);
-          
+
           //create a join for the collectionList
           for( QtIterator::QtONCStreamList::iterator iter=$8->begin(); iter!=$8->end(); iter++ )
 	    parseQueryTree->removeDynamicObject( *iter );
-  
+
           // create a JoinIterator
           QtJoinIterator* ji = new QtJoinIterator();
           ji->setStreamInputs( $8 );
@@ -863,14 +888,14 @@ updateExp:
 
 	  // create a QtONCStreamList and add the Join Iterator
 	  QtIterator::QtONCStreamList* inputListS = new QtIterator::QtONCStreamList(1);
-	  (*inputListS)[0] = ji;          
-          
+	  (*inputListS)[0] = ji;
+
           // create a SelectionIterator
           QtSelectionIterator* si = new QtSelectionIterator();
           si->setStreamInputs( inputListS );
           si->setConditionTree( $10 );
           si->setParseInfo( *($9.info) );
-          parseQueryTree->removeDynamicObject( $10 );          
+          parseQueryTree->removeDynamicObject( $10 );
 
           // create an update node
           QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, $6 );
@@ -914,17 +939,17 @@ alterExp: ALTER COLLECTION namedCollection SET TYPE typeName
       // create the command node
       QtCommand* commandNode = new QtCommand( QtCommand::QT_ALTER_COLLECTION, *($3.value), $6.value );
       commandNode->setParseInfo( *($1.info) );
-      
+
       // set insert node  as root of the Query Tree
       parseQueryTree->setRoot( commandNode );
-      
+
       FREESTACK($1)
       FREESTACK($2)
       delete $3.value;
       FREESTACK($4)
       FREESTACK($5)
     };
- 
+
 insertExp: INSERT INTO namedCollection VALUES generalExp
 	{
 	  try {
@@ -947,10 +972,10 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
 	  QtInsert* insert = new QtInsert( *($3.value), $5 );
 	  insert->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $5 );
-	  
+
 	  // set insert node  as root of the Query Tree
 	  parseQueryTree->setRoot( insert );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($2)
       delete $3.value;
@@ -1001,29 +1026,29 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
 	    FREESTACK($1)
 	    FREESTACK($2)
 	    FREESTACK($3)
-	    
+
 	    QueryTree::symtab.wipe();
             YYABORT;
 	  }
 	  //Creating a new collection
 //	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION, $3.value, "GreySet" );
 //	  commandNode->setParseInfo( *($1.info) );
-	  
+
 	  // create an update node
 	  QtInsert* insert = new QtInsert( $3.value, $5, $6);
 	  insert->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $6 );
-	  
+
 	  // set insert node  as root of the Query Tree
 	  parseQueryTree->setRoot( insert );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($2)
 	  FREESTACK($3)
-	  
+
 	}*/
 ;
- 
+
 deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	{
 	  try {
@@ -1045,27 +1070,27 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  QtIterator::QtONCStreamList* streamList = new QtIterator::QtONCStreamList(1);
 	  (*streamList)[0] = $3;
 	  parseQueryTree->removeDynamicObject( $3 );
-	  
+
 	  // create a SelectionIterator
 	  QtSelectionIterator* si = new QtSelectionIterator();
 	  si->setStreamInputs( streamList );
 	  si->setConditionTree( $5 );
 	  si->setParseInfo( *($4.info) );
 	  parseQueryTree->removeDynamicObject( $5 );
-	  
+
 	  // create delete node
 	  QtDelete* delNode = new QtDelete();
 	  delNode->setStreamInput( si );
 	  delNode->setParseInfo( *($1.info) );
-	  
+
 	  // set insert node  as root of the Query Tree
 	  parseQueryTree->setRoot( delNode );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-/* // doesn't work yet, somewhere later the server crashes -- PB 2006-jan-03
+/* // does not work yet, somewhere later the server crashes -- PB 2006-jan-03
  * uncommented and fixed, ticket 336 -- DM 2013-jul-18
  */
 	| DELETE FROM iteratedCollection
@@ -1088,7 +1113,7 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  QtIterator::QtONCStreamList* streamList = new QtIterator::QtONCStreamList(1);
 	  (*streamList)[0] = $3;
 	  parseQueryTree->removeDynamicObject( $3 );
-	  
+
 	  // create a SelectionIterator
 	  QtSelectionIterator* si = new QtSelectionIterator();
 	  si->setStreamInputs( streamList );
@@ -1097,10 +1122,10 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  QtDelete* delNode = new QtDelete();
 	  delNode->setStreamInput( $3 );
 	  delNode->setParseInfo( *($1.info) );
-	  
+
 	  // set insert node  as root of the Query Tree
 	  parseQueryTree->setRoot( delNode );
-	  
+
 	  FREESTACK($1)
 	  FREESTACK($2)
 	}
@@ -1167,7 +1192,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   QueryTree::symtab.wipe();
                   YYABORT;
                 }
-    
+
                 std::vector<std::string> axisNames;
                 if ($7.names)
                     axisNames = *$7.names;
@@ -1334,7 +1359,7 @@ createTypeName: Identifier
               | castType
               ;
 
-updateSpec: variable                 
+updateSpec: variable
 	{
 	  $$.iterator = $1;
 	  $$.domain   = 0;
@@ -1345,7 +1370,7 @@ updateSpec: variable
 	  $$.domain   = $2;
 	};
 
-resultList: resultList COMMA generalExp	
+resultList: resultList COMMA generalExp
 	{
 	  $$ = $3;
 	  FREESTACK($2)
@@ -1355,9 +1380,10 @@ resultList: resultList COMMA generalExp
 	  $$ = $1;
 	}
 
-generalExp: 
-	  caseExp                           { $$ = $1; } 
+generalExp:
+	  caseExp                           { $$ = $1; }
 	| mddExp                            { $$ = $1; }
+  | sortExp                           { $$ = $1; }
 	| trimExp                           { $$ = $1; }
 	| namedTrimExp                      { $$ = $1; }
 	| reduceExp                         { $$ = $1; }
@@ -1388,7 +1414,7 @@ caseCond: WHEN generalExp THEN generalExp
           FREESTACK($3)
         };
 
-caseCondList: 
+caseCondList:
         {
           $$ = new QtNode::QtOperationList();
         }
@@ -1405,7 +1431,7 @@ caseCondList:
         {
           $$ = $1;
         };
-        
+
 caseEnd: ELSE generalExp END
         {
           $$ = new QtNode::QtOperationList(1);
@@ -1413,26 +1439,26 @@ caseEnd: ELSE generalExp END
           FREESTACK($1);
           FREESTACK($3);
         };
-        
+
 caseExp: CASE caseCondList caseEnd
         {
           QtNode::QtOperationList* result = new QtNode::QtOperationList();
           result->reserve($2->size() + $3->size());
           result->insert(result->end(), $2->begin(), $2->end());
-          result->insert(result->end(), $3->begin(), $3->end()); 
+          result->insert(result->end(), $3->begin(), $3->end());
           $$ = new QtCaseOp(result);
           QtNode::QtOperationList::iterator iter;
-          
+
           for(iter = $2->begin(); iter != $2->end(); iter++){
               parseQueryTree->removeDynamicObject( *iter );
           }
           delete $2;
-          
+
           for(iter = $3->begin(); iter != $3->end(); iter++){
               parseQueryTree->removeDynamicObject( *iter );
           }
           delete $3;
-          
+
           $$->setParseInfo( *($1.info) );
           parseQueryTree->addDynamicObject( $$ );
           FREESTACK($1);
@@ -1451,19 +1477,19 @@ caseExp: CASE caseCondList caseEnd
               }
               pos++;
           }
-          result->insert(result->end(), $4->begin(), $4->end()); 
+          result->insert(result->end(), $4->begin(), $4->end());
           $$ = new QtSimpleCaseOp(result);
-          
+
           parseQueryTree->removeDynamicObject($2);
-          
+
           for(iter = $3->begin(); iter != $3->end(); iter++){
               parseQueryTree->removeDynamicObject( *iter );
           }
-          
+
           for(iter = $4->begin(); iter != $4->end(); iter++){
               parseQueryTree->removeDynamicObject( *iter );
           }
-          
+
           $$->setParseInfo( *($1.info) );
           parseQueryTree->addDynamicObject( $$ );
           FREESTACK($1);
@@ -1503,9 +1529,9 @@ concatExp: CONCAT mddList ALONG intLitExp
 	    if( $4.svalue < 0 )
 	      yyerror(mflag, "non negative integer expected");
 	    else
-	      $$ = new QtConcat( $2, (unsigned int)$4.svalue );
+          $$ = new QtConcat( $2, (unsigned int)$4.svalue );
 	  else
-	    $$ = new QtConcat( $2, (unsigned int)$4.uvalue );
+          $$ = new QtConcat( $2, (unsigned int)$4.uvalue );
 	  $$->setParseInfo( *($1.info) );
 	  QtNode::QtOperationList::iterator iter;
 	  for( iter=$2->begin(); iter!=$2->end(); ++iter )
@@ -1514,20 +1540,20 @@ concatExp: CONCAT mddList ALONG intLitExp
 	  FREESTACK($1)
 	  FREESTACK($3)
 	  FREESTACK($4)
-	};	
-	
+	};
+
 mddList : mddList WITH generalExp
   {
 	  $1->push_back( $3 );
 	  $$ = $1;
-	  FREESTACK($2)  
+	  FREESTACK($2)
   }
   | generalExp WITH generalExp
   {
 	  $$ = new QtNode::QtOperationList(2);
 	  (*$$)[0] = $1;
-	  (*$$)[1] = $3;  
-	  FREESTACK($2)  
+	  (*$$)[1] = $3;
+	  FREESTACK($2)
   };
 
 integerExp: generalExp DOT LO
@@ -1568,50 +1594,50 @@ mintervalList: mintervalList mintervalExp
 	  $$=$1;
 	};
 
-mintervalExp: LEPAR spatialOpList REPAR           
+mintervalExp: LEPAR spatialOpList REPAR
 	{
-	  if (($2->size() > 1) || 
-	      ($2->size() == 1 && (*$2)[0]->getNodeType() == QtNode::QT_INTERVALOP)) 
+	  if (($2->size() > 1) ||
+	      ($2->size() == 1 && (*$2)[0]->getNodeType() == QtNode::QT_INTERVALOP))
 	  {
 	    // Check if the list consists of integers only and
 	    // create a point operation in this case.
 	    int isPoint = 1;
 	    QtNode::QtOperationList::iterator iter;
-	    
+
 	    for( iter=$2->begin(); iter!=$2->end(); ++iter )
 	      isPoint &= (*iter)->getNodeType() != QtNode::QT_INTERVALOP;
-	    
+
 	    for( iter=$2->begin(); iter!=$2->end(); ++iter )
 	      parseQueryTree->removeDynamicObject( *iter );
-	      
+
 	    if( isPoint )
 	      $$ = new QtPointOp( $2 );
 	    else
 	      $$ = new QtMintervalOp( $2 );
-	      
+
 	    $$->setParseInfo( *($1.info) );
 	    parseQueryTree->addDynamicObject( $$ );
 	  }
-	  else 
+	  else
 	  if ($2->size() == 1)
-	  {    
+	  {
 	    // take the single element
 	    $$ = (*$2)[0];
 	    (*$2)[0] = 0;
 	    delete $2;
 	  }
 	  else
-	  {	    
+	  {
 	     LERROR << "Empty expression between brackets encountered!";
 	     // save the parse error info and stop the parser
-             if ( parseError ) 
+             if ( parseError )
 	       delete parseError;
              // TODO: Define an error number for this one!!!! 312 is not correct.
              parseError = new ParseInfo( 312, $1.info->getToken().c_str(),
-                                              $1.info->getLineNo(), 
+                                              $1.info->getLineNo(),
 				              $1.info->getColumnNo() );
 	     FREESTACK($1)
-	     FREESTACK($3)	  
+	     FREESTACK($3)
 	     QueryTree::symtab.wipe();
              YYABORT;
 	  }
@@ -1629,7 +1655,7 @@ mintervalExp: LEPAR spatialOpList REPAR
 	  FREESTACK($4)
 	};
 
-spatialOpList: 
+spatialOpList:
 	{
 	  $$ = new QtNode::QtOperationList();
 	}
@@ -1637,7 +1663,7 @@ spatialOpList:
 	{
 	  $$ = $1;
 	};
- 
+
 spatialOpList2: spatialOpList2 COMMA spatialOp
 	{
 	  $1->push_back( $3 );
@@ -1719,8 +1745,8 @@ vertexList: vertex
             FREESTACK( $2 )
         };
 
-// vertex defines a point in the sdom 
-vertex: 
+// vertex defines a point in the sdom
+vertex:
         vertex scalarLit
         {
             QtConst* thisScalar = new QtConst( $2 );
@@ -1728,7 +1754,7 @@ vertex:
             $$ = $1;
             parseQueryTree->removeDynamicObject( $2 );
         }
-        | vertex LRPAR generalExp RRPAR 
+        | vertex LRPAR generalExp RRPAR
         {
             //append the coordinate value to the front of the vector
             $1->push_back($3);
@@ -1745,7 +1771,7 @@ vertex:
             parseQueryTree->removeDynamicObject( $1 );
         }
         | LRPAR generalExp RRPAR
-        { 
+        {
             $$ = new QtNode::QtOperationList();
             $$->push_back( $2 );
             parseQueryTree->removeDynamicObject( $2 );
@@ -1796,7 +1822,7 @@ intervalExp: generalExp COLON generalExp
           FREESTACK($1)
           FREESTACK($2)
           FREESTACK($3)
-        };                        
+        };
 
 /* NEW TYPE BEGIN - TODO-GM: refactor*/
 namedMintervalExp: LEPAR namedSpatialOpList REPAR
@@ -1898,7 +1924,7 @@ namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
         }
         | Identifier LRPAR generalExp RRPAR
         {
-        
+
           $$.value = $3;
           $$.value->setParseInfo( *($1.info) );
 
@@ -2045,7 +2071,7 @@ namedIntervalExp2: Identifier LRPAR generalExp COLON generalExp RRPAR
         }
         | Identifier LRPAR generalExp RRPAR
         {
-        
+
           $$.value = $3;
           $$.value->setParseInfo( *($1.info) );
 
@@ -2096,7 +2122,7 @@ condenseExp: CONDENSE condenseOpLit OVER condenseVariable IN generalExp WHERE ge
 	  FREESTACK($7)
 	  FREESTACK($9)
 	}
-	| CONDENSE condenseOpLit OVER condenseVariable IN generalExp USING generalExp               
+	| CONDENSE condenseOpLit OVER condenseVariable IN generalExp USING generalExp
 	{
 	  $$ = new QtCondenseOp( $2, $4.value, $6, $8 );
 	  $$->setParseInfo( *($1.info) );
@@ -2144,9 +2170,9 @@ condenseOpLit: PLUS
         {
             $$ = Ops::OP_MIN_BINARY;
             FREESTACK($1)
-	}; 
+	};
 
-functionExp: OID LRPAR collectionIterator RRPAR    
+functionExp: OID LRPAR collectionIterator RRPAR
     {
         QtVariable* var = new QtVariable( $3.value );
         var->setParseInfo( *($3.info) );
@@ -2385,7 +2411,7 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($13)
         FREESTACK($14)
         FREESTACK($15)
-    }    
+    }
     | CLIP LRPAR generalExp COMMA CURTAIN LRPAR PROJECTION parentheticalLinestring COMMA LINESTRING parentheticalLinestring RRPAR RRPAR
     {
         QtNode::QtOperationList* concatOpList = new QtNode::QtOperationList();
@@ -2556,8 +2582,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
         concatOpList->emplace_back( polyOp );
 
         // final geometry
-        QtGeometryOp* geomOp = new QtGeometryOp( concatOpList, 
-                                                 QtGeometryData::QtGeometryType::GEOM_CORRIDOR_POLYGON, 
+        QtGeometryOp* geomOp = new QtGeometryOp( concatOpList,
+                                                 QtGeometryData::QtGeometryType::GEOM_CORRIDOR_POLYGON,
                                                  QtGeometryData::QtGeometryFlag::DISCRETEPATH );
 
         //generate the result mdd containing the curtain-clipped values
@@ -2616,8 +2642,8 @@ functionExp: OID LRPAR collectionIterator RRPAR
         concatOpList->emplace_back( lsMaskOp);
 
         //generate the class containing the projection dimension vector
-        QtGeometryOp* geomOp = new QtGeometryOp( concatOpList, 
-                                                 QtGeometryData::QtGeometryType::GEOM_CORRIDOR_LINESTRING_EMBEDDED, 
+        QtGeometryOp* geomOp = new QtGeometryOp( concatOpList,
+                                                 QtGeometryData::QtGeometryType::GEOM_CORRIDOR_LINESTRING_EMBEDDED,
                                                  QtGeometryData::QtGeometryFlag::DISCRETEPATH );
 
         //generate the result mdd containing the curtain-clipped values
@@ -2765,7 +2791,7 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($1)
         FREESTACK($2)
         FREESTACK($4)
-    }		
+    }
     | HDF LRPAR generalExp COMMA StringLit RRPAR
     {
         $$ = new QtConversion( $3, QtConversion::QT_TOHDF, $5.value );
@@ -2939,7 +2965,7 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($1)
         FREESTACK($2)
         FREESTACK($4)
-    }		
+    }
     | INV_HDF LRPAR generalExp COMMA StringLit RRPAR
     {
         $$ = new QtConversion( $3, QtConversion::QT_FROMHDF, $5.value );
@@ -3129,9 +3155,9 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($6)
         FREESTACK($8)
     };
-	
 
-structSelection: DOT attributeIdent                
+
+structSelection: DOT attributeIdent
 	{
 	  $$ = new QtDot( $2.value );
 	  $$->setParseInfo( *($1.info) );
@@ -3160,7 +3186,7 @@ structSelection: DOT attributeIdent
 	  FREESTACK($2)
 	};
 
-inductionExp: SQRT LRPAR generalExp RRPAR         
+inductionExp: SQRT LRPAR generalExp RRPAR
 	{
 	  $$ = new QtSqrt( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3214,7 +3240,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($4)
 	  FREESTACK($6)
 	}
-	| ABS LRPAR generalExp RRPAR         
+	| ABS LRPAR generalExp RRPAR
 	{
 	  $$ = new QtAbs( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3224,7 +3250,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| EXP LRPAR generalExp RRPAR         
+	| EXP LRPAR generalExp RRPAR
 	{
 	  $$ = new QtExp( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3244,7 +3270,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| LN LRPAR generalExp RRPAR         
+	| LN LRPAR generalExp RRPAR
 	{
 	  $$ = new QtLn( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3254,7 +3280,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| SIN LRPAR generalExp RRPAR         
+	| SIN LRPAR generalExp RRPAR
 	{
 	  $$ = new QtSin( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3264,7 +3290,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| COS LRPAR generalExp RRPAR         
+	| COS LRPAR generalExp RRPAR
 	{
 	  $$ = new QtCos( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3274,7 +3300,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| TAN LRPAR generalExp RRPAR         
+	| TAN LRPAR generalExp RRPAR
 	{
 	  $$ = new QtTan( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3284,7 +3310,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| SINH LRPAR generalExp RRPAR         
+	| SINH LRPAR generalExp RRPAR
 	{
 	  $$ = new QtSinh( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3294,7 +3320,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| COSH LRPAR generalExp RRPAR         
+	| COSH LRPAR generalExp RRPAR
 	{
 	  $$ = new QtCosh( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3304,7 +3330,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| TANH LRPAR generalExp RRPAR         
+	| TANH LRPAR generalExp RRPAR
 	{
 	  $$ = new QtTanh( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3334,7 +3360,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| ARCCOS LRPAR generalExp RRPAR         
+	| ARCCOS LRPAR generalExp RRPAR
 	{
 	  $$ = new QtArccos( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3344,7 +3370,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-  | ACOS LRPAR generalExp RRPAR         
+  | ACOS LRPAR generalExp RRPAR
 	{
 	  $$ = new QtArccos( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3354,7 +3380,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-	| ARCTAN LRPAR generalExp RRPAR         
+	| ARCTAN LRPAR generalExp RRPAR
 	{
 	  $$ = new QtArctan( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3364,7 +3390,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-  | ATAN LRPAR generalExp RRPAR         
+  | ATAN LRPAR generalExp RRPAR
 	{
 	  $$ = new QtArctan( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -3374,7 +3400,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
-  
+
         | generalExp DOT RE
         {
           $$ = new QtRealPartOp( $1 );
@@ -3634,7 +3660,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($1)
 	  FREESTACK($2)
 	  FREESTACK($3)
-	}                  	
+	}
 	| LRPAR generalExp RRPAR
 	{
 	  $$ = $2;
@@ -3659,7 +3685,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
         FREESTACK($4)
         FREESTACK($6)
     };
-	
+
 castType: TBOOL			{ $$.info = $1.info; $$.value = SyntaxType::BOOL_NAME.c_str(); }
         | TCHAR			{ $$.info = $1.info; $$.value = SyntaxType::CHAR_NAME.c_str(); }
         | TOCTET		{ $$.info = $1.info; $$.value = SyntaxType::OCTET_NAME.c_str(); }
@@ -3676,7 +3702,7 @@ castType: TBOOL			{ $$.info = $1.info; $$.value = SyntaxType::BOOL_NAME.c_str();
 	      | TCINT16 { $$.info = $1.info; $$.value = SyntaxType::CINT16.c_str(); }
 	      | TCINT32 { $$.info = $1.info; $$.value = SyntaxType::CINT32.c_str(); }
 
-collectionList: collectionList COMMA iteratedCollection 
+collectionList: collectionList COMMA iteratedCollection
 	{
 	  // add the QtMDDAccess object and give back the list
 	  $1->push_back($3);
@@ -3696,7 +3722,7 @@ iteratedCollection: namedCollection AS collectionIterator
 	  $$ = new QtMDDAccess( *($1.value), $3.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
-	  
+
 
       delete $1.value;
 	  FREESTACK($2)
@@ -3711,7 +3737,7 @@ iteratedCollection: namedCollection AS collectionIterator
       delete $1.value;
 	  FREESTACK($2)
 	}
-	| namedCollection   
+	| namedCollection
 	{
 	  $$ = new QtMDDAccess( *($1.value), $1.value->getCollectionName() );
 	  $$->setParseInfo( *($1.info) );
@@ -3720,7 +3746,7 @@ iteratedCollection: namedCollection AS collectionIterator
       delete $1.value;
 	};
 
-variable: Identifier                          
+variable: Identifier
 	{
 	  $$ = new QtVariable( $1.value );
 	  $$->setParseInfo( *($1.info) );
@@ -3753,12 +3779,12 @@ hostName: Identifier
 	{
 	  $$ = $1;
 	}
-	| StringLit			
+	| StringLit
 	{
-	  $$.value = $1.value; 
-	  $$.info = $1.info; 
+	  $$.value = $1.value;
+	  $$.info = $1.info;
 	};
-	       
+
 
 collectionIterator: Identifier;
 
@@ -3780,7 +3806,7 @@ reduceExp: reduceIdent LRPAR generalExp RRPAR
 	  FREESTACK($4)
 	};
 
-reduceIdent: ALL                                 
+reduceIdent: ALL
 	{
 	  $$ = new QtAll();
 	  $$->setParseInfo( *($1.info) );
@@ -3808,7 +3834,7 @@ reduceIdent: ALL
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
 	}
-	| AVGCELLS                            
+	| AVGCELLS
 	{
 	  $$ = new QtAvgCells();
 	  $$->setParseInfo( *($1.info) );
@@ -3848,7 +3874,7 @@ reduceIdent: ALL
     $$ = new QtStdDevVar(QtNode::QT_STDDEVPOP);
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)     
+	  FREESTACK($1)
    }
    | STDDEV_SAMP
    {
@@ -3883,9 +3909,9 @@ floatLitExp: FloatLit
         $$.value = - $$.value;
     };
 
-generalLit: scalarLit                          { $$ = $1; }  
+generalLit: scalarLit                          { $$ = $1; }
 	| mddLit                               { $$ = $1; }
-	| StringLit                           
+	| StringLit
 	{
 	  $$ = new QtStringData( std::string($1.value) );
 	  $$->setParseInfo( *($1.info) );
@@ -3894,7 +3920,7 @@ generalLit: scalarLit                          { $$ = $1; }
 	}
 	| oidLit                              { $$ = $1; };
 
-oidLit: LESS StringLit GREATER              
+oidLit: LESS StringLit GREATER
 	{
 	  r_OId oid;
 	  try {
@@ -3911,21 +3937,21 @@ oidLit: LESS StringLit GREATER
 	    QueryTree::symtab.wipe();
             YYABORT;
 	  }
-        
+
 	  // test if database match the current one
 	  int mismatch = oid.get_base_name() == 0;
-	  
+
 	  if( !mismatch ) {
 	    // check for question mark
 	    char* baseName = strdup( oid.get_base_name() );
 	    char* end = strchr( baseName, '?' );
-	    if( end ) 
+	    if( end )
               *end = '\0';
 	    mismatch = strcmp( baseName, currentClientTblElt->database.getName() ) !=0;
 	    free( baseName );
             baseName = 0;
 	  }
-	  
+
 	  if( mismatch ) {
 	    // save the parse error info and stop the parser
 	    if( parseError ) delete parseError;
@@ -3953,9 +3979,9 @@ mddLit: LESS mintervalExp dimensionLitList GREATER
 	  try {
 	    $$ = new QtMDD( $2, $3 );
 	  }
-   	  catch( ParseInfo& obj ) {
+	  catch( ParseInfo& obj ) {
 	    delete $3;
-            
+
 	    // save the parse error info and stop the parser
             if( parseError ) delete parseError;
             parseError = new ParseInfo( obj.getErrorNo(), $1.info->getToken().c_str(),
@@ -3971,7 +3997,7 @@ mddLit: LESS mintervalExp dimensionLitList GREATER
 	    delete *iter;
             parseQueryTree->removeDynamicObject( *iter );
 	  }
-	  
+
 	  delete $2;
 	  delete $3;
 	  parseQueryTree->removeDynamicObject( $2 );
@@ -3979,7 +4005,7 @@ mddLit: LESS mintervalExp dimensionLitList GREATER
 	  FREESTACK($1)
 	  FREESTACK($4)
 	}
-	| MDDPARAM                            
+	| MDDPARAM
 	{
 	  try {
             $$ = new QtMDD( $1.value );
@@ -4021,9 +4047,9 @@ scalarLit: complexLit
 	  $$ = $1;
 	};
 
-atomicLit: BooleanLit                          
+atomicLit: BooleanLit
 	{
-	  $$ = new QtAtomicData( $1.value ); 
+	  $$ = new QtAtomicData( $1.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
@@ -4040,7 +4066,7 @@ atomicLit: BooleanLit
 	}
 	| floatLitExp
 	{
-	  $$ = new QtAtomicData( $1.value, $1.bytes ); 
+	  $$ = new QtAtomicData( $1.value, $1.bytes );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
@@ -4105,7 +4131,7 @@ atomicLit: BooleanLit
 	  FREESTACK($6)
 	};
 
-complexLit: LCPAR scalarLitList RCPAR           
+complexLit: LCPAR scalarLitList RCPAR
 	{
 	  for( std::list<QtScalarData*>::iterator iter=$2->begin(); iter!=$2->end(); iter++ )
 	    parseQueryTree->removeDynamicObject( *iter );
@@ -4114,7 +4140,7 @@ complexLit: LCPAR scalarLitList RCPAR
 	  FREESTACK($1)
 	  FREESTACK($3)
 	}
-	| STRCT LCPAR scalarLitList RCPAR           
+	| STRCT LCPAR scalarLitList RCPAR
 	{
 	  for( std::list<QtScalarData*>::iterator iter=$3->begin(); iter!=$3->end(); iter++ )
 	    parseQueryTree->removeDynamicObject( *iter );
@@ -4125,7 +4151,7 @@ complexLit: LCPAR scalarLitList RCPAR
 	  FREESTACK($4)
 	};
 
-scalarLitList: scalarLitList COMMA scalarLit       
+scalarLitList: scalarLitList COMMA scalarLit
 	{
 	  // add the literal element and give back the list
 	  $1->push_back($3);
@@ -4137,7 +4163,7 @@ scalarLitList: scalarLitList COMMA scalarLit
 	  // create a new list and add the literal element
 	  $$ = new QtComplexData::QtScalarDataList();
 	  $$->push_back($1);
-	}; 
+	};
 
 addNullvaluesExp: generalExp nullvaluesExp
     {
@@ -4148,7 +4174,7 @@ addNullvaluesExp: generalExp nullvaluesExp
         parseQueryTree->removeDynamicObject( $2 );
         parseQueryTree->addDynamicObject( $$ );
     };
-        
+
 // NULL VALUES '[' NULL1 [ ':' NULL2 ] ',' ... ']'
 nullvaluesExp: NULLKEY VALUES nullvaluesList
     {
@@ -4204,7 +4230,7 @@ nullvalueIntervalExp: scalarLit COLON scalarLit
         $$.high = $3;
         FREESTACK($1)
         FREESTACK($2)
-    } 
+    }
     | scalarLit
     {
         $$.low = $1;
@@ -4215,7 +4241,7 @@ nullvalueIntervalExp: scalarLit COLON scalarLit
 projectExp:
     // project( mddOp, boundsIn, crsIn, crsOut )
 	  PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit RRPAR
-	{		
+	{
 	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value );
 	  parseQueryTree->addDynamicObject($$);
 
@@ -4315,7 +4341,7 @@ resampleAlg:
 | RA_QTHIRD         { $$ = common::RA_Q3;               };
 
 
-trimExp: generalExp mintervalExp           
+trimExp: generalExp mintervalExp
 	{
 	  QtDomainOperation *dop = new QtDomainOperation( $2 );
 	  dop->setInput( $1 );     // e.g. variable name
@@ -4325,8 +4351,8 @@ trimExp: generalExp mintervalExp
 	  $$ = dop;
 		$$->setParseInfo( $2->getParseInfo() );
 	  if (mflag == MF_IN_CONTEXT)
-	    parseQueryTree->addDomainObject( dop );	  
-	};    
+	    parseQueryTree->addDomainObject( dop );
+	};
 
 namedTrimExp: generalExp namedMintervalExp2
   {
@@ -4342,15 +4368,15 @@ namedTrimExp: generalExp namedMintervalExp2
   };
 
 marray_head:
-        MARRAY 
-	{ 
-	  mflag = MF_IN_CONTEXT; 
-	  QueryTree::symtab.initScope(); 
-	} 
+        MARRAY
+	{
+	  mflag = MF_IN_CONTEXT;
+	  QueryTree::symtab.initScope();
+	}
 	iv
 	{
           $$ = $3;
-	  $$->parseInfo = *($1.info);	  	
+	  $$->parseInfo = *($1.info);
 	  FREESTACK($1)
 	};
 
@@ -4361,7 +4387,7 @@ mddExp: marray_head VALUES generalExp
 	  dlist->push_back(*($1));
 
 	  // concatenate intervals and variable names, then do a domain rewrite
-	  QtMarrayOp2 *qma = new QtMarrayOp2( dlist, $3 );	  	    
+	  QtMarrayOp2 *qma = new QtMarrayOp2( dlist, $3 );
 	  qma->setOldMarray(true);
 	  qma->rewriteVars();
 
@@ -4379,68 +4405,68 @@ mddExp: marray_head VALUES generalExp
 	  delete qma;
 	  delete $1;
 	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->addDynamicObject( $$ );	  
+	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($2)
 	}
 	| marray_head COMMA ivList VALUES generalExp
-	{	  	            
+	{
 	  // create a new list and add the element
 	  auto *dlist = new QtMarrayOp2::mddIntervalListType();
 	  dlist->push_back(*($1));
-	  
+
 	  // concatenate the lists
 	  dlist->insert(dlist->end(), $3->begin(), $3->end());
 
 	  // concatenate intervals and variable names, then do a domain rewrite
-	  QtMarrayOp2 *qma = new QtMarrayOp2( dlist, $5 );	    
+	  QtMarrayOp2 *qma = new QtMarrayOp2( dlist, $5 );
 	  qma->setOldMarray(false);
 	  if (!qma->concatenateIntervals())
 	  {
-	  	  // TODO: change error code!
-	  	  // save the parse error info and stop the parser
-	  	  if ( parseError ) 
-	  	  	  delete parseError;
-	  	  parseError = new ParseInfo(313, ($1->parseInfo).getToken().c_str(), ($1->parseInfo).getLineNo(), 
-	  	  ($1->parseInfo).getColumnNo() );
-	  	  QueryTree::symtab.exitScope();
-	  	  mflag = MF_NO_CONTEXT;
+		  // TODO: change error code!
+		  // save the parse error info and stop the parser
+		  if ( parseError )
+			  delete parseError;
+		  parseError = new ParseInfo(313, ($1->parseInfo).getToken().c_str(), ($1->parseInfo).getLineNo(),
+		  ($1->parseInfo).getColumnNo() );
+		  QueryTree::symtab.exitScope();
+		  mflag = MF_NO_CONTEXT;
 
 	  	  // release memory
 	  	  while (!(dlist->empty()))
 	  	  	  dlist->erase(dlist->begin());
 	  	  delete dlist;
-	  	  delete qma;
-	  	  delete $1;
-	  	  parseQueryTree->removeDynamicObject( $5 );
-	  	  FREESTACK($2)	  
-	  	  FREESTACK($4)
-	  	  YYABORT;
+		  delete qma;
+		  delete $1;
+		  parseQueryTree->removeDynamicObject( $5 );
+		  FREESTACK($2)
+		  FREESTACK($4)
+		  YYABORT;
 	  }
     qma->rewriteVars();
-	  
+
 	  r_Minterval *dinterval = new r_Minterval(qma->greatDomain);
-	  std::string *dvariable = new std::string(qma->greatIterator); 
+	  std::string *dvariable = new std::string(qma->greatIterator);
 	  parseQueryTree->rewriteDomainObjects(dinterval, dvariable, dlist);
-    
+
 	  // initialize old good QtMarray with the translated data
 	  QtMintervalData *mddIntervalData = new QtMintervalData(*dinterval);
 	  $$ = new QtMarrayOp( dvariable->c_str(), new QtConst(mddIntervalData), qma->getInput());
 //	  $$->setParseInfo( *($1.info) );
-         
+
 	  QueryTree::symtab.exitScope();
 	  mflag = MF_NO_CONTEXT;
 
 	  // release memory
-	  while (!(dlist->empty())) 
-	  	  dlist->erase(dlist->begin());
+	  while (!(dlist->empty()))
+		  dlist->erase(dlist->begin());
     delete dlist;
     delete qma;
     delete $1;
 	  parseQueryTree->removeDynamicObject( $5 );
-	  parseQueryTree->addDynamicObject( $$ );	  
-	  FREESTACK($2)	  
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($2)
 	  FREESTACK($4)
-	};	
+	};
 
 ivList: ivList COMMA iv
 	{
@@ -4457,31 +4483,155 @@ ivList: ivList COMMA iv
 	  $$->push_back(*($1));
 	  delete $1;
 	};
-			
+
 iv: marrayVariable IN mintervalList
-	{         
+	{
 	  if (!QueryTree::symtab.putSymbol($1.value, 1)) // instead of 1 put the dimensionality
-	  {	    
+	  {
 	  	  // save the parse error info and stop the parser
-	  	  if ( parseError ) 
+	  	  if ( parseError )
 	  	  	  delete parseError;
         parseError = new ParseInfo( PARSER_VARIABLEALREADYDEFINED, $1.info->getToken().c_str(),
-                                         $1.info->getLineNo(), 
+                                         $1.info->getLineNo(),
 	  	  $1.info->getColumnNo() );
 	  	  parseQueryTree->removeDynamicObject( $3 );
 	  	  FREESTACK($2)
 	  	  QueryTree::symtab.wipe();
 	  	  YYABORT;
-	  }  	  	  
-	  $$ = new QtMarrayOp2::mddIntervalType(); 	  
-	  $$->variable = $1.value; 
+	  }
+	  $$ = new QtMarrayOp2::mddIntervalType();
+	  $$->variable = $1.value;
 	  $$->tree = $3;
-	  $$->parseInfo = *($1.info);	  
+	  $$->parseInfo = *($1.info);
 	  parseQueryTree->removeDynamicObject( $3 );
-	  FREESTACK($2);			   
+	  FREESTACK($2);
 	};
 
-mddConfiguration: 
+sortExp : sortHeader AS sortAxisIterator listingOrder BY generalExp
+{
+  // init scope
+  mflag = MF_IN_CONTEXT;
+  QueryTree::symtab.initScope();
+
+  if(!QueryTree::symtab.putSymbol($3.value, 1))
+  {
+      // save the parse error info and stop the parser
+      if ( parseError )
+          delete parseError;
+      parseError = new ParseInfo( 312, $3.info->getToken().c_str(),
+                                       $3.info->getLineNo(),
+                                       $3.info->getColumnNo()
+                                );
+      FREESTACK($2)
+      FREESTACK($5)
+      QueryTree::symtab.wipe();
+      YYABORT;
+  }
+
+  // get sdom of mdd at axis - used in ranking function.
+  QtAxisSDom *sdom;
+  if(!$1.named)
+    sdom = new QtAxisSDom( $1.MDD, $1.axis );
+  else
+    sdom = new QtAxisSDom( $1.MDD, $1.namedAxis );
+
+  sdom->setAxisParseInfo( *($1.axisInfo) );// for proper error ParseInfo
+
+  // set variable identifier and sdom for interval
+  auto *interval = new QtMarrayOp2::mddIntervalType();
+  interval->variable = $3.value;
+  interval->tree = sdom;
+
+  // add to list of intervals
+  auto *intervalList = new QtMarrayOp2::mddIntervalListType();
+	intervalList->push_back(*(interval));
+
+  // concatenate intervals and variable names, then do a domain rewrite
+  // takes intervalList, and cellExp (ranking func)
+  QtMarrayOp2 *qma = new QtMarrayOp2( intervalList, $6 );
+  qma->setOldMarray(true);
+  qma->rewriteVars();
+
+  // create ranks array
+  // identifier, sdom
+  auto *ranksArray = new QtMarrayOp( $3.value, sdom, qma->getInput());
+
+  QueryTree::symtab.exitScope();
+  mflag = MF_NO_CONTEXT;
+
+  // create QtSort node with ranks array
+  // $1.MDD: array to be sorted, $1.axis: sortAxis, $4.value: listingOrder, ranksArray
+  // $4 needs to become array of sortOrders for future multidimensional sorting
+  QtSort *sortNode;
+  if(!$1.named)
+    sortNode = new QtSort($1.MDD, $1.axis, $4.value, ranksArray );
+  else
+    sortNode = new QtSort($1.MDD, $1.namedAxis, $4.value, ranksArray );
+
+  // get ParseInfo for error case in BY clause.
+  sortNode->setBYClauseParseInfo( *($5.info) );
+  // get ParseInfo for error case in ALONG clause.
+  sortNode->setALONGClauseParseInfo( *($1.axisInfo) );
+
+  $$ = sortNode;// evaluate sorted array
+  $$->setParseInfo( *($1.info) );
+
+  // to evaluate the sortObject- add to unlinked node list
+  parseQueryTree->addDynamicObject( $$ );
+
+  parseQueryTree->removeDynamicObject( $1.MDD );
+  parseQueryTree->removeDynamicObject( $6 );
+  parseQueryTree->removeDynamicObject( sdom );
+	parseQueryTree->removeDynamicObject( ranksArray );
+
+  // release mem
+  while( !intervalList->empty() )
+   intervalList->erase( intervalList->begin() );
+  delete intervalList;
+  delete qma;
+
+  FREESTACK($2)
+  FREESTACK($5)
+}
+
+// header for sortExp. This enables named axis support without duplicating the whole code.
+sortHeader:
+SORT generalExp ALONG sortAxis
+{
+  $$.named = false;// not named: axis is an integer Literal
+  $$.MDD = $2;// the array to be sorted
+  $$.axis = $4.svalue;// int for axis value
+  $$.axisInfo = $3.info;// for error handling
+  $$.info = $1.info;
+}
+| SORT generalExp ALONG Identifier
+{
+  $$.named = true;// named: axis is an Identifier (name)
+  $$.MDD = $2;// the array to be sorted
+  $$.namedAxis = $4.value;// char* for axis name
+  $$.axisInfo = $3.info;// for error handling
+  $$.info = $1.info;
+}
+
+// the sortOrderLit is ASC|DESC - a boolean token
+listingOrder: sortOrderLit
+{
+  // in this case, the value is from user input (ASC or DESC)
+  $$ = $1;
+}
+| %empty
+{
+  // in this empty case, the value is true (default is true - ascending)
+  $$.value = true;
+}
+
+//sortAxis IntegerLit value is always a positive integer (incl. zero)
+sortAxis: IntegerLit;
+
+sortAxisIterator: Identifier;
+
+
+mddConfiguration:
 	tilingAttributes indexingAttributes
 	{
 	  $$=new QtMddCfgOp( $1.tilingType, $1.tileSize, $1.borderThreshold, $1.interestThreshold , $1.tileCfg, $1.bboxList,$1.dirDecomp, $2.indexType );
@@ -4629,7 +4779,7 @@ tileTypes: REGULAR tileCfg
 	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
 	}
 ;
-	
+
 tileSizeControl:
   P_NO_LIMIT
   {
@@ -4717,7 +4867,7 @@ statisticParameters: tilingSize borderCfg interestThreshold
 	  $$.tilingType = QtMDDConfig::r_STATISTICSPARAM_TLG;
 	}
 ;
-	
+
 tilingSize: TILE SIZE intLitExp
 	{
 	  $$.tileSize = $3.svalue;
@@ -4789,7 +4939,7 @@ intArray : intLitExp
 	{
 	  $$.dirDecomp = $3.dirDecomp;
 	  r_Dir_Decompose temp = $$.dirDecomp->at($$.dirDecomp->size()-1);
-	  
+
 	  // the values are inserted in the wrong order when appending,
     // so changed bellow to prepend -- DM 2012-dec-16
     //temp<<$1.svalue;
@@ -4798,9 +4948,9 @@ intArray : intLitExp
 ;
 
 /*--------------------------------------------------------------------
- *				Grammar ends here 
+ *				Grammar ends here
  *--------------------------------------------------------------------
- */	
+ */
 %%  // C code section
 
 void yyerror(void* /*mflag*/, const char* /*s*/)

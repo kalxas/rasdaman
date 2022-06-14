@@ -253,6 +253,8 @@ int string_yyinput( char* buf, int max_size )
 "dbinfo"                                 { SETTOKEN( DBINFO, commandToken, DBINFO ) }
 "version"                                { SETTOKEN( RAS_VERSION, commandToken, RAS_VERSION ) }
 
+"sort"                                   { SETTOKEN( SORT, commandToken, SORT)}
+
 "."                                      { SETTOKEN( DOT, commandToken, DOT ) }
 ","                                      { SETTOKEN( COMMA, commandToken, COMMA ) }
 "is"                                     { SETTOKEN( IS, commandToken, IS ) }
@@ -380,6 +382,15 @@ int string_yyinput( char* buf, int max_size )
 "}"                                      { SETTOKEN( RCPAR, commandToken, RCPAR ) }
 #MDD[0-9]+#                              { SETTOKEN( MDDPARAM, commandToken, atoi(&(yytext[1])) ) }
 $[0-9]+                                  { llerror("unresolved query parameter"); columnNo++; }
+
+  /*
+  *ASC is true
+  *DESC is false
+  **as sortAsc defined in qtsort.hh, used for SORT operation
+  */
+
+[aA][sS][cC]                              { SETTOKEN( sortOrderLit, sortOrderToken,  true  ) }
+[dD][eE][sS][cC]                            { SETTOKEN( sortOrderLit, sortOrderToken,  false ) }
 
 "true"|"false"|"TRUE"|"FALSE"            { SETTOKEN( BooleanLit, booleanToken, yytext[0] == 't' || yytext[0] == 'T') }
 [a-zA-Z_][a-zA-Z0-9_]*                   {

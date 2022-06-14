@@ -1,0 +1,1 @@
+select encode(SORT test ALONG 1 AS i ASC by max_cells(test[*:*, i[0], *:*]), "csv" ) from test_threeD as test

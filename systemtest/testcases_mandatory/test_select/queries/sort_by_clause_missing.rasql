@@ -1,0 +1,1 @@
+select encode(SORT test ALONG 0 AS i ASC, "csv" ) from test_twoD as test

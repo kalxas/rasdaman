@@ -49,3 +49,15 @@ QtSDom::getNodeType() const
 }
 
 
+inline QtNode::QtNodeType
+QtAxisSDom::getNodeType() const
+{
+    return nodeType;
+}
+
+
+inline void
+QtAxisSDom::setAxisParseInfo(const ParseInfo &info)
+{
+    this->AxisParseInfo = info;
+}

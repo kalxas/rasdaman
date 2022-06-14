@@ -3011,6 +3011,187 @@ Finally, this query calculates the sample variance of ``mr2``:
     from mr2
 
 
+.. _sec-sort:
+
+SORT operator
+=============
+
+The ``SORT`` operator enables the user to sort an array along an axis of that array. The sorting is done by slicing the array along that axis, calculating a slice rank for each of the slices, and then rearranging the slices according to their ranks, in an ascending or descending order.
+
+The slice ranks are given according to a ranking function provided by the user based on the following rules (see syntax below):
+
+- The ranking function, is a general 1D marray constructor, which creates a rank for each slice, according to a given cellExp.
+
+- Each of the scalar ranking values can be calculated, by iterating in the cellExp over the spatial domain of the axis along which is to be sorted, the sortAxis.
+
+- The ranking function can be any cell expression.
+
+- Slices receiving the same ranking retain their relative position as in the input array.
+
+- The default rank sorting order is ascending.
+
+- Only atomic celltypes are currently supported, no records with more than one component.
+
+The sorting causes no change in the spatial domain, base type, or dimensionality. This means that the resulting array is the original array but with its values sorted at the sortAxis.
+
+**Syntax**
+
+::
+
+	sortExp: SORT generalExp ALONG sortAxis AS sortAxisIterator [listingOrder] BY cellExp
+
+        sortAxis: integerLit | identifier
+        sortAxisIterator: identifier
+        listingOrder: ASC | DESC
+
+
+A ``SORT`` expression consists of ``generalExp`` which denotes the array to be sorted.
+In the ``BY`` clause a ranking function is indicated as a ``cellExp`` which determines the output ordering of the slices.
+Depending on the ``listingOrder`` the result is sorted ascending ``ASC`` (which is default) or descending ``DESC``.
+The axis along which the array is sliced and resorted is given in the along clause (``sortAxis``), where an axis iterator can be assigned at ``sortAxisIterator`` for addressing in the ranking function.
+**Named axes for the sortAxis are supported.**
+The result of a ``SORT`` operation is an array with the same extent as the input array where, along the sort axis, the slices are reordered according to the ranking function.
+
+**Examples**
+
+The following examples illustrate the syntax of the ``SORT`` operator. Let ``raster2D`` and ``raster3D`` be MDD objects.
+
+.. hidden-code-block:: rasql
+
+    SORT raster2D ALONG 0 AS i BY raster2D[i[0], 1]
+    SORT raster2D ALONG time  AS i BY raster2D[i[0], 0:0]
+    SORT raster2D ALONG space AS i BY raster2D[*:*, i[0]]
+    SORT raster2D ALONG 0 AS i BY add_cells(raster2D[i[0], *:*])
+    SORT raster2D ALONG 0 AS n BY add_cells(raster2D[n[0], 1:1]) DESC
+    SORT raster3D ALONG 1 AS i BY max_cells(raster3D[*:*, i[0], *:*]) DESC
+    SORT raster2D ALONG 0 AS i BY add_cells(raster2D[i[0], *:*]) - raster2D[i[0], 0] DESC
+
+
+The following examples discuss the semantics of the sort operator. Array cells which contribute to the rank result are highlighted in red.
+
+.. raw:: html
+
+   <details>
+   <summary>expand example</summary>
+
+The following numeric example shows how a 10x3 array, with the atomic basetype double, is sorted along its second axis, in an ascending order, by the minimum of all values in each slice. ::
+
+	SORT raster2D ALONG 1 AS i BY min_cells(raster2D[*:*, i[0]])
+
+
+The array looks as follows before and after sorting:
+
+.. figure:: media/ql-guide/numeric1new.png
+   :align: center
+   :width: 50%
+
+   Minimum values in columns 0,1,2 are 8, 3.26, and 14.8 respectively, highlighted in red.
+
+We observe that the sorting was a reordering of the slices along the second axis, represented by the columns.
+
+.. raw:: html
+
+   </details>
+   <br/>
+
+.. raw:: html
+
+    <details>
+    <summary>expand example</summary>
+
+By subsetting along an axis other than the ``sortAxis``, we can further restrict areas in the slices which contribute to the ranking function.
+For example, the following 2 queries consider only the value at index positions 0 or 1, respectively, along axis 1. ::
+
+	SORT raster2D2 ALONG 0 AS i BY (raster2D2[i[0], 0])
+	SORT raster2D2 ALONG 0 AS i BY (raster2D2[i[0], 1])
+
+
+
+.. figure:: media/ql-guide/sortNumericMatrix2.png
+   :align: center
+   :width: 77%
+
+   Sorting an array with further subsetting at a specific axis.
+
+.. raw:: html
+
+    </details>
+    <br/>
+
+.. raw:: html
+
+    <details>
+    <summary>expand example</summary>
+
+You might also want to compare two values in a specific axis at once, at each slice, and sort by the minimum value between those, using an aggregate operation: ::
+
+	SORT raster2D2 ALONG 0 AS i BY min_cells(raster2D2[i[0], 1:2])
+
+
+.. figure:: media/ql-guide/sortNumericMatrix3.png
+   :align: center
+   :width: 23%
+
+   Sorting an array by the minimum value with further subsetting at a specific axis.
+
+.. raw:: html
+
+    </details>
+    <br/>
+
+.. raw:: html
+
+    <details>
+    <summary>expand example</summary>
+
+The next example, shows how a 3 dimensional array, with the atomic basetype double for the temperature, is sorted along its first axis of time (i.e. time-sliced), in a descending order, by the maximum temperature value in each latitude/longitude combination. ::
+
+	SORT weather ALONG 0 AS i BY max_cells(weather[i[0], *:*, *:*]) DESC
+
+
+The datasheet looks as follows:
+
+
+.. image:: media/ql-guide/gcoos5double.png
+   :width: 100%
+
+The first datasheet represents all the data that we have. The second sheet offers a datacube interpretation of the available data.
+The first dimension is time, the second the latitude, and the third represents the longitude.
+In this example, the lat/lon are limited to 3 entries each. And the temperature is recorded at 11 unique timestamps. Thus, the data is represented using the available combinations of longitude and latitude (25.084,-81.096), (27.601,-82.751) and (30.4367,-88.0117), by: (0,0), (1,1) and (2,2) respectively, each in their timestamp, for simplification.
+
+All the cell values are recorded temperatures.
+
+The following illustration represents a 3D array holding this data:
+
+.. figure:: media/ql-guide/gcoos5Normal.png
+   :align: center
+   :width: 30%
+
+|
+
+On the first timestamp, for instance, we have a temperature measurement of 18.05 degrees, for lat/lon (2,2), which represents (30.4367,-88.0117) of the original table. In the last timestamp, we have two temperature records, at (0,0) and at (1,1).
+If we had more measurements, they would fill in the zero-values.
+
+After sorting, the array looks as follows:
+
+.. figure:: media/ql-guide/gcoos5Sorted.png
+   :align: center
+   :width: 30%
+
+We observe that the time-slices have been sorted by their maximum value, in a descending manner.
+
+
+Interestingly, you can also sort by looking at a specific longitude/latitude combination: ::
+
+	SORT weather ALONG 0 AS i BY max_cells(weather[i[0], 0:0, 0:0]) DESC
+
+
+.. raw:: html
+
+   </details>
+   <br/>
+
+
 .. _sec-condenser:
 
 General Array Condenser

@@ -422,10 +422,8 @@ void QueryTree::removeDynamicObject(vector<QtONCStream *> *node)
 
 void QueryTree::releaseDynamicObjects()
 {
-
     for (list<QtNode *>::iterator iter = qtNodeList.begin(); iter != qtNodeList.end(); iter++)
     {
-
         if (*iter != NULL)
         {
             delete *iter;

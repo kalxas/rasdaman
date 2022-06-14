@@ -133,10 +133,10 @@ public:
 
     /// constructor getting the kind
     explicit r_Error(kind theKindArg, unsigned int newErrorNo = 0);
-    
+
     /// constructor getting the kind and additional error details
     explicit r_Error(kind theKindArg, std::string errorParam);
-    
+
     /// constructor getting an error number
     explicit r_Error(unsigned int errorno);
 
@@ -153,7 +153,7 @@ public:
     kind                get_kind() const;
     unsigned long       get_errorno() const;
     const std::string  &get_errorparam() const;
-    
+
     void set_what(const char* what);
 
     /// used to transfer exceptions of kind r_Error_SerialisableException to the client.
@@ -178,7 +178,7 @@ protected:
     /// The virtual method is redefined in each subclass which supports text parameters.
     /// Usually it is invoked in the constructor of the subclass.
     virtual void resetErrorText();
-    
+
     /// Update the standard error text with the extra error information if any was
     /// specified.
     void updateWithErrorDetails();
@@ -191,7 +191,7 @@ protected:
 
     /// attribute storing the error kind
     kind theKind{r_Error_General};
-    
+
     /// additional information for errors that can be parameterized
     std::string errorDetails;
 };
@@ -421,6 +421,9 @@ public:
 #define PARSER_ONLYCONSTANTBOUNDSALLOWED    313//used - but not sure if correctly (oql.yy; mddExp)
 #define PARSER_TOOFEWARGUMENTS              314//not used
 
+#define SORT_NUMBEROFRANKSMISMATCH          315
+#define AXIS_OUTOFBOUNDS                    316
+
 //330 -333
 #define PREPROCESSING_UNEXPECTEDTOKEN       330//not used
 #define PREPROCESSING_FUNCTIONREDEFINE      331//not used
@@ -581,6 +584,8 @@ public:
 #define OPS_MORETHANONEOPERANDEXPECTED      456
 
 #define COLORPALETTEFORNONCHAR              457
+
+#define SORT_RANKSOPINVALID                 460
 
 #define FEATURENOTSUPPORTED                 499
 

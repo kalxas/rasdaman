@@ -273,9 +273,11 @@ function import_rasql_data()
   check_type Gauss1Set
   check_type CInt16Set
   check_type CInt32Set
+  check_type DoubleSet3
+  check_type DoubleSet
   drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT
   drop_colls $TEST_CFLOAT32 $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32
-  drop_colls $TEST_OVERLAP $TEST_OVERLAP_3D
+  drop_colls $TEST_OVERLAP $TEST_OVERLAP_3D test_oneD test_twoD test_threeD test_threeD_two_objects test_twoD_named
 
   # create the struct_cube_set type
   $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bstruct_cube_set\b"
@@ -300,6 +302,11 @@ function import_rasql_data()
   create_coll $TEST_GREY4D GreySet4
   $RASQL -q "insert into $TEST_GREY4D values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:9,0:9,0:9,0:49]" --mddtype GreyTesseract > /dev/null
 
+  #create type for 2D named axes '0:time and 1:space'
+  $RASQL -q 'CREATE TYPE test_sortNamedAxis AS double mdarray [time (0:9), space (0:2)]' > /dev/null
+  $RASQL -q 'CREATE TYPE test_DoubleSet_named AS SET (test_sortNamedAxis)' > /dev/null
+
+
   create_coll $TEST_GREY GreySet
   create_coll $TEST_GREY2 GreySet
   create_coll $TEST_RGB2 RGBSet
@@ -310,6 +317,11 @@ function import_rasql_data()
   create_coll $TEST_CINT32 CInt32Set
   create_coll $TEST_OVERLAP GreySet
   create_coll $TEST_OVERLAP_3D GreySet3
+  create_coll test_oneD DoubleSet1
+  create_coll test_twoD DoubleSet
+  create_coll test_threeD DoubleSet3
+  create_coll test_threeD_two_objects DoubleSet3
+  create_coll test_twoD_named test_DoubleSet_named
   insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
   insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
   insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode" "" "tiling aligned [0:49,0:49] tile size 7500 $STORAGE_CLAUSE"
@@ -317,6 +329,18 @@ function import_rasql_data()
   insert_into $TEST_CFLOAT64 "$TESTDATA_PATH/cfloat64_image.tif" "" "decode"
   insert_into $TEST_CINT16 "$TESTDATA_PATH/cint16_image.tif" "" "decode"
   insert_into $TEST_CINT32 "$TESTDATA_PATH/cint32_image.tif" "" "decode"
+
+  $RASQL -q 'insert into test_oneD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:29]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
+
+  $RASQL -q 'insert into test_twoD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:2]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
+
+  $RASQL -q 'insert into test_threeD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:4, 0:1]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/threeD.csv > /dev/null
+
+  $RASQL -q 'insert into test_threeD_two_objects values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:4, 0:1]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/threeD.csv > /dev/null
+  $RASQL -q 'insert into test_threeD_two_objects values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:4, 0:1]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/threeD.csv > /dev/null
+
+  $RASQL -q 'insert into test_twoD_named values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:2]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
+
   add_overlap_data
   $RASQL -q "insert into $TEST_GREY3D values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
 }

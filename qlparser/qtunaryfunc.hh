@@ -155,6 +155,78 @@ private:
 };
 
 
+
+
+//@ManMemo: Module: {\bf qlparser}
+
+/*@Doc:
+
+  The class represenst a function returning the spatial domain of
+  an mdd object at a specified axis/dimension.
+
+  The axis can be a number or a named axis.
+  The result is always QtMintervalData.
+
+*/
+
+class QtAxisSDom : public QtUnaryOperation
+{
+public:
+    /// constructor getting the two operands
+    QtAxisSDom(QtOperation *mdd, r_Dimension axis);
+    /// constructor getting the two operands, with a 'named' axis
+    QtAxisSDom(QtOperation *mdd, const std::string &axis);
+
+    /// method for evaluating the node
+    QtData *evaluate(QtDataList *inputList);
+
+    //@Man: Read/Write methods
+    //@{
+    ///
+
+    /// set ParseInfo for ALONG clause
+    inline void setAxisParseInfo(const ParseInfo &info);
+
+    ///
+    //@}
+
+    /// optimizing load access
+    virtual void optimizeLoad(QtTrimList *trimList);
+
+    /// prints the tree
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
+
+    /// prints the algebraic expression
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
+
+    /// method for identification of nodes
+    inline virtual QtNodeType getNodeType() const;
+
+    /// type checking of the subtree
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
+
+private:
+    /// attribute for identification of nodes
+    static const QtNodeType nodeType;
+
+    /// the axis
+    r_Dimension axis;
+
+    /// this flag determines whether the input axis is a name or number. true if name, false if number.
+    bool namedAxisFlag  = false;
+    /// user-provided axis name
+    std::string axisName;
+    /// actual names of the axes in the input array
+    std::vector<std::string> *axisNamesCorrect;
+
+    /// get the ParseInfo for the axis. In SORT op.: ALONG clause.
+    ParseInfo AxisParseInfo;
+
+    /// get the axis number from a given axis name
+    void getAxisFromName();
+};
+
+
 #include "qlparser/qtunaryfunc.icc"
 
 #endif

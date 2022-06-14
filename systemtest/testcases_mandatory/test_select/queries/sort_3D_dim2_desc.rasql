@@ -1,0 +1,1 @@
+select encode(SORT test ALONG 2 AS i DESC BY min_cells(test[*:*, *:*, i[0]]), "csv" ) from test_threeD as test
