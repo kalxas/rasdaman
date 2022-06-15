@@ -53,7 +53,7 @@ using listOfSlices   = std::list<sliceTuple>;
 
 This class is for the SORT node. A node to sort an n-Dimensional array.
 The SORT constructors assign a rank to each slice, and sorts them in ASC||DESC order, by their ranks.
-Constructors for the INVERT operator reverse the order of slices at a given axis.
+Constructors for the FLIP operator reverse the order of slices at a given axis.
 Named axes are supported.
 */
 
@@ -66,9 +66,9 @@ public:
     /// construct SORT with named axis
     QtSort(QtOperation *MDDtoSortInput, const std::string &axis, bool order, QtOperation *ranksInput);
 
-    /// for INVERT operator - order is descending - currently not in use - coming in future patch
+    /// for FLIP operator - order is descending - currently not in use - coming in future patch
     QtSort(QtOperation *MDDtoSortInput, r_Dimension axis);
-    /// for INVERT operator - named axis - currently not in use - coming in future patch
+    /// for FLIP operator - named axis - currently not in use - coming in future patch
     QtSort(QtOperation *MDDtoSortInput, const std::string &axis);
 
     /// destructor

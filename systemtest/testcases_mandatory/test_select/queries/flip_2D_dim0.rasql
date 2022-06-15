@@ -1,0 +1,1 @@
+select encode(flip test along 0, "csv" ) from test_twoD as test

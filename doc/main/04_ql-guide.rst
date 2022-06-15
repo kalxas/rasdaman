@@ -377,7 +377,7 @@ database, materializes the base types defined in the ODMG standard
 Composite types
 ---------------
 
-More complex, composite cell types can be defined arbitrarily, based on the 
+More complex, composite cell types can be defined arbitrarily, based on the
 system-defined atomic types. The syntax is as follows: ::
 
     create type typeName
@@ -388,7 +388,7 @@ system-defined atomic types. The syntax is as follows: ::
     )
 
 Attribute names must be unique within a composite type, otherwise an
-exception is thrown. No other type with the name ``typeName`` may pre-exist 
+exception is thrown. No other type with the name ``typeName`` may pre-exist
 already.
 
 Example
@@ -539,7 +539,7 @@ In case of an interval, the three variants are interpreted as follows:
 2. ``lo`` is ``*`` and ``hi`` is a double value, indicating that all values
    lower than ``hi`` are null values;
 
-3. ``lo`` is a double value and ``hi`` is ``*``, indicating that all values 
+3. ``lo`` is a double value and ``hi`` is ``*``, indicating that all values
    greater than ``lo`` are null values.
 
 For floating-point data it is recommended to always specify small intervals
@@ -577,7 +577,7 @@ type can be equivalently specified like this: ::
     create type RGBSet
     as set ( RGBImage null values [ 0, 253 : * ] )
 
-With the set type below, values which are nan are null values (nanf is the float 
+With the set type below, values which are nan are null values (nanf is the float
 constant, while nan is the double constant): ::
 
     create type FloatSetNanNullValue
@@ -1097,7 +1097,7 @@ Specifiers are case insensitive.
     +--------------+----------------+
 
 
-Additionally, the following special floating-point constants are supported as 
+Additionally, the following special floating-point constants are supported as
 well:
 
 .. _table-float-constants:
@@ -1121,7 +1121,7 @@ Complex numbers
 ---------------
 
 Special built-in types are ``CFloat32`` and ``CFloat64`` for single and double
-precision complex numbers, resp, as well as ``CInt16`` and ``CInt32`` for 
+precision complex numbers, resp, as well as ``CInt16`` and ``CInt32`` for
 signed integer complex numbers.
 
 **Syntax**
@@ -1720,7 +1720,7 @@ Extending a Spatial Domain
 Function extend() enlarges a given MDD with the domain specified. The
 domain for extending must, for every boundary element, be at least as
 large as the MDD's domain boundary. The new MDD contains 0 values in
-the extended part of its domain and the MDD's original cell values within 
+the extended part of its domain and the MDD's original cell values within
 the MDD's domain.
 
 **Syntax**
@@ -1781,23 +1781,23 @@ Assume an MDD object ``M`` and two CRS identifiers ``C1`` and ``C2`` such as
 dimension as ``M``, whose contents is given by projecting ``M`` from CRS ``C1``
 into CRS ``C2``.
 
-The ``project()`` function comes in several variants based on the provided 
+The ``project()`` function comes in several variants based on the provided
 input arguments ::
 
     (1) project( mddExpr, boundsIn, crsIn, crsOut )
 
     (2) project( mddExpr, boundsIn, crsIn, crsOut, resampleAlg )
 
-    (3) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+    (3) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut,
                           widthOut, heightOut )
 
-    (4) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+    (4) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut,
                           widthOut, heightOut, resampleAlg, errThreshold )
 
-    (5) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+    (5) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut,
                           xres, yres)
 
-    (6) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+    (6) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut,
                           xres, yres, resampleAlg, errThreshold )
 
 where
@@ -1807,7 +1807,7 @@ where
 - ``boundsIn`` - geographic bounding box given as a string of comma-separated
   floating-point values of the format: ``"xmin, ymin, xmax, ymax"``.
 
-- ``crsIn`` - geographic CRS as a string. Internally, the ``project()`` function 
+- ``crsIn`` - geographic CRS as a string. Internally, the ``project()`` function
   is mapped to GDAL; hence, it accepts the same CRS formats as GDAL:
 
     -  Well Known Text (as per GDAL)
@@ -1831,7 +1831,7 @@ where
     - Since recently (v1.10), GDAL also supports OGC CRS URLs, OGC's preferred
       way of identifying CRSs.
 
-- ``boundsOut`` - geographic bounding box of the projected output, given in the 
+- ``boundsOut`` - geographic bounding box of the projected output, given in the
   same format as ``boundsIn``. This can be "smaller" than the input bounding box,
   in which case the input will be cropped.
 
@@ -1863,40 +1863,40 @@ where
        Average of all non-NODATA contributing pixels. (GDAL >= 1.10.0)
 
    mode
-       Selects the value which appears most often of all the sampled points. 
+       Selects the value which appears most often of all the sampled points.
        (GDAL >= 1.10.0)
 
    max
-       Selects the maximum value from all non-NODATA contributing pixels. 
+       Selects the maximum value from all non-NODATA contributing pixels.
        (GDAL >= 2.0.0)
 
    min
-       Selects the minimum value from all non-NODATA contributing pixels. 
+       Selects the minimum value from all non-NODATA contributing pixels.
        (GDAL >= 2.0.0)
 
    med
-       Selects the median value of all non-NODATA contributing pixels. 
+       Selects the median value of all non-NODATA contributing pixels.
        (GDAL >= 2.0.0)
 
    q1
-       Selects the first quartile value of all non-NODATA contributing pixels. 
+       Selects the first quartile value of all non-NODATA contributing pixels.
        (GDAL >= 2.0.0)
 
    q3
-       Selects the third quartile value of all non-NODATA contributing pixels. 
+       Selects the third quartile value of all non-NODATA contributing pixels.
        (GDAL >= 2.0.0)
 
-- ``errThreshold`` - error threshold for transformation approximation 
+- ``errThreshold`` - error threshold for transformation approximation
   (in pixel units - defaults to 0.125).
 
 **Example**
 
-The following expression projects the MDD ``worldMap`` with bounding box 
+The following expression projects the MDD ``worldMap`` with bounding box
 "-180, -90, 180, 90" in CRS EPSG 4326, into EPSG 54030: ::
 
     project( worldMap, "-180, -90, 180, 90", "EPSG:4326", "EPSG:54030" )
 
-The next example reprojects a subset of MDD ``Formosat`` with geographic 
+The next example reprojects a subset of MDD ``Formosat`` with geographic
 bbox "265725, 2544015, 341595, 2617695" in EPSG 32651, to bbox
 "120.630936455 23.5842129067 120.77553782 23.721772322" in EPSG 4326 fit into
 a 256 x 256 pixels area. The resampling algorithm is set to bicubic, and the
@@ -1991,8 +1991,8 @@ Syntax
     select clip( c, multipolygon((( list of WKT points )),(( list of WKT points ))...) )
     from coll as c
 
-The input consists of an MDD expression and a list of polygons defined by list of WKT points. 
-The assumptions about polygons are same as the ones for Polygon.  
+The input consists of an MDD expression and a list of polygons defined by list of WKT points.
+The assumptions about polygons are same as the ones for Polygon.
 
 
 Return type
@@ -2000,8 +2000,8 @@ Return type
 
 The output of a polygon query is a new array with dimensions corresponding to
 the bounding box of the polygon vertices, and further restricted to the
-collection's spatial domain. 
-In case of Multipolygon, the new array have dimensions corresponding to closure 
+collection's spatial domain.
+In case of Multipolygon, the new array have dimensions corresponding to closure
 of bounding boxes of every individual polygon, which domain intersects the collection's spatial domain.
 The data in the array consists of null values where
 cells lie outside the polygon (or 0 values if no null values are associated with
@@ -2775,7 +2775,7 @@ cast
         (long) rgb
 
     Obviously in the result structure all components will bear the same type.
-    In addition, the target type can be a user-defined composite type, e.g. the 
+    In addition, the target type can be a user-defined composite type, e.g. the
     following will cast the operand to `{1c, 2c, 3c}`:
 
         (RGBPixel) {1c, 2l, 3.0}
@@ -2784,7 +2784,7 @@ cast
 
     If the new type is smaller than the value's type, i.e. not all values can
     be represented by it, then standard C++ casting will typically lead to
-    strange results due to wrap around for unsigned and implementation-defined 
+    strange results due to wrap around for unsigned and implementation-defined
     behavior for a signed types. For example, casting int 1234 to char in C++
     will result in 210, while the possible range would be 0 - 255.
 
@@ -3192,6 +3192,99 @@ Interestingly, you can also sort by looking at a specific longitude/latitude com
    <br/>
 
 
+.. _sec-flip:
+
+FLIP operator
+===============
+
+The ``FLIP`` operator enables reversing an MDD at a specific axis/dimension.
+Similar to the ``SORT`` operation, the array is sliced at the chosen axis.
+The slices are then flipped, resulting in an array with *no* change in the spatial domain, base type, or dimensionality, but with reversed values of an axis.
+
+**Syntax**
+
+.. code-block:: rasql
+
+	flipExp: FLIP generalExp ALONG axis
+
+        axis: integerLit | identifier
+
+
+A ``FLIP`` expression consists of ``generalExp`` which denotes the input array,
+and the axis along which the array is flipped, which is given in the along clause ``axis``.
+**Named axes are supported.**
+
+**Examples**
+
+The following examples illustrate the syntax of the ``FLIP`` operator. Let ``raster2D`` and ``raster3D`` be MDD objects.
+
+.. hidden-code-block:: rasql
+
+    FLIP raster2D ALONG 1
+    FLIP raster3D ALONG time
+
+The next examples show the semantics of the flip operator.
+
+The first example illustrates the inversion of a numerical array. The array looks as follows:
+
+.. figure:: media/ql-guide/flipNormal.png
+   :align: center
+   :width: 21%
+
+|
+
+Flipping the array on its first axis (rows), by using:
+
+.. code-block:: rasql
+
+    FLIP raster ALONG 0
+
+and flipping on the second axis (columns), by using:
+
+.. code-block:: rasql
+
+    FLIP raster ALONG 1
+
+yields the following results, respectively:
+
+.. figure:: media/ql-guide/flip.png
+   :align: center
+   :width: 43%
+
+|
+
+In a more visualised example, applying the flip operation on the sample MRT imagery collection ``mr2``, will mirror the image vertically or horizontally.
+The original image looks as follows:
+
+.. figure:: media/ql-guide/image7.png
+   :align: center
+   :width: 211px
+
+flipping on the first axis;
+
+.. code-block:: rasql
+
+    FLIP raster ALONG 0
+
+.. figure:: media/ql-guide/mrFlipped0.png
+   :align: center
+   :width: 211px
+
+   the image is mirrored on the vertical axis
+
+and flipping on the second axis;
+
+.. code-block:: rasql
+
+    FLIP raster ALONG 1
+
+.. figure:: media/ql-guide/mrFlipped1.png
+   :align: center
+   :width: 211px
+
+   the image is mirrored on the horizontal axis
+
+
 .. _sec-condenser:
 
 General Array Condenser
@@ -3372,9 +3465,9 @@ Each variable *var* can be of any number of dimensions.
 **Iteration Expression**
 
 The resulting array is filled in at each coordinate of its spatial domain
-by successively evaluating *cellExp*; the result value is assigned to the cell 
+by successively evaluating *cellExp*; the result value is assigned to the cell
 at the coordinate currently under evaluation. To this end, *cellExp* can
-contain arbitrary occurrences of *var*, which are accordingly substituted with 
+contain arbitrary occurrences of *var*, which are accordingly substituted with
 the values of the current coordinate. The syntax for using a variable is:
 
 -  for a one-dimensional variable: ::
@@ -3764,7 +3857,7 @@ Condensers
 Geometric Operations
 --------------------
 
-The base type does not change in the result of subset, shift, extend, scale, 
+The base type does not change in the result of subset, shift, extend, scale,
 clip, concat, and geographic reprojection.
 
     +-----------+------------+
@@ -3820,7 +3913,7 @@ Syntax
 
 
 As a first paramater the data to be decoded must be specified. Technically this
-data must be in the form of a 1D char array. Usually it is specified as a query 
+data must be in the form of a 1D char array. Usually it is specified as a query
 input parameter with ``$1``, while the binary data is attached with the
 ``--file`` option of the rasql command-line client tool, or with the
 corresponding methods in the client API. If the data is on the same machine as
@@ -3852,8 +3945,8 @@ specify format ``"GDAL"`` in this case.
 
 The format parameters must be formatted as a valid JSON object. As the format
 parameters are in quotes, i.e. ``"formatParameters"``, all quotes inside of the
-``formatParameters`` need to be escaped (``\"``). For example, 
-``"{ \"transpose\": [0,1] }"`` is the right way to specify transposition, while 
+``formatParameters`` need to be escaped (``\"``). For example,
+``"{ \"transpose\": [0,1] }"`` is the right way to specify transposition, while
 ``"{ "transpose": [0,1] }"`` will lead to failure. Note that in examples further
 on quotes are not escaped for readability.
 
@@ -3862,21 +3955,21 @@ Common parameters
 
 The following parameters are common to GDAL, NetCDF, and GRIB data formats:
 
-- ``variables`` -  An array of variable names or band ids (0-based, as strings) 
-  to be extracted from the data. This allows to decode only some of the 
-  variables in a NetCDF file for example with ``["var1", "var2"]``, or the bands 
+- ``variables`` -  An array of variable names or band ids (0-based, as strings)
+  to be extracted from the data. This allows to decode only some of the
+  variables in a NetCDF file for example with ``["var1", "var2"]``, or the bands
   of a TIFF file with ``["0", "2"]``.
 
 - ``filePaths`` - An array of absolute paths to input files to be decoded, e.g.
-  ``["/path/to/rgb.tif"]``. This improves ingestion performance if the data is 
-  on the same machine as the rasdaman server, as the network transport is 
-  bypassed and the data is read directly from disk. Supported only for GDAL, 
+  ``["/path/to/rgb.tif"]``. This improves ingestion performance if the data is
+  on the same machine as the rasdaman server, as the network transport is
+  bypassed and the data is read directly from disk. Supported only for GDAL,
   NetCDF, and GRIB data formats.
 
-- ``subsetDomain`` - Specify a subset to be extracted from the input file, 
+- ``subsetDomain`` - Specify a subset to be extracted from the input file,
   instead of the full data. The subset should be specified in rasdaman minterval
-  format as a string, e.g. ``"[0:100,0:100]"``. Note that the subset domain must 
-  match in dimensionality with the file dimensionality, and must be accordingly 
+  format as a string, e.g. ``"[0:100,0:100]"``. Note that the subset domain must
+  match in dimensionality with the file dimensionality, and must be accordingly
   offset to the grid origin in the file, which is typically [0,0,0,...].
 
 - ``transpose`` - Specify if x/y should be transposed with an array of 0-based
@@ -3905,8 +3998,8 @@ GDAL
 
 - ``formatParameters`` - any entries in the formatParameters object are
   forwarded to the specific GDAL driver; consult the `GDAL documentation
-  <https://gdal.org/drivers/raster/index.html>`__ for the options recognized 
-  by each particular driver. E.g. for `PNG 
+  <https://gdal.org/drivers/raster/index.html>`__ for the options recognized
+  by each particular driver. E.g. for `PNG
   <https://gdal.org/drivers/raster/png.html>`__ you could specify, among other
   details, a description metadata field with:
 
@@ -3917,7 +4010,7 @@ GDAL
     }
 
 - ``configOptions`` - A JSON object containing *configuration options* as string
-  key-value pairs; more details in the `GDAL documentation 
+  key-value pairs; more details in the `GDAL documentation
   <https://gdal.org/user/configoptions.html>`__. Example:
 
   .. code-block:: json
@@ -3972,8 +4065,8 @@ The following are mandatory options that have to be specified in the
 ``formatParameters`` object:
 
 - ``domain`` - The domain of the MDD encoded in the CSV data. It has to match
-  the number of cells read from input file, e.g. for 
-  ``"domain": "[1:5, 0:10, 2:3]"``, there should be 110 numbers in the input 
+  the number of cells read from input file, e.g. for
+  ``"domain": "[1:5, 0:10, 2:3]"``, there should be 110 numbers in the input
   file.
 
 - ``basetype`` - Atomic or struct base type of the cell values in the CSV data;
@@ -4009,7 +4102,7 @@ escaped to avoid interpretation by the shell: ::
     rasql -q "insert into rgb values decode( \$1 )" --file rgb.tif
 
 The example below shows directly specifying a file path in the format parameters;
-``<[0:0] 1c>`` is a dummy array value which is not relevant in this case, but is 
+``<[0:0] 1c>`` is a dummy array value which is not relevant in this case, but is
 nevertheless mandatory: ::
 
     UPDATE test_mr SET test_mr[0:255,0:210]
@@ -4110,7 +4203,7 @@ failure.
 
 Common parameters to most or all formats include:
 
-- ``metadata`` - A single string, or an object of string key-value pairs which 
+- ``metadata`` - A single string, or an object of string key-value pairs which
   are added as global metadata when encoding.
 
 - ``transpose`` - Specify if x/y should be transposed with an array of 0-based
@@ -4121,8 +4214,8 @@ Common parameters to most or all formats include:
   possible.
 
 - ``nodata`` - Specify nodata value(s). If a single number is specified it will
-  be applicable to all bands (e.g. ``0``), otherwise an array of numbers for 
-  each band can be provided (e.g. ``[0,255,255]``). Special floating-point 
+  be applicable to all bands (e.g. ``0``), otherwise an array of numbers for
+  each band can be provided (e.g. ``[0,255,255]``). Special floating-point
   constants are supported (case-sensitive): NaN, NaNf, Infinity, -Infinity.
 
 - ``formatParameters`` - A JSON object containing extra options which are
@@ -4135,8 +4228,8 @@ GDAL
 
 - ``formatParameters`` - any entries in the formatParameters object are
   forwarded to the specific GDAL driver; consult the `GDAL documentation
-  <https://gdal.org/drivers/raster/index.html>`__ for the options recognized 
-  by each particular driver. E.g. for `PNG 
+  <https://gdal.org/drivers/raster/index.html>`__ for the options recognized
+  by each particular driver. E.g. for `PNG
   <https://gdal.org/drivers/raster/png.html>`__ you could specify, among other
   details, a description metadata field with:
 
@@ -4172,7 +4265,7 @@ Geo-referencing
 - ``geoReference`` - An object specifying geo-referencing information; either
   "bbox" or "GCPs" must be provided, along with the "crs":
 
-  - ``crs`` - Coordinate Reference System (CRS) in which the coordinates are 
+  - ``crs`` - Coordinate Reference System (CRS) in which the coordinates are
     expressed. Any of the CRS representations `acceptable by GDAL
     <https://gdal.org/programs/raster_common_options.html#cmdoption-t_srs>`__
     can be used:
@@ -4199,7 +4292,7 @@ Geo-referencing
         "ymax": 2.0
       }
 
-  - ``GCPs`` - Alternative to a ``bbox``, an array of GCPs (Ground Control 
+  - ``GCPs`` - Alternative to a ``bbox``, an array of GCPs (Ground Control
     Points) can be specified; see GCPs section in the `GDAL documentation
     <https://gdal.org/user/raster_data_model.html#gcps>`__ for details. Each
     element of the array is an object describing one control point with the
@@ -4217,7 +4310,7 @@ Geo-referencing
 Coloring Arrays
 ~~~~~~~~~~~~~~~
 
-- ``colorMap`` - Map single-band cell values into 1, 3, or 4-band values. It can 
+- ``colorMap`` - Map single-band cell values into 1, 3, or 4-band values. It can
   be done in different ways depending on the specified type:
 
   - ``values`` - Each pixel is replaced by the entry in the ``colorTable`` where
@@ -4229,54 +4322,54 @@ Coloring Arrays
     .. code-block:: json
 
       "colorMap": {
-        "type": "values",       
+        "type": "values",
         "colorTable": {
           "-1": [255, 255, 255, 0],
           "-0.5": [125, 125, 125, 255],
-          "1": [0, 0, 0, 255] 
-        } 
+          "1": [0, 0, 0, 255]
+        }
       }
 
-  - ``intervals`` - All pixels with values between two consecutive entries 
-    are rendered using the color of the first (lower-value) entry. Pixels with 
-    values equal to or less than the minimum value are rendered with the bottom 
-    color (and opacity). Pixels with values equal to or greater than the maximum 
-    value are rendered with the top color and opacity. 
+  - ``intervals`` - All pixels with values between two consecutive entries
+    are rendered using the color of the first (lower-value) entry. Pixels with
+    values equal to or less than the minimum value are rendered with the bottom
+    color (and opacity). Pixels with values equal to or greater than the maximum
+    value are rendered with the top color and opacity.
 
     .. code-block:: json
 
       "colorMap": {
-        "type": "intervals",       
+        "type": "intervals",
         "colorTable": {
           "-1": [255, 255, 255, 0],
           "-0.5": [125, 125, 125, 255],
-          "1": [0, 0, 0, 255] 
-        } 
+          "1": [0, 0, 0, 255]
+        }
       }
 
-    In this case, all pixels with values in the interval (-inf, -0.5) are replaced 
-    with [255, 255, 255, 0], pixels in the interval [-0.5, 1) are replaced with 
+    In this case, all pixels with values in the interval (-inf, -0.5) are replaced
+    with [255, 255, 255, 0], pixels in the interval [-0.5, 1) are replaced with
     [125, 125, 125, 255], and pixels with value >= 1 are replaced with [0, 0, 0, 255].
 
   - ``ramp`` - Same as "intervals", but instead of using the color of the lowest
     value entry, linear interpolation between the lowest value entry and highest
-    value entry, based on the pixel value, is performed. 
+    value entry, based on the pixel value, is performed.
 
     .. code-block:: json
 
       "colorMap": {
-        "type": "ramp",       
+        "type": "ramp",
         "colorTable": {
           "-1": [255, 255, 255, 0],
           "-0.5": [125, 125, 125, 255],
-          "1": [0, 0, 0, 255] 
-        } 
+          "1": [0, 0, 0, 255]
+        }
       }
 
-    Pixels with value -0.75 are replaced with color [189, 189, 189, 127], because 
-    they sit in the middle of the distance between -1 and -0.5, so they get, on 
-    each channel, the color value in the middle. 
-    The interpolation formula for a pixel of value x, where 2 consecutive entries 
+    Pixels with value -0.75 are replaced with color [189, 189, 189, 127], because
+    they sit in the middle of the distance between -1 and -0.5, so they get, on
+    each channel, the color value in the middle.
+    The interpolation formula for a pixel of value x, where 2 consecutive entries
     in the colorTable :math:`a, b` with :math:`a \le x \le b`, is:
 
     .. math::
@@ -4302,16 +4395,16 @@ Coloring Arrays
   <https://gdal.org/user/raster_data_model.html#color-table>`__. It is an object
   that contains several optional properties:
 
-  - ``paletteInterp`` - Indicate how the entries in the colorTable should be 
+  - ``paletteInterp`` - Indicate how the entries in the colorTable should be
     interpreted; allowed values are "Gray", "RGB", "CMYK", "HSL" (default "RGB");
 
-  - ``colorInterp`` - Array of color interpretations for each band; allowed 
-    values are Undefined, Gray, Palette, Red, Green, Blue, Alpha, Hue, Saturation, 
+  - ``colorInterp`` - Array of color interpretations for each band; allowed
+    values are Undefined, Gray, Palette, Red, Green, Blue, Alpha, Hue, Saturation,
     Lightness, Cyan, Magenta, Yellow, Black, YCbCr_Y, YCbCr_Cb, YCbCr_Cr, YCbCr_Cr;
 
   - ``colorTable`` - Array of arrays, each containing 1, 3, or 4 short values
-    (depending on the ``colorInterp``) for each color entry; to associate a 
-    color with an array cell value, the cell value is used as a subscript into 
+    (depending on the ``colorInterp``) for each color entry; to associate a
+    color with an array cell value, the cell value is used as a subscript into
     the color table (starting from 0).
 
 NetCDF
@@ -4322,7 +4415,7 @@ The following are mandatory options when encoding to NetCDF:
 - ``variables`` -  Specify variable names for each band of the MDD,
   dimension names if they need to be saved as `coordinate variables
   <https://www.unidata.ucar.edu/software/netcdf/docs/netcdf_data_set_components.html#coordinate_variables>`__,
-  as well as non-data `grid mapping variables 
+  as well as non-data `grid mapping variables
   <https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html#grid-mappings-and-projections>`__.
   There are two ways to specify the variables:
 
@@ -4336,11 +4429,11 @@ The following are mandatory options when encoding to NetCDF:
      - ``metadata`` - An object of string key-value pairs which are added as
        attributes to the variable;
 
-     - ``type`` - Type of the data values this variable contains relevant (and 
+     - ``type`` - Type of the data values this variable contains relevant (and
        required) for coordinate or non-data variables; allowed values are "byte",
        "char", "short", "ushort", "int", "uint", "float", and "double";
 
-     - ``data`` - An array of data values for the variable relevant (and 
+     - ``data`` - An array of data values for the variable relevant (and
        required) only for coordinate variables (as regular variables get
        their data values from the array to be encoded); the number of values
        must match the dimension extent;
@@ -4867,7 +4960,7 @@ Query coding should avoid potential overflow situations by applying numerical
 knowledge - simply said, the same care should be applied as always when dealing
 with numerics.
 
-It is worth being aware of the `type coercion rules <type-coercion>` in 
+It is worth being aware of the `type coercion rules <type-coercion>` in
 rasdaman and `overflow handling in C++
 <https://en.cppreference.com/w/cpp/language/operator_arithmetic#Overflows>`__.
 The type coercion rules have been crafted to avoid overflow as much as possible,
@@ -5323,7 +5416,7 @@ Update array with data at the first time slice: ::
     update Coll as c set c[0,*:*,*:*]
     assign decode($1)
 
-Update array with data at the second time slice, but shift spatially to 
+Update array with data at the second time slice, but shift spatially to
 ``[10,1]``: ::
 
     update Coll as c set c[1,*:*,*:*]
@@ -6130,11 +6223,11 @@ for example using ``curl`` tool:
 .. code-block:: bash
 
     curl -u rasguest:rasguest
-         -d 'query=select 1 + 15 from test_mr as c' 
+         -d 'query=select 1 + 15 from test_mr as c'
          'http://localhost:8080/rasdaman/rasql'
 
 
-If results from rasql server are multiple objects 
+If results from rasql server are multiple objects
 (e.g: ``SELECT .. FROM RAS_*`` or a collection contains multiple arrays),
 then they are written in ``multipart/related`` MIME format with ``End``
 string as **multipart boundary**. Below is an example
@@ -6157,7 +6250,7 @@ from ``SELECT c from RAS_COLLECTIONNAMES as c``:
     --End--
 
 Clients need to parse the **multipart** results for these cases. There are
-some useful libraries to do that, 
+some useful libraries to do that,
 e.g. `NodeJS with Mailparser <https://nodemailer.com/extras/mailparser/>`__.
 
 
@@ -6409,197 +6502,197 @@ This appendix presents the list of all tokens that CANNOT be used as variable na
 
 .. list-table::
 
-    * - //.*	
-      - --.*                  
-      - complex               
-      - re                    
-      - im                    
-    * - struct                
-      - fastscale             
-      - members               
-      - add                   
-      - alter                 
-    * - list                                          
-      - select                
-      - from                  
-      - where                 
-      - as                    
-    * - restrict              
-      - to                    
-      - extend                
-      - by                    
-      - project               
-    * - near                  
-      - bilinear              
-      - cubic                 
-      - cubicspline           
-      - lanczos               
-    * - average               
-      - mode                  
-      - med                   
-      - q1                    
-      - q3                    
-    * - at                                     
-      - dimension                              
-      - all_cell|all_cells                   
-      - some_cell|some_cells                 
-      - count_cell|count_cells               
-    * - add_cell|add_cells                   
-      - avg_cell|avg_cells                   
-      - min_cell|min_cells                   
-      - max_cell|max_cells                   
-      - var_pop                                
-    * - var_samp                               
-      - stddev_pop                              
-      - stddev_samp                            
-      - sdom                                   
-      - over                                   
-    * - overlay                                
-      - using                                  
-      - lo                                     
-      - hi                                     
-      - concat                                 
-    * - along                                  
-      - case                                   
-      - when                                   
-      - then                                   
-      - else                                   
-    * - end                                    
-      - insert                              
-      - into                                
-      - values                              
-      - delete                              
-    * - drop                                
-      - create                              
-      - collection                          
-      - type                                
-      - update                                 
-    * - set                                    
-      - assign                                 
-      - in                                     
-      - marray                                 
-      - mdarray                                
-    * - condense                               
-      - null                                   
-      - commit                                 
-      - oid                                    
+    * - //.*
+      - --.*
+      - complex
+      - re
+      - im
+    * - struct
+      - fastscale
+      - members
+      - add
+      - alter
+    * - list
+      - select
+      - from
+      - where
+      - as
+    * - restrict
+      - to
+      - extend
+      - by
+      - project
+    * - near
+      - bilinear
+      - cubic
+      - cubicspline
+      - lanczos
+    * - average
+      - mode
+      - med
+      - q1
+      - q3
+    * - at
+      - dimension
+      - all_cell|all_cells
+      - some_cell|some_cells
+      - count_cell|count_cells
+    * - add_cell|add_cells
+      - avg_cell|avg_cells
+      - min_cell|min_cells
+      - max_cell|max_cells
+      - var_pop
+    * - var_samp
+      - stddev_pop
+      - stddev_samp
+      - sdom
+      - over
+    * - overlay
+      - using
+      - lo
+      - hi
+      - concat
+    * - along
+      - case
+      - when
+      - then
+      - else
+    * - end
+      - insert
+      - into
+      - values
+      - delete
+    * - drop
+      - create
+      - collection
+      - type
+      - update
+    * - set
+      - assign
+      - in
+      - marray
+      - mdarray
+    * - condense
+      - null
+      - commit
+      - oid
       - shift
     * - clip
-      - subspace                               
-      - multipolygon                           
-      - projection                             
-      - polygon                                
-    * - curtain                                
-      - corridor                               
-      - linestring                             
-      - coordinates                            
-      - multilinestring                        
-    * - discrete                               
-      - range                                  
+      - subspace
+      - multipolygon
+      - projection
+      - polygon
+    * - curtain
+      - corridor
+      - linestring
+      - coordinates
+      - multilinestring
+    * - discrete
+      - range
       - scale
       - dbinfo
       - version
-    * - div                                     
+    * - div
       - mod
-      - is                                     
-      - not                                    
-      - sqrt                                   
-    * - tiff                                   
-      - bmp                                    
-      - hdf                                    
-      - netcdf                                 
-      - jpeg                                   
-    * - csv                                    
-      - png                                    
-      - vff                                    
-      - tor                                    
-      - dem                                    
-    * - encode                                 
-      - decode                                 
-      - inv_tiff                               
-      - inv_bmp                                
-      - inv_hdf                                
-    * - inv_netcdf                             
-      - inv_jpeg                               
-      - inv_csv                                
-      - inv_png                                
-      - inv_vff                                
-    * - inv_tor                                
-      - inv_dem                                
-      - inv_grib                               
-      - abs                                    
-      - exp                                    
-    * - pow                                    
-      - power                                  
-      - log                                    
-      - ln                                     
-      - sin                                    
-    * - cos                                    
-      - tan                                    
-      - sinh                                   
-      - cosh                                   
-      - tanh                                   
-    * - arcsin                                 
-      - asin                                   
-      - arccos                                 
-      - acos                                   
-      - arctan                                 
-    * - atan                                   
-      - index                 
-      - rc_index              
-      - tc_index              
-      - a_index               
-    * - d_index               
-      - rd_index              
-      - rpt_index             
-      - rrpt_index            
-      - it_index              
-    * - auto                  
-      - tiling                
-      - aligned               
-      - regular               
-      - directional           
-    * - with                  
-      - subtiling             
-      - no_limit              
-      - regroup               
-      - regroup_and_subtiling 
-    * - area                  
-      - of                    
-      - interest              
-      - statistic             
-      - tile                  
-    * - size                  
-      - border                
-      - threshold             
-      - unsigned                
-      - bool                    
-    * - char                    
-      - octet                   
-      - short                   
-      - ushort                  
-      - long                    
-    * - ulong                   
-      - float                   
-      - double                  
-      - CFloat32                
-      - CFloat64                
-    * - CInt16                  
-      - CInt32                  
-      - nan                     
-      - nanf                    
-      - inf                     
-    * - inff                    
-      - max                                    
-      - min                                    
-      - bit                                    
-      - and                                    
-    * - or                                     
-      - xor                                    
-      -                                       
-      -                                       
-      -                                       
-                                     
+      - is
+      - not
+      - sqrt
+    * - tiff
+      - bmp
+      - hdf
+      - netcdf
+      - jpeg
+    * - csv
+      - png
+      - vff
+      - tor
+      - dem
+    * - encode
+      - decode
+      - inv_tiff
+      - inv_bmp
+      - inv_hdf
+    * - inv_netcdf
+      - inv_jpeg
+      - inv_csv
+      - inv_png
+      - inv_vff
+    * - inv_tor
+      - inv_dem
+      - inv_grib
+      - abs
+      - exp
+    * - pow
+      - power
+      - log
+      - ln
+      - sin
+    * - cos
+      - tan
+      - sinh
+      - cosh
+      - tanh
+    * - arcsin
+      - asin
+      - arccos
+      - acos
+      - arctan
+    * - atan
+      - index
+      - rc_index
+      - tc_index
+      - a_index
+    * - d_index
+      - rd_index
+      - rpt_index
+      - rrpt_index
+      - it_index
+    * - auto
+      - tiling
+      - aligned
+      - regular
+      - directional
+    * - with
+      - subtiling
+      - no_limit
+      - regroup
+      - regroup_and_subtiling
+    * - area
+      - of
+      - interest
+      - statistic
+      - tile
+    * - size
+      - border
+      - threshold
+      - unsigned
+      - bool
+    * - char
+      - octet
+      - short
+      - ushort
+      - long
+    * - ulong
+      - float
+      - double
+      - CFloat32
+      - CFloat64
+    * - CInt16
+      - CInt32
+      - nan
+      - nanf
+      - inf
+    * - inff
+      - max
+      - min
+      - bit
+      - and
+    * - or
+      - xor
+      -
+      -
+      -
+
 
 
 .. [2]

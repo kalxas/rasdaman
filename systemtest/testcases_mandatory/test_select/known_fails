@@ -1,2 +1,4 @@
 # result in systemtests is non-identical to normal query result.
+# strangely, these work in rasdapy3 tests.
 sort_two_objects.rasql
+flip_two_objects.rasql

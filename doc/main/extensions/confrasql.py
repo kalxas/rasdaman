@@ -52,7 +52,7 @@ class RasqlLexer(RegexLexer):
              r'accessed|modified|exception|'
              r'trigger|triggers|role|roles|user|users|password|grant|revoke|before|after|instead|for|exemption|to|'
              r'array|string|struct|return|switch|case|default|let|coverage|'
-             r'max|min|and|or|xor|is|not|null|sort|asc|desc|by)\b', Keyword),
+             r'max|min|and|or|xor|is|not|null|sort|asc|desc|by|flip)\b', Keyword),
             (r'nan', Keyword.Constant),
             (r'$[0-9]+', Keyword.Constant),
             (r'#MDD[0-9]+#', Keyword.Constant),

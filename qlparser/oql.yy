@@ -151,6 +151,13 @@ struct QtUpdateSpecElement
     ParseInfo*    info;
   } sortHeaderToken;
 
+  // structure helps to minimize duplication in FLIP operator.
+  struct {
+    bool          named;
+    int           axis;
+    char*         namedAxis;
+  } flipAxisToken;
+
   struct {
     char         value;
     ParseInfo*   info;
@@ -283,7 +290,7 @@ struct QtUpdateSpecElement
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
                          MDDPARAM OID SHIFT CLIP CURTAIN CORRIDOR POLYGON LINESTRING MULTIPOLYGON MULTILINESTRING RANGE SCALE SQRT ABS EXP
                          LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN ASIN SUBSPACE DISCRETE COORDINATES
-                         ARCCOS ACOS ARCTAN ATAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST PROJECTION SORT ASC DESC
+                         ARCCOS ACOS ARCTAN ATAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST PROJECTION SORT ASC DESC FLIP
 			 INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
@@ -322,7 +329,7 @@ struct QtUpdateSpecElement
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp  functionExp spatialOp
                               integerExp mintervalExp nullvaluesList nullvaluesExp addNullvaluesExp intervalExp
                               condenseExp variable mddConfiguration mintervalList  concatExp rangeConstructorExp
-                              caseExp typeAttribute projectExp sortExp
+                              caseExp typeAttribute projectExp sortExp flipExp
                               //namedMintervalExp2,namedIntervalExp2 is for select and similar, namedMintervalExp and namedIntervalExp is for type definition.
 %type <intervalListToken>       namedMintervalExp namedIntervalExp namedMintervalExp2 namedIntervalExp2
 %type <intervalListValueToken>  namedSpatialOpList2 namedSpatialOpList namedSpatialOpList22 namedSpatialOpList1
@@ -358,6 +365,7 @@ struct QtUpdateSpecElement
 
 %type <sortOrderToken>        listingOrder //ASC|DSC
 %type <sortHeaderToken>       sortHeader
+%type <flipAxisToken>         flipAxis
 
 // vectorized data
 
@@ -1384,6 +1392,7 @@ generalExp:
 	  caseExp                           { $$ = $1; }
 	| mddExp                            { $$ = $1; }
   | sortExp                           { $$ = $1; }
+  | flipExp                           { $$ = $1; }
 	| trimExp                           { $$ = $1; }
 	| namedTrimExp                      { $$ = $1; }
 	| reduceExp                         { $$ = $1; }
@@ -4629,6 +4638,48 @@ listingOrder: sortOrderLit
 sortAxis: IntegerLit;
 
 sortAxisIterator: Identifier;
+
+// FLIP operator using the QtSort Class
+// to flip an array along one of its axes
+flipExp: FLIP generalExp ALONG flipAxis
+{
+  // create a sortNode which can reorder along some axis in DESC order.
+  // this constructor assumes a DESC aka inverse reorder at given axis is wanted.
+  QtSort  *sortNode;
+  if ($4.named == true)
+  {
+    sortNode = new QtSort($2, $4.namedAxis);
+  }
+  else
+  {
+    sortNode = new QtSort($2, $4.axis);
+  }
+
+  // get ParseInfo for error case in ALONG clause.
+  sortNode->setALONGClauseParseInfo( *($3.info) );
+
+  $$ = sortNode;
+  $$->setParseInfo( *($1.info) );
+
+  parseQueryTree->removeDynamicObject($2);
+  //evaluate the sortObject
+  parseQueryTree->addDynamicObject( $$ );
+
+  FREESTACK($1)
+  FREESTACK($3)
+}
+
+// helps reduce duplication in code
+flipAxis: IntegerLit
+{
+  $$.named = false;
+  $$.axis = $1.svalue;
+}
+| Identifier
+{
+  $$.named = true;
+  $$.namedAxis = $1.value;
+}
 
 
 mddConfiguration:

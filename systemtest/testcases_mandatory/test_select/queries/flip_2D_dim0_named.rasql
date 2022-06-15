@@ -1,0 +1,1 @@
+select encode(flip test along time, "csv" ) from test_twoD_named as test
