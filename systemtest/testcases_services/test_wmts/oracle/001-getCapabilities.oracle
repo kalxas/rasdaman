@@ -1,0 +1,56 @@
+<ows:ServiceIdentification>
+<ows:Title>rasdaman</ows:Title>
+<ows:Abstract>rasdaman server - free download from www.rasdaman.org</ows:Abstract>
+<ows:ServiceType>OGC WMTS</ows:ServiceType>
+<ows:ServiceTypeVersion>1.0.0</ows:ServiceTypeVersion>
+</ows:ServiceIdentification>
+<ows:ServiceProvider>
+<ows:ProviderName>Jacobs University Bremen</ows:ProviderName>
+<ows:ServiceContact>
+<ows:IndividualName>Prof. Dr. Peter Baumann</ows:IndividualName>
+<ows:PositionName>Project Leader</ows:PositionName>
+<ows:ContactInfo>
+<ows:Phone>
+<ows:Voice>+49 421 20040</ows:Voice>
+</ows:Phone>
+<ows:Address>
+<ows:DeliveryPoint>Campus Ring 1</ows:DeliveryPoint>
+<ows:City>Bremen</ows:City>
+<ows:Country>Germany</ows:Country>
+<ows:ElectronicMailAddress>p.baumann@jacobs-university.de</ows:ElectronicMailAddress>
+</ows:Address>
+</ows:ContactInfo>
+<ows:Role>pointOfContact</ows:Role>
+</ows:ServiceContact>
+</ows:ServiceProvider>
+<ows:OperationsMetadata>
+<ows:Operation name="GetCapabilities">
+<ows:DCP>
+<ows:HTTP>
+<ows:AllowedValues>
+<ows:KVP/>
+</ows:AllowedValues>
+</ows:Get>
+<ows:AllowedValues>
+<ows:KVP/>
+</ows:AllowedValues>
+</ows:Post>
+</ows:HTTP>
+</ows:DCP>
+</ows:Operation>
+<ows:Operation name="GetTile">
+<ows:DCP>
+<ows:HTTP>
+<ows:AllowedValues>
+<ows:KVP/>
+</ows:AllowedValues>
+</ows:Get>
+<ows:AllowedValues>
+<ows:KVP/>
+</ows:AllowedValues>
+</ows:Post>
+</ows:HTTP>
+</ows:DCP>
+</ows:Operation>
+</ows:OperationsMetadata>
+</Capabilities>

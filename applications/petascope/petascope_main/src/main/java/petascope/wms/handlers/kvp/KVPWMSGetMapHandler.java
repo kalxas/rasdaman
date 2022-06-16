@@ -191,6 +191,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         try {
             // NOTE: If first query returns success, then just fetch it from cache
             String queryString = StringUtil.buildQueryString(kvpParameters);
+            
             if (WMSGetMapCachingService.responseCachingMap.containsKey(queryString)) {
                 return wmsGetMapCachingService.getResponseFromCache(queryString);
             }
@@ -277,18 +278,26 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             } else {
                 interpolation = WMSGetMapService.DEFAULT_INTERPOLATION;
             }
-
+            
             wmsGetMapService.setLayerNames(layerNames);
             wmsGetMapService.setStyleNames(styleNames);
             wmsGetMapService.setOutputCRS(outputCRS);
             wmsGetMapService.setWidth(width);
             wmsGetMapService.setHeight(height);
-            wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
-            wmsGetMapService.setBBoxes(bbox, layerNames);
             wmsGetMapService.setFormat(format);
-            wmsGetMapService.setTransparent(transparent);            
+            wmsGetMapService.setTransparent(transparent);
+            wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
             wmsGetMapService.setInterpolation(interpolation);
-
+            
+            // In case, GetMap request is generated from a WMTS GetTile service
+            String tileMatrixName = AbstractController.getValueByKeyAllowNull(kvpParameters, 
+                                                                KVPSymbols.KEY_WMTS_RASDAMAN_INTERNAL_FOR_GETMAP_REQUEST_PYRAMID_COVERAGE_ID);
+            if (tileMatrixName != null) {
+                wmsGetMapService.setWMTSTileMatrixName(tileMatrixName);
+            }
+            
+            wmsGetMapService.setBBoxes(bbox, layerNames);
+            
             response = wmsGetMapService.createGetMapResponse();
             // Add the successful result to the cache
             wmsGetMapCachingService.addResponseToCache(queryString, response);

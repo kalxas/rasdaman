@@ -368,7 +368,7 @@ public class GMLGetCapabilitiesBuilder {
     /**
      * Build the ServiceProvider element
      */
-    private Element buildServiceProvider(OwsServiceMetadata owsServiceMetadata) {
+    public Element buildServiceProvider(OwsServiceMetadata owsServiceMetadata) {
         ServiceProvider serviceProvider = owsServiceMetadata.getServiceProvider();
 
         // 1. parent element

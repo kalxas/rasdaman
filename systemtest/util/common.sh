@@ -1058,6 +1058,19 @@ run_test()
               post_request_kvp "$endpoint" "$QUERY" "$out"
               ;;
 
+      wmts)    
+              endpoint="$PETASCOPE_URL"
+              if [[ "$f" =~ "insert" ]]; then                
+                endpoint="$PETASCOPE_ADMIN_URL/layer/style/add"
+              elif [[ "$f" =~ "update" ]]; then
+                endpoint="$PETASCOPE_ADMIN_URL/layer/style/update"              
+              elif [[ "$f" =~ "delete" ]]; then
+                endpoint="$PETASCOPE_ADMIN_URL/layer/style/remove"
+              fi
+              
+              post_request_kvp "$endpoint" "$QUERY" "$out"
+              ;;              
+
       oapi)   
               get_request_rest "$PETASCOPE_OAPI" "$QUERY" "$out"
               ;;

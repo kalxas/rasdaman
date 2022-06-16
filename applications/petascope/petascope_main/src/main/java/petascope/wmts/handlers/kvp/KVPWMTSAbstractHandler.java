@@ -14,20 +14,20 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2022 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wms.handlers.kvp;
+package petascope.wmts.handlers.kvp;
 
 import petascope.ihandlers.kvp.IKVPHandler;
 
 /**
- * Abstract class for WMS Handlers (GetCapabilities, GetMap,...)
+ * Abstract class for WMTS Handlers (GetCapabilities, GetTile,...)
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public abstract class KVPWMSAbstractHandler implements IKVPHandler {
+public abstract class KVPWMTSAbstractHandler implements IKVPHandler {
 
 }

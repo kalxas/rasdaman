@@ -145,8 +145,12 @@ public class WMSGetMapSubsetParsingService {
             }
         }
 
-        List<List<WcpsSliceSubsetDimension>> results = ListUtil.cartesianProduct(parsedNonXYAxesGridSlicings);
-        return results;
+        if (parsedNonXYAxesGridSlicings.size() > 0) {
+            List<List<WcpsSliceSubsetDimension>> results = ListUtil.cartesianProduct(parsedNonXYAxesGridSlicings);
+            return results;
+        } else {
+            return null;
+        }
     }
     
     /**

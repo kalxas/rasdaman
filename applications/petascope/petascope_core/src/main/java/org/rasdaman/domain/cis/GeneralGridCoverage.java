@@ -227,7 +227,7 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
      * Return list of non XY geo axes
      */
     @JsonIgnore
-    public List<GeoAxis> getNonXYGeoAxes() throws PetascopeException, SecoreException {
+    public List<GeoAxis> getNonXYGeoAxes() throws PetascopeException {
         Pair<GeoAxis, GeoAxis> xyGeoAxesPair = this.getXYGeoAxes();
         
         List<GeoAxis> nonXYGeoAxes = new ArrayList<>();

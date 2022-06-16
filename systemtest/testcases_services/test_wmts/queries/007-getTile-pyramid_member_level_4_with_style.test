@@ -1,0 +1,10 @@
+service=WMTS&
+request=GetTile&
+version=1.0.0&
+layer=test_wmts_world_temp_with_pyramid&
+style=test&
+format=image/png&
+tilematrixset=test_wmts_world_temp_with_pyramid:EPSG:4326&
+tilematrix=test_wmts_world_temp_with_pyramid_4&
+tilerow=0&
+tilecol=0

@@ -419,7 +419,7 @@ Further clipping patterns include ``curtain`` and ``corridor`` on 3D+ coverages
 from ``Polygon (2D)`` and ``Linestring (1D)``. The result of ``curtain``
 clipping has the same dimensionality as the input coverage whereas the result of
 ``corridor`` clipping is always a 3D coverage, with the first axis being the
-*trackline* of the corridor by convention. 
+*trackline* of the corridor by convention.
 
 In WCS, clipping is expressed by adding a ``&CLIP=`` parameter to the
 request. If the ``SUBSETTINGCRS`` parameter is specified then this CRS also
@@ -1558,7 +1558,7 @@ OGC Web Map Service (WMS)
 The OGC Web Map Service (WMS) standard provides a simple HTTP interface
 for requesting overlays of geo-registered map images, ready for display.
 
-With petascope, geo data can be served simultaneously via WMS, WCS,
+With petascope, geo data can be served simultaneously via WMS, WMTS, WCS,
 and WCPS. Further information:
 
 - :ref:`How to publish a WMS layer via WCST\_Import <wms-import>`.
@@ -2107,6 +2107,133 @@ the last request so the new layer does not exist (see `clear cache solution
 <https://lists.osgeo.org/pipermail/qgis-developer/2016-February/041418.html>`__).
 
 
+.. _ogc-wmts:
+
+OGC Web Map Tile Service (WMTS)
+===============================
+
+The OGC Web Map Tile Service (WMTS) standard provides a simple HTTP interface
+for requesting overlays of geo-registered map images as small tiles, ready for display.
+WMTS works like a subset of OGC Web Map Service (WMS) standard and it provides extra functionalities
+from the imported WMS Layer. See more :ref:`details <ogc-wms>` for processing WMS requests in rasdaman.
+
+rasdaman supports WMTS with the following request types in key-value pairs (KVP) format:
+
+- ``GetCapabilities`` for obtaining a list of layers and their associated ``TileMatrixSets``
+  offered together with an overall service description;
+
+- ``GetTile`` for downloading a 2D image (called ``Tile``) as a small subset from a requesting Layer.
+  This request works mostly as same as WMS ``GetMap`` request with some extra parameters for selecting
+  the requested tile.
+
+GetCapabilities extension
+-------------------------
+
+This request is used to describe the general information (e.g. service owner, contacts,...) about the server,
+and most importantly are the advertised WMTS Layers with supported styles and associated ``TileMatrixSet`` objects.
+
+ - A ``TileMatrixSet`` contains the list of pyramid members (each member is called ``TileMatrix`` in WTMS standard)
+   in a CRS (typically EPSG:4326) of an associated layer.
+ - A ``TileMatrix`` is a 2D matrix of ``Tiles``, each ``Tile`` is a 2D image and it has the fixed size: 256 x 256 pixels.
+   To obtain a ``Tile`` from a ``TileMatrix``, one needs two zero-based indices: ``TileRow`` in the height dimension
+   and ``TileCol`` in the width dimension.
+   In case, a dimension (width/height) of a ``TileMatrix`` is less than 256 pixels, then, this dimension contains 
+   only 1 Tile with the number of pixels from this dimension. For example, a pyramid member has grid domains 36 x 20 pixels,
+   then, the associated ``TileMatrix`` contains only 1 ``Tile`` with size 36 x 20 pixels.
+   
+Each layer has a mandatory reference to a ``TileMatrixSet`` in CRS EPSG:4326; if layer's native CRS is not EPSG:4326,
+then, it has an extra reference to another ``TileMatrixSet`` in this CRS (e.g. EPSG:32633).
+
+The naming convention for ``TileMatrixSet`` is: ``LayerName:EPSG:code``.
+For example a WMTS layer's, called ``germany_temperature`` has a native CRS EPSG:32633, then it has references
+to two ``TileMatrixSets``: 1. ``germany_temperature:EPSG:4326`` and 2. ``germany_temperature:EPSG:32633``.
+
+The WTMS GetCapabilities parameters are described in the below table:
+
+.. table:: WMTS GetCapabilities Standard Parameters
+
+    +----------+----------------+-----------------------------+---------+
+    |Request   |Value           |Description                  |Required |
+    |Parameter |                |                             |         |
+    +==========+================+=============================+=========+
+    |SERVICE   |WMTS            |Service standard             |Yes      |
+    +----------+----------------+-----------------------------+---------+
+    |VERSION   |1.0.0           |WMTS version used            |Yes      |
+    +----------+----------------+-----------------------------+---------+
+    |REQUEST   |GetCapabilities |Request type to be performed |Yes      |
+    +----------+----------------+-----------------------------+---------+
+
+For example, a WMTS ``GetCapabilities`` request in KVP format:
+
+.. hidden-code-block:: text
+
+    http://localhost:8080/rasdaman/ows?SERVICE=WMTS&VERSION=1.0.0
+        &REQUEST=GetCapabilities
+
+.. _wmts-get-tile:
+
+GetTile extension
+----------------
+
+This request is used to get a 2D small subset (called a ``Tile``; typically it has fixed size 256 x 256 pixels)
+of a requesting layer. The result is encoded in supported formats (``image/png`` and ``image/jpeg``).
+
+Based on the result of WMTS ``GetCapabilities`` request, one can pick the proper ``TileMatrixSet``
+and ``TileMatrix`` (pyramid member) referenced by a layer to get the best detailed result at a zoom level
+with good performance.
+
+.. NOTE::
+
+    Unlike WMS ``GetMap`` request, WMTS ``GetTile`` request only supports processing
+    on a layer and an optional associated style of this layer.
+
+
+The WTMS ``GetTile`` parameters are described in the below table:
+
+.. table:: WMTS GetTile Standard Parameters
+
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |Request           |Value           |Description                                               |Required |
+    |Parameter         |                |                                                          |         |
+    +==================+================+==========================================================+=========+
+    |SERVICE           |WMTS            |service standard                                          |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |VERSION           |1.0.0           |WMTS version used                                         |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |REQUEST           |GetTile         |Request type to be performed                              |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |LAYER             |{layerName}     |A layer name to be requested                              |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |STYLE             |{styleName}     |A style name (can be null) of the layer to be requested   |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |FORMAT            |{format}        |Encoded format (image/png or image/jpeg) of the output    |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |TILEMATRIXSET     |{tileMatrixSet} |A TileMatrixSet name to be requested                      |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |TILEMATRIX        |{tileMatrix}    |A TileMatrix name to be requested                         |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |TILEROW           |{tileRow}       |A row index of the requesting TileMatrix                  |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |TILECOL           |{tileCol}       |A column index of the requesting TileMatrix               |Yes      |
+    +------------------+----------------+----------------------------------------------------------+---------+
+    |Other dimensions  |{value}         |Value allowed for this dimension (e.g. TIME, ELEVATION...)|No       |
+    +------------------+----------------+----------------------------------------------------------+---------+
+
+For example, a WMTS ``GetTile`` request in KVP format to get a tile, encoded in image/png from a ``TileMatrixSet`` in CRS EPSG:4326:
+
+.. hidden-code-block:: text
+
+    http://localhost:8080/rasdaman/ows?SERVICE=WMTS&VERSION=1.0.0
+    &REQUEST=GetTile
+    &LAYER=germany_temperature
+    &STYLE=colorized
+    &FORMAT=image/png
+    &TILEMATRIXSET=germany_temperature:EPSG:4326
+    &TILEMATRIX=germany_temperature
+    &TILEROW=0
+    &TILECOL=0
+
+
 .. _data-import:
 
 Data Import
@@ -2250,6 +2377,7 @@ config section
       collect metadata to be sorted by DateTime as in default *blocking*
       import mode.
 
+.. _data-import-default-null-values:
 
 * ``default_null_values`` - This parameter adds default null values for bands that
   do *not* have a null value provided by the file itself. The value for this
@@ -2957,12 +3085,11 @@ bounds and resolution corresponding to each file.
   the following options, of which ``identifier`` and ``name`` are mandatory to 
   specify while the rest are optional:
 
-  * ``identifier`` - The name of the band in the input file; With GRIB recipe,
-    only one band can be specified in the ingredients file and the band identifier must be
-    fetched from ``shortName`` attribute from GRIB messsages. wcst_import only collects the messages
-    matching this selected band identifier. If no messages containing ``shortName`` matched
-    with the specified band identifier, then all GRIB messages will be collected
-    (only works for input GRIB files with only one band).
+  * ``identifier`` - The name of the band in the input file. With GRIB data,
+    only one band can be specified in the ingredients file, and the band identifier must
+    match the ``shortName`` field in the GRIB messsages so only those messages will be
+    imported. If no messages matched the band identifier, then all GRIB messages will be
+    imported; this only works for input GRIB files with only one band.
   * ``name`` - The name of the band which will be used in the created coverage;
     this can be set to different from the ``indentifier``;
   * ``description`` - Metadata description of the band;
@@ -3028,11 +3155,14 @@ bounds and resolution corresponding to each file.
     a time axis with irregular datetime indexes; if not specified, it is set to 
     ``false`` by default;
   * ``directPositions`` - A list of coefficients which are extracted and 
-    calculated based on the axis's lower bound from the irregular axis values
-    specified in the input netCDF/GRIB file. 
-    For example, a netCDF file has ``time`` dimension with ``units``: ``"days since 1970-01-01 00:00:00"``,
-    then, all stored valued of ``time`` axis must be calculated as datetime,
-    based on the lower bound value (``"1970-01-01"``), see `ingredients file <https://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/132-wcs_scientfic_null_value_with_trailing_zero/ingest.template.json#L42>`__.
+    calculated based on the axis lower bound from the irregular axis values
+    specified in the input netCDF/GRIB file.
+    
+    For example, let's consider a netCDF file that has a ``time`` dimension with attribute
+    ``units: "days since 1970-01-01 00:00:00"``. All stored values of the ``time`` axis 
+    must be converted to datetime based on the lower bound value (``"1970-01-01"``) as an origin.
+    See this `ingredients file <https://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/132-wcs_scientfic_null_value_with_trailing_zero/ingest.template.json#L42>`__
+    for a full example.
 
     .. hidden-code-block:: json
     
@@ -3045,15 +3175,18 @@ bounds and resolution corresponding to each file.
                 "irregular": true,
   	            "resolution": 1,
                 "gridOrder": 0
-             },
-           ...
+             }
+        }
 
   * ``dataBound`` - Set to ``false`` to specify that this axis should be 
     imported as a slicing point instead of a subset with lower and upper bounds;
     typical use case for this is when extracting irregular datetime values from 
     the input file names. When not specified it is set to ``true`` by default.
-    For example, a coverage has an irregular axis ``ansi`` with values fetched from
-    input netCDF file names (e.g. ``GlobLAI-20030101-20030110-H01V06-1.0_MERIS-FR-LAI-HA.nc``).
+    
+    For example, the indexes of an irregular axis ``ansi`` could be extracted from
+    dates in the file names of input netCDF files
+    (e.g. ``GlobLAI-20030101-20030110-H01V06-1.0_MERIS-FR-LAI-HA.nc``) through a 
+    regular expression.
 
     .. hidden-code-block:: json
 
@@ -3063,8 +3196,8 @@ bounds and resolution corresponding to each file.
                 "gridOrder": 0,
                 "irregular": true,
                 "dataBound": false
-            },
-         ...
+            }
+         }
 
   * ``sliceGroupSize`` - Group multiple input slices into a single slice in the
     created coverage, e.g., multiple daily data files onto a single week index
@@ -3473,7 +3606,6 @@ File
 |                 |This variable is used only in ``after_import`` hooks.               |                             |
 +-----------------+--------------------------------------------------------------------+-----------------------------+
 
-
 .. _data-import-expressions-bbox:
 
 BBox
@@ -3489,6 +3621,7 @@ BBox
 |                                  |the multi-dimensional bounding box of the data region affected      |                             |
 |                                  |by the update of an input file                                      |                             |
 +----------------------------------+--------------------------------------------------------------------+-----------------------------+
+
 
 .. _data-import-expressions-special-functions:
 

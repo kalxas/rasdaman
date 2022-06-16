@@ -171,5 +171,11 @@ public class GeoAxis extends Axis implements Serializable {
         return this.axisType.equals(AxisTypes.T_AXIS);
     }
     
+    @JsonIgnore
+    public boolean isElevationAxis() {
+        return this.axisType.equals(AxisTypes.HEIGHT_AXIS) 
+                || this.axisType.equals(AxisTypes.DEPTH_AXIS);
+    }
+    
     
 }

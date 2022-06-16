@@ -41,12 +41,15 @@ import org.gdal.osr.SpatialReference;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.AxisExtent;
 import org.rasdaman.domain.cis.EnvelopeByAxis;
+import org.rasdaman.domain.cis.GeoAxis;
+import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
 import petascope.core.GeoTransform;
+import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import static petascope.util.CrsUtil.COSMO_101_AUTHORITY_CODE;
@@ -87,6 +90,37 @@ public class CrsProjectionUtil {
                                             "    </SimpleSource>\n" +
                                             "  </VRTRasterBand>\n" +
                                             "</VRTDataset>";
+    
+    /**
+     * Build a GeoTransform object from GeoAxis and IndexAxis
+     */
+    public static GeoTransform buildGeoTransform(Pair<GeoAxis, GeoAxis> geoXYAxesPair,
+                                                Pair<IndexAxis, IndexAxis> gridXYAxesPair) throws PetascopeException {
+        GeoAxis geoAxisX = geoXYAxesPair.fst;
+        GeoAxis geoAxisY = geoXYAxesPair.snd;
+        
+        GeoTransform geoTransform = new GeoTransform();
+        
+        String sourceCRS = geoAxisX.getSrsName();
+        String sourceCRSWKT = CrsUtil.getWKT(sourceCRS);
+        
+        geoTransform.setWKT(sourceCRSWKT);
+        
+        geoTransform.setGeoXResolution(geoAxisX.getResolution().doubleValue());
+        geoTransform.setGeoYResolution(geoAxisY.getResolution().doubleValue());
+        geoTransform.setUpperLeftGeoX(geoAxisX.getLowerBoundNumber());
+        geoTransform.setUpperLeftGeoY(geoAxisY.getUpperBoundNumber());
+        
+        IndexAxis gridAxisX = gridXYAxesPair.fst;
+        IndexAxis gridAxisY = gridXYAxesPair.snd;
+        
+        int width = (int) (gridAxisX.getUpperBound() - gridAxisX.getLowerBound() + 1);
+        int height = (int) (gridAxisY.getUpperBound() - gridAxisY.getLowerBound() + 1);
+        geoTransform.setGridWidth(width);
+        geoTransform.setGridHeight(height);
+        
+        return geoTransform;
+    }
     
     /**
      * Transform a XY values from sourceCRS to targetCRS (e.g: Long Lat (EPSG:4326) to ESPG:3857).

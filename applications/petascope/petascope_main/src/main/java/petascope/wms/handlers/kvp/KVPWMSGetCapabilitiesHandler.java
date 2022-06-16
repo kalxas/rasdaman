@@ -103,6 +103,10 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     private GMLGetCapabilitiesBuilder wcsGMLGetCapabilitiesBuild;
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Autowired
+    private PetascopeController petascopeController;    
 
     private OwsServiceMetadata owsServiceMetadata;
 
@@ -446,11 +450,8 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
     /**
      * Build a layer element
-     *
-     * @param layer
-     * @return
      */
-    private Element buildLayerElement(Layer layer) throws PetascopeException {
+    public Element buildLayerElement(Layer layer) throws PetascopeException {
         Element layerElement = new Element(XMLSymbols.LABEL_WMS_LAYER);
 
         // All the attributes for one layer element
@@ -661,11 +662,8 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
     /**
      * Build a KeywordList element from list of keywords
-     *
-     * @param keywords
-     * @return
      */
-    private Element buildKeywordListElement(List<String> keywords) {
+    public Element buildKeywordListElement(List<String> keywords) {
         Element keywordsElement = new Element(XMLSymbols.LABEL_KEYWORDS);
         // keyWords element can contain multiple KeyWord elements
         for (String keyWord : keywords) {

@@ -1,0 +1,3 @@
+service=WMTS
+&version=1.0.0
+&request=GetCapabilities

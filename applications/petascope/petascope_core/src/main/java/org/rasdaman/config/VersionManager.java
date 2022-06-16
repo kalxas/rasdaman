@@ -32,6 +32,7 @@ import static petascope.core.KVPSymbols.WCPS_SERVICE;
 import static petascope.core.KVPSymbols.WCST_SERVICE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
 import static petascope.core.KVPSymbols.WMS_SERVICE;
+import static petascope.core.KVPSymbols.WMTS_SERVICE;
 
 /**
  * Class to control the W*S services and their versions which petascope can process.
@@ -50,6 +51,7 @@ public class VersionManager {
     public static final String WCS_VERSION_21 = "2.1.0";
     public static final String RASQL_SERVLET_VERSION = "1.0.0";
     public static final String WMS_VERSION_13 = "1.3.0";
+    public static final String WMTS_VERSION_10 = "1.0.0";
     
     // Store serviceName -> versions (e.g: WCS -> 2.0.1, 2.1)
     private static final Map<String, List<String>> serviceVersionsMap = new LinkedHashMap<>();
@@ -62,6 +64,7 @@ public class VersionManager {
         serviceVersionsMap.put(WCPS_SERVICE,  Arrays.asList(WCPS_VERSION));
         
         serviceVersionsMap.put(WMS_SERVICE,  Arrays.asList(WMS_VERSION_13));
+        serviceVersionsMap.put(WMTS_SERVICE,  Arrays.asList(WMTS_VERSION_10));
         
         serviceVersionsMap.put(RASQL_SERVICE,  Arrays.asList(RASQL_SERVLET_VERSION));
         

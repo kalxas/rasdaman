@@ -129,6 +129,8 @@ public class CrsUtil {
     public static final String ISO_AUTH = "ISO";
     public static final String AUTO_AUTH = "AUTO";
     public static final String OGC_AUTH = "OGC";
+    public static final String URN_EPSG_PREFIX = "urn:ogc:def:crs:EPSG::";
+    
     // rotated-CRS netCDF
     public static final String COSMO_AUTH = "COSMO";
     // COSMO 101 CRS
@@ -1075,7 +1077,7 @@ public class CrsUtil {
      * Ultility to get the code from CRS (e.g: EPSG:4326 -> 4326)
      */
     public static String getCode(String crs) {
-        if (crs.contains(":")) {
+        if (!crs.contains("/")) {
             return crs.split(":")[1];
         }
         return CrsUri.getCode(crs);

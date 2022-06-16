@@ -93,6 +93,8 @@ public interface XMLSymbols {
     // nu xom to get the child element must need the namespace beside the nu
     String NAMESPACE_WCPS = "http://www.opengis.net/wcps/1.0";
     String NAMESPACE_WMS = "http://www.opengis.net/wms";
+    String NAMESPACE_WMTS = "http://www.opengis.net/wmts/1.0";
+    
     String NAMESPACE_WSDL = "http://schemas.xmlsoap.org/wsdl/";
     String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
@@ -229,6 +231,45 @@ public interface XMLSymbols {
     String LABEL_WMS_LEGEND_URL = "LegendURL";
     String ATT_WMS_WIDTH = "width";
     String ATT_WMS_HEIGHT = "height";    
+    
+    // WMTS
+    String LABEL_WMTS_CAPABILITIES = "Capabilities";
+    
+    String LABEL_WMTS_SERVICE_IDENTIFICATION = "ServiceIdentification";
+    String LABEL_WMTS_TITLE = "Title";
+    String LABEL_WMTS_ABSTRACT = "Abstract";
+    String LABEL_WMTS_KEYWORDS = "Keywords";
+    String LABEL_WMTS_SERVICE_TYPE = "ServiceType";
+    String LABEL_WMTS_SERVICE_TYPE_VERSION = "ServiceTypeVersion";
+    String LABEL_WMTS_FEES = "Fees";
+    String LABEL_WMTS_ACCESS_CONSTRAINTS = "AccessConstraints";
+    
+    String LABEL_WMTS_CONTENTS = "Contents";
+    
+    String LABEL_WMTS_IDENTIFIER = "Identifier";
+    String LABEL_WMTS_DEFAULT = "Default";
+    
+    String LABEL_WMTS_VALUE = "Value";
+    
+    String LABEL_WMTS_WGS84_BOUNDING_BOX = "WGS84BoundingBox";
+    String LABEL_WMTS_BOUNDING_BOX = "BoundingBox";
+    String LABEL_WMTS_LOWER_CORNER = "LowerCorner";
+    String LABEL_WMTS_UPPER_CORNER = "UpperCorner";
+    
+    String LABEL_WMTS_FORMAT = "Format";
+    String LABEL_WMTS_DIMENSION = "Dimension";
+    
+    String LABEL_WMTS_TILE_MATRIX_SET_LINK = "TileMatrixSetLink";
+    String LABEL_WMTS_TILE_MATRIX_SET = "TileMatrixSet";
+    String LABEL_WMTS_TILE_MATRIX = "TileMatrix";
+    String LABEL_WMTS_SUPPORTED_CRS = "SupportedCRS";
+    
+    String LABEL_WMTS_SCALE_DENOMINATOR = "ScaleDenominator";
+    String LABEL_WMTS_TOP_LEFT_CORNER = "TopLeftCorner";
+    String LABEL_WMTS_TILE_WIDTH = "TileWidth";
+    String LABEL_WMTS_TILE_HEIGHT = "TileHeight";
+    String LABEL_WMTS_MATRIX_WIDTH = "MatrixWidth";
+    String LABEL_WMTS_MATRIX_HEIGHT = "MatrixHeight";
 
     // wcs POST XML Extension
     String LABEL_EXTENSION = "Extension";
@@ -407,6 +448,8 @@ public interface XMLSymbols {
     String LABEL_ALLOWED_VALUES = "AllowedValues";
     String LABEL_INTERVAL = "interval";
     String LABEL_VALUE = "Value";
+    
+    String LABEL_KVP = "KVP";
 
     // gmlrgrid
     String LABEL_COEFFICIENTS = "coefficients";
@@ -572,6 +615,8 @@ public interface XMLSymbols {
     String SCHEMA_LOCATION_INSPIRE2 = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0/inspire_dls.xsd";
     
     String SCHEMA_LOCATION_WMS = "http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd";
+    
+    String SCHEMA_LOCATION_WMTS = "http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd";
     
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

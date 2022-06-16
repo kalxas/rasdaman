@@ -14,20 +14,38 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2022 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wms.handlers.kvp;
+package petascope.wmts.handlers.model;
 
-import petascope.ihandlers.kvp.IKVPHandler;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * Abstract class for WMS Handlers (GetCapabilities, GetMap,...)
- *
- * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
+ * Model class for WMTS TileMatrixSet
+ * 
+ * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
-public abstract class KVPWMSAbstractHandler implements IKVPHandler {
+public class TileMatrixSet {
+    
+    private String name;
+    // e.g. test_wms_2 -> TileMatrix
+    private Map<String, TileMatrix> tileMatrixMap = new LinkedHashMap<>();
 
+    public TileMatrixSet(String name, Map<String, TileMatrix> tileMatrixMap) {
+        this.name = name;
+        this.tileMatrixMap = tileMatrixMap;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Map<String, TileMatrix> getTileMatrixMap() {
+        return tileMatrixMap;
+    }
+    
 }

@@ -154,6 +154,23 @@ public interface KVPSymbols {
     String VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER = "/";
     // e.g: elevation=20,30,50
     String VALUE_WMS_SUBSET_SEPARATE_CHARACTER = ",";
+    
+    // WMTS
+    String VALUE_WMTS_GET_CAPABILITIES = "GetCapabilities";
+    String VALUE_WMTS_GET_TILE = "GetTile";
+    
+    String KEY_WMTS_LAYER = "Layer";
+    String KEY_WMTS_STYLE = "Style";
+    String KEY_WMTS_FORMAT = "Format";
+    String KEY_WMTS_TILE_MATRIX_SET = "TileMatrixSet";
+    String KEY_WMTS_TILE_MATRIX = "TileMatrix";
+    String KEY_WMTS_TILE_ROW = "TileRow";
+    String KEY_WMTS_TILE_COL = "TileCol";
+    
+    // NOTE: this key is used internally in petascope to let GetMap handler know which pyramid member (TileMatrix) it should process for a layer
+    String KEY_WMTS_RASDAMAN_INTERNAL_FOR_GETMAP_REQUEST_PYRAMID_COVERAGE_ID = "KEY_WMTS_RASDAMAN_INTERNAL_FOR_GETMAP_REQUEST_PYRAMID_COVERAGE_ID";
+   
+    
 
     /**
      * Service name
@@ -162,6 +179,7 @@ public interface KVPSymbols {
     String WCS_SERVICE = "WCS";
     String WCST_SERVICE = "WCST";
     String WMS_SERVICE = "WMS";
+    String WMTS_SERVICE = "WMTS";
     String WCPS_SERVICE = "WCPS";
     // Make up for RASQL servlet
     String RASQL_SERVICE = "RASQL";
