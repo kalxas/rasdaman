@@ -10,8 +10,8 @@
         <gml:RectifiedGrid dimension="2" gml:id="test_wcs_eomap_clip_polygon_10m-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>30 30</gml:low>
-                    <gml:high>30 30</gml:high>
+                    <gml:low>31 31</gml:low>
+                    <gml:high>31 31</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>X Y</gml:axisLabels>
@@ -33,7 +33,7 @@
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
-            <gml:startPoint>30 30</gml:startPoint>
+            <gml:startPoint>31 31</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>

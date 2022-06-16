@@ -437,13 +437,14 @@ public class WMSGetMapService {
     /**
      * Return a list of WMSLayer objects from the requested layers
      */
-    private List<WMSLayer> createWMSLayers(List<WcpsCoverageMetadata> wcpsCoverageMetadatas) {
+    private List<WMSLayer> createWMSLayers(List<WcpsCoverageMetadata> wcpsCoverageMetadatas) throws PetascopeException {
         
         List<WMSLayer> wmsLayers = new ArrayList<>();
         
         for (WcpsCoverageMetadata wcpsCoverageMetadata : wcpsCoverageMetadatas) {
 
             String layerName = wcpsCoverageMetadata.getCoverageName();
+            // e.g. here layer is S2_L2A_TCI_10m
             WMSLayer wmsLayer = this.wmsGetMapWCPSMetadataTranslatorService.createWMSLayer(
                                                                                 layerName, this.layerRequestCRSBBoxesMap.get(layerName),
                                                                                 this.fittedRequestBBoxesMap.get(layerName),
@@ -487,14 +488,18 @@ public class WMSGetMapService {
         // If request BBox contains the layer (layer is inside the request BBox)
         // then no point to create extended request geo BBox as there are no more pixels to fill gaps
         
-        return (isProjection && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(bbox));
+        boolean result = ((isProjection 
+                ) 
+                && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(bbox));
+        
+        return result;
     }
     
     /**
      * Create a list of Rasql collection expressions' string representations for a specific layer.
      * 
      */
-    private String createCollectionExpressionsLayer(String styleName, 
+    private String createCollectionExpressionsLayer(String styleName,          
                                                     WcpsCoverageMetadata wcpsCoverageMetadata,
                                                     WMSLayer wmsLayer) 
             throws PetascopeException, WMSStyleNotFoundException, WCPSException {
@@ -509,7 +514,7 @@ public class WMSGetMapService {
         
         if (!StringUtils.isEmpty(styleName) && layer.getStyle(styleName) == null) {
             throw new WMSStyleNotFoundException(styleName, layerName);
-        }
+        } 
 
         if (this.needExtendedGeoXYBBox(wmsLayer) 
             ) {
@@ -540,8 +545,9 @@ public class WMSGetMapService {
         if (style == null) {
             // Layer has no style
             String styleQuery = FRAGMENT_ITERATOR_PREFIX + layerName;
-            collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
-                                                                        wmsLayer, nonXYGridSliceSubsetDimensions,
+            collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,                                                                        
+                                                                        wmsLayer, wcpsCoverageMetadata,
+                                                                        nonXYGridSliceSubsetDimensions,
                                                                         extendedFittedRequestGeoBBoxesMap.get(orgLayerName));
         } else {
             if (!StringUtils.isEmpty(style.getRasqlQueryFragment())) {
@@ -549,7 +555,8 @@ public class WMSGetMapService {
                 // e.g: $Iterator -> $covA
                 String styleQuery = style.getRasqlQueryFragment().replace(RASQL_FRAGMENT_ITERATOR, FRAGMENT_ITERATOR_PREFIX + layerName);
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
-                                                                        wmsLayer, nonXYGridSliceSubsetDimensions,
+                                                                        wmsLayer, wcpsCoverageMetadata,
+                                                                        nonXYGridSliceSubsetDimensions,
                                                                         extendedFittedRequestGeoBBoxesMap.get(orgLayerName));
             } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
                 // wcpsQueryFragment
@@ -557,14 +564,16 @@ public class WMSGetMapService {
                 String styleQuery = style.getWcpsQueryFragment().replace(WCPS_FRAGMENT_ITERATOR, FRAGMENT_ITERATOR_PREFIX + layerName);
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForWCPSFragment(
                                                                         styleQuery, layerName,
-                                                                        wmsLayer, nonXYGridSliceSubsetDimensions,
+                                                                        wmsLayer, wcpsCoverageMetadata,
+                                                                        nonXYGridSliceSubsetDimensions,
                                                                         extendedFittedRequestGeoBBoxesMap.get(orgLayerName));
             } else {
                 // Style is not null, but no query fragment was defined, e.g: only contains colorTable value
                 String styleQuery = FRAGMENT_ITERATOR_PREFIX + layerName;
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
-                                                                        wmsLayer, nonXYGridSliceSubsetDimensions,
-                                                                        extendedFittedRequestGeoBBoxesMap.get(orgLayerName));                
+                                                                        wmsLayer, wcpsCoverageMetadata,
+                                                                        nonXYGridSliceSubsetDimensions,
+                                                                        extendedFittedRequestGeoBBoxesMap.get(orgLayerName));   
             }
 
             if (!StringUtils.isEmpty(style.getColorTableDefinition())) {

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
@@ -191,8 +192,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         try {
             // NOTE: If first query returns success, then just fetch it from cache
             String queryString = StringUtil.buildQueryString(kvpParameters);
-            
-            if (WMSGetMapCachingService.responseCachingMap.containsKey(queryString)) {
+            if (ConfigManager.MAX_WMS_CACHE_SIZE > 0 && WMSGetMapCachingService.responseCachingMap.containsKey(queryString)) {
                 return wmsGetMapCachingService.getResponseFromCache(queryString);
             }
             // Validate before handling the request

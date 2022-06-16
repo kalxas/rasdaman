@@ -228,7 +228,7 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         // for all a ∈ dimensionList(C2), c ∈ crsSet(C2, a):
         //          imageCrsDomain(C2 , a ) = (lo:hi) - it means: ***axis's grid domain will be set*** to corresponding lo:hi!
         //          domain(C2,a,c) = domain(C1,a,c) - it means: ***axis's geo domain will not change***!
-        wcpsCoverageMetadataService.applySubsets(false, metadata, subsetDimensions, numericSubsets);
+        wcpsCoverageMetadataService.applySubsets(false, false, metadata, subsetDimensions, numericSubsets);
         
         this.addImplicitScaleGridIntervals(metadata, numericSubsets);
         

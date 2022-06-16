@@ -87,7 +87,7 @@ public class ExtendExpressionByImageCrsDomainHandler extends AbstractOperatorHan
         
         // NOTE: from WCPS 1.0 standard: In this sense the extendExpr is a generalization of the trimExpr; still the trimExpr should be
         // used whenever the application needs to be sure that a proper subsetting has to take place.
-        wcpsCoverageMetadataService.applySubsets(false, metadata, subsetDimensions, numericSubsets);
+        wcpsCoverageMetadataService.applySubsets(false, false, metadata, subsetDimensions, numericSubsets);
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())

@@ -10,8 +10,8 @@
         <gml:RectifiedGrid dimension="3" gml:id="test_eobstest-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>20 20 1</gml:low>
-                    <gml:high>29 29 2</gml:high>
+                    <gml:low>19 19 1</gml:low>
+                    <gml:high>19 19 2</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>Lat Long t</gml:axisLabels>
@@ -34,7 +34,7 @@
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+2 +1 +3">Linear</gml:sequenceRule>
-            <gml:startPoint>20 20 1</gml:startPoint>
+            <gml:startPoint>19 19 1</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>
