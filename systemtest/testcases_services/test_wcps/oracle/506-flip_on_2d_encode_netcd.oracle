@@ -1,0 +1,8 @@
+>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>Exception: Index violation ( index range [$low,$high], index $index ).</ows:ExceptionText>
+</ows:Exception>
+<ows:Exception exceptionCode="RasdamanRequestFailed">
+<ows:ExceptionText>Failed internal rasql query: SELECT encode( ( FLIP c[0:10,0] ALONG 0 ) , "netcdf" , "{\"dimensions\":[\"Lon\"],\"variables\":{\"Lon\":{\"type\":\"double\",\"data\":[112.225,112.725,113.225,113.725,114.225,114.725,115.225,115.725,116.225,116.725,117.225],\"name\":\"Lon\",\"metadata\":{}},\"Gray\":{\"type\":\"char\",\"name\":\"Gray\",\"metadata\":{\"description\":\"\",\"units\":\"10^0\"}}},\"nodata\":[]}")  FROM test_mean_summer_airtemp AS c</ows:ExceptionText>
+</ows:Exception>
+</ows:ExceptionReport>

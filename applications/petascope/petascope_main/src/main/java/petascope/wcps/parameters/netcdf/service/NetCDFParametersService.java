@@ -45,6 +45,7 @@ import petascope.wcps.encodeparameters.model.BandsMetadata;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.model.GridMapping;
 import petascope.exceptions.ExceptionCode;
+import petascope.util.BigDecimalUtil;
 import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
 import petascope.wcps.metadata.model.Axis;
@@ -220,6 +221,12 @@ public class NetCDFParametersService {
 
             BigDecimal geoDomMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
             BigDecimal geoDomMax = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit();
+            
+            Pair<BigDecimal, BigDecimal> pair = BigDecimalUtil.swapIfFirstLarger(geoDomMin, geoDomMax);
+            geoDomMin = pair.fst;
+            geoDomMax = pair.snd;
+            
+            
             BigDecimal gridDomMin = ((NumericTrimming) axis.getGridBounds()).getLowerLimit();
             BigDecimal gridDomMax = ((NumericTrimming) axis.getGridBounds()).getUpperLimit();
 

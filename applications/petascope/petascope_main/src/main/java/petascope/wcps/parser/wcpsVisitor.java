@@ -705,6 +705,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitSwitchCaseScalarValueExpressionLabel(@NotNull wcpsParser.SwitchCaseScalarValueExpressionLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#flipExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFlipExpressionLabel(@NotNull wcpsParser.FlipExpressionLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#imageCrsDomainByDimensionExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -829,6 +836,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCoverageExpressionScaleByFactorLabel(@NotNull wcpsParser.CoverageExpressionScaleByFactorLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#coverageExpresisonFlipLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageExpresisonFlipLabel(@NotNull wcpsParser.CoverageExpresisonFlipLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#DimensionPointElementLabel}.

@@ -345,11 +345,14 @@ public class WcpsCoverageMetadataGeneralService {
                     if (axis instanceof IrregularAxis) {
                         IrregularAxis irregularAxis = (IrregularAxis) axis;
                         // NOTE: must normalize the inputs with origin first (e.g: for AnsiDate: origin is: 1601-01-01 and input is: 2008-01-01T01:00:02Z)
-                        BigDecimal normalizedLowerBound = irregularAxis.getGeoBounds().getLowerLimit().subtract(axis.getOriginalOrigin());
-                        BigDecimal normalizedUpperBound = irregularAxis.getGeoBounds().getUpperLimit().subtract(axis.getOriginalOrigin());
+                        BigDecimal geoLowerBound = irregularAxis.getGeoBounds().getLowerLimit();
+                        BigDecimal geoUpperBound = irregularAxis.getGeoBounds().getUpperLimit();
                         
-                        normalizedLowerBound = normalizedLowerBound.add(irregularAxis.getFirstCoefficient());
-                        normalizedUpperBound = normalizedUpperBound.add(irregularAxis.getFirstCoefficient());
+                        BigDecimal normalizedLowerBound = geoLowerBound.subtract(axis.getOriginalOrigin());
+                        BigDecimal normalizedUpperBound = geoUpperBound.subtract(axis.getOriginalOrigin());
+                        
+                        normalizedLowerBound = normalizedLowerBound.add(irregularAxis.getLowestCoefficientValue());
+                        normalizedUpperBound = normalizedUpperBound.add(irregularAxis.getLowestCoefficientValue());
                         
                         List<BigDecimal> newCoefficients = ((IrregularAxis) axis).getAllCoefficientsInInterval(normalizedLowerBound, normalizedUpperBound);
                         irregularAxis.setDirectPositions(newCoefficients);
@@ -1146,8 +1149,8 @@ public class WcpsCoverageMetadataGeneralService {
             
             // Calculate the distance from this coefficient for CRS:1(GRID_INDEX) to coefficient zero.
             // (NOTE: coefficient zero can be in random position, not only the first element in list of directPositions)
-            lowerCoefficient = ((IrregularAxis) axis).getFirstCoefficient().abs().add(lowerCoefficient);
-            upperCoefficient = ((IrregularAxis) axis).getFirstCoefficient().abs().add(upperCoefficient);
+            lowerCoefficient = ((IrregularAxis) axis).getLowestCoefficientValue().abs().add(lowerCoefficient);
+            upperCoefficient = ((IrregularAxis) axis).getLowestCoefficientValue().abs().add(upperCoefficient);
             
             BigDecimal geoLowerBound = lowerCoefficient.add(axis.getOriginalOrigin());
             BigDecimal geoUpperBound = upperCoefficient.add(axis.getOriginalOrigin());
@@ -1167,6 +1170,12 @@ public class WcpsCoverageMetadataGeneralService {
         
         BigDecimal lowerLimit = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
         BigDecimal upperLimit = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit();
+        
+        // NOTE: in case the axis is flipped by flip operator
+        Pair<BigDecimal, BigDecimal> pair = BigDecimalUtil.swapIfFirstLarger(lowerLimit, upperLimit);
+        lowerLimit = pair.fst;
+        upperLimit = pair.snd;
+        
         ParsedSubset<String> subset = null;
         
         // Check if subset is inside the domain of geo bound

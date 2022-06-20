@@ -1611,7 +1611,7 @@ Examples
 - Deliver coverage description as a CIS 1.1 General Grid Coverage in GML,
   where range type changes in the query: ::
 
-     for $c in (Cov)
+     for $c in (Cov) dimensionality
      return describe( { $c.red; $c.green; $c.blue }, "application/gml+xml", 
                                          "outputType=GeneralGridCoverage" )
 
@@ -1628,6 +1628,52 @@ Specific Exceptions
 - This format is only supported for General Grid Coverage
 - Illegal extra parameter
 
+
+.. _wcps-flip-operator:
+
+Flip Operator in WCPS
+---------------------
+
+The non-standard ``FLIP`` function enables reversing values from an axis belonging to a coverage expression.
+The output coverage expression has *no* changes in the grid domains, base type and dimensionality, but with
+reversed values and geo bounds of the selected axis; if this axis is irregular then 
+its list coeffcients is reversed as well. See more :ref:`details <sec-flipl>` in rasql.
+
+
+**Syntax**
+
+.. code-block:: rasql
+
+	flipExp: FLIP coverageExpression ALONG axisLabel
+
+        axisLabel: identifier
+
+A ``FLIP`` expression consists of ``coverageExpression`` which denotes the input coverage,
+and one ``axisLabel`` of the coverage to flip values.
+
+**Examples**
+
+The following examples illustrate the syntax of the ``FLIP`` operator.
+
+- Flipping the 2D coverage expression on its ``Long`` axis, by using:
+
+  .. code-block:: 
+
+     for $c in (test_mean_summer_airtemp) 
+     return 
+        encode(
+                FLIP $c[Lat(-30:-15), Long(125:145)] ALONG Long
+              , "image/png")
+
+- Flipping the 3D coverage expression on its ``unix`` time axis, by using:
+
+  .. code-block:: 
+
+    for $c in (test_wms_3d_time_series_irregular)
+    return 
+        encode(
+                FLIP $c[Lat(40:90), Long(80:140)] + 20 ALONG unix
+              , "json")
 
 .. _ogc-wms:
 

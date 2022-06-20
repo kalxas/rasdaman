@@ -369,13 +369,18 @@ public class CoordinateTranslationService {
 
         // e.g: t(148654) in irr_cube_2
         NumericSubset originalGeoBounds = irregularAxis.getOriginalGeoBounds();
-        BigDecimal orginalGeoDomainMin = originalGeoBounds.getLowerLimit();
+        BigDecimal originalGeoDomainMin = originalGeoBounds.getLowerLimit();
+        BigDecimal originalGeoDomainMax = originalGeoBounds.getUpperLimit();
+        if (originalGeoDomainMin.compareTo(originalGeoDomainMax) > 0) {
+            originalGeoDomainMin = originalGeoDomainMax;
+        }
         
-        BigDecimal lowerCoefficient = (lowerLimit.subtract(orginalGeoDomainMin)).divide(scalarResolution);
-        BigDecimal upperCoefficient = (upperLimit.subtract(orginalGeoDomainMin)).divide(scalarResolution);
+        BigDecimal lowerCoefficient = (lowerLimit.subtract(originalGeoDomainMin)).divide(scalarResolution);
+        BigDecimal upperCoefficient = (upperLimit.subtract(originalGeoDomainMin)).divide(scalarResolution);
         
-        lowerCoefficient = lowerCoefficient.add(irregularAxis.getFirstCoefficient());
-        upperCoefficient = upperCoefficient.add(irregularAxis.getFirstCoefficient());
+        BigDecimal firstCoefficient = irregularAxis.getLowestCoefficientValue();
+        lowerCoefficient = lowerCoefficient.add(firstCoefficient);
+        upperCoefficient = upperCoefficient.add(firstCoefficient);
         
         if (numericSubset.isSlicing()) {
             // e.g: irregular date axis has values "2015-01", "2016-01", "2018-01" and request "2017-01"

@@ -478,7 +478,9 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
   		          | coverageExpression IS (NOT)? NULL
 		            #CoverageIsNullExpression
                   | coverageExpression OVERLAY coverageExpression
-                    #CoverageExpressionOverlayLabel;
+                    #CoverageExpressionOverlayLabel
+                  | flipExpression
+                    #coverageExpresisonFlipLabel;
 /**
  * Example:
  *   $c1 AND $c2
@@ -850,6 +852,10 @@ generalCondenseExpression: CONDENSE condenseExpressionOperator
                            (whereClause)?
                            USING coverageExpression
 #GeneralCondenseExpressionLabel;
+
+
+flipExpression: FLIP coverageExpression ALONG axisName
+#flipExpressionLabel;
 
 
 /*

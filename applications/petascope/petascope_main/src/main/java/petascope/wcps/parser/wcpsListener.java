@@ -1098,6 +1098,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitSwitchCaseScalarValueExpressionLabel(@NotNull wcpsParser.SwitchCaseScalarValueExpressionLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#flipExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterFlipExpressionLabel(@NotNull wcpsParser.FlipExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#flipExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitFlipExpressionLabel(@NotNull wcpsParser.FlipExpressionLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#imageCrsDomainByDimensionExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1294,6 +1305,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCoverageExpressionScaleByFactorLabel(@NotNull wcpsParser.CoverageExpressionScaleByFactorLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#coverageExpresisonFlipLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpresisonFlipLabel(@NotNull wcpsParser.CoverageExpresisonFlipLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#coverageExpresisonFlipLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpresisonFlipLabel(@NotNull wcpsParser.CoverageExpresisonFlipLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#DimensionPointElementLabel}.

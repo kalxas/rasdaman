@@ -198,6 +198,18 @@ public class BigDecimalUtil {
         return new Pair<>(firstValue, secondValue);
     }
     
+    /**
+     * if first > second -> swap
+     * if first <= second -> no change
+     */
+    public static Pair<BigDecimal, BigDecimal> swapIfFirstLarger(BigDecimal firstValue, BigDecimal secondValue) {
+        if (firstValue.compareTo(secondValue) > 0) {
+            return new Pair<>(secondValue, firstValue);
+        } else {
+            return new Pair<>(firstValue, secondValue);
+        }
+    }
+    
     
     /**
      * Check if number A >= number B

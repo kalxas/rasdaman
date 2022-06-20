@@ -117,6 +117,7 @@ import petascope.wcps.handler.CoverageIsNullHandler;
 import petascope.wcps.handler.DecodeCoverageHandler;
 import petascope.wcps.handler.DescribeCoverageHandler;
 import petascope.wcps.handler.DomainIntervalsHandler;
+import petascope.wcps.handler.FlipExpressionHandler;
 import petascope.wcps.handler.LetClauseHandler;
 import petascope.wcps.handler.UnaryModExpressionHandler;
 import petascope.wcps.metadata.model.Axis;
@@ -176,6 +177,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     ClipCurtainExpressionHandler clipCurtainExpressionHandler;
     @Autowired private
     ClipCorridorExpressionHandler clipCorridorExpressionHandler;
+    
+    @Autowired private
+    FlipExpressionHandler flipExpressionHandler;
+    
     @Autowired private
     CrsTransformHandler crsTransformHandler;
     @Autowired private
@@ -730,6 +735,34 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             throw new ClipExpressionException(ex.getExceptionText(), ex);
         }
         return result;
+    }
+    
+    @Override 
+    public WcpsResult visitFlipExpressionLabel(@NotNull wcpsParser.FlipExpressionLabelContext ctx) {
+        // Handle FLIP $COVERAGE_EXPRESSION ALONG $AXIS_LABEL
+        
+        // e.g. $c + 5
+        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
+        
+        // e.g. Lat
+        String axisLabel = ctx.axisName().getText();
+        int axisLabelIndex = -1;
+        int i = 0;
+        
+        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisLabel)) {
+                axisLabelIndex = i;
+                break;
+            }
+            
+            i++;
+        }
+        
+        if (axisLabelIndex == -1) {
+            throw new CoverageAxisNotFoundExeption(axisLabel);
+        }
+        
+        return this.flipExpressionHandler.handle(coverageExpression, axisLabel, axisLabelIndex);
     }
     
 

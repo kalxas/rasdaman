@@ -147,14 +147,19 @@ public class IrregularAxis extends Axis {
     }
     
     /**
-     * Get first element in list of coefficients.
+     * Get element in list of coefficients which has the lowest coefficient value
      */
     @JsonIgnore
-    public BigDecimal getFirstCoefficient() {
+    public BigDecimal getLowestCoefficientValue() {
         if (this.originalDirectPositions == null) {
             this.setOriginalDirectPositions();
         }
-        return this.originalDirectPositions.get(0);
+        
+        BigDecimal firstCoefficient = this.originalDirectPositions.get(0);
+        BigDecimal lastCoefficient = this.originalDirectPositions.get(this.originalDirectPositions.size() - 1);
+        
+        BigDecimal result = firstCoefficient.compareTo(lastCoefficient) < 0 ? firstCoefficient : lastCoefficient;
+        return result;            
     }
     
     /**
@@ -195,7 +200,13 @@ public class IrregularAxis extends Axis {
     public Pair<Long, Long> calculateGridBoundsByZeroCoefficientIndex(Long indexOfGridLowerBound, Long indexOfGridUpperBound) throws PetascopeException {
         int coefficientZeroIndex = this.getIndexOfCoefficientZero();
 
-        BigDecimal firstCoefficient = this.directPositions.get(0);        
+        BigDecimal firstCoefficient = this.directPositions.get(0);
+        BigDecimal lastCoefficient = this.directPositions.get(this.directPositions.size() - 1);
+        
+        if (firstCoefficient.compareTo(lastCoefficient) > 0) {
+            firstCoefficient = lastCoefficient;
+        }
+        
         int gridZeroCoefficientDistance = this.getIndexOfCoefficientFromOriginalDirectPositions(firstCoefficient) - this.getIndexOfCoefficientZeroFromOriginalDirectPositions();
         
         if (coefficientZeroIndex != -1) {
@@ -263,12 +274,19 @@ public class IrregularAxis extends Axis {
     @JsonIgnore
     public Pair<Long, Long> getGridIndices(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
         
-        Long minIndex = null;
-        Long maxIndex = null;
-        boolean foundMinIndex = false;
-        
         BigDecimal coefficientLowerBound = this.directPositions.get(0);
         BigDecimal coefficientUpperBound = this.directPositions.get(this.directPositions.size() - 1);
+        
+        boolean needToSwapBounds = false;
+        
+        if (coefficientLowerBound.compareTo(coefficientUpperBound) > 0) {
+            BigDecimal tmp = coefficientLowerBound;
+            coefficientLowerBound = coefficientUpperBound;
+            coefficientUpperBound = tmp;
+            
+            needToSwapBounds = true;
+        }
+        
         
         if (minInput.compareTo(coefficientLowerBound) < 0) {
             throw new PetascopeException(ExceptionCode.InternalComponentError, "Input coefficient lower bound '" + minInput 
@@ -279,26 +297,47 @@ public class IrregularAxis extends Axis {
                                                     + "' is greater than the direct positions' upper bound '" + coefficientUpperBound 
                                                     + "' of irregular axis '" + this.getLabel() + "'.");
         }
+
+        Long minIndex = null;
+        Long maxIndex = null;
+        boolean foundMinIndex = false;  
         
-        Long i = Long.valueOf("0");
-
-        // coefficient in numbers for legacy coverages
-        for (BigDecimal coefficient : directPositions) {
-            // find the min number which >= minInput
-            if (!foundMinIndex && BigDecimalUtil.greaterThanOrEqual(coefficient, minInput)) {
-                minIndex = i;
-                foundMinIndex = true;
+        if (!needToSwapBounds) {
+            // normal list of coefficients
+            for (long i = 0; i < directPositions.size(); i++) {
+                BigDecimal coefficient = directPositions.get((int) i);
+                // find the min number which >= minInput
+                if (!foundMinIndex && BigDecimalUtil.greaterThanOrEqual(coefficient, minInput)) {
+                    minIndex = i;
+                    foundMinIndex = true;
+                }
+                // find the max number which <= maxInput (as it is ascending list, so don't stop until coefficent > maxInput
+                if (BigDecimalUtil.smallerThanOrEqual(coefficient, maxInput)) {
+                    maxIndex = i;
+                }
+                // stop as it should find the minIndex and maxIndex already
+                if (coefficient.compareTo(maxInput) >= 0) {
+                    break;
+                }
             }
-            // find the max number which <= maxInput (as it is ascending list, so don't stop until coefficent > maxInput
-            if (BigDecimalUtil.smallerThanOrEqual(coefficient, maxInput)) {
-                maxIndex = i;
+        } else {
+            // flipped list of coefficients
+            for (long i = directPositions.size() - 1; i >= 0; i--) {
+                BigDecimal coefficient = directPositions.get((int) i);
+                // find the min number which >= minInput
+                if (!foundMinIndex && BigDecimalUtil.greaterThanOrEqual(coefficient, minInput)) {
+                    minIndex = i;
+                    foundMinIndex = true;
+                }
+                // find the max number which <= maxInput (as it is ascending list, so don't stop until coefficent > maxInput
+                if (BigDecimalUtil.smallerThanOrEqual(coefficient, maxInput)) {
+                    maxIndex = i;
+                }
+                // stop as it should find the minIndex and maxIndex already
+                if (coefficient.compareTo(maxInput) >= 0) {
+                    break;
+                }
             }
-            // stop as it should find the minIndex and maxIndex already
-            if (coefficient.compareTo(maxInput) >= 0) {
-                break;
-            }
-
-            i++;
         }
 
         Pair<Long, Long> gridBoundsPair = new Pair<>(minIndex, maxIndex);
