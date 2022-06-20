@@ -149,7 +149,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         Set<String> schemaLocations = new LinkedHashSet<>();
         schemaLocations.add(SCHEMA_LOCATION_WMS);
         
-        Element wmsCapabilitiesElement = new Element(XMLSymbols.LABEL_WMS_WMS_CAPABILITIES);
+        Element wmsCapabilitiesElement = new Element(XMLSymbols.LABEL_WMS_WMS_CAPABILITIES, NAMESPACE_WMS);
         Attribute versionAttribute = new Attribute(LABEL_VERSION, VersionManager.WMS_VERSION_13);
         wmsCapabilitiesElement.addAttribute(versionAttribute);
         
@@ -183,20 +183,20 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         ServiceIdentification serviceIdentification = this.owsServiceMetadata.getServiceIdentification();
         ServiceProvider serviceProvider = this.owsServiceMetadata.getServiceProvider();
         // Service
-        Element serviceElement = new Element(XMLSymbols.LABEL_WMS_SERVICE);
+        Element serviceElement = new Element(XMLSymbols.LABEL_WMS_SERVICE, NAMESPACE_WMS);
 
         // Name
-        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME);
+        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME, NAMESPACE_WMS);
         nameElement.appendChild(KVPSymbols.WMS_SERVICE);
         serviceElement.appendChild(nameElement);
 
         // Title
-        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE);
+        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE, NAMESPACE_WMS);
         titleElement.appendChild(serviceIdentification.getServiceTitle());
         serviceElement.appendChild(titleElement);
 
         // Abstract
-        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
+        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT, NAMESPACE_WMS);
         abstractElement.appendChild(serviceIdentification.getServiceAbstract());
         serviceElement.appendChild(abstractElement);
 
@@ -207,7 +207,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         }
 
         // OnlineResource
-        Element onlineResourceElement = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE);
+        Element onlineResourceElement = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE, NAMESPACE_WMS);
         Attribute providerSiteAttribute = new Attribute(XMLSymbols.PREFIX_XLINK + ":" + XMLSymbols.ATT_HREF,
                                                         XMLSymbols.NAMESPACE_XLINK,
                                                         serviceProvider.getProviderSite());
@@ -220,14 +220,14 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
         // Fees
         if (serviceIdentification.getFees() != null) {
-            Element feesElement = new Element(XMLSymbols.LABEL_WMS_FEES);
+            Element feesElement = new Element(XMLSymbols.LABEL_WMS_FEES, NAMESPACE_WMS);
             feesElement.appendChild(serviceIdentification.getFees());
             serviceElement.appendChild(feesElement);
         }
 
         // AccessConstraints
         if (serviceIdentification.getAccessConstraints().size() > 0) {
-            Element accessContraintsElement = new Element(XMLSymbols.LABEL_WMS_ACCESS_CONSTRAINTS);
+            Element accessContraintsElement = new Element(XMLSymbols.LABEL_WMS_ACCESS_CONSTRAINTS, NAMESPACE_WMS);
             accessContraintsElement.appendChild(serviceIdentification.getAccessConstraints().get(0));
         }
 
@@ -242,78 +242,78 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      */
     private Element buildContactInformation(ServiceProvider serviceProvider) {
         // ContactInformation        
-        Element contactInformationElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_INFORMATION);
+        Element contactInformationElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_INFORMATION, NAMESPACE_WMS);
 
         // ContactPersonPrimary
-        Element contactPersonPrimaryElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_PERSON_PRIMARY);
+        Element contactPersonPrimaryElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_PERSON_PRIMARY, NAMESPACE_WMS);
         contactInformationElement.appendChild(contactPersonPrimaryElement);
 
         // ContactPerson
-        Element contactPersonElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_PERSON);
+        Element contactPersonElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_PERSON, NAMESPACE_WMS);
         contactPersonElement.appendChild(serviceProvider.getServiceContact().getIndividualName());
         contactPersonPrimaryElement.appendChild(contactPersonElement);
         // ContactOrganization
-        Element contactOrganizationElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_ORGANIZATION);
+        Element contactOrganizationElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_ORGANIZATION, NAMESPACE_WMS);
         contactOrganizationElement.appendChild(serviceProvider.getProviderName());
         contactPersonPrimaryElement.appendChild(contactOrganizationElement);
 
         // ContactPosition
-        Element contactPositionElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_POSITION);
+        Element contactPositionElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_POSITION, NAMESPACE_WMS);
         contactPositionElement.appendChild(serviceProvider.getServiceContact().getPositionName());
         contactInformationElement.appendChild(contactPositionElement);
 
         // ContactAddress
         Address address = serviceProvider.getServiceContact().getContactInfo().getAddress();
-        Element contactAddressElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_ADDRESS);
+        Element contactAddressElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_ADDRESS, NAMESPACE_WMS);
         contactInformationElement.appendChild(contactAddressElement);
 
         // AddressType
-        Element addressTypeElement = new Element(XMLSymbols.LABEL_WMS_ADDRESS_TYPE);
+        Element addressTypeElement = new Element(XMLSymbols.LABEL_WMS_ADDRESS_TYPE, NAMESPACE_WMS);
         addressTypeElement.appendChild(XMLSymbols.VALUE_WMS_ADDRES_TYPE);
         contactAddressElement.appendChild(addressTypeElement);
 
         // Address
-        Element addressElement = new Element(XMLSymbols.LABEL_WMS_ADDRESS);
+        Element addressElement = new Element(XMLSymbols.LABEL_WMS_ADDRESS, NAMESPACE_WMS);
         addressElement.appendChild(address.getDeliveryPoints().get(0));
         contactAddressElement.appendChild(addressElement);
 
         // City
-        Element cityElement = new Element(XMLSymbols.LABEL_WMS_CITY);
+        Element cityElement = new Element(XMLSymbols.LABEL_WMS_CITY, NAMESPACE_WMS);
         cityElement.appendChild(address.getCity());
         contactAddressElement.appendChild(cityElement);
 
         // StateOrProvince
-        Element stateOrProvinceElement = new Element(XMLSymbols.LABEL_WMS_STATE_OR_PROVINCE);
+        Element stateOrProvinceElement = new Element(XMLSymbols.LABEL_WMS_STATE_OR_PROVINCE, NAMESPACE_WMS);
         stateOrProvinceElement.appendChild(address.getCity());
         contactAddressElement.appendChild(stateOrProvinceElement);
 
         // PostCode
-        Element postCodeElement = new Element(XMLSymbols.LABEL_WMS_POST_CODE);
+        Element postCodeElement = new Element(XMLSymbols.LABEL_WMS_POST_CODE, NAMESPACE_WMS);
         postCodeElement.appendChild(address.getPostalCode());
         contactAddressElement.appendChild(postCodeElement);
 
         // Country
-        Element countryElement = new Element(XMLSymbols.LABEL_WMS_COUNTRY);
+        Element countryElement = new Element(XMLSymbols.LABEL_WMS_COUNTRY, NAMESPACE_WMS);
         countryElement.appendChild(address.getCountry());
         contactAddressElement.appendChild(countryElement);
 
         Phone phone = serviceProvider.getServiceContact().getContactInfo().getPhone();
         // ContactVoiceTelephone
-        Element contactVoiceTelephoneElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_VOICE_TELEPHONE);
+        Element contactVoiceTelephoneElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_VOICE_TELEPHONE, NAMESPACE_WMS);
         String voicePhone = phone.getVoicePhones().get(0);
         contactVoiceTelephoneElement.appendChild(voicePhone);
         contactInformationElement.appendChild(contactVoiceTelephoneElement);
 
         // ContactFacsimileTelephone (optional)
         if (!phone.getFacsimilePhones().isEmpty()) {
-            Element contactFacsimileTelephoneElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_FACSIMILE_TELEPHONE);
+            Element contactFacsimileTelephoneElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_FACSIMILE_TELEPHONE, NAMESPACE_WMS);
             String facsimilePhone = phone.getFacsimilePhones().get(0);
             contactFacsimileTelephoneElement.appendChild(facsimilePhone);
             contactInformationElement.appendChild(contactFacsimileTelephoneElement);
         }
 
         // ContactElectronicMailAddress
-        Element contactEmailElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_EMAIL);
+        Element contactEmailElement = new Element(XMLSymbols.LABEL_WMS_CONTACT_EMAIL, NAMESPACE_WMS);
         String email = address.getElectronicMailAddresses().get(0);
         contactEmailElement.appendChild(email);
         contactInformationElement.appendChild(contactEmailElement);
@@ -322,39 +322,39 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     }
     
     private Element buildCapabilityElement() throws PetascopeException {
-        Element capabilityElement = new Element(XMLSymbols.LABEL_WMS_CAPABILITY);
+        Element capabilityElement = new Element(XMLSymbols.LABEL_WMS_CAPABILITY, NAMESPACE_WMS);
         
-        Element requestElement = new Element(XMLSymbols.LABEL_WMS_REQUEST);
+        Element requestElement = new Element(XMLSymbols.LABEL_WMS_REQUEST, NAMESPACE_WMS);
         capabilityElement.appendChild(requestElement);
         
-        Element getCapabilitiesElement = new Element(XMLSymbols.LABEL_WMS_GET_CAPABILITIES);
+        Element getCapabilitiesElement = new Element(XMLSymbols.LABEL_WMS_GET_CAPABILITIES, NAMESPACE_WMS);
         requestElement.appendChild(getCapabilitiesElement);
         
-        Element formatElement = new Element(XMLSymbols.LABEL_WMS_FORMAT);
+        Element formatElement = new Element(XMLSymbols.LABEL_WMS_FORMAT, NAMESPACE_WMS);
         formatElement.appendChild("text/xml");
         getCapabilitiesElement.appendChild(formatElement);
         
         // --- dcpType1 ----
         
-        Element dcpTypeElement1 = new Element(XMLSymbols.LABEL_WMS_DCPTYPE);
+        Element dcpTypeElement1 = new Element(XMLSymbols.LABEL_WMS_DCPTYPE, NAMESPACE_WMS);
         getCapabilitiesElement.appendChild(dcpTypeElement1);
         
-        Element httpElement1 = new Element(XMLSymbols.LABEL_WMS_HTTP);
+        Element httpElement1 = new Element(XMLSymbols.LABEL_WMS_HTTP, NAMESPACE_WMS);
         dcpTypeElement1.appendChild(httpElement1);
         
-        Element getElement1 = new Element(XMLSymbols.LABEL_WMS_GET);                
-        Element postElement1 = new Element(XMLSymbols.LABEL_WMS_POST);
+        Element getElement1 = new Element(XMLSymbols.LABEL_WMS_GET, NAMESPACE_WMS);                
+        Element postElement1 = new Element(XMLSymbols.LABEL_WMS_POST, NAMESPACE_WMS);
         httpElement1.appendChild(getElement1);
         httpElement1.appendChild(postElement1);
         
-        Element onlineResourceElement1 = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE);        
+        Element onlineResourceElement1 = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE, NAMESPACE_WMS);        
         Attribute xlinkHrefAttribute1 = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_HREF, ConfigManager.PETASCOPE_ENDPOINT_URL);
         Attribute xlinkTypeAttribute1 = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_TYPE, ConfigManager.PETASCOPE_ENDPOINT_URL);
         onlineResourceElement1.addAttribute(xlinkHrefAttribute1);
         onlineResourceElement1.addAttribute(xlinkTypeAttribute1);
         getElement1.appendChild(onlineResourceElement1);
         
-        Element onlineResourceElement2 = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE);        
+        Element onlineResourceElement2 = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE, NAMESPACE_WMS);        
         Attribute xlinkHrefAttribute2 = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_HREF, ConfigManager.PETASCOPE_ENDPOINT_URL);
         Attribute xlinkTypeAttribute2 = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_TYPE, ConfigManager.PETASCOPE_ENDPOINT_URL);
         onlineResourceElement2.addAttribute(xlinkHrefAttribute2);
@@ -362,12 +362,12 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         postElement1.appendChild(onlineResourceElement2);
         
          
-        Element getMapElement = new Element(XMLSymbols.LABEL_WMS_GET_MAP);
+        Element getMapElement = new Element(XMLSymbols.LABEL_WMS_GET_MAP, NAMESPACE_WMS);
         requestElement.appendChild(getMapElement);
         
         List<String> formats = Arrays.asList("image/jpeg", "image/png", "image/tiff");
         for (String format : formats) {
-            Element formatElementTmp = new Element(XMLSymbols.LABEL_WMS_FORMAT);
+            Element formatElementTmp = new Element(XMLSymbols.LABEL_WMS_FORMAT, NAMESPACE_WMS);
             formatElementTmp.appendChild(format);
             
             getMapElement.appendChild(formatElementTmp);
@@ -375,43 +375,43 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         
         // --- dcpType2 ----
         
-        Element dcpTypeElement2 = new Element(XMLSymbols.LABEL_WMS_DCPTYPE);
+        Element dcpTypeElement2 = new Element(XMLSymbols.LABEL_WMS_DCPTYPE, NAMESPACE_WMS);
         getMapElement.appendChild(dcpTypeElement2);
         
-        Element httpElement2 = new Element(XMLSymbols.LABEL_WMS_HTTP);
+        Element httpElement2 = new Element(XMLSymbols.LABEL_WMS_HTTP, NAMESPACE_WMS);
         dcpTypeElement2.appendChild(httpElement2);
         
-        Element getElement2 = new Element(XMLSymbols.LABEL_WMS_GET);                
-        Element postElement2 = new Element(XMLSymbols.LABEL_WMS_POST);
+        Element getElement2 = new Element(XMLSymbols.LABEL_WMS_GET, NAMESPACE_WMS);                
+        Element postElement2 = new Element(XMLSymbols.LABEL_WMS_POST, NAMESPACE_WMS);
         httpElement2.appendChild(getElement2);
         httpElement2.appendChild(postElement2);
         
-        Element onlineResourceElement3 = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE);        
+        Element onlineResourceElement3 = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE, NAMESPACE_WMS);        
         Attribute xlinkHrefAttribute3 = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_HREF, ConfigManager.PETASCOPE_ENDPOINT_URL);
         Attribute xlinkTypeAttribute3 = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_TYPE, ConfigManager.PETASCOPE_ENDPOINT_URL);
         onlineResourceElement3.addAttribute(xlinkTypeAttribute3);
         onlineResourceElement3.addAttribute(xlinkHrefAttribute3);
         getElement2.appendChild(onlineResourceElement3);
         
-        Element onlineResourceElement4 = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE);        
+        Element onlineResourceElement4 = new Element(XMLSymbols.LABEL_WMS_ONLINE_RESOURCE, NAMESPACE_WMS);        
         Attribute xlinkHrefAttribute4 = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_HREF, ConfigManager.PETASCOPE_ENDPOINT_URL);
         Attribute xlinkTypeAttribute4 = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_TYPE, ConfigManager.PETASCOPE_ENDPOINT_URL);
         onlineResourceElement4.addAttribute(xlinkHrefAttribute4);
         onlineResourceElement4.addAttribute(xlinkTypeAttribute4);
         postElement2.appendChild(onlineResourceElement4);
         
-        Element exceptionElement = new Element(XMLSymbols.LABEL_WMS_EXCEPTION);
+        Element exceptionElement = new Element(XMLSymbols.LABEL_WMS_EXCEPTION, NAMESPACE_WMS);
         formats = Arrays.asList("XML", "INIMAGE", "BLANK");
         for (String format : formats) {
             exceptionElement.appendChild(format);
         }
         
-        Element layerElement = new Element(XMLSymbols.LABEL_WMS_LAYER);
+        Element layerElement = new Element(XMLSymbols.LABEL_WMS_LAYER, NAMESPACE_WMS);
         capabilityElement.appendChild(layerElement);
         
-        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE);
+        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE, NAMESPACE_WMS);
         titleElement.appendChild("asdaman Web Map Service");
-        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
+        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT, NAMESPACE_WMS);
         abstractElement.appendChild("A compliant implementation of WMS 1.3.0 for raster data");
         
         layerElement.appendChild(titleElement);
@@ -451,7 +451,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      * @return
      */
     private Element buildLayerElement(Layer layer) throws PetascopeException {
-        Element layerElement = new Element(XMLSymbols.LABEL_WMS_LAYER);
+        Element layerElement = new Element(XMLSymbols.LABEL_WMS_LAYER, NAMESPACE_WMS);
 
         // All the attributes for one layer element
         LayerAttribute layerAttribute = layer.getLayerAttribute();
@@ -469,19 +469,19 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         layerElement.addAttribute(fixedHeightAttribute);
 
         // Name
-        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME);
+        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME, NAMESPACE_WMS);
 
         String layerName = layer.getName(); 
         nameElement.appendChild(layerName);
         layerElement.appendChild(nameElement);
 
         // Title        
-        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE);
+        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE, NAMESPACE_WMS);
         titleElement.appendChild(layer.getTitle());
         layerElement.appendChild(titleElement);
 
         // Abstract
-        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
+        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT, NAMESPACE_WMS);
         String layerAbstract = layer.getLayerAbstract();        
         abstractElement.appendChild(layerAbstract);
         layerElement.appendChild(abstractElement);
@@ -510,7 +510,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         }
 
         // CRSs (Current only contain one native CRS of coverage for geo XY axes)
-        Element crsElement = new Element(XMLSymbols.LABEL_WMS_CRS);
+        Element crsElement = new Element(XMLSymbols.LABEL_WMS_CRS, NAMESPACE_WMS);
         crsElement.appendChild(layer.getCrss().get(0));
         layerElement.appendChild(crsElement);
 
@@ -564,15 +564,15 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      *
      */
     public Element getStyleElement(Layer layer, Style style) throws PetascopeException {
-        Element styleElement = new Element(XMLSymbols.LABEL_WMS_STYLE);
+        Element styleElement = new Element(XMLSymbols.LABEL_WMS_STYLE, NAMESPACE_WMS);
 
         // Name
-        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME);
+        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME, NAMESPACE_WMS);
         nameElement.appendChild(style.getName());
         styleElement.appendChild(nameElement);
 
         // Title
-        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE);
+        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE, NAMESPACE_WMS);
         titleElement.appendChild(style.getTitle());
         styleElement.appendChild(titleElement);
 
@@ -592,7 +592,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      * Build XML element for a style's abstract.
      */
     private Element buildStyleAbstractElement(Layer layer, Style style) throws PetascopeException {
-        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
+        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT, NAMESPACE_WMS);
         
         // User's abstract for the style
         String styleAbstractStr = style.getStyleAbstract();

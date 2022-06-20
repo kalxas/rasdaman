@@ -34,6 +34,7 @@ import nu.xom.Attribute;
 import nu.xom.Element;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
 import petascope.core.XMLSymbols;
+import static petascope.core.XMLSymbols.NAMESPACE_WMS;
 
 /**
  * The optional <Dimension> element is used in service metadata to declare that
@@ -214,7 +215,7 @@ public class Dimension implements Serializable {
     @JsonIgnore
     public Element getElement() {
         
-        Element dimensionElement = new Element(XMLSymbols.LABEL_WMS_DIMENSION);
+        Element dimensionElement = new Element(XMLSymbols.LABEL_WMS_DIMENSION, NAMESPACE_WMS);
         Attribute nameAttribute = new Attribute(XMLSymbols.ATT_WMS_NAME, this.name);
         
         // Optional values according to Table C.1 WMS 1.3 document

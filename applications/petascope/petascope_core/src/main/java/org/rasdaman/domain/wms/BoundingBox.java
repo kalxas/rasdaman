@@ -35,6 +35,7 @@ import nu.xom.Attribute;
 import nu.xom.Element;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
 import petascope.core.XMLSymbols;
+import static petascope.core.XMLSymbols.NAMESPACE_WMS;
 import petascope.util.BigDecimalUtil;
 
 /**
@@ -162,7 +163,7 @@ public class BoundingBox implements Serializable {
     
     @JsonIgnore
     public Element getElement() {
-        Element bboxElement = new Element(XMLSymbols.LABEL_WMS_BOUNDING_BOX);
+        Element bboxElement = new Element(XMLSymbols.LABEL_WMS_BOUNDING_BOX, NAMESPACE_WMS);
         Attribute crsAttribute = new Attribute(XMLSymbols.LABEL_WMS_CRS, this.getCrs());
         Attribute minxAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_X, xmin);
         Attribute minyAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_Y, ymin);
