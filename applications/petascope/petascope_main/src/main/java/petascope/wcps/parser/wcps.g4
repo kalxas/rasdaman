@@ -480,7 +480,9 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                   | coverageExpression OVERLAY coverageExpression
                     #CoverageExpressionOverlayLabel
                   | flipExpression
-                    #coverageExpresisonFlipLabel;
+                    #coverageExpresisonFlipLabel
+                  | sortExpression
+                    #coverageExpressionSortLabel;
 /**
  * Example:
  *   $c1 AND $c2
@@ -857,6 +859,10 @@ generalCondenseExpression: CONDENSE condenseExpressionOperator
 flipExpression: FLIP coverageExpression ALONG axisName
 #flipExpressionLabel;
 
+// e.g. SORT $c ALONG ansi BY min($c[Long(30:30)])
+sortExpression: SORT coverageExpression ALONG axisName sortingOrder? BY coverageExpression
+#sortExpressionLabel;
+
 
 /*
 * Switch - Case
@@ -913,3 +919,5 @@ constant: STRING_LITERAL
         | TRUE | FALSE
         | (MINUS)? number
         | complexNumberConstant;
+
+sortingOrder: ASC | DESC;

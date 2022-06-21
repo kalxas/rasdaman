@@ -23,12 +23,11 @@ package petascope.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -77,7 +76,26 @@ public class JSONUtil {
     public static Object deserialize(String json, Class c) throws PetascopeException {
         Object result = null;
         try {
-            result = objectMapper.readValue(json, c);
+            result = objectMapper
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+                        .readValue(json, c);
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    "Cannot deserialize JSON string to object '" + c.getName() + "'. Reason: " + ex.getMessage(), ex);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Deserialize a JSON string to an object
+     */
+    public static Object deserializeWithUnknownProperties(String json, Class c) throws PetascopeException {
+        Object result = null;
+        try {
+            result = objectMapper
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .readValue(json, c);
         } catch (IOException ex) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
                     "Cannot deserialize JSON string to object '" + c.getName() + "'. Reason: " + ex.getMessage(), ex);

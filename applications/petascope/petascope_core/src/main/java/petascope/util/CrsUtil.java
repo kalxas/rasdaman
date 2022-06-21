@@ -1179,7 +1179,7 @@ public class CrsUtil {
     /**
      * return true if both axis labels are longitude axes
      */
-    private static boolean isLongitudeAxis(String axisLabel1, String axisLabel2) {
+    public static boolean isLongitudeAxis(String axisLabel1, String axisLabel2) {
         if (axisLabel1.equalsIgnoreCase(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85) 
            || axisLabel1.equalsIgnoreCase(LONGITUDE_AXIS_LABEL_EPGS_VERSION_0)) {
             if (axisLabel2.equalsIgnoreCase(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85)

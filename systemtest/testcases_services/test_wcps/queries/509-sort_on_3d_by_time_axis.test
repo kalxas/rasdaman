@@ -1,0 +1,5 @@
+for $c in (test_wms_3d_time_series_irregular)
+return 
+  encode(
+     (sort $c + 30 along unix  by add($c)).Red
+  , "json")

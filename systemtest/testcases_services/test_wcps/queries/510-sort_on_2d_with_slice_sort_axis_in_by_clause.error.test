@@ -1,0 +1,5 @@
+for $c in (test_mean_summer_airtemp) 
+return 
+encode(
+        SORT $c ALONG Lon BY $c[Lon(120)]
+      , "image/png")

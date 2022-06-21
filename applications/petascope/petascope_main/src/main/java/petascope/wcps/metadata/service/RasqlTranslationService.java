@@ -49,6 +49,8 @@ public class RasqlTranslationService {
 
     @Autowired
     private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+    @Autowired
+    private SortedAxisIteratorAliasRegistry sortedAxisIteratorAliasRegistry;
 
     /**
      * Constructs the rasql domain corresponding to the current list of axes.
@@ -84,6 +86,13 @@ public class RasqlTranslationService {
                 //ok, regular grid domain
                 NumericSubset gridBounds = axis.getGridBounds();
                 result = gridBounds.getStringRepresentationInInteger();
+            }
+            
+            String axisLabel = axis.getLabel();
+            // e.g. i[0]
+            String sortedAxisIteratorLabel = this.sortedAxisIteratorAliasRegistry.getIteratorLabelRepresentation(axisLabel);
+            if (sortedAxisIteratorLabel != null) {
+                result = sortedAxisIteratorLabel;
             }
 
             translatedDomains.add(result);

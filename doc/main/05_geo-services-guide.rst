@@ -1628,7 +1628,6 @@ Specific Exceptions
 - This format is only supported for General Grid Coverage
 - Illegal extra parameter
 
-
 .. _wcps-flip-operator:
 
 Flip Operator in WCPS
@@ -1637,7 +1636,7 @@ Flip Operator in WCPS
 The non-standard ``FLIP`` function enables reversing values from an axis belonging to a coverage expression.
 The output coverage expression has *no* changes in the grid domains, base type and dimensionality, but with
 reversed values and geo bounds of the selected axis; if this axis is irregular then 
-its list coeffcients is reversed as well. See more :ref:`details <sec-flipl>` in rasql.
+its list coeffcients is reversed as well. See more :ref:`details <sec-flip>` in rasql.
 
 
 **Syntax**
@@ -1674,6 +1673,72 @@ The following examples illustrate the syntax of the ``FLIP`` operator.
         encode(
                 FLIP $c[Lat(40:90), Long(80:140)] + 20 ALONG unix
               , "json")
+
+
+.. _wcps-sort-operator:
+
+Sort Operator in WCPS
+---------------------
+
+The ``SORT`` operator enables the user to sort a coverage expression along an axis. 
+The sorting is done by slicing the array of the coverage along that axis, calculating a slice rank
+for each of the slices, and then rearranging the slices according to their ranks, 
+in an ascending or descending order.
+
+The sorting causes no change in the spatial domain, base type, or dimensionality.
+This means that the resulting array is the original array but with its values sorted at the sorting axis.
+See more :ref:`details <sec-sort>` in rasql.
+
+.. NOTE::
+
+   After sorting, the geo domains (and coefficients for irregular axis) of the sorted axis are not changed,
+   even though the grid values associated with geo coordinates are changed.
+
+**Syntax**
+
+.. code-block::
+
+    sortExp: SORT coverageExp ALONG sortAxis [listingOrder] BY cellExp
+
+    coverageExp: a general coverage expression
+    sortAxis: identifier.
+    listingOrder: ASC (default if omitted) | DESC
+    cellExp: an expression that produces scalar ranks for each slice
+    along the sortAxis.
+
+.. NOTE::
+
+   One should not do subset (slice/trim) on the ``sortAxis`` in the ``cellExp``
+
+
+
+**Examples**
+
+The following examples illustrate the syntax of the ``SORT`` operator.
+
+- Sort the 2D coverage expression on its ``Lon`` axis according
+  to the coverage values at each longitude index and -40 latitude
+  in ascending order:
+
+  .. code-block:: 
+
+     for $c in (test_mean_summer_airtemp) 
+     return 
+        encode(
+                SORT $c ALONG Lon BY $c[Lat(-40)]
+              , "image/png")
+
+- Sort the 3D coverage expression on its ``unix`` time axis in
+  descending order by the sum of each time slice along it:
+
+  .. code-block:: 
+
+    for $c in (test_wms_3d_time_series_irregular)
+    return 
+      encode(
+         SORT $c.Red + 30 ALONG unix DESC BY add($c)
+      , "json")
+
 
 .. _ogc-wms:
 

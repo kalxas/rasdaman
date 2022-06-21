@@ -273,6 +273,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCoverageExpressionScaleByImageCrsDomainLabel(@NotNull wcpsParser.CoverageExpressionScaleByImageCrsDomainLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#sortingOrder}.
+	 * @param ctx the parse tree
+	 */
+	void enterSortingOrder(@NotNull wcpsParser.SortingOrderContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#sortingOrder}.
+	 * @param ctx the parse tree
+	 */
+	void exitSortingOrder(@NotNull wcpsParser.SortingOrderContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#booleanConstant}.
 	 * @param ctx the parse tree
 	 */
@@ -1010,6 +1021,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCoverageExpressionUnaryArithmeticLabel(@NotNull wcpsParser.CoverageExpressionUnaryArithmeticLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#sortExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterSortExpressionLabel(@NotNull wcpsParser.SortExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#sortExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitSortExpressionLabel(@NotNull wcpsParser.SortExpressionLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionExtendLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1261,6 +1283,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBooleanSwitchCaseCoverageExpression(@NotNull wcpsParser.BooleanSwitchCaseCoverageExpressionContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#coverageExpressionSortLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionSortLabel(@NotNull wcpsParser.CoverageExpressionSortLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#coverageExpressionSortLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionSortLabel(@NotNull wcpsParser.CoverageExpressionSortLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#corridorProjectionAxisLabel2}.

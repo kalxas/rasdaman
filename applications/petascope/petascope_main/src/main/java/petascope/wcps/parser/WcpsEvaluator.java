@@ -72,7 +72,6 @@ import petascope.wcps.handler.BinaryCoverageExpressionHandler;
 import petascope.wcps.handler.ExtendExpressionByImageCrsDomainHandler;
 import petascope.wcps.exception.processing.InvalidSubsettingException;
 import petascope.wcps.exception.processing.DuplcateRangeNameException;
-import petascope.wcps.exception.processing.CoverageMetadataException;
 import petascope.wcps.exception.processing.InvalidAxisNameException;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import petascope.wcps.subset_axis.model.DimensionIntervalList;
@@ -81,10 +80,8 @@ import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.IntervalExpression;
 import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.AxisSpec;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.math.BigDecimal;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
 import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.result.VisitorResult;
@@ -92,8 +89,6 @@ import petascope.wcps.result.VisitorResult;
 import static petascope.wcs2.parsers.subsets.SlicingSubsetDimension.ASTERISK;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -119,11 +114,13 @@ import petascope.wcps.handler.DescribeCoverageHandler;
 import petascope.wcps.handler.DomainIntervalsHandler;
 import petascope.wcps.handler.FlipExpressionHandler;
 import petascope.wcps.handler.LetClauseHandler;
+import petascope.wcps.handler.SortExpressionHandler;
 import petascope.wcps.handler.UnaryModExpressionHandler;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.LetClauseAliasRegistry;
+import petascope.wcps.metadata.service.SortedAxisIteratorAliasRegistry;
 import petascope.wcps.metadata.service.UsingCondenseRegistry;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
@@ -154,6 +151,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     AxisIteratorAliasRegistry axisIteratorAliasRegistry;
     @Autowired private 
     UsingCondenseRegistry usingCondenseRegistry;
+    @Autowired private
+    SortedAxisIteratorAliasRegistry sortedAxisIteratorAliasRegistry;
+    
     
     // Class handlers
     @Autowired private
@@ -180,6 +180,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     
     @Autowired private
     FlipExpressionHandler flipExpressionHandler;
+    @Autowired private
+    SortExpressionHandler sortExpressionHandler;
     
     @Autowired private
     CrsTransformHandler crsTransformHandler;
@@ -763,6 +765,51 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         }
         
         return this.flipExpressionHandler.handle(coverageExpression, axisLabel, axisLabelIndex);
+    }
+    
+    @Override 
+    public WcpsResult visitSortExpressionLabel(@NotNull wcpsParser.SortExpressionLabelContext ctx) {
+        // Handle SORT $COVERAGE_EXPRESSION ALONG $AXIS_LABEL BY $COVERAGE_EXPRESSION
+        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression(0));
+        
+        // e.g. sorted by Long axis
+        String sortedAxisLabel = ctx.axisName().getText();
+        
+        int sortedAxisLabelIndex = -1;
+        int i = 0;
+        
+        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), sortedAxisLabel)) {
+                sortedAxisLabelIndex = i;
+                break;
+            }
+            
+            i++;
+        }
+        
+        if (sortedAxisLabelIndex == -1) {
+            throw new CoverageAxisNotFoundExeption(sortedAxisLabel);
+        }
+        
+        String sortingOrder = null;
+        if (ctx.sortingOrder() == null) {
+            sortingOrder = SortExpressionHandler.DEFAULT_SORTING_ORDER;
+        } else {
+            // e.g. desc
+            sortingOrder = ctx.sortingOrder().getText();
+        }
+        
+        this.sortedAxisIteratorAliasRegistry.add(sortedAxisLabel);
+        
+        // e.g. i
+        String sortedAxisIteratorLabel = this.sortedAxisIteratorAliasRegistry.getIteratorLabel(sortedAxisLabel);
+        
+        WcpsResult cellExpression = (WcpsResult) visit(ctx.coverageExpression(1));
+        
+        this.sortedAxisIteratorAliasRegistry.remove(sortedAxisLabel);
+        
+        return this.sortExpressionHandler.handle(coverageExpression, sortedAxisLabel, sortedAxisLabelIndex, sortedAxisIteratorLabel,
+                                                sortingOrder, cellExpression);
     }
     
 
