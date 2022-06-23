@@ -54,6 +54,7 @@ import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wms.exception.WMSInvalidBoundingBoxInCrsTransformException;
 import petascope.wms.exception.WMSInvalidCrsUriException;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
+import petascope.wmts.handlers.service.WMTSGetCapabilitiesService;
 
 /**
  * Service to create a new WMS layer or update an existing WMS layer of a
@@ -172,6 +173,10 @@ public class AdminCreateOrUpdateLayerService {
             // Remove all the cached GetMap response from cache as layer is updated
             this.wmsGetMapCachingService.removeLayerGetMapInCache(layerName);
         }
+        
+        // Mark this local layer is updated for WMTS to recreate new TileMatrixSets for it
+        WMTSGetCapabilitiesService.localUpdatedLayerNames.add(layerName);
+
     }
 
     /**

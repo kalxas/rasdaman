@@ -57,6 +57,7 @@ import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService.NEAREST_INTERPOLATION;
 import static petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService.SUPPORTED_SCALING_AXIS_INTERPOLATIONS;
 import static petascope.core.KVPSymbols.KEY_SCALE_VECTOR;
+import petascope.wmts.handlers.service.WMTSGetCapabilitiesService;
 
 /**
  * Class to handle admin request to create a pyramid member coverage by scalefactors
@@ -236,8 +237,10 @@ public class AdminCreatePyramidMemberService extends AbstractAdminService {
         
         // then, add this pyramid member coverage to the base coverage's pyramid set
         baseCoverage.getPyramid().add(coveragePyramid);
-        this.coverageRepositoryService.save(baseCoverage);        
+        this.coverageRepositoryService.save(baseCoverage);  
         
+        // Recreate WMTS TileMatrixSet for this base layer
+        WMTSGetCapabilitiesService.localUpdatedLayerNames.add(baseCoverage.getCoverageId());
         
         // for example: request to create with base coverage: cov4 and pyramid member: cov8
         // first, find all coverages (e.g. cov1 and cov2) containing base coverage cov4

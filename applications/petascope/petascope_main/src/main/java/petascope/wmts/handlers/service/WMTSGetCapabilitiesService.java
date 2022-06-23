@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import javax.servlet.http.HttpServletRequest;
 import nu.xom.Attribute;
 import nu.xom.Element;
@@ -85,8 +85,10 @@ import petascope.util.MIMEUtil;
 import petascope.util.TimeUtil;
 import petascope.util.XMLUtil;
 import petascope.wms.handlers.kvp.KVPWMSGetCapabilitiesHandler;
-import petascope.wmts.handlers.model.TileMatrix;
-import petascope.wmts.handlers.model.TileMatrixSet;
+import org.rasdaman.domain.wmts.TileMatrix;
+import org.rasdaman.domain.wmts.TileMatrixSet;
+import org.rasdaman.repository.service.WMTSRepositoryService;
+import petascope.wms.handlers.service.WMSGetMapCachingService;
 
 /**
  * Handler for WMTS GetCapabilities service
@@ -99,6 +101,8 @@ public class WMTSGetCapabilitiesService {
     private static Logger log = LoggerFactory.getLogger(WMTSGetCapabilitiesService.class);
     
     @Autowired
+    private WMTSRepositoryService wmtsRepositoryService;
+    @Autowired
     private WMSRepostioryService wmsRepostioryService;    
     @Autowired
     private GMLGetCapabilitiesBuilder wcsGMLGetCapabilitiesBuild;
@@ -108,14 +112,16 @@ public class WMTSGetCapabilitiesService {
     private KVPWMSGetCapabilitiesHandler kvpWMSGetCapabilitiesHandler;
     @Autowired
     private HttpServletRequest httpServletRequest; 
+    @Autowired
+    private WMSGetMapCachingService wmsGetMapCachingService;
     
     public static final List<String> SUPPORTED_ENCODE_FORMATS = Arrays.asList(MIMEUtil.MIME_PNG, MIMEUtil.MIME_JPEG);
     
     public static final String STYLE_DEFAULT = "default";
     
-    // e.g. test_wms_4326:EPSG:4326 -> TileMatrixSet
-    public static final Map<String, TileMatrixSet> tileMatrixSetsMapCache = new ConcurrentHashMap<>();
-    
+    // Any local layer has been updated by WCS-T UpdateCoverage are added here 
+    // and WMTS GetCapabilities needs to create new TileMatrixSets cached objects for them
+    public static final Set<String> localUpdatedLayerNames = new ConcurrentSkipListSet<>();
     
     public Element buildServiceIdentificationElement(OwsServiceMetadata owsServiceMetadata) {
         
@@ -188,6 +194,14 @@ public class WMTSGetCapabilitiesService {
             }
         }
         
+        // Create the caches for WMTS TileMatrixSet if needed first
+        this.wmtsRepositoryService.buildTileMatrixSetsMapCaches(this.localUpdatedLayerNames);
+        // then, remove the local layer names which has been newly recreated TileMatrixSet in cache
+        for (String layerName : this.localUpdatedLayerNames) {
+            this.localUpdatedLayerNames.remove(layerName);
+            this.wmsGetMapCachingService.removeLayerGetMapInCache(layerName);
+        }
+        
         // build list of TileMatrixSet elements for list of layers
         List<Element> tileMatrixSetElements = this.buildTileMatrixSetElements(layers);
         for (Element element : tileMatrixSetElements) {
@@ -227,16 +241,18 @@ public class WMTSGetCapabilitiesService {
     </TileMatrixSet>     
      */
     public List<Element> buildTileMatrixSetElements(List<Layer> layers) throws PetascopeException {
-        // Reload new caches for WMTS GetCapabilities request
-        this.tileMatrixSetsMapCache.clear();
-        
         List<Element> results = new ArrayList<>();
         
         for (Layer layer : layers) {
             String layerName = layer.getName();
-            Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layerName);
-            
-            for (String tileMatrixSetName : this.getListTileMatrixSetNames(layerName)) {
+            for (String tileMatrixSetName : this.wmtsRepositoryService.getListTileMatrixSetNames(layerName)) {
+                
+                TileMatrixSet tileMatrixSet = this.wmtsRepositoryService.getTileMatrixSetFromCaches(tileMatrixSetName);
+                if (tileMatrixSet == null) {
+                    log.warn("TileMatrixSet: " + tileMatrixSetName + " does not exist.");
+                    continue;
+                }
+                
                 // NOTE: if a WMTS layer's geoXY CRS (e.g. EPSG:32633) is not EPSG:4326, then, here it has an extra TileMatrixSet for EPSG:32633
                 // e.g. test_wms:EPSG:4326
                 Element tileMatrixSetElement = new Element(XMLSymbols.LABEL_WMTS_TILE_MATRIX_SET, NAMESPACE_WMTS);
@@ -247,40 +263,18 @@ public class WMTSGetCapabilitiesService {
                 tileMatrisSetIdentifierElement.appendChild(tileMatrixSetName);
 
                 Element supportedCrsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_SUPPORTED_CRS), NAMESPACE_OWS);
-                String code = this.getCodeFromTileMatrixSetName(tileMatrixSetName);
+                String code = this.wmtsRepositoryService.getCodeFromTileMatrixSetName(tileMatrixSetName);
                 String supportedCrs = CrsUtil.URN_EPSG_PREFIX + code;
                 
                 supportedCrsElement.appendChild(supportedCrs);
                 tileMatrixSetElement.appendChild(supportedCrsElement);
                 
-                List<CoveragePyramid> coveragePyramids = new ArrayList<>();
-                // base coverage
-                coveragePyramids.add(new CoveragePyramid(coverage.getCoverageId(), new ArrayList<>(), false));
-                
-                Map<String, TileMatrix> tileMatrixMap = new LinkedHashMap<>();
-                TileMatrixSet tileMatrixSet = new TileMatrixSet(tileMatrixSetName, tileMatrixMap);
-                
-                // add the result to cache for WMTS GetTile request
-                this.tileMatrixSetsMapCache.put(tileMatrixSetName, tileMatrixSet);
-                
-                for (CoveragePyramid coveragePyramid : coverage.getPyramid()) {
-                    coveragePyramids.add(coveragePyramid);
-                }
-                
-                for (int i = coveragePyramids.size() - 1; i >= 0; i--) {
+                for (TileMatrix tileMatrix : tileMatrixSet.getTileMatrixMap().values()) {
                     // NOTE: List of TileMatrices is reversed order (lower grid domains -> higher grid domains)
-                    // e.g. 60m, 20m, 10m
-                    CoveragePyramid coveragePyramid = coveragePyramids.get(i);
-                    String pyramidMemberCoverageId = coveragePyramid.getPyramidMemberCoverageId();
                     
                     // e.g test_wms_2 (pyramid member)
-                    String tileMatrixName = coveragePyramid.getPyramidMemberCoverageId();
-
+                    String tileMatrixName = tileMatrix.getName();
                     Element tileMatrixElement = new Element(XMLSymbols.LABEL_WMTS_TILE_MATRIX, NAMESPACE_WMTS);
-                    String tileMatrixSetEPSGCode = CrsUtil.EPSG_AUTH + ":" + code;
-                    
-                    TileMatrix tileMatrix = this.buildTileMatrix(pyramidMemberCoverageId, tileMatrixSetEPSGCode);
-                    tileMatrixMap.put(tileMatrixName, tileMatrix);
                     
                     // Identifier
 
@@ -393,7 +387,7 @@ public class WMTSGetCapabilitiesService {
     */
     private void buildTileMatrixSetLinkElements(Layer layer, Element layerElement) throws PetascopeException {
         String layerName = layer.getName();
-        List<String> tileMatrixSetNames = this.getListTileMatrixSetNames(layerName);
+        List<String> tileMatrixSetNames = this.wmtsRepositoryService.getListTileMatrixSetNames(layerName);
         
         for (String tileMatrixSetName : tileMatrixSetNames) {
             // e.g: test_layer:EPSG:4326
@@ -489,7 +483,7 @@ public class WMTSGetCapabilitiesService {
         if (layer.getStyles().size() > 0) {
             for (Style style : layer.getStyles()) {
                 Element styleElement = this.kvpWMSGetCapabilitiesHandler.getStyleElement(layer, style);
-                Element nameElement = styleElement.getFirstChildElement(LABEL_WMS_NAME);
+                Element nameElement = styleElement.getFirstChildElement(LABEL_WMS_NAME, XMLSymbols.NAMESPACE_WMS);
                 styleElement.removeChild(nameElement);
 
                 Element identifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS);
@@ -667,165 +661,4 @@ public class WMTSGetCapabilitiesService {
     }
     
     // -------- Utility methods
-    
-    /**
-     * Build TileMatrix object (a TileMatrix contains details for a pyramid member of a base layer)
-     */
-    private TileMatrix buildTileMatrix(String pyramidMemberCoverageId, String tileMatrixSetEPSGCode) throws PetascopeException {
-        GeneralGridCoverage pyramidMemberCoverage = (GeneralGridCoverage) this.coverageRepositoryService.readCoverageFullMetadataByIdFromCache(pyramidMemberCoverageId);
-        
-        Pair<GeoAxis, GeoAxis> xyAxesPair = pyramidMemberCoverage.getXYGeoAxes();
-        GeoAxis geoAxisX = xyAxesPair.fst;
-        GeoAxis geoAxisY = xyAxesPair.snd;
-        String xyCRS = geoAxisX.getSrsName();
-        
-        BigDecimal geoLowerBoundX = geoAxisX.getLowerBoundNumber();
-        BigDecimal geoUpperBoundX = geoAxisX.getUpperBoundNumber();
-        BigDecimal geoLowerBoundY = geoAxisY.getLowerBoundNumber();
-        BigDecimal geoUpperBoundY = geoAxisY.getUpperBoundNumber();
-        
-        BigDecimal geoResolutionX = geoAxisX.getResolution();
-        BigDecimal geoResolutionY = geoAxisY.getResolution();
-        
-        IndexAxis indexAxisX = pyramidMemberCoverage.getIndexAxisByName(geoAxisX.getAxisLabel());
-        IndexAxis indexAxisY = pyramidMemberCoverage.getIndexAxisByName(geoAxisY.getAxisLabel());
-        
-        long gridLowerBoundX = indexAxisX.getLowerBound();
-        long gridUpperBoundX = indexAxisX.getUpperBound();
-        
-        long gridLowerBoundY = indexAxisY.getLowerBound();
-        long gridUpperBoundY = indexAxisY.getUpperBound();
-        
-        long numberOfGridPixelsX = gridUpperBoundX - gridLowerBoundX + 1;
-        long numberOfGridPixelsY = gridUpperBoundY - gridLowerBoundY + 1;
-        
-        GeoTransform geoTransform = null;
-        
-        // e.g. pyramid member coverage's native CRS is EPSG:32632
-        String nativeEPSGCode = CrsUtil.getAuthorityCode(xyCRS);
-        if (!nativeEPSGCode.equals(tileMatrixSetEPSGCode)) {
-            // e.g. tileMatrixSet is in EPSG:4326 -> it needs to reproject X,Y axes from EPSG:32632 -> EPSG:4326
-            geoTransform = CrsProjectionUtil.buildGeoTransform(xyAxesPair, new Pair<>(indexAxisX, indexAxisY));
-            geoTransform = CrsProjectionUtil.getGeoTransformInTargetCRS(geoTransform, tileMatrixSetEPSGCode);
-            
-            geoLowerBoundX = geoTransform.getUpperLeftGeoX();
-            geoUpperBoundX = geoTransform.getLowerRightGeoX();
-            
-            geoLowerBoundY = geoTransform.getLowerRightGeoY();
-            geoUpperBoundY = geoTransform.getUpperLeftGeoY();
-            
-            geoResolutionX = geoTransform.getGeoXResolution();
-            geoResolutionY = geoTransform.getGeoYResolution();
-            
-            gridLowerBoundX = 0;
-            gridUpperBoundX = geoTransform.getGridWidth() - 1;
-            
-            gridLowerBoundY = 0;
-            gridUpperBoundY = geoTransform.getGridHeight() - 1;
-            
-            numberOfGridPixelsX = geoTransform.getGridWidth();
-            numberOfGridPixelsY = geoTransform.getGridHeight();
-        }
-        
-        // scaleDenominator
-        
-        if (geoTransform == null) {
-            geoTransform = CrsProjectionUtil.buildGeoTransform(xyAxesPair, new Pair<>(indexAxisX, indexAxisY));
-            geoTransform = CrsProjectionUtil.getGeoTransformInTargetCRS(geoTransform, tileMatrixSetEPSGCode);
-        }
-        
-        BigDecimal geoDomainX = geoTransform.getLowerRightGeoX().subtract(geoTransform.getUpperLeftGeoX());
-        BigDecimal geoDomainY = geoTransform.getUpperLeftGeoY().subtract(geoTransform.getLowerRightGeoY());
-
-        BigDecimal geoDomain = geoDomainX.compareTo(geoDomainY) < 0 ? geoDomainY : geoDomainX;
-        int gridDomain = geoDomainX.compareTo(geoDomainY) < 0 ? geoTransform.getGridHeight() : geoTransform.getGridWidth();
-        
-        // NOTE: The formula below is from WMS 1.3.0 standard
-        
-        // 6378137m Earth ellipsoid (EPSG:4326) (meters)
-        // degree * (6378137 * 2 * pi) : 360
-        BigDecimal linearSizeInMeters = BigDecimalUtil.divide(geoDomain.multiply(new BigDecimal("6378137").multiply(new BigDecimal("2")).multiply(new BigDecimal("3.14"))), new BigDecimal("360"));
-        // linearSizeInMeters : numberOfGridPixels : 0.00028m/pixel
-        BigDecimal scaleDenominator = BigDecimalUtil.divide(BigDecimalUtil.divide(linearSizeInMeters, BigDecimal.valueOf(gridDomain)), new BigDecimal("0.00028"));
-        
-        // topLeftCorner
-        
-        String topLeftCorner = "";
-        if (CrsUtil.isXYAxesOrder(tileMatrixSetEPSGCode)) {
-            // e.g. EPSG:3857
-            topLeftCorner += geoLowerBoundX.toPlainString() + " " + geoUpperBoundY.toPlainString();
-        } else {
-            // e.g. EPSG:4326
-            topLeftCorner += geoUpperBoundY.toPlainString() + " " + geoLowerBoundX.toPlainString();
-        }
-        
-        // matrixWidth (number of tiles per columns)
-        
-        long tileWidth = TileMatrix.GRID_SIZE;
-        long matrixWidth = new BigDecimal(numberOfGridPixelsX).divide(new BigDecimal(TileMatrix.GRID_SIZE), RoundingMode.CEILING).longValue();
-        if (numberOfGridPixelsX < TileMatrix.GRID_SIZE) {
-            matrixWidth = new BigDecimal(numberOfGridPixelsX).divide(new BigDecimal(numberOfGridPixelsX), RoundingMode.CEILING).longValue();
-            // e.g. 36 pixels
-            tileWidth = numberOfGridPixelsX;
-        }
-        
-        // matrixHeight (number of tiles per rows)
-        
-        long tileHeight = TileMatrix.GRID_SIZE;
-        long matrixHeight = new BigDecimal(numberOfGridPixelsY).divide(new BigDecimal(TileMatrix.GRID_SIZE), RoundingMode.CEILING).longValue();
-        if (numberOfGridPixelsY < TileMatrix.GRID_SIZE) {
-            matrixHeight = new BigDecimal(numberOfGridPixelsY).divide(new BigDecimal(numberOfGridPixelsY), RoundingMode.CEILING).longValue();
-            // e.g. 18 pixels
-            tileHeight = numberOfGridPixelsY;
-        }
-        
-        // it contains the details of a TileMatrix in a TileMatrixSet (with CRS) to build an equivalent WMS request later
-        TileMatrix result = new TileMatrix(
-                                pyramidMemberCoverageId,
-                                scaleDenominator, topLeftCorner,
-                                tileWidth, tileHeight,
-                                matrixWidth, matrixHeight,
-                                tileMatrixSetEPSGCode,
-                                geoLowerBoundX, geoUpperBoundX, geoLowerBoundY, geoUpperBoundY,
-                                geoResolutionX, geoResolutionY,
-                                numberOfGridPixelsX, numberOfGridPixelsY
-                                );
-        return result;
-    }
-    
-    /** 
-     * e.g. test_layer_1:EPSG:4326, test_layer_2:EPSG:4326
-     */
-    private List<String> getListTileMatrixSetNames(String layerName) throws PetascopeException {
-        Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layerName);
-        // e.g. EPSG:4326
-        String geoXYCRS = coverage.getEnvelope().getEnvelopeByAxis().getGeoXYCrs();
-        String epsgCode = CrsUtil.getAuthorityCode(geoXYCRS);
-        
-        List<String> results = new ArrayList<>();
-        String tileMatrixSetName = this.getTileMatrixSetName(layerName, epsgCode);
-        results.add(tileMatrixSetName);
-        
-        if (!epsgCode.equals(CrsUtil.EPSG_4326_AUTHORITY_CODE)) {
-            // NOTE: If a layer's native CRS is different
-            // from EPSG:4326 -> it has another TileMatrixSet in this CRS, besides the default TileMatrixSet in EPSG:4326
-            results.add(this.getTileMatrixSetName(layerName, CrsUtil.EPSG_4326_AUTHORITY_CODE));
-        }
-        
-        return results;
-    }
-    
-    /**
-     * e.g. test_layer:EPSG:4326
-     */
-    private String getTileMatrixSetName(String layerName, String epsgCode) {
-        return layerName + ":" + epsgCode;
-    }
-    
-    /**
-     *  e.g. test_wms:EPSG:4326 -> 4326
-     */
-    private String getCodeFromTileMatrixSetName(String tileMatrixSetName) {
-        return tileMatrixSetName.substring(tileMatrixSetName.lastIndexOf(":") + 1);
-    }
 }

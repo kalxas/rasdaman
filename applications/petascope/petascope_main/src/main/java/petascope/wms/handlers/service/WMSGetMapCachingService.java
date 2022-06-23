@@ -100,17 +100,36 @@ public class WMSGetMapCachingService {
             String requestQuery = iterator.next().getKey();
             String[] keyValues = requestQuery.split("&");
             
-            for (String keyValue : keyValues) {
-                String[] tmp = keyValue.split("=");
-                if (tmp[0].equalsIgnoreCase(KVPSymbols.KEY_WMS_LAYERS)) {
-                    if (tmp[1].contains(layerName)) {
-                        // A GetMap request which contains the removed layerName, then remove it from cache
-                        iterator.remove();
-                        break;
+            if (this.contain(keyValues, layerName)) {
+                // A GetMap request which contains the removed layerName, then remove it from cache
+                iterator.remove();
+            }
+            
+        }
+    }
+    
+    /**
+     * Check if a cached WMS / WMTS request contains a layername 
+     */
+    private boolean contain(String[] keyValues, String layerName) {
+        for (String keyValue : keyValues) {
+            // e.g. styles= or layers=test_wms
+            String[] tmp = keyValue.split("=");
+            String key = tmp[0];
+            
+            if (tmp.length == 2) {
+                String value = tmp[1];
+
+                if (key.equalsIgnoreCase(KVPSymbols.KEY_WMS_LAYERS)
+                    || key.equalsIgnoreCase(KVPSymbols.KEY_WMTS_RASDAMAN_INTERNAL_FOR_GETMAP_REQUEST_PYRAMID_COVERAGE_ID)) {
+                    if (value.contains(layerName)) {
+                        return true;
                     }
                 }
             }
         }
+        
+        return false;
     }
     
     

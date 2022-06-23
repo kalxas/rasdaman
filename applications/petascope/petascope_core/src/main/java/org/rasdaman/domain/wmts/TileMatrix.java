@@ -19,7 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wmts.handlers.model;
+package org.rasdaman.domain.wmts;
 
 import java.math.BigDecimal;
 

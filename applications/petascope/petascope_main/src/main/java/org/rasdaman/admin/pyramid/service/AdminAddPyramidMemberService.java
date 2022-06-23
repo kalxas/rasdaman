@@ -54,6 +54,7 @@ import petascope.util.SetUtil;
 import petascope.util.StringUtil;
 import static petascope.core.KVPSymbols.KEY_PYRAMID_HARVESTING;
 import static petascope.core.KVPSymbols.KEY_MEMBERS;
+import petascope.wmts.handlers.service.WMTSGetCapabilitiesService;
 
 /**
  * Class to handle admin request to add a pyramid member coverage (and all
@@ -264,6 +265,9 @@ public class AdminAddPyramidMemberService extends AbstractAdminService {
         for (GeneralGridCoverage containingCoverage : containingCoverages) {
             // e.g. add cov4 to cov1
             this.addPyramidMemberCoverageToBaseCoverage(containingCoverage, pyramidMemberCoverage, pyramidHarvesting);
+            
+            // Recreate WMTS TileMatrixSets cache for this containing coverage
+            WMTSGetCapabilitiesService.localUpdatedLayerNames.add(containingCoverage.getCoverageId());
 
             this.coverageRepositoryService.save(containingCoverage);
         }

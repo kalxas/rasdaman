@@ -34,6 +34,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.repository.service.WMSRepostioryService;
+import org.rasdaman.repository.service.WMTSRepositoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ import static petascope.core.KVPSymbols.KEY_COVERAGE_ID;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WMSException;
+import petascope.util.CrsUtil;
 import petascope.util.SetUtil;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 
@@ -62,6 +64,8 @@ public class AdminDeactivateLayerService extends AbstractAdminService {
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
     private WMSGetMapCachingService wmsGetMapCachingService;
+    @Autowired
+    private WMTSRepositoryService wmtsRepositoryService;
     
     public AdminDeactivateLayerService() {
 
@@ -88,6 +92,11 @@ public class AdminDeactivateLayerService extends AbstractAdminService {
         
         // Then remove the GetMap request which contains layers and styles from cache
         this.wmsGetMapCachingService.removeLayerGetMapInCache(layerName);
+        
+        // e.g. EPSG:4326
+        String epsgCode = CrsUtil.getAuthorityCode(layer.getGeoXYCRS());
+        this.wmtsRepositoryService.removeTileMatrixSetFromLocalCache(layerName, epsgCode);
+        
         log.info("Layer '" + layerName + "' is deactivated.");
 
         // Request returns empty string as a success

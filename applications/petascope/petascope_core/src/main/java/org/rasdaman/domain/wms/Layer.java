@@ -231,6 +231,11 @@ public class Layer implements Serializable {
     public List<String> getCrss() {
         return crss;
     }
+    
+    @JsonIgnore
+    public String getGeoXYCRS() {
+        return crss.get(0);
+    }
 
     public void setCrss(List<String> crss) {
         this.crss = crss;

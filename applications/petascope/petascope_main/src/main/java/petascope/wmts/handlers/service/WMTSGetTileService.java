@@ -35,7 +35,7 @@ import petascope.exceptions.WMSException;
 import petascope.util.CrsUtil;
 import petascope.util.StringUtil;
 import petascope.wms.handlers.kvp.KVPWMSGetMapHandler;
-import petascope.wmts.handlers.model.TileMatrix;
+import org.rasdaman.domain.wmts.TileMatrix;
 
 /**
  * Service to handle WMTS GetTile request

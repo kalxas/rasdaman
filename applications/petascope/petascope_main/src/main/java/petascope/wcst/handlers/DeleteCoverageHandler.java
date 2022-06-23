@@ -52,6 +52,9 @@ import static petascope.util.ras.TypeRegistry.SET_TYPE_SUFFIX;
 import petascope.wcst.exceptions.WCSTCoverageIdNotFound;
 import petascope.wcst.parsers.DeleteCoverageRequest;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
+import org.rasdaman.repository.service.WMTSRepositoryService;
+import petascope.util.CrsUtil;
+import petascope.wmts.handlers.service.WMTSGetCapabilitiesService;
 
 /**
  * Handles the deletion of a coverage.
@@ -71,6 +74,9 @@ public class DeleteCoverageHandler {
     private CoveragePyramidRepositoryService coveragePyramidRepositoryService;
     @Autowired
     private AdminRemovePyramidMemberService removePyramidMemberService;
+    @Autowired
+    private WMTSRepositoryService wmtsRepositoryService;
+    
     @Autowired
     private HttpServletRequest httpServletRequest;
     @Autowired
@@ -279,10 +285,13 @@ public class DeleteCoverageHandler {
         if (layer != null) {
             // Layer does exist, remove it
             wmsRepositoryService.deleteLayer(layer);
-
-            // Also remove all the cached layers's GetMap requests
-            wmsGetMapCachingService.removeLayerGetMapInCache(layer.getName());
+            
+            String epsgCode = CrsUtil.getAuthorityCode(layer.getGeoXYCRS());
+            this.wmtsRepositoryService.removeTileMatrixSetFromLocalCache(layer.getName(), epsgCode);
         }
+        
+        // Also remove all the cached layers's GetMap requests
+        wmsGetMapCachingService.removeLayerGetMapInCache(coverageId);
     }
 
 }

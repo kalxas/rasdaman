@@ -32,6 +32,7 @@ import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.repository.service.CoveragePyramidRepositoryService;
 import org.rasdaman.repository.service.CoverageRepositoryService;
+import org.rasdaman.repository.service.WMTSRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,8 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.SetUtil;
 import static petascope.core.KVPSymbols.KEY_MEMBERS;
+import petascope.util.CrsUtil;
+import petascope.wmts.handlers.service.WMTSGetCapabilitiesService;
 
 /**
  * Class to handle admin request to remove a pyramid member coverage
@@ -72,6 +75,8 @@ public class AdminRemovePyramidMemberService extends AbstractAdminService {
     private CoverageRepositoryService coverageRepositoryService;
     @Autowired
     private CoveragePyramidRepositoryService coveragePyramidRepositoryService;
+    @Autowired
+    private WMTSRepositoryService wmtsRepositoryService;
     
     private void validate(Map<String, String[]> kvpParameters) throws PetascopeException {       
         this.validateRequiredParameters(kvpParameters, VALID_PARAMETERS);
@@ -145,6 +150,13 @@ public class AdminRemovePyramidMemberService extends AbstractAdminService {
         if (index >= 0) {
             baseCoverage.getPyramid().remove(index);
             this.coverageRepositoryService.save(baseCoverage);
+            
+            // e.g. EPSG:4326
+            String epsgCode = CrsUtil.getAuthorityCode(baseCoverage.getEnvelope().getEnvelopeByAxis().getGeoXYCrs());
+            
+            // remove TileMatrix (WMTS) exists in an existing TileMatrixSet
+            this.wmtsRepositoryService.removeTileMatrixFromLocalCache(baseCoverage.getCoverageId(), pyramidMemberCoverageId, epsgCode);
+            
             log.info("Removed pyramid member coverage '"  + pyramidMemberCoverageId + "' from base coverage '" + baseCoverage.getCoverageId() + "'.");
         }
         

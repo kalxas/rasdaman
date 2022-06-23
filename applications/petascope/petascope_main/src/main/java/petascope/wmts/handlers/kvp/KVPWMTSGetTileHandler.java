@@ -23,8 +23,10 @@ package petascope.wmts.handlers.kvp;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.wms.Layer;
@@ -42,8 +44,10 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WMSException;
-import petascope.wmts.handlers.model.TileMatrix;
-import petascope.wmts.handlers.model.TileMatrixSet;
+import org.rasdaman.domain.wmts.TileMatrix;
+import org.rasdaman.domain.wmts.TileMatrixSet;
+import org.rasdaman.repository.service.WMTSRepositoryService;
+import petascope.wms.handlers.service.WMSGetMapCachingService;
 import petascope.wmts.handlers.service.WMTSGetCapabilitiesService;
 import petascope.wmts.handlers.service.WMTSGetTileService;
 
@@ -64,6 +68,11 @@ public class KVPWMTSGetTileHandler extends KVPWMTSAbstractHandler {
     
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
+    @Autowired
+    private WMSGetMapCachingService wmsGetMapCachingService;    
+
+    @Autowired
+    private WMTSRepositoryService wmtsRepositoryService;
     
     @Autowired
     private WMTSGetCapabilitiesService wmtsGetCapabilitiesService;
@@ -74,11 +83,6 @@ public class KVPWMTSGetTileHandler extends KVPWMTSAbstractHandler {
     public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException, Exception {
         
         this.validate(kvpParameters);
-        
-        if (this.wmtsGetCapabilitiesService.tileMatrixSetsMapCache.isEmpty()) {
-            // In case WMTS GetCapabilities is not requested, then it needs to create TileMatrixSet cache first
-            this.wmtsGetCapabilitiesService.buildContentsElement();
-        }
         
         Map<String, String[]> kvpMap = new LinkedHashMap<>();
         for (Map.Entry<String, String[]> entry : kvpParameters.entrySet()) {
@@ -135,8 +139,13 @@ public class KVPWMTSGetTileHandler extends KVPWMTSAbstractHandler {
             nonXYAxisPairs.add(new Pair<>(key, value));
         }
         
-        TileMatrixSet tileMatrixSet = this.wmtsGetCapabilitiesService.tileMatrixSetsMapCache.get(tileMatrixSetName);
+        TileMatrixSet tileMatrixSet = this.wmtsRepositoryService.getTileMatrixSetFromCaches(tileMatrixSetName);
+        
         TileMatrix tileMatrix = tileMatrixSet.getTileMatrixMap().get(tileMatrixName);
+        
+        if (tileMatrix == null) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "TileMatrix: " + tileMatrixName + " does not exist.");
+        }
         
         Response result = this.wmtsGetTileService.handle(layerName, styleName,
                                                         tileMatrix,
@@ -168,12 +177,18 @@ public class KVPWMTSGetTileHandler extends KVPWMTSAbstractHandler {
         String tileMatrixSetName = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMTS_TILE_MATRIX_SET);
         String tileMatrixName = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMTS_TILE_MATRIX);
         
-        // create cache of TileMatrixSet
-        if (this.wmtsGetCapabilitiesService.tileMatrixSetsMapCache.isEmpty()) {
-            this.wmtsGetCapabilitiesService.buildContentsElement();
+        Set<String> localUpdateLayerNames = new LinkedHashSet<>();
+        if (this.wmtsGetCapabilitiesService.localUpdatedLayerNames.contains(layerName)) {
+            localUpdateLayerNames.add(layerName);
         }
         
-        TileMatrixSet tileMatrixSet = this.wmtsGetCapabilitiesService.tileMatrixSetsMapCache.get(tileMatrixSetName);
+        // rebuild cache of TileMatrixSet for the requesting layer if needed
+        this.wmtsRepositoryService.updateLocalTileMatrixSetsMapCache(localUpdateLayerNames);
+        // remove this updated layer from the list
+        this.wmtsGetCapabilitiesService.localUpdatedLayerNames.remove(layerName);
+        this.wmsGetMapCachingService.removeLayerGetMapInCache(layerName);
+        
+        TileMatrixSet tileMatrixSet = this.wmtsRepositoryService.getTileMatrixSetFromCaches(tileMatrixSetName);
         if (tileMatrixSet == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 
                                         KVPSymbols.KEY_WMTS_TILE_MATRIX_SET + ": " + tileMatrixSetName + " does not exist.");

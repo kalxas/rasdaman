@@ -51,6 +51,8 @@ public class WMSRepostioryService {
     private LayerRepository layerRepository;
     @Autowired
     private CoverageRepositoryService coverageRepositoryService;
+    @Autowired
+    private WMTSRepositoryService wmtsRepositoryService;
 
     // NOTE: for migration, Hibernate caches the object in first-level cache internally
     // and recheck everytime a new entity is saved, then with thousands of cached objects for nothing
@@ -114,7 +116,6 @@ public class WMSRepostioryService {
         // Check if layer already cached in local cache
         layer = localLayersCacheMap.get(layerName);
 
-
         return layer;
     }
 
@@ -166,6 +167,7 @@ public class WMSRepostioryService {
 
         // Read all layers from database
         List<Layer> layers = this.readAllLocalLayers();
+        this.wmtsRepositoryService.initializeLocalTileMatrixSetsMapCache();
 
         return layers;
     }
