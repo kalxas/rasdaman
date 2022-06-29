@@ -38,6 +38,7 @@ import static petascope.core.XMLSymbols.LABEL_WMS_EAST_BOUND_LONGITUDE;
 import static petascope.core.XMLSymbols.LABEL_WMS_NORTH_BOUND_LATITUDE;
 import static petascope.core.XMLSymbols.LABEL_WMS_SOUTH_BOUND_LATITUDE;
 import static petascope.core.XMLSymbols.LABEL_WMS_WEST_BOUND_LONGITUDE;
+import static petascope.core.XMLSymbols.NAMESPACE_WMS;
 import petascope.util.BigDecimalUtil;
 
 /**
@@ -155,15 +156,15 @@ public class EXGeographicBoundingBox implements Serializable {
     
     @JsonIgnore
     public Element getElement() {
-        Element exBBoxElement = new Element(XMLSymbols.LABEL_WMS_EX_BBOX);
+        Element exBBoxElement = new Element(XMLSymbols.LABEL_WMS_EX_BBOX, NAMESPACE_WMS);
 
-        Element westBoundLongitudeElement = new Element(LABEL_WMS_WEST_BOUND_LONGITUDE);
+        Element westBoundLongitudeElement = new Element(LABEL_WMS_WEST_BOUND_LONGITUDE, NAMESPACE_WMS);
         westBoundLongitudeElement.appendChild(westBoundLongitude);
-        Element eastBoundLongitudeElement = new Element(LABEL_WMS_EAST_BOUND_LONGITUDE);
+        Element eastBoundLongitudeElement = new Element(LABEL_WMS_EAST_BOUND_LONGITUDE, NAMESPACE_WMS);
         eastBoundLongitudeElement.appendChild(eastBoundLongitude);
-        Element southBoundLatitudeElement = new Element(LABEL_WMS_SOUTH_BOUND_LATITUDE);
+        Element southBoundLatitudeElement = new Element(LABEL_WMS_SOUTH_BOUND_LATITUDE, NAMESPACE_WMS);
         southBoundLatitudeElement.appendChild(southBoundLatitude);
-        Element northBoundLatitudeElement = new Element(LABEL_WMS_NORTH_BOUND_LATITUDE);
+        Element northBoundLatitudeElement = new Element(LABEL_WMS_NORTH_BOUND_LATITUDE, NAMESPACE_WMS);
         northBoundLatitudeElement.appendChild(northBoundLatitude);
 
         exBBoxElement.appendChild(westBoundLongitudeElement);
