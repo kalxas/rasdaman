@@ -736,10 +736,10 @@ Internal array representation
 =============================
 
 Internally in rasdaman, multidimensional arrays are handled as a 1-D
-array, linearized in `row-major
+array, linearized in `column-major
 format <https://en.wikipedia.org/wiki/Row-_and_column-major_order>`__.
-Row-major refers to matrices with rows and columns, indicating that
-first all cells of the first row are listed in order, then all cells of
+Column-major refers to matrices with rows and columns, indicating that
+first all cells of the first column are listed in order, then all cells of
 the second row, etc. Given that we are working with multidimensional
 arrays here, this notion needs to be
 `generalized <https://en.wikipedia.org/wiki/Row-_and_column-major_order#Address_calculation_in_general>`__:
