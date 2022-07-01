@@ -228,7 +228,7 @@ QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
 
     // create one single tile with the load domain
     std::unique_ptr<Tile> sourceTile;
-    sourceTile.reset(new Tile(tiles.get(), qtMDD->getLoadDomain()));
+    sourceTile.reset(new Tile(tiles.get(), qtMDD->getLoadDomain(), currentMDDObj));
     auto *nullValues = currentMDDObj->getNullValues();
 
     // Convert tile "sourceTile" to GDAL format

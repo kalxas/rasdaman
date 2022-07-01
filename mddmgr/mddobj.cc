@@ -575,97 +575,11 @@ MDDObj::fillTileWithNullvalues(char *resDataPtr, size_t cellCount) const
 {
     if (this->getNullValues())
     {
-        if (this->getCellType()->getType() == STRUCT)
-        {
-            fillMultibandTileWithNullvalues(resDataPtr, cellCount);
-        }
-        else
-        {
-            fillSinglebandTileWithNullvalues(resDataPtr, cellCount, this->getCellType()->getType());
-        }
+        NullValuesHandler::fillTileWithNullvalues(resDataPtr, cellCount, getCellType());
     }
     else
     {
         fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
-    }
-}
-
-void
-MDDObj::fillSinglebandTileWithNullvalues(char *resDataPtr, size_t cellCount, TypeEnum cellType) const
-{
-    auto nullValue = this->getNullValue();
-    LDEBUG << "Initializing single-band tile with null value " << nullValue;
-
-    MAKE_SWITCH_TYPEENUM(cellType, T,
-         CODE( // case T:
-             fillTile<T>(static_cast<T>(nullValue), cellCount, resDataPtr);
-         ),
-         CODE( // default:
-             LDEBUG << "Unknown base type: " << this->getCellType()->getName();
-             fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
-         ));
-}
-
-template <typename T>
-void fillBand(r_Double nullValue, size_t cellCount, char *dst, unsigned int cellTypeSize)
-{
-    const auto nullValueT = static_cast<T>(nullValue);
-    for (size_t i = 0; i < cellCount; ++i, dst += cellTypeSize)
-    {
-        *reinterpret_cast<T *>(dst) = nullValueT;
-    }
-}
-
-void MDDObj::fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount) const
-{
-    const auto *structType = dynamic_cast<const StructType *>(this->getCellType());
-    const auto numElems = structType->getNumElems();
-    assert(numElems > 0);
-    LDEBUG << "Initializing multi-band tile with " << numElems << " bands with null value";
-
-    bool allBandsSameType = true;
-    auto firstBandType = structType->getElemType(0u)->getType();
-    for (unsigned int i = 0; i < numElems; ++i)
-    {
-        const auto bandType = structType->getElemType(i)->getType();
-        if (bandType == STRUCT)
-        {
-            // cannot handle nested structs, fill with zeros
-            LWARNING << "MDD type is a struct that contains struct bands; "
-                     << "cannot initialize to null value, will be initialized to 0.";
-            fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
-            return;
-        }
-        allBandsSameType &= (firstBandType == bandType);
-    }
-
-    if (allBandsSameType)
-    {
-        // optimization: all bands are of the same type
-        fillSinglebandTileWithNullvalues(resDataPtr, cellCount * numElems, firstBandType);
-    }
-    else
-    {
-        auto nullValue = this->getNullValue();
-        // bands of varying types, this is quite inefficient
-        const auto cellTypeSize = getCellType()->getSize();
-        size_t bandOffset = 0;
-        for (unsigned int i = 0; i < numElems; ++i)
-        {
-            LDEBUG << "  initializing band " << i << " with null value " << nullValue;
-            char *dst = resDataPtr + bandOffset;
-
-            MAKE_SWITCH_TYPEENUM(structType->getElemType(i)->getType(), T,
-                 CODE( // case T:
-                     fillBand<T>(nullValue, cellCount, dst, cellTypeSize);
-                 ),
-                 CODE( // default:
-                     LDEBUG << "Unknown base type: " << this->getCellType()->getName();
-                     fillBand<r_Char>(nullValue, cellCount, dst, cellTypeSize);
-                 ));
-
-            bandOffset += structType->getElemType(i)->getSize();
-        }
     }
 }
 

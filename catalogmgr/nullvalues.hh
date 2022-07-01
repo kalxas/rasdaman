@@ -33,8 +33,11 @@ rasdaman GmbH.
 #ifndef _NULLVALUESHANDLER_HH_
 #define _NULLVALUESHANDLER_HH_
 
+#include "typeenum.hh"
 #include "raslib/nullvalues.hh"
 #include "raslib/odmgtypes.hh"
+
+class BaseType;
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -68,8 +71,9 @@ public:
 
     /// set the number of null values
     void setNullValuesCount(unsigned long count);
-    //make union of two nullvalues vectors
+    /// make union of two nullvalues vectors
     r_Nullvalues *unionNullValues(r_Nullvalues *nullValues1, r_Nullvalues *nullValues2);
+    
     /*
      * Functions to check if a value is null. If it is the null values counter
      * is increased automatically.
@@ -232,8 +236,23 @@ public:
         }
         return false;
     }
+    
+    /// given a tile and total # cells in that tile = cellCount, this method 
+    /// initializes the entire tile with the first null value if any is available;
+    /// otherwise nothing is done.
+    void fillTileWithNullvalues(char *resDataPtr, size_t cellCount, const BaseType *cellType) const;
 
 protected:
+    
+    /// given a tile and total # cells in that tile = cellCount, this method 
+    /// initializes the entire tile with the first null value if any is available;
+    /// otherwise nothing is done.
+    void fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount, const BaseType *cellType) const;
+    
+    /// given a tile and total # cells in that tile = cellCount, this method 
+    /// initializes the entire tile with the first null value if any is available;
+    /// otherwise nothing is done.
+    void fillSinglebandTileWithNullvalues(char *resDataPtr, size_t cellCount, TypeEnum cellType) const;
 
     /// increase null values count by one
     inline void incCount()

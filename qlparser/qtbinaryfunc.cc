@@ -553,11 +553,20 @@ QtExtend::evaluate(QtDataList *inputList)
 
         // create tiles for all domains found
         // LINFO << "QtExtend::evaluate( QtDataList* ): - creating " << extendDomainList.size() << " tiles...";
-        for (vector<r_Minterval>::iterator domainIter = extendDomainList.begin(); domainIter != extendDomainList.end(); domainIter++)
+        
+        const auto *nullValues = currentMDDObj->getNullValues();
+        bool hasNullValues = nullValues != NULL && !nullValues->getNullvalues().empty();
+        
+        for (auto domainIter = extendDomainList.begin(); domainIter != extendDomainList.end(); domainIter++)
         {
             // LINFO << "QtExtend::evaluate( QtDataList* ): creating tile for domain " << (*domainIter);
             Tile *newTransTile = new Tile(*domainIter, currentMDDObj->getCellType());
             resultMDD->insertTile(newTransTile);
+            if (hasNullValues)
+            {
+                // initialize tile with null values
+                resultMDD->fillTileWithNullvalues(newTransTile->getContents(), domainIter->cell_count());
+            }
         }
 #endif // 0
 
