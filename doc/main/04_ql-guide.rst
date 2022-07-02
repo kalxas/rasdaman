@@ -3153,10 +3153,10 @@ areas in the slices which contribute to the ranking function. For example, the
 following 2 queries consider only the value at index positions 0 or 1,
 respectively, along axis 1. ::
 
-	SORT raster2D2 ALONG 0 AS i
+	SORT raster2D ALONG 0 AS i
   BY (raster2D2[i[0], 0])
 
-	SORT raster2D2 ALONG 0 AS i
+	SORT raster2D ALONG 0 AS i
   BY (raster2D2[i[0], 1])
 
 .. figure:: media/ql-guide/sortNumericMatrix2.png
@@ -3179,7 +3179,7 @@ You might also want to compare two values in a specific axis at once, at each
 slice, and sort by the minimum value between those, using an aggregate
 operation: ::
 
-	SORT raster2D2 ALONG 0 AS i
+	SORT raster2D ALONG 0 AS i
   BY min_cells(raster2D2[i[0], 1:2])
 
 
@@ -3306,11 +3306,11 @@ The next example illustrates the inversion of the following array:
 
 Flipping the array on its first axis with ::
 
-    FLIP raster ALONG 0
+    FLIP raster2D ALONG 0
 
 and flipping on the second axis with ::
 
-    FLIP raster ALONG 1
+    FLIP raster2D ALONG 1
 
 yields the following results, respectively:
 
@@ -3328,7 +3328,7 @@ original image looks as follows:
 
 flipping on the first axis with ::
 
-    FLIP raster ALONG 0
+    FLIP mr2 ALONG 0
 
 results in
 
@@ -3340,7 +3340,7 @@ results in
 
 and flipping on the second axis with ::
 
-    FLIP raster ALONG 1
+    FLIP mr2 ALONG 1
 
 results in
 
