@@ -3016,68 +3016,115 @@ Finally, this query calculates the sample variance of ``mr2``:
 SORT operator
 =============
 
-The ``SORT`` operator enables the user to sort an array along an axis of that array. The sorting is done by slicing the array along that axis, calculating a slice rank for each of the slices, and then rearranging the slices according to their ranks, in an ascending or descending order.
+The ``SORT`` operator allows to sort the slices along a given axis of an array.
+This is done by calculating a rank value for each of the slices according to a
+given *ranking function*, and then reordering the slices according to their
+ranks in ascending (by default) or descending order.
 
-The slice ranks are given according to a ranking function provided by the user based on the following rules (see syntax below):
-
-- The ranking function, is a general 1D marray constructor, which creates a rank for each slice, according to a given cellExp.
-
-- Each of the scalar ranking values can be calculated, by iterating in the cellExp over the spatial domain of the axis along which is to be sorted, the sortAxis.
-
-- The ranking function can be any cell expression.
-
-- Slices receiving the same ranking retain their relative position as in the input array.
-
-- The default rank sorting order is ascending.
-
-- Only atomic celltypes are currently supported, no records with more than one component.
-
-The sorting causes no change in the spatial domain, base type, or dimensionality. This means that the resulting array is the original array but with its values sorted at the sortAxis.
 
 **Syntax**
 
 ::
 
-	sortExp: SORT generalExp ALONG sortAxis AS sortAxisIterator [listingOrder] BY cellExp
+  	SORT generalExp
+    ALONG sortAxis AS sortAxisIterator [listingOrder]
+    BY cellExp
 
-        sortAxis: integerLit | identifier
-        sortAxisIterator: identifier
-        listingOrder: ASC | DESC
+Where
+
+.. code-block:: text
+
+    sortAxis: integerLit | identifier
+    sortAxisIterator: identifier
+    listingOrder: ASC | DESC
 
 
-A ``SORT`` expression consists of ``generalExp`` which denotes the array to be sorted.
-In the ``BY`` clause a ranking function is indicated as a ``cellExp`` which determines the output ordering of the slices.
-Depending on the ``listingOrder`` the result is sorted ascending ``ASC`` (which is default) or descending ``DESC``.
-The axis along which the array is sliced and resorted is given in the along clause (``sortAxis``), where an axis iterator can be assigned at ``sortAxisIterator`` for addressing in the ranking function.
-**Named axes for the sortAxis are supported.**
-The result of a ``SORT`` operation is an array with the same extent as the input array where, along the sort axis, the slices are reordered according to the ranking function.
+The ``generalExp`` denotes the array to be sorted; arrays of any dimensionality
+and type can be specified, or expressions that produce an array.
+
+The ``sortAxis`` along which the array is sliced and reordered is specified in
+the ``ALONG`` clause. It can be specified by axis name according to the MDD
+type definition (e.g. x, y, Lat, ...), or by an integer indicating its 0-based
+order (0 for the first axis, 1 for the second, and so on). Additionally a
+``sortAxisIterator`` must be specified as an alias for addressing the axis in
+the ranking function, e.g. in subsetting the ``generalExp`` into slices and
+aggregating each into a rank. Depending on the optional ``listingOrder`` the
+slices are sorted in ascending ``ASC`` (default if not specified) or descending
+``DESC`` order.
+
+The ``cellExp`` in the ``BY`` clause is the slice ranking function. It must
+result in an atomic scalar value for each point in the sort axis extent. Slices
+for which the same rank is calculated retain their relative order as in the
+input array (stable sorting). The ``sortAxisIterator`` can be used to reference
+the points along the ``sortAxis``.
+
+The mechanics of the SORT expressions is perhaps more clearly explained via an
+equivalence to an MARRAY constructor expression, which creates a 1D array of
+ranks calculated by the ``cellExp`` for each point in the 1D domain created by
+the extend of the ``sortAxis``; then SORT sorts these ranks and the slices to
+which they correspond in ascending or descending order. For example, if A is
+a 3D array and we have the a SORT expression that reorders the slices along the
+first axis by their average values:
+
+::
+
+    SORT A
+    ALONG 0 AS sortAxis
+    BY avg_cells( A[ sortAxis[0], *:*, *:* ] )
+
+then before the sorting is applied, first the ranks for each slice are
+calculated with an MARRAY:
+
+::
+
+    MARRAY sortAxis in [ sdom(A)[0].lo : sdom(A)[0].hi ]
+    VALUES avg_cells( A[ sortAxis[0], *:*, *:* ] )
+
+The sorting causes no change in the spatial domain, base type, or dimensionality
+in the result.
+
 
 **Examples**
 
-The following examples illustrate the syntax of the ``SORT`` operator. Let ``raster2D`` and ``raster3D`` be MDD objects.
+The following examples illustrate the syntax of the ``SORT`` operator; 
+``raster2D`` and ``raster3D`` are 2D and 3D MDDs with axes x/y and t/x/y
+respectively.
 
 .. hidden-code-block:: rasql
 
-    SORT raster2D ALONG 0 AS i BY raster2D[i[0], 1]
-    SORT raster2D ALONG time  AS i BY raster2D[i[0], 0:0]
-    SORT raster2D ALONG space AS i BY raster2D[*:*, i[0]]
-    SORT raster2D ALONG 0 AS i BY add_cells(raster2D[i[0], *:*])
-    SORT raster2D ALONG 0 AS n BY add_cells(raster2D[n[0], 1:1]) DESC
-    SORT raster3D ALONG 1 AS i BY max_cells(raster3D[*:*, i[0], *:*]) DESC
-    SORT raster2D ALONG 0 AS i BY add_cells(raster2D[i[0], *:*]) - raster2D[i[0], 0] DESC
+    SORT raster2D ALONG 0 AS i
+    BY raster2D[i[0], 1]
+
+    SORT raster2D ALONG 0 AS i
+    BY add_cells(raster2D[i[0], *:*])
+
+    SORT raster2D ALONG x AS i
+    BY add_cells(raster2D[i[0], *:*])
+
+    SORT raster2D ALONG 0 AS n DESC
+    BY add_cells(raster2D[n[0], 0:100])
+
+    SORT raster2D ALONG 0 AS i
+    BY add_cells(raster2D[i[0], *:*]) - raster2D[i[0], 0]
+
+    SORT raster3D ALONG t AS time DESC
+    BY max_cells(raster3D[time[0], *:*, *:*])
 
 
-The following examples discuss the semantics of the sort operator. Array cells which contribute to the rank result are highlighted in red.
+The following examples show the semantics of the sort operator. Array cells
+which contribute to the rank result are highlighted in red.
 
 .. raw:: html
 
    <details>
    <summary>expand example</summary>
 
-The following numeric example shows how a 10x3 array, with the atomic basetype double, is sorted along its second axis, in an ascending order, by the minimum of all values in each slice. ::
+The following example shows how a 10x3 array of double floating-point values is
+sorted along its second axis in an ascending order by the minimum of all values
+in each slice. ::
 
-	SORT raster2D ALONG 1 AS i BY min_cells(raster2D[*:*, i[0]])
-
+  	SORT raster2D ALONG 1 AS i
+    BY min_cells(raster2D[*:*, i[0]])
 
 The array looks as follows before and after sorting:
 
@@ -3085,9 +3132,11 @@ The array looks as follows before and after sorting:
    :align: center
    :width: 50%
 
-   Minimum values in columns 0,1,2 are 8, 3.26, and 14.8 respectively, highlighted in red.
+   Minimum values in columns 0,1,2 are 8, 3.26, and 14.8 respectively,
+   highlighted in red.
 
-We observe that the sorting was a reordering of the slices along the second axis, represented by the columns.
+We observe that the sorting was a reordering of the slices along the second
+axis, represented by the columns.
 
 .. raw:: html
 
@@ -3099,19 +3148,22 @@ We observe that the sorting was a reordering of the slices along the second axis
     <details>
     <summary>expand example</summary>
 
-By subsetting along an axis other than the ``sortAxis``, we can further restrict areas in the slices which contribute to the ranking function.
-For example, the following 2 queries consider only the value at index positions 0 or 1, respectively, along axis 1. ::
+By subsetting along an axis other than the ``sortAxis``, we can further restrict
+areas in the slices which contribute to the ranking function. For example, the
+following 2 queries consider only the value at index positions 0 or 1,
+respectively, along axis 1. ::
 
-	SORT raster2D2 ALONG 0 AS i BY (raster2D2[i[0], 0])
-	SORT raster2D2 ALONG 0 AS i BY (raster2D2[i[0], 1])
+	SORT raster2D2 ALONG 0 AS i
+  BY (raster2D2[i[0], 0])
 
-
+	SORT raster2D2 ALONG 0 AS i
+  BY (raster2D2[i[0], 1])
 
 .. figure:: media/ql-guide/sortNumericMatrix2.png
    :align: center
    :width: 77%
 
-   Sorting an array with further subsetting at a specific axis.
+   Sorting an array with further subsetting each slice along the sort axis.
 
 .. raw:: html
 
@@ -3123,16 +3175,20 @@ For example, the following 2 queries consider only the value at index positions 
     <details>
     <summary>expand example</summary>
 
-You might also want to compare two values in a specific axis at once, at each slice, and sort by the minimum value between those, using an aggregate operation: ::
+You might also want to compare two values in a specific axis at once, at each
+slice, and sort by the minimum value between those, using an aggregate
+operation: ::
 
-	SORT raster2D2 ALONG 0 AS i BY min_cells(raster2D2[i[0], 1:2])
+	SORT raster2D2 ALONG 0 AS i
+  BY min_cells(raster2D2[i[0], 1:2])
 
 
 .. figure:: media/ql-guide/sortNumericMatrix3.png
    :align: center
    :width: 23%
 
-   Sorting an array by the minimum value with further subsetting at a specific axis.
+   Sorting an array by the minimum value with further subsetting at a specific
+   axis.
 
 .. raw:: html
 
@@ -3144,22 +3200,27 @@ You might also want to compare two values in a specific axis at once, at each sl
     <details>
     <summary>expand example</summary>
 
-The next example, shows how a 3 dimensional array, with the atomic basetype double for the temperature, is sorted along its first axis of time (i.e. time-sliced), in a descending order, by the maximum temperature value in each latitude/longitude combination. ::
+The next example, shows how a 3D array of double floating-point values for
+temperature is sorted along its first axis of time in a descending order, by
+the maximum temperature value in each latitude/longitude combination: ::
 
-	SORT weather ALONG 0 AS i BY max_cells(weather[i[0], *:*, *:*]) DESC
+	SORT weather ALONG 0 AS i DESC
+  BY max_cells(weather[i[0], *:*, *:*])
 
 
 The datasheet looks as follows:
 
-
 .. image:: media/ql-guide/gcoos5double.png
    :width: 100%
 
-The first datasheet represents all the data that we have. The second sheet offers a datacube interpretation of the available data.
-The first dimension is time, the second the latitude, and the third represents the longitude.
-In this example, the lat/lon are limited to 3 entries each. And the temperature is recorded at 11 unique timestamps. Thus, the data is represented using the available combinations of longitude and latitude (25.084,-81.096), (27.601,-82.751) and (30.4367,-88.0117), by: (0,0), (1,1) and (2,2) respectively, each in their timestamp, for simplification.
-
-All the cell values are recorded temperatures.
+The first datasheet represents all the data that we have. The second offers a
+datacube interpretation of the available data. The first dimension is time, the
+second the latitude, and the third represents the longitude. In this example,
+the lat/lon are limited to 3 entries each. And the temperature is recorded at
+11 unique timestamps. Thus, the data is represented using the available
+combinations of longitude and latitude (25.084,-81.096),(27.601,-82.751) and
+(30.4367,-88.0117), by (0,0), (1,1) and (2,2) respectively, each in their
+timestamp. All the cell values are recorded temperatures.
 
 The following illustration represents a 3D array holding this data:
 
@@ -3167,10 +3228,10 @@ The following illustration represents a 3D array holding this data:
    :align: center
    :width: 30%
 
-|
-
-On the first timestamp, for instance, we have a temperature measurement of 18.05 degrees, for lat/lon (2,2), which represents (30.4367,-88.0117) of the original table. In the last timestamp, we have two temperature records, at (0,0) and at (1,1).
-If we had more measurements, they would fill in the zero-values.
+On the first timestamp, for instance, we have a temperature measurement of 18.05
+degrees, for lat/lon (2,2), which represents (30.4367,-88.0117) of the original
+table. In the last timestamp, we have two temperature records, at (0,0) and at 
+(1,1). If we had more measurements, they would fill in the zero-values.
 
 After sorting, the array looks as follows:
 
@@ -3178,13 +3239,13 @@ After sorting, the array looks as follows:
    :align: center
    :width: 30%
 
-We observe that the time-slices have been sorted by their maximum value, in a descending manner.
+We observe that the time-slices have been sorted by their maximum value, in a
+descending manner.
 
+One can also sort by a specific longitude/latitude combination, e.g: ::
 
-Interestingly, you can also sort by looking at a specific longitude/latitude combination: ::
-
-	SORT weather ALONG 0 AS i BY max_cells(weather[i[0], 0:0, 0:0]) DESC
-
+	SORT weather ALONG 0 AS i
+  BY weather[i[0], 0, 0] DESC
 
 .. raw:: html
 
@@ -3197,51 +3258,57 @@ Interestingly, you can also sort by looking at a specific longitude/latitude com
 FLIP operator
 ===============
 
-The ``FLIP`` operator enables reversing an MDD at a specific axis/dimension.
-Similar to the ``SORT`` operation, the array is sliced at the chosen axis.
-The slices are then flipped, resulting in an array with *no* change in the spatial domain, base type, or dimensionality, but with reversed values of an axis.
+The ``FLIP`` operator allows to reverse the values/slices of an MDD along a
+particular axis. Similar to ``SORT``, the array is sliced at the chosen axis.
+The slices are then reordered in opposite order, resulting in an array
+with *no* change in the spatial domain, base type, or dimensionality.
 
 **Syntax**
 
-.. code-block:: rasql
+::
 
-	flipExp: FLIP generalExp ALONG axis
+	 FLIP generalExp ALONG flipAxis
 
-        axis: integerLit | identifier
+Where
 
+.. code-block:: text
 
-A ``FLIP`` expression consists of ``generalExp`` which denotes the input array,
-and the axis along which the array is flipped, which is given in the along clause ``axis``.
-**Named axes are supported.**
+    flipAxis: integerLit | identifier
+
+The ``generalExp`` denotes the array argument; arrays of any dimensionality
+and type can be specified (or expressions that produce an array).
+
+The ``flipAxis`` along which the array is sliced and reordered in reverse order
+is specified in the ``ALONG`` clause. It can be specified by axis name
+according to the MDD type definition (e.g. x, y, Lat, ...), or by an integer
+indicating its 0-based order (0 for the first axis, 1 for the second, and so
+on).
+
 
 **Examples**
 
-The following examples illustrate the syntax of the ``FLIP`` operator. Let ``raster2D`` and ``raster3D`` be MDD objects.
+The following examples illustrate the syntax of the ``FLIP`` operator; 
+``raster2D`` and ``raster3D`` are 2D and 3D MDDs with axes x/y and time/x/y
+respectively.
 
 .. hidden-code-block:: rasql
 
-    FLIP raster2D ALONG 1
+    FLIP raster2D ALONG 0
+    FLIP raster2D ALONG x
+
     FLIP raster3D ALONG time
 
-The next examples show the semantics of the flip operator.
-
-The first example illustrates the inversion of a numerical array. The array looks as follows:
+The next example illustrates the inversion of the following array:
 
 .. figure:: media/ql-guide/flipNormal.png
    :align: center
    :width: 21%
 
-|
-
-Flipping the array on its first axis (rows), by using:
-
-.. code-block:: rasql
+Flipping the array on its first axis with ::
 
     FLIP raster ALONG 0
 
-and flipping on the second axis (columns), by using:
-
-.. code-block:: rasql
+and flipping on the second axis with ::
 
     FLIP raster ALONG 1
 
@@ -3251,20 +3318,19 @@ yields the following results, respectively:
    :align: center
    :width: 43%
 
-|
-
-In a more visualised example, applying the flip operation on the sample MRT imagery collection ``mr2``, will mirror the image vertically or horizontally.
-The original image looks as follows:
+In a more visual example, applying the FLIP operation on the sample MRT imagery
+collection ``mr2`` will mirror the image vertically or horizontally. The
+original image looks as follows:
 
 .. figure:: media/ql-guide/image7.png
    :align: center
    :width: 211px
 
-flipping on the first axis;
-
-.. code-block:: rasql
+flipping on the first axis with ::
 
     FLIP raster ALONG 0
+
+results in
 
 .. figure:: media/ql-guide/mrFlipped0.png
    :align: center
@@ -3272,11 +3338,11 @@ flipping on the first axis;
 
    the image is mirrored on the vertical axis
 
-and flipping on the second axis;
-
-.. code-block:: rasql
+and flipping on the second axis with ::
 
     FLIP raster ALONG 1
+
+results in
 
 .. figure:: media/ql-guide/mrFlipped1.png
    :align: center

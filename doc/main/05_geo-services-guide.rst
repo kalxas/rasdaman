@@ -1611,7 +1611,7 @@ Examples
 - Deliver coverage description as a CIS 1.1 General Grid Coverage in GML,
   where range type changes in the query: ::
 
-     for $c in (Cov) dimensionality
+     for $c in (Cov)
      return describe( { $c.red; $c.green; $c.blue }, "application/gml+xml", 
                                          "outputType=GeneralGridCoverage" )
 
@@ -2363,7 +2363,7 @@ For example, a WMTS ``GetCapabilities`` request in KVP format:
 .. _wmts-get-tile:
 
 GetTile extension
-----------------
+-----------------
 
 This request is used to get a 2D small subset (called a ``Tile``; typically it has fixed size 256 x 256 pixels)
 of a requesting layer. The result is encoded in supported formats (``image/png`` and ``image/jpeg``).
@@ -2901,7 +2901,7 @@ JSON array, with parameters as follows:
     instance already running wcst_import with the `exec() method <https://docs.python.org/3/library/functions.html#exec>`__.
     It may be preferable to Bash ``cmd`` when there are many files to import, or
     more complex tasks need to be performed with advance math calculations, for
-    example.  
+    example. 
 
     .. _code_security-node: 
 
@@ -3325,17 +3325,19 @@ bounds and resolution corresponding to each file.
 
     Below we give hints on how to determine the gridOrder of axes in the file CRS.
 
-    * When data is imported with the ``gdal`` or ``grib`` slicer, generally the gridOrder is ``n``
-    for X axes (Longitude, E, ...), and ``n+1`` for Y axes (Latitude, N, ...).
+    * When data is imported with the ``gdal`` or ``grib`` slicer, generally the 
+      gridOrder is ``n`` for X axes (Longitude, E, ...), and ``n+1`` for Y axes 
+      (Latitude, N, ...).
 
     * When importing data with the ``netcdf`` slicer, the gridOrder should usually
-    match the dimension order of the imported variable, which can be checked
-    with ``ncdump -h``; e.g. a variable ``float dc(time, lat, lon)`` will have
-    gridOrder ``n`` for time, ``n+1`` for lat, and ``n+2`` for lon. This will work
-    well as long as the data conforms to the `CF-conventions
-    <https://cfconventions.org/Data/cf-conventions/cf-conventions-1.7/cf-conventions.html#dimensions>`,
-    and may otherwise need adjustments if the spatial dimensions are not in Y/X
-    order.
+      match the dimension order of the imported variable, which can be checked
+      with ``ncdump -h``; e.g. a variable ``float dc(time, lat, lon)`` will have
+      gridOrder ``n`` for time, ``n+1`` for lat, and ``n+2`` for lon. This will work
+      well as long as the data conforms to the `CF-conventions
+      <https://cfconventions.org/Data/cf-conventions/cf-conventions-1.7/cf-conventions.html#dimensions>`,
+      and may otherwise need adjustments if the spatial dimensions are not in Y/X
+      order.
+
   * ``crsOrder`` - The index of the geo axis in the coverage's CRS (0-based).
     Note: By default it is not required. Only set when one specifies a different name for this axis,
     than the one configured in the CRS's definition; more details can be found :ref:`here 
@@ -4199,12 +4201,12 @@ axis metadata
   .. hidden-code-block:: json
 
       "slicer": {
-         ...
+         //...
          "axes": {
             "Long": {
-               # 'lon' is variable name in netCDF file for CRS axis 'Long'.
+               // 'lon' is variable name in netCDF file for CRS axis 'Long'.
                "min": "${netcdf:variable:lon:min}"
-                ...
+               // ...
              }
           }
        }
@@ -4350,7 +4352,7 @@ the coverage might look as below, for example:
         "grid_north_pole_latitude": "40.0",
         "semi_major_axis": "6371229.0",
         "semi_minor_axis": "6371229.0"
-      },
+      }
 
 When encoding to netCDF in WCS or WCPS requests with the same
 ``COSMO:101`` CRS, rasdaman will add this grid mapping metadata 

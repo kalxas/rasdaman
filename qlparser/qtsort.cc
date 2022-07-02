@@ -721,7 +721,7 @@ QtSort::extractRanks(QtData* ranksOperand)
     tiles = currentMDDObj->intersect(qtMDD->getLoadDomain());
     // create one single tile with the load domain (blocking operation -> merge the tiles into one)
     Tile *sourceTile = NULL;
-    sourceTile = new Tile(tiles, qtMDD->getLoadDomain());
+    sourceTile = new Tile(tiles, qtMDD->getLoadDomain(), currentMDDObj);
 
     // get the ranksOperand values
     double *ranksArray = (double*) sourceTile->getContents();

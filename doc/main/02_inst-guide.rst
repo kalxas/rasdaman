@@ -3440,6 +3440,7 @@ administrator access) to not run into the Oracle "Scott/tiger" trap. Even
 better, use additional separate, private users. The rasdaman service doesn't
 use cookies.
 
+.. _rasdaman-backup:
 
 ******
 Backup
