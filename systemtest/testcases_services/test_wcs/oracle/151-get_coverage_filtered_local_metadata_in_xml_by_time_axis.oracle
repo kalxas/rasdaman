@@ -49,7 +49,7 @@
     <gml:rangeSet>
         <gml:DataBlock>
             <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">0,0,0,0,-9999,-9999,-9999,-9999</gml:tupleList>
+            <gml:tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999</gml:tupleList>
         </gml:DataBlock>
     </gml:rangeSet>
     <gml:coverageFunction>
@@ -112,7 +112,7 @@
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>FROM FILE 2</local_metadata_key>
-                        <fileReferenceHistory>/home/rasdaman/rasdaman_enterprise/stable_repository/rasdaman-enterprise/systemtest/testcases_services/test_all_wcst_import/testdata/116-wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc</fileReferenceHistory>
+                        <fileReferenceHistory>/home/dimitar/rasdaman/community/src/systemtest/testcases_services/test_all_wcst_import/testdata/116-wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc</fileReferenceHistory>
                     </slice>
                 </slices>
                 <Title>Drought code</Title>

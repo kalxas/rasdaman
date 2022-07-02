@@ -1,0 +1,1 @@
+select encode(c[0:3, 0, 0:2], "json") from test_nulltest3d_holes as c

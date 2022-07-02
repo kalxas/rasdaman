@@ -114,7 +114,7 @@ public:
       and the contents joined out of the Tiles in \c tilesVec.
     */
     template <typename TilePtr>
-    Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom);
+    Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom, NullValuesHandler *nullvalues);
     /*@Doc:
       Constructs a new Tile out of the vector \c tilesVec
       containing pointers to tiles. The contents which fall in the area
@@ -390,7 +390,7 @@ protected:
 };
 
 template <typename TilePtr>
-Tile::Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom)
+Tile::Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom, NullValuesHandler *nullvalues)
     : domain(resDom)
 {
     // get first Tile
@@ -406,6 +406,11 @@ Tile::Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom)
     else
     {
         blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
+    }
+    
+    if (nullvalues)
+    {
+        nullvalues->fillTileWithNullvalues(blobTile->getCells(), resDom.cell_count(), type);
     }
 
     // insert all tiles in the result tile

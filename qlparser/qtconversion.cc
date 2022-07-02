@@ -224,7 +224,7 @@ QtConversion::evaluate(QtDataList *inputList)
             }
 
             // create one single tile with the load domain
-            sourceTile.reset(new Tile(tiles, qtMDD->getLoadDomain()));
+            sourceTile.reset(new Tile(tiles, qtMDD->getLoadDomain(), currentMDDObj));
             delete tiles;
             tiles = NULL;
 

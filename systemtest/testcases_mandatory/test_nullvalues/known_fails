@@ -1,4 +1,1 @@
 with_null_values.rasql
-
-# https://rasdaman.org/ticket/2616
-subset_out_of_bounds.rasql

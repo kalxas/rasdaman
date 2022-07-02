@@ -410,10 +410,14 @@ function import_nullvalues_data()
   #
   # drop any existing data and insert again
   #
-  drop_colls $TEST_NULL $TEST_NULL_FLOAT $TEST_NULL3D $TEST_GREY_NULL $TEST_RGB2
+  drop_colls $TEST_NULL $TEST_NULL_FLOAT $TEST_NULL3D $TEST_GREY_NULL $TEST_RGB2 $TEST_NULL3D_HOLES
 
   create_coll $TEST_NULL $set_type
   $RASQL -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
+
+  create_coll $TEST_NULL3D_HOLES $set_type3d
+  $RASQL -q "insert into $TEST_NULL3D_HOLES values marray x in [0:0,0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
+  $RASQL -q "update $TEST_NULL3D_HOLES as m set m assign marray x in [3:3,0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
 
   create_coll $TEST_NULL3D $set_type3d
   $RASQL -q "insert into $TEST_NULL3D values marray x in [0:3,0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
