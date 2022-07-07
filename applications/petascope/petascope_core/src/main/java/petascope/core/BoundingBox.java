@@ -156,6 +156,21 @@ public class BoundingBox {
         
     }
     
+    public boolean intersects(BoundingBox inputBBox) {
+        BigDecimal inputXMin = inputBBox.getXMin();
+        BigDecimal inputXMax = inputBBox.getXMax();
+        BigDecimal inputYMin = inputBBox.getYMin();
+        BigDecimal inputYMax = inputBBox.getYMax();
+        
+        boolean matchX = this.xmin.compareTo(inputXMin) >= 0 && this.xmin.compareTo(inputXMax) <= 0
+                         || inputXMin.compareTo(this.xmin) >=0 && inputXMin.compareTo(this.xmax) <= 0;
+        
+        boolean matchY = this.ymin.compareTo(inputYMin) >= 0 && this.ymin.compareTo(inputYMax) <= 0
+                         || inputYMin.compareTo(this.ymin) >=0 && inputYMin.compareTo(this.ymax) <= 0;
+        
+        return matchX && matchY;
+    }
+    
     /**
      * Check if this bbox contains an input bbox
      */

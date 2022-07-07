@@ -580,7 +580,7 @@ public class WMSGetMapService {
         // Check if the request BBox (e.g: in EPSG:4326) intersects with layer's BBox (e.g: in UTM 32)
         for (String layerName : this.layerNames) {
             BoundingBox bbox = this.layerRequestCRSBBoxesMap.get(layerName);
-            if (bbox.intersectsXorYAxis(this.originalRequestBBox)) {
+            if (bbox.intersects(this.originalRequestBBox)) {
                 return true;
             }
         }
@@ -646,7 +646,7 @@ public class WMSGetMapService {
         if (response == null) {
             // Create a transparent image by input width and height parameters
             String query = SELECT + ENCODE + "(" + EXTEND + "(" + TRANSPARENT_DOMAIN 
-                         + ", [0:" + (this.width - 1) + ",0:" + (this.height - 1) + "]) , \"" 
+                         + ", [0:" + (this.width - 1) + ",0:" + (this.height - 1) + "])  NULL VALUES [" + DEFAULT_NULL_VALUE + "] , \"" 
                          + this.format + "\", \"{\\\"nodata\\\": [" + DEFAULT_NULL_VALUE + "]}\") ";
             
             Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
