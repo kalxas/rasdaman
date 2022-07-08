@@ -51,6 +51,8 @@ public class KVPWCSServiceHandler extends AbstractHandler {
     private KVPWCSDescribeCoverageHandler describeCoverageHandler;
     @Autowired
     private KVPWCSGetCoverageHandler getCoverageHandler;
+    @Autowired
+    private KVPWCPSServiceHandler processCoveragesHandler;
 
     public KVPWCSServiceHandler() {
         // WCS2 is a part of WCS
@@ -59,6 +61,7 @@ public class KVPWCSServiceHandler extends AbstractHandler {
         requestServices.add(KVPSymbols.VALUE_GET_CAPABILITIES);
         requestServices.add(KVPSymbols.VALUE_DESCRIBE_COVERAGE);
         requestServices.add(KVPSymbols.VALUE_GET_COVERAGE);
+        requestServices.add(KVPSymbols.VALUE_PROCESS_COVERAGES);
     }
 
     @Override
@@ -75,6 +78,9 @@ public class KVPWCSServiceHandler extends AbstractHandler {
         } else if (requestService.equals(KVPSymbols.VALUE_GET_COVERAGE)) {
             // GetCoverage
             response = getCoverageHandler.handle(kvpParameters);
+        } else if (requestService.equals(KVPSymbols.VALUE_PROCESS_COVERAGES)) {
+            // WCPS
+            response = processCoveragesHandler.handle(kvpParameters);
         }
         
         return response;

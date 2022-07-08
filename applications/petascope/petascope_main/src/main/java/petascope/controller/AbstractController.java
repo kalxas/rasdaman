@@ -187,9 +187,15 @@ public abstract class AbstractController {
                 String fileName = firstMultipartFile.getOriginalFilename();
                 
                 String uploadedFilePath = this.getUploadedFilePathOnServer(fileName, firstMultipartFile.getBytes());
-                kvpParameters.put(KVPSymbols.KEY_INTERNAL_UPLOADED_FILE_PATH.toLowerCase(), new String[] { uploadedFilePath });
+                // stored file in servere.g: /tmp/rasdaman_petascope/rasdman.test.1122332.tif
+                String key = entry.getKey();
+                if (key.equals(KVPSymbols.KEY_UPLOADED_FILE)) {
+                    // non-positional parameters (e.g. key=1 or key=2 for WCPS decode())
+                    key = KVPSymbols.KEY_INTERNAL_UPLOADED_FILE_PATH.toLowerCase();
+                }
                 
-                break;
+                String[] values = new String[] {uploadedFilePath};
+                kvpParameters.put(key, values);
             }
             
         } else {

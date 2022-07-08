@@ -98,6 +98,8 @@ public interface KVPSymbols {
     String USE_EXISTING_ID = "existing";
     String USE_NEW_ID = "new";
 
+    // e.g. wcst_import with importing file non-local, then it has this file parameter in the request
+    String KEY_UPLOADED_FILE = "file";
     
     // used internally in petascope only
     String KEY_INTERNAL_UPLOADED_FILE_PATH = "INTERNAL_uploadedFilePath";
