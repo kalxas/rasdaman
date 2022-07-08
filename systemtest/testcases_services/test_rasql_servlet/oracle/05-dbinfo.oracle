@@ -1,8 +1,8 @@
 {
  "oid": "48641",
  "baseType": "marray <char, [*:*,*:*]>",
- "setTypeName": "test_mr_Set",
- "mddTypeName": "test_mr_Array",
+ "setTypeName": "GreySet",
+ "mddTypeName": "GreyImage",
  "tileNo": "3",
  "totalSize": "2400",
  "tiling": {
