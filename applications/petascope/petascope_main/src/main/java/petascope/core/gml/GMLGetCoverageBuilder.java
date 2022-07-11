@@ -52,6 +52,7 @@ import static petascope.core.XMLSymbols.NAMESPACE_GMLRGRID;
 import static petascope.core.XMLSymbols.PREFIX_GMLRGRID;
 import petascope.util.XMLUtil;
 import static petascope.core.gml.GMLDescribeCoverageBuilder.isCIS11;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Build GMLGetCoverage object as result of WCS GetCoverage request in GML.
@@ -124,6 +125,10 @@ public class GMLGetCoverageBuilder {
         Map<String, String> xmlNameSpacesMap = GMLWCSRequestResultBuilder.getMandatoryXMLNameSpacesMap();
         
         Set<String> schemaLocations = new LinkedHashSet<>();
+        if (wcpsCoverageMetadata == null) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Cannot return result for 0D coverage in GML format.");
+        }
+        
         String coverageType = wcpsCoverageMetadata.getCoverageType();
         
         if (isCIS11(coverageType)) {

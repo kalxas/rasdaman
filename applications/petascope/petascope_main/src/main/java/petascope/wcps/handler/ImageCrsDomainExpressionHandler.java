@@ -22,9 +22,14 @@
 package petascope.wcps.handler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.result.WcpsMetadataResult;
@@ -42,11 +47,30 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class ImageCrsDomainExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ImageCrsDomainExpressionHandler extends Handler {
     
     public static final String OPERATOR = "imageCrsDomain";
+    
+    public ImageCrsDomainExpressionHandler() {
+        
+    }
+    
+    public ImageCrsDomainExpressionHandler create(Handler coverageExpressionHandler) {
+        ImageCrsDomainExpressionHandler result = new ImageCrsDomainExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler));
+        
+        return result;
+    }
+    
+    public WcpsMetadataResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        WcpsMetadataResult result = this.handle(coverageExpression);
+        
+        return result;
+    }
 
-    public WcpsMetadataResult handle(WcpsResult coverageExpression) {
+    private WcpsMetadataResult handle(WcpsResult coverageExpression) {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
         
@@ -73,11 +97,10 @@ public class ImageCrsDomainExpressionHandler extends AbstractOperatorHandler {
 
         // (0:5,0:100,0:231)
         rasql = "(" + StringUtils.join(axisBounds, ",") + ")";
-        WcpsMetadataResult wcpsResult = new WcpsMetadataResult(null, rasql);
+        WcpsMetadataResult wcpsResult = new WcpsMetadataResult(coverageExpression.getMetadata(), rasql);
         return wcpsResult;
     }
 
     private final String TRIMMING_TEMPLATE = "$lowBound:$highBound";
-    private final String SLICING_TEMPLATE = "$lowBound";
     public final String IMAGE_CRS_DOMAIN = "imageCrsdomain";
 }

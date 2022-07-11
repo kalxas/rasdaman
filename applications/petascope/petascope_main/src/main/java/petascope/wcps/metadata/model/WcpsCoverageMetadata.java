@@ -168,6 +168,10 @@ public class WcpsCoverageMetadata {
      * @return
      */
     public List<Axis> getAxes() {
+        if (this.axes == null) {
+            return new ArrayList<>();
+        }
+        
         return this.axes;
     }
     
@@ -443,7 +447,7 @@ public class WcpsCoverageMetadata {
     @JsonIgnore
     public List<Axis> getXYAxes() {
         Map<Integer, Axis> map = new HashMap<>();
-        for (Axis axis : this.axes) {
+        for (Axis axis : this.getAxes()) {
             // NOTE: the order must be XY if the coverage has X-Y axes, or only X or only Y when the coverage has CRS combination (e.g: Lat and Time axes)
             if (axis.getAxisType().equals(AxisTypes.X_AXIS)) {
                 map.put(0, axis);
@@ -532,11 +536,13 @@ public class WcpsCoverageMetadata {
     public List<NilValue> getNodata() {
         List<NilValue> nodataValues = new ArrayList<>();
         
-        // NOTE: null values are the same for all bands
-        List<NilValue> nilValuesTmp = this.rangeFields.get(0).getNodata();
-        if (nilValuesTmp != null) {
-            for (NilValue nilValue : this.rangeFields.get(0).getNodata()) {
-                nodataValues.add(nilValue);
+        if (this.rangeFields != null) {
+            // NOTE: null values are the same for all bands
+            List<NilValue> nilValuesTmp = this.rangeFields.get(0).getNodata();
+            if (nilValuesTmp != null) {
+                for (NilValue nilValue : this.rangeFields.get(0).getNodata()) {
+                    nodataValues.add(nilValue);
+                }
             }
         }
         
@@ -750,14 +756,16 @@ public class WcpsCoverageMetadata {
      * If coverage has no null value, then return 0
      */
     public String getFirstBandSingleNullValue() {
-        RangeField firstRangeField = this.rangeFields.get(0);
-        if (firstRangeField.getNodata() != null) {
-            for (NilValue nilValue : firstRangeField.getNodata()) {
-                String nullValue = nilValue.getValue();
-                if (!nullValue.contains(":")) {
-                    // e.g: 30;
-                    String value = BigDecimalUtil.stripDecimalZeros(new BigDecimal(nullValue)).toPlainString();
-                    return value;
+        if (this.rangeFields != null) {
+            RangeField firstRangeField = this.rangeFields.get(0);
+            if (firstRangeField.getNodata() != null) {
+                for (NilValue nilValue : firstRangeField.getNodata()) {
+                    String nullValue = nilValue.getValue();
+                    if (!nullValue.contains(":")) {
+                        // e.g: 30;
+                        String value = BigDecimalUtil.stripDecimalZeros(new BigDecimal(nullValue)).toPlainString();
+                        return value;
+                    }
                 }
             }
         }
@@ -788,7 +796,7 @@ public class WcpsCoverageMetadata {
                 previousCoverageId = entry.getValue().getCoverageName();
             }
             
-            if (!previousCoverageId.equals(coverageId)) {
+            if (previousCoverageId != null && !previousCoverageId.equals(coverageId)) {
                 return false;
             }
         }

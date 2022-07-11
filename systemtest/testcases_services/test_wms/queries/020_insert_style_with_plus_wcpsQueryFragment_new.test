@@ -1,4 +1,4 @@
 STYLEID=wcpsQueryFragment&
 COVERAGEID=test_wms_4326_new&
 abstract=This style marks the areas where fires are in progress with the color red&
-wcpsQueryFragment=switch case $c > 10 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14})
+wcpsQueryFragment=switch case $c > 10 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14}

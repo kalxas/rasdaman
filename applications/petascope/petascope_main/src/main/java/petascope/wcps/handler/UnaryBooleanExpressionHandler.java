@@ -21,7 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -35,18 +39,41 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class UnaryBooleanExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class UnaryBooleanExpressionHandler extends Handler {
+    
+    public UnaryBooleanExpressionHandler() {
+        
+    }
+    
+    public UnaryBooleanExpressionHandler create(Handler coverageExpressionHandler, Handler scalarExpressionHandler) {
+        UnaryBooleanExpressionHandler result = new UnaryBooleanExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, scalarExpressionHandler));
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        WcpsResult scalarExpression = null;
+        if (this.getSecondChild() != null) {
+            scalarExpression = (WcpsResult) this.getSecondChild().handle();
+        }
+        
+        WcpsResult result = this.handle(coverageExpression, scalarExpression);
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult coverageExp, WcpsResult scalarExp) {
+    private WcpsResult handle(WcpsResult coverageExpression, WcpsResult scalarExpression) {
         String template;
         //if realNumberConst exists, we deal with a bit operation
-        if (scalarExp != null) {
-            template = TEMPLATE_BIT.replace("$coverageExp", coverageExp.getRasql()).replace("$scalarExp", scalarExp.getRasql());
+        if (scalarExpression != null) {
+            template = TEMPLATE_BIT.replace("$coverageExp", coverageExpression.getRasql()).replace("$scalarExp", scalarExpression.getRasql());
         } else {
             //not expression
-            template = TEMPLATE_NOT.replace("$coverageExp", coverageExp.getRasql());
+            template = TEMPLATE_NOT.replace("$coverageExp", coverageExpression.getRasql());
         }
-        return new WcpsResult(coverageExp.getMetadata(), template);
+        return new WcpsResult(coverageExpression.getMetadata(), template);
     }
 
     private final String TEMPLATE_NOT = "NOT($coverageExp)";

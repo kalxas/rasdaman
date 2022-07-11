@@ -21,12 +21,13 @@
  */
 package petascope.wcps.handler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
-import petascope.util.CrsUtil;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSlicing;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -44,14 +45,35 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class ImageCrsDomainExpressionByDimensionExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ImageCrsDomainExpressionByDimensionExpressionHandler extends Handler {
     
     public static final String OPERATOR = "imageCrsDomain";
     
     @Autowired
     private WcpsCoverageMetadataGeneralService generateWcpsMetadataWithOneGridAxis;
+    
+    public ImageCrsDomainExpressionByDimensionExpressionHandler() {
+        
+    }
+    
+    public ImageCrsDomainExpressionByDimensionExpressionHandler create(Handler coverageExpressionHandler, StringScalarHandler axisNameHandler) {
+        ImageCrsDomainExpressionByDimensionExpressionHandler result = new ImageCrsDomainExpressionByDimensionExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, axisNameHandler));
+        result.generateWcpsMetadataWithOneGridAxis = generateWcpsMetadataWithOneGridAxis;
+        
+        return result;
+    }
+    
+    public WcpsMetadataResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        String axisName = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        
+        WcpsMetadataResult result = this.handle(coverageExpression, axisName);
+        return result;
+    }
 
-    public WcpsMetadataResult handle(WcpsResult coverageExpression, String axisName) throws PetascopeException {
+    private WcpsMetadataResult handle(WcpsResult coverageExpression, String axisName) throws PetascopeException {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
         

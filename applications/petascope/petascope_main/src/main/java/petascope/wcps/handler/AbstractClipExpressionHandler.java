@@ -32,7 +32,6 @@ import petascope.core.BoundingBox;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
@@ -40,6 +39,7 @@ import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.exception.processing.WcpsRasqlException;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSlicing;
 import petascope.wcps.metadata.model.NumericSubset;
@@ -64,7 +64,7 @@ import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
  * 
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public abstract class AbstractClipExpressionHandler extends AbstractOperatorHandler {
+public abstract class AbstractClipExpressionHandler extends Handler {
     
     @Autowired
     protected HttpServletRequest httpServletRequest;
@@ -82,7 +82,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
     
     protected static final String TRANSLATED_COVERAGE_EXPRESSION_RASQL_TEMPLATE = "$TRANSLATED_COVERAGE_EXPRESSION_RASQL";
     protected static final String TRANSLATED_WKT_EXPRESSION_RASQL_TEMPLATE = "$TRANSLATED_WKT_EXPRESSION_RASQL";
-    
+
      /**
      * Convert a geoCoordinate for an axis to a numeric BigDecimal value
      * (especially for DateTime coordinate).

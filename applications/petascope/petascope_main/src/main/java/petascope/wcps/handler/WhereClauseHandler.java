@@ -21,7 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -35,11 +39,25 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class WhereClauseHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class WhereClauseHandler extends Handler {
+    
+    public WhereClauseHandler create(Handler coverageExpressionHandler) {
+        WhereClauseHandler result = new WhereClauseHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler));
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpressionVisitorResult = (WcpsResult) this.getFirstChild().handle();
+        WcpsResult result = this.handle(coverageExpressionVisitorResult);
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult expression) {
+    private WcpsResult handle(WcpsResult expression) {
         return new WcpsResult(expression.getMetadata(), TEMPLATE.replace("$booleanExpression", expression.getRasql()));
     }
 
     private final String TEMPLATE = " WHERE $booleanExpression ";
+
 }

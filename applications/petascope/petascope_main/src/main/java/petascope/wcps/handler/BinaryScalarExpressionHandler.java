@@ -21,7 +21,12 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -31,10 +36,36 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BinaryScalarExpressionHandler extends AbstractOperatorHandler {
-
-    public WcpsResult handle(String firstParameter, String operator, String secondParameter) {
-        WcpsResult result = new WcpsResult(null, firstParameter + " " + operator + " " + secondParameter);
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class BinaryScalarExpressionHandler extends Handler {
+    
+    public BinaryScalarExpressionHandler() {
+        
+    }
+    
+    public BinaryScalarExpressionHandler create(StringScalarHandler firstParameterHandler, StringScalarHandler operatorHandler, StringScalarHandler secondParameterHandler) {
+        BinaryScalarExpressionHandler result = new BinaryScalarExpressionHandler();
+        result.setChildren(Arrays.asList(firstParameterHandler, operatorHandler, secondParameterHandler));
         return result;
     }
+    
+    
+    @Override
+    public VisitorResult handle() throws PetascopeException {
+        String firstParameter = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        String operator = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        String secondParameter = ((WcpsResult)this.getThirdChild().handle()).getRasql();
+        
+        WcpsResult result = this.handle(firstParameter, operator, secondParameter);
+        return result;
+        
+    }
+
+    public WcpsResult handle(String firstParameter, String operator, String secondParameter) {
+        String rasql = firstParameter + " " + operator + " " + secondParameter;
+        WcpsResult result = new WcpsResult(null, rasql);
+        return result;
+    }
+
 }

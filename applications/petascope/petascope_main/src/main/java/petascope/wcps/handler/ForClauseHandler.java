@@ -22,11 +22,14 @@
 package petascope.wcps.handler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
@@ -43,7 +46,9 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ForClauseHandler {
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ForClauseHandler extends Handler {
 
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
@@ -51,8 +56,51 @@ public class ForClauseHandler {
     private CoverageRepositoryService coverageRepostioryService;
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ForClauseHandler.class);
-
-    public WcpsResult handle(String coverageIterator, List<String> coverageIds) throws PetascopeException {
+    
+    public ForClauseHandler() {
+        
+    }
+    
+    public ForClauseHandler create(Handler coverageIteratorHandler, Handler decodeCoverageHandler, List<Handler> coverageIdHandlers) {
+        ForClauseHandler result = new ForClauseHandler();
+        List<Handler> childHandlers = new ArrayList<>();
+        childHandlers.add(coverageIteratorHandler);
+        childHandlers.add(decodeCoverageHandler);
+        childHandlers.addAll(coverageIdHandlers);
+        
+        result.setChildren(childHandlers);
+        
+        result.coverageAliasRegistry = this.coverageAliasRegistry;
+        result.coverageRepostioryService = this.coverageRepostioryService;
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        Handler coverageIteratorHandler = this.getFirstChild();
+        String coverageIterator = ((WcpsResult)coverageIteratorHandler.handle()).getRasql();
+        
+        List<String> coverageIds = new ArrayList<>();
+        
+        Handler decodeCoverageHandler = this.getSecondChild();
+        String coverageIdFromDecodeExpression = null;
+        if (decodeCoverageHandler != null) {
+            coverageIdFromDecodeExpression = ((WcpsResult)decodeCoverageHandler.handle()).getRasql();
+            coverageIds.add(coverageIdFromDecodeExpression);
+        }
+        
+        List<Handler> coverageIdHandlers = this.getChildren().subList(2, this.getChildren().size());
+        
+        for (Handler coverageIdHandler : coverageIdHandlers) {
+            String coverageId = ((WcpsResult)coverageIdHandler.handle()).getRasql();
+            coverageIds.add(coverageId);
+        }
+        
+        WcpsResult tmp = this.handle(coverageIterator, coverageIds);
+        return tmp;
+    }
+    
+    private WcpsResult handle(String coverageIterator, List<String> coverageIds) throws PetascopeException {
         
         List<String> rasdamanCollectionNames = new ArrayList<>();
         
@@ -60,6 +108,8 @@ public class ForClauseHandler {
         for (String coverageId : coverageIds) {
             Coverage coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coverageId);
             String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
+            
+            
             if (rasdamanCollectionName != null) {
                 rasdamanCollectionNames.add(rasdamanCollectionName);
             }

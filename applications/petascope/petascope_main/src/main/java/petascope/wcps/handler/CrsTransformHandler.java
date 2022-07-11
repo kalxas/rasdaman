@@ -27,15 +27,18 @@ import petascope.util.CrsUtil;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
 import petascope.core.CrsDefinition;
 import petascope.core.GeoTransform;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.StringUtil;
 import petascope.wcps.exception.processing.IdenticalAxisNameInCrsTransformException;
@@ -44,6 +47,7 @@ import petascope.wcps.exception.processing.Not2DCoverageForCrsTransformException
 import petascope.wcps.exception.processing.Not2DXYGeoreferencedAxesCrsTransformException;
 import petascope.wcps.exception.processing.NotGeoReferenceAxisNameInCrsTransformException;
 import petascope.wcps.exception.processing.NotIdenticalCrsInCrsTransformException;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -65,9 +69,42 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class CrsTransformHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class CrsTransformHandler extends Handler {
     
     public static final String OPERATOR = "crsTransform";
+    
+    public CrsTransformHandler() {
+        
+    }
+    
+    public CrsTransformHandler create(Handler coverageExpressionHandler,
+                                    StringScalarHandler axisLabelXHandler, StringScalarHandler crsXHandler,
+                                    StringScalarHandler axisLabelYHandler, StringScalarHandler crsYHandler,
+                                    StringScalarHandler interpolationTypeHandler) {
+        CrsTransformHandler result = new CrsTransformHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, 
+                            axisLabelXHandler, crsXHandler,
+                            axisLabelYHandler, crsYHandler,
+                            interpolationTypeHandler));
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = ((WcpsResult)this.getFirstChild().handle());
+        String axisLabelX = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        String crsX = ((WcpsResult)this.getThirdChild().handle()).getRasql();
+        
+        String axisLabelY = ((WcpsResult)this.getFourthChild().handle()).getRasql();
+        String crsY = ((WcpsResult)this.getFifthChild().handle()).getRasql();
+        
+        String interpolationType = ((WcpsResult)this.getSixthChild().handle()).getRasql();
+        
+        WcpsResult result = this.handle(coverageExpression, axisLabelX, crsX, axisLabelY, crsY, interpolationType);
+        return result;
+    }
 
     /**
      * Constructor for the class
@@ -79,14 +116,20 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
      * If interpolation type is null, use default type = near.
      * @return
      */
-    public WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, 
-                             String interpolationType) throws PetascopeException, SecoreException {
+    public WcpsResult handle(WcpsResult coverageExpression, 
+                            String axisLabelX, String crsX,
+                            String axisLabelY, String crsY, 
+                            String interpolationType) throws PetascopeException {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR);
         int numberOfAxes = coverageExpression.getMetadata().getAxes().size();
         if (numberOfAxes != 2) {
             throw new Not2DCoverageForCrsTransformException(numberOfAxes);
         }
+        
+        Map<String, String> axisCrss = new LinkedHashMap<>();
+        axisCrss.put(axisLabelX, crsX);
+        axisCrss.put(axisLabelY, crsY);
         
         checkValid(axisCrss);
         String rasql = getRasqlExpression(coverageExpression, axisCrss, interpolationType);
@@ -184,7 +227,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
      * Update the values of 2D geo, grid axes of current coverage to the corresponding values in OutputCRS.
      * e.g: coverage with 2 axes in EPSG:4326 Lat, Long order and outputCRS is EPSG:3857 X, Y order.
      */
-    private void updateAxesByOutputCRS(WcpsCoverageMetadata covMetadata) throws PetascopeException, SecoreException {
+    private void updateAxesByOutputCRS(WcpsCoverageMetadata covMetadata) throws PetascopeException {
         List<Axis> xyAxes = covMetadata.getXYAxes();        
         GeoTransform sourceGeoTransform = this.createGeoTransform(xyAxes);
 
@@ -241,7 +284,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
     /**
      * Check if crsTrasnformExpression is valid
      */
-    private void checkValid(HashMap<String, String> axisCrss) {
+    private void checkValid(Map<String, String> axisCrss) {
 
         Set<String> keys = axisCrss.keySet();
         String[] axisNameArray = keys.toArray(new String[keys.size()]);
@@ -290,7 +333,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         return result;
     }
 
-    public String getRasqlExpression(WcpsResult coverageExpression, HashMap<String, String> axisCrss, String interpolationType) throws PetascopeException {
+    public String getRasqlExpression(WcpsResult coverageExpression, Map<String, String> axisCrss, String interpolationType) throws PetascopeException {
         String outputStr = "";
 
         // Get the calculated coverage in grid axis with Rasql

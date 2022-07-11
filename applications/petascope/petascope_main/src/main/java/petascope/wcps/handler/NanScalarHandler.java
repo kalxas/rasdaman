@@ -21,16 +21,39 @@
  */
 package petascope.wcps.handler;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.wcps.result.WcpsResult;
 
 /**
- * Translator class for NaN scalar
+ * Translator class for NaN scalar (leaf node)
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class NanScalarHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class NanScalarHandler extends Handler {
+    
+    private String value;
+
+    public NanScalarHandler() {
+        
+    }
+    
+    public NanScalarHandler create(String value) {
+        NanScalarHandler result = new NanScalarHandler();
+        result.value = value;
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() {
+        WcpsResult result = this.handle(value);
+        return result;
+    }
+    
 
     public WcpsResult handle(String scalar) {
         return new WcpsResult(null, scalar);

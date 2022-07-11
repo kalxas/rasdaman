@@ -21,11 +21,15 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.RasqlTranslationService;
@@ -46,7 +50,8 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ExtendExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ExtendExpressionHandler extends Handler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
@@ -56,8 +61,30 @@ public class ExtendExpressionHandler extends AbstractOperatorHandler {
     private RasqlTranslationService rasqlTranslationService;
     
     public static final String OPERATOR = "extend";
+    
+    public ExtendExpressionHandler() {
+        
+    }
+    
+    public ExtendExpressionHandler create(Handler coverageExpressionHandler, Handler dimensionIntervalListHandler) {
+        ExtendExpressionHandler result = new ExtendExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, dimensionIntervalListHandler));
+        result.wcpsCoverageMetadataService = this.wcpsCoverageMetadataService;
+        result.subsetParsingService = this.subsetParsingService;
+        result.rasqlTranslationService = rasqlTranslationService;
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = ((WcpsResult)this.getFirstChild().handle());
+        DimensionIntervalList dimensionIntervalList = ((DimensionIntervalList)this.getSecondChild().handle());
+        
+        WcpsResult result = this.handle(coverageExpression, dimensionIntervalList);
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException {
+    private WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException {
 
         checkOperandIsCoverage(coverageExpression, OPERATOR);         
 

@@ -21,11 +21,16 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -40,24 +45,62 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BinaryCoverageExpressionHandler extends AbstractOperatorHandler {
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class BinaryCoverageExpressionHandler extends Handler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+    
+    public BinaryCoverageExpressionHandler() {
+        
+    }
 
-    public WcpsResult handle(WcpsResult firstCoverage, String operator, WcpsResult secondCoverage) throws WCPSException {
+    public BinaryCoverageExpressionHandler create(Handler firstCoverageExpressionChildHandler, Handler operatorStringScalarHandler, Handler secondCoverageExpressionChildHandler) {
+        BinaryCoverageExpressionHandler result = new BinaryCoverageExpressionHandler();
+        result.wcpsCoverageMetadataService = this.wcpsCoverageMetadataService;
+        result.setChildren(Arrays.asList(firstCoverageExpressionChildHandler, operatorStringScalarHandler, secondCoverageExpressionChildHandler));
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        VisitorResult firstCoverageExpressionVisitorResult = this.getFirstChild().handle();
+        String operator = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        VisitorResult secondCoverageExpressionVisitorResult = this.getThirdChild().handle();
+        
+        WcpsResult result = this.handle(firstCoverageExpressionVisitorResult, operator, secondCoverageExpressionVisitorResult);
+        return result;
+    }
+
+    private WcpsResult handle(VisitorResult firstCoverage, String operator, VisitorResult secondCoverage) throws WCPSException {
+        String firstCoverageReturnedValue = "";
+        String secondCoverageReturnedValue = "";
+        
+        if (firstCoverage instanceof WcpsResult) {
+            firstCoverageReturnedValue = ((WcpsResult) firstCoverage).getRasql();
+        } else {
+            firstCoverageReturnedValue = firstCoverage.getResult();
+        }
+        
+        if (secondCoverage instanceof WcpsResult) {
+            secondCoverageReturnedValue = ((WcpsResult) secondCoverage).getRasql();
+        } else {
+            secondCoverageReturnedValue = secondCoverage.getResult();
+        }
+        
         //create the resulting rasql string
-        String rasql = firstCoverage.getRasql() + " " + operator + " " + secondCoverage.getRasql();
+        String rasql = firstCoverageReturnedValue + " " + operator + " " + secondCoverageReturnedValue;
         //create the resulting metadata
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.getResultingMetadata(firstCoverage.getMetadata(), secondCoverage.getMetadata(), 
-                                                                                         firstCoverage.getRasql(), secondCoverage.getRasql());
+                                                                                         firstCoverageReturnedValue, secondCoverageReturnedValue);
         
         if (firstCoverage.getMetadata() != null) {
-            metadata.addToContributingMetadatasSet(firstCoverage.getMetadata(), firstCoverage.getRasql());
+            metadata.addToContributingMetadatasSet(firstCoverage.getMetadata(), firstCoverageReturnedValue);
         } 
         
         if (secondCoverage.getMetadata() != null) {
-            metadata.addToContributingMetadatasSet(secondCoverage.getMetadata(), secondCoverage.getRasql());
+            metadata.addToContributingMetadatasSet(secondCoverage.getMetadata(), secondCoverageReturnedValue);
         }
   
         WcpsResult result = new WcpsResult(metadata, rasql);

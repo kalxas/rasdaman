@@ -29,8 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCSException;
 import petascope.exceptions.WCPSException;
+import petascope.wcps.handler.Handler;
 import petascope.wcps.result.VisitorResult;
 
 /**
@@ -94,7 +94,8 @@ public class WcpsTranslator {
         try {
             // When the tree is parsed, it will traverse to each node to evaluate
             // And throw WCPSProcessingError or other kind of Exceptions if possible
-            translationTree = this.wcpsEvaluator.visit(parseTree);
+            Handler rootHandler = this.wcpsEvaluator.visit(parseTree);
+            translationTree = rootHandler.handle();
 
         } catch (WCPSException ex) {
             throw new PetascopeException(ex.getExceptionCode(), ex.getMessage(), ex);

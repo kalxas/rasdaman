@@ -23,10 +23,14 @@ package petascope.wcps.handler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
+import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.metadata.model.Axis;
@@ -52,14 +56,43 @@ import petascope.wcps.subset_axis.model.WcpsSliceScaleDimension;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class WcsScaleExpressionByScaleAxesHandler extends AbstractWcsScaleHandler {
 
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
     @Autowired
     private ScaleExpressionByDimensionIntervalsHandler scaleExpressionByDimensionIntervalsHandler;
+    
+    public WcsScaleExpressionByScaleAxesHandler() {
+        
+    }
+    
+    public WcsScaleExpressionByScaleAxesHandler create(Handler coverageExpressionHandler, Handler scaleAxesDimensionListHandler) {
+        WcsScaleExpressionByScaleAxesHandler result = new WcsScaleExpressionByScaleAxesHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, scaleAxesDimensionListHandler));
+        
+        result.rasqlTranslationService = this.rasqlTranslationService;
+        result.scaleExpressionByDimensionIntervalsHandler = this.scaleExpressionByDimensionIntervalsHandler;
+        
+        return result;        
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpressionResult = (WcpsResult)this.getFirstChild().handle();
+        WcpsScaleDimensionIntevalList scaleAxesDimensionListResult = (WcpsScaleDimensionIntevalList)this.getSecondChild().handle();
+        
+        WcpsResult result = this.handle(coverageExpressionResult, scaleAxesDimensionListResult);
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult coverageExpression, WcpsScaleDimensionIntevalList scaleAxesDimensionList) {
+    private WcpsResult handle(WcpsResult coverageExpression, WcpsScaleDimensionIntevalList scaleAxesDimensionList) {
+        // SCALE_AXES LEFT_PARENTHESIS
+        //        coverageExpression COMMA scaleDimensionIntervalList
+        // RIGHT_PARENTHESIS
+        // e.g: scaleaxes(c[t(0)], [Lat(2.5), Long(2.5)]) with c is 3D coverage which means 2D output will be 
+        // downscaled to 2.5 by each dimension (e.g: grid pixel is: 100 then the result is 100 / 2.5)        
+        
         // Validate the scale dimension intervals first
         this.validateScalingDimensionInterval(coverageExpression, scaleAxesDimensionList);
 
@@ -101,7 +134,7 @@ public class WcsScaleExpressionByScaleAxesHandler extends AbstractWcsScaleHandle
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), subsets);
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
-                .replace("$intervalList", domainIntervals);
+                               .replace("$intervalList", domainIntervals);
         
         this.scaleExpressionByDimensionIntervalsHandler.applyScaleOnIrregularAxes(metadata, gridBoundAxes);
 

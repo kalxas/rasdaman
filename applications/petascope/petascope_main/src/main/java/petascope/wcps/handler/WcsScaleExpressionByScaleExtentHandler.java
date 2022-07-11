@@ -22,8 +22,11 @@
 package petascope.wcps.handler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import static petascope.util.CrsUtil.GRID_CRS;
@@ -52,12 +55,38 @@ import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class WcsScaleExpressionByScaleExtentHandler extends AbstractWcsScaleHandler {
 
     @Autowired
     private ScaleExpressionByDimensionIntervalsHandler scaleExpressionByDimensionIntervalsHandler;
+    
+    public WcsScaleExpressionByScaleExtentHandler() {
+        
+    }
+    
+    public WcsScaleExpressionByScaleExtentHandler create(Handler coverageExpressionHandler, Handler scaleAxesDimensionListHandler) {
+        WcsScaleExpressionByScaleExtentHandler result = new WcsScaleExpressionByScaleExtentHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, scaleAxesDimensionListHandler));
+        
+        result.scaleExpressionByDimensionIntervalsHandler = this.scaleExpressionByDimensionIntervalsHandler;
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult)this.getFirstChild().handle();
+        WcpsScaleDimensionIntevalList scaleAxesDimensionListHandler = (WcpsScaleDimensionIntevalList)this.getSecondChild().handle();
+        
+        WcpsResult result = this.handle(coverageExpression, scaleAxesDimensionListHandler);
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult coverageExpression, WcpsScaleDimensionIntevalList scaleAxesDimensionList) throws PetascopeException {
+    private WcpsResult handle(WcpsResult coverageExpression, WcpsScaleDimensionIntevalList scaleAxesDimensionList) throws PetascopeException {
+        // SCALE_EXTENT LEFT_PARENTHESIS
+        //        coverageExpression COMMA scaleDimensionIntervalList
+        // RIGHT_PARENTHESIS
+        // e.g: scaleextent(c[t(0)], [Lat(25:30), Long(25:30)]) with c is 3D coverage which means 2D output will have grid domain: 25:30, 25:30 (6 pixesl for each dimension)        
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         List<WcpsSubsetDimension> wcpsSubsetDimensions = new ArrayList<>();

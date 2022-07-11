@@ -8,9 +8,11 @@ package petascope.wcps.handler;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.exception.processing.DuplcateAxisNameInScaleException;
 import petascope.wcps.exception.processing.ScaleValueLessThanZeroException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AbstractWcpsScaleDimension;
 import petascope.wcps.subset_axis.model.WcpsScaleDimensionIntevalList;
@@ -21,7 +23,7 @@ import petascope.wcps.subset_axis.model.WcpsTrimScaleDimension;
  * Abstract class for all WCPS scaling handlers
  @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class AbstractWcsScaleHandler {
+public abstract class AbstractWcsScaleHandler extends Handler {
     /**
      * This scale is made up from WCS request (scaleaxes, scalesize, scaleextent)
      * @param coverageExpression

@@ -23,16 +23,24 @@ package petascope.wcps.handler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
+import petascope.util.StringUtil;
+import petascope.wcps.exception.processing.ClipExpressionException;
+import petascope.wcps.exception.processing.Coverage0DMetadataNullException;
+import petascope.wcps.exception.processing.InvalidWKTClippingException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AbstractWKTShape;
+import petascope.wcps.subset_axis.model.WKTLineString;
 
 /**
  *
@@ -42,15 +50,74 @@ import petascope.wcps.subset_axis.model.AbstractWKTShape;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class ClipWKTExpressionHandler extends AbstractClipExpressionHandler {
     
     // e.g: clip( c, POLYGON((...)) )
     private final String RASQL_TEMPLATE = this.OPERATOR 
-                                  + "( " + this.TRANSLATED_COVERAGE_EXPRESSION_RASQL_TEMPLATE + ", "
+                                         + "( " + this.TRANSLATED_COVERAGE_EXPRESSION_RASQL_TEMPLATE + ", "
                                          +  this.TRANSLATED_WKT_EXPRESSION_RASQL_TEMPLATE + " )";
     
     // Current only with encode( clip(c, Linestring(...) WITH COORDINATES, "csv/json") 
     public static final String WITH_COORDINATES = " WITH COORDINATES ";
+    
+    
+    public ClipWKTExpressionHandler() {
+        
+    }
+    
+    public ClipWKTExpressionHandler create(Handler coverageExpressionHandler, Handler wktShapeHandler,
+                                            Handler wktCRSHandler, Handler withCoordinatesBooleanStringHandler) {
+        ClipWKTExpressionHandler result = new ClipWKTExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, wktShapeHandler, wktCRSHandler, withCoordinatesBooleanStringHandler));
+        
+        result.httpServletRequest = this.httpServletRequest;
+        result.wcpsCoverageMetadataGeneralService = this.wcpsCoverageMetadataGeneralService;
+        result.subsetParsingService = this.subsetParsingService;
+        result.coverageAliasRegistry = this.coverageAliasRegistry;
+        result.coordinateTranslationService = this.coordinateTranslationService;
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        // Handle clipWKTExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA wktExpression (COMMA crsName)? RIGHT_PARENTHESIS
+        // e.g: clip(c[i(0:20), j(0:20)], Polygon((0 10, 20 20, 20 10, 0 10)), "http://opengis.net/def/CRS/EPSG/3857")
+        WcpsResult coverageExpressionResult = (WcpsResult) this.getFirstChild().handle();
+        AbstractWKTShape wktShape = (AbstractWKTShape) this.getSecondChild().handle();
+               
+        int numberOfDimensions = wktShape.getWktCompoundPointsList().get(0).getNumberOfDimensions();
+        if (coverageExpressionResult.getMetadata() == null) {
+            throw new Coverage0DMetadataNullException(ClipWKTExpressionHandler.OPERATOR);
+        }
+        int coverageDimensions = coverageExpressionResult.getMetadata().getAxes().size();
+        if (numberOfDimensions != coverageDimensions) {
+            throw new InvalidWKTClippingException("Number of dimensions in WKT '" + numberOfDimensions + "' is different from coverage's '" + coverageDimensions + "'.");
+        }
+        
+        // NOTE: This one is optional parameter, if specified, XY coordinates in WKT will be translated from this CRS to coverage's native CRS for XY axes.
+        String wktCRS = null;
+        if (this.getThirdChild() != null) {
+            String value = ((WcpsResult)this.getThirdChild().handle()).getRasql();
+            wktCRS = StringUtil.stripFirstAndLastQuotes(value);
+        }        
+        
+        // Optional parameter for encoding in JSON/CSV to show grid coordinates and their values (e.g: "x1 y1 value1", "x2 y2 value2", ...)
+        boolean withCoordinate = false;
+        if (this.getFourthChild() != null) {
+            if (!(wktShape instanceof WKTLineString)) {
+                throw new InvalidWKTClippingException("'" + ClipWKTExpressionHandler.WITH_COORDINATES + "' can be only applied with clipping by WKT 'LineString'.");
+            }
+            withCoordinate = true;
+        }
+        
+        WcpsResult result = this.handle(coverageExpressionResult, wktShape, wktCRS, withCoordinate);
+        result.setWithCoordinates(withCoordinate);
+        
+        return result;        
+    }
+    
 
     /**
      * Handle the clip operator from current collection and input WKT to be
@@ -64,7 +131,7 @@ public class ClipWKTExpressionHandler extends AbstractClipExpressionHandler {
      * LineString((..)))
      * @return WcpsResult an object to be used in upper parsing tree.
      */
-    public WcpsResult handle(WcpsResult coverageExpression, AbstractWKTShape wktShape, String wktCRS, boolean withCoordinate) throws PetascopeException {
+    private WcpsResult handle(WcpsResult coverageExpression, AbstractWKTShape wktShape, String wktCRS, boolean withCoordinate) throws PetascopeException {
         // NOTE: Coverage's dimensions must match with number of listed dimensions in each vertex of WKT,
         // then, translate each vertex's coordinates on all coverage's axes.
         List<String> axisNames = new ArrayList<>();

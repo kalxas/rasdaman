@@ -21,7 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -34,9 +38,30 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class UnaryModExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class UnaryModExpressionHandler extends Handler {
+    
+    public UnaryModExpressionHandler() {
+        
+    }
+    
+    public UnaryModExpressionHandler create(Handler coverageExpressionHandler, Handler scalarExpressionHandler) {
+        UnaryModExpressionHandler result = new UnaryModExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, scalarExpressionHandler));
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        WcpsResult scalarExpression = (WcpsResult) this.getSecondChild().handle();
+        
+        WcpsResult result = this.handle(coverageExpression, scalarExpression);
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult coverageExp, WcpsResult scalarExp) {
+    private WcpsResult handle(WcpsResult coverageExp, WcpsResult scalarExp) {
         String template = TEMPLATE.replace("$coverageExp", coverageExp.getRasql())
                                   .replace("$scalarExp", scalarExp.getRasql());
 

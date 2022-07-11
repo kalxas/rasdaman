@@ -23,15 +23,19 @@ package petascope.wcps.handler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AbstractWKTShape;
 
@@ -41,10 +45,20 @@ import petascope.wcps.subset_axis.model.AbstractWKTShape;
  * linestring,...) with coverage expression (c) must be 3D+.
  * e.g: clip( c, curtain( projection(Lat, Lon), Polygon((0 20, 20 20, 20 10, 0 20)) ),
  *            "http://opengis.net/def/CRS/EPSG/0/4326")
+// Handle clipCurtainExpression: 
+//        CLIP LEFT_PARENTHESIS coverageExpression
+//                              COMMA CURTAIN LEFT_PARENTHESIS
+//                                                PROJECTION LEFT_PARENTHESIS curtainProjectionAxisLabel1 COMMA curtainProjectionAxisLabel2 RIGHT_PARENTHESIS
+//                                                COMMA wktExpression
+//                                            RIGHT_PARENTHESIS
+//                              (COMMA crsName)?
+//            RIGHT_PARENTHESIS
+// e.g: clip( c, curtain( projection(Lat, Lon), Polygon((0 10, 20 20, 20 10, 0 10)) ) )
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class ClipCurtainExpressionHandler extends AbstractClipExpressionHandler {
     
     private static final String TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL1 = "$TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL1";
@@ -59,6 +73,45 @@ public class ClipCurtainExpressionHandler extends AbstractClipExpressionHandler 
                                               + TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL2 + "), "
                                           +  this.TRANSLATED_WKT_EXPRESSION_RASQL_TEMPLATE
                                     + " ) )";
+    
+    public ClipCurtainExpressionHandler() {
+        
+    }
+    
+    public ClipCurtainExpressionHandler create(Handler coverageExpressionHandler, 
+                                Handler curtainProjectionAxisLabel1StringHandler,
+                                Handler curtainProjectionAxisLabel2StringHandler,
+                                Handler wktShapeHandler,
+                                Handler wktCRSStringHandler) {
+        ClipCurtainExpressionHandler result = new ClipCurtainExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler,
+                                curtainProjectionAxisLabel1StringHandler, curtainProjectionAxisLabel2StringHandler,
+                                wktShapeHandler, wktCRSStringHandler));
+        
+        result.httpServletRequest = this.httpServletRequest;
+        result.wcpsCoverageMetadataGeneralService = this.wcpsCoverageMetadataGeneralService;
+        result.subsetParsingService = this.subsetParsingService;
+        result.coverageAliasRegistry = this.coverageAliasRegistry;
+        result.coordinateTranslationService = this.coordinateTranslationService;
+        
+        return result;        
+    }
+    
+    @Override
+    public VisitorResult handle() throws PetascopeException {
+        WcpsResult coverageExpressionResult = (WcpsResult)this.getFirstChild().handle();
+        String curtainProjectionAxisLabel1 = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        String curtainProjectionAxisLabel2 = ((WcpsResult)this.getThirdChild().handle()).getRasql();
+        AbstractWKTShape wktShape = (AbstractWKTShape)this.getFourthChild().handle();
+        
+        String crs = null;
+        if (this.getFifthChild() != null) {
+            crs = ((WcpsResult)this.getFifthChild().handle()).getRasql();
+        }
+        
+        WcpsResult result = this.handle(coverageExpressionResult, curtainProjectionAxisLabel1, curtainProjectionAxisLabel2, wktShape, crs);
+        return result;
+    }    
 
     /**
      * Handle the clip operator from current collection and input WKT to be
@@ -71,8 +124,9 @@ public class ClipCurtainExpressionHandler extends AbstractClipExpressionHandler 
      * @param crs input CRS of wktShape (polygon, multipolygon)
      * @return WcpsResult an object to be used in upper parsing tree.
      */
-    public WcpsResult handle(WcpsResult coverageExpression, String curtainProjectionAxisLabel1, String curtainProjectionAxisLabel2,
-                             AbstractWKTShape wktShape, String crs) throws PetascopeException {
+    public WcpsResult handle(WcpsResult coverageExpression, 
+                            String curtainProjectionAxisLabel1, String curtainProjectionAxisLabel2,
+                            AbstractWKTShape wktShape, String crs) throws PetascopeException {
         
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();        
         // Store the calculated bounding box of clipped output from a coverage and a WKT shape

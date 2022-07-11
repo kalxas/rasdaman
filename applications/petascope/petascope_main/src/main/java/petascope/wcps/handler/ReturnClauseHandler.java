@@ -21,11 +21,16 @@
  */
 package petascope.wcps.handler;
 
+import java.util.List;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.util.MIMEUtil;
 import petascope.util.ras.RasConstants;
 import petascope.wcps.exception.processing.CoverageNotEncodedInReturnClauseException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -39,9 +44,31 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ReturnClauseHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ReturnClauseHandler extends Handler {
+    
+    public ReturnClauseHandler() {
+        
+    }
+    
+    public ReturnClauseHandler create(List<Handler> childHandlers) {
+        ReturnClauseHandler result = new ReturnClauseHandler();
+        result.setChildren(childHandlers);
+        return result;
+    }
+    
+    public VisitorResult handle() throws PetascopeException {
+        VisitorResult temp = this.getFirstChild().handle();
+        
+        VisitorResult result = temp;
+        if (temp instanceof WcpsResult) {
+            result = this.handle((WcpsResult) temp);
+        }
+        
+        return result;
+    }
 
-    public  WcpsResult handle(WcpsResult processingExpr) {
+    private VisitorResult handle(WcpsResult processingExpr) {
         String template = TEMPLATE_RASQL.replace("$processingExpression", processingExpr.getRasql());
         WcpsCoverageMetadata metadata = processingExpr.getMetadata();
         // NOTE: If result in RETURN clause is scalar (E.g: return 2, return 2 + 3, return avg($c))

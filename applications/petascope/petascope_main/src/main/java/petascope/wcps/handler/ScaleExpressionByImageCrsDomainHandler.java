@@ -23,12 +23,16 @@ package petascope.wcps.handler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
+import petascope.util.StringUtil;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
@@ -48,7 +52,8 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ScaleExpressionByImageCrsDomainHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ScaleExpressionByImageCrsDomainHandler extends Handler {
     
     public static final String OPERATOR = "scale";
     
@@ -56,10 +61,33 @@ public class ScaleExpressionByImageCrsDomainHandler extends AbstractOperatorHand
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslatorService;
-
-    public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) throws PetascopeException {
+    
+    public ScaleExpressionByImageCrsDomainHandler() {
         
-        checkOperandIsCoverage(coverageExpression, OPERATOR);  
+    }
+    
+    public ScaleExpressionByImageCrsDomainHandler create(Handler coverageExpressionHandler, Handler domainIntervalsHandler) {
+        ScaleExpressionByImageCrsDomainHandler result = new ScaleExpressionByImageCrsDomainHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, domainIntervalsHandler));
+        
+        result.wcpsCoverageMetadataService = this.wcpsCoverageMetadataService;
+        result.wcpsCoverageMetadataTranslatorService = this.wcpsCoverageMetadataTranslatorService;
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpresisonResult = (WcpsResult)this.getFirstChild().handle();
+        WcpsMetadataResult domainIntervalsResult =  (WcpsMetadataResult)this.getSecondChild().handle();
+        
+        WcpsResult result = this.handle(coverageExpresisonResult, domainIntervalsResult);
+        return result;
+    }
+
+    private WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult domainIntervalsResult) throws PetascopeException {
+        checkOperandIsCoverage(coverageExpression, OPERATOR);
+        
+        String dimensionIntervalList = StringUtil.stripParentheses(domainIntervalsResult.getResult());
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
 

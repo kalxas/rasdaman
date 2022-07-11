@@ -23,21 +23,28 @@ package petascope.wcps.handler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import petascope.core.AxisTypes;
 import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
+import petascope.wcps.exception.processing.InvalidWKTClippingException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
-import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AbstractWKTShape;
+import petascope.wcps.subset_axis.model.WKTLineString;
+import petascope.wcps.subset_axis.model.WKTPolygon;
 
 /**
  *
@@ -45,14 +52,23 @@ import petascope.wcps.subset_axis.model.AbstractWKTShape;
  * linestring,...) with coverage expression (c) must be 3D+.
  * e.g: clip( c, corridor( projection(Lat, Lon), LineString("1950-01-01" 1 1, "1950-01-02" 5 5),
  *                         Polygon((0 20, 20 20, 20 10, 0 20)), discrete ), "http://opengis.net/def/CRS/EPSG/0/4326")
- *
+// Handle clip corridor expression
+//        CLIP LEFT_PARENTHESIS coverageExpression
+//                              COMMA CORRIDOR LEFT_PARENTHESIS
+//                                                 PROJECTION LEFT_PARENTHESIS corridorProjectionAxisLabel1 COMMA corridorProjectionAxisLabel2 RIGHT_PARENTHESIS
+//                                                 COMMA wktLineString 
+//                                                 COMMA wktExpression 
+//                                                 (COMMA DISCRETE)?
+//                                             RIGHT_PARENTHESIS
+//                              (COMMA crsName)?
+//            RIGHT_PARENTHESIS
+// e.g: clip( c, corridor( projection(Lat, Lon), LineString("1950-01-01" 1 1, "1950-01-02" 5 5), Polygon((0 10, 20 20, 20 10, 0 10)), discrete ) )
+        
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class ClipCorridorExpressionHandler extends AbstractClipExpressionHandler {
-    
-    @Autowired
-    WcpsCoverageMetadataGeneralService wcpsCoverageMetadataGeneralService;
     
     private static final String TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL1 = "$TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL1";
     private static final String TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL2 = "$TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL2";
@@ -72,6 +88,69 @@ public class ClipCorridorExpressionHandler extends AbstractClipExpressionHandler
                                           + this.TRANSLATED_WKT_EXPRESSION_RASQL_TEMPLATE
                                           + DISCRETE_TEMPLATE  
                                     + " ) )";
+
+    public ClipCorridorExpressionHandler() {
+        
+    }
+    
+    public ClipCorridorExpressionHandler create(Handler coverageExpressionHandler, 
+                                Handler curtainProjectionAxisLabel1StringHandler,
+                                Handler curtainProjectionAxisLabel2StringHandler,
+                                Handler wktLineStringHandler,
+                                Handler wktShapeHandler,
+                                Handler discreteBooleanValueStringHandler,
+                                Handler wktCRSStringHandler) {
+        
+        ClipCorridorExpressionHandler result = new ClipCorridorExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler,
+                                curtainProjectionAxisLabel1StringHandler, curtainProjectionAxisLabel2StringHandler,
+                                wktLineStringHandler, wktShapeHandler,
+                                discreteBooleanValueStringHandler,
+                                wktCRSStringHandler));
+        
+        result.httpServletRequest = this.httpServletRequest;
+        result.wcpsCoverageMetadataGeneralService = this.wcpsCoverageMetadataGeneralService;
+        result.subsetParsingService = this.subsetParsingService;
+        result.coverageAliasRegistry = this.coverageAliasRegistry;
+        result.coordinateTranslationService = this.coordinateTranslationService;
+        
+        return result;
+    }
+    
+
+    @Override
+    public VisitorResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult)this.getFirstChild().handle();
+        String corridorProjectionAxisLabel1 = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        String corridorProjectionAxisLabel2 = ((WcpsResult)this.getThirdChild().handle()).getRasql();
+        WKTLineString wktLineString = (WKTLineString)this.getFourthChild().handle();
+        AbstractWKTShape wktShape = (AbstractWKTShape)this.getFifthChild().handle();
+        
+        boolean discrete = false;
+        if (this.getSixthChild() != null) {
+            discrete = true;
+        }
+        
+        String wktCRS = null;
+        if (this.getSeventhChild() != null) {
+            wktCRS = ((WcpsResult)this.getSeventhChild().handle()).getRasql();
+        }
+        
+        int numberOfDimensionsInCoverage = coverageExpression.getMetadata().getAxes().size();
+        int numberOfDimensionsInTrackLine = wktLineString.getWktCompoundPointsList().get(0).getNumberOfDimensions();
+        if (numberOfDimensionsInTrackLine != numberOfDimensionsInCoverage) {
+            throw new InvalidWKTClippingException("Number of dimensions in LineString (trackline) for corridor clipping is '" + numberOfDimensionsInTrackLine 
+                                                  + "', but coverage's one is '" + numberOfDimensionsInCoverage + "'.'");
+        }
+
+        if (!(wktShape instanceof WKTLineString || wktShape instanceof WKTPolygon)) {
+            throw new WCPSException(ExceptionCode.NoApplicableCode, "At present, corridor clipping only supports the LineString and Polygon WKT geometry types.");
+        }        
+        
+        WcpsResult result = this.handle(coverageExpression, corridorProjectionAxisLabel1, corridorProjectionAxisLabel2,
+                                        wktLineString, wktShape, discrete, wktCRS);
+        return result;        
+    }
 
     /**
      * Handle the clip operator from current collection and input WKT to be
@@ -160,4 +239,5 @@ public class ClipCorridorExpressionHandler extends AbstractClipExpressionHandler
 
         return result;
     }
+    
 }

@@ -21,12 +21,13 @@
  */
 package petascope.wcps.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import petascope.util.CrsUtil;
-import petascope.wcps.metadata.model.Axis;
+import petascope.exceptions.PetascopeException;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -41,12 +42,29 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class CoverageCrsSetHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class CoverageCrsSetHandler extends Handler {
     
     public static final String OPERATOR = "crsset";
-
-    public WcpsMetadataResult handle(WcpsResult coverageExpression) {
+    
+    public CoverageCrsSetHandler() {
         
+    }
+    
+    public CoverageCrsSetHandler create(Handler coverageExpressionHandler) {
+        CoverageCrsSetHandler result = new CoverageCrsSetHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler));
+        return result;
+    }
+    
+    @Override
+    public VisitorResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        WcpsMetadataResult result = this.handle(coverageExpression);
+        return result;
+    }
+
+    private WcpsMetadataResult handle(WcpsResult coverageExpression) {
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
         
         String result = coverageExpression.getMetadata().getCrsUri();

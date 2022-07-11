@@ -21,9 +21,16 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
 import petascope.util.StringUtil;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -36,9 +43,33 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class DomainIntervalsHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class DomainIntervalsHandler extends Handler {
     
-    public WcpsResult handle(WcpsResult coverageExpression, Boolean sdomLowerBound) throws PetascopeException {
+    public DomainIntervalsHandler() {
+        
+    }
+    
+    public DomainIntervalsHandler create(Handler coverageExpressionHandler, StringScalarHandler sdomLowerBoundHandler) {
+        DomainIntervalsHandler result = new DomainIntervalsHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, sdomLowerBoundHandler));
+        
+        return result;
+    }
+    
+    public WcpsMetadataResult handle() throws PetascopeException {
+        WcpsMetadataResult metadataResult = ((WcpsMetadataResult)this.getFirstChild().handle());
+        Boolean sdomLowerBound = StringUtil.stringToBoolean(((WcpsResult)this.getSecondChild().handle()).getRasql());
+        
+        WcpsMetadataResult result = this.handle(new WcpsResult(metadataResult.getMetadata(), metadataResult.getResult()), sdomLowerBound);
+        return result;
+    }
+
+    private WcpsMetadataResult handle(WcpsResult coverageExpression, Boolean sdomLowerBound) throws PetascopeException {
+        
+        if (sdomLowerBound != null && coverageExpression.getMetadata().getAxes().size() > 1) {
+            throw new WCPSException(ExceptionCode.InvalidRequest, "Cannot extract bound from result of imageCrsdomain() / domain() on 2D+ coverage.");
+        }
         
         String result = coverageExpression.getRasql();
         
@@ -65,13 +96,18 @@ public class DomainIntervalsHandler extends AbstractOperatorHandler {
 
         // 0D coverage
         // e.g: imageCrsdomain(c)[0].lo
-        if (sdomLowerBound) {
-            result = lowerBound;
-        } else {
-            result = upperBound;
+        if (sdomLowerBound != null) {
+            if (sdomLowerBound) {
+                result = lowerBound;
+            } else if (sdomLowerBound == false) {
+                result = upperBound;
+            }
+            
+            // After .lo / .hi, the result is 0D
+            coverageExpression.setMetadata(new WcpsCoverageMetadata());
         }
         
-        WcpsResult wcpsResult = new WcpsResult(null, result);
-        return wcpsResult;
+        WcpsMetadataResult wcpsMetadataResult = new WcpsMetadataResult(coverageExpression.getMetadata(), result);
+        return wcpsMetadataResult;
     }
 }

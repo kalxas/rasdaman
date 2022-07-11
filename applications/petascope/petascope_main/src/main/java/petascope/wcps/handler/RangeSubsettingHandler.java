@@ -21,10 +21,15 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.exception.processing.RangeFieldNotFound;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsResult;
@@ -42,18 +47,39 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class RangeSubsettingHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class RangeSubsettingHandler extends Handler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
     
     public static final String OPERATOR = "range subset";
-
-    public WcpsResult handle(String fieldName, WcpsResult coverageExp) {
+    
+    public RangeSubsettingHandler() {
         
-        checkOperandIsCoverage(coverageExp, OPERATOR); 
+    }
+    
+    public RangeSubsettingHandler create(Handler coverageExpressionHandler, StringScalarHandler fieldNameHandler) {
+        RangeSubsettingHandler result = new RangeSubsettingHandler();
+        result.wcpsCoverageMetadataService = wcpsCoverageMetadataService;
+        result.setChildren(Arrays.asList(coverageExpressionHandler, fieldNameHandler));
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult)this.getFirstChild().handle();
+        String fieldName = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        
+        WcpsResult result = this.handle(fieldName, coverageExpression);
+        return result;
+    }
 
-        WcpsCoverageMetadata metadata = coverageExp.getMetadata();
+    private WcpsResult handle(String fieldName, WcpsResult coverageExpression) {
+        
+        checkOperandIsCoverage(coverageExpression, OPERATOR); 
+
+        WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
 
         String rangeField = fieldName.trim();
         if (!NumberUtils.isNumber(rangeField)) {
@@ -68,7 +94,7 @@ public class RangeSubsettingHandler extends AbstractOperatorHandler {
                 //only ints supported for range subsetting
                 throw new RangeFieldNotFound(rangeField);
             }
-            if (!wcpsCoverageMetadataService.checkRangeFieldNumber(coverageExp.getMetadata(), intRangeField)) {
+            if (!wcpsCoverageMetadataService.checkRangeFieldNumber(coverageExpression.getMetadata(), intRangeField)) {
                 throw new RangeFieldNotFound(rangeField);
             }
         }
@@ -76,7 +102,7 @@ public class RangeSubsettingHandler extends AbstractOperatorHandler {
         // use rangeIndex instead of rangeName
         int rangeFieldIndex = wcpsCoverageMetadataService.getRangeFieldIndex(metadata, rangeField);
 
-        String coverageExprStr = coverageExp.getRasql().trim();
+        String coverageExprStr = coverageExpression.getRasql().trim();
         String rasql = TEMPLATE.replace("$coverageExp", coverageExprStr)
                 .replace("$rangeFieldIndex", String.valueOf(rangeFieldIndex));
 
@@ -84,7 +110,7 @@ public class RangeSubsettingHandler extends AbstractOperatorHandler {
 
         // NOTE: we need to remove all the un-used range fields in coverageExpression's metadata
         // or it will add to netCDF extra metadata and have error in Rasql encoding.
-        return new WcpsResult(coverageExp.getMetadata(), rasql);
+        return new WcpsResult(coverageExpression.getMetadata(), rasql);
     }
 
     private final String TEMPLATE = "$coverageExp.$rangeFieldIndex";

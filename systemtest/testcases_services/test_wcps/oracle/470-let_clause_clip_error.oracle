@@ -6,6 +6,6 @@
         <ows:ExceptionText>Execution error 455 in line 1, column 36, near token <: Operation not supported on operand of complex type.</ows:ExceptionText>
     </ows:Exception>
     <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Failed internal rasql query: SELECT encode(clip( CASE WHEN ( 30 < c[0:44,299:343] ) THEN ( 1 ) ELSE ( 0 ) END, POLYGON((0 343,3 343)) ), "csv" , "{\"metadata\":{\"resolution\":\"1\"},\"nodata\":[119]}")  FROM test_rgb AS c</ows:ExceptionText>
+        <ows:ExceptionText>Failed internal rasql query: SELECT encode(clip(  CASE  WHEN 30 < c[0:44,299:343] THEN 1  ELSE 0 END , POLYGON((0 343,3 343)) ), "csv" , "{\"metadata\":{\"resolution\":\"1\"},\"nodata\":[]}")  FROM test_rgb AS c</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

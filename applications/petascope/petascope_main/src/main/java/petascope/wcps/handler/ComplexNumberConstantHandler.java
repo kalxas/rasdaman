@@ -21,7 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -37,9 +41,28 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ComplexNumberConstantHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ComplexNumberConstantHandler extends Handler {
+    
+    public ComplexNumberConstantHandler() {
+        
+    }
+    
+    public ComplexNumberConstantHandler create(StringScalarHandler realPartHandler, StringScalarHandler imaginePartHandler) {
+        ComplexNumberConstantHandler result = new ComplexNumberConstantHandler();
+        result.setChildren(Arrays.asList(realPartHandler, imaginePartHandler));
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        String re = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        String im = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        
+        WcpsResult result = this.handle(re, im);
+        return result;
+    }
 
-    public WcpsResult handle(String re, String im) {
+    private WcpsResult handle(String re, String im) {
         return new WcpsResult(null, TEMPLATE.replace("$re", re).replace("$im", im));
     }
 

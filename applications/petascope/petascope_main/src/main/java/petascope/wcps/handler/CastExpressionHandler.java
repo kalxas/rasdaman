@@ -21,6 +21,9 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -39,9 +42,29 @@ import petascope.util.ras.CastDataTypeConverter;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class CastExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class CastExpressionHandler extends Handler {
+    
+    public CastExpressionHandler() {
+        
+    }
+    
+    public CastExpressionHandler create(StringScalarHandler rangeTypeHandler, Handler coverageExpressionHandler) {
+        CastExpressionHandler result = new CastExpressionHandler();
+        result.setChildren(Arrays.asList(rangeTypeHandler, coverageExpressionHandler));
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        String rangeType = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        WcpsResult coverageExpression = (WcpsResult) this.getSecondChild().handle();
+        
+        return this.handle(rangeType, coverageExpression);
+    }
 
-    public WcpsResult handle(String rangeType, WcpsResult coverageExp) throws WCPSException {
+    private WcpsResult handle(String rangeType, WcpsResult coverageExpression) throws WCPSException {
         String rasdamanType = null;
         try {
             rasdamanType = CastDataTypeConverter.convert(rangeType);
@@ -50,8 +73,8 @@ public class CastExpressionHandler extends AbstractOperatorHandler {
                                     "Cannot convert WCPS base type to rasdaman base type. Reason: " + ex.getExceptionText(), ex);
         }
         String template = TEMPLATE.replace("$rangeType", rasdamanType)
-                                  .replace("$coverageExp", coverageExp.getRasql());
-        return new WcpsResult(coverageExp.getMetadata(), template);
+                                  .replace("$coverageExp", coverageExpression.getRasql());
+        return new WcpsResult(coverageExpression.getMetadata(), template);
     }
 
     private final String TEMPLATE = "($rangeType) $coverageExp"; 

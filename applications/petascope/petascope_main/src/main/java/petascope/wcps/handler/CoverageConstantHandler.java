@@ -27,8 +27,11 @@ import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.Subset;
@@ -50,7 +53,8 @@ import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class CoverageConstantHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class CoverageConstantHandler extends Handler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
@@ -58,8 +62,47 @@ public class CoverageConstantHandler extends AbstractOperatorHandler {
     private RasqlTranslationService rasqlTranslationService;
     @Autowired
     private SubsetParsingService subsetParsingService;
+    
+    public CoverageConstantHandler() {
+        
+    }
+    
+    public CoverageConstantHandler create(Handler coverageNameHandler, List<Handler> axisIteratorHandlers, Handler constantListHandler) {
+        CoverageConstantHandler result = new CoverageConstantHandler();
+        List<Handler> childHandlers = new ArrayList<>();
+        childHandlers.add(coverageNameHandler);
+        childHandlers.addAll(axisIteratorHandlers);
+        childHandlers.add(constantListHandler);
+        
+        result.setChildren(childHandlers);
+        
+        result.wcpsCoverageMetadataService = this.wcpsCoverageMetadataService;
+        result.rasqlTranslationService = this.rasqlTranslationService;
+        result.subsetParsingService = this.subsetParsingService;
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        String coverageName = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        List<Handler> axisIteratorHandlers = this.getChildren().subList(1, this.getChildren().size() - 1);
+        List<AxisIterator> axisIterators = new ArrayList<>();
+        
+        for (Handler handler : axisIteratorHandlers) {
+            AxisIterator axisIterator = (AxisIterator)handler.handle();
+            axisIterators.add(axisIterator);
+        }
+        
+        Handler constantValuesListHandler = this.getChildren().get(this.getChildren().size() - 1);
+        String rasql = ((WcpsResult)constantValuesListHandler.handle()).getRasql();
+        List<String> constantValues = Arrays.asList(rasql.split(","));
+        
+        WcpsResult result = this.handle(coverageName, axisIterators, constantValues);
+        return result;        
+    }
 
-    public WcpsResult handle(String coverageName, ArrayList<AxisIterator> axisIterators,
+    private WcpsResult handle(String coverageName, List<AxisIterator> axisIterators,
             List<String> constantList) throws PetascopeException {
 
         List<WcpsSubsetDimension> subsetDimensions = new ArrayList();

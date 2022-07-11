@@ -21,15 +21,13 @@
  */
 package petascope.wcps.handler;
 
-import org.apache.commons.lang3.StringUtils;
 import petascope.wcps.result.WcpsResult;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.rasdaman.domain.cis.NilValue;
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import petascope.wcps.metadata.model.RangeField;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
 /**
@@ -43,54 +41,31 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class RangeConstructorHandler extends AbstractOperatorHandler {
-
-    public WcpsResult handle(Map<String, WcpsResult> fieldStructure) {
-        List<String> translatedFields = new ArrayList();
-        // NOTE: if range is single scalar value then metadata is NULL. If any range has a not-null metadata, the metadata is from this range.
-        WcpsCoverageMetadata metadata = null;
-
-        List<RangeField> rangeFields = new ArrayList<>();
-        for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
-            translatedFields.add(entry.getValue().getRasql());
-            WcpsCoverageMetadata rangeMetadata = entry.getValue().getMetadata();
-            RangeField rangeField = null;
-            // e.g: { red: c.0 }
-            if (rangeMetadata != null) {
-                // we get metadata from the first range which has metadata (e.g: { red: c.0, .... } )
-                if (metadata == null) {
-                    metadata = rangeMetadata;
-                }
-                // coverage must contain at least 1 range and when in range expression only 1 range can be used.
-                // e.g: test_mr has 1 range (band) and can be used as { red: c }
-                // e.g: test_rgb has 3 ranges (bands) and can be used as { red: c.red } "not" { red: c }
-                // NOTE: in case of coverage constructor, it also has only 1 range
-                rangeField = rangeMetadata.getRangeFields().get(0);
-                rangeField.setName(entry.getKey());
-            } else {
-                // e.g: { red: 0 } which coverage metadata is null then need to create a range field for this case
-                rangeField = new RangeField(RangeField.DATA_TYPE, entry.getKey(), null, new ArrayList<NilValue>(), RangeField.UOM_CODE, null, null);
-            }
-            rangeFields.add(rangeField);
-        }
-
-        String rasql = null;
-        if (translatedFields.size() == 1) {
-            // if encode only 1 range, then it does not need to be braced
-            rasql = ONE_RANGE_TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
-        } else {
-            rasql = MULTIPLE_RANGE_TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
-        }
-
-        // Range expression will have metadata of the first range's metadata which is not null and contains the range list for all the specified ranges.
-        // NOTE: if metadata of range constructor is null, e.g: c.red * { red: 1; green: 2; blue: 1 } then no set range fields for it.
-        if (metadata != null) {
-            metadata.setRangeFields(rangeFields);
-        }
-
-        return new WcpsResult(metadata, rasql);
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class RangeConstructorHandler extends Handler {
+    
+    public RangeConstructorHandler() {
+        
+    }
+    
+    public RangeConstructorHandler create(Handler rangeConstructorElementListHandler) {
+        RangeConstructorHandler result = new RangeConstructorHandler();
+        result.setChildren(Arrays.asList(rangeConstructorElementListHandler));
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        WcpsResult result = this.handle(coverageExpression);
+        
+        return result;
     }
 
-    private final String ONE_RANGE_TEMPLATE = "$fieldDefinitions";
-    private final String MULTIPLE_RANGE_TEMPLATE = "{$fieldDefinitions}";
+    private WcpsResult handle(WcpsResult coverageExpression) {
+        WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
+        
+        String rasql = "{ " +  coverageExpression.getRasql() + " }";
+        return new WcpsResult(metadata, rasql);
+    }
 }

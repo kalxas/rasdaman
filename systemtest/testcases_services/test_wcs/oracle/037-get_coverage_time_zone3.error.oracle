@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.0.1"
-    
-      >
-    <ows:Exception exceptionCode="InvalidSubsetting">
-        <ows:ExceptionText>Invalid slicing coordinate '1950-01-02T12:00/14' for axis 't'.</ows:ExceptionText>
+    xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+    xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ows:Exception exceptionCode="InvalidRequest" >
+        <ows:ExceptionText>Invalid subset expression: t("1950-01-02T12:00/14":"1950-01-01T11:59:59.999/12"). Expressions inside subsets are only allowed on grid axes.
+HINT: Try a grid subset instead. E.g. t:"CRS:1"("1950-01-02T12:00/14":"1950-01-01T11:59:59.999/12") subsets directly on the grid.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

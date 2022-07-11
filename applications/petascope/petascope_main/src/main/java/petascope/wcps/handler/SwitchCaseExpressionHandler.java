@@ -25,9 +25,14 @@ import org.apache.commons.lang3.StringUtils;
 import petascope.wcps.result.WcpsResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.result.VisitorResult;
 
 /**
  * Translation switch case class which returns range constructor expressions  <code>
@@ -46,40 +51,32 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class SwitchCaseScalarValueExpression extends AbstractOperatorHandler {
-
-    public WcpsResult handle(List<WcpsResult> booleanResults, List<WcpsResult> scalarResults) {
-        List<String> translatedFields = new ArrayList();
-
-        for (int i = 0; i < booleanResults.size(); i++) {
-            String booleanResult = booleanResults.get(i).getRasql();
-            String scalarResult = scalarResults.get(i).getRasql();
-
-            String result = TEMPLATE_WHEN_THEN.replace("$booleanExpr", booleanResult)
-                    .replace("$scalarExpr", scalarResult);
-            translatedFields.add(result);
-        }
-
-        // combine switch case to a string
-        String whenThenStr = StringUtils.join(translatedFields, " ");
-        String elseStr = "";
-
-        // switch case has default also
-        String scalarResult = scalarResults.get(scalarResults.size() - 1).getRasql();
-        elseStr = TEMPLATE_ELSE.replace("$scalarExpr", scalarResult);
-
-        String rasql = TEMPLATE.replace("$whenThenExpr", whenThenStr)
-                .replace("$elseExpr", elseStr);
-
-        // This is needed a coverage metadata from boolean coverage epxression
-        WcpsCoverageMetadata metadata = booleanResults.get(0).getMetadata();
-        return new WcpsResult(metadata, rasql);
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class SwitchCaseExpressionHandler extends Handler {
+    
+    public SwitchCaseExpressionHandler() {
+        
+    }
+    
+    public SwitchCaseExpressionHandler create(Handler switchCaseElementListHandler, Handler switchCaseDefaultValueHandler) {
+        SwitchCaseExpressionHandler result = new SwitchCaseExpressionHandler();
+        result.setChildren(Arrays.asList(switchCaseElementListHandler, switchCaseDefaultValueHandler));
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult switchCaseElementListResult = (WcpsResult)(this.getFirstChild().handle());
+        WcpsResult returnValueElementResult = (WcpsResult)(this.getSecondChild().handle());
+        
+        WcpsResult result = this.handle(switchCaseElementListResult, returnValueElementResult);
+        return result;
     }
 
-    // it can have multiple cases
-    private final String TEMPLATE_WHEN_THEN = "WHEN ( $booleanExpr ) THEN ( $scalarExpr )";
-    // but only one default
-    private final String TEMPLATE_ELSE = "ELSE ( $scalarExpr )";
-    // the Rasql query template for this switch case
-    private final String TEMPLATE = "CASE $whenThenExpr $elseExpr END";
+    public WcpsResult handle(WcpsResult switchCaseElementListResult, WcpsResult returnValueElementResult) {
+        String rasql = " CASE " + switchCaseElementListResult.getRasql() + " " + returnValueElementResult.getRasql() + " END ";
+        
+        WcpsCoverageMetadata metadata = switchCaseElementListResult.getMetadata();
+        return new WcpsResult(metadata, rasql);
+    }
 }

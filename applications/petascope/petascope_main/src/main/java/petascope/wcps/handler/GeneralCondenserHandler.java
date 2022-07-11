@@ -24,14 +24,20 @@ package petascope.wcps.handler;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.util.StringUtil;
 import static petascope.wcps.handler.CoverageConstructorHandler.validateAxisIteratorSubsetWithQuote;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
+import petascope.wcps.metadata.service.UsingCondenseRegistry;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
@@ -54,7 +60,8 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class GeneralCondenserHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class GeneralCondenserHandler extends Handler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
@@ -62,9 +69,92 @@ public class GeneralCondenserHandler extends AbstractOperatorHandler {
     private SubsetParsingService subsetParsingService;
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
+    @Autowired
+    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+    @Autowired
+    private UsingCondenseRegistry usingCondenseRegistry;
+    
+    public GeneralCondenserHandler() {
+        
+    }
+    
+    public GeneralCondenserHandler create(Handler operatorHandler, List<Handler> axisIteratorHandlers,
+                                          Handler whereClauseHandler, Handler usingClauseHandler) {
+        GeneralCondenserHandler result = new GeneralCondenserHandler();
+        List<Handler> childHandlers = new ArrayList<>();
+        childHandlers.add(operatorHandler);
+        childHandlers.addAll(axisIteratorHandlers);
+        childHandlers.add(whereClauseHandler);
+        childHandlers.add(usingClauseHandler);
+        
+        result.setChildren(childHandlers);
+        
+        result.wcpsCoverageMetadataService = this.wcpsCoverageMetadataService;
+        result.subsetParsingService = this.subsetParsingService;
+        result.rasqlTranslationService = this.rasqlTranslationService;
+        result.axisIteratorAliasRegistry = this.axisIteratorAliasRegistry;
+        result.usingCondenseRegistry = this.usingCondenseRegistry;
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        String operator = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        // NOTE: this is important to handle general condenser for virtual coverage properly 
+        // e.g. over $pt t (imageCrsdomain(c[unix("2011-01-01":"2012-01-01")], unix)) 
+        //      using scale(c[unix($pt)] , {Lat:"CRS:1"(0:5)})
+        this.usingCondenseRegistry.setOperator(operator);
+        
+        List<Handler> axisIteratorHandlers = this.getChildren().subList(1, this.getChildren().size() - 2);
+        
+        String rasqlAliasName = "";
+        String aliasName = "";
+        int count = 0;        
+        
+        List<AxisIterator> axisIterators = new ArrayList<>();
+        for (Handler axisIteratorHandler : axisIteratorHandlers) {
+            AxisIterator axisIterator = (AxisIterator)axisIteratorHandler.handle();
+            aliasName = axisIterator.getAliasName();
+            axisIteratorAliasRegistry.addAxisIteratorAliasMapping(aliasName, axisIterator);
+            
+            if (rasqlAliasName.isEmpty()) {
+                rasqlAliasName = StringUtil.stripDollarSign(aliasName);
+            }
+            
+            axisIterator.setRasqlAliasName(rasqlAliasName);
+            axisIterator.setAxisIteratorOrder(count);            
+            
+            axisIterators.add(axisIterator);
+            count++;
+        }
+        
+        Handler whereClauseHandler = this.getChildren().get(this.getChildren().size() - 2);
+        WcpsResult whereClause = null;
+        if (whereClauseHandler != null) {
+            whereClause = (WcpsResult) whereClauseHandler.handle(); 
+        }
+        
+        Handler usingClauseHandler = this.getChildren().get(this.getChildren().size() - 1);
+        WcpsResult usingExpressionResult = (WcpsResult) usingClauseHandler.handle();
+        if (usingExpressionResult.getMetadata() != null) {
+            usingExpressionResult.getMetadata().setCondenserResult(true);
+        }
+        
+        WcpsResult result;
+        
+        try {
+            result = this.handle(operator, axisIterators, whereClause, usingExpressionResult);
+        } finally {
 
-    public WcpsResult handle(String operation, ArrayList<AxisIterator> axisIterators, WcpsResult whereClause,
-            WcpsResult using) throws PetascopeException {
+        }
+        
+        return result;
+    }
+
+    private WcpsResult handle(String operator, List<AxisIterator> axisIterators, WcpsResult whereClauseExpression,
+            WcpsResult usingCoverageExpression) throws PetascopeException {
+        
         // contains subset dimension without "$"
         List<WcpsSubsetDimension> pureSubsetDimensions = new ArrayList<>();
         // contains subset dimension with "$"
@@ -95,18 +185,19 @@ public class GeneralCondenserHandler extends AbstractOperatorHandler {
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(CONDENSER_TEMP_NAME, numericSubsets);
 
         String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions);
-        String template = TEMPLATE.replace("$operation", operation)
+        String template = TEMPLATE.replace("$operation", operator)
                 .replace("$iter", rasqlAliasName)
                 .replace("$intervals", rasqlDomain)
-                .replace("$using", using.getRasql());
+                .replace("$using", usingCoverageExpression.getRasql());
+        
 
-        if (whereClause != null) {
-            template = template.replace("$whereClause", whereClause.getRasql());
+        if (whereClauseExpression != null) {
+            template = template.replace("$whereClause", whereClauseExpression.getRasql());
         } else {
             template = template.replace("$whereClause", "");
         }
 
-        return new WcpsResult(using.getMetadata(), template);
+        return new WcpsResult(usingCoverageExpression.getMetadata(), template);
     }
 
     public static final String USING = "USING";

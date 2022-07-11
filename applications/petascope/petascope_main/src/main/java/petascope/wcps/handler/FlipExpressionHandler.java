@@ -22,8 +22,14 @@
 package petascope.wcps.handler;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
+import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.result.WcpsResult;
@@ -36,7 +42,8 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class FlipExpressionHandler extends AbstractClipExpressionHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class FlipExpressionHandler extends Handler {
     
     // e.g: FLIP ... ALONG ...
     private final String COVERAGE_EXPRESSION_TEMPLATE = "$coverageExpression";
@@ -44,11 +51,44 @@ public class FlipExpressionHandler extends AbstractClipExpressionHandler {
     
     private final String RASQL_TEMPLATE = "FLIP " + COVERAGE_EXPRESSION_TEMPLATE + " ALONG " + AXIS_LABEL_INDEX_TEMPLATE;
     
+    public FlipExpressionHandler() {
+        
+    }
+    
+    public FlipExpressionHandler create(Handler coverageExpressionHandler, StringScalarHandler axisLabelHandler) {
+        FlipExpressionHandler result = new FlipExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, axisLabelHandler));
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        // e.g. Lat
+        String axisLabel = ((WcpsResult) this.getSecondChild().handle()).getRasql();
+        int axisLabelIndex = -1;
+        int i = 0;
+        
+        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisLabel)) {
+                axisLabelIndex = i;
+                break;
+            }
+            
+            i++;
+        }
+        
+        if (axisLabelIndex == -1) {
+            throw new CoverageAxisNotFoundExeption(axisLabel);
+        }
+        
+        WcpsResult result = this.handle(coverageExpression, axisLabel, axisLabelIndex);
+        return result;
+    }
 
     /**
      * Handle the flip operator
      */
-    public WcpsResult handle(WcpsResult coverageExpression, String axisLabel, int axisLabelIndex) {
+    private WcpsResult handle(WcpsResult coverageExpression, String axisLabel, int axisLabelIndex) {
         WcpsResult result = coverageExpression;
         
         Axis axis = coverageExpression.getMetadata().getAxisByName(axisLabel);

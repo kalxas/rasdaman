@@ -21,7 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
@@ -36,15 +40,30 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class ImageCrsExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ImageCrsExpressionHandler extends Handler {
+    
+    public ImageCrsExpressionHandler() {
+        
+    }
+    
+    public ImageCrsExpressionHandler create(Handler coverageExpressionHandler) {
+        ImageCrsExpressionHandler result = new ImageCrsExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler));
+        return result;
+    }
+
+    public WcpsMetadataResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        WcpsMetadataResult result = this.handle(coverageExpression);
+        
+        return result;
+    }
 
     /**
      * Return the Rasql grid CRS of the coverage (CRS:1)
-     *
-     * @param coverageExpression
-     * @return
      */
-    public WcpsMetadataResult handle(WcpsResult coverageExpression) {
+    private WcpsMetadataResult handle(WcpsResult coverageExpression) {
         String imageCrsUri = CrsUtil.GRID_CRS;
         WcpsMetadataResult wcpsResult = new WcpsMetadataResult(coverageExpression.getMetadata(), imageCrsUri);
         return wcpsResult;

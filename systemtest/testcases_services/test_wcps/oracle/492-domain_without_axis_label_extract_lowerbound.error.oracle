@@ -3,6 +3,6 @@
     xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
     xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
     <ows:Exception exceptionCode="InvalidRequest" >
-        <ows:ExceptionText>Cannot extract bound from the list of domain intervals: ansi("2008-01-01T02:01:20.000Z":"2008-01-08T00:02:58.000Z"),E(75042.72735943:705042.72735943),N(5094865.557938452:5454865.557938452). Hint: Please specify a specific axis label in domain() opreator to extract lo/hi bound of this axis.</ows:ExceptionText>
+        <ows:ExceptionText>Cannot extract bound from result of imageCrsdomain() / domain() on 2D+ coverage.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

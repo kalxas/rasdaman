@@ -21,11 +21,15 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
 import petascope.wcps.result.WcpsResult;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 
 /**
  * Class to translate a reduce boolean expression to rasql  <code>
@@ -42,11 +46,32 @@ import org.springframework.stereotype.Service;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ReduceExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ReduceExpressionHandler extends Handler {
+    
+    public ReduceExpressionHandler() {
+        
+    }
+    
+    public ReduceExpressionHandler create(StringScalarHandler operatorHandler, Handler reduceExpressionHandler) {
+        ReduceExpressionHandler result = new ReduceExpressionHandler();
+        result.setChildren(Arrays.asList(operatorHandler, reduceExpressionHandler));
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        String operator = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        WcpsResult reduceExpression = (WcpsResult)this.getSecondChild().handle();
+        
+        WcpsResult result = this.handle(operator, reduceExpression);
+        return result;
+    }
 
-    public WcpsResult handle(String operator, WcpsResult reduceParameter) {
-        return new WcpsResult(null, TEMPLATE.replace("$reduceOperation", operationTranslator.get(operator.toLowerCase()))
-                .replace("$reduceParameter", reduceParameter.getRasql()));
+    private WcpsResult handle(String operator, WcpsResult reduceExpression) {
+        return new WcpsResult(null, 
+                        TEMPLATE.replace("$reduceOperation", operationTranslator.get(operator.toLowerCase()))
+                                .replace("$reduceParameter", reduceExpression.getRasql()));
     }
 
     private final String TEMPLATE = " $reduceOperation($reduceParameter) ";

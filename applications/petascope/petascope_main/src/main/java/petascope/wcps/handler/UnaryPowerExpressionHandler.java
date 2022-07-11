@@ -21,7 +21,12 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -34,14 +39,34 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class UnaryPowerExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class UnaryPowerExpressionHandler extends Handler {
+    
+    public UnaryPowerExpressionHandler() {
+        
+    }
+    
+    public UnaryPowerExpressionHandler create(Handler coverageExpressionHandler, Handler scalarExpressionHandler) {
+        UnaryPowerExpressionHandler result = new UnaryPowerExpressionHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, scalarExpressionHandler));
+        return result;
+    }
+    
+    @Override
+    public VisitorResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        WcpsResult scalarExpression = (WcpsResult) this.getSecondChild().handle();
+        
+        WcpsResult result = this.handle(coverageExpression, scalarExpression);
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult coverageExp, WcpsResult scalarExp) {
+    public WcpsResult handle(WcpsResult coverageExpression, WcpsResult scalarExpression) {
         // NOTE: It is implemented same as UnaryBooleanExpression with case bit
-        String template = TEMPLATE.replace("$coverageExp", coverageExp.getRasql())
-                .replace("$scalarExp", scalarExp.getRasql());
+        String template = TEMPLATE.replace("$coverageExp", coverageExpression.getRasql())
+                                  .replace("$scalarExp", scalarExpression.getRasql());
 
-        return new WcpsResult(coverageExp.getMetadata(), template);
+        return new WcpsResult(coverageExpression.getMetadata(), template);
     }
 
     private final String TEMPLATE = "POW($coverageExp, $scalarExp)";

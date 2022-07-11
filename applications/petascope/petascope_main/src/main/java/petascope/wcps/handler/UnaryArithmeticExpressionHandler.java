@@ -21,7 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -35,9 +39,29 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class UnaryArithmeticExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class UnaryArithmeticExpressionHandler extends Handler {
+    
+    public UnaryArithmeticExpressionHandler() {
+        
+    }
+    
+    public UnaryArithmeticExpressionHandler create(StringScalarHandler operatorHandler, Handler coverageExpressionHandler) {
+        UnaryArithmeticExpressionHandler result = new UnaryArithmeticExpressionHandler();
+        result.setChildren(Arrays.asList(operatorHandler, coverageExpressionHandler));
+                
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        String operator = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        WcpsResult coverageExpression = ((WcpsResult)this.getSecondChild().handle());
+        
+        WcpsResult result = this.handle(operator, coverageExpression);
+        return result;
+    }
 
-    public WcpsResult handle(String operator, WcpsResult coverageExpression) {
+    private WcpsResult handle(String operator, WcpsResult coverageExpression) {
         String template = TEMPLATE.replace("$coverage", coverageExpression.getRasql());
         //real and imaginary translate to postfix operations in rasql
         //yielding .re and .im

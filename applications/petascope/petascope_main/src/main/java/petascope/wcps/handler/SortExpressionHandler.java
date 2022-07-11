@@ -21,12 +21,19 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
+import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.SortedAxisIteratorAliasRegistry;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -40,7 +47,8 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class SortExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class SortExpressionHandler extends Handler {
     
     // e.g: SORT ... ALONG ... AS ... BY ...
     private final String COVERAGE_EXPRESSION_TEMPLATE = "$coverageExpression";
@@ -56,10 +64,63 @@ public class SortExpressionHandler extends AbstractOperatorHandler {
     
     public static final String DEFAULT_SORTING_ORDER = "ASC";
     
+    @Autowired 
+    private SortedAxisIteratorAliasRegistry sortedAxisIteratorAliasRegistry;
+    
+    public SortExpressionHandler() {
+        
+    }
+    
+    public SortExpressionHandler create(Handler coverageExpressionHandler, StringScalarHandler sortedAxisLabelHandler,
+                                        StringScalarHandler sortingOrderHandler, Handler cellExpressionHandler) {
+        SortExpressionHandler result = new SortExpressionHandler();
+        result.sortedAxisIteratorAliasRegistry = this.sortedAxisIteratorAliasRegistry;
+        result.setChildren(Arrays.asList(coverageExpressionHandler, sortedAxisLabelHandler, sortingOrderHandler, cellExpressionHandler));
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        // e.g. sorted by Long axis
+        String sortedAxisLabel = ((WcpsResult) this.getSecondChild().handle()).getRasql();
+        
+        int sortedAxisLabelIndex = -1;
+        int i = 0;
+        
+        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), sortedAxisLabel)) {
+                sortedAxisLabelIndex = i;
+                break;
+            }
+            
+            i++;
+        }
+        
+        if (sortedAxisLabelIndex == -1) {
+            throw new CoverageAxisNotFoundExeption(sortedAxisLabel);
+        }
+        
+        String sortingOrder = ((WcpsResult) this.getThirdChild().handle()).getRasql();
+        
+        this.sortedAxisIteratorAliasRegistry.add(sortedAxisLabel);
+        
+        // e.g. i
+        String sortedAxisIteratorLabel = this.sortedAxisIteratorAliasRegistry.getIteratorLabel(sortedAxisLabel);
+        
+        WcpsResult cellExpression = (WcpsResult) this.getFourthChild().handle();
+        
+        this.sortedAxisIteratorAliasRegistry.remove(sortedAxisLabel);        
+        
+        WcpsResult result = this.handle(coverageExpression, sortedAxisLabel, i, sortedAxisIteratorLabel, sortingOrder, cellExpression);
+        return result;
+    }
+
     /**
      * Handle the sort operator
      */
-    public WcpsResult handle(WcpsResult coverageExpression, String sortedAxisLabel, int sortedAxisGridIndex, String sortedAxisIteratorLabel, String sortingOrder, WcpsResult cellExpression) {
+    private WcpsResult handle(WcpsResult coverageExpression, String sortedAxisLabel, int sortedAxisGridIndex, String sortedAxisIteratorLabel, String sortingOrder, WcpsResult cellExpression) {
         WcpsResult result = coverageExpression;
         
         WcpsCoverageMetadata coverageExpressionMetadata = coverageExpression.getMetadata();

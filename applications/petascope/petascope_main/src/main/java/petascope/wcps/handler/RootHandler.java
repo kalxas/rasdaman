@@ -22,18 +22,21 @@
 package petascope.wcps.handler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
 import static petascope.wcps.handler.ForClauseHandler.AS;
-import static petascope.wcps.handler.ForClauseListHandler.FROM;
 import petascope.wcps.metadata.service.CollectionAliasRegistry;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -48,15 +51,54 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class WcpsQueryHandler {
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class RootHandler extends Handler {
     
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
     @Autowired
     private CollectionAliasRegistry collectionAliasRegistry;
     
+    
+    public RootHandler create(Handler forClauseListHandler, Handler letClauseListHandler, Handler whereClauseHandler, Handler returnClauseHandler) {
+        RootHandler result = new RootHandler();
+        result.setChildren(Arrays.asList(forClauseListHandler, letClauseListHandler, whereClauseHandler, returnClauseHandler));
+        result.coverageAliasRegistry = this.coverageAliasRegistry;
+        result.collectionAliasRegistry = this.collectionAliasRegistry;
+        
+        
+        return result;
+    }
+    
+    public VisitorResult handle() throws PetascopeException {
+        
+        WcpsResult forClauseListVisitorResult = (WcpsResult) this.getFirstChild().handle();
+        
+        WcpsResult letClauseListVisitorResult = null;
+        if (this.getSecondChild() instanceof LetClauseListHandler) {
+            letClauseListVisitorResult = (WcpsResult) this.getSecondChild().handle();
+        }
+        
+        WcpsResult whereClauseVisitorResult = null;
+        if (this.getThirdChild()instanceof WhereClauseHandler) {
+            whereClauseVisitorResult = (WcpsResult) this.getThirdChild().handle();
+        }
 
-    public WcpsResult handle(WcpsResult forClauseList, WcpsResult whereClause, WcpsResult returnClause) throws PetascopeException {
+        VisitorResult returnClauseVisitorResult = this.getFourthChild().handle();
+        
+        VisitorResult finalResult = returnClauseVisitorResult;
+        
+        if (returnClauseVisitorResult instanceof WcpsResult) {
+            // rasql query
+            finalResult = this.handle(forClauseListVisitorResult, letClauseListVisitorResult, 
+                                      whereClauseVisitorResult, (WcpsResult) returnClauseVisitorResult);
+        }
+        
+        return finalResult;
+    }
+    
+    private WcpsResult handle(WcpsResult forClauseList, WcpsResult letClauseList, WcpsResult whereClause, WcpsResult returnClause) throws PetascopeException {
         // SELECT c1 + c2
         String rasql = returnClause.getRasql();
 

@@ -21,7 +21,12 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -35,9 +40,29 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class CoverageIsNullHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class CoverageIsNullHandler extends Handler {
+    
+    public CoverageIsNullHandler() {
+        
+    }
+    
+    public CoverageIsNullHandler create(Handler coverageExpressionHandler, StringScalarHandler booleanValueHandler) {
+        CoverageIsNullHandler result = new CoverageIsNullHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler, booleanValueHandler));
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        boolean isNull = Boolean.valueOf(((WcpsResult) this.getSecondChild().handle()).getRasql());
+        
+        WcpsResult result = this.handle(coverageExpression, isNull);
+        return result;
+    }    
 
-    public WcpsResult handle(WcpsResult coverageExpression, boolean isNull) {
+    private WcpsResult handle(WcpsResult coverageExpression, boolean isNull) {
         String rasqlResult = null;
         if (isNull) {
             rasqlResult = coverageExpression.getRasql() + " is null ";
@@ -49,4 +74,5 @@ public class CoverageIsNullHandler extends AbstractOperatorHandler {
         
         return wcpsResult;
     }
+
 }

@@ -21,7 +21,13 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -36,9 +42,26 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class CoverageIdentifierHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class CoverageIdentifierHandler extends Handler {
     
     public static final String OPERATOR = "identifier";
+    
+    public CoverageIdentifierHandler() {
+        
+    }
+    
+    public CoverageIdentifierHandler create(Handler coverageExpressionHandler) {
+        CoverageIdentifierHandler result = new CoverageIdentifierHandler();
+        result.setChildren(Arrays.asList(coverageExpressionHandler));
+        return result;
+    }
+    
+    public VisitorResult handle() throws PetascopeException {
+        WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
+        WcpsMetadataResult result = this.handle(coverageExpression);
+        return result;
+    }
 
     public WcpsMetadataResult handle(WcpsResult coverageExpression) {
         checkOperandIsCoverage(coverageExpression, OPERATOR); 

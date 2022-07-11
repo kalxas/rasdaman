@@ -21,17 +21,16 @@
  */
 package petascope.wcps.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-//import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.rasdaman.domain.cis.NilValue;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.wcps.parameters.model.netcdf.NetCDFExtraParams;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
@@ -42,7 +41,6 @@ import petascope.wcps.encodeparameters.service.GeoReferenceService;
 import petascope.wcps.encodeparameters.service.SerializationEncodingService;
 import petascope.wcps.exception.processing.InvalidJsonDeserializationException;
 import petascope.wcps.exception.processing.InvalidNumberOfNodataValuesException;
-import petascope.wcps.exception.processing.MetadataSerializationException;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.parameters.netcdf.service.NetCDFParametersService;
 
@@ -66,7 +64,8 @@ import petascope.wcps.parameters.netcdf.service.NetCDFParametersService;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class EncodeCoverageHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class EncodeCoverageHandler extends Handler {
 
     private org.slf4j.Logger log = LoggerFactory.getLogger(EncodeCoverageHandler.class);
 
@@ -75,8 +74,29 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
     @Autowired
     private NetCDFParametersService netCDFParametersFactory;
     
+    public EncodeCoverageHandler() {
+        
+    }
+    
+    public EncodeCoverageHandler create(Handler coverageExpressionHandler, Handler formatTypeStringScalarHandler, Handler extraParamsStringScalarHandler) {
+        EncodeCoverageHandler result = new EncodeCoverageHandler();
+        result.serializationEncodingService = this.serializationEncodingService;
+        result.netCDFParametersFactory = this.netCDFParametersFactory;
+        result.setChildren(Arrays.asList(coverageExpressionHandler, formatTypeStringScalarHandler, extraParamsStringScalarHandler));
+        
+        return result;
+    }
+    
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult coverageExpressionVisitorResult = (WcpsResult) this.getFirstChild().handle();
+        String formatType = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        String extraParams = ((WcpsResult)this.getThirdChild().handle()).getRasql();
+        
+        WcpsResult result = this.handle(coverageExpressionVisitorResult, formatType, extraParams, coverageExpressionVisitorResult.withCoordinates());
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams) throws PetascopeException {
+    private WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams, boolean widthCoordinates) throws PetascopeException {
         // get the mime-type before modifying the rasqlFormat
         String mimeType = MIMEUtil.getMimeType(format);
         
@@ -98,13 +118,14 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
         //   check if crs and bbox already existed in the JSON extra params, if it does then will not do anything, otherwise, add these param keys-values to this extra param input
         //   then pass it in JSON string as rasql's encode extra parameters
         String otherParamsString = getExtraParams(coverageExpression, format, extraParams, isGML);
-
+        
         //get the right template for rasql string (the dem() encode still use the old format, other will use the new JSON format)
         String template = getTemplate(format);
         String resultRasql = template.replace("$covExpression", coverageExpression.getRasql())
                 .replace("$format", '"' + format + '"')
                 .replace("$otherParams", otherParamsString);
         WcpsResult wcpsResult = new WcpsResult(coverageExpression.getMetadata(), resultRasql);
+        wcpsResult.setWithCoordinates(widthCoordinates);
         wcpsResult.setMimeType(mimeType);
 
         return wcpsResult;

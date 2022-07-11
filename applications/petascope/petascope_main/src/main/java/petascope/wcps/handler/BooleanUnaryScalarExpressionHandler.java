@@ -21,7 +21,13 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import java.util.List;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -35,12 +41,34 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BooleanUnaryScalarExpressionHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class BooleanUnaryScalarExpressionHandler extends Handler {
+    
+    public BooleanUnaryScalarExpressionHandler() {
+        
+    }
+    
+    public BooleanUnaryScalarExpressionHandler create(StringScalarHandler operatorHandler, Handler scalarExpressionHandler) {
+        BooleanUnaryScalarExpressionHandler result = new BooleanUnaryScalarExpressionHandler();
+        result.setChildren(Arrays.asList(operatorHandler, scalarExpressionHandler));
+        return result;
+    }
+    
+    @Override
+    public VisitorResult handle() throws PetascopeException {
+        String operator = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        WcpsResult scalarExpression = (WcpsResult)this.getSecondChild().handle();
+        
+        WcpsResult result = this.handle(operator, scalarExpression);
+        return result;
+    }
 
-    public WcpsResult handle(String operand, WcpsResult scalarExpression) {
-        return new WcpsResult(scalarExpression.getMetadata(), TEMPLATE.replace("$operand", operand)
-                .replace("$scalarExpression", scalarExpression.getRasql()));
+    public WcpsResult handle(String operator, WcpsResult scalarExpression) {
+        return new WcpsResult(scalarExpression.getMetadata(), 
+                              TEMPLATE.replace("$operand", operator)
+                                      .replace("$scalarExpression", scalarExpression.getRasql()));
     }
 
     private final String TEMPLATE = "$operand($scalarExpression)";
+
 }

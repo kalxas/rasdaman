@@ -21,8 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
 import nu.xom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import static petascope.core.XMLSymbols.LABEL_GENERAL_GRID_COVERAGE;
 import static petascope.core.gml.GMLDescribeCoverageBuilder.isCIS11;
@@ -34,6 +37,7 @@ import petascope.exceptions.SecoreException;
 import petascope.util.MIMEUtil;
 import petascope.util.XMLUtil;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -43,7 +47,8 @@ import petascope.wcps.result.WcpsResult;
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 @Service
-public class DescribeCoverageHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class DescribeCoverageHandler extends Handler {
     
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
@@ -53,7 +58,31 @@ public class DescribeCoverageHandler {
     // For General Grid Coverage in CIS 1.1
     public static final String EXTRA_PARAMETER_KEY_OUTPUT_TYPE = "outputType";
     
-    public WcpsMetadataResult handle(WcpsResult coverageExpression, String outputFormat, String extraParams) throws PetascopeException {
+    public DescribeCoverageHandler() {
+        
+    }
+    
+    public DescribeCoverageHandler create(Handler coverageExpressionHandler, 
+                                        StringScalarHandler outputFormatHandler, StringScalarHandler extraParamsHandler) {
+        DescribeCoverageHandler result = new DescribeCoverageHandler();
+        result.gmlWCSRequestResultBuilder = this.gmlWCSRequestResultBuilder;
+        result.jsonWCSRequestResultBuilder = this.jsonWCSRequestResultBuilder;
+        result.setChildren(Arrays.asList(coverageExpressionHandler, outputFormatHandler, extraParamsHandler));
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsMetadataResult handle() throws PetascopeException {
+        WcpsResult coverageExpressionVisitorResult = (WcpsResult) this.getFirstChild().handle();
+        String outputFormat = ((WcpsResult) this.getSecondChild().handle()).getRasql();
+        String extraParams = ((WcpsResult) this.getThirdChild().handle()).getRasql();
+        
+        WcpsMetadataResult result = this.handle(coverageExpressionVisitorResult, outputFormat, extraParams);
+        return result;
+    }
+    
+    private WcpsMetadataResult handle(WcpsResult coverageExpression, String outputFormat, String extraParams) throws PetascopeException {
 
         if (!(MIMEUtil.isGML(outputFormat) || MIMEUtil.isJSON(outputFormat))) {
             throw new PetascopeException(ExceptionCode.NoApplicableCode, "Format value is not supported. Given '" + outputFormat + "'");

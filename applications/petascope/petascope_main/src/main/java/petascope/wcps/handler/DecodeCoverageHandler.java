@@ -21,8 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -36,7 +39,8 @@ import petascope.wcps.result.WcpsResult;
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 @Service
-public class DecodeCoverageHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class DecodeCoverageHandler extends Handler {
     
     private org.slf4j.Logger log = LoggerFactory.getLogger(DecodeCoverageHandler.class);
     
@@ -45,8 +49,29 @@ public class DecodeCoverageHandler extends AbstractOperatorHandler {
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
     
+    public DecodeCoverageHandler() {
+        
+    }
     
-    public WcpsResult handle(String positionalParamater, String extraParams) throws PetascopeException {
+    public DecodeCoverageHandler create(Handler positionalParamaterHandler, Handler extraParamsHandler) {
+        DecodeCoverageHandler result = new DecodeCoverageHandler();
+        result.tempCoverageRegistry = tempCoverageRegistry;
+        result.wcpsCoverageMetadataTranslator = wcpsCoverageMetadataTranslator;
+        result.setChildren(Arrays.asList(positionalParamaterHandler, extraParamsHandler));
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        String positionalParamater = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        String extraParams = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        
+        WcpsResult result = this.handle(positionalParamater, extraParams);
+        return result;
+    }
+
+    private WcpsResult handle(String positionalParamater, String extraParams) throws PetascopeException {
         
         // e.g: TEMP_COV_abc_2020011001
         WcpsCoverageMetadata metadata = null;

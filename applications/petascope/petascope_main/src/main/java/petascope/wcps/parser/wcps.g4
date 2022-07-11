@@ -405,7 +405,7 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                   | coverageExpression LEFT_BRACKET dimensionIntervalList RIGHT_BRACKET
                     #CoverageExpressionShorthandSubsetLabel
                   | coverageExpression LEFT_BRACKET coverageVariableName RIGHT_BRACKET
-                    #coverageXpressionShortHandSubsetWithLetClauseVariableLabel
+                    #coverageExpressionShortHandSubsetWithLetClauseVariableLabel
                   | TRIM LEFT_PARENTHESIS coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE
                     RIGHT_PARENTHESIS
                     #CoverageExpressionTrimCoverageLabel
@@ -619,8 +619,15 @@ fieldName: COVERAGE_VARIABLE_NAME | INTEGER;
       select  { c.red, c.green, c.blue } from COV as c
  */
 rangeConstructorExpression: LEFT_BRACE
-                              (fieldName COLON coverageExpression) (SEMICOLON fieldName COLON coverageExpression)*
+                                  rangeConstructorElementList
                             RIGHT_BRACE                                                                                 #RangeConstructorExpressionLabel;
+
+rangeConstructorElement: fieldName COLON coverageExpression
+#rangeConstructorElementLabel;
+
+rangeConstructorElementList: rangeConstructorElement (SEMICOLON rangeConstructorElement)*
+#rangeConstructorElementListLabel;
+
 
 /**
  This is used in switch case which return range constructor
@@ -878,30 +885,15 @@ sortExpression: SORT coverageExpression ALONG axisName sortingOrder? BY coverage
 		       case c > 70 and c < 100 return (char)5
                 default return 2, "csv")
 */
-switchCaseExpression: SWITCH CASE (LEFT_PARENTHESIS)*
-					booleanSwitchCaseCombinedExpression
-                                  (RIGHT_PARENTHESIS)*
-				  RETURN rangeConstructorSwitchCaseExpression
 
-			     (CASE (LEFT_PARENTHESIS)*
-					booleanSwitchCaseCombinedExpression
-				   (RIGHT_PARENTHESIS)*
-			     RETURN rangeConstructorSwitchCaseExpression)*
+switchCaseExpression: SWITCH switchCaseElementList
+  		              switchCaseDefaultElement
+          #switchCaseExpressionLabel;
 
-		      DEFAULT RETURN rangeConstructorSwitchCaseExpression
-          #switchCaseRangeConstructorExpressionLabel
-        | SWITCH CASE (LEFT_PARENTHESIS)*
-					booleanSwitchCaseCombinedExpression
-				   (RIGHT_PARENTHESIS)*
-				  RETURN scalarValueCoverageExpression
 
-			    (CASE (LEFT_PARENTHESIS)*
-					booleanSwitchCaseCombinedExpression
-				   (RIGHT_PARENTHESIS)*
-			    RETURN scalarValueCoverageExpression)*
-
-		      DEFAULT RETURN scalarValueCoverageExpression
-          #switchCaseScalarValueExpressionLabel;
+switchCaseElement: CASE booleanSwitchCaseCombinedExpression RETURN coverageExpression;
+switchCaseElementList: switchCaseElement (switchCaseElement)*;
+switchCaseDefaultElement: DEFAULT RETURN  coverageExpression;
 
 
 /**

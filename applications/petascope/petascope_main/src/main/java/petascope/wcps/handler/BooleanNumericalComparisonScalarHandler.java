@@ -21,7 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.util.Arrays;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -35,12 +39,37 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BooleanNumericalComparisonScalarHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class BooleanNumericalComparisonScalarHandler extends Handler {
+    
+    public BooleanNumericalComparisonScalarHandler() {
+        
+    }
+    
+    public BooleanNumericalComparisonScalarHandler create(Handler leftCoverageExpressionHandler, 
+                                                          Handler operatorHandler,
+                                                          Handler rightCoverageExpressionHandler) {
+        BooleanNumericalComparisonScalarHandler result = new BooleanNumericalComparisonScalarHandler();
+        result.setChildren(Arrays.asList(leftCoverageExpressionHandler, operatorHandler, rightCoverageExpressionHandler));
+        
+        return result;
+    }
+    
+    @Override
+    public WcpsResult handle() throws PetascopeException {
+        WcpsResult leftCoverageExpression = (WcpsResult) this.getFirstChild().handle();
+        String operator = ((WcpsResult) this.getSecondChild().handle()).getRasql();
+        WcpsResult rightCoverageExpression = (WcpsResult) this.getThirdChild().handle();
+        
+        WcpsResult result = this.handle(leftCoverageExpression, operator, rightCoverageExpression);
+        return result;
+    }
 
-    public WcpsResult handle(WcpsResult left, WcpsResult right, String operator) {
-        return new WcpsResult(null, TEMPLATE.replace("$leftOperand", left.getRasql())
-                .replace("$operator", operator)
-                .replace("$rightOperand", right.getRasql()));
+    public WcpsResult handle(WcpsResult leftCoverageExpression, String operator, WcpsResult rightCoverageExpression) {
+        return new WcpsResult(null, 
+                TEMPLATE.replace("$leftOperand", leftCoverageExpression.getRasql())
+                        .replace("$operator", operator)
+                        .replace("$rightOperand", rightCoverageExpression.getRasql()));
     }
 
     private final String TEMPLATE = " $leftOperand $operator $rightOperand ";

@@ -734,4 +734,12 @@ public class StringUtil {
         return Character.toString((char) ('i' + incrementSize));
     }
     
+    public static Boolean stringToBoolean(String value) {
+        if (value == null) {
+            return null;
+        } else {
+            return Boolean.valueOf(value);
+        }
+    }
+    
 }

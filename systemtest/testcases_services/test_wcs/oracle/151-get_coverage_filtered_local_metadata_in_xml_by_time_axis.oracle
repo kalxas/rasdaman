@@ -112,7 +112,7 @@
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>FROM FILE 2</local_metadata_key>
-                        <fileReferenceHistory>/home/dimitar/rasdaman/community/src/systemtest/testcases_services/test_all_wcst_import/testdata/116-wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc</fileReferenceHistory>
+                        <fileReferenceHistory>/opt/rasdaman/source/systemtest/testcases_services/test_all_wcst_import/testdata/116-wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc</fileReferenceHistory>
                     </slice>
                 </slices>
                 <Title>Drought code</Title>

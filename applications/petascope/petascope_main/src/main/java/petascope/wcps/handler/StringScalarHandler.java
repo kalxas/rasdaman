@@ -21,19 +21,36 @@
  */
 package petascope.wcps.handler;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.wcps.result.WcpsResult;
 
 /**
- * Translator class for string scalars
+ * Translator class for string scalars (leaf node)
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class StringScalarHandler extends AbstractOperatorHandler {
-
-    public WcpsResult handle(String scalar) {
-        return new WcpsResult(null, scalar);
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class StringScalarHandler extends Handler {
+    
+    private String value;
+    
+    public StringScalarHandler() {
+        
+    }
+    
+    public StringScalarHandler create(String value) {
+        StringScalarHandler result = new StringScalarHandler();
+        result.value = value;
+        return result;
+    }
+    
+    public WcpsResult handle() {
+        WcpsResult result = new WcpsResult(null, this.value);
+        return result;
     }
 }

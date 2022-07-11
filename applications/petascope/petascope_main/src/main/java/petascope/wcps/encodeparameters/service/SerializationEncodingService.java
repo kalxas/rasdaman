@@ -145,7 +145,9 @@ public class SerializationEncodingService {
         
         // Extra metadata of coverage
         CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
-        jsonExtraParams.setMetadata(coverageMetadata.flattenMetadataMap());        
+        if (coverageMetadata != null) {
+            jsonExtraParams.setMetadata(coverageMetadata.flattenMetadataMap());        
+        }
         
         jsonExtraParams.setGeoReference(geoReference);
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output
@@ -158,7 +160,9 @@ public class SerializationEncodingService {
             this.addTransposeToExtraParams(wcpsCoverageMetadata, jsonExtraParams);
         }
         
-        this.addColorPalleteToJSONExtraParamIfPossible(rasqlFormat, coverageMetadata, jsonExtraParams);
+        if (coverageMetadata != null) {
+            this.addColorPalleteToJSONExtraParamIfPossible(rasqlFormat, coverageMetadata, jsonExtraParams);
+        }
         
         this.customizeEncodeForGML(isGML, jsonExtraParams);
         

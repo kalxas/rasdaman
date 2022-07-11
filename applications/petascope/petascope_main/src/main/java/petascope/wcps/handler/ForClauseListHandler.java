@@ -24,7 +24,11 @@ package petascope.wcps.handler;
 import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -41,9 +45,33 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ForClauseListHandler {
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class ForClauseListHandler extends Handler {
+    
+    public ForClauseListHandler() {
+        
+    }
+    
+    public ForClauseListHandler create(List<Handler> childHandlers) {
+        ForClauseListHandler result = new ForClauseListHandler();
+        result.setChildren(childHandlers);
+        return result;
+    }
+    
+    
+    public WcpsResult handle() throws PetascopeException {
+        List<WcpsResult> temps = new ArrayList<>();
+        for (Handler childHandler : this.getChildren()) {
+            WcpsResult result = (WcpsResult) childHandler.handle();
+            temps.add(result);
+        }
+        
+        WcpsResult result = this.handle(temps);
+        return result;
+    }
 
-    public WcpsResult handle(List<WcpsResult> forClauses) {
+    private WcpsResult handle(List<WcpsResult> forClauses) {
         List<String> rasqls = new ArrayList();
         for (WcpsResult forClause : forClauses) {
             rasqls.add(forClause.getRasql());

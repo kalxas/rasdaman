@@ -21,7 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 
 /**
@@ -37,10 +41,31 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BooleanConstantHandler extends AbstractOperatorHandler {
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class BooleanConstantHandler extends Handler {
+    
+    private String value;
+    
+    public BooleanConstantHandler() {
+        
+    }
+    
+    public BooleanConstantHandler create(String value) {
+        BooleanConstantHandler result = new BooleanConstantHandler();
+        result.value = value;
+        
+        return result;
+    }
+    
+    @Override
+    public VisitorResult handle() throws PetascopeException {
+        VisitorResult result = this.handle(this.value);
+        return result;
+    }
 
-    public WcpsResult handle(String booleanValue) {
+    private WcpsResult handle(String booleanValue) {
         return new WcpsResult(null, booleanValue);
     }
+
 
 }

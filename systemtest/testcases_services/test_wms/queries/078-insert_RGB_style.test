@@ -1,4 +1,4 @@
 STYLEID=RGB&
 COVERAGEID=test_wms_netcdf_yx_order&
 abstract=RGB&
-wcpsQueryFragment=switch case $c <= 0 return {red: 13; green:79; blue:220} default return {red: 255; green:254; blue:214})
+wcpsQueryFragment=switch case $c <= 0 return {red: 13; green:79; blue:220} default return {red: 255; green:254; blue:214}

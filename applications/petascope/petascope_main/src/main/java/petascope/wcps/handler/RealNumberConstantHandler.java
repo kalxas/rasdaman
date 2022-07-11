@@ -21,6 +21,8 @@
  */
 package petascope.wcps.handler;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.wcps.result.WcpsResult;
 
@@ -33,9 +35,28 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class RealNumberConstantHandler extends AbstractOperatorHandler {
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class RealNumberConstantHandler extends Handler {
+    
+    private String number;
+    
+    public RealNumberConstantHandler() {
+        
+    }
+    
+    public RealNumberConstantHandler create(String number) {
+        RealNumberConstantHandler result = new RealNumberConstantHandler();
+        result.number = number;
+        return result;
+    }
+    
+    public WcpsResult handle() {
+        WcpsResult wcpsResult = this.handle(this.number);
+        return wcpsResult;
+    }
 
-    public WcpsResult handle(String number) {
+    private WcpsResult handle(String number) {
         return new WcpsResult(null, number);
     }
 
