@@ -28,6 +28,8 @@ import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.util.JSONUtil;
 import petascope.wcps.exception.processing.CannotFindAxistIteratorException;
 import petascope.wcps.exception.processing.InvalidRedefineAxisIteratorException;
 import petascope.wcps.subset_axis.model.AxisIterator;
@@ -47,7 +49,7 @@ import petascope.wcps.subset_axis.model.AxisIterator;
 public class AxisIteratorAliasRegistry {
 
     // NOTE: axis iterator alias can only be unique for a subset dimension (e.g: $px x(0:20))
-    private final LinkedHashMap<String, AxisIterator> axisIteratorMappings = new LinkedHashMap<String, AxisIterator>();
+    private final LinkedHashMap<String, AxisIterator> axisIteratorMappings = new LinkedHashMap<>();
 
     // maintains a list of rasql subsets that represent axis iterators.
     private final List<String> rasqlAxisIterators = new ArrayList<>();
@@ -56,9 +58,11 @@ public class AxisIteratorAliasRegistry {
 
     }
 
-    public void addAxisIteratorAliasMapping(String axisIteratorAlias, AxisIterator axisIterator) {
+    public void addAxisIteratorAliasMapping(String axisIteratorAlias, AxisIterator axisIterator) throws PetascopeException {
         AxisIterator value = axisIteratorMappings.get(axisIteratorAlias);
-        if (value != null) {
+        
+        if (value != null 
+            && !JSONUtil.serializeObjectToJSONString(value.getSubsetDimension()).equals(JSONUtil.serializeObjectToJSONString(axisIterator.getSubsetDimension()))) {
             // throw an exception when redefine the axis iterator alias
             throw new InvalidRedefineAxisIteratorException(axisIteratorAlias, axisIterator.getSubsetDimension());
         } else {
@@ -78,6 +82,11 @@ public class AxisIteratorAliasRegistry {
         }
 
         return axisIterator;
+    }
+    
+    
+    public boolean exists(String axisIteratorAlias) {
+        return axisIteratorMappings.get(axisIteratorAlias) != null;
     }
 
     public List<String> getRasqlAxisIterators() {

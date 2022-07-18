@@ -53,4 +53,8 @@ public class StringScalarHandler extends Handler {
         WcpsResult result = new WcpsResult(null, this.value);
         return result;
     }
+    
+    public String getValue() {
+        return this.value;
+    }
 }

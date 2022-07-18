@@ -1,0 +1,5 @@
+for c in (test_wcps_scale_downscaled),
+    d in (test_wcps_scale_downscaled_duplicated)
+return encode(
+
+scale((c + d)[unix:"CRS:1"(0)], {Lat:"CRS:1"(0:10), Long:"CRS:1"(0:10)}), "png")

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage gml:id="test_mean_summer_airtemp" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+<gmlcov:RectifiedGridCoverage gml:id="test_mean_summer_airtemp_downscaled" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
     <gml:boundedBy>
         <gml:Envelope srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" axisLabels="Lat Lon" uomLabels="degree degree" srsDimension="2">
-            <gml:lowerCorner>-44.474999999999987 111.975</gml:lowerCorner>
-            <gml:upperCorner>-8.974999999999987 156.475</gml:upperCorner>
+            <gml:lowerCorner>-44.974999999999987 111.975</gml:lowerCorner>
+            <gml:upperCorner>-8.974999999999987 155.975</gml:upperCorner>
         </gml:Envelope>
     </gml:boundedBy>
     <gml:domainSet>
-        <gml:RectifiedGrid dimension="2" gml:id="test_mean_summer_airtemp-grid">
+        <gml:RectifiedGrid dimension="2" gml:id="test_mean_summer_airtemp_downscaled-grid">
             <gml:limits>
                 <gml:GridEnvelope>
                     <gml:low>21 17</gml:low>
@@ -16,12 +16,12 @@
             </gml:limits>
             <gml:axisLabels>Lat Lon</gml:axisLabels>
             <gml:origin>
-                <gml:Point gml:id="test_mean_summer_airtemp-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
-                    <gml:pos>-17.849999999999987 123.1</gml:pos>
+                <gml:Point gml:id="test_mean_summer_airtemp_downscaled-point" srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">
+                    <gml:pos>-17.974999999999987 122.975</gml:pos>
                 </gml:Point>
             </gml:origin>
-            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">-17.75 0</gml:offsetVector>
-            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 22.25</gml:offsetVector>
+            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">-18 0</gml:offsetVector>
+            <gml:offsetVector srsName="http://localhost:8080/rasdaman/def/crs/EPSG/0/4326">0 22</gml:offsetVector>
         </gml:RectifiedGrid>
     </gml:domainSet>
     <gml:rangeSet>

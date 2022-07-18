@@ -726,6 +726,8 @@ public class WcpsCoverageMetadataGeneralService {
             unAppliedNumericSubset = (NumericTrimming) axis.getGridBounds();
             unTranslatedNumericSubset = (NumericTrimming) axis.getGeoBounds();
             this.translateTrimmingGridToGeoSubset(axis, subsetDimension, numericSubset, unAppliedNumericSubset, unTranslatedNumericSubset);
+            
+            axis.setTransatedGridToGeoBounds(true);
         }
     }
 

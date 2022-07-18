@@ -110,7 +110,7 @@ public class WcsScaleExpressionByScaleExtentHandler extends AbstractWcsScaleHand
 
         
         DimensionIntervalList dimensionIntervalList = new DimensionIntervalList(wcpsSubsetDimensions);
-        WcpsResult wcpsResult = this.scaleExpressionByDimensionIntervalsHandler.handle(coverageExpression, dimensionIntervalList, false);
+        WcpsResult wcpsResult = this.scaleExpressionByDimensionIntervalsHandler.handle(coverageExpression, dimensionIntervalList, false, this.getFirstChild());
         
         return wcpsResult;
     }

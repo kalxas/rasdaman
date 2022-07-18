@@ -40,6 +40,13 @@ public abstract class Handler {
     private Handler parent;
     private List<Handler> children;
     
+    /**
+     * This list contains a list of handler nodes (Class name) which has been updated for optimization
+     * so they will be not touched anymore
+     */
+    private List<String> updatedHandlers = new ArrayList<>();
+    
+    
     public Handler() {
         
     }
@@ -152,7 +159,15 @@ public abstract class Handler {
                     "Handler: " + this.getClass().getSimpleName() + " has not enough children to get the seventh child handler.");
         }  
         return children.get(6);
-    }    
+    }
+    
+    public void addUpdatedHandler(Handler handler) {
+        this.updatedHandlers.add(handler.getClass().getName());
+    }
+    
+    public boolean isUpdatedHandlerAlready(Handler handler) {
+        return this.updatedHandlers.contains(handler.getClass().getName());
+    }
     
     public abstract VisitorResult handle() throws PetascopeException;
 

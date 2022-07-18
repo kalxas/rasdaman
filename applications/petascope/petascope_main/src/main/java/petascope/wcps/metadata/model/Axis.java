@@ -59,6 +59,10 @@ public abstract class Axis<T> {
     private BigDecimal resolution;
     private boolean slicing = false;
     
+    // If this axis was created by subsetting by "CRS:1" -> true
+    // NOTE: this is used only when considering if a pyramid member can be used for scaling
+    private boolean transatedGridToGeoBounds = false;
+    
     public Axis() {
         
     }
@@ -314,6 +318,14 @@ public abstract class Axis<T> {
     
     public boolean isSlicing() {
         return slicing == true;
+    }
+
+    public boolean isTransatedGridToGeoBounds() {
+        return transatedGridToGeoBounds;
+    }
+
+    public void setTransatedGridToGeoBounds(boolean transatedGridToGeoBounds) {
+        this.transatedGridToGeoBounds = transatedGridToGeoBounds;
     }
     
     public String toString() {

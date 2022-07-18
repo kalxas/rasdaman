@@ -123,6 +123,8 @@ public class RootHandler extends Handler {
     private List<String> createFinalRasqlQueries(String defaultRasql, String whereClause) throws PetascopeException {
         List<String> finalRaslQueries = new ArrayList<>();
         
+        this.coverageAliasRegistry.unifyCoverageAliasMappings();
+        
         List<List<String>> listsTmp = new ArrayList<>();
         // e.g. c -> [ (cov11:collection11), (cov12: collection12), ...]
         for (Map.Entry<String, List<Pair<String, String>>> entry : this.coverageAliasRegistry.getCoverageMappings().entrySet()) {

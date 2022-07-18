@@ -22,6 +22,7 @@
 package petascope.wcps.metadata.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,8 +53,54 @@ public class CoverageAliasRegistry {
     // NOTE: a coverage variable can be alias for multiple coverage names
     private LinkedHashMap<String, List<Pair<String, String>>> coverageMappings = new LinkedHashMap<>();
 
+    // store the mapping of coverageAlias and coverageId of downscaled pyramid member coverages in case scale() is used
+    // e.g. c1 -> (test_pyramid_2, test_pyramid_2_collection), c2 -> (test_pyramid_4, test_pyramid_4_collection))
+    private LinkedHashMap<String, Pair<String, String>> downscaledCoverageAliasIdMappings = new LinkedHashMap<>();
+    
+    // These coverage aliases will be removed in the final step to create the final rasql query
+    private List<String> coverageAliasToBeRemoved = new ArrayList<>();
+
     public CoverageAliasRegistry() {
         
+    }
+    
+    public void addCoverageAliasToBeRemoved(String coverageAlias) {
+        this.coverageAliasToBeRemoved.add(coverageAlias);
+    }
+    
+    public LinkedHashMap<String, Pair<String, String>> getDownscaledCoverageAliasIdMappings() {
+        return this.downscaledCoverageAliasIdMappings;
+    }
+        
+    public void addDownscaledCoverageAliasId(String coverageId, String rasdamanCollectionName) {
+        // e.g. c -> cov (cov has pyramid members: cov_4 and cov_8)
+        // then, it creates downscaledCoverageAlias as: c_0 -> cov_4 and c_1 -> cov_8 
+        String coverageAlias = "c_" + this.downscaledCoverageAliasIdMappings.size();
+        this.downscaledCoverageAliasIdMappings.put(coverageAlias, new Pair<>(coverageId, rasdamanCollectionName));
+    }
+    
+    public String retrieveDownscaledCoverageAliasByCoverageId(String coverageId) {
+        for (Map.Entry<String, Pair<String, String>> entry : this.downscaledCoverageAliasIdMappings.entrySet()) {
+            String coverageAliasTmp = entry.getKey();
+            String coverageIdTmp = entry.getValue().fst;
+            
+            if (coverageIdTmp.equals(coverageId)) {
+                return coverageAliasTmp;
+            }
+        }
+        
+        return null;
+    }
+    
+    public void unifyCoverageAliasMappings() {
+        for (Map.Entry<String, Pair<String, String>> entry : this.downscaledCoverageAliasIdMappings.entrySet()) {
+            this.coverageMappings.put(entry.getKey(), Arrays.asList(entry.getValue()));
+        }
+        
+        for (String coverageAlias : this.coverageAliasToBeRemoved) {
+            // At the final step to create the final rasql query, any unused coverage aliases must be stripped
+            this.coverageMappings.remove(coverageAlias);
+        }
     }
     
     /**
@@ -61,6 +108,8 @@ public class CoverageAliasRegistry {
      */
     public void clear() {
         coverageMappings = new LinkedHashMap<>();
+        downscaledCoverageAliasIdMappings = new LinkedHashMap<>();
+        coverageAliasToBeRemoved = new ArrayList<>();
     }
     
     public void remove(String coverageAlias) {
@@ -70,7 +119,7 @@ public class CoverageAliasRegistry {
     public void updateCoverageMapping(String coverageAlias, String coverageName, String rasdamanCollectionName) {
         List<Pair<String, String>> values = coverageMappings.get(coverageAlias);
         if (values != null) {
-            coverageMappings.put(coverageAlias, ListUtil.valuesToList(new Pair<>(coverageName, rasdamanCollectionName)));
+            coverageMappings.put(coverageAlias, ListUtil.valuesToList(new Pair<>(coverageName, rasdamanCollectionName))); 
         }
     }
 
@@ -94,6 +143,13 @@ public class CoverageAliasRegistry {
         String coverageName = null;
         if (coverageMappings.get(alias) != null) {
             coverageName = coverageMappings.get(alias).get(0).fst;
+        }
+  
+        if (coverageName == null) {
+            // e.g. c_1 -> test_pyramid_2
+            if (this.downscaledCoverageAliasIdMappings.get(alias) != null) {
+                coverageName = this.downscaledCoverageAliasIdMappings.get(alias).fst;
+            }
         }
 
         return coverageName;

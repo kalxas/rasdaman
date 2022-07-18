@@ -1,1 +1,1 @@
-for c in (test_wcps_scale_downscaled) return encode(scale(c[unix:"CRS:1"(0), Lat:"CRS:1"(0:99), Long:"CRS:1"(0:99)], {Lat:"CRS:1"(0:19), Long:"CRS:1"(0:19)}), "png")
+for c in (test_wcps_scale_downscaled) return encode(scale(c[unix:"CRS:1"(0)], {Lat:"CRS:1"(0:19), Long:"CRS:1"(0:19)}), "png")

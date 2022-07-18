@@ -22,11 +22,13 @@
 package petascope.wcps.handler;
 
 import java.math.BigDecimal;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -34,7 +36,6 @@ import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
@@ -44,11 +45,12 @@ import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
+import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
-import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.DimensionIntervalList;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
@@ -75,6 +77,15 @@ public class ScaleExpressionByDimensionIntervalsHandler extends Handler {
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslatorService;
     
+    @Autowired
+    private CoverageAliasRegistry coverageAliasRegistry;
+    @Autowired
+    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+    @Autowired
+    private StringScalarHandler stringScalarHandler;
+    
+    
+    
     public static final String OPERATOR = "scale";
     
     public ScaleExpressionByDimensionIntervalsHandler() {
@@ -91,19 +102,172 @@ public class ScaleExpressionByDimensionIntervalsHandler extends Handler {
         result.rasqlTranslationService = this.rasqlTranslationService;
         result.wcpsCoverageMetadataTranslatorService = this.wcpsCoverageMetadataTranslatorService;
         
+        result.coverageAliasRegistry = coverageAliasRegistry;
+        result.axisIteratorAliasRegistry = axisIteratorAliasRegistry;
+        result.stringScalarHandler = stringScalarHandler;
+        
         return result;
         
     }
     
     public WcpsResult handle() throws PetascopeException {
-        WcpsResult coverageExpressionResult = (WcpsResult)this.getFirstChild().handle();
-        DimensionIntervalList dimensionIntervalListHandler = (DimensionIntervalList)this.getSecondChild().handle();
+        if (this.getChildren().size() > 0) {
+            this.updateQueryTree(this.getParent(), this.getFirstChild(), this.getSecondChild());
+        }
         
-        WcpsResult result = this.handle(coverageExpressionResult, dimensionIntervalListHandler, true);
-        return result;
+        if (this.getChildren().size() == 2) {
+            WcpsResult coverageExpressionResult = (WcpsResult)this.getFirstChild().handle();
+            DimensionIntervalList dimensionIntervalList = (DimensionIntervalList)this.getSecondChild().handle();
+
+            WcpsResult result = this.handle(coverageExpressionResult, dimensionIntervalList, true, null);
+            return result;
+        } else {
+            // Here, the current node is removed, parent node of the current node has a new child instead
+            WcpsResult coverageExpressionResult = (WcpsResult) this.getFirstChild().handle();
+            return coverageExpressionResult;
+        }
     }
     
-    public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList, boolean implcitScaleByXorYAxis) throws PetascopeException {
+    /**
+     * 
+     * e.g. scale((c + d), {Lat:"CRS:1"(0:30)}) -> scale(c, {Lat:"CRS:1"(0:30)}) + scale(d, {Lat:"CRS:1"(0:30)})
+     */
+    private void updateQueryTree(Handler parentNode, Handler childCoverageExpressionHandler, Handler childDimensionIntervalListHandler) {
+        boolean updated = false;
+        Queue<Pair<Handler, Integer>> queue = new ArrayDeque<>();
+        queue.add(new Pair<>(childCoverageExpressionHandler, 0));
+        
+        if ((childCoverageExpressionHandler.getClass().getName().equals(this.getClass().getName()))
+            || childCoverageExpressionHandler.getClass().getName().equals(AxisIteratorDomainIntervalsHandler.class.getName())
+            || childCoverageExpressionHandler.getClass().getName().equals(ReduceExpressionHandler.class.getName())
+            ) {
+            // e.g. scale(avg(c)) is invalid -> don't try to make avg(scale(c))
+            return;
+        }        
+        
+        while (!queue.isEmpty()) {
+            Pair<Handler, Integer> currentNodePair = queue.remove();
+            Handler currentNode = currentNodePair.fst;
+            Integer currentNodeIndex = currentNodePair.snd;
+            
+            if (currentNode instanceof CoverageVariableNameHandler && currentNode.isUpdatedHandlerAlready(this) == false
+                // e.g. $ts is coverageVariableName, but it shouldn't need to add scale
+                //      Long(50:51), Lat(35.6:36.0), t($ts)]
+                && ( !currentNode.getParent().getClass().getName().equals(SliceDimensionIntervalElementHandler.class.getName())
+                    && !currentNode.getParent().getClass().getName().equals(TrimDimensionIntervalElementHandler.class.getName())
+                    && !currentNode.getParent().getClass().getName().equals(DimensionPointElementHandler.class.getName())
+                    )
+                ) {
+                Handler parentNodeTmp = currentNode.getParent();
+                Handler scaleExpressionHandler = this.create(currentNode, childDimensionIntervalListHandler);
+                
+                parentNodeTmp.getChildren().set(currentNodeIndex, scaleExpressionHandler);
+                scaleExpressionHandler.setParent(parentNodeTmp);
+                currentNode.addUpdatedHandler(this);
+                
+                updated = true;
+            }
+            
+            if (currentNode != null && currentNode.getChildren() != null) {
+                List<Pair<Handler, Integer>> childNodes = new ArrayList<>();
+                int i = 0;
+                for (Handler childHandler : currentNode.getChildren()) {
+                    if (childHandler != null && childHandler.getClass().getName().equals(this.getClass().getName())) {
+                        // If the child handler of this node is scale then do nothing
+                        return;
+                    }
+                    
+                    if (childHandler != null 
+                        && ( childHandler.getClass().getName().equals(AxisIteratorDomainIntervalsHandler.class.getName())
+                            || childHandler.getClass().getName().equals(ReduceExpressionHandler.class.getName())
+                            || childHandler.getClass().getName().equals(ShorthandSubsetHandler.class.getName())
+                            )
+                        ) {
+                        // NOTE: don't add scale() underneath of axis iterator from general condenser / coverage constructor
+                        // e.g.  over     $ts t( imageCrsDomain(c[t:"CRS:1"(0:5)], t) )
+                        continue;
+                    }
+                    childNodes.add(new Pair<>(childHandler, i));
+                    i++;
+                }
+
+                queue.addAll(childNodes);
+            }
+        }
+        
+        if (updated) {
+            int i = 0;
+            for (Handler childNodeHandler : parentNode.getChildren()) {
+                if (childNodeHandler != null && childNodeHandler.getClass().getName().equals(this.getClass().getName())) {
+                    break;
+                }
+                i++;
+                    
+            }
+            
+            Handler pushedUpHandlerNode = this.getChildren().get(0);
+            parentNode.getChildren().set(i, pushedUpHandlerNode);
+            pushedUpHandlerNode.setParent(parentNode);
+            this.getChildren().clear();
+            this.getChildren().add(0, pushedUpHandlerNode);
+        }
+        
+    }
+    
+    public void updateCoverageVariableNameByPyramidMember(Handler childCoverageExpressionHandler, String pyramidMEmberCoverageAlias) throws PetascopeException {
+        Queue<Pair<Handler, Integer>> queue = new ArrayDeque<>();
+        queue.add(new Pair<>(childCoverageExpressionHandler, 0));
+        
+        if ((childCoverageExpressionHandler.getClass().getName().equals(this.getClass().getName()))
+            || childCoverageExpressionHandler.getClass().getName().equals(ReduceExpressionHandler.class.getName())
+                ) {
+            // e.g. scale(avg(c)) -> error, don't translate to avg(scale(c))
+            return;
+        }        
+        
+        while (!queue.isEmpty()) {
+            Pair<Handler, Integer> currentNodePair = queue.remove();
+            Handler currentNode = currentNodePair.fst;
+            
+            if (currentNode instanceof CoverageVariableNameHandler
+                // e.g. $ts is coverageVariableName, but it shouldn't need to add scale
+                //      Long(50:51), Lat(35.6:36.0), t($ts)]
+                && (!currentNode.getParent().getClass().getName().equals(SliceDimensionIntervalElementHandler.class.getName())
+                    && !currentNode.getParent().getClass().getName().equals(TrimDimensionIntervalElementHandler.class.getName()))
+                    ) {
+                
+                // e.g. c or c_0 or $ts (axisIterator)
+                String coverageAlias = ((StringScalarHandler)currentNode.getFirstChild()).getValue();
+                if (!this.axisIteratorAliasRegistry.exists(coverageAlias)) {
+                    // NOTE: it should only update the existing coverage variable name (not for axis iterator variable)
+                    Handler newCoverageAliasStringHandler = this.stringScalarHandler.create(pyramidMEmberCoverageAlias);
+                    currentNode.setChildren(Arrays.asList(newCoverageAliasStringHandler));
+                    
+                    this.coverageAliasRegistry.addCoverageAliasToBeRemoved(coverageAlias);
+                }
+            }
+            
+            if (currentNode != null && currentNode.getChildren() != null) {
+                List<Pair<Handler, Integer>> childNodes = new ArrayList<>();
+                int i = 0;
+                for (Handler childHandler : currentNode.getChildren()) {
+                    if (childHandler != null && childHandler.getClass().getName().equals(this.getClass().getName())) {
+                        // If the child handler of this node is scale then do nothing
+                        return;
+                    }
+
+                    childNodes.add(new Pair<>(childHandler, i));
+                    i++;
+                }
+
+                queue.addAll(childNodes);
+            }
+        }
+    }
+    
+    
+    
+    public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList, boolean implcitScaleByXorYAxis, Handler firstChildHandler) throws PetascopeException {
         // SCALE LEFT_PARENTHESIS
         //          coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE (COMMA fieldInterpolationList)*
         //       RIGHT_PARENTHESIS
@@ -197,7 +361,29 @@ public class ScaleExpressionByDimensionIntervalsHandler extends Handler {
         }
         
         // Only for 2D XY coverage imported with downscaled collections
-        this.wcpsCoverageMetadataTranslatorService.applyDownscaledLevelOnXYGridAxesForScale(coverageExpression, metadata, numericSubsets);
+        WcpsCoverageMetadata selectedCoverage = this.wcpsCoverageMetadataTranslatorService.applyDownscaledLevelOnXYGridAxesForScale(coverageExpression, metadata, numericSubsets);
+        String selectedCoverageId = selectedCoverage.getCoverageName();
+        
+        if (!selectedCoverageId.equals(metadata.getCoverageName())) {
+            // NOTE: here it needs to recalculate coverageExpression based on the new pyramid member
+            // a pyramid member is selected, this scale expression needs to rerun for this selected pyramid member
+            String rasdamanCollectionName = selectedCoverage.getRasdamanCollectionName();
+            
+            this.coverageAliasRegistry.addDownscaledCoverageAliasId(selectedCoverageId, rasdamanCollectionName);
+            String coverageAlias = this.coverageAliasRegistry.retrieveDownscaledCoverageAliasByCoverageId(selectedCoverageId);
+            
+            Handler firstChildHandlerTmp = firstChildHandler;
+            if (firstChildHandlerTmp == null) {
+                firstChildHandlerTmp = this.getFirstChild();
+            }
+            
+            this.updateCoverageVariableNameByPyramidMember(firstChildHandlerTmp, coverageAlias);
+            
+            WcpsResult coverageExpressionResult = (WcpsResult)firstChildHandlerTmp.handle();
+            WcpsResult result = this.handle(coverageExpressionResult, dimensionIntervalList, true, null);
+            return result;
+        }
+        
         
         // NOTE: from WCPS 1.0 standard, C2 = scale(C1, {x(lo1:hi1), y(lo2:hi2),...}        
         // for all a ∈ dimensionList(C2), c ∈ crsSet(C2, a):

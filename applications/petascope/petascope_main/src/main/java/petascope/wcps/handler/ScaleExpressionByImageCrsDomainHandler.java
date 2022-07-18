@@ -37,6 +37,8 @@ import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
+import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wcps.result.WcpsMetadataResult;
@@ -62,6 +64,16 @@ public class ScaleExpressionByImageCrsDomainHandler extends Handler {
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslatorService;
     
+    @Autowired
+    private CoverageAliasRegistry coverageAliasRegistry;
+    @Autowired
+    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+    @Autowired
+    private StringScalarHandler stringScalarHandler;
+    
+    @Autowired
+    private ScaleExpressionByDimensionIntervalsHandler scaleExpressionByDimensionIntervalsHandler;
+    
     public ScaleExpressionByImageCrsDomainHandler() {
         
     }
@@ -72,6 +84,12 @@ public class ScaleExpressionByImageCrsDomainHandler extends Handler {
         
         result.wcpsCoverageMetadataService = this.wcpsCoverageMetadataService;
         result.wcpsCoverageMetadataTranslatorService = this.wcpsCoverageMetadataTranslatorService;
+        
+        result.coverageAliasRegistry = coverageAliasRegistry;
+        result.axisIteratorAliasRegistry = axisIteratorAliasRegistry;
+        result.stringScalarHandler = stringScalarHandler;        
+        
+        result.scaleExpressionByDimensionIntervalsHandler = this.scaleExpressionByDimensionIntervalsHandler;
         
         return result;
     }
@@ -125,7 +143,24 @@ public class ScaleExpressionByImageCrsDomainHandler extends Handler {
         coverageExpression.setRasql(rasql);
         
         // Only for 2D XY coverage imported with downscaled collections
-        this.wcpsCoverageMetadataTranslatorService.applyDownscaledLevelOnXYGridAxesForScale(coverageExpression, metadata, numericSubsets);
+        WcpsCoverageMetadata selectedCoverage = this.wcpsCoverageMetadataTranslatorService.applyDownscaledLevelOnXYGridAxesForScale(coverageExpression, metadata, numericSubsets);
+        String selectedCoverageId = selectedCoverage.getCoverageName();
+        
+        if (!selectedCoverageId.equals(metadata.getCoverageName())) {
+            // NOTE: here it needs to recalculate coverageExpression based on the new pyramid member
+            // a pyramid member is selected, this scale expression needs to rerun for this selected pyramid member
+            String rasdamanCollectionName = selectedCoverage.getRasdamanCollectionName();
+            
+            this.coverageAliasRegistry.addDownscaledCoverageAliasId(selectedCoverageId, rasdamanCollectionName);
+            String coverageAlias = this.coverageAliasRegistry.retrieveDownscaledCoverageAliasByCoverageId(selectedCoverageId);
+            
+            Handler firstChildHandlerTmp = this.getFirstChild();
+            this.scaleExpressionByDimensionIntervalsHandler.updateCoverageVariableNameByPyramidMember(firstChildHandlerTmp, coverageAlias);
+            
+            WcpsResult coverageExpressionResult = (WcpsResult)firstChildHandlerTmp.handle();
+            WcpsResult result = this.handle(coverageExpressionResult, domainIntervalsResult);
+            return result;
+        }
         
         rasql = coverageExpression.getRasql().replace("$intervalList", dimensionIntervalList);
         coverageExpression.setRasql(rasql);
