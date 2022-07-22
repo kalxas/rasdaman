@@ -6755,9 +6755,10 @@ This appendix presents the list of all tokens that CANNOT be used as variable na
       - and
     * - or
       - xor
-      -
-      -
-      -
+      - sort
+      - flip
+      - asc
+      - desc
 
 
 
