@@ -35,8 +35,8 @@ class qgsnewhttpconnectionbase(QDialog,  QObject, Ui_qgsnewhttpconnectionbase):
         srv_url = self.txt_NewSrvUrl.text()
 
             # verify that URL starts with http://
-        if not srv_url.startswith("http://"):
-            msg = "Sorry, you need to supply a 'Server URL' starting with http://\n"
+        if not srv_url.startswith("http"):
+            msg = "Sorry, you need to supply a 'Server URL' starting with http\n"
             self.warning_msg(msg)
             srv_name = self.txt_NewSrvName.text()
 
