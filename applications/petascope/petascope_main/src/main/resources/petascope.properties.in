@@ -92,7 +92,6 @@ rasdaman_bin_path=@GENERATED_rasdaman_bin_path@
 
 #---------------------------- Security configuration ---------------------------
 
-authentication_type=basic_header
 allow_write_requests_from=127.0.0.1
 
 # Used only for embedded petascope deployment
