@@ -1,0 +1,16 @@
+for $d in (test_mean_summer_airtemp), 
+    $p in (test_wms_3d_time_series_regular)
+let
+  $prec := $p[ansi("2012-12-01T20:07:00.500Z"), Lat(47:55), Long(6:16)],
+  $aoi := [Lat(-40:-20), Long(120:125)],
+  $el := scale($d[$aoi], {imageCrsDomain($prec)})
+return encode(
+  coverage PrecipitationByElevation 
+  over $i i(0:14)
+  values 10 * avg(
+     (float)(switch case $prec.Red != nan return (float)$prec.Red default return (float)0)
+     *
+     (float)($el >= $i * 100 and $el < ($i + 1) * 100)
+  ),
+"json"
+)

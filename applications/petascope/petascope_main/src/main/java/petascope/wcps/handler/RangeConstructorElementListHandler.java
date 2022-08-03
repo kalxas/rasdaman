@@ -79,7 +79,7 @@ public class RangeConstructorElementListHandler extends Handler {
         for (Handler childHandler : childHandlers) {
             rangeFieldCoverageExpression = (WcpsResult)childHandler.handle();
             WcpsCoverageMetadata rangeFieldMetadata = rangeFieldCoverageExpression.getMetadata();
-            if (rangeFieldMetadata.getAxes().size() > 0) {
+            if (rangeFieldMetadata.getAxes().size() > 0 && metadata == null) {
                 metadata = rangeFieldMetadata;
             }
             

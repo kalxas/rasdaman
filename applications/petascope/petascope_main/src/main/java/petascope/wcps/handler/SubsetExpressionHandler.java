@@ -101,7 +101,11 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         String rasql = coverageExpression.getRasql();
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
-        List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
+        
+        List<WcpsSubsetDimension> subsetDimensions = new ArrayList<>();
+        if (dimensionIntervalList != null) {
+            subsetDimensions = dimensionIntervalList.getIntervals();
+        }
 
         String beforeCoverageId = metadata.getCoverageName();
         String aliasTmp = this.coverageAliasRegistry.getAliasByCoverageName(beforeCoverageId);

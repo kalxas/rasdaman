@@ -1,0 +1,23 @@
+for $c in (test_mean_summer_airtemp),
+    $d in (test_mean_summer_airtemp_repeat),
+    $e in (test_wms_3857)
+let $sub := [ Lat(-24:-14),
+              Lon(125: 145) ],
+    $demSub := [ X(12464999.981576812:17318088.05598007903), Y(-5619555.55324125257:-1003203.4824674132) ],
+    $scale_c := scale($c [ $sub ], { Lat:"CRS:1"(1:100), Lon:"CRS:1"(1:100) }),
+    $scale_d := scale($d [ $sub], { Lat:"CRS:1"(1:100), Lon:"CRS:1"(1:100) }),
+    $scale_e := scale($e [ $demSub], { X:"CRS:1"(1:100), Y:"CRS:1"(1:100) })
+return
+  encode(
+    crsTransform(
+      {
+        red:   (unsigned char) ( $scale_c / 20.5 );
+        green: (unsigned char) (  $scale_d / 18 );
+        blue:  (unsigned char) ( $scale_e / 15 ) 
+      },
+      {  
+        Lat: "http://localhost:8080/rasdaman/def/crs/EPSG/0/4326",	
+        Lon: "http://localhost:8080/rasdaman/def/crs/EPSG/0/4326"
+      }
+    )     
+  , "png", "nodata=0")
