@@ -10,7 +10,7 @@
 name=QgsWcpsClient1
 qgisMinimumVersion=3.0
 description=Makes WCPS requests to the server
-version=2.0
+version=2.1
 author=Bidesh Thapaliya, Dimitar Misev
 email=misev@rasdaman.com
 
@@ -22,6 +22,7 @@ about=QgsWcpsClient1 is a plugin that allows sending WCPS (Web Coverage Processi
 
 # Uncomment the following line and add your changelog:
 changelog=Following are the changes made:
+    2.1 - Support HTTPS besides HTTP for the service endpoint
 	2.0 - Release adapting to the changes of QGIS 3.x
 	1.1 - Minor release to fix the exception handling
 	1.0 - Initial Release
