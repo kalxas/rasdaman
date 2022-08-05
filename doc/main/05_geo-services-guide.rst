@@ -3299,6 +3299,10 @@ bounds and resolution corresponding to each file.
     setting it directly, it can also be derived from the input file metadata,
     with e.g. ``${netcdf:variable:NAME:units}`` for NetCDF or
     ``${grib:unitsOfFirstFixedSurface}`` for GRIB.
+  * ``filterMessagesMatching`` - Default is empty. If not-empty (a dictionary of 
+    user input GRIB keys:values; keys (e.g. ``shortName``) must exist in the input GRIB files),
+    then it filters any GRIB message which has a GRIB value not contain a user input value of a GRIB key.
+    
   * Further ``"key": "value"`` entries can be specified to add customized band
     metadata to the global coverage metadata.
 

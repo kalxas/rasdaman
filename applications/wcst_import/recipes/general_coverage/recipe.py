@@ -218,6 +218,17 @@ class Recipe(BaseRecipe):
                                                         "Given: '" + band_name + "'. "
                                                         "Hint: it must match this pattern '" + BAND_NAME_PATTERN + "'.")
 
+                grib_messages_filter_by_dict = None
+                grib_messages_filter_by_setting = GRIBToCoverageConverter.GRIB_MESSAGES_FILTER_BY_SETTING
+                if recipe_type != GRIBToCoverageConverter.RECIPE_TYPE:
+                    if grib_messages_filter_by_setting in band:
+                        raise RecipeValidationException("Band setting: " + grib_messages_filter_by_setting
+                                                        + " can be used only for " + GRIBToCoverageConverter.RECIPE_TYPE + " recipe.")
+                else:
+                    grib_messages_filter_by_dict = None
+                    if grib_messages_filter_by_setting in band:
+                        grib_messages_filter_by_dict = band[grib_messages_filter_by_setting]
+
                 ret_bands.append(UserBand(
                     identifier,
                     self._read_or_empty_string(band, "name"),
@@ -225,7 +236,8 @@ class Recipe(BaseRecipe):
                     self._read_or_empty_string(band, "definition"),
                     self._read_or_empty_string(band, "nilReason"),
                     self._read_or_empty_string(band, "nilValue").split(","),
-                    self._read_or_empty_string(band, "uomCode")
+                    self._read_or_empty_string(band, "uomCode"),
+                    grib_messages_filter_by_dict
                 ))
 
                 i += 1

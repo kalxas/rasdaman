@@ -25,7 +25,7 @@ from master.error.validate_exception import RecipeValidationException
 
 
 class UserBand:
-    def __init__(self, identifier, name, description, definition, nilReason="", nilValues=None, uomCode=None):
+    def __init__(self, identifier, name, description, definition, nilReason="", nilValues=None, uomCode=None, filterMessagesMatching=None):
         """
         Definition of a band as provided by a user in an ingredient file
         :param str identifier: the identifier of this band in the data provider (e.g. the gdal band id or the netcdf variable name)
@@ -35,6 +35,8 @@ class UserBand:
         :param str nilReason: the reason for which the value is a nil
         :param list[str] | None nilValues: a list of nil values
         :param str uomCode: the unit of measure
+        :param filterMessagesMatching a dict of keys:values to filter GRIB messages, in case, messages contain user input GRIB keys
+                which contain user input values
 
         """
         # NOTE: band identifier must be defined in ingredient file
@@ -48,3 +50,4 @@ class UserBand:
         self.nilReason = nilReason
         self.nilValues = nilValues
         self.uomCode = uomCode
+        self.filterMessagesMatching = filterMessagesMatching

@@ -25,6 +25,7 @@ import copy
 
 from config_manager import ConfigManager
 from lib import arrow
+from master.error.validate_exception import RecipeValidationException
 from util.time_util import DateTimeUtil
 from util import list_util
 from master.evaluator.evaluator_slice import GribMessageEvaluatorSlice
@@ -78,6 +79,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
     DEFAULT_DATA_TYPE = "Float64"
     MIMETYPE = "application/grib"
     RECIPE_TYPE = "grib"
+
+    GRIB_MESSAGES_FILTER_BY_SETTING = "filterMessagesMatching"
 
     def __init__(self, resumer, default_null_values, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields, axes_metadata_fields,
@@ -197,6 +200,24 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
             if i == 1:
                 first_grib_message = grib_message
 
+            is_message_to_select = True
+            if band.filterMessagesMatching is not None:
+                for grib_key, user_input_value in band.filterMessagesMatching.items():
+                    if grib_key not in grib_message._all_keys:
+                        raise RecipeValidationException("Key: " + grib_key + " of setting: "
+                                                        + self.GRIB_MESSAGES_FILTER_BY_SETTING
+                                                        + " does not exist in the input GRIB files.")
+                    else:
+                        grib_value = grib_message[grib_key]
+                        if user_input_value not in grib_value:
+                            # Here, a message doesn't contain GRIB key with value which should contain user's input value
+                            # then, this message is not selected to import
+                            is_message_to_select = False
+                            break
+
+            if is_message_to_select is False:
+                continue
+
             axes = []
             # Iterate all the axes and evaluate them with message
             # e.g: Long axis: ${grib:longitudeOfFirstGridPointInDegrees}
@@ -243,7 +264,10 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         if len(evaluated_messages) == 0:
             # NOTE: in case, input file has only 1 band, but user defined random band identifier (backward compatibility),
             # instead of the one from shortName then, this collect every available messages from the input files
-            evaluated_messages = collected_evaluated_messages
+            if len(collected_evaluated_messages) > 0:
+                evaluated_messages = collected_evaluated_messages
+            else:
+                raise RuntimeException("Grib file '" + grib_file.filepath + "' does not contain any selected messages to import.")
 
         return evaluated_messages, first_grib_message
 
