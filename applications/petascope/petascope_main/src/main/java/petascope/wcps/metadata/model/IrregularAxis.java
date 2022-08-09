@@ -374,7 +374,7 @@ public class IrregularAxis extends Axis {
      * @return
      */
     @JsonIgnore
-    public String getRawCoefficients() {
+    public String getRawCoefficients() throws PetascopeException {
         List<BigDecimal> adjustedDirectPositions = this.adjustCoefficientsForPresentation(directPositions);
         String result = ListUtil.join(adjustedDirectPositions, " ");
         return result;
@@ -384,17 +384,11 @@ public class IrregularAxis extends Axis {
      * In case of irregular axis is imported with reversed values (e.g: 10000 7000 50000 0)
      * then, it the coefficient values should be shown by these values as well.
      */
-    private List<BigDecimal> adjustCoefficientsForPresentation(List<BigDecimal> coefficients) {
+    private List<BigDecimal> adjustCoefficientsForPresentation(List<BigDecimal> coefficients) throws PetascopeException {
         List<BigDecimal> adjustedDirectPositions = new ArrayList<>();
         
-        if (BigDecimalUtil.stripDecimalZeros(coefficients.get(0)).compareTo(BigDecimal.ZERO) < 0) {
-            for (int i = 0; i < coefficients.size(); i++) {
-                adjustedDirectPositions.add(this.getOriginalGeoBounds().getUpperLimit().add(coefficients.get(i)));
-            }
-        } else {
-            for (int i = 0; i < coefficients.size(); i++) {
-                adjustedDirectPositions.add(this.getOriginalGeoBounds().getLowerLimit().add(coefficients.get(i)));
-            }
+        for (int i = 0; i < coefficients.size(); i++) {
+            adjustedDirectPositions.add(this.getCoefficientZeroBoundNumberFromOriginalDirectPositions().add(coefficients.get(i)));
         }
         
         return adjustedDirectPositions;
