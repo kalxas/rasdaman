@@ -296,7 +296,7 @@ class GDALGmlUtil:
             else:
                 field_name = ConfigManager.default_field_name_prefix + repr(i)
 
-            if len(ConfigManager.default_null_values) > 0:
+            if ConfigManager.default_null_values is not None:
                 nil_values = ConfigManager.default_null_values
             else:
                 # If not, then detects it from file's bands

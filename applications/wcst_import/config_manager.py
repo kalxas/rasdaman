@@ -41,7 +41,7 @@ class ConfigManager:
     insitu = False
     black_listed = False
     automated = False
-    default_null_values = []
+    default_null_values = None
     root_url = "file://"
     executor = WCSTExecutor(wcs_service)
     default_field_name_prefix = "field_"

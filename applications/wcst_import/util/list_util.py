@@ -108,10 +108,12 @@ def get_null_values(default_null_values):
      (e.g: ["20", "30, 40, 50"] -> [20, 30, 40, 50])
     :param list[str] default_null_values: user defined null values in ingredient file
     """
-    null_values = []
-    for value in default_null_values:
-        values = str(value).strip().split(",")
-        values = [x.strip() for x in values]
-        null_values += values
+    null_values = None
+    if default_null_values is not None:
+        null_values = []
+        for value in default_null_values:
+            values = str(value).strip().split(",")
+            values = [x.strip() for x in values]
+            null_values += values
 
     return null_values

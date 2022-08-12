@@ -142,7 +142,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         if len(self.files) < 1:
             raise RuntimeException("No files to import were specified.")
 
-        if len(self.default_null_values) > 0:
+        if self.default_null_values is not None:
             return self.default_null_values
 
         # NOTE: all files should have same bands's metadata

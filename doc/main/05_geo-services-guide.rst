@@ -2580,8 +2580,12 @@ config section
 
   .. NOTE::
 
-     If set this parameter will override the null/nodata values present in
-     the input files.
+     - If set this parameter will override the null/nodata values present in
+       the input files.
+     - If this parameter is not set, wcst_import will try to detect these values
+       for bands implicity from the first input file.
+     - If set this parameter to: ``[]``, then, wcst_import will
+       create a coverage without any null values.
 
   .. NOTE::
 
