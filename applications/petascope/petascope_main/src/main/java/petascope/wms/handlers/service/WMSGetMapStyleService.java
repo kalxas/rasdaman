@@ -42,6 +42,7 @@ import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
+import petascope.util.StringUtil;
 import static petascope.wcps.handler.ForClauseHandler.AS;
 import static petascope.wcps.handler.ForClauseListHandler.FROM;
 import petascope.wcps.metadata.model.Axis;
@@ -146,7 +147,8 @@ public class WMSGetMapStyleService {
         
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
         String result = this.replaceLayerNameIteratorsByLayerExpressions(styleQuery, layerNameIteratorsCollectionExpressionsMap,
-                                                                         extendedFittedRequestGeoBBox, xyAxes.get(0), xyAxes.get(1));
+                                                                         extendedFittedRequestGeoBBox, xyAxes.get(0), xyAxes.get(1),
+                                                                         nonXYGridSliceSubsetDimensions);
         return result;        
     }
     
@@ -166,6 +168,14 @@ public class WMSGetMapStyleService {
         WcpsCoverageMetadata wcpsCoverageMetadataTmp = (WcpsCoverageMetadata) JSONUtil.clone(wcpsCoverageMetadata);
         List<WcpsSubsetDimension> wcpsSubsetDimensions = this.wmsGetMapSubsetTranslatingService.parseWcpsSubsetDimensions(wcpsCoverageMetadataTmp, 
                                                                                                                wmsLayer.getExtendedRequestBBox());
+        
+        if (nonXYGridSliceSubsetDimensions != null) {
+            for (List<WcpsSliceSubsetDimension> list : nonXYGridSliceSubsetDimensions) {
+                wcpsSubsetDimensions.addAll(list);
+            }
+        }
+        
+        
         // First, apply the XY subsets from request BBOX which will return proper geo/grid domains on XY axes
         WcpsResult wcpsResult = this.wmsGetMapSubsetTranslatingService.applyWCPSGeoSubsets(wcpsCoverageMetadata, 
                                                                                 wcpsSubsetDimensions);
@@ -214,7 +224,7 @@ public class WMSGetMapStyleService {
         }
         
         String forClauseWCPSQuery = ListUtil.join(coverageAliasList, ", ");
-        String mainWCPSQuery = this.replaceLayerNameIteratorsByLayerExpressions(styleQuery, layerNameIteratorsCoverageExpressionsMap, extendedFittedRequestGeoBBox, axisX, axisY);
+        String mainWCPSQuery = this.replaceLayerNameIteratorsByLayerExpressions(styleQuery, layerNameIteratorsCoverageExpressionsMap, extendedFittedRequestGeoBBox, axisX, axisY, nonXYGridSliceSubsetDimensions);
         
         // This WCPS query is created temporarily to extract the main rasql content to be used later
         String wcpsQuery = FOR + forClauseWCPSQuery + RETURN + ENCODE + "(" + mainWCPSQuery + ", " + ENCODE_PNG + ")";
@@ -415,7 +425,9 @@ public class WMSGetMapStyleService {
     private String replaceLayerNameIteratorsByLayerExpressions(String styleExpression, Map<String, String> map, 
                                                                BoundingBox fittedBBox,
                                                                Axis axisX,
-                                                               Axis axisY) {
+                                                               Axis axisY,
+                                                               List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions
+                                                               ) {
         StringBuffer stringBuffer = new StringBuffer();
         Matcher matcher = LAYER_ITERATOR_PATTERN.matcher(styleExpression);
         while (matcher.find()) {
@@ -437,8 +449,25 @@ public class WMSGetMapStyleService {
         
         // In case of WMS style contains condenser or fixed subsets
         if (styleExpression.contains("[")) {
-            String geoXYSubsets = axisX.getLabel() + "(" + fittedBBox.getXMin() + ":" + fittedBBox.getXMax() + "), "
-                                + axisY.getLabel() + "(" + fittedBBox.getYMin() + ":" + fittedBBox.getYMax() + ")";
+            String geoSubsets = axisX.getLabel() + "(" + fittedBBox.getXMin() + ":" + fittedBBox.getXMax() + "), "
+                              + axisY.getLabel() + "(" + fittedBBox.getYMin() + ":" + fittedBBox.getYMax() + ")";
+            
+            // e.g. development_stage(7) from $c[development_stage(7)]
+            List<String> fixedAxisSubsets = StringUtil.extractStringsBetweenSquareBrackets(result);
+            List<String> fixedAxisNames = new ArrayList<>();
+            for (String fixedAxisSubset : fixedAxisSubsets) {
+                String axisName = fixedAxisSubset.replaceAll("\\(.*?\\)","").trim();
+                fixedAxisNames.add(axisName);
+            }
+            
+            for (List<WcpsSliceSubsetDimension> list : nonXYGridSliceSubsetDimensions) {
+                for (WcpsSliceSubsetDimension sliceSubsetDimension : list) {
+                    String axisName = sliceSubsetDimension.getAxisName();
+                    if (!fixedAxisNames.contains(axisName)) {
+                        geoSubsets += ", " + sliceSubsetDimension.toString();
+                    }
+                }
+            }
             
             int indexOfUsing = result.toLowerCase().indexOf(USING);
             if (indexOfUsing != -1) {
@@ -446,10 +475,10 @@ public class WMSGetMapStyleService {
                 String firstPart = result.substring(0, indexOfUsing);
                 String secondPart = result.substring(indexOfUsing, result.length());
                 // e.g: $CoV[ansi($ts)] -> $COV[Lat(0:20), Long(20:30), ansi($ts)]
-                result = firstPart + secondPart.replace("[", "[" + geoXYSubsets + ", ");
+                result = firstPart + secondPart.replace("[", "[" + geoSubsets + ", ");
             } else {
                 // e.g. style = $c[ansi("2020-12-30T23:54:58.500Z")] -  $c[ansi("2021-01-04T00:15:04.500Z")] + 30
-                result = result.replace("[", "[" + geoXYSubsets + ", ");
+                result = result.replace("[", "[" + geoSubsets + ", ");
             }
         }
 
