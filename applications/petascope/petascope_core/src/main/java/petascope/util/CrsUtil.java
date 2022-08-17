@@ -316,7 +316,11 @@ public class CrsUtil {
      * Check if the crs should go to the internal SECORE or not
      */
     public static boolean isInternalSecoreURL(String url) {
-        if (url.contains(LOCALHOST + ":" + ConfigManager.EMBEDDED_PETASCOPE_PORT)) {
+        if (url.contains(LOCALHOST + ":" + ConfigManager.EMBEDDED_PETASCOPE_PORT)
+            || url.contains("www.opengis.net/def/uom/")) {
+            // NOTE: server opengis.net/def limit number of requests for UoM URI requests ("Rate limit exceeded: 15 per 1 minute"})
+            // then, use internal SECORE instead
+            
             // If SECORE url is localhost, then check it should be resolved internally by petascope or not
             String tmpCRS = url.replace(ConfigManager.DEFAULT_PETASCOPE_PORT, ConfigManager.EMBEDDED_PETASCOPE_PORT);
             return url.startsWith(ConfigManager.DEFAULT_SECORE_INTERNAL_URL) || url.startsWith(tmpCRS);
@@ -1406,6 +1410,8 @@ public class CrsUtil {
          */
         public static List<String> decomposeUri(String uri) {
             String decUri = StringUtil.urldecode(uri, null);
+            decUri = CrsUri.fromDbRepresentation(decUri);
+            
             List<String> crss = new ArrayList<>();
 
             if (isCompound(decUri)) {
