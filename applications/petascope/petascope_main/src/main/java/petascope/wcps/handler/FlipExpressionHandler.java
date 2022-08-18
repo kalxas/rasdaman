@@ -65,30 +65,31 @@ public class FlipExpressionHandler extends Handler {
         WcpsResult coverageExpression = (WcpsResult) this.getFirstChild().handle();
         // e.g. Lat
         String axisLabel = ((WcpsResult) this.getSecondChild().handle()).getRasql();
-        int axisLabelIndex = -1;
+        int axisLabelGridIndex = -1;
         int i = 0;
         
-        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
+        for (Axis axis : coverageExpression.getMetadata().getSortedAxesByGridOrder()) {
             if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisLabel)) {
-                axisLabelIndex = i;
+                // NOTE: here it needs to use grid order not CRS order
+                axisLabelGridIndex = i;
                 break;
             }
             
             i++;
         }
         
-        if (axisLabelIndex == -1) {
+        if (axisLabelGridIndex == -1) {
             throw new CoverageAxisNotFoundExeption(axisLabel);
         }
         
-        WcpsResult result = this.handle(coverageExpression, axisLabel, axisLabelIndex);
+        WcpsResult result = this.handle(coverageExpression, axisLabel, axisLabelGridIndex);
         return result;
     }
 
     /**
      * Handle the flip operator
      */
-    private WcpsResult handle(WcpsResult coverageExpression, String axisLabel, int axisLabelIndex) {
+    private WcpsResult handle(WcpsResult coverageExpression, String axisLabel, int axisLabelGridIndex) {
         WcpsResult result = coverageExpression;
         
         Axis axis = coverageExpression.getMetadata().getAxisByName(axisLabel);
@@ -114,7 +115,7 @@ public class FlipExpressionHandler extends Handler {
         }
         
         String rasql = this.RASQL_TEMPLATE.replace(COVERAGE_EXPRESSION_TEMPLATE, coverageExpression.getRasql())
-                                          .replace(AXIS_LABEL_INDEX_TEMPLATE, String.valueOf(axisLabelIndex));
+                                          .replace(AXIS_LABEL_INDEX_TEMPLATE, String.valueOf(axisLabelGridIndex));
         result.setRasql(rasql);
         
         return result;
