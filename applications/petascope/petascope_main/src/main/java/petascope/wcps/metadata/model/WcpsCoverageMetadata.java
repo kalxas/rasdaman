@@ -97,10 +97,6 @@ public class WcpsCoverageMetadata {
     private CoveragePyramid coveragePyramid;
     
     
-    // c = vc1 + vc2 + normal_coverage
-    // then this set contains vc1, vc2 and normal_coverage
-    private Map<String, WcpsCoverageMetadata> contributingRasqlWcpsCoverageMetadataMap = new LinkedHashMap<>();
-    
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(WcpsCoverageMetadata.class);
     
     public WcpsCoverageMetadata() {
@@ -707,8 +703,7 @@ public class WcpsCoverageMetadata {
         Axis axisY = xyAxes.get(1);
         
         BoundingBox bbox = new BoundingBox(axisX.getOriginalGeoBounds().getLowerLimit(), axisY.getOriginalGeoBounds().getLowerLimit(),
-                                           axisX.getOriginalGeoBounds().getUpperLimit(), axisY.getOriginalGeoBounds().getUpperLimit());
-        
+                                           axisX.getOriginalGeoBounds().getUpperLimit(), axisY.getOriginalGeoBounds().getUpperLimit(), axisX.getNativeCrsUri());
         return bbox;
     }
     
@@ -776,45 +771,6 @@ public class WcpsCoverageMetadata {
     @Override
     public String toString() {
         return "Coverage Id '" + this.coverageName  + "'"; 
-    }
-    
-        
-    public Map<String, WcpsCoverageMetadata> getContributingRasqlWcpsCoverageMetadataMap() {
-        return this.contributingRasqlWcpsCoverageMetadataMap;
-    }
-    
-    /**
-     * Check if the contributing coverage expressions (e.g: c + c + c + c)
-     * are the same coverage
-     */
-    public boolean isSingleCoverageExpression() {
-        String previousCoverageId = null;
-        
-        for (Map.Entry<String, WcpsCoverageMetadata> entry : this.contributingRasqlWcpsCoverageMetadataMap.entrySet()) {
-            String coverageId = entry.getValue().getCoverageName();
-            if (previousCoverageId == null) {
-                previousCoverageId = entry.getValue().getCoverageName();
-            }
-            
-            if (previousCoverageId != null && !previousCoverageId.equals(coverageId)) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
-    public void addToContributingMetadatasSet(WcpsCoverageMetadata metadata, String rasql){
-        if (metadata != null) {
-
-            try {
-                WcpsCoverageMetadata cloneMetadata = (WcpsCoverageMetadata) JSONUtil.clone(metadata);
-                this.contributingRasqlWcpsCoverageMetadataMap.put(rasql, cloneMetadata);
-            } catch (PetascopeException ex) {
-                throw new WCPSException(ExceptionCode.InternalComponentError, "Cannot clone WcpsCoverageMetadata object via JSON. Reason: " + ex.getMessage(), ex);
-            }
-            
-        }
     }
     
     @JsonIgnore 

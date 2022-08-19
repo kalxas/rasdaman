@@ -209,13 +209,22 @@ public class WcpsCoverageMetadataTranslator {
             // NOTE: only support scale() with pyramid on a single coverage expression
             // @TODO: https://projects.rasdaman.com/ticket/308 to support scale on pyramid member of a virtual coverage // -- rasdaman enterprise
                 
-            if (wcpsCoverageMetadataBase.isSingleCoverageExpression()) {
                 String contributingCoverageId = wcpsCoverageMetadataBase.getCoverageName();
 
                 GeneralGridCoverage baseCoverage = (GeneralGridCoverage) this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(contributingCoverageId);
                 CoveragePyramid coveragePyramid = this.pyramidService.getSuitableCoveragePyramidForScaling(baseCoverage, geoSubsetX, geoSubsetY,
                                                                                                         subsettedAxisX, subsettedAxisY,
                                                                                                         width, height, nonXYSubsetDimensions);
+                
+
+                GeneralGridCoverage pyramidMemberCoverage = (GeneralGridCoverage) this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(coveragePyramid.getPyramidMemberCoverageId());
+
+                String fullRasql = coverageExpression.getRasql();
+                // e.g: grid subset for level 1
+                String originalContributingRasql = fullRasql;
+                
+                // remove c0 -> level 1 coverage
+                String coverageAlias = this.coverageAliasRegistry.getAliasByCoverageName(contributingCoverageId);
 
                 // e.g. test_pyramid_8
                 WcpsCoverageMetadata wcpsCoverageMetadataPyramid = this.translate(coveragePyramid.getPyramidMemberCoverageId());
@@ -224,20 +233,7 @@ public class WcpsCoverageMetadataTranslator {
                 // Remove any stripped axes of input coverage in pyramid member coverage (e.g: slicing in time axis of a virtual coverage, 
                 // then the pyramid member of it also needs to remove this time axis)
                 this.applyGeoSubsetOnPyramidCoverage(wcpsCoverageMetadataBase, wcpsCoverageMetadataPyramid);
-  
-                if (!wcpsCoverageMetadataPyramid.getCoverageName().equals(wcpsCoverageMetadataBase.getCoverageName())) {
-                    // remove any collection alias (from base coverages before scaling) which don't exist in the generated rasql
-                    Iterator<Pair<String,String>> iterator = this.collectionAliasRegistry.getAliasMap().values().iterator();
-                    while (iterator.hasNext()) {
-                        // collectionName, coverageId
-                        Pair<String, String> pair = iterator.next();
-                        if (pair.snd.equals(wcpsCoverageMetadataBase.getCoverageName())) {
-                            iterator.remove();
-                        }
-                    }
-                }
-
-            }
+            
         }
         
         return result;
