@@ -234,7 +234,7 @@ module rasdaman {
              */
             function addSliders(dimensions, coveragesExtents) {
 
-                for(var j = 0; j <= dimensions; ++j) {
+                for(var j = 0; j < dimensions; ++j) {
                     $scope.firstChangedSlider.push(false);
                 }
 
@@ -269,23 +269,23 @@ module rasdaman {
                 var urlDimensions = bboxStr;
                 
                 // Prepare the array to store the information for the 3D+ dimensions
-                var dimStr = [];
-                for(var j = 0; j < 3; ++j){
-                    dimStr.push('');
+                $scope.dimStr = [];
+                for(var j = 0; j < 2; ++j){
+                    $scope.dimStr.push('');
                 }
 
                 // Create the string used for the GetMap request in the 3D+ case
-                for(var j = 3; j <= dimensions; j++) {
+                for(var j = 2; j < dimensions; j++) {
                     if($scope.layer.layerDimensions[j].isTemporal == true) {
-                        dimStr.push('&' + $scope.layer.layerDimensions[j].name + '="' + $scope.layer.layerDimensions[j].array[0] + '"');
+                        $scope.dimStr.push('&' + $scope.layer.layerDimensions[j].name + '="' + $scope.layer.layerDimensions[j].array[0] + '"');
                         $scope.timeString = $scope.layer.layerDimensions[j].array[0];
                     }
                     else {
-                        dimStr.push('&' + $scope.layer.layerDimensions[j].name + '=' + $scope.layer.layerDimensions[j].array[0]);
+                        $scope.dimStr.push('&' + $scope.layer.layerDimensions[j].name + '=' + $scope.layer.layerDimensions[j].array[0]);
                     }
                 }
-                for(var j = 3; j <= dimensions; j++) {
-                    urlDimensions += dimStr[j];
+                for(var j = 2; j < dimensions; j++) {
+                    urlDimensions += $scope.dimStr[j];
                 }
 
                 var getMapRequest = new wms.GetMap($scope.layer.name, urlDimensions, 800, 600, $scope.selectedStyleName);
@@ -296,7 +296,7 @@ module rasdaman {
                 // Then, let webworldwind shows the result of GetMap on the globe
                 // Default layer is not shown
                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, $scope.displayWMSLayer,
-                                                                $scope.timeString);
+                                                                $scope.timeString, $scope.dimStr);
                 
 
                 if (!showGetMapURL) {
@@ -363,7 +363,8 @@ module rasdaman {
                         renewDisplayedWMSGetMapURL(url);
 
                         // Load the changed footprint of the layer on the globe
-                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, 
+                                                    $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString, $scope.dimStr);
                     }
                 });
 
@@ -413,7 +414,8 @@ module rasdaman {
                         renewDisplayedWMSGetMapURL(url);
                         
                         // Load the changed footprint of the layer on the globe
-                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, 
+                                                $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString, $scope.dimStr);
                     }
                 });
 
@@ -427,7 +429,7 @@ module rasdaman {
 
                 var sufixSlider = "d";
 
-                for (var j = 3; j <= dimensions; j++) {
+                for (var j = 2; j < dimensions; j++) {
                     // Create for each dimension the view components for its corresponding slider 
                     $("<div />", { class:"containerSliders", id:"containerSlider"+j+sufixSlider})
                         .appendTo( $("#sliders"));
@@ -449,7 +451,9 @@ module rasdaman {
                             // Initialisations for each slider
                             create: function(event, slider) {
                                 // Define the variables such that they can be seen inside the slider code
-                                this.sliderObj = $scope.layer.layerDimensions[j];                                
+                                this.sliderObj = $scope.layer.layerDimensions[j];          
+                                this.sliderObj.index = j;
+
                                 var sizeSlider = $scope.layer.layerDimensions[j].array.length - 1;
                                 
                                 // Add the index lines below the slider
@@ -466,15 +470,15 @@ module rasdaman {
 
                                 // Update the GetMap url
                                 if (this.sliderObj.isTemporal == true) {
-                                    dimStr[j] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
+                                    $scope.dimStr[this.sliderObj.index] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
                                     $scope.timeString = this.sliderObj.array[slider.value];
                                 } else {
-                                    dimStr[j] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
+                                    $scope.dimStr[this.sliderObj.index] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
                                 }
 
                                 var pos1 = url.indexOf('&' + this.sliderObj.name + '=');
                                 var pos2 = url.indexOf('&', pos1 + 1);
-                                url = url.substr(0, pos1 + 1) + dimStr[j] + url.substr(pos2, url.length - pos2);
+                                url = url.substr(0, pos1 + 1) + $scope.dimStr[this.sliderObj.index] + url.substr(pos2, url.length - pos2);
                                 $scope.getMapRequestURL = url;
                                 
                                 // Update the dimenitional info tooltip of the slider
@@ -486,7 +490,7 @@ module rasdaman {
 
                                 // Load the changed footprint of the layer on the globe
                                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, 
-                                                                            $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                                                                            $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString, $scope.dimStr);
                             }
                         });
                     } );
@@ -510,12 +514,14 @@ module rasdaman {
                 $scope.displayWMSLayer = true;          
 
                 renewDisplayedWMSGetMapURL($scope.getMapRequestURL);
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, styleName, $scope.bboxLayer, true, $scope.timeString);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, 
+                                    styleName, $scope.bboxLayer, true, $scope.timeString, $scope.dimStr);
             }
 
             $scope.hideWMSLayerOnGlobe = ()=> {                
                 $scope.displayWMSLayer = false;          
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, 
+                                    $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString, $scope.dimStr);
             }
 
             // ********** Layer's downscaled coverages management **************
@@ -863,5 +869,7 @@ module rasdaman {
 
         hasInsertCoverageRole: boolean;
         hasDeleteCoverageRole: boolean;
+        
+        dimStr: any[];
     }
 }
