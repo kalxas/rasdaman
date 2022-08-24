@@ -79,6 +79,11 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         """
         first_point = to_decimal(coordinates[0])
         last_point = to_decimal(coordinates[-1])
+
+        if first_point - last_point == 0:
+            from master.helper.irregular_user_axis import IrregularUserAxis
+            return IrregularUserAxis.DEFAULT_RESOLUTION
+
         return (last_point - first_point) / (len(coordinates) - 1)
 
     def _apply_operation(self, nc_dataset, nc_obj_name, operation):
