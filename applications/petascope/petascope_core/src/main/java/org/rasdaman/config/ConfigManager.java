@@ -431,7 +431,7 @@ public class ConfigManager {
                     + " use default value '" + MAX_WMS_CACHE_SIZE + "' for this key.");
         } catch (NumberFormatException ex) {
             throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
-                    "Value for key '" + KEY_MAX_WMS_CACHE_SIZE + "' must not be negative integer. Given '" + valueMaxWMSCacheSize + "'.");
+                    "Value for key '" + KEY_MAX_WMS_CACHE_SIZE + "' must be non-negative integer. Given '" + valueMaxWMSCacheSize + "'.");
         }
         
         try {

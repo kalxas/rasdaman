@@ -1,0 +1,11 @@
+service=WMS&
+version=1.3.0&
+request=GetMap&
+layers=test_wms_mismatch_coefficients_1&
+bbox=-90,-180,90,180&
+time="2004-01-01T00:00:00.000Z"&
+crs=EPSG:4326&
+width=60&
+height=60&
+Styles=test&
+format=image/png

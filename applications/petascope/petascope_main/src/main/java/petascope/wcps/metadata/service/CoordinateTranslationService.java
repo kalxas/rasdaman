@@ -32,8 +32,10 @@ import petascope.core.GeoTransform;
 import petascope.core.Pair;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.core.service.CrsComputerService;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
+import petascope.util.TimeUtil;
 import petascope.wcps.exception.processing.IrreguarAxisCoefficientNotFoundException;
 import petascope.wcps.exception.processing.IrregularAxisTrimmingCoefficientNotFoundException;
 import petascope.wcps.metadata.model.Axis;
@@ -389,13 +391,46 @@ public class CoordinateTranslationService {
             }
         }
         
+        // In case of flip(), lowerbound and upperbound are swapped
+        BigDecimal originalLowerBoundNumber = originalGeoBounds.getLowerLimit().compareTo(originalGeoBounds.getUpperLimit()) < 0 
+                                                ? originalGeoBounds.getLowerLimit() 
+                                                : originalGeoBounds.getUpperLimit();
+        BigDecimal originalUpperBoundNumber = originalGeoBounds.getUpperLimit().compareTo(originalGeoBounds.getLowerLimit()) > 0 
+                                        ? originalGeoBounds.getUpperLimit()
+                                        : originalGeoBounds.getLowerLimit();
+        
+        if (lowerLimit.compareTo(originalLowerBoundNumber) < 0) {
+            String subsetGeoLowerBound = lowerLimit.toPlainString();
+            String axisGeoLowerBound = originalLowerBoundNumber.toPlainString();
+            
+            if (irregularAxis.isTimeAxis()) {
+                subsetGeoLowerBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, lowerLimit, irregularAxis.getCrsDefinition());
+                axisGeoLowerBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, originalLowerBoundNumber, irregularAxis.getCrsDefinition());
+            }
+            
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    "Request lower bound: " + subsetGeoLowerBound + " must be greater than the axis geo lower bound: " + axisGeoLowerBound);
+        } else if (upperLimit.compareTo(originalUpperBoundNumber) > 0) {
+            String subsetGeoUpperBound = upperLimit.toPlainString();
+            String axisGeoUpperBound = originalUpperBoundNumber.toPlainString();
+            
+            if (irregularAxis.isTimeAxis()) {
+                subsetGeoUpperBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, upperLimit, irregularAxis.getCrsDefinition());
+                axisGeoUpperBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, originalUpperBoundNumber, irregularAxis.getCrsDefinition());
+            }
+            
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    "Request upper bound: " + subsetGeoUpperBound + " must be smaller than the axis geo upper bound: " + axisGeoUpperBound);
+        }
+        
         // Return the grid indices of the lower and upper coefficients in an irregular axis
         Pair<Long, Long> gridIndicePair = irregularAxis.getGridIndices(lowerCoefficient, upperCoefficient);
         if (gridIndicePair.fst > gridIndicePair.snd) {
             if (irregularAxis.isTimeAxis()) {
-                    originalLowerBound = "\"" + originalLowerBound + "\"";
-                    originalUpperBound = "\"" + originalUpperBound + "\"";
-                }
+                originalLowerBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, irregularAxis.getOriginalGeoBounds().getLowerLimit(), irregularAxis.getCrsDefinition());
+                originalUpperBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, irregularAxis.getOriginalGeoBounds().getUpperLimit(), irregularAxis.getCrsDefinition());
+            }
+            
             throw new IrregularAxisTrimmingCoefficientNotFoundException(irregularAxis.getLabel(), originalLowerBound, originalUpperBound);
         }
         Pair<Long, Long> gridBoundsPair = irregularAxis.calculateGridBoundsByZeroCoefficientIndex(gridIndicePair.fst, gridIndicePair.snd);

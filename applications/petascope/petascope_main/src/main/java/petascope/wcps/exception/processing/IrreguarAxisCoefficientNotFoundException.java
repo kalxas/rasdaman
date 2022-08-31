@@ -35,6 +35,6 @@ public class IrreguarAxisCoefficientNotFoundException extends WCPSException {
         super(ExceptionCode.InvalidSubsetting, SLICING_ERROR_TEMPLATE.replace("$coordinate", coordinate).replace("$axis", axisName));
     }
 
-    private static final String SLICING_ERROR_TEMPLATE = "slicing '$coordinate' is not valid for irregular axis '$axis'.";
+    private static final String SLICING_ERROR_TEMPLATE = "Slicing: $coordinate does not exist in the list of coefficients of irregular axis: $axis.";
 
 }

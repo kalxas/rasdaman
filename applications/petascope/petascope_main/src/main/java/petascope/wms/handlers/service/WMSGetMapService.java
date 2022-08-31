@@ -523,8 +523,6 @@ public class WMSGetMapService {
             wmsLayer.setExtendedRequestBBox(bbox);
         }
         
-        List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions = this.wmsGetMapSubsetParsingService.translateGridDimensionsSubsetsLayers(wcpsCoverageMetadata, dimSubsetsMap);
-
         Style style = null;
         if (styleName == null) {
             // GetMap request without style specified, then if layer has at least one style, the default style is the first, else null
@@ -542,12 +540,16 @@ public class WMSGetMapService {
             layerName = wmsLayer.getWMTSTileMatrixName();
         }
         
+        String geoXYCrs = this.outputCRS;
+        wmsLayer.getRequestBBox().setGeoXYCrs(geoXYCrs);
+        wmsLayer.getExtendedRequestBBox().setGeoXYCrs(geoXYCrs);
+        
         if (style == null) {
             // Layer has no style
             String styleQuery = FRAGMENT_ITERATOR_PREFIX + layerName;
             collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,                                                                        
                                                                         wmsLayer, wcpsCoverageMetadata,
-                                                                        nonXYGridSliceSubsetDimensions,
+                                                                        dimSubsetsMap,
                                                                         extendedFittedRequestGeoBBoxesMap.get(orgLayerName));
         } else {
             if (!StringUtils.isEmpty(style.getRasqlQueryFragment())) {
@@ -556,7 +558,7 @@ public class WMSGetMapService {
                 String styleQuery = style.getRasqlQueryFragment().replace(RASQL_FRAGMENT_ITERATOR, FRAGMENT_ITERATOR_PREFIX + layerName);
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
                                                                         wmsLayer, wcpsCoverageMetadata,
-                                                                        nonXYGridSliceSubsetDimensions,
+                                                                        dimSubsetsMap,
                                                                         extendedFittedRequestGeoBBoxesMap.get(orgLayerName));
             } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
                 // wcpsQueryFragment
@@ -565,14 +567,14 @@ public class WMSGetMapService {
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForWCPSFragment(
                                                                         styleQuery, layerName,
                                                                         wmsLayer, wcpsCoverageMetadata,
-                                                                        nonXYGridSliceSubsetDimensions,
+                                                                        dimSubsetsMap,
                                                                         extendedFittedRequestGeoBBoxesMap.get(orgLayerName));
             } else {
                 // Style is not null, but no query fragment was defined, e.g: only contains colorTable value
                 String styleQuery = FRAGMENT_ITERATOR_PREFIX + layerName;
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
                                                                         wmsLayer, wcpsCoverageMetadata,
-                                                                        nonXYGridSliceSubsetDimensions,
+                                                                        dimSubsetsMap,
                                                                         extendedFittedRequestGeoBBoxesMap.get(orgLayerName));   
             }
 
@@ -602,7 +604,7 @@ public class WMSGetMapService {
         // Check if the request BBox (e.g: in EPSG:4326) intersects with layer's BBox (e.g: in UTM 32)
         for (String layerName : this.layerNames) {
             BoundingBox bbox = this.layerRequestCRSBBoxesMap.get(layerName);
-            if (bbox.intersects(this.originalRequestBBox)) {
+            if (bbox.intersectsXorYAxis(this.originalRequestBBox)) {
                 return true;
             }
         }

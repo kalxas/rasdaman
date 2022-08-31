@@ -3,6 +3,6 @@
     xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
     xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
     <ows:Exception exceptionCode="InvalidSubsetting" >
-        <ows:ExceptionText>Slicing: "2008-01-03" does not exist in the list of coefficients of irregular axis: ansi.</ows:ExceptionText>
+        <ows:ExceptionText>Subsetting: "2002-01-01T00:00:00.000Z":"2006-01-01T00:00:00.000Z" does not contain any coefficients of irregular axis: date.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

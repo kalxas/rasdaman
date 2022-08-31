@@ -37,6 +37,6 @@ public class IrregularAxisTrimmingCoefficientNotFoundException extends WCPSExcep
                                                                      .replace("$axis", axisName));
     }
 
-    private static final String SLICING_ERROR_TEMPLATE = "Subsetting '$lowerBound:$upperBound' does not contain any coefficients of irregular axis '$axis'.";
+    private static final String SLICING_ERROR_TEMPLATE = "Subsetting: $lowerBound:$upperBound does not contain any coefficients of irregular axis: $axis.";
 
 }

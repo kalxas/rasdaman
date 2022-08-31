@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ows:ExceptionReport version="2.1.0"
+<ows:ExceptionReport version="2.0.1"
     xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
     xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
     <ows:Exception exceptionCode="InvalidSubsetting" >
-        <ows:ExceptionText>Subsetting '""2008-01-06"":""2008-01-07""' does not contain any coefficients of irregular axis 'ansi'.</ows:ExceptionText>
+        <ows:ExceptionText>Subsetting: "2008-01-01T02:01:20.000Z":"2008-01-08T00:02:58.000Z" does not contain any coefficients of irregular axis: ansi.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>
