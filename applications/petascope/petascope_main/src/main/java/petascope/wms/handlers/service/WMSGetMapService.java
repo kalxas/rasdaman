@@ -23,7 +23,6 @@ package petascope.wms.handlers.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +35,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import com.rasdaman.accesscontrol.service.AuthenticationService;
+import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.Style;
 import org.rasdaman.repository.service.CoverageRepositoryService;
@@ -155,6 +157,9 @@ public class WMSGetMapService {
     private String interpolation;    
     private boolean transparent;
     
+    // The original requested BBox translated to EPSG:4326 to be used in the cache
+    private Wgs84BoundingBox wgs84BBox;
+    
     // The bbox parameter from WMS clients (e.g: in EPSG:4326), the layer's native CRS can be different
     private BoundingBox originalRequestBBox;
     
@@ -266,11 +271,18 @@ public class WMSGetMapService {
     public void setWMTSTileMatrixName(String wmtsTileMatrixName) {
         this.wmtsTileMatrixName = wmtsTileMatrixName;
     }
+
+    public Wgs84BoundingBox getWgs84BBox() {
+        return wgs84BBox;
+    }
     
     public void setBBoxes(BoundingBox bbox, List<String> layerNames) throws PetascopeException, SecoreException {
         // If request is in YX order for bounding box (e.g: EPSG:4326 Lat, Long, swap it to XY order Long, Lat)
         // NOTE: as all layers requested with same outputCRS so only do this one time
         this.originalRequestBBox = this.wmsGetMapBBoxService.swapYXBoundingBox(bbox, outputCRS);
+        this.wgs84BBox = CrsProjectionUtil.createLessPreciseWgs84BBox(originalRequestBBox.getXMin(), originalRequestBBox.getYMin(),
+                                                                    originalRequestBBox.getXMax(), originalRequestBBox.getYMax(),
+                                                                    CrsUtil.getEPSG4326FullURL());
         
         for (String layerName : layerNames) {
             BoundingBox fittedRequestBBox = this.wmsGetMapBBoxService.swapYXBoundingBox(bbox, outputCRS);

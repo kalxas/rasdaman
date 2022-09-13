@@ -141,4 +141,20 @@ public class Wgs84BoundingBox implements Serializable {
     }
     
     
+    public boolean intersects(Wgs84BoundingBox inputBBox) {
+        BigDecimal inputMinLong = inputBBox.getMinLong();
+        BigDecimal inputMaxLong = inputBBox.getMaxLong();
+        BigDecimal inputMinLat = inputBBox.getMinLat();
+        BigDecimal inputMaxLat = inputBBox.getMaxLat();
+        
+        boolean matchX = (this.getMinLong().compareTo(inputMinLong) >= 0 && this.getMinLong().compareTo(inputMaxLong) <= 0)
+                         || (inputMinLong.compareTo(this.getMinLong()) >= 0 && inputMinLong.compareTo(this.getMaxLong()) <= 0);
+        
+        boolean matchY = (this.getMinLat().compareTo(inputMinLat) >= 0 && this.getMinLat().compareTo(inputMaxLat) <= 0)
+                         || (inputMinLat.compareTo(this.getMinLat()) >= 0 && inputMinLat.compareTo(this.getMaxLat()) <= 0);
+        
+        return matchX && matchY;
+    }
+    
+    
 }

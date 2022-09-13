@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.rasdaman.config.ConfigManager;
+import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
@@ -196,6 +197,9 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         int width = 256;
         int height = 256;
         try {
+            // if the request contains a random=random_number then just ignore it as it is used to bypass Web Browser's cache only
+            kvpParameters.remove(KVPSymbols.KEY_WMS_RASDAMAN_RANDOM);
+            
             // NOTE: If first query returns success, then just fetch it from cache
             String queryString = StringUtil.buildQueryString(kvpParameters);
             if (ConfigManager.MAX_WMS_CACHE_SIZE > 0 && WMSGetMapCachingService.responseCachingMap.containsKey(queryString)) {
@@ -316,8 +320,12 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             wmsGetMapService.setBBoxes(bbox, layerNames);
             
             response = wmsGetMapService.createGetMapResponse();
+            
+            // Store the request's bbox in EPSG:4326 in cache
+            Wgs84BoundingBox wgs84BBox = wmsGetMapService.getWgs84BBox();
+            
             // Add the successful result to the cache
-            wmsGetMapCachingService.addResponseToCache(queryString, response);
+            wmsGetMapCachingService.addResponseToCache(queryString, wgs84BBox, response);
         } catch (Exception ex) {
             if (exceptionsFormat.equalsIgnoreCase(KVPWMSGetCapabilitiesHandler.EXCEPTION_XML)) {
                 throw ex;

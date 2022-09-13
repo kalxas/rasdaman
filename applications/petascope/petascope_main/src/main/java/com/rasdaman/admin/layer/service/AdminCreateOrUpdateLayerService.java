@@ -168,11 +168,6 @@ public class AdminCreateOrUpdateLayerService {
         // Persist the layer
         wmsRepostioryService.saveLayer(layer);
         log.info("Layer '" + layerName + "' is persisted to local database.");
-
-        if (layerExist) {
-            // Remove all the cached GetMap response from cache as layer is updated
-            this.wmsGetMapCachingService.removeLayerGetMapInCache(layerName);
-        }
         
         // Mark this local layer is updated for WMTS to recreate new TileMatrixSets for it
         WMTSGetCapabilitiesService.localUpdatedLayerNames.add(layerName);

@@ -88,6 +88,7 @@ import petascope.core.gml.metadata.service.CoverageMetadataService;
 import static petascope.core.service.CrsComputerService.GRID_POINT_EPSILON_WCPS;
 import petascope.exceptions.ExceptionCode;
 import org.rasdaman.admin.pyramid.service.PyramidService;
+import org.rasdaman.domain.cis.Wgs84BoundingBox;
 
 import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
 import petascope.wcst.exceptions.WCSTInvalidXML;
@@ -98,6 +99,7 @@ import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 import org.rasdaman.repository.service.WMSRepostioryService;
 import petascope.controller.PetascopeController;
+import petascope.wms.handlers.service.WMSGetMapCachingService;
 
 @Service
 public class UpdateCoverageHandler {
@@ -123,10 +125,12 @@ public class UpdateCoverageHandler {
     @Autowired
     private AdminCreateOrUpdateLayerService createOrUpdateLayerService;
     @Autowired
+    private WMSGetMapCachingService wmsGetMapCachingService;
+
+    @Autowired
     private HttpServletRequest httpServletRequest;
     @Autowired
     private PetascopeController petascopeController;
-
     @Autowired
     private RemoteCoverageUtil remoteCoverageUtil;
     private static final String FILE_PROTOCOL = "file://";
@@ -161,14 +165,16 @@ public class UpdateCoverageHandler {
 
 	this.handleUpdateCoverageRequest(request, currentCoverage, inputCoverage, gmlInputCoverageDocument);
         
-        persistedCoverageService.createCoverageExtent(currentCoverage);
+	persistedCoverageService.createCoverageExtent(currentCoverage);
         
         // Now, we can persist the updated current coverage from input slice
         persistedCoverageService.save(currentCoverage);
         
-        // If this coverage has an existing associated WMS layer, then update the coverage -> update the layer as well
+        // If this coverage has an existing associated WMS layer, then update the coverage
+        // -> update all caches of this layer intersecting with coverage slice's WGS84 BBox as well
         if (this.wmsRepostioryService.isInLocalCache(coverageId)) {
-            this.createOrUpdateLayerService.save(coverageId, null);
+            Wgs84BoundingBox wgs84BoundingBox = CrsProjectionUtil.createLessPreciseWgs84BBox(inputCoverage.getEnvelope().getEnvelopeByAxis());
+            this.wmsGetMapCachingService.updateCachesIntersectingWGS84BBox(wgs84BoundingBox);
         }
 
         Response response = new Response();
