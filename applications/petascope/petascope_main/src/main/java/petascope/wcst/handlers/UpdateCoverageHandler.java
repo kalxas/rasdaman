@@ -174,7 +174,7 @@ public class UpdateCoverageHandler {
         // -> update all caches of this layer intersecting with coverage slice's WGS84 BBox as well
         if (this.wmsRepostioryService.isInLocalCache(coverageId)) {
             Wgs84BoundingBox wgs84BoundingBox = CrsProjectionUtil.createLessPreciseWgs84BBox(inputCoverage.getEnvelope().getEnvelopeByAxis());
-            this.wmsGetMapCachingService.updateCachesIntersectingWGS84BBox(wgs84BoundingBox);
+            this.wmsGetMapCachingService.updateCachesIntersectingWGS84BBox(inputCoverage.getCoverageId(), wgs84BoundingBox);
         }
 
         Response response = new Response();

@@ -99,26 +99,21 @@ public class WMSGetMapCachingService {
     /**
      * Any cached requests intersecting with an input WGS84 will need to be updated results from rasdaman
      */
-    public void updateCachesIntersectingWGS84BBox(Wgs84BoundingBox inputWGS84BBox) throws PetascopeException, WMSException, Exception {
+    public void updateCachesIntersectingWGS84BBox(String inputLayerName, Wgs84BoundingBox inputWGS84BBox) throws PetascopeException, WMSException, Exception {
         Iterator<Map.Entry<String, Pair<Wgs84BoundingBox, Response>>> iterator = responseCachingMap.entrySet().iterator();
         
-        Set<String> processedRequests = new LinkedHashSet<>();
-
         while (iterator.hasNext()) {
             Map.Entry<String, Pair<Wgs84BoundingBox, Response>> entry = iterator.next();
             Wgs84BoundingBox wgs84BBox = entry.getValue().fst;
             String request = entry.getKey();
             
-            if (!processedRequests.contains(request) && wgs84BBox.intersects(inputWGS84BBox)) {
-                // remove the cached result
-                iterator.remove();
-                
-                Map<String, String[]> kvpParameters = petascopeController.buildGetRequestKvpParametersMap(request);
-                
-                // then update the cached here from rasdaman, this queries rasdaman and adds a new response to the cache
-                this.kvpWMSGetMapHandler.handle(kvpParameters);
-                
-                processedRequests.add(request);
+            if (wgs84BBox.intersects(inputWGS84BBox)) {
+                String[] keyValues = request.split("&");
+
+                if (this.contain(keyValues, inputLayerName)) {
+                    // A GetMap request which contains the removed layerName, then remove it from cache
+                    iterator.remove();
+                }
             }
         }
     }
