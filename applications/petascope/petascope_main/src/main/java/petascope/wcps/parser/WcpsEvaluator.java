@@ -429,7 +429,15 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     public Handler visitLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx) {
         // coverageVariableName EQUAL coverageExpression
         // e.g: $a := $c[Lat(20:30), Long(40:50)]
-        Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
+        
+        Handler coverageExpressionHandler = null;
+        
+        if (ctx.wktExpression() != null) {
+            coverageExpressionHandler = (Handler) visit(ctx.wktExpression());
+        } else {
+            coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
+        }
+        
         String coverageVariableName = ctx.coverageVariableName().getText();
         Handler result = this.letClauseHandler.create(this.stringScalarHandler.create(coverageVariableName), coverageExpressionHandler);
         return result;
@@ -600,8 +608,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
 //            RIGHT_PARENTHESIS
         // e.g: clip( c, corridor( projection(Lat, Lon), LineString("1950-01-01" 1 1, "1950-01-02" 5 5), Polygon((0 10, 20 20, 20 10, 0 10)), discrete ) )
         Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
-        Handler wktLineStringHandler = visit(ctx.wktLineString());
-        Handler wktShapeHandler = visit(ctx.wktExpression());
+        Handler wktLineStringHandler = visit(ctx.corridorWKTLabel1());
+        Handler wktShapeHandler = visit(ctx.corridorWKTLabel2());
         
         String corridorProjectionAxisLabel1 = ctx.corridorProjectionAxisLabel1().getText().trim();
         String corridorProjectionAxisLabel2 = ctx.corridorProjectionAxisLabel2().getText().trim();
@@ -1897,6 +1905,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         Handler result = this.wktMultiPolygonHandler.create(wktCompoundPointsHandlers);        
         return result;
     }
+    
+    @Override
+    public Handler visitWKTCoverageExpressionLabel(@NotNull wcpsParser.WKTCoverageExpressionLabelContext ctx) { 
+        // Handle LET clause expression
+        // Used only for LET clause, e.g. let $wkt := POLYGON((...))), then here clip($c, $wkt)
+        return visitChildren(ctx);
+    }
   
     @Override
     public Handler visitWKTExpressionLabel(@NotNull wcpsParser.WKTExpressionLabelContext ctx) {
@@ -1908,6 +1923,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
             result = visit(ctx.wktPolygon());
         } else if (ctx.wktMultipolygon() != null) {
             result = visit(ctx.wktMultipolygon());
+        } else if (ctx.coverageExpression() != null) {
+            result = visit(ctx.coverageExpression());
         }
         
         return result;

@@ -32,6 +32,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.metadata.service.LetClauseAliasRegistry;
+import petascope.wcps.result.ParameterResult;
 import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
@@ -84,15 +85,17 @@ public class LetClauseHandler extends Handler {
         
         this.validate(variableName);
         
-        WcpsResult wcpsResult = null;
+        VisitorResult visitorResult = null;
         if (coverageExpressionVisitorResult instanceof WcpsResult) {
-            wcpsResult = (WcpsResult)coverageExpressionVisitorResult;
+            visitorResult = (WcpsResult)coverageExpressionVisitorResult;
         } else if (coverageExpressionVisitorResult instanceof WcpsMetadataResult) {
             WcpsMetadataResult wcpsMetadataResult = (WcpsMetadataResult) coverageExpressionVisitorResult;
-            wcpsResult = new WcpsResult(wcpsMetadataResult.getMetadata(), wcpsMetadataResult.getResult());
+            visitorResult = new WcpsResult(wcpsMetadataResult.getMetadata(), wcpsMetadataResult.getResult());
+        } else if (coverageExpressionVisitorResult instanceof ParameterResult) {
+            visitorResult = (ParameterResult)coverageExpressionVisitorResult;
         }
         
-        this.letClauseAliasRegistry.add(variableName, wcpsResult);
+        this.letClauseAliasRegistry.add(variableName, visitorResult);
         
         WcpsResult result = new WcpsResult(null, null);
         return result;

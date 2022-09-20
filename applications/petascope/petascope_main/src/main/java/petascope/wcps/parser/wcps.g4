@@ -82,7 +82,7 @@ letClauseDimensionIntervalList: coverageVariableName COLON EQUAL LEFT_BRACKET di
 
 letClause: letClauseDimensionIntervalList
            #letClauseDimensionIntervalListLabel
-           | coverageVariableName COLON EQUAL coverageExpression
+           | coverageVariableName COLON EQUAL ( coverageExpression | wktExpression )
            #letClauseCoverageExpressionLabel;
 
 /**
@@ -706,7 +706,11 @@ wktPolygon: POLYGON LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS
 wktMultipolygon: MULTIPOLYGON LEFT_PARENTHESIS LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS (COMMA LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS)* RIGHT_PARENTHESIS
 #WKTMultipolygonLabel;
 
-wktExpression: (wktPolygon | wktLineString | wktMultipolygon)
+/* Used only for LET clause, e.g. let $wkt := POLYGON((...))), then here clip($c, $wkt) */
+wktCoverageExpression: coverageExpression
+#WKTCoverageExpressionLabel;
+
+wktExpression: (coverageExpression | wktPolygon | wktLineString | wktMultipolygon)
 #WKTExpressionLabel;
 
 
@@ -729,14 +733,18 @@ clipCurtainExpression: CLIP LEFT_PARENTHESIS coverageExpression
 corridorProjectionAxisLabel1: COVERAGE_VARIABLE_NAME;
 corridorProjectionAxisLabel2: COVERAGE_VARIABLE_NAME;
 
+
+corridorWKTLabel1: wktExpression;
+corridorWKTLabel2: wktExpression;
+
 /*
   clip( coverageExpression, corridor( project(axis1, axis2), LineString, WKT, discrete), CRS ) 
 */
 clipCorridorExpression: CLIP LEFT_PARENTHESIS coverageExpression
                                               COMMA CORRIDOR LEFT_PARENTHESIS
                                                    PROJECTION LEFT_PARENTHESIS corridorProjectionAxisLabel1 COMMA corridorProjectionAxisLabel2 RIGHT_PARENTHESIS
-                                                   COMMA wktLineString 
-                                                   COMMA wktExpression 
+                                                   COMMA corridorWKTLabel1 
+                                                   COMMA corridorWKTLabel2 
                                                    (COMMA DISCRETE)?
                                                 RIGHT_PARENTHESIS
 					                          (COMMA crsName)?

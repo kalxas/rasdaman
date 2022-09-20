@@ -1512,6 +1512,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterCorridorWKTLabel1(@NotNull wcpsParser.CorridorWKTLabel1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCorridorWKTLabel1(@NotNull wcpsParser.CorridorWKTLabel1Context ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterRangeConstructorSwitchCaseExpressionLabel(@NotNull wcpsParser.RangeConstructorSwitchCaseExpressionLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1532,6 +1545,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterWKTCoverageExpressionLabel(@NotNull wcpsParser.WKTCoverageExpressionLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitWKTCoverageExpressionLabel(@NotNull wcpsParser.WKTCoverageExpressionLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1610,6 +1636,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitSwitchCaseElementList(@NotNull wcpsParser.SwitchCaseElementListContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterCorridorWKTLabel2(@NotNull wcpsParser.CorridorWKTLabel2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCorridorWKTLabel2(@NotNull wcpsParser.CorridorWKTLabel2Context ctx) { }
 
 	/**
 	 * {@inheritDoc}
