@@ -194,8 +194,8 @@ public interface XMLSymbols {
     String LABEL_WMS_CONTACT_EMAIL = "ContactElectronicMailAddress";
     String LABEL_WMS_DCPTYPE = "DCPType";
     String LABEL_WMS_HTTP = "HTTP";
-    String LABEL_WMS_GET = "GET";
-    String LABEL_WMS_POST = "POST";    
+    String LABEL_WMS_GET = "Get";
+    String LABEL_WMS_POST = "Post";    
     
     String LABEL_WMS_DIMENSION = "Dimension";    
     String LABEL_WMS_FEES = "Fees";

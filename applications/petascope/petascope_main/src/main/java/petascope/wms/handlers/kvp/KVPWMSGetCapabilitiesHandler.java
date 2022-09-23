@@ -82,6 +82,7 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ListUtil;
 import petascope.util.XMLUtil;
 import petascope.wms.exception.WMSLayerNotExistException;
+import petascope.util.CrsUtil;
 import petascope.util.StringUtil;
 
 /**
@@ -512,7 +513,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
         // CRSs (Current only contain one native CRS of coverage for geo XY axes)
         Element crsElement = new Element(XMLSymbols.LABEL_WMS_CRS, NAMESPACE_WMS);
-        crsElement.appendChild(layer.getCrss().get(0));
+        crsElement.appendChild(CrsUtil.getAuthorityCode(layer.getCrss().get(0)));
         layerElement.appendChild(crsElement);
 
         // EX_GeographicBoundingBox 
