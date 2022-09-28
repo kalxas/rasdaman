@@ -131,7 +131,15 @@ public class PetascopeController extends AbstractController {
                 // no url for petascope is defined in petascope.properties, only now can have the HTTP request object to set this value
                 if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {
                     // use the requesting URL to Petascope (not always: http://localhost:8080/rasdaman/ows)
+                    
                     PETASCOPE_ENDPOINT_URL = httpServletRequest.getRequestURL().toString();
+                    String protocol = httpServletRequest.getHeader("X-Forwarded-Proto");
+                    
+                    if (protocol != null) {
+                        // e.g. in case using https in apache2 proxy for http on local tomcat
+                        String[] tmps = PETASCOPE_ENDPOINT_URL.split("://");
+                        PETASCOPE_ENDPOINT_URL = protocol + "://" + tmps[1];
+                    }
                 }
 
                 if (INSPIRE_COMMON_URL.isEmpty()) {
