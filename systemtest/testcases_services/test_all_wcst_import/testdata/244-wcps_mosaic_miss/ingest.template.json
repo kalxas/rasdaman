@@ -1,0 +1,28 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "default_crs": "http://abc.secore.net/def/crs/EPSG/0/4326",
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_mosaic_miss",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_irregular",
+    "options": {
+      "time_parameter": {
+        "filename": {
+          "regex": "(.*)_(.*)\\.(.*)",
+          "group": "2"
+        },
+        "datetime_format": "YYYYMMDD"
+      },
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "tiling": "ALIGNED [0:0, 0:999, 0:999]"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+for
+  $c in ( test_mosaic_miss ),
+  $a in ( test_mosaic_full )
+let
+  $cutout1 := [ansi("2001-01-01":"2001-01-01"),E(618885.000:654885.000),N(3264195.000:3300195.000)],
+  $cutout2 := [ansi("2001-01-01":"2001-01-01"),E(618885.000:654885.000),N(3264195.000:3300195.000)],
+  $c_cutout := $c[$cutout1],
+  $a_cutout := $a[$cutout2]
+
+return encode((
+  condense +
+  over $d ansi(imageCrsDomain($c_cutout, ansi))              
+  using (
+           $c_cutout[ansi($d)]+$a_cutout[ansi($d)] 
+  )
+),"tiff")
