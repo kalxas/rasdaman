@@ -78,14 +78,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
-import petascope.wcps.exception.processing.ClipExpressionException;
-import petascope.wcps.exception.processing.Coverage0DMetadataNullException;
-import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
-import petascope.wcps.exception.processing.InvalidWKTClippingException;
 import petascope.wcps.handler.AxisIteratorDomainIntervalsHandler;
 import petascope.wcps.handler.AxisIteratorHandler;
 import petascope.wcps.handler.AxisSpecHandler;
@@ -127,13 +122,8 @@ import petascope.wcps.handler.WKTMultiPolygonHandler;
 import petascope.wcps.handler.WKTPolygonHandler;
 import petascope.wcps.metadata.service.SortedAxisIteratorAliasRegistry;
 import petascope.wcps.metadata.service.UsingCondenseRegistry;
-import petascope.wcps.result.VisitorResult;
-import petascope.wcps.result.WcpsResult;
-import petascope.wcps.subset_axis.model.AbstractWKTShape;
-import petascope.wcps.subset_axis.model.WKTCompoundPoints;
-import petascope.wcps.subset_axis.model.WKTLineString;
-import petascope.wcps.subset_axis.model.WKTMultipolygon;
-import petascope.wcps.subset_axis.model.WKTPolygon;
+
+import petascope.wcps.handler.TrimDimensionIntervalByImageCrsDomainElementHandler;
 
 
 /**
@@ -324,6 +314,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     SliceDimensionIntervalElementHandler sliceDimensionIntervalElementHandler;
     @Autowired private
     TrimDimensionIntervalElementHandler trimDimensionIntervalElementHandler;
+    
+    @Autowired private
+    TrimDimensionIntervalByImageCrsDomainElementHandler trimDimensionIntervalByImageCrsDomainElementHandler;
     
     @Autowired private
     AxisSpecHandler axisSpecHandler;
@@ -1714,6 +1707,31 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         Handler result = this.trimDimensionIntervalElementHandler.create(this.stringScalarHandler.create(axisName),
                                                                     this.stringScalarHandler.create(crs),
                                                                     lowerBoundCoveragExpression, upperBoundCoveragExpression);
+        return result;
+        
+        
+    }    
+
+    @Override
+    public Handler visitTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx) {
+        // axisName (COLON crsName)? LEFT_PARENTHESIS  imageCrsDomainByDimensionExpression  RIGHT_PARENTHESIS
+        // e.g: i:"CRS:1"( imageCrsdomain(c[i(30:50)], i) )
+        if (ctx.axisName() == null) {
+            throw new InvalidAxisNameException("No axis given");
+        }
+        String axisName = ctx.axisName().getText();
+        
+        String crs = null;
+        if (ctx.crsName() != null) {
+            crs = StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
+        }
+        
+        Handler gridBoundCoveragExpression = ((Handler)visit(ctx.imageCrsDomainByDimensionExpression()));
+        
+        Handler result = this.trimDimensionIntervalByImageCrsDomainElementHandler.create(
+                                                                    this.stringScalarHandler.create(axisName),
+                                                                    this.stringScalarHandler.create(crs),
+                                                                    gridBoundCoveragExpression);
         return result;
         
         

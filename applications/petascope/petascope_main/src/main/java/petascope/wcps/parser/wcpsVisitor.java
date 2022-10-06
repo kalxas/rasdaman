@@ -159,6 +159,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitFieldName(@NotNull wcpsParser.FieldNameContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#TrimDimensionIntervalByImageCrsDomainElementLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#SliceDimensionIntervalElementLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -683,6 +683,16 @@ Use for trimming, slicing of coverage (e.g: Lat:"CRS:1"(0:20))
 dimensionIntervalElement: axisName (COLON crsName)? LEFT_PARENTHESIS
                             coverageExpression COLON coverageExpression
                           RIGHT_PARENTHESIS                                                                             #TrimDimensionIntervalElementLabel
+
+
+
+                        | axisName (COLON crsName)? LEFT_PARENTHESIS
+                           imageCrsDomainByDimensionExpression
+                          RIGHT_PARENTHESIS                                
+
+                                                                                                                        #TrimDimensionIntervalByImageCrsDomainElementLabel
+
+
                         | axisName (COLON crsName)? LEFT_PARENTHESIS coverageExpression
                           RIGHT_PARENTHESIS                                                                             #SliceDimensionIntervalElementLabel;
 

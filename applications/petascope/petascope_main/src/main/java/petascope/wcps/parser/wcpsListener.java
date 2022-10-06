@@ -240,6 +240,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitFieldName(@NotNull wcpsParser.FieldNameContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#TrimDimensionIntervalByImageCrsDomainElementLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#TrimDimensionIntervalByImageCrsDomainElementLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#SliceDimensionIntervalElementLabel}.
 	 * @param ctx the parse tree
 	 */

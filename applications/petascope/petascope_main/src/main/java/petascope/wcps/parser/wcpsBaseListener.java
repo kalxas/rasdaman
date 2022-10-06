@@ -290,6 +290,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterSliceDimensionIntervalElementLabel(@NotNull wcpsParser.SliceDimensionIntervalElementLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
