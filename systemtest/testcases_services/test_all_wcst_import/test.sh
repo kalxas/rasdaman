@@ -43,9 +43,28 @@ TESTDATA_DIR="$SCRIPT_DIR/testdata"
 # store files: *.ingest.json.log here
 OUTPUT_DIR="$SCRIPT_DIR/output"
 
-# The first argument, if specified, indicates a single testcase to execute.
+# Parse script arguments.
+DISABLE_TEMPLATE_INSTANTIATION=
 SINGLE_TEST_CASE=
-[ -n "$1" ] && SINGLE_TEST_CASE="$1"
+if [[ "$1" = "--disable-template-instantiation" ]]; then
+    DISABLE_TEMPLATE_INSTANTIATION=1
+elif [[ "$1" = "-h" || "$1" = "--help" ]]; then
+    cat <<EOF
+Usage: $PROG [<test-case>] [--disable-template-instantiation] [-h|--help]
+
+<test-case>
+    Specify a single test-case in testdata to be executed, e.g. 001-3D_Timeseries_Regular
+
+--disable-template-instantiation
+    Do not instantiate ingest.template.json to ingest.json
+
+-h|--help
+    Show this message and exit.
+EOF
+    exit 0
+else
+    [ -n "$1" ] && SINGLE_TEST_CASE="$1"
+fi
 
 # Return 0 if test with name $1 should be preserved in petascope, so it can be
 # reused in later tests (test_wcs, test_wcps, etc); Otherwise, return 1.
@@ -133,9 +152,11 @@ for test_case in $testcases; do
     # 1.2 instantiate ingest.template.json to ingest.json (this file will be used to ingest data)
     # with the current system configuration from systemtest/util/common.sh
     recipe_file="$test_case/ingest.json"
-    sed -e "s@PETASCOPE_URL@$PETASCOPE_URL@g" \
-        -e "s@SECORE_URL@$SECORE_URL@g" \
-        -e "s@CURRENT_ABSOLUTE_DIR@$test_case@g" "$recipe_file_template" > "$recipe_file"
+    if [ -z "$DISABLE_TEMPLATE_INSTANTIATION" ]; then
+        sed -e "s@PETASCOPE_URL@$PETASCOPE_URL@g" \
+            -e "s@SECORE_URL@$SECORE_URL@g" \
+            -e "s@CURRENT_ABSOLUTE_DIR@$test_case@g" "$recipe_file_template" > "$recipe_file"
+    fi
 
     # Get coverage id from ingest.json
     COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' "$recipe_file" | awk -F'"' '{print $4}')
