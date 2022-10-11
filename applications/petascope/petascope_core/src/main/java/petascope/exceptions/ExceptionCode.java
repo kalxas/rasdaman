@@ -22,6 +22,7 @@
 package petascope.exceptions;
 
 import static javax.servlet.http.HttpServletResponse.*;
+import petascope.core.KVPSymbols;
 import petascope.core.XMLSymbols;
 
 /**
@@ -54,6 +55,10 @@ public class ExceptionCode {
      * HTTP response code, when the exception is returned over HTTP
      */
     private int httpErrorCode;
+    
+    public ExceptionCode(ExceptionCode input, String locator) {
+        this(input.getExceptionCodeName(), input.getDescription(), input.getHttpErrorCode(), locator);
+    }
 
     /**
      * Create new ExceptionCode with no description text and default HTTP exit code
@@ -258,6 +263,8 @@ public class ExceptionCode {
     public static final ExceptionCode WcstError = new ExceptionCode("WcstError", SC_INTERNAL_SERVER_ERROR);
     public static final ExceptionCode WpsError = new ExceptionCode("WpsError", SC_INTERNAL_SERVER_ERROR);
     public static final ExceptionCode WmsError = new ExceptionCode("WmsError", SC_INTERNAL_SERVER_ERROR);
+    public static final ExceptionCode WmtsError = new ExceptionCode("WmtsError", SC_INTERNAL_SERVER_ERROR);
+    
     public static final ExceptionCode MultipleRangeSubsets = new ExceptionCode("Invalid RangeSubsets parameters",
             "Multiple RangeSubset parameters have been provided, only one can be accepted.", SC_BAD_REQUEST);
     public static final ExceptionCode NoSuchField = new ExceptionCode("NoSuchField",

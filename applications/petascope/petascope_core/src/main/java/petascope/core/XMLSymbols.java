@@ -82,11 +82,14 @@ public interface XMLSymbols {
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     String NAMESPACE_CIS_11 = "http://www.opengis.net/cis/1.1/gml";
     String NAMESPACE_XML = "http://www.w3.org/XML/1998/namespace";
+    String NAMESPACE_GML_WMTS = "http://www.opengis.net/gml";
     String NAMESPACE_GML = "http://www.opengis.net/gml/3.2";
     String NAMESPACE_GMLCOV = "http://www.opengis.net/gmlcov/1.0";
     String NAMESPACE_RASDAMAN = "http://www.rasdaman.org";
     String NAMESPACE_GMLRGRID = "http://www.opengis.net/gml/3.3/rgrid";
     String NAMESPACE_SWE = "http://www.opengis.net/swe/2.0";
+    
+    String NAMESPACE_OWS_11 = "http://www.opengis.net/ows/1.1";
     String NAMESPACE_OWS = "http://www.opengis.net/ows/2.0";
     String NAMESPACE_WCS_20 = "http://www.opengis.net/wcs/2.0";
     String NAMESPACE_WCS_21 = "http://www.opengis.net/wcs/2.1";
@@ -249,6 +252,7 @@ public interface XMLSymbols {
     String LABEL_WMTS_IDENTIFIER = "Identifier";
     String LABEL_WMTS_DEFAULT = "Default";
     
+    String LABEL_WMTS_CONSTRAINT = "Constraint";
     String LABEL_WMTS_VALUE = "Value";
     
     String LABEL_WMTS_WGS84_BOUNDING_BOX = "WGS84BoundingBox";
@@ -584,6 +588,9 @@ public interface XMLSymbols {
     // -- INSPIRE
     
     String ATT_METADATA_URL = "metadataURL";
+    
+    String ATT_VALUE_GET_ENCODING = "GetEncoding";
+    String ATT_VALUE_POST_ENCODING = "PostEncoding";
     
     
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

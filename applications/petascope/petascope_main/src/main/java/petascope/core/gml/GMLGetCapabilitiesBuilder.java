@@ -46,7 +46,6 @@ import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.rasdaman.config.VersionManager;
-import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,9 +56,7 @@ import static petascope.core.KVPSymbols.VALUE_PROCESS_COVERAGES;
 import static petascope.core.KVPSymbols.VALUE_UPDATE_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
 import petascope.core.Pair;
-import petascope.core.XMLSymbols;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.XMLUtil;
@@ -88,7 +85,6 @@ import static petascope.core.XMLSymbols.LABEL_CONTENTS;
 import static petascope.core.XMLSymbols.LABEL_COUNTRY;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_ID;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
-import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUBTYPE_PARENT;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUMMARY;
 import static petascope.core.XMLSymbols.LABEL_CRS_METADATA;
 import static petascope.core.XMLSymbols.LABEL_CRS_SUPPORTED;
@@ -159,9 +155,6 @@ import static petascope.core.XMLSymbols.NAMESPACE_WCS_20;
 import static petascope.core.XMLSymbols.NAMESPACE_WCS_21;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_20_GET_CAPABILITIES;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_21_GET_CAPABILITIES;
-import static petascope.core.XMLSymbols.VALUE_FALSE;
-import static petascope.core.XMLSymbols.VALUE_TRUE;
-import petascope.util.ras.RasUtil;
 import static petascope.core.XMLSymbols.NAMESPACE_CRS;
 import static petascope.core.XMLSymbols.NAMESPACE_INSPIRE_COMMON;
 import static petascope.core.XMLSymbols.NAMESPACE_INSPIRE_DLS;
@@ -368,72 +361,72 @@ public class GMLGetCapabilitiesBuilder {
     /**
      * Build the ServiceProvider element
      */
-    public Element buildServiceProvider(OwsServiceMetadata owsServiceMetadata) {
+    public Element buildServiceProvider(OwsServiceMetadata owsServiceMetadata, String owsNamespace) {
         ServiceProvider serviceProvider = owsServiceMetadata.getServiceProvider();
 
         // 1. parent element
-        Element serviceProviderElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_SERVICE_PROVIDER), NAMESPACE_OWS);
+        Element serviceProviderElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_SERVICE_PROVIDER), owsNamespace);
 
         // 1.1. children elements
-        Element providerNameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_PROVIDER_NAME), NAMESPACE_OWS);
+        Element providerNameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_PROVIDER_NAME), owsNamespace);
         providerNameElement.appendChild(serviceProvider.getProviderName());
         serviceProviderElement.appendChild(providerNameElement);
 
-        Element providerSiteElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_PROVIDER_SITE), NAMESPACE_OWS);
+        Element providerSiteElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_PROVIDER_SITE), owsNamespace);
         Attribute providerSiteAttribute = new Attribute(XMLUtil.createXMLLabel(PREFIX_XLINK, ATT_HREF), NAMESPACE_XLINK,  serviceProvider.getProviderSite());
         providerSiteElement.addAttribute(providerSiteAttribute);
         serviceProviderElement.appendChild(providerSiteElement);
 
         ServiceContact serviceContact = serviceProvider.getServiceContact();
-        Element serviceContactElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_SERVICE_CONTACT), NAMESPACE_OWS);
+        Element serviceContactElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_SERVICE_CONTACT), owsNamespace);
         serviceProviderElement.appendChild(serviceContactElement);
 
         // 1.1.1 grand children elements (*children of ServiceContact element*)
-        Element individualNameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_INDIVIDUAL_NAME), NAMESPACE_OWS);
+        Element individualNameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_INDIVIDUAL_NAME), owsNamespace);
         individualNameElement.appendChild(serviceContact.getIndividualName());
         serviceContactElement.appendChild(individualNameElement);
 
-        Element positionNameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_POSITION_NAME), NAMESPACE_OWS);
+        Element positionNameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_POSITION_NAME), owsNamespace);
         positionNameElement.appendChild(serviceContact.getPositionName());
         serviceContactElement.appendChild(positionNameElement);
 
-        Element contactInfoElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CONTACT_INFO), NAMESPACE_OWS);
+        Element contactInfoElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CONTACT_INFO), owsNamespace);
         ContactInfo contactInfo = serviceContact.getContactInfo();
         serviceContactElement.appendChild(contactInfoElement);
 
         // 1.1.1.1 *children of ContactInfo element*        
         if (contactInfo.getContactInstructions() != null) {
-            Element contactInstructionsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CONTACT_INSTRUCTIONS), NAMESPACE_OWS);
+            Element contactInstructionsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CONTACT_INSTRUCTIONS), owsNamespace);
             contactInstructionsElement.appendChild(contactInfo.getContactInstructions());
             contactInfoElement.appendChild(contactInstructionsElement);
         }
 
         if (contactInfo.getHoursOfService() != null) {
-            Element hoursOfServiceElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_HOURS_OF_SERVICE), NAMESPACE_OWS);
+            Element hoursOfServiceElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_HOURS_OF_SERVICE), owsNamespace);
             hoursOfServiceElement.appendChild(contactInfo.getHoursOfService());
             contactInfoElement.appendChild(hoursOfServiceElement);
         }
 
         if (contactInfo.getOnlineResource() != null) {
-            Element onlineResourceElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ONLINE_RESOURCE), NAMESPACE_OWS);
+            Element onlineResourceElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ONLINE_RESOURCE), owsNamespace);
             onlineResourceElement.appendChild(contactInfo.getOnlineResource());
             contactInfoElement.appendChild(onlineResourceElement);
         }
 
         Phone phone = contactInfo.getPhone();
-        Element phoneElement = this.buildPhoneElement(phone);
+        Element phoneElement = this.buildPhoneElement(phone, owsNamespace);
         if (phoneElement.getChildCount() > 0) {
             contactInfoElement.appendChild(phoneElement);
         }
 
         Address address = contactInfo.getAddress();
-        Element addressElement = this.buildAddressElement(address);
+        Element addressElement = this.buildAddressElement(address, owsNamespace);
         if (addressElement.getChildCount() > 0) {
             contactInfoElement.appendChild(addressElement);
         }
 
         // 1.1.1 *children of ServiceContact element*
-        Element roleNameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ROLE), NAMESPACE_OWS);
+        Element roleNameElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ROLE), owsNamespace);
         roleNameElement.appendChild(serviceContact.getRole());
         serviceContactElement.appendChild(roleNameElement);
 
@@ -444,46 +437,46 @@ public class GMLGetCapabilitiesBuilder {
      * Build the address element of ContactInfo of ServiceContact of
      * ServiceProvider element
      */
-    private Element buildAddressElement(Address address) {
-        Element addressElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDRESS), NAMESPACE_OWS);
+    private Element buildAddressElement(Address address, String owsNamespace) {
+        Element addressElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADDRESS), owsNamespace);
 
         // Children elements
         if (address.getDeliveryPoints().size() > 0) {
             for (String deliverPoint : address.getDeliveryPoints()) {
-                Element deliveryPointElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_DELIVERY_POINT), NAMESPACE_OWS);
+                Element deliveryPointElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_DELIVERY_POINT), owsNamespace);
                 deliveryPointElement.appendChild(deliverPoint);
                 addressElement.appendChild(deliveryPointElement);
             }
         }
 
         if (address.getCity() != null) {
-            Element cityElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CITY), NAMESPACE_OWS);
+            Element cityElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CITY), owsNamespace);
             cityElement.appendChild(address.getCity());
             addressElement.appendChild(cityElement);
         }
 
         if (address.getAdministrativeArea() != null) {
-            Element administrativeAreaElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADMINISTRATIVE_AREA), NAMESPACE_OWS);
+            Element administrativeAreaElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ADMINISTRATIVE_AREA), owsNamespace);
             administrativeAreaElement.appendChild(address.getAdministrativeArea());
             addressElement.appendChild(administrativeAreaElement);
         }
 
         if (address.getPostalCode() != null) {
-            Element postalCodeElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_POSTAL_CODE), NAMESPACE_OWS);
+            Element postalCodeElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_POSTAL_CODE), owsNamespace);
             postalCodeElement.appendChild(address.getPostalCode());
             addressElement.appendChild(postalCodeElement);
 
         }
 
         if (address.getCountry() != null) {
-            Element countryElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_COUNTRY), NAMESPACE_OWS);
+            Element countryElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_COUNTRY), owsNamespace);
             countryElement.appendChild(address.getCountry());
             addressElement.appendChild(countryElement);
         }
 
         if (address.getElectronicMailAddresses().size() > 0) {
             for (String email : address.getElectronicMailAddresses()) {
-                Element eMailElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_EMAIL_ADDRESS), NAMESPACE_OWS);
+                Element eMailElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_EMAIL_ADDRESS), owsNamespace);
                 eMailElement.appendChild(email);
                 addressElement.appendChild(eMailElement);
             }
@@ -496,13 +489,13 @@ public class GMLGetCapabilitiesBuilder {
      * Build the Phone element of ContactInfo of ServiceContact of
      * ServiceProvider element
      */
-    private Element buildPhoneElement(Phone phone) {
-        Element phoneElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_PHONE), NAMESPACE_OWS);
+    private Element buildPhoneElement(Phone phone, String owsNamespace) {
+        Element phoneElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_PHONE), owsNamespace);
 
         // Children elements
         if (phone.getVoicePhones().size() > 0) {
             for (String voicePhone : phone.getVoicePhones()) {
-                Element voiceElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_VOICE), NAMESPACE_OWS);
+                Element voiceElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_VOICE), owsNamespace);
                 voiceElement.appendChild(voicePhone);
                 phoneElement.appendChild(voiceElement);
             }
@@ -510,7 +503,7 @@ public class GMLGetCapabilitiesBuilder {
 
         if (phone.getFacsimilePhones().size() > 0) {
             for (String facSimile : phone.getFacsimilePhones()) {
-                Element facSimileElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_FACSIMILE), NAMESPACE_OWS);
+                Element facSimileElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_FACSIMILE), owsNamespace);
                 facSimileElement.appendChild(facSimile);
                 phoneElement.appendChild(facSimileElement);
             }
@@ -1040,7 +1033,7 @@ public class GMLGetCapabilitiesBuilder {
         capabilitiesElement.addAttribute(versionAttribute);
         
         Element serviceIdentificationElement = this.buildServiceIdentification(owsServiceMetadata);
-        Element serviceProviderElement = this.buildServiceProvider(owsServiceMetadata);
+        Element serviceProviderElement = this.buildServiceProvider(owsServiceMetadata, NAMESPACE_OWS);
         Element operationsMetadataElement = this.buildOperationsMetadataElement();
         Element serviceMetadataElement = this.buildServiceMetadataElement(version);
         Element contentsElement = this.buildContentsElement(operationsMetadataElement, version);

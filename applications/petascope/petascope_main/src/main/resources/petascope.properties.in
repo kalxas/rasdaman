@@ -61,6 +61,7 @@ server.contextPath=/rasdaman
 secore_urls=internal
 xml_validation=false
 ogc_cite_output_optimization=false
+ogc_cite_wmts_output_optimization=false
 petascope_servlet_url=
 inspire_common_url=
 uploaded_files_dir_tmp=/tmp/rasdaman_petascope/upload

@@ -23,10 +23,7 @@ package petascope.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
@@ -46,6 +43,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WMSException;
+import petascope.exceptions.WMTSException;
 import petascope.rasdaman.exceptions.RasdamanException;
 
 /**
@@ -165,6 +163,14 @@ public class ExceptionUtil {
             exceptionCodeName = exceptionCode.getExceptionCodeName();
             httpCode = ExceptionCode.InvalidRequest.getHttpErrorCode();
             detailMessage = ((WMSException) ex).getMessage();
+        } else if (ex instanceof WMTSException) {       
+            // NOTE: WMTSException use different exception report structure.
+            exceptionText = Templates.getTemplate(Templates.GENERAL_WMTS_EXCEPTION_REPORT);
+            
+            ExceptionCode exceptionCode = ((WMTSException) ex).getExceptionCode();
+            exceptionCodeName = exceptionCode.getExceptionCodeName();
+            httpCode = ExceptionCode.InvalidRequest.getHttpErrorCode();
+            detailMessage = ((WMTSException) ex).getMessage();
         } else if (ex instanceof SecoreException) {
             ExceptionCode exceptionCode = ((SecoreException) ex).getExceptionCode();
             exceptionCodeName = exceptionCode.getExceptionCodeName();

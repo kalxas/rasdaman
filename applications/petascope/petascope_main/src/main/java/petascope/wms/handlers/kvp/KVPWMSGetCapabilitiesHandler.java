@@ -550,7 +550,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     private void buildStyleElements(Element layerElement, Layer layer, List<Style> styles) throws PetascopeException {
         for (Style style : styles) {
             try {
-                Element styleElement = this.getStyleElement(layer, style);
+                Element styleElement = this.getStyleElement(layer, style, NAMESPACE_WMS, null, NAMESPACE_WMS);
                 // NOTE: styleElement can contain SLD which is a big nested XML, hence, it must keep string format to avoid problem with XML parser
                 layerElement.appendChild(styleElement.toXML());
             } catch (PetascopeException ex) {
@@ -565,21 +565,21 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      * Return the Style XML element
      *
      */
-    public Element getStyleElement(Layer layer, Style style) throws PetascopeException {
-        Element styleElement = new Element(XMLSymbols.LABEL_WMS_STYLE, NAMESPACE_WMS);
+    public Element getStyleElement(Layer layer, Style style, String styleNamepsace, String prefix, String namespace) throws PetascopeException {
+        Element styleElement = new Element(XMLSymbols.LABEL_WMS_STYLE, styleNamepsace);
 
         // Name
-        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME, NAMESPACE_WMS);
+        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME, namespace);
         nameElement.appendChild(style.getName());
         styleElement.appendChild(nameElement);
 
         // Title
-        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE, NAMESPACE_WMS);
+        Element titleElement = new Element(XMLUtil.createXMLLabel(prefix, XMLSymbols.LABEL_WMS_TITLE), namespace);
         titleElement.appendChild(style.getTitle());
         styleElement.appendChild(titleElement);
 
         // Abstract
-        Element abstractElement = this.buildStyleAbstractElement(layer, style);
+        Element abstractElement = this.buildStyleAbstractElement(layer, style, prefix, namespace);
         styleElement.appendChild(abstractElement);
 
         if (style.getLegendURL() != null) {
@@ -593,8 +593,8 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      *
      * Build XML element for a style's abstract.
      */
-    private Element buildStyleAbstractElement(Layer layer, Style style) throws PetascopeException {
-        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT, NAMESPACE_WMS);
+    private Element buildStyleAbstractElement(Layer layer, Style style, String prefix, String namespace) throws PetascopeException {
+        Element abstractElement = new Element(XMLUtil.createXMLLabel(prefix, XMLSymbols.LABEL_WMS_ABSTRACT), namespace);
         
         // User's abstract for the style
         String styleAbstractStr = style.getStyleAbstract();
