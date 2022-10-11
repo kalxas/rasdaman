@@ -14,8 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.    If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
-# rasdaman GmbH.
+# Copyright 2003-2022 Peter Baumann / rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -23,7 +22,7 @@
 # SYNOPSIS
 #    test.sh
 # Description
-#    Using wcst-import coverages to petascope and test result
+#    Import data to rasdaman with wcst_import.sh and check correctness.
 #
 ################################################################################
 
@@ -34,88 +33,93 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-. "$SCRIPT_DIR"/../../util/common.sh
+SYSTEST_DIR=$(echo "$SCRIPT_DIR" | sed 's|\(.*/systemtest\).*|\1|')
+[ -d "$SYSTEST_DIR/util" ] || error "could not determine system test dir: $SYSTEST_DIR"
 
-# By default, it creates ingest.json from ingest.template.json before importing data
-# But, input argument can tell it to just import data instead.
-CREATE_INGEST_FILES=$2
-if [ -z "$CREATE_INGEST_FILES" ]; then
-    CREATE_INGEST_FILES=0
-fi
-
-# Test case which needs to create a collection in rasdaman to test
-COLLECTION_EXISTS="collection_exists"
-COLLECTION_NAME="test_wcst_import_collection_exists"
+. "$SYSTEST_DIR/util/common.sh"
 
 # get the test datas and recipes from folder
-TEST_DATA="$SCRIPT_DIR/testdata"
-
+TESTDATA_DIR="$SCRIPT_DIR/testdata"
 # store files: *.ingest.json.log here
 OUTPUT_DIR="$SCRIPT_DIR/output"
 
-# Check if coverage ID should be deleted or keep for other test cases (by folder name "contains")
-COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms" "wmts" "tmp" "custom_recipe")
+# The first argument, if specified, indicates a single testcase to execute.
+SINGLE_TEST_CASE=
+[ -n "$1" ] && SINGLE_TEST_CASE="$1"
 
+# Return 0 if test with name $1 should be preserved in petascope, so it can be
+# reused in later tests (test_wcs, test_wcps, etc); Otherwise, return 1.
+KEEP_COVERAGE_PATTERN_LIST=("wcps" "wcs" "wms" "wmts" "tmp" "custom_recipe")
 keep_coverage_by_folder_name() {
-    for FOLDER_NAME in "${COVERAGE_FOLDER_LIST[@]}"; do
-        # if folder name contains the pattern, then will not remove the coverageID of recipe file which is inside this folder
+    local FOLDER_NAME
+    for FOLDER_NAME in "${KEEP_COVERAGE_PATTERN_LIST[@]}"; do
         if [[ "$1" =~ $FOLDER_NAME ]]; then
             return 0
         fi
     done
     return 1
 }
-
 # after importing recipe, remove this resume.json file
 clear_resume_file() {           
-    find . -type f -name "*.resume.json" -delete    
+    find . -type f -name '*.resume.json' -delete    
 }
-
 write_to_failed_log() {
     # $1 is test case name
     # $2 is the reason
-    log_failed "Test case: $1...failed."
-    log_failed "Reason: $2"
+    log_failed "Test case: $1...failed. Reason: $2"
 }
-
 run_wcst_import() {
     # $1 is test case name
     # $2 is input ingredient file
-    local test_cases_output_dir="$OUTPUT_DIR/$1"
-    mkdir -p "$test_cases_output_dir"
-    local wcst_import_log="$test_cases_output_dir/wcst_import.log"
-
+    local test_outdir="$OUTPUT_DIR/$1"
+    mkdir -p "$test_outdir"
+    local wcst_import_log="$test_outdir/wcst_import.log"
     local ingredient_file="$2"
     $WCST_IMPORT "$ingredient_file" > "$wcst_import_log" 2>&1
+}
+skip_test() {
+    # print the current test as skipped
+    update_result
+    status="$ST_SKIP"
+    print_testcase_result "$test_case_name" "$status" "$total_test_no" "$curr_test_no"
 }
 
 # Check if petascope is deployed (imported from util/petascope.sh)
 check_petascope || exit $RC_ERROR
 
-# 0. cleaning output directory
+# 0. clean output directory
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-total_test_no=$(ls -ld "$TEST_DATA"/* | wc -l)
+# Test case which needs to create a collection in rasdaman to test
+COLLECTION_EXISTS="collection_exists"
+COLLECTION_NAME="test_wcst_import_collection_exists"
+
+if [ -z "$SINGLE_TEST_CASE" ]; then
+    total_test_no=$(ls -ld "$TESTDATA_DIR"/* | wc -l)
+    testcases="$TESTDATA_DIR"/*
+else
+    total_test_no=1
+    testcases="$TESTDATA_DIR/$SINGLE_TEST_CASE"
+fi
+
 curr_test_no=0
 
 # 1. Iterate folders in test data
-for test_case in "$TEST_DATA"/*; do
+
+for test_case in $testcases; do
 
     test_case_name=$(basename "$test_case")
     curr_test_no=$((curr_test_no + 1))
     status="$ST_PASS"
 
-    if [[ "$OS_VERSION" == "$OS_UBUNTU1604" && "$test_case_name" == "106-wcs_extract" ]]; then
-        continue
-    fi
-
-    if [[ ( "$OS_VERSION" == "$OS_CENTOS7" || "$OS_VERSION" == "$OS_UBUNTU1604" ) && "$test_case_name" == *"overview"* ]]; then
-        # NOTE: centos 7 and ubuntu 16.04 with gdal version 1.x does not support importing overview
-        continue
-    fi
-
     start_timer
+
+    if [[ "$OS_VERSION" == "$OS_CENTOS7" && "$test_case_name" == *"overview"* ]]; then
+        # NOTE: centos 7 and ubuntu 16.04 with gdal version 1.x does not support importing overview
+        skip_test
+        continue
+    fi
 
     # each folder is a coverage with image files and recipe
     # 1.1 get the recipe in $test_case directory (NOTE: -L to find in symbolic directory)
@@ -126,33 +130,34 @@ for test_case in "$TEST_DATA"/*; do
         continue
     fi
 
-    # 1.2 copy the template file to ingest.json (this file will be used to ingest data)
+    # 1.2 instantiate ingest.template.json to ingest.json (this file will be used to ingest data)
+    # with the current system configuration from systemtest/util/common.sh
     recipe_file="$test_case/ingest.json"
-
-    if [ "$CREATE_INGEST_FILES" -eq 0 ]; then
-        cp "$recipe_file_template" "$recipe_file"
-        # 1.3 replace all the default with the current system configuration from systemtest/util/common.sh
-        sed -i "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$recipe_file"
-        sed -i "s@SECORE_URL@$SECORE_URL@g" "$recipe_file"
-        sed -i "s@CURRENT_ABSOLUTE_DIR@$test_case@g" "$recipe_file"
-    fi
+    sed -e "s@PETASCOPE_URL@$PETASCOPE_URL@g" \
+        -e "s@SECORE_URL@$SECORE_URL@g" \
+        -e "s@CURRENT_ABSOLUTE_DIR@$test_case@g" "$recipe_file_template" > "$recipe_file"
 
     # Get coverage id from ingest.json
     COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' "$recipe_file" | awk -F'"' '{print $4}')
-    
+
+    # 1.3 If test case name is "collection_exists" then need to import a test collection in rasdaman before
+    if [ "$test_case_name" = "$COLLECTION_EXISTS" ]; then
+        create_coll "$COLLECTION_NAME" RGBSet > /dev/null 2>&1
+    fi
+
     mkdir -p "$OUTPUT_DIR/$test_case_name/"
 
-    # 1.2.1 If test case name is "collection_exists" then need to import a test collection in rasdaman before
-    [ "$test_case_name" = "$COLLECTION_EXISTS" ] && create_coll "$COLLECTION_NAME" RGBSet > /dev/null 2>&1
-
+    #
     # 1.4 execute wcst_import with $recipe_file
+    #
     if [[ "$test_case" == *error* ]]; then
-        # This test returns error, then check with test.oracle
+
+        # 1.4.1 This test returns error, then check with test.oracle
         outputError=$($WCST_IMPORT "$recipe_file" 2>&1)
 	    echo "$outputError" > "$OUTPUT_DIR/$test_case_name/test.output"
         oracleError=$(cat "$test_case/test.oracle")
 
-        # 1.5 check if output contains the error message from test.oracle
+        # Check if output contains the error message from test.oracle
         if [[ "$outputError" == *"$oracleError"* ]]; then
             status="$ST_PASS"
         else            
@@ -160,31 +165,14 @@ for test_case in "$TEST_DATA"/*; do
             write_to_failed_log "$test_case" "Error output is different from oracle output."            
         fi
 
-    elif [[ "$test_case_name" == "wcs_extract" && "$OS_VERSION" = "$OS_UBUNTU1604" ]]; then
-        # Test `wcs_extract` is skipped because it fails on ubuntu 16.04
-        status="$ST_PASS"
+    else
 
-    else        
-        # This test will succeed, check coverage exists later
-        run_wcst_import "$test_case_name" "$recipe_file"
-
-        # Some errors occurred, need to retry
-        if [[ $? != 0 ]]; then
-            write_to_failed_log "$test_case" "Failed importing coverage, retrying."
-            sleep 1
-            run_wcst_import "$test_case_name" "$recipe_file"    
-        fi
-
-        # 2 Check if wcst_import runs successfully
-        if [[ $? != 0 ]]; then
-            # 2.1 error when ingesting data
-            status="$ST_FAIL"        
-            write_to_failed_log "$test_case" "Failed importing coverage."
+        # 1.4.2 This test is expected to succeed, if not that's an error
+        if ! run_wcst_import "$test_case_name" "$recipe_file"; then
+            status="$ST_FAIL"
+            write_to_failed_log "$test_case" "Failed importing coverage $COVERAGE_ID."
         else
-            # 2.2 run correctly
-
-            grep -q '"mock": true' "$recipe_file"
-            if [[ $? == 0 ]]; then
+            if grep -q '"mock": true' "$recipe_file"; then
                 # It is a mock import, nothing has been ingested
                 continue
             fi
@@ -192,25 +180,24 @@ for test_case in "$TEST_DATA"/*; do
             # Check if the folder name is in unwanted delete coverage IDs list
             keep_coverage_by_folder_name "$test_case_name"
             IS_REMOVE=$?
-
-            status="$ST_PASS"
-
             if [[ "$IS_REMOVE" == 1 ]]; then
-                # 2.7 it is good when coverage does exist then now delete coverage
                 delete_coverage "$COVERAGE_ID"
-                if [[ $? != 0 ]]; then                    
+                rc=$?
+                if [[ $rc != 0 ]]; then                    
                     status="$ST_FAIL"         
-                    write_to_failed_log "$test_case" "Cannot delete coverage."
+                    write_to_failed_log "$test_case" "Failed deleting coverage $COVERAGE_ID."
                 fi
             fi            
         fi
 
         # remove file resume.json
-        clear_resume_file "$test_case"        
+        clear_resume_file "$test_case"
     fi
 
-    # 2.7.1 remove created collection in rasdaman
-    [ "$test_case_name" = "$COLLECTION_EXISTS" ] && drop_colls "$COLLECTION_NAME"
+    # 1.5 remove created collection in rasdaman
+    if [ "$test_case_name" = "$COLLECTION_EXISTS" ]; then
+        drop_colls "$COLLECTION_NAME"
+    fi
 
     stop_timer
 
@@ -218,16 +205,17 @@ for test_case in "$TEST_DATA"/*; do
     update_result
 
     # print result of this test case
-    print_testcase_result "$test_case_name" "$status" "$total_test_no" "$curr_test_no"  
+    print_testcase_result "$test_case_name" "$status" "$total_test_no" "$curr_test_no"
 
 done
 
-
-# Finally, copy result log file of these testcases to output directory
-# Iterate folders in test data
-for test_case in "$TEST_DATA"/*; do
+# 2. copy result log file of these testcases to output directory
+for test_case in $testcases; do
     test_case_name=$(basename "$test_case")
-    mv "$test_case/ingest.json.log" "$OUTPUT_DIR/$test_case_name/" 2> /dev/null
+    log="$test_case/ingest.json.log"
+    outdir="$OUTPUT_DIR/$test_case_name/"
+    mkdir -p "$outdir"
+    [ -f "$log" ] && mv "$log" "$outdir"
 done
 
 # print summary from util/common.sh
