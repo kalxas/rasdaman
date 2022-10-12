@@ -179,6 +179,40 @@ EOF
   exit 2
 }
 
+# If the testcase $1 should be skipped return 0, otherwise 1
+skip_test()
+{
+  local f="$1"
+  local skip=0
+  local do_not_skip=1
+  if [ -n "$test_single_file" ]; then
+    if [[ "$f" == "$test_single_file" ]]; then
+      return $do_not_skip
+    else
+      return $skip
+    fi
+  fi
+
+  # skip non-files
+  [ -f "$f" ] || return $skip
+  # skip scripts, we only want queries
+  [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh ]] && return $skip
+  [[ "$f" == *.template || "$f" == *.file ]] && return $skip
+
+  if [ "$SVC_NAME" == "wcs" ]; then
+    # Skip multipoint tests
+    [[ "$f" == *multipoint* ]] && return $skip
+    # Skip GMLJP2 tests if GDAL version is not >= 1.10 (format mime jp2 + multipart -- @see #745)
+    if grep -q "$JP2_MIME" "$f"; then
+      if grep -q "$MULTIPART_MIME" "$f"; then
+        [[ "$gmljp2_enabled" -ne 0 ]] && return $skip
+      fi
+    fi
+  fi
+
+  return $do_not_skip
+}
+
 test_single_file=
 for i in $*; do
   case $i in
@@ -218,40 +252,26 @@ curr_test_no=0
 
 for f in *; do
 
-  # uncomment for single test run
-  if [ -n "$test_single_file" ]; then
-    [[ "$f" == "$test_single_file" ]] || continue
+  if skip_test "$f"; then
+    continue
   fi
 
-  # skip non-files
-  [ -f "$f" ] || continue
-  # skip scripts, we only want queries
-  [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh ]] && continue
-  [[ "$f" == *.template || "$f" == *.file ]] && continue
-
-  curr_test_no=$(($curr_test_no + 1))
-
-  if [ "$SVC_NAME" == "wcs" ]; then
-    # Skip multipoint tests
-    [[ "$f" == *multipoint* ]] && continue
-    # Skip GMLJP2 tests if GDAL version is not >= 1.10 (format mime jp2 + multipart -- @see #745)
-    if grep -q "$JP2_MIME" "$f"; then
-      if grep -q "$MULTIPART_MIME" "$f"; then
-        [[ "$gmljp2_enabled" -ne 0 ]] && continue
-      fi
-    fi
+  if [ "$(jobs | wc -l)" -ge "$RASSERVER_COUNT" ]; then
+    wait -n
   fi
 
-  start_timer
+  curr_test_no=$((curr_test_no + 1))
 
-  run_test "$f"
-
-  stop_timer
-
-  # print result of this test case
-  print_testcase_result "$f" "$status" "$total_test_no" "$curr_test_no"
+  {
+    start_timer
+    run_test "$f"
+    stop_timer
+    print_testcase_result "$f" "$status" "$total_test_no" "$curr_test_no"
+  } &
 
 done
+
+wait
 
 popd > /dev/null
 

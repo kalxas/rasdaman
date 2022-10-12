@@ -1,1 +1,1 @@
-../test_wcps/test.sh
+../../util/test_oracle.sh
