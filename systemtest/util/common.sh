@@ -65,6 +65,13 @@ export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 export RASSERVER_COUNT="$(grep 'define srv ' "$RASMGR_CONF" -c)"
 export PETASCOPE_PROPERTIES_FILE="$RMANHOME/etc/petascope.properties"
 
+# Run up to 8 test queries in parallel
+PARALLEL_QUERIES=8
+if [ $PARALLEL_QUERIES -gt "$RASSERVER_COUNT" ]; then
+    PARALLEL_QUERIES=$RASSERVER_COUNT
+fi
+export PARALLEL_QUERIES
+
 
 PYTHONBIN=
 for b in python3 python python2; do

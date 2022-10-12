@@ -159,10 +159,7 @@ if [ $? -eq 0 ]; then
 fi
 [ "$SVC_NAME" != "secore" ] && check_rasdaman && check_rasdaman_available
 
-#
-# check options
-#
-
+# print usage
 usage() {
   cat <<EOF
 Usage: ./test.sh [ OPTION... ]
@@ -213,6 +210,7 @@ skip_test()
   return $do_not_skip
 }
 
+# parse arguments
 test_single_file=
 for i in $*; do
   case $i in
@@ -223,7 +221,6 @@ for i in $*; do
   esac
 done
 
-
 if [ -n "$test_single_file" ]; then
   [ -f "$QUERIES_PATH/$test_single_file" ] || error "$test_single_file not found."
 else
@@ -231,22 +228,24 @@ else
   mkdir -p "$OUTPUT_PATH"
 fi
 
-start_timer
+if [[ "$SVC_NAME" = "wms" || "$SVC_NAME" = "wmts" || "$SVC_NAME" = "rasql" ]]; then
+  # disable parallel queries for wms/wmts/rasql_servlet tests as they are order dependent,
+  # and the straightforward parallelization below cannot handle that
+  PARALLEL_QUERIES=1
+fi
 
 # run import if necessary
+start_timer
 drop_data
 ingest_data
-
 stop_timer
-
 loge
-
 log "$(printf '%4s %5ss   data preparation' '' $(get_time_s))"
 
 pushd "$QUERIES_PATH" > /dev/null
-
 loge
 
+# estimate total number of tests to be executed
 total_test_no=$(ls | grep -E -v '\.(pre|post|check)\.sh$' | grep -E -v '\.(template|file)$' | wc -l)
 curr_test_no=0
 
@@ -256,12 +255,15 @@ for f in *; do
     continue
   fi
 
-  if [ "$(jobs | wc -l)" -ge "$RASSERVER_COUNT" ]; then
+  curr_test_no=$((curr_test_no + 1))
+
+  # if tests executing in the background are >= $PARALLEL_QUERIES, then we wait
+  # for at least one to finish execution 
+  if [ "$(jobs | wc -l)" -ge "$PARALLEL_QUERIES" ]; then
     wait -n
   fi
 
-  curr_test_no=$((curr_test_no + 1))
-
+  # run the test query in background; up to $PARALLEL_QUERIES will run in parallel
   {
     start_timer
     run_test "$f"
@@ -271,6 +273,7 @@ for f in *; do
 
 done
 
+# wait for all remaining tests executing in the background to finish
 wait
 
 popd > /dev/null
