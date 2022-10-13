@@ -266,6 +266,19 @@ public class AdminCreatePyramidMemberService extends AbstractAdminService {
         this.pyramidService.initDownscaledLevelCollection(downscaledLevelCoverage, scaleFactors, username, password);
         String downscaledLevelCollectionName = downscaledLevelCoverage.getRasdamanRangeSet().getCollectionName();
 
+        boolean runUpdateQuery = false;
+        for (IndexAxis indexAxis : baseCoverage.getIndexAxes()) {
+            if (indexAxis.getLowerBound() < indexAxis.getUpperBound()) {
+                runUpdateQuery = true;
+                break;
+            }
+        }
+        
+        if (!runUpdateQuery) {
+            // In this case, the base coverage has no pixel -> no need to run an UPDATE query to pyramid member collection 
+            return;
+        }
+
         // scale factors are geo CRS order (e.g: time,lat,long) -> grid oder (time,long,lat)
         List<BigDecimal> targetScaleFactorsByGridOrder = this.pyramidService.sortScaleFactorsByGridOder(baseCoverage, scaleFactors);
         
