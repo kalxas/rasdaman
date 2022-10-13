@@ -205,6 +205,7 @@ class Session:
         ConfigManager.description_max_no_slices = self.description_max_no_slices
         ConfigManager.track_files = self.track_files
         ConfigManager.ingredient_file_name = self.ingredient_file_name
+        ConfigManager.log_file = ConfigManager.resumer_dir_path + "/" + ConfigManager.ingredient_file_name + ".log"
 
         self.validate()
 

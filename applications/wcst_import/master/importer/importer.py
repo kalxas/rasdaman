@@ -242,7 +242,7 @@ class Importer:
         log_file = None
 
         try:
-            log_file = open(ConfigManager.resumer_dir_path + "/" + ConfigManager.ingredient_file_name + ".log", "a+")
+            log_file = open(ConfigManager.log_file, "a+")
             log_file.write("\n-------------------------------------------------------------------------------------")
             log_file.write(prepend_time("Ingesting coverage '{}'...".format(self.coverage.coverage_id)))
         except Exception as e:

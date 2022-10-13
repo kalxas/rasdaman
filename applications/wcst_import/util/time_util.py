@@ -36,6 +36,69 @@ from master.error.runtime_exception import RuntimeException
 from util.string_util import stringify
 
 
+import signal
+from functools import wraps
+
+
+# Decorator to be used for functions which need timeout after some seconds
+def timeout(timeout_secs: int):
+    def wrapper(func):
+        @wraps(func)
+        def time_limited(*args, **kwargs):
+            # Register an handler for the timeout
+            def handler(signum, frame):
+                raise Exception(f"Timeout for function '{func.__name__}'")
+
+            # Register the signal function handler
+            signal.signal(signal.SIGALRM, handler)
+
+            # Define a timeout for your function
+            signal.alarm(timeout_secs)
+
+            result = None
+            try:
+                result = func(*args, **kwargs)
+            except Exception as exc:
+                raise exc
+            finally:
+                # disable the signal alarm
+                signal.alarm(0)
+
+            return result
+
+        return time_limited
+
+    return wrapper
+
+
+def execute_with_retry_on_timeout(max_retries, fail_msg, function, *function_args):
+    """
+    Execute a function decorated with @timeout decorator and retries it with maximum = max_retries if it fails
+    :param int max_retries: number of retries before giving up
+    :param str fail_msg: error message in case of failure to execute function after max_retries
+    :param function: the function decorated with decorator: @timeout to invoke
+    :param function_args: a list or arguments for the function
+    """
+    from util.log import log
+
+    retries = 0
+    fail_msg = fail_msg.format(*function_args)
+    while retries <= max_retries:
+        if retries >= 1:
+            log.warn("{}. Retrying: {} / {} times.".format(fail_msg,
+                                                           retries, max_retries))
+        try:
+            output = function(function_args)
+            return output
+        except Exception as e:
+            if "Timeout" in str(e):
+                retries += 1
+            else:
+                raise e
+
+    if retries > max_retries:
+        raise RuntimeException(fail_msg)
+
 @functools.total_ordering
 class DateTimeUtil:
     MAX_DATE = arrow.get("9999-01-01 00:00:00")

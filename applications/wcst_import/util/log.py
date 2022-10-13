@@ -129,3 +129,16 @@ def prepend_time(input_text):
     return result
 
 
+def log_to_file(input_text):
+    """
+    Log the text to coverage_id.json.log file
+    """
+    from config_manager import ConfigManager
+    try:
+        log_file = open(ConfigManager.log_file, "a+")
+        log_file.write(prepend_time(input_text))
+    except Exception as e:
+        log.warn("\nCannot write log to log file '{}'; only log to console. Reason: {}.".format(ConfigManager.log_file, e))
+
+
+

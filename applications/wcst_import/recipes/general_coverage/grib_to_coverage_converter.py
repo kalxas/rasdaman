@@ -26,7 +26,8 @@ import copy
 from config_manager import ConfigManager
 from lib import arrow
 from master.error.validate_exception import RecipeValidationException
-from util.time_util import DateTimeUtil
+from util.gdal_util import MAX_RETRIES_TO_OPEN_FILE
+from util.time_util import DateTimeUtil, execute_with_retry_on_timeout
 from util import list_util
 from master.evaluator.evaluator_slice import GribMessageEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator
@@ -48,7 +49,7 @@ from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSAxis
 from util.file_util import File
 
-from util.import_util import import_pygrib
+from util.grib_util import grib_open
 
 
 class GRIBMessage:
@@ -186,9 +187,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         # NOTE: grib only supports 1 band
         band = self.bands[0]
 
-        pygrib = import_pygrib()
-
-        self.dataset = pygrib.open(grib_file.filepath)
+        file_path = grib_file.filepath
+        self.dataset = grib_open(file_path)
         evaluated_messages = []
         collected_evaluated_messages = []
 
