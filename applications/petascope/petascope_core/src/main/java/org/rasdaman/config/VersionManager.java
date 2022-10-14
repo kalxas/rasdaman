@@ -124,4 +124,11 @@ public class VersionManager {
     public static boolean isWMTSRequest(String[] versions) {
         return versions != null && versions[0].equals(VersionManager.WMTS_VERSION_10);
     }
+    
+    /**
+     * Check if the requesting version is WMS or not
+     */
+    public static boolean isWMSRequest(String[] versions) {
+        return versions != null && versions[0].equals(VersionManager.WMS_VERSION_13);
+    }
 }

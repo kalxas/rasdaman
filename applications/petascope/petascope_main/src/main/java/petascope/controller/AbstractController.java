@@ -351,19 +351,25 @@ public abstract class AbstractController {
             kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_PROCESS_COVERAGES});
         }
 
+        String service = getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_SERVICE);
+        String request = getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_REQUEST);
+        String versions[] = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
+        
+        if (VersionManager.isWMSRequest(versions) && service == null) {
+            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] { KVPSymbols.WMS_SERVICE });
+        }        
+
         // e.g: Rasql servlet does not contains these requirement parameters
-        if (kvpParameters.get(KVPSymbols.KEY_SERVICE) != null) {
-            String service = getValueByKey(kvpParameters, KVPSymbols.KEY_SERVICE);
-            String request = getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_REQUEST);
-            if (request == null) {
+        if (service != null) {
+            
+            if (service != null && request == null) {
                 if (service.equals(KVPSymbols.WMTS_SERVICE)) {
                     throw new WMTSException(new ExceptionCode(ExceptionCode.MissingParameterValue, KVPSymbols.KEY_REQUEST)); 
                 } else {
                     throw new PetascopeException(new ExceptionCode(ExceptionCode.MissingParameterValue, KVPSymbols.KEY_REQUEST)); 
                 }
             }
-            String versions[] = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
-
+            
             // NOTE: WMS allows version is null, so just use the latest WMS version
             if (service.equals(KVPSymbols.WMS_SERVICE) && versions == null) {
                 log.debug("WMS received request without version parameter, use the default version: " + VersionManager.getLatestVersion(WMS_SERVICE));

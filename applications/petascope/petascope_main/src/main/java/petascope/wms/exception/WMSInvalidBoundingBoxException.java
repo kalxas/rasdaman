@@ -30,15 +30,15 @@ import petascope.exceptions.ExceptionCode;
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class WMSInvalidBoundingBoxExcpetion extends WMSException {
+public class WMSInvalidBoundingBoxException extends WMSException {
     /**
      * Constructor for the class.
      */
-    public WMSInvalidBoundingBoxExcpetion(String bbox) {
+    public WMSInvalidBoundingBoxException(String bbox) {
         super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$bbox", bbox));
     }
     
-    public WMSInvalidBoundingBoxExcpetion(String bbox, String reason) {
+    public WMSInvalidBoundingBoxException(String bbox, String reason) {
         super(ExceptionCode.InvalidRequest, ERROR_MESSAGE_WITH_REASON.replace("$bbox", bbox).replace("$reason", reason));
     }
 

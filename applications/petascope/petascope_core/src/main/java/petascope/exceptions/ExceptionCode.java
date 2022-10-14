@@ -181,9 +181,11 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
             "The dimension subsetting operation specified an axis label that does not exist in the Envelope " +
             "or has been used more than once in the GetCoverage request.", SC_NOT_FOUND);
+    public static final ExceptionCode InvalidFormat = new ExceptionCode("InvalidFormat", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidMediatype = new ExceptionCode("InvalidMediatype",
             "Request contains an invalid mediatype: it must contain a MIME type identifier of fixed value multipart/related.", SC_UNSUPPORTED_MEDIA_TYPE);
     public static final ExceptionCode InvalidCoverageConfiguration = new ExceptionCode("InvalidCoverageConfiguration", SC_INTERNAL_SERVER_ERROR);
+    public static final ExceptionCode InvalidCRS = new ExceptionCode("InvalidCRS", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
             "Document received does not conform with protocol syntax", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidURL = new ExceptionCode("InvalidURL", SC_BAD_REQUEST);
@@ -215,6 +217,7 @@ public class ExceptionCode {
             "Operation request does not include a parameter value, and this server did "
             + "not declare a default value for that parameter. Locator: Name of missing parameter", SC_BAD_REQUEST);
     public static final ExceptionCode MultiBandImagesNotSupported = new ExceptionCode("MultiBandImagesNotSupported");
+    public static final ExceptionCode LayerNotDefined = new ExceptionCode("LayerNotDefined");
     public static final ExceptionCode NoApplicableCode = new ExceptionCode("NoApplicableCode",
             "No other exceptionCode specified by this service and server applies to this exception", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode NodeParsingNotImplemented = new ExceptionCode("NodeParsingNotImplemented");
@@ -247,6 +250,7 @@ public class ExceptionCode {
     public static final ExceptionCode RuntimeError = new ExceptionCode("RuntimeError", SC_INTERNAL_SERVER_ERROR);
     public static final ExceptionCode SecoreError = new ExceptionCode("SecoreError", SC_INTERNAL_SERVER_ERROR);
     public static final ExceptionCode ServletConnectionError = new ExceptionCode("ServletConnectionError", SC_SERVICE_UNAVAILABLE);
+    public static final ExceptionCode StyleNotDefined = new ExceptionCode("StyleNotDefined", SC_SERVICE_UNAVAILABLE);
     public static final ExceptionCode UnknownError = new ExceptionCode("UnknownError", SC_INTERNAL_SERVER_ERROR);
     public static final ExceptionCode UnsupportedCombination = new ExceptionCode("UnsupportedCombination", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode UnsupportedEncodingFormat = new ExceptionCode("UnsupportedEncodingFormat", SC_NOT_IMPLEMENTED);

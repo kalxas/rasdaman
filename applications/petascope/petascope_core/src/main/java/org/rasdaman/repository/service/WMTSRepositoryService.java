@@ -37,6 +37,7 @@ import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wmts.TileMatrix;
 import org.rasdaman.domain.wmts.TileMatrixSet;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.GeoTransform;
@@ -59,6 +60,8 @@ public class WMTSRepositoryService {
     private CoverageRepositoryService coverageRepositoryService;
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
+    
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(WMTSRepositoryService.class);
     
     // e.g. TileMatrixSet test_wms_4326:EPSG:4326 in local database
     private static final Map<String, TileMatrixSet> localTileMatrixSetsMapCache = new ConcurrentSkipListMap<>();
@@ -95,10 +98,6 @@ public class WMTSRepositoryService {
         for (Layer localLayer : wmsRepostioryService.readAllLocalLayers()) {
             String layerName = localLayer.getName();
             String epsgCode = CrsUtil.getAuthorityCode(localLayer.getGeoXYCRS());
-            
-            if (layerName.equals("test_wcs_utm31_3d")) {
-                System.out.println("");
-            }
             
             List<TileMatrixSet> tileMatrixSetsList = this.buildTileMatrixSetsList(layerName, epsgCode);
             for (TileMatrixSet tileMatrixSet : tileMatrixSetsList) {
@@ -208,44 +207,57 @@ public class WMTSRepositoryService {
      * -> this layer has two TileMatrixSet (one is in EPSG:4326 (default CRS)) and one is in EPSG:32632
      */
     private List<TileMatrixSet> buildTileMatrixSetsList(String baseLayerName, String inputEpgsCode) throws PetascopeException {
-        Coverage baseCoverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(baseLayerName);
-        List<CoveragePyramid> coveragePyramids = new ArrayList<>();
-
-        // base coverage
-        coveragePyramids.add(new CoveragePyramid(baseLayerName, new ArrayList<String>(), false));
-
-        // other pyramid member coverages
-        for (CoveragePyramid coveragePyramid : baseCoverage.getPyramid()) {
-            coveragePyramids.add(coveragePyramid);
-        }
-        
-        List<String> epsgCodes = new ArrayList<>();
-        epsgCodes.add(CrsUtil.EPSG_4326_AUTHORITY_CODE);
-        if (!inputEpgsCode.equalsIgnoreCase(CrsUtil.EPSG_4326_AUTHORITY_CODE)) {
-            // e.g. EPSG:32632
-            epsgCodes.add(inputEpgsCode);
+        Coverage baseCoverage = null;
+        try {
+            baseCoverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(baseLayerName);
+        } catch(PetascopeException ex) {
+            if (ex.getExceptionCode().getExceptionCodeName().equalsIgnoreCase(ExceptionCode.NoSuchCoverage.getExceptionCodeName())) {
+                log.warn("Coverage: " + baseLayerName + " does not exist.");
+            } else {
+                throw ex;
+            }
         }
         
         List<TileMatrixSet> results = new ArrayList<>();
-        for (String epgsCode : epsgCodes) {
-            Map<String, TileMatrix> tileMatrixMap = new LinkedHashMap<>();
-            for (int i = coveragePyramids.size() - 1; i >= 0; i--) {
-                // NOTE: List of TileMatrices is reversed order (lower grid domains -> higher grid domains)
-                // e.g. 60m, 20m, 10m
-                CoveragePyramid coveragePyramid = coveragePyramids.get(i);
-                String pyramidMemberCoverageId = coveragePyramid.getPyramidMemberCoverageId();
+        
+        if (baseCoverage != null) {
+            List<CoveragePyramid> coveragePyramids = new ArrayList<>();
 
-                // e.g test_wms_2 (pyramid member)
-                String tileMatrixName = coveragePyramid.getPyramidMemberCoverageId();
+            // base coverage
+            coveragePyramids.add(new CoveragePyramid(baseLayerName, new ArrayList<String>(), false));
 
-                TileMatrix tileMatrix = this.buildTileMatrix(pyramidMemberCoverageId, epgsCode);
-                tileMatrixMap.put(tileMatrixName, tileMatrix);
-
+            // other pyramid member coverages
+            for (CoveragePyramid coveragePyramid : baseCoverage.getPyramid()) {
+                coveragePyramids.add(coveragePyramid);
             }
 
-            String tileMatrixSetName = this.getTileMatrixSetName(baseLayerName, epgsCode);
-            TileMatrixSet tileMatrixSet = new TileMatrixSet(tileMatrixSetName, tileMatrixMap);
-            results.add(tileMatrixSet);
+            List<String> epsgCodes = new ArrayList<>();
+            epsgCodes.add(CrsUtil.EPSG_4326_AUTHORITY_CODE);
+            if (!inputEpgsCode.equalsIgnoreCase(CrsUtil.EPSG_4326_AUTHORITY_CODE)) {
+                // e.g. EPSG:32632
+                epsgCodes.add(inputEpgsCode);
+            }
+
+            for (String epgsCode : epsgCodes) {
+                Map<String, TileMatrix> tileMatrixMap = new LinkedHashMap<>();
+                for (int i = coveragePyramids.size() - 1; i >= 0; i--) {
+                    // NOTE: List of TileMatrices is reversed order (lower grid domains -> higher grid domains)
+                    // e.g. 60m, 20m, 10m
+                    CoveragePyramid coveragePyramid = coveragePyramids.get(i);
+                    String pyramidMemberCoverageId = coveragePyramid.getPyramidMemberCoverageId();
+
+                    // e.g test_wms_2 (pyramid member)
+                    String tileMatrixName = coveragePyramid.getPyramidMemberCoverageId();
+
+                    TileMatrix tileMatrix = this.buildTileMatrix(pyramidMemberCoverageId, epgsCode);
+                    tileMatrixMap.put(tileMatrixName, tileMatrix);
+
+                }
+
+                String tileMatrixSetName = this.getTileMatrixSetName(baseLayerName, epgsCode);
+                TileMatrixSet tileMatrixSet = new TileMatrixSet(tileMatrixSetName, tileMatrixMap);
+                results.add(tileMatrixSet);
+            }
         }
        
         return results;

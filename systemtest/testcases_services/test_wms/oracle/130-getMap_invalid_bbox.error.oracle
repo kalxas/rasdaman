@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<ServiceException code="InvalidCRS">
+The supplied crs uri 'EPSG%3A4326' is invalid, current only supports EPSG code.
+</ServiceException>
+</ServiceExceptionReport>

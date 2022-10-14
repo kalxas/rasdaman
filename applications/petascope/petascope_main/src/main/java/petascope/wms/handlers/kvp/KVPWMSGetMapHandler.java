@@ -50,7 +50,7 @@ import petascope.util.MIMEUtil;
 import petascope.util.StringUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
-import petascope.wms.exception.WMSInvalidBoundingBoxExcpetion;
+import petascope.wms.exception.WMSInvalidBoundingBoxException;
 import petascope.wms.exception.WMSInvalidCrsUriException;
 import petascope.wms.exception.WMSInvalidHeight;
 import petascope.wms.exception.WMSInvalidInterpolation;
@@ -130,9 +130,14 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         if (crsParam == null) {
             throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_CRS);
         } else {
+            String crs = crsParam[0];
             // Check if crs is supported for projection
-            if (!CrsProjectionUtil.isValidTransform(crsParam[0])) {
-                throw new WMSInvalidCrsUriException(crsParam[0]);
+            try {
+                if (!CrsProjectionUtil.isValidTransform(crs)) {
+                    throw new WMSInvalidCrsUriException(crs);
+                }
+            } catch (Exception ex) {
+                throw new WMSInvalidCrsUriException(crs);
             }
         }
 
@@ -150,7 +155,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             }    
             
             if (countCommas != 3) {
-                throw new WMSInvalidBoundingBoxExcpetion(bboxParam[0]);
+                throw new WMSInvalidBoundingBoxException(bboxParam[0]);
             }
         }
 
@@ -188,157 +193,137 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
     @Override
     public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
         Response response = null;
-        // NOTE: WMS supports multiple types of exception report (XML and also image)
-        String exceptionsFormat = kvpParameters.get(KVPSymbols.KEY_WMS_EXCEPTIONS) == null
-                ? KVPWMSGetCapabilitiesHandler.EXCEPTION_XML
-                : kvpParameters.get(KVPSymbols.KEY_WMS_EXCEPTIONS)[0];
-        // If request with exceptions parameter in image, then use these default values if the kvp map cannot provide.
-        String format = MIMEUtil.MIME_PNG;
         int width = 256;
         int height = 256;
+        // if the request contains a random=random_number then just ignore it as it is used to bypass Web Browser's cache only
+        kvpParameters.remove(KVPSymbols.KEY_WMS_RASDAMAN_RANDOM);
+
+        // NOTE: If first query returns success, then just fetch it from cache
+        String queryString = StringUtil.buildQueryString(kvpParameters);
+        if (ConfigManager.MAX_WMS_CACHE_SIZE > 0 && WMSGetMapCachingService.responseCachingMap.containsKey(queryString)) {
+            return wmsGetMapCachingService.getResponseFromCache(queryString);
+        }
+        // Validate before handling the request
+        this.validate(kvpParameters);
+
+        // Collect all the parameters (mandatory)
+        List<String> layerNames = ListUtil.valuesToList(AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_LAYERS).split(","));
+
+        List<String> styleNames = new ArrayList<>();
+        String styleValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_STYLES);
+        if (!styleValue.isEmpty()) {
+            styleNames = ListUtil.valuesToList(styleValue.split(","));
+        }
+
+        // All layers can use one default style (styles=) or each layer will need its own style (layers=L1,L2,L3&styles=s1,s2,s3)
+        if (!styleNames.isEmpty() && (layerNames.size() != styleNames.size())) {
+            throw new WMSStyleNotMatchLayerNumbersException(layerNames.size(), styleNames.size());
+        }
+
+        String outputCRS = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_CRS);
+        String bboxParam = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_BBOX);
+        BoundingBox bbox = this.createBoundingBox(bboxParam);
+
+        String widthValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_WIDTH);
         try {
-            // if the request contains a random=random_number then just ignore it as it is used to bypass Web Browser's cache only
-            kvpParameters.remove(KVPSymbols.KEY_WMS_RASDAMAN_RANDOM);
-            
-            // NOTE: If first query returns success, then just fetch it from cache
-            String queryString = StringUtil.buildQueryString(kvpParameters);
-            if (ConfigManager.MAX_WMS_CACHE_SIZE > 0 && WMSGetMapCachingService.responseCachingMap.containsKey(queryString)) {
-                return wmsGetMapCachingService.getResponseFromCache(queryString);
-            }
-            // Validate before handling the request
-            this.validate(kvpParameters);
-            
-            // Collect all the parameters (mandatory)
-            List<String> layerNames = ListUtil.valuesToList(AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_LAYERS).split(","));
-            
-            List<String> styleNames = new ArrayList<>();
-            String styleValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_STYLES);
-            if (!styleValue.isEmpty()) {
-                styleNames = ListUtil.valuesToList(styleValue.split(","));
-            }
-            
-            // All layers can use one default style (styles=) or each layer will need its own style (layers=L1,L2,L3&styles=s1,s2,s3)
-            if (!styleNames.isEmpty() && (layerNames.size() != styleNames.size())) {
-                throw new WMSStyleNotMatchLayerNumbersException(layerNames.size(), styleNames.size());
-            }
+            width = Integer.parseInt(widthValue);
+        } catch (NumberFormatException ex) {
+            throw new WMSInvalidWidth(widthValue);
+        }
 
-            String outputCRS = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_CRS);
-            String bboxParam = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_BBOX);
-            BoundingBox bbox = this.createBoundingBox(bboxParam);
-            
-            String widthValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_WIDTH);
-            try {
-                width = Integer.parseInt(widthValue);
-            } catch (NumberFormatException ex) {
-                throw new WMSInvalidWidth(widthValue);
-            }
-            
-            if (width <= 0) {
-                throw new WMSInvalidWidth(widthValue);
-            }
-            
-            String heightValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_HEIGHT);
-            try {
-                height = Integer.parseInt(heightValue);
-            } catch (NumberFormatException ex) {
-                throw new WMSInvalidHeight(heightValue);
-            }
-            
-            if (height <= 0) {
-                throw new WMSInvalidHeight(heightValue);
-            }
-            
-            format = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_FORMAT);
+        if (width <= 0) {
+            throw new WMSInvalidWidth(widthValue);
+        }
 
-            // Optional values
-            boolean transparent = false;
-            if (kvpParameters.get(KVPSymbols.KEY_WMS_TRANSPARENT) != null) {
-                transparent = Boolean.parseBoolean(AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_TRANSPARENT));
-            }
-            
-            // Optional non XY axes subsets (e.g: time=...,dim_pressure=...)
-            Map<String, String> dimSubsetsMap = new HashMap<>();
-            if (kvpParameters.get(KVPSymbols.KEY_WMS_TIME) != null) {
-                String timeSubset = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_TIME);
-                dimSubsetsMap.put(KVPSymbols.KEY_WMS_TIME, timeSubset);
-            } 
-            
-            if (kvpParameters.get(KVPSymbols.KEY_WMS_ELEVATION) != null) {
-                String elevationSubset = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_ELEVATION);
-                dimSubsetsMap.put(KVPSymbols.KEY_WMS_ELEVATION, elevationSubset);
-            } 
-            
-            // Check if request contains other dimensions (e.g: dim_pressure)
-            for (Map.Entry<String, String[]> entry : kvpParameters.entrySet()) {
-                if (entry.getKey().contains(KVPSymbols.KEY_WMS_DIM_PREFIX)) {
-                    String axisName = entry.getKey().split("_")[1];
-                    String dimSubset = entry.getValue()[0];
-                    dimSubsetsMap.put(axisName, dimSubset.trim());
-                }
-            }
-            
-            // Support for non-standard dim_ prefix for non-XY axes
-            WcpsCoverageMetadata wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.translate(layerNames.get(0));
-            for (Axis axis : wcpsCoverageMetadataTmp.getNonXYAxes()) {
-                String axisName = axis.getLabel();
-                String[] valueTmps = kvpParameters.get(axisName);
-                if (valueTmps != null) {
-                    dimSubsetsMap.put(axisName, valueTmps[0]);
-                }
-            }
-            
-            String interpolation = "";
-            
-            // Optional value (used only when requesting different CRS from layer's native CRS)
-            if (kvpParameters.get(KVPSymbols.KEY_WMS_INTERPOLATION) != null) {
-                interpolation = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_INTERPOLATION);
-                if (!WMSGetMapService.validInterpolations.contains(interpolation)) {
-                    throw new WMSInvalidInterpolation(interpolation);
-                }
-            } else {
-                interpolation = WMSGetMapService.DEFAULT_INTERPOLATION;
-            }
-            
-            wmsGetMapService.setLayerNames(layerNames);
-            wmsGetMapService.setStyleNames(styleNames);
-            wmsGetMapService.setOutputCRS(outputCRS);
-            wmsGetMapService.setWidth(width);
-            wmsGetMapService.setHeight(height);
-            wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
-            wmsGetMapService.setBBoxes(bbox, layerNames);
-            wmsGetMapService.setFormat(format);
-            wmsGetMapService.setTransparent(transparent);            
-            wmsGetMapService.setInterpolation(interpolation);
-            
-            // In case, GetMap request is generated from a WMTS GetTile service
-            String tileMatrixName = AbstractController.getValueByKeyAllowNull(kvpParameters, 
-                                                                KVPSymbols.KEY_WMTS_RASDAMAN_INTERNAL_FOR_GETMAP_REQUEST_PYRAMID_COVERAGE_ID);
-            if (tileMatrixName != null) {
-                wmsGetMapService.setWMTSTileMatrixName(tileMatrixName);
-            }
-            
-            wmsGetMapService.setBBoxes(bbox, layerNames);
-            
-            response = wmsGetMapService.createGetMapResponse();
-            
-            // Store the request's bbox in EPSG:4326 in cache
-            Wgs84BoundingBox wgs84BBox = wmsGetMapService.getWgs84BBox();
-            
-            // Add the successful result to the cache
-            wmsGetMapCachingService.addResponseToCache(queryString, wgs84BBox, response);
-        } catch (Exception ex) {
-            if (exceptionsFormat.equalsIgnoreCase(KVPWMSGetCapabilitiesHandler.EXCEPTION_XML)) {
-                throw ex;
-            } else {
-                log.error("Catched an exeception: ", ex);
-                wmsGetMapExceptionService.setErrorMessage(ex.getMessage());
-                wmsGetMapExceptionService.setExceptionFormat(exceptionsFormat);
-                wmsGetMapExceptionService.setWidth(width);
-                wmsGetMapExceptionService.setHeight(height);
-                wmsGetMapExceptionService.setFormat(format);
-                response = wmsGetMapExceptionService.createImageExceptionResponse();
+        String heightValue = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_HEIGHT);
+        try {
+            height = Integer.parseInt(heightValue);
+        } catch (NumberFormatException ex) {
+            throw new WMSInvalidHeight(heightValue);
+        }
+
+        if (height <= 0) {
+            throw new WMSInvalidHeight(heightValue);
+        }
+
+        String format = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_FORMAT);
+
+        // Optional values
+        boolean transparent = false;
+        if (kvpParameters.get(KVPSymbols.KEY_WMS_TRANSPARENT) != null) {
+            transparent = Boolean.parseBoolean(AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_TRANSPARENT));
+        }
+
+        // Optional non XY axes subsets (e.g: time=...,dim_pressure=...)
+        Map<String, String> dimSubsetsMap = new HashMap<>();
+        if (kvpParameters.get(KVPSymbols.KEY_WMS_TIME) != null) {
+            String timeSubset = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_TIME);
+            dimSubsetsMap.put(KVPSymbols.KEY_WMS_TIME, timeSubset);
+        } 
+
+        if (kvpParameters.get(KVPSymbols.KEY_WMS_ELEVATION) != null) {
+            String elevationSubset = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_ELEVATION);
+            dimSubsetsMap.put(KVPSymbols.KEY_WMS_ELEVATION, elevationSubset);
+        } 
+
+        // Check if request contains other dimensions (e.g: dim_pressure)
+        for (Map.Entry<String, String[]> entry : kvpParameters.entrySet()) {
+            if (entry.getKey().contains(KVPSymbols.KEY_WMS_DIM_PREFIX)) {
+                String axisName = entry.getKey().split("_")[1];
+                String dimSubset = entry.getValue()[0];
+                dimSubsetsMap.put(axisName, dimSubset.trim());
             }
         }
+
+        // Support for non-standard dim_ prefix for non-XY axes
+        WcpsCoverageMetadata wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.translate(layerNames.get(0));
+        for (Axis axis : wcpsCoverageMetadataTmp.getNonXYAxes()) {
+            String axisName = axis.getLabel();
+            String[] valueTmps = kvpParameters.get(axisName);
+            if (valueTmps != null) {
+                dimSubsetsMap.put(axisName, valueTmps[0]);
+            }
+        }
+
+        String interpolation = "";
+
+        // Optional value (used only when requesting different CRS from layer's native CRS)
+        if (kvpParameters.get(KVPSymbols.KEY_WMS_INTERPOLATION) != null) {
+            interpolation = AbstractController.getValueByKey(kvpParameters, KVPSymbols.KEY_WMS_INTERPOLATION);
+            if (!WMSGetMapService.validInterpolations.contains(interpolation)) {
+                throw new WMSInvalidInterpolation(interpolation);
+            }
+        } else {
+            interpolation = WMSGetMapService.DEFAULT_INTERPOLATION;
+        }
+
+        wmsGetMapService.setLayerNames(layerNames);
+        wmsGetMapService.setStyleNames(styleNames);
+        wmsGetMapService.setOutputCRS(outputCRS);
+        wmsGetMapService.setWidth(width);
+        wmsGetMapService.setHeight(height);
+        wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
+        wmsGetMapService.setBBoxes(bbox, layerNames);
+        wmsGetMapService.setFormat(format);
+        wmsGetMapService.setTransparent(transparent);            
+        wmsGetMapService.setInterpolation(interpolation);
+
+        // In case, GetMap request is generated from a WMTS GetTile service
+        String tileMatrixName = AbstractController.getValueByKeyAllowNull(kvpParameters, 
+                                                            KVPSymbols.KEY_WMTS_RASDAMAN_INTERNAL_FOR_GETMAP_REQUEST_PYRAMID_COVERAGE_ID);
+        if (tileMatrixName != null) {
+            wmsGetMapService.setWMTSTileMatrixName(tileMatrixName);
+        }
+
+        wmsGetMapService.setBBoxes(bbox, layerNames);
+
+        response = wmsGetMapService.createGetMapResponse();
+
+        // Store the request's bbox in EPSG:4326 in cache
+        Wgs84BoundingBox wgs84BBox = wmsGetMapService.getWgs84BBox();
+
+        // Add the successful result to the cache
+        wmsGetMapCachingService.addResponseToCache(queryString, wgs84BBox, response);
 
         return response;
     }
@@ -350,37 +335,52 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
      * @param input
      * @return
      */
-    private BoundingBox createBoundingBox(String input) throws WMSInvalidBoundingBoxExcpetion {
+    private BoundingBox createBoundingBox(String input) throws WMSInvalidBoundingBoxException {
 
         BoundingBox bbox = new BoundingBox();
         String[] values = input.split(",");
-        String xMin = values[0].trim();
-        String yMin = values[1].trim();
-        String xMax = values[2].trim();
-        String yMax = values[3].trim();
+        BigDecimal xMin = null;
+        BigDecimal yMin = null;
+        BigDecimal xMax = null;
+        BigDecimal yMax = null;
         
-        try {
-            bbox.setXMin(new BigDecimal(xMin));
-        } catch (NumberFormatException ex) {
-            throw new WMSInvalidBoundingBoxExcpetion(input, "xMin is not a number. Given: '" + xMin + "'");
+        if (values.length != 4) {
+            throw new WMSInvalidBoundingBoxException(input, "bbox paramter value must be this pattern: xmin,ymin,xmax,ymax.");
         }
         
         try {
-            bbox.setYMin(new BigDecimal(yMin));
+            xMin = new BigDecimal(values[0].trim());
+            bbox.setXMin(xMin);
         } catch (NumberFormatException ex) {
-            throw new WMSInvalidBoundingBoxExcpetion(input, "yMin is not a number. Given: '" + yMin + "'");
+            throw new WMSInvalidBoundingBoxException(input, "xMin is not a number. Given: '" + values[0].trim() + "'");
         }
         
         try {
-            bbox.setXMax(new BigDecimal(xMax));
+            yMin = new BigDecimal(values[1].trim());
+            bbox.setYMin(yMin);
         } catch (NumberFormatException ex) {
-            throw new WMSInvalidBoundingBoxExcpetion(input, "xMax is not a number. Given: '" + xMax + "'");
+            throw new WMSInvalidBoundingBoxException(input, "yMin is not a number. Given: '" + values[1].trim() + "'");
         }
         
         try {
-            bbox.setYMax(new BigDecimal(yMax));
+            xMax = new BigDecimal(values[2].trim());
+            bbox.setXMax(xMax);
         } catch (NumberFormatException ex) {
-            throw new WMSInvalidBoundingBoxExcpetion(input, "yMax is not a number. Given: '" + yMax + "'");
+            throw new WMSInvalidBoundingBoxException(input, "xMax is not a number. Given: '" + values[2].trim() + "'");
+        }
+        
+        try {
+            yMax = new BigDecimal(values[3].trim());
+            bbox.setYMax(yMax);
+        } catch (NumberFormatException ex) {
+            throw new WMSInvalidBoundingBoxException(input, "yMax is not a number. Given: '" + values[3].trim() + "'");
+        }
+        
+        if (xMin.compareTo(xMax) >= 0) {
+            throw new WMSInvalidBoundingBoxException(input, "xMin must be smaller than xMax. Given: xMin=" + xMin.toPlainString() + " and xMax=" + xMax.toPlainString());
+        }
+        if (yMin.compareTo(yMax) >= 0) {
+            throw new WMSInvalidBoundingBoxException(input, "yMin must be smaller than yMax. Given: yMin=" + xMin.toPlainString() + " and yMax=" + xMax.toPlainString());
         }
 
         return bbox;

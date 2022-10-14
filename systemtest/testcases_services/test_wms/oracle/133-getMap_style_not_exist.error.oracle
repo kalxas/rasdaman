@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<ServiceException code="StyleNotDefined">
+Failed when processing WMS request: The given style name 'UndefinedStyle' of layer 'test_wms_4326' does not exist.
+</ServiceException>
+</ServiceExceptionReport>

@@ -536,6 +536,7 @@ public interface XMLSymbols {
     String ATT_CODESPACE = "codeSpace";
     String ATT_LANG = "lang";
     String ATT_HREF = "href";
+    String ATT_WMS_TYPE_VALUE = "simple";
     
     String ATT_LOWER_BOUND = "lowerBound";
     String ATT_UPPER_BOUND = "upperBound";
