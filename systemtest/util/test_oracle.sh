@@ -259,17 +259,17 @@ for f in *; do
 
   # if tests executing in the background are >= $PARALLEL_QUERIES, then we wait
   # for at least one to finish execution 
-  if [ "$(jobs | wc -l)" -ge "$PARALLEL_QUERIES" ]; then
-    wait -n
-  fi
+  # if [ "$(jobs | wc -l)" -ge "$PARALLEL_QUERIES" ]; then
+  #   wait -n
+  # fi
 
   # run the test query in background; up to $PARALLEL_QUERIES will run in parallel
-  {
+  # {
     start_timer
     run_test "$f"
     stop_timer
     print_testcase_result "$f" "$status" "$total_test_no" "$curr_test_no"
-  } &
+  # } &
 
 done
 
