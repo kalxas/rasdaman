@@ -54,6 +54,16 @@ def numpy_array_to_string(numpy_array):
     return str(list(numpy_array))
 
 
+def join_list(values, separator=","):
+    """
+    Joint elements in the list with comma separated
+    :param values: list of string values
+    :return: str
+    """
+    result = separator.join(f'"{w}"' for w in values)
+    return result
+
+
 def to_list_string(input_list):
     """
     This is used to translate a list of decimal values to list string values as eval() cannot evaluate

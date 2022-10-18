@@ -2667,11 +2667,14 @@ input section
 * ``coverage_id`` - The name of the coverage to be created; if the coverage 
   already exists, it will be updated with the new files collected by ``paths``.
 
-* ``paths`` - List of absolute or relative (to the ingredients file) paths or regex patterns that
-  would work with the ls command. Multiple paths separated by commas
-  can be specified. The collected paths are sorted by file name by default,
-  unless specified otherwise in the recipe section (e.g. by date/time for 
-  time-series recipes).
+* ``paths`` - List of absolute or relative (to the ingredients file) paths or
+  regex patterns in format acceptable by the Python `glob
+  <https://docs.python.org/3/library/glob.html#glob.glob>`__ function. Multiple
+  paths separated by commas can be specified. The collected file paths are by
+  default sorted in ascending order before import, either by calculated
+  datetime in time-series recipes, or by lexicographic comparison of the file
+  path strings otherwise. The ordering can be changed to descending or disabled
+  completely with the :ref:`import_order <import-order>` option.
 
 * ``inspire`` section contains the settings for importing INSPIRE coverage:
 
@@ -2685,9 +2688,21 @@ input section
 recipe section
 ^^^^^^^^^^^^^^
 
-* ``import_order`` - Allow to sort the input files (``ascending`` (default)
-  or ``descending``).Currently, it sorts by *datetime* which allows
-  to import coverage from the first date or the recent date. Example:
+.. _import-order:
+
+* ``import_order`` - Indicate in which order the input files collected with the
+  ``paths`` setting should be imported. In time-series recipes, the ordering is
+  based on the datetime calculated for each file. In other recipes, e.g.
+  ``map_mosaic``, the ordering is based on lexicographic comparison of the file
+  paths. Possible values are:
+
+  - ``ascending`` (default) - import files in ascending order;
+
+  - ``descending`` - import files in descending order;
+
+  - ``none`` - do not order files in any particular way before import.
+
+  Example:
 
   .. hidden-code-block:: json
 

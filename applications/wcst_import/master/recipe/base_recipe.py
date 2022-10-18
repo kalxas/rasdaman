@@ -33,6 +33,7 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 
 from session import Session
 from util.coverage_util import CoverageUtil, CoverageUtilCache
+from util.list_util import join_list
 from util.log import log, make_bold
 from util.file_util import FileUtil
 import copy
@@ -189,15 +190,18 @@ class BaseRecipe:
         self.validate_pyramid_bases()
 
         if "import_order" in self.options:
-            if self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING \
-                    and self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
-                error_message = "'import_order' option must be '{}' or '{}', given '{}'.".\
-                                  format(AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING,
-                                         AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING,
-                                         self.options['import_order'])
+            value = self.options['import_order']
+            supported_list = [AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING,
+                              AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING,
+                              AbstractToCoverageConverter.IMPORT_ORDER_NONE]
+            if value not in supported_list:
+                error_message = "'import_order' option must be one of: {}. Given '{}'.".\
+                                  format(join_list(supported_list),
+                                         value)
                 raise RecipeValidationException(error_message)
         else:
-            self.options['import_order'] = None
+            # if not defined, then it is sorted by ascending
+            self.options['import_order'] = AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING
 
     def validate_pyramid_members(self):
         """

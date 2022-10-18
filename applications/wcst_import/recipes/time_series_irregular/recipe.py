@@ -173,10 +173,13 @@ class Recipe(BaseRecipe):
                                             "metadata_tag or filename.")
 
         # Currently, only sort by datetime to import coverage slices (default is ascending), option: to sort descending
-        if self.options["import_order"] == AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
-            return sorted(ret, reverse=True)
+        if self.options["import_order"] != AbstractToCoverageConverter.IMPORT_ORDER_NONE:
+            if self.options["import_order"] == AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
+                return sorted(ret, reverse=True)
 
-        return sorted(ret)
+            return sorted(ret)
+
+        return ret
 
     def _get_coverage_slices(self, crs, gdal_coverage_converter):
         """
