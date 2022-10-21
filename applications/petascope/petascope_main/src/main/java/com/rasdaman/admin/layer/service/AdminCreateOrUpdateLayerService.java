@@ -77,8 +77,6 @@ public class AdminCreateOrUpdateLayerService {
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
-    @Autowired
-    private WMSGetMapCachingService wmsGetMapCachingService;
 
     /**
      * If a layer name associated with a coverageID doesn't exist, then create a
@@ -93,7 +91,7 @@ public class AdminCreateOrUpdateLayerService {
 
         boolean layerExist = this.wmsRepostioryService.isInLocalCache(layerName);
         Layer layer = null;
-        
+
         if (!layerExist) {
             layer = new Layer();
         } else {

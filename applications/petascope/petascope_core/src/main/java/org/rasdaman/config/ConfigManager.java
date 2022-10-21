@@ -177,6 +177,7 @@ public class ConfigManager {
     public static final String SECORE_INTERNAL = "internal";
     // this is used internally inside petascope as a valid URI, loaded from secore.properties, default it is "http://localhost:8080/rasdaman/def"
     public static final String DEFAULT_SECORE_INTERNAL_URL = "http://localhost:8080/rasdaman/def";
+    public static final String SECORE_INTERNAL_CONTEXT_PATH = "/rasdaman/def";
     
     /* ***** AJP connector configuration for embedded tomcat ***** */
     public static int EMBEDDED_AJP_PORT = 0;
