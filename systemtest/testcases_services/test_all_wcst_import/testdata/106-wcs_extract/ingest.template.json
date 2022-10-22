@@ -16,7 +16,7 @@
       "coverage_id": "test_time3d",
       "wcs_endpoint" : "PETASCOPE_URL",
       "partitioning_scheme" : [0, 2720, 2361],
-      "tiling": "ALIGNED [0:2000, 0:2000]"
+      "tiling": "ALIGNED [0:0, 0:2000, 0:2000]"
     }
   }
 }

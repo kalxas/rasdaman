@@ -463,7 +463,7 @@ module rasdaman {
 
         private oldLayerName : string = '';
 
-        public loadGetMapResultOnGlobe(canvasId: string, layerName: string, styleName: string, bbox: any, displayLayer: boolean, timeMoment: any) {
+        public loadGetMapResultOnGlobe(canvasId: string, layerName: string, styleName: string, bbox: any, displayLayer: boolean, timeMoment: any, nonXYAxes: any) {
 
             // It uses the same canvasId for DescribeLayer
             var webWorldWindModel = null;            
@@ -519,12 +519,17 @@ module rasdaman {
 
             // Remove the rendered surface image layer and replace it with new layer
             wwd.removeLayer(webWorldWindModel.wmsLayer);
-            var wmsLayer = new BAWmsLayer(config, timeString, this.authorizationToken);                        
+            var wmsLayer = new BAWmsLayer(config, timeString, this.authorizationToken, nonXYAxes);                        
             webWorldWindModel.wmsLayer = wmsLayer;     
             if (displayLayer) {
                 // Should this Layer be displayed
                 wwd.addLayer(wmsLayer);
-            }           
+            }
+
+            // Reloads the WMS layer
+            // https://forum.worldwindcentral.com/forum/web-world-wind/web-world-wind-help/17505-how-to-refresh-an-individual-wms-layer
+            wmsLayer.refresh();
+            wwd.redraw();
         }
     }  
 
@@ -540,10 +545,13 @@ module rasdaman {
     export class BAWmsLayer extends WorldWind.WmsLayer {
 
         private authorizationHeader:string = "";
+        // e.g. ["isobaric=25000", "height=3500"]
+        private nonXYAxes: any;
 
-        public constructor(config:{}, timeString:string, authorizationHeader:string) {
+        public constructor(config:{}, timeString:string, authorizationHeader:string, nonXYAxes: any) {
             super(config, timeString);
-            this.authorizationHeader = authorizationHeader;            
+            this.authorizationHeader = authorizationHeader;
+            this.nonXYAxes = nonXYAxes;  
         }
 
         // Inspire from https://github.com/NASAWorldWind/WebWorldWind/blob/5f1afa8a30c11a5de7d86cb246c93da72e9c125e/src/layer/TiledImageLayer.js#L471
@@ -562,7 +570,12 @@ module rasdaman {
                    cache = dc.gpuResourceCache,
                    canvas = dc.currentGlContext.canvas,
                    layer = this;
-               if (!url) {
+
+                for (let key in this.nonXYAxes) {
+                    url += "&" + this.nonXYAxes[key];
+                }
+
+                if (!url) {
                    this.currentTilesInvalid = true;
                    return;
                }

@@ -2981,7 +2981,7 @@ var rasdaman;
             var userProperties = coverageIdsStr + "\n" + coverageExtentStr + "\n";
             return userProperties;
         };
-        WebWorldWindService.prototype.loadGetMapResultOnGlobe = function (canvasId, layerName, styleName, bbox, displayLayer, timeMoment) {
+        WebWorldWindService.prototype.loadGetMapResultOnGlobe = function (canvasId, layerName, styleName, bbox, displayLayer, timeMoment, nonXYAxes) {
             var webWorldWindModel = null;
             var exist = false;
             for (var i = 0; i < this.webWorldWindModels.length; i++) {
@@ -3023,11 +3023,13 @@ var rasdaman;
                 this.oldLayerName = layerName;
             }
             wwd.removeLayer(webWorldWindModel.wmsLayer);
-            var wmsLayer = new BAWmsLayer(config, timeString, this.authorizationToken);
+            var wmsLayer = new BAWmsLayer(config, timeString, this.authorizationToken, nonXYAxes);
             webWorldWindModel.wmsLayer = wmsLayer;
             if (displayLayer) {
                 wwd.addLayer(wmsLayer);
             }
+            wmsLayer.refresh();
+            wwd.redraw();
         };
         WebWorldWindService.$inject = [
             "$rootScope",
@@ -3039,10 +3041,11 @@ var rasdaman;
     rasdaman.WebWorldWindService = WebWorldWindService;
     var BAWmsLayer = (function (_super) {
         __extends(BAWmsLayer, _super);
-        function BAWmsLayer(config, timeString, authorizationHeader) {
+        function BAWmsLayer(config, timeString, authorizationHeader, nonXYAxes) {
             var _this = _super.call(this, config, timeString) || this;
             _this.authorizationHeader = "";
             _this.authorizationHeader = authorizationHeader;
+            _this.nonXYAxes = nonXYAxes;
             return _this;
         }
         BAWmsLayer.prototype.retrieveTileImage = function (dc, tile, suppressRedraw) {
@@ -3054,6 +3057,9 @@ var rasdaman;
                     return;
                 }
                 var url = this.resourceUrlForTile(tile, this.retrievalImageFormat), image = new Image(), imagePath = tile.imagePath, cache = dc.gpuResourceCache, canvas = dc.currentGlContext.canvas, layer = this;
+                for (var key in this.nonXYAxes) {
+                    url += "&" + this.nonXYAxes[key];
+                }
                 if (!url) {
                     this.currentTilesInvalid = true;
                     return;
@@ -5471,10 +5477,10 @@ var wms;
             this.maxy = maxy;
             this.displayFootprint = true;
             this.layerDimensions = [];
-            for (var j = 0; j < 3; ++j) {
+            for (var j = 0; j < 2; ++j) {
                 this.layerDimensions.push(dimen);
             }
-            j = 3;
+            j = 2;
             var dimen = this.initialiseDimenison();
             while (this.buildDimensionAxisFromGMLDocumet(dimen) != false) {
                 this.layerDimensions.push(null);
@@ -6256,7 +6262,7 @@ var rasdaman;
                 $('#secGetMap').attr('href', tmpURL);
             }
             function addSliders(dimensions, coveragesExtents) {
-                for (var j = 0; j <= dimensions; ++j) {
+                for (var j = 0; j < dimensions; ++j) {
                     $scope.firstChangedSlider.push(false);
                 }
                 $("#sliders").empty();
@@ -6277,27 +6283,27 @@ var rasdaman;
                 $scope.timeString = null;
                 var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;
                 var urlDimensions = bboxStr;
-                var dimStr = [];
-                for (var j = 0; j < 3; ++j) {
-                    dimStr.push('');
+                $scope.dimStr = [];
+                for (var j = 0; j < 2; ++j) {
+                    $scope.dimStr.push('');
                 }
-                for (var j = 3; j <= dimensions; j++) {
+                for (var j = 2; j < dimensions; j++) {
                     if ($scope.layer.layerDimensions[j].isTemporal == true) {
-                        dimStr.push('&' + $scope.layer.layerDimensions[j].name + '="' + $scope.layer.layerDimensions[j].array[0] + '"');
+                        $scope.dimStr.push('&' + $scope.layer.layerDimensions[j].name + '="' + $scope.layer.layerDimensions[j].array[0] + '"');
                         $scope.timeString = $scope.layer.layerDimensions[j].array[0];
                     }
                     else {
-                        dimStr.push('&' + $scope.layer.layerDimensions[j].name + '=' + $scope.layer.layerDimensions[j].array[0]);
+                        $scope.dimStr.push('&' + $scope.layer.layerDimensions[j].name + '=' + $scope.layer.layerDimensions[j].array[0]);
                     }
                 }
-                for (var j = 3; j <= dimensions; j++) {
-                    urlDimensions += dimStr[j];
+                for (var j = 2; j < dimensions; j++) {
+                    urlDimensions += $scope.dimStr[j];
                 }
                 var getMapRequest = new wms.GetMap($scope.layer.name, urlDimensions, 800, 600, $scope.selectedStyleName);
                 var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
                 $scope.getMapRequestURL = url;
                 $('#getMapRequestURL').text($scope.getMapRequestURL);
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, $scope.displayWMSLayer, $scope.timeString);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, $scope.displayWMSLayer, $scope.timeString, $scope.dimStr);
                 if (!showGetMapURL) {
                     $scope.getMapRequestURL = null;
                 }
@@ -6340,7 +6346,7 @@ var rasdaman;
                         url = url.substr(0, pos1 + 1) + bboxStr + url.substr(pos2, url.length - pos2);
                         $scope.getMapRequestURL = url;
                         renewDisplayedWMSGetMapURL(url);
-                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString, $scope.dimStr);
                     }
                 });
                 $("#latSlider").tooltip();
@@ -6372,7 +6378,7 @@ var rasdaman;
                         url = url.substr(0, pos1 + 1) + bboxStr + url.substr(pos2, url.length - pos2);
                         $scope.getMapRequestURL = url;
                         renewDisplayedWMSGetMapURL(url);
-                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString, $scope.dimStr);
                     }
                 });
                 $("#longSlider").tooltip();
@@ -6395,6 +6401,7 @@ var rasdaman;
                             max: $scope.layer.layerDimensions[j].array.length - 1,
                             create: function (event, slider) {
                                 this.sliderObj = $scope.layer.layerDimensions[j];
+                                this.sliderObj.index = j;
                                 var sizeSlider = $scope.layer.layerDimensions[j].array.length - 1;
                                 for (var it = 1; it < sizeSlider; ++it) {
                                     $("<label>|</label>").css('left', (it / sizeSlider * 100) + '%')
@@ -6404,21 +6411,21 @@ var rasdaman;
                             slide: function (event, slider) {
                                 $scope.firstChangedSlider[this.sliderPos] = true;
                                 if (this.sliderObj.isTemporal == true) {
-                                    dimStr[j] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
+                                    $scope.dimStr[this.sliderObj.index] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
                                     $scope.timeString = this.sliderObj.array[slider.value];
                                 }
                                 else {
-                                    dimStr[j] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
+                                    $scope.dimStr[this.sliderObj.index] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
                                 }
                                 var pos1 = url.indexOf('&' + this.sliderObj.name + '=');
                                 var pos2 = url.indexOf('&', pos1 + 1);
-                                url = url.substr(0, pos1 + 1) + dimStr[j] + url.substr(pos2, url.length - pos2);
+                                url = url.substr(0, pos1 + 1) + $scope.dimStr[this.sliderObj.index] + url.substr(pos2, url.length - pos2);
                                 $scope.getMapRequestURL = url;
                                 var tooltip = this.sliderObj.array[slider.value];
                                 $(sliderId).attr('data-original-title', tooltip);
                                 $(sliderId).tooltip('show');
                                 renewDisplayedWMSGetMapURL(url);
-                                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString, $scope.dimStr);
                             }
                         });
                     });
@@ -6428,7 +6435,7 @@ var rasdaman;
                         $(sliderId).slider('value', 0);
                     }
                 };
-                for (var j = 3; j <= dimensions; j++) {
+                for (var j = 2; j < dimensions; j++) {
                     _loop_1();
                 }
             }
@@ -6437,11 +6444,11 @@ var rasdaman;
                 $scope.selectedStyleName = styleName;
                 $scope.displayWMSLayer = true;
                 renewDisplayedWMSGetMapURL($scope.getMapRequestURL);
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, styleName, $scope.bboxLayer, true, $scope.timeString);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, styleName, $scope.bboxLayer, true, $scope.timeString, $scope.dimStr);
             };
             $scope.hideWMSLayerOnGlobe = function () {
                 $scope.displayWMSLayer = false;
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString, $scope.dimStr);
             };
             $scope.createPyramidMember = function () {
                 var scaleFactors = $("#scaleFactorsValue").val();

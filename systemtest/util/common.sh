@@ -62,7 +62,15 @@ export VALGRIND="valgrind --tool=memcheck --leak-check=full --track-origins=yes"
 export DB_DIR="/tmp/rasdb"
 export LOG_DIR="$RMANHOME/log"
 export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
+export RASSERVER_COUNT="$(grep 'define srv ' "$RASMGR_CONF" -c)"
 export PETASCOPE_PROPERTIES_FILE="$RMANHOME/etc/petascope.properties"
+
+# Run up to 8 test queries in parallel
+PARALLEL_QUERIES=8
+if [ $PARALLEL_QUERIES -gt "$RASSERVER_COUNT" ]; then
+    PARALLEL_QUERIES=$RASSERVER_COUNT
+fi
+export PARALLEL_QUERIES
 
 
 PYTHONBIN=
@@ -107,6 +115,7 @@ TEST_GREY=test_grey
 TEST_GREY2=test_grey2
 TEST_RGB2=test_rgb2
 TEST_GREY3D=test_grey3d
+TEST_GREY3D_EMPTY_IN_MIDDLE=test_grey3d_empty_in_middle
 TEST_GREY4D=test_grey4d
 TEST_COMPLEX=test_complex
 TEST_CFLOAT32=test_cfloat32
@@ -125,6 +134,7 @@ TEST_SUBSETTING_3D=test_subsetting_3d
 TEST_SUBSETTING_HOLES=test_subsetting_holes
 TEST_OVERLAP=test_overlap
 TEST_OVERLAP_3D=test_overlap_3d
+TEST_INSITU_BIN=test_insitu_bin
 # ------------------------------------------------------------------------------
 # OS version; the current os can be determined with the get_os function
 #
@@ -528,6 +538,29 @@ check_result()
 
   [ -n "$msg" ] && logn "$msg... "
   if [ "$exp" != "$res" ]; then
+    NUM_FAIL=$((NUM_FAIL + 1))
+    loge_colored_failed "failed, expected: '$exp', got '$res'."
+  else
+    NUM_SUC=$((NUM_SUC + 1))
+    loge "ok."
+  fi
+  NUM_TOTAL=$((NUM_TOTAL + 1))
+}
+#
+# check if result matches expected result, automatically updating the number of
+# failed/successfull tests.log
+# arg 1: expected result
+# arg 2: actual result
+# arg 3: message to print
+#
+check_result_fuzzy()
+{
+  local exp="$1"
+  local res="$2"
+  local msg="$3"
+
+  [ -n "$msg" ] && logn "$msg... "
+  if [[ "$res" != *"$exp"* ]]; then
     NUM_FAIL=$((NUM_FAIL + 1))
     loge_colored_failed "failed, expected: '$exp', got '$res'."
   else

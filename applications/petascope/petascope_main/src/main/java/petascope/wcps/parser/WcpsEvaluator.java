@@ -78,14 +78,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
-import petascope.wcps.exception.processing.ClipExpressionException;
-import petascope.wcps.exception.processing.Coverage0DMetadataNullException;
-import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
-import petascope.wcps.exception.processing.InvalidWKTClippingException;
 import petascope.wcps.handler.AxisIteratorDomainIntervalsHandler;
 import petascope.wcps.handler.AxisIteratorHandler;
 import petascope.wcps.handler.AxisSpecHandler;
@@ -127,13 +122,8 @@ import petascope.wcps.handler.WKTMultiPolygonHandler;
 import petascope.wcps.handler.WKTPolygonHandler;
 import petascope.wcps.metadata.service.SortedAxisIteratorAliasRegistry;
 import petascope.wcps.metadata.service.UsingCondenseRegistry;
-import petascope.wcps.result.VisitorResult;
-import petascope.wcps.result.WcpsResult;
-import petascope.wcps.subset_axis.model.AbstractWKTShape;
-import petascope.wcps.subset_axis.model.WKTCompoundPoints;
-import petascope.wcps.subset_axis.model.WKTLineString;
-import petascope.wcps.subset_axis.model.WKTMultipolygon;
-import petascope.wcps.subset_axis.model.WKTPolygon;
+
+import petascope.wcps.handler.TrimDimensionIntervalByImageCrsDomainElementHandler;
 
 
 /**
@@ -326,6 +316,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     TrimDimensionIntervalElementHandler trimDimensionIntervalElementHandler;
     
     @Autowired private
+    TrimDimensionIntervalByImageCrsDomainElementHandler trimDimensionIntervalByImageCrsDomainElementHandler;
+    
+    @Autowired private
     AxisSpecHandler axisSpecHandler;
     @Autowired private
     AxisIteratorHandler axisIteratorHandler;
@@ -429,7 +422,15 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     public Handler visitLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx) {
         // coverageVariableName EQUAL coverageExpression
         // e.g: $a := $c[Lat(20:30), Long(40:50)]
-        Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
+        
+        Handler coverageExpressionHandler = null;
+        
+        if (ctx.wktExpression() != null) {
+            coverageExpressionHandler = (Handler) visit(ctx.wktExpression());
+        } else {
+            coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
+        }
+        
         String coverageVariableName = ctx.coverageVariableName().getText();
         Handler result = this.letClauseHandler.create(this.stringScalarHandler.create(coverageVariableName), coverageExpressionHandler);
         return result;
@@ -600,8 +601,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
 //            RIGHT_PARENTHESIS
         // e.g: clip( c, corridor( projection(Lat, Lon), LineString("1950-01-01" 1 1, "1950-01-02" 5 5), Polygon((0 10, 20 20, 20 10, 0 10)), discrete ) )
         Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
-        Handler wktLineStringHandler = visit(ctx.wktLineString());
-        Handler wktShapeHandler = visit(ctx.wktExpression());
+        Handler wktLineStringHandler = visit(ctx.corridorWKTLabel1());
+        Handler wktShapeHandler = visit(ctx.corridorWKTLabel2());
         
         String corridorProjectionAxisLabel1 = ctx.corridorProjectionAxisLabel1().getText().trim();
         String corridorProjectionAxisLabel2 = ctx.corridorProjectionAxisLabel2().getText().trim();
@@ -1709,6 +1710,31 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         return result;
         
         
+    }    
+
+    @Override
+    public Handler visitTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx) {
+        // axisName (COLON crsName)? LEFT_PARENTHESIS  imageCrsDomainByDimensionExpression  RIGHT_PARENTHESIS
+        // e.g: i:"CRS:1"( imageCrsdomain(c[i(30:50)], i) )
+        if (ctx.axisName() == null) {
+            throw new InvalidAxisNameException("No axis given");
+        }
+        String axisName = ctx.axisName().getText();
+        
+        String crs = null;
+        if (ctx.crsName() != null) {
+            crs = StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
+        }
+        
+        Handler gridBoundCoveragExpression = ((Handler)visit(ctx.imageCrsDomainByDimensionExpression()));
+        
+        Handler result = this.trimDimensionIntervalByImageCrsDomainElementHandler.create(
+                                                                    this.stringScalarHandler.create(axisName),
+                                                                    this.stringScalarHandler.create(crs),
+                                                                    gridBoundCoveragExpression);
+        return result;
+        
+        
     }
 
     @Override
@@ -1897,6 +1923,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         Handler result = this.wktMultiPolygonHandler.create(wktCompoundPointsHandlers);        
         return result;
     }
+    
+    @Override
+    public Handler visitWKTCoverageExpressionLabel(@NotNull wcpsParser.WKTCoverageExpressionLabelContext ctx) { 
+        // Handle LET clause expression
+        // Used only for LET clause, e.g. let $wkt := POLYGON((...))), then here clip($c, $wkt)
+        return visitChildren(ctx);
+    }
   
     @Override
     public Handler visitWKTExpressionLabel(@NotNull wcpsParser.WKTExpressionLabelContext ctx) {
@@ -1908,6 +1941,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
             result = visit(ctx.wktPolygon());
         } else if (ctx.wktMultipolygon() != null) {
             result = visit(ctx.wktMultipolygon());
+        } else if (ctx.coverageExpression() != null) {
+            result = visit(ctx.coverageExpression());
         }
         
         return result;

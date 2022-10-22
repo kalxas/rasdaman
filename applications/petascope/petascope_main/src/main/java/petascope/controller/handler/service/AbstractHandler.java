@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import petascope.core.KVPSymbols;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;

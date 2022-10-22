@@ -1,0 +1,4 @@
+STYLEID=test&
+COVERAGEID=test_wms_mismatch_coefficients_1&
+abstract=This style marks the areas where fires are in progress with the color red&
+wcpsQueryFragment=$c + $test_wms_mismatch_coefficients_2 * ($c - $c)

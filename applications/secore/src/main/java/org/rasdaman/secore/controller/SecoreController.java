@@ -89,7 +89,7 @@ public class SecoreController {
         if (qs != null && !qs.equals(EMPTY)) {
             uri += QUERY_SEPARATOR + qs;
         }
-        log.info("Received request: " + uri);
+        log.debug("Received request: " + uri);
         long start = System.currentTimeMillis();
         
         try {
@@ -115,7 +115,7 @@ public class SecoreController {
 
             long end = System.currentTimeMillis();
             long totalTime = end - start;
-            log.info("Request processed in '" + String.valueOf(totalTime) + "' ms.");
+            log.debug("Request processed in '" + String.valueOf(totalTime) + "' ms.");
             
             writeResult(resp, result);
         } catch (SecoreException ex) {

@@ -42,12 +42,14 @@ from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
 from util.import_util import import_netcdf4
-from util.log import log
+from util.log import log, log_to_file
+from util.netcdf4_util import netcdf4_open
 from util.string_util import escape_metadata_dict, is_band_name_valid, BAND_NAME_PATTERN
 from util.string_util import escape_metadata_nested_dicts
 from util.file_util import FileUtil
-from util.gdal_util import GDALGmlUtil
+from util.gdal_util import GDALGmlUtil, MAX_RETRIES_TO_OPEN_FILE
 from master.importer.resumer import Resumer
+from util.time_util import execute_with_retry_on_timeout
 
 
 class Recipe(BaseRecipe):
@@ -218,6 +220,17 @@ class Recipe(BaseRecipe):
                                                         "Given: '" + band_name + "'. "
                                                         "Hint: it must match this pattern '" + BAND_NAME_PATTERN + "'.")
 
+                grib_messages_filter_by_dict = None
+                grib_messages_filter_by_setting = GRIBToCoverageConverter.GRIB_MESSAGES_FILTER_BY_SETTING
+                if recipe_type != GRIBToCoverageConverter.RECIPE_TYPE:
+                    if grib_messages_filter_by_setting in band:
+                        raise RecipeValidationException("Band setting: " + grib_messages_filter_by_setting
+                                                        + " can be used only for " + GRIBToCoverageConverter.RECIPE_TYPE + " recipe.")
+                else:
+                    grib_messages_filter_by_dict = None
+                    if grib_messages_filter_by_setting in band:
+                        grib_messages_filter_by_dict = band[grib_messages_filter_by_setting]
+
                 ret_bands.append(UserBand(
                     identifier,
                     self._read_or_empty_string(band, "name"),
@@ -225,7 +238,8 @@ class Recipe(BaseRecipe):
                     self._read_or_empty_string(band, "definition"),
                     self._read_or_empty_string(band, "nilReason"),
                     self._read_or_empty_string(band, "nilValue").split(","),
-                    self._read_or_empty_string(band, "uomCode")
+                    self._read_or_empty_string(band, "uomCode"),
+                    grib_messages_filter_by_dict
                 ))
 
                 i += 1
@@ -751,6 +765,7 @@ class Recipe(BaseRecipe):
         :param: string recipe_type the type of netcdf
         :rtype: master.importer.coverage.Coverage
         """
+
         ConfigManager.default_crs = self._resolve_crs(self.options["coverage"]["crs"])
         crs = self._resolve_crs(self.options["coverage"]["crs"])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
@@ -765,16 +780,20 @@ class Recipe(BaseRecipe):
         first_band = bands[0]
         first_band_variable_identifier = first_band.identifier
 
-        netCDF4 = import_netcdf4()
         number_of_dimensions = None
 
         # Get the number of dimensions of band variable to validate with number of axes specified in the ingredients file
         for input_file in input_files:
             try:
-                number_of_dimensions = len(netCDF4.Dataset(input_file, 'r').variables[first_band_variable_identifier].dimensions)
+                netcdf_dataset = netcdf4_open(input_file)
+                number_of_dimensions = len(netcdf_dataset.variables[first_band_variable_identifier].dimensions)
                 self.__validate_data_bound_axes(user_axes, number_of_dimensions)
                 break
             except Exception as e:
+                error_message = "Failed to open netCDF4 data set from input file '{}'. Reason: {}".format(input_file, e)
+                log.warn(error_message)
+                log_to_file(error_message)
+
                 if ConfigManager.skip is True:
                     continue
                 else:

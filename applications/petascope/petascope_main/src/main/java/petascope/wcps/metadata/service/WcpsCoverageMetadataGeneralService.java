@@ -1250,13 +1250,28 @@ public class WcpsCoverageMetadataGeneralService {
             }
         } else {
             // trimming grid parsed subset
-            if ((gridParsedSubset.getLowerLimit().compareTo(lowerLimit) < 0)
-                    || (gridParsedSubset.getLowerLimit().compareTo(upperLimit) > 0)
-                    || (gridParsedSubset.getUpperLimit().compareTo(lowerLimit) < 0)
-                    || (gridParsedSubset.getUpperLimit().compareTo(upperLimit) > 0)) {
+            BigDecimal gridSubsetLowerLimit = gridParsedSubset.getLowerLimit();
+            BigDecimal gridSubsetUpperLimit = gridParsedSubset.getUpperLimit();
+            
+            BigDecimal gridSubsetDistance = gridSubsetUpperLimit.subtract(gridSubsetLowerLimit);
+            BigDecimal axisGridDistance = upperLimit.subtract(lowerLimit);
+            
+            if (axisGridDistance.compareTo(gridSubsetDistance) < 0) {
+            
+                if ((gridSubsetLowerLimit.compareTo(lowerLimit) < 0)
+                        || (gridSubsetLowerLimit.compareTo(upperLimit) > 0)
+                        || (gridSubsetUpperLimit.compareTo(lowerLimit) < 0)
+                        || (gridSubsetUpperLimit.compareTo(upperLimit) > 0)) {
 
-                // throw trimming error
-                subset = new ParsedSubset<>(((WcpsTrimSubsetDimension)subsetDimension).getLowerBound(), ((WcpsTrimSubsetDimension)subsetDimension).getUpperBound());
+                    if (subsetDimension instanceof WcpsTrimSubsetDimension) {
+                        // throw trimming error
+                        subset = new ParsedSubset<>(((WcpsTrimSubsetDimension)subsetDimension).getLowerBound(), ((WcpsTrimSubsetDimension)subsetDimension).getUpperBound());
+                    } else {
+                        // throw slicing error
+                        subset = new ParsedSubset<>(((WcpsSliceSubsetDimension)subsetDimension).getBound());       
+                    }
+                }
+                
             }
         }
         

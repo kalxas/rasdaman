@@ -37,8 +37,8 @@ public class WMSStyleNotFoundException extends WMSException {
      *
      */
     public WMSStyleNotFoundException(String styleName, String layerName) {
-        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE_ONE_LAYER.replace("$styleName", styleName).replace("$layerName", layerName));
+        super(ExceptionCode.StyleNotDefined, ERROR_MESSAGE_ONE_LAYER.replace("$styleName", styleName).replace("$layerName", layerName));
     }
 
-    private final static String ERROR_MESSAGE_ONE_LAYER = "The given style name '$styleName' of layer '$layerName' does not exist in database.";
+    private final static String ERROR_MESSAGE_ONE_LAYER = "The given style name '$styleName' of layer '$layerName' does not exist.";
 }

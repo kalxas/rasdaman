@@ -1433,8 +1433,12 @@ public class XMLUtil {
      * Return XML label combined from namespace and label, e.g: wcs:CoverageDescriptions
      */
     public static String createXMLLabel(String namespace, String label) {
-        String result = namespace + ":" + label;
-        return result;
+        if (namespace != null) {
+            String result = namespace + ":" + label;
+            return result;
+        }
+        
+        return label;
     }
     
     /**

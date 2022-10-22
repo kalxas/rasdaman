@@ -248,7 +248,7 @@ public class CrsProjectionUtil {
             BigDecimal lonMax = maxLongLatList.get(0);
             BigDecimal latMax = maxLongLatList.get(1);
             
-            result = new BoundingBox(lonMin, latMin, lonMax, latMax);
+            result = new BoundingBox(lonMin, latMin, lonMax, latMax, targetCRS);
         }
         
         return result;
@@ -524,6 +524,11 @@ public class CrsProjectionUtil {
      */
     public static Wgs84BoundingBox createLessPreciseWgs84BBox(BigDecimal xMin, BigDecimal yMin, BigDecimal xMax, BigDecimal yMax, String xyAxesCRSURL) 
             throws PetascopeException {
+        
+        if (CrsUtil.getAuthorityCode(xyAxesCRSURL).equals(CrsUtil.EPSG_4326_AUTHORITY_CODE)) {
+            return new Wgs84BoundingBox(xMin, yMin, xMax, yMax);
+        }
+        
         // NOTE: this one is used only for older peernode petascope which doesn't have Wgs84BoundingBox object in envelope
         // It returns less precisely bounding box, but it is used for backward compatibility
         double[] xyMinArray = { xMin.doubleValue(), yMin.doubleValue() };

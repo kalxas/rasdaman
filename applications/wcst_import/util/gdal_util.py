@@ -28,11 +28,17 @@ from util.file_util import FileUtil
 from util.gdal_field import GDALField
 from decimal import Decimal
 import json
-from util.log import log
+from util.log import log, log_to_file, prepend_time
 from util.import_util import decode_res
+from util.time_util import timeout, execute_with_retry_on_timeout
 
 _spatial_ref_cache = {}
 _gdal_dataset_cache = {}
+
+# in seconds
+TIME_OUT_IF_FILE_CANNOT_BE_OPENED = 60
+
+MAX_RETRIES_TO_OPEN_FILE = 3
 
 
 class GDALGmlUtil:
@@ -43,10 +49,6 @@ class GDALGmlUtil:
         in imports.
         :param str gdal_file_path: the file path to the gdal supported file
         """
-        # GDAL wants filename in utf8 or filename with spaces could not open
-        filepath = str(gdal_file_path).encode('utf8')
-        gdal_file_path = filepath
-
         self.gdal_file_path = gdal_file_path
         self.gdal_dataset = None  # properly set below
 
@@ -57,9 +59,9 @@ class GDALGmlUtil:
             # (-1: unlimited or N > 0: maximum number of files in cache)
             global _gdal_dataset_cache
 
-            if filepath not in _gdal_dataset_cache:
-                self.gdal_dataset = self._gdal_open(filepath)
-                _gdal_dataset_cache[filepath] = self.gdal_dataset
+            if gdal_file_path not in _gdal_dataset_cache:
+                self.gdal_dataset = self.gdal_open(gdal_file_path)
+                _gdal_dataset_cache[gdal_file_path] = self.gdal_dataset
             else:
                 self.gdal_dataset = _gdal_dataset_cache[gdal_file_path]
 
@@ -69,7 +71,7 @@ class GDALGmlUtil:
 
         else:
             # cache of gdal datasets is not enabled (--gdal-cache-size is set to 0)
-            self.gdal_dataset = self._gdal_open(filepath)
+            self.gdal_dataset = self.gdal_open(gdal_file_path)
 
     def __clear_gdal_dataset_cache(self):
         """
@@ -86,15 +88,24 @@ class GDALGmlUtil:
         else:
             return False
 
-    def _gdal_open(self, filepath):
+    def gdal_open(self, file_path):
+        dataset = execute_with_retry_on_timeout(MAX_RETRIES_TO_OPEN_FILE,
+                                                "Failed to open GDAL file '{}'",
+                                                self.__gdal_open_dataset, file_path)
+        return dataset
+
+    @timeout(TIME_OUT_IF_FILE_CANNOT_BE_OPENED)
+    def __gdal_open_dataset(self, *args):
         """
         :param str filepath: path to a valid file which gdal can decode
         :return: gdal_dataset for further analyzing
         """
+        filepath = args[0][0]
         import osgeo.gdal as gdal
         gdal_dataset = None
         try:
-            gdal_dataset = gdal.Open(filepath)
+            # GDAL wants filename in utf8 or filename with spaces could not open
+            gdal_dataset = gdal.Open(str(filepath).encode('utf8'))
         except RuntimeError as e:
             msg = str(e)
             if "Too many open files" in msg:
@@ -114,7 +125,7 @@ class GDALGmlUtil:
             raise RuntimeException("The file at path '" + filepath +
                                    "' is not a valid GDAL decodable file.")
         return gdal_dataset
-    
+
     def close(self):
         """
         Close the dataset if it was open.
@@ -296,7 +307,7 @@ class GDALGmlUtil:
             else:
                 field_name = ConfigManager.default_field_name_prefix + repr(i)
 
-            if len(ConfigManager.default_null_values) > 0:
+            if ConfigManager.default_null_values is not None:
                 nil_values = ConfigManager.default_null_values
             else:
                 # If not, then detects it from file's bands
@@ -493,15 +504,20 @@ class GDALGmlUtil:
         gdal_dataset = None
 
         for file in files:
+            file_path = file.get_filepath()
             try:
-                gdal_dataset = GDALGmlUtil(file.get_filepath())
+                gdal_dataset = GDALGmlUtil(file_path)
                 return gdal_dataset
             except Exception as ex:
+                error_message = "Failed to open GDAL file '{}'. Reason: {}".format(file_path, str(ex))
+                log.warn(error_message)
+                log_to_file(error_message)
+
                 # Cannot open file by gdal, try with next file
                 if ConfigManager.skip:
                     continue
                 else:
-                    raise
+                    raise ex
 
         if gdal_dataset is None:
             # Cannot open any dataset from input files, just exit wcst_import process

@@ -83,9 +83,6 @@ public class AxisIteratorDomainIntervalsHandler extends Handler {
         String[] gridBounds = StringUtil.stripParentheses(rasqlInterval).split(":");
 
         // NOTE: it expects that "domainIntervals" will only return 1 trimming domain in this case (so only 1D)
-        // TESTING !!!!
-//        WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(),
-//                gridBounds[0], gridBounds[1]);
 
         WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), CrsUtil.GRID_CRS,
                         gridBounds[0], gridBounds[1]);

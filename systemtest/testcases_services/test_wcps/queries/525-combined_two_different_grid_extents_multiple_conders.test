@@ -1,0 +1,29 @@
+for $c in (test_irr_cube_2),
+    $a in (test_irr_cube_2)
+
+let $cutout := [ansi("2008-01-01T02:01:20.000Z" : "2008-01-08T00:02:58.000Z")],
+    $c_cutout := $c[$cutout],
+    $a_cutout := $a[$cutout]
+
+return encode(
+
+  (
+    condense +
+    over $d1 ansi(imageCrsDomain($c_cutout, ansi))              
+    using $c[ansi($d1),E(75042.72735943:705042.72735943),N(5094865.557938452:5454865.557938452)]
+  )
+  +
+  scale((
+    condense +
+    over $d2 ansi(imageCrsDomain($a_cutout, ansi))              
+    using $a[ansi($d2),E(75042.72735943:705042.72735943),N(5094865.557938452:5454865.557938452)]
+  ), { N:"CRS:1"(imageCrsDomain($c[N(5094865.557938452:5454865.557938452)], N)),
+       E:"CRS:1"(imageCrsDomain($c[E(75042.72735943:705042.72735943)], E))
+
+      } )
+
+
+
+, "tiff")
+
+

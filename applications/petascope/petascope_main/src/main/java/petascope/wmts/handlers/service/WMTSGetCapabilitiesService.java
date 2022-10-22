@@ -21,12 +21,9 @@
  */
 package petascope.wmts.handlers.service;
 
-import com.rasdaman.accesscontrol.service.AuthenticationService;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -37,10 +34,8 @@ import org.rasdaman.ApplicationMain;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.config.VersionManager;
 import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.domain.cis.CoveragePyramid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeoAxis;
-import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.RegularAxis;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
@@ -56,9 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
-import petascope.core.GeoTransform;
 import petascope.core.KVPSymbols;
-import petascope.core.Pair;
 import petascope.core.XMLSymbols;
 import static petascope.core.XMLSymbols.ATT_HREF;
 import static petascope.core.XMLSymbols.ATT_NAME;
@@ -71,15 +64,13 @@ import static petascope.core.XMLSymbols.LABEL_OPERATION;
 import static petascope.core.XMLSymbols.LABEL_POST;
 import static petascope.core.XMLSymbols.LABEL_WMS_NAME;
 import static petascope.core.XMLSymbols.LABEL_WMTS_CONTENTS;
-import static petascope.core.XMLSymbols.NAMESPACE_OWS;
+import static petascope.core.XMLSymbols.NAMESPACE_OWS_11;
 import static petascope.core.XMLSymbols.NAMESPACE_WMTS;
 import static petascope.core.XMLSymbols.NAMESPACE_XLINK;
 import static petascope.core.XMLSymbols.PREFIX_OWS;
 import static petascope.core.XMLSymbols.PREFIX_XLINK;
 import petascope.core.gml.GMLGetCapabilitiesBuilder;
 import petascope.exceptions.PetascopeException;
-import petascope.util.BigDecimalUtil;
-import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.TimeUtil;
@@ -88,6 +79,11 @@ import petascope.wms.handlers.kvp.KVPWMSGetCapabilitiesHandler;
 import org.rasdaman.domain.wmts.TileMatrix;
 import org.rasdaman.domain.wmts.TileMatrixSet;
 import org.rasdaman.repository.service.WMTSRepositoryService;
+import static petascope.core.XMLSymbols.ATT_VALUE_GET_ENCODING;
+import static petascope.core.XMLSymbols.LABEL_VALUE;
+import static petascope.core.XMLSymbols.LABEL_WMS_ABSTRACT;
+import static petascope.core.XMLSymbols.LABEL_WMS_TITLE;
+import static petascope.core.XMLSymbols.LABEL_WMTS_CONSTRAINT;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 
 /**
@@ -128,52 +124,56 @@ public class WMTSGetCapabilitiesService {
         ServiceIdentification serviceIdentification = owsServiceMetadata.getServiceIdentification();
         
         // Service
-        Element serviceElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_SERVICE_IDENTIFICATION), NAMESPACE_OWS);
+        Element serviceElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_SERVICE_IDENTIFICATION), NAMESPACE_OWS_11);
 
         // Title
-        Element titleElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMS_TITLE), NAMESPACE_OWS);
+        Element titleElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMS_TITLE), NAMESPACE_OWS_11);
         titleElement.appendChild(serviceIdentification.getServiceTitle());
         serviceElement.appendChild(titleElement);
 
         // Abstract
-        Element abstractElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMS_ABSTRACT), NAMESPACE_OWS);
+        Element abstractElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMS_ABSTRACT), NAMESPACE_OWS_11);
         abstractElement.appendChild(serviceIdentification.getServiceAbstract());
         serviceElement.appendChild(abstractElement);
 
         // KeywordList
+        Element keywordsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_KEYWORDS), NAMESPACE_OWS_11);
         if (!serviceIdentification.getKeywords().isEmpty()) {
-            Element keywordsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_KEYWORDS), NAMESPACE_OWS);
             // keyWords element can contain multiple KeyWord elements
             for (String keyWord : serviceIdentification.getKeywords()) {
-                Element keyWordElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_KEYWORD), NAMESPACE_OWS);
+                Element keyWordElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_KEYWORD), NAMESPACE_OWS_11);
                 keyWordElement.appendChild(keyWord);
 
                 keywordsElement.appendChild(keyWordElement);
             }
-
-            serviceElement.appendChild(keywordsElement);
+        } else {
+            // Empty <Keyword/> element to be valid
+            Element keyWordElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_KEYWORD), NAMESPACE_OWS_11);
+            keywordsElement.appendChild(keyWordElement);
         }
+
+        serviceElement.appendChild(keywordsElement);
         
         // ServiceType
-        Element serviceTypeElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_SERVICE_TYPE), NAMESPACE_OWS);
+        Element serviceTypeElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_SERVICE_TYPE), NAMESPACE_OWS_11);
         serviceTypeElement.appendChild("OGC WMTS");
         serviceElement.appendChild(serviceTypeElement);
         
         // ServiceTypeVersion
-        Element serviceTypeVersionElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_SERVICE_TYPE_VERSION), NAMESPACE_OWS);
+        Element serviceTypeVersionElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_SERVICE_TYPE_VERSION), NAMESPACE_OWS_11);
         serviceTypeVersionElement.appendChild(VersionManager.WMTS_VERSION_10);
         serviceElement.appendChild(serviceTypeVersionElement);
 
         // Fees
         if (serviceIdentification.getFees() != null) {
-            Element feesElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_FEES), NAMESPACE_OWS);
+            Element feesElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_FEES), NAMESPACE_OWS_11);
             feesElement.appendChild(serviceIdentification.getFees());
             serviceElement.appendChild(feesElement);
         }
 
         // AccessConstraints
         if (serviceIdentification.getAccessConstraints().size() > 0) {
-            Element accessContraintsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_ACCESS_CONSTRAINTS), NAMESPACE_OWS);
+            Element accessContraintsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_ACCESS_CONSTRAINTS), NAMESPACE_OWS_11);
             accessContraintsElement.appendChild(serviceIdentification.getAccessConstraints().get(0));
         } 
 
@@ -258,11 +258,11 @@ public class WMTSGetCapabilitiesService {
                 Element tileMatrixSetElement = new Element(XMLSymbols.LABEL_WMTS_TILE_MATRIX_SET, NAMESPACE_WMTS);
                 results.add(tileMatrixSetElement);
 
-                Element tileMatrisSetIdentifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS);
+                Element tileMatrisSetIdentifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS_11);
                 tileMatrixSetElement.appendChild(tileMatrisSetIdentifierElement);
                 tileMatrisSetIdentifierElement.appendChild(tileMatrixSetName);
 
-                Element supportedCrsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_SUPPORTED_CRS), NAMESPACE_OWS);
+                Element supportedCrsElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_SUPPORTED_CRS), NAMESPACE_OWS_11);
                 String code = this.wmtsRepositoryService.getCodeFromTileMatrixSetName(tileMatrixSetName);
                 String supportedCrs = CrsUtil.URN_EPSG_PREFIX + code;
                 
@@ -278,7 +278,7 @@ public class WMTSGetCapabilitiesService {
                     
                     // Identifier
 
-                    Element tileMatrixIdentifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS);
+                    Element tileMatrixIdentifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS_11);
                     tileMatrixIdentifierElement.appendChild(tileMatrixName);
                     tileMatrixElement.appendChild(tileMatrixIdentifierElement);
                     
@@ -338,15 +338,11 @@ public class WMTSGetCapabilitiesService {
         
         Element layerElement = new Element(XMLSymbols.LABEL_WMS_LAYER, NAMESPACE_WMTS);
         
-        Element identifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS);
-        identifierElement.appendChild(layerName);
-        layerElement.appendChild(identifierElement);
-        
-        Element titleElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_TITLE), NAMESPACE_OWS);
+        Element titleElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_TITLE), NAMESPACE_OWS_11);
         titleElement.appendChild(layer.getTitle());
         layerElement.appendChild(titleElement);
         
-        Element abstractElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_ABSTRACT), NAMESPACE_OWS);
+        Element abstractElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_ABSTRACT), NAMESPACE_OWS_11);
         abstractElement.appendChild(layer.getLayerAbstract());
         layerElement.appendChild(abstractElement);
         
@@ -358,15 +354,22 @@ public class WMTSGetCapabilitiesService {
         
         this.buildBBoxElements(layer, layerElement);
         
+        Element identifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS_11);
+        identifierElement.appendChild(layerName);
+        layerElement.appendChild(identifierElement);        
+        
         this.buildStyleElements(layer, layerElement);
         
         this.buildFormatElements(layerElement);
         
         this.buildTileMatrixSetLinkElements(layer, layerElement);
-        
-        this.buildDimensionElements(layer, layerElement);
-        
-        this.buildLayerElementMetadata(layer, layerElement);
+  
+        if (!ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+            // NOTE: These elements (copied from WMS) for 3D+ layers are not valid in WMTS GetCapabilities XML schema
+            // they will fail in OGC CITE WMTS tests
+            this.buildDimensionElements(layer, layerElement);
+            this.buildLayerElementMetadata(layer, layerElement);
+        }
         
         
         return layerElement;
@@ -417,39 +420,41 @@ public class WMTSGetCapabilitiesService {
         
         Wgs84BoundingBox wgs84BBox = coverage.getEnvelope().getEnvelopeByAxis().getWgs84BBox();
         
-        Element wgs84BoundingBoxElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_WGS84_BOUNDING_BOX), NAMESPACE_OWS);
-        Element lowerCornerElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_LOWER_CORNER), NAMESPACE_OWS);
+        Element wgs84BoundingBoxElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_WGS84_BOUNDING_BOX), NAMESPACE_OWS_11);
+        Element lowerCornerElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_LOWER_CORNER), NAMESPACE_OWS_11);
         String lowerBounds1 = wgs84BBox.getMinLong() + " " + wgs84BBox.getMinLat();
         lowerCornerElement1.appendChild(lowerBounds1);
         wgs84BoundingBoxElement.appendChild(lowerCornerElement1);
         
-        Element upperCornerElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_UPPER_CORNER), NAMESPACE_OWS);
+        Element upperCornerElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_UPPER_CORNER), NAMESPACE_OWS_11);
         String upperBounds1 = wgs84BBox.getMaxLong()+ " " + wgs84BBox.getMaxLat();
         upperCornerElement1.appendChild(upperBounds1);
         wgs84BoundingBoxElement.appendChild(upperCornerElement1);
         
         layerElement.appendChild(wgs84BoundingBoxElement);
+
+        if (!ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {        
+            // build layer's native CRS bbox (e.g EPSG:4326 Lat Long order)
+            BoundingBox bbox = layer.getBoundingBoxes().get(0);
+            String code = CrsUtil.getCode(bbox.getCrs());
+
+            Element bboxElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_BOUNDING_BOX), NAMESPACE_OWS_11);
+            Attribute crsAttribute = new Attribute(XMLSymbols.ATT_CRS, CrsUtil.URN_EPSG_PREFIX + code);
+            bboxElement.addAttribute(crsAttribute);
+
+            Element lowerCornerElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_LOWER_CORNER), NAMESPACE_OWS_11);
+            String lowerBounds2 = bbox.getXMin() + " " + bbox.getYMin();
+            lowerCornerElement2.appendChild(lowerBounds2);
+            bboxElement.appendChild(lowerCornerElement2);
+
+            Element upperCornerElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_UPPER_CORNER), NAMESPACE_OWS_11);
+            String upperBounds2 = bbox.getXMax() + " " + bbox.getYMax();
+
+            upperCornerElement2.appendChild(upperBounds2);
+            bboxElement.appendChild(upperCornerElement2);
         
-        // build layer's native CRS bbox (e.g EPSG:4326 Lat Long order)
-        BoundingBox bbox = layer.getBoundingBoxes().get(0);
-        String code = CrsUtil.getCode(bbox.getCrs());
-        
-        Element bboxElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_BOUNDING_BOX), NAMESPACE_OWS);
-        Attribute crsAttribute = new Attribute(XMLSymbols.ATT_CRS, CrsUtil.URN_EPSG_PREFIX + code);
-        bboxElement.addAttribute(crsAttribute);
-        
-        Element lowerCornerElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_LOWER_CORNER), NAMESPACE_OWS);
-        String lowerBounds2 = bbox.getXMin() + " " + bbox.getYMin();
-        lowerCornerElement2.appendChild(lowerBounds2);
-        bboxElement.appendChild(lowerCornerElement2);
-        
-        Element upperCornerElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_UPPER_CORNER), NAMESPACE_OWS);
-        String upperBounds2 = bbox.getXMax() + " " + bbox.getYMax();
-        
-        upperCornerElement2.appendChild(upperBounds2);
-        bboxElement.appendChild(upperCornerElement2);
-        
-        layerElement.appendChild(bboxElement);
+            layerElement.appendChild(bboxElement);
+        }
         
     }
     
@@ -482,11 +487,12 @@ public class WMTSGetCapabilitiesService {
     private void buildStyleElements(Layer layer, Element layerElement) throws PetascopeException {
         if (layer.getStyles().size() > 0) {
             for (Style style : layer.getStyles()) {
-                Element styleElement = this.kvpWMSGetCapabilitiesHandler.getStyleElement(layer, style);
-                Element nameElement = styleElement.getFirstChildElement(LABEL_WMS_NAME, XMLSymbols.NAMESPACE_WMS);
+                Element styleElement = this.kvpWMSGetCapabilitiesHandler.getStyleElement(layer, style, NAMESPACE_WMTS, PREFIX_OWS, NAMESPACE_OWS_11);
+                
+                Element nameElement = styleElement.getFirstChildElement(LABEL_WMS_NAME, NAMESPACE_OWS_11);
                 styleElement.removeChild(nameElement);
-
-                Element identifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS);
+                
+                Element identifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS_11);
                 identifierElement.appendChild(style.getName());
                 styleElement.appendChild(identifierElement);
 
@@ -495,7 +501,7 @@ public class WMTSGetCapabilitiesService {
         } else {
             // NOTE: In WMTs, in case layer has no style, then it still contains a Style element with the default text
             Element styleElement = new Element(XMLSymbols.LABEL_WMS_STYLE, NAMESPACE_WMTS);
-            Element identifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS);
+            Element identifierElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_WMTS_IDENTIFIER), NAMESPACE_OWS_11);
             identifierElement.appendChild(this.STYLE_DEFAULT);
             styleElement.appendChild(identifierElement);
 
@@ -577,7 +583,7 @@ public class WMTSGetCapabilitiesService {
     }
     
     public Element buildOperationsMetadataElement() {
-        Element operationsMetadataElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_OPERATIONS_METADATA), NAMESPACE_OWS);
+        Element operationsMetadataElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, XMLSymbols.LABEL_OPERATIONS_METADATA), NAMESPACE_OWS_11);
         
         Element getCapabilitiesOperationElement = this.buildOperationElement(KVPSymbols.VALUE_WMTS_GET_CAPABILITIES);
         Element getTileElement = this.buildOperationElement(KVPSymbols.VALUE_WMTS_GET_TILE);
@@ -595,7 +601,7 @@ public class WMTSGetCapabilitiesService {
         <ows:DCP>
             <ows:HTTP>
 
-                <ows:Get xlink:href="http://localhost:8080/rasdaman/ows">
+                <ows:Get xlink:href="http://localhost:8080/rasdaman/ows?">
                     <ows:Constraint name="GetEncoding">
                         <ows:AllowedValues>
                             <ows:Value>KVP</ows:Value>
@@ -603,7 +609,7 @@ public class WMTSGetCapabilitiesService {
                     </ows:Constraint>
                 </ows:Get>
 
-                <ows:Post xlink:href="http://localhost:8080/rasdaman/ows">
+                <ows:Post xlink:href="http://localhost:8080/rasdaman/ows?">
                     <ows:Constraint name="PostEncoding">
                         <ows:AllowedValues>
                             <ows:Value>KVP</ows:Value>
@@ -617,41 +623,61 @@ public class WMTSGetCapabilitiesService {
      */
     private Element buildOperationElement(String operationName) {
         
-        Element operationElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_OPERATION), NAMESPACE_OWS);
+        String endpointURL = ConfigManager.PETASCOPE_ENDPOINT_URL + "?";
         
-        Attribute nameAttribute = new Attribute(ATT_NAME, NAMESPACE_OWS);
+        Element operationElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_OPERATION), NAMESPACE_OWS_11);
+        
+        Attribute nameAttribute = new Attribute(ATT_NAME, NAMESPACE_OWS_11);
         // e.g. GetCapabilities
         nameAttribute.setValue(operationName);
         operationElement.addAttribute(nameAttribute);
         
-        Element dcpElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_DCP), NAMESPACE_OWS);
-        Element httpElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_HTTP), NAMESPACE_OWS);
+        Element dcpElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_DCP), NAMESPACE_OWS_11);
+        Element httpElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_HTTP), NAMESPACE_OWS_11);
         
         // GET request
-        Element getElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_GET), NAMESPACE_OWS);
-        Attribute getHrefAttribute = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_HREF, ConfigManager.PETASCOPE_ENDPOINT_URL);
+        Element getElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_GET), NAMESPACE_OWS_11);
+        Attribute getHrefAttribute = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_HREF, endpointURL);
         getElement.addAttribute(getHrefAttribute);
         
-        Element allowedValuesElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ALLOWED_VALUES), NAMESPACE_OWS);
-        Element valueElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_KVP), NAMESPACE_OWS);
+        Element constraintElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_WMTS_CONSTRAINT), NAMESPACE_OWS_11);
+        Attribute getEncodingAttribute1 = new Attribute(ATT_NAME, ATT_VALUE_GET_ENCODING);
+        constraintElement1.addAttribute(getEncodingAttribute1);
+        getElement.appendChild(constraintElement1);
+        
+        
+        Element allowedValuesElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ALLOWED_VALUES), NAMESPACE_OWS_11);
+        Element valueElement1 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_VALUE), NAMESPACE_OWS_11);
+        valueElement1.appendChild(LABEL_KVP);
         allowedValuesElement1.appendChild(valueElement1);
         
-        getElement.appendChild(allowedValuesElement1);
+        constraintElement1.appendChild(allowedValuesElement1);
         
         httpElement.appendChild(getElement);
         
-        // POST request
-        Element postElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_POST), NAMESPACE_OWS);
-        Attribute postHrefAttribute = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_HREF, ConfigManager.PETASCOPE_ENDPOINT_URL);
-        postElement.addAttribute(postHrefAttribute);
         
-        Element allowedValuesElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ALLOWED_VALUES), NAMESPACE_OWS);
-        Element valueElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_KVP), NAMESPACE_OWS);
-        allowedValuesElement2.appendChild(valueElement2);
-        
-        postElement.appendChild(allowedValuesElement2);
-        
-        httpElement.appendChild(postElement);
+        if (!ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+            // NOTE: it has error from OGC CITE test when it contains both Get and Post KVP in ows:Constraints
+            
+            // POST request
+            Element postElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_POST), NAMESPACE_OWS_11);
+            Attribute postHrefAttribute = XMLUtil.createXMLAttribute(NAMESPACE_XLINK, PREFIX_XLINK, ATT_HREF, endpointURL);
+            postElement.addAttribute(postHrefAttribute);
+
+            Element constraintElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_WMTS_CONSTRAINT), NAMESPACE_OWS_11);
+            Attribute getEncodingAttribute2 = new Attribute(ATT_NAME, ATT_VALUE_GET_ENCODING);
+            constraintElement2.addAttribute(getEncodingAttribute2);
+            postElement.appendChild(constraintElement2);
+
+            Element allowedValuesElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_ALLOWED_VALUES), NAMESPACE_OWS_11);
+            Element valueElement2 = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_VALUE), NAMESPACE_OWS_11);
+            valueElement2.appendChild(LABEL_KVP);
+            allowedValuesElement2.appendChild(valueElement2);
+
+            constraintElement2.appendChild(allowedValuesElement2);
+
+            httpElement.appendChild(postElement);
+        }
         
         dcpElement.appendChild(httpElement);
         

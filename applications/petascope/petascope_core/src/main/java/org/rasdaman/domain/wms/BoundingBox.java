@@ -36,7 +36,9 @@ import nu.xom.Element;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
 import petascope.core.XMLSymbols;
 import static petascope.core.XMLSymbols.NAMESPACE_WMS;
+import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
+import petascope.util.CrsUtil;
 
 /**
  * WMS service metadata shall declare one or more bounding boxes (as defined in
@@ -157,14 +159,14 @@ public class BoundingBox implements Serializable {
      * Create a BoundingBox XML element and get the XML string
      */
     @JsonIgnore
-    public String getRepresentation() {
+    public String getRepresentation() throws PetascopeException {
         return getElement().toXML();
     }
     
     @JsonIgnore
-    public Element getElement() {
+    public Element getElement() throws PetascopeException {
         Element bboxElement = new Element(XMLSymbols.LABEL_WMS_BOUNDING_BOX, NAMESPACE_WMS);
-        Attribute crsAttribute = new Attribute(XMLSymbols.LABEL_WMS_CRS, this.getCrs());
+        Attribute crsAttribute = new Attribute(XMLSymbols.LABEL_WMS_CRS, CrsUtil.getAuthorityCode(this.getCrs()));
         Attribute minxAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_X, xmin);
         Attribute minyAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_Y, ymin);
         Attribute maxxAttribute = new Attribute(XMLSymbols.ATT_WMS_MAX_X, xmax);
@@ -223,6 +225,6 @@ public class BoundingBox implements Serializable {
         }
         return true;
     }
-    
+  
     
 }

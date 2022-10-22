@@ -85,38 +85,4 @@ public class WMSGetMapExceptionService {
     public void setFormat(String format) {
         this.format = format;
     }
-
-    /**
-     * Create an image for the exception to the WMS client.
-     *
-     * @return
-     */
-    public Response createImageExceptionResponse() {
-        String mimeFormat = this.format;
-
-        //create buffered image object img
-        Color backgroundColor = new Color(0, 0, 0);
-        BufferedImage img = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D graphics = img.createGraphics();
-        graphics.setPaint(backgroundColor);
-        graphics.fillRect(0, 0, this.width, this.height);
-        if (exceptionFormat.equalsIgnoreCase(KVPWMSGetCapabilitiesHandler.EXCEPTION_INIMAGE)) {
-            graphics.setColor(Color.WHITE);
-            graphics.setFont(new Font("Arial Black", Font.TRUETYPE_FONT, 10));
-            graphics.drawString(this.errorMessage, width / 10, height / 2);
-        }
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(img, MIMEUtil.getFormatType(mimeFormat), byteArrayOutputStream);
-        } catch (PetascopeException | IOException ex) {
-            log.error("Cannot create WMS image exception", ex);
-        }
-
-        byte[] bytes = byteArrayOutputStream.toByteArray();
-        Response response = new Response(Arrays.asList(bytes), mimeFormat, ExceptionCode.InternalWMSError.getHttpErrorCode());
-
-        return response;
-    }
 }

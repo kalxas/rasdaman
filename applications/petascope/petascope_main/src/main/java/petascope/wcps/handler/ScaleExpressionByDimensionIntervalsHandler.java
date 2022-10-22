@@ -111,7 +111,7 @@ public class ScaleExpressionByDimensionIntervalsHandler extends Handler {
     }
     
     public WcpsResult handle() throws PetascopeException {
-        if (this.getChildren().size() > 0) {
+        if (!(this.getParent() instanceof LetClauseHandler) && (this.getChildren().size() > 0)) {
             this.updateQueryTree(this.getParent(), this.getFirstChild(), this.getSecondChild());
         }
         
@@ -140,6 +140,7 @@ public class ScaleExpressionByDimensionIntervalsHandler extends Handler {
         if ((childCoverageExpressionHandler.getClass().getName().equals(this.getClass().getName()))
             || childCoverageExpressionHandler.getClass().getName().equals(AxisIteratorDomainIntervalsHandler.class.getName())
             || childCoverageExpressionHandler.getClass().getName().equals(ReduceExpressionHandler.class.getName())
+            || childCoverageExpressionHandler.getClass().getName().equals(CrsTransformHandler.class.getName())
             ) {
             // e.g. scale(avg(c)) is invalid -> don't try to make avg(scale(c))
             return;

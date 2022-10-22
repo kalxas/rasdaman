@@ -77,8 +77,6 @@ public class AdminCreateOrUpdateLayerService {
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
-    @Autowired
-    private WMSGetMapCachingService wmsGetMapCachingService;
 
     /**
      * If a layer name associated with a coverageID doesn't exist, then create a
@@ -93,7 +91,7 @@ public class AdminCreateOrUpdateLayerService {
 
         boolean layerExist = this.wmsRepostioryService.isInLocalCache(layerName);
         Layer layer = null;
-        
+
         if (!layerExist) {
             layer = new Layer();
         } else {
@@ -168,11 +166,6 @@ public class AdminCreateOrUpdateLayerService {
         // Persist the layer
         wmsRepostioryService.saveLayer(layer);
         log.info("Layer '" + layerName + "' is persisted to local database.");
-
-        if (layerExist) {
-            // Remove all the cached GetMap response from cache as layer is updated
-            this.wmsGetMapCachingService.removeLayerGetMapInCache(layerName);
-        }
         
         // Mark this local layer is updated for WMTS to recreate new TileMatrixSets for it
         WMTSGetCapabilitiesService.localUpdatedLayerNames.add(layerName);

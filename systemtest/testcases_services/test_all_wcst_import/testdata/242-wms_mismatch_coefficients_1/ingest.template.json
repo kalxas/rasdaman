@@ -1,0 +1,30 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "track_files": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_wms_mismatch_coefficients_1",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_irregular",
+    "options": {
+      "wms_import": true,
+      "time_parameter": {
+        "filename": {
+          "regex": "(.*)_(.*)\\.(.*)",
+          "group": "1"
+        },
+        "datetime_format": "YYYYMMDD"
+      },
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate?axis-label=\"date\"",
+      "tiling": "ALIGNED [0:0, 0:999, 0:999]"
+    }
+  }
+}

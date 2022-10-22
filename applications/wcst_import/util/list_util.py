@@ -54,6 +54,16 @@ def numpy_array_to_string(numpy_array):
     return str(list(numpy_array))
 
 
+def join_list(values, separator=","):
+    """
+    Joint elements in the list with comma separated
+    :param values: list of string values
+    :return: str
+    """
+    result = separator.join(f'"{w}"' for w in values)
+    return result
+
+
 def to_list_string(input_list):
     """
     This is used to translate a list of decimal values to list string values as eval() cannot evaluate
@@ -108,10 +118,12 @@ def get_null_values(default_null_values):
      (e.g: ["20", "30, 40, 50"] -> [20, 30, 40, 50])
     :param list[str] default_null_values: user defined null values in ingredient file
     """
-    null_values = []
-    for value in default_null_values:
-        values = str(value).strip().split(",")
-        values = [x.strip() for x in values]
-        null_values += values
+    null_values = None
+    if default_null_values is not None:
+        null_values = []
+        for value in default_null_values:
+            values = str(value).strip().split(",")
+            values = [x.strip() for x in values]
+            null_values += values
 
     return null_values

@@ -71,8 +71,6 @@ class Session:
         self.ingredient_file_name = ingredient_file_name
         self.ingredients_dir_path = ingredients_dir_path if ingredients_dir_path.endswith("/") \
             else ingredients_dir_path + "/"
-        # input files to import
-        self.files = self.parse_input(inp['paths'] if 'paths' in inp else [])
         # imported files from the list of input files (files are added in .resume.json will be ignored)
         self.imported_files = []
         self.coverage_id = inp['coverage_id'] if 'coverage_id' in inp else None
@@ -85,6 +83,10 @@ class Session:
         self.inspire = Inspire(metadata_url)
 
         self.recipe = recipe
+
+        # input files to import
+        self.files = self.parse_input(inp['paths'] if 'paths' in inp else [])
+
         self.input = inp
         self.wcs_service = config['service_url'] if "service_url" in config else None
         self.service_is_local = bool(config['service_is_local']) if "service_is_local" in config else True
@@ -108,7 +110,7 @@ class Session:
 
         self.insitu = config['insitu'] if "insitu" in config else None
         self.black_listed = config["black_listed"] if "black_listed" in config else None
-        self.default_null_values = config['default_null_values'] if "default_null_values" in config else []
+        self.default_null_values = config['default_null_values'] if "default_null_values" in config else None
         self.mock = False if "mock" not in config else bool(self.config["mock"])
         # By default, analyze all files then import (blocking import mode). With non_blocking_import mode, analyze and import each file separately.
         self.blocking = True if "blocking" not in config else bool(self.config["blocking"])
@@ -146,6 +148,7 @@ class Session:
 
             self.__get_import_overviews()
             self.import_overviews_only = False if "import_overviews_only" not in self.recipe["options"] else bool(self.recipe["options"]["import_overviews_only"])
+
 
         # Pre/Post hooks to run before analyzing files/after import replaced files
         # (original files are not used but processed files (e.g: by gdalwarp))
@@ -205,6 +208,7 @@ class Session:
         ConfigManager.description_max_no_slices = self.description_max_no_slices
         ConfigManager.track_files = self.track_files
         ConfigManager.ingredient_file_name = self.ingredient_file_name
+        ConfigManager.log_file = ConfigManager.resumer_dir_path + "/" + ConfigManager.ingredient_file_name + ".log"
 
         self.validate()
 
@@ -442,7 +446,20 @@ class Session:
                      "a directory provided in the paths is empty or if a path regex returns no results. If this is not "
                      "the case, make sure the paths are correct and readable by the importer.")
 
-        file_paths.sort()
+        from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
+        if "options" in self.recipe and \
+                "import_order" in self.recipe["options"]:
+            if self.recipe["options"]["import_order"] == AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING:
+                file_paths.sort()
+            elif self.recipe["options"]["import_order"] == AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
+                file_paths.sort(reverse=True)
+            elif self.recipe["options"]["import_order"] == AbstractToCoverageConverter.IMPORT_ORDER_NONE:
+                # Don't sort if "import_order": "none"
+                pass
+        else:
+            # default always sorting files by ascending if import_order not specified
+            file_paths.sort()
+
         file_obs = [File(f) for f in file_paths]
         return file_obs
 

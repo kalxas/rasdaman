@@ -654,35 +654,26 @@ public class PyramidService {
             BigDecimal pyramidMemberGeoLowerBoundY = pyramidMemberGeoAxisY.getLowerBoundNumber().subtract(epsilonY);
             BigDecimal pyramidMemberGeoUpperBoundY = pyramidMemberGeoAxisY.getUpperBoundNumber().add(epsilonY);
             
-            if (pyramidMemberGeoLowerBoundX.compareTo(geoSubsetX.fst) <= 0 && 
-                pyramidMemberGeoUpperBoundX.compareTo(geoSubsetX.snd) >= 0 && 
-                pyramidMemberGeoLowerBoundY.compareTo(geoSubsetY.fst) <= 0 && 
-                pyramidMemberGeoUpperBoundY.compareTo(geoSubsetY.snd) >= 0) {
-                
-                ParsedSubset<BigDecimal> pyramidMemberXParsedSubset = new ParsedSubset<>(geoSubsetX.fst, geoSubsetX.snd);
-                ParsedSubset<Long> pyramidMemberXGridBounds = this.coordinateTranslationService.geoToGridForRegularAxis(pyramidMemberXParsedSubset, pyramidMemberGeoAxisX.getLowerBoundNumber(),
+            ParsedSubset<BigDecimal> pyramidMemberXParsedSubset = new ParsedSubset<>(geoSubsetX.fst, geoSubsetX.snd);
+            ParsedSubset<Long> pyramidMemberXGridBounds = this.coordinateTranslationService.geoToGridForRegularAxis(pyramidMemberXParsedSubset, pyramidMemberGeoAxisX.getLowerBoundNumber(),
                                                                                                        pyramidMemberGeoAxisX.getUpperBoundNumber(), pyramidMemberGeoAxisX.getResolution(), 
                                                                                                        new BigDecimal(pyramidMemberIndexAxisX.getLowerBound()));
-                long numberOfPyramidMemberXGridPixels = pyramidMemberXGridBounds.getUpperLimit() - pyramidMemberXGridBounds.getLowerLimit() + 1;
+            long numberOfPyramidMemberXGridPixels = pyramidMemberXGridBounds.getUpperLimit() - pyramidMemberXGridBounds.getLowerLimit() + 1;
         
-                ParsedSubset<BigDecimal> pyramidMemberYParsedSubset = new ParsedSubset<>(geoSubsetY.fst, geoSubsetY.snd);
-                ParsedSubset<Long> pyramidMemberYGridBounds = this.coordinateTranslationService.geoToGridForRegularAxis(pyramidMemberYParsedSubset, pyramidMemberGeoAxisY.getLowerBoundNumber(),
+            ParsedSubset<BigDecimal> pyramidMemberYParsedSubset = new ParsedSubset<>(geoSubsetY.fst, geoSubsetY.snd);
+            ParsedSubset<Long> pyramidMemberYGridBounds = this.coordinateTranslationService.geoToGridForRegularAxis(pyramidMemberYParsedSubset, pyramidMemberGeoAxisY.getLowerBoundNumber(),
                                                                                                        pyramidMemberGeoAxisY.getUpperBoundNumber(), pyramidMemberGeoAxisY.getResolution(), 
                                                                                                        new BigDecimal(pyramidMemberIndexAxisY.getLowerBound()));
-                long numberOfPyramidMemberYGridPixels = pyramidMemberYGridBounds.getUpperLimit() - pyramidMemberYGridBounds.getLowerLimit() + 1;
+            long numberOfPyramidMemberYGridPixels = pyramidMemberYGridBounds.getUpperLimit() - pyramidMemberYGridBounds.getLowerLimit() + 1;            
                 
-                
-                // NOTE: if a pyramid member also contains subsetting coefficients for irregular axis (e.g. time), then it can be considered as a candidate
-                if (this.isGoodPyramidMemberForNonXYSubsets(nonXYSubsetDimensions, coveragePyramid)) {
-                    if ((numberOfPyramidMemberXGridPixels <= numberOfBaseXGridPixels && numberOfPyramidMemberXGridPixels > width)
-                        && (numberOfPyramidMemberYGridPixels <= numberOfBaseYGridPixels && numberOfPyramidMemberYGridPixels > height)) {
-                        result = coveragePyramid;
-                    } else {
-                        return result;
-                    }
+            // NOTE: if a pyramid member also contains subsetting coefficients for irregular axis (e.g. time), then it can be considered as a candidate
+            if (this.isGoodPyramidMemberForNonXYSubsets(nonXYSubsetDimensions, coveragePyramid)) {
+                if ((numberOfPyramidMemberXGridPixels <= numberOfBaseXGridPixels && numberOfPyramidMemberXGridPixels > width)
+                    && (numberOfPyramidMemberYGridPixels <= numberOfBaseYGridPixels && numberOfPyramidMemberYGridPixels > height)) {
+                    result = coveragePyramid;
+                } else {
+                    return result;
                 }
-            } else {
-                result = coveragePyramid;
             }
             
         }

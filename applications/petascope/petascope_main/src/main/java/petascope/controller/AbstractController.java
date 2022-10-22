@@ -22,7 +22,6 @@
 package petascope.controller;
 
 import com.rasdaman.accesscontrol.service.AuthenticationService;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -36,17 +35,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.maven.wagon.util.FileUtils;
 import org.rasdaman.config.ConfigManager;
-import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
-import static org.rasdaman.config.ConfigManager.UPLOAD_FILE_PREFIX;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +52,7 @@ import static petascope.controller.AuthenticationController.READ_WRITE_RIGHTS;
 import petascope.controller.handler.service.AbstractHandler;
 import petascope.controller.handler.service.XMLWCSServiceHandler;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_ACCEPTVERSIONS;
 
 
 import static petascope.core.KVPSymbols.KEY_REQUEST;
@@ -71,6 +67,7 @@ import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.PetascopeRuntimeException;
+import petascope.exceptions.WMTSException;
 import petascope.util.ExceptionUtil;
 import petascope.util.IOUtil;
 import petascope.util.ListUtil;
@@ -354,17 +351,31 @@ public abstract class AbstractController {
             kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_PROCESS_COVERAGES});
         }
 
-        // e.g: Rasql servlet does not contains these requirement parameters
-        if (kvpParameters.get(KVPSymbols.KEY_SERVICE) != null) {
-            String service = getValueByKey(kvpParameters, KVPSymbols.KEY_SERVICE);
-            String request = getValueByKey(kvpParameters, KVPSymbols.KEY_REQUEST);
-            String versions[] = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
+        String service = getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_SERVICE);
+        String request = getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_REQUEST);
+        String versions[] = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
+        
+        if (VersionManager.isWMSRequest(versions) && service == null) {
+            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] { KVPSymbols.WMS_SERVICE });
+        }        
 
+        // e.g: Rasql servlet does not contains these requirement parameters
+        if (service != null) {
+            
+            if (service != null && request == null) {
+                if (service.equals(KVPSymbols.WMTS_SERVICE)) {
+                    throw new WMTSException(new ExceptionCode(ExceptionCode.MissingParameterValue, KVPSymbols.KEY_REQUEST)); 
+                } else {
+                    throw new PetascopeException(new ExceptionCode(ExceptionCode.MissingParameterValue, KVPSymbols.KEY_REQUEST)); 
+                }
+            }
+            
             // NOTE: WMS allows version is null, so just use the latest WMS version
             if (service.equals(KVPSymbols.WMS_SERVICE) && versions == null) {
                 log.debug("WMS received request without version parameter, use the default version: " + VersionManager.getLatestVersion(WMS_SERVICE));
                 kvpParameters.put(KVPSymbols.KEY_VERSION, new String[] {VersionManager.getLatestVersion(WMS_SERVICE)});
-            } else if (service.equals(KVPSymbols.WCS_SERVICE) && request.equals(KVPSymbols.VALUE_GET_CAPABILITIES)) {
+            } else if (service.equals(KVPSymbols.WCS_SERVICE) 
+                        && request.equals(KVPSymbols.VALUE_GET_CAPABILITIES)) {
                 // It should use AcceptVersions for WCS GetCapabilities
                 if (kvpParameters.get(KVPSymbols.KEY_ACCEPTVERSIONS) != null) {
                     String value = getValuesByKey(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS)[0];
@@ -376,6 +387,11 @@ public abstract class AbstractController {
                     // NOTE: only petascope allows to request GetCapabilities without known versions before-hand
                     versions = new String[] {VersionManager.getLatestVersion(WCS_SERVICE)};
                     kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
+                }
+            } else if (request.equalsIgnoreCase(KVPSymbols.VALUE_GET_CAPABILITIES)) {
+                String[] acceptVersions = getValuesByKeyAllowNull(kvpParameters, KEY_ACCEPTVERSIONS);
+                if (acceptVersions != null) {
+                    kvpParameters.put(KVPSymbols.KEY_VERSION, acceptVersions);
                 }
             }
         }
@@ -735,7 +751,7 @@ public abstract class AbstractController {
     public static String[] getValuesByKey(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
         String[] values = kvpParameters.get(key.toLowerCase());
         if (values == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+            throw new PetascopeException(ExceptionCode.BadResponseHandler, 
                     "Cannot find value from KVP parameters map for key '" + key + "'.");
         }
         

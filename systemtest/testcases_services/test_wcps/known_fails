@@ -27,3 +27,5 @@
 
 # difference results between ubuntu and centos 7
 507-sort_on_2d.test
+
+520-scale_by_imgCrsdomain_with_let_clauses.test

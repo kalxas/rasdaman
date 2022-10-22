@@ -38,7 +38,7 @@ public class WMSInvalidCrsUriException extends WMSException {
      * @param crs the invalid crs.
      */
     public WMSInvalidCrsUriException(@NotNull String crs) {        
-        super(ExceptionCode.NoApplicableCode, ERROR_MESSAGE.replace(CRS_TOKEN, crs));
+        super(ExceptionCode.InvalidCRS, ERROR_MESSAGE.replace(CRS_TOKEN, crs));
     }
 
     private static final String CRS_TOKEN = "$crs$";

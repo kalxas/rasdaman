@@ -36,6 +36,7 @@ import static org.rasdaman.config.ConfigManager.INSPIRE_COMMON_URL;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_ENDPOINT_URL;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
+import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +49,7 @@ import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeRuntimeException;
+import petascope.exceptions.WMTSException;
 import petascope.util.ExceptionUtil;
 import petascope.util.StringUtil;
 
@@ -100,7 +102,7 @@ public class PetascopeController extends AbstractController {
         Response response = new Response(Arrays.asList(bytes), "text/html");
         return response;
     }
-
+    
     /**
      * Depend on the request parameter to handle the request (WCS, WCPS,...)
      *
@@ -131,7 +133,15 @@ public class PetascopeController extends AbstractController {
                 // no url for petascope is defined in petascope.properties, only now can have the HTTP request object to set this value
                 if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {
                     // use the requesting URL to Petascope (not always: http://localhost:8080/rasdaman/ows)
+                    
                     PETASCOPE_ENDPOINT_URL = httpServletRequest.getRequestURL().toString();
+                    String protocol = httpServletRequest.getHeader("X-Forwarded-Proto");
+                    
+                    if (protocol != null) {
+                        // e.g. in case using https in apache2 proxy for http on local tomcat
+                        String[] tmps = PETASCOPE_ENDPOINT_URL.split("://");
+                        PETASCOPE_ENDPOINT_URL = protocol + "://" + tmps[1];
+                    }
                 }
 
                 if (INSPIRE_COMMON_URL.isEmpty()) {
@@ -139,9 +149,21 @@ public class PetascopeController extends AbstractController {
                 }
 
                 // e.g: WCS, WMS
-                service = getValueByKey(kvpParameters, KVPSymbols.KEY_SERVICE);
-                // e.g: 2.0.1, 2.1.0 (WCS)
-                String[] versions = getValuesByKey(kvpParameters, KVPSymbols.KEY_VERSION);
+                service = getValueByKeyAllowNull(kvpParameters, KVPSymbols.KEY_SERVICE);
+                // e.g: 2.0.1, 2.1.0 (WCS), 1.3.0 (WMS), 1.0.0 (WMTS)
+                String[] versions = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_VERSION);
+                if (versions == null) {
+                    versions = getValuesByKeyAllowNull(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS);
+                }
+                
+                if (service == null) {
+                    if (VersionManager.isWMTSRequest(versions)) {
+                        throw new WMTSException(new ExceptionCode(ExceptionCode.MissingParameterValue, KVPSymbols.KEY_SERVICE)); 
+                    }
+                    
+                    throw new PetascopeException(new ExceptionCode(ExceptionCode.MissingParameterValue, KVPSymbols.KEY_SERVICE)); 
+                }
+                
                 // e.g: GetCapabilities, DescribeCoverage
                 String requestService = getValueByKey(kvpParameters, KVPSymbols.KEY_REQUEST);
                 request = requestService;
@@ -154,6 +176,20 @@ public class PetascopeController extends AbstractController {
                         break;
                     }
                 }
+                
+                if (response == null && service != null) {
+                    String locator = KVPSymbols.KEY_REQUEST;
+                    if (!VersionManager.isSupported(service)) {
+                        locator = KVPSymbols.KEY_SERVICE;
+                    }
+                     
+                    if (VersionManager.isWMTSRequest(versions)) {
+                        throw new WMTSException(new ExceptionCode(ExceptionCode.InvalidParameterValue, locator)); 
+                    } else {
+                        throw new PetascopeException(new ExceptionCode(ExceptionCode.InvalidParameterValue, locator)); 
+                    }
+                }
+                
                 if (response == null) {
                     throw new PetascopeException(ExceptionCode.NoApplicableCode, 
                                                 "Cannot find the handler for the request '" + StringUtil.escapeAmpersands(this.getRequestRepresentation(kvpParameters)) + "'.");

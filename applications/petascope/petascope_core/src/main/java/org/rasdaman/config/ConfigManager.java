@@ -52,6 +52,8 @@ import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.IOUtil;
 import petascope.util.StringUtil;
 import petascope.util.ras.RasUtil;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import org.gdal.gdal.gdal;
 import static petascope.util.CrsUtil.isInternalSecoreURL;
@@ -175,6 +177,7 @@ public class ConfigManager {
     public static final String SECORE_INTERNAL = "internal";
     // this is used internally inside petascope as a valid URI, loaded from secore.properties, default it is "http://localhost:8080/rasdaman/def"
     public static final String DEFAULT_SECORE_INTERNAL_URL = "http://localhost:8080/rasdaman/def";
+    public static final String SECORE_INTERNAL_CONTEXT_PATH = "/rasdaman/def";
     
     /* ***** AJP connector configuration for embedded tomcat ***** */
     public static int EMBEDDED_AJP_PORT = 0;
@@ -404,6 +407,18 @@ public class ConfigManager {
         EMBEDDED_PETASCOPE_PORT = this.get(KEY_EMBEDDED_PETASCOPE_PORT);
         
         PETASCOPE_ENDPOINT_URL = get(KEY_PETASCOPE_SERVLET_URL);
+        if (PETASCOPE_ENDPOINT_URL != null && !PETASCOPE_ENDPOINT_URL.trim().isEmpty()) {
+            try {
+                URL url = new URL(PETASCOPE_ENDPOINT_URL);
+            } catch (MalformedURLException ex) {
+                throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
+                        "Value for key: " + KEY_PETASCOPE_SERVLET_URL + " must be a valid URL"
+                                + ". Given: " +  PETASCOPE_ENDPOINT_URL
+                                + ". Reason: " + ex.getMessage());
+            }
+        }
+        
+        
         INSPIRE_COMMON_URL = getOptionalPropertyValue(KEY_INSPIRE_METADATA_URL, "");
         
         PETASCOPE_APPLICATION_CONTEXT_PATH = get(KEY_APPLICATION_NAME);
@@ -431,7 +446,7 @@ public class ConfigManager {
                     + " use default value '" + MAX_WMS_CACHE_SIZE + "' for this key.");
         } catch (NumberFormatException ex) {
             throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
-                    "Value for key '" + KEY_MAX_WMS_CACHE_SIZE + "' must not be negative integer. Given '" + valueMaxWMSCacheSize + "'.");
+                    "Value for key '" + KEY_MAX_WMS_CACHE_SIZE + "' must be non-negative integer. Given '" + valueMaxWMSCacheSize + "'.");
         }
         
         try {

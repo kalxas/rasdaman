@@ -37,8 +37,8 @@ public class WMSLayerNotExistException extends WMSException {
      * @param layerName
      */
     public WMSLayerNotExistException(String layerName) {
-        super(ExceptionCode.NoSuchLayer, ERROR_MESSAGE.replace("$layerName", layerName));
+        super(ExceptionCode.LayerNotDefined, ERROR_MESSAGE.replace("$layerName", layerName));
     }
 
-    private final static String ERROR_MESSAGE = "The given layer name '$layerName' does not exist in database.";
+    private final static String ERROR_MESSAGE = "The given layer name '$layerName' does not exist.";
 }

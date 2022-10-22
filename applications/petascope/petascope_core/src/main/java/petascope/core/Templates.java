@@ -22,6 +22,7 @@
 package petascope.core;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class Templates {
     public static final String GENERAL_WCS_EXCEPTION_REPORT = "WCS_ExceptionReport";
     public static final String GENERAL_WCS_RASQL_EXCEPTION_REPORT = "WCS_RASQL_ExceptionReport";
     public static final String GENERAL_WMS_EXCEPTION_REPORT = "WMS_ExceptionReport";
+    public static final String GENERAL_WMTS_EXCEPTION_REPORT = "WMTS_ExceptionReport";
     public static final String GENERAL_SOAP_FAULT = "SOAPFault";
     public static final String GENERAL_SOAP_MESSAGE = "SOAPMessage";
 
@@ -105,7 +107,7 @@ public class Templates {
     /**
      * template name -> (template as string, template as XOM element)
      */
-    private static final Map<String, String> templates = new HashMap<>();
+    private static final Map<String, String> templates = new LinkedHashMap<>();
 
     private static final String TEMPLATE_FOLDER = "templates";
     private static final String GENERAL_PREFIX = "general";
@@ -125,6 +127,7 @@ public class Templates {
         loadGeneralTemplate(GENERAL_WCS_EXCEPTION_REPORT);
         loadGeneralTemplate(GENERAL_WCS_RASQL_EXCEPTION_REPORT);
         loadGeneralTemplate(GENERAL_WMS_EXCEPTION_REPORT);
+        loadGeneralTemplate(GENERAL_WMTS_EXCEPTION_REPORT);
 
         // WCS 2.0.1 services
         // Get Capabilities

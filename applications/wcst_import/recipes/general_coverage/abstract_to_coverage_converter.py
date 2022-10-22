@@ -69,6 +69,8 @@ class AbstractToCoverageConverter:
 
     IMPORT_ORDER_ASCENDING = "ascending"
     IMPORT_ORDER_DESCENDING = "descending"
+    # no sorts by file paths / timeseries
+    IMPORT_ORDER_NONE = "none"
 
     # A dictionary of irregular axes and their geo lower bounds
     irregular_axis_geo_lower_bound_dict = {}
@@ -543,9 +545,10 @@ class AbstractToCoverageConverter:
             count += 1
 
         # Currently, only sort by datetime to import coverage slices (default is ascending)
-        reverse = (self.import_order == self.IMPORT_ORDER_DESCENDING)
-        for key, value in slices_dict.items():
-            slices_dict[key] = sort_slices_by_datetime(value, reverse)
+        if self.import_order != self.IMPORT_ORDER_NONE:
+            reverse = (self.import_order == self.IMPORT_ORDER_DESCENDING)
+            for key, value in slices_dict.items():
+                slices_dict[key] = sort_slices_by_datetime(value, reverse)
 
         return slices_dict
 
@@ -585,6 +588,9 @@ class AbstractToCoverageConverter:
         if coverage_slices_dict is None:
             # Build list of coverage slices from input files
             coverage_slices_dict = self._create_coverage_slices(self.crs, crs_axes)
+
+        if len(coverage_slices_dict) == 0 or len(list(coverage_slices_dict.values())[0]) == 0:
+            return []
 
         global_metadata = None
         first_coverage_slice = None

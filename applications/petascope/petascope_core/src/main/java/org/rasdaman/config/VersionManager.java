@@ -23,8 +23,10 @@ package org.rasdaman.config;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.CIS_SERVICE;
 import static petascope.core.KVPSymbols.RASQL_SERVICE;
@@ -107,5 +109,26 @@ public class VersionManager {
         }
         
         return false;
+    }
+    
+    /**
+     * Check if the requesting service is supported
+     */
+    public static boolean isSupported(String serviceName) {
+        return serviceVersionsMap.get(serviceName) != null;
+    }
+    
+    /*
+    Check if the requesting version is WMTS or not
+    */
+    public static boolean isWMTSRequest(String[] versions) {
+        return versions != null && versions[0].equals(VersionManager.WMTS_VERSION_10);
+    }
+    
+    /**
+     * Check if the requesting version is WMS or not
+     */
+    public static boolean isWMSRequest(String[] versions) {
+        return versions != null && versions[0].equals(VersionManager.WMS_VERSION_13);
     }
 }

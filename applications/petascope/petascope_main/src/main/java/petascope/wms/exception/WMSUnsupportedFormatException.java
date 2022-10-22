@@ -40,7 +40,7 @@ public class WMSUnsupportedFormatException extends WMSException {
      * @param format the format supplied by the user
      */
     public WMSUnsupportedFormatException(@NotNull String format) {
-        super(ExceptionCode.InvalidRequest, ERROR_MESSAGE.replace("$format", format));
+        super(ExceptionCode.InvalidFormat, ERROR_MESSAGE.replace("$format", format));
     }
 
     private static final String ERROR_MESSAGE = "Invalid value for 'format' parameter. Given '$format'.";

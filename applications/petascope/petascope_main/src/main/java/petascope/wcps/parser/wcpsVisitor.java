@@ -159,6 +159,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitFieldName(@NotNull wcpsParser.FieldNameContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#TrimDimensionIntervalByImageCrsDomainElementLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#SliceDimensionIntervalElementLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -817,6 +824,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#corridorWKTLabel1}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCorridorWKTLabel1(@NotNull wcpsParser.CorridorWKTLabel1Context ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#RangeConstructorSwitchCaseExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -829,6 +843,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#WKTCoverageExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWKTCoverageExpressionLabel(@NotNull wcpsParser.WKTCoverageExpressionLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#GeneralCondenseExpressionLabel}.
@@ -871,6 +892,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSwitchCaseElementList(@NotNull wcpsParser.SwitchCaseElementListContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#corridorWKTLabel2}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCorridorWKTLabel2(@NotNull wcpsParser.CorridorWKTLabel2Context ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CrsTransformExpressionLabel}.

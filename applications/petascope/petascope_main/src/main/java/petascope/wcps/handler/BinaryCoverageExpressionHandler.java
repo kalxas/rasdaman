@@ -89,20 +89,14 @@ public class BinaryCoverageExpressionHandler extends Handler {
             secondCoverageReturnedValue = secondCoverage.getResult();
         }
         
+        
+        
         //create the resulting rasql string
         String rasql = firstCoverageReturnedValue + " " + operator + " " + secondCoverageReturnedValue;
         //create the resulting metadata
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.getResultingMetadata(firstCoverage.getMetadata(), secondCoverage.getMetadata(), 
                                                                                          firstCoverageReturnedValue, secondCoverageReturnedValue);
         
-        if (firstCoverage.getMetadata() != null) {
-            metadata.addToContributingMetadatasSet(firstCoverage.getMetadata(), firstCoverageReturnedValue);
-        } 
-        
-        if (secondCoverage.getMetadata() != null) {
-            metadata.addToContributingMetadatasSet(secondCoverage.getMetadata(), secondCoverageReturnedValue);
-        }
-  
         WcpsResult result = new WcpsResult(metadata, rasql);
         return result;
     }

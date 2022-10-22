@@ -2580,8 +2580,12 @@ config section
 
   .. NOTE::
 
-     If set this parameter will override the null/nodata values present in
-     the input files.
+     - If set this parameter will override the null/nodata values present in
+       the input files.
+     - If this parameter is not set, wcst_import will try to detect these values
+       for bands implicity from the first input file.
+     - If set this parameter to: ``[]``, then, wcst_import will
+       create a coverage without any null values.
 
   .. NOTE::
 
@@ -2663,11 +2667,14 @@ input section
 * ``coverage_id`` - The name of the coverage to be created; if the coverage 
   already exists, it will be updated with the new files collected by ``paths``.
 
-* ``paths`` - List of absolute or relative (to the ingredients file) paths or regex patterns that
-  would work with the ls command. Multiple paths separated by commas
-  can be specified. The collected paths are sorted by file name by default,
-  unless specified otherwise in the recipe section (e.g. by date/time for 
-  time-series recipes).
+* ``paths`` - List of absolute or relative (to the ingredients file) paths or
+  regex patterns in format acceptable by the Python `glob
+  <https://docs.python.org/3/library/glob.html#glob.glob>`__ function. Multiple
+  paths separated by commas can be specified. The collected file paths are by
+  default sorted in ascending order before import, either by calculated
+  datetime in time-series recipes, or by lexicographic comparison of the file
+  path strings otherwise. The ordering can be changed to descending or disabled
+  completely with the :ref:`import_order <import-order>` option.
 
 * ``inspire`` section contains the settings for importing INSPIRE coverage:
 
@@ -2681,9 +2688,21 @@ input section
 recipe section
 ^^^^^^^^^^^^^^
 
-* ``import_order`` - Allow to sort the input files (``ascending`` (default)
-  or ``descending``).Currently, it sorts by *datetime* which allows
-  to import coverage from the first date or the recent date. Example:
+.. _import-order:
+
+* ``import_order`` - Indicate in which order the input files collected with the
+  ``paths`` setting should be imported. In time-series recipes, the ordering is
+  based on the datetime calculated for each file. In other recipes, e.g.
+  ``map_mosaic``, the ordering is based on lexicographic comparison of the file
+  paths. Possible values are:
+
+  - ``ascending`` (default) - import files in ascending order;
+
+  - ``descending`` - import files in descending order;
+
+  - ``none`` - do not order files in any particular way before import.
+
+  Example:
 
   .. hidden-code-block:: json
 
@@ -3299,6 +3318,10 @@ bounds and resolution corresponding to each file.
     setting it directly, it can also be derived from the input file metadata,
     with e.g. ``${netcdf:variable:NAME:units}`` for NetCDF or
     ``${grib:unitsOfFirstFixedSurface}`` for GRIB.
+  * ``filterMessagesMatching`` - Default is empty. If not-empty (a dictionary of 
+    user input GRIB keys:values; keys (e.g. ``shortName``) must exist in the input GRIB files),
+    then it filters any GRIB message which has a GRIB value not contain a user input value of a GRIB key.
+    
   * Further ``"key": "value"`` entries can be specified to add customized band
     metadata to the global coverage metadata.
 

@@ -240,6 +240,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitFieldName(@NotNull wcpsParser.FieldNameContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#TrimDimensionIntervalByImageCrsDomainElementLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#TrimDimensionIntervalByImageCrsDomainElementLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitTrimDimensionIntervalByImageCrsDomainElementLabel(@NotNull wcpsParser.TrimDimensionIntervalByImageCrsDomainElementLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#SliceDimensionIntervalElementLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1274,6 +1285,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#corridorWKTLabel1}.
+	 * @param ctx the parse tree
+	 */
+	void enterCorridorWKTLabel1(@NotNull wcpsParser.CorridorWKTLabel1Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#corridorWKTLabel1}.
+	 * @param ctx the parse tree
+	 */
+	void exitCorridorWKTLabel1(@NotNull wcpsParser.CorridorWKTLabel1Context ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#RangeConstructorSwitchCaseExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1294,6 +1316,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#WKTCoverageExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterWKTCoverageExpressionLabel(@NotNull wcpsParser.WKTCoverageExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#WKTCoverageExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitWKTCoverageExpressionLabel(@NotNull wcpsParser.WKTCoverageExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#GeneralCondenseExpressionLabel}.
@@ -1360,6 +1393,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSwitchCaseElementList(@NotNull wcpsParser.SwitchCaseElementListContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#corridorWKTLabel2}.
+	 * @param ctx the parse tree
+	 */
+	void enterCorridorWKTLabel2(@NotNull wcpsParser.CorridorWKTLabel2Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#corridorWKTLabel2}.
+	 * @param ctx the parse tree
+	 */
+	void exitCorridorWKTLabel2(@NotNull wcpsParser.CorridorWKTLabel2Context ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CrsTransformExpressionLabel}.

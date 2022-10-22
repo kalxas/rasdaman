@@ -1,6 +1,9 @@
 <ows:ServiceIdentification>
 <ows:Title>rasdaman</ows:Title>
 <ows:Abstract>rasdaman server - free download from www.rasdaman.org</ows:Abstract>
+<ows:Keywords>
+<ows:Keyword/>
+</ows:Keywords>
 <ows:ServiceType>OGC WMTS</ows:ServiceType>
 <ows:ServiceTypeVersion>1.0.0</ows:ServiceTypeVersion>
 </ows:ServiceIdentification>
@@ -27,13 +30,17 @@
 <ows:Operation name="GetCapabilities">
 <ows:DCP>
 <ows:HTTP>
+<ows:Constraint name="GetEncoding">
 <ows:AllowedValues>
-<ows:KVP/>
+<ows:Value>KVP</ows:Value>
 </ows:AllowedValues>
+</ows:Constraint>
 </ows:Get>
+<ows:Constraint name="GetEncoding">
 <ows:AllowedValues>
-<ows:KVP/>
+<ows:Value>KVP</ows:Value>
 </ows:AllowedValues>
+</ows:Constraint>
 </ows:Post>
 </ows:HTTP>
 </ows:DCP>
@@ -41,13 +48,17 @@
 <ows:Operation name="GetTile">
 <ows:DCP>
 <ows:HTTP>
+<ows:Constraint name="GetEncoding">
 <ows:AllowedValues>
-<ows:KVP/>
+<ows:Value>KVP</ows:Value>
 </ows:AllowedValues>
+</ows:Constraint>
 </ows:Get>
+<ows:Constraint name="GetEncoding">
 <ows:AllowedValues>
-<ows:KVP/>
+<ows:Value>KVP</ows:Value>
 </ows:AllowedValues>
+</ows:Constraint>
 </ows:Post>
 </ows:HTTP>
 </ows:DCP>

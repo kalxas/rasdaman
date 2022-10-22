@@ -96,6 +96,10 @@ public class BoundingBox {
     public void setYMax(BigDecimal ymax) {
         this.ymax = ymax;
     }
+    
+    public void setGeoXYCrs(String geoXYCrs) {
+        this.geoXYCrs = geoXYCrs;
+    }
 
     public String getGeoXYCrs() {
         return geoXYCrs;
@@ -132,7 +136,7 @@ public class BoundingBox {
      */
     public static BoundingBox parse(String representation) {
         String[] values = StringUtil.stripQuotes(representation).split(",");
-        return new BoundingBox(new BigDecimal(values[0]), new BigDecimal(values[1]), new BigDecimal(values[2]), new BigDecimal(values[3]));
+        return new BoundingBox(new BigDecimal(values[0]), new BigDecimal(values[1]), new BigDecimal(values[2]), new BigDecimal(values[3]), values[4]);
     }
     
     /**

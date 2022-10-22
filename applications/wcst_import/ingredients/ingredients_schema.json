@@ -247,9 +247,17 @@
                                                             },
                                                             "uomCode": {
                                                                 "type": "string"
+                                                            },
+                                                            "filterMessagesMatching": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "nameOfFirstFixedSurface1": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
                                                             }
                                                         },
-                                                        "additionalProperties": false
+                                                        "additionalProperties": true
                                                     }
                                                 },
                                                 "additionalProperties": false

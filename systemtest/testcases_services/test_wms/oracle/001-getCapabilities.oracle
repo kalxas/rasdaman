@@ -25,10 +25,10 @@
 <Format>text/xml</Format>
 <DCPType>
 <HTTP>
-<GET>
-</GET>
-<POST>
-</POST>
+<Get>
+</Get>
+<Post>
+</Post>
 </HTTP>
 </DCPType>
 </GetCapabilities>
@@ -38,13 +38,13 @@
 <Format>image/tiff</Format>
 <DCPType>
 <HTTP>
-<GET>
-</GET>
-<POST>
-</POST>
+<Get>
+</Get>
+<Post>
+</Post>
 </HTTP>
 </DCPType>
 </GetMap>
 </Request>
-<Layer>
-<Title>asdaman Web Map Service</Title>
+<Exception>
+<Format>XML</Format>

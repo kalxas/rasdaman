@@ -11,12 +11,15 @@
     "input": {
         "coverage_id": "test_append_prepend_irregular_coverage_slice",
         "paths": [
-            "*.nc"
+            "1GlobLAI-20030120-20031010-H00V11-1.0_MERIS-FR-LAI-HA.nc",
+            "2GlobLAI-20030106-20031010-H00V10-1.0_MERIS-FR-LAI-HA.nc",
+            "3GlobLAI-20030127-20030110-H01V06-1.0_MERIS-FR-LAI-HA.nc"
         ]
     },
     "recipe": {
         "name": "general_coverage",
         "options": {
+            "import_order": "none",
             "coverage": {
                 "crs": "OGC/0/AnsiDate@EPSG/0/4326",
                 "metadata": {
@@ -39,7 +42,6 @@
                     "axes": {
                         "ansi": {
                             "min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
-                            "gridOrder": 0,
                             "type": "ansidate",
                             "irregular": true,
                             "dataBound": false
@@ -47,13 +49,11 @@
                         "Long": {
                             "min": "${netcdf:variable:lon:min}",
                             "max": "${netcdf:variable:lon:max}",
-                            "gridOrder": 2,
                             "resolution": "${netcdf:variable:lon:resolution}"
                         },
                         "Lat": {
                             "min": "${netcdf:variable:lat:min}",
                             "max": "${netcdf:variable:lat:max}",
-                            "gridOrder": 1,
                             "resolution": "${netcdf:variable:lat:resolution}"
                         }
                     }

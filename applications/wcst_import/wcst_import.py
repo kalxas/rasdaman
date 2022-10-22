@@ -196,6 +196,9 @@ def main():
 
     ConfigManager.user = arguments.user
     ConfigManager.passwd = arguments.passwd
+
+    if arguments.gdal_cache_size is None:
+        arguments.gdal_cache_size = -1
     try:
         ConfigManager.gdal_cache_size = int(arguments.gdal_cache_size)
         if ConfigManager.gdal_cache_size < -1:

@@ -34,7 +34,6 @@ public class WCSTInvalidXML extends WCSTException {
         super(ExceptionCode.WCSTInvalidXML, EXCEPTION_TEXT);
     }
 
-    // insertGMLCoverage   throw new PetascopeException(ExceptionCode.WCSTInvalidXML, ex.getMessage())
     public WCSTInvalidXML(String message) {
         super(ExceptionCode.WCSTInvalidXML, message);
     }

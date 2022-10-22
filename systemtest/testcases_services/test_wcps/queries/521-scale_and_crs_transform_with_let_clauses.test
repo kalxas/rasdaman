@@ -1,0 +1,23 @@
+for $c in (test_wms_3857),
+    $d in (test_wms_3857),
+    $e in (test_mean_summer_airtemp)
+let $sub := [ X(12464999.981576812:17318088.05598007903), Y(-5619555.55324125257:-1003203.4824674132) ],
+    $dem_sub := [ Lat(-24:-14),
+              Lon(125: 145) ],
+    $c_sub := $c [ $sub ],
+    $d_sub := $d [ $sub ],
+    $e_scale := scale($e [ $dem_sub ], { Lon:"CRS:1"(20:100), Lat:"CRS:1"(25:100) })
+return
+  encode(
+    scale(
+      crsTransform(
+        $c_sub,
+        { X:"http://localhost:8080/def/crs/EPSG/0/4326", Y:"http://localhost:8080/def/crs/EPSG/0/4326"},
+        {}
+      ),
+      { Lon:"CRS:1"(20:100), Lat:"CRS:1"(25:100) }
+    )
+    * 
+    ($e_scale > 25) * 255,
+    "image/png", "nodata=0"
+  )

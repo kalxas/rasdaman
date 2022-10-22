@@ -77,11 +77,11 @@ module wms {
             
             this.layerDimensions = [];
             
-            for(var j = 0; j < 3; ++j) {
+            for(var j = 0; j < 2; ++j) {
                 this.layerDimensions.push(dimen);
             }
             // build the dimension axis from gmlDocument of this layer
-            j = 3;
+            j = 2;
             var dimen = this.initialiseDimenison();
 
             while(this.buildDimensionAxisFromGMLDocumet(dimen) != false) {

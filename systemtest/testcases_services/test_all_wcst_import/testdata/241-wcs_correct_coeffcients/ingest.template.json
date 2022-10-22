@@ -1,0 +1,63 @@
+{
+	"config": {
+		"service_url": "PETASCOPE_URL",
+		"tmp_directory": "/tmp/",
+		"mock": false,
+		"automated": true,
+		"track_files": false,
+        "retry" : true,
+        "retries" : 2,
+		"insitu": true
+	},
+	"input": {
+		"coverage_id": "test_wcs_correct_coeffcients",
+		"paths": [ "*.tiff" ]
+	},
+	"recipe": {
+		"name": "general_coverage",
+		"options": {
+			"coverage": {
+				"crs": "OGC/0/AnsiDate@OGC/0/Index1D?axis-label=\"cloud_top_height\"@EPSG/0/4326",
+				"metadata": {
+					"type": "xml",
+					"global": {}
+				},
+				"slicer": {
+					"type": "gdal",
+					"bands": [{
+						"name": "cloud_top_height",
+						"nilValue": "0",
+						"identifier": "cloud_top_height"
+					}],
+					"axes": {
+						"ansi": {
+							"min": "datetime(regex_extract('${file:name}', '(.*)_(.*)_(.*)_(.*).tiff', 2), 'YYYY-MM-DDThh:mm')",
+							"dataBound": false,
+							"resolution": "1",
+							"type": "ansidate",
+							"irregular": true
+						},
+						"Long": {
+							"min": "${gdal:minX}",
+							"max": "${gdal:maxX}",
+							"resolution": "${gdal:resolutionX}"
+						},
+						"Lat": {
+							"min": "${gdal:minY}",
+							"max": "${gdal:maxY}",
+							"resolution": "${gdal:resolutionY}"
+						},
+						"cloud_top_height": {
+							"min": "regex_extract('${file:name}', '(.*)_(.*)_(.*)_(.*).tiff', 1)",
+							"dataBound": false,
+							"resolution": 1,
+							"irregular": true
+						}
+					}
+				}
+			},
+			"wms_import": true,
+			"tiling": "ALIGNED [0:0, 0:0, 0:500, 0:500]"
+		}
+	}
+}

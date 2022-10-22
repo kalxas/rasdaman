@@ -141,7 +141,7 @@ function drop_types()
 {
   local t=
   for t in "$@"; do
-    $RASQL --quiet -q "drop type $t"
+    $RASQL --quiet -q "drop type $t" > /dev/null 2>&1
   done
 }
 
@@ -331,14 +331,10 @@ function import_rasql_data()
   insert_into $TEST_CINT32 "$TESTDATA_PATH/cint32_image.tif" "" "decode"
 
   $RASQL -q 'insert into test_oneD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:29]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
-
   $RASQL -q 'insert into test_twoD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:2]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
-
   $RASQL -q 'insert into test_threeD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:4, 0:1]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/threeD.csv > /dev/null
-
   $RASQL -q 'insert into test_threeD_two_objects values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:4, 0:1]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/threeD.csv > /dev/null
   $RASQL -q 'insert into test_threeD_two_objects values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:4, 0:1]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/threeD.csv > /dev/null
-
   $RASQL -q 'insert into test_twoD_named values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:2]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
 
   add_overlap_data

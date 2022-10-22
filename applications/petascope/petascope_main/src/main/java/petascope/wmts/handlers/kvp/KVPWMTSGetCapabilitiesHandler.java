@@ -29,7 +29,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import nu.xom.Attribute;
 import nu.xom.Element;
-import org.rasdaman.config.ConfigManager;
 import org.rasdaman.config.VersionManager;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
@@ -41,6 +40,7 @@ import petascope.controller.PetascopeController;
 import petascope.core.XMLSymbols;
 import static petascope.core.XMLSymbols.LABEL_VERSION;
 import static petascope.core.XMLSymbols.LABEL_WMTS_CAPABILITIES;
+import static petascope.core.XMLSymbols.NAMESPACE_OWS_11;
 import static petascope.core.XMLSymbols.NAMESPACE_WMTS;
 import petascope.core.gml.GMLGetCapabilitiesBuilder;
 import petascope.core.response.Response;
@@ -87,7 +87,7 @@ public class KVPWMTSGetCapabilitiesHandler extends KVPWMTSAbstractHandler {
         capabilitiesElement.addAttribute(versionAttribute);
         
         Element serviceIdentificationElement = this.wmtsGetCapabilitiesService.buildServiceIdentificationElement(owsServiceMetadata);
-        Element serviceProviderElement = this.gmlGetCapabilitiesBuilder.buildServiceProvider(owsServiceMetadata);
+        Element serviceProviderElement = this.gmlGetCapabilitiesBuilder.buildServiceProvider(owsServiceMetadata, NAMESPACE_OWS_11);
         
         Element operationsMetadataElement = this.wmtsGetCapabilitiesService.buildOperationsMetadataElement();
         Element contentsElement = this.wmtsGetCapabilitiesService.buildContentsElement();
@@ -101,10 +101,10 @@ public class KVPWMTSGetCapabilitiesHandler extends KVPWMTSAbstractHandler {
         
         // Adding some specific XML namespaces of only WMTS GetCapabilities request
         xmlNameSpacesMap.put(null, NAMESPACE_WMTS);
-        xmlNameSpacesMap.put(XMLSymbols.PREFIX_OWS, XMLSymbols.NAMESPACE_OWS);
+        xmlNameSpacesMap.put(XMLSymbols.PREFIX_OWS, XMLSymbols.NAMESPACE_OWS_11);
         xmlNameSpacesMap.put(XMLSymbols.PREFIX_XLINK, XMLSymbols.NAMESPACE_XLINK);
         
-        xmlNameSpacesMap.put(XMLSymbols.PREFIX_GML, XMLSymbols.NAMESPACE_GML);
+        xmlNameSpacesMap.put(XMLSymbols.PREFIX_GML, XMLSymbols.NAMESPACE_GML_WMTS);
         
         Set<String> schemaLocations = new LinkedHashSet<>();
         schemaLocations.add(XMLSymbols.SCHEMA_LOCATION_WMTS);
@@ -113,6 +113,7 @@ public class KVPWMTSGetCapabilitiesHandler extends KVPWMTSAbstractHandler {
         XMLUtil.addXMLSchemaLocationsOnRootElement(schemaLocations, capabilitiesElement);        
         
         String result = XMLUtil.formatXML(capabilitiesElement); 
+
         return new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_GML);
     }
     

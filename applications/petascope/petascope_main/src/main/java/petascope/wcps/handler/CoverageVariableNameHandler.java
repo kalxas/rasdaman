@@ -39,6 +39,8 @@ import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 import petascope.wcps.metadata.service.LetClauseAliasRegistry;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 
+import petascope.wcps.result.VisitorResult;
+
 /**
  * Class to translate a coverage variable name  <code>
  * $c
@@ -81,8 +83,8 @@ public class CoverageVariableNameHandler extends Handler {
         return result;
     }
     
-    public WcpsResult handle() throws PetascopeException {
-        WcpsResult wcpsResult = null;
+    public VisitorResult handle() throws PetascopeException {
+        VisitorResult wcpsResult = null;
         String coverageVariable = ((WcpsResult)this.getFirstChild().handle()).getRasql();
         
         try {
@@ -114,13 +116,13 @@ public class CoverageVariableNameHandler extends Handler {
             // coverage does exist, translate the persisted coverage to WcpsCoverageMetadata object
             metadata = wcpsCoverageMetadataTranslator.translate(coverageName);
             
-            if (metadata.getRasdamanCollectionName() != null) {
-                // coverage is persisted in database
-                rasql = coverageAlias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
-            } else {
-                // coverage is created temporarily from uploaded file path
-                rasql = metadata.getDecodedFilePath();
-            }
+                if (metadata.getRasdamanCollectionName() != null) {
+                    // coverage is persisted in database
+                    rasql = coverageAlias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
+                } else {
+                    // coverage is created temporarily from uploaded file path
+                    rasql = metadata.getDecodedFilePath();
+                }
         }
 
         WcpsResult result = new WcpsResult(metadata, rasql);

@@ -76,7 +76,9 @@ public class SwitchCaseElementHandler extends Handler {
         }
         
         List<RangeField> returnedRangeFields = returnedValueMetadata.getRangeFields();
-        booleanExpressionMetadata.setRangeFields(returnedRangeFields);
+        if (booleanExpressionMetadata != null) {
+            booleanExpressionMetadata.setRangeFields(returnedRangeFields);
+        }
         
         return new WcpsResult(booleanExpressionMetadata, rasql);
     }
