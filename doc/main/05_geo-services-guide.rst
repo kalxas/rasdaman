@@ -1802,6 +1802,31 @@ available and their meaning. Example:
         &FORMAT=image/png
         &INTERPOLATION=bilinear
 
+
+.. _wms-random:
+
+Random parameter
+^^^^^^^^^^^^^^^^
+
+Normally, Web Browser cache the WMS requests from a WMS client (e.g. WebWorldWind).
+In order to bypass that, one needs to add append extra parameter ``random`` with its
+value equals to a random number for all WMS `GetMap` requests. For example:
+
+.. hidden-code-block:: text
+
+    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
+        &REQUEST=GetMap&LAYERS=waxlake1
+        &BBOX=618887,3228196,690885,3300195.0
+        &CRS=EPSG:32615&WIDTH=600&HEIGHT=600&FORMAT=image/png
+        &TRANSPARENT=true
+        &RANDOM=12345678
+
+
+In petascope, this ``random`` parameter is stripped when petascope
+receives a WMS ``GetMap`` request, hence, if the request is already processed,
+the result stored in the cache will be returned as usual. 
+
+
 nD Coverages as WMS Layers
 --------------------------
 
@@ -2675,6 +2700,15 @@ input section
   datetime in time-series recipes, or by lexicographic comparison of the file
   path strings otherwise. The ordering can be changed to descending or disabled
   completely with the :ref:`import_order <import-order>` option.
+
+  .. NOTE::
+
+     wcst_import analyzes each input file from ``paths`` and maximum time to open one file
+     to analyze is 60 seconds. If during this time, the file cannot be opened, then, wcst_import
+     will try to open it 3 more times. If the file is still not possible to open, then, it will:
+    
+     - Throw exception and stop the importing process if ``skip`` setting is ``False``
+     - Ignore the input file and continue with these other input files if ``skip`` setting is ``True``
 
 * ``inspire`` section contains the settings for importing INSPIRE coverage:
 

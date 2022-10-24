@@ -300,9 +300,15 @@ Coverage operations
 
     scale( covExpr, { axis1(lo:hi), axis2:crs(lo:hi), ... } )
 
-- **Reproject** allows to change the CRS of the coverage: ::
+- **Reproject** allows to project a 2D coverage with geo X/Y axes by a CRS: ::
 
-    crsTransform( covExpr, { axis1:crs1, axis2:crs2, ... } )
+    crsTransform( covExpr, { axisX:outputCRS, axisY:outputCRS }, { interpolation } )
+
+.. _wcps-crstransform-shorthand:
+ 
+    or shorthand version
+
+    crsTransform( covExpr, "outputCRS", { interpolation } )
 
 - **Conditional evaluation** is possible with the ``switch`` statement:
 
