@@ -6,7 +6,6 @@
 <ows:ServiceTypeVersion>2.1.0</ows:ServiceTypeVersion>
 <ows:Profile>http://www.opengis.net/spec/GMLCOV/1.0/conf/gml</ows:Profile>
 <ows:Profile>http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage</ows:Profile>
-<ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/</ows:Profile>
 <ows:Profile>http://www.opengis.net/spec/GMLJP2/2.0/</ows:Profile>
 <ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/</ows:Profile>
 <ows:Profile>https://www.ietf.org/rfc/rfc4180.txt</ows:Profile>
@@ -81,7 +80,6 @@
 </ows:Constraint>
 </ows:OperationsMetadata>
 <wcs:ServiceMetadata>
-%formatSupported%
 %formatSupported%
 %formatSupported%
 %formatSupported%

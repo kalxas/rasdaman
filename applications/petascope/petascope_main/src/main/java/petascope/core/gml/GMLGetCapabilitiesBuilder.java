@@ -188,7 +188,6 @@ public class GMLGetCapabilitiesBuilder {
     // EncodeFormatExtensions
     private static final String GML_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml";
     private static final String GMLCOV_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage";
-    private static final String GEOTIFF_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/";
     private static final String GMLJP2_IDENTIFIER = "http://www.opengis.net/spec/GMLJP2/2.0/";
     private static final String JPEG2000_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/";
     private static final String CSV_IDENTIFIER = "https://www.ietf.org/rfc/rfc4180.txt";
@@ -262,7 +261,6 @@ public class GMLGetCapabilitiesBuilder {
             // Decode formats extension
             profiles.add(GML_IDENTIFIER);
             profiles.add(GMLCOV_IDENTIFIER);
-            profiles.add(GEOTIFF_IDENTIFIER);
             profiles.add(GMLJP2_IDENTIFIER);
             profiles.add(JPEG2000_IDENTIFIER);
             profiles.add(CSV_IDENTIFIER);

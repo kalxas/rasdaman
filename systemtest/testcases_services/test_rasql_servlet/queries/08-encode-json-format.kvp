@@ -1,1 +1,1 @@
-username=rasguest&password=rasguest&query=select encode(c, "GTiff", "{ \"nodata\": 200 }") from test_mr as c
+username=rasguest&password=rasguest&query=select encode(c, "tiff", "{ \"nodata\": 200 }") from test_mr as c
