@@ -1,0 +1,1369 @@
+<Service>
+<Name>WMS</Name>
+<Title>rasdaman</Title>
+<Abstract>rasdaman server - free download from www.rasdaman.org</Abstract>
+<ContactInformation>
+<ContactPersonPrimary>
+<ContactPerson>Prof. Dr. Peter Baumann</ContactPerson>
+<ContactOrganization>Jacobs University Bremen</ContactOrganization>
+</ContactPersonPrimary>
+<ContactPosition>Project Leader</ContactPosition>
+<ContactAddress>
+<AddessType>postal</AddessType>
+<Address>Campus Ring 1</Address>
+<City>Bremen</City>
+<StateOrProvince>Bremen</StateOrProvince>
+<Country>Germany</Country>
+</ContactAddress>
+<ContactVoiceTelephone>+49 421 20040</ContactVoiceTelephone>
+<ContactElectronicMailAddress>p.baumann@jacobs-university.de</ContactElectronicMailAddress>
+</ContactInformation>
+</Service>
+<Capability>
+<Request>
+<GetCapabilities>
+<Format>text/xml</Format>
+<DCPType>
+<HTTP>
+<Get>
+</Get>
+<Post>
+</Post>
+</HTTP>
+</DCPType>
+</GetCapabilities>
+<GetMap>
+<Format>image/jpeg</Format>
+<Format>image/png</Format>
+<Format>image/tiff</Format>
+<DCPType>
+<HTTP>
+<Get>
+</Get>
+<Post>
+</Post>
+</HTTP>
+</DCPType>
+</GetMap>
+</Request>
+<Exception>
+<Format>XML</Format>
+</Exception>
+<Layer>
+<Title>asdaman Web Map Service</Title>
+<Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>cb_global_development_stage</Name>
+<Title>cb_global_development_stage</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>31329480</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,development_stage,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-7</westBoundLonitude>
+<eastBoundLonitude>19.6</eastBoundLonitude>
+<southBoundLatitude>36.5944</southBoundLatitude>
+<northBoundLatitude>48.6744</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="36.5944" miny="-7" maxx="48.6744" maxy="19.6"/>
+<Dimension name="time">"2022-08-08T11:23:00.000Z","2022-08-08T11:28:00.000Z","2022-08-08T11:33:00.000Z","2022-08-08T11:38:00.000Z","2022-08-08T11:43:00.000Z","2022-08-08T11:48:00.000Z","2022-08-08T11:53:00.000Z","2022-08-08T11:58:00.000Z","2022-08-08T12:03:00.000Z","2022-08-08T12:08:00.000Z","2022-08-08T12:13:00.000Z","2022-08-08T12:18:00.000Z","2022-08-08T12:23:00.000Z"</Dimension>
+<Dimension name="development_stage">3,4,7</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>heating_degree_days</Name>
+<Title>heating_degree_days</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>41976</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>X,Y</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:3338</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-179.99998750228073</westBoundLonitude>
+<eastBoundLonitude>179.0756329589113522</eastBoundLonitude>
+<southBoundLatitude>49.4258592449945871</southBoundLatitude>
+<northBoundLatitude>71.38372092787324</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:3338" minx="-2168433.4898000024" miny="415909.046099998392" maxx="1491706.45999999918" maxy="2376169.213299993"/><Style><Name>artic_eds</Name><Title>artic_eds</Title><Abstract>artic_eds <![CDATA[<rasdaman><default>true</default><ColorTable><ColorTableType>ColorMap</ColorTableType><ColorTableDefinition>{ "type": "ramp", "colorTable": { "-9999": [0, 0, 0, 0], "-1": [0, 0, 0, 0], "0": [255,247,251,255], "3000": [236,231,242,255], "6000": [208,209,230,255], "9000": [166,189,219,255], "12000": [116,169,207,255], "15000": [54,144,192,255], "18000": [5,112,176,255], "21000": [3,78,123,255] } }</ColorTableDefinition></ColorTable></rasdaman>]]></Abstract></Style>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_S1_GRD_EW_HH</Name>
+<Title>test_S1_GRD_EW_HH</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>704</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,X,Y</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:3857</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>106.28687806083072</westBoundLonitude>
+<eastBoundLonitude>125.4128933679391384</eastBoundLonitude>
+<southBoundLatitude>75.4377723239658692</southBoundLatitude>
+<northBoundLatitude>78.45766947771983</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:3857" minx="11831801.14373844" miny="13140123.63018680388" maxx="13982100.12614821472" maxy="14618454.180593524"/>
+<Dimension name="time">"2019-02-24T00:00:00.000Z","2019-03-24T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_S1_GRD_EW_HV</Name>
+<Title>test_S1_GRD_EW_HV</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>704</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,X,Y</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:3857</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>106.28687806083072</westBoundLonitude>
+<eastBoundLonitude>125.4128933679391384</eastBoundLonitude>
+<southBoundLatitude>75.4377723239658692</southBoundLatitude>
+<northBoundLatitude>78.45766947771983</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:3857" minx="11831801.14373844" miny="13140123.63018680388" maxx="13982100.12614821472" maxy="14618454.180593524"/>
+<Dimension name="time">"2019-02-24T00:00:00.000Z","2019-03-24T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_S1_GRD_IW_VH</Name>
+<Title>test_S1_GRD_IW_VH</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>4144</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,X,Y</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:3857</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>5.365107450913635</westBoundLonitude>
+<eastBoundLonitude>9.55631224708291344</eastBoundLonitude>
+<southBoundLatitude>51.84596026987237642</southBoundLatitude>
+<northBoundLatitude>53.74198148718705</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:3857" minx="597241.029486904" miny="6766755.348070392524" maxx="1065933.219194660629" maxy="7121441.329470857"/>
+<Dimension name="time">"2019-02-26T00:00:00.000Z","2019-03-26T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_S1_GRD_IW_VV</Name>
+<Title>test_S1_GRD_IW_VV</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>4144</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,X,Y</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:3857</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>5.365107450913635</westBoundLonitude>
+<eastBoundLonitude>9.55631224708291344</eastBoundLonitude>
+<southBoundLatitude>51.84596026987237642</southBoundLatitude>
+<northBoundLatitude>53.74198148718705</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:3857" minx="597241.029486904" miny="6766755.348070392524" maxx="1065933.219194660629" maxy="7121441.329470857"/>
+<Dimension name="time">"2019-02-22T00:00:00.000Z","2019-03-26T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_S1_SLC_EW_HH</Name>
+<Title>test_S1_SLC_EW_HH</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>7200</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>27.198877282614763</westBoundLonitude>
+<eastBoundLonitude>33.8314278832457164</eastBoundLonitude>
+<southBoundLatitude>75.199385215924395</southBoundLatitude>
+<northBoundLatitude>77.69866779297027</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="75.199385215924395" miny="27.198877282614763" maxx="77.69866779297027" maxy="33.8314278832457164"/>
+<Dimension name="time">"2019-08-16T00:00:00.000Z","2019-08-22T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_S1_SLC_EW_HV</Name>
+<Title>test_S1_SLC_EW_HV</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>7200</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>27.198877282614763</westBoundLonitude>
+<eastBoundLonitude>33.8314278832457164</eastBoundLonitude>
+<southBoundLatitude>75.199385215924395</southBoundLatitude>
+<northBoundLatitude>77.69866779297027</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="75.199385215924395" miny="27.198877282614763" maxx="77.69866779297027" maxy="33.8314278832457164"/>
+<Dimension name="time">"2019-08-16T00:00:00.000Z","2019-08-22T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_S1_SLC_IW_VH</Name>
+<Title>test_S1_SLC_IW_VH</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>7200</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>6.267923316899216</westBoundLonitude>
+<eastBoundLonitude>7.8224367382868786</eastBoundLonitude>
+<southBoundLatitude>41.92289559951053968</southBoundLatitude>
+<northBoundLatitude>43.743749336722246</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="41.92289559951053968" miny="6.267923316899216" maxx="43.743749336722246" maxy="7.8224367382868786"/>
+<Dimension name="time">"2019-08-16T00:00:00.000Z","2019-08-25T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_S1_SLC_IW_VV</Name>
+<Title>test_S1_SLC_IW_VV</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>7200</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>6.267923316899216</westBoundLonitude>
+<eastBoundLonitude>7.8224367382868786</eastBoundLonitude>
+<southBoundLatitude>41.92289559951053968</southBoundLatitude>
+<northBoundLatitude>43.743749336722246</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="41.92289559951053968" miny="6.267923316899216" maxx="43.743749336722246" maxy="7.8224367382868786"/>
+<Dimension name="time">"2019-08-16T00:00:00.000Z","2019-08-25T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_color_palette_rasql_ready_encoded_png</Name>
+<Title>test_color_palette_rasql_ready_encoded_png</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>6319</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>111.975</westBoundLonitude>
+<eastBoundLonitude>156.475</eastBoundLonitude>
+<southBoundLatitude>-44.474999999999987</southBoundLatitude>
+<northBoundLatitude>-8.974999999999987</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-44.474999999999987" miny="111.975" maxx="-8.974999999999987" maxy="156.475"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_coverage_pyramid_odd_grid_pixels</Name>
+<Title>test_coverage_pyramid_odd_grid_pixels</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>188160</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>188592</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>X,Y</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:3826</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>120.43369938498842</westBoundLonitude>
+<eastBoundLonitude>120.44581029787696395612</eastBoundLonitude>
+<southBoundLatitude>24.04476452974670559064</southBoundLatitude>
+<northBoundLatitude>24.05635707671395</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:3826" minx="192408.1382" miny="2660095.671" maxx="193633.1382" maxy="2661375.671"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_mosaic_pyramids</Name>
+<Title>test_mosaic_pyramids</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>6912</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>7491</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32615</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-91.77737627406995</westBoundLonitude>
+<eastBoundLonitude>-91.02296053593949404</eastBoundLonitude>
+<southBoundLatitude>29.17363671312733765</southBoundLatitude>
+<northBoundLatitude>29.826496486509463</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32615" minx="618885" miny="3228195" maxx="690885" maxy="3300195"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_pre_hook_merge_3_bands</Name>
+<Title>test_pre_hook_merge_3_bands</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>200</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32632</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>7.468686704733873</westBoundLonitude>
+<eastBoundLonitude>7.4778165826494383376</eastBoundLonitude>
+<southBoundLatitude>54.1331562118302268864</southBoundLatitude>
+<northBoundLatitude>54.13848197394764</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32632" minx="399960" miny="5999400" maxx="400560" maxy="6000000"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_pyramid_mismatch_coefficients_base</Name>
+<Title>test_pyramid_mismatch_coefficients_base</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>2400000</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>2774400</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+<Dimension name="time">"2015-01-01T00:00:00.000Z","2016-01-01T00:00:00.000Z","2019-01-01T00:00:00.000Z","2020-01-01T00:00:00.000Z","2022-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_pyramid_mismatch_coefficients_pyramid_1</Name>
+<Title>test_pyramid_mismatch_coefficients_pyramid_1</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>360000</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+<Dimension name="time">"2015-01-01T00:00:00.000Z","2019-01-01T00:00:00.000Z","2022-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_pyramid_mismatch_coefficients_pyramid_2</Name>
+<Title>test_pyramid_mismatch_coefficients_pyramid_2</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>14400</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+<Dimension name="time">"2016-01-01T00:00:00.000Z","2019-01-01T00:00:00.000Z","2020-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_scale_levels</Name>
+<Title>test_scale_levels</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>6400</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>6405</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-40</westBoundLonitude>
+<eastBoundLonitude>40</eastBoundLonitude>
+<southBoundLatitude>-40</southBoundLatitude>
+<northBoundLatitude>40</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-40" miny="-40" maxx="40" maxy="40"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcps_scale_downscaled</Name>
+<Title>test_wcps_scale_downscaled</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>40000</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>52500</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>unix,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>111.975</westBoundLonitude>
+<eastBoundLonitude>161.975</eastBoundLonitude>
+<southBoundLatitude>-58.975</southBoundLatitude>
+<northBoundLatitude>-8.975</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-58.975" miny="111.975" maxx="-8.975" maxy="161.975"/>
+<Dimension name="time">"2015-01-01T00:00:00.000Z","2015-03-01T00:00:00.000Z","2015-05-01T00:00:00.000Z","2015-08-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcps_scale_downscaled_duplicated</Name>
+<Title>test_wcps_scale_downscaled_duplicated</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>40000</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>40676</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>unix,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>111.975</westBoundLonitude>
+<eastBoundLonitude>161.975</eastBoundLonitude>
+<southBoundLatitude>-58.975</southBoundLatitude>
+<northBoundLatitude>-8.975</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-58.975" miny="111.975" maxx="-8.975" maxy="161.975"/>
+<Dimension name="time">"2015-01-01T00:00:00.000Z","2015-03-01T00:00:00.000Z","2015-05-01T00:00:00.000Z","2015-08-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_correct_coeffcients</Name>
+<Title>test_wcs_correct_coeffcients</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>955584</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,cloud_top_height,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>8.94648</westBoundLonitude>
+<eastBoundLonitude>15.26648</eastBoundLonitude>
+<southBoundLatitude>37.4516</southBoundLatitude>
+<northBoundLatitude>42.4916</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="37.4516" miny="8.94648" maxx="42.4916" maxy="15.26648"/>
+<Dimension name="time">"2022-08-08T11:23:00.000Z","2022-08-08T11:28:00.000Z"</Dimension>
+<Dimension name="cloud_top_height">8640,9040,14240</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_overlapping_null_value_explicitly_specify</Name>
+<Title>test_wcs_overlapping_null_value_explicitly_specify</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>32342</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>34370</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32651</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>120.01669947587743</westBoundLonitude>
+<eastBoundLonitude>122.83966147365660808</eastBoundLonitude>
+<southBoundLatitude>22.14681842917011194</southBoundLatitude>
+<northBoundLatitude>25.5242908193702</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32651" minx="200085" miny="2452215.00000000006" maxx="482685" maxy="2823015"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm31_3d</Name>
+<Title>test_wcs_utm31_3d</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>2400000</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>unix,E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32631</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>5.925781953375935</westBoundLonitude>
+<eastBoundLonitude>7.6419557499891790352</eastBoundLonitude>
+<southBoundLatitude>52.1714852937427638592</southBoundLatitude>
+<northBoundLatitude>53.21311520938533</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32631" minx="699840" miny="5789760" maxx="810240" maxy="5900160"/>
+<Dimension name="time">"2010-01-01T00:00:00.000Z","2012-01-01T00:00:00.000Z","2014-01-01T00:00:00.000Z","2018-01-01T00:00:00.000Z","2019-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm31_3d_pyramid_4</Name>
+<Title>test_wcs_utm31_3d_pyramid_4</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>202005</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>unix,E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32631</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>5.918888981037672</westBoundLonitude>
+<eastBoundLonitude>7.644968464669205088</eastBoundLonitude>
+<southBoundLatitude>52.167288283204503584</southBoundLatitude>
+<northBoundLatitude>53.21479453472135</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32631" minx="699384" miny="5789376" maxx="810336" maxy="5900328"/>
+<Dimension name="time">"2010-01-01T00:00:00.000Z","2012-01-01T00:00:00.000Z","2014-01-01T00:00:00.000Z","2018-01-01T00:00:00.000Z","2019-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm31_pyramid</Name>
+<Title>test_wcs_utm31_pyramid</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>39675</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>52290</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32631</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>5.925781953375935</westBoundLonitude>
+<eastBoundLonitude>7.64440272845012795</eastBoundLonitude>
+<southBoundLatitude>52.170485272506986277</southBoundLatitude>
+<northBoundLatitude>53.21311520938533</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32631" minx="699840" miny="5789760" maxx="810240" maxy="5900160"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm31_pyramid_duplicate</Name>
+<Title>test_wcs_utm31_pyramid_duplicate</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>39675</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>52290</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32631</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>5.925781953375935</westBoundLonitude>
+<eastBoundLonitude>7.64440272845012795</eastBoundLonitude>
+<southBoundLatitude>52.170485272506986277</southBoundLatitude>
+<northBoundLatitude>53.21311520938533</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32631" minx="699840" miny="5789760" maxx="810240" maxy="5900160"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm31_pyramid_harvesting</Name>
+<Title>test_wcs_utm31_pyramid_harvesting</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>39675</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>91965</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32631</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>5.925781953375935</westBoundLonitude>
+<eastBoundLonitude>7.64440272845012795</eastBoundLonitude>
+<southBoundLatitude>52.170485272506986277</southBoundLatitude>
+<northBoundLatitude>53.21311520938533</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32631" minx="699840" miny="5789760" maxx="810240" maxy="5900160"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm32_3d</Name>
+<Title>test_wcs_utm32_3d</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>2400000</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>unix,E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32632</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>7.491915138650953</westBoundLonitude>
+<eastBoundLonitude>9.1463778048092068666</eastBoundLonitude>
+<southBoundLatitude>52.2495711490420593374</southBoundLatitude>
+<northBoundLatitude>53.250703610213314</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32632" minx="399360" miny="5789760" maxx="509760" maxy="5900160"/>
+<Dimension name="time">"2011-01-01T00:00:00.000Z","2013-01-01T00:00:00.000Z","2014-01-01T00:00:00.000Z","2016-01-01T00:00:00.000Z","2021-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm32_3d_pyramid_4</Name>
+<Title>test_wcs_utm32_3d_pyramid_4</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>202005</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>unix,E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32632</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>7.487907399221155</westBoundLonitude>
+<eastBoundLonitude>9.152344861931809835</eastBoundLonitude>
+<southBoundLatitude>52.246758180721418916</southBoundLatitude>
+<northBoundLatitude>53.25221428064459</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32632" minx="399096" miny="5789376" maxx="510048" maxy="5900328"/>
+<Dimension name="time">"2011-01-01T00:00:00.000Z","2013-01-01T00:00:00.000Z","2014-01-01T00:00:00.000Z","2016-01-01T00:00:00.000Z","2021-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm32_pyramid</Name>
+<Title>test_wcs_utm32_pyramid</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>39675</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>52290</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32632</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>7.491915138650953</westBoundLonitude>
+<eastBoundLonitude>9.14604277450881982</eastBoundLonitude>
+<southBoundLatitude>52.246411831299609145</southBoundLatitude>
+<northBoundLatitude>53.250703610213314</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32632" minx="399360" miny="5789760" maxx="509760" maxy="5900160"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wcs_utm32_pyramid_duplicate</Name>
+<Title>test_wcs_utm32_pyramid_duplicate</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>39675</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>52290</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32632</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>7.491915138650953</westBoundLonitude>
+<eastBoundLonitude>9.14604277450881982</eastBoundLonitude>
+<southBoundLatitude>52.246411831299609145</southBoundLatitude>
+<northBoundLatitude>53.250703610213314</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32632" minx="399360" miny="5789760" maxx="509760" maxy="5900160"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_2d_float_data</Name>
+<Title>test_wms_2d_float_data</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>9184</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>44.99999999999999</westBoundLonitude>
+<eastBoundLonitude>50.62499999999999048</eastBoundLonitude>
+<southBoundLatitude>40.97989806962012728</southBoundLatitude>
+<northBoundLatitude>45.089035564831015</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="40.97989806962012728" miny="44.99999999999999" maxx="45.089035564831015" maxy="50.62499999999999048"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_3857</Name>
+<Title>test_wms_3857</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>1599</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>X,Y</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:3857</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>111.975</westBoundLonitude>
+<eastBoundLonitude>155.9441736985084848</eastBoundLonitude>
+<southBoundLatitude>-44.9497784805978512</southBoundLatitude>
+<northBoundLatitude>-8.975</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:3857" minx="12464999.981576812" miny="-5619555.55324125257" maxx="17318088.05598007903" maxy="-1003203.4824674132"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_3d_time_series_irregular</Name>
+<Title>test_wms_3d_time_series_irregular</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>1764</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>2646</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>unix,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>170</eastBoundLonitude>
+<southBoundLatitude>-85</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-85" miny="-180" maxx="90" maxy="170"/>
+<Dimension name="time">"2015-01-01T00:00:00.000Z","2015-02-01T00:00:00.000Z","2015-03-01T00:00:00.000Z","2015-04-01T00:00:00.000Z","2015-05-01T00:00:00.000Z","2015-07-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_3d_time_series_regular</Name>
+<Title>test_wms_3d_time_series_regular</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>7776</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>10332</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+<Dimension name="time">"2012-12-01T20:07:00.500Z"/"2012-12-09T20:47:12.500Z"/2.006979166666667d</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_4326</Name>
+<Title>test_wms_4326</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>1584</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>1980</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>111.975</westBoundLonitude>
+<eastBoundLonitude>155.975</eastBoundLonitude>
+<southBoundLatitude>-44.975</southBoundLatitude>
+<northBoundLatitude>-8.975</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-44.975" miny="111.975" maxx="-8.975" maxy="155.975"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_4326_new</Name>
+<Title>test_wms_4326_new</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>1584</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>111.975</westBoundLonitude>
+<eastBoundLonitude>155.975</eastBoundLonitude>
+<southBoundLatitude>-44.975</southBoundLatitude>
+<northBoundLatitude>-8.975</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-44.975" miny="111.975" maxx="-8.975" maxy="155.975"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_4d_ecmwf_fire_netcdf</Name>
+<Title>test_wms_4d_ecmwf_fire_netcdf</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>576</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>864</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon,ansi,forecast</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>29.6015625</westBoundLonitude>
+<eastBoundLonitude>29.8828125</eastBoundLonitude>
+<southBoundLatitude>34.4396675</southBoundLatitude>
+<northBoundLatitude>34.7208095</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="34.4396675" miny="29.6015625" maxx="34.7208095" maxy="29.8828125"/>
+<Dimension name="time">"2017-01-10T00:00:00.000Z","2017-02-10T00:00:00.000Z","2017-06-20T00:00:00.000Z","2017-09-18T00:00:00.000Z","2017-11-18T00:00:00.000Z","2017-12-15T00:00:00.000Z"</Dimension>
+<Dimension name="forecast">0,3,5,8,15,22</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_grid_yx_netcdf_order</Name>
+<Title>test_wms_grid_yx_netcdf_order</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>118080</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>144.1249966386554621848739496</westBoundLonitude>
+<eastBoundLonitude>149.1250033613445378151260504</eastBoundLonitude>
+<southBoundLatitude>-43.83333333333333333333333333</southBoundLatitude>
+<northBoundLatitude>-40.41666666666666666666666667</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-43.83333333333333333333333333" miny="144.1249966386554621848739496" maxx="-40.41666666666666666666666667" maxy="149.1250033613445378151260504"/>
+<Dimension name="time">"1997-09-04T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_mismatch_coefficients_1</Name>
+<Title>test_wms_mismatch_coefficients_1</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>19200</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>date,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+<Dimension name="time">"2001-01-01T00:00:00.000Z","2002-01-01T00:00:00.000Z","2003-01-01T00:00:00.000Z","2004-01-01T00:00:00.000Z","2005-01-01T00:00:00.000Z","2006-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_mismatch_coefficients_2</Name>
+<Title>test_wms_mismatch_coefficients_2</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>9600</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>date,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+<Dimension name="time">"2002-01-01T00:00:00.000Z","2004-01-01T00:00:00.000Z","2006-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_netcdf_yx_order</Name>
+<Title>test_wms_netcdf_yx_order</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>40672</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>54232</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>120.1173108166816</westBoundLonitude>
+<eastBoundLonitude>120.1495273936352</eastBoundLonitude>
+<southBoundLatitude>23.8199157114795</southBoundLatitude>
+<northBoundLatitude>23.8423441302595</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="23.8199157114795" miny="120.1173108166816" maxx="23.8423441302595" maxy="120.1495273936352"/>
+<Dimension name="time">"2018-08-24T17:00:00.000Z","2018-08-24T18:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_scale_extend</Name>
+<Title>test_wms_scale_extend</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>6319</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>7939</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>20</westBoundLonitude>
+<eastBoundLonitude>39.9999999999999995</eastBoundLonitude>
+<southBoundLatitude>-40.00000000000000124</southBoundLatitude>
+<northBoundLatitude>-20</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-40.00000000000000124" miny="20" maxx="-20" maxy="39.9999999999999995"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_sentinel_2_tci_resize_wms_no_scattering_border</Name>
+<Title>test_wms_sentinel_2_tci_resize_wms_no_scattering_border</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>100467</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32632</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>11.927820031375013</westBoundLonitude>
+<eastBoundLonitude>13.632192780352204258</eastBoundLonitude>
+<southBoundLatitude>52.173614515847282805</southBoundLatitude>
+<northBoundLatitude>53.21199287131658</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32632" minx="699960" miny="5790240" maxx="809760" maxy="5900040"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_time_approximate_coefficient</Name>
+<Title>test_wms_time_approximate_coefficient</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>11664</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>unix,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+<Dimension name="time">"2018-08-24T17:00:00.000Z","2018-08-24T18:00:00.000Z","2018-08-24T19:00:00.000Z","2018-08-24T20:00:00.000Z","2018-08-24T21:00:00.000Z","2018-08-24T22:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_time_series_combined</Name>
+<Title>test_wms_time_series_combined</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>19200</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>date,Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+<Dimension name="time">"2001-01-01T00:00:00.000Z","2002-01-01T00:00:00.000Z","2003-01-01T00:00:00.000Z","2004-01-01T00:00:00.000Z","2005-01-01T00:00:00.000Z","2006-01-01T00:00:00.000Z"</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_utm32_scene1</Name>
+<Title>test_wms_utm32_scene1</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>12321</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>15457</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32632</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>7.486256212293678</westBoundLonitude>
+<eastBoundLonitude>9.14791570348969338</eastBoundLonitude>
+<southBoundLatitude>52.248950526648206584</southBoundLatitude>
+<northBoundLatitude>53.25825481018949</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32632" minx="399000" miny="5790000" maxx="510000" maxy="5901000"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_utm32_scene2</Name>
+<Title>test_wms_utm32_scene2</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>12321</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>13105</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>E,N</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:32632</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>8.985009572716791</westBoundLonitude>
+<eastBoundLonitude>10.643087657214800584</eastBoundLonitude>
+<southBoundLatitude>52.246339706504871798</southBoundLatitude>
+<northBoundLatitude>53.25825500807351</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:32632" minx="499000" miny="5790000" maxx="610000" maxy="5901000"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wms_wcps_styles_between_two_slices</Name>
+<Title>test_wms_wcps_styles_between_two_slices</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>12638</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>ansi,X,Y</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:3338</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-179.99999418628832</westBoundLonitude>
+<eastBoundLonitude>179.018458678972027</eastBoundLonitude>
+<southBoundLatitude>48.512927789712647</southBoundLatitude>
+<northBoundLatitude>71.42899924919735</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:3338" minx="-2173225.118142955" miny="409671.150470569246" maxx="1498276.881857044795" maxy="2381118.150470569"/>
+<Dimension name="time">"2020-12-30T23:54:58.500Z"/"2021-01-04T00:15:04.500Z"/2.006979166666667d</Dimension>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_wmts_world_temp_with_pyramid</Name>
+<Title>test_wmts_world_temp_with_pyramid</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>322560</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytesWithPyramidLevels</ows:Name>
+<ows:Value>347808</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180.000000000000024</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180.000000000000024"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_world_temp</Name>
+<Title>test_world_temp</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>1944</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-180</westBoundLonitude>
+<eastBoundLonitude>180</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-180" maxx="90" maxy="180"/>
+</Layer>
+<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
+<Name>test_world_temperature_subset</Name>
+<Title>test_world_temperature_subset</Title>
+<Abstract/>
+<ows:AdditionalParameters>
+<ows:AdditionalParameter>
+<ows:Name>sizeInBytes</ows:Name>
+<ows:Value>972</ows:Value>
+</ows:AdditionalParameter>
+<ows:AdditionalParameter>
+<ows:Name>axisList</ows:Name>
+<ows:Value>Lat,Lon</ows:Value>
+</ows:AdditionalParameter>
+</ows:AdditionalParameters>
+<CRS>EPSG:4326</CRS>
+<EX_GeographicBoundingBox>
+<westBoundLonitude>-90</westBoundLonitude>
+<eastBoundLonitude>90</eastBoundLonitude>
+<southBoundLatitude>-90</southBoundLatitude>
+<northBoundLatitude>90</northBoundLatitude>
+</EX_GeographicBoundingBox>
+<BoundingBox CRS="EPSG:4326" minx="-90" miny="-90" maxx="90" maxy="90"/>
+</Layer>
+</Layer>
+</Capability>
+</WMS_Capabilities>
