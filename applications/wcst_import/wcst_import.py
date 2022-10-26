@@ -45,6 +45,8 @@ from osgeo import gdal
 from config_manager import ConfigManager
 
 from ArgumentsParser import parse_arguments
+from util.log import log_to_file
+from util.import_util import check_required_libraries
 
 # Enable GDAL/OGR exceptions
 gdal.UseExceptions()
@@ -85,6 +87,7 @@ def exit_error():
     Exits the program with an error code
     """
     exit(1)
+
 
 def load_schema():
     script_dir = os.path.dirname(os.path.abspath( __file__ ))
@@ -174,6 +177,7 @@ def main():
     """
     Main function to put the pieces together and run the recipe
     """
+
     # NOTE: not allow GDAL to create auxilary file which causes problem when no permission on the input data folder
     command = "export GDAL_PAM_ENABLED=NO"
     os.system(command)
@@ -222,19 +226,17 @@ def main():
         session = Session(ingredients['config'], ingredients['input'], ingredients['recipe'], hooks,
                           os.path.basename(ingredients_file_path),
                           FileUtil.get_directory_path(ingredients_file_path))
+
+        check_required_libraries()
         reg.run_recipe(session)
-    except RecipeValidationException as re:
-        log.error(str(re))
-        exit_error()
-    except RuntimeException as re:
-        log.error(str(re))
-        exit_error()
-    except WCSTException as re:
-        log.error(str(re))
-        exit_error()
     except Exception as ex:
-        log.error("An error has occured in the execution of the program. Error Message: " + str(
-            ex) + "\nStack Trace: " + traceback.format_exc())
+        # log error message to console
+        error_message = "Failed to importing data. Reason: " + str(ex)
+        log.error(error_message)
+
+        # log stack trace to log file (coverage_id.log)
+        error_message += "\nStack trace: " + traceback.format_exc()
+        log_to_file(error_message)
         exit_error()
 
 

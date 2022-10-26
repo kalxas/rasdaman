@@ -36,8 +36,60 @@ else:
   Utilities to import optional dependencies and throw proper exceptions for user to install these missing libraries. 
 """
 
+imported_gdal = None
 imported_pygrib = None
 imported_netcdf = None
+
+
+def check_required_libraries():
+    """
+    Test if wcst_import can import the necessary libraries before starting wcst_import process
+    """
+    import_glob()
+    import_requests()
+    import_jsonschema()
+    import_numpy()
+    import_lxml()
+    import_python_dateutil()
+
+
+def import_glob():
+    """
+    Importing glob according to python version
+    """
+    try:
+        if sys.version_info[0] < 3:
+            import glob2 as glob
+        else:
+            import glob
+        return glob
+    except ImportError:
+        log.warning("The glob package is not installed, ingredient file validation will be skipped. \
+        To enable validation please install glob (sudo pip3 install glob)")
+        pass
+
+
+def import_requests():
+    """
+    Import requests library
+    """
+    try:
+        import requests
+        return requests
+    except ImportError as e:
+        raise RuntimeException("Cannot import requests library, please install it first (sudo pip3 install requests). "
+                               "Reason: {}.".format(e))
+
+
+def import_lxml():
+    """
+    Import lxml library
+    """
+    try:
+        import lxml
+    except ImportError as e:
+        raise RuntimeException("lxml package is not installed, please install it first (sudo pip3 install lxml). "
+                               "Reason: {}.".format(e))
 
 
 def import_numpy():
@@ -47,8 +99,35 @@ def import_numpy():
     try:
         import numpy
     except ImportError as e:
-        raise RuntimeException("Numpy package is not installed, please install it first (sudo pip3 install numpy)."
+        raise RuntimeException("Numpy package is not installed, please install it first (sudo pip3 install numpy). "
                                "Reason: {}.".format(e))
+
+
+def import_python_dateutil():
+    """
+    Import python-dateutil library
+    """
+    try:
+        import dateutil
+    except ImportError as e:
+        raise RuntimeException("python-dateutil package is not installed, please install it first (sudo pip3 install python-dateutil). "
+                               "Reason: {}.".format(e))
+
+
+def import_gdal():
+    """
+    Import GDAL
+    """
+    global imported_gdal
+    if imported_gdal is None:
+        try:
+            from osgeo import gdal
+            imported_gdal = gdal
+        except ImportError as e:
+            raise RuntimeException("GDAL package is not installed, please install it first (sudo pip3 install GDAL==x.x.x). "
+                                   "See GDAL version according to Linux OS on: https://doc.rasdaman.org/02_inst-guide.html#install-required-packages. "
+                                   "Reason: {}.".format(e))
+    return imported_gdal
 
 
 def import_pygrib():
@@ -78,7 +157,7 @@ def import_netcdf4():
             imported_netcdf = netCDF4
         except ImportError as e:
             raise RuntimeException("Cannot import netCDF data, please install netCDF4 first \
-                                    (sudo pip3 install netCDF4)."
+                                    (sudo pip3 install netCDF4). "
                                    "Reason: {}.".format(e))
 
     return imported_netcdf
@@ -113,29 +192,3 @@ def decode_res(data):
         return data
     return data.decode("ISO-8859-1")
 
-def import_glob():
-    """
-    Importing glob according to python version
-    """
-    try:
-        if sys.version_info[0] < 3:
-            import glob2 as glob
-        else:
-            import glob
-        return glob
-    except ImportError:
-        log.warning("The glob package is not installed, ingredient file validation will be skipped. \
-        To enable validation please install glob (sudo pip3 install glob)")
-        pass
-
-
-def import_requests():
-    """
-    Import requests library
-    """
-    try:
-        import requests
-        return requests
-    except ImportError as e:
-        raise RuntimeException("Cannot import requests library, please install it first (sudo pip3 install requests). "
-                               "Reason: {}.".format(e))

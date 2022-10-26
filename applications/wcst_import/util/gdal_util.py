@@ -101,7 +101,8 @@ class GDALGmlUtil:
         :return: gdal_dataset for further analyzing
         """
         filepath = args[0][0]
-        import osgeo.gdal as gdal
+        from util.import_util import import_gdal
+        gdal = import_gdal()
         gdal_dataset = None
         try:
             # GDAL wants filename in utf8 or filename with spaces could not open
@@ -292,7 +293,8 @@ class GDALGmlUtil:
         Returns the range type fields from a dataset
         :rtype: list[GDALField]
         """
-        import osgeo.gdal as gdal
+        from util.import_util import import_gdal
+        gdal = import_gdal()
 
         fields = []
 

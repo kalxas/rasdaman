@@ -5166,6 +5166,23 @@ more than ``N`` datasets, ``N`` should be greater than 0). The
 default value is ``-1`` if this option is not specified.
 
 
+Logging and error handling
+--------------------------
+
+wcst_import outputs log messages to the console, as well as to a log file if the user  
+that executed wcst_import has write permissions to it.
+The log file name is created from settings ``resumer_dir_path`` and ``coverage_id``
+in the ingredients file in format ``resumer_dir_path/coverage_id.json``.
+If ``resumer_dir_path`` is not set in the ingredients file, by default the log file will
+be written in the folder containing the imported ingredients file with file name
+``coverage_id.json``.
+
+Errors that occur while wcst_import is running are handled in the following way:
+
+- The error message is written in the terminal console;
+- The error message and the full stack trace are written to the log file.
+
+
 Data export
 ===========
 
