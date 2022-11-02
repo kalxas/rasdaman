@@ -38,6 +38,17 @@
 grammar wcps;
 import wcpsLexerTokens;
 
+
+// NOTE: Comments are ignored in WCPS
+
+LINE_COMMENT
+    : '--' ~[\r\n]* -> skip;
+
+MULTILINE_COMMENT
+    : '/*' .*? '*/' -> skip
+;
+
+
 wcpsQuery : (forClauseList) 
             (whereClause)? 
             (letClauseList)? 

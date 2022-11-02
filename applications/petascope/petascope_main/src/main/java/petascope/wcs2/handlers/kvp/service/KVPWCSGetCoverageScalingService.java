@@ -47,10 +47,14 @@ public class KVPWCSGetCoverageScalingService {
     
     // NOTE: rasdaman only supports scale() by nearest neighbor up to now
     public static final Set<String> SUPPORTED_SCALING_AXIS_INTERPOLATIONS = new HashSet<>();
-    public static final String NEAREST_INTERPOLATION = "nearest";
+    public static final String NEAREST_INTERPOLATION = "nearest-neighbor";
+    private static final String GDAL_NEAREST_INTERPOLATION = "near";
     
     static {
+        SUPPORTED_SCALING_AXIS_INTERPOLATIONS.add(OGC_CITE_INTEPOLATION_NEAR);
+        SUPPORTED_SCALING_AXIS_INTERPOLATIONS.add(INTERPOLATION_NEAR);
         SUPPORTED_SCALING_AXIS_INTERPOLATIONS.add(NEAREST_INTERPOLATION);
+        SUPPORTED_SCALING_AXIS_INTERPOLATIONS.add(GDAL_NEAREST_INTERPOLATION);
     }
 
     public KVPWCSGetCoverageScalingService() {
@@ -116,8 +120,7 @@ public class KVPWCSGetCoverageScalingService {
             String[] interpolations = getValuesByKeyAllowNull(kvpParameters, KEY_INTERPOLATION);
             if (interpolations != null) {
                 String interpolation = interpolations[0];
-                if (!(interpolation.equals(OGC_CITE_INTEPOLATION_NEAR)
-                    || interpolation.equals(INTERPOLATION_NEAR))) {
+                if (!this.SUPPORTED_SCALING_AXIS_INTERPOLATIONS.contains(interpolation)) {
                     throw new WCSException(ExceptionCode.InterpolationMethodNotSupported);
                 }
             }

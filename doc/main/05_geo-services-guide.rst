@@ -1021,6 +1021,18 @@ as documented below.
             </ows:AdditionalParameter>
         </ows:AdditionalParameters> 
 
+GetCoverage request
+-------------------
+
+Interpolation
+^^^^^^^^^^^^^
+
+There are two supported formats for interpolation parameter in WCS ``GetCoverage`` requests:
+
+- Full URI, e.g. ``http://www.opengis.net/def/interpolation/OGC/1.0/bilinear``
+- Short hand format, e.g. ``bilinear``
+
+
 OGC Web Coverage Processing Service (WCPS)
 ==========================================
 

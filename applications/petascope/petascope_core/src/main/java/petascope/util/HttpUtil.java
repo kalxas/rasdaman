@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -109,5 +110,14 @@ public class HttpUtil {
         InputStream result = con.getInputStream();
         return result;        
     }
+    
+    /**
+     * Return the last segment of an URL, e.g: http://localhost:8080/rasdaman/ows -> ows
+     */
+    public static String getLastSegmentOfURL(String inputURL) {
+        String result = FilenameUtils.getName(inputURL);
+        return result;
+    }
+    
 
 }

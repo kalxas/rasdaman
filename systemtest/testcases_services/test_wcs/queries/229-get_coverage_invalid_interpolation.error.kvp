@@ -1,0 +1,9 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_mr&
+subset=i(10,11)&
+subset=j(10,11)&
+scalefactor=2&
+format=image/png&
+interpolation=abc/xyz/near

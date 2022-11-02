@@ -2,7 +2,7 @@
 <ows:ExceptionReport version="2.0.1"
     xsi:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
     xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <ows:Exception exceptionCode="SyntaxError" >
-        <ows:ExceptionText><![CDATA[A parsing error occurred at line '4', column '17'. Offending token is ','. Reason: no viable alternative at input 'coverage clipped over                 ,'.]]></ows:ExceptionText>
+    <ows:Exception exceptionCode="InterpolationMethodNotSupported" locator="interpolation">
+        <ows:ExceptionText>'interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>
