@@ -1,0 +1,10 @@
+for $c in (test_mean_summer_airtemp)
+
+let $cutOut := [ Lat(-40:-30), Long(130:140) ]
+return
+  encode(
+    scale(
+      $c [ $cutOut ],
+       { Lat:"CRS:1"(0:150) } 
+    )
+  , "image/jpeg")

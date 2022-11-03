@@ -141,6 +141,7 @@ public class ScaleExpressionByDimensionIntervalsHandler extends Handler {
             || childCoverageExpressionHandler.getClass().getName().equals(AxisIteratorDomainIntervalsHandler.class.getName())
             || childCoverageExpressionHandler.getClass().getName().equals(ReduceExpressionHandler.class.getName())
             || childCoverageExpressionHandler.getClass().getName().equals(CrsTransformHandler.class.getName())
+            || childCoverageExpressionHandler.getClass().getName().equals(ShortHandSubsetWithLetClauseVariableHandler.class.getName())
             ) {
             // e.g. scale(avg(c)) is invalid -> don't try to make avg(scale(c))
             return;
@@ -182,6 +183,7 @@ public class ScaleExpressionByDimensionIntervalsHandler extends Handler {
                         && ( childHandler.getClass().getName().equals(AxisIteratorDomainIntervalsHandler.class.getName())
                             || childHandler.getClass().getName().equals(ReduceExpressionHandler.class.getName())
                             || childHandler.getClass().getName().equals(ShorthandSubsetHandler.class.getName())
+                            || childHandler.getClass().getName().equals(ShortHandSubsetWithLetClauseVariableHandler.class.getName())
                             )
                         ) {
                         // NOTE: don't add scale() underneath of axis iterator from general condenser / coverage constructor

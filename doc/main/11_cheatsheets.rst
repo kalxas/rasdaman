@@ -431,6 +431,32 @@ Several functions allow to extract metadata information about a coverage ``C``:
 +---------------------------+----------------------------------------------------+
 
 
+.. _wcps-comment-lines:
+
+Comments
+--------
+
+WCPS supports SQL-like commenting styles:
+
+- Single line comments start with ``--``. Any text following ``--``
+  to the end of the line will be ignored. Example:
+
+  .. code-block:: rasql
+
+    return encode($c, "image/png") -- Output encoded as 2D image
+
+- Multi-line comments start with ``/*`` and end with ``*/``.
+  Any text between ``/*`` and ``*/`` are ignored. Example:
+
+  .. code-block:: rasql
+
+    /*
+        Output encoded as 2D image; result can be viewed in
+        Web browsers or image viewer tools.
+    */
+    return encode($c, "image/png")
+
+
 .. _cheatsheet-wms:
 
 WMS

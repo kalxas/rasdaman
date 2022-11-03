@@ -5177,6 +5177,7 @@ specified value can be one of: ``-1`` (no limit, cache all files),
 more than ``N`` datasets, ``N`` should be greater than 0). The
 default value is ``-1`` if this option is not specified.
 
+.. _wcst_import-logging:
 
 Logging and error handling
 --------------------------
