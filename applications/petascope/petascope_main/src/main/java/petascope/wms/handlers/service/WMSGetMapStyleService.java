@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.codehaus.plexus.util.StringUtils;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,6 +242,8 @@ public class WMSGetMapStyleService {
             i++;
         }
         
+        nonXYGridSliceSubsetDimensions = this.selectNonXYSlicesToAddToWcpsStyleQuery(styleQuery, nonXYGridSliceSubsetDimensions);
+        
         String forClauseWCPSQuery = ListUtil.join(coverageAliasList, ", ");
         String mainWCPSQuery = this.replaceLayerNameIteratorsByLayerExpressions(styleQuery, layerNameIteratorsCoverageExpressionsMap, nonXYGridSliceSubsetDimensions,
                                                                                 extendedFittedRequestGeoBBox, axisX, axisY);
@@ -256,6 +259,37 @@ public class WMSGetMapStyleService {
                                                                                        extendedFittedRequestGeoBBox);
                     
         return mainRasqlQuery;
+    }
+    
+    /**
+     * NOTE: In case the WCPS style query already contains non-XY axes slices (e.g. $c[ansi($t), forecast(0)])
+     * then, ansi and forecast axes grid slices (:"CRS:1"(gridIndex)) from GetMap request
+     * should not be added to this style query one more time.
+     */
+    private List<List<WcpsSliceSubsetDimension>> selectNonXYSlicesToAddToWcpsStyleQuery(String wcpsStyleQuery, 
+                                                                                List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions) {
+        List<String> subsetsInWcpsQueryStyle = StringUtil.extractStringsBetweenSquareBrackets(wcpsStyleQuery);
+        List<List<WcpsSliceSubsetDimension>> newList = new ArrayList<>();
+        
+        for (String subset : subsetsInWcpsQueryStyle) {
+            // e.g. forecast(0)
+            subset = StringUtils.deleteWhitespace(subset);
+            for (List<WcpsSliceSubsetDimension> list : nonXYGridSliceSubsetDimensions) {
+                boolean exists = false;
+                for (WcpsSliceSubsetDimension nonXYGridSlice : list) {
+                    if (subset.contains(nonXYGridSlice.getAxisName() + "(")) {
+                        exists = true;
+                        break;
+                    }
+                }
+                
+                if (exists == false) {
+                    newList.add(list);
+                }
+            }
+        }
+        
+        return newList;
     }
     
     /**

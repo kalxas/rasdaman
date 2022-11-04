@@ -828,6 +828,16 @@ post_request_kvp() {
   $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
+post_request_kvp_with_breaklines() {
+  # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/ows)
+  # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&query=for $c in \n return \n encode(...))
+  # $3 is output file
+  local url="$1"
+  local kvpValues
+  kvpValues="$(echo "$2")"
+  $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
+}
+
 # this function will be used to send XML/SOAP request for WCS, WCPS
 post_request_xml() {
   # curl -s -X POST --data-urlencode "$kvpValues" "$PETASCOPE_URL" -o "$2"
@@ -1013,7 +1023,7 @@ run_test()
 
                     QUERY=$(cat "$f")
                     if check_query_runable "$QUERY"; then
-                      post_request_kvp "$PETASCOPE_URL" "query=$QUERY" "$out"
+                       post_request_kvp_with_breaklines "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
                       return
                     fi
@@ -1022,7 +1032,7 @@ run_test()
                     QUERY=$(cat "$f")
                     if check_query_runable "$QUERY"; then
                       # send POST/SOAP to petascope
-                      post_request_xml "$PETASCOPE_URL" "query=$QUERY" "$out"
+                       post_request_kvp_with_breaklines "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
                       return
                     fi

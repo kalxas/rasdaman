@@ -1,0 +1,17 @@
+for $c in (test_mean_summer_airtemp), 
+    $d in (test_mean_summer_airtemp),
+    $e in (test_mean_summer_airtemp)
+
+let $cutOut :=  [ Lat(-40:-30), Long(130:140) ]
+    
+return
+  encode(
+    {
+      red: scale( $c[ $cutOut ],
+                  { Lat:"CRS:1"(0:29) }) ;
+    green: scale( $d[ $cutOut ],
+                  { Lat:"CRS:1"(0:29) }) ;
+     blue: scale( $e[ $cutOut ], 
+                  { Lat:"CRS:1"(0:29) })
+    } + 40
+  , "image/jpeg")

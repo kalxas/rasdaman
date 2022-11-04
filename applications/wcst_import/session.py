@@ -73,7 +73,16 @@ class Session:
             else ingredients_dir_path + "/"
         # imported files from the list of input files (files are added in .resume.json will be ignored)
         self.imported_files = []
-        self.coverage_id = inp['coverage_id'] if 'coverage_id' in inp else None
+        self.coverage_id = inp['coverage_id']
+        if self.coverage_id.strip() == "":
+            raise RecipeValidationException("Coverage id must not be empty.")
+
+        self.resumer_dir_path = self.resumer_dir_path if "resumer_dir_path" in self.config else self.ingredients_dir_path
+        ConfigManager.resumer_dir_path = self.resumer_dir_path \
+                                        if self.resumer_dir_path[-1] == "/" else self.resumer_dir_path + "/"
+        ConfigManager.ingredient_file_name = self.ingredient_file_name
+        # e.g test_mr.log file
+        ConfigManager.log_file = ConfigManager.resumer_dir_path + "/" + self.coverage_id + ".log"
 
         metadata_url = ""
         if "inspire" in inp:
@@ -121,7 +130,6 @@ class Session:
         self.slice_restriction = self.config['slice_restriction'] if "slice_restriction" in self.config else None
         self.retries = int(self.config['retries']) if "retries" in self.config else 5
         self.retry_sleep = float(self.config['retry_sleep']) if "retry_sleep" in self.config else 1
-        self.resumer_dir_path = self.resumer_dir_path if "resumer_dir_path" in self.config else self.ingredients_dir_path
         self.description_max_no_slices = int(
             self.config['description_max_no_slices']) if "description_max_no_slices" in self.config else 5
         self.track_files = bool(self.config['track_files']) if "track_files" in self.config else True
@@ -204,11 +212,8 @@ class Session:
         ConfigManager.retries = self.retries if self.retry is True else 1
         ConfigManager.retry_sleep = self.retry_sleep
         ConfigManager.slice_restriction = self.slice_restriction
-        ConfigManager.resumer_dir_path = self.resumer_dir_path if self.resumer_dir_path[-1] == "/" else self.resumer_dir_path + "/"
         ConfigManager.description_max_no_slices = self.description_max_no_slices
         ConfigManager.track_files = self.track_files
-        ConfigManager.ingredient_file_name = self.ingredient_file_name
-        ConfigManager.log_file = ConfigManager.resumer_dir_path + "/" + ConfigManager.ingredient_file_name + ".log"
 
         self.validate()
 

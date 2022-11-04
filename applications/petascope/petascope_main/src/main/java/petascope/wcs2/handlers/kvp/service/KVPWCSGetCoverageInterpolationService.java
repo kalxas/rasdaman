@@ -25,7 +25,9 @@ import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import static petascope.core.KVPSymbols.KEY_INTERPOLATION;
-import petascope.core.gml.GMLGetCapabilitiesBuilder;
+import static petascope.core.gml.GMLGetCapabilitiesBuilder.SUPPORTED_INTERPOLATIONS;
+import static petascope.core.gml.GMLGetCapabilitiesBuilder.SUPPORTED_SHORTHANDS_INTERPOLATIONS;
+import petascope.util.HttpUtil;
 
 /**
  * Service class for Interpolation handler of GetCoverageKVP class
@@ -50,14 +52,15 @@ public class KVPWCSGetCoverageInterpolationService {
             throw new WCSException(ExceptionCode.InvalidRequest,
                     "Multiple \"" + KEY_INTERPOLATION + "\" parameters in the request: must be unique.");
         } // if set, it must be a supported one:
-        else if (!GMLGetCapabilitiesBuilder.SUPPORTED_INTERPOLATIONS.contains(interpolations[0])) {
+        else {
+            // e.g. bilinear or http://www.opengis.net/def/interpolation/OGC/1.0/bilinear           
+            String inputInterpolation = interpolations[0];
+            if (SUPPORTED_INTERPOLATIONS.contains(inputInterpolation) || SUPPORTED_SHORTHANDS_INTERPOLATIONS.contains(inputInterpolation)) {
+                String interpolationType = HttpUtil.getLastSegmentOfURL(inputInterpolation);
+                return interpolationType;
+            }
+            
             throw new WCSException(ExceptionCode.InterpolationMethodNotSupported);
         }
-        
-        String url = interpolations[0];
-        // e.g: near, bilinear
-        String interpolationType = url.substring(url.lastIndexOf("/") + 1);
-               
-        return interpolationType;
     }
 }

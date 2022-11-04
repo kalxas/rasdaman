@@ -300,9 +300,15 @@ Coverage operations
 
     scale( covExpr, { axis1(lo:hi), axis2:crs(lo:hi), ... } )
 
-- **Reproject** allows to change the CRS of the coverage: ::
+- **Reproject** allows to project a 2D coverage with geo X/Y axes by a CRS: ::
 
-    crsTransform( covExpr, { axis1:crs1, axis2:crs2, ... } )
+    crsTransform( covExpr, { axisX:outputCRS, axisY:outputCRS }, { interpolation } )
+
+.. _wcps-crstransform-shorthand:
+ 
+    or shorthand version
+
+    crsTransform( covExpr, "outputCRS", { interpolation } )
 
 - **Conditional evaluation** is possible with the ``switch`` statement:
 
@@ -423,6 +429,32 @@ Several functions allow to extract metadata information about a coverage ``C``:
 +---------------------------+----------------------------------------------------+
 | nullSet(C)                | Set of null values                                 |
 +---------------------------+----------------------------------------------------+
+
+
+.. _wcps-comment-lines:
+
+Comments
+--------
+
+WCPS supports SQL-like commenting styles:
+
+- Single line comments start with ``--``. Any text following ``--``
+  to the end of the line will be ignored. Example:
+
+  .. code-block:: rasql
+
+    return encode($c, "image/png") -- Output encoded as 2D image
+
+- Multi-line comments start with ``/*`` and end with ``*/``.
+  Any text between ``/*`` and ``*/`` are ignored. Example:
+
+  .. code-block:: rasql
+
+    /*
+        Output encoded as 2D image; result can be viewed in
+        Web browsers or image viewer tools.
+    */
+    return encode($c, "image/png")
 
 
 .. _cheatsheet-wms:

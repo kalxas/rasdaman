@@ -1021,6 +1021,18 @@ as documented below.
             </ows:AdditionalParameter>
         </ows:AdditionalParameters> 
 
+GetCoverage request
+-------------------
+
+Interpolation
+^^^^^^^^^^^^^
+
+There are two supported formats for interpolation parameter in WCS ``GetCoverage`` requests:
+
+- Full URI, e.g. ``http://www.opengis.net/def/interpolation/OGC/1.0/bilinear``
+- Short hand format, e.g. ``bilinear``
+
+
 OGC Web Coverage Processing Service (WCPS)
 ==========================================
 
@@ -1801,6 +1813,31 @@ available and their meaning. Example:
         &WIDTH=60&HEIGHT=60
         &FORMAT=image/png
         &INTERPOLATION=bilinear
+
+
+.. _wms-random:
+
+Random parameter
+^^^^^^^^^^^^^^^^
+
+Normally, Web Browser cache the WMS requests from a WMS client (e.g. WebWorldWind).
+In order to bypass that, one needs to add append extra parameter ``random`` with its
+value equals to a random number for all WMS `GetMap` requests. For example:
+
+.. hidden-code-block:: text
+
+    http://localhost:8080/rasdaman/ows?SERVICE=WMS&VERSION=1.3.0
+        &REQUEST=GetMap&LAYERS=waxlake1
+        &BBOX=618887,3228196,690885,3300195.0
+        &CRS=EPSG:32615&WIDTH=600&HEIGHT=600&FORMAT=image/png
+        &TRANSPARENT=true
+        &RANDOM=12345678
+
+
+In petascope, this ``random`` parameter is stripped when petascope
+receives a WMS ``GetMap`` request, hence, if the request is already processed,
+the result stored in the cache will be returned as usual. 
+
 
 nD Coverages as WMS Layers
 --------------------------
@@ -2675,6 +2712,15 @@ input section
   datetime in time-series recipes, or by lexicographic comparison of the file
   path strings otherwise. The ordering can be changed to descending or disabled
   completely with the :ref:`import_order <import-order>` option.
+
+  .. NOTE::
+
+     wcst_import analyzes each input file from ``paths`` and maximum time to open one file
+     to analyze is 60 seconds. If during this time, the file cannot be opened, then, wcst_import
+     will try to open it 3 more times. If the file is still not possible to open, then, it will:
+    
+     - Throw exception and stop the importing process if ``skip`` setting is ``False``
+     - Ignore the input file and continue with these other input files if ``skip`` setting is ``True``
 
 * ``inspire`` section contains the settings for importing INSPIRE coverage:
 
@@ -5130,6 +5176,24 @@ specified value can be one of: ``-1`` (no limit, cache all files),
 ``0`` (fully disable caching), ``N`` (clear the cache whenever it has
 more than ``N`` datasets, ``N`` should be greater than 0). The
 default value is ``-1`` if this option is not specified.
+
+.. _wcst_import-logging:
+
+Logging and error handling
+--------------------------
+
+wcst_import outputs log messages to the console, as well as to a log file if the user  
+that executed wcst_import has write permissions to it.
+The log file name is created from settings ``resumer_dir_path`` and ``coverage_id``
+in the ingredients file in format ``resumer_dir_path/coverage_id.json``.
+If ``resumer_dir_path`` is not set in the ingredients file, by default the log file will
+be written in the folder containing the imported ingredients file with file name
+``coverage_id.json``.
+
+Errors that occur while wcst_import is running are handled in the following way:
+
+- The error message is written in the terminal console;
+- The error message and the full stack trace are written to the log file.
 
 
 Data export

@@ -1,0 +1,4 @@
+STYLEID=test&
+COVERAGEID=test_wms_4d_ecmwf_fire_netcdf&
+abstract=test&
+wcpsQueryFragment=(condense + over $t ansi(1:5) using $c[ansi($t), forecast(0)]) / 30

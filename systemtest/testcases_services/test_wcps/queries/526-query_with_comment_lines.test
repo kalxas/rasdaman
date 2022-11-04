@@ -1,0 +1,25 @@
+-- begin WCPS query
+-- WCPS query is a language to process coverages
+-- and it works only with rasdaman
+
+/*
+
+Long comment
+12
+3
+4
+5
+6
+7
+8
+19
+end long comment
+
+*/
+
+for $c in (test_mr)
+return -- this is a comment
+encode( -- this is another comment
+   $c -3 , -- $c points to test_mr
+   "png") -- encode to image/png
+

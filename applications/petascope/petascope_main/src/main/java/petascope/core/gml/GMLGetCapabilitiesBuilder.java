@@ -166,6 +166,9 @@ import static petascope.core.XMLSymbols.SCHEMA_LOCATION_INSPIRE2;
 import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES;
 import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_AXIS_NAMES_LIST;
 import static petascope.core.XMLSymbols.VALUE_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES_WITH_PYRAMID_LEVELS;
+import petascope.util.HttpUtil;
+import static petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService.NEAREST_INTERPOLATION;
+
 
 /**
  * Class to represent result of WCS GetCapabilities request.
@@ -188,7 +191,6 @@ public class GMLGetCapabilitiesBuilder {
     // EncodeFormatExtensions
     private static final String GML_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml";
     private static final String GMLCOV_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage";
-    private static final String GEOTIFF_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/";
     private static final String GMLJP2_IDENTIFIER = "http://www.opengis.net/spec/GMLJP2/2.0/";
     private static final String JPEG2000_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/";
     private static final String CSV_IDENTIFIER = "https://www.ietf.org/rfc/rfc4180.txt";
@@ -231,7 +233,9 @@ public class GMLGetCapabilitiesBuilder {
     public static final String INTERPOLATION_Q1 = "http://www.opengis.net/def/interpolation/OGC/1.0/q1";
     public static final String INTERPOLATION_Q3 = "http://www.opengis.net/def/interpolation/OGC/1.0/q3";
     
-    public static List<String> SUPPORTED_INTERPOLATIONS = null;
+    public static List<String> SUPPORTED_INTERPOLATIONS = new ArrayList<>();
+    // e.g. near, bilinear, ...
+    public static List<String> SUPPORTED_SHORTHANDS_INTERPOLATIONS = new ArrayList<>();
     // This one lists the EPSG CRSs for WCS CRS extension as it can be very long, so just list one popular CRS
     private static final String CRS_EPSG_4326 = "http://www.opengis.net/def/crs/EPSG/0/4326";
     private static List<String> SUPPORTED_CRSS = ListUtil.valuesToList(CRS_EPSG_4326);
@@ -249,6 +253,14 @@ public class GMLGetCapabilitiesBuilder {
                                                             INTERPOLATION_MIN, INTERPOLATION_MED, INTERPOLATION_Q1, INTERPOLATION_Q3
                                                             );
         }
+        
+        SUPPORTED_SHORTHANDS_INTERPOLATIONS.add(NEAREST_INTERPOLATION);
+        
+        for (String interpolation : SUPPORTED_INTERPOLATIONS) {
+            // e.g. http://www.opengis.net/def/interpolation/OGC/1.0/near -> near
+            String shorthandInterpolation = HttpUtil.getLastSegmentOfURL(interpolation);
+            SUPPORTED_SHORTHANDS_INTERPOLATIONS.add(shorthandInterpolation);
+        }
     }
 
     /**
@@ -262,7 +274,6 @@ public class GMLGetCapabilitiesBuilder {
             // Decode formats extension
             profiles.add(GML_IDENTIFIER);
             profiles.add(GMLCOV_IDENTIFIER);
-            profiles.add(GEOTIFF_IDENTIFIER);
             profiles.add(GMLJP2_IDENTIFIER);
             profiles.add(JPEG2000_IDENTIFIER);
             profiles.add(CSV_IDENTIFIER);

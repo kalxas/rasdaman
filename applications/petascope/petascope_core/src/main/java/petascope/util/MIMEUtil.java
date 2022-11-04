@@ -137,7 +137,6 @@ public class MIMEUtil {
         mimeTypesMap.put(MIME_JPEG, ENCODE_JPEG);
         mimeTypesMap.put(MIME_PNG, ENCODE_PNG);        
         mimeTypesMap.put(MIME_TIFF, ENCODE_TIFF);
-        mimeTypesMap.put(MIME_GTIFF, ENCODE_GTIFF);
         mimeTypesMap.put(MIME_BMP, ENCODE_BMP);
         mimeTypesMap.put(MIME_JP2, ENCODE_JPEG2000);
         mimeTypesMap.put(MIME_NETCDF, ENCODE_NETCDF);
