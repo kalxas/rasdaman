@@ -1,0 +1,4 @@
+STYLEID=test_with_whitespaces_HARD&
+COVERAGEID=test_wms_3d_ecmwf_fire_netcdf&
+abstract=test_with_whitespaces_HARD&
+wcpsQueryFragment=( ( $test_wms_4d_ecmwf_fire_netcdf * 2 ) [  forecast(0)  ] + $c) is null + 150

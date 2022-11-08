@@ -23,6 +23,8 @@ package petascope.wms.handlers.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -200,7 +202,6 @@ public class WMSGetMapStyleService {
         // Then, it needs to update the request geo XY BBOX in native CRS with the translated results by WCPS 
         this.updateFittedBBoxByXYAxes(extendedFittedRequestGeoBBox, axisX, axisY);
         
-        Map<String, String> layerNameIteratorsCoverageExpressionsMap = new LinkedHashMap<>();
         List<String> coverageAliasList = new ArrayList<>();
         
         Set<String> layerNameIteratorsFromStyle = this.parseLayerNameIteratorsFromStyleExpression(styleQuery);
@@ -238,15 +239,58 @@ public class WMSGetMapStyleService {
                 }
             }
             
-            layerNameIteratorsCoverageExpressionsMap.put(layerNameIteratorFromStyle,  ListUtil.join(coverageExpressions, OVERLAY));
+            
+            // e.g. pattern: \$test_3d\[(.*?)\] with test string: $test_3d[plev(30)] which returns plev(30)
+            Pattern pattern = Pattern.compile("\\" + layerNameIteratorFromStyle + "\\s*\\[(.*?)\\]");
+            List<String> fixedSubsetsInStyleQuery = new ArrayList<>();
+            // extract values inside [ ]        
+            Matcher m = pattern.matcher(styleQuery);
+
+            while (m.find()) {
+                String v = m.group(1);
+                fixedSubsetsInStyleQuery.add(v);
+            }
+            
+            // e.g. ansidate("2015-05-01"), level(350)
+            String subsetsRepresentation = StringUtil.extractStringsBetweenSquareBrackets(coverageExpressions.get(0)).get(0);
+            List<String> subsets = new ArrayList<>(Arrays.asList(subsetsRepresentation.split(",")));
+            Iterator<String> iterator = subsets.iterator();
+            
+            // NOTE: In case the WCPS style query already contains non-XY axes slices (e.g. $c[ansi($t), forecast(0)])
+            // then, ansi and forecast axes grid slices (:"CRS:1"(gridIndex)) from GetMap request
+            // should not be added to this style query one more time.
+            while (iterator.hasNext()) {
+                
+                String subset = iterator.next();
+            
+                for (String fixedSubset : fixedSubsetsInStyleQuery) {
+                    String axisLabel = subset.substring(0, subset.indexOf("(")).split(":")[0].trim();
+
+                    if (fixedSubset.contains(axisLabel + "(") 
+                        || fixedSubset.contains(axisLabel + ":\"" + CrsUtil.GRID_CRS + "\"(")) {
+                        // e.g. dimensionStage(3),ansi("2015-01-01")
+                        // coverage's subsets and fixed subsets for this coverage from style have the same axis label
+                        iterator.remove();
+                        break;
+                    }
+                }
+                
+            }
+            
+            if (subsets.size() > 0) {
+                styleQuery = WMSGetMapService.replaceLayerIteratorByLayerName(styleQuery, layerNameIteratorFromStyle, 
+                                                                            coverageAlias + "[" + ListUtil.join(subsets, ",") + "]");
+            } else {
+                styleQuery = WMSGetMapService.replaceLayerIteratorByLayerName(styleQuery, layerNameIteratorFromStyle, 
+                                                                            coverageAlias);
+            }            
+            
             i++;
         }
         
-        nonXYGridSliceSubsetDimensions = this.selectNonXYSlicesToAddToWcpsStyleQuery(styleQuery, nonXYGridSliceSubsetDimensions);
-        
         String forClauseWCPSQuery = ListUtil.join(coverageAliasList, ", ");
-        String mainWCPSQuery = this.replaceLayerNameIteratorsByLayerExpressions(styleQuery, layerNameIteratorsCoverageExpressionsMap, nonXYGridSliceSubsetDimensions,
-                                                                                extendedFittedRequestGeoBBox, axisX, axisY);
+
+        String mainWCPSQuery = styleQuery;
         
         // This WCPS query is created temporarily to extract the main rasql content to be used later
         String wcpsQuery = FOR + forClauseWCPSQuery + RETURN + ENCODE + "(" + mainWCPSQuery + ", " + ENCODE_PNG + ")";
@@ -259,37 +303,6 @@ public class WMSGetMapStyleService {
                                                                                        extendedFittedRequestGeoBBox);
                     
         return mainRasqlQuery;
-    }
-    
-    /**
-     * NOTE: In case the WCPS style query already contains non-XY axes slices (e.g. $c[ansi($t), forecast(0)])
-     * then, ansi and forecast axes grid slices (:"CRS:1"(gridIndex)) from GetMap request
-     * should not be added to this style query one more time.
-     */
-    private List<List<WcpsSliceSubsetDimension>> selectNonXYSlicesToAddToWcpsStyleQuery(String wcpsStyleQuery, 
-                                                                                List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions) {
-        List<String> subsetsInWcpsQueryStyle = StringUtil.extractStringsBetweenSquareBrackets(wcpsStyleQuery);
-        List<List<WcpsSliceSubsetDimension>> newList = new ArrayList<>();
-        
-        for (String subset : subsetsInWcpsQueryStyle) {
-            // e.g. forecast(0)
-            subset = StringUtils.deleteWhitespace(subset);
-            for (List<WcpsSliceSubsetDimension> list : nonXYGridSliceSubsetDimensions) {
-                boolean exists = false;
-                for (WcpsSliceSubsetDimension nonXYGridSlice : list) {
-                    if (subset.contains(nonXYGridSlice.getAxisName() + "(")) {
-                        exists = true;
-                        break;
-                    }
-                }
-                
-                if (exists == false) {
-                    newList.add(list);
-                }
-            }
-        }
-        
-        return newList;
     }
     
     /**

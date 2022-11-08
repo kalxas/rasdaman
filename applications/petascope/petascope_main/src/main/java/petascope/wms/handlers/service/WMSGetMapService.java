@@ -36,8 +36,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import com.rasdaman.accesscontrol.service.AuthenticationService;
-import org.rasdaman.config.ConfigManager;
-import org.rasdaman.domain.cis.Coverage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.rasdaman.domain.cis.Wgs84BoundingBox;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.Style;
@@ -496,17 +496,36 @@ public class WMSGetMapService {
      * (especially in case of requesting in different CRS to layer's native geo XY CRS)
      */
     private boolean needExtendedGeoXYBBox(WMSLayer wmsLayer) throws PetascopeException {
+        BoundingBox extendedRequestBBoxTmp = this.wmsGetMapBBoxService.createExtendedGeoBBox(wmsLayer);
+        wmsLayer.setExtendedRequestBBox(extendedRequestBBoxTmp);
+        
+        // Check if base layer or a pyramid member should be used for handling request
+        WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
+        isProjection = !CrsUtil.equalsWKT(CrsUtil.getWKT(this.outputCRS), CrsUtil.getWKT(wcpsCoverageMetadata.getXYAxes().get(0).getNativeCrsUri()));
+        wmsLayer.setExtendedRequestBBox(wmsLayer.getRequestBBox());
+        
         BoundingBox bbox = this.layerRequestCRSBBoxesMap.get(wmsLayer.getLayerName());
+        
         // If request BBox contains the layer (layer is inside the request BBox)
         // then no point to create extended request geo BBox as there are no more pixels to fill gaps
         
-        boolean result = ((isProjection 
-                ) 
-                && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(bbox));
+        boolean result = (isProjection
+                        && wmsLayer.getOriginalBoundsBBox().intersectsXorYAxis(bbox));
         
         return result;
     }
     
+    /**
+     * e.g. WCPS query fragment: $cb_abc + $c > 300 with layerName is $cb_xyz
+     * return $cb_abc + $cb_xyz > 300
+     */
+    public static String replaceLayerIteratorByLayerName(String styleQuery, String layerNameIterator, String layerName) {
+        // e.g. \\$test_abc
+        String regexPattern = "\\" + layerNameIterator + "\\b";
+        String result = styleQuery.replaceAll(regexPattern, Matcher.quoteReplacement(layerName));
+        return result;
+    }
+     
     /**
      * Create a list of Rasql collection expressions' string representations for a specific layer.
      * 
@@ -567,7 +586,7 @@ public class WMSGetMapService {
             if (!StringUtils.isEmpty(style.getRasqlQueryFragment())) {
                 // rasqlTransformFragment
                 // e.g: $Iterator -> $covA
-                String styleQuery = style.getRasqlQueryFragment().replace(RASQL_FRAGMENT_ITERATOR, FRAGMENT_ITERATOR_PREFIX + layerName);
+                String styleQuery = this.replaceLayerIteratorByLayerName(style.getRasqlQueryFragment(), RASQL_FRAGMENT_ITERATOR, FRAGMENT_ITERATOR_PREFIX + layerName);
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForRasqFragment(styleQuery, layerName,
                                                                         wmsLayer, wcpsCoverageMetadata,
                                                                         dimSubsetsMap,
@@ -575,7 +594,7 @@ public class WMSGetMapService {
             } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
                 // wcpsQueryFragment
                 // e.g: $c -> $covA
-                String styleQuery = style.getWcpsQueryFragment().replace(WCPS_FRAGMENT_ITERATOR, FRAGMENT_ITERATOR_PREFIX + layerName);
+                String styleQuery = this.replaceLayerIteratorByLayerName(style.getWcpsQueryFragment(), WCPS_FRAGMENT_ITERATOR, FRAGMENT_ITERATOR_PREFIX + layerName);
                 collectionExpression = this.wmsGetMapStyleService.buildRasqlStyleExpressionForWCPSFragment(
                                                                         styleQuery, layerName,
                                                                         wmsLayer, wcpsCoverageMetadata,

@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<ServiceException code="InvalidAxisLabel">
+Failed when processing WMS request: Coverage's axis not found 'forecast'.
+</ServiceException>
+</ServiceExceptionReport>
