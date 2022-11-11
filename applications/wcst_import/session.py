@@ -95,6 +95,7 @@ class Session:
 
         # input files to import
         self.files = self.parse_input(inp['paths'] if 'paths' in inp else [])
+        self.total_files_to_import = 0
 
         self.input = inp
         self.wcs_service = config['service_url'] if "service_url" in config else None
@@ -184,6 +185,7 @@ class Session:
         resumer = Resumer(self.coverage_id)
         not_imported_files = resumer.get_not_imported_files(self.files)
         self.files = not_imported_files
+        self.total_files_to_import = len(self.files)
 
     def setup_config_manager(self):
         """

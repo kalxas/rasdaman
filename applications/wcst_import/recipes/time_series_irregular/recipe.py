@@ -55,6 +55,9 @@ from recipes.general_coverage.recipe import Recipe as GeneralRecipe
 
 
 class Recipe(BaseRecipe):
+
+    analyzed_files_count = 0
+
     def __init__(self, session):
         """
             The recipe class for irregular timeseries. To get an overview of the ingredients needed for this
@@ -198,7 +201,11 @@ class Recipe(BaseRecipe):
             timer = Timer()
 
             # print which file is analyzing
-            FileUtil.print_feedback(count, len(timeseries), file_path)
+            if self.session.blocking is True:
+                FileUtil.print_feedback(count, len(timeseries), file.filepath)
+            else:
+                self.analyzed_files_count += 1
+                FileUtil.print_feedback(self.analyzed_files_count, self.session.total_files_to_import, file.filepath)
 
             if not FileUtil.validate_file_path(file_path):
                 continue

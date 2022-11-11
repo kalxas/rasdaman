@@ -51,6 +51,9 @@ from util.timer import Timer
 
 
 class Recipe(BaseRecipe):
+
+    analyzed_files_count = 0
+
     def __init__(self, session):
         """
         The recipe class for map_mosaic. To get an overview of the ingredients needed for this
@@ -119,7 +122,12 @@ class Recipe(BaseRecipe):
             timer = Timer()
 
             # print which file is analyzing
-            FileUtil.print_feedback(count, len(files), file.filepath)
+            if self.session.blocking is True:
+                FileUtil.print_feedback(count, len(files), file.filepath)
+            else:
+                self.analyzed_files_count += 1
+                FileUtil.print_feedback(self.analyzed_files_count, self.session.total_files_to_import, file.filepath)
+
             if not FileUtil.validate_file_path(file.filepath):
                 continue
 

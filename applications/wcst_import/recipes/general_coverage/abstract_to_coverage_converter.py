@@ -72,6 +72,8 @@ class AbstractToCoverageConverter:
     # no sorts by file paths / timeseries
     IMPORT_ORDER_NONE = "none"
 
+    analyzed_files_count = 0
+
     # A dictionary of irregular axes and their geo lower bounds
     irregular_axis_geo_lower_bound_dict = {}
 
@@ -489,7 +491,11 @@ class AbstractToCoverageConverter:
         for file in self.files:
             timer = Timer()
 
-            FileUtil.print_feedback(count, len(self.files), file.filepath)
+            if self.session.blocking is True:
+                FileUtil.print_feedback(count, len(self.files), file.filepath)
+            else:
+                self.analyzed_files_count += 1
+                FileUtil.print_feedback(self.analyzed_files_count, self.session.total_files_to_import, file.filepath)
 
             # print which file is analyzing
             if not FileUtil.validate_file_path(file.filepath):
