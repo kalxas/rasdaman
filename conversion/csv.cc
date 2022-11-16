@@ -541,10 +541,11 @@ void r_Conv_CSV::parseStruct(unsigned int numElem)
                           cast_from_string<T>(&src[srcIndexBegin], valueLen);
                     ), CODE(throw r_Error(r_Error::r_Error_Conversion);))
                 }
-                catch (boost::bad_lexical_cast&)
+                catch (boost::bad_lexical_cast &ex)
                 {
-                    LWARNING << "Failed decoding value, will be ignored: '"
-                             << string(&src[srcIndexBegin], valueLen) << "'";
+                    LWARNING << "Failed decoding value to type " << componentTypes[j]
+                             << ", will be ignored: '" << string(&src[srcIndexBegin], valueLen)
+                             << "', reason: " << ex.what();
                 }
                 ++countVal;
                 dest += componentSizes[j];
