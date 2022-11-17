@@ -1,0 +1,4 @@
+STYLEID=test_with_whitespaces&
+COVERAGEID=test_wms_3d_ecmwf_fire_netcdf&
+abstract=test_with_whitespaces&
+wcpsQueryFragment=($test_wms_4d_ecmwf_fire_netcdf [  forecast(0)  ] + $c) is null + 150

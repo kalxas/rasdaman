@@ -61,6 +61,8 @@ class Importer:
 
     DEFAULT_INSERT_VALUE = "0"
 
+    processed_files_count = 0
+
     def __init__(self, resumer, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False, session=None, scale_factors=None):
         """
         Imports a coverage into wcst
@@ -253,7 +255,6 @@ class Importer:
 
         for i in range(self.processed, self.total):
             try:
-                index = "{}/{}".format(str(i + 1), str(self.total))
                 # Log the time to send the slice (file) to server to ingest
                 # NOTE: in case of using wcs_extract recipe, it will fetch file from server, so don't know the file size
                 if hasattr(self.coverage.slices[i].data_provider, "file"):
@@ -268,6 +269,19 @@ class Importer:
                     start_time = time.time()
                     self._insert_slice(self.coverage.slices[i])
                     grid_domains = self.__get_grid_domains(self.coverage.slices[i])
+
+                    import_with_blocking = True
+                    if self.session is not None and self.session.blocking is False:
+                        import_with_blocking = False
+
+                    if import_with_blocking is True:
+                        # Default mode, analyze all files then import
+                        index = "{}/{}".format(str(i + 1), str(self.total))
+                    else:
+                        # Analyze one file then import this file
+                        Importer.processed_files_count += 1
+                        index = "{}/{}".format(str(Importer.processed_files_count), str(self.session.total_files_to_import))
+
                     self._log_file_ingestion(index, file_name, start_time, grid_domains, file_size_in_mb, is_loggable, log_file)
 
                     if add_pyramid_members is False \

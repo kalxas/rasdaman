@@ -2197,6 +2197,17 @@ Examples
         &FORMAT=image/png&transparent=true
         &STYLES=BandsCombined
 
+   The WCPS query fragment must follow one of these patterns in order to allow
+   petascope to instantiate the fragment into a full valid query for any
+   WMS request bbox:
+
+    - If no subsets are in the style, just use ``$c`` and ``$otherLayerName``
+      as usual in the fragment query.
+
+    - If there is a subset, usually a slice on non-XY axes for 3D+ coverages,
+      then the subsets must follow the pattern
+      ``$c[axisLabel(geoSubset),..]`` or ``$otherLayerName[axisLabel(geoSubset),..]``.
+
 -  WMS styling supports colorizing the result of GetMap request when the style
    is requested by applying a color table definition to it. A style can contain
    either one or both a query fragment and color table definitions. The request
