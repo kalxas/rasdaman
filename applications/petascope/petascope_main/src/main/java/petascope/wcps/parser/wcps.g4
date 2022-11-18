@@ -38,7 +38,6 @@
 grammar wcps;
 import wcpsLexerTokens;
 
-
 // NOTE: Comments are ignored in WCPS
 
 LINE_COMMENT
@@ -47,7 +46,6 @@ LINE_COMMENT
 MULTILINE_COMMENT
     : '/*' .*? '*/' -> skip
 ;
-
 
 wcpsQuery : (forClauseList) 
             (whereClause)? 
@@ -123,10 +121,18 @@ e.g: imageCrsdomain(c) returns (0:5,0:20,0:60)
 imageCrsdomain(c, ansi) returns (0:5)
 imageCrsdomain(c, Lat).lo returns 0
 imageCrsdomain(c, Long).hi returns 60
+domain($c, Lat).resolution returns 15.5
 **/
-sdomExtraction: LOWER_BOUND | UPPER_BOUND;
+domainPropertyValueExtraction: LOWER_BOUND | UPPER_BOUND | RESOLUTION;
 
-domainIntervals: (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (DOT sdomExtraction)?;
+domainIntervals: (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (DOT domainPropertyValueExtraction)?;
+
+/**
+Workaround for crsTransform($c, ... {Lat:domain($c, Lat).resolution, ...})
+**/
+
+geoXYAxisLabelAndDomainResolution: COVERAGE_NAME  LEFT_PARENTHESIS coverageExpression COMMA axisName (COMMA crsName)?  RIGHT_PARENTHESIS (DOT domainPropertyValueExtraction)
+#GeoXYAxisLabelAndDomainResolutionLabel;
 
 /**
  * Example
@@ -169,10 +175,14 @@ scalarValueCoverageExpression: (LEFT_PARENTHESIS)?  coverageExpression (RIGHT_PA
  * Example:
  *  See the examples for each of the subclasses.
  */
-scalarExpression: booleanScalarExpression
+scalarExpression: 
+               geoXYAxisLabelAndDomainResolution 
+                | booleanScalarExpression
                 | numericalScalarExpression
                 | stringScalarExpression
-                | starExpression;
+                | starExpression
+                | domainIntervals
+                ;
 
 /**
  *  Example:
@@ -393,6 +403,8 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
 
 		          | domainIntervals
                     #CoverageExpressionDomainIntervalsLabel
+                  | geoXYAxisLabelAndDomainResolution
+                    #CoverageExpressionGeoXYAxisLabelAndDomainResolution
                   | coverageExpression DOT fieldName
                     #CoverageExpressionRangeSubsettingLabel
 
@@ -805,12 +817,17 @@ clipWKTExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA wktExpression 
 crsTransformExpression: CRS_TRANSFORM LEFT_PARENTHESIS
                           coverageExpression COMMA dimensionCrsList
                           (COMMA LEFT_BRACE interpolationType? RIGHT_BRACE)?
+                          (COMMA LEFT_BRACE dimensionGeoXYResolutionsList RIGHT_BRACE)?
+                          (COMMA LEFT_BRACE ( dimensionIntervalList | domainExpression ) RIGHT_BRACE)?
+
                         RIGHT_PARENTHESIS
 #CrsTransformExpressionLabel;
 
 crsTransformShorthandExpression: CRS_TRANSFORM LEFT_PARENTHESIS
                               coverageExpression COMMA crsName
                           (COMMA LEFT_BRACE interpolationType? RIGHT_BRACE)?
+                          (COMMA LEFT_BRACE dimensionGeoXYResolutionsList RIGHT_BRACE)?
+                          (COMMA LEFT_BRACE ( dimensionIntervalList | domainExpression ) RIGHT_BRACE)?
                         RIGHT_PARENTHESIS
 #CrsTransformShorthandExpressionLabel;
 
@@ -822,11 +839,25 @@ dimensionCrsList: LEFT_BRACE dimensionCrsElement (COMMA dimensionCrsElement)* RI
 #DimensionCrsListLabel;
 
 
+dimensionGeoXYResolutionsList: dimensionGeoXYResolution (COMMA dimensionGeoXYResolution)*
+#DimensionGeoXYResolutionsListLabel;
+
+
+/*
+ * e.g: Lat:3/5 or Lat:domain($c, Lat).resolution
+*/
+
+dimensionGeoXYResolution:
+COVERAGE_VARIABLE_NAME COLON coverageExpression
+|     coverageExpression ;
+
+
 /*
  * e.g: Lat:"http://localhost:8080/def/crs/EPSG/0/4326"
 */
 dimensionCrsElement: axisName COLON crsName
 #DimensionCrsElementLabel;
+
 
 /*
  * GDAL supported interpolation methods (near, bilinear, cubic, average,...)

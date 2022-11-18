@@ -1,0 +1,2 @@
+for c in test_landsat8 return 
+encode(crsTransform(c, "EPSG:4326", {E:0.002, N:0.002}), "png")

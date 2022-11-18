@@ -26,12 +26,13 @@ package petascope.util;
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
 
-enum WaitingIncreasePolicy {
-    NONE,
-    DOUBLE_WAIT_TIME
-}
 
 public class WaitingTimer {
+    
+    public static enum WaitingIncreasePolicy {
+        NONE,
+        DOUBLE_WAIT_TIME
+    }
 
     private float initialWaitInSeconds = 10;
     private float maximumWaitInSeconds = 3600;
@@ -42,6 +43,11 @@ public class WaitingTimer {
 
     public WaitingTimer(float initialWaitInSeconds) {
         this.initialWaitInSeconds = initialWaitInSeconds;
+    }
+    
+    public WaitingTimer(float initialWaitInSeconds, WaitingIncreasePolicy waitingIncreasePolicy) {
+        this.initialWaitInSeconds = initialWaitInSeconds;
+        this.waitingIncreasePolicy = waitingIncreasePolicy;
     }
 
     public WaitingTimer(WaitingIncreasePolicy waitingIncreasePolicy,

@@ -550,6 +550,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterCoverageExpressionGeoXYAxisLabelAndDomainResolution(@NotNull wcpsParser.CoverageExpressionGeoXYAxisLabelAndDomainResolutionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCoverageExpressionGeoXYAxisLabelAndDomainResolution(@NotNull wcpsParser.CoverageExpressionGeoXYAxisLabelAndDomainResolutionContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterClipWKTExpressionLabel(@NotNull wcpsParser.ClipWKTExpressionLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -810,6 +823,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterDimensionGeoXYResolutionsListLabel(@NotNull wcpsParser.DimensionGeoXYResolutionsListLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitDimensionGeoXYResolutionsListLabel(@NotNull wcpsParser.DimensionGeoXYResolutionsListLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterRangeConstructorExpressionLabel(@NotNull wcpsParser.RangeConstructorExpressionLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -830,6 +856,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitAxisName(@NotNull wcpsParser.AxisNameContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterGeoXYAxisLabelAndDomainResolutionLabel(@NotNull wcpsParser.GeoXYAxisLabelAndDomainResolutionLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitGeoXYAxisLabelAndDomainResolutionLabel(@NotNull wcpsParser.GeoXYAxisLabelAndDomainResolutionLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1155,19 +1194,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitForClauseListLabel(@NotNull wcpsParser.ForClauseListLabelContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1551,6 +1577,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterDomainPropertyValueExtraction(@NotNull wcpsParser.DomainPropertyValueExtractionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitDomainPropertyValueExtraction(@NotNull wcpsParser.DomainPropertyValueExtractionContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1584,6 +1623,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitGeneralCondenseExpressionLabel(@NotNull wcpsParser.GeneralCondenseExpressionLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterDimensionGeoXYResolution(@NotNull wcpsParser.DimensionGeoXYResolutionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitDimensionGeoXYResolution(@NotNull wcpsParser.DimensionGeoXYResolutionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -299,6 +299,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitSwitchCaseElement(@NotNull wcpsParser.SwitchCaseElementContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionGeoXYAxisLabelAndDomainResolution}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageExpressionGeoXYAxisLabelAndDomainResolution(@NotNull wcpsParser.CoverageExpressionGeoXYAxisLabelAndDomainResolutionContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#ClipWKTExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -439,6 +446,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitReduceNumericalExpressionLabel(@NotNull wcpsParser.ReduceNumericalExpressionLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#DimensionGeoXYResolutionsListLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDimensionGeoXYResolutionsListLabel(@NotNull wcpsParser.DimensionGeoXYResolutionsListLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#RangeConstructorExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -451,6 +465,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAxisName(@NotNull wcpsParser.AxisNameContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#GeoXYAxisLabelAndDomainResolutionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGeoXYAxisLabelAndDomainResolutionLabel(@NotNull wcpsParser.GeoXYAxisLabelAndDomainResolutionLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionModLabel}.
@@ -626,13 +647,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitForClauseListLabel(@NotNull wcpsParser.ForClauseListLabelContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link wcpsParser#sdomExtraction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#UnaryPowerExpressionLabel}.
@@ -838,6 +852,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitRangeConstructorSwitchCaseExpressionLabel(@NotNull wcpsParser.RangeConstructorSwitchCaseExpressionLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#domainPropertyValueExtraction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDomainPropertyValueExtraction(@NotNull wcpsParser.DomainPropertyValueExtractionContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -857,6 +878,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitGeneralCondenseExpressionLabel(@NotNull wcpsParser.GeneralCondenseExpressionLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#dimensionGeoXYResolution}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDimensionGeoXYResolution(@NotNull wcpsParser.DimensionGeoXYResolutionContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#booleanSwitchCaseCoverageExpression}.

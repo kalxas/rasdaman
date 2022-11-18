@@ -110,6 +110,10 @@ public class BoundingBox {
                 + ", xmax=" + this.xmax.toPlainString() + ", ymax=" + this.ymax.toPlainString();
     }
     
+    public String toGdalString() {
+        return this.xmin.toPlainString() + " " + this.ymin.toPlainString() + " " + this.xmax.toPlainString() + " " + this.ymax.toPlainString();
+    }
+    
     /**
      * return xmin,ymin,xmax,ymax representation
      */
@@ -158,21 +162,6 @@ public class BoundingBox {
         
         return matchX || matchY;
         
-    }
-    
-    public boolean intersects(BoundingBox inputBBox) {
-        BigDecimal inputXMin = inputBBox.getXMin();
-        BigDecimal inputXMax = inputBBox.getXMax();
-        BigDecimal inputYMin = inputBBox.getYMin();
-        BigDecimal inputYMax = inputBBox.getYMax();
-        
-        boolean matchX = this.xmin.compareTo(inputXMin) >= 0 && this.xmin.compareTo(inputXMax) <= 0
-                         || inputXMin.compareTo(this.xmin) >=0 && inputXMin.compareTo(this.xmax) <= 0;
-        
-        boolean matchY = this.ymin.compareTo(inputYMin) >= 0 && this.ymin.compareTo(inputYMax) <= 0
-                         || inputYMin.compareTo(this.ymin) >=0 && inputYMin.compareTo(this.ymax) <= 0;
-        
-        return matchX && matchY;
     }
     
     /**

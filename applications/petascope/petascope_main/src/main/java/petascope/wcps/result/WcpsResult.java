@@ -131,4 +131,13 @@ public class WcpsResult extends VisitorResult {
     public void setWithCoordinates(boolean withCoordinates) {
         this.withCoordinates = withCoordinates;
     }
+
+    public static String getResult(VisitorResult inputResult) {
+        if (inputResult instanceof WcpsMetadataResult) {
+            return ((WcpsMetadataResult)inputResult).getResult();
+        } else {
+            return ((WcpsResult)inputResult).getRasql();
+        }
+    }    
+    
 }

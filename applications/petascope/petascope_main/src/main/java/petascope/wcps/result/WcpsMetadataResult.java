@@ -30,9 +30,16 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  */
 public class WcpsMetadataResult extends VisitorResult {
     
+    // This object is temporary data to be stored
+    private Object tmpObject;
+    
     public WcpsMetadataResult(WcpsCoverageMetadata metadata, String result) {
         this.metadata = metadata;
         this.result = result;
+    }
+    
+    public WcpsMetadataResult(Object tmpObject) {
+        this.tmpObject = tmpObject;
     }
 
     @Override
@@ -47,6 +54,10 @@ public class WcpsMetadataResult extends VisitorResult {
         if (this.mimeType == null) {
             this.mimeType = MIMEUtil.MIME_XML;
         }
+    }
+
+    public Object getTmpObject() {
+        return tmpObject;
     }
 
 }

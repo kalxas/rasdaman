@@ -161,6 +161,30 @@ public abstract class Handler {
         return children.get(6);
     }
     
+    public Handler getEighthChild() throws PetascopeException {
+        if (children.size() < 8) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                    "Handler: " + this.getClass().getSimpleName() + " has not enough children to get the eighth child handler.");
+        }  
+        return children.get(7);
+    }    
+    
+    public Handler getNithChild() throws PetascopeException {
+        if (children.size() < 9) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                    "Handler: " + this.getClass().getSimpleName() + " has not enough children to get the nith child handler.");
+        }  
+        return children.get(8);
+    }    
+    
+    public Handler getTenthChild() throws PetascopeException {
+        if (children.size() < 10) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                    "Handler: " + this.getClass().getSimpleName() + " has not enough children to get the tenth child handler.");
+        }  
+        return children.get(9);
+    }       
+    
     public void addUpdatedHandler(Handler handler) {
         this.updatedHandlers.add(handler.getClass().getName());
     }

@@ -1,0 +1,6 @@
+for $c in (test_mean_summer_airtemp),
+    $d in (test_wms_3857)
+    return encode(crsTransform($c,
+"EPSG:4326", 
+{     bilinear             
+         }, { domain($d) }), "image/jpeg", "nodata=0")

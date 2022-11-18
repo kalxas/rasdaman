@@ -89,12 +89,17 @@ import petascope.wcps.handler.ClipCurtainExpressionHandler;
 import petascope.wcps.handler.ClipWKTExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
 import petascope.wcps.handler.CrsTransformShorthandHandler;
+import petascope.wcps.handler.CrsTransformTargetGeoXYBoundingBoxHandler;
+import petascope.wcps.handler.CrsTransformTargetGeoXYResolutionsHandler;
 import petascope.wcps.handler.DecodeCoverageHandler;
 import petascope.wcps.handler.DescribeCoverageHandler;
 import petascope.wcps.handler.DimensionIntervalListHandler;
 import petascope.wcps.handler.DimensionPointElementHandler;
 import petascope.wcps.handler.DimensionPointListElementHandler;
 import petascope.wcps.handler.DomainIntervalsHandler;
+import static petascope.wcps.handler.DomainIntervalsHandler.DOMAIN_PORPERTY_UPPER_BOUND;
+import static petascope.wcps.handler.DomainIntervalsHandler.DOMAIN_PROPERTY_LOWER_BOUND;
+import static petascope.wcps.handler.DomainIntervalsHandler.DOMAIN_PROPERTY_RESOLUTION;
 import petascope.wcps.handler.FlipExpressionHandler;
 import petascope.wcps.handler.Handler;
 import petascope.wcps.handler.IntervalExpressionHandler;
@@ -179,6 +184,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     CrsTransformHandler crsTransformHandler;
     @Autowired private
     CrsTransformShorthandHandler crsTransformShorthandHandler;
+    @Autowired private
+    CrsTransformTargetGeoXYResolutionsHandler crsTransformTargetGeoXYResolutionsHandler;
+    @Autowired private
+    CrsTransformTargetGeoXYBoundingBoxHandler crsTransformTargetGeoXYBoundingBoxHandler;
     
     @Autowired private
     CoverageVariableNameHandler coverageVariableNameHandler;
@@ -677,18 +686,18 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
 
     @Override
     public Handler visitCrsTransformExpressionLabel(@NotNull wcpsParser.CrsTransformExpressionLabelContext ctx) {
-        // Handle crsTransform($COVERAGE_EXPRESSION, {$DOMAIN_CRS_2D}, {$INTERPOLATION})
-        // e.g: crsTransform(c, {Lat:"www.opengis.net/def/crs/EPSG/0/4327", Long:"www.opengis.net/def/crs/EPSG/0/4327"}, {}
+        // Handle crsTransform($COVERAGE_EXPRESSION, {$DOMAIN_CRS_2D}, {$INTERPOLATION}, {dimensionGeoXYResolutionsList})
+        // e.g: crsTransform(c, {Lat:"www.opengis.net/def/crs/EPSG/0/4327", Long:"www.opengis.net/def/crs/EPSG/0/4327"}, {}, {Lat:30.5, Lon:30/6})
         Handler coverageExpressionHandler = visit(ctx.coverageExpression());
         
         // { Axis_CRS_1 , Axis_CRS_2 } (e.g: Lat:"http://localhost:8080/def/crs/EPSG/0/4326")
-        wcpsParser.DimensionCrsElementLabelContext ctxAxisX = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(1);
-        String axisNameX = ctxAxisX.axisName().getText();
-        String crsX = StringUtil.stripFirstAndLastQuotes(ctxAxisX.crsName().getText());
+        wcpsParser.DimensionCrsElementLabelContext ctxCRSAxisX = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(1);
+        String axisNameX = ctxCRSAxisX.axisName().getText();
+        String crsX = StringUtil.stripFirstAndLastQuotes(ctxCRSAxisX.crsName().getText());
         
-        wcpsParser.DimensionCrsElementLabelContext ctxAxisY = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(3);
-        String axisNameY = ctxAxisY.axisName().getText();
-        String crsY = StringUtil.stripFirstAndLastQuotes(ctxAxisY.crsName().getText());
+        wcpsParser.DimensionCrsElementLabelContext ctxCRSAxisY = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(3);
+        String axisNameY = ctxCRSAxisY.axisName().getText();
+        String crsY = StringUtil.stripFirstAndLastQuotes(ctxCRSAxisY.crsName().getText());
         
         String interpolationType = null;
 
@@ -696,18 +705,36 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
             interpolationType = ctx.interpolationType().getText();
         }
         
+        CrsTransformTargetGeoXYResolutionsHandler targetGeoXYResolutionsHandler = null;
+        
+        CrsTransformTargetGeoXYBoundingBoxHandler targetGeoXYBBoxHandler = null;
+        if (ctx.dimensionIntervalList() != null || ctx.domainExpression() != null) {
+            targetGeoXYBBoxHandler = this.createCrsTransformTargetGeoXYBoundingBoxHandler(ctx.dimensionIntervalList(),
+                                                                                        ctx.domainExpression());
+        }
+        
+        if (ctx.dimensionGeoXYResolutionsList() != null) {
+            if (ctx.dimensionGeoXYResolutionsList().getChildCount() > 1) {
+                targetGeoXYResolutionsHandler = this.createCrsTransformTargetGeoXYResolutionsHandler(ctx.dimensionGeoXYResolutionsList());
+            } else {
+                targetGeoXYBBoxHandler = this.createCrsTransformTargetGeoXYBoundingBoxHandler((wcpsParser.DimensionGeoXYResolutionContext) ctx.dimensionGeoXYResolutionsList().getChild(0));
+            }
+        }
+        
         Handler result = this.crsTransformHandler.create(coverageExpressionHandler,
                                                         this.stringScalarHandler.create(axisNameX), this.stringScalarHandler.create(crsX),
                                                         this.stringScalarHandler.create(axisNameY), this.stringScalarHandler.create(crsY),
-                                                        this.stringScalarHandler.create(interpolationType));
+                                                        this.stringScalarHandler.create(interpolationType),
+                                                        targetGeoXYResolutionsHandler,
+                                                        targetGeoXYBBoxHandler);
         return result;
     }
     
   
     @Override 
     public Handler visitCrsTransformShorthandExpressionLabel(@NotNull wcpsParser.CrsTransformShorthandExpressionLabelContext ctx) { 
-        // Handle crsTransform($COVERAGE_EXPRESSION, "CRS", {$INTERPOLATION})
-        // e.g: crsTransform(c, "EPSG:4326", { near })
+        // Handle crsTransform($COVERAGE_EXPRESSION, "CRS", {$INTERPOLATION}, {dimensionGeoXYResolutionsList})
+        // e.g: crsTransform(c, "EPSG:4326", { near }, {Lat:30.5, Lon:30/6})
         Handler coverageExpressionHandler = visit(ctx.coverageExpression());
         
         String outputCRSAuthorityCode = StringUtil.stripFirstAndLastQuotes(ctx.crsName().getText());
@@ -717,12 +744,109 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
             interpolationType = ctx.interpolationType().getText();
         }
         
+        CrsTransformTargetGeoXYResolutionsHandler targetGeoXYResolutionsHandler = null;
+        
+        CrsTransformTargetGeoXYBoundingBoxHandler targetGeoXYBBoxHandler = null;
+        if (ctx.dimensionIntervalList() != null || ctx.domainExpression() != null) {
+            targetGeoXYBBoxHandler = this.createCrsTransformTargetGeoXYBoundingBoxHandler(ctx.dimensionIntervalList(),
+                                                                                        ctx.domainExpression());
+        }
+        
+        if (ctx.dimensionGeoXYResolutionsList() != null) {
+            if (ctx.dimensionGeoXYResolutionsList().getChildCount() > 1) {
+                targetGeoXYResolutionsHandler = this.createCrsTransformTargetGeoXYResolutionsHandler(ctx.dimensionGeoXYResolutionsList());
+            } else {
+                targetGeoXYBBoxHandler = this.createCrsTransformTargetGeoXYBoundingBoxHandler((wcpsParser.DimensionGeoXYResolutionContext) ctx.dimensionGeoXYResolutionsList().getChild(0));
+            }
+        }
+        
         Handler result = this.crsTransformShorthandHandler.create(coverageExpressionHandler,
                                         this.stringScalarHandler.create(outputCRSAuthorityCode),
-                                        this.stringScalarHandler.create(interpolationType));
+                                        this.stringScalarHandler.create(interpolationType),
+                                        targetGeoXYResolutionsHandler,
+                                        targetGeoXYBBoxHandler);
         return result;
 
     }
+    
+
+    /**
+     * Create a handler for CrsTransform target geo XY resolutions, e.g. {Lat:30, Lat:domain($c, Lat).resolution}
+     * 
+     */
+    private CrsTransformTargetGeoXYResolutionsHandler createCrsTransformTargetGeoXYResolutionsHandler(wcpsParser.DimensionGeoXYResolutionsListContext listContext) {        
+        CrsTransformTargetGeoXYResolutionsHandler targetGeoXYResolutionsHandler = null;
+        
+        if (listContext != null) {
+            StringScalarHandler geoResolutionAxisLabelX = null, geoResolutionAxisLabelY = null;
+            Handler scalarExpressionHandlerX = null, scalarExpressionHandlerY = null;                
+            wcpsParser.DimensionGeoXYResolutionContext ctxAxisX = (wcpsParser.DimensionGeoXYResolutionContext) listContext.getChild(0);
+            if (ctxAxisX.COVERAGE_VARIABLE_NAME() == null) {
+                scalarExpressionHandlerX = visit(ctxAxisX.coverageExpression());
+                // NOTE: in this case, it has e.g. Lat:domain($c, Lat).resolution - 1
+                String axisLabelX = ctxAxisX.getText().split(":")[0].trim();
+                geoResolutionAxisLabelX = this.stringScalarHandler.create(axisLabelX);
+            } else {
+                scalarExpressionHandlerX = visit(ctxAxisX.coverageExpression());
+                geoResolutionAxisLabelX = this.stringScalarHandler.create(ctxAxisX.COVERAGE_VARIABLE_NAME().getText());
+            }
+            
+            wcpsParser.DimensionGeoXYResolutionContext ctxAxisY = (wcpsParser.DimensionGeoXYResolutionContext) listContext.getChild(2);
+            if (ctxAxisY.COVERAGE_VARIABLE_NAME() == null) {
+                scalarExpressionHandlerY = visit(ctxAxisY.coverageExpression());
+                // NOTE: in this case, it has e.g. Lon:domain($c, Lon).resolution
+                String axisLabelY = ctxAxisX.getText().split(":")[0].trim();
+                geoResolutionAxisLabelY = this.stringScalarHandler.create(axisLabelY);
+            } else {
+                scalarExpressionHandlerY = visit(ctxAxisY.coverageExpression());
+                geoResolutionAxisLabelY = this.stringScalarHandler.create(ctxAxisY.COVERAGE_VARIABLE_NAME().getText());
+            }            
+            
+            targetGeoXYResolutionsHandler =  this.crsTransformTargetGeoXYResolutionsHandler.create(geoResolutionAxisLabelX, scalarExpressionHandlerX, 
+                                                                                                    geoResolutionAxisLabelY, scalarExpressionHandlerY);
+            
+        }
+        
+        return targetGeoXYResolutionsHandler;
+    }      
+    
+
+    /**
+     * Create a handler for CrsTransform target geo XY bounding box, e.g. {Lat(30:50), Lon(60:70)}  or {domain($c)}
+     */
+    private CrsTransformTargetGeoXYBoundingBoxHandler createCrsTransformTargetGeoXYBoundingBoxHandler(wcpsParser.DimensionIntervalListContext listContext,
+                                                                                                      wcpsParser.DomainExpressionContext domainExpressionContext) {
+        
+        Handler dimensionIntervalListHandlerTmp = null, domainExpressionHandlerTmp = null;
+                
+        
+        if (listContext != null) {
+            dimensionIntervalListHandlerTmp = visit(listContext);
+        } else if (domainExpressionContext != null) {
+            domainExpressionHandlerTmp = visit(domainExpressionContext);
+        }
+        
+        // Handler for crsTransform's target geo XY BBOX {Lat(0:5), Lon(0.5)}
+        CrsTransformTargetGeoXYBoundingBoxHandler result = this.crsTransformTargetGeoXYBoundingBoxHandler.create(dimensionIntervalListHandlerTmp, 
+                                                                                                                domainExpressionHandlerTmp);
+        
+        return result;
+    }     
+    
+    
+    /**
+     * Handler for crsTransform's target geo XY BBOX {domain($c)} without target geoXY resolutions
+     * encode(crsTransform($c, "EPSG:4326", { bilinear }, { domain($d) })
+     */
+    private CrsTransformTargetGeoXYBoundingBoxHandler createCrsTransformTargetGeoXYBoundingBoxHandler(wcpsParser.DimensionGeoXYResolutionContext ctx) {
+        Handler domainExpressionHandler = visit(ctx);
+        CrsTransformTargetGeoXYBoundingBoxHandler result = this.crsTransformTargetGeoXYBoundingBoxHandler.create(null, 
+                                                                                                                domainExpressionHandler);
+        
+        return result; 
+    }
+    
+    
     
     @Override
     public Handler visitCoverageVariableNameLabel(@NotNull wcpsParser.CoverageVariableNameLabelContext ctx) {
@@ -1307,8 +1431,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
             childHandlers.add(childHandler);
         }
         
-        Handler resutl = this.rangeConstructorElementListHandler.create(childHandlers);
-        return resutl;
+        Handler result = this.rangeConstructorElementListHandler.create(childHandlers);
+        return result;
     }
 
     
@@ -1517,17 +1641,38 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         return result;
     }
     
+    
+    @Override 
+    public Handler visitGeoXYAxisLabelAndDomainResolutionLabel(@NotNull wcpsParser.GeoXYAxisLabelAndDomainResolutionLabelContext ctx) { 
+        Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
+        if (ctx.axisName() == null) {
+            throw new WCPSException(ExceptionCode.InvalidAxisLabel, "axisLabel in domain(coverageExpression, axisLabel).resolution must not be null.");
+        } 
+        
+        String axisName = ctx.axisName().getText();
+        
+        String crsName = null;
+        
+        Handler childHandler = domainExpressionHandler.create(coverageExpressionHandler, 
+                                                    this.stringScalarHandler.create(axisName),
+                                                    this.stringScalarHandler.create(crsName));
+        Handler result = this.domainIntervalsHandler.create(childHandler, this.stringScalarHandler.create(DomainIntervalsHandler.DOMAIN_PROPERTY_RESOLUTION));
+        return result;
+    } 
+    
     @Override 
     public Handler visitDomainIntervals(@NotNull wcpsParser.DomainIntervalsContext ctx) {
         // (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (sdomExtraction)?
         // e.g: imageCrsdomain(c, Lat).lo or imageCrsdomain(c, Lat).hi
-        String sdomLowerBound = null;
+        String propertyValue = null;
         
-        if (ctx.sdomExtraction() != null) {
-            if (ctx.sdomExtraction().LOWER_BOUND() != null) {
-                sdomLowerBound = Boolean.TRUE.toString();
-            } else if (ctx.sdomExtraction().UPPER_BOUND() != null) {
-                sdomLowerBound = Boolean.FALSE.toString();
+        if (ctx.domainPropertyValueExtraction()!= null) {
+            if (ctx.domainPropertyValueExtraction().LOWER_BOUND() != null) {
+                propertyValue = DOMAIN_PROPERTY_LOWER_BOUND;
+            } else if (ctx.domainPropertyValueExtraction().UPPER_BOUND() != null) {
+                propertyValue = DOMAIN_PORPERTY_UPPER_BOUND;
+            } else if (ctx.domainPropertyValueExtraction().RESOLUTION() != null) {
+                propertyValue = DOMAIN_PROPERTY_RESOLUTION;
             }
         }
         
@@ -1540,7 +1685,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
             childHandler = visit(ctx.imageCrsDomainByDimensionExpression());
         }
         
-        Handler result = this.domainIntervalsHandler.create(childHandler, this.stringScalarHandler.create(sdomLowerBound));
+        Handler result = this.domainIntervalsHandler.create(childHandler, this.stringScalarHandler.create(propertyValue));
         return result;
     }
     
@@ -1686,7 +1831,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
                                                                         coverageExpressionHandler);
         return result;
     }
-
+    
+    
     @Override
     public Handler visitTrimDimensionIntervalElementLabel(@NotNull wcpsParser.TrimDimensionIntervalElementLabelContext ctx) {
         // axisName (COLON crsName)? LEFT_PARENTHESIS  coverageExpression   COLON coverageExpression    RIGHT_PARENTHESIS

@@ -460,6 +460,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitSwitchCaseElement(@NotNull wcpsParser.SwitchCaseElementContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionGeoXYAxisLabelAndDomainResolution}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionGeoXYAxisLabelAndDomainResolution(@NotNull wcpsParser.CoverageExpressionGeoXYAxisLabelAndDomainResolutionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionGeoXYAxisLabelAndDomainResolution}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionGeoXYAxisLabelAndDomainResolution(@NotNull wcpsParser.CoverageExpressionGeoXYAxisLabelAndDomainResolutionContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#ClipWKTExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -680,6 +691,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitReduceNumericalExpressionLabel(@NotNull wcpsParser.ReduceNumericalExpressionLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#DimensionGeoXYResolutionsListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterDimensionGeoXYResolutionsListLabel(@NotNull wcpsParser.DimensionGeoXYResolutionsListLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#DimensionGeoXYResolutionsListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitDimensionGeoXYResolutionsListLabel(@NotNull wcpsParser.DimensionGeoXYResolutionsListLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#RangeConstructorExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -700,6 +722,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAxisName(@NotNull wcpsParser.AxisNameContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#GeoXYAxisLabelAndDomainResolutionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterGeoXYAxisLabelAndDomainResolutionLabel(@NotNull wcpsParser.GeoXYAxisLabelAndDomainResolutionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#GeoXYAxisLabelAndDomainResolutionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitGeoXYAxisLabelAndDomainResolutionLabel(@NotNull wcpsParser.GeoXYAxisLabelAndDomainResolutionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionModLabel}.
@@ -975,17 +1008,6 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitForClauseListLabel(@NotNull wcpsParser.ForClauseListLabelContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link wcpsParser#sdomExtraction}.
-	 * @param ctx the parse tree
-	 */
-	void enterSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#sdomExtraction}.
-	 * @param ctx the parse tree
-	 */
-	void exitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#UnaryPowerExpressionLabel}.
@@ -1307,6 +1329,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitRangeConstructorSwitchCaseExpressionLabel(@NotNull wcpsParser.RangeConstructorSwitchCaseExpressionLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#domainPropertyValueExtraction}.
+	 * @param ctx the parse tree
+	 */
+	void enterDomainPropertyValueExtraction(@NotNull wcpsParser.DomainPropertyValueExtractionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#domainPropertyValueExtraction}.
+	 * @param ctx the parse tree
+	 */
+	void exitDomainPropertyValueExtraction(@NotNull wcpsParser.DomainPropertyValueExtractionContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1338,6 +1371,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitGeneralCondenseExpressionLabel(@NotNull wcpsParser.GeneralCondenseExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#dimensionGeoXYResolution}.
+	 * @param ctx the parse tree
+	 */
+	void enterDimensionGeoXYResolution(@NotNull wcpsParser.DimensionGeoXYResolutionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#dimensionGeoXYResolution}.
+	 * @param ctx the parse tree
+	 */
+	void exitDimensionGeoXYResolution(@NotNull wcpsParser.DimensionGeoXYResolutionContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#booleanSwitchCaseCoverageExpression}.

@@ -21,41 +21,24 @@
  */
 package petascope.wcps.handler;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import petascope.util.CrsUtil;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import petascope.core.AxisTypes;
-import petascope.core.CrsDefinition;
-import petascope.core.GeoTransform;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
-import petascope.util.CrsProjectionUtil;
-import petascope.util.StringUtil;
-import petascope.wcps.exception.processing.IdenticalAxisNameInCrsTransformException;
-import petascope.wcps.exception.processing.InvalidOutputCrsProjectionInCrsTransformException;
-import petascope.wcps.exception.processing.Not2DCoverageForCrsTransformException;
-import petascope.wcps.exception.processing.Not2DXYGeoreferencedAxesCrsTransformException;
-import petascope.wcps.exception.processing.NotGeoReferenceAxisNameInCrsTransformException;
-import petascope.wcps.exception.processing.NotIdenticalCrsInCrsTransformException;
-import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.Axis;
-import petascope.wcps.metadata.model.NumericSubset;
-import petascope.wcps.metadata.model.NumericTrimming;
-import petascope.wcps.metadata.model.RegularAxis;
+import petascope.wcps.metadata.model.CrsTransformTargetGeoXYBoundingBox;
+import petascope.wcps.metadata.model.CrsTransformTargetGeoXYResolutions;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
+import static petascope.wcps.result.WcpsResult.getResult;
 
 /**
  * Class to handle an crsTransform coverage expression  <code>
@@ -78,9 +61,14 @@ public class CrsTransformShorthandHandler extends Handler {
     
     public CrsTransformShorthandHandler create(Handler coverageExpressionHandler,
                                     StringScalarHandler crsXYHandler,
-                                    StringScalarHandler interpolationTypeHandler) {
+                                    StringScalarHandler interpolationTypeHandler,
+                                    CrsTransformTargetGeoXYResolutionsHandler targetGeoXYResolutionsHandler,
+                                    CrsTransformTargetGeoXYBoundingBoxHandler targetGeoXYBoundingBoxHandler
+                                    ) {
         CrsTransformShorthandHandler result = new CrsTransformShorthandHandler();
-        result.setChildren(Arrays.asList(coverageExpressionHandler, crsXYHandler, interpolationTypeHandler));
+        result.setChildren(Arrays.asList(coverageExpressionHandler, crsXYHandler, interpolationTypeHandler, 
+                                        targetGeoXYResolutionsHandler,
+                                        targetGeoXYBoundingBoxHandler));
         result.crsTransformHandler = crsTransformHandler;
         
         return result;
@@ -115,7 +103,28 @@ public class CrsTransformShorthandHandler extends Handler {
         
         String interpolationType = ((WcpsResult)this.getThirdChild().handle()).getRasql();
         
-        WcpsResult result = this.crsTransformHandler.handle(coverageExpression, axisLabelX, outputCRS, axisLabelY, outputCRS, interpolationType);
+        
+        CrsTransformTargetGeoXYResolutions targetGeoXYResolutions = null;
+        
+        if (this.getFourthChild() != null) {
+            WcpsMetadataResult wcpsMetadataResult = (WcpsMetadataResult) this.getFourthChild().handle();
+            if (wcpsMetadataResult.getTmpObject() instanceof CrsTransformTargetGeoXYResolutions) {
+                targetGeoXYResolutions = (CrsTransformTargetGeoXYResolutions) wcpsMetadataResult.getTmpObject();
+            }
+        }
+        
+        CrsTransformTargetGeoXYBoundingBox targetGeoXYBBox = null;
+        if (this.getFifthChild()!= null) {
+            WcpsMetadataResult wcpsMetadataResult = (WcpsMetadataResult) this.getFifthChild().handle();
+            if (wcpsMetadataResult.getTmpObject() instanceof CrsTransformTargetGeoXYBoundingBox) {
+                targetGeoXYBBox = (CrsTransformTargetGeoXYBoundingBox) wcpsMetadataResult.getTmpObject();
+            }
+        }        
+        
+        
+        WcpsResult result = this.crsTransformHandler.handle(coverageExpression, axisLabelX, outputCRS, axisLabelY, outputCRS, interpolationType,
+                                                            targetGeoXYResolutions,
+                                                            targetGeoXYBBox);
         return result;
     }
 

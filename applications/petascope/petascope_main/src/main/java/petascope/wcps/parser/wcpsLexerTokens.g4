@@ -111,6 +111,7 @@ POWER: ('p'|'P')('o'|'O')('w'|'W');
 REAL_PART: ('r'|'R')('e'|'E');
 ROUND: ('r'|'R')('o'|'O')('u'|'U')('n'|'N')('d'|'D');
 RETURN: ('r'|'R')('e'|'E')('t'|'T')('u'|'U')('r'|'R')('n'|'N');
+RESOLUTION: ('r'|'R')('e'|'E')('s'|'S')('o'|'O')('l'|'L')('u'|'U')('t'|'T')('i'|'I')('o'|'O')('n'|'N');
 RIGHT_BRACE: '}';
 RIGHT_BRACKET: ']';
 RIGHT_PARENTHESIS: ')';
@@ -152,7 +153,9 @@ REAL_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?;
 SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')(('+'|'-'))?[0-9]+;
 POSITIONAL_PARAMETER: [$0-9]+;
 //COVERAGE_VARIABLE_NAME: '$'[a-zA-Z0-9_]+; disabled for backwards compatibility with WCPS1
-COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility with WCPS1
+COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+;
+COVERAGE_NAME: ([a-zA-Z0-9_][a-zA-Z0-9_\.-]*':'([0-9]+':')?)?[a-zA-Z_][a-zA-Z0-9_]*;
+
 STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_/ ]+? '"';
 WS: [ \n\t\r]+ -> channel(HIDDEN);
 EXTRA_PARAMS:  '"' (~[\\"] | '\\' [\\"])* '"';

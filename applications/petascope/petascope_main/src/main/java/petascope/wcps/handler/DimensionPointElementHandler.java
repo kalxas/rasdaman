@@ -78,11 +78,6 @@ public class DimensionPointElementHandler extends Handler {
         
         WcpsSubsetDimension subsetDimension;
         
-        // TESTING !!!
-//        if (crs == null) {
-//            crs = CrsUtil.GRID_CRS;
-//        }
-        
         if (StringUtils.countMatches(bound, ":") == 1) {
             // NOTE: This only happens for this case (subsetting from result of domain()/imageCrsdomain()), with result of domain is an interval, e.g: -20:-10
             // e.g: c[Lat(domain(c[Lat(-20:-10)], Lat))] -> c[Lat(-20:-10)]

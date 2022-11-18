@@ -1,0 +1,2 @@
+for c in (test_mean_summer_airtemp)
+return domain(c, Lat).resolution
