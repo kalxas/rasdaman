@@ -46,6 +46,9 @@ module rasdaman {
         // Array of coveragesExtents to be displayed on this webWorldWind object               
         private coveragesExtentsArray: any = null;
 
+        // This list contains the footprints of showed coverage extents on globe
+        private showedCoveragesExtentsArray: any[] = [];
+
         private wmsSetting:WMSSettingsService = null;
         private authorizationToken:string = "";
 
@@ -106,9 +109,9 @@ module rasdaman {
             // Coverage's extent as a text when hovering mouse over
             var textLayer = new WorldWind.RenderableLayer("Screen Text");
             wwd.addLayer(textLayer);
-            
-            // Callback function on mouse hover event
-            var handlePick = function (o) {
+
+            // Listen for mouse moves and highlight the placemarks that the cursor rolls over.
+            wwd.addEventListener("mousemove", (o) => {
                 // Clear the displayed screen text
                 textLayer.removeAllRenderables();
                 var pickPoint = wwd.canvasCoordinates(o.clientX, o.clientY);                    
@@ -116,24 +119,54 @@ module rasdaman {
                 if (pickList.objects.length > 0) {
                     for (var p = 0; p < pickList.objects.length; p++) {
                         var pickedObject = pickList.objects[p];
-                        if (!pickedObject.isTerrain) {
-                            if (pickedObject.userObject instanceof WorldWind.SurfacePolygon) {
-                                var screenText = new WorldWind.ScreenText(
-            new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5), pickedObject.userObject.userProperties);
-                                var textAttributes = new WorldWind.TextAttributes(null);
-                                textAttributes.color = WorldWind.Color.YELLOW;
-                                screenText.attributes = textAttributes;
+
+                        if (pickedObject.position != null) {
+
+                            let lat = pickedObject.position.latitude;
+                            let lon = pickedObject.position.longitude;
+
+                            let intersectedCoverageIds = "";                           
+
+                            let count = 0;
+                            for (let i = 0; i < this.showedCoveragesExtentsArray.length; i++) {
+                                let coverageExtent = this.showedCoveragesExtentsArray[i];
+                                let bbox = coverageExtent.bbox;
                                 
-                                textLayer.addRenderable(screenText);
-                                break;
+                                
+                                if (lon >= bbox.xmin && lon <= bbox.xmax
+                                    && lat >= bbox.ymin && lat <= bbox.ymax) {
+                                    if (count < 8) {
+                                        let text = coverageExtent.coverageId 
+                                            + " - with bbox: minLon=" + bbox.xmin.toFixed(2) + ", minLat=" + bbox.ymin.toFixed(2) 
+                                            + ", maxLon=" + bbox.xmax.toFixed(2) + ", maxLat=" + bbox.ymax.toFixed(2);
+                                        intersectedCoverageIds += text + " \n";
+                                    }
+
+                                    count += 1;
+                                }
+
                             }
+
+                            if (count >= 8) {
+                                intersectedCoverageIds = " There are total: " + count + " intersecting objects. \n " 
+                                                    + intersectedCoverageIds 
+                                                    + " and more objects ... \n" ;
+                            }                            
+
+                            var screenText = new WorldWind.ScreenText(
+                                                    new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5), 
+                                                                        intersectedCoverageIds);
+                            var textAttributes = new WorldWind.TextAttributes(null);
+                            textAttributes.color = WorldWind.Color.YELLOW;
+                            screenText.attributes = textAttributes;
+                            
+                            textLayer.addRenderable(screenText);
+                            break;
                         }
+                        
                     }
                 }
-            }
-            
-            // Listen for mouse moves and highlight the placemarks that the cursor rolls over.
-            wwd.addEventListener("mousemove", handlePick);
+            });
 
             // Now set up to handle highlighting.
             var highlightController = new WorldWind.HighlightController(wwd);  
@@ -155,38 +188,39 @@ module rasdaman {
         }
 
 
+        // TESTING !!!
         // To get the coverageIds of other coverages in the current page which have same extents.
         // As in the Globe, only the upper coverage's polygon can be hovered, so need to add these coverageIds to the text layer
         // to let user know how many coverages in this polygon.
         // return: array[string] coverageIds
-        private getCoverageIdsSameExtent(coverageExtent: any, coveragesExtentsArray: any) {
-            var coveragedIds = [];            
-            var xmin = coverageExtent.bbox.xmin;
-            var ymin = coverageExtent.bbox.ymin;
-            var xmax = coverageExtent.bbox.xmax;
-            var ymax = coverageExtent.bbox.ymax;
+        // private getCoverageIdsSameExtent(coverageExtent: any, coveragesExtentsArray: any) {
+        //     var coveragedIds = [];            
+        //     var xmin = coverageExtent.bbox.xmin;
+        //     var ymin = coverageExtent.bbox.ymin;
+        //     var xmax = coverageExtent.bbox.xmax;
+        //     var ymax = coverageExtent.bbox.ymax;
 
-            for (var i = 0; i < coveragesExtentsArray.length; i++) {
-                // NOTE: only when coverage is showed, then coverageId should be listed
-                if (coveragesExtentsArray[i].show) {
-                    var coverageIdTmp = coveragesExtentsArray[i].coverageId;
-                    var bboxTmp = coveragesExtentsArray[i].bbox;
-                    var xminTmp = bboxTmp.xmin;
-                    var yminTmp = bboxTmp.ymin;
-                    var xmaxTmp = bboxTmp.xmax;
-                    var ymaxTmp = bboxTmp.ymax;
+        //     for (var i = 0; i < coveragesExtentsArray.length; i++) {
+        //         // NOTE: only when coverage is showed, then coverageId should be listed
+        //         if (coveragesExtentsArray[i].show) {
+        //             var coverageIdTmp = coveragesExtentsArray[i].coverageId;
+        //             var bboxTmp = coveragesExtentsArray[i].bbox;
+        //             var xminTmp = bboxTmp.xmin;
+        //             var yminTmp = bboxTmp.ymin;
+        //             var xmaxTmp = bboxTmp.xmax;
+        //             var ymaxTmp = bboxTmp.ymax;
 
-                    if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) { 
-                        if (coveragesExtentsArray[i].displayFootprint) {
-                            // add the coverages with same extent with input coverage (incldue itself)
-                            coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
-                        }                        
-                    }
-                }                
-            }
+        //             if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) { 
+        //                 if (coveragesExtentsArray[i].displayFootprint) {
+        //                     // add the coverages with same extent with input coverage (incldue itself)
+        //                     coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
+        //                 }                        
+        //             }
+        //         }                
+        //     }
 
-            return coveragedIds;
-        }
+        //     return coveragedIds;
+        // }
 
         public showCoverageExtentOnGlobe(canvasId: string, coverageId) {
             var webWorldWindModel = null;            
@@ -223,8 +257,9 @@ module rasdaman {
                     polygonObj.coverageExtentStr = "Coverage Id: " + coverageId + "\n\n" 
                                                  + polygonObj.coverageExtentStr + "\n";
 
-                    // then update the text of polygon when hide 
-                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+                    // TESTING !!!                                                 
+                    // // then update the text of polygon when hide 
+                    // this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
 
                     return;
                 }
@@ -271,10 +306,17 @@ module rasdaman {
                             break;
                         }
                     }
-                    // coverage extent is hided
+                    // coverage extent is hidden
                     this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, false);
-                    // then update the text of polygon when show 
-                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+                    // TESTING !!!
+                    // // then update the text of polygon when show 
+                    // this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+
+                    for (var j = this.showedCoveragesExtentsArray.length - 1; j >= 0; j--) {
+                        if (this.showedCoveragesExtentsArray[j].coverageId == coverageId) {
+                            this.showedCoveragesExtentsArray.splice(j, 1);
+                        }
+                    }
                     return;
                 }
             }                        
@@ -293,11 +335,16 @@ module rasdaman {
                     }
                     // coverage extent is shown
                     this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, true);
-                    // then update the text of polygon when hide 
-                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+                    // TESTING !!!
+                    // // then update the text of polygon when hide 
+                    // this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+
+                    this.showedCoveragesExtentsArray.push(coverageExtent);
                     return;
                 }
-            }                       
+            }         
+
+            
         }
 
         // When a coverage extent is showed/hided from user, update the show property to know coverageExtent is showed/hided
@@ -310,17 +357,18 @@ module rasdaman {
             }
         }
 
-        // NOTE: as when hide/show coverages extents, some coverages which have same extent will need to update the text (coverageIds) when hovering on them.
-        private updatePolygonUserPropertiesWhenShowHide(polygonLayer:any) {     
-            var coveragesExtentsArray = polygonLayer.coveragesExtentsArray;         
-            for (var i = 0; i < polygonLayer.renderables.length; i++) {
-                var polygonObj = polygonLayer.renderables[i];                
-                var coverageIds = this.getCoverageIdsSameExtent(polygonObj.coverageExtent, coveragesExtentsArray);
-                // update new text to show when hovering
-                var userProperties = this.buildUserPropertiesStr(coverageIds, polygonObj.coverageExtentStr);                
-                polygonObj.userProperties = userProperties;
-            } 
-        }
+        // TESTING !!!!
+        // // NOTE: as when hide/show coverages extents, some coverages which have same extent will need to update the text (coverageIds) when hovering on them.
+        // private updatePolygonUserPropertiesWhenShowHide(polygonLayer:any) {     
+        //     var coveragesExtentsArray = polygonLayer.coveragesExtentsArray;         
+        //     for (var i = 0; i < polygonLayer.renderables.length; i++) {
+        //         var polygonObj = polygonLayer.renderables[i];                
+        //         var coverageIds = this.getCoverageIdsSameExtent(polygonObj.coverageExtent, coveragesExtentsArray);
+        //         // update new text to show when hovering
+        //         var userProperties = this.buildUserPropertiesStr(coverageIds, polygonObj.coverageExtentStr);                
+        //         polygonObj.userProperties = userProperties;
+        //     } 
+        // }
 
         // Prepare all the polygon for coverages's extents for a canvas (GetCapabilities, DescribeCoverage, GetCoverage)        
         public prepareCoveragesExtentsForGlobe(canvasId: string, coveragesExtentsArray: any) {    
@@ -399,18 +447,20 @@ module rasdaman {
                 polygon.coverageId = coverageId;
                 polygon.highlightAttributes = highlightAttributes;
 
-                // as it can have multiple coverageIds share same extent
-                var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);
-                var coverageExtentStr = "Coverage Extent: lat_min=" + ymin + ", lon_min=" + xmin + ", lat_max=" + ymax + ", lon_max=" + xmax;
+                // TESTING !!!
+                // // as it can have multiple coverageIds share same extent
+                // var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);
+                // var coverageExtentStr = "Coverage Extent: lat_min=" + ymin + ", lon_min=" + xmin + ", lat_max=" + ymax + ", lon_max=" + xmax;
                                 
                 // NOTE: the extent will never change, but the coverageIds can be changed when one of coverage extent is hided
                 // add these made-up properties to be used
                 polygon.coverageExtent = coverageExtent;
-                polygon.coverageExtentStr = coverageExtentStr;
+                // TESTING !!!!
+                // polygon.coverageExtentStr = coverageExtentStr;
 
                 // the text to be shown when hovering on coverage extent
-                var userProperties = this.buildUserPropertiesStr(coverageIds, coverageExtentStr);
-                polygon.userProperties = userProperties;
+                // var userProperties = this.buildUserPropertiesStr(coverageIds, coverageExtentStr);
+                // polygon.userProperties = userProperties;
 
                 // Add the polygon to the layer and the layer to the World Window's layer list.
                 polygonLayer.coveragesExtentsArray = coveragesExtentsArray;
@@ -438,18 +488,19 @@ module rasdaman {
             wwd.redraw();                                                                   
         }
 
+        // TESTING !!!
         // combine all coveragedIds share same coverage extent as a property to attach to polygon.
         // then it can show this text when hovering on polygon.
-        private buildUserPropertiesStr(coverageIds:string[], coverageExtentStr:string) {
-            var coverageIdsStr = "";
-            for (var j = 0; j < coverageIds.length; j++) {
-                coverageIdsStr += coverageIds[j];
-            }
+        // private buildUserPropertiesStr(coverageIds:string[], coverageExtentStr:string) {
+        //     var coverageIdsStr = "";
+        //     for (var j = 0; j < coverageIds.length; j++) {
+        //         coverageIdsStr += coverageIds[j];
+        //     }
 
-            var userProperties = coverageIdsStr + "\n" +  coverageExtentStr + "\n";
+        //     var userProperties = coverageIdsStr + "\n" +  coverageExtentStr + "\n";
 
-            return userProperties;
-        }
+        //     return userProperties;
+        // }
 
         // ****************** WMS
 

@@ -41,7 +41,7 @@ module rasdaman {
             // This is used for development only.
             this.wmsEndpoint = this.wmsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
 
-            // TESTING
+            // TESTING (!)
             // this.wmsEndpoint = "http://localhost:8080/rasdaman/ows";
                                    
             this.setWMSEndPoint(this.wmsEndpoint);
