@@ -247,7 +247,7 @@ Scalar operations
   +-----------------------+------------------------------------------------------+
   | Aggregation type      | Function / Expression                                |
   +=======================+======================================================+
-  | Of numeric coverages  | ``avg``, ``add``, ``min``, ``max``                   |
+  | Of numeric coverages  | ``avg``, ``add`` (or alias ``sum``), ``min``, ``max``|
   +-----------------------+------------------------------------------------------+
   | Of boolean coverages  | | ``count`` number of true values;                   |
   |                       | | ``some``/``all`` = true if some/all values are true|
@@ -429,6 +429,8 @@ Several functions allow to extract metadata information about a coverage ``C``:
 +---------------------------+----------------------------------------------------+
 | nullSet(C)                | Set of null values                                 |
 +---------------------------+----------------------------------------------------+
+| cellCount(C)              | Total number of grid pixels                        |
++---------------------------+----------------------------------------------------+
 
 
 .. _wcps-comment-lines:
@@ -455,7 +457,7 @@ WCPS supports SQL-like commenting styles:
         Web browsers or image viewer tools.
     */
     return encode($c, "image/png")
-
+ 
 
 .. _cheatsheet-wms:
 
@@ -678,7 +680,7 @@ collection level.
 `NASA WebWorldWind <https://worldwind.arc.nasa.gov/web/>`__
 -----------------------------------------------------------
 
-Simple example to setup a web page with a map from a WMS server using WebWorldWind:
+- Simple example to setup a web page with a map from a WMS server using WebWorldWind:
 
   .. code-block:: html
 
@@ -805,7 +807,6 @@ wcps_rasdaman.py
 `wcps_rasdaman.py <https://gitlab.inf.unibz.it/SInCohMap/RoundRobinTutorials/blob/master/wcps_rasdaman.py>`__
 is a python client which sends a WCPS query to a rasdaman server and wraps the response for further use 
 depending on the response format chosen in the query.
-
 
 Access from R
 -------------

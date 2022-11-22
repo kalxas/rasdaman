@@ -82,6 +82,7 @@ public class ReduceExpressionHandler extends Handler {
         operationTranslator.put("all", "all_cells");
         operationTranslator.put("avg", "avg_cells");
         operationTranslator.put("add", "add_cells");
+        operationTranslator.put("sum", "add_cells");
         operationTranslator.put("min", "min_cells");
         operationTranslator.put("max", "max_cells");
         operationTranslator.put("count", "count_cells");

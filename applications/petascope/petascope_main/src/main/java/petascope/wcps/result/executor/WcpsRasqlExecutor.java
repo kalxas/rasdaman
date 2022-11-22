@@ -89,6 +89,10 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
                 coverageType = wcpsResult.getMetadata().getCoverageType();
             }
             
+            if (coverageType == null) {
+                return arrayData;
+            }
+            
             if (wcpsResult.withCoordinates()) {
                 if (!(mimeType.equals(MIMEUtil.MIME_CSV) || mimeType.equals(MIMEUtil.MIME_JSON))) {
                     throw new PetascopeException(ExceptionCode.InvalidRequest, 

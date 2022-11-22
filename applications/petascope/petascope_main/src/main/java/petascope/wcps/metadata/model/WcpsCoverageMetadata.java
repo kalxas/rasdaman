@@ -788,4 +788,16 @@ public class WcpsCoverageMetadata {
         return result;
     }
     
+    
+    @JsonIgnore
+    public Long getTotalNumberOfGridPixels() {
+        long result = 0;
+        for (Axis axis : this.axes) {
+            result += axis.getGridBounds().getUpperLimit().longValue() - axis.getGridBounds().getLowerLimit().longValue() + 1;
+        }
+        
+        return result;
+    }
+   
+    
 }
