@@ -331,7 +331,7 @@ with help of the :ref:`prepare_issue_report.sh script
                                        
    Attach ``/tmp/rasdaman_logs.tar.gz`` to the report.
 
-   Prior to sending your request to the please inspect the log files, they may
+   Prior to sending your request, you should inspect the log files, they may
    already provide a clue that helps you resolve the issue.
 
 
@@ -363,7 +363,7 @@ petascopedb, etc). The limit can be changed with --limit-size <N>. As soon as
 a particular --include-* option is specified, the default behavior is no
 longer in effect and exclusively the specified options are considered.
 
-Please check ``prepare_issue_report.sh --help`` for a list of all available
+Check ``prepare_issue_report.sh --help`` for a list of all available
 options.
 
 **Examples**

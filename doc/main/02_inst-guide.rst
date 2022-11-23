@@ -3428,7 +3428,7 @@ There are several security measures available, which should be considered
 seriously. Among them are the access right mechanisms found in Tomcat,
 rasdaman, and PostgreSQL. We highly recommend to make use of these.
 
-For Tomcat and PostgreSQL please refer to the pertaining documentation. The
+For Tomcat and PostgreSQL refer to the pertaining documentation. The
 servlet is safe against SQL injection attacks - we are not aware of any means
 for the user to send custom queries to the PostgreSQL server or the rasdaman
 server. XSRF and XSS represent no danger to the service because there is no
