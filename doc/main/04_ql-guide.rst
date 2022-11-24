@@ -1842,6 +1842,8 @@ where
 
 - ``xres``, ``yres`` - axis resolution in target georeferenced units.
 
+.. _sec-geo-projection-interpolation:
+
 - ``resampleAlg`` - resampling algorithm to use, equivalent to the ones in GDAL:
 
    near

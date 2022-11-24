@@ -181,7 +181,8 @@ scalarExpression:
                 | numericalScalarExpression
                 | stringScalarExpression
                 | starExpression
-                | domainIntervals
+                | domainIntervals 
+                | cellCountExpression
                 ;
 
 /**
@@ -289,6 +290,7 @@ getComponentExpression: coverageIdentifierExpression
 		                  | imageCrsDomainExpression
 		                  | imageCrsDomainByDimensionExpression
 		                  | imageCrsExpression
+                          | cellCountExpression
                           ;
 
 /**
@@ -300,6 +302,9 @@ return someCov
 */
 coverageIdentifierExpression: IDENTIFIER LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
 #CoverageIdentifierExpressionLabel;
+
+cellCountExpression: CELLCOUNT LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+#CellCountExpressionLabel;
 
 
 /**
@@ -903,7 +908,7 @@ condenseExpression: reduceExpression
 
 reduceBooleanExpressionOperator: ALL | SOME;
 
-reduceNumericalExpressionOperator: COUNT | ADD | AVG | MIN | MAX;
+reduceNumericalExpressionOperator: COUNT | ADD | SUM | AVG | MIN | MAX;
 
 reduceBooleanExpression: reduceBooleanExpressionOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
 #ReduceBooleanExpressionLabel;

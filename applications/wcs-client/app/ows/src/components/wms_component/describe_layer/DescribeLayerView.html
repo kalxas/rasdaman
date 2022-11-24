@@ -119,6 +119,11 @@
                                 ng-model="selectedStyleName" ng-click="hideWMSLayerOnGlobe()" value="hide layer" ng-show="displayWMSLayer"/>
                         </div>
                         <br/>
+
+                        <div>Layer's bounding box in EPSG:4326 CRS is: <b>{{coverageBBox}}</b></div>
+                        <br/> <br/>
+
+
                         <!-- Create a canvas for Web WorldWind. -->
                         <canvas id="wmsCanvasDescribeLayer" style="width:100%;height:500px;">
                             Your browser does not support HTML5 Canvas.

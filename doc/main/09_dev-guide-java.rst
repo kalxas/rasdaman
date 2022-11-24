@@ -718,7 +718,7 @@ greyscale image and fills it with values using the normal Java means:
     myMDD.setArray(mydata);
 
 As for the last line containing the import of array data into the MDD
-object, please observe the following: There are specific get/set
+object, observe the following: There are specific get/set
 functions for the various supported array types, e.g., ``getIntArray()``.
 While the ``setArray()`` and ``getArray()`` methods always will work, they will
 require data type conversion if the actual array cell type is not
@@ -1284,7 +1284,6 @@ Exceptions in the Class ``rasj.RasRuntimeException``
 **RasClientInternalException**
 
 This runtime exception indicates an internal error on client side which
-cannot be solved by the user. In case of such an event, please send a
 report to your dealer containing the complete error message and a
 precise description of the actions that lead to this exception.
 
@@ -1398,8 +1397,8 @@ Legal Note
 Note that under some legislations usage and/or distribution of
 crypto­graphy code may be prohibited by law. If you have obtained the
 above­mentioned library in or from a region under such a legislation,
-whatever you do with it is fully under your own responsibility. Please
-inform rasdaman GmbH about the source where you have it obtained from so
+whatever you do with it is fully under your own responsibility. 
+Inform rasdaman GmbH about the source where you have it obtained from so
 that we can take action against any violator.
 
 

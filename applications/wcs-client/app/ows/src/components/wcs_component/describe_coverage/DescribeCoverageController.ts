@@ -225,6 +225,7 @@ module rasdaman {
 
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                 $scope.requestUrl = settings.wcsEndpoint + "?" + describeCoverageRequest.toKVP();
+                $scope.coverageBBox = "";
                 $scope.axes = [];                
 
                 // Clear selected file to upload
@@ -247,6 +248,10 @@ module rasdaman {
                             if (coverageExtentArray == null) {
                                 $scope.hideWebWorldWindGlobe = true;
                             } else {
+                                let bbox = "minLon=" + coverageExtentArray[0].bbox.xmin.toFixed(2) + ", minLat=" + coverageExtentArray[0].bbox.ymin.toFixed(2)
+                                        +  ", maxLon=" + coverageExtentArray[0].bbox.xmax.toFixed(2) + ", maxLat=" + coverageExtentArray[0].bbox.ymax.toFixed(2);
+                                $scope.coverageBBox = bbox;
+                                console.log(coverageExtentArray[0]);
                                 // Show coverage's extent on the globe
                                 var canvasId = "wcsCanvasDescribeCoverage";
                                 $scope.hideWebWorldWindGlobe = false;
@@ -288,6 +293,8 @@ module rasdaman {
         axes:any[];
 
         requestUrl:string;
+
+        coverageBBox:string
 
         metadata:string;
         typeMetadata:string;

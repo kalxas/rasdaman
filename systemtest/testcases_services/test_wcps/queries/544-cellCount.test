@@ -1,0 +1,2 @@
+for c in (test_mr)
+return  encode(add(c[i(20:30), j(10:30)]) / cellcount(c[i(20:30), j(10:30)]), "csv")

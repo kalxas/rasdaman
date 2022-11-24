@@ -1603,6 +1603,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterCellCountExpressionLabel(@NotNull wcpsParser.CellCountExpressionLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCellCountExpressionLabel(@NotNull wcpsParser.CellCountExpressionLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterWKTCoverageExpressionLabel(@NotNull wcpsParser.WKTCoverageExpressionLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}

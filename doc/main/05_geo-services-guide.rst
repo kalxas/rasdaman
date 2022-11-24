@@ -2773,7 +2773,7 @@ recipe section
 
       "tiling": "ALIGNED [0:0, 0:1023, 0:1023] TILE SIZE 5000000"
 
-  For more information on tiling please check the :ref:`storage-layout`
+  For more information on tiling check the :ref:`storage-layout`
 
 .. _wms-import:
 
@@ -4721,7 +4721,7 @@ file called ``recipe.py``
 
 Use your favorite editor or IDE to work on the recipe (there are type
 annotations for most WCSTImport classes so an IDE like PyCharm would give out of
-the box completion support). First, let's add the skeleton of the recipe (please
+the box completion support). First, let's add the skeleton of the recipe (
 note that in this tutorial, we will omit the import section of the files (your
 IDE will help you auto import them)):
 

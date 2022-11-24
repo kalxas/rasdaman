@@ -866,6 +866,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CellCountExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCellCountExpressionLabel(@NotNull wcpsParser.CellCountExpressionLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#WKTCoverageExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

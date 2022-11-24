@@ -1,0 +1,24 @@
+for $c in test_mean_summer_airtemp,
+    $d in test_mean_summer_airtemp
+
+let $cutOut := [Long(111.975:112.0), Lat(-44:-43.95)],
+    $neo := $c[ $cutOut ],
+
+    $positive_diff := $neo,
+    $volume_2d := ($positive_diff * 5),
+
+    $lat_res := coverage lonLatCoverage
+                over $i i(imageCrsDomain($volume_2d, Lon))
+                values (
+                          coverage latCoverage
+                          over $px x(0:0) 
+                          value list <4.5846843086>
+                       )
+    
+return  
+  encode(
+          add(
+              $lat_res
+             )
+
+    , "json")
