@@ -62,6 +62,7 @@ module rasdaman {
                                
             $scope.layerNames = [];
             $scope.layers = [];   
+            $scope.coverageBBox = "";
             
             $scope.displayWMSLayer = false;
 
@@ -169,6 +170,11 @@ module rasdaman {
                         var coverageExtentArray = [];
 
                         coverageExtentArray.push($scope.layer.coverageExtent);
+
+                        let coverageExtent = $scope.layer.coverageExtent;
+                        let bbox = "minLon=" + coverageExtent.bbox.xmin.toFixed(2) + ", minLat=" + coverageExtent.bbox.ymin.toFixed(2)
+                                 +  ", maxLon=" + coverageExtent.bbox.xmax.toFixed(2) + ", maxLat=" + coverageExtent.bbox.ymax.toFixed(2);
+                        $scope.coverageBBox = bbox;
                         
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(
@@ -846,6 +852,7 @@ module rasdaman {
         layers:wms.Layer[];        
         // Selected layer to describe
         layer:wms.Layer;
+        coverageBBox:string;
         selectedLayerName:string;       
         selectedStyleName:string; 
         describeLayer():void;

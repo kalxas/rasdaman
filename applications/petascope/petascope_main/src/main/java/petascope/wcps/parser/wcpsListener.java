@@ -1318,6 +1318,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CellCountExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCellCountExpressionLabel(@NotNull wcpsParser.CellCountExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CellCountExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCellCountExpressionLabel(@NotNull wcpsParser.CellCountExpressionLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#WKTCoverageExpressionLabel}.
 	 * @param ctx the parse tree
 	 */

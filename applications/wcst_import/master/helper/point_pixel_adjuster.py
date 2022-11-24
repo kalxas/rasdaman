@@ -133,7 +133,7 @@ class PointPixelAdjuster:
 
         if isinstance(user_axis, RegularUserAxis):
             # ansidate, need to calculate with day in seconds
-            if crs_axis.is_time_day_axis:
+            if crs_axis.is_time_day_axis():
                 if user_axis.resolution > 0 or user_axis.interval.high is None:
                     # axis goes from low to high, so origin is lowest, with half a pixel shift
                     return decimal.Decimal(str(user_axis.interval.low))\

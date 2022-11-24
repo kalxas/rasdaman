@@ -38,7 +38,6 @@
 grammar wcps;
 import wcpsLexerTokens;
 
-
 // NOTE: Comments are ignored in WCPS
 
 LINE_COMMENT
@@ -47,7 +46,6 @@ LINE_COMMENT
 MULTILINE_COMMENT
     : '/*' .*? '*/' -> skip
 ;
-
 
 wcpsQuery : (forClauseList) 
             (whereClause)? 
@@ -172,7 +170,10 @@ scalarValueCoverageExpression: (LEFT_PARENTHESIS)?  coverageExpression (RIGHT_PA
 scalarExpression: booleanScalarExpression
                 | numericalScalarExpression
                 | stringScalarExpression
-                | starExpression;
+                | starExpression
+                | domainIntervals 
+                | cellCountExpression
+                ;
 
 /**
  *  Example:
@@ -279,6 +280,7 @@ getComponentExpression: coverageIdentifierExpression
 		                  | imageCrsDomainExpression
 		                  | imageCrsDomainByDimensionExpression
 		                  | imageCrsExpression
+                          | cellCountExpression
                           ;
 
 /**
@@ -290,6 +292,9 @@ return someCov
 */
 coverageIdentifierExpression: IDENTIFIER LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
 #CoverageIdentifierExpressionLabel;
+
+cellCountExpression: CELLCOUNT LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+#CellCountExpressionLabel;
 
 
 /**
@@ -872,7 +877,7 @@ condenseExpression: reduceExpression
 
 reduceBooleanExpressionOperator: ALL | SOME;
 
-reduceNumericalExpressionOperator: COUNT | ADD | AVG | MIN | MAX;
+reduceNumericalExpressionOperator: COUNT | ADD | SUM | AVG | MIN | MAX;
 
 reduceBooleanExpression: reduceBooleanExpressionOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
 #ReduceBooleanExpressionLabel;

@@ -2691,6 +2691,7 @@ var rasdaman;
         function WebWorldWindService($rootScope, wmsSetting, credentialService) {
             this.webWorldWindModels = [];
             this.coveragesExtentsArray = null;
+            this.showedCoveragesExtentsArray = [];
             this.wmsSetting = null;
             this.authorizationToken = "";
             this.oldLayerName = '';
@@ -2714,6 +2715,7 @@ var rasdaman;
             return null;
         };
         WebWorldWindService.prototype.initWebWorldWind = function (canvasId) {
+            var _this = this;
             var wwd = new WorldWind.WorldWindow(canvasId);
             var polygonLayer = new WorldWind.RenderableLayer();
             var surfaceImageLayer = new WorldWind.RenderableLayer();
@@ -2731,27 +2733,47 @@ var rasdaman;
             }
             var textLayer = new WorldWind.RenderableLayer("Screen Text");
             wwd.addLayer(textLayer);
-            var handlePick = function (o) {
+            wwd.addEventListener("mousemove", function (o) {
                 textLayer.removeAllRenderables();
                 var pickPoint = wwd.canvasCoordinates(o.clientX, o.clientY);
                 var pickList = wwd.pick(pickPoint);
                 if (pickList.objects.length > 0) {
                     for (var p = 0; p < pickList.objects.length; p++) {
                         var pickedObject = pickList.objects[p];
-                        if (!pickedObject.isTerrain) {
-                            if (pickedObject.userObject instanceof WorldWind.SurfacePolygon) {
-                                var screenText = new WorldWind.ScreenText(new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5), pickedObject.userObject.userProperties);
-                                var textAttributes = new WorldWind.TextAttributes(null);
-                                textAttributes.color = WorldWind.Color.YELLOW;
-                                screenText.attributes = textAttributes;
-                                textLayer.addRenderable(screenText);
-                                break;
+                        if (pickedObject.position != null) {
+                            var lat = pickedObject.position.latitude;
+                            var lon = pickedObject.position.longitude;
+                            var intersectedCoverageIds = "";
+                            var count = 0;
+                            for (var i_1 = 0; i_1 < _this.showedCoveragesExtentsArray.length; i_1++) {
+                                var coverageExtent = _this.showedCoveragesExtentsArray[i_1];
+                                var bbox = coverageExtent.bbox;
+                                if (lon >= bbox.xmin && lon <= bbox.xmax
+                                    && lat >= bbox.ymin && lat <= bbox.ymax) {
+                                    if (count < 8) {
+                                        var text = coverageExtent.coverageId
+                                            + " - with bbox: minLon=" + bbox.xmin.toFixed(2) + ", minLat=" + bbox.ymin.toFixed(2)
+                                            + ", maxLon=" + bbox.xmax.toFixed(2) + ", maxLat=" + bbox.ymax.toFixed(2);
+                                        intersectedCoverageIds += text + " \n";
+                                    }
+                                    count += 1;
+                                }
                             }
+                            if (count >= 8) {
+                                intersectedCoverageIds = " There are total: " + count + " intersecting objects. \n "
+                                    + intersectedCoverageIds
+                                    + " and more objects ... \n";
+                            }
+                            var screenText = new WorldWind.ScreenText(new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5), intersectedCoverageIds);
+                            var textAttributes = new WorldWind.TextAttributes(null);
+                            textAttributes.color = WorldWind.Color.YELLOW;
+                            screenText.attributes = textAttributes;
+                            textLayer.addRenderable(screenText);
+                            break;
                         }
                     }
                 }
-            };
-            wwd.addEventListener("mousemove", handlePick);
+            });
             var highlightController = new WorldWind.HighlightController(wwd);
             var webWorldWindModel = {
                 canvasId: canvasId,
@@ -2763,29 +2785,6 @@ var rasdaman;
             };
             this.webWorldWindModels.push(webWorldWindModel);
             return webWorldWindModel;
-        };
-        WebWorldWindService.prototype.getCoverageIdsSameExtent = function (coverageExtent, coveragesExtentsArray) {
-            var coveragedIds = [];
-            var xmin = coverageExtent.bbox.xmin;
-            var ymin = coverageExtent.bbox.ymin;
-            var xmax = coverageExtent.bbox.xmax;
-            var ymax = coverageExtent.bbox.ymax;
-            for (var i = 0; i < coveragesExtentsArray.length; i++) {
-                if (coveragesExtentsArray[i].show) {
-                    var coverageIdTmp = coveragesExtentsArray[i].coverageId;
-                    var bboxTmp = coveragesExtentsArray[i].bbox;
-                    var xminTmp = bboxTmp.xmin;
-                    var yminTmp = bboxTmp.ymin;
-                    var xmaxTmp = bboxTmp.xmax;
-                    var ymaxTmp = bboxTmp.ymax;
-                    if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) {
-                        if (coveragesExtentsArray[i].displayFootprint) {
-                            coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
-                        }
-                    }
-                }
-            }
-            return coveragedIds;
         };
         WebWorldWindService.prototype.showCoverageExtentOnGlobe = function (canvasId, coverageId) {
             var webWorldWindModel = null;
@@ -2814,7 +2813,6 @@ var rasdaman;
                     var polygonObj = polygonLayer.renderables[0];
                     polygonObj.coverageExtentStr = "Coverage Id: " + coverageId + "\n\n"
                         + polygonObj.coverageExtentStr + "\n";
-                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
                     return;
                 }
             }
@@ -2851,7 +2849,11 @@ var rasdaman;
                         }
                     }
                     this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, false);
-                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+                    for (var j = this.showedCoveragesExtentsArray.length - 1; j >= 0; j--) {
+                        if (this.showedCoveragesExtentsArray[j].coverageId == coverageId) {
+                            this.showedCoveragesExtentsArray.splice(j, 1);
+                        }
+                    }
                     return;
                 }
             }
@@ -2866,7 +2868,7 @@ var rasdaman;
                         }
                     }
                     this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, true);
-                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+                    this.showedCoveragesExtentsArray.push(coverageExtent);
                     return;
                 }
             }
@@ -2877,15 +2879,6 @@ var rasdaman;
                     coveragesExtentsArray[i].show = value;
                     return;
                 }
-            }
-        };
-        WebWorldWindService.prototype.updatePolygonUserPropertiesWhenShowHide = function (polygonLayer) {
-            var coveragesExtentsArray = polygonLayer.coveragesExtentsArray;
-            for (var i = 0; i < polygonLayer.renderables.length; i++) {
-                var polygonObj = polygonLayer.renderables[i];
-                var coverageIds = this.getCoverageIdsSameExtent(polygonObj.coverageExtent, coveragesExtentsArray);
-                var userProperties = this.buildUserPropertiesStr(coverageIds, polygonObj.coverageExtentStr);
-                polygonObj.userProperties = userProperties;
             }
         };
         WebWorldWindService.prototype.prepareCoveragesExtentsForGlobe = function (canvasId, coveragesExtentsArray) {
@@ -2948,12 +2941,7 @@ var rasdaman;
                 var polygon = new WorldWind.SurfacePolygon(boundaries, polygonAttributes);
                 polygon.coverageId = coverageId;
                 polygon.highlightAttributes = highlightAttributes;
-                var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);
-                var coverageExtentStr = "Coverage Extent: lat_min=" + ymin + ", lon_min=" + xmin + ", lat_max=" + ymax + ", lon_max=" + xmax;
                 polygon.coverageExtent = coverageExtent;
-                polygon.coverageExtentStr = coverageExtentStr;
-                var userProperties = this.buildUserPropertiesStr(coverageIds, coverageExtentStr);
-                polygon.userProperties = userProperties;
                 polygonLayer.coveragesExtentsArray = coveragesExtentsArray;
                 webWorldWindModel.hidedPolygonObjsArray.push(polygon);
             }
@@ -2972,14 +2960,6 @@ var rasdaman;
             var wwd = webWorldWindModel.wwd;
             wwd.navigator.lookAtLocation = new WorldWind.Location(ycenter, xcenter);
             wwd.redraw();
-        };
-        WebWorldWindService.prototype.buildUserPropertiesStr = function (coverageIds, coverageExtentStr) {
-            var coverageIdsStr = "";
-            for (var j = 0; j < coverageIds.length; j++) {
-                coverageIdsStr += coverageIds[j];
-            }
-            var userProperties = coverageIdsStr + "\n" + coverageExtentStr + "\n";
-            return userProperties;
         };
         WebWorldWindService.prototype.loadGetMapResultOnGlobe = function (canvasId, layerName, styleName, bbox, displayLayer, timeMoment, nonXYAxes) {
             var webWorldWindModel = null;
@@ -3679,6 +3659,7 @@ var rasdaman;
                 coverageIds.push($scope.selectedCoverageId);
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                 $scope.requestUrl = settings.wcsEndpoint + "?" + describeCoverageRequest.toKVP();
+                $scope.coverageBBox = "";
                 $scope.axes = [];
                 $("#coverageMetadataUploadFile").val("");
                 $("#uploadFileName").html("");
@@ -3693,6 +3674,10 @@ var rasdaman;
                         $scope.hideWebWorldWindGlobe = true;
                     }
                     else {
+                        var bbox = "minLon=" + coverageExtentArray[0].bbox.xmin.toFixed(2) + ", minLat=" + coverageExtentArray[0].bbox.ymin.toFixed(2)
+                            + ", maxLon=" + coverageExtentArray[0].bbox.xmax.toFixed(2) + ", maxLat=" + coverageExtentArray[0].bbox.ymax.toFixed(2);
+                        $scope.coverageBBox = bbox;
+                        console.log(coverageExtentArray[0]);
                         var canvasId = "wcsCanvasDescribeCoverage";
                         $scope.hideWebWorldWindGlobe = false;
                         webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
@@ -6149,6 +6134,7 @@ var rasdaman;
             $scope.getMapRequestURL = null;
             $scope.layerNames = [];
             $scope.layers = [];
+            $scope.coverageBBox = "";
             $scope.displayWMSLayer = false;
             $scope.timeString = null;
             $scope.coverageDescription = null;
@@ -6217,6 +6203,10 @@ var rasdaman;
                         var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                         var coverageExtentArray = [];
                         coverageExtentArray.push($scope.layer.coverageExtent);
+                        var coverageExtent = $scope.layer.coverageExtent;
+                        var bbox = "minLon=" + coverageExtent.bbox.xmin.toFixed(2) + ", minLat=" + coverageExtent.bbox.ymin.toFixed(2)
+                            + ", maxLon=" + coverageExtent.bbox.xmax.toFixed(2) + ", maxLat=" + coverageExtent.bbox.ymax.toFixed(2);
+                        $scope.coverageBBox = bbox;
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(function (response) {
                             $scope.coverageDescription = response.value;

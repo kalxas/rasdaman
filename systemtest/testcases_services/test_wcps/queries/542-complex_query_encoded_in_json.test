@@ -1,0 +1,37 @@
+for $c in test_mean_summer_airtemp,
+    $d in test_mean_summer_airtemp
+
+let $cutOut := [Long(120:130), Lat(-39.5: -30)],
+    $neo := $c[ $cutOut ],
+    $dem := crsTransform($d [ $cutOut ], "EPSG:4326", 
+                { cubicspline }
+            ),
+
+    $positive_diff := ($neo - $dem) * ( ($neo - $dem) > 0),
+    $volume_2d := ($positive_diff * 5),
+
+    $lat_res := coverage lonLatCoverage
+                over $i i(imageCrsDomain($volume_2d, Lon))
+                values (
+                          coverage latCoverage
+                          over $px x(0:1) 
+                          value list <4.5846843086; 4.5846848184>
+                       )
+    
+return  
+  encode(
+        (
+          add(
+              add($volume_2d)
+              *
+              $lat_res
+             )
+        ) /
+
+        (
+ (  imageCrsDomain($volume_2d, Lat).hi - imageCrsDomain($volume_2d, Lat).lo  + 1 ) 
+ 
+ * (  imageCrsDomain($volume_2d, Lon).hi - imageCrsDomain($volume_2d, Lon).lo  + 1 ) 
+)
+
+    , "json")

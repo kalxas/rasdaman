@@ -136,6 +136,7 @@ to downscale all axes by 4x:
 
   `http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AvgLandTemp&subset=ansi("2014-10-01")&format=image/jpeg&scaleFactor=0.25 <http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=AvgLandTemp&subset=ansi("2014-10-01")&format=image/jpeg&scaleFactor=0.25>`__
 
+Currently only nearest neighbour interpolation is supported for scaling.
 
 Reprojection
 ------------
@@ -155,14 +156,14 @@ or change the CRS in which subset or scale coordinates are specified:
 Interpolation
 -------------
 
-Scaling or reprojection can be performed with various interpolation methods as
+Reprojection (optionally with subsequent scaling) can be performed with various interpolation methods as
 enabled by the `Interpolation extension
 <https://portal.opengeospatial.org/files/12-049>`__:
 
   http://ows.rasdaman.org/rasdaman/ows?service=WCS&version=2.0.1&request=GetCoverage&coverageId=mean_summer_airtemp&outputCrs=http://ows.rasdaman.org/def/crs/EPSG/0/3857&interpolation=http://www.opengis.net/def/interpolation/OGC/1/cubic
 
-Rasdaman supports several interpolations as documented `here
-<http://doc.rasdaman.org/04_ql-guide.html#the-project-function>`__.
+Rasdaman supports several interpolation methods as documented 
+:ref:`here <sec-geo-projection-interpolation>`.
 
 
 .. _cheatsheet-wcps:
@@ -247,7 +248,7 @@ Scalar operations
   +-----------------------+------------------------------------------------------+
   | Aggregation type      | Function / Expression                                |
   +=======================+======================================================+
-  | Of numeric coverages  | ``avg``, ``add``, ``min``, ``max``                   |
+  | Of numeric coverages  | ``avg``, ``add`` (or alias ``sum``), ``min``, ``max``|
   +-----------------------+------------------------------------------------------+
   | Of boolean coverages  | | ``count`` number of true values;                   |
   |                       | | ``some``/``all`` = true if some/all values are true|
@@ -300,6 +301,8 @@ Coverage operations
 
     scale( covExpr, { axis1(lo:hi), axis2:crs(lo:hi), ... } )
 
+  Currently only nearest neighbour interpolation is supported for scaling.
+
 - **Reproject** allows to project a 2D coverage with geo X/Y axes by a CRS: ::
 
     crsTransform( covExpr, { axisX:outputCRS, axisY:outputCRS }, { interpolation } )
@@ -309,6 +312,9 @@ Coverage operations
     or shorthand version
 
     crsTransform( covExpr, "outputCRS", { interpolation } )
+
+  For supported interpolation methods see the options for 
+  :ref:`resampleAlg parameter <sec-geo-projection-interpolation>`.
 
 - **Conditional evaluation** is possible with the ``switch`` statement:
 
@@ -429,6 +435,8 @@ Several functions allow to extract metadata information about a coverage ``C``:
 +---------------------------+----------------------------------------------------+
 | nullSet(C)                | Set of null values                                 |
 +---------------------------+----------------------------------------------------+
+| cellCount(C)              | Total number of grid pixels                        |
++---------------------------+----------------------------------------------------+
 
 
 .. _wcps-comment-lines:
@@ -455,7 +463,7 @@ WCPS supports SQL-like commenting styles:
         Web browsers or image viewer tools.
     */
     return encode($c, "image/png")
-
+ 
 
 .. _cheatsheet-wms:
 
@@ -469,7 +477,7 @@ including 3-D or higher dimensional; the latest 1.3.0 version is supported.
 
 rasdaman supports two operations: *GetCapabilities*, *GetMap* from the standard.
 We will not go into the details, as users do not normally hand-write WMS 
-requests, but let a client tool or library generate them instead. Please check
+requests, but let a client tool or library generate them instead. Check
 the :ref:`cheatsheet-clients` section for some examples.
 
 .. _cheatsheet-clients:
@@ -678,7 +686,7 @@ collection level.
 `NASA WebWorldWind <https://worldwind.arc.nasa.gov/web/>`__
 -----------------------------------------------------------
 
-Simple example to setup a web page with a map from a WMS server using WebWorldWind:
+- Simple example to setup a web page with a map from a WMS server using WebWorldWind:
 
   .. code-block:: html
 
@@ -735,7 +743,7 @@ OWSLib
 
 `OWSLib <https://geopython.github.io/OWSLib/>`__ is a Python package that helps
 with programming clients for OGC services such as WCS, WCPS, or WMS. To install
-it please follow the official `installation instructions
+it follow the official `installation instructions
 <https://geopython.github.io/OWSLib/#installation>`__. Example usage for WCS
 follows below.
 
@@ -805,7 +813,6 @@ wcps_rasdaman.py
 `wcps_rasdaman.py <https://gitlab.inf.unibz.it/SInCohMap/RoundRobinTutorials/blob/master/wcps_rasdaman.py>`__
 is a python client which sends a WCPS query to a rasdaman server and wraps the response for further use 
 depending on the response format chosen in the query.
-
 
 Access from R
 -------------

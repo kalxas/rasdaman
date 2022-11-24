@@ -84,6 +84,7 @@ import petascope.util.StringUtil;
 import petascope.wcps.handler.AxisIteratorDomainIntervalsHandler;
 import petascope.wcps.handler.AxisIteratorHandler;
 import petascope.wcps.handler.AxisSpecHandler;
+import petascope.wcps.handler.CellCountHandler;
 import petascope.wcps.handler.ClipCorridorExpressionHandler;
 import petascope.wcps.handler.ClipCurtainExpressionHandler;
 import petascope.wcps.handler.ClipWKTExpressionHandler;
@@ -250,6 +251,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     StringScalarHandler stringScalarHandler;
     @Autowired private
     CoverageIdentifierHandler coverageIdentifierHandler;
+    @Autowired private
+    CellCountHandler cellCountHandler;
     
     @Autowired private
     CoverageCrsSetHandler coverageCrsSetHandler;
@@ -1349,6 +1352,17 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         Handler result = this.coverageIdentifierHandler.create(coverageExpressionChildHandler);
         return result;
     }
+    
+    @Override
+    public Handler visitCellCountExpressionLabel(@NotNull wcpsParser.CellCountExpressionLabelContext ctx) {
+        // CELLCOUNT LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+        // cellCount($c) -> 200 pixels
+        Handler coverageExpressionChildHandler = (Handler) visit(ctx.coverageExpression());
+
+        Handler result = this.cellCountHandler.create(coverageExpressionChildHandler);
+        return result;
+    }    
+    
 
     @Override
     public Handler visitCoverageCrsSetExpressionLabel(@NotNull wcpsParser.CoverageCrsSetExpressionLabelContext ctx) {
@@ -1686,7 +1700,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
                                                                         coverageExpressionHandler);
         return result;
     }
-
+    
+    
     @Override
     public Handler visitTrimDimensionIntervalElementLabel(@NotNull wcpsParser.TrimDimensionIntervalElementLabelContext ctx) {
         // axisName (COLON crsName)? LEFT_PARENTHESIS  coverageExpression   COLON coverageExpression    RIGHT_PARENTHESIS
