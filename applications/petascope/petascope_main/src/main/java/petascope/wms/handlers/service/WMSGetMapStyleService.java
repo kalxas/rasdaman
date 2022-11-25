@@ -41,17 +41,16 @@ import org.springframework.stereotype.Service;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
-import static petascope.wcps.handler.ForClauseHandler.AS;
 import static petascope.wcps.handler.ForClauseListHandler.FROM;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.CollectionAliasRegistry;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
+import petascope.wcps.metadata.service.WMSSubsetDimensionsRegistry;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
@@ -81,6 +80,8 @@ public class WMSGetMapStyleService {
     private CollectionAliasRegistry collectionAliasRegistry;
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
+    @Autowired
+    private WMSSubsetDimensionsRegistry wmsSubsetDimensionsRegistry;
     @Autowired
     private WMSGetMapSubsetParsingService wmsGetMapSubsetParsingService;
     
@@ -180,10 +181,14 @@ public class WMSGetMapStyleService {
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getExtendedRequestBBox(), wmsLayer.getLayerName());
         
         WcpsCoverageMetadata wcpsCoverageMetadataTmp = (WcpsCoverageMetadata) JSONUtil.clone(wcpsCoverageMetadata);
-        List<WcpsSubsetDimension> wcpsSubsetDimensions = this.wmsGetMapSubsetTranslatingService.parseWcpsSubsetDimensions(wcpsCoverageMetadataTmp, 
+        
+        List<WcpsSubsetDimension> wcpsSubsetDimensions = new ArrayList<>();
+        List<WcpsSubsetDimension> wcpsGeoXYSubsetDimensions = this.wmsGetMapSubsetTranslatingService.parseWcpsSubsetDimensions(wcpsCoverageMetadataTmp, 
                                                                                                                wmsLayer.getExtendedRequestBBox());
         
-        List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions = this.wmsGetMapSubsetParsingService.translateGridDimensionsSubsetsLayers(wcpsCoverageMetadataTmp, dimSubsetsMap);
+        wcpsSubsetDimensions.addAll(wcpsGeoXYSubsetDimensions);
+        
+        List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions = this.wmsGetMapSubsetParsingService.translateGeoDimensionsSubsetsLayers(wcpsCoverageMetadataTmp, dimSubsetsMap);
         
         if (nonXYGridSliceSubsetDimensions != null) {
             for (List<WcpsSliceSubsetDimension> list : nonXYGridSliceSubsetDimensions) {
@@ -209,10 +214,11 @@ public class WMSGetMapStyleService {
         int i = numberOfCollectionVariables - 1;
         for (String layerNameIteratorFromStyle : layerNameIteratorsFromStyle) {
             
-            List<String> coverageExpressions = new ArrayList<>();
-            String coverageExpression = null;
+            String coverageId = StringUtil.stripDollarSign(layerNameIteratorFromStyle);
+            wmsLayer.setLayerName(coverageId);
+            List<WcpsSubsetDimension> wcpsSubsetDimensionsByLayerName = this.getSubsetDimensionForWCPSFragment(wmsLayer, wcpsCoverageMetadata, nonXYGridSliceSubsetDimensions);
+            wmsSubsetDimensionsRegistry.add(coverageId, wcpsSubsetDimensionsByLayerName);
             
-            String coverageId = this.stripDollarSign(layerNameIteratorFromStyle);
             // e.g: c0 in (covA)
             String coverageAlias = this.coverageAliasRegistry.getCoverageAliasMap().get(coverageId);
             
@@ -221,69 +227,16 @@ public class WMSGetMapStyleService {
             }
             
             coverageAliasList.add(coverageAlias + IN + "(" + coverageId + ")");
-            String coverageSubset = coverageAlias + "[ ";
             
             
-            String layerNameFromStyle = StringUtil.stripDollarSign(layerNameIteratorFromStyle);
-            wmsLayer.setLayerName(layerNameFromStyle);
-            wcpsCoverageMetadataTmp = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
-            nonXYGridSliceSubsetDimensions = this.wmsGetMapSubsetParsingService.translateGridDimensionsSubsetsLayers(wcpsCoverageMetadataTmp, dimSubsetsMap);
-            
-            if (nonXYGridSliceSubsetDimensions == null) {
-                coverageExpression = this.getCoverageExpressionForWCPSFragment(wmsLayer, coverageSubset, wcpsCoverageMetadataTmp, null);
-                coverageExpressions.add(coverageExpression);
-            } else {
-                for (List<WcpsSliceSubsetDimension> wcpsSliceSubsetDimensions : nonXYGridSliceSubsetDimensions) {
-                    coverageExpression = this.getCoverageExpressionForWCPSFragment(wmsLayer, coverageSubset, wcpsCoverageMetadataTmp, wcpsSliceSubsetDimensions);
-                    coverageExpressions.add(coverageExpression);
-                }
+            List<String> tmps = new ArrayList<>();
+            for (WcpsSubsetDimension wcpsSubsetDimension : wcpsGeoXYSubsetDimensions) {
+                tmps.add(wcpsSubsetDimension.toStringWithoutCRS());
             }
             
+            String coverageAliasWithGeoXYSubsets = coverageAlias + "[" + ListUtil.join(tmps, ", ")  + "]";
             
-            // e.g. pattern: \$test_3d\[(.*?)\] with test string: $test_3d[plev(30)] which returns plev(30)
-            Pattern pattern = Pattern.compile("\\" + layerNameIteratorFromStyle + "\\s*\\[(.*?)\\]");
-            List<String> fixedSubsetsInStyleQuery = new ArrayList<>();
-            // extract values inside [ ]        
-            Matcher m = pattern.matcher(styleQuery);
-
-            while (m.find()) {
-                String v = m.group(1);
-                fixedSubsetsInStyleQuery.add(v);
-            }
-            
-            // e.g. ansidate("2015-05-01"), level(350)
-            String subsetsRepresentation = StringUtil.extractStringsBetweenSquareBrackets(coverageExpressions.get(0)).get(0);
-            List<String> subsets = new ArrayList<>(Arrays.asList(subsetsRepresentation.split(",")));
-            Iterator<String> iterator = subsets.iterator();
-            
-            // NOTE: In case the WCPS style query already contains non-XY axes slices (e.g. $c[ansi($t), forecast(0)])
-            // then, ansi and forecast axes grid slices (:"CRS:1"(gridIndex)) from GetMap request
-            // should not be added to this style query one more time.
-            while (iterator.hasNext()) {
-                
-                String subset = iterator.next();
-            
-                for (String fixedSubset : fixedSubsetsInStyleQuery) {
-                    String axisLabel = subset.substring(0, subset.indexOf("(")).split(":")[0].trim();
-
-                    if (fixedSubset.contains(axisLabel + "(") 
-                        || fixedSubset.contains(axisLabel + ":\"" + CrsUtil.GRID_CRS + "\"(")) {
-                        // e.g. dimensionStage(3),ansi("2015-01-01")
-                        // coverage's subsets and fixed subsets for this coverage from style have the same axis label
-                        iterator.remove();
-                        break;
-                    }
-                }
-                
-            }
-            
-            if (subsets.size() > 0) {
-                styleQuery = WMSGetMapService.replaceLayerIteratorByLayerName(styleQuery, layerNameIteratorFromStyle, 
-                                                                            coverageAlias + "[" + ListUtil.join(subsets, ",") + "]");
-            } else {
-                styleQuery = WMSGetMapService.replaceLayerIteratorByLayerName(styleQuery, layerNameIteratorFromStyle, 
-                                                                            coverageAlias);
-            }            
+            styleQuery = WMSGetMapService.replaceLayerIteratorByLayerName(styleQuery, layerNameIteratorFromStyle, coverageAliasWithGeoXYSubsets);
             
             i++;
         }
@@ -352,43 +305,29 @@ public class WMSGetMapStyleService {
     /**
      * Return a translated coverage expression as rasdaman subquery for a WMS style by WCPS fragment
      */
-    private String getCoverageExpressionForWCPSFragment(WMSLayer wmsLayer, 
-                                                        String coverageSubset,
+    private List<WcpsSubsetDimension> getSubsetDimensionForWCPSFragment(WMSLayer wmsLayer, 
                                                         WcpsCoverageMetadata wcpsCoverageMetadata,
-                                                        List<WcpsSliceSubsetDimension> nonXYGridSliceSubsetDimensions) throws PetascopeException {
+                                                        List<List<WcpsSliceSubsetDimension>> nonXYGridSliceSubsetDimensions) throws PetascopeException {
         
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getRequestBBox(), wmsLayer.getLayerName());
         this.wmsGetMapBBoxService.fitBBoxToCoverageGeoXYBounds(wmsLayer.getExtendedRequestBBox(), wmsLayer.getLayerName());
         
-        List<WcpsSubsetDimension> wcpsSubsetDimensions = this.wmsGetMapSubsetTranslatingService.parseWcpsSubsetDimensions(wcpsCoverageMetadata, 
-                                                                                                               wmsLayer.getExtendedRequestBBox());
+        List<WcpsSubsetDimension> results = this.wmsGetMapSubsetTranslatingService.parseWcpsSubsetDimensions(wcpsCoverageMetadata, 
+                                                                                                            wmsLayer.getExtendedRequestBBox());
         
         if (nonXYGridSliceSubsetDimensions != null) {
             // Only for 3rd+ layers
-            wcpsSubsetDimensions.addAll(nonXYGridSliceSubsetDimensions);
-        }        
-        
-        List<String> subsets = new ArrayList<>();
-        for (WcpsSubsetDimension wcpsSubsetDimension : wcpsSubsetDimensions) {
-            if (wcpsSubsetDimension instanceof WcpsTrimSubsetDimension) {
-                String subset = wcpsSubsetDimension.getAxisName() + "(" 
-                               + ((WcpsTrimSubsetDimension) wcpsSubsetDimension).getLowerBound() + ":" 
-                               + ((WcpsTrimSubsetDimension) wcpsSubsetDimension).getUpperBound() + ")";
-
-                subsets.add(subset);
-            } else {
-                // NOTE: only slicing on non-XY axes and they are already translated to grid coordinate
-                String subset = wcpsSubsetDimension.getAxisName() 
-                              + ":\"" + CrsUtil.GRID_CRS + "\"(" + ((WcpsSliceSubsetDimension)wcpsSubsetDimension).getBound() + ")";
-                subsets.add(subset);
+            for (List<WcpsSliceSubsetDimension> list : nonXYGridSliceSubsetDimensions) {
+                results.addAll(list);
             }
-        }
+        }        
 
-        // e.g: $covA -> $covA[Lat(0:30), Long(0:40)]
-        coverageSubset += ListUtil.join(subsets, ", ") + " ]";
+        results.add(new WcpsSliceSubsetDimension(WMS_VIRTUAL_LAYER_EXPECTED_WIDTH, CrsUtil.GRID_CRS, wmsLayer.getWidth().toString()));
+        results.add(new WcpsSliceSubsetDimension(WMS_VIRTUAL_LAYER_EXPECTED_HEIGHT, CrsUtil.GRID_CRS, wmsLayer.getHeight().toString()));        
         
-        return coverageSubset;
-    }
+        return results;
+    }    
+    
     
     /**
      * Parse the translated rasql for WCPS fragment and add it to the registry for alias and collections
@@ -427,16 +366,7 @@ public class WMSGetMapStyleService {
      */
     public String builRasqlFromExpression(int width, int height) 
                  throws PetascopeException {
-        
-        List<String> collectionAlias = new ArrayList<>();
-        for (Map.Entry<String, Pair<String, String>> entryTmp : this.collectionAliasRegistry.getAliasMap().entrySet()) {
-            String alias = entryTmp.getKey();
-            String sourceCollectionName = entryTmp.getValue().fst;
-
-            collectionAlias.add(sourceCollectionName + AS + alias);
-        }
-        
-        String result = ListUtil.join(collectionAlias, ", ");
+        String result = this.collectionAliasRegistry.getFromClause();
         return result;
     }
     

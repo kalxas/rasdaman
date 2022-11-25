@@ -1,0 +1,4 @@
+for c in (test_wcs_irregular_time_series_slices_number),
+    d in (test_wcs_irregular_time_series_slices_number_duplicated)
+
+return encode( (c + (c + d))[date("2015-01-01")], "png")

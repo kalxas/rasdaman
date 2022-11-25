@@ -519,9 +519,9 @@ public class WMSGetMapService {
      * e.g. WCPS query fragment: $cb_abc + $c > 300 with layerName is $cb_xyz
      * return $cb_abc + $cb_xyz > 300
      */
-    public static String replaceLayerIteratorByLayerName(String styleQuery, String layerNameIterator, String layerName) {
+    public static String replaceLayerIteratorByLayerName(String styleQuery, String layerNameAlias, String layerName) {
         // e.g. \\$test_abc
-        String regexPattern = "\\" + layerNameIterator + "\\b";
+        String regexPattern = "\\" + layerNameAlias + "\\b";
         String result = styleQuery.replaceAll(regexPattern, Matcher.quoteReplacement(layerName));
         return result;
     }

@@ -36,6 +36,7 @@ import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
+import petascope.util.TimeUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -152,6 +153,64 @@ public class WMSGetMapSubsetParsingService {
             return null;
         }
     }
+    
+    
+ public List<List<WcpsSliceSubsetDimension>> translateGeoDimensionsSubsetsLayers(WcpsCoverageMetadata wcpsCoverageMetadata,
+                                                                                Map<String, String> dimSubsetsMap) throws PetascopeException {
+        // Each nested list is the translated grids for an non-XY axis (e.g: ansi -> [0, 3, 5])
+        List<List<WcpsSliceSubsetDimension>> parsedNonXYAxesGeoSlicings = new ArrayList<>();
+        // First, parse all the dimension subsets (e.g: time=...,dim_pressure=....) as one parsed dimension subset is one of layer's overlay operator's operand.
+
+        // First, convert all the input dimensions subsets to BigDecimal to be translated to grid subsets
+        // e.g: time="2015-02-05"
+        for (Axis axis : wcpsCoverageMetadata.getSortedAxesByGridOrder()) {
+            if (axis.isNonXYAxis()) {
+                
+                // Parse the requested dimension subset values from GetMap request
+                List<ParsedSubset<BigDecimal>> parsedGeoSubsets = new ArrayList<>();
+
+                // e.g: time=...&dim_pressure=...
+                String dimSubset = dimSubsetsMap.get(axis.getLabel());
+                if (axis.isTimeAxis()) {
+                    // In case axis is time axis, it has a specific key.
+                    dimSubset = dimSubsetsMap.get(KVPSymbols.KEY_WMS_TIME);
+                } else if (axis.isElevationAxis()) {
+                    // In case axis is elevation axis, it has a specific key.
+                    dimSubset = dimSubsetsMap.get(KVPSymbols.KEY_WMS_ELEVATION);
+                }
+
+                if (dimSubset != null) {
+                    // Coverage contains a non XY, time dimension axis and there is a dim_axisLabel in GetMap request.
+                    parsedGeoSubsets = this.parseDimensionSubset(axis, dimSubset);
+                } else {
+                    // NOTE: if coverage contains a non XY, time dimension (e.g: temperature) axis but there is no dim_temperature parameter from GetMap request
+                    // it will be the upper Bound grid coordinate in this axis (the latest slice of this dimension according to WMS 1.3 document).
+                    BigDecimal geoUpperBound = axis.getGeoBounds().getUpperLimit();
+                    parsedGeoSubsets.add(new ParsedSubset<>(geoUpperBound, geoUpperBound));
+                }
+
+                List<WcpsSliceSubsetDimension> nonXYGeoSlicings = new ArrayList<>();
+                for (ParsedSubset<BigDecimal> parsedGeoSubset : parsedGeoSubsets) {
+                    String geoLowerBound = parsedGeoSubset.getLowerLimit().toPlainString();
+                    if (axis.isTimeAxis()) {
+                        geoLowerBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, parsedGeoSubset.getLowerLimit(), axis.getCrsDefinition());
+                    }
+                    
+                    WcpsSliceSubsetDimension wcpsSliceSubsetDimension = new WcpsSliceSubsetDimension(axis.getLabel(), 
+                                                                                                    axis.getNativeCrsUri(), geoLowerBound);
+                    nonXYGeoSlicings.add(wcpsSliceSubsetDimension);
+                } 
+                parsedNonXYAxesGeoSlicings.add(nonXYGeoSlicings);
+            }
+        }
+
+        if (parsedNonXYAxesGeoSlicings.size() > 0) {
+            List<List<WcpsSliceSubsetDimension>> results = ListUtil.cartesianProduct(parsedNonXYAxesGeoSlicings);
+            return results;
+        } else {
+            return null;
+        }
+    }    
     
     /**
      * Create a list of grid bounds which needs to regard nonXY axes properly.

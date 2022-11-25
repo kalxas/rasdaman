@@ -1,0 +1,4 @@
+STYLEID=test&
+COVERAGEID=test_wcs_irregular_time_series_slices_number&
+abstract=test&
+wcpsQueryFragment=( $test_wcs_irregular_time_series_slices_number_duplicated + ( $c + $test_wcs_irregular_time_series_slices_number_duplicated ) ) [  date("2015-01-01") ]

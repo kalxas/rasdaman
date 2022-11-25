@@ -45,7 +45,7 @@ public class WMSLayer {
    private BoundingBox extendedRequestBBox;
    private final Integer width;
    private final Integer height;
-   
+
    // List of WCPS subsets on nonXY axes (e.g. time / elevation,...)
    private List<WcpsSubsetDimension> nonXYSubsetDimensions;
 

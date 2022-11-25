@@ -7,7 +7,7 @@
     "automated": true
   },
   "input": {
-    "coverage_id": "test_wcs_irregular_time_series_slices_number",
+    "coverage_id": "test_wcs_irregular_time_series_slices_number_duplicated",
     "paths": [
       "*.tif"
     ]

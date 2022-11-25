@@ -63,4 +63,10 @@ public class WcpsSliceSubsetDimension  extends WcpsSubsetDimension {
         result += "(" + bound + ")";
         return result;
     }
+
+    @Override
+    @JsonIgnore
+    public String toStringWithoutCRS() {
+        return getAxisName() + "(" + this.bound + ")";
+    }
 }

@@ -54,7 +54,9 @@ public abstract class WcpsSubsetDimension extends ParameterResult {
      */
     public WcpsSubsetDimension(String axisName, String crs) {
         this.axisName = axisName;
-        this.crs = CrsUtil.replaceOldURLWithNewURL(crs);
+        if (crs != null) {
+            this.crs = CrsUtil.replaceOldURLWithNewURL(crs);
+        }
     }
 
     /**
@@ -92,9 +94,11 @@ public abstract class WcpsSubsetDimension extends ParameterResult {
     }
 
     public abstract String getStringBounds();
-
+    
     public abstract String toString();
-
+    
+    public abstract String toStringWithoutCRS();
+    
     private String axisName;
     private String crs;
     private boolean temporal = false;
