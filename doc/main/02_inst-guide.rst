@@ -74,7 +74,7 @@ Rasdaman is continuously tested on the platforms listed below. The rasdaman code
 has been developed on SUN/Solaris and HP-UX originally, and has been ported to
 IBM AIX, SGI IRIX, and DEC Unix - but that was way back in the last millennium.
 
-- Ubuntu 18.04, 20.04
+- Ubuntu 18.04, 20.04, 22.04
 - CentOS 7
 
 In general, compiling rasdaman should work on distributions with gcc 4.8 or
@@ -143,7 +143,7 @@ Debian-based systems
 
 Currently the following Debian-based distributions are supported:
 
-- Ubuntu 18.04 / 20.04
+- Ubuntu 18.04 / 20.04 / 22.04
 
 
 Installation
@@ -403,6 +403,7 @@ an update perform these steps: ::
 
      $ sudo yum install -y ca-certificates
 
+.. _customize-package-install:
 
 Customizing the package installation
 ------------------------------------
@@ -494,7 +495,7 @@ by simply editing a JSON file.
 Currently, the following distributions are supported:
 
 -  Debian (9, 10)
--  Ubuntu (16.04, 18.04, 20.04)
+-  Ubuntu (16.04, 18.04, 20.04, 22.04)
 -  CentOS (7)
 
 First-Time Installation
@@ -857,49 +858,6 @@ CentOS 7
     # To run systemtest
     $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
 
-Debian 9 / Ubuntu 16.04
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. hidden-code-block:: bash
-
-    # To build rasdaman
-    $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake bison flex git g++ \
-      unzip libpng-dev libjpeg-dev libboost-filesystem-dev libboost-thread-dev \
-      libboost-system-dev libtiff-dev libgdal-dev zlib1g-dev libffi-dev \
-      libboost-dev libnetcdf-dev libedit-dev libreadline-dev libdw-dev \
-      libsqlite3-dev libgrib2c-dev curl libssl-dev libgrib-api-dev
-    # To build Java components
-    $ sudo apt-get install default-jdk-headless maven ant libgdal-java
-
-    # CMake needs to be manually downloaded and installed as the system 
-    # provided version is too outdated.
-
-    # To generate HTML documentation
-    $ sudo pip install sphinx sphinx_rtd_theme
-    # To generate PDF documentation (in addition to above)
-    $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
-      texlive-fonts-recommended texlive-latex-extra 
-    # To generate C++ API documentation
-    $ sudo apt-get install --no-install-recommends doxygen
-
-    # To run rasdaman
-    $ sudo apt-get install \
-      postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils \
-      libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel \
-      libreadline-dev libssl1.0.0 libgrib-api-dev libpython3-dev
-    # To run Java components
-    $ sudo apt-get install default-jre-headless libgdal-java tomcat8
-
-    # To run wcst_import.sh; it is recommended to install Python 3.6
-    $ sudo pip3 install jsonschema python-dateutil lxml \
-      pyproj numpy netCDF4==1.2.7 GDAL==1.11.2 pygrib==1.9.9
-    # To run rasdapy
-    $ pip3 install --user grpcio==1.9.0 protobuf==3.6.1
-
-    # To run systemtest
-    $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
-
 Debian 10 / Ubuntu 18.04 / Ubuntu 20.04
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -939,6 +897,39 @@ Debian 10 / Ubuntu 18.04 / Ubuntu 20.04
 
     # To run systemtest
     $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
+
+
+Ubuntu 22.04
+~~~~~~~~~~~~
+
+.. hidden-code-block:: bash
+  
+    # To build rasdaman
+    $ apt-get install --no-install-recommends make libtool gawk autoconf automake \
+      pkg-config bison flex git g++ unzip libpng-dev libjpeg-dev libtiff-dev \
+      libgdal-dev libnetcdf-dev libeccodes-dev libboost-filesystem-dev libssl-dev \
+      libboost-thread-dev libboost-system-dev libboost-dev zlib1g-dev libffi-dev \
+      libedit-dev libreadline-dev libdw-dev libsqlite3-dev libgrib2c-dev curl
+    # To build Java components
+    $ apt-get install default-jdk-headless maven ant
+
+    # To generate HTML/PDF and C++ API documentation
+    $ apt-get install latexmk tex-gyre python3-sphinx python3-sphinx-rtd-theme \
+      texlive-latex-base texlive-fonts-recommended texlive-latex-extra doxygen
+
+    # To run rasdaman
+    $ apt-get install sqlite3 zlib1g libdw1 debianutils sudo libssl3 gdal-bin \
+      libnetcdf-dev libgdal-dev libeccodes0 libreadline-dev libedit-dev \
+      python3-jsonschema python3-dateutil python3-lxml python3-grib python3-numpy \
+      python3-netcdf4 python3-pyproj
+    # To run Java components
+    $ apt-get install postgresql postgresql-contrib default-jre-headless
+    
+    # To run systemtest
+    $ apt-get install bc vim-common valgrind netcdf-bin gdal-bin python3-protobuf \
+      python3-pip jq
+    $ pip3 install grpcio pylint==2.13.4
+
 
 
 .. _sec-download-install:
@@ -1447,7 +1438,7 @@ There are two ways to configure SELinux in order to enable petascope:
             associate getattr read unix_read unix_write write  };
 
   - Create a shell script ``deployse.sh`` to generate a binary package from this
-    config file: ::
+    config file:
 
     .. hidden-code-block:: bash
 
@@ -1469,7 +1460,7 @@ Restart Tomcat with ``sudo service tomcat restart``; now rasdaman should be able
 to import data to petascope via WCSTImport and get data from rasdaman via
 WCS / WMS / WCPS.
 
-SSL/TLS Configuration
+SSL/TLS configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
 Transport Layer Security (``TLS``) and its predecessor, Secure Sockets Layer
@@ -1532,47 +1523,6 @@ rasdaman. This manual describes the installation process of the package.
 Preconfigured Virtual Machines
 ==============================
 
-This is the easiest way of obtaining rasdaman. The preconfectioned VM has a
-running rasdaman system on Xubuntu 18.04 with a database already containing
-sample data for experimentation.
-
-
-rasdaman VM image
------------------
-
-A recent rasdaman VM disk image can be downloaded from
-`here <http://download.rasdaman.org/vms/Rasdaman.vmdk.xz>`__. Unzip the
-archive and then follow instructions on how to use it with:
-
-* `VMWare Player <http://smallbusiness.chron.com/play-vmdk-file-44318.html>`__
-* `VMWare Workstation <http://blogs.vmware.com/kb/2012/08/creating-a-workstation-virtual-machine-using-existing-vmdk-virtual-disks.html>`__
-* `VirtualBox <https://susestudio.com/help/use/virtualbox.html>`__
-
-**VM Requirements**
-
-* Minimum disk space: ~20G
-* Minimum RAM: 4GB
-* Architecture: x86_64 (i.e. 64bit)
-
-**Login credentials**
-
-- username: rasdaman
-- password: rasdaman
-
-**Once started**
-
-On start the VM will launch a browser with tabs giving you access to
-
--  a Web client accessing the VM-local rasdaman database with some
-   sample n-D geo data, using Web requests adhering to the OGC W\*S standards
--  the rasdaman documentation starting point
-
-**Updating rasdaman**
-
-In the VM rasdaman is installed as a Debian package. To make sure that the
-latest rasdaman version is running, make sure to 
-`update the package <sec-system-update-pkgs-deb>`__
-
 
 rasdaman @ `OSGeo Live <http://live.osgeo.org/>`__
 --------------------------------------------------
@@ -1594,25 +1544,31 @@ environment with `vagrant <https://www.vagrantup.com/>`__:
 
 .. code-block:: text
 
-    rasdaman/ubuntu1604
     rasdaman/ubuntu1804
+    rasdaman/ubuntu2004
     rasdaman/centos7e
     rasdaman/centos7e_gdal2
 
-rasdaman is not installed, but all packages needed for building are preinstalled and
-the rasdaman sources can be found in ``/opt/rasdaman/source`` (make sure
+rasdaman is not installed, this can be done by following the guides for
+installing rasdaman from a package or building from source.
+All packages needed for building rasdaman are preinstalled and
+the sources can be found in ``/opt/rasdaman/source`` (make sure
 to ``git pull`` to get the latest version). In
 ``/opt/rasdaman/third_party`` there is a cmake that can be used to
 configure and build rasdaman. To build and install rasdaman, you can use
 the `rasdaman installer <sec-system-install-installer>`_ or
 `do it from scratch <sec-system-install>`_.
 
-Here is a sample ``Vagrantfile`` for the Ubuntu 18.04 box:
+It is not required to use the rasdaman-specific boxes, you can use any box
+published on the `vagrant cloud <https://app.vagrantup.com/boxes/search>`__
+such as ``ubuntu/jammy64``.
+
+Here is a sample ``Vagrantfile`` for the Ubuntu 20.04 box:
 
 .. hidden-code-block:: ruby
 
     Vagrant.configure(2) do |config|
-       config.vm.box = "rasdaman/ubuntu1804"
+       config.vm.box = "rasdaman/ubuntu2004"
        config.vm.box_check_update = false
        config.vm.synced_folder ".", "/vagrant", type: "rsync"
        config.vm.provider "virtualbox" do |vb|
