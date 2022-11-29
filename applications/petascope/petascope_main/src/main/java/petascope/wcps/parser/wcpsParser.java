@@ -3720,369 +3720,369 @@ public class wcpsParser extends Parser {
 			switch ( getInterpreter().adaptivePredict(_input,40,_ctx) ) {
 			case 1:
 				{
-				_localctx = new CoverageExpressionDomainIntervalsLabelContext(_localctx);
+				_localctx = new CoverageExpressionCoverageLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(567); domainIntervals();
+				setState(567); match(LEFT_PARENTHESIS);
+				setState(568); coverageExpression(0);
+				setState(569); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 2:
 				{
-				_localctx = new CoverageExpressionConstructorLabelContext(_localctx);
+				_localctx = new CoverageExpressionScalarLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(568); coverageConstructorExpression();
+				setState(571); scalarExpression();
 				}
 				break;
 
 			case 3:
 				{
-				_localctx = new CoverageExpressionVariableNameLabelContext(_localctx);
+				_localctx = new CoverageExpressionDomainIntervalsLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(569); coverageVariableName();
+				setState(572); domainIntervals();
 				}
 				break;
 
 			case 4:
 				{
-				_localctx = new CoverageExpressionConstantLabelContext(_localctx);
+				_localctx = new CoverageExpressionConstructorLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(570); coverageConstantExpression();
+				setState(573); coverageConstructorExpression();
 				}
 				break;
 
 			case 5:
 				{
-				_localctx = new CoverageExpressionDecodeLabelContext(_localctx);
+				_localctx = new CoverageExpressionVariableNameLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(571); decodeCoverageExpression();
+				setState(574); coverageVariableName();
 				}
 				break;
 
 			case 6:
 				{
-				_localctx = new CoverageExpressionSliceLabelContext(_localctx);
+				_localctx = new CoverageExpressionConstantLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(572); match(SLICE);
-				setState(573); match(LEFT_PARENTHESIS);
-				setState(574); coverageExpression(0);
-				setState(575); match(COMMA);
-				setState(576); match(LEFT_BRACE);
-				setState(577); dimensionPointList();
-				setState(578); match(RIGHT_BRACE);
-				setState(579); match(RIGHT_PARENTHESIS);
+				setState(575); coverageConstantExpression();
 				}
 				break;
 
 			case 7:
 				{
-				_localctx = new CoverageExpressionTrimCoverageLabelContext(_localctx);
+				_localctx = new CoverageExpressionDecodeLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(581); match(TRIM);
-				setState(582); match(LEFT_PARENTHESIS);
-				setState(583); coverageExpression(0);
-				setState(584); match(COMMA);
-				setState(585); match(LEFT_BRACE);
-				setState(586); dimensionIntervalList();
-				setState(587); match(RIGHT_BRACE);
-				setState(588); match(RIGHT_PARENTHESIS);
+				setState(576); decodeCoverageExpression();
 				}
 				break;
 
 			case 8:
 				{
-				_localctx = new CoverageExpressionExtendLabelContext(_localctx);
+				_localctx = new CoverageExpressionSliceLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(590); match(EXTEND);
-				setState(591); match(LEFT_PARENTHESIS);
-				setState(592); coverageExpression(0);
-				setState(593); match(COMMA);
-				setState(594); match(LEFT_BRACE);
-				setState(595); dimensionIntervalList();
-				setState(596); match(RIGHT_BRACE);
-				setState(597); match(RIGHT_PARENTHESIS);
+				setState(577); match(SLICE);
+				setState(578); match(LEFT_PARENTHESIS);
+				setState(579); coverageExpression(0);
+				setState(580); match(COMMA);
+				setState(581); match(LEFT_BRACE);
+				setState(582); dimensionPointList();
+				setState(583); match(RIGHT_BRACE);
+				setState(584); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 9:
 				{
-				_localctx = new CoverageExpressionExtendByDomainIntervalsLabelContext(_localctx);
+				_localctx = new CoverageExpressionTrimCoverageLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(599); match(EXTEND);
-				setState(600); match(LEFT_PARENTHESIS);
-				setState(601); coverageExpression(0);
-				setState(602); match(COMMA);
-				setState(603); match(LEFT_BRACE);
-				setState(604); domainIntervals();
-				setState(605); match(RIGHT_BRACE);
-				setState(606); match(RIGHT_PARENTHESIS);
+				setState(586); match(TRIM);
+				setState(587); match(LEFT_PARENTHESIS);
+				setState(588); coverageExpression(0);
+				setState(589); match(COMMA);
+				setState(590); match(LEFT_BRACE);
+				setState(591); dimensionIntervalList();
+				setState(592); match(RIGHT_BRACE);
+				setState(593); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 10:
 				{
-				_localctx = new CoverageExpressionUnaryArithmeticLabelContext(_localctx);
+				_localctx = new CoverageExpressionExtendLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(608); unaryArithmeticExpression();
+				setState(595); match(EXTEND);
+				setState(596); match(LEFT_PARENTHESIS);
+				setState(597); coverageExpression(0);
+				setState(598); match(COMMA);
+				setState(599); match(LEFT_BRACE);
+				setState(600); dimensionIntervalList();
+				setState(601); match(RIGHT_BRACE);
+				setState(602); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 11:
 				{
-				_localctx = new CoverageExpressionTrigonometricLabelContext(_localctx);
+				_localctx = new CoverageExpressionExtendByDomainIntervalsLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(609); trigonometricExpression();
+				setState(604); match(EXTEND);
+				setState(605); match(LEFT_PARENTHESIS);
+				setState(606); coverageExpression(0);
+				setState(607); match(COMMA);
+				setState(608); match(LEFT_BRACE);
+				setState(609); domainIntervals();
+				setState(610); match(RIGHT_BRACE);
+				setState(611); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 12:
 				{
-				_localctx = new CoverageExpressionExponentialLabelContext(_localctx);
+				_localctx = new CoverageExpressionUnaryArithmeticLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(610); exponentialExpression();
+				setState(613); unaryArithmeticExpression();
 				}
 				break;
 
 			case 13:
 				{
-				_localctx = new CoverageExpressionMinBinaryLabelContext(_localctx);
+				_localctx = new CoverageExpressionTrigonometricLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(611); minBinaryExpression();
+				setState(614); trigonometricExpression();
 				}
 				break;
 
 			case 14:
 				{
-				_localctx = new CoverageExpressionMaxBinaryLabelContext(_localctx);
+				_localctx = new CoverageExpressionExponentialLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(612); maxBinaryExpression();
+				setState(615); exponentialExpression();
 				}
 				break;
 
 			case 15:
 				{
-				_localctx = new CoverageExpressionPowerLabelContext(_localctx);
+				_localctx = new CoverageExpressionMinBinaryLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(613); unaryPowerExpression();
+				setState(616); minBinaryExpression();
 				}
 				break;
 
 			case 16:
 				{
-				_localctx = new CoverageExpressionModLabelContext(_localctx);
+				_localctx = new CoverageExpressionMaxBinaryLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(614); unaryModExpression();
+				setState(617); maxBinaryExpression();
 				}
 				break;
 
 			case 17:
 				{
-				_localctx = new CoverageExpressionUnaryBooleanLabelContext(_localctx);
+				_localctx = new CoverageExpressionPowerLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(615); unaryBooleanExpression();
+				setState(618); unaryPowerExpression();
 				}
 				break;
 
 			case 18:
 				{
-				_localctx = new CoverageExpressionCastLabelContext(_localctx);
+				_localctx = new CoverageExpressionModLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(616); castExpression();
+				setState(619); unaryModExpression();
 				}
 				break;
 
 			case 19:
 				{
-				_localctx = new CoverageExpressionRangeConstructorLabelContext(_localctx);
+				_localctx = new CoverageExpressionUnaryBooleanLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(617); rangeConstructorExpression();
+				setState(620); unaryBooleanExpression();
 				}
 				break;
 
 			case 20:
 				{
-				_localctx = new CoverageExpressionClipWKTLabelContext(_localctx);
+				_localctx = new CoverageExpressionCastLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(618); clipWKTExpression();
+				setState(621); castExpression();
 				}
 				break;
 
 			case 21:
 				{
-				_localctx = new CoverageExpressionClipCurtainLabelContext(_localctx);
+				_localctx = new CoverageExpressionRangeConstructorLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(619); clipCurtainExpression();
+				setState(622); rangeConstructorExpression();
 				}
 				break;
 
 			case 22:
 				{
-				_localctx = new CoverageExpressionClipCorridorLabelContext(_localctx);
+				_localctx = new CoverageExpressionClipWKTLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(620); clipCorridorExpression();
+				setState(623); clipWKTExpression();
 				}
 				break;
 
 			case 23:
 				{
-				_localctx = new CoverageExpressionCrsTransformLabelContext(_localctx);
+				_localctx = new CoverageExpressionClipCurtainLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(621); crsTransformExpression();
+				setState(624); clipCurtainExpression();
 				}
 				break;
 
 			case 24:
 				{
-				_localctx = new CoverageExpressionCrsTransformShorthandLabelContext(_localctx);
+				_localctx = new CoverageExpressionClipCorridorLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(622); crsTransformShorthandExpression();
+				setState(625); clipCorridorExpression();
 				}
 				break;
 
 			case 25:
 				{
-				_localctx = new CoverageExpressionSwitchCaseLabelContext(_localctx);
+				_localctx = new CoverageExpressionCrsTransformLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(623); switchCaseExpression();
+				setState(626); crsTransformExpression();
 				}
 				break;
 
 			case 26:
 				{
-				_localctx = new CoverageExpressionScaleByDimensionIntervalsLabelContext(_localctx);
+				_localctx = new CoverageExpressionCrsTransformShorthandLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(624); match(SCALE);
-				setState(625); match(LEFT_PARENTHESIS);
-				setState(626); coverageExpression(0);
-				setState(627); match(COMMA);
-				setState(628); match(LEFT_BRACE);
-				setState(629); dimensionIntervalList();
-				setState(630); match(RIGHT_BRACE);
-				setState(631); match(RIGHT_PARENTHESIS);
+				setState(627); crsTransformShorthandExpression();
 				}
 				break;
 
 			case 27:
 				{
-				_localctx = new CoverageExpressionScaleByImageCrsDomainLabelContext(_localctx);
+				_localctx = new CoverageExpressionSwitchCaseLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(633); match(SCALE);
-				setState(634); match(LEFT_PARENTHESIS);
-				setState(635); coverageExpression(0);
-				setState(636); match(COMMA);
-				setState(637); match(LEFT_BRACE);
-				setState(638); domainIntervals();
-				setState(639); match(RIGHT_BRACE);
-				setState(640); match(RIGHT_PARENTHESIS);
+				setState(628); switchCaseExpression();
 				}
 				break;
 
 			case 28:
 				{
-				_localctx = new CoverageExpressionCoverageLabelContext(_localctx);
+				_localctx = new CoverageExpressionScaleByDimensionIntervalsLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(642); match(LEFT_PARENTHESIS);
-				setState(643); coverageExpression(0);
-				setState(644); match(RIGHT_PARENTHESIS);
+				setState(629); match(SCALE);
+				setState(630); match(LEFT_PARENTHESIS);
+				setState(631); coverageExpression(0);
+				setState(632); match(COMMA);
+				setState(633); match(LEFT_BRACE);
+				setState(634); dimensionIntervalList();
+				setState(635); match(RIGHT_BRACE);
+				setState(636); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 29:
 				{
-				_localctx = new CoverageExpressionScaleByFactorLabelContext(_localctx);
+				_localctx = new CoverageExpressionScaleByImageCrsDomainLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(646); match(SCALE_FACTOR);
-				setState(647); match(LEFT_PARENTHESIS);
-				setState(648); coverageExpression(0);
-				setState(649); match(COMMA);
-				setState(650); number();
-				setState(651); match(RIGHT_PARENTHESIS);
+				setState(638); match(SCALE);
+				setState(639); match(LEFT_PARENTHESIS);
+				setState(640); coverageExpression(0);
+				setState(641); match(COMMA);
+				setState(642); match(LEFT_BRACE);
+				setState(643); domainIntervals();
+				setState(644); match(RIGHT_BRACE);
+				setState(645); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 30:
 				{
-				_localctx = new CoverageExpressionScaleByAxesLabelContext(_localctx);
+				_localctx = new CoverageExpressionScaleByFactorLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(653); match(SCALE_AXES);
-				setState(654); match(LEFT_PARENTHESIS);
-				setState(655); coverageExpression(0);
-				setState(656); match(COMMA);
-				setState(657); match(LEFT_BRACKET);
-				setState(658); scaleDimensionIntervalList();
-				setState(659); match(RIGHT_BRACKET);
-				setState(660); match(RIGHT_PARENTHESIS);
+				setState(647); match(SCALE_FACTOR);
+				setState(648); match(LEFT_PARENTHESIS);
+				setState(649); coverageExpression(0);
+				setState(650); match(COMMA);
+				setState(651); number();
+				setState(652); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 31:
 				{
-				_localctx = new CoverageExpressionScaleBySizeLabelContext(_localctx);
+				_localctx = new CoverageExpressionScaleByAxesLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(662); match(SCALE_SIZE);
-				setState(663); match(LEFT_PARENTHESIS);
-				setState(664); coverageExpression(0);
-				setState(665); match(COMMA);
-				setState(666); match(LEFT_BRACKET);
-				setState(667); scaleDimensionIntervalList();
-				setState(668); match(RIGHT_BRACKET);
-				setState(669); match(RIGHT_PARENTHESIS);
+				setState(654); match(SCALE_AXES);
+				setState(655); match(LEFT_PARENTHESIS);
+				setState(656); coverageExpression(0);
+				setState(657); match(COMMA);
+				setState(658); match(LEFT_BRACKET);
+				setState(659); scaleDimensionIntervalList();
+				setState(660); match(RIGHT_BRACKET);
+				setState(661); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 32:
 				{
-				_localctx = new CoverageExpressionScaleByExtentLabelContext(_localctx);
+				_localctx = new CoverageExpressionScaleBySizeLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(671); match(SCALE_EXTENT);
-				setState(672); match(LEFT_PARENTHESIS);
-				setState(673); coverageExpression(0);
-				setState(674); match(COMMA);
-				setState(675); match(LEFT_BRACKET);
-				setState(676); scaleDimensionIntervalList();
-				setState(677); match(RIGHT_BRACKET);
-				setState(678); match(RIGHT_PARENTHESIS);
+				setState(663); match(SCALE_SIZE);
+				setState(664); match(LEFT_PARENTHESIS);
+				setState(665); coverageExpression(0);
+				setState(666); match(COMMA);
+				setState(667); match(LEFT_BRACKET);
+				setState(668); scaleDimensionIntervalList();
+				setState(669); match(RIGHT_BRACKET);
+				setState(670); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
 			case 33:
 				{
-				_localctx = new CoverageExpressionScalarLabelContext(_localctx);
+				_localctx = new CoverageExpressionScaleByExtentLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(680); scalarExpression();
+				setState(672); match(SCALE_EXTENT);
+				setState(673); match(LEFT_PARENTHESIS);
+				setState(674); coverageExpression(0);
+				setState(675); match(COMMA);
+				setState(676); match(LEFT_BRACKET);
+				setState(677); scaleDimensionIntervalList();
+				setState(678); match(RIGHT_BRACKET);
+				setState(679); match(RIGHT_PARENTHESIS);
 				}
 				break;
 
@@ -4142,7 +4142,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionRangeSubsettingLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(692);
-						if (!(42 >= _localctx._p)) throw new FailedPredicateException(this, "42 >= $_p");
+						if (!(40 >= _localctx._p)) throw new FailedPredicateException(this, "40 >= $_p");
 						setState(693); match(DOT);
 						setState(694); fieldName();
 						}
@@ -4150,22 +4150,22 @@ public class wcpsParser extends Parser {
 
 					case 4:
 						{
-						_localctx = new CoverageExpressionArithmeticLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
+						_localctx = new CoverageExpressionComparissonLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(695);
-						if (!(40 >= _localctx._p)) throw new FailedPredicateException(this, "40 >= $_p");
-						setState(696); coverageArithmeticOperator();
+						if (!(37 >= _localctx._p)) throw new FailedPredicateException(this, "37 >= $_p");
+						setState(696); numericalComparissonOperator();
 						setState(697); coverageExpression(0);
 						}
 						break;
 
 					case 5:
 						{
-						_localctx = new CoverageExpressionComparissonLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
+						_localctx = new CoverageExpressionArithmeticLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(699);
-						if (!(39 >= _localctx._p)) throw new FailedPredicateException(this, "39 >= $_p");
-						setState(700); numericalComparissonOperator();
+						if (!(36 >= _localctx._p)) throw new FailedPredicateException(this, "36 >= $_p");
+						setState(700); coverageArithmeticOperator();
 						setState(701); coverageExpression(0);
 						}
 						break;
@@ -4175,7 +4175,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionShorthandSliceLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(703);
-						if (!(35 >= _localctx._p)) throw new FailedPredicateException(this, "35 >= $_p");
+						if (!(33 >= _localctx._p)) throw new FailedPredicateException(this, "33 >= $_p");
 						setState(704); match(LEFT_BRACKET);
 						setState(705); dimensionPointList();
 						setState(706); match(RIGHT_BRACKET);
@@ -4187,7 +4187,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionShorthandSubsetLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(708);
-						if (!(33 >= _localctx._p)) throw new FailedPredicateException(this, "33 >= $_p");
+						if (!(31 >= _localctx._p)) throw new FailedPredicateException(this, "31 >= $_p");
 						setState(709); match(LEFT_BRACKET);
 						setState(710); dimensionIntervalList();
 						setState(711); match(RIGHT_BRACKET);
@@ -4199,7 +4199,7 @@ public class wcpsParser extends Parser {
 						_localctx = new CoverageExpressionShortHandSubsetWithLetClauseVariableLabelContext(new CoverageExpressionContext(_parentctx, _parentState, _p));
 						pushNewRecursionContext(_localctx, _startState, RULE_coverageExpression);
 						setState(713);
-						if (!(32 >= _localctx._p)) throw new FailedPredicateException(this, "32 >= $_p");
+						if (!(30 >= _localctx._p)) throw new FailedPredicateException(this, "30 >= $_p");
 						setState(714); match(LEFT_BRACKET);
 						setState(715); coverageVariableName();
 						setState(716); match(RIGHT_BRACKET);
@@ -4290,6 +4290,7 @@ public class wcpsParser extends Parser {
 		public TerminalNode ABSOLUTE_VALUE() { return getToken(wcpsParser.ABSOLUTE_VALUE, 0); }
 		public TerminalNode SQUARE_ROOT() { return getToken(wcpsParser.SQUARE_ROOT, 0); }
 		public TerminalNode IMAGINARY_PART() { return getToken(wcpsParser.IMAGINARY_PART, 0); }
+		public TerminalNode MINUS() { return getToken(wcpsParser.MINUS, 0); }
 		public TerminalNode REAL_PART() { return getToken(wcpsParser.REAL_PART, 0); }
 		public UnaryArithmeticExpressionOperatorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -4311,7 +4312,7 @@ public class wcpsParser extends Parser {
 			{
 			setState(731);
 			_la = _input.LA(1);
-			if ( !(_la==ABSOLUTE_VALUE || _la==IMAGINARY_PART || _la==REAL_PART || _la==SQUARE_ROOT) ) {
+			if ( !(_la==ABSOLUTE_VALUE || _la==IMAGINARY_PART || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (MINUS - 67)) | (1L << (REAL_PART - 67)) | (1L << (SQUARE_ROOT - 67)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -8537,17 +8538,17 @@ public class wcpsParser extends Parser {
 
 		case 4: return 44 >= _localctx._p;
 
-		case 5: return 42 >= _localctx._p;
+		case 5: return 40 >= _localctx._p;
 
-		case 6: return 40 >= _localctx._p;
+		case 6: return 37 >= _localctx._p;
 
-		case 7: return 39 >= _localctx._p;
+		case 7: return 36 >= _localctx._p;
 
-		case 8: return 35 >= _localctx._p;
+		case 8: return 33 >= _localctx._p;
 
-		case 9: return 33 >= _localctx._p;
+		case 9: return 31 >= _localctx._p;
 
-		case 10: return 32 >= _localctx._p;
+		case 10: return 30 >= _localctx._p;
 
 		case 11: return 4 >= _localctx._p;
 		}
@@ -8656,10 +8657,10 @@ public class wcpsParser extends Parser {
 		"\u00b2\u00b4\u00b6\u00b8\u00ba\u00bc\u00be\u00c0\u00c2\u00c4\u00c6\u00c8"+
 		"\u00ca\u00cc\u00ce\u00d0\u00d2\u00d4\u00d6\u00d8\u00da\u00dc\u00de\u00e0"+
 		"\u00e2\2\22\3\2\5\6\4\2--jj\5\2\f\fKKoo\6\2**/\60@AHH\4\2**HH\5\2\'\'"+
-		"EFPP\b\2\b\b\61\61EEPPRScc\6\2\r\17\32\33^_gh\4\2zz||\6\2\b\b\61\61RR"+
-		"cc\5\2++==??\4\2uuyy\4\2\n\naa\7\2\t\t\21\21\34\34BCee\7\2\f\fBCFFKKP"+
-		"P\4\2\20\20&&\u052b\2\u00e4\3\2\2\2\4\u00ed\3\2\2\2\6\u00f8\3\2\2\2\b"+
-		"\u00fa\3\2\2\2\n\u010a\3\2\2\2\f\u0113\3\2\2\2\16\u0122\3\2\2\2\20\u0124"+
+		"EFPP\b\2\b\b\61\61EEPPRScc\6\2\r\17\32\33^_gh\4\2zz||\7\2\b\b\61\61EE"+
+		"RRcc\5\2++==??\4\2uuyy\4\2\n\naa\7\2\t\t\21\21\34\34BCee\7\2\f\fBCFFK"+
+		"KPP\4\2\20\20&&\u052b\2\u00e4\3\2\2\2\4\u00ed\3\2\2\2\6\u00f8\3\2\2\2"+
+		"\b\u00fa\3\2\2\2\n\u010a\3\2\2\2\f\u0113\3\2\2\2\16\u0122\3\2\2\2\20\u0124"+
 		"\3\2\2\2\22\u012c\3\2\2\2\24\u0134\3\2\2\2\26\u0139\3\2\2\2\30\u013f\3"+
 		"\2\2\2\32\u0146\3\2\2\2\34\u0149\3\2\2\2\36\u0155\3\2\2\2 \u016b\3\2\2"+
 		"\2\"\u0176\3\2\2\2$\u0178\3\2\2\2&\u017a\3\2\2\2(\u017c\3\2\2\2*\u017e"+
@@ -8797,54 +8798,54 @@ public class wcpsParser extends Parser {
 		"\2\2\2\u022f\u0230\7\"\2\2\u0230\u0231\7;\2\2\u0231\u0234\5P)\2\u0232"+
 		"\u0233\7\30\2\2\u0233\u0235\5R*\2\u0234\u0232\3\2\2\2\u0234\u0235\3\2"+
 		"\2\2\u0235\u0236\3\2\2\2\u0236\u0237\7W\2\2\u0237W\3\2\2\2\u0238\u0239"+
-		"\b-\1\2\u0239\u02ae\5\26\f\2\u023a\u02ae\5\u00b4[\2\u023b\u02ae\5\30\r"+
-		"\2\u023c\u02ae\5\u00ba^\2\u023d\u02ae\5V,\2\u023e\u023f\7`\2\2\u023f\u0240"+
-		"\7;\2\2\u0240\u0241\5X-\2\u0241\u0242\7\30\2\2\u0242\u0243\79\2\2\u0243"+
-		"\u0244\5~@\2\u0244\u0245\7U\2\2\u0245\u0246\7W\2\2\u0246\u02ae\3\2\2\2"+
-		"\u0247\u0248\7i\2\2\u0248\u0249\7;\2\2\u0249\u024a\5X-\2\u024a\u024b\7"+
-		"\30\2\2\u024b\u024c\79\2\2\u024c\u024d\5\u0082B\2\u024d\u024e\7U\2\2\u024e"+
-		"\u024f\7W\2\2\u024f\u02ae\3\2\2\2\u0250\u0251\7,\2\2\u0251\u0252\7;\2"+
-		"\2\u0252\u0253\5X-\2\u0253\u0254\7\30\2\2\u0254\u0255\79\2\2\u0255\u0256"+
-		"\5\u0082B\2\u0256\u0257\7U\2\2\u0257\u0258\7W\2\2\u0258\u02ae\3\2\2\2"+
-		"\u0259\u025a\7,\2\2\u025a\u025b\7;\2\2\u025b\u025c\5X-\2\u025c\u025d\7"+
-		"\30\2\2\u025d\u025e\79\2\2\u025e\u025f\5\26\f\2\u025f\u0260\7U\2\2\u0260"+
-		"\u0261\7W\2\2\u0261\u02ae\3\2\2\2\u0262\u02ae\5^\60\2\u0263\u02ae\5`\61"+
-		"\2\u0264\u02ae\5d\63\2\u0265\u02ae\5j\66\2\u0266\u02ae\5l\67\2\u0267\u02ae"+
-		"\5f\64\2\u0268\u02ae\5h\65\2\u0269\u02ae\5n8\2\u026a\u02ae\5r:\2\u026b"+
-		"\u02ae\5v<\2\u026c\u02ae\5\u00a8U\2\u026d\u02ae\5\u009cO\2\u026e\u02ae"+
-		"\5\u00a6T\2\u026f\u02ae\5\u00aaV\2\u0270\u02ae\5\u00acW\2\u0271\u02ae"+
-		"\5\u00d2j\2\u0272\u0273\7X\2\2\u0273\u0274\7;\2\2\u0274\u0275\5X-\2\u0275"+
-		"\u0276\7\30\2\2\u0276\u0277\79\2\2\u0277\u0278\5\u0082B\2\u0278\u0279"+
-		"\7U\2\2\u0279\u027a\7W\2\2\u027a\u02ae\3\2\2\2\u027b\u027c\7X\2\2\u027c"+
-		"\u027d\7;\2\2\u027d\u027e\5X-\2\u027e\u027f\7\30\2\2\u027f\u0280\79\2"+
-		"\2\u0280\u0281\5\26\f\2\u0281\u0282\7U\2\2\u0282\u0283\7W\2\2\u0283\u02ae"+
-		"\3\2\2\2\u0284\u0285\7;\2\2\u0285\u0286\5X-\2\u0286\u0287\7W\2\2\u0287"+
-		"\u02ae\3\2\2\2\u0288\u0289\7Y\2\2\u0289\u028a\7;\2\2\u028a\u028b\5X-\2"+
-		"\u028b\u028c\7\30\2\2\u028c\u028d\5\u00dep\2\u028d\u028e\7W\2\2\u028e"+
-		"\u02ae\3\2\2\2\u028f\u0290\7Z\2\2\u0290\u0291\7;\2\2\u0291\u0292\5X-\2"+
-		"\u0292\u0293\7\30\2\2\u0293\u0294\7:\2\2\u0294\u0295\5\u0084C\2\u0295"+
-		"\u0296\7V\2\2\u0296\u0297\7W\2\2\u0297\u02ae\3\2\2\2\u0298\u0299\7[\2"+
-		"\2\u0299\u029a\7;\2\2\u029a\u029b\5X-\2\u029b\u029c\7\30\2\2\u029c\u029d"+
-		"\7:\2\2\u029d\u029e\5\u0084C\2\u029e\u029f\7V\2\2\u029f\u02a0\7W\2\2\u02a0"+
-		"\u02ae\3\2\2\2\u02a1\u02a2\7\\\2\2\u02a2\u02a3\7;\2\2\u02a3\u02a4\5X-"+
-		"\2\u02a4\u02a5\7\30\2\2\u02a5\u02a6\7:\2\2\u02a6\u02a7\5\u0084C\2\u02a7"+
-		"\u02a8\7V\2\2\u02a8\u02a9\7W\2\2\u02a9\u02ae\3\2\2\2\u02aa\u02ae\5\36"+
-		"\20\2\u02ab\u02ae\5\u00ceh\2\u02ac\u02ae\5\u00d0i\2\u02ad\u0238\3\2\2"+
-		"\2\u02ad\u023a\3\2\2\2\u02ad\u023b\3\2\2\2\u02ad\u023c\3\2\2\2\u02ad\u023d"+
-		"\3\2\2\2\u02ad\u023e\3\2\2\2\u02ad\u0247\3\2\2\2\u02ad\u0250\3\2\2\2\u02ad"+
-		"\u0259\3\2\2\2\u02ad\u0262\3\2\2\2\u02ad\u0263\3\2\2\2\u02ad\u0264\3\2"+
-		"\2\2\u02ad\u0265\3\2\2\2\u02ad\u0266\3\2\2\2\u02ad\u0267\3\2\2\2\u02ad"+
-		"\u0268\3\2\2\2\u02ad\u0269\3\2\2\2\u02ad\u026a\3\2\2\2\u02ad\u026b\3\2"+
-		"\2\2\u02ad\u026c\3\2\2\2\u02ad\u026d\3\2\2\2\u02ad\u026e\3\2\2\2\u02ad"+
-		"\u026f\3\2\2\2\u02ad\u0270\3\2\2\2\u02ad\u0271\3\2\2\2\u02ad\u0272\3\2"+
-		"\2\2\u02ad\u027b\3\2\2\2\u02ad\u0284\3\2\2\2\u02ad\u0288\3\2\2\2\u02ad"+
-		"\u028f\3\2\2\2\u02ad\u0298\3\2\2\2\u02ad\u02a1\3\2\2\2\u02ad\u02aa\3\2"+
+		"\b-\1\2\u0239\u023a\7;\2\2\u023a\u023b\5X-\2\u023b\u023c\7W\2\2\u023c"+
+		"\u02ae\3\2\2\2\u023d\u02ae\5\36\20\2\u023e\u02ae\5\26\f\2\u023f\u02ae"+
+		"\5\u00b4[\2\u0240\u02ae\5\30\r\2\u0241\u02ae\5\u00ba^\2\u0242\u02ae\5"+
+		"V,\2\u0243\u0244\7`\2\2\u0244\u0245\7;\2\2\u0245\u0246\5X-\2\u0246\u0247"+
+		"\7\30\2\2\u0247\u0248\79\2\2\u0248\u0249\5~@\2\u0249\u024a\7U\2\2\u024a"+
+		"\u024b\7W\2\2\u024b\u02ae\3\2\2\2\u024c\u024d\7i\2\2\u024d\u024e\7;\2"+
+		"\2\u024e\u024f\5X-\2\u024f\u0250\7\30\2\2\u0250\u0251\79\2\2\u0251\u0252"+
+		"\5\u0082B\2\u0252\u0253\7U\2\2\u0253\u0254\7W\2\2\u0254\u02ae\3\2\2\2"+
+		"\u0255\u0256\7,\2\2\u0256\u0257\7;\2\2\u0257\u0258\5X-\2\u0258\u0259\7"+
+		"\30\2\2\u0259\u025a\79\2\2\u025a\u025b\5\u0082B\2\u025b\u025c\7U\2\2\u025c"+
+		"\u025d\7W\2\2\u025d\u02ae\3\2\2\2\u025e\u025f\7,\2\2\u025f\u0260\7;\2"+
+		"\2\u0260\u0261\5X-\2\u0261\u0262\7\30\2\2\u0262\u0263\79\2\2\u0263\u0264"+
+		"\5\26\f\2\u0264\u0265\7U\2\2\u0265\u0266\7W\2\2\u0266\u02ae\3\2\2\2\u0267"+
+		"\u02ae\5^\60\2\u0268\u02ae\5`\61\2\u0269\u02ae\5d\63\2\u026a\u02ae\5j"+
+		"\66\2\u026b\u02ae\5l\67\2\u026c\u02ae\5f\64\2\u026d\u02ae\5h\65\2\u026e"+
+		"\u02ae\5n8\2\u026f\u02ae\5r:\2\u0270\u02ae\5v<\2\u0271\u02ae\5\u00a8U"+
+		"\2\u0272\u02ae\5\u009cO\2\u0273\u02ae\5\u00a6T\2\u0274\u02ae\5\u00aaV"+
+		"\2\u0275\u02ae\5\u00acW\2\u0276\u02ae\5\u00d2j\2\u0277\u0278\7X\2\2\u0278"+
+		"\u0279\7;\2\2\u0279\u027a\5X-\2\u027a\u027b\7\30\2\2\u027b\u027c\79\2"+
+		"\2\u027c\u027d\5\u0082B\2\u027d\u027e\7U\2\2\u027e\u027f\7W\2\2\u027f"+
+		"\u02ae\3\2\2\2\u0280\u0281\7X\2\2\u0281\u0282\7;\2\2\u0282\u0283\5X-\2"+
+		"\u0283\u0284\7\30\2\2\u0284\u0285\79\2\2\u0285\u0286\5\26\f\2\u0286\u0287"+
+		"\7U\2\2\u0287\u0288\7W\2\2\u0288\u02ae\3\2\2\2\u0289\u028a\7Y\2\2\u028a"+
+		"\u028b\7;\2\2\u028b\u028c\5X-\2\u028c\u028d\7\30\2\2\u028d\u028e\5\u00de"+
+		"p\2\u028e\u028f\7W\2\2\u028f\u02ae\3\2\2\2\u0290\u0291\7Z\2\2\u0291\u0292"+
+		"\7;\2\2\u0292\u0293\5X-\2\u0293\u0294\7\30\2\2\u0294\u0295\7:\2\2\u0295"+
+		"\u0296\5\u0084C\2\u0296\u0297\7V\2\2\u0297\u0298\7W\2\2\u0298\u02ae\3"+
+		"\2\2\2\u0299\u029a\7[\2\2\u029a\u029b\7;\2\2\u029b\u029c\5X-\2\u029c\u029d"+
+		"\7\30\2\2\u029d\u029e\7:\2\2\u029e\u029f\5\u0084C\2\u029f\u02a0\7V\2\2"+
+		"\u02a0\u02a1\7W\2\2\u02a1\u02ae\3\2\2\2\u02a2\u02a3\7\\\2\2\u02a3\u02a4"+
+		"\7;\2\2\u02a4\u02a5\5X-\2\u02a5\u02a6\7\30\2\2\u02a6\u02a7\7:\2\2\u02a7"+
+		"\u02a8\5\u0084C\2\u02a8\u02a9\7V\2\2\u02a9\u02aa\7W\2\2\u02aa\u02ae\3"+
+		"\2\2\2\u02ab\u02ae\5\u00ceh\2\u02ac\u02ae\5\u00d0i\2\u02ad\u0238\3\2\2"+
+		"\2\u02ad\u023d\3\2\2\2\u02ad\u023e\3\2\2\2\u02ad\u023f\3\2\2\2\u02ad\u0240"+
+		"\3\2\2\2\u02ad\u0241\3\2\2\2\u02ad\u0242\3\2\2\2\u02ad\u0243\3\2\2\2\u02ad"+
+		"\u024c\3\2\2\2\u02ad\u0255\3\2\2\2\u02ad\u025e\3\2\2\2\u02ad\u0267\3\2"+
+		"\2\2\u02ad\u0268\3\2\2\2\u02ad\u0269\3\2\2\2\u02ad\u026a\3\2\2\2\u02ad"+
+		"\u026b\3\2\2\2\u02ad\u026c\3\2\2\2\u02ad\u026d\3\2\2\2\u02ad\u026e\3\2"+
+		"\2\2\u02ad\u026f\3\2\2\2\u02ad\u0270\3\2\2\2\u02ad\u0271\3\2\2\2\u02ad"+
+		"\u0272\3\2\2\2\u02ad\u0273\3\2\2\2\u02ad\u0274\3\2\2\2\u02ad\u0275\3\2"+
+		"\2\2\u02ad\u0276\3\2\2\2\u02ad\u0277\3\2\2\2\u02ad\u0280\3\2\2\2\u02ad"+
+		"\u0289\3\2\2\2\u02ad\u0290\3\2\2\2\u02ad\u0299\3\2\2\2\u02ad\u02a2\3\2"+
 		"\2\2\u02ad\u02ab\3\2\2\2\u02ad\u02ac\3\2\2\2\u02ae\u02d8\3\2\2\2\u02af"+
 		"\u02b0\6-\5\3\u02b0\u02b1\7M\2\2\u02b1\u02d7\5X-\2\u02b2\u02b3\6-\6\3"+
 		"\u02b3\u02b4\5&\24\2\u02b4\u02b5\5X-\2\u02b5\u02d7\3\2\2\2\u02b6\u02b7"+
 		"\6-\7\3\u02b7\u02b8\7(\2\2\u02b8\u02d7\5t;\2\u02b9\u02ba\6-\b\3\u02ba"+
-		"\u02bb\5Z.\2\u02bb\u02bc\5X-\2\u02bc\u02d7\3\2\2\2\u02bd\u02be\6-\t\3"+
-		"\u02be\u02bf\5(\25\2\u02bf\u02c0\5X-\2\u02c0\u02d7\3\2\2\2\u02c1\u02c2"+
+		"\u02bb\5(\25\2\u02bb\u02bc\5X-\2\u02bc\u02d7\3\2\2\2\u02bd\u02be\6-\t"+
+		"\3\u02be\u02bf\5Z.\2\u02bf\u02c0\5X-\2\u02c0\u02d7\3\2\2\2\u02c1\u02c2"+
 		"\6-\n\3\u02c2\u02c3\7:\2\2\u02c3\u02c4\5~@\2\u02c4\u02c5\7V\2\2\u02c5"+
 		"\u02d7\3\2\2\2\u02c6\u02c7\6-\13\3\u02c7\u02c8\7:\2\2\u02c8\u02c9\5\u0082"+
 		"B\2\u02c9\u02ca\7V\2\2\u02ca\u02d7\3\2\2\2\u02cb\u02cc\6-\f\3\u02cc\u02cd"+

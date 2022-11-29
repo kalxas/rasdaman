@@ -396,6 +396,11 @@ decodeCoverageExpression: DECODE LEFT_PARENTHESIS
 coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionLogicLabel
 
+                  | LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+                    #CoverageExpressionCoverageLabel
+                  | scalarExpression
+                    #CoverageExpressionScalarLabel
+
 		          | domainIntervals
                     #CoverageExpressionDomainIntervalsLabel
                   | coverageExpression DOT fieldName
@@ -403,12 +408,13 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
 
 		          | coverageConstructorExpression
                     #CoverageExpressionConstructorLabel
-                  | coverageExpression coverageArithmeticOperator coverageExpression
-                    #CoverageExpressionArithmeticLabel
-                  | coverageExpression numericalComparissonOperator coverageExpression
-                    #CoverageExpressionComparissonLabel
                   | coverageVariableName
                     #CoverageExpressionVariableNameLabel
+                  | coverageExpression numericalComparissonOperator coverageExpression
+                    #CoverageExpressionComparissonLabel
+                  | coverageExpression coverageArithmeticOperator coverageExpression
+                    #CoverageExpressionArithmeticLabel
+
                   | coverageConstantExpression
                     #CoverageExpressionConstantLabel
                   | decodeCoverageExpression
@@ -471,8 +477,6 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
 		                coverageExpression COMMA LEFT_BRACE domainIntervals RIGHT_BRACE
                     RIGHT_PARENTHESIS
                     #CoverageExpressionScaleByImageCrsDomainLabel
-                  | LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
-                    #CoverageExpressionCoverageLabel
                   | SCALE_FACTOR LEFT_PARENTHESIS
                         coverageExpression COMMA number
                     RIGHT_PARENTHESIS
@@ -489,8 +493,6 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                         coverageExpression COMMA LEFT_BRACKET scaleDimensionIntervalList RIGHT_BRACKET
                     RIGHT_PARENTHESIS
                     #CoverageExpressionScaleByExtentLabel
-                  | scalarExpression
-                    #CoverageExpressionScalarLabel
   		          | coverageExpression IS (NOT)? NULL
 		            #CoverageIsNullExpression
                   | coverageExpression OVERLAY coverageExpression
@@ -540,7 +542,7 @@ coverageArithmeticOperator: PLUS | MULTIPLICATION | DIVISION | MINUS;
 
 
 
-unaryArithmeticExpressionOperator: ABSOLUTE_VALUE | SQUARE_ROOT | REAL_PART | IMAGINARY_PART;
+unaryArithmeticExpressionOperator: MINUS | ABSOLUTE_VALUE | SQUARE_ROOT | REAL_PART | IMAGINARY_PART;
 
 /**
  * Example

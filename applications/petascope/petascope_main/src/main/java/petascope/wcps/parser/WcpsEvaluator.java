@@ -807,8 +807,19 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         // e.g: sqrt(c)
         String operator = ctx.unaryArithmeticExpressionOperator().getText();
         Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
+        
+        StringScalarHandler leftParenthesis = null;
+        if (ctx.LEFT_PARENTHESIS() != null) {
+            leftParenthesis = this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText());
+        }
+        StringScalarHandler rightParenthesis = null;
+        if (ctx.RIGHT_PARENTHESIS() != null) {
+            leftParenthesis = this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText());
+        }        
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler,
+                                                                leftParenthesis,
+                                                                rightParenthesis);
         return result;
     }
 
@@ -819,7 +830,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         String operator = ctx.trigonometricOperator().getText();
         Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler,
+                                                                this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText()),
+                                                                this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText()));
         return result;
     }
 
@@ -830,7 +843,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         String operator = ctx.exponentialExpressionOperator().getText();
         Handler coverageExpr = (Handler) visit(ctx.coverageExpression());
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpr);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpr,
+                                                                this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText()),
+                                                                this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText()));
         return result;
     }
     
@@ -1066,7 +1081,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         String operator = ctx.numericalUnaryOperation().getText();
         Handler coverageExpressionHandler = (Handler) visit(ctx.numericalScalarExpression());
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator),
+                                                                coverageExpressionHandler,
+                                                                this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText()),
+                                                                this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText()));
         return result;
     }
 
@@ -1077,7 +1095,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         String operator = ctx.trigonometricOperator().getText();
         Handler coverageExpressionHandler = (Handler) visit(ctx.numericalScalarExpression());
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), 
+                                                                coverageExpressionHandler,
+                                                                this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText()),
+                                                                this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText()));
         return result;
     }
 
