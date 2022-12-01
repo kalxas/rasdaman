@@ -33,3 +33,6 @@
 542-complex_query_encoded_in_json.test
 543-create_multi_dimensional_coverage_constructors.test
 
+
+
+505-flip_on_3d_time_axis_with_subset.test

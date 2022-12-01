@@ -201,6 +201,8 @@ public class WMSGetMapService {
     // e.g: test_wms_4326 layer: {c0 -> test_wms_4326_collection, c1 -> test_wms_4326_new_collection}
     private Map<String, String> aliasCollectionNameRegistry = new LinkedHashMap<>();
     
+    private List<WMSLayer> wmsLayers = new ArrayList<>();
+    
     private static Logger log = LoggerFactory.getLogger(WMSGetMapService.class);
     
     static {
@@ -299,6 +301,9 @@ public class WMSGetMapService {
                                                                                            this.width, this.height,
                                                                                            this.nonXYSubsetDimensions
 									                 , this.getWMTSTileMatrixName());
+            wmsLayers.add(wmsLayer);
+            
+            wmsLayer.setWcpsCoverageMetadata(wcpsCoverageMetadataTmp);
 
             WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
             List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
@@ -337,6 +342,7 @@ public class WMSGetMapService {
             }
             
             List<WcpsCoverageMetadata> wcpsCoverageMetadatas = this.getWcpsCoverageMetadataByLayernames();
+
             List<WMSLayer> wmsLayers = this.createWMSLayers(wcpsCoverageMetadatas);
 
             List<String> finalCollectionExpressions = new ArrayList<>();            
@@ -354,7 +360,7 @@ public class WMSGetMapService {
                     styleName = this.styleNames.get(styleIndex);
                 }
 
-                WcpsCoverageMetadata wcpsCoverageMetadata = this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
+                WcpsCoverageMetadata wcpsCoverageMetadata = wmsLayer.getWcpsCoverageMetadata();
                 
                 if (nodataValues.isEmpty()) {
                     if (wcpsCoverageMetadata.getNilValues().size() > 0) {
@@ -431,7 +437,7 @@ public class WMSGetMapService {
 
         return new Response(Arrays.asList(bytes), this.format, this.layerNames.get(0));
     }
-    
+  
     /**
      * Return a list of WcpsCoverageMetadata objects from the request layer names
      */
@@ -464,6 +470,8 @@ public class WMSGetMapService {
                                                                                 this.width, this.height,
                                                                                 this.nonXYSubsetDimensions,
                                                                                 this.getWMTSTileMatrixName());
+            
+            this.wmsGetMapWCPSMetadataTranslatorService.createWcpsCoverageMetadataForDownscaledLevelByExtendedRequestBBox(wmsLayer);
             wmsLayers.add(wmsLayer);
         }
         

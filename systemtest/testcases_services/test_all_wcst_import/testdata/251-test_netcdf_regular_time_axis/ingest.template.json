@@ -1,0 +1,82 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "automated": true,
+    "track_files": true,
+    "subset_correction": false,
+    "black_listed": true
+  },
+  "input": {
+    "coverage_id": "test_netcdf_regular_time_axis",
+    "paths": [
+      "L3m_*-*__GLOB_4_GSM-MODVIR_CHL1_8D_00.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+      "crs": "EPSG/0/4326@OGC/0/UnixTime?axis-label=\"Date\"",
+
+      "metadata": {
+        "type": "json",
+        "global": "auto",
+        "axes":{
+          "Date": {
+          "axis": "Z"
+          },
+          "Lat": {
+            "units": "degrees_north",
+            "axis": "Y"
+          },
+          "Lon": {
+            "units": "degrees_east",
+            "axis": "X"
+          }
+       }
+     },
+
+        "slicer": {
+          "type": "netcdf",
+          "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "z",
+              "variable": "LAI",
+              "description": "Chlorophyll-a concentration in mg/m3",
+              "identifier": "LAI"
+            }
+          ],
+          "axes": {
+            "Lat": {
+              "min": "${netcdf:variable:lat:min}",
+              "max": "${netcdf:variable:lat:max}",
+              "crsOrder": 0,
+              "gridOrder": 1,
+              "dataBound": true,
+              "resolution": "${netcdf:variable:lat:resolution}"
+            },
+            "Lon": {
+              "min": "${netcdf:variable:lon:min}",
+              "max": "${netcdf:variable:lon:max}",
+              "crsOrder": 1,
+              "gridOrder": 2,
+              "dataBound": true,
+              "resolution":"${netcdf:variable:lon:resolution}"
+             },
+           "Date": {
+             "statements": "from datetime import datetime, timedelta", 
+             "min": "datetime.strptime(regex_extract('${file:name}', 'L3m_(.*)-(.*)__(.*).nc',1), '%Y%m%d') + timedelta(days = 4)",
+             "crsOrder": 2,
+             "gridOrder": 0,
+             "dataBound": false,
+             "resolution": 691200
+           }
+          }
+        }
+      }
+    }
+  }
+}
