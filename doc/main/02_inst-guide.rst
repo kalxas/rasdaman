@@ -931,6 +931,11 @@ Ubuntu 22.04
     $ pip3 install grpcio pylint==2.13.4
 
 
+.. note::
+    Two files - *gdal.jar* and *libgdalalljni.so*, are absent in Ubuntu 22.04. You need to manually paste *gdal.jar* at ``/usr/share/java`` and *libgdalalljni.so* at ``/usr/lib/jni/`` for a successful build.  
+    
+    You can find these files here:
+    https://download.rasdaman.org/installer/tpinstaller/ubuntu2204/
 
 .. _sec-download-install:
 
