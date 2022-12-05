@@ -1858,11 +1858,18 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
 
     @Override
     public Handler visitAxisIteratorLabel(@NotNull wcpsParser.AxisIteratorLabelContext ctx) {
-        // coverageVariableName dimensionIntervalElement (e.g: $px x(Lat(0:20)) )
-        String coverageVariableName = ctx.coverageVariableName().getText();
-        Handler subsetDimensionHandler = visit(ctx.dimensionIntervalElement());
+        // coverageVariableName axisName LEFT_PARENTHESIS coverageExpression COLON coverageExpression RIGHT_PARENTHESIS
+        // e.g: $px x(Lat(0:20)) 
+        String axisIteratorName = ctx.coverageVariableName().getText();
+        // e.g. x
+        String axisName = ctx.axisName().getText();
+        Handler coverageExpressionLowerBoundHandler = visit(ctx.coverageExpression().get(0));
+        Handler coverageExpressionUpperBoundHandler = visit(ctx.coverageExpression().get(1));
 
-        Handler result = this.axisIteratorHandler.create(this.stringScalarHandler.create(coverageVariableName), subsetDimensionHandler);
+        Handler result = this.axisIteratorHandler.create(this.stringScalarHandler.create(axisIteratorName), 
+                                                        this.stringScalarHandler.create(axisName), 
+                                                        coverageExpressionLowerBoundHandler,
+                                                        coverageExpressionUpperBoundHandler);
         return result;
     }
 
@@ -1874,10 +1881,15 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         // e.g: $px x (domain(c[Lat(0:20)], Lat, "http://.../4326"))
         // return x in (50:80)
 
-        String coverageVariableName = ctx.coverageVariableName().getText();
+        // e.g $px
+        String axisIteratorName = ctx.coverageVariableName().getText();
+        // e.g. x
+        String axisName = ctx.axisName().getText();
         Handler domainIntervalsHandler = visit(ctx.domainIntervals());
         
-        Handler result = this.axisIteratorDomainIntervalsHandler.create(this.stringScalarHandler.create(coverageVariableName), domainIntervalsHandler);
+        Handler result = this.axisIteratorDomainIntervalsHandler.create(this.stringScalarHandler.create(axisIteratorName),
+                                                                        this.stringScalarHandler.create(axisName),
+                                                                        domainIntervalsHandler);
         return result;
     }
     

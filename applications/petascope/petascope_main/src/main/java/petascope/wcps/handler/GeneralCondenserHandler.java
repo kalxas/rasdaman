@@ -29,7 +29,9 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.util.StringUtil;
+import static petascope.wcps.handler.CoverageConstantHandler.updateAxisNamesFromAxisIterators;
 import static petascope.wcps.handler.CoverageConstructorHandler.validateAxisIteratorSubsetWithQuote;
+import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
@@ -183,6 +185,8 @@ public class GeneralCondenserHandler extends Handler {
         //create a coverage with the domain expressed in the condenser
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(CONDENSER_TEMP_NAME, numericSubsets);
+        
+        updateAxisNamesFromAxisIterators(metadata, axisIterators);
 
         String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions);
         String template = TEMPLATE.replace("$operation", operator)

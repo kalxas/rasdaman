@@ -1,0 +1,10 @@
+for $c in (test_mean_summer_airtemp)
+return
+
+  encode(
+          coverage newcov
+          over $px X(imageCrsDomain($c[Long(112:113)], Long)),
+               $py Y(imageCrsDomain($c[Lat(-43:-42)], Lat))
+          values $c[Long:"CRS:1"($px), Lat:"CRS:1"($py)]
+  
+  , "gml")

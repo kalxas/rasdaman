@@ -859,7 +859,7 @@ AxisIteratorImageCrsDomainLabel
 */
 axisIterator:   coverageVariableName axisName LEFT_PARENTHESIS  domainIntervals RIGHT_PARENTHESIS
                 #AxisIteratorDomainIntervalsLabel
-		          | coverageVariableName dimensionIntervalElement
+		          | coverageVariableName axisName LEFT_PARENTHESIS coverageExpression COLON coverageExpression RIGHT_PARENTHESIS
                 #AxisIteratorLabel;
 
 

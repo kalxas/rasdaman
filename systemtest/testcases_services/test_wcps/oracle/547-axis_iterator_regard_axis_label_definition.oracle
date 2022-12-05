@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:GridCoverage gml:id="newcov" xsi:schemaLocation="" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rasdaman="http://www.rasdaman.org">
+    <gml:boundedBy>
+        <gml:Envelope srsName="http://www.opengis.net/def/crs/OGC/0/Index2D" axisLabels="X Y" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+            <gml:lowerCorner>1 67</gml:lowerCorner>
+            <gml:upperCorner>2 68</gml:upperCorner>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gml:Grid dimension="2" gml:id="newcov-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low>1 67</gml:low>
+                    <gml:high>2 68</gml:high>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels>X Y</gml:axisLabels>
+        </gml:Grid>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">0,0,0,0</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>1 67</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="band1">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float64">
+                    <swe:label>band1</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
+</gmlcov:GridCoverage>

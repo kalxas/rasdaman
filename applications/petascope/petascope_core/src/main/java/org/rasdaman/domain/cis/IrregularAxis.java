@@ -129,7 +129,8 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     
     @JsonIgnore
     public List<BigDecimal> getDirectPositionsAsNumbers() {
-        if (this.directPositionsAsNumbers == null || this.directPositionsAsNumbers.isEmpty()) {
+        if (this.directPositionsAsNumbers == null || this.directPositionsAsNumbers.isEmpty()
+            || this.directPositionsAsNumbers.size() != this.directPositions.size()) {
             this.setDirectPositionsAsNumbers();
         }
         return this.directPositionsAsNumbers;
