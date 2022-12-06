@@ -138,18 +138,18 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitBitUnaryBooleanExpressionLabel(@NotNull wcpsParser.BitUnaryBooleanExpressionLabelContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionComparissonLabel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionScaleByExtentLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitCoverageExpressionScaleByExtentLabel(@NotNull wcpsParser.CoverageExpressionScaleByExtentLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionComparissonLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#fieldName}.

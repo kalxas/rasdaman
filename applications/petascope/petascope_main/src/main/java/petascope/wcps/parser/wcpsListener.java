@@ -207,17 +207,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitBitUnaryBooleanExpressionLabel(@NotNull wcpsParser.BitUnaryBooleanExpressionLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionComparissonLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionComparissonLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionScaleByExtentLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -227,6 +216,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCoverageExpressionScaleByExtentLabel(@NotNull wcpsParser.CoverageExpressionScaleByExtentLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionComparissonLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionComparissonLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#fieldName}.
