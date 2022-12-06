@@ -1,0 +1,12 @@
+for $c in (test_mr)
+return
+  encode(
+    coverage mycov
+    over $e E(0:0), $n N(0:0)
+    values {
+      band1: (unsigned char)($e);
+      band2: (unsigned char)($n);
+      band3: (unsigned char)($e+$n);
+      band4: (unsigned char)($e-$n)
+    }
+  , "netcdf")

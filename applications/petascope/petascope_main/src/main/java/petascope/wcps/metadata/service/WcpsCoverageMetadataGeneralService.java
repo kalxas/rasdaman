@@ -595,7 +595,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param numericSubsets
      * @return
      */
-    public WcpsCoverageMetadata createCoverage(String coverageName, List<Subset> numericSubsets) throws PetascopeException {
+    public WcpsCoverageMetadata createCoverage(String coverageName, WcpsCoverageMetadata wcpsCoverageMetadata, List<Subset> numericSubsets) throws PetascopeException {
         //create a new axis for each subset
         List<Axis> axes = new ArrayList();
         int axesCounter = 0;
@@ -655,11 +655,21 @@ public class WcpsCoverageMetadataGeneralService {
         //deduce the crs from the crses of the axes
         // NOTE: now, just use IndexND CRS (e.g: http://.../IndexND) to set as crs for creating coverage first
         String indexNDCrsUri = CrsUtility.createIndexNDCrsUri(axes);
-        List<RangeField> rangeFields = new ArrayList<>();
-        RangeField rangeField = new RangeField(RangeField.DATA_TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<NilValue>(), RangeField.UOM_CODE, null, null);
-        rangeFields.add(rangeField);
+        
+        List<RangeField> rangeFields;
+        List<List<NilValue>> nilValues; 
+        
+        if (wcpsCoverageMetadata == null) {
+        
+            rangeFields = new ArrayList<>();
+            RangeField rangeField = new RangeField(RangeField.DATA_TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<NilValue>(), RangeField.UOM_CODE, null, null);
+            rangeFields.add(rangeField);
 
-        List<List<NilValue>> nilValues = new ArrayList<>();
+            nilValues = new ArrayList<>();
+        } else {
+            rangeFields = wcpsCoverageMetadata.getRangeFields();
+            nilValues = wcpsCoverageMetadata.getNilValues();
+        }
 
         WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, "", axes);
         return result;

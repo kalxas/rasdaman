@@ -31,9 +31,9 @@
     </gml:coverageFunction>
     <gmlcov:rangeType>
         <swe:DataRecord>
-            <swe:field name="band1">
-                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float64">
-                    <swe:label>band1</swe:label>
+            <swe:field name="Gray">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/unsignedByte">
+                    <swe:label>Gray</swe:label>
                     <swe:description/>
                     <swe:uom code="10^0"/>
                     <swe:constraint/>

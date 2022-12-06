@@ -127,7 +127,7 @@ public class CoverageConstantHandler extends Handler {
         }
         String rasql = TEMPLATE.replace("$intervals", intervals).replace("$constants", StringUtils.join(constantsByDimension, ","));
         List<Subset> subsets = subsetParsingService.convertToRawNumericSubsets(subsetDimensions);
-        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, subsets);
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, null, subsets);
         
         updateAxisNamesFromAxisIterators(metadata, axisIterators);
                 

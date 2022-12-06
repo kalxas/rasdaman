@@ -170,7 +170,7 @@ public class CoverageConstructorHandler extends Handler {
         }
         
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
-        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, numericSubsets);
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, valuesCoverageExpression.getMetadata(), numericSubsets);
         
         updateAxisNamesFromAxisIterators(metadata, axisIterators);
         
