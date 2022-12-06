@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import javax.persistence.*;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes;
@@ -92,6 +93,15 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     @OrderColumn
     private List<String> directPositions;
 
+
+//    This data structure is fast and takes around 0.03 ms to insert a value for 100k values,
+//    which happens once per every UpdateCoverage request. Initial reading of all the values
+//    from DB is as fast as ArrayList with addAll in setDirectPositionsAsNumbers().
+//    It needs to be CopyOnWriteArrayList because it can be concurrently modified by 
+//    UpdateCoverage and read by GetMap and other requests.   
+    @Transient    
+    private CopyOnWriteArrayList<BigDecimal> directPositionsAsNumbers;
+
     public IrregularAxis() {
 
     }
@@ -99,24 +109,31 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     public IrregularAxis(List<String> directPositions, String axisLabel, String uomLabel, String srsName, String lowerBound, String upperBound, String resolution) {
         super(axisLabel, uomLabel, srsName, lowerBound, upperBound, resolution, AxisTypes.UNKNOWN);
         this.directPositions = directPositions;
+        
+        this.setDirectPositionsAsNumbers();
     }
     
     public List<String> getDirectPositions() {
         return this.directPositions;
     }
-
-    /**
-     * Ultility method to get direct positions in number
-     * @return 
-     */
+    
+    public void setDirectPositionsAsNumbers() {
+        List<BigDecimal> tmpList = new ArrayList<>();
+        for (String value : directPositions) {
+            tmpList.add(new BigDecimal(value));
+        }
+        
+        this.directPositionsAsNumbers = new CopyOnWriteArrayList<>();
+        this.directPositionsAsNumbers.addAll(tmpList);
+    }
+    
     @JsonIgnore
     public List<BigDecimal> getDirectPositionsAsNumbers() {
-        List<BigDecimal> bigDecimalList = new ArrayList<>();
-        for (String value : directPositions) {
-            bigDecimalList.add(new BigDecimal(value));
+        if (this.directPositionsAsNumbers == null || this.directPositionsAsNumbers.isEmpty()
+            || this.directPositionsAsNumbers.size() != this.directPositions.size()) {
+            this.setDirectPositionsAsNumbers();
         }
-
-        return bigDecimalList;
+        return this.directPositionsAsNumbers;
     }
 
     public void setDirectPositions(List<BigDecimal> directPositions) {

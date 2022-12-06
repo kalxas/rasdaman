@@ -1,0 +1,4 @@
+for $c in (test_mr) 
+let $height_diff := 5, 
+    $height_loss_threshold := 10 
+return  ( $height_diff <  -$height_loss_threshold)

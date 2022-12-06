@@ -254,7 +254,6 @@ public class WMSGetMapBBoxService {
      * BBox.
      */
     public BoundingBox createExtendedGeoBBox(Axis axisX, Axis axisY, BoundingBox requestBBox) {
-        
         BigDecimal offsetGeoX = requestBBox.getXMax().subtract(requestBBox.getXMin());
         BigDecimal offsetGeoY = requestBBox.getYMax().subtract(requestBBox.getYMin());
         

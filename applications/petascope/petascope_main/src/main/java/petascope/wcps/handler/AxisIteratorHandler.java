@@ -26,10 +26,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
 import petascope.wcps.result.VisitorResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /** 
  * Class to handler WCPS:
@@ -46,20 +48,32 @@ public class AxisIteratorHandler extends Handler {
         
     }
     
-    public AxisIteratorHandler create(Handler coverageVariableNameHandler, Handler subsetDimensionHandler) {
+    public AxisIteratorHandler create(Handler axisIteratorNameHandler, 
+                                    Handler axisNameHandler,
+                                    Handler coverageExpressionLowerBoundHandler,
+                                    Handler coverageExpressionUpperBoundHandler) {
         AxisIteratorHandler result = new AxisIteratorHandler();
-        result.setChildren(Arrays.asList(coverageVariableNameHandler, subsetDimensionHandler));
+        result.setChildren(Arrays.asList(axisIteratorNameHandler, axisNameHandler, 
+                                        coverageExpressionLowerBoundHandler, coverageExpressionUpperBoundHandler));
         
         return result;
     }
 
     @Override
     public VisitorResult handle() throws PetascopeException {
-        // dimensionIntervalElement (e.g: i(0:20) or j:"CRS:1"(0:30))
-        String coverageVariableName = ((WcpsResult)this.getFirstChild().handle()).getRasql();
-        WcpsSubsetDimension subsetDimension = (WcpsSubsetDimension) this.getSecondChild().handle();
+        // e.g. $px X( 0:20 )
         
-        AxisIterator axisIterator = new AxisIterator(coverageVariableName, subsetDimension);
+        // e.g. $px
+        String axisIteratorName = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        // e.g. X
+        String axisName = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        
+        String gridLowerBound = ((WcpsResult)this.getThirdChild().handle()).getRasql();
+        String gridUpperBound = ((WcpsResult)this.getFourthChild().handle()).getRasql();
+        
+        WcpsSubsetDimension subsetDimension = new WcpsTrimSubsetDimension(axisName, CrsUtil.GRID_CRS, gridLowerBound, gridUpperBound);
+        
+        AxisIterator axisIterator = new AxisIterator(axisIteratorName, axisName, subsetDimension);
         return axisIterator;
     }
     

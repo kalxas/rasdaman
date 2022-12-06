@@ -231,7 +231,7 @@ def main():
         reg.run_recipe(session)
     except Exception as ex:
         # log error message to console
-        error_message = "Failed to importing data. Reason: " + str(ex)
+        error_message = "Failed to import data. Reason: " + str(ex)
         log.error(error_message)
 
         # log stack trace to log file (coverage_id.log)

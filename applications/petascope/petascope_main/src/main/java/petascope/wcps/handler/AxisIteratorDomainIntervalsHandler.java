@@ -55,22 +55,27 @@ public class AxisIteratorDomainIntervalsHandler extends Handler {
         
     }
     
-    public AxisIteratorDomainIntervalsHandler create(Handler coverageVariableNameHandler, Handler domainIntervalsHandler) {
+    public AxisIteratorDomainIntervalsHandler create(Handler axisIteratorNameHandler, 
+                                                    Handler axisNameHandler,
+                                                    Handler domainIntervalsHandler) {
         AxisIteratorDomainIntervalsHandler result = new AxisIteratorDomainIntervalsHandler();
-        result.setChildren(Arrays.asList(coverageVariableNameHandler, domainIntervalsHandler));
+        result.setChildren(Arrays.asList(axisIteratorNameHandler, axisNameHandler, domainIntervalsHandler));
         
         return result;
     }
     
     public VisitorResult handle() throws PetascopeException {
-        String coverageVariableName = ((WcpsResult)this.getFirstChild().handle()).getRasql();
-        WcpsMetadataResult domainIntervalsMetadataResult = (WcpsMetadataResult)this.getSecondChild().handle();
+        // e.g. $px
+        String axisIteratorName = ((WcpsResult)this.getFirstChild().handle()).getRasql();
+        // .e.g X
+        String axisName = ((WcpsResult)this.getSecondChild().handle()).getRasql();
+        WcpsMetadataResult domainIntervalsMetadataResult = (WcpsMetadataResult)this.getThirdChild().handle();
         
-        VisitorResult result = this.handle(coverageVariableName, domainIntervalsMetadataResult);
+        VisitorResult result = this.handle(axisIteratorName, axisName, domainIntervalsMetadataResult);
         return result;
     }
 
-    private VisitorResult handle(String coverageVariableName, WcpsMetadataResult domainIntervalsMetadataResult) throws PetascopeException {
+    private VisitorResult handle(String axisIteratorName, String axisName, WcpsMetadataResult domainIntervalsMetadataResult) throws PetascopeException {
         // coverageVariableName axisName LEFT_PARENTHESIS  domainIntervals RIGHT_PARENTHESIS
         // e.g: $px x (imageCrsdomain(c[Lat(0:20)]), Lat)
         // e.g: $px x (imageCrsdomain(c[Long(0)], Lat[(0:20)]))
@@ -87,7 +92,7 @@ public class AxisIteratorDomainIntervalsHandler extends Handler {
         WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), CrsUtil.GRID_CRS,
                         gridBounds[0], gridBounds[1]);
 
-        AxisIterator axisIterator = new AxisIterator(coverageVariableName, trimSubsetDimension);
+        AxisIterator axisIterator = new AxisIterator(axisIteratorName, axisName, trimSubsetDimension);
         return axisIterator;
     }
     

@@ -55,7 +55,11 @@ import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wcps.result.VisitorResult;
 import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
-
+import petascope.wcps.metadata.service.WMSSubsetDimensionsRegistry;
+import static petascope.wms.handlers.service.WMSGetMapStyleService.WMS_VIRTUAL_LAYER_EXPECTED_BBOX;
+import static petascope.wms.handlers.service.WMSGetMapStyleService.WMS_VIRTUAL_LAYER_EXPECTED_HEIGHT;
+import static petascope.wms.handlers.service.WMSGetMapStyleService.WMS_VIRTUAL_LAYER_EXPECTED_OUTPUT_CRS;
+import static petascope.wms.handlers.service.WMSGetMapStyleService.WMS_VIRTUAL_LAYER_EXPECTED_WIDTH;
 
 /**
  * Translation class for slice/trim expression in wcps.  <code>
@@ -85,6 +89,8 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
     private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
     @Autowired
     private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+    @Autowired
+    private WMSSubsetDimensionsRegistry wmsSubsetDimensionsRegistry;
     
     
     public static final String OPERATOR = "domain subset";
@@ -106,15 +112,95 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         if (dimensionIntervalList != null) {
             subsetDimensions = dimensionIntervalList.getIntervals();
         }
+        
+        if (!this.wmsSubsetDimensionsRegistry.getMap().isEmpty()) {
+            String layerName = metadata.getCoverageName();
+            List<WcpsSubsetDimension> wmsLayerSubsetDimensions = this.wmsSubsetDimensionsRegistry.getSubsetDimensions(layerName);
+            
+            if (wmsLayerSubsetDimensions != null) {
+            
+                for (WcpsSubsetDimension wmsLayerSubsetDimension : wmsLayerSubsetDimensions) {
+                    boolean axisExists = false;
+                    String wmsLayerAxisLabel = wmsLayerSubsetDimension.getAxisName();
 
-        String beforeCoverageId = metadata.getCoverageName();
-        String aliasTmp = this.coverageAliasRegistry.getAliasByCoverageName(beforeCoverageId);
-        if (aliasTmp != null) {
-            aliasTmp = StringUtil.stripDollarSign(aliasTmp);
+                    for (WcpsSubsetDimension fixedSubsetDimension : subsetDimensions) {
+                        String fixedSubsetDimensionAxisLabel = fixedSubsetDimension.getAxisName();
+
+                        if (wmsLayerAxisLabel.equals(fixedSubsetDimensionAxisLabel)) {
+                            axisExists = true;
+                            break;
+                        }
+                    }
+
+                    if (!axisExists) {
+                        subsetDimensions.add(wmsLayerSubsetDimension);
+                    }
+                }   
+                
+            }
+            
         }
+        
+        
+        Pair<Integer, Integer> wmsExpectedXYGridDomains = this.parseExpectedOutputForWMSVirtualLayer(coverageExpression.getMetadata(), subsetDimensions);
+        if (wmsExpectedXYGridDomains != null) {
 
-        // c0 -> Pair<collectionName,coverageId>
-        this.collectionAliasRegistry.add(aliasTmp, metadata.getRasdamanCollectionName(), metadata.getCoverageName());
+            String beforeCoverageId = metadata.getCoverageName();
+            BoundingBox expectedOutputBBox = null;
+            metadata = selectDownscaledCollectionForWMS(metadata, subsetDimensions, wmsExpectedXYGridDomains);
+            
+            String afterCoverageId = metadata.getCoverageName();
+            
+            // e.g before it is covearge id: downscaled level 1, after it is coverage id: downscaled level 8 due to scale() is used
+            rasql = rasql.replace(beforeCoverageId, afterCoverageId); 
+            
+            String aliasTmp = this.coverageAliasRegistry.getAliasByCoverageName(beforeCoverageId);
+	    if (aliasTmp != null) {
+	        aliasTmp = StringUtil.stripDollarSign(aliasTmp);
+   	    }
+
+            // e.g. c0 Important (!)
+            rasql = aliasTmp;
+            
+            WcpsCoverageMetadata pyramidMemberCoverageMetadata = this.wcpsCoverageMetadataTranslator.translate(afterCoverageId);
+            for (WcpsSubsetDimension dimension : subsetDimensions) {
+                String axisLabel = dimension.getAxisName();
+                Axis axis = pyramidMemberCoverageMetadata.getAxisByName(axisLabel);
+                
+                if (axis.isXAxis() || axis.isYAxis()) {
+                    WcpsTrimSubsetDimension trimDimension = (WcpsTrimSubsetDimension) dimension;
+                    
+                    BigDecimal adjustedLowerBound = null, adjustedUpperBound = null;
+  
+                    if (expectedOutputBBox != null) {
+                        if (axis.isXAxis()) {
+                            adjustedLowerBound = expectedOutputBBox.getXMin();
+                            adjustedUpperBound = expectedOutputBBox.getXMax();
+                        } else {
+                            adjustedLowerBound = expectedOutputBBox.getYMin();
+                            adjustedUpperBound = expectedOutputBBox.getYMax();
+                        }
+                    } else {
+                        adjustedLowerBound = new BigDecimal(trimDimension.getLowerBound());
+                        adjustedUpperBound = new BigDecimal(trimDimension.getUpperBound());
+                    }
+                    
+                    if (new BigDecimal(trimDimension.getLowerBound()).compareTo(axis.getGeoBounds().getLowerLimit()) < 0) {
+                        adjustedLowerBound = axis.getGeoBounds().getLowerLimit();
+                    }
+
+                    if (new BigDecimal(trimDimension.getUpperBound()).compareTo(axis.getGeoBounds().getUpperLimit()) > 0) {
+                        adjustedUpperBound = axis.getGeoBounds().getUpperLimit();
+                    }
+
+                    trimDimension.setLowerBound(adjustedLowerBound.toPlainString());
+                    trimDimension.setUpperBound(adjustedUpperBound.toPlainString());
+                }
+            }
+            
+            // c0 -> Pair<collectionName,coverageId>
+            this.collectionAliasRegistry.add(aliasTmp, metadata.getRasdamanCollectionName(), metadata.getCoverageName());
+        }
 
         // Validate axis name before doing other processes.
         validateSubsets(metadata, subsetDimensions);
@@ -235,6 +321,77 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
                 throw new CoverageAxisNotFoundExeption(axisName);
             }
         }
+    }
+    
+   
+    /**
+     * This is used in case of WMS with WCPS style, a WcpsCoverageMetadata needs to adjust accordingly the downscaled collection is used
+     * underneath which depends on the given XY geo domains.
+     */
+    private WcpsCoverageMetadata selectDownscaledCollectionForWMS(WcpsCoverageMetadata metadata, List<WcpsSubsetDimension> wcpsSubsetDimensions,
+                                               Pair<Integer, Integer> wmsExpectedXYGridDomainsPair) throws PetascopeException {
+        Pair<BigDecimal, BigDecimal> geoSubsetX = null;
+        Pair<BigDecimal, BigDecimal> geoSubsetY = null;
+        List<Axis> xyAxes = metadata.getXYAxes();
+        Axis axisX = xyAxes.get(0);
+        Axis axisY = xyAxes.get(1);
+        
+        for (WcpsSubsetDimension wcpsSubsetDimension : wcpsSubsetDimensions) {
+            if (CrsUtil.axisLabelsMatch(wcpsSubsetDimension.getAxisName(), axisX.getLabel())) {
+                if (wcpsSubsetDimension instanceof WcpsTrimSubsetDimension) {
+                    BigDecimal lowerBound = new BigDecimal(((WcpsTrimSubsetDimension) wcpsSubsetDimension).getLowerBound());
+                    BigDecimal upperBound = new BigDecimal(((WcpsTrimSubsetDimension) wcpsSubsetDimension).getUpperBound());
+                    geoSubsetX = new Pair<>(lowerBound, upperBound);
+                }
+            } else if (CrsUtil.axisLabelsMatch(wcpsSubsetDimension.getAxisName(), axisY.getLabel())) {
+                if (wcpsSubsetDimension instanceof WcpsTrimSubsetDimension) {
+                    BigDecimal lowerBound = new BigDecimal(((WcpsTrimSubsetDimension) wcpsSubsetDimension).getLowerBound());
+                    BigDecimal upperBound = new BigDecimal(((WcpsTrimSubsetDimension) wcpsSubsetDimension).getUpperBound());
+                    geoSubsetY = new Pair<>(lowerBound, upperBound);
+                }
+            }
+        }
+        
+        List<WcpsSubsetDimension> nonXYSubsetDimensions = new ArrayList<>();
+        WcpsCoverageMetadata updateMetadata = this.wcpsCoverageMetadataTranslator.createForDownscaledLevelByGeoXYSubsets(metadata, geoSubsetX, geoSubsetY,
+                                                                                              wmsExpectedXYGridDomainsPair.fst, wmsExpectedXYGridDomainsPair.snd, nonXYSubsetDimensions);
+        return updateMetadata;
+    }
+    
+    /**
+     * It is used only for WMS with WCPS fragment style and for virtual layer.
+     * In this case, the expected BBOX and width and height are pre-set by WMS style handler
+     * and WCPS subset handler for virtual coverage should just use these defined values.
+     */
+    private Pair<Integer, Integer> parseExpectedOutputForWMSVirtualLayer(WcpsCoverageMetadata metadata, List<WcpsSubsetDimension> wcpsSubsetDimensions) {
+        Iterator<WcpsSubsetDimension> iterator = wcpsSubsetDimensions.iterator();
+        
+        int width = 0;
+        int height = 0;
+        
+        BoundingBox expectedBBox = null;
+        
+        while (iterator.hasNext()) {
+            WcpsSubsetDimension wcpsSubsetDimension = iterator.next();
+            String axisLabel = wcpsSubsetDimension.getAxisName();
+            
+            if (axisLabel.equals(WMS_VIRTUAL_LAYER_EXPECTED_BBOX)) {
+                expectedBBox = BoundingBox.parse(wcpsSubsetDimension.getStringBounds());
+                iterator.remove();
+            } else if (axisLabel.equals(WMS_VIRTUAL_LAYER_EXPECTED_WIDTH)) {
+                width = Integer.parseInt(wcpsSubsetDimension.getStringBounds());
+                iterator.remove();
+            } else if (axisLabel.equals(WMS_VIRTUAL_LAYER_EXPECTED_HEIGHT)) {
+                height = Integer.parseInt(wcpsSubsetDimension.getStringBounds());
+                iterator.remove();
+            }
+        }
+        if (width > 0 && height > 0) {
+            return new Pair<>(width, height);
+        }
+        
+        return null;
+        
     }
     
     private final String TEMPLATE = "$covExp[$dimensionIntervalList]";

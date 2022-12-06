@@ -122,6 +122,10 @@ public abstract class Axis<T> {
         return label;
     }
 
+    public void setLabel(String label) {
+        this.label = label;
+    }
+    
     public NumericSubset getGridBounds() {
         return gridBounds;
     }

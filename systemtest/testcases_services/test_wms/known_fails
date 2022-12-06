@@ -2,10 +2,5 @@
 050-get_map_gap_fillings_downscaled_collection.test
 
 
-# WMS query from WCPS fragment is not good enough to build WCPS query from this test
-145-get_map_style_combine_4d_and_3d_with_whitespaces_HARD.test
 
 
-# Fix this ticket first: http://rasdaman.org/ticket/2651
-139-get_map_style_combine_4d_and_3d.test
-142-get_map_style_combine_4d_and_3d_with_whitespaces.test

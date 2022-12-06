@@ -318,8 +318,7 @@ public class NetCDFParametersService {
                     values.set(i, convertedValue);
                 }
             } catch (Exception ex) {
-                throw new PetascopeException(ExceptionCode.InternalComponentError, 
-                                            "Cannot parse and adjust output time values when encoding to netCDF, based on time units: " + units 
+                log.warn("Cannot parse and adjust output time values when encoding to netCDF, based on time units: " + units 
                                              + ". Reason: " + ex.getMessage(), ex);
             }
         }

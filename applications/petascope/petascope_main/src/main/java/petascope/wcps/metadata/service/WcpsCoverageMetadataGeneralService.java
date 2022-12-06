@@ -1265,10 +1265,19 @@ public class WcpsCoverageMetadataGeneralService {
 
                     if (subsetDimension instanceof WcpsTrimSubsetDimension) {
                         // throw trimming error
-                        subset = new ParsedSubset<>(((WcpsTrimSubsetDimension)subsetDimension).getLowerBound(), ((WcpsTrimSubsetDimension)subsetDimension).getUpperBound());
+                        String lowerGridBound = ((WcpsTrimSubsetDimension)subsetDimension).getLowerBound();
+                        String upperGridBound = ((WcpsTrimSubsetDimension)subsetDimension).getUpperBound();
+                        // e.g kx[0] from axis iterator is valid grid domain
+                        if (!lowerGridBound.contains("[") && !upperGridBound.contains("[")) {
+                            subset = new ParsedSubset<>(lowerGridBound, upperGridBound);
+                        }
                     } else {
                         // throw slicing error
-                        subset = new ParsedSubset<>(((WcpsSliceSubsetDimension)subsetDimension).getBound());       
+                        String gridBound = ((WcpsSliceSubsetDimension)subsetDimension).getBound();
+                        // e.g kx[0] from axis iterator is valid grid domain
+                        if (!gridBound.contains("[")) {
+                            subset = new ParsedSubset<>(((WcpsSliceSubsetDimension)subsetDimension).getBound());
+                        }
                     }
                 }
                 
