@@ -15,6 +15,7 @@
   "recipe": {
     "name": "time_series_irregular",
     "options": {
+      "wms_import": true,
       "time_parameter": {
         "filename": {
           "regex": "(.*)_(.*)\\.(.*)",

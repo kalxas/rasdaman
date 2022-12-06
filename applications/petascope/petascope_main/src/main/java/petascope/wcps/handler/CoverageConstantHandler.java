@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
@@ -101,6 +102,15 @@ public class CoverageConstantHandler extends Handler {
         WcpsResult result = this.handle(coverageName, axisIterators, constantValues);
         return result;        
     }
+    
+    public static void updateAxisNamesFromAxisIterators(WcpsCoverageMetadata metadata, List<AxisIterator> axisIterators) {
+        for (int i = 0; i < metadata.getAxes().size(); i++) {
+            // e.g. in axis iterator is is called X from $px X(...)
+            String axisName = axisIterators.get(i).getAxisName();
+            Axis axis = metadata.getAxes().get(i);
+            axis.setLabel(axisName);
+        }        
+    }
 
     private WcpsResult handle(String coverageName, List<AxisIterator> axisIterators,
             List<String> constantList) throws PetascopeException {
@@ -118,9 +128,12 @@ public class CoverageConstantHandler extends Handler {
         String rasql = TEMPLATE.replace("$intervals", intervals).replace("$constants", StringUtils.join(constantsByDimension, ","));
         List<Subset> subsets = subsetParsingService.convertToRawNumericSubsets(subsetDimensions);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, subsets);
+        
+        updateAxisNamesFromAxisIterators(metadata, axisIterators);
+                
         WcpsResult result = new WcpsResult(metadata, rasql);
         return result;
     }
-
+    
     private final String TEMPLATE = "<[$intervals] $constants>";
 }

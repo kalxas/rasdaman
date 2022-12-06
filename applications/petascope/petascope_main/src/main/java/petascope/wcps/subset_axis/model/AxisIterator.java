@@ -39,24 +39,26 @@ public class AxisIterator extends AxisSpec {
     /**
      * Constructor for the class
      *
-     * @param variableName the name of the variable used to iterate
+     * @param axisIteratorName the name of the variable used to iterate
      * @param subsetDimension      the interval on which to iterate
      */
-    public AxisIterator(String variableName, WcpsSubsetDimension subsetDimension) {
+    public AxisIterator(String axisIteratorName, String axisName, WcpsSubsetDimension subsetDimension) {
         super(subsetDimension);
-        this.aliasName = variableName;
+        this.aliasName = axisIteratorName;
+        this.axisName = axisName;
     }
 
     /**
      * Constructor for the class
-     * @param variableName the name of the variable used to iterate
+     * @param axisIteratorName the name of the variable used to iterate
      * @param subsetDimension the interval on which to iterate
      * @param axisIteratorOrder the order of the axis iterator in the coverage
      * @param rasqlAliasName the rasql alias name of multiple axis iterators
      */
-    public AxisIterator(String variableName, WcpsSubsetDimension subsetDimension, int axisIteratorOrder, String rasqlAliasName) {
+    public AxisIterator(String axisIteratorName, String axisName, WcpsSubsetDimension subsetDimension, int axisIteratorOrder, String rasqlAliasName) {
         super(subsetDimension);
-        this.aliasName = variableName;
+        this.aliasName = axisIteratorName;
+        this.axisName = axisName;
         this.axisIteratorOrder = axisIteratorOrder;
         this.rasqlAliasName = rasqlAliasName;
     }
@@ -90,6 +92,10 @@ public class AxisIterator extends AxisSpec {
         this.axisIteratorOrder = axisIteratorOrder;
     }
     
+    public String getAxisName() {
+        return this.axisName;
+    }
+    
     
     /**
      * Current only support Axis Iterator on 1D interval which already translated to grid interval.
@@ -98,9 +104,12 @@ public class AxisIterator extends AxisSpec {
     public static final String CRS_DEFAULT = "Index1D";
 
     /**
-     * This is the alias name of the axis iterator (e.g: $px x(0:20))
+     * This is the alias name of the axis iterator (e.g: $px)
      */
     private final String aliasName;
+    
+    // e.g. X
+    private final String axisName;
 
     /**
      * This is the alias name of axis iterator in Rasql (e.g: px [0:20,0:30:0:50])

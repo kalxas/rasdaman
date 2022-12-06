@@ -21,13 +21,16 @@
  */
 package petascope.wcps.metadata.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
+import petascope.util.ListUtil;
 
 /**
  * 
@@ -85,5 +88,21 @@ public class CollectionAliasRegistry {
         }
         
         return null;
+    }
+    
+    /**
+     * e.g. test_mr as c, test_rgb as d
+     */
+    public String getFromClause() {
+        List<String> results = new ArrayList<>();
+        for (Map.Entry<String, Pair<String, String>> entry : this.getAliasMap().entrySet()) {
+            String alias = entry.getKey();
+            String collectionName = entry.getValue().fst;
+            
+            results.add(collectionName + " AS " + alias);
+        }
+        
+        String result = ListUtil.join(results, ", ");
+        return result;
     }
 }

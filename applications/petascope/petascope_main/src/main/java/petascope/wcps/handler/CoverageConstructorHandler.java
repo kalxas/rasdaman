@@ -36,6 +36,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.StringUtil;
+import static petascope.wcps.handler.CoverageConstantHandler.updateAxisNamesFromAxisIterators;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
@@ -170,6 +171,8 @@ public class CoverageConstructorHandler extends Handler {
         
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, numericSubsets);
+        
+        updateAxisNamesFromAxisIterators(metadata, axisIterators);
         
         String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions);
         if (valuesCoverageExpression.getMetadata() != null) {

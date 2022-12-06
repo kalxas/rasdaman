@@ -30,6 +30,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import petascope.core.AxisTypes;
 import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
@@ -156,6 +157,18 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
         }
 
         return null;
+    }
+    
+    @JsonIgnore
+    public int getGridAxisOrderByName(String axisLabel) throws PetascopeException {
+        List<IndexAxis> indexAxes = this.getIndexAxes();
+        for (IndexAxis indexAxis : indexAxes) {
+            if (CrsUtil.axisLabelsMatch(indexAxis.getAxisLabel(), axisLabel)) {
+                return indexAxis.getAxisOrder();
+            }
+        }
+        
+        throw new PetascopeException(ExceptionCode.InvalidRequest, "Index axis does not exist. Given name: " + axisLabel);
     }
     
     /**

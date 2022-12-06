@@ -153,11 +153,12 @@ public class RootHandler extends Handler {
         // for virtual coverages, their rasdaman collection names are null -> collect source coverages' collections
         for (Map.Entry<String, Pair<String, String>> entry : this.collectionAliasRegistry.getAliasMap().entrySet()) {
             // e.g: utm31 as c0
+            String collectionIterator = entry.getKey();
             String clause = entry.getValue().fst + " " + AS + " " + entry.getKey();
             boolean mustAdd = true;
             for (List<String> list : listsTmp) {
                 for (String str : list) {
-                    if (str.equals(clause)) {
+                    if (str.endsWith(collectionIterator)) {
                         mustAdd = false;
                         break;
                     }

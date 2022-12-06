@@ -40,6 +40,7 @@ import petascope.exceptions.PetascopeException;
 import nu.xom.Document;
 import nu.xom.Element;
 import org.slf4j.LoggerFactory;
+import org.rasdaman.config.ConfigManager;
 import petascope.util.*;
 import petascope.util.ras.TypeResolverUtil;
 import petascope.core.service.CrsComputerService;
@@ -66,7 +67,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import nu.xom.Elements;
-import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.Axis;
 import org.rasdaman.domain.cis.AxisExtent;
@@ -76,7 +76,6 @@ import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.IrregularAxis.CoefficientStatus;
-import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -236,7 +235,7 @@ public class UpdateCoverageHandler {
         } else {
             //tuple list given as file
             //retrieve the file, if needed
-            boolean isLocal = false;
+            boolean isLocal = false;            
             byte[] bytes = null;
             String fileUrl = GMLCIS10ParserService.parseFilePath(rangeSet);
             if (isLocalFile(fileUrl)) {
@@ -603,9 +602,11 @@ public class UpdateCoverageHandler {
                     if (coefficientStatus == coefficientStatus.APPEND_TO_TOP) {
                         // add coefficient to top
                         currentIrregularAxis.getDirectPositions().add(normalizedCoefficient.toPlainString());
+                        currentIrregularAxis.getDirectPositionsAsNumbers().add(normalizedCoefficient);
                     } else if (coefficientStatus == coefficientStatus.APPEND_TO_BOTTOM) {
                         // add coefficient to bottom
                         currentIrregularAxis.getDirectPositions().add(0, normalizedCoefficient.toPlainString());
+                        currentIrregularAxis.getDirectPositionsAsNumbers().add(0, normalizedCoefficient);
                     }
                 }
             }
@@ -729,17 +730,14 @@ public class UpdateCoverageHandler {
      * @return the string representation of the rasdaman domain with which the
      * array must be shifted.
      */
-    private String getShiftDomain(Coverage inputCoverage, Coverage currentCoverage, Map<Integer, String> pixelIndices) {
+    private String getShiftDomain(Coverage inputCoverage, Coverage currentCoverage, Map<Integer, String> pixelIndices) throws PetascopeException {
         String shiftDomain = RASQL_OPEN_SUBSETS;
-        List<AxisExtent> inputAxesExtent = inputCoverage.getEnvelope().getEnvelopeByAxis().getAxisExtents();
-        for (int i = 0; i < inputAxesExtent.size(); i++) {
+        List<String> shiftDomains = new ArrayList<>();
+        for (IndexAxis inputIndexAxis : ((GeneralGridCoverage) inputCoverage).getIndexAxes()) {
             String shift = "0";
-            //get the axis extent
-            AxisExtent inputAxisExtent = inputAxesExtent.get(i);
-            //get the order of the axis with the same name from the target coverage
-            String inputAxisLabel = inputAxisExtent.getAxisLabel();
+            String inputAxisLabel = inputIndexAxis.getAxisLabel();
 
-            int correspondingAxisOrder = ((GeneralGridCoverage) currentCoverage).getGeoAxisOrderByName(inputAxisLabel);
+            int correspondingAxisOrder = ((GeneralGridCoverage) currentCoverage).getGridAxisOrderByName(inputAxisLabel);
             if (pixelIndices.containsKey(correspondingAxisOrder)) {
                 //add the lower limit
                 if (pixelIndices.get(correspondingAxisOrder).contains(RASQL_BOUND_SEPARATION)) {
@@ -748,12 +746,11 @@ public class UpdateCoverageHandler {
                     shift = pixelIndices.get(correspondingAxisOrder);
                 }
             }
-            shiftDomain += shift;
-            if (i != inputCoverage.getNumberOfDimensions() - 1) {
-                shiftDomain += ",";
-            }
+            
+            shiftDomains.add(shift);            
         }
-        shiftDomain += RASQL_CLOSE_SUBSETS;
+        
+        shiftDomain += ListUtil.join(shiftDomains, ",") + RASQL_CLOSE_SUBSETS;
         return shiftDomain;
     }
 
@@ -907,6 +904,7 @@ public class UpdateCoverageHandler {
                     currentGeoAxis.setUpperBound(timeUpperBound);
                 }
             }
+
         }
     }
 

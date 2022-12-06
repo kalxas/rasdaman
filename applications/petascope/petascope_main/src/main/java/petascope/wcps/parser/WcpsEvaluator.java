@@ -931,8 +931,19 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         // e.g: sqrt(c)
         String operator = ctx.unaryArithmeticExpressionOperator().getText();
         Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
+        
+        StringScalarHandler leftParenthesis = null;
+        if (ctx.LEFT_PARENTHESIS() != null) {
+            leftParenthesis = this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText());
+        }
+        StringScalarHandler rightParenthesis = null;
+        if (ctx.RIGHT_PARENTHESIS() != null) {
+            leftParenthesis = this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText());
+        }        
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler,
+                                                                leftParenthesis,
+                                                                rightParenthesis);
         return result;
     }
 
@@ -943,7 +954,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         String operator = ctx.trigonometricOperator().getText();
         Handler coverageExpressionHandler = (Handler) visit(ctx.coverageExpression());
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler,
+                                                                this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText()),
+                                                                this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText()));
         return result;
     }
 
@@ -954,7 +967,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         String operator = ctx.exponentialExpressionOperator().getText();
         Handler coverageExpr = (Handler) visit(ctx.coverageExpression());
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpr);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpr,
+                                                                this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText()),
+                                                                this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText()));
         return result;
     }
     
@@ -1190,7 +1205,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         String operator = ctx.numericalUnaryOperation().getText();
         Handler coverageExpressionHandler = (Handler) visit(ctx.numericalScalarExpression());
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator),
+                                                                coverageExpressionHandler,
+                                                                this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText()),
+                                                                this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText()));
         return result;
     }
 
@@ -1201,7 +1219,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         String operator = ctx.trigonometricOperator().getText();
         Handler coverageExpressionHandler = (Handler) visit(ctx.numericalScalarExpression());
 
-        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), coverageExpressionHandler);
+        Handler result = unaryArithmeticExpressionHandler.create(this.stringScalarHandler.create(operator), 
+                                                                coverageExpressionHandler,
+                                                                this.stringScalarHandler.create(ctx.LEFT_PARENTHESIS().getText()),
+                                                                this.stringScalarHandler.create(ctx.RIGHT_PARENTHESIS().getText()));
         return result;
     }
 
@@ -1982,11 +2003,18 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
 
     @Override
     public Handler visitAxisIteratorLabel(@NotNull wcpsParser.AxisIteratorLabelContext ctx) {
-        // coverageVariableName dimensionIntervalElement (e.g: $px x(Lat(0:20)) )
-        String coverageVariableName = ctx.coverageVariableName().getText();
-        Handler subsetDimensionHandler = visit(ctx.dimensionIntervalElement());
+        // coverageVariableName axisName LEFT_PARENTHESIS coverageExpression COLON coverageExpression RIGHT_PARENTHESIS
+        // e.g: $px x(Lat(0:20)) 
+        String axisIteratorName = ctx.coverageVariableName().getText();
+        // e.g. x
+        String axisName = ctx.axisName().getText();
+        Handler coverageExpressionLowerBoundHandler = visit(ctx.coverageExpression().get(0));
+        Handler coverageExpressionUpperBoundHandler = visit(ctx.coverageExpression().get(1));
 
-        Handler result = this.axisIteratorHandler.create(this.stringScalarHandler.create(coverageVariableName), subsetDimensionHandler);
+        Handler result = this.axisIteratorHandler.create(this.stringScalarHandler.create(axisIteratorName), 
+                                                        this.stringScalarHandler.create(axisName), 
+                                                        coverageExpressionLowerBoundHandler,
+                                                        coverageExpressionUpperBoundHandler);
         return result;
     }
 
@@ -1998,10 +2026,15 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         // e.g: $px x (domain(c[Lat(0:20)], Lat, "http://.../4326"))
         // return x in (50:80)
 
-        String coverageVariableName = ctx.coverageVariableName().getText();
+        // e.g $px
+        String axisIteratorName = ctx.coverageVariableName().getText();
+        // e.g. x
+        String axisName = ctx.axisName().getText();
         Handler domainIntervalsHandler = visit(ctx.domainIntervals());
         
-        Handler result = this.axisIteratorDomainIntervalsHandler.create(this.stringScalarHandler.create(coverageVariableName), domainIntervalsHandler);
+        Handler result = this.axisIteratorDomainIntervalsHandler.create(this.stringScalarHandler.create(axisIteratorName),
+                                                                        this.stringScalarHandler.create(axisName),
+                                                                        domainIntervalsHandler);
         return result;
     }
     
