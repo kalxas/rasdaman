@@ -116,10 +116,12 @@ public class CoverageConstantHandler extends Handler {
             List<String> constantList) throws PetascopeException {
 
         List<WcpsSubsetDimension> subsetDimensions = new ArrayList();
+        List<Axis> axes = new ArrayList<>();
         for (AxisIterator axisIterator : axisIterators) {
             subsetDimensions.add(axisIterator.getSubsetDimension());
+            axes.add(axisIterator.getAxis());
         }
-        String intervals = rasqlTranslationService.constructRasqlDomainFromSubsets(subsetDimensions);
+        String intervals = rasqlTranslationService.constructRasqlDomainFromSubsets(axes, subsetDimensions);
         ArrayList<String> constantsByDimension = new ArrayList<>();
 
         for (String constant : constantList) {
@@ -127,7 +129,7 @@ public class CoverageConstantHandler extends Handler {
         }
         String rasql = TEMPLATE.replace("$intervals", intervals).replace("$constants", StringUtils.join(constantsByDimension, ","));
         List<Subset> subsets = subsetParsingService.convertToRawNumericSubsets(subsetDimensions);
-        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, subsets);
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, null, subsets, axes);
         
         updateAxisNamesFromAxisIterators(metadata, axisIterators);
                 

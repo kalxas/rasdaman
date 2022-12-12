@@ -75,13 +75,23 @@ public class AxisIteratorDomainIntervalsHandler extends Handler {
         return result;
     }
 
-    private VisitorResult handle(String axisIteratorName, String axisName, WcpsMetadataResult domainIntervalsMetadataResult) throws PetascopeException {
+    private VisitorResult handle(String axisIteratorName, String givenAxisName, WcpsMetadataResult domainIntervalsMetadataResult) throws PetascopeException {
         // coverageVariableName axisName LEFT_PARENTHESIS  domainIntervals RIGHT_PARENTHESIS
         // e.g: $px x (imageCrsdomain(c[Lat(0:20)]), Lat)
         // e.g: $px x (imageCrsdomain(c[Long(0)], Lat[(0:20)]))
         // e.g: $px x (domain(c[Lat(0:20)], Lat, "http://.../4326"))
         // return x in (50:80)
-        Axis axis = domainIntervalsMetadataResult.getMetadata().getAxes().get(0);
+        String axisCrs = CrsUtil.GRID_CRS;
+        String axisName = domainIntervalsMetadataResult.getMetadata().getAxes().get(0).getLabel();
+        Axis axis = null;        
+        
+        if (this.getThirdChild().getFirstChild() instanceof DomainExpressionHandler) {
+            axis = domainIntervalsMetadataResult.getMetadata().getAxes().get(0);
+            axisCrs = axis.getNativeCrsUri();
+        }
+        
+        // for domain() -> geoCRS, for imageCrsdomain -> CRS:1 grid CRS
+        
         
         String rasqlInterval = domainIntervalsMetadataResult.getResult();
         // remove the () from (50:80) and extract lower and upper grid bounds
@@ -89,10 +99,10 @@ public class AxisIteratorDomainIntervalsHandler extends Handler {
 
         // NOTE: it expects that "domainIntervals" will only return 1 trimming domain in this case (so only 1D)
 
-        WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), CrsUtil.GRID_CRS,
+        WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axisName, axisCrs,
                         gridBounds[0], gridBounds[1]);
 
-        AxisIterator axisIterator = new AxisIterator(axisIteratorName, axisName, trimSubsetDimension);
+        AxisIterator axisIterator = new AxisIterator(axisIteratorName, givenAxisName, trimSubsetDimension, axis);
         return axisIterator;
     }
     

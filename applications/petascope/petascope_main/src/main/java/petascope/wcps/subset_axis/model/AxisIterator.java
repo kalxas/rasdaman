@@ -21,6 +21,8 @@
  */
 package petascope.wcps.subset_axis.model;
 
+import petascope.wcps.metadata.model.Axis;
+
 /**
  * Translation node from wcps axis iterator to rasql
  * Example:
@@ -42,10 +44,11 @@ public class AxisIterator extends AxisSpec {
      * @param axisIteratorName the name of the variable used to iterate
      * @param subsetDimension      the interval on which to iterate
      */
-    public AxisIterator(String axisIteratorName, String axisName, WcpsSubsetDimension subsetDimension) {
+    public AxisIterator(String axisIteratorName, String axisName, WcpsSubsetDimension subsetDimension, Axis axis) {
         super(subsetDimension);
         this.aliasName = axisIteratorName;
         this.axisName = axisName;
+        this.axis = axis;
     }
 
     /**
@@ -61,6 +64,7 @@ public class AxisIterator extends AxisSpec {
         this.axisName = axisName;
         this.axisIteratorOrder = axisIteratorOrder;
         this.rasqlAliasName = rasqlAliasName;
+        this.axis = null;
     }
 
     /**
@@ -96,6 +100,12 @@ public class AxisIterator extends AxisSpec {
         return this.axisName;
     }
     
+    /**
+     * In case axisIterator from $px Y(domain(c, Lat)), then this.axis returns Lat axis
+     */
+    public Axis getAxis() {
+        return this.axis;
+    }
     
     /**
      * Current only support Axis Iterator on 1D interval which already translated to grid interval.
@@ -110,6 +120,9 @@ public class AxisIterator extends AxisSpec {
     
     // e.g. X
     private final String axisName;
+    
+    // Source axis is used from domain($c, axisLabel)
+    private final Axis axis;
 
     /**
      * This is the alias name of axis iterator in Rasql (e.g: px [0:20,0:30:0:50])

@@ -591,77 +591,108 @@ public class WcpsCoverageMetadataGeneralService {
      * Creates a coverage for the coverage constructor. Right now, this is not
      * geo-referenced.
      *
-     * @param coverageName
-     * @param numericSubsets
-     * @return
      */
-    public WcpsCoverageMetadata createCoverage(String coverageName, List<Subset> numericSubsets) throws PetascopeException {
+    public WcpsCoverageMetadata createCoverage(String coverageName, WcpsCoverageMetadata wcpsCoverageMetadata, List<Subset> numericSubsets, List<Axis> axes) throws PetascopeException {
         //create a new axis for each subset
-        List<Axis> axes = new ArrayList();
-        int axesCounter = 0;
-        for (Subset numericSubset : numericSubsets) {
-            String label = numericSubset.getAxisName();
+        List<String> axisCrss = new ArrayList<>();
+        String coverageType = XMLSymbols.LABEL_GRID_COVERAGE;
+        boolean hasIrregularAxis = false;
+        
+        for (int i = 0; i < numericSubsets.size(); i++) {
+            Axis givenAxis = axes.get(i);
+            if (givenAxis == null) {
+                // In case axis is not fetched from axisIterator domain(c, axisLabel), then create a new one
+                
+                Subset numericSubset = numericSubsets.get(i);
+                String label = numericSubset.getAxisName();
 
-            NumericSubset geoBounds = null;
-            NumericSubset originalGridBounds = null;
-            NumericSubset gridBounds = null;
+                NumericSubset geoBounds = null;
+                NumericSubset originalGridBounds = null;
+                NumericSubset gridBounds = null;
 
-            BigDecimal origin = null;
+                BigDecimal origin = null;
 
-            if (numericSubset.getNumericSubset() instanceof NumericTrimming) {
-                BigDecimal lowerLimit = ((NumericTrimming) numericSubset.getNumericSubset()).getLowerLimit();
-                BigDecimal upperLimit = ((NumericTrimming) numericSubset.getNumericSubset()).getUpperLimit();
+                if (numericSubset.getNumericSubset() instanceof NumericTrimming) {
+                    BigDecimal lowerLimit = ((NumericTrimming) numericSubset.getNumericSubset()).getLowerLimit();
+                    BigDecimal upperLimit = ((NumericTrimming) numericSubset.getNumericSubset()).getUpperLimit();
 
-                // trimming
-                geoBounds = new NumericTrimming(lowerLimit, upperLimit);
-                originalGridBounds = new NumericTrimming(lowerLimit, upperLimit);
-                //for now, the geoDomain is the same as the gridDomain, as we do no conversion in the coverage constructor / condenser
-                gridBounds = new NumericTrimming(lowerLimit, upperLimit);
-                origin = lowerLimit;
+                    // trimming
+                    geoBounds = new NumericTrimming(lowerLimit, upperLimit);
+                    originalGridBounds = new NumericTrimming(lowerLimit, upperLimit);
+                    //for now, the geoDomain is the same as the gridDomain, as we do no conversion in the coverage constructor / condenser
+                    gridBounds = new NumericTrimming(lowerLimit, upperLimit);
+                    origin = lowerLimit;
+                } else {
+                    BigDecimal bound = ((NumericSlicing) numericSubset.getNumericSubset()).getBound();
+
+                    // slicing
+                    geoBounds = new NumericSlicing(bound);
+                    originalGridBounds = new NumericSlicing(bound);
+                    gridBounds = new NumericSlicing(bound);
+                    origin = bound;
+                }
+
+                // the crs of axis
+                String crsUri = CrsUtil.INDEX_CRS_PATTERN;
+
+                // the created coverage now is only RectifiedGrid then it will use GridSpacing UoM
+                String axisUoM = CrsUtil.INDEX_UOM;
+
+                // Create a crsDefintion by crsUri
+                CrsDefinition crsDefinition = null;
+                if (crsUri != null && !crsUri.equals("")) {
+                    CrsUtility.getCrsDefinitionByCrsUri(crsUri);
+                }                
+                
+                // the axis type (x, y, t,...) should be set to axis correctly, now just set to x
+                String axisType = AxisTypes.X_AXIS;
+
+                // Scalar resolution is set to 1
+                BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
+                givenAxis = new RegularAxis(label, geoBounds, originalGridBounds, gridBounds, crsUri,
+                                            crsDefinition, axisType, axisUoM, i, origin, scalarResolution, geoBounds);
+                axes.set(i, givenAxis);
             } else {
-                BigDecimal bound = ((NumericSlicing) numericSubset.getNumericSubset()).getBound();
-
-                // slicing
-                geoBounds = new NumericSlicing(bound);
-                originalGridBounds = new NumericSlicing(bound);
-                gridBounds = new NumericSlicing(bound);
-                origin = bound;
+                // Axis is already deduced from domain() of axisIterator $px X (domain(c, Lon))
+                if (givenAxis instanceof RegularAxis && !givenAxis.getNativeCrsUri().equals(CrsUtil.GRID_CRS)) {
+                    coverageType = XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE;
+                } else if (givenAxis instanceof IrregularAxis) {
+                    hasIrregularAxis = true;
+                }
             }
-
-            // the crs of axis
-            String crsUri = CrsUtil.INDEX_CRS_PATTERN;
-
-            // the created coverage now is only RectifiedGrid then it will use GridSpacing UoM
-            String axisUoM = CrsUtil.INDEX_UOM;
-
-            // Create a crsDefintion by crsUri
-            CrsDefinition crsDefinition = null;
-            if (crsUri != null && !crsUri.equals("")) {
-                CrsUtility.getCrsDefinitionByCrsUri(crsUri);
-            }
-
-            // the axis type (x, y, t,...) should be set to axis correctly, now just set to x
-            String axisType = AxisTypes.X_AXIS;
-
-            // Scalar resolution is set to 1
-            BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
-
-            Axis axis = new RegularAxis(label, geoBounds, originalGridBounds, gridBounds, crsUri,
-                    crsDefinition, axisType, axisUoM, axesCounter, origin, scalarResolution, geoBounds);
-            axesCounter++;
-            axes.add(axis);
+            
+            String axisCrs = axes.get(i).getNativeCrsUri();
+            axisCrss.add(axisCrs);
         }
-        //the current crs is IndexND CRS. When the coverage constructor will support geo referencing, the CrsService should
-        //deduce the crs from the crses of the axes
+
+        if (hasIrregularAxis) {
+            coverageType = XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;
+        }
+       
+        List<RangeField> rangeFields;
+        List<List<NilValue>> nilValues; 
+        
+        if (wcpsCoverageMetadata == null) {
+        
+            rangeFields = new ArrayList<>();
+            RangeField rangeField = new RangeField(RangeField.DATA_TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<NilValue>(), RangeField.UOM_CODE, null, null);
+            rangeFields.add(rangeField);
+
+            nilValues = new ArrayList<>();
+        } else {
+            rangeFields = wcpsCoverageMetadata.getRangeFields();
+            nilValues = wcpsCoverageMetadata.getNilValues();
+        }
+
         // NOTE: now, just use IndexND CRS (e.g: http://.../IndexND) to set as crs for creating coverage first
-        String indexNDCrsUri = CrsUtility.createIndexNDCrsUri(axes);
-        List<RangeField> rangeFields = new ArrayList<>();
-        RangeField rangeField = new RangeField(RangeField.DATA_TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<NilValue>(), RangeField.UOM_CODE, null, null);
-        rangeFields.add(rangeField);
-
-        List<List<NilValue>> nilValues = new ArrayList<>();
-
-        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, "", axes);
+        String coverageCrs = null;
+        if (coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+            coverageCrs = CrsUtility.createIndexNDCrsUri(axes);
+        } else {
+            coverageCrs = CrsUtil.CrsUri.createCompound(axisCrss);
+        }
+        
+        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, coverageType, axes, coverageCrs, rangeFields, nilValues, "", axes);
         return result;
     }
 
@@ -1099,25 +1130,6 @@ public class WcpsCoverageMetadataGeneralService {
             axisY.setGridBounds(subsetGridY);
             
         }
-    }
-    
-    /**
-     * Given one input axis, create a WCPS metadata object with one axis as grid domains and CRS:1 CRS
-     * used for imageCrsdomain() handler result
-     * NOTE: this is used to determine in the case of axis iterator in condenser over $pt t (imageCrsdomain(c[time("2015":"2015")], t))
-     */
-    public WcpsCoverageMetadata generateWcpsMetadataWithOneGridAxis(String coverageId, Axis axis) throws PetascopeException {
-        List<Axis> axesTmp = new ArrayList<>();
-        axesTmp.add(axis);
-        
-        String crs = CrsUtil.GRID_CRS;
-        if (!axis.getNativeCrsUri().equals(CrsUtil.GRID_CRS)) {
-            crs = axis.getNativeCrsUri();
-        }
-        
-        // NOTE: this is used to determine in the case of axis iterator in condenser over $pt t (imageCrsdomain(c[time("2015":"2015")], t))
-        WcpsCoverageMetadata tmpMetadata = new WcpsCoverageMetadata(coverageId, null, null, axesTmp, crs, null, null, null, null);
-        return tmpMetadata;
     }
 
     /**

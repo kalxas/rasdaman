@@ -21,7 +21,9 @@
  */
 package petascope.wcps.handler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -65,9 +67,6 @@ public class DomainExpressionHandler extends Handler {
     
     public static final String OPERATOR = "domain";
     
-    @Autowired
-    private WcpsCoverageMetadataGeneralService generateWcpsMetadataWithOneGridAxis;
-    
     public DomainExpressionHandler() {
         
     }
@@ -75,7 +74,6 @@ public class DomainExpressionHandler extends Handler {
     public DomainExpressionHandler create(Handler coverageExpressionHandler, StringScalarHandler axisNameHandler, StringScalarHandler axisCrsHandler) {
         DomainExpressionHandler result = new DomainExpressionHandler();
         result.setChildren(Arrays.asList(coverageExpressionHandler, axisNameHandler, axisCrsHandler));
-        result.generateWcpsMetadataWithOneGridAxis = this.generateWcpsMetadataWithOneGridAxis;
         
         return result;
     }
@@ -114,7 +112,7 @@ public class DomainExpressionHandler extends Handler {
 
                 String coverageId = coverageExpression.getMetadata().getCoverageName();
                 Axis axis = coverageExpression.getMetadata().getAxisByName(axisName);
-                WcpsCoverageMetadata tmpMetadata = this.generateWcpsMetadataWithOneGridAxis.generateWcpsMetadataWithOneGridAxis(coverageId, axis);
+                WcpsCoverageMetadata tmpMetadata = this.generateWcpsMetadataWithOneGeoAxis(coverageId, axis);
 
                 metadataResult = new WcpsMetadataResult(tmpMetadata, result);            
             } else {
@@ -222,6 +220,19 @@ public class DomainExpressionHandler extends Handler {
         }
         return false;
     }
+    
+    /**
+     * Given one input axis, create a WCPS metadata object with one geo axis used for domain() handler result
+     * NOTE: this is used to determine in the case of axis iterator in condenser over $pt Lat (domain(c, Lat))
+     */
+    private WcpsCoverageMetadata generateWcpsMetadataWithOneGeoAxis(String coverageId, Axis axis) throws PetascopeException {
+        List<Axis> axesTmp = new ArrayList<>();
+        axesTmp.add(axis);
+       
+        // NOTE: this is used to determine in the case of axis iterator in condenser over $pt t (imageCrsdomain(c[time("2015":"2015")], t))
+        WcpsCoverageMetadata tmpMetadata = new WcpsCoverageMetadata(coverageId, null, null, axesTmp, axis.getNativeCrsUri(), null, null, null, null);
+        return tmpMetadata;
+    }    
 
     private final String TRIMMING_TEMPLATE = "($lowBound:$highBound)";
     private final String SLICING_TEMPLATE = "($lowBound)";

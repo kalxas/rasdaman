@@ -21,18 +21,19 @@
  */
 package petascope.wcps.handler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
 import static petascope.wcps.handler.AbstractOperatorHandler.checkOperandIsCoverage;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSlicing;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -50,8 +51,6 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler extends Handle
     
     public static final String OPERATOR = "imageCrsDomain";
     
-    @Autowired
-    private WcpsCoverageMetadataGeneralService generateWcpsMetadataWithOneGridAxis;
     
     public ImageCrsDomainExpressionByDimensionExpressionHandler() {
         
@@ -60,7 +59,6 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler extends Handle
     public ImageCrsDomainExpressionByDimensionExpressionHandler create(Handler coverageExpressionHandler, StringScalarHandler axisNameHandler) {
         ImageCrsDomainExpressionByDimensionExpressionHandler result = new ImageCrsDomainExpressionByDimensionExpressionHandler();
         result.setChildren(Arrays.asList(coverageExpressionHandler, axisNameHandler));
-        result.generateWcpsMetadataWithOneGridAxis = generateWcpsMetadataWithOneGridAxis;
         
         return result;
     }
@@ -99,10 +97,30 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler extends Handle
         rasql = "(" + tmp + ")";
         
         String coverageId = coverageExpression.getMetadata().getCoverageName();
-        WcpsCoverageMetadata tmpMetadata = this.generateWcpsMetadataWithOneGridAxis.generateWcpsMetadataWithOneGridAxis(coverageId, axis);
+        WcpsCoverageMetadata tmpMetadata = this.generateWcpsMetadataWithOneGridAxis(coverageId, axis);
         
         WcpsMetadataResult metadataResult = new WcpsMetadataResult(tmpMetadata, rasql);
         return metadataResult;
+    }
+    
+        
+    /**
+     * Given one input axis, create a WCPS metadata object with one axis as grid domains and CRS:1 CRS
+     * used for imageCrsdomain() handler result
+     * NOTE: this is used to determine in the case of axis iterator in condenser over $pt t (imageCrsdomain(c[time("2015":"2015")], t))
+     */
+    private WcpsCoverageMetadata generateWcpsMetadataWithOneGridAxis(String coverageId, Axis axis) throws PetascopeException {
+        List<Axis> axesTmp = new ArrayList<>();
+        axesTmp.add(axis);
+        
+        String crs = CrsUtil.GRID_CRS;
+        if (!axis.getNativeCrsUri().equals(CrsUtil.GRID_CRS)) {
+            crs = axis.getNativeCrsUri();
+        }
+        
+        // NOTE: this is used to determine in the case of axis iterator in condenser over $pt t (imageCrsdomain(c[time("2015":"2015")], t))
+        WcpsCoverageMetadata tmpMetadata = new WcpsCoverageMetadata(coverageId, null, null, axesTmp, crs, null, null, null, null);
+        return tmpMetadata;
     }
 
     private final String TRIMMING_TEMPLATE = "$lowBound:$highBound";

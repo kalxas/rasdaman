@@ -21,6 +21,7 @@
  */
 package petascope.wcps.metadata.service;
 
+import java.math.BigDecimal;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import petascope.util.CrsUtil;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.NumericSlicing;
 import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -40,6 +42,7 @@ import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import petascope.wcps.metadata.model.ParsedSubset;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
@@ -51,6 +54,8 @@ public class RasqlTranslationService {
     private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
     @Autowired
     private SortedAxisIteratorAliasRegistry sortedAxisIteratorAliasRegistry;
+    @Autowired
+    private CoordinateTranslationService coordinateTranslationService;
 
     /**
      * Constructs the rasql domain corresponding to the current list of axes.
@@ -173,14 +178,37 @@ public class RasqlTranslationService {
      * @param subsetDimensions
      * @return
      */
-    public String constructRasqlDomainFromSubsets(List<WcpsSubsetDimension> subsetDimensions) {
+    public String constructRasqlDomainFromSubsets(List<Axis> axes, List<WcpsSubsetDimension> subsetDimensions) throws PetascopeException {
         List<String> results = new ArrayList();
-        for (WcpsSubsetDimension subsetDimension : subsetDimensions) {
+        
+        for (int i = 0; i < subsetDimensions.size(); i++) {
+            WcpsSubsetDimension subsetDimension = subsetDimensions.get(i);
+            Axis axis = axes.get(i);
+            
             if (subsetDimension instanceof WcpsTrimSubsetDimension) {
-                results.add(((WcpsTrimSubsetDimension) subsetDimension).getLowerBound()
-                            + RASQL_BOUND_SEPARATION + ((WcpsTrimSubsetDimension) subsetDimension).getUpperBound());
+                WcpsTrimSubsetDimension trimSubsetDimension = (WcpsTrimSubsetDimension) subsetDimension;
+                String gridLowerBound = trimSubsetDimension.getLowerBound();
+                String gridUpperBound = trimSubsetDimension.getUpperBound();
+                
+                if (!subsetDimension.getCrs().equals(CrsUtil.GRID_CRS)) {
+                    ParsedSubset<Long> result = this.coordinateTranslationService.geoToGridSpatialDomain(axis, subsetDimension, 
+                                                                                new ParsedSubset<>(new BigDecimal(gridLowerBound), new BigDecimal(gridUpperBound)));
+                    gridLowerBound = result.getLowerLimit().toString();
+                    gridUpperBound = result.getUpperLimit().toString();
+                }
+                
+                results.add(gridLowerBound + RASQL_BOUND_SEPARATION + gridUpperBound);
             } else {
-                results.add(((WcpsSliceSubsetDimension) subsetDimension).getBound());
+                WcpsSliceSubsetDimension sliceSubsetDimension = (WcpsSliceSubsetDimension) subsetDimension;
+                String gridBound = sliceSubsetDimension.getBound();
+                
+                if (!subsetDimension.getCrs().equals(CrsUtil.GRID_CRS)) {
+                    ParsedSubset<Long> result = this.coordinateTranslationService.geoToGridSpatialDomain(axis, subsetDimension,
+                                                                                new ParsedSubset<>(new BigDecimal(gridBound), new BigDecimal(gridBound)));
+                    gridBound = result.getLowerLimit().toString();
+                }
+                
+                results.add(gridBound);
             }
 
         }

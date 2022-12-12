@@ -1,0 +1,9 @@
+for $c in (test_mean_summer_airtemp)
+return 
+    encode(
+      coverage targetCoverage
+      over  $pLat Lat(domain($c[Lat(-30:-28.5)], Lat)),
+            $pLon Lon(domain($c[Lon(111.975:113.475)], Lon))
+
+      values $c[Lat($pLat), Lon($pLon)]
+      , "gml")

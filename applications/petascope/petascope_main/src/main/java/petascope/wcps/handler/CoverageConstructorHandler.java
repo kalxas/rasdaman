@@ -151,6 +151,8 @@ public class CoverageConstructorHandler extends Handler {
 
         // All of the axis iterators uses the same rasql alias name (e.g: px)
         String rasqlAliasName = "";
+        
+        List<Axis> axes = new ArrayList<>();
 
         for (AxisIterator axisIterator : axisIterators) {
             String alias = axisIterator.getAliasName();
@@ -167,10 +169,12 @@ public class CoverageConstructorHandler extends Handler {
             } else {
                 pureSubsetDimensions.add(subsetDimension);
             }
+            
+            axes.add(axisIterator.getAxis());
         }
         
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
-        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, numericSubsets);
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, valuesCoverageExpression.getMetadata(), numericSubsets, axes);
         
         updateAxisNamesFromAxisIterators(metadata, axisIterators);
         

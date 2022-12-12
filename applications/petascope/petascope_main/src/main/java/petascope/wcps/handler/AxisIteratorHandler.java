@@ -36,7 +36,7 @@ import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 /** 
  * Class to handler WCPS:
  * 
- * coverageVariableName dimensionIntervalElement (e.g: $px x(Lat(0:20)) )
+ * coverageVariableName dimensionIntervalElement, e.g. $px X(0:20)
  * 
  * @author Bang Pham Huu <b.phamhuu@jacobs-university.de>
  */
@@ -73,7 +73,7 @@ public class AxisIteratorHandler extends Handler {
         
         WcpsSubsetDimension subsetDimension = new WcpsTrimSubsetDimension(axisName, CrsUtil.GRID_CRS, gridLowerBound, gridUpperBound);
         
-        AxisIterator axisIterator = new AxisIterator(axisIteratorName, axisName, subsetDimension);
+        AxisIterator axisIterator = new AxisIterator(axisIteratorName, axisName, subsetDimension, null);
         return axisIterator;
     }
     

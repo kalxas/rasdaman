@@ -164,10 +164,12 @@ public class GeneralCondenserHandler extends Handler {
 
         // All of the axis iterators uses the same rasql alias name (e.g: px)
         String rasqlAliasName = "";
+        
+        List<Axis> axes = new ArrayList<>();
 
-        for (AxisIterator i : axisIterators) {
-            String alias = i.getAliasName();
-            WcpsSubsetDimension subsetDimension = i.getSubsetDimension();
+        for (AxisIterator axisIterator : axisIterators) {
+            String alias = axisIterator.getAliasName();
+            WcpsSubsetDimension subsetDimension = axisIterator.getSubsetDimension();
             
             validateAxisIteratorSubsetWithQuote(null, alias, subsetDimension);
             
@@ -175,16 +177,18 @@ public class GeneralCondenserHandler extends Handler {
                 rasqlAliasName = alias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }
             // Check if axis iterator's subset dimension which has the "$"
-            if (i.getSubsetDimension().getStringBounds().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
+            if (axisIterator.getSubsetDimension().getStringBounds().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
                 axisIteratorSubsetDimensions.add(subsetDimension);
             } else {
                 pureSubsetDimensions.add(subsetDimension);
             }
+            
+            axes.add(axisIterator.getAxis());
         }
 
         //create a coverage with the domain expressed in the condenser
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
-        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(CONDENSER_TEMP_NAME, numericSubsets);
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(CONDENSER_TEMP_NAME, usingCoverageExpression.getMetadata(), numericSubsets, axes);
         
         updateAxisNamesFromAxisIterators(metadata, axisIterators);
 
