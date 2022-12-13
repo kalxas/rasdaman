@@ -22,8 +22,10 @@
 package petascope.wcps.handler;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
@@ -109,9 +111,11 @@ public class FlipExpressionHandler extends Handler {
         
         if (axis instanceof IrregularAxis) {
             IrregularAxis irregularAxis = (IrregularAxis)axis;
-            // Reverse the order of coefficients as well
-            Collections.reverse(irregularAxis.getOriginalDirectPositions());
-            Collections.reverse(irregularAxis.getDirectPositions());
+            
+            List<BigDecimal> newDirectPositions = new ArrayList();
+            newDirectPositions.addAll(irregularAxis.getDirectPositions());
+            Collections.reverse(newDirectPositions);
+            irregularAxis.setDirectPositions(newDirectPositions);
         }
         
         String rasql = this.RASQL_TEMPLATE.replace(COVERAGE_EXPRESSION_TEMPLATE, coverageExpression.getRasql())

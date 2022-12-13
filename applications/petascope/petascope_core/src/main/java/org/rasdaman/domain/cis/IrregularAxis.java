@@ -133,6 +133,8 @@ public class IrregularAxis extends GeoAxis implements Serializable {
             || this.directPositionsAsNumbers.size() != this.directPositions.size()) {
             this.setDirectPositionsAsNumbers();
         }
+        
+        // NOTE: if this list is to be modified you should best make a copy with addAll
         return this.directPositionsAsNumbers;
     }
 
