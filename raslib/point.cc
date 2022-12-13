@@ -279,7 +279,8 @@ r_Point::to_string(bool wkt) const
 {
     std::string ret;
     for (auto p: points) {
-      if (!ret.empty() && !wkt) ret += ",";
+      if (!ret.empty())
+        ret += wkt ? " " : ",";
       ret += std::to_string(p);
     }
     return !wkt ? "[" + ret + "]" : ret;

@@ -277,17 +277,19 @@ QtVariable::evaluate(QtDataList *inputList)
                     parseInfo.setErrorNo(DIMENSIONALITYMISMATCH);
                     throw parseInfo;
                 }
-                catch (r_Eno_interval &)
-                {
-                    LFATAL << "Specified domain " << loadDomain
-                            << " does not intersect with the spatial domain of MDD " << currentMDDObj->getCurrentDomain();
-                    parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
-                    throw parseInfo;
-                }
                 catch (r_Error &err)
                 {
-                    LERROR << "Error: QtVariable::evaluate() - general error.";
-                    parseInfo.setErrorNo(GENERALEXECUTIONERROR);
+                    if (err.get_errorno() == NOINTERVAL) 
+                    {
+                        LFATAL << "Specified domain " << loadDomain
+                                << " does not intersect with the spatial domain of MDD " << currentMDDObj->getCurrentDomain();
+                        parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
+                    }
+                    else
+                    {
+                        LERROR << "Error: QtVariable::evaluate() - general error.";
+                        parseInfo.setErrorNo(GENERALEXECUTIONERROR);
+                    }
                     throw parseInfo;
                 }
 

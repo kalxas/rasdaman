@@ -39,13 +39,13 @@ r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minte
         length(step),
         dim(total.dimension())
 {
-    r_Range s = static_cast<r_Range>(tlen);
+    r_Range s = r_Range(tlen);
     r_Range offset = 0;
     id = new r_miter_direct_data[dim];
 
-    for (int j = static_cast<int>(dim) - 1; j >= 0; --j)
+    for (int j = int(dim) - 1; j >= 0; --j)
     {
-        auto i = static_cast<r_Dimension>(j);
+        auto i = r_Dimension(j);
         id[i].low = iter[i].low();
         id[i].high = iter[i].high();
         id[i].pos = id[i].low;
@@ -56,8 +56,10 @@ r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minte
         offset += s * (id[i].pos - id[i].origin);
         s *= id[i].extent;
     }
-    for (int i = 0; i < static_cast<int>(dim); i++)
+    for (int i = 0; i < int(dim); i++)
+    {
         id[i].data = static_cast<void *>(static_cast<char *>(data) + offset);
+    }
 }
 
 r_MiterDirect::~r_MiterDirect(void)
@@ -74,7 +76,9 @@ void r_MiterDirect::reset(void)
         offset += id[i].step * (id[i].low - id[i].origin);
     }
     for (r_Dimension i = 0; i < dim; i++)
+    {
         id[i].data = static_cast<void *>(static_cast<char *>(baseAddress) + offset);
+    }
     done = false;
 }
 
