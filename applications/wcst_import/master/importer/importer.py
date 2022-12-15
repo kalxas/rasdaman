@@ -387,7 +387,7 @@ class Importer:
                     # if downscaled level coverage id exists, then add the timestamp as suffix to avoid conflict
                     downscaled_level_coverage_id = add_date_time_suffix(downscaled_level_coverage_id)
 
-                scale_factors = self._get_scale_factors(level)
+                scale_factors = self.get_scale_factors(self.coverage.crs, level)
                 request = CreatePyramidMemberRequest(self.coverage.coverage_id, downscaled_level_coverage_id, scale_factors)
                 executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
@@ -470,7 +470,8 @@ class Importer:
             request = AddPyramidMemberRequest(base_coverage_id, pyramid_member_coverage_id, pyramid_haversting)
             executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
-    def _get_scale_factors(self, level):
+    @staticmethod
+    def get_scale_factors(coverage_crs, level):
         """
         Return the array of scale factors for each axis, based on the input scale level
         """
@@ -478,7 +479,7 @@ class Importer:
 
         NO_SCALING_SCALE_FACTOR = 1
 
-        crs_util = CRSUtil(self.coverage.crs)
+        crs_util = CRSUtil(coverage_crs)
         for crs_axis in crs_util.axes:
             scale_factor = NO_SCALING_SCALE_FACTOR
             if crs_axis.type == CRSAxis.AXIS_TYPE_X or crs_axis.type == CRSAxis.AXIS_TYPE_Y:
