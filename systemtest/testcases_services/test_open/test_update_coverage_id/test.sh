@@ -47,7 +47,8 @@ check_result 0 $? "importing test data"
 # Then, rename the coverage id to a new coverage id
 admin_endpoint=$(echo "$PETASCOPE_URL" | sed "s/ows/admin/")
 
-update_coverage_id_request="$admin_endpoint/UpdateCoverageId?COVERAGEID=$COVERAGE_ID&NEWID=$NEW_COVERAGE_ID"
+update_coverage_id_request="$admin_endpoint/coverage/update?COVERAGEID=$COVERAGE_ID&NEWCOVERAGEID=$NEW_COVERAGE_ID"
+echo "$update_coverage_id_request"
 result=$(get_http_return_code "$update_coverage_id_request")
 check_result "200" "$result" "update coverage id to a new id"
 

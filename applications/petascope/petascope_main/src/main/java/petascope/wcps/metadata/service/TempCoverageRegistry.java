@@ -23,8 +23,10 @@ package petascope.wcps.metadata.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,8 @@ public class TempCoverageRegistry {
     // e.g: $1 -> (tmp_covA, "/tmp/rasdaman_petascope/rasdaman...test.tif")
     private Map<String, Pair<String, String>> positionalParametersMap = new HashMap<>();
     
+    private Set<String> tempGeneratedCoveragedIds = new HashSet<>();
+    
     public TempCoverageRegistry() {
         
     }
@@ -58,6 +62,8 @@ public class TempCoverageRegistry {
     public void add(String positionalParameter, String coverageId, String filePath) {
         // e.g: $1 -> (tmp_covA, "/tmp/rasdaman_petascope/rasdaman...test.tif")
         this.positionalParametersMap.put(positionalParameter, new Pair<>(coverageId, filePath));
+        
+        this.tempGeneratedCoveragedIds.add(coverageId);
     }
     
     /**
@@ -80,11 +86,10 @@ public class TempCoverageRegistry {
      * Removed stored temp coverage objects and temp collections
      */
     public void clear() throws PetascopeException {
-        List<String> tempCoverageIds = this.getListTempCoverageIds();
         String username = ConfigManager.RASDAMAN_ADMIN_USER;
         String password = ConfigManager.RASDAMAN_ADMIN_PASS;
         
-        for (String coverageId : tempCoverageIds) {
+        for (String coverageId : tempGeneratedCoveragedIds) {
             // Delete temp rasdaman collection
             // @TODO: this temp rasdaman collection was created until SELECT decode() rasql works fine            
             RasUtil.deleteFromRasdaman(coverageId, username, password);

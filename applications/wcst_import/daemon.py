@@ -102,10 +102,18 @@ class Daemon(object):
 			pid = self.get_pid()
 			try:
 				os.kill(pid, signal.SIGTERM)
-			except:
+				import time
+				time.sleep(1)
+
+				if self.running():
+					os.kill(pid, signal.SIGTERM)
+
+			except Exception as ex:
 				sys.stderr.write("Could not kill process with pid: %s\n" % str(pid))
 				sys.exit(1)
-			os.remove(self._pidfile)
+
+			if os.path.exists(self._pidfile):
+				os.remove(self._pidfile)
 
 		else:
 			sys.stderr.write("Daemon is not running\n")

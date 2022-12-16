@@ -29,10 +29,13 @@ import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import com.rasdaman.accesscontrol.service.AuthenticationService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.HttpUtil;
 import petascope.util.IOUtil;
@@ -79,7 +82,21 @@ public class RemoteCoverageUtil {
      * @return the contents of file at which the url points.
      */
     public static String getRemoteGMLCoverage(URL url) throws PetascopeException {
-        String result = HttpUtil.getObjectFromEndpoint(url.toString());
+        String link = url.toString();
+        String result = null;
+        if (!link.startsWith("file:/")) {
+            result = HttpUtil.getObjectFromEndpoint(link);
+        } else {
+            link = link.replace("file:/", "/");
+            try {
+                result = StringUtil.readFileToString(link);
+            } catch (IOException ex) {
+                throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                                            "Cannot read GML coverage from local input file '" + link + "'. Reason: " + ex.getMessage());
+            }
+            
+        }
+        
         return result;
     }
     

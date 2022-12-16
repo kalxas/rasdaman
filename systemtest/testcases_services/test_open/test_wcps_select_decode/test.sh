@@ -68,8 +68,9 @@ rm -rf "$OUTPUT"
 mkdir -p "$OUTPUT"
 
 # Add more test files here
-readonly TEST_2D_TIFF_3BANDS_FILE_PATH="$SCRIPT_DIR/../../test_all_wcst_import/testdata/3D_Timeseries_Regular/SCALED_M_LSTDA_2015-01.TIFF"
-readonly TEST_2D_TIFF_1BAND_FILE_PATH="$SCRIPT_DIR/../../test_all_wcst_import/testdata/wcps_mean_summer_air_temp/mean_summer_airtemp.tif"
+readonly TEST_2D_TIFF_3BANDS_FILE_PATH="$SCRIPT_DIR/../../test_all_wcst_import/testdata/001-3D_Timeseries_Regular/SCALED_M_LSTDA_2015-01.TIFF"
+readonly TEST_2D_TIFF_1BAND_FILE_PATH="$SCRIPT_DIR/../../test_all_wcst_import/testdata/075-wcps_mean_summer_air_temp/mean_summer_airtemp.tif"
+
 
 TEST_NAME="1-test_encode"
 $CURL "$ENDPOINT" \

@@ -100,7 +100,7 @@ mkdir -p "$OUTPUT"
 # Add more test files here
 
 test_name="1-rasql_encode_tiff"
-query='select encode(c, "GTiff", "{ \"nodata\": 200 }") from test_mr as c'
+query='select encode(c, "image/tiff", "{ \"nodata\": 200 }") from test_mr as c'
 handle "$test_name" "$RASQL_SERVLET_ENDPOINT" "$query"
 
 test_name="2-rasql_encode_png"

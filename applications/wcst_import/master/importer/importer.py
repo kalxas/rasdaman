@@ -681,6 +681,10 @@ class Importer:
         if self.current_data_provider is not None:
             self.resumer.add_imported_data(self.current_data_provider)
 
+        # NOTE: this is important to really exist the daemon process when it is terminated via SIGTERM by another daemon
+        # process (use case: wcst_import.sh ingest.json --daemon restart)
+        exit(0)
+
     def __register_signal_handlers(self):
         """
         Register event handlers when wcst_import is terminated

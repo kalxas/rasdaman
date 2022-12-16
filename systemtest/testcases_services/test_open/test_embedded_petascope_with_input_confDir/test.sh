@@ -36,6 +36,7 @@ petascope_war_file="$RMANHOME/share/rasdaman/war/rasdaman.war"
 
 etc_dir="$RMANHOME/etc"
 etc_dir_tmp="/tmp/etc_tmp"
+rm -rf "$etc_dir_tmp"
 cp -r "$etc_dir" "$etc_dir_tmp"
 
 temp_petascope_properties="$etc_dir_tmp/petascope.properties"
@@ -47,6 +48,8 @@ sed -i "s@allow_write_requests_from=127.0.0.1@allow_write_requests_from=1.2.3.4@
 sleep_time=40
 
 logn "Starting embedded petascope (wait for $sleep_time seconds)..."
+
+
 nohup java -jar "$petascope_war_file" --petascope.confDir="$etc_dir_tmp" > nohup.out 2>&1 &
 pid=$!
 
@@ -57,6 +60,7 @@ $WGET -q --spider "http://localhost:$port/rasdaman/ows?service=WCS&version=2.0.1
 
 # defined in common.sh
 check_result 0 $? "test embedded petascope with customized etc dir"
+
 
 # Try to delete a coverage, but the IP is not allowed in petascope.properties
 wget -q --spider "http://localhost:$port/rasdaman/ows?service=WCS&version=2.0.1&request=DeleteCoverage&coverageId=test_123"

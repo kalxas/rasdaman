@@ -139,16 +139,16 @@ for x in range(len(list_files)):
         exit(1)
     # output from petascope containing nodata_value in tiff metadata while gdal_merge doesn't, 
     # hence different indices in string array.
-    elif src_tmp[19] != dst_tmp[20]:
+    elif src_tmp[19] != dst_tmp[19]:
         print(prog + "Upper Left is different, gdal_merge: " + binary_to_string(src_tmp[19]) + ", petascope: " + binary_to_string(dst_tmp[20]) + ".")
         exit(1)
-    elif src_tmp[20] != dst_tmp[21]:
+    elif src_tmp[20] != dst_tmp[20]:
         print(prog + "Lower Left is different, gdal_merge: " + binary_to_string(src_tmp[20]) + ", petascope: " + binary_to_string(dst_tmp[21]) + ".")
         exit(1)
-    elif src_tmp[21] != dst_tmp[22]:
+    elif src_tmp[21] != dst_tmp[21]:
         print(prog + "Upper Right is different, gdal_merge: " + binary_to_string(src_tmp[21]) + ", petascope: " + binary_to_string(dst_tmp[22]) + ".")
         exit(1)
-    elif src_tmp[22] != dst_tmp[23]:
+    elif src_tmp[22] != dst_tmp[22]:
         print(prog + "Lower Right is different, gdal_merge: " + binary_to_string(src_tmp[22]) + ", petascope: " + binary_to_string(dst_tmp[23]) + ".")
         exit(1)
 
