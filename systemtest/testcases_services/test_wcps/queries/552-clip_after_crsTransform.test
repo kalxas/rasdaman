@@ -1,0 +1,11 @@
+for c in (test_mean_summer_airtemp)
+return encode(
+clip(
+
+crsTransform(
+c[Lat(-40:-30), Lon(120:130)] + c[Lat(-20:-10), Lon(140:150)]
+, "EPSG:4326")
+
+,
+
+POLYGON((-40 120, -35 125, -30 130)) ), "jpeg")
