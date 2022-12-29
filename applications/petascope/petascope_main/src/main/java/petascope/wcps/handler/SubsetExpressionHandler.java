@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -56,6 +58,7 @@ import petascope.wcps.result.VisitorResult;
 import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 import petascope.wcps.metadata.service.WMSSubsetDimensionsRegistry;
+import petascope.wms.handlers.kvp.KVPWMSGetMapHandler;
 import static petascope.wms.handlers.service.WMSGetMapStyleService.WMS_VIRTUAL_LAYER_EXPECTED_BBOX;
 import static petascope.wms.handlers.service.WMSGetMapStyleService.WMS_VIRTUAL_LAYER_EXPECTED_HEIGHT;
 import static petascope.wms.handlers.service.WMSGetMapStyleService.WMS_VIRTUAL_LAYER_EXPECTED_OUTPUT_CRS;
@@ -74,6 +77,8 @@ import static petascope.wms.handlers.service.WMSGetMapStyleService.WMS_VIRTUAL_L
 @Service
 @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SubsetExpressionHandler extends AbstractOperatorHandler {
+    
+    private static Logger log = LoggerFactory.getLogger(SubsetExpressionHandler.class);
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
@@ -114,6 +119,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         }
         
         if (!this.wmsSubsetDimensionsRegistry.getMap().isEmpty()) {
+            log.info("#### I have some values");
             String layerName = metadata.getCoverageName();
             List<WcpsSubsetDimension> wmsLayerSubsetDimensions = this.wmsSubsetDimensionsRegistry.getSubsetDimensions(layerName);
             

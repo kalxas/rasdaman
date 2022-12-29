@@ -111,6 +111,8 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
      */
     @Override
     public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, WCSException, SecoreException, WMSException, Exception {
+        long startTime = System.currentTimeMillis();
+        
         // Validate before handling the request
         this.validate(kvpParameters);
 
@@ -139,6 +141,9 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
               
             VisitorResult visitorResult = wcpsTranslator.translate(newWcpsQuery);
             WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
+            
+            long endTime = System.currentTimeMillis();
+            System.out.println("Total time to generate rasql query is: " + (endTime - startTime) + " ms");
 
             if (visitorResult instanceof WcpsMetadataResult) {
                 results.add(executor.execute(visitorResult));
