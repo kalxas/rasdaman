@@ -1,0 +1,4 @@
+STYLEID=wcpsQueryFragment&
+COVERAGEID=test_wms_wcps_style_with_pyramids&
+abstract=This style marks the areas where fires are in progress with the color red&
+wcpsQueryFragment=$c + 30
