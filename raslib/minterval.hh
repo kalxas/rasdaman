@@ -452,6 +452,7 @@ public:
     /// Same as closure_with but return a new minterval instead of modifying this one.
     r_Minterval  create_closure(const r_Minterval &) const;
     /// @return vector of domains so that the disjoint union of this and returned domains is big.
+    /// preconditions: big must cover this domain (this.covers(big) == true).
     std::vector<r_Minterval> extension_of(const r_Minterval &big) const;
     //@}
     
@@ -499,14 +500,29 @@ public:
     void delete_non_trims(const std::vector<bool> &trims);
     /// delete intervals which are slices (i.e. interval.is_slice() is true)
     void delete_slices();
+    /// append mint's intervals to the end of this minterval, resulting in
+    /// [ ..., mint[0], ..., mint[mint.dimension()-1] ]
+    void append_axes(const r_Minterval &mint);
+    /// append pnt's coordinates to the end of this minterval, resulting in
+    /// [ ..., pnt[0]:pnt[0], ..., pnt[pnt.dimension()-1]:pnt[pnt.dimension()-1]]
+    void append_axes(const r_Point& pnt);
     /// @return true if all intervals are slices
     bool is_point() const noexcept;
     
     /// calculate the size of the storage space occupied
     r_Bytes get_storage_size() const;
     
+    /// @return the number of axes which are trims (i.e. dimension() - slices)
+    /// if is_point() is true, then this method will return 0.
+    r_Dimension get_trim_count() const;
+    
+    /// @return true if any axes are slices rather than trims.
+    bool has_slices() const;
+    
     /// @return true if domains are same after normalization to zero origin.
-    bool compareDomainExtents(const r_Minterval &b) const;
+    bool compareDomainExtents(const r_Minterval &b) const;    
+    /// throw error if domains differ in the extents of any axis.
+    void validateDomainExtents(const r_Minterval &b) const;
     
     /// @return a if a == b, otherwise normalize the result to [0, 0, ..].
     r_Minterval computeDomainOfResult(const r_Minterval &b) const;

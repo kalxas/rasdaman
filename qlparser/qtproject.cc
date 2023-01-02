@@ -523,8 +523,11 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     }
 
     // Init rasdaman data structures
-    auto resDomain = r_Minterval(2) << r_Sinterval(0ll, static_cast<r_Range>(wi) - 1)
-                     << r_Sinterval(0ll, static_cast<r_Range>(hi) - 1);
+    const auto wlo = domain[0].low();
+    const auto hlo = domain[1].low();
+    auto resDomain = r_Minterval(2)
+        << r_Sinterval(wlo, wlo + r_Range(wi) - 1)
+        << r_Sinterval(hlo, hlo + r_Range(hi) - 1);
     // And finally build the tile
     std::unique_ptr<Tile> resultTile;
     resultTile.reset(new Tile(resDomain, srcTile->getType(), true, reinterpret_cast<char*>(tileCells), static_cast<r_Bytes>(0), r_Array));

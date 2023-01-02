@@ -196,13 +196,6 @@ protected:
     std::string errorDetails;
 };
 
-/// Result is no interval.
-class r_Eno_interval : public r_Error
-{
-public:
-    r_Eno_interval();
-};
-
 /// General error with no error number/kind.
 class r_EGeneral : public r_Error
 {
@@ -216,6 +209,7 @@ class r_Eindex_violation : public r_Error
 public:
     /// constructor getting lower and upper bound, and the index
     r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex);
+    r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex, const std::string &details);
 protected:
     /// reset error text
     void resetErrorText() override;
@@ -234,6 +228,7 @@ class r_Edim_mismatch : public r_Error
 public:
     /// constructor getting two dimensionalities
     r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2);
+    r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2, const std::string &details);
 protected:
     /// reset error text
     void resetErrorText() override;
@@ -253,17 +248,6 @@ class r_Einit_overflow : public r_Error
 public:
     /// default constructor
     r_Einit_overflow();
-};
-
-/**
- * result is no cell, e.g. if the cast operator for casting to the base type
- * of class r_Marray is invoked on an object which is not 'zero-dimensional'.
- */
-class r_Eno_cell : public r_Error
-{
-public:
-    /// default constructor
-    r_Eno_cell();
 };
 
 /**
@@ -308,6 +292,18 @@ private:
     r_Range i1;
     /// second interval
     r_Range i2;
+};
+
+/// Lower bound > upper bound.
+class r_Einvalid_interval_bounds : public r_Error
+{
+public:
+    r_Einvalid_interval_bounds(r_Range lim1, r_Range lim2);
+protected:
+    void resetErrorText() override;
+private:
+    r_Range lim1;
+    r_Range lim2;
 };
 
 /**
@@ -405,6 +401,10 @@ public:
 #define TYPEISINUSE                         243
 #define STRUCTOFSTRUCTSDISABLED             244
 #define SERVEROCCUPIEDWITHOTHERCLIENT       245
+
+#define INVALIDINTERVALBOUNDS               246
+#define MISMATCHINGMINTERVALS               247
+#define INVALIDOFFSETINMINTERVAL            248
 
 //300 -303
 #define PARSER_UNEXPECTEDTOKEN              300//used
@@ -612,6 +612,7 @@ public:
 #define AXISNUMBERSMUSTEXIST                525
 #define PROJDIMNOTMATCHINGMASKDIM           526
 #define MASKNOTALIGNEDWITHLINESTRING        527
+#define LINESTRINGDIFFERENTPOINTS           528
 
 
 //510 -511
@@ -723,8 +724,8 @@ public:
 #define CELL_TYPE_NAME_LENGTH_EXCEEDED      977
 
 //993 -999 - ALL UNUSED
-#define REFERENCEDFILE_READERROR            993
-#define REFERENCEDFILE_EMPTY                994
+#define REFERENCED_FILE_NOT_FOUND           993
+#define REFERENCED_FILE_EMPTY               994
 #define EXPAND_POSITION_INVALID             995
 #define EXPAND_DIRECTION_INVALID            996
 //997 - same as 974? -ignored.
@@ -749,6 +750,8 @@ public:
 #define COLLECTIONTYPEISNULL                1012
 #define TYPENAMEISTOOLONG                   1013
 #define INVALIDOBJECTNAME                   1014
+#define FEATURENOTENABLED                   1015
+
 #define DATABASE_OPEN                       2000
 #define INVALID_OIDTYPE                     2001
 #define STRUCTTYPE_ELEMENT_UNKNOWN          2002

@@ -26,9 +26,9 @@
 100^E^Exception: Internal error: DL parse error.
 200^E^Exception: The result is no point.
 201^E^Exception: The result is no interval.
-202^E^Exception: Index violation ( index range [$low,$high], index $index ).
+202^E^Exception: Minterval index violation (index range [$low,$high], index $index).
 203^E^Exception: Dimension mismatch between $dim1 and $dim2.
-204^E^Exception: Stream initialization overflow.
+204^E^Exception: Minterval stream initialization overflow, all dimensions are already added.
 205^E^Exception: Result is no cell.
 206^E^Serialisable exception r_Ebase_dbms: error in base DBMS.
 207^E^Internal client exception in class $class, method $method: $code.
@@ -71,6 +71,10 @@
 243^E^Exception: The type to be dropped is currently in use by another stored object. Please delete any existing references to this type and try again.
 244^E^Exception: User-defined structures built from user-defined structures do not comprise a presently-supported data storage format.
 245^E^Exception: Another client is already connected to this server, cannot serve any new clients.
+#
+246^E^Exception: Invalid interval, the lower bound $lim1 is larger than the upper bound $lim2.
+247^E^Exception: Mismatching mintervals.
+248^E^Exception: Invalid offset in minterval.
 #
 300^E^Parsing error $errorNo in line $lineNo, column $columnNo: Unexpected name $token.
 301^E^Parsing error $errorNo in line $lineNo, column $columnNo, token $token: All cell values of an MDD must be of the same type.
@@ -249,6 +253,7 @@
 525^E^Error: The axis numbers for the projection syntax must correspond to existing axes, using Roman counting.
 526^E^Error: The number of dimensions projected to should match the dimension of the corresponding mask. In this case, a polygon mask is 2-D, and so two distinct axis numbers should be chosen to represent it.
 527^E^Error: The polygon does not align with the path. Double check that the first point of the linestring lies in the convex hull of the polygon vertices, and try again.
+528^E^Error: A linestring must have at least two different points.
 # overflow
 510^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The argument is outside the function domain.
 511^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The function result exceeds the allowed range.
@@ -371,6 +376,7 @@
 1012^E^General error: Invalid collection type passed to MDD collection.
 1013^E^General error: The name of the type is too long.
 1014^E^General error: Invalid name of the object, should contain only [a-zA-Z0-9_]
+1015^E^General error: reserved
 #
 # 2xxx errors: Internal errors
 #

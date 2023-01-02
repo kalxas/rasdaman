@@ -407,7 +407,7 @@ public class EnvelopeByAxis implements Serializable {
             String axisExtentCRSURL = axisExtent.getSrsName();
             // NOTE: the basic coverage metadata can have the abstract SECORE URL, so must replace it first
             axisExtentCRSURL = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCRSURL);
-            
+
             if (CrsProjectionUtil.isValidTransform(axisExtentCRSURL)) {
                 // x, y
                 String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);

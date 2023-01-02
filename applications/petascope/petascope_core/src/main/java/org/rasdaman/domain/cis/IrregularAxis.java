@@ -128,11 +128,15 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     }
     
     @JsonIgnore
+    /**
+     * NOTE: if this list is to be modified you should best make a copy with addAll
+     */
     public List<BigDecimal> getDirectPositionsAsNumbers() {
         if (this.directPositionsAsNumbers == null || this.directPositionsAsNumbers.isEmpty()
             || this.directPositionsAsNumbers.size() != this.directPositions.size()) {
             this.setDirectPositionsAsNumbers();
         }
+        
         return this.directPositionsAsNumbers;
     }
 
@@ -224,6 +228,18 @@ public class IrregularAxis extends GeoAxis implements Serializable {
 
         Long i = Long.valueOf("0");
         List<BigDecimal> coefficients = this.getDirectPositionsAsNumbers();
+        
+        minIndex = BigDecimalUtil.getExactCoefficientIndex(coefficients, minInput);
+        maxIndex = BigDecimalUtil.getExactCoefficientIndex(coefficients, maxInput);
+                
+        if (minIndex != null && maxIndex != null) {
+            if (this.getIndexOfCoefficientZero() != 0) {
+                minIndex = minIndex - this.getIndexOfCoefficientZero();
+                maxIndex = maxIndex - this.getIndexOfCoefficientZero();
+            } 
+            
+            return new Pair<> (minIndex, maxIndex);
+        }
 
         // coefficient in numbers for legacy coverages
         for (BigDecimal coefficient : coefficients) {
@@ -330,8 +346,8 @@ public class IrregularAxis extends GeoAxis implements Serializable {
      * @throws petascope.exceptions.WCSException
      */
     public CoefficientStatus validateCoefficient(boolean isInsitu, BigDecimal coefficient) throws WCSException {
-        long index = BigDecimalUtil.listContainsCoefficient(this.getDirectPositionsAsNumbers(), coefficient);
-        if (index == -1) {
+        Long index = BigDecimalUtil.getApproximateCoefficientIndex(this.getDirectPositionsAsNumbers(), coefficient);
+        if (index == null) {
             // Check if coefficient > the upperBound of axis, if it is not then it is added between other coeffcients which is not valid
             int numberOfCoefficients = this.getDirectPositionsAsNumbers().size();
             BigDecimal upperBoundCoefficient = this.getDirectPositionsAsNumbers().get(numberOfCoefficients - 1);

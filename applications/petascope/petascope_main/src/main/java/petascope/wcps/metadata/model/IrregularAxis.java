@@ -93,9 +93,11 @@ public class IrregularAxis extends Axis {
     
     public void setOriginalDirectPositions() {
         this.originalDirectPositions = new ArrayList<>();
+
         for (BigDecimal value : this.directPositions) {
-            this.originalDirectPositions.add(new BigDecimal(value.toPlainString()));
+            this.originalDirectPositions.add(value);
         }
+        
     }
 
     /**
@@ -302,6 +304,14 @@ public class IrregularAxis extends Axis {
         Long maxIndex = null;
         boolean foundMinIndex = false;  
         
+        
+        minIndex = BigDecimalUtil.getExactCoefficientIndex(directPositions, minInput);
+        maxIndex = BigDecimalUtil.getExactCoefficientIndex(directPositions, maxInput);
+        
+        if (minIndex != null && maxIndex != null) {        
+            return new Pair<> (minIndex, maxIndex);
+        }
+        
         if (!needToSwapBounds) {
             // normal list of coefficients
             for (long i = 0; i < directPositions.size(); i++) {
@@ -351,6 +361,7 @@ public class IrregularAxis extends Axis {
      */
     @JsonIgnore
     public List<BigDecimal> getAllCoefficientsInInterval(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
+        
         // Find the min and max grid incides in the List of directPositions
         Pair<Long, Long> gridIndices = this.getGridIndices(minInput, maxInput);
         if (gridIndices.fst.compareTo(gridIndices.snd) > 0) {

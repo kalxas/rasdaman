@@ -50,8 +50,7 @@ r_Sinterval::r_Sinterval(const char *stringRep)
 {
     if (!stringRep)
     {
-        LERROR << "Cannot create interval from null string.";
-        throw r_Eno_interval();
+        throw r_Error(NOINTERVAL, "given null string");
     }
 
     // for parsing the string
@@ -75,7 +74,7 @@ r_Sinterval::r_Sinterval(const char *stringRep)
     if (charToken != ':')
     {
         LERROR << "Cannot create interval from string (" << stringRep << "), expected pattern a:b";
-        throw r_Eno_interval();
+        throw r_Error(NOINTERVAL, stringRep);
     }
 
     str >> charToken;
@@ -92,14 +91,12 @@ r_Sinterval::r_Sinterval(const char *stringRep)
     }
 }
 
-r_Sinterval::r_Sinterval(r_Range low, r_Range high)
-    : lower_bound(low), upper_bound(high), low_fixed(true), high_fixed(true)
+r_Sinterval::r_Sinterval(r_Range lo, r_Range hi)
+    : lower_bound(lo), upper_bound(hi), low_fixed(true), high_fixed(true)
 {
-    if (low > high)
+    if (lo > hi)
     {
-        LERROR << "Invalid interval: lower bound (" << lower_bound
-               << ") is greater than the upper bound (" << high << ").";
-        throw r_Eno_interval();
+        throw r_Einvalid_interval_bounds(lo, hi);
     }
 }
 
@@ -147,9 +144,7 @@ Offset r_Sinterval::get_extent() const
     else
     {
         // TODO: eliminate this check into an assert
-        LERROR << "Cannot get extent of interval (" << *this
-               << ") as lower or upper bounds are not fixed.";
-        throw r_Error(INTERVALOPEN);
+        throw r_Error(INTERVALOPEN, "cannot get extent of interval " + to_string());
     }
 }
 
@@ -162,9 +157,7 @@ void r_Sinterval::set_low(r_Range newLow)
 {
     if (high_fixed && newLow > upper_bound)
     {
-        LERROR << "Invalid interval: lower bound (" << newLow
-               << ") is greater than the upper bound (" << upper_bound << ").";
-        throw r_Eno_interval();
+        throw r_Einvalid_interval_bounds(newLow, upper_bound);
     }
     lower_bound = newLow;
     low_fixed = true;
@@ -174,9 +167,7 @@ void r_Sinterval::set_high(r_Range newHigh)
 {
     if (low_fixed && newHigh < lower_bound)
     {
-        LERROR << "Invalid interval: lower bound (" << lower_bound
-               << ") is greater than the upper bound (" << newHigh << ").";
-        throw r_Eno_interval();
+        throw r_Einvalid_interval_bounds(lower_bound, newHigh);
     }
     upper_bound = newHigh;
     high_fixed = true;
@@ -186,9 +177,7 @@ void r_Sinterval::set_interval(r_Range newLow, r_Range newHigh)
 {
     if (newLow > newHigh)
     {
-        LERROR << "Invalid interval: lower bound (" << newLow
-               << ") is greater than the upper bound (" << newHigh << ").";
-        throw r_Eno_interval();
+        throw r_Einvalid_interval_bounds(newLow, newHigh);
     }
     lower_bound = newLow;
     upper_bound = newHigh;
@@ -441,8 +430,7 @@ r_Sinterval r_Sinterval::calc_union(const r_Sinterval &a, const r_Sinterval &b) 
 
     default:  // case in { 1, 6, 16, 21, 26, 31, 34, 37 }
     {
-        LDEBUG << "Cannot calculate union of intervals " << a << " and " << b << ".";
-        throw r_Eno_interval();
+        throw r_Error(NOINTERVAL, "cannot calculate union of intervals " + a.to_string() + " and " + b.to_string());
     }
     }
     
@@ -519,8 +507,7 @@ r_Sinterval::calc_difference(const r_Sinterval &a, const r_Sinterval &b) const
 
     default: // case in { 3, 5, 11, 12, 13, 14, 19, 24, 25, 29, 30, 40, 41, 44, 45, 46, 47, 50, 51, 52 }
     {
-        LDEBUG << "Cannot calculate difference of intervals " << a << " and " << b << ".";
-        throw r_Eno_interval();
+        throw r_Error(NOINTERVAL, "cannot calculate difference of intervals " + a.to_string() + " and " + b.to_string());
     }
     }
 
@@ -622,8 +609,7 @@ r_Sinterval::calc_intersection(const r_Sinterval &a, const r_Sinterval &b) const
         break;
 
     default: // case in { 1, 6, 16, 21, 26, 31, 34, 37 }
-        LDEBUG << "Cannot calculate intersection of intervals " << a << " and " << b << ".";
-        throw r_Eno_interval();
+        throw r_Error(NOINTERVAL, "cannot calculate intersection of intervals " + a.to_string() + " and " + b.to_string());
     }
     
     if (a.is_slice() || b.is_slice())

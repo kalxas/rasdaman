@@ -28,9 +28,9 @@ from master.importer.coverage import Coverage
 from master.importer.importer import Importer
 from master.importer.resumer import Resumer
 from master.recipe.base_recipe import BaseRecipe
-from master.request.pyramid import AddPyramidMemberRequest
+from master.request.pyramid import AddPyramidMemberRequest, CreatePyramidMemberRequest
 from session import Session
-from util.string_util import replace_template_by_dict
+from util.string_util import replace_template_by_dict, create_downscaled_coverage_id
 from util.file_util import TmpFile
 from config_manager import ConfigManager
 from util.xml_util import XMLUtil
@@ -187,6 +187,38 @@ class Recipe(BaseRecipe):
                     request = AddPyramidMemberRequest(base_coverage_id, self.coverage_id, self.session.pyramid_harvesting)
                     executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
 
+    def __create_pyramid_members(self):
+        """
+        Create a list of non-virtual pyramid members from this base virtual coverage member
+        """
+        executor = ConfigManager.executor
+
+        scale_levels = self.options["scale_levels"] if "scale_levels" in self.options else None
+        scale_factors = self.options["scale_factors"] if "scale_factors" in self.options else None
+
+        # If scale_levels specified in ingredient files, send request to Petascope to create downscaled level coverages
+        if scale_levels is not None:
+            # Levels be ascending order
+            sorted_scale_levels = sorted(scale_levels)
+            coverage_crs = self.options["envelope"]["srsName"]
+            # NOTE: each level is processed separately with each HTTP request
+            for level in sorted_scale_levels:
+                downscaled_level_coverage_id = create_downscaled_coverage_id(self.coverage_id, level)
+
+                scale_factors = Importer.get_scale_factors(coverage_crs, level)
+                request = CreatePyramidMemberRequest(self.coverage_id, downscaled_level_coverage_id, scale_factors)
+                executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+        elif scale_factors is not None:
+            # if scale_factors exist in the ingredients file, then send CreatePyramidMember request
+            # to create downscaled level coverages and add them as pyramid members of the base coverage
+            for obj in scale_factors:
+                downscaled_level_coverage_id = obj["coverage_id"]
+                factors = obj["factors"]
+
+                request = CreatePyramidMemberRequest(self.coverage_id, downscaled_level_coverage_id,
+                                                     factors)
+                executor.execute(request, mock=ConfigManager.mock, input_base_url=request.context_path)
+
     def __update_coverage_request(self):
         """
         Create WCS-T UpdateCoverage request to update a virtual coverage
@@ -319,6 +351,7 @@ class Recipe(BaseRecipe):
             self.__insert_coverage_request()
             self.__add_pyramid_members()
             self.__add_pyramid_bases()
+            self.__create_pyramid_members()
         else:
             self.__update_coverage_request()
 

@@ -371,12 +371,19 @@ public class CrsTransformHandler extends Handler {
             secondCRSAxis = crsDefinition.getAxes().get(0);
         }
         
+        
+        List<Axis> beforeXYAxes = covMetadata.getXYAxes();
+        Axis beforeXAxis = beforeXYAxes.get(0);
+        Axis beforeYAxis = beforeXYAxes.get(1);
+        
         BigDecimal geoLowerBoundX = targetGeoTransform.getUpperLeftGeoX();
         BigDecimal geoUpperBoundX = targetGeoTransform.getLowerRightGeoX();
         
         NumericSubset geoBoundsX = new NumericTrimming(geoLowerBoundX, geoUpperBoundX);
-        NumericSubset originalGridBoundX = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridWidth() - 1));
-        NumericSubset gridBoundX = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridWidth() - 1));
+        NumericSubset originalGridBoundX = new NumericTrimming(beforeXAxis.getOriginalGridBounds().getLowerLimit(), 
+                                                               beforeXAxis.getOriginalGridBounds().getLowerLimit().add(new BigDecimal(targetGeoTransform.getGridWidth() - 1)));
+        NumericSubset gridBoundX = new NumericTrimming(beforeXAxis.getGridBounds().getLowerLimit(), 
+                                                    beforeXAxis.getGridBounds().getLowerLimit().add(new BigDecimal(targetGeoTransform.getGridWidth() - 1)));
         
         Axis axisX = new RegularAxis(firstCRSAxis.getAbbreviation(), geoBoundsX, originalGridBoundX, gridBoundX, 
                 outputCRS, crsDefinition, 
@@ -387,8 +394,10 @@ public class CrsTransformHandler extends Handler {
         BigDecimal geoLowerBoundY = targetGeoTransform.getLowerRightGeoY();
         
         NumericSubset geoBoundsY = new NumericTrimming(geoLowerBoundY, geoUpperBoundY);
-        NumericSubset originalGridBoundY = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridHeight() - 1));
-        NumericSubset gridBoundY = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridHeight() - 1));
+        NumericSubset originalGridBoundY = new NumericTrimming(beforeYAxis.getOriginalGridBounds().getLowerLimit(), 
+                                                            beforeYAxis.getOriginalGridBounds().getLowerLimit().add(new BigDecimal(targetGeoTransform.getGridHeight() - 1)));
+        NumericSubset gridBoundY = new NumericTrimming(beforeYAxis.getGridBounds().getLowerLimit(), 
+                                                    beforeYAxis.getGridBounds().getLowerLimit().add(new BigDecimal(targetGeoTransform.getGridHeight() - 1)));
 
         Axis axisY = new RegularAxis(secondCRSAxis.getAbbreviation(), geoBoundsY, originalGridBoundY, gridBoundY, 
                 outputCRS, crsDefinition, 

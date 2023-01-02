@@ -24,6 +24,7 @@ package petascope.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -136,20 +137,42 @@ public class BigDecimalUtil {
      * @param value
      * @return 
      */
-    public static int listContainsCoefficient(List<BigDecimal> list, BigDecimal value) {
-        int counter = 0;
+    public static Long getApproximateCoefficientIndex(List<BigDecimal> list, BigDecimal value) {
+        // In case the coefficient value can be searched quickly
+        Long index = getExactCoefficientIndex(list, value);
+        if (index == null) {
+            index = 0L;
+        } else {
+            return index;
+        }
+
         for (BigDecimal coeff : list) {
             // if value is within [coefficient - epsilon, coefficient + epsilon], then value is considered the coefficient
             // e.g: 
             if ((coeff.subtract(COEFFICIENT_DECIMAL_EPSILON).compareTo(value) <= 0)
                 &&(coeff.add(COEFFICIENT_DECIMAL_EPSILON).compareTo(value) >= 0)) {
-                return counter;
+                return index;
             }            
-            counter++;
+            index++;
         }
-        return -1;
+        
+        return null;
     }
-
+    
+    
+    /**
+     * e.g. search 3.222223444567 from the list of coefficients: [0, 1.333, 3.22222344456788888]
+     * the result is -1, because 3.222223444567 does not exist here.
+     */
+    public static Long getExactCoefficientIndex(List<BigDecimal> list, BigDecimal value) {
+        Long index = Long.valueOf(Collections.binarySearch(list, value));
+        if (index < 0) {
+            index = null;
+        }
+        
+        return index;
+    }
+    
     /**
      * Convert list of String to list of BigDecimal values
      * @param values

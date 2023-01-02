@@ -230,8 +230,8 @@ public class ConfigManager {
     /* ***** Rasdaman configuration ***** */
     private static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
     private static final String KEY_RASDAMAN_URL = "rasdaman_url";
-    private static final String KEY_RASDAMAN_USER = "rasdaman_user";
-    private static final String KEY_RASDAMAN_PASS = "rasdaman_pass";
+    public static final String KEY_RASDAMAN_USER = "rasdaman_user";
+    public static final String KEY_RASDAMAN_PASS = "rasdaman_pass";
     private static final String KEY_RASDAMAN_ADMIN_USER = "rasdaman_admin_user";
     private static final String KEY_RASDAMAN_ADMIN_PASS = "rasdaman_admin_pass";
     private static final String KEY_RASDAMAN_RETRY_TIMEOUT = "rasdaman_retry_timeout";

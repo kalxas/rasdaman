@@ -413,7 +413,7 @@ public class InsertCoverageHandler {
             String nullValue = DEFAUL_NULL_VALUE;
             // e.g: c
             String suffix = typeSuffixes.get(i);
-            if (!bandNullValues.isEmpty()) {
+            if (!bandNullValues.isEmpty() && !mergedList.isEmpty()) {
                 nullValue = mergedList.get(i).getValue();
                 if (nullValue.endsWith(FLOAT_ZERO_SUFFIX)) {
                     nullValue = nullValue.replace(FLOAT_ZERO_SUFFIX, "");

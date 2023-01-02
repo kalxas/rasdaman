@@ -105,9 +105,9 @@ const std::string &r_Error::get_errorparam() const
   return errorDetails;
 }
 
-void r_Error::set_what(const char *what)
+void r_Error::set_what(const char *w)
 {
-  errorText = what;
+  errorText = w;
 }
 
 std::string
@@ -241,7 +241,7 @@ r_Error::setErrorTextOnKind()
         errorText = "Illegal contents of the string with projection bounds";
         break;
     case r_Error_RuntimeProjectionError:
-        errorText = "CRS Reprojection failed at runtime, check that the CRSes are fully supported";
+        errorText = "CRS reprojection failed at runtime";
         break;
     case r_Error_InvalidSourceCRS:
         errorText = "Cannot use source coordinate reference system, as reported by GDAL library";
@@ -458,14 +458,6 @@ void r_Error::updateWithErrorDetails()
 
 // ----------------------------------------------------------------------------------------------
 
-r_Eno_interval::r_Eno_interval()
-    : r_Error(NOINTERVAL)
-{
-    resetErrorText();
-}
-
-// ----------------------------------------------------------------------------------------------
-
 r_EGeneral::r_EGeneral(const std::string &errorTextArg)
     : r_Error{errorTextArg.c_str()}
 {
@@ -475,6 +467,12 @@ r_EGeneral::r_EGeneral(const std::string &errorTextArg)
 
 r_Eindex_violation::r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex)
     : r_Error(INDEXVIOLATION), low(dlow), high(dhigh), index(dindex)
+{
+  resetErrorText();
+}
+
+r_Eindex_violation::r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex, const std::string &details)
+  : r_Error(INDEXVIOLATION, details), low(dlow), high(dhigh), index(dindex)
 {
     resetErrorText();
 }
@@ -496,6 +494,12 @@ r_Edim_mismatch::r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2)
     resetErrorText();
 }
 
+r_Edim_mismatch::r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2, const std::string &details)
+  : r_Error(DIMENSIONMISMATCH, details), dim1(pdim1), dim2(pdim2)
+{
+    resetErrorText();
+}
+
 void
 r_Edim_mismatch::resetErrorText()
 {
@@ -508,14 +512,6 @@ r_Edim_mismatch::resetErrorText()
 
 r_Einit_overflow::r_Einit_overflow()
     : r_Error(DIMOVERFLOW)
-{
-    resetErrorText();
-}
-
-// ----------------------------------------------------------------------------------------------
-
-r_Eno_cell::r_Eno_cell()
-    : r_Error(RESULTISNOCELL)
 {
     resetErrorText();
 }
@@ -616,3 +612,16 @@ r_Ecapability_refused::r_Ecapability_refused()
 {
 }
 
+
+r_Einvalid_interval_bounds::r_Einvalid_interval_bounds(r_Range l1, r_Range l2)
+    : r_Error(INVALIDINTERVALBOUNDS), lim1{l1}, lim2{l2}
+{
+    resetErrorText();
+}
+
+void r_Einvalid_interval_bounds::resetErrorText()
+{
+    setErrorTextOnNumber();
+    setTextParameter("$lim1", lim1);
+    setTextParameter("$lim2", lim2);
+}

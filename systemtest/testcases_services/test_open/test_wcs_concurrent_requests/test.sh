@@ -82,6 +82,7 @@ for i in $(seq $REQUEST_NO); do
    NUM_TOTAL=$(($NUM_TOTAL-1)) # it was added again in check_passed
 done
 
+
 [ $NUM_SUC -gt 0 ]
 check_result 0 $? "at least one request returned valid result"
 

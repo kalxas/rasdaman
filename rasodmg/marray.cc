@@ -291,7 +291,7 @@ r_Marray<T>::operator T()
     // check if the spatial domain of self is really zero
     if (domain.dimension() > 0 || data == 0)
     {
-        throw r_Eno_cell();
+        throw r_Error(RESULTISNOCELL, "marray data is null");
     }
 
     return *((T *)data);

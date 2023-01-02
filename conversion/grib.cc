@@ -471,7 +471,7 @@ r_Minterval r_Conv_GRIB::domainStringToMinterval(const char* domain)
     {
         return r_Minterval(domain);
     }
-    catch (r_Eno_interval& ex)
+    catch (r_Error& ex)
     {
         std::stringstream s;
         s << "invalid domain minterval " << domain << ", " << ex.what();

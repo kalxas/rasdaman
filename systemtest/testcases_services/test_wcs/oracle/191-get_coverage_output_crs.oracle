@@ -10,8 +10,8 @@
         <gml:RectifiedGrid dimension="2" gml:id="test_sf-grid">
             <gml:limits>
                 <gml:GridEnvelope>
-                    <gml:low>0 0</gml:low>
-                    <gml:high>4 4</gml:high>
+                    <gml:low>3 9</gml:low>
+                    <gml:high>7 13</gml:high>
                 </gml:GridEnvelope>
             </gml:limits>
             <gml:axisLabels>E N</gml:axisLabels>
@@ -33,7 +33,7 @@
     <gml:coverageFunction>
         <gml:GridFunction>
             <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
-            <gml:startPoint>0 0</gml:startPoint>
+            <gml:startPoint>3 9</gml:startPoint>
         </gml:GridFunction>
     </gml:coverageFunction>
     <gmlcov:rangeType>

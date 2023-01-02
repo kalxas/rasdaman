@@ -56,6 +56,8 @@ import petascope.core.Pair;
 import petascope.util.StringUtil;
 import static petascope.util.StringUtil.POSITIONAL_PARAMETER_PATTERN;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import petascope.core.service.GdalFileToCoverageTranslatorService;
 import petascope.wcps.metadata.service.TempCoverageRegistry;
 import petascope.wcps.result.WcpsMetadataResult;
@@ -109,6 +111,8 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
      */
     @Override
     public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, WCSException, SecoreException, WMSException, Exception {
+        long startTime = System.currentTimeMillis();
+        
         // Validate before handling the request
         this.validate(kvpParameters);
 
@@ -127,13 +131,19 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         }
         
         String newWcpsQuery = this.adjustWcpsQueryByPositionalParameters(kvpParameters, wcpsQuery);
-              
-        VisitorResult visitorResult = wcpsTranslator.translate(newWcpsQuery);
-        WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
+        
 
-        List<byte[]> results = new ArrayList<>();
-
+        List<byte[]> results = new ArrayList<>();   
+        String mimeType = null;
+        
+        
         try {
+              
+            VisitorResult visitorResult = wcpsTranslator.translate(newWcpsQuery);
+            WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
+            
+            long endTime = System.currentTimeMillis();
+            System.out.println("Total time to generate rasql query is: " + (endTime - startTime) + " ms");
 
             if (visitorResult instanceof WcpsMetadataResult) {
                 results.add(executor.execute(visitorResult));
@@ -154,12 +164,12 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
                     results.add(executor.execute(visitorResult));
                 }
             }
+            
+            mimeType = visitorResult.getMimeType();
         } finally {
             this.coverageAliasRegistry.clear();
             this.tempCoverageRegistry.clear();
         }
-
-        String mimeType = visitorResult.getMimeType();
 
         return new Response(results, mimeType, coverageID);
     }
@@ -199,15 +209,20 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         
         StringBuffer stringBuffer = new StringBuffer();
         Matcher matcher = POSITIONAL_PARAMETER_PATTERN.matcher(wcpsQuery);
-        while (matcher.find()) {
-            // e.g: $1, $2,...
-            String positionalParameter = matcher.group();
-            String value = getValueByKeyAllowNull(kvpParameters, StringUtil.stripDollarSign(positionalParameter));
-            
-            if (value != null) {            
-                if (value.startsWith(UPLOADED_FILE_DIR_TMP)) {
-                    String filePath = value;
-                    try {
+        List<String> uploadedFilePaths = new ArrayList<>();
+        
+        try {
+        
+            while (matcher.find()) {
+                // e.g: $1, $2,...
+                String positionalParameter = matcher.group();
+                String value = getValueByKeyAllowNull(kvpParameters, StringUtil.stripDollarSign(positionalParameter));
+
+                if (value != null) {            
+                    if (value.startsWith(UPLOADED_FILE_DIR_TMP)) {
+                        String filePath = value;
+                        uploadedFilePaths.add(filePath);
+
                         // e.g: $1 -> /tmp/rasdaman_petacope/rasdaman...tif (uploaded file in POST body)
                         //      $2 -> 5 (uploaded value in POST body)
                         Coverage coverage = this.gdalFileToCoverageTranslatorService.translate(filePath);
@@ -224,21 +239,22 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
 
                         // e.g: $1 -> (TEMP_COV_abc_202001010, /tmp/rasdaman_petacope/rasdaman...tif)
                         this.tempCoverageRegistry.add(positionalParameter, coverageId, value);
-                    } finally {
-                        try {
-                            // remove the uploaded file afterwards
-                            Files.deleteIfExists(Paths.get(filePath));
-                        } catch (IOException ex) {
-                            throw new PetascopeException(ExceptionCode.IOConnectionError, 
-                                    "Cannot delete file '"  + filePath + "'. Reason: " + ex.getMessage(), ex);
-                        }
+                    } else {                
+                        // e.g: replace $2 in query with 5
+                        matcher.appendReplacement(stringBuffer, Matcher.quoteReplacement(value));
                     }
-                } else {                
-                    // e.g: replace $2 in query with 5
-                    matcher.appendReplacement(stringBuffer, Matcher.quoteReplacement(value));
                 }
             }
                         
+        } finally {
+            // remove the uploaded file afterwards
+            for (String filePath : uploadedFilePaths) {
+                try {                    
+                    Files.deleteIfExists(Paths.get(filePath));
+                } catch (IOException ex) {
+                    log.warn("Cannot delete uploaded file '" + filePath + "'. Reason: " + ex.getMessage());
+                }
+            }
         }
         
         matcher.appendTail(stringBuffer);

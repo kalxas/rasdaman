@@ -2489,7 +2489,8 @@ formats and file/directory organizations.
 
 The systemtest contains 
 `many examples <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata>`__
-for importing different types of data.
+for importing different types of data. Note that the ``ingest.template.json`` are template files
+which cannot be directly imported, as several variables need to be set.
 
 .. _data-import-intro:
 
