@@ -27,7 +27,7 @@
 #
 ################################################################################
 
-PROG=$( basename $0 )
+PROG="$( basename "$0" )"
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
@@ -44,20 +44,13 @@ sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$ingredients_file_testdata" > "$ingest_j
 
 # array for holding posible daemon commands
 # in case the daemon's functionality is extended, add the new commands at the end of the array
-# declare -a daemon_commands=( \
-#     "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon start" \
-#     "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon status" \
-#     "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon restart" \
-#     "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon stop" \
-#     "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --watch 1")
-
 declare -a daemon_commands=( \
         "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon start" \
         "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon status" \
         "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon restart" \
         "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --daemon stop" \
         "$WCST_IMPORT -i $RASADMIN_CREDENTIALS_FILE $ingest_json --watch 1"
-    )
+)
 
 get_daemon_pid() {
     ps aux | grep "$ingest_json" | grep -v "grep" | tr -s " " | cut -d " " -f2
@@ -77,30 +70,25 @@ watch_daemon_0_5s() {
 }
 
 check_start() {
-    daemon_pid=$(get_daemon_pid)
-    [ -n "$daemon_pid" ]
+    # check that exactly one daemon pid exists
+    get_daemon_pid | wc -l | grep -q 1
     check_result 0 $? "checking --daemon start"
 }
 check_status() {
     daemon_pid=$(get_daemon_pid)
-    message=$"$1"
-    daemon_pid_from_message=$(echo "$message" | grep -o -E '[0-9]{4,}')
-
+    daemon_pid_from_message=$(echo "$@" | grep "running as pid" | grep -o -E '[0-9]+')
     check_result "$daemon_pid" "$daemon_pid_from_message" "checking --daemon status"
 }
 check_restart() {
-    old_pid=$"$1"
+    old_pid="$1"
     new_pid=$(get_daemon_pid)
-
     [ "$old_pid" != "$new_pid" ]
     check_result 0 $? "checking --daemon restart"
 }
 check_stop() {
-    # wait for the deamon process terminated first
-    sleep 1
+    sleep 1  # wait for the deamon process to terminate first
     daemon_pid=$(get_daemon_pid)
     [ -z "$daemon_pid" ]
-    
     check_result 0 $? "checking --daemon stop"
 }
 
@@ -168,9 +156,9 @@ check_pidfile_removed() {
 for (( i = 0; i < ${#daemon_commands[@]} ; i++ )); do
     log ""
     log "test ${daemon_commands[$i]}"
-
     current_pid=$(get_daemon_pid)
-    log_message=`${daemon_commands[$i]}`
+
+    log_message=$(${daemon_commands[$i]} 2>&1)
 
     case "$i" in
         0)
@@ -204,4 +192,11 @@ log ""
 check_pidfile_removed
 
 print_summary
+
+# append wcst_import.sh log to the test.log file
+wcst_import_log=test_import_order_descending_irregular_time_netcdf.log
+if [ -f "$wcst_import_log" ]; then
+    cat "$wcst_import_log" >> "$LOG_FILE"
+fi
+
 exit $RC
