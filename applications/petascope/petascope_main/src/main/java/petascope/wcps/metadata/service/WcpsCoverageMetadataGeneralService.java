@@ -668,15 +668,7 @@ public class WcpsCoverageMetadataGeneralService {
         if (hasIrregularAxis) {
             coverageType = XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;
         }
-<<<<<<< HEAD
-       
-=======
-        //the current crs is IndexND CRS. When the coverage constructor will support geo referencing, the CrsService should
-        //deduce the crs from the crses of the axes
-        // NOTE: now, just use IndexND CRS (e.g: http://.../IndexND) to set as crs for creating coverage first
-        String indexNDCrsUri = CrsUtility.createIndexNDCrsUri(axes);
-        
->>>>>>> release_10.1
+
         List<RangeField> rangeFields;
         List<List<NilValue>> nilValues; 
         
