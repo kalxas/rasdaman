@@ -346,21 +346,6 @@ public class WMSGetMapStyleService {
             mainRasqlQuery = EXTEND + "( " + mainRasqlQuery + ", " + extendDomain + ")";
         }
         
-        // Parse rasql from FROM clause for aliases and collections
-        if (rasqlTmp.indexOf(FROM) > 0) {
-            String fromClauseRasqlQuery = rasqlTmp.substring(rasqlTmp.indexOf(FROM) + 4, rasqlTmp.length()).trim();
-            String[] tmps = fromClauseRasqlQuery.split(",");
-            for (String tmp : tmps) {
-                // e.g: collectionA AS c0
-                String[] tmp1 = tmp.split(AS);
-                String collectionName = tmp1[0];
-                String alias = tmp1[1];
-
-                String layerName = wcpsCoverageMetadata.getCoverageName();
-                this.collectionAliasRegistry.add(alias, collectionName, layerName);
-            }
-        }
-        
         return mainRasqlQuery;
     }
     
