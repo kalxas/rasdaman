@@ -47,7 +47,7 @@ public class TrimScaleDimensionIntervalElement extends Handler {
     }
     
     public TrimScaleDimensionIntervalElement create(StringScalarHandler axisLabelHandler,
-                                                    StringScalarHandler lowerBoundHandler, StringScalarHandler upperBoundhandler) {
+                                                    Handler lowerBoundHandler, Handler upperBoundhandler) {
         TrimScaleDimensionIntervalElement result = new TrimScaleDimensionIntervalElement();
         result.setChildren(Arrays.asList(axisLabelHandler, lowerBoundHandler, upperBoundhandler));
         

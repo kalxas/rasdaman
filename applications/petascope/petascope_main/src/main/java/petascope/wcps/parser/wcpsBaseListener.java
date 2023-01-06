@@ -56,19 +56,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterSliceScaleDimensionIntervalElementLabel(@NotNull wcpsParser.SliceScaleDimensionIntervalElementLabelContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitSliceScaleDimensionIntervalElementLabel(@NotNull wcpsParser.SliceScaleDimensionIntervalElementLabelContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterCoverageExpressionTrigonometricLabel(@NotNull wcpsParser.CoverageExpressionTrigonometricLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -128,6 +115,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitExponentialExpressionOperator(@NotNull wcpsParser.ExponentialExpressionOperatorContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterSliceScaleDimensionPointElementLabel(@NotNull wcpsParser.SliceScaleDimensionPointElementLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitSliceScaleDimensionPointElementLabel(@NotNull wcpsParser.SliceScaleDimensionPointElementLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -251,19 +251,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterCoverageExpressionScaleByExtentLabel(@NotNull wcpsParser.CoverageExpressionScaleByExtentLabelContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitCoverageExpressionScaleByExtentLabel(@NotNull wcpsParser.CoverageExpressionScaleByExtentLabelContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -271,6 +258,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterCoverageExpressionScaleByExtentLabel(@NotNull wcpsParser.CoverageExpressionScaleByExtentLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCoverageExpressionScaleByExtentLabel(@NotNull wcpsParser.CoverageExpressionScaleByExtentLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -667,6 +667,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterScaleDimensionPointListLabel(@NotNull wcpsParser.ScaleDimensionPointListLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitScaleDimensionPointListLabel(@NotNull wcpsParser.ScaleDimensionPointListLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterCoverageExpressionArithmeticLabel(@NotNull wcpsParser.CoverageExpressionArithmeticLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -869,6 +882,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitGeoXYAxisLabelAndDomainResolutionLabel(@NotNull wcpsParser.GeoXYAxisLabelAndDomainResolutionLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterCoverageExpressionScaleByFactorListLabel(@NotNull wcpsParser.CoverageExpressionScaleByFactorListLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCoverageExpressionScaleByFactorListLabel(@NotNull wcpsParser.CoverageExpressionScaleByFactorListLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

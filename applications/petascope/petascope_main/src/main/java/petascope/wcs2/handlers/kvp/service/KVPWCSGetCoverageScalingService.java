@@ -87,7 +87,7 @@ public class KVPWCSGetCoverageScalingService {
         if (kvpParameters.containsKey(KVPSymbols.KEY_SCALEFACTOR)) {
             // e.g: scalefactor=3 then all axes will downscaled by 3 (e.g: i has 100 pixels, then the ouput is 100 / 3)
             String scaleFactor = kvpParameters.get(KVPSymbols.KEY_SCALEFACTOR)[0];
-            queryContent = KVPSymbols.KEY_SCALEFACTOR + "( " + queryContent + ", " + scaleFactor + " )";
+            queryContent = KVPSymbols.KEY_SCALE_PREFIX + "( " + queryContent + ", " + scaleFactor + " )";
 
         } else if (kvpParameters.containsKey(KVPSymbols.KEY_SCALEAXES)) {
             // e.g: scaleaxes=i(5)&scaleaxes=j(3) then (e.g: i has 100 pixels, then the output is 100 / 5 pixels, j has 100 pixels, then the output is 100 / 3 pixels)            

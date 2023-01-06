@@ -42,14 +42,6 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitSliceScaleDimensionIntervalElementLabel(@NotNull wcpsParser.SliceScaleDimensionIntervalElementLabelContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 */
 	@Override public T visitCoverageExpressionTrigonometricLabel(@NotNull wcpsParser.CoverageExpressionTrigonometricLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -83,6 +75,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitExponentialExpressionOperator(@NotNull wcpsParser.ExponentialExpressionOperatorContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitSliceScaleDimensionPointElementLabel(@NotNull wcpsParser.SliceScaleDimensionPointElementLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -162,7 +162,7 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitCoverageExpressionScaleByExtentLabel(@NotNull wcpsParser.CoverageExpressionScaleByExtentLabelContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -170,7 +170,7 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCoverageExpressionScaleByExtentLabel(@NotNull wcpsParser.CoverageExpressionScaleByExtentLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -418,6 +418,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitScaleDimensionPointListLabel(@NotNull wcpsParser.ScaleDimensionPointListLabelContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitCoverageExpressionArithmeticLabel(@NotNull wcpsParser.CoverageExpressionArithmeticLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -539,6 +547,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitGeoXYAxisLabelAndDomainResolutionLabel(@NotNull wcpsParser.GeoXYAxisLabelAndDomainResolutionLabelContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitCoverageExpressionScaleByFactorListLabel(@NotNull wcpsParser.CoverageExpressionScaleByFactorListLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}

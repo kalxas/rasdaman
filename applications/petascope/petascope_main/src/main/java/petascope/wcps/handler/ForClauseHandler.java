@@ -35,6 +35,9 @@ import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.result.WcpsResult;
 
+import petascope.util.StringUtil;
+import petascope.wcps.metadata.service.CollectionAliasRegistry;
+
 /**
  * Translation node from wcps to rasql for the for clause. Example:  <code>
  * for $c1 in COL1
@@ -52,6 +55,8 @@ public class ForClauseHandler extends Handler {
 
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
+    @Autowired
+    private CollectionAliasRegistry collectionAliasRegistry;
     @Autowired
     private CoverageRepositoryService coverageRepostioryService;
     
@@ -71,6 +76,7 @@ public class ForClauseHandler extends Handler {
         result.setChildren(childHandlers);
         
         result.coverageAliasRegistry = this.coverageAliasRegistry;
+        result.collectionAliasRegistry = this.collectionAliasRegistry;
         result.coverageRepostioryService = this.coverageRepostioryService;
         
         return result;
@@ -114,6 +120,10 @@ public class ForClauseHandler extends Handler {
                 rasdamanCollectionNames.add(rasdamanCollectionName);
             }
             coverageAliasRegistry.addCoverageMapping(coverageIterator, coverageId, rasdamanCollectionName);
+            
+            if (rasdamanCollectionName != null) {
+                collectionAliasRegistry.add(StringUtil.stripDollarSign(coverageIterator), rasdamanCollectionName, coverageId);
+            }
         }
         
         String translatedCoverageIterator = coverageIterator;

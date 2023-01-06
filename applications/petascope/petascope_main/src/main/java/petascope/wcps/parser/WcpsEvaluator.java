@@ -48,7 +48,6 @@ import petascope.wcps.handler.WcsScaleExpressionByScaleSizeHandler;
 import petascope.wcps.handler.DomainExpressionHandler;
 import petascope.wcps.handler.ReduceExpressionHandler;
 import petascope.wcps.handler.CrsTransformHandler;
-import petascope.wcps.handler.WcsScaleExpressionByFactorHandler;
 import petascope.wcps.handler.ParenthesesCoverageExpressionHandler;
 import petascope.wcps.handler.ScaleExpressionByDimensionIntervalsHandler;
 import petascope.wcps.handler.StringScalarHandler;
@@ -112,7 +111,7 @@ import petascope.wcps.handler.ScaleDimensionIntervalListHandler;
 import petascope.wcps.handler.ShortHandSubsetWithLetClauseVariableHandler;
 import petascope.wcps.handler.ShorthandSubsetHandler;
 import petascope.wcps.handler.SliceDimensionIntervalElementHandler;
-import petascope.wcps.handler.SliceScaleDimensionIntervalElement;
+import petascope.wcps.handler.SliceScaleDimensionPointElement;
 import petascope.wcps.handler.UnaryModExpressionHandler;
 import petascope.wcps.metadata.service.LetClauseAliasRegistry;
 import petascope.wcps.handler.SortExpressionHandler;
@@ -130,7 +129,7 @@ import petascope.wcps.metadata.service.SortedAxisIteratorAliasRegistry;
 import petascope.wcps.metadata.service.UsingCondenseRegistry;
 
 import petascope.wcps.handler.TrimDimensionIntervalByImageCrsDomainElementHandler;
-
+import petascope.wcps.handler.WcsScaleExpressionByFactorsListHandler;
 
 /**
  * Class that implements the parsing rules described in wcps.g4
@@ -273,7 +272,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     ScaleExpressionByImageCrsDomainHandler scaleExpressionByImageCrsDomainHandler;
     // Made up to handle WCS -> WCPS scale
     @Autowired private
-    WcsScaleExpressionByFactorHandler scaleExpressionByFactorHandler;
+    WcsScaleExpressionByFactorsListHandler scaleExpressionByFactorsListHandler;
     @Autowired private
     WcsScaleExpressionByScaleAxesHandler scaleExpressionByScaleAxesHandler;
     @Autowired private
@@ -282,7 +281,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     WcsScaleExpressionByScaleExtentHandler scaleExpressionByScaleExtentHandler;
     
     @Autowired private
-    SliceScaleDimensionIntervalElement sliceScaleDimensionIntervalElement;
+    SliceScaleDimensionPointElement sliceScaleDimensionPointElement;
     @Autowired private
     TrimScaleDimensionIntervalElement trimScaleDimensionIntervalElement;
     @Autowired private
@@ -1538,13 +1537,27 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         //        coverageExpression COMMA number
         // RIGHT_PARENTHESIS
         // e.g: scale(c[t(0)], 2.5) with c is 3D coverage which means 2D output will be 
-        // downscaled to 2.5 by each dimension (e.g: grid pixel is: 100 then the result is 100 / 2.5)
+        // upscaled to 2.5 by each dimension (e.g: grid pixel is: 100 x 100 then the result is 100 * 100 * 2.5)
         Handler coverageExpressionHandler = visit(ctx.coverageExpression());
-        String factorNumber = ctx.number().getText();        
+        Handler factorNumberHandler = visit(ctx.scalarExpression());
         
-        Handler result = scaleExpressionByFactorHandler.create(coverageExpressionHandler, this.stringScalarHandler.create(factorNumber));        
+        Handler result = scaleExpressionByFactorsListHandler.create(coverageExpressionHandler, factorNumberHandler);        
         return result;
     }
+    
+    @Override 
+    public Handler visitCoverageExpressionScaleByFactorListLabel(@NotNull wcpsParser.CoverageExpressionScaleByFactorListLabelContext ctx) { 
+//      SCALE LEFT_PARENTHESIS
+//                coverageExpression COMMA LEFT_BRACE scaleDimensionByFactorList RIGHT_BRACE
+//            RIGHT_PARENTHESIS
+        // e.g. scale(c, {Lat(0.5), Long(3)})
+        Handler coverageExpressionHandler = visit(ctx.coverageExpression());
+        Handler scaleFactorsListHandler = visit(ctx.scaleDimensionPointList());       
+        
+        Handler result = this.scaleExpressionByFactorsListHandler.create(coverageExpressionHandler, scaleFactorsListHandler);
+        return result;
+    }    
+    
     
     @Override
     public Handler visitCoverageExpressionScaleByAxesLabel(@NotNull wcpsParser.CoverageExpressionScaleByAxesLabelContext ctx) {
@@ -1554,7 +1567,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         // e.g: scaleaxes(c[t(0)], [Lat(2.5), Long(2.5)]) with c is 3D coverage which means 2D output will be 
         // downscaled to 2.5 by each dimension (e.g: grid pixel is: 100 then the result is 100 / 2.5)
         Handler coverageExpressionHandler = visit(ctx.coverageExpression());
-        Handler scaleAxesDimensionListHandler = visit(ctx.scaleDimensionIntervalList());
+        Handler scaleAxesDimensionListHandler = visit(ctx.scaleDimensionPointList());
         
         Handler result = scaleExpressionByScaleAxesHandler.create(coverageExpressionHandler, scaleAxesDimensionListHandler);        
         return result;
@@ -1567,7 +1580,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         // RIGHT_PARENTHESIS
         // e.g: scalesize(c[t(0)], [Lat(25), Long(25)]) with c is 3D coverage which means 2D output will have grid domain: 0:24, 0:24 (25 pixesl for each dimension)
         Handler coverageExpressionHandler = visit(ctx.coverageExpression());
-        Handler scaleDimensionIntervalListHandler = visit(ctx.scaleDimensionIntervalList());
+        Handler scaleDimensionIntervalListHandler = visit(ctx.scaleDimensionPointList());
         
         Handler result = scaleExpressionByScaleSizeHandler.create(coverageExpressionHandler, scaleDimensionIntervalListHandler);        
         return result;
@@ -1945,14 +1958,14 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
     // -- scale
   
     @Override
-    public Handler visitSliceScaleDimensionIntervalElementLabel(@NotNull wcpsParser.SliceScaleDimensionIntervalElementLabelContext ctx) {
+    public Handler visitSliceScaleDimensionPointElementLabel(@NotNull wcpsParser.SliceScaleDimensionPointElementLabelContext ctx) {
         // axisName LEFT_PARENTHESIS   number   RIGHT_PARENTHESIS
         // e.g: i(0.5) and is used for scaleaxes, scalesize expression, e.g: scale(c, [i(0.5)])
         String axisLabel = ctx.axisName().getText();
-        String scaleFactor = ctx.number().getText();
+        Handler scaleFactorHandler = visit(ctx.scalarExpression());
         
-        Handler result = this.sliceScaleDimensionIntervalElement.create(this.stringScalarHandler.create(axisLabel),
-                                                                        this.stringScalarHandler.create(scaleFactor));
+        Handler result = this.sliceScaleDimensionPointElement.create(this.stringScalarHandler.create(axisLabel),
+                                                                        scaleFactorHandler);
         return result;
     }
     
@@ -1962,23 +1975,28 @@ public class WcpsEvaluator extends wcpsBaseVisitor<Handler> {
         // e.g: i(20:30) and is used for scaleextent expression, e.g: scale(c, [i(20:30)])
         String axisLabel = ctx.axisName().getText();
         
-        String lowerBound = "";
-        String upperBound = "";
-        
-        if (ctx.number().size() > 0) {
-            lowerBound = ctx.number().get(0).getText();
-            upperBound = ctx.number().get(1).getText();
-        } else {
-            lowerBound = ctx.STRING_LITERAL().get(0).getText();
-            upperBound = ctx.STRING_LITERAL().get(1).getText();
-        }
+        Handler lowerBoundHandler = visit(ctx.scalarExpression().get(0));
+        Handler upperBoundHandler = visit(ctx.scalarExpression().get(1));
         
         Handler result = this.trimScaleDimensionIntervalElement.create(
                                                         this.stringScalarHandler.create(axisLabel),
-                                                        this.stringScalarHandler.create(lowerBound),
-                                                        this.stringScalarHandler.create(upperBound));
+                                                        lowerBoundHandler,
+                                                        upperBoundHandler);
         return result;
     }
+    
+    @Override
+    public Handler visitScaleDimensionPointListLabel(@NotNull wcpsParser.ScaleDimensionPointListLabelContext ctx) {
+        // scaleDimensionPointElement (COMMA scaleDimensionPointElement)* 
+        // e.g: i(0.5),j(0.5)
+        List<Handler> handlers = new ArrayList<>();
+        for (wcpsParser.ScaleDimensionPointElementContext element : ctx.scaleDimensionPointElement()) {
+            handlers.add(visit(element));
+        }
+        
+        Handler result = this.scaleDimensionIntervalListHandler.create(handlers);
+        return result;
+    }        
     
     @Override
     public Handler visitScaleDimensionIntervalListLabel(@NotNull wcpsParser.ScaleDimensionIntervalListLabelContext ctx) {

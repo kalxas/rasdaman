@@ -236,13 +236,6 @@ public class CoverageAliasRegistry {
             }
         }
         
-        // for virtual coverages, collect source collections
-        for (Map.Entry<String, Pair<String, String>> entry : this.collectionAliasRegistry.getAliasMap().entrySet()) {
-            // e.g: utm31 as c0
-            String clause = entry.getValue().fst + " " + AS + " " + entry.getKey();
-            list.add(clause);
-        }
-         
         // test_mean_summer_airtemp as c, test_mean_summer_airtemp as d
         String output = ListUtil.join(list, ", ");
         

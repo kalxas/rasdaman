@@ -39,14 +39,14 @@ import petascope.wcps.subset_axis.model.WcpsSliceScaleDimension;
  */
 @Service
 @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class SliceScaleDimensionIntervalElement extends Handler {
+public class SliceScaleDimensionPointElement extends Handler {
     
-    public SliceScaleDimensionIntervalElement() {
+    public SliceScaleDimensionPointElement() {
         
     }
     
-    public SliceScaleDimensionIntervalElement create(StringScalarHandler axisLabelHandler, StringScalarHandler scaleFactorHandler) {
-        SliceScaleDimensionIntervalElement result = new SliceScaleDimensionIntervalElement();
+    public SliceScaleDimensionPointElement create(StringScalarHandler axisLabelHandler, Handler scaleFactorHandler) {
+        SliceScaleDimensionPointElement result = new SliceScaleDimensionPointElement();
         result.setChildren(Arrays.asList(axisLabelHandler, scaleFactorHandler));
         
         return result;

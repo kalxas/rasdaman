@@ -296,10 +296,21 @@ Coverage operations
 
     extend( covExpr, { axis1(lo:hi), axis2:crs(lo:hi), ... } )
 
-- **Scale** is like extend but it resamples the current coverage values to fit 
-  the new domain: ::
+- **Scale** is like extend but it resamples the current coverage values to:
 
-    scale( covExpr, { axis1(lo:hi), axis2:crs(lo:hi), ... } )
+  - Fit the new domain: ::
+
+      scale( covExpr, { axis1(lo:hi), axis2:crs(lo:hi), ... } )
+   
+  - Scale all axes by a factor (positive number; factor > 1 means scaling up; factor < 1 means scaling down): ::
+
+      scale( covExpr, number)
+
+  - Scale different factors for different axes: ::
+
+      scale( covExprs, { axi1(factor1), axis2(factor2), ... })
+
+  
 
   Currently only nearest neighbour interpolation is supported for scaling.
 
