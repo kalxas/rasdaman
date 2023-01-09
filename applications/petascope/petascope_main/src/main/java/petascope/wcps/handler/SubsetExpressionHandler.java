@@ -119,7 +119,6 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         }
         
         if (!this.wmsSubsetDimensionsRegistry.getMap().isEmpty()) {
-            log.info("#### I have some values");
             String layerName = metadata.getCoverageName();
             List<WcpsSubsetDimension> wmsLayerSubsetDimensions = this.wmsSubsetDimensionsRegistry.getSubsetDimensions(layerName);
             
@@ -221,49 +220,6 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         
         String rasqlResult = "";
         
-        // In case, condenser is used and axis iterators exist
-        // for the case of virtual coverage, after axis iterator, then time axis must be trimmed and it can return in proper domains in USING expression
-        // e.g: OVER $pt t (imageCrsdomain(c[time("2015":"2018")], time))
-        for (Map.Entry<String, AxisIterator> entry : this.axisIteratorAliasRegistry.getAliasAxisIteratorMap().entrySet()) {
-            // e.g: $pt[0]
-            String alias = entry.getKey();
-            AxisIterator axisIterator = entry.getValue();
-            
-            String bounds = axisIterator.getSubsetDimension().getStringBounds();
-            String firstBound = bounds.split(":")[0];
-            String secondsBound = bounds.split(":")[1];
-            
-            if (BigDecimalUtil.isNumber(firstBound) && BigDecimalUtil.isNumber(secondsBound)) {
-                BigDecimal lowerBound = new BigDecimal(bounds.split(":")[0]);
-                BigDecimal upperBound = new BigDecimal(bounds.split(":")[1]);
-                NumericTrimming numericTrimming = new NumericTrimming(lowerBound, upperBound);
-
-                String axisName = axisIterator.getSubsetDimension().getAxisName();
-                String crs = axisIterator.getSubsetDimension().getCrs();
-
-                Subset subset = new Subset(numericTrimming, crs, axisName);
-
-                boolean exists = false;
-                for (Subset subsetTmp : numericSubsets) {
-                    if (CrsUtil.axisLabelsMatch(subsetTmp.getAxisName(), subset.getAxisName())) {
-                        exists = true;
-                        break;
-                    }
-                }
-
-                if (!exists) {
-                    for (Axis axis : metadata.getAxes()) {
-                        if (CrsUtil.axisLabelsMatch(axis.getLabel(), subset.getAxisName()) 
-                            && subset.getCrs() != null
-                            && (subset.getCrs().equals(CrsUtil.GRID_CRS))
-                            ) {
-                            numericSubsets.add(subset);
-                            break;
-                        }
-                    }                
-                }
-            }
-        }
         
         // Update the coverage expression metadata with the new subsets
         wcpsCoverageMetadataService.applySubsets(checkBounds, checkBounds, metadata, subsetDimensions, numericSubsets);

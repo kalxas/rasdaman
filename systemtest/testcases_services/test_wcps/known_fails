@@ -36,3 +36,7 @@
 
 
 505-flip_on_3d_time_axis_with_subset.test
+
+
+# it failed because of rasql query
+554-scale_up_out_of_grid_bounds_on_irregular_axis.test

@@ -1,0 +1,32 @@
+for $c in (test_irr_cube_2)
+let $THI := 15,
+   $TLO := 0,
+   $SHI := imageCrsdomain($c, ansi).hi,
+  $SLO := imageCrsdomain($c, ansi).lo,
+  $r_plev := (($SHI - $SLO + 1) / ($THI - $TLO + 1))
+ return
+    encode(
+      coverage scaledUp
+      over $p ansi($TLO:$THI)
+      values
+          (( $c.b1[ansi:"CRS:1"((long)(($p - $TLO) * $r_plev) + $SLO), E:"CRS:1"(0:20), N:"CRS:1"(0)] - 273 ) + 68)
+      , "image/png",
+       " { \"colorMap\":  
+         { \"type\": \"intervals\",
+           \"colorTable\": {
+                \"24.5\": [144, 102, 162, 255],
+                \"27\": [129, 114, 168, 255],
+                \"32\": [130, 146, 189, 255],
+                \"37\": [134, 177, 210, 255],
+                \"42\": [150, 199, 228, 255],
+                \"47\": [225, 225, 225, 255],
+                \"52\": [248, 215, 162, 255],
+                \"57\": [240, 175, 103, 255],
+                \"62\": [237, 156, 101, 255],
+                \"67\": [234, 138, 99, 255],
+                \"69.5\": [231, 123, 101, 255]
+              }
+           }
+        }"
+            
+      )
