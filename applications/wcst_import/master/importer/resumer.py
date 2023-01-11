@@ -98,7 +98,8 @@ class Resumer:
                 exit(1)
 
             try:
-                json.dump(Resumer.__IMPORTED_DATA_DICT[self.coverage_id], file)
+                imported_files = Resumer.__IMPORTED_DATA_DICT[self.coverage_id]
+                json.dump(imported_files, file, indent=0)
                 file.close()
             except Exception as e:
                 log.error("Cannot write JSON data to resume file '{}'. \n"
