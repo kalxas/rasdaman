@@ -200,7 +200,12 @@ public class RasUtil {
                     ex.getMessage(), ex, query);
             }
         } finally {
-            closeDB(db);
+		try {
+		    closeDB(db);
+		} catch (Exception ex) {
+		    String errorMessage = "Failed closing connection to rasdaman. Reason: " + ex.getMessage();
+		    log.warn(errorMessage);
+		}
         }
 
         final long endTime = System.currentTimeMillis();
