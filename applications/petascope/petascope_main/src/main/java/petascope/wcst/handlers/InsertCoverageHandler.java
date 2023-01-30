@@ -332,6 +332,8 @@ public class InsertCoverageHandler {
         Pair<String, List<String>> collectionTypePair
                     = TypeResolverUtil.guessCollectionType(coverageId, numberOfBands, numberOfDimensions, bandNullValues, pixelDataType);
         String rasCollectionType = collectionTypePair.fst;
+        coverage.getRasdamanRangeSet().setCollectionType(rasCollectionType);
+        
         // e.g: c, d, f,...
         List<String> typeSuffixes = collectionTypePair.snd;
         

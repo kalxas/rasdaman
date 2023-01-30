@@ -742,4 +742,13 @@ public class StringUtil {
         }
     }
     
+    
+    /**
+     * NOTE: all keys of KVP Map should be lower case
+     */
+    public static void putKeyToKVPMaps(Map<String, String[]> kvpMap, String key, String value) {
+        String[] array = new String[] { value };
+        kvpMap.put(key.toLowerCase(), array);
+    }
+    
 }

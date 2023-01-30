@@ -104,6 +104,9 @@ public interface KVPSymbols {
     // used internally in petascope only
     String KEY_INTERNAL_UPLOADED_FILE_PATH = "INTERNAL_uploadedFilePath";
     
+    // used internall in petascope only
+    String KEY_INTERNAL_WCPS_FROM_WCS_GET_COVERAGE = "INTERNAL_WCPS_FROM_WCS_GETCOVERAGE";
+    
     // WCPS
     String VALUE_PROCESS_COVERAGES = "ProcessCoverages";
     String KEY_QUERY = "query";

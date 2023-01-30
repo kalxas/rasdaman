@@ -42,6 +42,7 @@ import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.KEY_CLIP;
 import static petascope.core.KVPSymbols.KEY_COVERAGEID;
 import static petascope.core.KVPSymbols.KEY_FORMAT;
+import static petascope.core.KVPSymbols.KEY_INTERNAL_WCPS_FROM_WCS_GET_COVERAGE;
 import static petascope.core.KVPSymbols.KEY_INTERPOLATION;
 import static petascope.core.KVPSymbols.KEY_MEDIATYPE;
 import static petascope.core.KVPSymbols.KEY_OUTPUT_CRS;
@@ -65,6 +66,7 @@ import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.SetUtil;
+import petascope.util.StringUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
@@ -226,6 +228,8 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
             wcpsQuery = WCPS_QUERY_TEMPLATE.replace("$coverageId", coverageId)
                                            .replace("$queryContent", queryContent)
                                            .replace(EXTRA_OPTIONS, options);
+            
+            StringUtil.putKeyToKVPMaps(kvpParameters, KEY_INTERNAL_WCPS_FROM_WCS_GET_COVERAGE, Boolean.TRUE.toString());
 
             // Handle multipart for WCS (WCPS) request if any or non multipart            
             Response responseTmp = responseService.handleWCPSResponse(kvpParameters, wcpsQuery, requestedMime);

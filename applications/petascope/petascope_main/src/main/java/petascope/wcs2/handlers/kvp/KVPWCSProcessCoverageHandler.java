@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.controller.AbstractController;
 import static petascope.controller.AbstractController.getValueByKeyAllowNull;
+import static petascope.controller.AbstractController.getValueByKey;
 import petascope.controller.PetascopeController;
 import petascope.controller.handler.service.XMLWCSServiceHandler;
 import petascope.core.KVPSymbols;
@@ -96,6 +97,8 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
     @Autowired
     private XMLWCSServiceHandler xmlWCSServiceHandler;
     
+    boolean multipart = false;
+    
     public KVPWCSProcessCoverageHandler() {
     }
 
@@ -119,7 +122,8 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         String coverageID = null;
         String wcpsQuery = getValueByKeyAllowNull(kvpParameters, KEY_QUERY);
         if (wcpsQuery == null) {
-            wcpsQuery = getValueByKeyAllowNull(kvpParameters, KEY_QUERY_SHORT_HAND);
+            // don't allow null, it's an error if no query is provided
+            wcpsQuery = getValueByKey(kvpParameters, KEY_QUERY_SHORT_HAND);
         }
         
         wcpsQuery = wcpsQuery.trim();
@@ -127,10 +131,12 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         if (wcpsQuery.startsWith("<")) {
             // In this case, this wcps query is encoded in XML wrapper
             Map<String, String[]> tmpMaps = this.xmlWCSServiceHandler.parseRequestBodyToKVPMaps(wcpsQuery);
-            wcpsQuery = AbstractController.getValueByKey(tmpMaps, KEY_QUERY);
+            wcpsQuery = getValueByKey(tmpMaps, KEY_QUERY);
         }
         
-        String newWcpsQuery = this.adjustWcpsQueryByPositionalParameters(kvpParameters, wcpsQuery);
+        log.debug("Handling WCPS query: " + wcpsQuery);
+        
+        wcpsQuery = this.adjustWcpsQueryByPositionalParameters(kvpParameters, wcpsQuery);
         
 
         List<byte[]> results = new ArrayList<>();   
@@ -138,13 +144,9 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         
         
         try {
-              
-            VisitorResult visitorResult = wcpsTranslator.translate(newWcpsQuery);
+            VisitorResult visitorResult = wcpsTranslator.translate(wcpsQuery);
             WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
             
-            long endTime = System.currentTimeMillis();
-            System.out.println("Total time to generate rasql query is: " + (endTime - startTime) + " ms");
-
             if (visitorResult instanceof WcpsMetadataResult) {
                 results.add(executor.execute(visitorResult));
             } else {
@@ -165,6 +167,7 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
                 }
             }
             
+            // set metadata and return
             mimeType = visitorResult.getMimeType();
         } finally {
             this.coverageAliasRegistry.clear();
@@ -188,12 +191,19 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
     /**
      * Process a WCPS query and returns the Response
      */
-    public Response processQuery(final String wcpsQuery) throws PetascopeException, WCSException, SecoreException, WMSException, Exception {
-        Map<String, String[]> kvpParameters = new HashMap<String, String[]>() {
-            {
-                put(KVPSymbols.KEY_QUERY, new String[]{wcpsQuery});
-            }
-        };
+    public Response processQuery(final String wcpsQuery, boolean fromWCSGetCoverageRequest) throws PetascopeException, WCSException, SecoreException, WMSException, Exception {
+        return this.processQuery(wcpsQuery, fromWCSGetCoverageRequest, false);
+    }
+
+    /**
+     * Process a WCPS query and returns the Response
+     */
+    public Response processQuery(final String wcpsQuery, boolean fromWCSGetCoverageRequest, boolean multipart) throws PetascopeException, WCSException, SecoreException, WMSException, Exception {
+        Map<String, String[]> kvpParameters = new HashMap<String, String[]>() {};
+        this.multipart = multipart;
+        
+        StringUtil.putKeyToKVPMaps(kvpParameters, KVPSymbols.KEY_QUERY, wcpsQuery);
+        StringUtil.putKeyToKVPMaps(kvpParameters, KVPSymbols.KEY_INTERNAL_WCPS_FROM_WCS_GET_COVERAGE, Boolean.TRUE.toString());
 
         return this.handle(kvpParameters);
     }
@@ -218,7 +228,7 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
                 String positionalParameter = matcher.group();
                 String value = getValueByKeyAllowNull(kvpParameters, StringUtil.stripDollarSign(positionalParameter));
 
-                if (value != null) {            
+                if (value != null) {
                     if (value.startsWith(UPLOADED_FILE_DIR_TMP)) {
                         String filePath = value;
                         uploadedFilePaths.add(filePath);
@@ -238,10 +248,11 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
                         this.coverageRepositoryService.putToLocalCacheMap(coverageId, new Pair<>(coverage, true));
 
                         // e.g: $1 -> (TEMP_COV_abc_202001010, /tmp/rasdaman_petacope/rasdaman...tif)
-                        this.tempCoverageRegistry.add(positionalParameter, coverageId, value);
+                        this.tempCoverageRegistry.add(positionalParameter, coverageId, filePath, coverage.getRasdamanRangeSet().getCollectionType());
                     } else {                
                         // e.g: replace $2 in query with 5
-                        matcher.appendReplacement(stringBuffer, Matcher.quoteReplacement(value));
+                        String replacement = Matcher.quoteReplacement(value);
+                        matcher.appendReplacement(stringBuffer, replacement);
                     }
                 }
             }
@@ -249,7 +260,8 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         } finally {
             // remove the uploaded file afterwards
             for (String filePath : uploadedFilePaths) {
-                try {                    
+                try {
+                    log.debug("Removing temporary uploaded file: " + filePath);
                     Files.deleteIfExists(Paths.get(filePath));
                 } catch (IOException ex) {
                     log.warn("Cannot delete uploaded file '" + filePath + "'. Reason: " + ex.getMessage());
@@ -260,6 +272,7 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
         matcher.appendTail(stringBuffer);
         String result = stringBuffer.toString();
 
+        log.debug("Adjusted positional parameters in WCPS query, result: " + result);
         return result;
     }
 }
