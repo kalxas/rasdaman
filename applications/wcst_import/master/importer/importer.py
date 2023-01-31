@@ -209,11 +209,20 @@ class Importer:
             # no data collected to be imported
             return slices
 
+        number_of_coverage_slices = len(coverages[0].slices)
+        index = 0
+        if len(coverages) > 1:
+            # NOTE: here if a file contains overviews and in the ingredients file it has "import_overviews_only": true
+            # then, the base file will not be imported, only the overviews embedded in the input file will be imported
+            number_of_coverage_slices = len(coverages[1].slices)
+            index = 1
+
         # If number of files < 5 print all files, or only print first 5 files
         max = ConfigManager.description_max_no_slices \
-            if ConfigManager.description_max_no_slices < len(coverages[0].slices) else len(coverages[0].slices)
+            if ConfigManager.description_max_no_slices < number_of_coverage_slices else number_of_coverage_slices
         for i in range(0, max):
-            slices.append(coverages[0].slices[i])
+            slices.append(coverages[index].slices[i])
+
         return slices
 
     def __get_grid_domains(self, slice):

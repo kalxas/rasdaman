@@ -595,9 +595,6 @@ class AbstractToCoverageConverter:
             # Build list of coverage slices from input files
             coverage_slices_dict = self._create_coverage_slices(self.crs, crs_axes)
 
-        if len(coverage_slices_dict) == 0 or len(list(coverage_slices_dict.values())[0]) == 0:
-            return []
-
         global_metadata = None
         first_coverage_slice = None
 
