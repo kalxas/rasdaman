@@ -923,6 +923,10 @@ public abstract class AbstractController {
         }
         String errorMessage = "Failed processing request " + requestCounter 
                                 + ", evaluation time " + String.valueOf(System.currentTimeMillis() - startTime) + " ms. Reason: " + ex.getMessage();
+        // log the error reason here as well, even though it's logged also later in
+        // ExceptionUtil: here it's properly identified with the request id,
+        // which helps when there are multiple concurrent requests to know
+        // which one failed by what reason.
         log.error(errorMessage);      
         ExceptionUtil.handle(version, ex, injectedHttpServletResponse);
     }

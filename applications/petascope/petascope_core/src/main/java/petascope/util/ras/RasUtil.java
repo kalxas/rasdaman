@@ -68,22 +68,28 @@ public class RasUtil {
     private static final Logger log = LoggerFactory.getLogger(RasUtil.class);
     static long QUERY_COUNTER = 0;
     
-    private static void closeDB(Database db) throws RasdamanException {
+    /**
+     * On error logs a warning, but doesn't throw anything.
+     */
+    private static void closeDB(Database db) {
         if (db != null) {
             try {
                 db.close();
             } catch (Exception ex) {
-                throw new RasdamanException("Failed closing rasdaman db connection. Reason: " + ex.getMessage(), ex);
+                log.warn("Failed closing rasdaman db connection. Reason: " + ex.getMessage());
             }
         }
     }
     
-    private static void abortTR(Transaction tr) throws RasdamanException {
+    /**
+     * On error logs a warning, but doesn't throw anything.
+     */
+    private static void abortTR(Transaction tr) {
         if (tr != null) {
             try {
                 tr.abort();
             } catch (Exception ex) {
-                throw new RasdamanException("Failed closing rasdaman transaction. Reason: " + ex.getMessage(), ex);
+                log.warn("Failed closing rasdaman transaction. Reason: " + ex.getMessage());
             }
         }
     }
@@ -175,7 +181,7 @@ public class RasUtil {
             ret = q.execute();
             tr.commit();
         } catch (ODMGException ex) {
-            log.error("Failed querying to rasdaman " + getExecutedRasqlTimeMessage(queryCounter, startTime) + ". Reason: " + ex.getMessage());
+            log.error("Failed querying rasdaman " + getExecutedRasqlTimeMessage(queryCounter, startTime) + ". Reason: " + ex.getMessage());
             abortTR(tr);
             if (ex.getMessage().contains("CREATE: Collection name exists already.") || ex.getMessage().contains("Collection already exists")) {
                 throw new RasdamanCollectionExistsException(ExceptionCode.CollectionExists, query, ex);
@@ -191,21 +197,13 @@ public class RasUtil {
             throw new PetascopeException(ExceptionCode.OutOfMemory, "Requested more data than the server can handle at once. "
                     + "Try increasing the maximum memory allowed for Tomcat (-Xmx JVM option).");
         } catch (Exception ex) {
+            if (ex.getMessage().contains("GRPC Exception"))
+                log.error("Lost connection to the rasdaman server, possibly the server crashed or there was a network problem.");
             abortTR(tr);
-            if (ex.getMessage().contains("GRPC Exception")) {
-                log.warn("Lost connection to rasdaman server.");
-            } else {
-                log.error("Failed querying to rasdaman " + getExecutedRasqlTimeMessage(queryCounter, startTime) + ". Reason: " + ex.getMessage());
-                throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, 
-                    ex.getMessage(), ex, query);
-            }
+            log.error("Failed querying rasdaman " + getExecutedRasqlTimeMessage(queryCounter, startTime) + ". Reason: " + ex.getMessage());
+            throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, ex, query);
         } finally {
-		try {
 		    closeDB(db);
-		} catch (Exception ex) {
-		    String errorMessage = "Failed closing connection to rasdaman. Reason: " + ex.getMessage();
-		    log.warn(errorMessage);
-		}
         }
 
         final long endTime = System.currentTimeMillis();

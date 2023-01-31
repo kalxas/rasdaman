@@ -58,6 +58,14 @@ public class RasdamanException extends PetascopeException {
         this.query = query;
     }
 
+    @Override
+    public String getMessage() {
+        String ret = "Failed internal rasql query";
+        if (query != null)
+            ret += ": " + query;
+        return ret;
+    }
+
     public String getQuery() {
         return query;
     }

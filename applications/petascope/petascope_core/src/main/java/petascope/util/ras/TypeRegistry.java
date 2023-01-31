@@ -171,7 +171,7 @@ public class TypeRegistry {
             try {
                 RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
             } catch (RasdamanException ex) {
-                if (!ex.getMessage().contains(EXIST_TYPE_ERROR_MESSAGE)) {
+                if (!ex.getExceptionText().contains(EXIST_TYPE_ERROR_MESSAGE)) {
                     throw ex;
                 }
             }
@@ -185,7 +185,7 @@ public class TypeRegistry {
             try {
                 RasUtil.executeRasqlQuery(queryStruct, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
             }  catch (RasdamanException ex) {
-                if (!ex.getMessage().contains(EXIST_TYPE_ERROR_MESSAGE)) {
+                if (!ex.getExceptionText().contains(EXIST_TYPE_ERROR_MESSAGE)) {
                     throw ex;
                 }
             }
@@ -198,7 +198,7 @@ public class TypeRegistry {
             try {
                 RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
             } catch (RasdamanException ex) {
-                if (!ex.getMessage().contains(EXIST_TYPE_ERROR_MESSAGE)) {
+                if (!ex.getExceptionText().contains(EXIST_TYPE_ERROR_MESSAGE)) {
                     throw ex;
                 }
             }
@@ -214,7 +214,7 @@ public class TypeRegistry {
         try {
             RasUtil.executeRasqlQuery(querySet, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         }  catch (RasdamanException ex) {
-            if (!ex.getMessage().contains(EXIST_TYPE_ERROR_MESSAGE)) {
+            if (!ex.getExceptionText().contains(EXIST_TYPE_ERROR_MESSAGE)) {
                 throw ex;
             }
         }
