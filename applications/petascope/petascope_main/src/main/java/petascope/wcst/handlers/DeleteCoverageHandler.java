@@ -167,7 +167,7 @@ public class DeleteCoverageHandler {
                 try {
                     RasUtil.dropRasdamanType(collectionType);
                 } catch (RasdamanException ex) {
-                    if (!ex.getMessage().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
+                    if (!ex.getExceptionText().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
                         throw ex;
                     }
                 }
@@ -179,7 +179,7 @@ public class DeleteCoverageHandler {
                 try {
                     RasUtil.dropRasdamanType(mddType);
                 } catch (RasdamanException ex) {
-                    if (!ex.getMessage().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
+                    if (!ex.getExceptionText().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
                         throw ex;
                     }
                 }
@@ -188,7 +188,7 @@ public class DeleteCoverageHandler {
                 try {
                     RasUtil.dropRasdamanType(cellType);
                 } catch (RasdamanException ex) {
-                    if (!ex.getMessage().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
+                    if (!ex.getExceptionText().contains(TYPE_IS_USED_BY_ANOTHER_OBJECT_ERROR_MESSAGE)) {
                         throw ex;
                     }
                 }
