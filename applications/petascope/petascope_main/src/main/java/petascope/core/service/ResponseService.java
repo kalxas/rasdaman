@@ -28,12 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static petascope.controller.AbstractController.getValueByKeyAllowNull;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_INTERNAL_WCPS_FROM_WCS_GET_COVERAGE;
 import petascope.exceptions.WMSException;
 import petascope.util.MIMEUtil;
 import static petascope.wcs2.handlers.kvp.KVPWCSGetCoverageHandler.ENCODE_FORMAT;
@@ -108,14 +110,19 @@ public class ResponseService {
                 }
             }
         }
+        
+        boolean fromWCSGetCoverageRequest = false;
+        if (getValueByKeyAllowNull(kvpParameters, KEY_INTERNAL_WCPS_FROM_WCS_GET_COVERAGE) != null) {
+            fromWCSGetCoverageRequest = true;
+        }
 
         String firstWcpsQuery, secondWcpsQuery;
         if (isMultipart == true) {
             firstWcpsQuery = wcpsQuery.replace(ENCODE_FORMAT, MIMEUtil.ENCODE_GML);
             secondWcpsQuery = wcpsQuery.replace(ENCODE_FORMAT, encodeFormat);
             log.debug("Generated a mutlipart WCPS query from WCS request: " + firstWcpsQuery);
-            Response firstResponse = processCoverageHandler.processQuery(firstWcpsQuery);
-            Response secondResponse = processCoverageHandler.processQuery(secondWcpsQuery);
+            Response firstResponse = processCoverageHandler.processQuery(firstWcpsQuery, fromWCSGetCoverageRequest, true);
+            Response secondResponse = processCoverageHandler.processQuery(secondWcpsQuery, fromWCSGetCoverageRequest, true);
 
             List<byte[]> datas = new ArrayList<>();
             datas.addAll(firstResponse.getDatas());
@@ -126,7 +133,7 @@ public class ResponseService {
         } else {
             firstWcpsQuery = wcpsQuery.replace(ENCODE_FORMAT, encodeFormat);
             log.debug("Generated a single WCPS query from WCS request: " + firstWcpsQuery);
-            response = processCoverageHandler.processQuery(firstWcpsQuery);
+            response = processCoverageHandler.processQuery(firstWcpsQuery, fromWCSGetCoverageRequest);
         }
 
         return response;

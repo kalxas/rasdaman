@@ -60,8 +60,14 @@ public class ExceptionUtil {
             return errorMessages;
         }
         
-        errorMessages.add("Caused by: " + ex.getMessage());
+        // 1. add the message text
+        String errMsg = ex.getMessage();
+        if (!errorMessages.isEmpty()) {
+            errMsg = "Caused by: " + errMsg;
+        }
+        errorMessages.add(errMsg);
         
+        // 2. add the stacktraces
         for (StackTraceElement element : ex.getStackTrace()) {
             // e.g. petascope.controller.AbstractController
             String classNamePath = element.getClassName();
@@ -96,7 +102,7 @@ public class ExceptionUtil {
                 result += errorMessage + "\n";
             }
 
-            log.error("Caught an exception: " + ex.getMessage() + " \n " +  result);
+            log.error("Caught an exception:\n" + result);
         }
         
         OutputStream outputStream;

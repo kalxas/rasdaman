@@ -283,6 +283,7 @@ class Session:
                     from osgeo import gdal
                     # e.g: 1.11.4
                     version = gdal.__version__
+
                     raise RuntimeException("NOTE: Importing overviews is only supported since gdal version 2.0, "
                                            "and your system has GDAL version '" + version + "'.")
 

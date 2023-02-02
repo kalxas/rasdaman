@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.util.ras.RasUtil;
+import petascope.wcst.handlers.DeleteCoverageHandler;
 
 /**
  * Store the map of positional parameters and their temp coverage ids of temp coverages
@@ -53,17 +54,17 @@ public class TempCoverageRegistry {
     // e.g: $1 -> (tmp_covA, "/tmp/rasdaman_petascope/rasdaman...test.tif")
     private Map<String, Pair<String, String>> positionalParametersMap = new HashMap<>();
     
-    private Set<String> tempGeneratedCoveragedIds = new HashSet<>();
+    private Map<String, String> tempGeneratedCoveragedIds = new HashMap<>();
     
     public TempCoverageRegistry() {
         
     }
     
-    public void add(String positionalParameter, String coverageId, String filePath) {
+    public void add(String positionalParameter, String coverageId, String filePath, String rasdamanCollectionType) {
         // e.g: $1 -> (tmp_covA, "/tmp/rasdaman_petascope/rasdaman...test.tif")
         this.positionalParametersMap.put(positionalParameter, new Pair<>(coverageId, filePath));
         
-        this.tempGeneratedCoveragedIds.add(coverageId);
+        this.tempGeneratedCoveragedIds.put(coverageId, rasdamanCollectionType);
     }
     
     /**
@@ -89,14 +90,25 @@ public class TempCoverageRegistry {
         String username = ConfigManager.RASDAMAN_ADMIN_USER;
         String password = ConfigManager.RASDAMAN_ADMIN_PASS;
         
-        for (String coverageId : tempGeneratedCoveragedIds) {
+        for (Map.Entry<String, String> entry : tempGeneratedCoveragedIds.entrySet()) {
+            String coverageId = entry.getKey();
+            String rasdamanCollectionType = entry.getValue();
+            
             // Delete temp rasdaman collection
-            // @TODO: this temp rasdaman collection was created until SELECT decode() rasql works fine            
+            // @TODO: this temp rasdaman collection was created until SELECT decode() rasql works fine
             RasUtil.deleteFromRasdaman(coverageId, username, password);
+            DeleteCoverageHandler.dropUnusedRasdamanTypes(rasdamanCollectionType);
             this.coverageRepositoryService.removeFromLocalCacheMap(coverageId);
         }        
         
         this.positionalParametersMap.clear();
+    }
+    
+    /**
+     * @return the number of temporary coverages in this registry.
+     */
+    public int size() {
+      return this.tempGeneratedCoveragedIds.size();
     }
 
     /**
@@ -115,3 +127,4 @@ public class TempCoverageRegistry {
         return results;
     }
 }
+

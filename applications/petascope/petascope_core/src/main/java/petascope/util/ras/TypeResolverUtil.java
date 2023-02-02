@@ -104,6 +104,10 @@ public class TypeResolverUtil {
             typeSuffixes.add(typeSuffix);
         }
         
+        if (collectionName == null) {
+            collectionName = TEMP_COLLECTION_PREFIX;
+        }
+        
         String result = guessCollectionType(collectionName, numberOfDimensions, bandTypes, nullValues);
         
         return Pair.of(result, typeSuffixes);
@@ -330,6 +334,8 @@ public class TypeResolverUtil {
     }
     
     public static final String STRUCT = "struct";
+    // This coverage is created temporarily from WCPS queries having decode() operators
+    public static final String TEMP_COLLECTION_PREFIX = "TEMP_COLLECTION";
 
     //rasdaman base types
     public static final String R_Char = "char";
