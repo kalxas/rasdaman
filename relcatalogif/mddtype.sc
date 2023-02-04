@@ -24,12 +24,13 @@ rasdaman GmbH.
 #include "mddtype.hh"
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
+#include <fmt/core.h>
 
 void MDDType::insertInDb()
 {
-    SQLiteQuery::executeWithParams(
-        "INSERT INTO RAS_MDDTYPES ( MDDTypeOId, MDDTypeName ) VALUES (%lld, '%s')",
-        myOId.getCounter(), getName());
+    SQLiteQuery::execute(fmt::format(
+        "INSERT INTO RAS_MDDTYPES ( MDDTypeOId, MDDTypeName ) VALUES ({}, '{}')",
+        myOId.getCounter(), getName()));
     DBObject::insertInDb();
 }
 
@@ -39,8 +40,8 @@ void MDDType::readFromDb()
     DBObject::readTimer.resume();
 #endif
 
-    SQLiteQuery query(
-        "SELECT MDDTypeName FROM RAS_MDDTYPES WHERE MDDTypeOId = %lld", myOId.getCounter());
+    SQLiteQuery query(fmt::format(
+        "SELECT MDDTypeName FROM RAS_MDDTYPES WHERE MDDTypeOId = {}", myOId.getCounter()));
     if (query.nextRow())
     {
         setName(query.nextColumnString());
@@ -59,7 +60,7 @@ void MDDType::readFromDb()
 
 void MDDType::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_MDDTYPES WHERE MDDTypeOId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_MDDTYPES WHERE MDDTypeOId = {}", myOId.getCounter()));
     DBObject::deleteFromDb();
 }

@@ -76,8 +76,9 @@ target_link_libraries(servercomm
     common_logging
     common_time
     common_uuid
+    common_string
     )
-    
+
 if (ENABLE_PROFILING)
     target_link_libraries(servercomm PRIVATE profiler tcmalloc)
 endif ()

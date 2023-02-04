@@ -20,16 +20,31 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "serverfactoryrasnet.hh"
-#include "serverrasnet.hh"
+#ifndef RASMGR_X_SRC_EXCEPTIONS_DEADLINEEXCEEDEDEXCEPTION_HH
+#define RASMGR_X_SRC_EXCEPTIONS_DEADLINEEXCEEDEDEXCEPTION_HH
+
+#include "common/exceptions/resourcebusyexception.hh"
 
 namespace rasmgr
 {
-
-std::shared_ptr<Server> ServerFactoryRasNet::createServer(const ServerConfig &configuration)
+/**
+ * Reports an error that a service (client, rasserver) failed to respond to
+ * request within a certain timeout.
+ */
+class DeadlineExceededException: public common::ResourceBusyException
 {
-    std::shared_ptr<Server> result(new ServerRasNet(configuration));
-    return result;
+public:
+    /**
+       * @param serviceType client, rasserver, rasmgr
+       * @param id service id
+       * @param timeout the timout exceeded in ms
+       */
+    DeadlineExceededException(const std::string &serviceType,
+                              const std::string &id,
+                              std::uint32_t timeout);
+    
+    virtual ~DeadlineExceededException() noexcept = default;
+};
 }
 
-} /* namespace rasmgr */
+#endif // DBBUSYEXCEPTION_HH

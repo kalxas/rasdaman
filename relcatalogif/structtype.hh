@@ -57,15 +57,15 @@ class StructType : public CompositeType
 public:
     StructType();
     StructType(const char *newTypeName, unsigned int numElem);
-    StructType(const OId &structtypeid);
+    explicit StructType(const OId &structtypeid);
     StructType(const StructType &);
     StructType &operator=(const StructType &) = delete;
     ~StructType() noexcept(false) override;
 
     void printCell(std::ostream &stream, const char *cell) const override;
 
-    char *getTypeStructure() const override;
-    char *getNewTypeStructure() const override;
+    std::string getTypeStructure() const override;
+    std::string getNewTypeStructure() const override;
 
     /// generate equivalent C type names
     void generateCTypeName(std::vector<const char *> &names) const override;

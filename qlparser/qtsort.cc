@@ -255,7 +255,7 @@ QtSort::toString()
         MDDObj *temp = qtMDDObj->getMDDObject();
 
         //using separate variables to avoid manipulating the data since the access methods can read and write.
-        str1 = temp->getArrayInfo(true);
+        str1 = temp->getArrayInfo(common::PrintTiles::EMBEDDED);
         str2 = std::to_string( accessSliceRank(*it) );
 
         stateString = stateString +
@@ -340,7 +340,7 @@ QtSort::checkType(QtTypeTuple *typeTuple)
         if(namedAxisFlag)
         {
             r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType1.getType())))->getDomain());
-            std::vector<std::string> axisDef = (&domainDef)->getAxisNames();
+            std::vector<std::string> axisDef = (&domainDef)->get_axis_names();
             axisNamesCorrect = new std::vector<std::string>(axisDef);
 
             // function to set sortAxis numbered value.

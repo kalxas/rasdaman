@@ -39,8 +39,8 @@ void RasControlGrammar::parse(const std::string &reqMessage)
 {
     LDEBUG << "Parsing command '" << reqMessage << "'...";
     this->tokens.clear();
-    char *token = strdup(reqMessage.c_str());
-    token = strtok(token, " \r\n\t\0");
+    char *msg = strdup(reqMessage.c_str());
+    char *token = strtok(msg, " \r\n\t\0");
     while (token)
     {
         // If we are evaluating the first token of the reqMessage and the first character is
@@ -53,7 +53,7 @@ void RasControlGrammar::parse(const std::string &reqMessage)
         token = strtok(NULL, " \r\n\t\0");
     }
     LDEBUG << "Done, " << tokens.size() << " tokens parsed.";
-    free(token);
+    free(msg);
 }
 
 std::string RasControlGrammar::processRequest()

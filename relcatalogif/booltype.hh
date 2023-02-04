@@ -46,7 +46,7 @@ stored in one char. BoolType is a persistence capable class.
 class BoolType : public UIntegralType
 {
 public:
-    BoolType(const OId &id);
+    explicit BoolType(const OId &id);
 
     BoolType();
 

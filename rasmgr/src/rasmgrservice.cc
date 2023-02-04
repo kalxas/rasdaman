@@ -20,21 +20,15 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <logging.hh>
-#include "common/grpc/grpcutils.hh"
-
+#include "rasmgrservice.hh"
 #include "clientcredentials.hh"
 #include "clientmanager.hh"
 #include "servermanager.hh"
-#include "rasmgrservice.hh"
+#include "common/grpc/grpcutils.hh"
+#include <logging.hh>
 
 namespace rasmgr
 {
-using common::GrpcUtils;
-
-using grpc::Status;
-
-using std::string;
 
 RasmgrService::RasmgrService(std::shared_ptr<ClientManager> m)
     : clientManager(m)
@@ -45,7 +39,7 @@ grpc::Status RasmgrService::TryGetRemoteServer(
     const rasnet::service::GetRemoteServerRequest *request,
     rasnet::service::GetRemoteServerReply *response)
 {
-    grpc::Status status = Status::OK;
+    grpc::Status status = grpc::Status::OK;
 
     try
     {
@@ -55,7 +49,7 @@ grpc::Status RasmgrService::TryGetRemoteServer(
         std::string clientSessionId;
 
         // The clientSessionId will be initialized by this method
-        this->clientManager->connectClient(credentials, clientSessionId);
+        this->clientManager->connectClient(credentials, request->hostname(), clientSessionId);
         LDEBUG << "Connected remote client with ID:" << clientSessionId;
 
         // The clientServerSession will be initialized by the following method
@@ -72,13 +66,13 @@ grpc::Status RasmgrService::TryGetRemoteServer(
     catch (std::exception &ex)
     {
         LERROR << "Connect request failed: " << ex.what();
-        status  = GrpcUtils::convertExceptionToStatus(ex);
+        status  = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "Connect request failed for unknown reason.";
+        std::string failureReason = "Connect request failed for unknown reason.";
         LERROR << failureReason;
-        status = GrpcUtils::convertExceptionToStatus(failureReason);
+        status = common::GrpcUtils::convertExceptionToStatus(failureReason);
     }
 
     return status;
@@ -99,13 +93,13 @@ grpc::Status RasmgrService::ReleaseServer(
     catch (std::exception &ex)
     {
         LERROR << "Disconnect request failed: " << ex.what();
-        status = GrpcUtils::convertExceptionToStatus(ex);
+        status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "Disconnect request failed with unknown exception";
+        std::string failureReason = "Disconnect request failed with unknown exception";
         LERROR << failureReason;
-        status = GrpcUtils::convertExceptionToStatus(failureReason);
+        status = common::GrpcUtils::convertExceptionToStatus(failureReason);
     }
 
     return status;

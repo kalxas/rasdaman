@@ -28,8 +28,8 @@ public:
     MOCK_METHOD0(isFree, bool(void));
     MOCK_METHOD0(isAvailable, bool(void));
     MOCK_CONST_METHOD0(getPort, std::int32_t(void));
-    MOCK_CONST_METHOD0(getHostName, std::string(void));
-    MOCK_CONST_METHOD0(getServerId, std::string(void));
+    MOCK_CONST_METHOD0(getHostName, const std::string&(void));
+    MOCK_CONST_METHOD0(getServerId, const std::string&(void));
 };
 
 }

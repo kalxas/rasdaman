@@ -48,6 +48,7 @@ target_link_libraries(relstorageif
 #    common_logging
 #    mymalloc_svc
 #    raslib
+    ${FMT_LIBRARY}
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

@@ -20,14 +20,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "rasmgr/src/messages/rasmgrmess.pb.h"
 #include "user.hh"
+#include "rasmgr/src/messages/rasmgrmess.pb.h"
 
 namespace rasmgr
 {
-using std::pair;
-using std::map;
-using std::string;
 using std::move;
 
 User::User(std::string name, std::string password,

@@ -51,7 +51,6 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"           // for r_Bytes, r_Range, r_Dimension
 #include "raslib/minterval.hh"          // for operator<<, r_Minterval
 #include "raslib/endian.hh"
-#include "mymalloc/mymalloc.h"
 #include <logging.hh>                   // for Writer, CTRACE, LTRACE, CDEBUG
 
 #include <cassert>

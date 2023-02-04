@@ -60,7 +60,7 @@ public:
        domain, the base type length and the number of steps per
        iteration.
     */
-    r_MiterDirect(void *data, const r_Minterval &total, const r_Minterval &iter,
+    r_MiterDirect(const void *data, const r_Minterval &total, const r_Minterval &iter,
                   r_Bytes tlen, unsigned int step = 1);
     ~r_MiterDirect(void);
 
@@ -102,7 +102,7 @@ public:
     void print_pos(std::ostream &str) const;
 
     r_miter_direct_data *id{NULL};
-    void *baseAddress{NULL};
+    const void *baseAddress{NULL};
 
 private:
     /// if this data should change you must construct a new iterator, therefore no public access.
@@ -132,7 +132,7 @@ public:
 
     /// Data concerning the iteration position and domain. May
     /// be changed by the user.
-    void *data{NULL};
+    const void *data{NULL};
     r_Range pos{};
     r_Range low{};
     r_Range high{};

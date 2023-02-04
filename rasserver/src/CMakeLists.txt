@@ -26,8 +26,9 @@ add_library(rasnetserver
         clientquerystreamedresult.cc clientquerystreamedresult.hh
         rasnetserver.hh rasnetserver.cc
         rasserverserviceimpl.hh rasserverserviceimpl.cc
+        rasmgrcomm.cc rasmgrcomm.hh
         )
-
+ 
 # We need to add this directory to the include path to include generated files.
 target_include_directories(rasnetserver PUBLIC "${CMAKE_BINARY_DIR}")
 

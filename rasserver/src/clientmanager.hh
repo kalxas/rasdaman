@@ -38,6 +38,9 @@ rasdaman GmbH.
 namespace rasserver
 {
 
+/**
+ * @brief Manage clients of a rasserver. Only one client at a time is supported.
+ */
 class ClientManager
 {
 public:
@@ -46,41 +49,34 @@ public:
     virtual ~ClientManager();
 
     /**
-     * @brief allocateClient Allocate a slot for the client with the given clientUUID and sessionId
-     * @param clientUUID
-     * @param sessionId
+     * Allocate a slot for the client with the given clientUUID and sessionId
      * @return TRUE if the allocation was successful, FALSE otherwise.
      */
-    bool allocateClient(std::string clientUUID, std::string sessionId);
+    bool allocateClient(const std::string &clientUUID, const std::string &sessionId);
 
     /**
-     * @brief deallocateClient Remove the client with the given id from the list.
-     * @param clientUUID
-     * @param sessionId
+     * Remove the client with the given id from the list.
      */
-    void deallocateClient(std::string clientUUID, std::string sessionId);
+    void deallocateClient(const std::string &clientUUID, const std::string &sessionId);
 
     /**
-     * @brief isAlive Check if the client with the given ID is alive.
-     * @param clientUUID
+     * Check if the client with the given ID is alive.
      * @return TRUE if the client id alive, false otherwise
      */
-    bool isAlive(std::string clientUUID);
+    bool isAlive(const std::string &clientUUID);
 
     /**
-     * @brief resetLiveliness Reset the lifetime of a client.
-     * @param clientUUID
+     * Reset the lifetime of a client.
      */
-    void resetLiveliness(std::string clientUUID);
+    void resetLiveliness(const std::string &clientUUID);
 
     /**
-     * @brief getClientQueueSize
      * @return The number of alive clients.
      */
     size_t getClientQueueSize();
 
     /**
-     * @brief cleanQueryStreamedResult Removes from the pool a result which must be streamed.
+     * Removes from the pool a result which must be streamed.
      * @param requestUUID An unique identifier for the streamed result.
      */
     void cleanQueryStreamedResult(const std::string& requestUUID);
@@ -94,19 +90,19 @@ public:
     void removeAllQueryStreamedResults();
 
     /**
-     * @brief getQueryStreamedResult Retrieves the streamed result based on the request unique identifier.
+     * Retrieves the streamed result based on the request unique identifier.
      * @param requestUUID An unique identifier for the streamed result.
      * @return A ClientQueryStreamedResult providing methods for getting the next chunk of data to be streamed.
      */
     std::shared_ptr<ClientQueryStreamedResult> getQueryStreamedResult(const std::string& requestUUID);
 
     /**
-     * @brief addQueryStreamedResult Saves a resul which will be streamed to the client.
+     * Saves a resul which will be streamed to the client.
      * @param requestUUID An unique identifier for the streamed result.
      * @param streamedResult The result which will be streamed.
      */
-    void addQueryStreamedResult(const std::string& requestUUID, const std::shared_ptr<ClientQueryStreamedResult>& streamedResult);
-
+    void addQueryStreamedResult(const std::string& requestUUID,
+                                const std::shared_ptr<ClientQueryStreamedResult>& streamedResult);
 
 private:
     /**
@@ -114,22 +110,24 @@ private:
     * from the client. If a KeepAlive message is not received in this amount of time,
     * the client is removed from the server.
     */
-    static const int ALIVE_PERIOD; /* milliseconds */
+    static const int CLIENT_ALIVE_PING_TIMEOUT_MS;
 
-    std::unique_ptr<std::thread> managementThread;
-
-    boost::shared_mutex clientMutex;/*! Mutex used to synchronize access to the clientList */
-    std::map<std::string, common::Timer> clientList;/*! Map between a clientId and a Timer that counts down from the last ping*/
-    std::map<std::string, std::shared_ptr<ClientQueryStreamedResult>> queryStreamedResultList; /*! Map between request id and the request result.*/
-
-    std::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
-    bool isThreadRunning; /*! Flag used to stop the worker thread */
-    std::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
+    boost::shared_mutex clientMutex;
+    common::Timer timeSinceLastPing; /*! a Timer that counts down from the last ping*/
+    std::string clientId; /*! Current client connected to this server */
+    
+    boost::shared_mutex requestMutex;
+    std::string requestId; /*! Request id for the query result */
+    std::shared_ptr<ClientQueryStreamedResult> requestResult;
+    
+    std::unique_ptr<std::thread> evaluateClientStatusThread;/*! Thread running the evaluateClientStatus method */
+    std::mutex evaluateClientStatusMutex;/*! Mutex used to safely stop the worker thread */
+    bool isEvaluateClientStatusThreadRunning; /*! Flag used to stop the worker thread */
+    std::condition_variable isEvaluateClientStatusThreadRunningCondition; /*! Condition variable used to stop the worker thread */
 
     /**
-     * @brief evaluateClientStatus Evaluate the list of clients and remove the ones who's
-     * lifetime has expired.
-     * This method will be ran in another thread.
+     * Evaluate the list of clients and remove the ones who's lifetime has expired.
+     * This method is run in a separate evaluateClientStatusThread thread.
      */
     void evaluateClientStatus();
 };

@@ -35,6 +35,8 @@ message ConnectReq
 {
     string userName = 1;
     string passwordHash = 2;
+    string token = 3;
+    string hostName = 4;
 }
 
 message ConnectRepl

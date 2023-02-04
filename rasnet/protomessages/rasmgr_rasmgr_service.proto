@@ -41,6 +41,12 @@ message GetRemoteServerRequest {
 
     // The name of the database that the user has requested
     string database_name = 3;
+
+    // The token of the user, if it exists
+    string token = 4;
+    
+    // Hostname to which the original client connected to
+    string hostname = 5;
 }
 
 message GetRemoteServerReply {

@@ -20,44 +20,49 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <logging.hh>
-#include "common/grpc/grpcutils.hh"
-
-#include "servermanager.hh"
-
 #include "servermanagementservice.hh"
+#include "servermanager.hh"
+#include "clientmanager.hh"
+#include "server.hh"
+#include "common/grpc/grpcutils.hh"
+#include "common/exceptions/exception.hh"
+#include <logging.hh>
 
 namespace rasmgr
 {
-using grpc::Status;
 
-using std::string;
+ServerManagementService::ServerManagementService(std::shared_ptr<ServerManager> sm,
+                                                 std::shared_ptr<ClientManager> cm)
+    : serverManager{sm}, clientManager{cm}
+{}
 
-ServerManagementService::ServerManagementService(std::shared_ptr<ServerManager> m)
+grpc::Status ServerManagementService::RegisterServer(
+    grpc::ServerContext *, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *)
 {
-    this->serverManager = m;
-}
-
-grpc::Status ServerManagementService::RegisterServer(__attribute__((unused)) grpc::ServerContext *context,
-        const rasnet::service::RegisterServerReq *request,
-        __attribute__((unused)) rasnet::service::Void *response)
-{
-    Status status = Status::OK;
-
+    const auto &serverId = request->serverid();
+    grpc::Status status = grpc::Status::OK;
     try
     {
-        LDEBUG << "Registering server " << request->serverid();
-        this->serverManager->registerServer(request->serverid());
+        LDEBUG << "Registering server " << serverId;
+        this->serverManager->registerServer(serverId);
+    }
+    catch (common::Exception &ex)
+    {
+        LDEBUG << "Failed registering server " << serverId << ": " << ex.what();
+        status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (std::exception &ex)
     {
+        LDEBUG << "Failed registering server " << serverId << ": " << ex.what();
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        status = common::GrpcUtils::convertExceptionToStatus("Failed registering server");
+        LDEBUG << "Failed registering server " << serverId;
+        status = common::GrpcUtils::convertExceptionToStatus("Failed registering server " + serverId);
     }
 
     return status;
 }
+
 } /* namespace rasmgr */

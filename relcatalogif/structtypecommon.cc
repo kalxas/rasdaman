@@ -31,7 +31,6 @@ rasdaman GmbH.
 #include "reladminif/objectbroker.hh" // for ObjectBroker
 #include "raslib/odmgtypes.hh"        // for STRUCT
 #include "raslib/mddtypes.hh"         // for r_Bytes
-#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
 #include <cstring>                    // for strlen, strcat, strcpy, strdup
@@ -124,42 +123,34 @@ void StructType::getTypes(std::vector<const BaseType *> &types) const
     }
 }
 
-char *StructType::getTypeStructure() const
+std::string StructType::getTypeStructure() const
 {
-    std::ostringstream ss;
-    ss << "struct { ";
+    std::string ret = "struct { ";
     for (unsigned int i = 0; i < numElems; i++)
     {
         if (i > 0)
-            ss << ", ";
-
-        char *elType = elements[i]->getTypeStructure();
-        ss << elType << " " << elementNames[i];
-        free(elType);
+            ret += ", ";
+        ret += elements[i]->getTypeStructure();
+        ret += " ";
+        ret += elementNames[i];
     }
-    ss << " }";
-
-    std::string result = ss.str();
-    return strdup(result.c_str());
+    ret += " }";
+    return ret;
 }
 
-char *StructType::getNewTypeStructure() const
+std::string StructType::getNewTypeStructure() const
 {
-    std::ostringstream ss;
-    ss << "(";
+    std::string ret = "(";
     for (unsigned int i = 0; i < numElems; i++)
     {
         if (i > 0)
-            ss << ", ";
-
-        char *elType = elements[i]->getTypeStructure();
-        ss << elementNames[i] << " " << elType;
-        free(elType);
+            ret += ", ";
+        ret += elementNames[i];
+        ret += " ";
+        ret += elements[i]->getTypeStructure();
     }
-    ss << ")";
-
-    std::string result = ss.str();
-    return strdup(result.c_str());
+    ret += ")";
+    return ret;
 }
 
 unsigned int StructType::addElement(const char *elemName, const char *elemType)

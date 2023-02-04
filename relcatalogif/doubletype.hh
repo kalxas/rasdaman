@@ -46,7 +46,7 @@ class DoubleType : public RealType
 public:
     DoubleType();
 
-    DoubleType(const OId &id);
+    explicit DoubleType(const OId &id);
 
     DoubleType(const DoubleType &) = default;
 

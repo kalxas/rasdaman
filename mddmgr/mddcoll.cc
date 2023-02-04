@@ -20,16 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * SOURCE: mddcoll.cc
- *
- * MODULE: cachetamgr
- * CLASS:  MDDColl
- *
- * COMMENTS:
- *   none
- *
-*/
 
 #include "mddcoll.hh"
 
@@ -331,9 +321,9 @@ MDDColl *MDDColl::createMDDCollection(const char *name, const OId &o,
     if (!ct->isPersistent())
     {
         r_Error t(RASTYPEUNKNOWN);
-        t.setTextParameter("type", ct->getName());
+        t.setTextParameter("$type", ct->getName());
         LTRACE << "createMDDColl(" << name << ", " << o << ", " << ct->getName()
-               << " not persistent)";
+               << ") - is not persistent";
         throw t;
     }
     DBMDDSetId newDBColl = new DBMDDSet(name, o, ct);
@@ -402,6 +392,7 @@ std::vector<std::string> MDDColl::getVirtualCollection(const char *collName)
 
     if (strcmp(collName, AllCollectionnamesName) == 0)
     {
+        //get the db collections first
         std::unique_ptr<OIdSet> list(ObjectBroker::getAllObjects(OId::MDDCOLLOID));
         ret.reserve(list->size());
         for (const auto &tmpdbset : *list)
@@ -420,9 +411,7 @@ std::vector<std::string> MDDColl::getVirtualCollection(const char *collName)
             if (!common::StringUtil::startsWithExactCase(
                     typePtr->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
             {
-                char *tmpTypeStructure = typePtr->getNewTypeStructure();
-                std::string typeStructure{tmpTypeStructure};
-                free(tmpTypeStructure);
+                auto typeStructure = typePtr->getNewTypeStructure();
 
                 std::string result = "";
                 result.append("CREATE TYPE ");
@@ -441,9 +430,7 @@ std::vector<std::string> MDDColl::getVirtualCollection(const char *collName)
         while (mddIter.not_done())
         {
             MDDType *typePtr = mddIter.get_element();
-            char *tmpTypeStructure = typePtr->getNewTypeStructure();
-            std::string typeStructure{tmpTypeStructure};
-            free(tmpTypeStructure);
+            auto typeStructure = typePtr->getNewTypeStructure();
 
             if (typePtr->getSubtype() == MDDType::MDDBASETYPE ||
                     typePtr->getSubtype() == MDDType::MDDONLYTYPE)
@@ -512,28 +499,21 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
         CollectionType *ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllCollectionnamesName);
-        OIdSet *list = ObjectBroker::getAllObjects(OId::MDDCOLLOID);
+        auto colNames = getVirtualCollection(AllCollectionnamesName);
         MDDObj *transObj = nullptr;
         std::shared_ptr<Tile> transTile;
-        const char *nameBuffer = nullptr;
         size_t namelen = 0;
-        while (!list->empty())
+        for (const auto &colName: colNames)
         {
-            dbset = *(list->begin());
-            LTRACE << "Coll OId     : " << dbset.getOId();
-            nameBuffer = dbset->getName();
-            LTRACE << "Coll Name    : " << nameBuffer;
-            namelen = strlen(nameBuffer);
+            namelen = colName.length();
             LTRACE << "Coll Name Len: " << namelen;
             LTRACE << "Domain       : " << namelen;
             nameDomain[0].set_high(static_cast<r_Range>(namelen));
             transObj = new MDDObj(mt, nameDomain);
-            transTile.reset(new Tile(nameDomain, bt, nameBuffer, (r_Bytes)0, r_Array));
+            transTile.reset(new Tile(nameDomain, bt, colName.c_str(), (r_Bytes) 0, r_Array));
             transObj->insertTile(transTile);
             retval->insert(transObj);
-            list->erase(list->begin());
         }
-        delete list;
     }
     else if (strcmp(collName, AllStructTypesName) == 0)
     {
@@ -566,7 +546,7 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
                 continue;
             }
 
-            char *typeStructure = typePtr->getNewTypeStructure();
+          auto typeStructure = typePtr->getNewTypeStructure();
 
             if (!common::StringUtil::startsWithExactCase(typePtr->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
             {
@@ -582,8 +562,6 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
                 transObj->insertTile(transTile);
                 retval->insert(transObj);
             }
-            free(typeStructure);
-            typeStructure = NULL;
 
             structIter.advance();
         }
@@ -620,12 +598,10 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
                 continue;
             }
 
-            char *tmpTypeStructure = typePtr->getNewTypeStructure();
-            std::string typeStructure{tmpTypeStructure};
-            free(tmpTypeStructure);
+            auto typeStructure = typePtr->getNewTypeStructure();
 
             if (typePtr->getSubtype() == MDDType::MDDBASETYPE ||
-                    typePtr->getSubtype() == MDDType::MDDONLYTYPE)
+                typePtr->getSubtype() == MDDType::MDDONLYTYPE)
             {
                 LDEBUG << "Internal MDD type cannot be serialized: " << typeStructure;
                 mddIter.advance();
@@ -703,7 +679,7 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
             setIter.advance();
         }
     }
-    else if (strcmp(collName,AllTypesName)==0)
+    else if (strcmp(collName, AllTypesName) == 0)
     {
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");

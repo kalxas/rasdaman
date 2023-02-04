@@ -23,15 +23,19 @@
 ###################################################################
 
 set(SRC_FILES
-    vectorutils.hh
-    timer.hh
-    networkutils.cc networkutils.hh
-    system.hh system.cc
-    fileutils.hh fileutils.cc
-    math.hh
-    )
+        vectorutils.hh
+        timer.hh timer.cc
+        networkutils.cc networkutils.hh
+        system.hh system.cc
+        fileutils.hh fileutils.cc
+        math.hh)
 
 add_library(common_util ${SRC_FILES})
+
+target_link_libraries(common_util
+    PUBLIC
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY})
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
     target_precompile_headers(common_util REUSE_FROM common_logging)

@@ -26,6 +26,7 @@ rasdaman GmbH.
 
 #include "rasnet/messages/client_rassrvr_service.grpc.pb.h"
 #include "raslib/error.hh"
+#include "common/exceptions/exception.hh"
 
 namespace rasserver
 {
@@ -80,6 +81,7 @@ private:
 
     static grpc::Status getRErrorStatus(r_Error &err);
     static grpc::Status getSTLExceptionStatus(std::exception &ex);
+    static grpc::Status getCommonExceptionStatus(common::Exception &ex);
     static grpc::Status getUnknownExceptionStatus();
 };
 

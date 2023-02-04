@@ -275,6 +275,15 @@ public:
     void set_interval(char, char) noexcept;
     void set_slice() noexcept;
     
+    /// @return the axis name of this interval; the interval has no axis name if
+    /// an empty string is returned.
+    const std::string &get_axis_name() const;
+    /// set an axis name for this interval; an empty string will clear any
+    /// axis name.
+    void set_axis_name(const std::string &axis_name_arg);
+    /// @return true if the interval has an axis name set, false otherwise
+    bool has_axis_name() const;
+    
     /// get distance to lower bound of this interval from o; this interval is
     /// assumed to be fixed in the lower bound, and o >= this.low()
     OffsetType get_offset_to(BoundType o) const noexcept;
@@ -352,6 +361,8 @@ private:
     int classify(const r_Sinterval &a, const r_Sinterval &b) const;
     //@}
 
+    /// an optional axis name for this interval; empty means no axis name has been set
+    std::string axis_name;
     /// lower bound of the interval; invalid if low_fixed is false
     r_Range lower_bound{};
     /// upper bound of the interval; invalid if low_fixed is false

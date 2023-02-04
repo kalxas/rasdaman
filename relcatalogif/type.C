@@ -33,7 +33,6 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "type.hh"
-#include "mymalloc/mymalloc.h"
 #include "reladminif/oidif.hh"  // for OId
 #include "raslib/error.hh"      // for r_Error, INTERNALDLPARSEERROR
 #include "logging.hh"           // for LERROR
@@ -81,17 +80,16 @@ const char *Type::getTypeName() const
     return getName();
 }
 
-char *Type::getTypeStructure() const
+std::string Type::getTypeStructure() const
 {
     // default implementation for all non-structured base types.
-    char *result = strdup(getTypeName());
-    for (size_t i = 0; i < strlen(result); ++i)
-        result[i] = static_cast<char>(tolower(result[i]));
-
-    return result;
+    std::string ret = getTypeName();
+    for (size_t i = 0; i < ret.size(); ++i)
+        ret[i] = char(tolower(ret[i]));
+    return ret;
 }
 
-char *Type::getNewTypeStructure() const
+std::string Type::getNewTypeStructure() const
 {
     return getTypeStructure();
 }

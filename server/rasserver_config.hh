@@ -153,6 +153,7 @@ private:
 
     // directql parameters
     CommandLineParameter* cmlQuery{};
+    CommandLineParameter* cmlQueryFile{};
     CommandLineParameter* cmlFile{};
 
     CommandLineParameter* cmlContent{};

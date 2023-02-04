@@ -32,7 +32,6 @@ rasdaman GmbH.
 #include "raslib/error.hh"                       // for r_Error, r_Error::r_...
 #include "raslib/mddtypes.hh"                    // for r_Bytes
 #include "raslib/minterval.hh"                   // for operator<<, r_Minterval
-#include "mymalloc/mymalloc.h"
 #include <logging.hh>                            // for Writer, CTRACE, LTRACE
 
 #include <boost/algorithm/string/predicate.hpp>  // for starts_with
@@ -73,7 +72,7 @@ MDDDomainType::MDDDomainType(const char *newTypeName, const BaseType *newBaseTyp
 {
     objecttype = OId::MDDDOMTYPEOID;
     myDomain = new DBMinterval(newDomain);
-    myDomain->setAxisNames(axisNames2);
+    myDomain->set_axis_names(axisNames2);
     myDomain->setCached(true);
     mySubclass = MDDDOMAINTYPE;
 }
@@ -107,39 +106,37 @@ MDDDomainType::~MDDDomainType() noexcept(false)
     myDomain = nullptr;
 }
 
-char *MDDDomainType::getTypeStructure() const
+std::string MDDDomainType::getTypeStructure() const
 {
-    char *baseType = myBaseType->getTypeStructure();
-    char *mdom = myDomain->get_string_representation();
-    char *result = static_cast<char *>(mymalloc(12 + strlen(baseType) + strlen(mdom)));
+    auto baseType = myBaseType->getTypeStructure();
+    auto mdom = myDomain->to_string();
+    auto resultLen = 12 + baseType.size() + mdom.size();
 
-    sprintf(result, "marray <%s, %s>", baseType, mdom);
-
-    free(mdom);
-    free(baseType);
-    return result;
+    std::string ret;
+    ret.reserve(resultLen);
+    ret += "marray <";
+    ret += baseType;
+    ret += ",";
+    ret += mdom;
+    ret += ">";
+    return ret;
 }
 
-char *MDDDomainType::getNewTypeStructure() const
+std::string MDDDomainType::getNewTypeStructure() const
 {
-    std::ostringstream ss;
-
+    std::string baseType;
     if (boost::starts_with(myBaseType->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
-    {
-        char *typeStructure = myBaseType->getNewTypeStructure();
-        ss << typeStructure;
-        free(typeStructure);
-    }
+        baseType = myBaseType->getNewTypeStructure();
     else
-    {
-        ss << TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()));
-    }
+        baseType = TypeFactory::getSyntaxTypeFromInternalType(myBaseType->getTypeName());
 
-    ss << " MDARRAY "
-       << myDomain->get_named_axis_string_representation();
-
-    std::string result = ss.str();
-    return strdup(result.c_str());
+    std::string ret;
+    ret.reserve(baseType.size() + 11 + (myDomain->dimension() * 3));
+    
+    ret += baseType;
+    ret += " MDARRAY ";
+    ret += myDomain->to_string();
+    return ret;
 }
 
 const r_Minterval *MDDDomainType::getDomain() const

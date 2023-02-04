@@ -58,11 +58,11 @@ public:
     could be superceded by OId::OIdType
     */
 
-    MDDType(const OId &id);
+    explicit MDDType(const OId &id);
 
     MDDType();
 
-    MDDType(const char *newTypeName);
+    explicit MDDType(const char *newTypeName);
 
     MDDType(const MDDType &) = default;
 
@@ -93,7 +93,7 @@ public:
     always returns 1.
     */
 
-    char *getTypeStructure() const override;
+    std::string getTypeStructure() const override;
     /*@Doc:
     returns type as string:
         marray <>
@@ -103,7 +103,7 @@ public:
      * @brief getNewTypeStructure - returns the type structe in the format
      * required by SQL type manipulation format
      */
-    char *getNewTypeStructure() const override;
+    std::string getNewTypeStructure() const override;
 
     r_Bytes getMemorySize() const override;
     /*@Doc:

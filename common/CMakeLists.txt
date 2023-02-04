@@ -24,6 +24,7 @@
 # must be defined first for precompiled headers to work
 add_subdirectory(logging)
 
+add_subdirectory(tree)
 add_subdirectory(crypto)
 add_subdirectory(uuid)
 add_subdirectory(exceptions)

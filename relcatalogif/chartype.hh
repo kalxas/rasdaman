@@ -60,7 +60,7 @@ class CharType : public UIntegralType
 public:
     CharType();
 
-    CharType(const OId &id);
+    explicit CharType(const OId &id);
 
     CharType(const CharType &);
 

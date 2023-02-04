@@ -340,22 +340,31 @@ OIdSet *ObjectBroker::getAllObjects(OId::OIdType type)
     switch (type)
     {
     case OId::MDDCOLLOID:
+        LDEBUG << "loading all MDD collections";
         return getAllMDDSets();
     case OId::MDDOID:
+        LDEBUG << "loading all MDD objects";
         return getAllMDDObjects();
     case OId::MDDTYPEOID:
+        LDEBUG << "loading all MDD types";
         return getAllMDDTypes();
     case OId::MDDBASETYPEOID:
+        LDEBUG << "loading all MDD base types";
         return getAllMDDBaseTypes();
     case OId::MDDDIMTYPEOID:
+        LDEBUG << "loading all MDD dimension types";
         return getAllMDDDimensionTypes();
     case OId::MDDDOMTYPEOID:
+        LDEBUG << "loading all MDD domain types";
         return getAllMDDDomainTypes();
     case OId::STRUCTTYPEOID:
+        LDEBUG << "loading all struct base types";
         return getAllStructTypes();
     case OId::SETTYPEOID:
+        LDEBUG << "loading all collection types";
         return getAllSetTypes();
     case OId::ATOMICTYPEOID:
+        LDEBUG << "loading all atomic base types";
         return getAllAtomicTypes();
     default:
         LERROR << "Retrival of all cached objects of type " << type << " failed: invalid OId type.";
@@ -565,9 +574,6 @@ void ObjectBroker::clearBroker()
 
     theTileIndexMappings.clear();
 
-    // It seems that free() doesn't always fully release the memory.
-    // The malloc_trim(0) below will attempt to release free memory from the top of the heap.
-    malloc_trim(0);
     LDEBUG << "ObjectBroker cleared successfully.";
 }
 

@@ -35,9 +35,22 @@ class User;
 class Server;
 
 /**
- * @brief The Client class Represents a client that connects to rasmgr and requests
- * a server onto which to execute a query.
- * Stores information about the DB sessions allocated to the client
+ * Represents a client that connects to rasmgr and requests a server onto which to
+ * execute a query. The client has the following properties:
+ * 
+ * - unique client ID in UUID form assigned to the client by the ClientManager
+ * - the User that initiated the client request
+ * - the rasmgr hostname to which the client connected to
+ * - a liveness timer which expires after a certain amount of time (meaning that
+ *   the client will be considered dead), unless it's reset beforehand with a call
+ *   to `resetLiveliness()`
+ * - a database session ID and a server assigned for that session by the
+ *   ClientManager with a call to `addDbSession(...)`; if the session ID is
+ *   empty, no server has been assigned.
+ * 
+ * The ClientManager can request the client to remove itself from the
+ * servers it's assigned to with a call to `removeClientFromServers()`, when the
+ * client sends a disconnect request to rasmgr.
  */
 class Client
 {
@@ -47,8 +60,10 @@ public:
      * @param clientId UUID assigned to the client by the client manager.
      * @param user user object with access rights this client has on the database
      * @param lifeTime The number of milliseconds for how long the client is alive between pings.
+     * @param rasmgrHostArg rasmgr hostname
      */
-    Client(const std::string &clientId, std::shared_ptr<User> user, std::int32_t lifeTime);
+    Client(const std::string &clientId, std::shared_ptr<User> user,
+           std::int32_t lifeTime, const std::string &rasmgrHostArg);
 
     /**
      *
@@ -57,11 +72,16 @@ public:
     const std::string &getClientId() const;
 
     /**
-     * @brief getUser Get the user information(user name, password, access rights) associated with this client.
+     * Get the user information(user name, password, access rights) associated with this client.
      * The returned value is a constant to prevent accidental modification of the user information.
      * User data should be modified only through the UserManager.
      */
     const std::shared_ptr<const User> getUser() const;
+    
+    /**
+     * @return the rasmgr hostname to which this client originally connected to.
+     */
+    const std::string &getRasmgrHost() const;
 
     /**
      * Check if the client is alive.
@@ -79,10 +99,11 @@ public:
      * @param dbName Name of the database for this session
      * @param assignedServer Server assigned to the client for this session
      * @param out_sessionId Unique ID that is created for this session.
-     * @throws An exception is thrown if the user does not have rights on the database with the given name
-     * or if the server cannot allocate a client session.
+     * @throws An exception is thrown if the user does not have rights on the
+     * database with the given name or if the server cannot allocate a client session.
      */
-    void addDbSession(const std::string &dbName, std::shared_ptr<Server> assignedServer, std::string &out_sessionId);
+    void addDbSession(const std::string &dbName, std::shared_ptr<Server> newServer,
+                      std::string &out_sessionId);
 
     /**
      * Remove the session with the given ID from the client's memory.
@@ -93,31 +114,31 @@ public:
     /**
      * Remove the client from all the servers it has been associated with.
      */
-    void removeClientFromServers();
+    void removeClientFromServer();
 
 private:
     std::string clientId; /*! Unique client id.*/
     std::shared_ptr<User> user; /*! User represented by this client. */
     common::Timer timer;/*! Timer for keeping track of the life of the client */
+    std::string rasmgrHost; /*! Hostname to which the client originally connected to. */
 
     boost::shared_mutex timerMutex; /*! Mutex used to synchronize access to the timer */
 
-    std::map<std::string, std::weak_ptr<Server>> assignedServers; /*! Map between sessionIds and the server assigned for the session*/
-    boost::shared_mutex assignedServersMutex; /*! Mutex used to synchronize access to the list of servers*/
+    std::string sessionId; /*! unique client session ID */
+    std::shared_ptr<Server> assignedServer; /*! the server assigned for the session*/
+    boost::shared_mutex assignedServerMutex; /*! Mutex used to synchronize access to the server*/
 
     /**
      * @brief isClientAliveOnServers Go through the list of servers and check if the client
      * is alive.
      * @return TRUE if at least one server reports client activity
      */
-    bool isClientAliveOnServers();
+    bool isClientAliveOnServer();
 
     /**
-     * @brief removeDeadServers Remove weak_ptr<Server> that are null from the least of
-     * servers assigned to this client.
-     * @return
+     * @brief removeDeadServers Remove dead assignedServer
      */
-    void removeDeadServers();
+    void removeDeadServer();
 
 };
 

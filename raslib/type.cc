@@ -105,6 +105,12 @@ r_Type::isOidType() const
 }
 
 r_Type *
+r_Type::get_any_type(const std::string &type_string)
+{
+    return get_any_type(type_string.c_str());
+}
+
+r_Type *
 r_Type::get_any_type(const char *type_string)
 {
     char   *pos         = const_cast<char *>(type_string);

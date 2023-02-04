@@ -56,7 +56,7 @@ class Type : public DBNamedObject
 {
 public:
     Type();
-    Type(const OId &id);
+    explicit Type(const OId &id);
     Type(const Type &) = default;
     Type &operator=(const Type &) = default;
     ~Type() override = default;
@@ -81,7 +81,7 @@ public:
     virtual void getTypes(std::vector<const BaseType *> &types) const;
 
     /// returns the structure of the type as a C string.
-    virtual char *getTypeStructure() const;
+    virtual std::string getTypeStructure() const;
     /*@Doc:
       Returns a copy of getTypeName() for non-structured base types. For
       structured types a list of the elements in the form of #struct {
@@ -90,7 +90,7 @@ public:
       if domain is not specified). Sets are printed in the form
       #set<setName>#. The char* has to be freed by the caller!
     */
-    virtual char *getNewTypeStructure() const;
+    virtual std::string getNewTypeStructure() const;
 
     TypeEnum getType() const;
     /*@Doc:

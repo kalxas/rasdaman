@@ -20,25 +20,21 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "common/grpc/grpcutils.hh"
-#include <logging.hh>
-
 #include "constants.hh"
 #include "outpeer.hh"
+
+#include "common/grpc/grpcutils.hh"
+#include <logging.hh>
 
 namespace rasmgr
 {
 using common::GrpcUtils;
 
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::Status;
-
 using rasnet::service::GetRemoteServerRequest;
 using rasnet::service::GetRemoteServerReply;
 
-OutPeer::OutPeer(const std::string &hostName, const uint32_t port)
-    : hostName(hostName), port(port)
+OutPeer::OutPeer(const std::string &h, const uint32_t p)
+    : hostName(h), port(p)
 {
     // Initialize the service used for communicating with the remote rasmgr
     std::string serverAddress = GrpcUtils::constructAddressString(this->hostName, std::uint32_t(this->port));
@@ -82,9 +78,9 @@ bool rasmgr::OutPeer::tryGetRemoteServer(
     req.set_password_hash(request.getPassword());
     req.set_database_name(request.getDatabaseName());
 
-    ClientContext context;
+    grpc::ClientContext context;
 
-    Status status = this->rasmgrService->TryGetRemoteServer(&context, req, &reply);
+    grpc::Status status = this->rasmgrService->TryGetRemoteServer(&context, req, &reply);
     if (status.ok())
     {
         out_reply.clientSessionId = reply.client_session_id();
@@ -117,7 +113,7 @@ void OutPeer::releaseServer(const RemoteClientSession &clientSession)
         if (GrpcUtils::isServerAlive(this->healthService, SERVER_CALL_TIMEOUT))
         {
             // Set timeout for API
-            ClientContext context;
+            grpc::ClientContext context;
 
             ::rasnet::service::Void reply;
             ::rasnet::service::ReleaseServerRequest request;
@@ -125,7 +121,7 @@ void OutPeer::releaseServer(const RemoteClientSession &clientSession)
             request.set_client_session_id(clientSession.getClientSessionId());
             request.set_db_session_id(clientSession.getDbSessionId());
 
-            Status status = this->rasmgrService->ReleaseServer(&context, request, &reply);
+            grpc::Status status = this->rasmgrService->ReleaseServer(&context, request, &reply);
             if (!status.ok())
             {
                 LERROR << "Failed to release remote server on rasmgr "

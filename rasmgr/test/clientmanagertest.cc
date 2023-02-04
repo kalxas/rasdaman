@@ -61,6 +61,7 @@ using rasmgr::ClientManagerConfig;
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
+using ::testing::ReturnRef;
 using ::testing::SetArgReferee;
 using rasmgr::UserAdminRightsProto;
 using rasmgr::UserDatabaseRightsProto;
@@ -72,7 +73,7 @@ protected:
     ClientManagerTest():
         clientId("clientId"), userName("userName"), userPassword("userPassword"),
         dbName("dbName"), sessionId("sessionId"),
-        serverHost("tcp://localhost"), serverPort(7010)
+        serverHost("localhost"), serverPort(7010)
     {
         config.setCleanupInterval(10);
         config.setClientLifeTime(10);
@@ -126,7 +127,7 @@ TEST_F(ClientManagerTest, connectClient_FailsInexistentUser)
     EXPECT_CALL(userMgrMock, tryGetUser(_, _, _)).WillOnce(Return(false));
 
     //Will fail because the user manager will say that there is no client with those credentials
-    ASSERT_THROW(clientManager->connectClient(badCredentials, out_clientId), InexistentUserException);
+    ASSERT_THROW(clientManager->connectClient(badCredentials, "", out_clientId), InexistentUserException);
 }
 
 // Fails because tryGetUser now does the password validation, instead of clientManager->connectClient
@@ -154,7 +155,7 @@ TEST_F(ClientManagerTest, connectClientSuccess)
     EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
             .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
-    ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
+    ASSERT_NO_THROW(clientManager->connectClient(credentials, "", out_clientId));
 }
 
 TEST_F(ClientManagerTest, disconnectClient_NoClientWithGivenId)
@@ -174,7 +175,7 @@ TEST_F(ClientManagerTest, disconnectClient_Success)
     .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     //Will succeed
-    ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
+    ASSERT_NO_THROW(clientManager->connectClient(credentials, "", out_clientId));
 
     //Will succeed and it will remove the client
     ASSERT_NO_THROW(clientManager->disconnectClient(out_clientId));
@@ -204,16 +205,16 @@ TEST_F(ClientManagerTest, openClientDbSession_SuccessLocalServerFirstAttempt)
     // The ServerManager will return this server when asked for one
     std::shared_ptr<Server> freeServer(new MockRasServer());
     MockRasServer& mockServer = *std::dynamic_pointer_cast<MockRasServer>(freeServer);
-    EXPECT_CALL(mockServer, getHostName()).WillOnce(Return(serverHost));
+    EXPECT_CALL(mockServer, getHostName()).WillOnce(ReturnRef(serverHost));
     EXPECT_CALL(mockServer, getPort()).WillOnce(Return(serverPort));
     EXPECT_CALL(mockServer, allocateClientSession(_, _, _, _)).Times(1);
 
     ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
-    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _)).WillOnce(DoAll(SetArgReferee<1>(freeServer), Return(true)));
+    EXPECT_CALL(serverMgrMock, tryGetAvailableServer(_, _)).WillOnce(DoAll(SetArgReferee<1>(freeServer), Return(true)));
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
     std::string clientId;
-    clientManager->connectClient(credentials, clientId);
+    clientManager->connectClient(credentials, "", clientId);
 
     ClientServerSession out_serverSession;
     ASSERT_NO_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession));
@@ -235,19 +236,19 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessLocalServerLastAtt
     // The ServerManager will return this server when asked for one
     std::shared_ptr<Server> freeServer(new MockRasServer());
     MockRasServer& mockServer = *std::dynamic_pointer_cast<MockRasServer>(freeServer);
-    EXPECT_CALL(mockServer, getHostName()).WillOnce(Return(serverHost));
+    EXPECT_CALL(mockServer, getHostName()).WillOnce(ReturnRef(serverHost));
     EXPECT_CALL(mockServer, getPort()).WillOnce(Return(serverPort));
     EXPECT_CALL(mockServer, allocateClientSession(_, _, _, _)).Times(1);
 
     ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
-    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _))
+    EXPECT_CALL(serverMgrMock, tryGetAvailableServer(_, _))
     .Times(MAX_GET_SERVER_RETRIES - 1)
     .WillOnce(Return(false))
     .WillOnce(DoAll(SetArgReferee<1>(freeServer), Return(true)));
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
     std::string clientId;
-    clientManager->connectClient(credentials, clientId);
+    clientManager->connectClient(credentials, "", clientId);
 
     ClientServerSession out_serverSession;
     ASSERT_NO_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession));
@@ -267,7 +268,7 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessRemoteServer)
     .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
-    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _))
+    EXPECT_CALL(serverMgrMock, tryGetAvailableServer(_, _))
     .Times(MAX_GET_SERVER_RETRIES)
     .WillRepeatedly(Return(false));
 
@@ -284,7 +285,7 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_SuccessRemoteServer)
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
     std::string clientId;
-    clientManager->connectClient(credentials, clientId);
+    clientManager->connectClient(credentials, "", clientId);
 
     ClientServerSession out_serverSession;
     ASSERT_NO_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession));
@@ -304,7 +305,7 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_FailBecauseNoAvailableSer
     .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
     ServerManagerMock& serverMgrMock = *std::dynamic_pointer_cast<ServerManagerMock>(serverManager);
-    EXPECT_CALL(serverMgrMock, tryGetFreeServer(_, _))
+    EXPECT_CALL(serverMgrMock, tryGetAvailableServer(_, _))
     .Times(MAX_GET_SERVER_RETRIES)
     .WillRepeatedly(Return(false));
 
@@ -316,7 +317,7 @@ TEST_F(ClientManagerTest, DISABLED_openClientDbSession_FailBecauseNoAvailableSer
 
     rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
     std::string clientId;
-    clientManager->connectClient(credentials, clientId);
+    clientManager->connectClient(credentials, "", clientId);
 
     ClientServerSession out_serverSession;
     ASSERT_THROW(clientManager->openClientDbSession(clientId, dbName, out_serverSession), NoAvailableServerException);
@@ -349,7 +350,7 @@ TEST_F(ClientManagerTest, closeClientDbSession_NoOpenSessions)
     EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
     .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
-    clientManager->connectClient(credentials, out_clientId);
+    clientManager->connectClient(credentials, "", out_clientId);
 
     //Will succeed
     ASSERT_NO_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
@@ -387,7 +388,7 @@ TEST_F(ClientManagerTest, keepClientAlive_ValidClient)
     EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
     .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
-    clientManager->connectClient(credentials, out_clientId);
+    clientManager->connectClient(credentials, "", out_clientId);
 
     ASSERT_NO_THROW(clientManager->keepClientAlive(out_clientId));
 }
@@ -406,7 +407,7 @@ TEST_F(ClientManagerTest, keepClientAlive_ExpiredClient)
     EXPECT_CALL(userMgrMock, tryGetUser(_, _, _))
     .WillOnce(DoAll(testing::SetArgReferee<2>(user), Return(true)));
 
-    clientManager->connectClient(credentials, out_clientId);
+    clientManager->connectClient(credentials, "", out_clientId);
 
     // The client exists
     ASSERT_NO_THROW(clientManager->keepClientAlive(out_clientId));

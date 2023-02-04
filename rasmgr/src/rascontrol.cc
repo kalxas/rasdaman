@@ -20,15 +20,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <set>
-#include <sstream>
-
-#include <cstdint>
-#include <boost/format.hpp>
-
-#include "common/crypto/crypto.hh"
-#include <logging.hh>
+#include "rascontrol.hh"
+#include "version.h"
 #include "include/globals.hh"
+#include "common/crypto/crypto.hh"
+#include "common/exceptions/runtimeexception.hh"
 
 #include "databasehostmanager.hh"
 #include "databasemanager.hh"
@@ -38,17 +34,18 @@
 #include "usermanager.hh"
 #include "user.hh"
 
-#include "rascontrol.hh"
-#include "version.h"
+#include <logging.hh>
 
+#include <set>
+#include <sstream>
+
+#include <cstdint>
+#include <boost/format.hpp>
 
 namespace rasmgr
 {
-using common::Crypto;
 
 using boost::format;
-
-using std::list;
 
 RasControl::RasControl(std::shared_ptr<UserManager> userManager,
                        std::shared_ptr<DatabaseHostManager> dbHostManager,
@@ -157,7 +154,6 @@ std::string RasControl::changeDbHost(const ChangeDbHost &dbHostData)
     }
 
     return message;
-
 }
 
 std::string RasControl::removeDbHost(const RemoveDbHost &dbHostData)
@@ -419,9 +415,9 @@ std::string RasControl::defineUser(const DefineUser &userData)
     }
 
     //If there is no password passed in, set the user name as the password
-    if (Crypto::isMessageDigestAvailable(DEFAULT_DIGEST))
+    if (common::Crypto::isMessageDigestAvailable(DEFAULT_DIGEST))
     {
-        userProp.set_password(Crypto::messageDigest(password, DEFAULT_DIGEST));
+        userProp.set_password(common::Crypto::messageDigest(password, DEFAULT_DIGEST));
     }
     else
     {
@@ -491,9 +487,9 @@ std::string RasControl::changeUser(const ChangeUser &userData)
 
         if (userData.has_n_passwd())
         {
-            if (Crypto::isMessageDigestAvailable(DEFAULT_DIGEST))
+            if (common::Crypto::isMessageDigestAvailable(DEFAULT_DIGEST))
             {
-                userProp.set_password(Crypto::messageDigest(userData.n_passwd(), DEFAULT_DIGEST));
+                userProp.set_password(common::Crypto::messageDigest(userData.n_passwd(), DEFAULT_DIGEST));
             }
             else
             {
@@ -1098,7 +1094,7 @@ std::string RasControl::stopRasMgr()
     }
     catch (...)
     {
-        message = "Stoping servers failed for unknown reason.";
+        message = "Stopping servers failed for unknown reason.";
     }
 
     return message;

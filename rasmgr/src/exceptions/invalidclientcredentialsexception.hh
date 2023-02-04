@@ -34,7 +34,7 @@ namespace rasmgr
 class InvalidClientCredentialsException: public common::RuntimeException
 {
 public:
-    InvalidClientCredentialsException();
+    InvalidClientCredentialsException(const std::string &username);
 
     virtual ~InvalidClientCredentialsException() noexcept;
 };

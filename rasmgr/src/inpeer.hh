@@ -28,8 +28,8 @@
 namespace rasmgr
 {
 /**
- * @brief The InPeer class contains information needed to identify a peer from
- * which requests can be received.
+ * Contains information needed to identify a peer from which requests can be
+ * received.
  */
 class InPeer
 {

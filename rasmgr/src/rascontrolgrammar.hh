@@ -29,6 +29,10 @@ rasdaman GmbH.
 namespace rasmgr
 {
 
+/**
+ * Parse a rascontrol command, e.g. `list srv -all`, and process it with a
+ * RasControl instance.
+ */
 class RasControlGrammar
 {
 public:

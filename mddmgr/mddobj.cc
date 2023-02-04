@@ -59,6 +59,7 @@ rasdaman GmbH.
 #include <memory>
 #include <cassert>
 
+#define COLOR_PALET_SIZE 15
 
 using std::shared_ptr;
 using std::make_shared;
@@ -440,31 +441,42 @@ void MDDObj::setUpdateNullValues(r_Nullvalues *newNullValues)
     }
 }
 
-std::string MDDObj::getArrayInfo(bool printTiles) const
+std::string MDDObj::getArrayInfo(common::PrintTiles printTiles) const
+{
+    switch (printTiles) {
+      case common::PrintTiles::EMBEDDED:
+      case common::PrintTiles::NONE:
+        return getEmbeddedArrayInfo(printTiles);
+      case common::PrintTiles::JSON:
+        return getJsonArrayInfo();
+      case common::PrintTiles::SVG:
+        return getSvgArrayInfo();
+      default:
+        LERROR << "Unsupported printtiles argument.";
+        throw r_Error(379);
+    }
+}
+
+std::string MDDObj::getEmbeddedArrayInfo(common::PrintTiles printTiles) const
 {
     std::ostringstream info;
     auto oid = static_cast<double>(myDBMDDObj->getOId());
     info << "{\n \"oid\": \"" << oid;
-
-    char *baseType = this->getMDDBaseType()->getTypeStructure();
+  
+    auto baseType = this->getMDDBaseType()->getTypeStructure();
     info << "\",\n \"baseType\": \"" << baseType;
-    free(baseType);
     
     if (collType)
-    {
         info << "\",\n \"setTypeName\": \"" << collType->getName();
-    }
     info << "\",\n \"mddTypeName\": \"" << myDBMDDObj->getMDDBaseType()->getTypeName();
-
-    std::unique_ptr<std::vector<shared_ptr<Tile>>> tiles{};
+  
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> tiles{};
     tiles.reset(this->getTiles());
     info << "\",\n \"tileNo\": \"" << tiles->size();
 
     size_t totalSize = 0;
     for (const auto &tile : *tiles)
-    {
         totalSize += tile->getSize();
-    }
     info << "\",\n \"totalSize\": \"" << totalSize;
 
     const auto *sl = this->getStorageLayout();
@@ -474,92 +486,109 @@ std::string MDDObj::getArrayInfo(bool printTiles) const
         info << "\t\"tilingScheme\": \"";
         switch (sl->getTilingScheme())
         {
-        case r_NoTiling:
-            info << "no_tiling";
-            break;
-        case r_RegularTiling:
-            info << "regular";
-            break;
-        case r_StatisticalTiling:
-            info << "statistic";
-            break;
-        case r_InterestTiling:
-            info << "interest";
-            break;
-        case r_AlignedTiling:
-            info << "aligned";
-            break;
-        case r_DirectionalTiling:
-            info << "directional";
-            break;
-        case r_SizeTiling:
-            info << "size";
-            break;
-        default:
-            info << "unknown";
-            break;
+        case r_NoTiling:          info << "no_tiling"; break;
+        case r_RegularTiling:     info << "regular"; break;
+        case r_StatisticalTiling: info << "statistic"; break;
+        case r_InterestTiling:    info << "interest"; break;
+        case r_AlignedTiling:     info << "aligned"; break;
+        case r_DirectionalTiling: info << "directional"; break;
+        case r_SizeTiling:        info << "size"; break;
+        default:                  info << "unknown"; break;
         }
         info << "\",\n\t\"tileSize\": \"" << sl->getTileSize();
-        info << "\",\n\t\"tileConfiguration\": \"" << sl->getTileConfiguration() << "\"";
-
-        if (printTiles)
+        auto tileConf = sl->getTileConfiguration();
+        if (tileConf.has_axis_names())
         {
-            info << ",\n\t\"tileDomains\":\n\t[";
-            bool first = true;
-            for (const auto &tile : *tiles)
-            {
-                info << "\n\t\t\"" << tile->getDomain() << "\"";
-                if (!first)
-                {
-                    info << ",";
-                }
-                else
-                {
-                    first = false;
-                }
-            }
-            info << "\n\t]";
+            std::vector<std::string> emptyAxisNames(tileConf.dimension());
+            tileConf.set_axis_names(emptyAxisNames);
         }
-
+        info << "\",\n\t\"tileConfiguration\": \"" << tileConf << "\"";
+  
+        if (printTiles == common::PrintTiles::EMBEDDED)
+        {
+            info << ",\n\t\"tileDomains\":\n\t";
+            printArrayTiles(tiles, info);
+        }
+  
         info << "\n },\n \"index\": {\n\t\"type\": \"";
         switch (sl->getIndexType())
         {
-        case r_Invalid_Index:
-            info << "invalid";
-            break;
-        case r_Auto_Index:
-            info << "a_index";
-            break;
-        case r_Directory_Index:
-            info << "d_index";
-            break;
-        case r_Reg_Directory_Index:
-            info << "rd_index";
-            break;
-        case r_RPlus_Tree_Index:
-            info << "rpt_index";
-            break;
-        case r_Reg_RPlus_Tree_Index:
-            info << "rrpt_index";
-            break;
-        case r_Reg_Computed_Index:
-            info << "rc_index";
-            break;
-        case r_Index_Type_NUMBER:
-            info << "it_index";
-            break;
-        case r_Tile_Container_Index:
-            info << "tc_index";
-            break;
-        default:
-            info << "unknown";
-            break;
+        case r_Invalid_Index:         info << "invalid"; break;
+        case r_Auto_Index:            info << "a_index"; break;
+        case r_Directory_Index:       info << "d_index"; break;
+        case r_Reg_Directory_Index:   info << "rd_index"; break;
+        case r_RPlus_Tree_Index:      info << "rpt_index"; break;
+        case r_Reg_RPlus_Tree_Index:  info << "rrpt_index"; break;
+        case r_Reg_Computed_Index:    info << "rc_index"; break;
+        case r_Index_Type_NUMBER:     info << "it_index"; break;
+        case r_Tile_Container_Index:  info << "tc_index"; break;
+        default:                      info << "unknown"; break;
         }
         info << "\",\n\t\"PCTmax\": \"" << sl->getDBStorageLayout()->getPCTMax();
         info << "\",\n\t\"PCTmin\": \"" << sl->getDBStorageLayout()->getPCTMin();
         info << "\"\n }";
     }
     info << "\n}";
+    return info.str();
+}
+
+std::string MDDObj::getJsonArrayInfo() const
+{
+    std::ostringstream info;
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> tiles{};
+    tiles.reset(this->getTiles());
+    printArrayTiles(tiles, info);
+    return info.str();
+}
+
+void MDDObj::printArrayTiles(const std::unique_ptr<std::vector<std::shared_ptr<Tile>>> &tiles,
+                             std::ostream &info) const
+{
+    info << "[";
+    bool first = true;
+    for (const auto &tile : *tiles)
+    {
+        info << "\n\t\t\"" << tile->getDomain() << "\"";
+        if (!first)
+            info << ",";
+        else
+            first = false;
+    }
+    info << "\n\t]";
+}
+
+std::string MDDObj::getSvgArrayInfo() const
+{
+    std::ostringstream info;
+    auto domain = this->getCurrentDomain();
+    if (domain.dimension() != 2)
+    {
+        LERROR << "Cannot export tile info to svg format for non-2D collection.";
+        throw r_Error(449);
+    }
+    std::string colors[COLOR_PALET_SIZE] = {"blue", "red", "brown", "grey", "black", "yellow", "purple", "pink", "olive", "gold", "aqua",
+                                            "darkorange", "indigo", "khaki", "seashell"};
+    r_Point origin = domain.get_origin();
+    r_Point high = domain.get_high();
+    info << "<svg width=\"" << high[0] - origin[0] << "\" height=\"" << high[1] - origin[1] << "\">";
+    
+    std::unique_ptr<std::vector<std::shared_ptr<Tile>>> tiles{};
+    tiles.reset(this->getTiles());
+    for (unsigned int i = 0; i < tiles->size(); i++)
+    {
+        auto tileDomain = tiles->at(i)->getDomain();
+        r_Point originTile = tileDomain.get_origin();
+        r_Point highTile = tileDomain.get_high();
+        int x = originTile[0];
+        int y = originTile[1];
+        int width = highTile[0] - x;
+        int height = highTile[1] - y;
+        int id = (tiles->at(i).get())->getDBTile()->getOId().getCounter();
+        info << "\n\t <rect x=\"" << x << "\" y=\"" << y << "\" width=\"" << width
+             << "\" height=\"" << height << "\" id=\"" << id 
+             << "\" style=\"fill:" << colors[i % COLOR_PALET_SIZE] << ";\" stroke=\"black\"></rect>";
+    }
+    info << "\n</svg>\n";
     return info.str();
 }
 

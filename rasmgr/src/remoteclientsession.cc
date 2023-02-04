@@ -25,16 +25,17 @@
 namespace rasmgr
 {
 
-RemoteClientSession::RemoteClientSession(const std::string &clientSessionIdArg, const std::string &dbSessionIdArg)
+RemoteClientSession::RemoteClientSession(const std::string &clientSessionIdArg,
+                                         const std::string &dbSessionIdArg)
     : clientSessionId(clientSessionIdArg), dbSessionId(dbSessionIdArg)
 {}
 
-std::string RemoteClientSession::getClientSessionId() const
+const std::string &RemoteClientSession::getClientSessionId() const
 {
     return clientSessionId;
 }
 
-std::string RemoteClientSession::getDbSessionId() const
+const std::string &RemoteClientSession::getDbSessionId() const
 {
     return dbSessionId;
 }

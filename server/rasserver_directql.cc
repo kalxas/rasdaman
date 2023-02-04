@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include "rasodmg/oqlquery.hh"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtscalardata.hh"
-#include "mymalloc/mymalloc.h"
 #include "relcatalogif/complextype.hh"
 #include "relcatalogif/structtype.hh"
 #include "servercomm/servercomm.hh"
@@ -140,9 +139,9 @@ void openDatabase()
         strcpy(globalConnectId, baseName.c_str());
         instance.connectToRasbase();
         
-        if (configuration.getUser())
+        if (configuration.getUser() && strlen(configuration.getUser()) > 0)
             user = configuration.getUser();
-        if (configuration.getPasswd())
+        if (configuration.getPasswd() && strlen(configuration.getPasswd()) > 0)
             passwd = configuration.getPasswd();
         
         char capability[500];
@@ -392,8 +391,8 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
             {
                 INFO("Getting MDD objects..." << endl << flush);
 
-                char* typeName = NULL;
-                char* typeStructure = NULL;
+                std::string typeName;
+                std::string typeStructure;
                 r_OId oid;
                 unsigned short currentFormat;
 
@@ -426,7 +425,7 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
                     printScalar(buffer, data, ++resultIndex);
                     if (buffer)
                     {
-                        free(buffer);
+                        delete [] buffer;
                         buffer = NULL;
                     }
                 }
@@ -446,7 +445,7 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
 {
     auto &instance = RasServerEntry::getInstance();
     r_Marray_Type* retval = NULL;
-    char* typeStructure = NULL;
+    std::string typeStructure;
 
     // first, try to get type structure from database using a separate r/o transaction
     try
@@ -456,8 +455,8 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
 
         // above doesn't seem to work, so at least make it work with inv_* 
         // functions -- DM 2013-may-19
-        if (!typeStructure)
-            typeStructure = strdup("marray<char>");
+        if (typeStructure.empty())
+            typeStructure = "marray<char>";
         
         LDEBUG << "type structure is " << typeStructure;
     }
@@ -504,12 +503,9 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
     {
         LDEBUG << "Error during retrieval of MDD type structure (" 
                << typeStructure << "): " << err.get_errorno() << " " << err.what();
-        SECURE_FREE_PTR(typeStructure);
         SECURE_DELETE_PTR(tempType);
         throw;
     }
-
-    SECURE_FREE_PTR(typeStructure);
 
     return retval;
 } // getTypeFromDatabase()
@@ -603,7 +599,7 @@ void doStuff()
 
             try
             {
-                fileContents = static_cast<char*>(mymalloc(static_cast<size_t>(size)));
+                fileContents = new char[size];
                 fseek(fileD, 0, SEEK_SET);
                 size_t rsize = fread(fileContents, 1, static_cast<size_t>(size), fileD);
 
@@ -615,7 +611,7 @@ void doStuff()
                 SECURE_DELETE_PTR(fileMDD);
                 SECURE_DELETE_PTR(mddType);
 
-                marray = (RPCMarray*) mymalloc(sizeof(RPCMarray));
+                marray = new RPCMarray();
                 marray->cellTypeLength = baseTypeSize;
                 marray->domain = mddDomain.get_string_representation();
                 marray->currentFormat = r_Array;
@@ -633,36 +629,27 @@ void doStuff()
 
             INFO("ok" << endl);
         }
+        
+        openTransaction(query.is_insert_query() || query.is_update_query());
 
+        if (fileContents != NULL)
+        {
+            instance.compat_InitUpdate();
+            auto mddDomainTmp = mddDomain.to_string();
+            instance.compat_StartInsertTransMDD(mddDomainTmp.c_str(), baseTypeSize, mddTypeName);
+            instance.compat_InsertTile(false, marray);
+            instance.compat_EndInsertMDD(false);
+        }
+        
         if (query.is_insert_query())
         {
             INFO("Executing insert query...\n" << flush);
-
-            openTransaction(true);
 
             ExecuteQueryRes result;
             result.token = NULL;
             result.typeName = NULL;
             result.typeStructure = NULL;
-            unsigned short status;
-
-            if (fileContents != NULL)
-            {
-                
-                instance.compat_InitUpdate();
-                char *mddDomainTmp = mddDomain.get_string_representation();
-                instance.compat_StartInsertTransMDD(mddDomainTmp, baseTypeSize, mddTypeName);
-                instance.compat_InsertTile(false, marray);
-                instance.compat_EndInsertMDD(false);
-                status = instance.compat_ExecuteInsertQuery(query.get_query(), result);
-                query.reset_query();
-
-                instance.compat_endTransfer();
-            }
-            else
-            {
-                status = instance.compat_ExecuteInsertQuery(queryString, result);
-            }
+            auto status = instance.compat_ExecuteInsertQuery(query.get_query(), result);
 
             if (status == 0 || status == 1 || status == 2)
                 printOutput(status, &result);
@@ -676,27 +663,8 @@ void doStuff()
         {
             INFO("Executing update query...\n" << flush);
 
-            openTransaction(true);
-
             ExecuteUpdateRes result;
-            unsigned short status;
-
-            if (fileContents != NULL)
-            {
-                instance.compat_InitUpdate();
-                char *mddDomainTmp = mddDomain.get_string_representation();
-                instance.compat_StartInsertTransMDD(mddDomainTmp, baseTypeSize, mddTypeName);
-                instance.compat_InsertTile(false, marray);
-                instance.compat_EndInsertMDD(false);
-                status = instance.compat_ExecuteUpdateQuery(query.get_query(), result);
-                query.reset_query();
-
-                instance.compat_endTransfer();
-            }
-            else
-            {
-                status = instance.compat_ExecuteUpdateQuery(queryString, result);
-            }
+            auto status = instance.compat_ExecuteUpdateQuery(query.get_query(), result);
 
             if (status != 0 && status != 1)
                 printError(status, &result);
@@ -711,8 +679,7 @@ void doStuff()
             openTransaction(false);
 
             ExecuteQueryRes result;
-            auto status = instance.compat_executeQueryRpc(queryString, result);
-
+            auto status = instance.compat_executeQueryRpc(query.get_query(), result, false);
             if (status <= 2) {
                 printOutput(status, &result);
             } else if (result.token != NULL) {
@@ -725,13 +692,20 @@ void doStuff()
 
             closeTransaction(true);
         }
+        
+        
+        if (fileContents != NULL)
+        {
+            query.reset_query();
+            instance.compat_endTransfer();
+        }
     }
     catch (r_Error& err)
     {
         if (marray)
         {
             SECURE_FREE_PTR(marray->domain);
-            SECURE_FREE_PTR(marray);
+            SECURE_DELETE_PTR(marray)
         }
         closeDatabase();
         throw err;
@@ -741,7 +715,7 @@ void doStuff()
     if (marray)
     {
         SECURE_FREE_PTR(marray->domain);
-        SECURE_FREE_PTR(marray);
+        SECURE_DELETE_PTR(marray)
     }
 }
 

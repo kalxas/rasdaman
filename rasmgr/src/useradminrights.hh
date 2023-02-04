@@ -29,15 +29,13 @@ namespace rasmgr
 class UserAdminRightsProto;
 
 /**
- * @brief The UserAdminRights class represents the administration rights of the
- * user. @see Installation and Administration Guide
+ * Represents the administration rights of the user.
  */
 class UserAdminRights
 {
 public:
     /**
-     * Initialize a new instance of the UserAdminRights object
-     * with NO rights
+     * Initialize a new instance of the UserAdminRights object with NO rights
      */
     UserAdminRights() = default;
 

@@ -27,19 +27,17 @@ rasdaman GmbH.
 #error "Please specify RMANVERSION variable!"
 #endif
 
+#include "rasserver_directql.hh"
+#include "rasserver_rasdl.hh"
 #include "globals.hh"
-#include "servercomm/httpserver.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "common/logging/signalhandler.hh"
-#include "rasserver_entry.hh"
+#include "common/exceptions/exception.hh"
 #include "rasserver/src/rasnetserver.hh"
 #include "rasserver_config.hh"
 #include "servercomm/accesscontrol.hh"
 
-#include "rasserver_directql.hh"
-#include "rasserver_rasdl.hh"
-
-#include <logging.hh>
+#include "logging.hh"
 #include "loggingutils.hh"
 
 #include <iostream>
@@ -55,8 +53,8 @@ INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
 
-#define RC_OK       (0)
-#define RC_ERROR    (-1)
+static const int RC_OK = 0;
+static const int RC_ERROR = -1;
 
 extern AccessControl accessControl;
 #ifdef RMANDEBUG
@@ -118,7 +116,8 @@ void crashHandler(int sig, siginfo_t* info, void* /*ucontext*/)
         BLERROR << "... stacktrace:\n" << common::SignalHandler::getStackTrace() << "\n";
         BLFLUSH;
         NNLERROR << "Shutting down... ";
-        BLERROR << "rasserver terminated." << endl;
+        BLERROR << "rasserver terminated.\n";
+        BLFLUSH;
     } else {
         // if a signal comes while the handler has already been invoked,
         // wait here for max 3 seconds, so that the handler above has some time
@@ -209,6 +208,11 @@ int main(int argc, char** argv)
                 rasserver::rasdl::runRasdl(argc, argv);
             }
         }
+    }
+    catch (common::Exception& errorObj)
+    {
+        LERROR << "rasdaman server error: " << errorObj.what();
+        returnCode = RC_ERROR;
     }
     catch (r_Error& errorObj)
     {

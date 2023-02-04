@@ -20,9 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
-using namespace std;
-
 #include "config.h"
 #include "version.h"
 #include "rasserver_config.hh"
@@ -32,6 +29,7 @@ using namespace std;
 #include "commline/cmlparser.hh"
 #include "applications/rasql/rasql_error.hh"
 #include "loggingutils.hh"
+#include "common/util/fileutils.hh"
 
 #include <unistd.h>
 #include <netdb.h>
@@ -82,6 +80,9 @@ using namespace std;
 #define PARAM_QUERY_FLAG 'q'
 #define PARAM_QUERY "query"
 #define HELP_QUERY  "<q> query string to be sent to the rasdaman server for execution"
+
+#define PARAM_QUERYFILE "queryfile"
+#define HELP_QUERYFILE  "<file> a file containing the query to be executed"
 
 #define PARAM_OUT   "out"
 #define HELP_OUT    "<t> use display method t for cell values of result MDDs where t is one of none, file, formatted, string, hex. Implies --content"
@@ -198,6 +199,7 @@ void Configuration::initParameters()
 
     // directql 
     cmlQuery      = &cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
+    cmlQueryFile  = &cmlInter.addStringParameter(nsn, PARAM_QUERYFILE, HELP_QUERYFILE);
     queryStringOn = cmlInter.isPresent(PARAM_QUERY);
     cmlFile       = &cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
 
@@ -243,7 +245,13 @@ void Configuration::checkParameters()
     // -------------------------------------------------------------------------
     // -- directql section start
     // -------------------------------------------------------------------------
-    
+
+    if (cmlQueryFile->isPresent())
+    {
+        const auto *qfile = cmlQueryFile->getValueAsString();
+        auto queryValue = common::FileUtils::readFileToString(qfile);
+        cmlQuery->takeValue(queryValue.c_str());
+    }
     queryString = cmlQuery->getValueAsString();
     queryStringOn = queryString != nullptr;
     if (queryStringOn || usesRasdl())
@@ -338,16 +346,13 @@ void Configuration::checkParameters()
 #ifdef RMANDEBUG
     // TODO
     //if (cmlDbg->isPresent())
-    
     dbgLevel   = cmlDbgLevel->getValueAsInt();
 #endif
-   
 }
 
 void Configuration::printHelp()
 {
     CommandLineParser& cmlInter  = CommandLineParser::getInstance();
-
     cout << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS " << BASEDBSTRING << "."<<endl;
     cout << "Usage:   rasserver [options]" << endl;
     cout << "Options:" << endl;
@@ -420,99 +425,77 @@ Configuration::deprecated(CommandLineParameter* cml)
 // -- rasserver section start
 // -------------------------------------------------------------------------
 
-const char* Configuration::getServerName()
-{
-    return serverName;
+const char *Configuration::getServerName() {
+  return serverName;
 }
-int         Configuration::getListenPort()
-{
-    return listenPort;
+int Configuration::getListenPort() {
+  return listenPort;
 }
 
-const char* Configuration::getRasmgrHost()
-{
-    return rasmgrHost;
+const char *Configuration::getRasmgrHost() {
+  return rasmgrHost;
 }
-int         Configuration::getRasmgrPort()
-{
-    return rasmgrPort;
+int Configuration::getRasmgrPort() {
+  return rasmgrPort;
 }
 
-bool        Configuration::isLogToStdOut()
-{
-    return logToStdOut;
+bool Configuration::isLogToStdOut() {
+  return logToStdOut;
 }
 
-int         Configuration::getMaxTransferBufferSize()
-{
-    return maxTransferBufferSize;
+int Configuration::getMaxTransferBufferSize() {
+  return maxTransferBufferSize;
 }
-int         Configuration::getTimeout()
-{
-    return timeout;
+int Configuration::getTimeout() {
+  return timeout;
 }
-const char* Configuration::getDbConnectionID()
-{
-    return dbConnection;
+const char *Configuration::getDbConnectionID() {
+  return dbConnection;
 }
-const char* Configuration::getDbUser()
-{
-    return dbUser;
+const char *Configuration::getDbUser() {
+  return dbUser;
 }
-const char* Configuration::getDbPasswd()
-{
-    return dbPasswd;
+const char *Configuration::getDbPasswd() {
+  return dbPasswd;
 }
 
-int         Configuration::getDefaultTileSize()
-{
-    return tileSize;
+int Configuration::getDefaultTileSize() {
+  return tileSize;
 }
-int         Configuration::getDefaultPCTMin()
-{
-    return pctMin;
+int Configuration::getDefaultPCTMin() {
+  return pctMin;
 }
-int         Configuration::getDefaultPCTMax()
-{
-    return pctMax;
+int Configuration::getDefaultPCTMax() {
+  return pctMax;
 }
-int         Configuration::getDefaultIndexSize()
-{
-    return indexSize;
+int Configuration::getDefaultIndexSize() {
+  return indexSize;
 }
-const char* Configuration::getDefaultTileConfig()
-{
-    return tileConf;
+const char *Configuration::getDefaultTileConfig() {
+  return tileConf;
 }
-const char* Configuration::getTilingScheme()
-{
-    return tilingName;
+const char *Configuration::getTilingScheme() {
+  return tilingName;
 }
-const char* Configuration::getIndexType()
-{
-    return indexType;
+const char *Configuration::getIndexType() {
+  return indexType;
 }
-bool        Configuration::useTileContainer()
-{
-    return useTC;
+bool Configuration::useTileContainer() {
+  return useTC;
 }
-long        Configuration::getCacheLimit()
-{
-    return cacheLimit;
+long Configuration::getCacheLimit() {
+  return cacheLimit;
 }
 
-bool        Configuration::isLockMgrOn()
-{
-    return lockmgrOn;
+bool Configuration::isLockMgrOn() {
+  return lockmgrOn;
 }
 
-const char* Configuration::getNewServerId()
-{
-    return newServerId;
+const char *Configuration::getNewServerId() {
+  return newServerId;
 }
-bool        Configuration::isRasserver()
-{
-    return !usesRasdl() && !hasQueryString();
+bool Configuration::isRasserver() {
+  return !usesRasdl() && !hasQueryString();
 }
 
 #ifdef RMANDEBUG
@@ -526,77 +509,60 @@ int         Configuration::getDebugLevel()
 // -- directql section start
 // -------------------------------------------------------------------------
 
-const char* Configuration::getQueryString()
-{
-    return queryString;
+const char *Configuration::getQueryString() {
+  return queryString;
 }
-const char* Configuration::getUser()
-{
-    return user;
+const char *Configuration::getUser() {
+  return user;
 }
-const char* Configuration::getPasswd()
-{
-    return passwd;
+const char *Configuration::getPasswd() {
+  return passwd;
 }
-const char* Configuration::getOutFileMask()
-{
-    return outFileMask;
+const char *Configuration::getOutFileMask() {
+  return outFileMask;
 }
-const r_Minterval& Configuration::getMddDomain()
-{
-    return mddDomain;
+const r_Minterval &Configuration::getMddDomain() {
+  return mddDomain;
 }
-const char* Configuration::getMddTypeName()
-{
-    return mddTypeName;
+const char *Configuration::getMddTypeName() {
+  return mddTypeName;
 }
-const char* Configuration::getFileName()
-{
-    return fileName;
+const char *Configuration::getFileName() {
+  return fileName;
 }
-bool        Configuration::isMddDomainDef()
-{
-    return mddDomainDef;
+bool Configuration::isMddDomainDef() {
+  return mddDomainDef;
 }
-bool        Configuration::isMddTypeNameDef()
-{
-    return mddTypeNameDef;
+bool Configuration::isMddTypeNameDef() {
+  return mddTypeNameDef;
 }
-bool        Configuration::isQuietLogOn()
-{
-    return quietLog;
+bool Configuration::isQuietLogOn() {
+  return quietLog;
 }
-bool        Configuration::hasQueryString()
-{
-    return queryStringOn;
+bool Configuration::hasQueryString() {
+  return queryStringOn;
 }
-OUTPUT_TYPE Configuration::getOutputType()
-{
-    return outputType;
+OUTPUT_TYPE Configuration::getOutputType() {
+  return outputType;
 }
-bool        Configuration::isOutputOn()
-{
-    return output;
+bool Configuration::isOutputOn() {
+  return output;
 }
-void        Configuration::setMddTypeName(const char* mddtn)
-{
-    this->mddTypeName = mddtn;
+void Configuration::setMddTypeName(const char *mddtn) {
+  this->mddTypeName = mddtn;
 }
-const char *Configuration::getBaseName() const
-{
-    return baseName;
+const char *Configuration::getBaseName() const {
+  return baseName;
 }
 
 // -------------------------------------------------------------------------
 // -- rasdl section start
 // -------------------------------------------------------------------------
 
-bool        Configuration::usesRasdl()
-{
-    return progMode != M_INVALID;
+bool Configuration::usesRasdl() {
+  return progMode != M_INVALID;
 }
-ProgModes   Configuration::getProgMode()
-{
-    return progMode;
+ProgModes Configuration::getProgMode() {
+  return progMode;
 }
 

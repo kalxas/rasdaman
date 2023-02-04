@@ -20,6 +20,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+#include "version.h"
+#include "config.h"
+#include "configuration.hh"
+#include "include/globals.hh"
+
 #include <unistd.h>
 #include <errno.h>
 #include <cstring>
@@ -27,12 +32,8 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
 #include <logging.hh>
+#include <common/util/networkutils.hh>
 
-#include "../../include/globals.hh"
-#include "configuration.hh"
-#include "constants.hh"
-#include "version.h"
-#include "config.h"
 
 namespace rasmgr
 {
@@ -151,23 +152,19 @@ std::uint32_t Configuration::getPort() const
 {
     return port;
 }
-
-std::string Configuration::getHostName() const
+const std::string &Configuration::getHostName() const
 {
     return hostName;
 }
-
-std::string Configuration::getName() const
+const std::string &Configuration::getName() const
 {
     return name;
 }
-
 bool Configuration::isQuiet() const
 {
     return quiet;
 }
-
-std::string Configuration::getLogFile() const
+const std::string &Configuration::getLogFile() const
 {
     return logFile;
 }

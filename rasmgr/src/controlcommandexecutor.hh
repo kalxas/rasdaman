@@ -36,7 +36,7 @@ namespace rasmgr
 class RasControl;
 
 /**
- * @brief The ControlCommandExecutor class Executes rascontrol string commands
+ * Executes rascontrol string commands.
  */
 class ControlCommandExecutor
 {
@@ -46,8 +46,9 @@ public:
     virtual ~ControlCommandExecutor();
 
     /**
-     * Execute a rascontrol command and return a reply. The command is only executed if the user has valid credentials
-     * and the syntax of the command is correct.
+     * Execute a rascontrol command and return a reply. The command is only 
+     * executed if the user has valid credentials and the syntax of the command 
+     * is correct.
      * @param command Command that conforms to the rascontrol grammar.
      * @param userName Name of the user requesting that this command is executed
      * @param userPass Password of the user requesting that this command is executed

@@ -8,6 +8,7 @@ namespace rasmgr
 {
 namespace test
 {
+
 class ServerGroupMock: public rasmgr::ServerGroup
 {
 public:
@@ -22,6 +23,7 @@ public:
     MOCK_CONST_METHOD0(getGroupName, std::string(void));
     MOCK_METHOD0(serializeToProto, rasmgr::ServerGroupProto(void));
 };
+
 }
 }
 

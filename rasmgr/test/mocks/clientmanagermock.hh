@@ -22,9 +22,9 @@ public:
                       std::shared_ptr<ServerManager> serverManager,
                       std::shared_ptr<PeerManager> peerManager):
         ClientManager(config, userManager, serverManager, peerManager) {}
-    MOCK_METHOD2(connectClient, void(const ClientCredentials&, std::string&));
+    MOCK_METHOD3(connectClient, void(const ClientCredentials&, const std::string&, std::string&));
     MOCK_METHOD1(disconnectClient, void(const std::string&));
-    MOCK_METHOD3(openClientDbSession, void(std::string, const std::string&, ClientServerSession&));
+    MOCK_METHOD3(openClientDbSession, void(const std::string&, const std::string&, ClientServerSession&));
     MOCK_METHOD2(closeClientDbSession, void(const std::string&, const std::string&));
     MOCK_METHOD1(keepClientAlive, void(const std::string&));
 };

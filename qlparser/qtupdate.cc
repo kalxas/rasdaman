@@ -180,8 +180,8 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
     const BaseType *dstBaseType = targetObj->getCellType();
     if (!dstBaseType->compatibleWith(srcBaseType))
     {
-        const char *srcTypeStructure = srcBaseType->getTypeStructure();
-        const char *dstTypeStructure = dstBaseType->getTypeStructure();
+        auto srcTypeStructure = srcBaseType->getTypeStructure();
+        auto dstTypeStructure = dstBaseType->getTypeStructure();
         LERROR << "Base type of source object (" << srcTypeStructure
                << ") does not match the base type of the target object (" << dstTypeStructure << ")";
         throwError(nextTuple, target, source, CELLBINARYOPUNAVAILABLE);

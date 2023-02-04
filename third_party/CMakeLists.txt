@@ -32,6 +32,7 @@
 # PROTOBUF_PROTOC_EXECUTABLE - The Protobuf Protoc compiler which is used to generate C++ and Java files from *.proto definitions
 # GRPC_JAVA_PLUGIN_EXECUTABLE - Plugin used to generate GRPC Java code from proto files.
 # JSONCPP - Used by the encoders and decoders for extra parameter passing
+# FMT_LIBRARY - https://fmt.dev an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams.
 
 # `make clean` will not remove files built here with the setting below; we don't change
 # third_party (often) so no need to rebuild on every make clean. If it is changed, then
@@ -167,6 +168,36 @@ ExternalProject_add(jsoncpp_project
 include_directories(SYSTEM ${JSONCPP_INCLUDE_DIR})
 
 InstallExternalLibrary(${JSONCPP_LIBRARY} ${JSONCPP_LIBRARY_PATH} jsoncpp_project)
+    
+
+############################################################################
+# Begin FMT
+############################################################################
+# Set variables to build fmt
+# This variable can be used throughout the code whenever the fmt library is needed
+set(FMT_LIBRARY fmt)
+set(FMT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/fmt")
+set(FMT_INCLUDE_DIR "${FMT_SOURCE_DIR}/include")
+set(FMT_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/fmt")
+set(FMT_LIBRARY_PATH ${FMT_BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${FMT_LIBRARY}${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+# This external project will build the fmt library and copy it.
+ExternalProject_add(fmt_project
+        DOWNLOAD_COMMAND ""
+        SOURCE_DIR ${FMT_SOURCE_DIR}
+        BINARY_DIR ${FMT_BINARY_DIR}
+        CONFIGURE_COMMAND ${CMAKE_COMMAND} ${FMT_SOURCE_DIR} -DFMT_DOC=OFF -DFMT_TEST=OFF
+        BUILD_COMMAND ${CMAKE_COMMAND} --build .
+        INSTALL_COMMAND ""
+        LOG_DOWNLOAD ON
+        LOG_BUILD ON
+        BUILD_BYPRODUCTS ${FMT_LIBRARY_PATH}
+        )
+
+include_directories(SYSTEM ${FMT_INCLUDE_DIR})
+
+InstallExternalLibrary(${FMT_LIBRARY} ${FMT_LIBRARY_PATH} fmt_project)
+
 
 
 ############################################################################

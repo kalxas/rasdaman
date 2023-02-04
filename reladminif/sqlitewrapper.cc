@@ -43,10 +43,15 @@ rasdaman GmbH.
 #include <cassert>
 #include <unistd.h>
 
+struct BusyHandlerAttr {
+	int maxRetry;
+	int sleepMs;
+};
+
 // globally defined here, used as an extern in the new engine as well.
 sqlite3 *sqliteConn = NULL;
 
-SQLiteQuery::SQLiteQuery(char q[]) :
+SQLiteQuery::SQLiteQuery(const char *q) :
     stmt(nullptr), query(q), columnCounter(0)
 {
     LTRACE << "SQL query: " << query;
@@ -63,22 +68,34 @@ SQLiteQuery::SQLiteQuery(char q[]) :
     }
 }
 
-SQLiteQuery::SQLiteQuery(const char *format, ...)
-    : stmt(nullptr), query(""), columnCounter(0)
+SQLiteQuery::SQLiteQuery(const std::string &q)
+    : stmt(nullptr), query(q), columnCounter(0)
 {
-    std::unique_ptr<char[]> tmpQuery(new char[QUERY_MAXLEN]);
-    va_list args;
-    va_start(args, format);
-    vsnprintf(tmpQuery.get(), QUERY_MAXLEN, format, args);
-    va_end(args);
-    query = std::string(tmpQuery.get());
     LTRACE << "SQL query: " << query;
 
     if (sqliteConn)
     {
         sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT_MS);
-        sqlite3_prepare_v2(sqliteConn, tmpQuery.get(), -1, &stmt, nullptr);
-        failOnError(tmpQuery.get());
+        sqlite3_prepare_v2(sqliteConn, query.c_str(), -1, &stmt, nullptr);
+        failOnError(query.c_str());
+    }
+    else
+    {
+        LERROR << "Connection to RASBASE has not been opened, cannot execute query: " << query;
+        throw r_Error(DATABASE_CONNECT_FAILED);
+    }
+}
+
+SQLiteQuery::SQLiteQuery(std::string &&q)
+  : stmt(nullptr), query(std::move(q)), columnCounter(0)
+{
+    LTRACE << "SQL query: " << query;
+  
+    if (sqliteConn)
+    {
+        sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT_MS);
+        sqlite3_prepare_v2(sqliteConn, query.c_str(), -1, &stmt, nullptr);
+        failOnError(query.c_str());
     }
     else
     {
@@ -173,28 +190,19 @@ void SQLiteQuery::execute(const char *q)
     }
     else
     {
-        LERROR << "Connection to RASBASE has not been opened, cannot execute query: "
-               << q;
+        LERROR << "Connection to RASBASE has not been opened, cannot execute query: " << q;
         throw r_Error(DATABASE_CONNECT_FAILED);
     }
 }
 
-void SQLiteQuery::executeWithParams(const char *format, ...)
+void SQLiteQuery::execute(std::string &&q)
 {
-    std::unique_ptr<char[]> qtmp(new char[QUERY_MAXLEN]);
-    va_list args;
-    va_start(args, format);
-    vsnprintf(qtmp.get(), QUERY_MAXLEN, format, args);
-    va_end(args);
-
-    const auto *q = qtmp.get();
     LTRACE << "SQL query: " << q;
-
     if (sqliteConn)
     {
         sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT_MS);
-        sqlite3_exec(sqliteConn, q, nullptr, nullptr, nullptr);
-        failOnError(q);
+        sqlite3_exec(sqliteConn, q.c_str(), nullptr, nullptr, nullptr);
+        failOnError(q.c_str());
     }
     else
     {
@@ -205,7 +213,7 @@ void SQLiteQuery::executeWithParams(const char *format, ...)
 
 bool SQLiteQuery::returnsRows(const std::string &format)
 {
-    SQLiteQuery query(format.c_str());
+    SQLiteQuery query(format);
     return static_cast<bool>(query.nextRow());
 }
 
@@ -323,8 +331,11 @@ void SQLiteQuery::openConnection(const char *globalConnectId)
     else
     {
         LDEBUG << "Connected successfully to '" << globalConnectId << "'";
-        std::string options = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=" +
-                              std::to_string(SQLITE_BUSY_TIMEOUT_MS);
+        BusyHandlerAttr attr;
+        attr.sleepMs = SQLITE_BUSY_WAIT;
+        attr.maxRetry = SQLITE_BUSY_TIMEOUT_MS / SQLITE_BUSY_WAIT;
+        sqlite3_busy_handler(sqliteConn, busyHandler, &attr);
+        std::string options = "PRAGMA journal_mode=WAL";
         sqlite3_exec(sqliteConn, options.c_str(), NULL, 0, NULL);
         failOnError(options.c_str());
         sqlite3_extended_result_codes(sqliteConn, 1);
@@ -342,6 +353,22 @@ void SQLiteQuery::interruptTransaction()
 bool SQLiteQuery::isConnected()
 {
     return sqliteConn != nullptr;
+}
+
+int SQLiteQuery::busyHandler(void *data, int retry)
+{
+    BusyHandlerAttr* attr = (BusyHandlerAttr*)data;
+    
+    if (retry < attr->maxRetry) {
+      // sleep some ms before retrying
+      LDEBUG << "RASBASE is locked for transaction, waiting before retrying for the " 
+             << retry << " time.";
+      sqlite3_sleep(attr->sleepMs);
+      // return non-zero to let caller retry again
+      return 1;
+    }
+    // sleeping timed out, return zero to let caller return SQLITE_BUSY
+    return 0;
 }
 
 void SQLiteQuery::failOnError(const char *stmt)

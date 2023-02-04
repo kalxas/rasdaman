@@ -23,31 +23,37 @@
 #ifndef RASMGR_X_SRC_SERVERMANAGEMENTSERVICE_HH_
 #define RASMGR_X_SRC_SERVERMANAGEMENTSERVICE_HH_
 
+#include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
+
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 #include <memory>
-#include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 
 namespace rasmgr
 {
 
 class ServerManager;
+class ClientManager;
 
 /**
- * @brief The ServerManagementService class Service offered to rasservers, used to
- * register a server process after a successful initialization
+ * Service offered to rasservers, used to register a server process after a
+ * successful initialization.
  */
 class ServerManagementService: public ::rasnet::service::RasMgrRasServerService::Service
 {
 public:
-    ServerManagementService(std::shared_ptr<ServerManager> serverManager);
+    explicit ServerManagementService(std::shared_ptr<ServerManager> serverManager,
+                                     std::shared_ptr<ClientManager> clientManager);
 
     virtual ~ServerManagementService() = default;
 
-    virtual grpc::Status RegisterServer(grpc::ServerContext *context, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *response) override;
+    virtual grpc::Status RegisterServer(grpc::ServerContext *context,
+                                        const rasnet::service::RegisterServerReq *request,
+                                        rasnet::service::Void *response) override;
 
 private:
     std::shared_ptr<ServerManager> serverManager;
+    std::shared_ptr<ClientManager> clientManager;
 };
 
 } /* namespace rasmgr */

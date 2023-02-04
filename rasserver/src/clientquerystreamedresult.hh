@@ -3,81 +3,96 @@
 
 #include <string>
 #include <cstdint>
+#include <memory>
 
 namespace rasserver
 {
 
 /**
- * @brief The ClientQueryStreamedResult class
+ * A chunk of the whole data that contains the partial data and null mask.
  */
 struct DataChunk
 {
-    char* bytes;
-    std::uint64_t length;
+    char* bytes = nullptr;
+    std::uint64_t length{};
+    bool* nullMask = nullptr;
+    std::uint64_t nullMaskLength{};
 };
 
 class ClientQueryStreamedResult
 {
 public:
     /**
-     * @brief CHUNK_SIZE The maximum size which can be served from the data.
+     * The maximum size which can be served from the data.
      */
     static const std::uint64_t CHUNK_SIZE = 50 * 1024 * 1024; // 50 MB
 
     /**
-     * @brief ClientQueryStreamedResult Class streaming an array given the address and length.
+     * Class streaming an array given the address and length.
      *
-     * IMPORTANT: THIS CLASS TAKES OWNERSHOP OVER THE "data" POINTER AND IT FREES IT.
+     * IMPORTANT: this class takes ownership over the data and nullMask
+     * pointers, and frees them in the destructor.
      *
-     * @param data The address where the array is storred.
+     * @param data The address where the array is stored.
      * @param length The length of the array.
-     * @param clientUUID The unique identifier of the client used to cleanup the memory. (@see clientmanager.cc)
+     * @param clientUUID The unique identifier of the client used to cleanup
+     *        the memory. (@see clientmanager.cc)
+     * @param nullMask The null mask
+     * @param nullMaskLength The size of the null mask
      */
-    ClientQueryStreamedResult(char* data, std::uint64_t length, const std::string& clientUUID);
+    ClientQueryStreamedResult(char* data,
+                              std::uint64_t length,
+                              const std::string& clientUUID,
+                              bool* nullMask = nullptr,
+                              std::uint64_t nullMaskLength = 0);
 
     /**
-     * @brief getNextChunk Retrieves the next chunk of data from the array.
-     * @return A pair containing the address of the chunk and the lenght of it.
+     * Retrieves the next chunk of data from the array.
+     * @return A pair containing the address of the chunk and the length of it.
      */
     DataChunk getNextChunk();
 
     /**
-     * @brief getClientUUID Returns the client unique identifier used for cleanup. (@see clientmanager.cc)
+     * Returns the client unique identifier used for cleanup. (@see clientmanager.cc)
      * @return A string representing the client uuid.
      */
-    std::string getClientUUID() const;
+    const std::string &getClientUUID() const;
 
     /**
-     * @brief getRemainingBytesLength Computes the remaining bytes left to be served from the array.
-     * @return An integer representing the bytes left to be served.
+     * Computes the remaining bytes left to be served from the array.
+     * @return An integer representing the array bytes left to be served.
      */
     std::uint64_t getRemainingBytesLength() const;
 
     /**
+     * Computes the remaining bytes left to be served from the null mask.
+     * @return An integer representing the null mask bytes left to be served.
+     */
+    std::uint64_t getRemainingNullMaskBytesLength() const;
+
+    /**
      * Destructor responsible with deleting the data pointer which was split into chunks.
      */
-    ~ClientQueryStreamedResult();
+    ~ClientQueryStreamedResult() = default;
 
 private:
-    /**
-     * @brief data The raw data pointer.
-     */
-    char* data;
-
-    /**
-     * @brief length The length of the array in bytes.
-     */
-    std::uint64_t length;
-
-    /**
-     * @brief clientUUID The client uuid which requested a char array to be split into chunks. Used for cleanup in @see clientmanager.cc
-     */
+    /// The client uuid which requested a char array to be split into chunks.
+    /// Used for cleanup in @see clientmanager.cc
     std::string clientUUID;
     
-    /**
-     * @brief offset The offset where the nextChunk begins.
-     */
-    std::uint64_t offset;
+    /// The raw data pointer.
+    std::unique_ptr<char[]> data;
+    /// The length of the array in bytes.
+    std::uint64_t length;    
+    /// The offset where the nextChunk begins.
+    std::uint64_t dataOffset{};
+
+    /// Optional pointer to the null mask.
+    std::unique_ptr<bool[]> nullMask;
+    /// The length of the null mask in bytes.
+    std::uint64_t nullMaskLength;
+    /// The offset where the nextChunk of nulls begins.
+    std::uint64_t nullMaskOffset{};
 
 };
 

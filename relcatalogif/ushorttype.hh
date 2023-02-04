@@ -45,7 +45,7 @@ values. The value of a UShort is stored in four chars.
 class UShortType : public UIntegralType
 {
 public:
-    UShortType(const OId &id);
+    explicit UShortType(const OId &id);
 
     UShortType();
 

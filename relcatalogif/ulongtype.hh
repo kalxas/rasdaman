@@ -45,7 +45,7 @@ values. The value of a ULong is stored in four chars.
 class ULongType : public UIntegralType
 {
 public:
-    ULongType(const OId &id);
+    explicit ULongType(const OId &id);
 
     ULongType();
 

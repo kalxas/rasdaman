@@ -334,6 +334,26 @@ public:
     /// Returns true if all intervals are fixed
     bool is_fixed() const noexcept;
     
+    /// @return the axis names of the underlying sintervals; this may be a
+    /// vector of empty strings if no sinterval has an axis name.
+    std::vector<std::string> get_axis_names() const;
+    
+    /// set new axis names to the underlying sintervals; the size of the
+    /// axis_names vector must match the dimension of this minterval, otherwise
+    /// an exception is thrown.
+    void set_axis_names(std::vector<std::string> axis_names);
+    
+    /// copy the axis names from o to this minterval; minterval dimensions must
+    /// match, otherwise an exception is thrown.
+    void set_axis_names(const r_Minterval &o);
+    
+    /// @return true if the axis names of this minterval match the axis names of
+    /// the other interval o.
+    bool axis_names_match(const r_Minterval &o) const;
+    
+    /// @return true if this minterval has axis names, false otherwise.
+    bool has_axis_names() const;
+    
     /**
       This method checks if two r_Mintervals are "mergeable" side by side.
       For this to be possible, they have to have the same low() and high()
@@ -354,13 +374,6 @@ public:
     */
     bool is_mergeable(const r_Minterval &other) const;
     
-    /// Get axis names associated with this minterval.
-    const std::vector<std::string> &getAxisNames() const;
-    
-    /// Set axis names associated with this minterval; number of axis names 
-    /// should match the dimension.
-    void setAxisNames(std::vector<std::string> axisNames);
-
     // Methods for translation:
     //@{
     /// Subtracts respective coordinate of a point to the lower bounds of an 
@@ -475,10 +488,6 @@ public:
     /// Returns a string representation of this minterval as a string object.
     std::string to_string() const;
 
-    /// Returns a string representation of this minterval that takes into account
-    /// also the axis names.
-    std::string get_named_axis_string_representation() const;
-
     // Methods for internal use only:
     //@{
     /// calculate number of cells
@@ -531,9 +540,6 @@ public:
 protected:
     /// axis intervals, intervals.size() == dimension()
     std::vector<r_Sinterval> intervals;
-
-    /// names of the axes
-    std::vector<std::string> axisNames;
     
     /// The minterval can be initialized in all dimensions as follows:
     /// `minterval << sinterval1 << sinterval2 << ...` where number of 

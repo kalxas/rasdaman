@@ -33,17 +33,15 @@
 
 #include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
-#include "rasmgr/src/serverrasnet.hh"
+#include "rasmgr/src/server.hh"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 namespace rasmgr
 {
 namespace test
 {
-using rasmgr::ServerRasNet;
 using rasnet::service::RasServerService;
 
-using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
@@ -155,8 +153,8 @@ protected:
         ServerConfig goodServerConfig(hostName, goodPort, dbHost);
         ServerConfig failingServerConfig(hostName, badPort, dbHost);
 
-        server.reset(new rasmgr::ServerRasNet(goodServerConfig));
-        failingServer.reset(new rasmgr::ServerRasNet(failingServerConfig));
+        server.reset(new rasmgr::Server(goodServerConfig));
+        failingServer.reset(new rasmgr::Server(failingServerConfig));
     }
 
 
@@ -164,12 +162,12 @@ protected:
     std::uint32_t goodPort;
     std::uint32_t badPort;
 
-    std::unique_ptr<Server>  goodService;
-    std::unique_ptr<Server> failingService;
+    std::unique_ptr<grpc::Server>  goodService;
+    std::unique_ptr<grpc::Server> failingService;
     std::shared_ptr<rasmgr::DatabaseHost> dbHost;
 
-    std::shared_ptr<rasmgr::ServerRasNet> server;
-    std::shared_ptr<rasmgr::ServerRasNet> failingServer;
+    std::shared_ptr<rasmgr::Server> server;
+    std::shared_ptr<rasmgr::Server> failingServer;
 };
 
 //TEST_F(RasServerTest, isAlive)
@@ -224,7 +222,7 @@ protected:
 
 //    dbh->addDbToHost(db);
 
-//    rasmgr::ServerRasNet* srv = new ServerRasNet(hostName, port, dbh);
+//    rasmgr::Server* srv = new Server(hostName, port, dbh);
 
 //    ASSERT_FALSE(dbh->isBusy());
 

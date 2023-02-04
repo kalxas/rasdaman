@@ -44,7 +44,7 @@ class OId;
 class MDDDimensionType : public MDDBaseType
 {
 public:
-    MDDDimensionType(const OId &id);
+    explicit MDDDimensionType(const OId &id);
 
     MDDDimensionType(const char *newTypeName, const BaseType *newBaseType,
                      r_Dimension newDimension);
@@ -75,9 +75,9 @@ public:
         and dimensionality is the same
     */
 
-    char *getTypeStructure() const override;
+    std::string getTypeStructure() const override;
 
-    char *getNewTypeStructure() const override;
+    std::string getNewTypeStructure() const override;
 
     r_Bytes getMemorySize() const override;
 

@@ -14,6 +14,8 @@
 #define likely(x)      __builtin_expect(!!(x), 1)
 #endif
 
+#define UNUSED __attribute__((unused))
+
 /// Conditionally include the appropriate file depending on the compiler version.
 #if defined(__clang__)
 #include "clang/clangpragmas.hh"

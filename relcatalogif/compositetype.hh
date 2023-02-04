@@ -44,9 +44,9 @@ class CompositeType : public BaseType
 public:
     CompositeType();
 
-    CompositeType(unsigned int newSize);
+    explicit CompositeType(unsigned int newSize);
 
-    CompositeType(const OId &id);
+    explicit CompositeType(const OId &id);
 
     CompositeType(const CompositeType &) = default;
 

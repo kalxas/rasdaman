@@ -28,7 +28,6 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"        // for MDDTYPE
 #include "raslib/mddtypes.hh"         // for r_Bytes
 #include "raslib/minterval.hh"        // for operator<<, r_Minterval
-#include "mymalloc/mymalloc.h"
 
 #include <logging.hh>                 // for Writer, CTRACE, LTRACE
 #include <string.h>                   // for strcpy, strdup
@@ -64,16 +63,14 @@ MDDType::~MDDType() noexcept(false)
     validate();
 }
 
-char *MDDType::getTypeStructure() const
+std::string MDDType::getTypeStructure() const
 {
-    std::string result = "marray <>";
-    return strdup(result.c_str());
+    return "marray <>";
 }
 
-char *MDDType::getNewTypeStructure() const
+std::string MDDType::getNewTypeStructure() const
 {
-    std::string result = "marray {}";
-    return strdup(result.c_str());
+  return "marray <>";
 }
 
 void MDDType::print_status(std::ostream &s) const

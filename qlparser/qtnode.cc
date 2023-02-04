@@ -532,10 +532,8 @@ QtTypeElement::printStatus(std::ostream &s) const
 {
     if (type)
     {
-        char *typeStructure = type->getTypeStructure();
+        auto typeStructure = type->getTypeStructure();
         s << typeStructure << std::flush;
-        free(typeStructure);
-        typeStructure = NULL;
     }
     else
     {

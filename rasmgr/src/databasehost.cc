@@ -20,22 +20,18 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <stdexcept>
 
-#include "common/exceptions/logicexception.hh"
-
-#include "exceptions/rasmgrexceptions.hh"
 #include "database.hh"
-
 #include "databasehost.hh"
+#include "exceptions/inexistentdatabaseexception.hh"
+#include "exceptions/databasealreadyexistsexception.hh"
+#include "exceptions/dbbusyexception.hh"
+#include "common/exceptions/logicexception.hh"
 
 #include <boost/thread/shared_lock_guard.hpp>
 
 namespace rasmgr
 {
-using std::runtime_error;
-using std::mutex;
-using std::unique_lock;
 
 DatabaseHost::DatabaseHost(std::string hostName, std::string connectString,
                            std::string userName, std::string passwdString) :

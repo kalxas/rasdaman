@@ -41,9 +41,9 @@ It's subclasses must implement conversions to/from double
 class RealType : public AtomicType
 {
 public:
-    RealType(unsigned int newSize) : AtomicType(newSize) {}
+    explicit RealType(unsigned int newSize) : AtomicType(newSize) {}
 
-    RealType(const OId &id) : AtomicType(id) {}
+    explicit RealType(const OId &id) : AtomicType(id) {}
 
     RealType(const RealType &) = default;
 

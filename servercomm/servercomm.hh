@@ -24,9 +24,10 @@ rasdaman GmbH.
 #ifndef _SERVERCOMM_HH_
 #define _SERVERCOMM_HH_
 
-#include "raslib/error.hh"
 #include "raslib/oid.hh"
 #include "raslib/minterval.hh"
+
+#include <mutex>
 
 // forward declarations
 class AdminIf;
@@ -55,6 +56,8 @@ private:
     static ServerComm *serverCommInstance;
     /// the client table which holds information about the calling clients
     static ClientTblElt *clientTbl;
+    /// mutex to control write access to clientTbl
+    static std::mutex clientTblMutex;
     
 public:
 
@@ -81,7 +84,7 @@ public:
     */
 
     /// returns a pointer to the context of the calling client, 0 it there is no context
-    ClientTblElt *getClientContext(unsigned long ClientId);
+    ClientTblElt *getClientContext(unsigned long ClientId, bool printErrors = true);
     /**
       Returns a pointer to the context of the calling client. This is done by
       searching the client table maintained by the server for the given client id.
@@ -197,13 +200,14 @@ public:
     ///
     /// executes a retrieval query and prepares the result for transfer with getNextMDD.
     virtual unsigned short
-    executeQuery(unsigned long callingClientId, const char *query, ExecuteQueryRes &returnStructure,
+    executeQuery(unsigned long callingClientId, const char *query,
+                 ExecuteQueryRes &returnStructure,
                  bool insert = false);
     /**
       Executes a query and puts the result in the actual transfer collection.
       The first parameter is the unique client id
       for which the query should be executed. The second parameter is the
-      query itself represented as a string. Third parameter indicates if the
+      query itself represented as a string. Fourth parameter indicates if the
       query is an insert query (if true), otherwise a regular select query.
 
       Return values
@@ -454,7 +458,7 @@ public:
     ///
     /// get the domain of the next MDD of the actual transfer collection
     virtual unsigned short getNextMDD(unsigned long callingClientId,
-                                      r_Minterval &mddDomain, char *&typeName, char *&typeStructure,
+                                      r_Minterval &mddDomain, std::string &typeName, std::string &typeStructure,
                                       r_OId &oid, unsigned short &currentFormat);
     /**
       The Method gets the domain of the next MDD of the actual transfer collection.
@@ -664,7 +668,7 @@ public:
     /// prepare an MDD collection for transfer with getNextMDD()
     virtual unsigned short getCollByName(unsigned long callingClientId,
                                          const char *collName,
-                                         char *&typeName, char *&typeStructure, r_OId &oid);
+                                         std::string &typeName, std::string &typeStructure, r_OId &oid);
     /**
       ATTENTION: This function is not used at the moment. It hast
       to be adapted to transferData.
@@ -699,7 +703,7 @@ public:
 
     /// prepare an MDD collection for transfer with getNextMDD()
     virtual unsigned short getCollByOId(unsigned long callingClientId,
-                                        r_OId &oid, char *&typeName, char *&typeStructure, char *&collName);
+                                        r_OId &oid, std::string &typeName, std::string &typeStructure, std::string &collName);
     /**
       ATTENTION: This function is not used at the moment. It hast
       to be adapted to transferData.
@@ -731,7 +735,7 @@ public:
     /// gets oids of the collection specified by name
     virtual unsigned short getCollOIdsByName(unsigned long callingClientId,
             const char *collName,
-            char *&typeName, char *&typeStructure, r_OId &oid,
+            std::string &typeName, std::string &typeStructure, r_OId &oid,
             RPCOIdEntry *&oidTable, unsigned int &oidTableSize);
     /**
       Gets the collection of oids of the collection with \c collName.
@@ -762,8 +766,8 @@ public:
 
     /// gets oids of the collection specified by name
     virtual unsigned short getCollOIdsByOId(unsigned long callingClientId,
-                                            r_OId &oid, char *&typeName, char *&typeStructure,
-                                            RPCOIdEntry *&oidTable, unsigned int &oidTableSize, char *&collName);
+                                            r_OId &oid, std::string &typeName, std::string &typeStructure,
+                                            RPCOIdEntry *&oidTable, unsigned int &oidTableSize, std::string &collName);
     /**
       Gets the collection of oids of the collection with \c collName.
 
@@ -794,7 +798,7 @@ public:
     /// get an MDD by OId
     virtual unsigned short getMDDByOId(unsigned long callingClientId,
                                        r_OId &oid, r_Minterval &mddDomain,
-                                       char *&typeName, char *&typeStructure, unsigned short &currentFormat);
+                                       std::string &typeName, std::string &typeStructure, unsigned short &currentFormat);
     /**
       The Method gets an MDD by OId \c oid. If the MDD is found, it is initialized as transfer
       object and can be picked up by getNextTile calls (tile-based transfer).
@@ -865,7 +869,7 @@ public:
 
     /// get type structure of a type name
     virtual unsigned short getTypeStructure(unsigned long callingClientId,
-                                            const char *typeName, unsigned short typeType, char *&typeStructure);
+                                            const char *typeName, unsigned short typeType, std::string &typeStructure);
     /**
       Determines the type structure of the type specified by \c typeName. The type
     either can be a set type (typeType=1), an mdd type (typeType=2), or a base type
@@ -943,11 +947,11 @@ protected:
     /// free fields of res
     static void cleanExecuteQueryRes(ExecuteQueryRes &res);
     /// return type name and type structure of the first transfer element in context
-    std::pair<char *, char *> getTypeNameStructure(ClientTblElt *context) const;
+    std::pair<std::string, std::string> getTypeNameStructure(ClientTblElt *context) const;
     unsigned short handleExecuteQueryResult(ClientTblElt *context, unsigned short returnValue, 
                                             ExecuteQueryRes &returnStructure) const;
     unsigned short getTransferCollInfo(
-        ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const;
+        ClientTblElt *context, r_OId &oid, std::string &typeName, std::string &typeStructure, MDDColl *coll) const;
 
     /// pointer to the actual administration interface object
     AdminIf *admin{NULL};

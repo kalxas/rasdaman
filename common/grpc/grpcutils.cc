@@ -104,6 +104,51 @@ void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status &status) {
   }
 }
 
+string GrpcUtils::convertStatusToString(const grpc::Status &status)
+{
+#define HANDLE_CASE(c) \
+    case grpc::StatusCode::c: code = #c; break;
+  
+  std::string code;
+  switch (status.error_code())
+  {
+    HANDLE_CASE(OK)
+    HANDLE_CASE(CANCELLED)
+    HANDLE_CASE(UNKNOWN)
+    HANDLE_CASE(INVALID_ARGUMENT)
+    HANDLE_CASE(DEADLINE_EXCEEDED)
+    HANDLE_CASE(NOT_FOUND)
+    HANDLE_CASE(ALREADY_EXISTS)
+    HANDLE_CASE(PERMISSION_DENIED)
+    HANDLE_CASE(UNAUTHENTICATED)
+    HANDLE_CASE(RESOURCE_EXHAUSTED)
+    HANDLE_CASE(FAILED_PRECONDITION)
+    HANDLE_CASE(ABORTED)
+    HANDLE_CASE(OUT_OF_RANGE)
+    HANDLE_CASE(UNIMPLEMENTED)
+    HANDLE_CASE(INTERNAL)
+    HANDLE_CASE(UNAVAILABLE)
+    HANDLE_CASE(DATA_LOSS)
+    default:
+      code = std::to_string(int(status.error_code()));
+      break;
+  }
+  std::string msg = status.error_message();
+  std::string details = status.error_details();
+  
+  std::string ret;
+  ret.reserve(code.size() + 2 + msg.size() + details.size() + (details.size() > 0 ? 2 : 0));
+  ret += code;
+  ret += ", ";
+  ret += msg;
+  if (!details.empty()) {
+    ret += ", ";
+    ret += details;
+  }
+  
+  return ret;
+}
+
 bool GrpcUtils::isServerAlive(const std::shared_ptr<HealthService::Stub> &healthService,
                               uint32_t timeoutMilliseconds) {
   HealthCheckRequest request;
@@ -169,6 +214,19 @@ void gpr_replacement_log(gpr_log_func_args *args) {
 
 void GrpcUtils::redirectGRPCLogToEasyLogging() {
   gpr_set_log_function(gpr_replacement_log);
+}
+
+void GrpcUtils::setDeadline(grpc::ClientContext &context, size_t deadlineInMs) {
+  static const size_t noDeadline = 0;
+  if (deadlineInMs != noDeadline)
+  {
+      auto deadline = system_clock::now() + milliseconds(deadlineInMs);
+      context.set_deadline(deadline);
+  }
+}
+
+bool GrpcUtils::errorIsDeadlineExceeded(const Exception &ex) {
+  return ex.what() == "DeadlineExceeded";
 }
 
 }

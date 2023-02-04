@@ -24,21 +24,22 @@
 
 namespace rasmgr
 {
-ClientServerRequest::ClientServerRequest(const std::string &userNameArg, const std::string &passwordArg, const std::string &databaseNameArg)
+ClientServerRequest::ClientServerRequest(
+    const std::string &userNameArg, const std::string &passwordArg, const std::string &databaseNameArg)
     : userName(userNameArg), password(passwordArg), databaseName(databaseNameArg)
 {}
 
-std::string ClientServerRequest::getUserName() const
+const std::string &ClientServerRequest::getUserName() const
 {
     return userName;
 }
 
-std::string ClientServerRequest::getPassword() const
+const std::string &ClientServerRequest::getPassword() const
 {
     return password;
 }
 
-std::string ClientServerRequest::getDatabaseName() const
+const std::string &ClientServerRequest::getDatabaseName() const
 {
     return databaseName;
 }

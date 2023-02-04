@@ -78,6 +78,7 @@ target_link_libraries(relcatalogif
     PRIVATE
     raslib
     reladminif
+    ${FMT_LIBRARY}
     )
     
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

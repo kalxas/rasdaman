@@ -12,6 +12,7 @@ namespace test
 class ServerGroupFactoryMock: public rasmgr::ServerGroupFactory
 {
 public:
+    ServerGroupFactoryMock(): ServerGroupFactory(nullptr, nullptr) {}
     MOCK_METHOD1(createServerGroup, std::shared_ptr<rasmgr::ServerGroup>(const rasmgr::ServerGroupConfigProto&));
 };
 }

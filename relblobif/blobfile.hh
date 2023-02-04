@@ -101,6 +101,7 @@ private:
     /// helper to read size bytes from fd into dst. The file is decompressed if
     /// needed.
     void readFile(char *dst, size_t size);
+    void readFileAtOffset(char *dst, size_t size, off_t offset);
     void writeFile(char *data, size_t size);
 
     const std::string &filePath;

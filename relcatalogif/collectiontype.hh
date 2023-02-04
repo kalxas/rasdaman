@@ -50,9 +50,9 @@ class CollectionType : public Type
 public:
     CollectionType();
 
-    CollectionType(const MDDType *newMDDType);
+    explicit CollectionType(const MDDType *newMDDType);
 
-    CollectionType(const OId &id);
+    explicit CollectionType(const OId &id);
 
     CollectionType(const CollectionType &);
 
@@ -83,7 +83,7 @@ protected:
     
     DBNullvalues *nullValues{NULL};
 
-    CollectionType(const char *name);
+    explicit CollectionType(const char *name);
 
     CollectionType(const char *name, const MDDType *newMDDType);
 };

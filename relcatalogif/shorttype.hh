@@ -45,7 +45,7 @@ values. The value of a Short is stored in four chars.
 class ShortType : public IntegralType
 {
 public:
-    ShortType(const OId &id);
+    explicit ShortType(const OId &id);
 
     ShortType();
 

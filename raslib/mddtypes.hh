@@ -392,4 +392,48 @@ enum r_Clustering_Scheme
 };
 extern std::ostream &operator<<(std::ostream &in, r_Clustering_Scheme type);
 
+
+/**
+ * Indicate how multiband data is linearized in 1D space.
+ */
+enum class r_Band_Linearization: std::int8_t {
+    /// The components of each pixel are layed out one after another, e.g. for 
+    /// 3 RGB pixels we have layout: R G B R G B R G B
+    PixelInterleaved = 0,
+    /// First the first band of each pixel is layed out continuously, then the
+    /// second component, and so on. E.g. for 3 RGB pixels: R R R G G G B B B
+    ChannelInterleaved = 1
+};
+extern std::ostream &operator<<(std::ostream &in, r_Band_Linearization type);
+
+
+/**
+ * Linearization of cells from nD to 1D space. Default is column-major.
+ * See https://doc.rasdaman.org/03_contributing.html#internal-array-representation
+ */
+enum class r_Cell_Linearization: std::int8_t
+{
+    /// Linearize cells of first column, then second column, and so on. In nD
+    /// column = last dimension, then second last, etc.
+    ColumnMajor = 0,
+    /// Linearize cells of first row, then second row, and so on. In nD
+    /// row = first dimension, then second, etc.
+    RowMajor = 1,
+};
+extern std::ostream &operator<<(std::ostream &in, r_Cell_Linearization type);
+
+/**
+ * Physical raw tile properties in one place.
+ */
+struct r_Tile_Structure
+{
+    r_Tile_Structure() noexcept {}
+    r_Tile_Structure(r_Data_Format f, r_Band_Linearization b, r_Cell_Linearization c):
+      dataFormat{f}, bandLinearization{b}, cellLinearization{c} {}
+    
+    r_Data_Format dataFormat{r_Array};
+    r_Band_Linearization bandLinearization{r_Band_Linearization::PixelInterleaved};
+    r_Cell_Linearization cellLinearization{r_Cell_Linearization::ColumnMajor};
+};
+
 #endif

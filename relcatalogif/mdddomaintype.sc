@@ -32,14 +32,15 @@ rasdaman GmbH.
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
 #include <cstring>
+#include <fmt/core.h>
 
 void MDDDomainType::insertInDb()
 {
     const auto domainid = myDomain->getOId().getCounter();
     long long basetypeid = getBaseType()->getOId();
-    SQLiteQuery::executeWithParams(
+    SQLiteQuery::execute(fmt::format(
         "INSERT INTO RAS_MDDDOMTYPES ( MDDDomTypeOId, MDDTypeName, BaseTypeId, DomainId ) "
-        "VALUES (%lld, '%s', %lld, %lld)", myOId.getCounter(), getName(), basetypeid, domainid);
+        "VALUES ({}, '{}', {}, {})", myOId.getCounter(), getName(), basetypeid, domainid));
     DBObject::insertInDb();
 }
 
@@ -49,9 +50,9 @@ void MDDDomainType::readFromDb()
     DBObject::readTimer.resume();
 #endif
 
-    SQLiteQuery query(
-        "SELECT BaseTypeId, MDDTypeName, DomainId FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld",
-        myOId.getCounter());
+    SQLiteQuery query(fmt::format(
+        "SELECT BaseTypeId, MDDTypeName, DomainId FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = {}",
+        myOId.getCounter()));
     if (query.nextRow())
     {
         auto basetypeid = query.nextColumnLong();
@@ -76,8 +77,8 @@ void MDDDomainType::readFromDb()
 
 void MDDDomainType::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = {}", myOId.getCounter()));
     myDomain->setPersistent(false);
     myDomain->setCached(false);
     DBObject::deleteFromDb();

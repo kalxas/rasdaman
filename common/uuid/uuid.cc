@@ -61,8 +61,7 @@ int UUID::generateIntId()
   int timeNow = time(NULL);
   int result = (timeNow & 0xFFFFFF) + (counter << 24);
   counter = (counter + 1) & 0x7F;
-
-  return  result;
+  return result;
 }
 
 }

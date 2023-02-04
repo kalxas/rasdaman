@@ -44,7 +44,7 @@ values. The value of a Long is stored in four chars.
 class LongType : public IntegralType
 {
 public:
-    LongType(const OId &id);
+    explicit LongType(const OId &id);
 
     LongType();
 

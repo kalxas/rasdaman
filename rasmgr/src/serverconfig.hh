@@ -22,25 +22,27 @@
 #ifndef RASMGR_X_SRC_SERVERCONFIG_HH
 #define RASMGR_X_SRC_SERVERCONFIG_HH
 
+#include "databasehost.hh"
+
 #include <string>
 #include <memory>
 #include <cstdint>
 
-#include "databasehost.hh"
-
 namespace rasmgr
 {
+
 /**
- * @brief The ServerConfig class Configuration object that needs to be passed
- * to a Server for initialization.
+ * Configuration object that needs to be passed to a Server for initialization:
+ * hostname, port, options, DatabaseHost.
  */
 class ServerConfig
 {
 public:
-    ServerConfig(const std::string &hostName, const std::uint32_t &port, std::shared_ptr<DatabaseHost> dbHost);
-    virtual ~ServerConfig();
+    ServerConfig(const std::string &hostName, const std::uint32_t &port,
+                 std::shared_ptr<DatabaseHost> dbHost);
+    ~ServerConfig() = default;
 
-    std::string getHostName() const;
+    const std::string &getHostName() const;
     void setHostName(const std::string &value);
 
     std::uint32_t getPort() const;
@@ -49,7 +51,7 @@ public:
     std::shared_ptr<DatabaseHost> getDbHost() const;
     void setDbHost(const std::shared_ptr<DatabaseHost> &value);
 
-    std::string getOptions() const;
+    const std::string &getOptions() const;
     void setOptions(const std::string &value);
 
 private:
@@ -58,5 +60,6 @@ private:
     std::shared_ptr<DatabaseHost> dbHost;
     std::string options;
 };
+
 }
 #endif // RASMGR_X_SRC_SERVERCONFIG_HH

@@ -43,6 +43,7 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 
 #include <logging.hh>
+#include <fmt/core.h>
 #include <sqlite3.h>
 #include <climits>
 #include <cstdlib>
@@ -109,9 +110,9 @@ void DatabaseIf::createDB(const char *, const char *, const char *)
                      "Architecture VARCHAR(20) NOT NULL, "
                      "ServerVersion INTEGER NOT NULL)");
 
-        SQLiteQuery::executeWithParams(
-            "INSERT INTO RAS_ADMIN (IFVersion, Architecture, ServerVersion) VALUES (%d, '%s', %d)",
-            RASSCHEMAVERSION, RASARCHITECTURE, DatabaseIf::rmanverToLong());
+        SQLiteQuery::execute(fmt::format(
+            "INSERT INTO RAS_ADMIN (IFVersion, Architecture, ServerVersion) VALUES ({}, '{}', {})",
+            RASSCHEMAVERSION, RASARCHITECTURE, DatabaseIf::rmanverToLong()));
 
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_COUNTERS ("
                      "CounterId INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -123,9 +124,9 @@ void DatabaseIf::createDB(const char *, const char *, const char *)
         // initialising RAS_COUNTERS
         for (unsigned int i = 1; i < OId::maxCounter; i++)
         {
-            SQLiteQuery::executeWithParams(
-                "INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES ('%s', 1)",
-                OId::counterNames[i]);
+            SQLiteQuery::execute(fmt::format(
+                "INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES ('{}', 1)",
+                OId::counterNames[i]));
         }
 
         // relblobif
@@ -390,9 +391,9 @@ void DatabaseIf::destroyDB(const char *dbName)
 }
 
 #ifndef RMANVERSION
-#define RMANVERSION "v10.0.1-unknown"
+#define RMANVERSION "v10.2.0-unknown"
 #endif
-#define LONGVER 10010
+#define LONGVER 10200
 
 long DatabaseIf::rmanverToLong()
 {

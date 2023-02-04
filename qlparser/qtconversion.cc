@@ -229,7 +229,7 @@ QtConversion::evaluate(QtDataList *inputList)
             tiles = NULL;
 
             // get type structure of the operand base type
-            typeStructure = qtMDD->getCellType()->getTypeStructure();
+            typeStructure = strdup(qtMDD->getCellType()->getTypeStructure().c_str());
         }
 
         // convert structure to r_Type

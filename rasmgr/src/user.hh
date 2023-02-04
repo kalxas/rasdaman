@@ -23,11 +23,11 @@
 #ifndef RASMGR_X_SRC_USER_HH_
 #define RASMGR_X_SRC_USER_HH_
 
-#include <string>
-#include <map>
-
 #include "userdatabaserights.hh"
 #include "useradminrights.hh"
+
+#include <string>
+#include <map>
 
 namespace rasmgr
 {
@@ -35,19 +35,17 @@ namespace rasmgr
 class UserProto;
 
 /**
- * @brief The User class holds information about a user of the rasdaman system.
+ * Holds information about a user of the rasdaman system.
  */
 class User
 {
 public:
     /**
-     * Initialize a new instance of the User class.
-     * @param name Name of the user
-     * @param password User's encrypted password.
-     * @param defaultDbRights
-     * @param adminRights
+     * Initialize a new instance of the User class with username and password.
      */
-    User(std::string name, std::string password, const UserDatabaseRights &defaultDbRights, const UserAdminRights &adminRights);
+    User(std::string name, std::string password,
+         const UserDatabaseRights &defaultDbRights,
+         const UserAdminRights &adminRights);
 
     virtual ~User() = default;
 
@@ -68,8 +66,8 @@ public:
     void setDefaultDbRights(const UserDatabaseRights &defaultDbRights);
 
     /**
-     * @brief Create a User object from its protobuf representation.
-     * This function is useful for reading data from a file.
+     * Create a User object from its protobuf representation. This function is
+     * useful for reading data from a file.
      *
      * @param user protobuf representation of the User
      * @return rasmgr::User
@@ -78,10 +76,9 @@ public:
 
 
     /**
-     * @brief Serialize the data of this object to protobuf representation.
+     * Serialize the data of this object to protobuf representation.
      *
      * @param user Object to serialize.
-     * @return rasmgr::UserProto
      */
     static UserProto serializeToProto(const User &user);
 

@@ -44,13 +44,13 @@ class BaseType;
 class MDDBaseType : public MDDType
 {
 public:
-    MDDBaseType(const OId &id);
+    explicit MDDBaseType(const OId &id);
 
     MDDBaseType(const char *newTypeName, const BaseType *newBaseType);
 
     MDDBaseType();
 
-    MDDBaseType(const char *newtypename);
+    explicit MDDBaseType(const char *newtypename);
 
     MDDBaseType(const MDDBaseType &) = default;
 
@@ -58,12 +58,12 @@ public:
 
     ~MDDBaseType() noexcept(false) override;
 
-    char *getTypeStructure() const override;
+    std::string getTypeStructure() const override;
     /*@Doc:
     returns a string: marray < myBaseType->getTypeStructure >
     */
 
-    char *getNewTypeStructure() const override;
+    std::string getNewTypeStructure() const override;
     /*@Doc:
     returns a string: marray { myBaseType->getTypeStructure }
     */

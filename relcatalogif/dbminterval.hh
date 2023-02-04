@@ -47,13 +47,13 @@ class DBMinterval : public DBObject, public r_Minterval
 public:
     DBMinterval();
 
-    DBMinterval(const OId &id);
+    explicit DBMinterval(const OId &id);
 
-    DBMinterval(r_Dimension dim);
+    explicit DBMinterval(r_Dimension dim);
 
-    DBMinterval(const char *dom);
+    explicit DBMinterval(const char *dom);
 
-    DBMinterval(const r_Minterval &);
+    explicit DBMinterval(const r_Minterval &);
 
     DBMinterval(const DBMinterval &);
 

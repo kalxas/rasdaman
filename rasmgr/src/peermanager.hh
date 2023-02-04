@@ -23,17 +23,17 @@
 #ifndef RASMGR_X_SRC_PEERMANAGER_HH_
 #define RASMGR_X_SRC_PEERMANAGER_HH_
 
+#include "clientserverrequest.hh"
+#include "clientserversession.hh"
+#include "remoteclientsession.hh"
+
+#include "rasmgr/src/messages/rasmgrmess.pb.h"
+
 #include <list>
 #include <map>
 #include <functional>
 #include <memory>
 #include <mutex>
-
-#include "rasmgr/src/messages/rasmgrmess.pb.h"
-
-#include "clientserverrequest.hh"
-#include "clientserversession.hh"
-#include "remoteclientsession.hh"
 
 namespace rasmgr
 {
@@ -41,7 +41,7 @@ class InPeer;
 class OutPeer;
 
 /**
- * @brief Allow adding/removing inpeers/outpeers.
+ * Allow adding/removing inpeers/outpeers.
  */
 class PeerManager
 {
@@ -51,7 +51,7 @@ public:
     virtual ~PeerManager() = default;
 
     /**
-     * @brief defineInPeer Create a new InPeer and insert it into the list of 
+     * Create a new InPeer and insert it into the list of 
      * InPeers if a InPeer with the same time doesn't exist.
      * @param peerHostName The name of the host on which the peer is running
      * @throws An exception is thrown if an InPeer with the same name exists
@@ -66,7 +66,7 @@ public:
     virtual void removeInPeer(const std::string &peerHostName);
 
     /**
-     * @brief defineOutPeer Create a new OutPeer and insert it into the list of 
+     * Create a new OutPeer and insert it into the list of 
      * OutPeers if a OutPeer with the same time doesn't exist.
      * @param peerHostName The name of the host on which the peer is running
      * @param port the port on which the peer is listening
@@ -82,8 +82,7 @@ public:
     virtual void removeOutPeer(const std::string &peerHostName);
 
     /**
-     * @brief tryGetRemoteServer Try to acquire a remote server for a client.
-     * @param request
+     * Try to acquire a remote server for a client.
      * @param out_reply Struct containing information identifying the connection
      * @return TRUE if a server was found, FALSE otherwise.
      */
@@ -91,15 +90,13 @@ public:
                                     ClientServerSession &out_reply);
 
     /**
-     * @brief isRemoteClientSession Check if this is a remote client session.
-     * @param clientSession
+     * Check if this is a remote client session.
      * @return TRUE if we have a remote client session, FALSE otherwise
      */
     virtual bool isRemoteClientSession(const RemoteClientSession &clientSession);
 
     /**
-     * @brief releaseServer Release the acquired server.
-     * @param clientSession
+     * Release the acquired server.
      */
     virtual void releaseServer(const RemoteClientSession &clientSession);
 

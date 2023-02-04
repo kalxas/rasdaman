@@ -42,6 +42,7 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 
 #include <logging.hh>
+#include <fmt/core.h>
 
 using namespace std;
 
@@ -50,7 +51,7 @@ void BLOBTile::updateInDb()
     long long blobOid = myOId.getCounter();
     LDEBUG << "updating tile with id " << blobOid << ", size " << size;
 
-    SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
+    SQLiteQuery checkQuery(fmt::format("SELECT BlobId FROM RAS_TILES WHERE BlobId = {}", blobOid));
     if (!checkQuery.nextRow())
     {
         LERROR << "no tile with id " << blobOid << " found.";
@@ -58,8 +59,9 @@ void BLOBTile::updateInDb()
     }
     checkQuery.finalize();
 
-    SQLiteQuery::executeWithParams(
-        "UPDATE RAS_TILES SET DataFormat = %d WHERE BlobId = %lld", dataFormat, blobOid);
+    SQLiteQuery::execute(fmt::format(
+          "UPDATE RAS_TILES SET DataFormat = {} WHERE BlobId = {}",
+          dataFormat, blobOid));
 
     BlobData blob(blobOid, size, cells);
     BlobFS::getInstance().update(blob);
@@ -70,7 +72,7 @@ void BLOBTile::updateInDb()
 void BLOBTile::insertInDb()
 {
     long long blobOid = myOId.getCounter();
-    SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
+    SQLiteQuery checkQuery(fmt::format("SELECT BlobId FROM RAS_TILES WHERE BlobId = {}", blobOid));
     if (checkQuery.nextRow())
     {
         LERROR << "tile with id " << blobOid << " already exists.";
@@ -80,9 +82,9 @@ void BLOBTile::insertInDb()
     }
     checkQuery.finalize();
 
-    SQLiteQuery::executeWithParams(
-        "INSERT INTO RAS_TILES ( BlobId, DataFormat ) VALUES  ( %lld, %d )",
-        blobOid, dataFormat);
+    SQLiteQuery::execute(fmt::format(
+        "INSERT INTO RAS_TILES ( BlobId, DataFormat ) VALUES  ( {}, {} )",
+        blobOid, dataFormat));
 
     BlobData blob(blobOid, size, cells);
     BlobFS::getInstance().insert(blob);
@@ -95,7 +97,7 @@ void BLOBTile::deleteFromDb()
     long long blobOid = myOId.getCounter();
     LDEBUG << "deleting tile with id " << blobOid;
 
-    SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
+    SQLiteQuery checkQuery(fmt::format("SELECT BlobId FROM RAS_TILES WHERE BlobId = {}", blobOid));
     if (!checkQuery.nextRow())
     {
         LERROR << "no tile with id " << blobOid << " found.";
@@ -103,7 +105,7 @@ void BLOBTile::deleteFromDb()
     }
     checkQuery.finalize();
 
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE BlobId = %lld", blobOid);
+    SQLiteQuery::execute(fmt::format("DELETE FROM RAS_TILES WHERE BlobId = {}", blobOid));
     BlobData blob(blobOid);
     BlobFS::getInstance().remove(blob);
     DBObject::deleteFromDb();
@@ -125,7 +127,7 @@ void BLOBTile::kill(const OId &target, unsigned int range)
         long long blobOid = target.getCounter();
         LDEBUG << "deleting (kill) tile with id " << blobOid;
 
-        SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
+        SQLiteQuery checkQuery(fmt::format("SELECT BlobId FROM RAS_TILES WHERE BlobId = {}", blobOid));
         if (!checkQuery.nextRow())
         {
             // This is not an error case and is ignored, as kill is often repeatedly
@@ -134,7 +136,7 @@ void BLOBTile::kill(const OId &target, unsigned int range)
         }
         checkQuery.finalize();
 
-        SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE BlobId = %lld", blobOid);
+        SQLiteQuery::execute(fmt::format("DELETE FROM RAS_TILES WHERE BlobId = {}", blobOid));
         BlobData blob(blobOid);
         BlobFS::getInstance().remove(blob);
     }
@@ -156,9 +158,8 @@ void BLOBTile::kill(const OId &target, unsigned int range)
         long long blobOidEnd = end.getCounter();
         LDEBUG << "deleting (kill) tiles with ids " << blobOid << " - " << blobOidEnd;
 
-        SQLiteQuery query(
-            "SELECT BlobId FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld",
-            blobOid, blobOidEnd);
+        SQLiteQuery query(fmt::format("SELECT BlobId FROM RAS_TILES WHERE {} <= BlobId AND BlobId <= {}",
+                                      blobOid, blobOidEnd));
         while (query.nextRow())
         {
             blobOid = query.nextColumnLong();
@@ -166,9 +167,9 @@ void BLOBTile::kill(const OId &target, unsigned int range)
             BlobFS::getInstance().remove(blob);
         }
         query.finalize();
-        SQLiteQuery::executeWithParams(
-            "DELETE FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld",
-            blobOid, blobOidEnd);
+        SQLiteQuery::execute(fmt::format(
+            "DELETE FROM RAS_TILES WHERE {} <= BlobId AND BlobId <= {}",
+            blobOid, blobOidEnd));
     }
 }
 
@@ -176,11 +177,12 @@ long long BLOBTile::getAnyTileOid()
 {
     long long ret = NO_TILE_FOUND;
 
-    SQLiteQuery checkTable(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_TILES'");
+    std::string q = "SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_TILES'";
+    SQLiteQuery checkTable(std::move(q));
     if (checkTable.nextRow())
     {
-        SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES LIMIT 1");
+        q = "SELECT BlobId FROM RAS_TILES LIMIT 1";
+        SQLiteQuery checkQuery(std::move(q));
         if (checkQuery.nextRow())
         {
             ret = checkQuery.nextColumnLong();
@@ -210,14 +212,14 @@ void BLOBTile::readFromDb()
     size = blob.size;
     cells = blob.data;
 
-#ifdef DEBUG
-    LTRACE << "tile contents:";
-    for (int a = 0; a < size; a++)
-    {
-        LTRACE << " " << hex << (int)(cells[a]);
-    }
-    LTRACE << dec;
-#endif
+//#ifdef DEBUG
+//    LTRACE << "tile contents:";
+//    for (int a = 0; a < size; a++)
+//    {
+//        LTRACE << " " << hex << (int)(cells[a]);
+//    }
+//    LTRACE << dec;
+//#endif
 
     DBObject::readFromDb();
 
@@ -228,7 +230,7 @@ void BLOBTile::readFromDb()
 
 r_Data_Format BLOBTile::getTileDataFormat(long long blobOid)
 {
-    SQLiteQuery query("SELECT DataFormat FROM RAS_TILES WHERE BlobId = %lld", blobOid);
+    SQLiteQuery query(fmt::format("SELECT DataFormat FROM RAS_TILES WHERE BlobId = {}", blobOid));
     if (query.nextRow())
     {
         return static_cast<r_Data_Format>(query.nextColumnInt());

@@ -171,7 +171,7 @@ bool UserManager::tryGetUser(const std::string &userName, const std::string &pas
             if ((*it)->getPassword() != passwordHash)
             {
                 LERROR << "Invalid credentials for user " << userName;
-                throw InvalidClientCredentialsException();
+                throw InvalidClientCredentialsException(userName);
             }
             out_user = (*it);
             return true;

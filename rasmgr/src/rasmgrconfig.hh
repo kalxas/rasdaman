@@ -29,20 +29,34 @@
 namespace rasmgr
 {
 
+/**
+ Contains global configuration settings, initialized to some default values:
+   
+  - client lifetime (3 s)
+  - client management garbage collection interval (10 min)
+  - server management garbage collection interval (5 min)
+  - rasserver timeout (3 s)
+  - rasmgr port (7001), updated in :ref:`RasManager` from the command-line argument
+  - maximum number of clients per server (1)
+  - times to retry getting a server for a client (3)
+  - timeout when getting a server for a client (1 s)
+  - rasserver path (/opt/rasdaman/bin/rasserver)
+  - connect hostname (localhost)
+  
+  TODO: merge with Configuration.
+ */
 class RasMgrConfig
 {
 public:
-    virtual ~RasMgrConfig();
+    ~RasMgrConfig() = default;
 
     /**
-     * Get the RasMgrInstance.
      * @return Unique instance of the RasMgr class.
      */
     static boost::shared_ptr<RasMgrConfig> getInstance();
 
     /**
-     * Get the port on which this RasMgr instance is running
-     * @return
+     * @return the port on which this RasMgr instance is running
      */
     boost::int32_t getRasMgrPort();
 
@@ -56,14 +70,12 @@ public:
     std::string getConnectHostName();
 
     /**
-     * The path to the RasServer executable
-     * @return
+     * @return path to the RasServer executable
      */
     std::string getRasServerExecPath();
 
     /**
-     * Get the maximum number of clients for each RasServer
-     * @return
+     * @return the maximum number of clients for each RasServer
      */
     boost::uint32_t getMaximumNumberOfClientsPerServer();
 

@@ -28,13 +28,14 @@ rasdaman GmbH.
 #include "reladminif/sqlitewrapper.hh"
 #include "reladminif/sqlglobals.h"
 #include <logging.hh>
+#include <fmt/core.h>
 
 void MDDBaseType::insertInDb()
 {
     long long basetypeid = getBaseType()->getOId();
-    SQLiteQuery::executeWithParams(
+    SQLiteQuery::execute(fmt::format(
         "INSERT INTO RAS_MDDBASETYPES ( MDDBaseTypeOId, MDDTypeName, BaseTypeId) "
-        "VALUES (%lld, '%s', %lld)", myOId.getCounter(), getName(), basetypeid);
+        "VALUES ({}, '{}', {})", myOId.getCounter(), getName(), basetypeid));
     DBObject::insertInDb();
 }
 
@@ -44,9 +45,9 @@ void MDDBaseType::readFromDb()
     DBObject::readTimer.resume();
 #endif
 
-    SQLiteQuery query(
-        "SELECT BaseTypeId, MDDTypeName FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = %lld",
-        myOId.getCounter());
+    SQLiteQuery query(fmt::format(
+        "SELECT BaseTypeId, MDDTypeName FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = {}",
+        myOId.getCounter()));
     if (query.nextRow())
     {
         auto basetypeid = query.nextColumnLong();
@@ -68,7 +69,7 @@ void MDDBaseType::readFromDb()
 
 void MDDBaseType::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = {}", myOId.getCounter()));
     DBObject::deleteFromDb();
 }

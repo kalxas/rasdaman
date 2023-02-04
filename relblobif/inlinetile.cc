@@ -27,7 +27,6 @@ rasdaman GmbH.
 #include "relindexif/dbtcindex.hh"  // for DBTCIndex
 #include "relindexif/indexid.hh"    // for DBTCIndexId
 #include "storagemgr/sstoragelayout.hh" // for StorageLayout
-#include "mymalloc/mymalloc.h"
 
 #include "logging.hh"               // for LTRACE
 #include <cstring>                  // for memcpy

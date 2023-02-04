@@ -349,3 +349,24 @@ std::ostream &operator<<(std::ostream &s, const r_Clustering_Scheme d)
     }
     return s;
 }
+
+std::ostream &operator<<(std::ostream &s, const r_Band_Linearization d)
+{
+    switch (d)
+    {
+    case r_Band_Linearization::PixelInterleaved: s << "PixelInterleaved"; break;
+    case r_Band_Linearization::ChannelInterleaved: s << "ChannelInterleaved"; break;
+    default: s << "Unknown r_Band_Linearization " << d; break;
+    }
+    return s;
+}
+std::ostream &operator<<(std::ostream &s, const r_Cell_Linearization d)
+{
+    switch (d)
+    {
+    case r_Cell_Linearization::ColumnMajor: s << "ColumnMajor"; break;
+    case r_Cell_Linearization::RowMajor: s << "RowMajor"; break;
+    default: s << "Unknown r_Cell_Linearization " << d; break;
+    }
+    return s;
+}

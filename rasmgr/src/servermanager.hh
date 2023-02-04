@@ -42,98 +42,159 @@ class ServerGroup;
 class ServerGroupFactory;
 
 /**
- * Responsible for the management of server groups (creation, destruction, change),
- * and registering new server processes with the parent group.
- * The ServerManager has a thread that performs management tasks on the owned servergroups
- * at a certain interval.
+  Responsible for the management of server groups (creation, destruction,
+  change), and registering new server processes with the parent group. The
+  ServerManager has a thread that performs management tasks on the owned
+  server groups at a certain interval. Functionality provided includes:
+  
+  - Try to get a server with available capacity for clients. Called by
+    the :ref:`ClientManager` when a new client connects intending to send a query
+    for evaluation. Internally the method goes throught the list of server groups
+    and returns the first available server. If no such server is found, false is
+    returned, otherwise true.
+  
+  - Register a rasserver in the correct server group that started it. The method
+    is called when the rasserver sends a call to rasmgr to register itself.
+  
+  - Server group management functions, corresponding to `define srv`, `change srv`
+    and `remove srv` rascontrol commands:
+  
+    - Define a new server group to be added to the list of server groups.
+    - Change an existing group with a new configuration.
+    - Remove an existing server group
+  
+  - Start a server group, corresponding to `up srv` rascontrol command
+  
+  - Stop a server group, corresponding to `down srv` rascontrol command
+  
+  - Restart all server groups, used from the :ref:`UdfMonitor` when a UDF library
+    is updated
+  
+  - Check if there are any running servers, used from :ref:`RasControl` when
+    rasmgr is stopped to make sure that all servers have been stopped beforehand
+  
+  - Server cleanup thread runs every 3 seconds to evaluate the server groups
+    (`evaluateServerGroup()` in each :ref:`ServerGroup`) for dead servers and
+    servers that may need to be restarted if they've had too many sessions.
  */
 class ServerManager
 {
 public:
-  
-    ServerManager(const ServerManagerConfig &config, std::shared_ptr<ServerGroupFactory> serverGroupFactory);
+    /**
+     * Create a server manager with the given configuration and factory for
+     * creating server groups.
+     */
+    ServerManager(const ServerManagerConfig &config,
+                  std::shared_ptr<ServerGroupFactory> serverGroupFactory);
 
     virtual ~ServerManager();
 
     /**
-     * Method used to retrieve a free server. This method is NOT THREAD SAFE.
+     * Method used to retrieve a free server. Called by the ClientManager when
+     * a new client connects intending to send a query for evaluation.
+     * Internally the method goes throught the list of server groups and
+     * returns true while setting out_server to the the first free server. If
+     * no free server is found, false is returned.
+     * 
+     * This method is NOT THREAD SAFE.
      */
-    virtual bool tryGetFreeServer(const std::string &databaseName, std::shared_ptr<Server> &out_server);
+    virtual bool tryGetAvailableServer(const std::string &databaseName,
+                                       std::shared_ptr<Server> &out_server);
 
     /**
      * Registers a rasserver when the server starts and becomes available.
      * @param serverId - Server id of the server which became available.
      */
     virtual void registerServer(const std::string &serverId);
-
+    
     /**
-     * @brief defineServerGroup Define a server group that will be used to
-     * automatically spawn servers.
+     * Define a server group that will be used to automatically spawn servers.
      * @param serverGroupConfig Configuration used to initialize the server group
      */
     virtual void defineServerGroup(const ServerGroupConfigProto &serverGroupConfig);
 
     /**
-     * @brief changeServerGroup Change the configuration of the server group with the given name.
-     * This method will succeed only if the server group does not have any running servers.
+     * Change the configuration of the server group with the given name. This
+     * method will succeed only if the server group does not have any running
+     * servers.
+     * 
      * @param oldServerGroupName The old name of the server group
-     * @param newServerGroupConfig The new configuration that will be used by the server group
+     * @param newServerGroupConfig The new configuration that will be used by
+     * the server group
      */
-    virtual void changeServerGroup(const std::string &oldServerGroupName, const ServerGroupConfigProto &newServerGroupConfig);
+    virtual void changeServerGroup(const std::string &oldServerGroupName,
+                                   const ServerGroupConfigProto &newServerGroupConfig);
 
     /**
-     * @brief removeServerGroup Remove a server group if it doesn;t have any running servers
-     * @param serverGroupName
+     * Remove a server group if it doesn't have any running servers.
      */
     virtual void removeServerGroup(const std::string &serverGroupName);
 
     /**
-     * @brief startServerGroup
-     * @param startGroup
+     * Start a server group.
      */
     virtual void startServerGroup(const StartServerGroup &startGroup);
 
     /**
-     * @brief stopServerGroup Mark the server group as stopped.
-     * The server manager will not be able to spawn new servers
-     * and running servers will be removed once they finish already running transactions.
+     * Mark the server group as stopped. The server manager will not be able to
+     * spawn new servers and running servers will be removed once they finish
+     * already running transactions.
      */
     virtual void stopServerGroup(const StopServerGroup &stopGroup);
+    
+    /**
+     * Restart gracefully all server groups.
+     */
+    virtual void restartAllServerGroups();
 
     /**
-     * @brief hasRunningServers Check if there are running server groups
-     * @return
+     * Check if there are running server groups
      */
     virtual bool hasRunningServers();
+    
+    /**
+     * @return the server with serverId if found, nullptr otherwise.
+     */
+    virtual std::shared_ptr<Server> getServer(const std::string &serverId);
 
     /**
-     * @brief serializeToProto Serialize the data contained by this object
-     * into a format which can be later used for presenting information to the user
-     * @return
+     * Serialize the data contained by this object into a format which can be
+     * later used for presenting information to the user.
      */
     virtual ServerMgrProto serializeToProto();
 
 private:
     std::list<std::shared_ptr<ServerGroup>> serverGroupList;/*!< Server group list */
-
     boost::shared_mutex serverGroupMutex;/*!< Mutex used to synchronize access to the list of server groups */
-
-    std::unique_ptr<std::thread> workerCleanup; /*!< Thread object running the @see workerCleanupRunner() function. */
-
     std::shared_ptr<ServerGroupFactory> serverGroupFactory;
-
     ServerManagerConfig config;
 
+    // -------------------------------------------------------------------------
+    // cleanup thread
+    std::unique_ptr<std::thread> workerCleanup; /*!< Thread object running the @see workerCleanupRunner() function. */
     bool isWorkerThreadRunning; /*! Flag used to stop the worker thread */
     std::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
     std::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
-
-    /**
-     * Function which cleans the servers which failed to start or were stopped.
-     */
+    
+    /// Function which cleans the servers which failed to start or were stopped.
     void workerCleanupRunner();
-
+    /// For each server group evaluate the group's status. This means that dead
+    /// server entries will be removed and new servers will be started.
     void evaluateServerGroups();
+    // -------------------------------------------------------------------------
+    
+    
+    // -------------------------------------------------------------------------
+    // restart servers thread
+    std::shared_ptr<std::thread> restartServersThread; /*!< Restarts the servers after 1 second delay upon startup */
+    boost::shared_mutex restartServersMutex;/*!< Mutex used to synchronize access to the restartServersThreads */
+    bool isRestartServersThreadRunning;
+    /// Wait for 1 second, then restart all server groups. Executed in the
+    /// restartServersThread from restartAllServerGroups()
+    void restartServersRunner();
+    // -------------------------------------------------------------------------
+    
+
 };
 
 } /* namespace rasmgr */

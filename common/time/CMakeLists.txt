@@ -21,7 +21,7 @@
 #
 ###################################################################
 
-set(TIME_HEADERS timer.hh)
+set(TIME_HEADERS timer.hh date.h)
 
 add_library(common_time timer.cc ${TIME_HEADERS})
 

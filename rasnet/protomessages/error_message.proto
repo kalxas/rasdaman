@@ -14,27 +14,34 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+ *2014 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#ifndef RASMGR_X_SRC_SERVERFACTORYRASNET_HH_
-#define RASMGR_X_SRC_SERVERFACTORYRASNET_HH_
+syntax = "proto3";
+//The first line must specify the syntax.
+package rasnet.service;
 
-#include "serverfactory.hh"
+option java_package = "org.rasdaman.rasnet.service";
 
-namespace rasmgr
+option cc_generic_services = false;
+option java_generic_services = false;
+
+message ErrorMessage
 {
-class ServerFactoryRasNet: public ServerFactory
-{
-public:
-    virtual ~ServerFactoryRasNet() = default;
+    uint32 error_no = 1;
+    int32 kind = 2;
+    string error_text = 3;
 
-    std::shared_ptr<Server> createServer(const ServerConfig &configuration);
-};
+    enum ErrorMessageType
+    {
+        RERROR = 0;
+        STL = 1;
+        UNKNOWN = 2;
+    }
 
-} /* namespace rasmgr */
-
-#endif /* RASMGR_X_SRC_SERVERFACTORYRASNET_HH_ */
+    ErrorMessageType type = 4;
+}

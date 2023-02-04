@@ -216,7 +216,7 @@ char *QtScalarData::getTypeStructure() const
 {
     if (valueType)
     {
-        return valueType->getTypeStructure();
+        return strdup(valueType->getTypeStructure().c_str());
     }
     else
     {
@@ -230,7 +230,7 @@ QtScalarData::printStatus(ostream &stream) const
 {
     if (valueType)
     {
-        char *typeStructure = valueType->getTypeStructure();
+        auto typeStructure = valueType->getTypeStructure();
 
         stream << "type: "        << flush << valueType->getTypeName()
                << ", structure: " << flush << typeStructure
@@ -238,8 +238,6 @@ QtScalarData::printStatus(ostream &stream) const
 
         valueType->printCell(stream, valueBuffer);
 
-        free(typeStructure);
-        typeStructure = NULL;
         QtData::printStatus(stream);
     }
     else

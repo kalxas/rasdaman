@@ -20,21 +20,18 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
-#include "common/exceptions/rasexceptions.hh"
-
-#include "exceptions/rasmgrexceptions.hh"
-
+#include "peermanager.hh"
 #include "inpeer.hh"
 #include "outpeer.hh"
-
-#include "peermanager.hh"
+#include "common/exceptions/invalidargumentexception.hh"
+#include "common/exceptions/resourcebusyexception.hh"
+#include "exceptions/inexistentinpeerexception.hh"
+#include "exceptions/inexistentoutpeerexception.hh"
+#include "exceptions/inpeeralreadyexistsexception.hh"
+#include "exceptions/outpeeralreadyexistsexception.hh"
 
 namespace rasmgr
 {
-
-using std::list;
-using std::string;
 
 using common::InvalidArgumentException;
 using common::ResourceBusyException;
@@ -162,14 +159,14 @@ bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientS
 bool PeerManager::isRemoteClientSession(const RemoteClientSession &clientSession)
 {
     std::lock_guard<std::mutex> lock(this->mut);
-    string sessionKey = this->remoteClientSessionToString(clientSession);
+    std::string sessionKey = this->remoteClientSessionToString(clientSession);
     return this->remoteSessions.find(sessionKey) != this->remoteSessions.end();
 }
 
 void PeerManager::releaseServer(const RemoteClientSession &clientSession)
 {
     std::lock_guard<std::mutex> lock(this->mut);
-    string sessionKey = this->remoteClientSessionToString(clientSession);
+    std::string sessionKey = this->remoteClientSessionToString(clientSession);
     auto session = this->remoteSessions.find(sessionKey);
     if (session != this->remoteSessions.end())
     {

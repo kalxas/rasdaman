@@ -109,8 +109,22 @@ void r_Minterval::constructorinit(char *mIntStr)
     r_Range b = 0; // bound for Sinterval
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
-        // --- evaluate lower bound ------------------------------
         str >> c;      // test read first char
+        
+        // --- evaluate axis name ------------------------------
+        if (isalpha(c) || c == '_')
+        {
+          std::string axisName;
+          while (c != '(')
+          {
+            axisName += c; // read axis name
+            str >> c;
+          }
+          sint.set_axis_name(axisName);
+          str >> c; // skip the (
+        }
+        
+        // --- evaluate lower bound ------------------------------
         if (c == '*')  // low bound is '*'
         {
             sint.set_low('*');
@@ -156,6 +170,10 @@ void r_Minterval::constructorinit(char *mIntStr)
             sint.set_high(b);
         }
         str >> c;
+        if (c == ')')
+        {
+            str >> c; // ignore the ) in case of an axis name
+        }
 
         // --- next dimension needs either ',' separator or ']' end tag
         if ((i != dimensionality - 1 && c != ',') || 
@@ -198,15 +216,6 @@ r_Minterval::r_Minterval(const char *mIntStr)
     }
 }
 
-const std::vector<std::string> &r_Minterval::getAxisNames() const
-{
-    return axisNames;
-}
-
-void r_Minterval::setAxisNames(std::vector<std::string> newAxisNames) {
-  axisNames = std::move(newAxisNames);
-}
-
 r_Minterval &r_Minterval::operator<<(const r_Sinterval &newInterval)
 {
     // TODO: should be assert
@@ -227,7 +236,7 @@ r_Minterval &r_Minterval::operator<<(r_Range p)
         throw r_Error(DIMOVERFLOW, "cannot add slice " + std::to_string(p) + " to minterval " + to_string());
     }
 
-    intervals[streamInitCnt++] = r_Sinterval(p, p);
+    intervals[streamInitCnt++] = r_Sinterval(p);
     return *this;
 }
 
@@ -846,10 +855,8 @@ std::vector<r_Minterval> r_Minterval::extension_of(const r_Minterval &big) const
     const auto &small = *this;
     const auto dim = big.dimension();
     assert(dim == dimension());
-  
-    // if big doesn't contain small then the only result domain is big
-    if (!big.covers(*this))
-      return {big};
+    // if big doesn't cover small then this method is not applicable
+    assert(big.covers(small));
   
     // left contains intervals [s_low,s_high] (small domain)
     // right contains intervals [b_low, b_high] (big domain)
@@ -984,28 +991,6 @@ r_Minterval::to_string() const
     }
     ret += "]";
     return ret;
-}
-
-std::string
-r_Minterval::get_named_axis_string_representation() const
-{
-    std::ostringstream ss;
-    ss << "[";
-
-    for (r_Dimension i = 0; i < dimension(); i++)
-    {
-        if (i > 0)
-            ss << ",";
-
-        ss << axisNames[i];
-
-        if (intervals[i].is_low_fixed() || intervals[i].is_high_fixed())
-            ss << "(" << intervals[i] << ")";
-    }
-
-    ss << "]";
-
-    return ss.str();
 }
 
 r_Area r_Minterval::cell_count() const
@@ -1479,6 +1464,70 @@ bool r_Minterval::is_fixed() const noexcept
             return false;
     
     return true;
+}
+
+std::vector<string> r_Minterval::get_axis_names() const
+{
+    std::vector<string> ret;
+    ret.reserve(dimension());
+    for (const auto &interval: intervals)
+        ret.push_back(interval.get_axis_name());
+    return ret;
+}
+
+void r_Minterval::set_axis_names(std::vector<std::string> axis_names)
+{
+    const auto dim = dimension();
+    if (dim == axis_names.size())
+    {
+        for (r_Dimension i = 0; i < dim; ++i)
+          intervals[i].set_axis_name(axis_names[i]);
+    }
+    else
+    {
+        throw r_Edim_mismatch(dim, axis_names.size(),
+                              "cannot assign " + std::to_string(axis_names.size()) + " axis names to minterval " + to_string());
+    }
+}
+
+void r_Minterval::set_axis_names(const r_Minterval &o)
+{
+    const auto dim = dimension();
+    if (dim == o.dimension())
+    {
+        for (r_Dimension i = 0; i < dim; ++i)
+          intervals[i].set_axis_name(o.intervals[i].get_axis_name());
+    }
+    else
+    {
+      throw r_Edim_mismatch(dim, o.dimension(),
+                            "cannot assign axis names from minterval " + o.to_string() + " to minterval " + to_string());
+    }
+}
+
+bool r_Minterval::axis_names_match(const r_Minterval &o) const
+{
+    const auto dim = dimension();
+    if (dim == o.dimension())
+    {
+        for (r_Dimension i = 0; i < dim; ++i)
+            if (intervals[i].get_axis_name() != o.intervals[i].get_axis_name())
+                return false;
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
+bool r_Minterval::has_axis_names() const
+{
+    for (const auto &interval: intervals)
+        if (interval.has_axis_name())
+            return true;
+
+    return false;
 }
 
 bool r_Minterval::is_scalar() const noexcept {

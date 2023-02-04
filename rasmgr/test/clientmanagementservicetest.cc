@@ -93,8 +93,8 @@ TEST_F(ClientManagementServiceTest, ConnectSuccess)
 
     ClientManagerMock& clientMgrMock = *std::dynamic_pointer_cast<ClientManagerMock>(clientManager);
 
-    EXPECT_CALL(clientMgrMock, connectClient(_, _))
-    .WillOnce(SetArgReferee<1>(clientId));
+    EXPECT_CALL(clientMgrMock, connectClient(_, _, _))
+    .WillOnce(SetArgReferee<2>(clientId));
 
     Status status = this->service->Connect(NULL, &request, &reply);
 
@@ -115,7 +115,7 @@ TEST_F(ClientManagementServiceTest, ConnectFailure)
 
     ClientManagerMock& clientMgrMock = *std::dynamic_pointer_cast<ClientManagerMock>(clientManager);
 
-    EXPECT_CALL(clientMgrMock, connectClient(_, _))
+    EXPECT_CALL(clientMgrMock, connectClient(_, _, _))
     .WillOnce(Throw(exception));
 
     Status status = this->service->Connect(NULL, &request, &reply);

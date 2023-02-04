@@ -32,8 +32,6 @@ rasdaman GmbH.
  ***********************************************************************/
 
 #include "adminif.hh"
-#include "sqlerror.hh"
-#include "sqlglobals.h"
 #include "sqlitewrapper.hh"
 #include "objectbroker.hh"
 #include "relblobif/blobfs.hh"
@@ -43,6 +41,7 @@ rasdaman GmbH.
 #include <sqlite3.h>
 #include <climits>
 #include <memory>
+#include <fmt/core.h>
 
 extern char globalConnectId[PATH_MAX];
 
@@ -55,8 +54,8 @@ const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN] = "SQLite";
 void checkCounter(const char *counterName, const char *column,
                   const char *table, const char *tableDescr)
 {
-    SQLiteQuery query("SELECT NextValue, MAX(%s) FROM RAS_COUNTERS, %s "
-                      "WHERE CounterName = '%s'", column, table, counterName);
+    SQLiteQuery query(fmt::format("SELECT NextValue, MAX({}) FROM RAS_COUNTERS, {} "
+                                  "WHERE CounterName = '{}'", column, table, counterName));
     if (query.nextRow())
     {
         auto rasCountersOid = query.nextColumnLong();

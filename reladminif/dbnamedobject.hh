@@ -43,12 +43,18 @@ Implements set/getName functionality.
 class DBNamedObject : public DBObject
 {
 public:
+    
+    static unsigned int MAXNAMELENGTH;
+    /*@Doc:
+    the maximum length of a name.
+    */
+    
     DBNamedObject();
     /*@Doc:
     sets Name to defaultName
     */
 
-    DBNamedObject(const OId &id);
+    explicit DBNamedObject(const OId &id);
     /*@Doc:
     only initializes itself
     */
@@ -58,7 +64,7 @@ public:
     sets myName to the name of the old object
     */
 
-    DBNamedObject(const char *name);
+    explicit DBNamedObject(const char *name);
     /*@Doc:
     sets myName to name
     */
@@ -68,24 +74,16 @@ public:
     sets myName to name and calls DBObject(OId).  this is needed by MDDSet.
     */
 
-    ~DBNamedObject() noexcept(false) override;
+    ~DBNamedObject() noexcept(false) override = default;
+    
+    DBNamedObject &operator=(const DBNamedObject &old);
     /*@Doc:
-    frees myName
+    takes care of the name
     */
 
     const char *getName() const;
     /*@Doc:
     returns a pointer to myName.
-    */
-
-    static unsigned int MAXNAMELENGTH;
-    /*@Doc:
-    the maximum length of a name.
-    */
-
-    DBNamedObject &operator=(const DBNamedObject &old);
-    /*@Doc:
-    takes care of the name
     */
 
     r_Bytes getMemorySize() const override;
@@ -110,14 +108,9 @@ protected:
     sets the name from a VARCHAR structure
     */
 
-    char *myName;
+    std::string myName;
     /*@Doc:
     the name of the object
-    */
-
-    unsigned short myNameSize;
-    /*@Doc:
-    the size of the name
     */
 
     static const char *defaultName;

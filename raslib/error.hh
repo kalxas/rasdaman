@@ -126,7 +126,10 @@ public:
 
                 r_Error_TileCannotBeLocked,
 
-                r_Error_Conversion
+                r_Error_Conversion,
+                r_Error_RasfedConnectionFailed,
+                r_Error_RasfedConnectionTimeout,
+                r_Error_RasfedUnknownPeerHostname
               };
 
     r_Error();
@@ -722,8 +725,6 @@ public:
 #define MARRAY_TYPE_NAME_LENGTH_EXCEEDED    975
 #define SET_TYPE_NAME_LENGTH_EXCEEDED       976
 #define CELL_TYPE_NAME_LENGTH_EXCEEDED      977
-
-//993 -999 - ALL UNUSED
 #define REFERENCED_FILE_NOT_FOUND           993
 #define REFERENCED_FILE_EMPTY               994
 #define EXPAND_POSITION_INVALID             995

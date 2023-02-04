@@ -39,6 +39,7 @@ rasdaman GmbH.
 #include "relcatalogif/typefactory.hh"
 
 #include <logging.hh>
+#include <fmt/core.h>
 
 
 DBObject *ObjectBroker::loadInlineTile(const OId &id)
@@ -74,7 +75,7 @@ DBObject *ObjectBroker::loadInlineTile(const OId &id)
             indexid = 0;
             inlineid = id.getCounter();
 
-            SQLiteQuery query("SELECT IndexId FROM RAS_ITMAP WHERE TileId = %lld", inlineid);
+            SQLiteQuery query(fmt::format("SELECT IndexId FROM RAS_ITMAP WHERE TileId = {}", inlineid));
             if (query.nextRow())
             {
                 indexid = query.nextColumnLong();
@@ -103,7 +104,7 @@ OId ObjectBroker::getOIdOfSetType(const char *name)
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
-    SQLiteQuery query("SELECT SetTypeId FROM RAS_SETTYPES WHERE SetTypeName = '%s'", name);
+    SQLiteQuery query(fmt::format("SELECT SetTypeId FROM RAS_SETTYPES WHERE SetTypeName = '{}'", name));
     if (query.nextRow())
     {
         retval = OId(query.nextColumnLong(), OId::SETTYPEOID);
@@ -150,7 +151,7 @@ MDDType *ObjectBroker::getMDDTypeByName(const char *name)
             throw r_Error(TYPENAMEISTOOLONG);
         }
 
-        SQLiteQuery query("SELECT MDDTypeOId FROM RAS_MDDTYPES_VIEW WHERE MDDTypeName = '%s'", name);
+        SQLiteQuery query(fmt::format("SELECT MDDTypeOId FROM RAS_MDDTYPES_VIEW WHERE MDDTypeName = '{}'", name));
         if (query.nextRow())
         {
             auto mddtoidv = query.nextColumnLong();
@@ -169,17 +170,14 @@ MDDType *ObjectBroker::getMDDTypeByName(const char *name)
 
 OId ObjectBroker::getOIdOfMDDType(const char *name)
 {
-    char mddtname[STRING_MAXLEN];
-
-    OId retval;
     unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy(mddtname, const_cast<char *>(name), (size_t) sizeof(mddtname));
-
-    SQLiteQuery query("SELECT MDDTypeOId FROM RAS_MDDTYPES WHERE MDDTypeName = '%s'", name);
+    
+    OId retval;
+    SQLiteQuery query(fmt::format("SELECT MDDTypeOId FROM RAS_MDDTYPES WHERE MDDTypeName = '{}'", name));
     if (query.nextRow())
     {
         auto mddtoid = query.nextColumnLong();
@@ -204,7 +202,7 @@ OId ObjectBroker::getOIdOfMDDBaseType(const char *name)
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
-    SQLiteQuery query("SELECT MDDBaseTypeOId FROM RAS_MDDBASETYPES WHERE MDDTypeName = '%s'", name);
+    SQLiteQuery query(fmt::format("SELECT MDDBaseTypeOId FROM RAS_MDDBASETYPES WHERE MDDTypeName = '{}'", name));
     if (query.nextRow())
     {
         long long mddboid = query.nextColumnLong();
@@ -229,7 +227,7 @@ OId ObjectBroker::getOIdOfMDDDimensionType(const char *name)
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
-    SQLiteQuery query("SELECT MDDDimTypeOId FROM RAS_MDDDIMTYPES WHERE MDDTypeName = '%s'", name);
+    SQLiteQuery query(fmt::format("SELECT MDDDimTypeOId FROM RAS_MDDDIMTYPES WHERE MDDTypeName = '{}'", name));
     if (query.nextRow())
     {
         long long mdddioid = query.nextColumnLong();
@@ -254,7 +252,7 @@ OId ObjectBroker::getOIdOfMDDDomainType(const char *name)
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
-    SQLiteQuery query("SELECT MDDDomTypeOId FROM RAS_MDDDOMTYPES WHERE MDDTypeName = '%s'", name);
+    SQLiteQuery query(fmt::format("SELECT MDDDomTypeOId FROM RAS_MDDDOMTYPES WHERE MDDTypeName = '{}'", name));
     if (query.nextRow())
     {
         long long mdddooid = query.nextColumnLong();
@@ -279,7 +277,7 @@ OId ObjectBroker::getOIdOfStructType(const char *name)
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
-    SQLiteQuery query("SELECT BaseTypeId FROM RAS_BASETYPENAMES WHERE BaseTypeName = '%s'", name);
+    SQLiteQuery query(fmt::format("SELECT BaseTypeId FROM RAS_BASETYPENAMES WHERE BaseTypeName = '{}'", name));
     if (query.nextRow())
     {
         long long structoid = query.nextColumnLong();
@@ -304,7 +302,7 @@ OId ObjectBroker::getOIdOfMDDSet(const char *name)
         throw r_Error(TYPENAMEISTOOLONG);
     }
 
-    SQLiteQuery query("SELECT MDDCollId FROM RAS_MDDCOLLNAMES WHERE MDDCollName = '%s'", name);
+    SQLiteQuery query(fmt::format("SELECT MDDCollId FROM RAS_MDDCOLLNAMES WHERE MDDCollName = '{}'", name));
     if (query.nextRow())
     {
         long long colloid = query.nextColumnLong();

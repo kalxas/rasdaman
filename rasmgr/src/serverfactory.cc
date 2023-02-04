@@ -21,12 +21,14 @@
  */
 
 #include "serverfactory.hh"
+#include "server.hh"
 
 namespace rasmgr
 {
 
-ServerFactory::~ServerFactory()
+std::shared_ptr<Server> ServerFactory::createServer(const ServerConfig &configuration)
 {
+    return std::make_shared<Server>(configuration);
 }
 
 } /* namespace rasmgr */

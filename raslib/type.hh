@@ -109,6 +109,7 @@ public:
 
     /// build type schema from string representation
     static r_Type *get_any_type(const char *type_string);
+    static r_Type *get_any_type(const std::string &type_string);
 
     /// converts array of cells from NT byte order to Unix byte order.
     virtual void convertToLittleEndian(char *cells, r_Area noCells) const = 0;

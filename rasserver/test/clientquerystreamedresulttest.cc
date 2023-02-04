@@ -71,7 +71,7 @@ TEST(ClientQueryStreamedResultTest, testZeroSize)
     ASSERT_EQ(nextChunk.length, 0);
     ASSERT_EQ(data, nextChunk.bytes);
 
-    delete[] data;
+    delete result;
 }
 
 }

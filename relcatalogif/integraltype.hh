@@ -41,11 +41,11 @@ double. It's subclasses must implement conversions to/from long.
 class IntegralType : public AtomicType
 {
 public:
-    IntegralType(unsigned int newSize) : AtomicType(newSize) {}
+    explicit IntegralType(unsigned int newSize) : AtomicType(newSize) {}
 
     IntegralType(const IntegralType &)  = default;
 
-    IntegralType(const OId &id) : AtomicType(id) {}
+    explicit IntegralType(const OId &id) : AtomicType(id) {}
 
     ~IntegralType() override = default;
 

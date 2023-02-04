@@ -180,9 +180,8 @@ QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
     //
     std::unique_ptr<r_Type> baseSchema;
     {
-        char *typeStructure = qtMDD->getCellType()->getTypeStructure();
+        auto typeStructure = qtMDD->getCellType()->getTypeStructure();
         baseSchema.reset(r_Type::get_any_type(typeStructure));
-        free(typeStructure), typeStructure = NULL;
     }
     int numBands = 1;
     std::unique_ptr<r_Primitive_Type> bandType;

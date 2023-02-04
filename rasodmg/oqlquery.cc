@@ -283,9 +283,7 @@ r_OQL_Query::is_retrieval_query() const
 
         // it is retrieval if it's a SELECT but not SELECT INTO expression
         returnValue = (startsWith(q.c_str(), "select") && q.find(" into ") == std::string::npos)
-// -- enterprise
-                      || startsWith(q.c_str(), "list");
-// -- enterprise
+                      || startsWith(q.c_str(), "list") || startsWith(q.c_str(), "define");
     }
 
     return returnValue;

@@ -18,35 +18,32 @@ class Configuration;
 class ConfigurationManager;
 
 /**
- * @brief The RasManager class Central class of rasmgr that performs
- * initialization of the other submodules.
+ * Central class of rasmgr that performs initialization of the other
+ * submodules.
  */
 class RasManager
 {
 public:
     /**
-     * @brief RasManager Initialize the class using configuration obtained from command
-     * line parameters
-     * @param config
+     * Initialize using configuration obtained from cmd-line parameters/
      */
     RasManager(Configuration &config
                );
 
-    virtual ~RasManager();
+    virtual ~RasManager() = default;
 
     /**
-     * @brief start Initialize rasmgr components and publish the services to
-     * the network.
+     * Initialize rasmgr components and publish the services to the network.
      */
     void start();
 
     /**
-     * @brief stop Save the current configuration and stop the instance.
+     * Save the current configuration and stop the instance.
      */
     void stop();
 
     /**
-     * @brief saveConfiguration Save this rasmanager's configuration to rasmgr.conf and rasmgr.auth
+     * Save this rasmanager's configuration to rasmgr.conf and rasmgr.auth
      */
     void saveConfiguration();
 

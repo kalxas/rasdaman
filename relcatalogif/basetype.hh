@@ -74,7 +74,7 @@ public:
     default constructor, cannot be used.
     */
 
-    BaseType(const OId &id);
+    explicit BaseType(const OId &id);
 
     BaseType(const BaseType &) = default;
 

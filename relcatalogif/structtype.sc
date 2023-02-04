@@ -27,20 +27,21 @@ rasdaman GmbH.
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
+#include <fmt/core.h>
 
 void StructType::insertInDb()
 {
-    SQLiteQuery::executeWithParams(
-        "INSERT INTO RAS_BASETYPENAMES (BaseTypeId, BaseTypeName) VALUES (%lld, '%s')",
-        myOId.getCounter(), getTypeName());
+    SQLiteQuery::execute(fmt::format(
+        "INSERT INTO RAS_BASETYPENAMES (BaseTypeId, BaseTypeName) VALUES ({}, '{}')",
+        myOId.getCounter(), getTypeName()));
     for (unsigned int count = 0; count < getNumElems(); count++)
     {
         long long elemtypeid = getElemType(count)->getOId();
         const char* elemname = getElemName(count);
-        SQLiteQuery::executeWithParams(
+        SQLiteQuery::execute(fmt::format(
             "INSERT INTO RAS_BASETYPES (BaseTypeId, ContentType, Count, ContentTypeName) "
-            "VALUES (%lld, %lld, %d, '%s')",
-            myOId.getCounter(), elemtypeid, count, elemname);
+            "VALUES ({}, {}, {}, '{}')",
+            myOId.getCounter(), elemtypeid, count, elemname));
     }
     DBObject::insertInDb();
 }
@@ -48,8 +49,8 @@ void StructType::insertInDb()
 void StructType::readFromDb()
 {
     {
-        SQLiteQuery query(
-            "SELECT BaseTypeName FROM RAS_BASETYPENAMES WHERE BaseTypeId = %lld", myOId.getCounter());
+        SQLiteQuery query(fmt::format(
+            "SELECT BaseTypeName FROM RAS_BASETYPENAMES WHERE BaseTypeId = {}", myOId.getCounter()));
         if (query.nextRow())
         {
             setName(query.nextColumnString());
@@ -61,9 +62,9 @@ void StructType::readFromDb()
         }
     }
     {
-        SQLiteQuery query2(
+        SQLiteQuery query2(fmt::format(
             "SELECT ContentTypeName, ContentType FROM RAS_BASETYPES WHERE "
-            "BaseTypeId = %lld ORDER BY Count", myOId.getCounter());
+            "BaseTypeId = {} ORDER BY Count", myOId.getCounter()));
         while (query2.nextRow())
         {
             const char *elementname = query2.nextColumnString();
@@ -78,9 +79,9 @@ void StructType::readFromDb()
 
 void StructType::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_BASETYPENAMES WHERE BaseTypeId = %lld", myOId.getCounter());
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_BASETYPES WHERE BaseTypeId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_BASETYPENAMES WHERE BaseTypeId = {}", myOId.getCounter()));
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_BASETYPES WHERE BaseTypeId = {}", myOId.getCounter()));
     DBObject::deleteFromDb();
 }

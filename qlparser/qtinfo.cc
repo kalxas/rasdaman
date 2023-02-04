@@ -204,7 +204,13 @@ QtInfo::evaluate(QtDataList *inputList)
                             break;
                         }
                         info << "\",\n\t\"tileSize\": \"" << storageLayout->getTileSize();
-                        info << "\",\n\t\"tileConfiguration\": \"" << storageLayout->getTileConfiguration() << "\"";
+                        auto tileConf = storageLayout->getTileConfiguration();
+                        if (tileConf.has_axis_names())
+                        {
+                            std::vector<std::string> emptyAxisNames(tileConf.dimension());
+                            tileConf.set_axis_names(emptyAxisNames);
+                        }
+                        info << "\",\n\t\"tileConfiguration\": \"" << tileConf << "\"";
 
                         if (printTiles == EMBEDDED)
                         {

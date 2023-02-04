@@ -25,13 +25,10 @@ rasdaman GmbH.
 #include "reladminif/objectbroker.hh"
 #include "reladminif/oidif.hh"
 #include "reladminif/sqlerror.hh"
-#include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "relcatalogif/mddbasetype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/dbnullvalues.hh"
-#include "indexmgr/indexds.hh"
-#include "relindexif/indexid.hh"
 #include "relstorageif/dbstoragelayout.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/dbminterval.hh"
@@ -39,6 +36,7 @@ rasdaman GmbH.
 #include "relcatalogif/typefactory.hh"
 #include "dbmddobj.hh"
 #include <logging.hh>
+#include <fmt/core.h>
 
 DBMDDObj::DBMDDObj()
     : DBObject(), myDomain{new DBMinterval()}, storageLayoutId(new DBStorageLayout()), objIxId()
@@ -62,7 +60,7 @@ DBMDDObj::DBMDDObj(const MDDBaseType *newMDDType, const r_Minterval &domain,
 {
     objecttype = OId::MDDOID;
 
-    SQLiteQuery query("SELECT MDDId FROM RAS_MDDOBJECTS WHERE MDDId = %lld", newOId.getCounter());
+    SQLiteQuery query(fmt::format("SELECT MDDId FROM RAS_MDDOBJECTS WHERE MDDId = {}", newOId.getCounter()));
     if (query.nextRow())
     {
         ((DBObjectId) newObjIx)->setPersistent(false);
@@ -261,9 +259,9 @@ void DBMDDObj::updateInDb()
     const auto mddoid = myOId.getCounter();
     auto persRefCount3 = persistentRefCount;
 
-    SQLiteQuery::executeWithParams(
-        "UPDATE RAS_MDDOBJECTS SET PersRefCount = %ld, NodeOId = %lld WHERE MDDId = %lld",
-        persRefCount3, static_cast<long long>(objIxId.getOId()), mddoid);
+    SQLiteQuery::execute(fmt::format(
+        "UPDATE RAS_MDDOBJECTS SET PersRefCount = {}, NodeOId = {} WHERE MDDId = {}",
+        persRefCount3, static_cast<long long>(objIxId.getOId()), mddoid));
 
     if (nullValues != NULL)
     {
@@ -273,9 +271,9 @@ void DBMDDObj::updateInDb()
 
         long long settypeoid{};
         {
-            SQLiteQuery query(
+            SQLiteQuery query(fmt::format(
                 "SELECT c.settypeid FROM ras_mddcollnames as c, ras_mddcollections "
-                "as m WHERE m.mddcollid = c.mddcollid and m.mddid = %lld", mddoid);
+                "as m WHERE m.mddcollid = c.mddcollid and m.mddid = {}", mddoid));
             if (query.nextRow())
             {
                 settypeoid = query.nextColumnLong();
@@ -287,10 +285,10 @@ void DBMDDObj::updateInDb()
             }
         }
 
-        SQLiteQuery countQuery("SELECT COUNT(settypeoid) FROM RAS_NULLVALUES WHERE settypeoid = %lld", settypeoid);
+        SQLiteQuery countQuery(fmt::format("SELECT COUNT(settypeoid) FROM RAS_NULLVALUES WHERE settypeoid = {}", settypeoid));
         if (countQuery.nextRow() && countQuery.nextColumnInt() > 0)
         {
-            SQLiteQuery query("SELECT nullvalueoid FROM RAS_NULLVALUES WHERE settypeoid = %lld", settypeoid);
+            SQLiteQuery query(fmt::format("SELECT nullvalueoid FROM RAS_NULLVALUES WHERE settypeoid = {}", settypeoid));
             if (query.nextRow())
             {
                 auto oldnullvalueoid = query.nextColumnLong();
@@ -302,10 +300,10 @@ void DBMDDObj::updateInDb()
                     oldNullValues->validate();
                     delete oldNullValues;
                 }
-                SQLiteQuery::executeWithParams("DELETE FROM RAS_NULLVALUES WHERE nullvalueoid = %lld", oldnullvalueoid);
+                SQLiteQuery::execute(fmt::format("DELETE FROM RAS_NULLVALUES WHERE nullvalueoid = {}", oldnullvalueoid));
             }
         }
-        SQLiteQuery::executeWithParams("INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId) VALUES (%lld, %lld)", settypeoid, nullvalueoid);
+        SQLiteQuery::execute(fmt::format("INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId) VALUES ({}, {})", settypeoid, nullvalueoid));
     }
 
     DBObject::updateInDb();
@@ -318,16 +316,16 @@ void DBMDDObj::insertInDb()
     long long basetypeid = mddType->getOId();
     long long domainid = myDomain->getOId().getCounter();
 
-    SQLiteQuery::executeWithParams(
+    SQLiteQuery::execute(fmt::format(
         "INSERT INTO RAS_MDDOBJECTS ( MDDId, BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId) "
-        "VALUES (%lld, %lld, %lld, %ld, %lld, %lld)",
-        myOId.getCounter(), basetypeid, domainid, persistentRefCount, objindex, storage);
+        "VALUES ({}, {}, {}, {}, {}, {})",
+        myOId.getCounter(), basetypeid, domainid, persistentRefCount, objindex, storage));
     DBObject::insertInDb();
 }
 
 void DBMDDObj::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDOBJECTS WHERE MDDId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format("DELETE FROM RAS_MDDOBJECTS WHERE MDDId = {}", myOId.getCounter()));
     DBObject::deleteFromDb();
 }
 
@@ -336,9 +334,9 @@ void DBMDDObj::readFromDb()
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
-    SQLiteQuery query(
+    SQLiteQuery query(fmt::format(
         "SELECT BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId "
-        "FROM RAS_MDDOBJECTS WHERE MDDId = %lld", myOId.getCounter());
+        "FROM RAS_MDDOBJECTS WHERE MDDId = {}", myOId.getCounter()));
     if (query.nextRow())
     {
         mddType = static_cast<MDDBaseType *>(ObjectBroker::getObjectByOId(OId(query.nextColumnLong())));
@@ -347,9 +345,8 @@ void DBMDDObj::readFromDb()
         //workaround for reading domains persisted with the wrong axis names
         if (myDomainType!=NULL)
         {
-            if(myDomain->getAxisNames() != myDomainType->getDomain()->getAxisNames()) {
-                myDomain->setAxisNames(myDomainType->getDomain()->getAxisNames());
-            }
+            if (myDomain->axis_names_match(*myDomainType->getDomain()))
+                myDomain->set_axis_names(*myDomainType->getDomain());
         }
         myDomain->setCached(true);
         persistentRefCount = query.nextColumnLong();

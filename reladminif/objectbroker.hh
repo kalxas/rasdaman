@@ -359,6 +359,7 @@ protected:
     */
 
 private:
+
     /// the types have to be in fornt of* the maps because of static destructor!
     static ULongType *theULong;
     /*@Doc:

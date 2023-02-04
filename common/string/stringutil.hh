@@ -63,6 +63,15 @@ class StringUtil {
   static bool startsWith(const char *s, const char *prefix);
   
   /**
+   * Check if a string s ends with string suffix. Preconditions:
+   *  - s and suffix must be NUL-delimited
+   *  - suffix must not be NULL
+   *
+   * @return true if s ends with suffix, otherwise false.
+   */
+  static bool endsWith(const char *s, const char *suffix);
+  
+  /**
    * Check if a string a is equal to b (case-insensitive).
    * a and b must be NUL-delimited and must not be NULL.
    *
@@ -128,6 +137,16 @@ class StringUtil {
    * @return true if s contains subString, false otherwise.
    */
   static bool contains(const std::string &s, const std::string &subString);
+  
+  /**
+   * Fill dest with a pattern of bytes, in contrast to standard memset which
+   * allows a single byte.
+   * 
+   * The destSize MUST be divisible by patternSize, otherwise calling this 
+   * function is undefined behavior.
+   */
+  static void memsetPattern(char *dest, size_t destSize,
+                            const char *pattern, size_t patternSize);
 };
 
 } // namespace common

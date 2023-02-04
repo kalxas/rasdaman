@@ -26,9 +26,8 @@
 namespace rasmgr
 {
 /**
- * @brief The RandomGenerator class is used for reading old rasmgr.auth files and
- * should not be used in any part of the code.
- * This class is deprecated and should be removed in rasdaman - v10.
+ * Used for reading old rasmgr.auth files and should not be used in any part of
+ * the code. This class is deprecated and should be removed in rasdaman - v10.
  */
 class RandomGenerator
 {

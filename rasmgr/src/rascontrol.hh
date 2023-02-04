@@ -23,12 +23,12 @@
 #ifndef RASMGR_X_SRC_RASCONTROL_HH
 #define RASMGR_X_SRC_RASCONTROL_HH
 
+#include "rasmgr/src/messages/rasmgrmess.pb.h"
+
 #include <string>
 #include <memory>
 #include <thread>
 #include <boost/thread.hpp>
-
-#include "rasmgr/src/messages/rasmgrmess.pb.h"
 
 namespace rasmgr
 {
@@ -41,7 +41,7 @@ class UserManager;
 class User;
 
 /**
- * @brief The RasControl class Delegates management commands to the appropriate component of rasmgr.
+ * Delegates management commands to the appropriate components of rasmgr.
  */
 class RasControl
 {

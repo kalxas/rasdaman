@@ -1186,7 +1186,7 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
 
         if (namedAxisFlag)
         {   r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType.getType())))->getDomain());
-            vector<string> axisDef = (&domainDef)->getAxisNames();
+            vector<string> axisDef = (&domainDef)->get_axis_names();
             axisNamesCorrect = new vector<string>(axisDef);
         }
     }

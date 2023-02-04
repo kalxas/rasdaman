@@ -21,6 +21,12 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+// Messages sent from rasserver to rasmgr:
+// - RegisterServerReq - to register a rasserver as avaialble with rasmgr
+//
+// Services running on rasmgr to intercept the messages from rasserver:
+// - RasMgrRasServerService
+
 syntax = "proto3";
 //The first line must specify the syntax.
 
@@ -29,9 +35,13 @@ package rasnet.service;
 import "common_service.proto";
 option cc_generic_services = false;
 
-message RegisterServerReq { string serverId = 1; }
+// rasserver with serverId sends this to rasmgr to register as ready for queries
+message RegisterServerReq {
+    string serverId = 1;
+}
 
 service RasMgrRasServerService
 {
+    // called by rasserver when ready to register itself with rasmgr
     rpc RegisterServer(RegisterServerReq) returns (rasnet.service.Void);
 }

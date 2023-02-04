@@ -39,6 +39,7 @@ SET_TYPE_NAME_NULL_VALUES="TestSetTypeNullValues"
 
 TEST_STRUCT_TYPE="CREATE TYPE $STRUCT_TYPE_NAME AS (red char, green char, blue char)"
 TEST_MARRAY_DIM_TYPE="CREATE TYPE $MARRAY_DIM_TYPE_NAME AS $STRUCT_TYPE_NAME MDARRAY [a0,a1]"
+TEST_MARRAY_DIM_TYPE_EXP="CREATE TYPE $MARRAY_DIM_TYPE_NAME AS $STRUCT_TYPE_NAME MDARRAY [a0(*:*),a1(*:*)]"
 TEST_MARRAY_DOM_TYPE="CREATE TYPE $MARRAY_DOM_TYPE_NAME AS (red char, green char, blue char) MDARRAY [a0(0:10),a1(0:*)]"
 TEST_SET_TYPE="CREATE TYPE $SET_TYPE_NAME AS SET ($MARRAY_DIM_TYPE_NAME)"
 TEST_SET_TYPE_NULL_VALUES="CREATE TYPE $SET_TYPE_NAME_NULL_VALUES AS SET ($MARRAY_DOM_TYPE_NAME NULL VALUES [1.000000:3.000000])"
@@ -55,12 +56,15 @@ check_rasdaman
 # check if a collection type is created and if it exists in the RAS_TYPES collections
 # $1: type name
 # $2: types collection name
+# $3: optional type string to grep
 test_create_type()
 {
     logn "$1 ... "
     $RASQL --quiet -q "$1"
     if [ $? -eq 0 ]; then
-        $RASQL -q "SELECT a FROM $2 a" --out string | grep -F -q "$1"
+        local g="$1"
+        [ -n "$3" ] && g="$3"
+        $RASQL -q "SELECT a FROM $2 a" --out string | grep -F -q "$g"
         check
     else
     	check_failed
@@ -88,7 +92,7 @@ test_invalid_drop_type()
 # $1 is the type name, $2 is the format for the structure to be created
 test_invalid_create_type()
 {
-    $RASQL --quiet -q "$1" 2>&1 | grep -F -q "Exception"
+    $RASQL --quiet -q "$1" 2>&1 | grep -E -q "Exception|rasdaman error"
     check_result 0 $? "$1"
 }
 
@@ -117,7 +121,7 @@ if [ $NUM_FAIL -eq 0 ]; then
     drop_type_quiet "test_waxlake_base"
 
     test_create_type "$TEST_STRUCT_TYPE" "RAS_STRUCT_TYPES"
-    test_create_type "$TEST_MARRAY_DIM_TYPE" "RAS_MARRAY_TYPES"
+    test_create_type "$TEST_MARRAY_DIM_TYPE" "RAS_MARRAY_TYPES" "$TEST_MARRAY_DIM_TYPE_EXP"
     test_create_type "$TEST_MARRAY_DOM_TYPE" "RAS_MARRAY_TYPES"
     test_create_type "$TEST_SET_TYPE" "RAS_SET_TYPES"
     test_create_type "$TEST_SET_TYPE_NULL_VALUES" "RAS_SET_TYPES"
@@ -147,8 +151,8 @@ if [ $NUM_FAIL -eq 0 ]; then
 
 #testing create type preserving axis names
     $RASQL --quiet -q "create type RGBImageTest as RGBPixel MDARRAY [a,b,c]" 2>&1
-    $RASQL --quiet -q "select a from RAS_MARRAY_TYPES a" --out string | grep -F -q "RGBImageTest AS RGBPixel MDARRAY [a,b,c]"
-    check_result 0 $? "CREATE TYPE RGBImageTest AS RGBPixel MDARRAY [a,b,c]"
+    $RASQL --quiet -q "select a from RAS_MARRAY_TYPES a" --out string | grep -F -q "RGBImageTest AS RGBPixel MDARRAY [a(*:*),b(*:*),c(*:*)]"
+    check_result 0 $? "CREATE TYPE RGBImageTest AS RGBPixel MDARRAY [a(*:*),b(*:*),c(*:*)]"
     test_drop_type "RGBImageTest"
 
 #testing error when dropping in-use types
@@ -184,7 +188,7 @@ if [ $NUM_FAIL -eq 0 ]; then
 
 # test composite base type selection
     test_create_type "CREATE TYPE test_waxlake_base AS (b1 char, b2 char, b3 char)" "RAS_STRUCT_TYPES"
-    test_create_type "CREATE TYPE test_waxlake_mdd AS test_waxlake_base MDARRAY [a0,a1]" "RAS_MARRAY_TYPES"
+    test_create_type "CREATE TYPE test_waxlake_mdd AS test_waxlake_base MDARRAY [a0,a1]" "RAS_MARRAY_TYPES" "CREATE TYPE test_waxlake_mdd AS test_waxlake_base MDARRAY [a0(*:*),a1(*:*)]"
     test_create_type "CREATE TYPE test_waxlake_set AS SET (test_waxlake_mdd)" "RAS_SET_TYPES"
     $RASQL --quiet -q "create collection test_waxlake test_waxlake_set"
     $RASQL --quiet -q "INSERT INTO test_waxlake VALUES <[0:0,0:0] {0c,0c,0c}> "

@@ -23,12 +23,12 @@
 #ifndef RASMGR_X_SRC_DATABASEHOST_HH
 #define RASMGR_X_SRC_DATABASEHOST_HH
 
+#include "rasmgr/src/messages/rasmgrmess.pb.h"
+
 #include <string>
 #include <memory>
 #include <list>
 #include <boost/thread/shared_mutex.hpp>
-
-#include "rasmgr/src/messages/rasmgrmess.pb.h"
 
 namespace rasmgr
 {
@@ -36,14 +36,17 @@ namespace rasmgr
 class Database;
 
 /**
- * @brief The DatabaseHost class A database host manages multiple databases,
- * keeps track of servers using this database host
+ * A database host manages multiple databases, and keeps track of servers using
+ * this database host. Properties of a database host are:
+ * 
+ * - hostname, e.g. localhost
+ * - database connect string, e.g. path to an SQLite RASBASE file
+ * - username and password credentials for connecting to the database
  */
 class DatabaseHost
 {
 public:
     /**
-     * @brief DatabaseHost Initialize a new instance of the DatabaseHost object.
      * @param hostName Name of the database host, the machine on which the database will run.
      * @param connectString The string that will be used to connect to the database
      * @param userName The user name used for secure connection to the database
@@ -53,15 +56,14 @@ public:
                  std::string userName, std::string passwdString);
 
     /**
-     * @brief addClientSessionOnDB Increase the number of sessions running
-     * on the given database
-     * @throws An exception is thrown if this host does not contain a database
+     * Increase the number of sessions running on the given database.
+     * @throws InexistentDatabaseException if this host does not contain databaseName
      */
-    void addClientSessionOnDB(const std::string &databaseName, const std::string &clientId, const std::string &sessionId);
+    void addClientSessionOnDB(const std::string &databaseName,
+                              const std::string &clientId, const std::string &sessionId);
 
     /**
-     * @brief removeClientSessionFromDB Decrease the number of sessions running
-     * on the given database
+     * Decrease the number of sessions running on the given database.
      */
     void removeClientSessionFromDB(const std::string &clientId, const std::string &sessionId);
 
@@ -95,19 +97,18 @@ public:
 
     /**
      * Add the database to this host.
-     * @param db
+     * @throws DatabaseAlreadyExistsException
      */
     void addDbToHost(std::shared_ptr<Database> db);
 
     /**
      * Remove the database with the given name from this host.
-     * @param dbName
+     * @throws DbBusyException
+     * @throws InexistentDatabaseException
      */
     void removeDbFromHost(const std::string &dbName);
 
     /**
-     * @brief serializeToProto
-     * @param dbHost
      * @return Serialized representation of this DatabaseHost
      */
     static DatabaseHostProto serializeToProto(const DatabaseHost &dbHost);

@@ -20,16 +20,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <memory>
-
-#include <grpc++/grpc++.h>
-#include <grpc/support/time.h>
-
+#include "rasmanager.hh"
 #include "include/globals.hh"
 #include "common/crypto/crypto.hh"
 #include "common/grpc/grpcutils.hh"
 #include "common/grpc/healthserviceimpl.hh"
-#include <logging.hh>
 #include "rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 #include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 #include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
@@ -48,20 +43,22 @@
 #include "rascontrol.hh"
 #include "rasmgrconfig.hh"
 #include "rasmgrservice.hh"
-#include "serverfactoryrasnet.hh"
-#include "servergroupfactoryimpl.hh"
+#include "serverfactory.hh"
+#include "servergroupfactory.hh"
 #include "servermanagementservice.hh"
 #include "servermanagerconfig.hh"
 #include "servermanager.hh"
 #include "usermanager.hh"
 #include "common/grpc/grpcutils.hh"
 #include "common/exceptions/resourcebusyexception.hh"
+#include <logging.hh>
 
-#include "rasmanager.hh"
+#include <memory>
+#include <grpc++/grpc++.h>
+#include <grpc/support/time.h>
 
 namespace rasmgr
 {
-using std::shared_ptr;
 
 RasManager::RasManager(rasmgr::Configuration &config
                        )
@@ -69,9 +66,6 @@ RasManager::RasManager(rasmgr::Configuration &config
 {
     RasMgrConfig::getInstance()->setRasMgrPort(std::int32_t(this->port));
 }
-
-RasManager::~RasManager()
-{}
 
 void RasManager::start()
 {
@@ -83,47 +77,43 @@ void RasManager::start()
             "Failed to start rasmanager on port " + std::to_string(this->port) + ": address is already in use.");
     }
 
-    std::shared_ptr<DatabaseHostManager> dbhManager(new DatabaseHostManager());
-    std::shared_ptr<DatabaseManager> dbManager(new DatabaseManager(dbhManager));
-    std::shared_ptr<rasmgr::UserManager> userManager(new rasmgr::UserManager());
+    auto dbhManager = std::make_shared<DatabaseHostManager>();
+    auto dbManager = std::make_shared<DatabaseManager>(dbhManager);
+    auto userManager = std::make_shared<UserManager>();
     userManager->setDatabaseManager(dbManager);
 
     ServerManagerConfig serverMgrConfig;
-    std::shared_ptr<ServerFactory> serverFactory(new ServerFactoryRasNet());
-    std::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl(dbhManager, serverFactory));
-    std::shared_ptr<ServerManager> serverManager(new ServerManager(serverMgrConfig,  serverGroupFactory));
-
-    std::shared_ptr<PeerManager> peerManager(new PeerManager());
+    auto serverFactory = std::make_shared<ServerFactory>();
+    auto serverGroupFactory = std::make_shared<ServerGroupFactory>(dbhManager, serverFactory);
+    auto serverManager = std::make_shared<ServerManager>(serverMgrConfig,  serverGroupFactory);
+    auto peerManager = std::make_shared<PeerManager>();
 
     ClientManagerConfig clientManagerConfig;
-    std::shared_ptr<ClientManager> clientManager(new ClientManager(clientManagerConfig, userManager, serverManager, peerManager));
+    auto clientManager = std::make_shared<ClientManager>(clientManagerConfig, userManager, serverManager, peerManager);
+    auto rascontrol = std::make_shared<RasControl>(userManager, dbhManager, dbManager, serverManager, peerManager, this);
+    auto commandExecutor = std::make_shared<ControlCommandExecutor>(rascontrol);
 
-    std::shared_ptr<RasControl> rascontrol(new RasControl(userManager, dbhManager, dbManager, serverManager, peerManager, this));
-
-    std::shared_ptr<ControlCommandExecutor> commandExecutor(new ControlCommandExecutor(rascontrol));
-
-    this->configManager.reset(new ConfigurationManager(commandExecutor, dbhManager, dbManager, peerManager, serverManager, userManager));
+    this->configManager = std::make_shared<ConfigurationManager>(commandExecutor, dbhManager, dbManager, peerManager, serverManager, userManager);
     LINFO << "Loading rasmgr configuration.";
     this->configManager->loadConfiguration();
     LINFO << "Finished loading rasmgr configuration.";
 
-    std::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService(new rasmgr::ServerManagementService(serverManager));
+    std::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService(new rasmgr::ServerManagementService(serverManager, clientManager));
     std::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService(new rasmgr::ControlService(commandExecutor));
     std::shared_ptr<rasnet::service::RasmgrClientService::Service> clientService(new rasmgr::ClientManagementService(clientManager));
     std::shared_ptr<rasnet::service::RasmgrRasmgrService::Service> rasmgrService(new rasmgr::RasmgrService(clientManager));
 
-    //The health service will only be used to report on the health of the server.
-    std::shared_ptr<common::HealthServiceImpl> healthService(new common::HealthServiceImpl());
+    //The health service will only be used to report on the health of the server
+    auto healthService = std::make_shared<common::HealthServiceImpl>();
 
-    std::string serverAddress = common::GrpcUtils::constructAddressString(ALL_IP_ADDRESSES,  this->port);
-    //GreeterServiceImpl service;
+    auto serverAddress = common::GrpcUtils::constructAddressString(ALL_IP_ADDRESSES,  this->port);
 
-    grpc::ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
+    grpc::ServerBuilder builder;
     builder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
 
     // Register "service" as the instance through which we'll communicate with
-    // clients. In this case it corresponds to an *synchronous* service.
+    // clients. In this case it corresponds to a *synchronous* service.
     builder.RegisterService(clientService.get());
     builder.RegisterService(serverManagementService.get());
     builder.RegisterService(rasctrlService.get());
@@ -138,6 +128,7 @@ void RasManager::start()
     {
         throw common::Exception("Failed to start rasmanager on port " + std::to_string(this->port) + ".");
     }
+    
     // Wait for the server to shutdown. Note that some other thread must be
     // responsible for shutting down the server for this call to ever return.
     server->Wait();

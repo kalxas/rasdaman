@@ -261,6 +261,15 @@ r_Error::setErrorTextOnKind()
     case r_Error_UDFInstallationDirectoryNotDefined:
         errorText = "UDF Installation Directory not found or inaccessible";
         break;
+    case r_Error_RasfedConnectionFailed:
+        errorText = "Connection to rasfed failed";
+        break;
+    case r_Error_RasfedConnectionTimeout:
+        errorText = "rasfed request timeout";
+        break;
+    case r_Error_RasfedUnknownPeerHostname:
+        errorText = "Unknown outpeer hostname";
+        break;
     default:
         errorText = "Not specified";
         break;

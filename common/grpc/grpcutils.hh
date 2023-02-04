@@ -72,13 +72,18 @@ public:
      * @return grpc::Status object with the error code UNKNOWN.
      */
     static grpc::Status convertExceptionToStatus(const std::string& errorMessage);
-
+    
     /**
      * @brief convertStatusToExceptionAndThrow Create the appropriate type of exception that is represented by the given status message
      * and throw it. If status.ok() returns true, no exception will be thrown.
      * @param status The error_message must contained a string representation of an ErrorMessage.F
      */
     static void convertStatusToExceptionAndThrow(const grpc::Status& status);
+    
+    /**
+     * @return a string representation of a Status returned from a grpc call, usually for logging.
+     */
+    static std::string convertStatusToString(const grpc::Status& status);
 
 
     /**
@@ -108,6 +113,17 @@ public:
      * @brief redirectGRPCLogToEasyLogging Redirect the GRPC log to use Easyloggingpp
      */
     static void redirectGRPCLogToEasyLogging();
+    
+    /**
+     * @brief setDeadline Set the specified deadline to the client context.
+     * @param deadlineInMs deadline in milliseconds
+     */
+    static void setDeadline(grpc::ClientContext &context, size_t deadlineInMs);
+    
+    /**
+     * @return true if ex is a DeadlineExceeded error
+     */
+    static bool errorIsDeadlineExceeded(const common::Exception &ex);
     
 };
 

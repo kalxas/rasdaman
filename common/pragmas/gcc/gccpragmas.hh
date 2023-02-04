@@ -11,8 +11,6 @@
 
 #define OPTIMIZE_LOOP
 
-#define UNUSED(x) UNUSED_##x __attribute__((unused))
-
 #define DIAGNOSTIC_PUSH   _Pragma("GCC diagnostic push")
 #define IGNORE_WARNING(x) _Pragma(STRINGIFY(GCC diagnostic ignored x))
 #define DIAGNOSTIC_POP    _Pragma("GCC diagnostic pop")

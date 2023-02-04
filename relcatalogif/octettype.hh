@@ -44,7 +44,7 @@ The value of a Octet is stored in one char.
 class OctetType : public IntegralType
 {
 public:
-    OctetType(const OId &id);
+    explicit OctetType(const OId &id);
 
     OctetType();
 

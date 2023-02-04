@@ -35,9 +35,8 @@ namespace rasmgr
 class DatabaseHost;
 
 /**
- * @brief The DatabaseHostManager class Keeps track of a list of database hosts,
- * allows for their properties to be changed and provides thread-safe access to
- * database host instances
+ * Keeps track of a list of database hosts, allows for their properties to be
+ * changed and provides thread-safe access to database host instances.
  */
 class DatabaseHostManager
 {
@@ -45,42 +44,46 @@ public:
     virtual ~DatabaseHostManager() = default;
 
     /**
-     * @param newDbHost Configuration information required to define a new database host
-     * @throws If the host name is not specified, it throws an exception.
+     * Define a new database host.
+     * @throws common::InvalidArgumentException if the host name is not specified
+     * @throws DbHostAlreadyExistsException
      */
     virtual void defineDatabaseHost(const DatabaseHostPropertiesProto &newDbHost);
 
     /**
-     * @brief changeDatabaseHost Change the properties of the database host identified by
-     * oldName with the new values.
-     * @param oldName
-     * @param newProperties
+     * Change the properties of the database host identified by oldName with the new values.
+     * @throws InexistentDbHostException
+     * @throws DbHostBusyException
      */
-    virtual void changeDatabaseHost(const std::string &oldName, const DatabaseHostPropertiesProto &newProperties);
+    virtual void changeDatabaseHost(const std::string &oldName,
+                                    const DatabaseHostPropertiesProto &newProperties);
 
     /**
-     * @brief removeDatabaseHost Remove the database host identified by the dbHostName from
-     * the registry.
-     * @param dbHostName
+     * Remove the database host identified by the dbHostName from the registry.
+     * @throws InexistentDbHostException
+     * @throws DbHostBusyException
      */
     virtual void removeDatabaseHost(const std::string &dbHostName);
 
     /**
-     * @brief getAndLockDH Get a reference to the database host with the given name
-     * if it exists and increase the server count once.
-     * This means that the server count MUST be decreased before releasing the reference.
-     * This method is used to retrieve a dbhost and make certain that it will not be removed
-     * by another thread(e.g. rascontrol)
-     * @param dbHostName
-     * @return
+     * Get a reference to the database host with the given name if it exists
+     * and increase the server count once. This means that the server count
+     * MUST be decreased before releasing the reference. This method is used to
+     * retrieve a dbhost and make certain that it will not be removed by
+     * another thread (e.g. rascontrol).
+     * @throws InexistentDbHostException
      */
     virtual std::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string &dbHostName);
-    
-    virtual std::shared_ptr<DatabaseHost> getDatabaseHost(const std::string &dbHostName);
   
     /**
-     * @brief getDatabaseHostList Retrieve a list containing the list of database hosts
-     * currently registered with this rasmgr.
+     * Get a reference to the database host that owns the database with name dbName.
+     * @throws common::RuntimeException if such a database host is not found.
+     */
+    virtual std::shared_ptr<DatabaseHost> getDatabaseHost(const std::string &dbName);
+  
+    /**
+     * Retrieve a list containing the list of database hosts currently
+     * registered with this rasmgr.
      */
     virtual std::list<std::shared_ptr<DatabaseHost>> getDatabaseHostList() const;
 

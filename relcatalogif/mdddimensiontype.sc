@@ -30,14 +30,15 @@ rasdaman GmbH.
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
+#include <fmt/core.h>
 
 void MDDDimensionType::insertInDb()
 {
     long long basetypeid = getBaseType()->getOId();
-    SQLiteQuery::executeWithParams(
+    SQLiteQuery::execute(fmt::format(
         "INSERT INTO RAS_MDDDIMTYPES ( MDDDimTypeOId, MDDTypeName, BaseTypeId, "
-        "Dimension) VALUES (%lld, '%s', %lld, %d)",
-        myOId.getCounter(), getName(), basetypeid, myDimension);
+        "Dimension) VALUES ({}, '{}', {}, {})",
+        myOId.getCounter(), getName(), basetypeid, myDimension));
     DBObject::insertInDb();
 }
 
@@ -47,9 +48,9 @@ void MDDDimensionType::readFromDb()
     DBObject::readTimer.resume();
 #endif
 
-    SQLiteQuery query(
-        "SELECT Dimension, BaseTypeId, MDDTypeName FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = %lld",
-        myOId.getCounter());
+    SQLiteQuery query(fmt::format(
+        "SELECT Dimension, BaseTypeId, MDDTypeName FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = {}",
+        myOId.getCounter()));
     if (query.nextRow())
     {
         myDimension = static_cast<r_Dimension>(query.nextColumnInt());
@@ -72,7 +73,7 @@ void MDDDimensionType::readFromDb()
 
 void MDDDimensionType::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = {}", myOId.getCounter()));
     DBObject::deleteFromDb();
 }

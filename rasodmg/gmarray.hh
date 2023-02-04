@@ -37,6 +37,7 @@ rasdaman GmbH.
 #include "rasodmg/set.hh"
 #include "raslib/minterval.hh"
 #include "raslib/mddtypes.hh"
+#include "raslib/banditerator.hh"
 #include <iosfwd>
 #include <vector>
 
@@ -45,7 +46,6 @@ class r_Storage_Layout;
 class r_Point;
 class r_Base_Type;
 class r_Transaction;
-
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -77,7 +77,8 @@ public:
       taken and memory control moves to the r_GMarray class.
       The user has to take care, that each creation of r_GMarray
       objects get a new storage layout object.
-      r_Error is throw if the storage layout does not fit the type length or the dimension of the init domain and when the dimension of the domain is 0 (uninitialised).
+      r_Error is throw if the storage layout does not fit the type length or the 
+      dimension of the init domain and when the dimension of the domain is 0 (uninitialised).
     */
 
     /// copy constructor
@@ -95,7 +96,8 @@ public:
     /// assignment: cleanup + copy
     r_GMarray &operator= (const r_GMarray &);
 
-    /// subscript operator for read access of a cell
+    /// subscript operator for read access of a cell.
+    /// Not supported on channel-interleaved arrays, use r_Band_Iterator in that case.
     const char *operator[](const r_Point &) const;
 
     /// Returns a r_GMarray that is the intersection of the current domain with the specified interval
@@ -126,6 +128,14 @@ public:
 
     /// get base type schema
     const r_Base_Type *get_base_type_schema();
+    
+    /// get a band iterator 
+    r_Band_Iterator get_band_iterator(unsigned int band);
+    
+    /// @return band linearization, relevant in case of multi-band array
+    r_Band_Linearization get_band_linearization() const;    
+    /// @return cell linearization
+    r_Cell_Linearization get_cell_linearization() const;
 
     ///
     //@}
@@ -147,6 +157,11 @@ public:
     void  set_type_length(r_Bytes);
     /// set current data format
     void  set_current_format(r_Data_Format);
+    /// set band linearization to pixel-interleaved or channel-interleaved in
+    /// case of multi-band array
+    void  set_band_linearization(r_Band_Linearization);
+    /// set cell linearization. Only ColumnMajor is supported currently.
+    void  set_cell_linearization(r_Cell_Linearization);
 
     ///
     //@}
@@ -168,6 +183,7 @@ public:
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s, int hexoutput);
+    
 
 protected:
     /// spatial domain
@@ -190,6 +206,13 @@ protected:
 
     /// pointer to storage layout object
     r_Storage_Layout *storage_layout{NULL};
+    
+    /// relevant if data has multiple bands (channels) of data
+    r_Band_Linearization band_linearization{r_Band_Linearization::PixelInterleaved};
+    
+    /// cell linearization.
+    /// Note: only ColumnMajor supported currently.
+    r_Cell_Linearization cell_linearization{r_Cell_Linearization::ColumnMajor};
 };
 
 #endif

@@ -30,29 +30,30 @@ rasdaman GmbH.
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
+#include <fmt/core.h>
 
 void SetType::insertInDb()
 {
     long long mddtypeid = getMDDType()->getOId();
-    SQLiteQuery::executeWithParams(
-        "INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId) VALUES (%lld, '%s', %lld)",
-        myOId.getCounter(), getTypeName(), mddtypeid);
+    SQLiteQuery::execute(fmt::format(
+        "INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId) VALUES ({}, '{}', {})",
+        myOId.getCounter(), getTypeName(), mddtypeid));
     if (nullValues != NULL)
     {
         nullValues->setPersistent(true);
-        SQLiteQuery::executeWithParams(
-            "INSERT INTO RAS_NULLVALUES ( SetTypeOId, NullValueOId) VALUES (%lld, %lld)",
-            myOId.getCounter(), nullValues->getOId().getCounter());
+        SQLiteQuery::execute(fmt::format(
+            "INSERT INTO RAS_NULLVALUES ( SetTypeOId, NullValueOId) VALUES ({}, {})",
+            myOId.getCounter(), nullValues->getOId().getCounter()));
     }
     DBObject::insertInDb();
 }
 
 void SetType::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_SETTYPES WHERE SetTypeId = %lld", myOId.getCounter());
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_NULLVALUES WHERE SetTypeOId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_SETTYPES WHERE SetTypeId = {}", myOId.getCounter()));
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_NULLVALUES WHERE SetTypeOId = {}", myOId.getCounter()));
     if (nullValues != NULL)
     {
         nullValues->setPersistent(false);
@@ -67,8 +68,8 @@ void SetType::readFromDb()
     DBObject::readTimer.resume();
 #endif
 
-    SQLiteQuery query(
-        "SELECT SetTypeName, MDDTypeOId FROM RAS_SETTYPES WHERE SetTypeId = %lld", myOId.getCounter());
+    SQLiteQuery query(fmt::format(
+        "SELECT SetTypeName, MDDTypeOId FROM RAS_SETTYPES WHERE SetTypeId = {}", myOId.getCounter()));
     if (query.nextRow())
     {
         setName(query.nextColumnString());
@@ -84,8 +85,8 @@ void SetType::readFromDb()
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "set type object not found in RAS_SETTYPES.");
     }
 
-    SQLiteQuery queryNull(
-        "SELECT NullValueOId FROM RAS_NULLVALUES WHERE SetTypeOId = %lld", myOId.getCounter());
+    SQLiteQuery queryNull(fmt::format(
+        "SELECT NullValueOId FROM RAS_NULLVALUES WHERE SetTypeOId = {}", myOId.getCounter()));
     if (queryNull.nextRow())
     {
         auto nullvalueoid = OId(queryNull.nextColumnLong(), OId::DBNULLVALUESOID);
@@ -99,6 +100,7 @@ void SetType::readFromDb()
     {
         LDEBUG << "No null values found.";
     }
+    queryNull.finalize();
     DBObject::readFromDb();
 
 #ifdef RMANBENCHMARK

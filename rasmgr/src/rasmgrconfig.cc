@@ -19,12 +19,11 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-#include <boost/thread/locks.hpp>
-
-#include <logging.hh>
-
 #include "rasmgrconfig.hh"
 #include "globals.hh"
+#include <logging.hh>
+
+#include <boost/thread/locks.hpp>
 
 namespace rasmgr
 {
@@ -62,10 +61,6 @@ RasMgrConfig::RasMgrConfig()
 
     this->connectHostName = "localhost";
 }
-
-RasMgrConfig::~RasMgrConfig()
-{}
-
 
 boost::int32_t RasMgrConfig::getRasMgrPort()
 {

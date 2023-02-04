@@ -45,12 +45,12 @@ using boost::shared_lock;
 using common::Timer;
 using common::UUID;
 
-const int ClientManager::ALIVE_PERIOD = 30000;
+const int ClientManager::CLIENT_ALIVE_PING_TIMEOUT_MS = 30000; // 30 seconds
 
 ClientManager::ClientManager()
+  : timeSinceLastPing(CLIENT_ALIVE_PING_TIMEOUT_MS), isEvaluateClientStatusThreadRunning{true}
 {
-    this->isThreadRunning = true;
-    this->managementThread.reset(new thread(&ClientManager::evaluateClientStatus, this));
+    this->evaluateClientStatusThread.reset(new thread(&ClientManager::evaluateClientStatus, this));
 }
 
 ClientManager::~ClientManager()
@@ -58,151 +58,164 @@ ClientManager::~ClientManager()
     try
     {
         {
-            std::lock_guard<std::mutex> lock(this->threadMutex);
-            this->isThreadRunning = false;
+            std::lock_guard<std::mutex> lock(this->evaluateClientStatusMutex);
+            this->isEvaluateClientStatusThreadRunning = false;
         }
-        this->isThreadRunningCondition.notify_one();
-        this->managementThread->join();
+        this->isEvaluateClientStatusThreadRunningCondition.notify_one(); // notify thread to stop
+        this->evaluateClientStatusThread->join(); // wait for the thread to finish
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
+        LERROR << "Client manager destructor has failed: " << ex.what();
     }
     catch (...)
     {
-        LERROR << "ClientManager destructor has failed";
+        LERROR << "Client manager destructor has failed.";
     }
+}
+
+bool ClientManager::allocateClient(const std::string & clientUUID,
+                                   __attribute__ ((unused)) const std::string &)
+{
+    boost::lock_guard<boost::shared_mutex> lock(clientMutex);
+    if (!clientId.empty())
+    {
+        LWARNING << "Current client " << clientId << " has not been deallocated"
+                 << ", but a new client is to be allocated: " << clientUUID;
+    }
+    timeSinceLastPing.reset();
+    clientId = clientUUID;
+    return true;
+}
+
+void ClientManager::deallocateClient(const std::string &clientUUID,
+                                     __attribute__ ((unused)) const std::string &)
+{
+    boost::lock_guard<boost::shared_mutex> lock(clientMutex);
+    if (clientId == clientUUID)
+    {
+        clientId = "";
+    }
+}
+
+bool ClientManager::isAlive(const std::string &clientUUID)
+{
+    boost::shared_lock<boost::shared_mutex> lock(clientMutex);
+    return clientId == clientUUID && !timeSinceLastPing.hasExpired();
+}
+
+void ClientManager::resetLiveliness(const std::string &clientUUID)
+{
+    boost::lock_guard<boost::shared_mutex> lock(clientMutex);
+    if (clientId == clientUUID)
+    {
+        timeSinceLastPing.reset();
+    }
+}
+
+void ClientManager::addQueryStreamedResult(const std::string& requestUUID,
+                                           const shared_ptr<ClientQueryStreamedResult>& streamedResult)
+{
+    boost::lock_guard<boost::shared_mutex> lock(requestMutex);
+    if (!requestId.empty())
+    {
+        LWARNING << "Previous request " << requestId << " has not been deallocated"
+                 << ", but a new one is being added: " << requestUUID;
+    }
+    requestId = requestUUID;
+    requestResult = streamedResult;
+}
+
+shared_ptr<ClientQueryStreamedResult>
+ClientManager::getQueryStreamedResult(const std::string& requestUUID)
+{
+    boost::shared_lock<boost::shared_mutex> lock(requestMutex);
+    if (requestId != requestUUID)
+    {
+        throw common::MissingResourceException(
+            "No request result found for request uuid " + requestUUID);
+    }
+    return requestResult;
 }
 
 void ClientManager::removeAllQueryStreamedResults()
 {
-    this->queryStreamedResultList.clear();
-}
-
-bool ClientManager::allocateClient(std::string clientUUID, __attribute__ ((unused)) std::string sessionId)
-{
-    Timer timer(ALIVE_PERIOD);
-    auto result = this->clientList.insert(make_pair(clientUUID, timer));
-    return result.second;
-}
-
-void ClientManager::deallocateClient(std::string clientUUID, __attribute__ ((unused)) std::string sessionId)
-{
-    this->clientList.erase(clientUUID);
-}
-
-bool ClientManager::isAlive(std::string clientUUID)
-{
-    auto clientIt = this->clientList.find(clientUUID);
-    if (clientIt == this->clientList.end())
-    {
-        return false;
-    }
-    return !clientIt->second.hasExpired();
-}
-
-void ClientManager::resetLiveliness(std::string clientUUID)
-{
-    auto clientIt = this->clientList.find(clientUUID);
-    if (clientIt != this->clientList.end())
-    {
-        clientIt->second.reset();
-    }
+    boost::lock_guard<boost::shared_mutex> lock(requestMutex);
+    requestId = "";
+    requestResult.reset();
 }
 
 void ClientManager::cleanQueryStreamedResult(const std::string& requestUUID)
 {
-    this->queryStreamedResultList.erase(requestUUID);
-}
-
-void ClientManager::addQueryStreamedResult(const std::string& requestUUID, const shared_ptr<ClientQueryStreamedResult>& streamedResult)
-{
-    this->queryStreamedResultList.insert(std::make_pair(requestUUID, streamedResult));
-}
-
-shared_ptr<ClientQueryStreamedResult> ClientManager::getQueryStreamedResult(const std::string& requestUUID)
-{
-    auto queryResult = this->queryStreamedResultList.find(requestUUID);
-    if (queryResult == this->queryStreamedResultList.end())
+    boost::lock_guard<boost::shared_mutex> lock(requestMutex);
+    if (requestId == requestUUID)
     {
-        throw common::MissingResourceException("Invalid request uuid: " + requestUUID);
+        requestId = "";
+        requestResult.reset();
     }
-    return queryResult->second;
 }
 
 size_t ClientManager::getClientQueueSize()
 {
-    return this->clientList.size();
+    boost::shared_lock<boost::shared_mutex> lock(requestMutex);
+    return clientId.empty() ? 0 : 1;
 }
 
 void ClientManager::evaluateClientStatus()
 {
-    std::chrono::milliseconds timeToSleepFor{ALIVE_PERIOD};
+    static const std::chrono::milliseconds timeToSleepFor{CLIENT_ALIVE_PING_TIMEOUT_MS};
 
-    std::unique_lock<std::mutex> threadLock(this->threadMutex);
-    while (this->isThreadRunning)
+    std::unique_lock<std::mutex> threadLock(this->evaluateClientStatusMutex);
+    while (this->isEvaluateClientStatusThreadRunning)
     {
         try
         {
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
-            if (this->isThreadRunningCondition.wait_for(threadLock, timeToSleepFor) == std::cv_status::timeout)
+            if (this->isEvaluateClientStatusThreadRunningCondition.wait_for(
+                  threadLock, timeToSleepFor) == std::cv_status::timeout)
             {
-                set<string> deadClients;
-
-                boost::upgrade_lock<boost::shared_mutex> clientsLock(this->clientMutex);
-                auto it = this->clientList.begin();
-
-                while (it != this->clientList.end())
+                // will contain the clients from which no keep alive message
+                // was received after ALIVE_PERIOD milliseconds
+                boost::upgrade_lock<boost::shared_mutex> sharedLock(clientMutex);
+                if (!clientId.empty() && timeSinceLastPing.hasExpired())
                 {
-                    auto toErase = it;
-                    ++it;
-                    if (toErase->second.hasExpired())
-                    {
-                        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(clientsLock);
-                        this->clientList.erase(toErase);
-                        deadClients.insert(toErase->first);
+                    // client Keep Alive timer has expired, so the client is considered dead
 
-                        // If the client dies, clean up
-                        RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
-                        try {
-                            rasServerEntry.abortTA();
-                        } catch (...) {
-                            LERROR << "Failed aborting transaction.";
-                        }
-                        try {
-                            rasServerEntry.closeDB();
-                        } catch (...) {
-                            LERROR << "Failed closing database connection.";
-                        }
-                        try {
-                            rasServerEntry.disconnectClient();
-                        } catch (...) {
-                            LERROR << "Failed disconnecting client.";
-                        }
+                    // clean up
+                    RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
+                    try {
+                        rasServerEntry.abortTA();
+                    } catch (...) {
+                        LERROR << "Failed aborting transaction.";
                     }
-                }
-
-                auto resultIt = this->queryStreamedResultList.begin();
-                while (resultIt != this->queryStreamedResultList.end())
-                {
-                    auto toEraseResult = resultIt;
-                    resultIt++;
-
-                    if (deadClients.find(toEraseResult->second->getClientUUID()) != deadClients.end())
-                    {
-                        this->cleanQueryStreamedResult(resultIt->first);
+                    try {
+                        rasServerEntry.closeDB();
+                    } catch (...) {
+                        LERROR << "Failed closing database connection.";
                     }
+                    try {
+                        rasServerEntry.disconnectClient();
+                    } catch (...) {
+                        LERROR << "Failed disconnecting client.";
+                    }
+                    
+                    // remove client results
+                    removeAllQueryStreamedResults();
+                    
+                    // disconnect client here
+                    boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(sharedLock);
+                    clientId = "";
                 }
             }
         }
         catch (std::exception& ex)
         {
-            LERROR << "Client management thread has failed, reason: " << ex.what();
+            LERROR << "Evaluating client status failed, reason: " << ex.what();
         }
         catch (...)
         {
-            LERROR << "Client management thread failed for unknown reason.";
+            LERROR << "Evaluating client status failed for unknown reason.";
         }
     }
 }

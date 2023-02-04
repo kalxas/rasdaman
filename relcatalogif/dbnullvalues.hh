@@ -45,9 +45,9 @@ class DBNullvalues : public DBObject, public r_Nullvalues
 public:
     DBNullvalues();
 
-    DBNullvalues(const OId &id);
+    explicit DBNullvalues(const OId &id);
 
-    DBNullvalues(const r_Nullvalues &);
+    explicit DBNullvalues(const r_Nullvalues &);
 
     DBNullvalues(const DBNullvalues &);
 

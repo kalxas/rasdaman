@@ -34,10 +34,8 @@ rasdaman GmbH.
 
 #include "dbnamedobject.hh"
 #include "dbobject.hh"  // for DBObject
-#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
-#include <stdlib.h>     // for free, malloc
 #include <string.h>     // for strncpy, strlen
 #include <ostream>      // for operator<<, ostream, basic_ostream, char_traits
 
@@ -53,92 +51,56 @@ void DBNamedObject::printStatus(unsigned int level, std::ostream &stream) const
     stream << " Name: " << myName;
 }
 
-DBNamedObject::DBNamedObject(const OId &id)
-    : DBObject(id), myName(nullptr), myNameSize(0)
+DBNamedObject::DBNamedObject(const OId &id) : DBObject(id)
 {
-    LTRACE << "DBNamedObject(" << myOId << ")";
 }
 
-DBNamedObject::DBNamedObject() : DBObject(), myName(nullptr), myNameSize(0)
+DBNamedObject::DBNamedObject() : DBObject(), myName(defaultName)
 {
-    LTRACE << "DBNamedObject()";
-    setName(defaultName);
 }
 
 DBNamedObject::DBNamedObject(const DBNamedObject &old)
-    : DBObject(old), myName(nullptr), myNameSize(0)
+    : DBObject(old), myName(old.getName())
 {
-    LTRACE << "DBNamedObject(const DBNamedObject& old)";
-    setName(old.getName());
 }
 
 DBNamedObject::DBNamedObject(const char *name)
-    : DBObject(), myName(nullptr), myNameSize(0)
+    : DBObject(), myName(name)
 {
-    LTRACE << "DBNamedObject(" << name << ")";
-    setName(name);
 }
 
 DBNamedObject::DBNamedObject(const OId &id, const char *name)
-    : DBObject(id), myName(nullptr), myNameSize(0)
+    : DBObject(id), myName(name)
 {
-    LTRACE << "DBNamedObject(" << myOId << ", " << name << ")";
-    setName(name);
-}
-
-DBNamedObject::~DBNamedObject() noexcept(false)
-{
-    if (myName)
-    {
-        free(myName);
-        myName = nullptr;
-    }
-    myNameSize = 0;
 }
 
 DBNamedObject &DBNamedObject::operator=(const DBNamedObject &old)
 {
-    LTRACE << "operator=(" << old.getName() << ") " << myName;
     if (this != &old)
     {
         DBObject::operator=(old);
-        setName(old.getName());
+        myName = old.getName();
     }
     return *this;
 }
 
 const char *DBNamedObject::getName() const
 {
-    return myName;
+    return myName.c_str();
 }
 
 void DBNamedObject::setName(const char *newname)
 {
-    if (myName)
-    {
-        LTRACE << "myName\t:" << myName;
-        free(myName);
-        myName = nullptr;
-    }
     unsigned int len = strlen(newname);
     if (len > MAXNAMELENGTH)
     {
         len = MAXNAMELENGTH;
     }
-    myName = static_cast<char *>(mymalloc((len + 1) * sizeof(char)));
-    myNameSize = (len + 1) * sizeof(char);
-    strncpy(myName, newname, len);
-    *(myName + len) = 0;
+    myName = newname;
 }
 
 void DBNamedObject::setName(const short length, const char *data)
 {
-    if (myName)
-    {
-        LTRACE << "myName\t:" << myName;
-        free(myName);
-        myName = nullptr;
-    }
     unsigned int len = 0;
     if (static_cast<unsigned int>(length) > MAXNAMELENGTH)
     {
@@ -148,15 +110,15 @@ void DBNamedObject::setName(const short length, const char *data)
     {
         len = static_cast<unsigned int>(length);
     }
-    myName = static_cast<char *>(malloc((len + 1) * sizeof(char)));
-    myNameSize = (len + 1) * sizeof(char);
-    strncpy(myName, data, len);
-    *(myName + len) = 0;
-    LTRACE << "myName\t:" << myName;
+    char *tmp = new char[len + 1];
+    strncpy(tmp, data, len);
+    *(tmp + len) = 0;
+    myName = tmp;
+    delete [] tmp;
 }
 
 r_Bytes DBNamedObject::getMemorySize() const
 {
-    return sizeof(char) * myNameSize + DBObject::getMemorySize() + sizeof(unsigned short);
+    return myName.size() + DBObject::getMemorySize() + sizeof(unsigned short);
 }
 

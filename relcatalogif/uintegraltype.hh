@@ -41,11 +41,11 @@ long.
 class UIntegralType : public AtomicType
 {
 public:
-    UIntegralType(unsigned int newSize) : AtomicType(newSize) {}
+    explicit UIntegralType(unsigned int newSize) : AtomicType(newSize) {}
 
     UIntegralType(const UIntegralType &)  = default;
 
-    UIntegralType(const OId &id) : AtomicType(id) {}
+    explicit UIntegralType(const OId &id) : AtomicType(id) {}
 
     ~UIntegralType() override = default;
 

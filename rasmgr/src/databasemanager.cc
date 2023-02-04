@@ -20,24 +20,16 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <stdexcept>
-
-#include <logging.hh>
-
-#include "exceptions/rasmgrexceptions.hh"
+#include "databasemanager.hh"
 #include "database.hh"
 #include "databasehost.hh"
 #include "databasehostmanager.hh"
-
-#include "databasemanager.hh"
+#include "exceptions/dbbusyexception.hh"
+#include "exceptions/inexistentdatabaseexception.hh"
+#include <logging.hh>
 
 namespace rasmgr
 {
-using std::shared_ptr;
-using std::runtime_error;
-using std::list;
-using std::mutex;
-using std::lock_guard;
 
 DatabaseManager::DatabaseManager(std::shared_ptr<DatabaseHostManager> m) : dbHostManager(m)
 {}
@@ -45,7 +37,7 @@ DatabaseManager::DatabaseManager(std::shared_ptr<DatabaseHostManager> m) : dbHos
 void DatabaseManager::defineDatabase(const std::string &dbHostName,
                                      const std::string &databaseName)
 {
-    lock_guard<mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     //Get and lock access to the database host
     auto dbHost = this->dbHostManager->getAndLockDatabaseHost(dbHostName);
@@ -80,7 +72,7 @@ void DatabaseManager::defineDatabase(const std::string &dbHostName,
 
 void DatabaseManager::changeDatabase(const std::string &oldDbName, const DatabasePropertiesProto &newDbProp)
 {
-    lock_guard<mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
     bool changedDb = false;
 
     //Check if there already is a database with this name in the list
@@ -113,7 +105,7 @@ void DatabaseManager::changeDatabase(const std::string &oldDbName, const Databas
 
 void DatabaseManager::removeDatabase(const std::string &dbHostName, const std::string &databaseName)
 {
-    lock_guard<mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     //Get and lock access to the database host
     auto dbHost = this->dbHostManager->getAndLockDatabaseHost(dbHostName);
@@ -140,7 +132,7 @@ const std::shared_ptr<DatabaseHostManager> &DatabaseManager::getDbHostManager() 
 
 DatabaseMgrProto DatabaseManager::serializeToProto()
 {
-    lock_guard<mutex> lock(this->mut);
+    std::lock_guard<std::mutex> lock(this->mut);
 
     auto dbhList = this->dbHostManager->getDatabaseHostList();
     

@@ -47,7 +47,9 @@
 class TurboQueryResult
 {
 public:
-    TurboQueryResult(char *rawData, size_t rawDataSize, r_Data_Format data_format = r_Array, std::string domain = "");
+    TurboQueryResult(char *rawData, size_t rawDataSize, r_Data_Format data_format = r_Array,
+                     std::string domain = "", bool *nullMask = nullptr, size_t nullMaskSize = 0);
+
     ~TurboQueryResult();
 
     std::string getDomain();
@@ -58,11 +60,17 @@ public:
 
     size_t getRawDataSize() const;
 
+    bool *getNullMask();
+
+    size_t getNullMaskSize() const;
+
 private:
     char *rawData;
     size_t rawDataSize;
     std::string domain;
     r_Data_Format data_format;
+    bool *nullMask;
+    size_t nullMaskSize;
 
 };
 

@@ -28,7 +28,7 @@
 
 namespace common
 {
-Timer::Timer(std::int32_t periodArg)
+Timer::Timer(std::int32_t periodArg): period{periodArg}
 {
   if (periodArg < 0)
   {
@@ -44,9 +44,6 @@ Timer::Timer(std::int32_t periodArg)
   this->timeout.tv_usec = (periodArg % 1000) * 1000;
   timeradd(&this->start, &this->timeout, &this->end);
 }
-
-Timer::~Timer()
-{}
 
 std::int32_t Timer::getPeriod() const
 {

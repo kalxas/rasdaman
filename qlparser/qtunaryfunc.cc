@@ -540,7 +540,7 @@ QtAxisSDom::checkType(QtTypeTuple *typeTuple)
         if(namedAxisFlag)
         {
             r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType.getType())))->getDomain());
-            std::vector<std::string> axisDef = (&domainDef)->getAxisNames();
+            std::vector<std::string> axisDef = (&domainDef)->get_axis_names();
             axisNamesCorrect = new std::vector<std::string>(axisDef);
 
             // function to set numeric axis value.

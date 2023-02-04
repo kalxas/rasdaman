@@ -34,8 +34,9 @@
 namespace rasmgr
 {
 /**
- * @brief The Database class Represents a database hosted by this rasmgr.
- * A database can have multiple client sessions opened.
+ * Represents a database with a given *name* hosted by this rasmgr. A database
+ * can have multiple client sessions opened, represented as a list of (clientId,
+ * sessionId) pairs.
  */
 class Database
 {
@@ -45,7 +46,7 @@ public:
      * This object is not thread safe.
      * @param dbName Name of the database that will uniquely identify it.
      */
-    Database(const std::string &dbName);
+    explicit Database(const std::string &dbName);
 
     virtual ~Database() = default;
 
@@ -78,6 +79,10 @@ public:
 
     const std::string &getDbName() const;
 
+    /**
+     * @throws DbBusyException
+     * @throws common::LogicException if value is empty
+     */
     void setDbName(const std::string &value);
 
 private:

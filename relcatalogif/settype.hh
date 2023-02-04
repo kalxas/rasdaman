@@ -46,13 +46,13 @@ class SetType : public CollectionType
 {
 public:
     SetType();
-    SetType(const OId &id);
+    explicit SetType(const OId &id);
     SetType(const char *newTypeName, MDDType *newMDDType);
     SetType(const SetType &) = default;
     SetType &operator=(const SetType &) = default;
     ~SetType() noexcept(false) override;
 
-    char *getTypeStructure() const override;
+    std::string getTypeStructure() const override;
 
 protected:
     void deleteFromDb() override;

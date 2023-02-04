@@ -20,16 +20,13 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <stdexcept>
-
-#include <logging.hh>
-#include <boost/thread/shared_lock_guard.hpp>
-
-#include "common/exceptions/logicexception.hh"
-
-#include "exceptions/rasmgrexceptions.hh"
-
 #include "database.hh"
+#include "exceptions/dbbusyexception.hh"
+#include "exceptions/duplicatedbsessionexception.hh"
+#include "common/exceptions/logicexception.hh"
+#include <logging.hh>
+
+#include <boost/thread/shared_lock_guard.hpp>
 
 namespace rasmgr
 {
@@ -38,8 +35,8 @@ using std::pair;
 using std::string;
 using std::runtime_error;
 
-Database::Database(const std::string &dbName):
-    dbName(dbName)
+Database::Database(const std::string &db):
+    dbName(db)
 {}
 
 void Database::addClientSession(const std::string &clientId, const std::string &sessionId)

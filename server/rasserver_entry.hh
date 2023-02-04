@@ -103,13 +103,13 @@ public:
 
     r_OId compat_getNewOId(unsigned short objType); // 1 - mddType, 2 -collType
 
-    int  compat_executeQueryRpc(const char* query, ExecuteQueryRes& queryResult);
+    int  compat_executeQueryRpc(const char* query, ExecuteQueryRes& queryResult, bool insert = false);
 
     int  compat_getNextElement(char*& buffer, unsigned int&  bufferSize);
 
     int  compat_endTransfer();
 
-    int  compat_getNextMDD(r_Minterval& mddDomain, char*& typeName, char*& typeStructure, r_OId& oid, unsigned short& currentFormat);
+    int  compat_getNextMDD(r_Minterval& mddDomain, std::string &typeName, std::string &typeStructure, r_OId& oid, unsigned short& currentFormat);
 
     int  compat_getNextTile(RPCMarray** rpcMarray);
 
@@ -125,7 +125,7 @@ public:
 
     int  compat_EndInsertMDD(int persistent);
 
-    int  compat_GetTypeStructure(const char* typeName, int typeType, char*& typeStructure);
+    int  compat_GetTypeStructure(const char* typeName, int typeType, std::string& typeStructure);
 
     int  compat_StartInsertPersMDD(const char* collName, r_Minterval& mddDomain, int typeLength, const char* typeName, r_OId& oid);
 
@@ -139,13 +139,13 @@ public:
 
     int  compat_RemoveObjFromColl(const char* collName, r_OId& oid);
 
-    int  compat_GetCollectionByName(const char* collName, char*& typeName, char*& typeStructure, r_OId& oid);
+    int  compat_GetCollectionByName(const char* collName, std::string &typeName, std::string &typeStructure, r_OId& oid);
 
-    int  compat_GetCollectionByName(r_OId oid, char*& typeName, char*& typeStructure, char*& collName);
+    int  compat_GetCollectionByName(r_OId oid, std::string &typeName, std::string &typeStructure, std::string &collName);
 
-    int  compat_GetCollectionOidsByName(const char* collName, char*& typeName, char*& typeStructure, r_OId& oid, RPCOIdEntry*& oidTable, unsigned int& oidTableSize);
+    int  compat_GetCollectionOidsByName(const char* collName, std::string &typeName, std::string &typeStructure, r_OId& oid, RPCOIdEntry*& oidTable, unsigned int& oidTableSize);
 
-    int  compat_GetCollectionOidsByOId(r_OId oid, char*& typeName, char*& typeStructure, RPCOIdEntry*& oidTable, unsigned int& oidTableSize, char*& collName);
+    int  compat_GetCollectionOidsByOId(r_OId oid, std::string &typeName, std::string &typeStructure, RPCOIdEntry*& oidTable, unsigned int& oidTableSize, std::string &collName);
 
     int  compat_GetObjectType(r_OId& oid, unsigned short& objType);
 

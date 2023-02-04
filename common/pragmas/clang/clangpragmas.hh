@@ -4,8 +4,6 @@
 // clang
 #define OPTIMIZE_LOOP
 
-#define UNUSED(x) x
-
 #define DIAGNOSTIC_PUSH   _Pragma("clang diagnostic push")
 #define IGNORE_WARNING(x) _Pragma(STRINGIFY(clang diagnostic ignored x))
 #define DIAGNOSTIC_POP    _Pragma("clang diagnostic pop")

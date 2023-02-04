@@ -24,15 +24,15 @@ rasdaman GmbH.
 #include "rasserverserviceimpl.hh"
 #include "clientmanager.hh"
 #include "server/rasserver_entry.hh"
+#include "raslib/error.hh"
 #include <logging.hh>
 
 namespace rasserver
 {
 RasServerServiceImpl::RasServerServiceImpl(std::shared_ptr<rasserver::ClientManager> clientManagerArg)
+  : clientManager{clientManagerArg}
 {
-    this->clientManager = clientManagerArg;
 }
-
 
 grpc::Status rasserver::RasServerServiceImpl::AllocateClient(__attribute__ ((unused)) grpc::ServerContext* context, 
         const rasnet::service::AllocateClientReq* request, 
@@ -81,9 +81,35 @@ grpc::Status rasserver::RasServerServiceImpl::Close(__attribute__ ((unused)) grp
         __attribute__ ((unused)) const rasnet::service::CloseServerReq* request, 
         __attribute__ ((unused)) rasnet::service::Void* response)
 {
-    //TODO: Implement a clean exit
-    LDEBUG << "Closing server.";
-    exit(EXIT_SUCCESS);
+    // We need to do the exit in a thread a bit after the response has been returned
+    // back to rasmgr, otherwise rasmgr will think there's an error
+    LDEBUG << "Received Close request...";
+    shutdownThread.reset(new std::thread(&RasServerServiceImpl::shutdownRunner, this));
+    return grpc::Status::OK;
+}
+
+void RasServerServiceImpl::shutdownRunner()
+{
+  // wait 10ms for the response to network request Close to be returned, for
+  // upto 10s in total
+  LDEBUG << "starting shutdown process...";
+  RasServerEntry& rasserver = RasServerEntry::getInstance();
+  size_t waited = 0;
+  static const size_t maxWait = 10*1000; // 10 s
+  
+  do
+  {
+    usleep(10*1000);
+    waited += 10;
+  }
+  while (rasserver.isOpenTA() && waited < maxWait);
+  
+  if (waited >= maxWait)
+    LINFO << "shutting down rasserver with a transaction still in progress after waiting for 10 seconds.";
+  else
+    LINFO << "shutting down rasserver.";
+
+  exit(EXIT_SUCCESS);
 }
 
 grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(__attribute__ ((unused)) grpc::ServerContext* context, 

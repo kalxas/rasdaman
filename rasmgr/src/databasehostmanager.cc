@@ -20,15 +20,14 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <stdexcept>
-
-#include <logging.hh>
-#include "common/exceptions/rasexceptions.hh"
-
-#include "exceptions/rasmgrexceptions.hh"
-#include "databasehost.hh"
-
 #include "databasehostmanager.hh"
+#include "databasehost.hh"
+#include "common/exceptions/invalidargumentexception.hh"
+#include "exceptions/dbhostalreadyexistsexception.hh"
+#include "exceptions/dbhostbusyexception.hh"
+#include "exceptions/inexistentdbhostexception.hh"
+#include <logging.hh>
+
 #include <boost/thread/shared_lock_guard.hpp>
 
 namespace rasmgr

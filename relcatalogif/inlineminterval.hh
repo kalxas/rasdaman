@@ -46,7 +46,7 @@ class InlineMinterval : public r_Minterval
 public:
     InlineMinterval();
 
-    InlineMinterval(r_Dimension dim);
+    explicit InlineMinterval(r_Dimension dim);
 
     InlineMinterval(r_Dimension dim, 
                     const r_Range *lowerbound, const r_Range *upperbound,
@@ -56,7 +56,7 @@ public:
     arrays lowerbound, upperbound, lowerfixed, upperfixed.
     */
 
-    InlineMinterval(const r_Minterval &);
+    explicit InlineMinterval(const r_Minterval &);
 
     InlineMinterval(const InlineMinterval &);
 

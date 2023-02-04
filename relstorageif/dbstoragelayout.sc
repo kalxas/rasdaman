@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
 #include <string>
+#include <fmt/core.h>
 
 using std::endl;
 
@@ -216,10 +217,9 @@ if (query.currColumnNull()) { \
 
 void DBStorageLayout::readFromDb()
 {
-    SQLiteQuery query(
+    SQLiteQuery query(fmt::format(
         "SELECT DomainId, TileSize, PCTMin, PCTMax, IndexType, TilingScheme, "
-        "DataFormat, IndexSize FROM RAS_STORAGE WHERE StorageId = %lld",
-        myOId.getCounter());
+        "DataFormat, IndexSize FROM RAS_STORAGE WHERE StorageId = {}", myOId.getCounter()));
     if (query.nextRow())
     {
         if (query.currColumnNull())
@@ -267,9 +267,9 @@ void DBStorageLayout::updateInDb()
 
 void DBStorageLayout::insertInDb()
 {
-    SQLiteQuery insert(
+    SQLiteQuery insert(fmt::format(
         "INSERT INTO RAS_STORAGE(StorageId,DomainId,TileSize,PCTMin,PCTMax,IndexType,"
-        "TilingScheme,DataFormat,IndexSize) VALUES (%lld, ?, ?, ?, ?, ?, ?, ?, ?)", myOId.getCounter());
+        "TilingScheme,DataFormat,IndexSize) VALUES ({}, ?, ?, ?, ?, ?, ?, ?, ?)", myOId.getCounter()));
 
     if (supportsTileConfiguration())
         tileConfiguration->setPersistent(true);
@@ -290,8 +290,8 @@ void DBStorageLayout::insertInDb()
 
 void DBStorageLayout::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_STORAGE WHERE StorageId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_STORAGE WHERE StorageId = {}", myOId.getCounter()));
     tileConfiguration->setPersistent(false);
     DBObject::deleteFromDb();
 }

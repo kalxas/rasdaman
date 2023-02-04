@@ -23,8 +23,8 @@
 #ifndef RASMGR_X_SRC_RASMGRSERVICE_HH
 #define RASMGR_X_SRC_RASMGRSERVICE_HH
 
-#include <memory>
 #include "rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
+#include <memory>
 
 namespace rasmgr
 {
@@ -33,19 +33,23 @@ class ClientManager;
 class ServerManager;
 
 /**
- * @brief The RasmgrService class represents a GRPC service that is offered by a rasmgr
- * to other rasmgrs. It allows a remote rasmgr to acquire and release servers from clients.
+ * A GRPC service that is offered by a rasmgr to other rasmgrs. It allows a
+ * remote rasmgr to acquire and release servers from clients.
  */
 class RasmgrService: public rasnet::service::RasmgrRasmgrService::Service
 {
 public:
-    RasmgrService(std::shared_ptr<ClientManager> clientManager);
+    explicit RasmgrService(std::shared_ptr<ClientManager> clientManager);
 
     virtual ~RasmgrService() = default;
 
-    virtual grpc::Status TryGetRemoteServer(grpc::ServerContext *context, const rasnet::service::GetRemoteServerRequest *request, rasnet::service::GetRemoteServerReply *response);
+    virtual grpc::Status TryGetRemoteServer(grpc::ServerContext *context,
+                                            const rasnet::service::GetRemoteServerRequest *request,
+                                            rasnet::service::GetRemoteServerReply *response);
 
-    virtual ::grpc::Status ReleaseServer(::grpc::ServerContext *context, const ::rasnet::service::ReleaseServerRequest *request, ::rasnet::service::Void *response);
+    virtual ::grpc::Status ReleaseServer(::grpc::ServerContext *context,
+                                         const ::rasnet::service::ReleaseServerRequest *request,
+                                         ::rasnet::service::Void *response);
 
 private:
     std::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */

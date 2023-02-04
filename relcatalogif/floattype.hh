@@ -43,7 +43,7 @@ values. The value of a Float is stored in four chars.
 class FloatType : public RealType
 {
 public:
-    FloatType(const OId &id);
+    explicit FloatType(const OId &id);
 
     FloatType();
 

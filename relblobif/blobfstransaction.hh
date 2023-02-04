@@ -29,6 +29,7 @@
 #include <string>  // for string
 #include <vector>  // for vector
 #include <memory>  // for unique_ptr
+#include <unordered_set>
 
 class BlobFSConfig;
 
@@ -137,7 +138,7 @@ protected:
     std::string transactionPath;
 
     /// Blob ids participating in the current transaction.
-    std::vector<long long> blobIds;
+    std::unordered_set<long long> blobIds;
 
     /// Underlying transaction lock handler, used in the commit/abort handlers.
     std::unique_ptr<BlobFSTransactionLock> transactionLock;
@@ -158,8 +159,8 @@ protected:
 class BlobFSInsertTransaction : public BlobFSTransaction
 {
 public:
-    BlobFSInsertTransaction(BlobFSConfig &config,
-                            const std::string &trPath = std::string());
+    explicit BlobFSInsertTransaction(BlobFSConfig &config,
+                                     const std::string &trPath = std::string());
     void add(BlobData &blobData) override;
     /// To be called after commit to RASBASE
     void postRasbaseCommit() override;
@@ -170,8 +171,8 @@ public:
 class BlobFSUpdateTransaction : public BlobFSTransaction
 {
 public:
-    BlobFSUpdateTransaction(BlobFSConfig &config,
-                            const std::string &trPath = std::string());
+    explicit BlobFSUpdateTransaction(BlobFSConfig &config,
+                                     const std::string &trPath = std::string());
     void add(BlobData &blobData) override;
     /// To be called after commit to RASBASE
     void postRasbaseCommit() override;
@@ -182,8 +183,8 @@ public:
 class BlobFSRemoveTransaction : public BlobFSTransaction
 {
 public:
-    BlobFSRemoveTransaction(BlobFSConfig &config,
-                            const std::string &trPath = std::string());
+    explicit BlobFSRemoveTransaction(BlobFSConfig &config,
+                                     const std::string &trPath = std::string());
     void add(BlobData &blobData) override;
     /// To be called before commit to RASBASE
     void preRasbaseCommit() override;

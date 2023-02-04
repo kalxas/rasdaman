@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include "reladminif/sqlitewrapper.hh"
 #include <limits>
 #include <logging.hh>
+#include <fmt/core.h>
 
 DBNullvalues::DBNullvalues()
     : DBObject(), r_Nullvalues()
@@ -93,17 +94,17 @@ void DBNullvalues::insertInDb()
     {
         if (std::isnan(nullvalues[i].first))
         {
-            SQLiteQuery::executeWithParams(
+            SQLiteQuery::execute(fmt::format(
                 "INSERT INTO RAS_NULLVALUEPAIRS ( NullValueOId, Count, Low, High ) "
-                "VALUES ( %lld, %d, NULL, NULL)",
-                myOId.getCounter(), i);
+                "VALUES ( {}, {}, NULL, NULL)",
+                myOId.getCounter(), i));
         }
         else
         {
-            SQLiteQuery::executeWithParams(
+            SQLiteQuery::execute(fmt::format(
                 "INSERT INTO RAS_NULLVALUEPAIRS ( NullValueOId, Count, Low, High ) "
-                "VALUES ( %lld, %d, %f, %f)",
-                myOId.getCounter(), i, nullvalues[i].first, nullvalues[i].second);
+                "VALUES ( {}, {}, {}, {})",
+                myOId.getCounter(), i, nullvalues[i].first, nullvalues[i].second));
         }
     }
     DBObject::insertInDb();
@@ -115,17 +116,17 @@ void DBNullvalues::updateInDb()
     {
         if (std::isnan(nullvalues[i].first))
         {
-            SQLiteQuery::executeWithParams(
+            SQLiteQuery::execute(fmt::format(
                 "INSERT OR REPLACE INTO RAS_NULLVALUEPAIRS ( NullValueOId, Count, Low, High ) "
-                "VALUES ( %lld, %d, NULL, NULL)",
-                myOId.getCounter(), i);
+                "VALUES ( {}, {}, NULL, NULL)",
+                myOId.getCounter(), i));
         }
         else
         {
-            SQLiteQuery::executeWithParams(
+            SQLiteQuery::execute(fmt::format(
                 "INSERT OR REPLACE INTO RAS_NULLVALUEPAIRS ( NullValueOId, Count, Low, High ) "
-                "VALUES ( %lld, %d, %f, %f)",
-                myOId.getCounter(), i, nullvalues[i].first, nullvalues[i].second);
+                "VALUES ( {}, {}, {}, {})",
+                myOId.getCounter(), i, nullvalues[i].first, nullvalues[i].second));
         }
     }
     DBObject::updateInDb();
@@ -133,15 +134,15 @@ void DBNullvalues::updateInDb()
 
 void DBNullvalues::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_NULLVALUEPAIRS WHERE NullValueOId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "DELETE FROM RAS_NULLVALUEPAIRS WHERE NullValueOId = {}", myOId.getCounter()));
     DBObject::deleteFromDb();
 }
 
 void DBNullvalues::readFromDb()
 {
-    SQLiteQuery query("SELECT Low, High FROM RAS_NULLVALUEPAIRS "
-                      "WHERE NullValueOId = %lld ORDER BY Count ASC", myOId.getCounter());
+    SQLiteQuery query(fmt::format("SELECT Low, High FROM RAS_NULLVALUEPAIRS "
+                                  "WHERE NullValueOId = {} ORDER BY Count ASC", myOId.getCounter()));
     while (query.nextRow())
     {
         double low  = query.currColumnNull()

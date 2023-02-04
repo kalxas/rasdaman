@@ -24,6 +24,7 @@ rasdaman GmbH.
 #pragma once
 
 #include <iosfwd>
+#include <string>
 
 class DatabaseIf;
 class TransactionIf;
@@ -172,7 +173,7 @@ protected:
     */
 
 private:
-    char *myName{nullptr};
+    std::string myName;
     /*@Doc:
     Valid only if opened.
     */

@@ -33,7 +33,7 @@ rasdaman GmbH.
 #include "raslib/miterd.hh"
 #include "raslib/minterval.hh"
 
-r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minterval &iter, 
+r_MiterDirect::r_MiterDirect(const void *data, const r_Minterval &total, const r_Minterval &iter, 
                              r_Bytes tlen, unsigned int step)
     :   baseAddress(data),
         length(step),
@@ -58,7 +58,8 @@ r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minte
     }
     for (int i = 0; i < int(dim); i++)
     {
-        id[i].data = static_cast<void *>(static_cast<char *>(data) + offset);
+        id[i].data = static_cast<const void *>(
+                      static_cast<const char *>(data) + offset);
     }
 }
 
@@ -77,7 +78,8 @@ void r_MiterDirect::reset(void)
     }
     for (r_Dimension i = 0; i < dim; i++)
     {
-        id[i].data = static_cast<void *>(static_cast<char *>(baseAddress) + offset);
+        id[i].data = static_cast<const void *>(
+                      static_cast<const char *>(baseAddress) + offset);
     }
     done = false;
 }

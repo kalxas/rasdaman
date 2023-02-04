@@ -52,6 +52,7 @@ target_link_libraries(relindexif
 #    storagemgr
 #    relstorageif
 #    common_logging
+    ${FMT_LIBRARY}
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include "dbrcindexds.hh"
 #include <logging.hh>
 #include <cstring>
+#include <fmt/core.h>
 
 // container size for index node
 // BEWARE: keep these parameters always consistent!
@@ -134,8 +135,8 @@ void DBRCIndexDS::insertInDb()
 
     // (3) --- insert HIERIX tuple into db
     count2 = 0; // we only have one entry
-    SQLiteQuery query("INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( %lld, %d, ? )",
-                      id2, count2);
+    SQLiteQuery query(fmt::format("INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( {}, {}, ? )",
+                                  id2, count2));
     query.bindBlob(completebuffer, static_cast<int>(completesize));
     query.execute();
 
@@ -163,7 +164,7 @@ void DBRCIndexDS::readFromDb()
     id1 = myOId;
 
     // (2) --- get tuple
-    SQLiteQuery query("SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id1);
+    SQLiteQuery query(fmt::format("SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = {}", id1));
     if (query.nextRow())
     {
         // read blob
@@ -359,7 +360,7 @@ void DBRCIndexDS::deleteFromDb()
 {
     long long id3 = myOId;
     // (3) --- delete tuple
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_RCINDEXDYN WHERE Id = %lld", id3);
+    SQLiteQuery::execute(fmt::format("DELETE FROM RAS_RCINDEXDYN WHERE Id = {}", id3));
     // (4) --- dbobject delete
     DBObject::deleteFromDb();
 }

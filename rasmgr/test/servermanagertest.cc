@@ -225,7 +225,7 @@ TEST_F(ServerManagerTest, tryGetFreeServer)
     ServerManager serverManager(this->config, this->serverGroupFactory);
 
     //Will fail because there is no server group defined
-    ASSERT_FALSE(serverManager.tryGetFreeServer(databaseName, out_server));
+    ASSERT_FALSE(serverManager.tryGetAvailableServer(databaseName, out_server));
 
     std::string name = "name";
     std::string serverId = "serverId";
@@ -241,9 +241,9 @@ TEST_F(ServerManagerTest, tryGetFreeServer)
     //There are no server groups defined, this will work
     ASSERT_NO_THROW(serverManager.defineServerGroup(groupConfig));
 
-    ASSERT_FALSE(serverManager.tryGetFreeServer(databaseName, out_server));
+    ASSERT_FALSE(serverManager.tryGetAvailableServer(databaseName, out_server));
 
-    ASSERT_TRUE(serverManager.tryGetFreeServer(databaseName, out_server));
+    ASSERT_TRUE(serverManager.tryGetAvailableServer(databaseName, out_server));
 }
 
 TEST_F(ServerManagerTest, startServerGroupNothing)
@@ -265,10 +265,7 @@ TEST_F(ServerManagerTest, startServerGroupAll)
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
-    EXPECT_CALL(serverGroupMockRef, isStopped())
-            .WillOnce(Return(true))
-            .WillOnce(Return(false));
-    EXPECT_CALL(serverGroupMockRef, start());
+    EXPECT_CALL(serverGroupMockRef, start()).Times(2);
 
     ServerGroupFactoryMock& serverGroupFactoryRef = 
             *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
@@ -298,10 +295,7 @@ TEST_F(ServerManagerTest, startServerGroupHost)
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
-    EXPECT_CALL(serverGroupMockRef, isStopped())
-            .WillOnce(Return(false))
-            .WillOnce(Return(true));
-    EXPECT_CALL(serverGroupMockRef, start());
+    EXPECT_CALL(serverGroupMockRef, start()).Times(2);
     EXPECT_CALL(serverGroupMockRef, getConfig()).WillRepeatedly(Return(groupConfig));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
@@ -419,7 +413,6 @@ TEST_F(ServerManagerTest, stopServerGroupByName)
     EXPECT_CALL(serverGroupMockRef, stop(FORCE)).Times(1);
     EXPECT_CALL(serverGroupMockRef, getGroupName())
     .WillOnce(Return(""))
-    .WillOnce(Return(groupName))
     .WillOnce(Return(groupName));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);

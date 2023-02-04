@@ -24,11 +24,10 @@ rasdaman GmbH.
 
 #include "oidif.hh"
 #include "adminif.hh"
-#include "sqlglobals.h"
-#include "sqlerror.hh"
 #include "sqlitewrapper.hh"
 #include "raslib/error.hh"
 #include <logging.hh>
+#include <fmt/core.h>
 
 void OId::initialize()
 {
@@ -67,9 +66,9 @@ void OId::deinitialize()
     {
         for (unsigned int i = 1; i < OId::maxCounter; i++)
         {
-            SQLiteQuery::executeWithParams(
-                "UPDATE RAS_COUNTERS SET NextValue = %lld WHERE CounterName = '%s'",
-                *counterIds[i], counterNames[i]);
+            SQLiteQuery::execute(fmt::format(
+                "UPDATE RAS_COUNTERS SET NextValue = {} WHERE CounterName = '{}'",
+                *counterIds[i], counterNames[i]));
         }
     }
     loadedOk = false;

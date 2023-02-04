@@ -105,6 +105,8 @@ message InsertTileReq
     int32 storage_format = 6;
     bytes data = 7;
     int32 data_length = 8;
+    int32 band_linearization = 9;
+    int32 cell_linearization = 10;
 }
 
 message InsertTileRepl {  int32 status = 1; }
@@ -221,6 +223,8 @@ message GetNextTileRepl
     int32 storage_format = 5;
     int32 data_length = 6;
     bytes data = 7;
+    int32 band_linearization = 8;
+    int32 cell_linearization = 9;
 }
 
 message EndTransferReq {  int32 client_id = 1; }
@@ -255,9 +259,25 @@ message ExecuteHttpQueryReq
 {
     int32 client_id = 1;
     bytes data = 2;
+    int32 data_length = 3;
 }
 
 message ExecuteHttpQueryRepl {  bytes data = 1; }
+
+message GetNextStreamedQueryReq
+{
+    //UUID identifying a storage location on the server from which the rest of the data can be streamed as char *
+    string uuid = 1;
+}
+
+message StreamedQueryRepl
+{
+    string uuid = 1;
+    bytes raw_data = 2;
+    int32 bytes_left = 3;
+    bytes null_mask = 4;
+    int32 null_mask_bytes_left = 5;
+}
 
 message BeginStreamedHttpQueryReq
 {

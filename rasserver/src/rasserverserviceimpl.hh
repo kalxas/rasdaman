@@ -30,6 +30,7 @@ rasdaman GmbH.
 #include <utility>
 #include <string>
 #include <memory>
+#include <thread>
 
 namespace rasserver
 {
@@ -52,6 +53,10 @@ public:
 
 private:
     std::shared_ptr<rasserver::ClientManager> clientManager;
+    
+    /// Thread to shutdown the rasserver
+    std::unique_ptr<std::thread> shutdownThread;
+    void shutdownRunner();
 };
 }
 

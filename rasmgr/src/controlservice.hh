@@ -34,8 +34,8 @@ namespace rasmgr
 class ControlCommandExecutor;
 
 /**
- * @brief The ControlService class Service for executing rascontrol commands from
- * a rascontrol client that connects to rasmgr.
+ * Handles network requests from a `rascontrol` client, and executes them with
+ * the ControlCommandExecutor.
  */
 class ControlService: public ::rasnet::service::RasMgrRasCtrlService::Service
 {
@@ -44,7 +44,9 @@ public:
 
     virtual ~ControlService();
 
-    virtual grpc::Status ExecuteCommand(grpc::ServerContext *context, const rasnet::service::RasCtrlRequest *request, rasnet::service::RasCtrlResponse *response) override;
+    virtual grpc::Status ExecuteCommand(grpc::ServerContext *context,
+                                        const rasnet::service::RasCtrlRequest *request,
+                                        rasnet::service::RasCtrlResponse *response) override;
 
 private:
     std::shared_ptr<ControlCommandExecutor> commandExecutor;

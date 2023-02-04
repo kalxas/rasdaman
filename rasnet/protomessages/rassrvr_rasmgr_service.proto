@@ -35,7 +35,7 @@ message DatabaseRights
     bool write = 2;
 }
 
-// Message sent by RasManager to a RasServer a-ssigning the client represented
+// Message sent by RasManager to a RasServer assigning the client represented
 // by the client id to it.
 message AllocateClientReq
 {

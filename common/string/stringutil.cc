@@ -3,6 +3,7 @@
 #include <iterator>
 #include <algorithm>
 #include <cassert>
+#include <cstring> // memcpy
 
 namespace common {
 
@@ -114,6 +115,24 @@ bool StringUtil::startsWith(const char *s, const char *prefix)
       ++prefix;
     }
   }
+  return true;
+}
+
+bool StringUtil::endsWith(const char *s, const char *suffix)
+{
+  if (!s)
+    return false;
+
+  assert(suffix);
+  
+  auto sn = strlen(s);
+  auto suffn = strlen(suffix);
+  if (suffn > sn)
+    return false;
+  
+  for (size_t i = sn - suffn, j = 0; i < sn; ++i, ++j)
+    if (s[i] != suffix[j])
+      return false;
   return true;
 }
 
@@ -251,6 +270,24 @@ void StringUtil::unescapeCharacters(std::string &s)
 bool StringUtil::contains(const std::string &s, const std::string &subString)
 {
   return s.find(subString) != std::string::npos;
+}
+
+void StringUtil::memsetPattern(char *dest, size_t destSize,
+                               const char *pattern, size_t patternSize)
+{
+  assert(dest);
+  assert(pattern);
+  assert(destSize > 0);
+  assert(patternSize > 0);
+  assert(destSize >= patternSize);
+  assert(destSize % patternSize == 0);
+  
+  size_t offset = 0;
+  while (offset < destSize) {
+    memcpy(dest, pattern, patternSize);
+    dest += patternSize;
+    offset += patternSize;
+  }
 }
 
 

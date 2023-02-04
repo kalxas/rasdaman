@@ -61,11 +61,11 @@ class AtomicType : public BaseType
 {
 public:
 
-    AtomicType(unsigned int newSize);
+    explicit AtomicType(unsigned int newSize);
 
     AtomicType(const AtomicType &);
 
-    AtomicType(const OId &id);
+    explicit AtomicType(const OId &id);
     
     ~AtomicType() override = default;
 

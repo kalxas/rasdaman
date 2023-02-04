@@ -26,11 +26,11 @@ rasdaman GmbH.
 #include "dbmddset.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlerror.hh"
-#include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "relcatalogif/collectiontype.hh"
 #include <logging.hh>
 #include <cstdlib>
+#include <fmt/core.h>
 
 DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
     : DBNamedObject(id, name), collType(type)
@@ -67,7 +67,7 @@ DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
         throw r_Error(r_Error::r_Error_NameNotUnique);
     }
 
-    SQLiteQuery query("SELECT MDDCollId FROM RAS_MDDCOLLNAMES WHERE MDDCollId = %lld", id.getCounter());
+    SQLiteQuery query(fmt::format("SELECT MDDCollId FROM RAS_MDDCOLLNAMES WHERE MDDCollId = {}", id.getCounter()));
     if (query.nextRow())
     {
         LERROR << "MDD collection with id " << id.getCounter() << " already exists in RAS_MDDCOLLNAMES.";
@@ -86,23 +86,23 @@ DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
 
 void DBMDDSet::insertInDb()
 {
-    SQLiteQuery::executeWithParams(
-        "INSERT INTO RAS_MDDCOLLNAMES ( MDDCollName, MDDCollId, SetTypeId) VALUES ('%s',%lld,%lld)",
-        getName(), myOId.getCounter(), collType->getOId().getCounter());
+    SQLiteQuery::execute(fmt::format(
+        "INSERT INTO RAS_MDDCOLLNAMES ( MDDCollName, MDDCollId, SetTypeId) VALUES ('{}',{},{})",
+        getName(), myOId.getCounter(), collType->getOId().getCounter()));
 
     for (auto i = mySet.begin(); i != mySet.end(); i++)
     {
-        SQLiteQuery::executeWithParams(
-            "INSERT INTO RAS_MDDCOLLECTIONS ( MDDId, MDDCollId) VALUES (%lld,%lld)",
-            (*i).getOId().getCounter(), myOId.getCounter());
+        SQLiteQuery::execute(fmt::format(
+            "INSERT INTO RAS_MDDCOLLECTIONS ( MDDId, MDDCollId) VALUES ({},{})",
+            (*i).getOId().getCounter(), myOId.getCounter()));
     }
     DBObject::insertInDb();
 }
 
 void DBMDDSet::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDCOLLNAMES WHERE MDDCollId = %lld", myOId.getCounter());
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDCOLLECTIONS WHERE MDDCollId = %lld", myOId.getCounter());
+    SQLiteQuery::execute(fmt::format("DELETE FROM RAS_MDDCOLLNAMES WHERE MDDCollId = {}", myOId.getCounter()));
+    SQLiteQuery::execute(fmt::format("DELETE FROM RAS_MDDCOLLECTIONS WHERE MDDCollId = {}", myOId.getCounter()));
     DBObject::deleteFromDb();
 }
 
@@ -113,8 +113,8 @@ void DBMDDSet::readFromDb()
 #endif
     long long mddoid2;
 
-    SQLiteQuery query("SELECT MDDCollName, SetTypeId FROM RAS_MDDCOLLNAMES "
-                      "WHERE MDDCollId = %lld", myOId.getCounter());
+    SQLiteQuery query(fmt::format("SELECT MDDCollName, SetTypeId FROM RAS_MDDCOLLNAMES "
+                                  "WHERE MDDCollId = {}", myOId.getCounter()));
     if (query.nextRow())
     {
         setName(query.nextColumnString());
@@ -127,8 +127,8 @@ void DBMDDSet::readFromDb()
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "MDD collection object not found in RAS_MDDCOLLNAMES.");
     }
 
-    SQLiteQuery cquery("SELECT MDDId FROM RAS_MDDCOLLECTIONS "
-                       "WHERE MDDCollId = %lld ORDER BY MDDId", myOId.getCounter());
+    SQLiteQuery cquery(fmt::format("SELECT MDDId FROM RAS_MDDCOLLECTIONS "
+                                   "WHERE MDDCollId = {} ORDER BY MDDId", myOId.getCounter()));
     while (cquery.nextRow())
     {
         mySet.insert(DBMDDObjId(OId(cquery.nextColumnLong(), OId::MDDOID)));
@@ -141,8 +141,8 @@ void DBMDDSet::readFromDb()
 
 DBMDDSetId DBMDDSet::getDBMDDSetContainingDBMDDObj(const OId &id)
 {
-  SQLiteQuery query("SELECT MDDCollId FROM RAS_MDDCOLLECTIONS "
-                    "WHERE MDDId = %lld", id.getCounter());
+  SQLiteQuery query(fmt::format("SELECT MDDCollId FROM RAS_MDDCOLLECTIONS "
+                                "WHERE MDDId = {}", id.getCounter()));
   if (query.nextRow())
   {
       auto setId = query.nextColumnLong();

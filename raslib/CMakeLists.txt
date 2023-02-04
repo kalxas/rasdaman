@@ -23,6 +23,7 @@
 
 set(SRC_HEADERS
         attribute.hh
+        banditerator.hh
         basetype.hh
         collectiontype.hh
         complex.hh
@@ -68,6 +69,7 @@ set(SRC_HEADERS
     
 add_library(raslib 
         attribute.cc
+        banditerator.cc
         basetype.cc
         collectiontype.cc
         complex.cc

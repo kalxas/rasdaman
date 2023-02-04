@@ -48,6 +48,8 @@ SET(RASMGR_SOURCES ${GENERATED_PROTO_SOURCES}
         exceptions/dbhostalreadyexistsexception.hh
         exceptions/dbhostbusyexception.cc
         exceptions/dbhostbusyexception.hh
+        exceptions/deadlineexceededexception.cc
+        exceptions/deadlineexceededexception.hh
         exceptions/duplicatedbsessionexception.cc
         exceptions/duplicatedbsessionexception.hh
         exceptions/inexistentclientexception.cc
@@ -56,6 +58,8 @@ SET(RASMGR_SOURCES ${GENERATED_PROTO_SOURCES}
         exceptions/inexistentdatabaseexception.hh
         exceptions/inexistentdbhostexception.cc
         exceptions/inexistentdbhostexception.hh
+        exceptions/inexistentdbsessionexception.cc
+        exceptions/inexistentdbsessionexception.hh
         exceptions/inexistentinpeerexception.cc
         exceptions/inexistentinpeerexception.hh
         exceptions/inexistentoutpeerexception.cc
@@ -137,24 +141,16 @@ SET(RASMGR_SOURCES ${GENERATED_PROTO_SOURCES}
         serverconfig.hh
         serverfactory.cc
         serverfactory.hh
-        serverfactoryrasnet.cc
-        serverfactoryrasnet.hh
         servergroup.cc
         servergroup.hh
         servergroupfactory.cc
         servergroupfactory.hh
-        servergroupfactoryimpl.cc
-        servergroupfactoryimpl.hh
-        servergroupimpl.cc
-        servergroupimpl.hh
         servermanagementservice.cc
         servermanagementservice.hh
         servermanager.cc
         servermanager.hh
         servermanagerconfig.cc
         servermanagerconfig.hh
-        serverrasnet.cc
-        serverrasnet.hh
         user.cc
         user.hh
         useradminrights.cc
@@ -164,7 +160,8 @@ SET(RASMGR_SOURCES ${GENERATED_PROTO_SOURCES}
         userdatabaserights.cc
         userdatabaserights.hh
         usermanager.cc
-        usermanager.hh)
+        usermanager.hh
+        )
 
 # Create a library from the source files so that we do not have to recompile.
 add_library(rasmgr_lib ${RASMGR_SOURCES})
@@ -175,7 +172,6 @@ target_link_libraries(rasmgr_lib
         PRIVATE
         rasnet 
         commline
-        mymalloc_cln
         common_exceptions 
         common_crypto 
         common_grpc 

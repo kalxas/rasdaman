@@ -127,14 +127,14 @@ QtMDD::QtMDD(QtOperation *mintervalOp, list<QtScalarData *> *literalList)
             scalarElem = *(literalList->begin());
             const BaseType *baseType = scalarElem->getValueType();
             //used to check if the MDDs are of the same type
-            char *baseStructure = baseType->getTypeStructure();
+            auto baseStructure = baseType->getTypeStructure();
 
             //
             // allocate memory and fill it with cell values of the list
             //
             unsigned long cellCount = 0;
             unsigned long cellSize  = baseType->getSize();
-            char *cellBuffer   = static_cast<char *>(mymalloc(domain.cell_count() * cellSize));
+            char *cellBuffer   = static_cast<char *>(mymalloc(domain.cell_count() * cellSize));;
             char *bufferOffset = cellBuffer;
 
             for (elemIter = literalList->begin(); elemIter != literalList->end(); elemIter++)
@@ -146,12 +146,12 @@ QtMDD::QtMDD(QtOperation *mintervalOp, list<QtScalarData *> *literalList)
                 if (cellCount <= domain.cell_count())
                 {
                     char *scalarElemTypeStructure = scalarElem->getTypeStructure();
-                    if (strcmp(scalarElemTypeStructure, baseStructure) != 0)
+                    if (strcmp(scalarElemTypeStructure, baseStructure.c_str()) != 0)
                     {
                         LERROR << "Error: QtMDD() - All cell values of an MDD must be of the same type.";
                         free(cellBuffer);
-                        free(scalarElemTypeStructure);
                         cellBuffer = NULL;
+                        free(scalarElemTypeStructure);
                         ParseInfo errorInfo = getParseInfo();
                         errorInfo.setErrorNo(PARSER_MDDCELLTYPEMUSTBEUNIFORM);
                         throw errorInfo;
@@ -162,7 +162,6 @@ QtMDD::QtMDD(QtOperation *mintervalOp, list<QtScalarData *> *literalList)
                 }
             }
 
-            free(baseStructure);
             // delete literal list - done by caller
             //  delete literalList;
 
@@ -330,7 +329,7 @@ char *QtMDD::getTypeStructure() const
 {
     if (mddObject)
     {
-        return mddObject->getMDDBaseType()->getTypeStructure();
+        return strdup(mddObject->getMDDBaseType()->getTypeStructure().c_str());
     }
     else
     {

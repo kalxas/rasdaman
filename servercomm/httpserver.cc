@@ -288,7 +288,7 @@ HttpServer::printServerStatus()
 
 int HttpServer::encodeAckn(char *&result, int ackCode = ackCodeOK)
 {
-    result = static_cast<char *>(mymalloc(1));
+    result = new char[1];
     *result = ackCode;
     return 1;
 }
@@ -391,7 +391,9 @@ long HttpServer::processRequest(unsigned long callingClientId,
         else if (strcmp(buffer, "BinData") == 0)
         {
             // This parameter has to be the last one!
-            BinData = new char[BinDataSize ];
+            LDEBUG << "Copying BinData of size " << BinDataSize << " from HTTP "
+                   << "parameters to a separate buffer";
+            BinData = new char[BinDataSize];
             memcpy(BinData,
                    httpParams + (httpParamsLen - BinDataSize),
                    static_cast<unsigned int>(BinDataSize));
@@ -576,7 +578,7 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
             totalLength += strlen(roid->get_system_name()) + 1;
             totalLength += strlen(roid->get_base_name()) + 1;
             // allocate the result
-            result = static_cast<char *>(mymalloc(totalLength));
+            result = new char[totalLength];
             char *currentPos = result;
             // fill it with data
             encodeNumber(&currentPos, static_cast<char>(RESPONSE_OID));
@@ -698,7 +700,7 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
     // contains all TransTiles representing the resulting MDDs
     vector<std::unique_ptr<Tile>> resultTiles;
     resultTiles.reserve(20);
-    vector<char *> resultTypes;
+    vector<std::string> resultTypes;
     resultTypes.reserve(20);
     vector<std::string> resultDomains;
     resultDomains.reserve(20);
@@ -706,8 +708,8 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
     resultOIDs.reserve(20);
 
     r_Minterval resultDom;
-    char *typeName = NULL;
-    char *typeStructure = NULL;
+    std::string typeName;
+    std::string typeStructure;
     r_OId oid;
     unsigned short currentFormat;
     r_Long numMDD{};
@@ -728,29 +730,18 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
         resultOIDs.push_back(oid);
         releaseContext(context);
 
-        totalLength += strlen(resultTypes.back()) + 1;  // array type
+        totalLength += resultTypes.back().size() + 1;  // array type
         totalLength += resultDomains.back().size() + 1; // array domain
         const auto *oidStr = oid.get_string_representation();
         totalLength += oidStr ? strlen(oidStr) + 1 : 1; // array oid
         totalLength += sizeof(std::uint64_t);           // array size
         totalLength += resultTiles.back()->getSize();   // array itself
-
-        if (typeName)
-        {
-            free(typeName);
-            typeName = NULL;
-        }
     }
     totalLength += getHeaderSize(resultTypeStructure);
-    if (typeName)
-    {
-        free(typeName);
-        typeName = NULL;
-    }
 
     // encode result
 
-    result = static_cast<char *>(mymalloc(totalLength));
+    result = new char[totalLength];
     char *currentPos = result;
 
     encodeHeader(&currentPos, RESPONSE_MDDS, systemEndianess, numMDD,
@@ -760,7 +751,7 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
     for (size_t i = 0; i < static_cast<size_t>(numMDD); i++)
     {
         // array type
-        encodeString(&currentPos, resultTypes[i], result, totalLength);
+        encodeString(&currentPos, resultTypes[i].c_str(), result, totalLength);
         // array domain
         encodeString(&currentPos, resultDomains[i].c_str(), result, totalLength);
         // array oid
@@ -774,11 +765,6 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
         // array data
         encodeBinary(&currentPos, resultTiles[i]->getContents(), tileSize, result, totalLength);
     }
-
-    // delete temporary storage
-    // TODO: put in a unique_ptr
-    for (size_t i = 0; i < static_cast<size_t>(numMDD); i++)
-        free(resultTypes[i]);
 
     return static_cast<long>(totalLength);
 }
@@ -828,7 +814,7 @@ long HttpServer::encodeScalars(unsigned long callingClientId, char *&result, con
 
     // encode result
 
-    result = static_cast<char *>(mymalloc(totalLength));
+    result = new char[totalLength];
     char *currentPos = result;
 
     encodeHeader(&currentPos, RESPONSE_SCALARS, systemEndianess, numElem,
@@ -846,7 +832,7 @@ long HttpServer::encodeScalars(unsigned long callingClientId, char *&result, con
     }
     // delete temporary storage
     for (size_t i = 0; i < static_cast<unsigned int>(numElem); i++)
-        free(resultElems[i]);
+        delete [] resultElems[i];
 
     return static_cast<long>(totalLength);
 }
@@ -857,7 +843,7 @@ long HttpServer::encodeEmpty(char *&result)
     size_t totalLength = getHeaderSize("");
     // the result collection is empty. It is returned as an empty MDD collection.
     // allocate the result
-    result = static_cast<char *>(mymalloc(totalLength));
+    result = new char[totalLength];
     char *currentPos = result;
     encodeHeader(&currentPos, RESPONSE_MDDS, systemEndianess, 0, "", result, totalLength);
     return static_cast<long>(totalLength);
@@ -869,7 +855,7 @@ long HttpServer::encodeError(char *&result, const r_ULong  errorNo,
     size_t textLen = strlen(text);
 
     size_t totalLength = 2 + 3 * sizeof(r_ULong) + textLen + 1;
-    result = static_cast<char *>(mymalloc(totalLength));
+    result = new char[totalLength];
 
     char *currentPos = result;
     *currentPos = RESPONSE_ERROR;
@@ -917,11 +903,10 @@ void HttpServer::swapArrayIfNeeded(const std::unique_ptr<Tile> &tile, const r_Mi
     LTRACE << "Changing endianness of tile with domain " << dom;
 #endif
     // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
-    char *typeStruct = tile->getType()->getTypeStructure();
+    auto typeStruct = tile->getType()->getTypeStructure();
     auto *baseType = static_cast<r_Base_Type *>(r_Type::get_any_type(typeStruct));
-    free(typeStruct);
 
-    char *dest = static_cast<char *>(mymalloc(tile->getSize()));
+    char *dest = new char[tile->getSize()];
 
     // change the endianness of the entire tile for identical domains for src and dest
     r_Endian::swap_array(baseType, dom, dom, tile->getContents(), dest);
@@ -990,7 +975,7 @@ long HttpServer::insertIfNeeded(unsigned long callingClientId, char *query, int 
         auto transferredMDDs = getMDDs(binDataSize, binData, Endianess);
 
         // Store all MDDs
-        //LINFO << "vector has " << transferredMDDs.size() << " entries.";
+        LDEBUG << "vector has " << transferredMDDs.size() << " entries.";
         unsigned short execResult{};
         while (!transferredMDDs.empty())
         {
@@ -1011,10 +996,11 @@ long HttpServer::insertIfNeeded(unsigned long callingClientId, char *query, int 
 unsigned short HttpServer::startInsertMDD(unsigned long callingClientId, char *query,
         const vector<HttpServer::MDDEncoding *> &transferredMDDs, bool &isPersistent)
 {
-    r_Minterval tempStorage(transferredMDDs.back()->domain);
-    auto roid = std::unique_ptr<r_OId>(new r_OId(transferredMDDs.back()->oidString));
+    auto *mdd = transferredMDDs.back();
+    r_Minterval tempStorage(mdd->domain);
+    auto roid = std::unique_ptr<r_OId>(new r_OId(mdd->oidString));
     isPersistent = roid->is_valid();
-    if (roid->is_valid())
+    if (isPersistent)
     {
         // parse the query string to get the collection name
         char *endPtr = query;
@@ -1038,14 +1024,12 @@ unsigned short HttpServer::startInsertMDD(unsigned long callingClientId, char *q
             collection.reset(new char[1]);
         }
         return startInsertPersMDD(callingClientId, collection.get(), tempStorage,
-                                  transferredMDDs.back()->typeLength,
-                                  transferredMDDs.back()->objectTypeName, *roid);
+                                  mdd->typeLength, mdd->objectTypeName, *roid);
     }
     else
     {
         return startInsertTransMDD(callingClientId, tempStorage,
-                                   transferredMDDs.back()->typeLength,
-                                   transferredMDDs.back()->objectTypeName);
+                                   mdd->typeLength, mdd->objectTypeName);
     }
 }
 
@@ -1055,7 +1039,7 @@ unsigned short HttpServer::insertMDD(unsigned long callingClientId,
 {
     auto *mdd = transferredMDDs.back();
     // create RPCMarray data structure - formats are currently hardcoded (r_Array)
-    RPCMarray *rpcMarray = static_cast<RPCMarray *>(mymalloc(sizeof(RPCMarray)));
+    RPCMarray *rpcMarray = new RPCMarray();
     rpcMarray->domain         = strdup(mdd->domain);
     rpcMarray->cellTypeLength = mdd->typeLength;
     rpcMarray->currentFormat  = r_Array;
@@ -1080,8 +1064,8 @@ unsigned short HttpServer::insertMDD(unsigned long callingClientId,
 
     // free the stuff
     free(rpcMarray->domain);
-    free(rpcMarray);
-    delete (mdd);
+    delete rpcMarray;
+    delete mdd;
     transferredMDDs.pop_back();
     return ret;
 }
@@ -1123,7 +1107,7 @@ long HttpServer::encodeInsertError(char *&result, unsigned short execResult, vec
     while (!transferredMDDs.empty())
     {
         NNLINFO << "Freeing old transfer structures... ";
-        free(transferredMDDs.back()->binData);
+        delete [] transferredMDDs.back()->binData;
         delete (transferredMDDs.back());
         transferredMDDs.pop_back();
         BLINFO << "ok";

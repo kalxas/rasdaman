@@ -211,7 +211,22 @@ void r_Sinterval::set_interval(char, char) noexcept
 
 void r_Sinterval::set_slice() noexcept
 {
-    slice = true;
+  slice = true;
+}
+
+const string &r_Sinterval::get_axis_name() const
+{
+  return axis_name;
+}
+
+void r_Sinterval::set_axis_name(const std::string &axis_name_arg)
+{
+  axis_name = axis_name_arg;
+}
+
+bool r_Sinterval::has_axis_name() const
+{
+  return !axis_name.empty();
 }
 
 Offset r_Sinterval::get_offset_to(r_Sinterval::BoundType o) const noexcept
@@ -340,9 +355,17 @@ r_Sinterval r_Sinterval::create_closure(const r_Sinterval &interval) const
 }
 void r_Sinterval::print_status(std::ostream &s) const
 {
+    if (has_axis_name())
+    {
+        s << axis_name << "(";
+    }
     s << (low_fixed ? std::to_string(lower_bound) : "*");
     s << ":";
     s << (high_fixed ? std::to_string(upper_bound) : "*");
+    if (has_axis_name())
+    {
+        s << ")";
+    }
 }
 
 r_Bytes r_Sinterval::get_storage_size() const
@@ -949,6 +972,10 @@ string r_Sinterval::to_string() const
     {
         ret += ":";
         ret += high_fixed ? std::to_string(upper_bound) : "*";
+    }
+    if (has_axis_name())
+    {
+        ret = axis_name + "(" + ret + ")";
     }
     return ret;
 }

@@ -67,6 +67,7 @@ public:
      * Initialize lock files in the transaction directory trPath.
      *
      * @param trPath the root directory of the transaction.
+     * @param trLocksPath path to the lock file
      * @param check use this object for checking (do not clear locks in destructor)
      */
     BlobFSTransactionLock(const std::string &trPath,

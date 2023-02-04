@@ -35,15 +35,17 @@ class Timer
 {
 public:
     /**
-    * Create a Timer object with a given lifetime. The timer automatically starts ticking.
-    * @param period The number of milliseconds until the timer will expire.
-    * @throws InvalidArgumentException is thrown if the period is negative.
-    */
-    Timer(std::int32_t period);
+     * Create a Timer object with a given lifetime. The timer automatically starts ticking.
+     * @param period The number of milliseconds until the timer will expire.
+     * @throws InvalidArgumentException is thrown if the period is negative.
+     */
+    explicit Timer(std::int32_t period);
 
-    virtual ~Timer();
+    ~Timer() = default;
 
     std::int32_t getPeriod() const;
+    
+    void setPeriod(std::int32_t periodArg);
 
     /**
     * Check if the timer has expired.
@@ -56,6 +58,7 @@ public:
     * Reset the timer. The timer will start counting down from the initial period passed to the constructor.
     */
     void reset();
+    
 private:
     struct timeval start;
     /*!< Timeval representing the time the Timer started */
@@ -65,7 +68,7 @@ private:
     /*!< Timeval used to get the current time when checking for expiration*/
     struct timeval timeout;/*!< Timeval representing the period the Timer measures*/
 
-    std::int32_t period;
+    std::int32_t period{};
 };
 }
 #endif /* COMMON_TIME_TIMER_HH_ */

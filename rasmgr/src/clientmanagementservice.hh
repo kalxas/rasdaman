@@ -32,27 +32,47 @@ namespace rasmgr
 class ClientManager;
 
 /**
- * @brief The ClientManagementService class Handles requests from clients,
- * keeps track of active clients sessions and removes clients that have
- * not reported activity in a predefined amount of time.
+ * Handles network requests from clients:
+ * 
+ * - Connect
+ * - Disconnect
+ * - OpenDb
+ * - CloseDb
+ * - KeepAlive
+ * 
+ * These requests are specified in `rasnet/protomessages/rasmgr_client_service.proto`
+ * 
+ * To handle these requests, this class uses the ClientManager to keep track of
+ * active clients sessions removes clients that have not reported activity in a
+ * predefined amount of time.
  */
 class ClientManagementService : public rasnet::service::RasmgrClientService::Service
 {
 public:
 
-    ClientManagementService(std::shared_ptr<ClientManager> clientManager);
+    explicit ClientManagementService(std::shared_ptr<ClientManager> clientManager);
 
     ~ClientManagementService() override = default;
 
-    grpc::Status Connect(grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response) override;
+    grpc::Status Connect(grpc::ServerContext *context,
+                         const rasnet::service::ConnectReq *request,
+                         rasnet::service::ConnectRepl *response) override;
 
-    grpc::Status Disconnect(grpc::ServerContext *context, const rasnet::service::DisconnectReq *request, rasnet::service::Void *response) override;
+    grpc::Status Disconnect(grpc::ServerContext *context,
+                            const rasnet::service::DisconnectReq *request,
+                            rasnet::service::Void *response) override;
 
-    grpc::Status OpenDb(grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response) override;
+    grpc::Status OpenDb(grpc::ServerContext *context,
+                        const rasnet::service::OpenDbReq *request,
+                        rasnet::service::OpenDbRepl *response) override;
 
-    grpc::Status CloseDb(grpc::ServerContext *context, const rasnet::service::CloseDbReq *request, rasnet::service::Void *response) override;
+    grpc::Status CloseDb(grpc::ServerContext *context,
+                         const rasnet::service::CloseDbReq *request,
+                         rasnet::service::Void *response) override;
 
-    grpc::Status KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveReq *request, rasnet::service::Void *response) override;
+    grpc::Status KeepAlive(grpc::ServerContext *context,
+                           const rasnet::service::KeepAliveReq *request,
+                           rasnet::service::Void *response) override;
 
 private:
     std::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */

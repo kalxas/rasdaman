@@ -351,9 +351,9 @@ QtInsert::evaluate()
             if (mddDomainType != NULL)
             {
                 const auto *trueDomain = mddDomainType->getDomain();
-                trueAxisNames =  trueDomain->getAxisNames();
-                tileCfg.setAxisNames(trueAxisNames);
-                newDomain.setAxisNames(trueAxisNames);
+                trueAxisNames =  trueDomain->get_axis_names();
+                tileCfg.set_axis_names(trueAxisNames);
+                newDomain.set_axis_names(trueAxisNames);
             }
             if (sourceDimension == tileCfg.dimension())
             {
@@ -368,7 +368,7 @@ QtInsert::evaluate()
                 // create a new persistent tile, copy the transient data, and insert it into the target mdd object
                 Tile *sourceTile = sourceIt->get();
                 auto namedSrcDomain = sourceTile->getDomain();
-                namedSrcDomain.setAxisNames(trueAxisNames);
+                namedSrcDomain.set_axis_names(trueAxisNames);
                 Tile *newPersTile = new Tile(namedSrcDomain, persMDDType->getBaseType(),
                                              true, sourceTile->getContents(),
                                              sourceTile->getSize(), sourceTile->getDataFormat());

@@ -28,7 +28,6 @@ rasdaman GmbH.
 #include "servercomm/cliententry.hh"
 #include "servercomm/accesscontrol.hh"
 #include "reladminif/adminif.hh"
-#include "mymalloc/mymalloc.h"
 
 #include <logging.hh>
 #include <limits>
@@ -58,12 +57,14 @@ void RasServerEntry::connectNewClient(const char* capability)
 {
     if (!currentClientContext)
     {
-        currentClientContext = new ClientTblElt(ClientType::Regular, ++clientCount);
-        currentClientIdx = clientCount;
-        server.addClientTblEntry(currentClientContext);
-    
-        if (accessControl.crunchCapability(capability) == CAPABILITY_REFUSED)
+        if (accessControl.crunchCapability(capability) == CAPABILITY_REFUSED) {
+            LWARNING << "Invalid capability: '" << capability << "'";
             throw r_Ecapability_refused();
+        }
+        
+        currentClientIdx = ++clientCount;
+        currentClientContext = new ClientTblElt(ClientType::Regular, currentClientIdx);
+        server.addClientTblEntry(currentClientContext);
     }
     else
     {
@@ -120,9 +121,9 @@ long RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPar
     return server.processRequest(currentClientIdx, httpParams, httpParamsLen, resultBuffer);
 }
 
-int RasServerEntry::compat_executeQueryRpc(const char* query, ExecuteQueryRes& queryResult)
+int RasServerEntry::compat_executeQueryRpc(const char* query, ExecuteQueryRes& queryResult, bool insert)
 {
-    return server.executeQuery(currentClientIdx, query, queryResult);
+    return server.executeQuery(currentClientIdx, query, queryResult, insert);
 }
 
 int RasServerEntry::compat_getNextElement(char*& buffer, unsigned int&  bufferSize)
@@ -135,7 +136,7 @@ int RasServerEntry::compat_endTransfer()
     return server.endTransfer(currentClientIdx);
 }
 
-int RasServerEntry::compat_getNextMDD(r_Minterval& mddDomain, char*& typeName, char*& typeStructure, r_OId& oid, unsigned short& currentFormat)
+int RasServerEntry::compat_getNextMDD(r_Minterval& mddDomain, std::string &typeName, std::string &typeStructure, r_OId& oid, unsigned short& currentFormat)
 {
     return server.getNextMDD(currentClientIdx, mddDomain, typeName, typeStructure, oid, currentFormat);
 }
@@ -177,7 +178,7 @@ int RasServerEntry::compat_EndInsertMDD(int persistent)
     return server.endInsertMDD(currentClientIdx, persistent);
 }
 
-int RasServerEntry::compat_GetTypeStructure(const char* typeName, int typeType, char*& typeStructure)
+int RasServerEntry::compat_GetTypeStructure(const char* typeName, int typeType, std::string& typeStructure)
 {
     return server.getTypeStructure(currentClientIdx, typeName, static_cast<unsigned short>(typeType), typeStructure);
 }
@@ -213,22 +214,22 @@ int RasServerEntry::compat_RemoveObjFromColl(const char* collName, r_OId& oid)
     return server.removeObjFromColl(currentClientIdx, collName, oid);
 }
 
-int RasServerEntry::compat_GetCollectionByName(const char* collName, char*& typeName, char*& typeStructure, r_OId& oid)
+int RasServerEntry::compat_GetCollectionByName(const char* collName, std::string &typeName, std::string &typeStructure, r_OId& oid)
 {
     return server.getCollByName(currentClientIdx, collName, typeName, typeStructure, oid);
 }
 
-int RasServerEntry::compat_GetCollectionByName(r_OId oid, char*& typeName, char*& typeStructure, char*& collName)
+int RasServerEntry::compat_GetCollectionByName(r_OId oid, std::string &typeName, std::string &typeStructure, std::string &collName)
 {
     return server.getCollByOId(currentClientIdx, oid, typeName, typeStructure, collName);
 }
 
-int RasServerEntry::compat_GetCollectionOidsByName(const char* collName, char*& typeName, char*& typeStructure, r_OId& oid, RPCOIdEntry*& oidTable, unsigned int& oidTableSize)
+int RasServerEntry::compat_GetCollectionOidsByName(const char* collName, std::string &typeName, std::string &typeStructure, r_OId& oid, RPCOIdEntry*& oidTable, unsigned int& oidTableSize)
 {
     return server.getCollOIdsByName(currentClientIdx, collName, typeName, typeStructure, oid, oidTable, oidTableSize);
 }
 
-int RasServerEntry::compat_GetCollectionOidsByOId(r_OId oid, char*& typeName, char*& typeStructure, RPCOIdEntry*& oidTable, unsigned int& oidTableSize, char*& collName)
+int RasServerEntry::compat_GetCollectionOidsByOId(r_OId oid, std::string &typeName, std::string &typeStructure, RPCOIdEntry*& oidTable, unsigned int& oidTableSize, std::string &collName)
 {
     return server.getCollOIdsByOId(currentClientIdx, oid, typeName, typeStructure, oidTable, oidTableSize, collName);
 }

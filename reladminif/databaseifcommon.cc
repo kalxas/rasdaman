@@ -56,11 +56,6 @@ DatabaseIf::~DatabaseIf()
 {
     if (isConnected())
         baseDBMSClose();
-    if (myName)
-        free(myName), myName = nullptr;
-
-    connected = false;
-    opened = false;
 }
 
 void DatabaseIf::open(const char *dbName)
@@ -71,7 +66,7 @@ void DatabaseIf::open(const char *dbName)
         throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
     opened = true;
-    myName = strdup(dbName);
+    myName = dbName;
     connect();
     connected = true;
 }
@@ -79,10 +74,12 @@ void DatabaseIf::open(const char *dbName)
 void DatabaseIf::close()
 {
     opened = false;
-    if (myName)
-        free(myName), myName = nullptr;
+    myName = "none";
     if (connected)
-        disconnect(), connected = false;
+    {
+        disconnect();
+        connected = false;
+    }
 }
 
 bool DatabaseIf::isConnected() const
@@ -97,7 +94,7 @@ bool DatabaseIf::isOpen() const
 
 const char *DatabaseIf::getName() const
 {
-    return myName;
+    return myName.c_str();
 }
 
 void DatabaseIf::baseDBMSOpen()
@@ -114,7 +111,7 @@ void DatabaseIf::baseDBMSOpen()
 #ifdef DBMS_PGSQL // cannot have this check in PostgreSQL -- PB 2005-jan-09
     if (!databaseExists(myName))
     {
-        LERROR << "Database " << ((myName) ? myName : "NULL") << " unknown";
+        LERROR << "Database " << myName << " unknown";
         throw r_Error(r_Error::r_Error_DatabaseUnknown);
     }
 #endif // DBMS_PGSQL
@@ -125,7 +122,7 @@ void DatabaseIf::baseDBMSOpen()
     checkCompatibility();
     if (!isConsistent())
     {
-        LERROR << "Database " << ((myName) ? myName : "NULL") << " inconsistent";
+        LERROR << "Database " << myName << " inconsistent";
         throw r_Error(DATABASE_INCONSISTENT);
     }
 #endif
@@ -151,7 +148,7 @@ void DatabaseIf::baseDBMSClose()
 std::ostream &operator<<(std::ostream &stream, DatabaseIf &db)
 {
     stream << "DatabaseIf\n"
-           << "\tConnected To\t: " << ((db.getName()) ? db.getName() : "") << std::endl;
+           << "\tConnected To\t: " << db.getName() << std::endl;
     if (db.opened)
     {
         if (db.connected)

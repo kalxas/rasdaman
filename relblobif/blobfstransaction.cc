@@ -126,6 +126,8 @@ string BlobFSTransaction::getFinalBlobPath(long long blobId)
 
 void BlobFSTransaction::finalizeUncompleted()
 {
+    LTRACE << "finalize uncompleted transactions";
+    
     if (!transactionLock)
     {
         LWARNING << "Transaction lock not initialized for " << transactionPath
@@ -161,6 +163,8 @@ void BlobFSTransaction::finalizeUncompleted()
 
 void BlobFSTransaction::finalizeRasbaseCrash()
 {
+    LTRACE << "finalize post RASBASE crash";
+    
     // it was already checked in finalizeUncompleted that blobIds is not empty
     assert(!blobIds.empty());
     
@@ -238,7 +242,7 @@ bool BlobFSTransaction::addBlobId(const std::string &blobPath)
 
     if (blobId != INVALID_BLOB_ID)
     {
-        blobIds.push_back(blobId);
+        blobIds.insert(blobId);
         return true;
     }
     else
@@ -344,14 +348,16 @@ BlobFSInsertTransaction::BlobFSInsertTransaction(
 
 void BlobFSInsertTransaction::add(BlobData &blob)
 {
+    LTRACE << "add blob to insert transaction: " << blob.blobId;
     const string blobPath = getTmpBlobPath(blob.blobId);
     BlobFile blobFile(blobPath);
     blobFile.insertData(blob);
-    blobIds.push_back(blob.blobId);
+    blobIds.insert(blob.blobId);
 }
 
 void BlobFSInsertTransaction::postRasbaseCommit()
 {
+    LTRACE << "commiting insert transaction post RASBASE commit";
     if (blobIds.empty())
         return;
 
@@ -366,6 +372,7 @@ void BlobFSInsertTransaction::postRasbaseCommit()
 
 void BlobFSInsertTransaction::postRasbaseAbort()
 {
+    LTRACE << "aborting insert transaction post RASBASE abort";
     if (blobIds.empty())
         return;
 
@@ -388,14 +395,16 @@ BlobFSUpdateTransaction::BlobFSUpdateTransaction(
 
 void BlobFSUpdateTransaction::add(BlobData &blob)
 {
+    LTRACE << "add blob to update transaction: " << blob.blobId;
     const string blobPath = getTmpBlobPath(blob.blobId);
     BlobFile blobFile(blobPath);
     blobFile.updateData(blob);
-    blobIds.push_back(blob.blobId);
+    blobIds.insert(blob.blobId);
 }
 
 void BlobFSUpdateTransaction::postRasbaseCommit()
 {
+    LTRACE << "commiting update transaction post RASBASE commit";
     if (blobIds.empty())
         return;
 
@@ -410,6 +419,7 @@ void BlobFSUpdateTransaction::postRasbaseCommit()
 
 void BlobFSUpdateTransaction::postRasbaseAbort()
 {
+    LTRACE << "aborting update transaction post RASBASE abort";
     if (blobIds.empty())
         return;
 
@@ -432,9 +442,10 @@ BlobFSRemoveTransaction::BlobFSRemoveTransaction(
 
 void BlobFSRemoveTransaction::add(BlobData &blob)
 {
+    LTRACE << "add blob to remove transaction: " << blob.blobId;
     if (blob.blobId > 0)
     {
-        blobIds.push_back(blob.blobId);
+        blobIds.insert(blob.blobId);
     }
     else
     {
@@ -445,6 +456,7 @@ void BlobFSRemoveTransaction::add(BlobData &blob)
 
 void BlobFSRemoveTransaction::preRasbaseCommit()
 {
+    LTRACE << "commiting remove transaction before RASBASE commit";
     if (blobIds.empty())
         return;
 
@@ -468,6 +480,7 @@ void BlobFSRemoveTransaction::preRasbaseCommit()
 
 void BlobFSRemoveTransaction::postRasbaseCommit()
 {
+    LTRACE << "commiting remove transaction post RASBASE commit";
     if (blobIds.empty())
         return;
 
@@ -482,6 +495,7 @@ void BlobFSRemoveTransaction::postRasbaseCommit()
 
 void BlobFSRemoveTransaction::postRasbaseAbort()
 {
+    LTRACE << "aborting remove transaction post RASBASE abort";
     if (blobIds.empty())
         return;
 
@@ -517,6 +531,7 @@ BlobFSSelectTransaction::BlobFSSelectTransaction(BlobFSConfig &configArg)
 
 void BlobFSSelectTransaction::add(BlobData &blob)
 {
+    LTRACE << "add blob to select transaction: " << blob.blobId;
     const string blobPath = getFinalBlobPath(blob.blobId);
     BlobFile blobFile(blobPath);
     blobFile.readData(blob);

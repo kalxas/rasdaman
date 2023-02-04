@@ -41,6 +41,7 @@ rasdaman GmbH.
 #include "raslib/point.hh"                  // for r_Point
 #include "catalogmgr/nullvalues.hh"
 #include "catalogmgr/typeenum.hh"
+#include "common/tree/model/dbinfo.hh"
 
 #include <vector>                              // for vector
 #include <iosfwd>                              // for cout, ostream
@@ -298,7 +299,12 @@ public:
     /// A templated helper function addresses the stored data type.
     void fillTileWithNullvalues(char *resDataPtr, size_t cellCount) const;
 
-    std::string getArrayInfo(bool printTiles) const;
+    std::string getArrayInfo(common::PrintTiles printTiles) const;
+    std::string getEmbeddedArrayInfo(common::PrintTiles printTiles) const;
+    std::string getJsonArrayInfo() const;
+    std::string getSvgArrayInfo() const;
+    void printArrayTiles(const std::unique_ptr<std::vector<std::shared_ptr<Tile>>> &tiles,
+                         std::ostream &os) const;
     
     /// sets the Collection Type
     void setCollType(const CollectionType *newCollType);

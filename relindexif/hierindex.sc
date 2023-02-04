@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
 #include <memory>
+#include <fmt/core.h>
 
 
 void DBHierIndex::insertInDb()
@@ -35,10 +36,10 @@ void DBHierIndex::insertInDb()
     long long parentid;
     auto completeBuf = writeToBlobBuffer(completeSize, parentid);
 
-    SQLiteQuery query(
+    SQLiteQuery query(fmt::format(
         "INSERT INTO RAS_HIERIX ( MDDObjIxOId, NumEntries, Dimension, ParentOId, "
-        "IndexSubType, DynData ) VALUES ( %lld, %ld, %ld, %lld, %d, ? )",
-        myOId.getCounter(), getSize(), myDomain.dimension(), parentid, _isNode);
+        "IndexSubType, DynData ) VALUES ( {}, {}, {}, {}, {}, ? )",
+        myOId.getCounter(), getSize(), myDomain.dimension(), parentid, int(_isNode)));
     query.bindBlob(completeBuf.get(), completeSize);
     query.execute();
 
@@ -47,9 +48,9 @@ void DBHierIndex::insertInDb()
 
 void DBHierIndex::readFromDb()
 {
-    SQLiteQuery query(
+    SQLiteQuery query(fmt::format(
         "SELECT NumEntries, Dimension, ParentOId, IndexSubType, DynData "
-        "FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", myOId.getCounter());
+        "FROM RAS_HIERIX WHERE MDDObjIxOId = {}", myOId.getCounter()));
     if (query.nextRow())
     {
         auto numEntries = static_cast<r_Bytes>(query.nextColumnInt());
@@ -77,10 +78,10 @@ void DBHierIndex::updateInDb()
     long long parentid;
     auto completeBuf = writeToBlobBuffer(completeSize, parentid);
 
-    SQLiteQuery query(
-        "UPDATE RAS_HIERIX SET NumEntries = %ld, Dimension = %ld, ParentOId = %lld, "
-        "IndexSubType = %d, DynData = ? WHERE MDDObjIxOId = %lld",
-        getSize(), myDomain.dimension(), parentid, _isNode, myOId.getCounter());
+    SQLiteQuery query(fmt::format(
+        "UPDATE RAS_HIERIX SET NumEntries = {}, Dimension = {}, ParentOId = {}, "
+        "IndexSubType = {}, DynData = ? WHERE MDDObjIxOId = {}",
+        getSize(), myDomain.dimension(), parentid, int(_isNode), myOId.getCounter()));
     query.bindBlob(completeBuf.get(), completeSize);
     query.execute();
     
@@ -122,8 +123,8 @@ void DBHierIndex::deleteFromDb()
         myKeyObjects.erase(myKeyObjects.begin());
     }
 
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", 
-                                   myOId.getCounter());
+    SQLiteQuery::execute(fmt::format("DELETE FROM RAS_HIERIX WHERE MDDObjIxOId = {}", 
+                                     myOId.getCounter()));
     DBObject::deleteFromDb();
 
 } // deleteFromDb()

@@ -31,18 +31,19 @@ namespace rasmgr
 class Server;
 class ServerConfig;
 
+/**
+ * Creates a server object initialized with the given configuration. It's only
+ * necessary to allow testing with mocked objects.
+ */
 class ServerFactory
 {
 public:
-    virtual ~ServerFactory();
+    virtual ~ServerFactory() = default;
 
     /**
-     * @brief createServer Create and return a server object that runs on the given host and port and is connected
-     * to the given database host.
-     * @param configuration
-     * @return
+     * Return a server object initialized with the given configuration.
      */
-    virtual std::shared_ptr<Server> createServer(const ServerConfig &configuration) = 0;
+    virtual std::shared_ptr<Server> createServer(const ServerConfig &configuration);
 };
 
 } /* namespace rasmgr */

@@ -135,7 +135,8 @@ FastMDDCreator::~FastMDDCreator()
 {
     if (comprData)
     {
-        free(comprData);
+        delete [] (comprData);
+        comprData = nullptr;
     }
 }
 
@@ -160,7 +161,7 @@ void FastMDDCreator::verifyCompatibility(MDDColl* collection)
         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
     }
 
-    char* collTypeStructure = collection->getCollectionType()->getTypeStructure();
+    auto collTypeStructure = collection->getCollectionType()->getTypeStructure();
     //LINFO << "collTypeStructure=" << collTypeStructure;
 
     const MDDType* mddType = TypeFactory::mapMDDType(mddTypeName.c_str());
@@ -169,7 +170,7 @@ void FastMDDCreator::verifyCompatibility(MDDColl* collection)
         throw r_Error(MDDTYPE_NULL);
     }
 
-    char* mddTypeStructure  = mddType->getTypeStructure();
+    auto mddTypeStructure  = mddType->getTypeStructure();
     //LINFO << "mddTypeStructure=" << mddTypeStructure;
 
 
@@ -192,9 +193,6 @@ void FastMDDCreator::verifyCompatibility(MDDColl* collection)
         throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
     }
     //LERROR << "incompatibil with collection";
-
-    free(collTypeStructure);
-    free(mddTypeStructure);
 }
 
 r_OId FastMDDCreator::createMDD(const char* domain)
@@ -337,7 +335,7 @@ void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, __attri
         }
         else
         {
-            free(comprData);
+            delete [] (comprData);
             comprData = 0;
         }
     }
@@ -345,12 +343,13 @@ void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, __attri
 
     r_Data_Format comprMode = storageFormat; ;
 
-    char* dataPtr = static_cast<char*>(mymalloc(uncompressedSize));
+    char* dataPtr = new char[uncompressedSize];
     memset(dataPtr, 0, uncompressedSize);
 
-    r_ULong newSize = uncompressedSize;
+    r_ULong newSize = static_cast<r_ULong>(uncompressedSize);
     comprData = dataPtr;
     comprDataSize = static_cast<int>(newSize);
+    delete [] (dataPtr);
 
     lastSize = uncompressedSize;
 }

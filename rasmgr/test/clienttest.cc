@@ -65,7 +65,7 @@ protected:
 
         user.reset(new rasmgr::User(userName, userPassword, dbRights, adminRights));
                 
-        client.reset(new Client(clientId, user, clientLifeTime));
+        client.reset(new Client(clientId, user, clientLifeTime, ""));
     }
 
     std::string clientId;
@@ -195,7 +195,7 @@ TEST_F(ClientTest, removeClientFromServers)
     EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId, _)).Times(1);
 
     EXPECT_NO_THROW(client->addDbSession(dbName, server, out_sessionId));
-    EXPECT_NO_THROW(client->removeClientFromServers());
+    EXPECT_NO_THROW(client->removeClientFromServer());
 }
 
 }

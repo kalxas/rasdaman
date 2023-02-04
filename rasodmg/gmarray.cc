@@ -43,6 +43,7 @@ rasdaman GmbH.
 #include "raslib/structuretype.hh"
 #include "raslib/point.hh"
 #include "raslib/error.hh"
+#include "raslib/banditerator.hh"
 
 #include <logging.hh>
 
@@ -90,7 +91,8 @@ r_GMarray::r_GMarray(const r_Minterval &initDomain, r_Bytes initLength, r_Storag
 
 r_GMarray::r_GMarray(const r_GMarray &obj)
     : r_Object(obj, 1), domain(obj.spatial_domain()),
-      type_length(obj.type_length), current_format(obj.current_format)
+      type_length(obj.type_length), current_format(obj.current_format),
+      band_linearization{obj.band_linearization}, cell_linearization{obj.cell_linearization}
 {
     if (obj.data)
     {
@@ -105,7 +107,8 @@ r_GMarray::r_GMarray(const r_GMarray &obj)
 r_GMarray::r_GMarray(r_GMarray &obj)
     : r_Object(obj, 1),
       domain(obj.spatial_domain()), data(obj.data), tiled_data(obj.tiled_data),
-      data_size(obj.data_size), type_length(obj.type_length), current_format(obj.current_format)
+      data_size(obj.data_size), type_length(obj.type_length), current_format(obj.current_format),
+      band_linearization{obj.band_linearization}, cell_linearization{obj.cell_linearization}
 {
     obj.data_size      = 0;
     obj.data           = 0;
@@ -147,6 +150,7 @@ r_GMarray::r_deactivate()
 const char *
 r_GMarray::operator[](const r_Point &point) const
 {
+    assert(band_linearization == r_Band_Linearization::PixelInterleaved);
     return &(data[domain.cell_offset(point) * type_length]);
 }
 
@@ -199,6 +203,8 @@ r_GMarray::operator=(const r_GMarray &marray)
         domain         = marray.domain;
         type_length    = marray.type_length;
         current_format = marray.current_format;
+        band_linearization = marray.band_linearization;
+        cell_linearization = marray.cell_linearization;
     }
     return *this;
 }
@@ -245,7 +251,9 @@ r_GMarray::print_status(std::ostream &s)
         s << "<nn>" << std::flush;
     s << "\n  Base Type Length......: " << type_length;
     s << "\n  Data format.......... : " << current_format;
-    s << "\n  Data size (bytes).... : " << data_size << std::endl;
+    s << "\n  Data size (bytes).... : " << data_size;
+    s << "\n  Band linearization... : " << band_linearization;
+    s << "\n  Cell linearization... : " << cell_linearization << std::endl;
 }
 
 void
@@ -323,31 +331,81 @@ r_GMarray::print_status(std::ostream &s, int hexoutput)
 
 r_GMarray *r_GMarray::intersect(const r_Minterval &where) const
 {
+    LDEBUG << "returning " << where << " subset from r_GMarray with sdom " << spatial_domain();
     r_GMarray *tile = new r_GMarray(get_transaction());
 
-    const auto &obj_domain = spatial_domain();
-    const auto num_dims = obj_domain.dimension();
+    const auto &src_domain = spatial_domain();
+    const auto num_dims = src_domain.dimension();
     const auto tlength = get_type_length();
-
-    char *obj_data = new char[where.cell_count() * tlength];
+    
+    const char *src_data = get_array();
+    char *dst_data = new char[where.cell_count() * tlength];
     tile->set_spatial_domain(where);
     tile->set_type_length(tlength);
-    tile->set_array(obj_data);
+    tile->set_array(dst_data);
     tile->set_array_size(where.cell_count() * tlength);
+    tile->set_band_linearization(get_band_linearization());
+    tile->set_cell_linearization(get_cell_linearization());
 
-    r_Bytes block_length = static_cast<r_Bytes>(where[num_dims - 1].high() - where[num_dims - 1].low() + 1);
-    r_Bytes total = where.cell_count() / block_length;
-
-    for (r_Area cell = 0; cell < total; cell++)
+    // extent of last dimension
+    r_Bytes block_length = static_cast<r_Bytes>(where[num_dims - 1].get_extent());
+    // number of blocks in the intersection domain
+    r_Bytes block_count = where.cell_count() / block_length;
+    
+    if (band_linearization == r_Band_Linearization::PixelInterleaved ||
+        (type_schema && static_cast<const r_Marray_Type *>(type_schema)->base_type().isPrimitiveType()))
     {
-        r_Point p = where.cell_point(cell * block_length);
-
-        char *dest_off = obj_data;
-        const char *source_off = get_array();
-
-        memcpy(dest_off + where.cell_offset(p) * tlength,
-               source_off + obj_domain.cell_offset(p) * tlength,
-               block_length * tlength);
+        for (r_Area cell = 0; cell < block_count; ++cell)
+        {
+            r_Point p = where.cell_point(cell * block_length);
+    
+            memcpy(dst_data + where.cell_offset(p) * tlength,
+                   src_data + src_domain.cell_offset(p) * tlength,
+                   block_length * tlength);
+        }
+    }
+    else if (band_linearization == r_Band_Linearization::ChannelInterleaved)
+    {
+        if (type_schema)
+        {
+            const auto &baseType = static_cast<const r_Marray_Type *>(type_schema)->base_type();
+            const auto &structType = static_cast<const r_Structure_Type &>(baseType);
+            const auto &attributes = structType.getAttributes();
+            
+            std::vector<size_t> srcBandOffsets{0};
+            std::vector<size_t> dstBandOffsets{0};
+            for (const auto &att: attributes)
+            {
+                const auto attlength = att.type_of().size();
+                srcBandOffsets.push_back(srcBandOffsets.back() + (src_domain.cell_count() * attlength));
+                dstBandOffsets.push_back(dstBandOffsets.back() + (where.cell_count() * attlength));
+            }
+            
+            for (r_Area cell = 0; cell < block_count; ++cell)
+            {
+                r_Point p = where.cell_point(cell * block_length);
+                const auto dstOffset = where.cell_offset(p);
+                const auto srcOffset = src_domain.cell_offset(p);
+                
+                size_t i = 0;
+                for (const auto &att: attributes)
+                {
+                    const auto attlength = att.type_of().size();
+                    const auto block_size = block_length * attlength;
+            
+                    memcpy((dst_data + dstBandOffsets[i]) + (dstOffset * attlength),
+                           (src_data + srcBandOffsets[i]) + (srcOffset * attlength),
+                           block_size);
+                    
+                    ++i;
+                }
+            }
+        }
+        else
+        {
+            LERROR << "type schema was not set, cannot intersect marray.";
+            throw r_Error(MDDTYPE_NULL);
+        }
     }
     
     return tile;
@@ -374,6 +432,22 @@ r_GMarray::get_base_type_schema()
     }
 
     return baseTypePtr;
+}
+
+r_Band_Iterator r_GMarray::get_band_iterator(unsigned int band)
+{
+    return r_Band_Iterator(data, get_base_type_schema(), domain.cell_count(),
+                           band, band_linearization);
+}
+
+r_Band_Linearization r_GMarray::get_band_linearization() const
+{
+  return band_linearization;
+}
+
+r_Cell_Linearization r_GMarray::get_cell_linearization() const
+{
+  return cell_linearization;
 }
 
 const r_Minterval &
@@ -424,6 +498,21 @@ void
 r_GMarray::set_current_format(r_Data_Format newFormat)
 {
     current_format = newFormat;
+}
+
+void r_GMarray::set_band_linearization(r_Band_Linearization arg)
+{
+    band_linearization = arg;
+}
+
+void r_GMarray::set_cell_linearization(r_Cell_Linearization arg)
+{
+    if (arg != r_Cell_Linearization::ColumnMajor)
+    {
+        throw r_Error(r_Error::r_Error_FeatureNotSupported,
+                      "unsupported cell linearization, only ColumnMajor is supported.");
+    }
+    cell_linearization = arg;
 }
 
 r_Bytes
