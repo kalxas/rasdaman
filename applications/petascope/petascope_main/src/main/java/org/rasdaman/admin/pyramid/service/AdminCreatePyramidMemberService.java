@@ -280,7 +280,7 @@ public class AdminCreatePyramidMemberService extends AbstractAdminService {
         }
 
         // scale factors are geo CRS order (e.g: time,lat,long) -> grid oder (time,long,lat)
-        List<BigDecimal> targetScaleFactorsByGridOrder = this.pyramidService.sortScaleFactorsByGridOder(baseCoverage, scaleFactors);
+        List<BigDecimal> targetScaleFactorsByGridOrder = this.pyramidService.sortScaleFactorsByGridOrder(baseCoverage, scaleFactors);
         
         List<String> gridDomains = new ArrayList<>();
 

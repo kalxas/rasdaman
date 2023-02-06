@@ -23,7 +23,11 @@ package org.rasdaman.admin.pyramid.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.CoveragePyramid;
@@ -40,17 +44,27 @@ import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.rasdaman.exceptions.RasdamanCollectionExistsException;
 import petascope.util.BigDecimalUtil;
+import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
+import petascope.util.StringUtil;
 import petascope.util.ras.RasUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_INTERVAL_SEPARATION;
 import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.NumericSlicing;
+import petascope.wcps.metadata.model.NumericSubset;
+import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.ParsedSubset;
+import petascope.wcps.metadata.model.Subset;
+import petascope.wcps.metadata.service.CollectionAliasRegistry;
 import petascope.wcps.metadata.service.CoordinateTranslationService;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
+import petascope.wcst.helpers.insert.RasdamanDefaultCollectionCreator;
 
 /**
  * Utility class to create downscaled collections for input WCS Coverage on
@@ -66,11 +80,17 @@ public class PyramidService {
     private CoverageRepositoryService coverageRepostioryService;
     @Autowired
     private CoordinateTranslationService coordinateTranslationService;
+    @Autowired
+    private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
+    @Autowired
+    private CollectionAliasRegistry collectionAliasRegistry;
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(PyramidService.class);
     
     // This is the maxium number of pixels for XY axes to be selected for updating downscaled collection
     // e.g: [0:9999], [10000:19999],...
+    
+    
     private static final Long MAX_SELECT_GRID_WIDTH_HEIGHT_AXIS = 10000L;
     // Only select 1 pixel on non XY axes for updating downscaled collection
     private static final Long MAX_SELECT_GRID_OTHER_AXIS = 1L;
@@ -89,12 +109,19 @@ public class PyramidService {
                                               List<BigDecimal> scaleFactors, String username, String password) throws PetascopeException, SecoreException {
         String pyramidMemberCoverageId = pyramidMemberCoverage.getCoverageId();
         String downscaledLevelCollection = pyramidMemberCoverageId;
-        pyramidMemberCoverage.getRasdamanRangeSet().setCollectionName(downscaledLevelCollection);
         
         String collectionType = pyramidMemberCoverage.getRasdamanRangeSet().getCollectionType();
         
         // Create an empty downscaled collection
-        RasUtil.createRasdamanCollection(downscaledLevelCollection, collectionType);
+        try {
+            RasUtil.createRasdamanCollection(downscaledLevelCollection, collectionType);
+        }  catch (RasdamanCollectionExistsException e) {
+            // Retry to create collection with new collection name
+            downscaledLevelCollection = StringUtil.addDateTimeSuffix(downscaledLevelCollection);
+            RasUtil.createRasdamanCollection(downscaledLevelCollection, collectionType);
+        }
+        
+        pyramidMemberCoverage.getRasdamanRangeSet().setCollectionName(downscaledLevelCollection);
         log.info("Created new downscaled level collection '" + downscaledLevelCollection + "' for pyramid member coverage '" + pyramidMemberCoverageId + "'.");
         
         try {
@@ -140,9 +167,9 @@ public class PyramidService {
         
         // Sort the scale factor by geo orders to grid order to calculate the grid domains to be select and insert into the target downscaled collection
         // e.g: source CoveragePyramid has scale factors: 1,4,4 (downscaled level 4 on XY axes)
-        List<BigDecimal> sourceScaleFactorsByGridOrder = this.sortScaleFactorsByGridOder(baseCoverage, sourceCoveragePyramid.getScaleFactorsList());
+        List<BigDecimal> sourceScaleFactorsByGridOrder = this.sortScaleFactorsByGridOrder(baseCoverage, sourceCoveragePyramid.getScaleFactorsList());
         // e.g: target CoveragePyramid has scale factos: 1,8,8 (downscaled level 8 on XY axes)
-        List<BigDecimal> targetScaleFactorsByGridOrder = this.sortScaleFactorsByGridOder(baseCoverage, targetScaleFactors);
+        List<BigDecimal> targetScaleFactorsByGridOrder = this.sortScaleFactorsByGridOrder(baseCoverage, targetScaleFactors);
         
         GeoAxis geoAxisX = ((GeneralGridCoverage)sourceCoverage).getXYGeoAxes().fst;
         GeoAxis geoAxisY = ((GeneralGridCoverage)sourceCoverage).getXYGeoAxes().snd;
@@ -151,7 +178,8 @@ public class PyramidService {
         int gridOrderAxisY = ((GeneralGridCoverage)sourceCoverage).getIndexAxisByName(geoAxisY.getAxisLabel()).getAxisOrder();
         
         // Now, separate the (big) grid domains on source collection properly and select these suitable spatial domains to update on target downscaled collections
-        this.updateScaleLevelByGridDomains(pyramidMemberCoverage,
+        this.updateScaleLevelByGridDomains(baseCoverage,
+                                           pyramidMemberCoverage,
                                            sourceCollectionName, targetDownscaledCollectionName, baseAffectedGridDomains, 
                                            sourceScaleFactorsByGridOrder,
                                            targetScaleFactorsByGridOrder, username, password, gridOrderAxisX, gridOrderAxisY);
@@ -161,12 +189,12 @@ public class PyramidService {
      * When updating a base coverage with WCS-T UpdateCoverage request, then this selected pyramid member
      * coverage of this base coverage should be updated as well
      */
-    public void updateGridAndGeoDomainsOnDownscaledLevelCoverage(GeneralGridCoverage baseCoverage,
+    public static void updateGridAndGeoDomainsOnDownscaledLevelCoverage(GeneralGridCoverage baseCoverage,
                                                            GeneralGridCoverage pyramidMemberCoverage,
                                                            List<BigDecimal> inputScaleFactors) throws PetascopeException {
         
         // as inputScaleFactors is geo-CRS order (e.g. Lat,Long) not grid oder (e.g. Long,Lat) 
-        List<BigDecimal> scaleFactorsByGridOrder = this.sortScaleFactorsByGridOder(baseCoverage, inputScaleFactors);
+        List<BigDecimal> scaleFactorsByGridOrder = sortScaleFactorsByGridOrder(baseCoverage, inputScaleFactors);
         
         for (int i = 0; i < baseCoverage.getIndexAxes().size(); i++) {
 
@@ -188,8 +216,9 @@ public class PyramidService {
                 // e.g: 7 as pyramid member grid lower bound with scale ratio = 122.0
                 long gridIndexAxisLowerBoundNew = BigDecimalUtil.divideToLong(new BigDecimal(baseIndexAxisLowerBound), scaleFactor);
                 long gridIndexAxisUpperBoundNew = BigDecimalUtil.divideToLong(new BigDecimal(baseIndexAxisUpperBound), scaleFactor);
-                pyramidMemberIndexAxis.setLowerBound(gridIndexAxisLowerBoundNew);
-                pyramidMemberIndexAxis.setUpperBound(gridIndexAxisUpperBoundNew); 
+                
+                pyramidMemberIndexAxis.setLowerBound(gridIndexAxisLowerBoundNew);                
+                pyramidMemberIndexAxis.setUpperBound(gridIndexAxisUpperBoundNew);
 
             } else {
                 // NOTE: for irregular axis, set as base coverage
@@ -224,7 +253,6 @@ public class PyramidService {
             }
             
         }
-        this.coverageRepostioryService.save(pyramidMemberCoverage);
         
     }
     
@@ -242,7 +270,8 @@ public class PyramidService {
      * - select c[1, 0:200, 0:150] -> d[1, 0:100, 0:75]
      * - select c[2, 0:200, 0:150] -> d[2, 0:100, 0:75]
      */
-    private void updateScaleLevelByGridDomains(GeneralGridCoverage pyramidMemberCoverage,
+    private void updateScaleLevelByGridDomains(GeneralGridCoverage baseCoverage,
+                                               GeneralGridCoverage pyramidMemberCoverage,
                                                String sourceDownscaledCollectionName, String targetDownscaledCollectionName, 
                                                List<String> baseAffectedGridDomains, 
                                                List<BigDecimal> sourceScaleFactors,
@@ -253,7 +282,14 @@ public class PyramidService {
         List<List<String>> calculatedSourceAffectedDomainsList = new ArrayList<>();
         List<List<String>> calculatedTargetAffectedDomainsList = new ArrayList<>();
         
-        String sdomSourceRasdamanDownscaledCollection = RasUtil.retrieveSdomInfo(sourceDownscaledCollectionName);
+        String sdomSourceRasdamanDownscaledCollection = null;
+        if (sourceDownscaledCollectionName != null) {
+            sdomSourceRasdamanDownscaledCollection = RasUtil.retrieveSdomInfo(sourceDownscaledCollectionName);
+        } else {
+            sdomSourceRasdamanDownscaledCollection = ListUtil.join(baseAffectedGridDomains, ",");
+        }
+        
+        
         // e.g: 0:0,0:20,0:30
         String[] gridIntervals = sdomSourceRasdamanDownscaledCollection.split(RASQL_INTERVAL_SEPARATION);
         
@@ -315,7 +351,7 @@ public class PyramidService {
      * Separate a grid domain equally by a value. e.g: 0:20 and value is 5, 
      * result will be: 0:4,5:9,10:14,15:19,20:20
      */
-    private Pair<List<String>, List<String>> separateGridDomainByValue(String gridDomain, long upperValueForSeperation, long upperBoundGridAxis,
+    private Pair<List<String>, List<String>> separateGridDomainByValue(String gridDomain, long upperValueForSeparation, long upperBoundGridAxis,
                                                                        BigDecimal targetDownscaledRatio,
                                                                        IndexAxis pyramidIndexAxis) {
         List<String> sourceSeparatedResults = new ArrayList<>();
@@ -326,7 +362,7 @@ public class PyramidService {
         
         // e:g: domain: 0:20
         while (lowerBound <= upperBound) {
-            Long temp = lowerBound + upperValueForSeperation - 1;       
+            Long temp = lowerBound + upperValueForSeparation - 1;       
             if (temp < lowerBound) {
                 temp = lowerBound;
             }
@@ -440,7 +476,7 @@ public class PyramidService {
      * Sort a list of scale factors by geo CRS order to a list of scale factors by grid oder
      * e.g: time,lat,long in geoCRS order -> time,long,lat in grid order
      */
-    public List<BigDecimal> sortScaleFactorsByGridOder(GeneralGridCoverage baseCoverage, List<BigDecimal> scaleFactors) {
+    public static List<BigDecimal> sortScaleFactorsByGridOrder(GeneralGridCoverage baseCoverage, List<BigDecimal> scaleFactors) {
         TreeMap<Integer, BigDecimal> map = new TreeMap<>();
         
         int i = 0;
@@ -477,50 +513,6 @@ public class PyramidService {
         
         List<Pair<String, BigDecimal>> results = new ArrayList<>(map.values());
         return results;
-    }
-    
-    /**
-     * For X or Y axis, calculate which downscaled level should be returned
-     * based on the input width / height.
-     */
-    private BigDecimal calculateSuitableDownscaledLevelForAxis(List<RasdamanDownscaledCollection> rasdamanDownscaledCollections, 
-                                                               GeoAxis geoAxis, Pair<BigDecimal, BigDecimal> geoSubset, int outputGridDomain) throws PetascopeException {
-        
-        int numberOfDownscaledCollections = rasdamanDownscaledCollections.size();
-
-        BigDecimal result = BigDecimal.ONE;
-        
-        for (int i = 0; i < numberOfDownscaledCollections; i++) {
-            BigDecimal level = rasdamanDownscaledCollections.get(i).getLevel();
-            BigDecimal numberOfGridPixels = BigDecimal.ONE;
-            BigDecimal axisResolutionTmp = geoAxis.getResolution().multiply(level);
-
-            BigDecimal nextLevel = level;
-            BigDecimal axisResolutionNextLevelTmp = axisResolutionTmp;
-            BigDecimal numberOfGridPixelsNextLevel = BigDecimal.ONE;
-
-            if (i < numberOfDownscaledCollections - 1) {
-                nextLevel = rasdamanDownscaledCollections.get(i + 1).getLevel();
-                axisResolutionNextLevelTmp = geoAxis.getResolution().multiply(nextLevel);
-            }
-
-            numberOfGridPixels = BigDecimalUtil.divide(geoSubset.snd.subtract(geoSubset.fst), axisResolutionTmp).abs();
-            numberOfGridPixelsNextLevel = BigDecimalUtil.divide(geoSubset.snd.subtract(geoSubset.fst), axisResolutionNextLevelTmp).abs();
-
-            // e.g: level 1 with grid: [0:99], level 4 with grid [0:24, 0:24], select width = 40 should use level 4
-            // select width = 70 should use level 1
-            BigDecimal distance = numberOfGridPixels.subtract(new BigDecimal(outputGridDomain)).abs();
-            BigDecimal distanceNextLevel = numberOfGridPixelsNextLevel.subtract(new BigDecimal(outputGridDomain)).abs();
-
-            // e.g: grid domain level 1 is 0:99, grid domain level 2 is: 0:49, select suset 0:60, then it should use 0:99 to downscale to 0:60
-            if ((distance.compareTo(distanceNextLevel) < 0) || numberOfGridPixelsNextLevel.compareTo(new BigDecimal(outputGridDomain)) < 0) {
-                return level;                
-            } else {
-                result = level;
-            }
-        }
-        
-        return result;
     }
     
     /**
@@ -643,17 +635,6 @@ public class PyramidService {
                 }
             }
             
-            
-            // NOTE: if a pyramid member has a bit smaller geo extents then the request XY subsets, then it is still ok to use this pyramid member
-            BigDecimal RATIO = new BigDecimal("0.1");
-            BigDecimal epsilonX = geoSubsetX.fst.subtract(geoSubsetX.snd).abs().multiply(RATIO);
-            BigDecimal epsilonY = geoSubsetY.fst.subtract(geoSubsetY.snd).abs().multiply(RATIO);
-            
-            BigDecimal pyramidMemberGeoLowerBoundX = pyramidMemberGeoAxisX.getLowerBoundNumber().subtract(epsilonX);
-            BigDecimal pyramidMemberGeoUpperBoundX = pyramidMemberGeoAxisX.getUpperBoundNumber().add(epsilonX);
-            BigDecimal pyramidMemberGeoLowerBoundY = pyramidMemberGeoAxisY.getLowerBoundNumber().subtract(epsilonY);
-            BigDecimal pyramidMemberGeoUpperBoundY = pyramidMemberGeoAxisY.getUpperBoundNumber().add(epsilonY);
-            
             ParsedSubset<BigDecimal> pyramidMemberXParsedSubset = new ParsedSubset<>(geoSubsetX.fst, geoSubsetX.snd);
             ParsedSubset<Long> pyramidMemberXGridBounds = this.coordinateTranslationService.geoToGridForRegularAxis(pyramidMemberXParsedSubset, pyramidMemberGeoAxisX.getLowerBoundNumber(),
                                                                                                        pyramidMemberGeoAxisX.getUpperBoundNumber(), pyramidMemberGeoAxisX.getResolution(), 
@@ -719,13 +700,7 @@ public class PyramidService {
             
             for (int i = 0; i < baseCoverage.getGeoAxes().size(); i++) {
                 GeoAxis baseGeoAxis = baseCoverage.getGeoAxes().get(i);
-                IndexAxis baseIndexAxis = baseCoverage.getIndexAxisByName(baseGeoAxis.getAxisLabel());
-                
                 GeoAxis pyramidMemberGeoAxis = pyramidMemberCoverage.getGeoAxes().get(i);                
-                IndexAxis pyramidMemberIndexAxis = pyramidMemberCoverage.getIndexAxisByName(pyramidMemberGeoAxis.getAxisLabel());
-                
-                long numberOfBaseGridPixels = baseIndexAxis.getUpperBound() - baseIndexAxis.getLowerBound() + 1;
-                long numberOfPyramidMemberGridPixels = pyramidMemberIndexAxis.getUpperBound() - pyramidMemberIndexAxis.getLowerBound() + 1;
                 
                 // e.g: 10 / 5 = 2
                 BigDecimal scaleFactor = BigDecimalUtil.stripDecimalZeros(BigDecimalUtil.divide(pyramidMemberGeoAxis.getResolution().abs(), 

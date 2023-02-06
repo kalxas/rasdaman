@@ -358,7 +358,28 @@ public class CrsProjectionUtil {
     public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGeoTransform, String targetCRS, 
                                                           BigDecimal targetCRSGeoXResolution, BigDecimal targetCRSGeoYResolution) throws PetascopeException {
         
-        String keyMap = StringUtil.join(targetCRS, sourceGeoTransform.toString(), targetCRS, targetCRSGeoXResolution.toPlainString(), targetCRSGeoYResolution.toPlainString());
+        GeoTransform result = getGeoTransformInTargetCRS(sourceGeoTransform, targetCRS, targetCRSGeoXResolution, targetCRSGeoYResolution, null);
+        return result;
+    }
+    
+    /**
+     * Get GeoTransform object in target CRS if one provided -tr resX resY - te minx miny max maxy
+     */
+    public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGeoTransform, String targetCRS, 
+                                                          BigDecimal targetCRSGeoXResolution, BigDecimal targetCRSGeoYResolution,
+                                                          BoundingBox targetCRSBBox) throws PetascopeException {
+        String targetCRSGeoXResolutionKey = "", targetCRSGeoYResolutionKey = "";
+        if (targetCRSGeoXResolution != null) {
+            targetCRSGeoXResolutionKey = targetCRSGeoXResolution.toPlainString();
+            targetCRSGeoYResolutionKey = targetCRSGeoYResolution.toPlainString();
+        }
+        
+        String targetCRSBBoxKey = "";
+        if (targetCRSBBox != null) {
+            targetCRSBBoxKey = targetCRSBBox.getRepresentation();
+        }
+        
+        String keyMap = StringUtil.join(targetCRS, sourceGeoTransform.toString(), targetCRS, targetCRSGeoXResolutionKey, targetCRSGeoYResolutionKey, targetCRSBBoxKey);
         GeoTransform result = projectedGeoTransformCacheMap.get(keyMap);
         if (result != null) {
             return result;
@@ -398,19 +419,25 @@ public class CrsProjectionUtil {
         }
         
         // Run a quick command to warp VRT file to target CRS with given geo XY axes' resolutions
-        String bashCommand = "gdalwarp -overwrite -t_srs TARGET_CRS_WKT_FILE -tr RES_X RES_Y -tap VRT_FILE -of VRT VRT_WARPED_FILE"
+        String bashCommand = "gdalwarp -overwrite -t_srs TARGET_CRS_WKT_FILE VRT_FILE -of VRT VRT_WARPED_FILE"
                             .replace("TARGET_CRS_WKT_FILE", targetCRSWKTFile.getAbsolutePath())
-                            .replace("RES_X", targetCRSGeoXResolution.abs().toPlainString())
-                            .replace("RES_Y", targetCRSGeoYResolution.abs().toPlainString())
                             .replace("VRT_FILE", tempVRTFile.getAbsolutePath())
                             .replace("VRT_WARPED_FILE", tempWarpedVRTFile.getAbsolutePath());
+        
+        if (targetCRSGeoXResolution != null) {
+            bashCommand += " -tap -tr " + targetCRSGeoXResolution.abs().toPlainString() + " " + targetCRSGeoYResolution.abs().toPlainString();
+        }
+        
+        if (targetCRSBBox != null) {
+            bashCommand += " -te " + targetCRSBBox.toGdalString();
+        }
         
         result = getGeoTransformViaGdalBash(bashCommand, tempVRTFile, tempWarpedVRTFile);        
         
         projectedGeoTransformCacheMap.put(keyMap, result);
         
         return result;
-    }
+    }    
     
     
     /**

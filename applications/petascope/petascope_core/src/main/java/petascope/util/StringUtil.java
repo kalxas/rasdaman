@@ -78,6 +78,7 @@ public class StringUtil {
     public static final String POST_XML_SOAP_CONTENT_TYPE = "application/soap+xml";
   
     public static final Pattern squareBracketsPattern = Pattern.compile("\\[(.*?)\\]");
+    public static final Pattern parenthesesPattern = Pattern.compile("\\((.*?)\\)");
     
     /**
      * For coverages created temporarily, used for WCPS decode() from uploaded files
@@ -716,6 +717,23 @@ public class StringUtil {
         
         return results;
     }
+    
+    /**
+     * Extract substring inside square brackets, e.g. "(3:5),(4:6)"
+     * returns a list of "3:5", "4:6"
+     */    
+    public static List<String> extractStringsBetweenParentheses(String str) {
+        List<String> results = new ArrayList<>();
+        // extract values inside ( )       
+        Matcher m = parenthesesPattern.matcher(str);
+
+        while (m.find()) {
+            String v = m.group(1);
+            results.add(v);
+        }
+        
+        return results;
+    }    
     
     /**
      * e.g. 123.567000000000000000000 -> 123.567

@@ -110,6 +110,10 @@ public class BoundingBox {
                 + ", xmax=" + this.xmax.toPlainString() + ", ymax=" + this.ymax.toPlainString();
     }
     
+    public String toGdalString() {
+        return this.xmin.toPlainString() + " " + this.ymin.toPlainString() + " " + this.xmax.toPlainString() + " " + this.ymax.toPlainString();
+    }
+    
     /**
      * return xmin,ymin,xmax,ymax representation
      */
