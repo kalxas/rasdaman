@@ -288,10 +288,11 @@ public class UpdateCoverageHandler {
                 Coverage pyramidMemberCoverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(coveragePyramid.getPyramidMemberCoverageId());
                 String downscaledCollectionName = pyramidMemberCoverage.getRasdamanRangeSet().getCollectionName();
                 
-                // then, update the pyramid member's coverage grid domains as well
-                this.pyramidService.updateGridAndGeoDomainsOnDownscaledLevelCoverage((GeneralGridCoverage)currentCoverage, 
+                // then, update the pyramid member's coverage geo and grid domains as well
+                pyramidService.updateGridAndGeoDomainsOnDownscaledLevelCoverage((GeneralGridCoverage)currentCoverage, 
                                                                                (GeneralGridCoverage)pyramidMemberCoverage,
                                                                                coveragePyramid.getScaleFactorsList());
+                this.persistedCoverageService.save(pyramidMemberCoverage);
                 
                 // then, create downscaled collection
                 this.pyramidService.updateDownscaledLevelCollection((GeneralGridCoverage)currentCoverage, 
