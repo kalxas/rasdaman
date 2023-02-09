@@ -817,15 +817,34 @@ depending on the response format chosen in the query.
 Access from R
 -------------
 
-Accessing rasdaman from R is possible in two ways right now:
+Accessing rasdaman from R is possible in three ways right now:
 
 - :ref:`RRasdaman <sec-rrasdaman-install>` enables connecting to rasdaman,
-  executing rasql queries, and retreiving results.
+  executing rasql queries, and retreiving results. 
+  Note that it is *only* for rasql queries, so it is not suitable for querying geo-referenced coverages.
 
 - `CubeR <​https://mattia6690.github.io/CubeR/>`__ allows convenient executiong
   of WCPS queries directly from R. Check also this accompanying `presentation
   <​https://sao.eurac.edu/wp-content/uploads/2018/07/RossiEtAl_EGU2018_PICO_DataCubes.compressed.pdf>`__.
 
+- `ows4R <​https://cran.r-project.org/web/packages/ows4R/>`__ provides an interface to OGC Web services,
+  including Web Coverage Service (WCS) which is supported by rasdaman.
+  Steps to install ``ows4R`` package and its dependencies on Ubuntu 20.04:
+
+   .. code-block:: shell
+
+      sudo apt-get install libsodium-dev libudunits2-dev
+
+      sudo R
+
+      install.packages("sodium")
+      install.packages("keyring")
+      install.packages("geometa")
+      install.packages("units")
+      install.packages("sf")
+      install.packages("ows4R")
+
+  For more details check the `ows4R WCS tutorial <https://eblondel.github.io/ows4R/articles/wcs.html>`__.
 
 
 `OpenLayers <https://openlayers.org/>`__
