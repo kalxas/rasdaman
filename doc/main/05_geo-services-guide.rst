@@ -863,7 +863,7 @@ For example, the below request will update the metadata of coverage
 ``test_mr_metadata`` with the one in a local XML file at
 ``/home/rasdaman/Downloads/test_metadata.xml`` by using the ``curl`` tool: ::
 
-   curl -F "COVERAGEID=test_mr_metadata" 
+   curl --form-string "COVERAGEID=test_mr_metadata" 
         -F "file=@/home/rasdaman/Downloads/test_metadata.xml" 
         "http://localhost:8080/rasdaman/admin/coverage/update"
 
@@ -940,7 +940,7 @@ done by:
   coverage as follows: ::
 
     curl --user rasadmin:rasadmin -X POST \
-         -F 'COVERAGEID=test_inspire_metadata' \
+         --form-string 'COVERAGEID=test_inspire_metadata' \
          -F 'METADATAURL=https://inspire-geoportal.ec.europa.eu/16.iso19139.xml' \
          'http://localhost:8080//rasdaman/admin/inspire/metadata/update'
 
@@ -1402,7 +1402,7 @@ result encoded in ``png`` format (specified by positional parameter ``$3``):
 .. code-block:: text
 
    curl -s "http://localhost:8080/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages" \
-        -F 'query=for $c in (existing_coverage), $d in (decode($1)), $e in (decode($2)) 
+        --form-string 'query=for $c in (existing_coverage), $d in (decode($1)), $e in (decode($2)) 
             return encode(($c + $d + $e)[Lat(0:90), Long(-180:180)], "$3"))' \
         -F "1=@/home/rasdaman/file1.tiff" \
         -F "2=@/home/rasdaman/file2.tiff" \

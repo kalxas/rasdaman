@@ -92,7 +92,7 @@ handle_output "$TEST_NAME"
 
 TEST_NAME="4-test_band_combination"
 $CURL "$ENDPOINT" \
-     -F 'query=for c in (decode($1)) return encode({red: c.band2; green: c.band1; blue: c.band3} , "tiff")' \
+     --form-string 'query=for c in (decode($1)) return encode({red: c.band2; green: c.band1; blue: c.band3} , "tiff")' \
      -F "1=@$TEST_2D_TIFF_3BANDS_FILE_PATH" > "$OUTPUT/$TEST_NAME"
 handle_output "$TEST_NAME"
 
