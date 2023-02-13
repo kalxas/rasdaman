@@ -137,3 +137,6 @@ log4j.logger.io.grpc=WARN
 log4j.logger.io.netty=WARN
 log4j.logger.org.apache=WARN
 
+# Logging level for rasj only
+rasj_logging_level=WARN
+

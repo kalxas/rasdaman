@@ -58,6 +58,7 @@ import java.net.MalformedURLException;
 import org.gdal.gdal.gdal;
 import static petascope.util.CrsUtil.isInternalSecoreURL;
 import petascope.util.ListUtil;
+import rasj.global.Debug;
 
 /**
  * Configuration Manager class: a single entry point for all server settings.
@@ -276,6 +277,21 @@ public class ConfigManager {
 
     public static String INSPIRE_COMMON_URL = "";
 
+    // rasj 
+    private static final String KEY_RASJ_LOGGING_LEVEL = "rasj_logging_level";
+    public static String RASJ_LOGGING_LEVEL = RasjLoggingLevel.WARN.name();
+    
+    public enum RasjLoggingLevel {
+        ERROR(0), WARN(1), DEBUG(2), TRACE(3);
+        
+        public final int level;
+        
+        private RasjLoggingLevel(int level) {
+            this.level = level;
+        }
+    }
+
+
     /**
      * Initialize all the keys, values of petascope.properties
      */
@@ -349,6 +365,8 @@ public class ConfigManager {
         initSecoreSettings();
         initTempUploadDirs();
         validateLogFilePath();
+        
+        initRasj();
 
         printStartupMessage();
         
@@ -592,6 +610,31 @@ public class ConfigManager {
             log.error("Cannot create WCS-T temp directory '" + ConfigManager.WCST_TMP_DIR + 
                     "', reason: " + ex.getMessage());
         }
+    }
+    
+    private void initRasj() {
+        
+        // -- set up logging level for rasj
+        
+        RASJ_LOGGING_LEVEL = getOptionalPropertyValue(KEY_RASJ_LOGGING_LEVEL, RasjLoggingLevel.WARN.name());
+        int loggingLevel = RasjLoggingLevel.WARN.level;
+        
+        boolean validLoggingLevel = false;
+        for (RasjLoggingLevel enumObj : RasjLoggingLevel.values()) {
+            if (enumObj.name().equals(RASJ_LOGGING_LEVEL)) {
+                validLoggingLevel = true;
+                loggingLevel = enumObj.level;
+                break;
+            }
+        }
+        
+        if (!validLoggingLevel) {
+            log.warn("Logging level for rasj in setting '" + KEY_RASJ_LOGGING_LEVEL + "' is not valid. "
+                    + "Given: " + RASJ_LOGGING_LEVEL + ". Hence, it is set to default level: " + RasjLoggingLevel.WARN);
+        }
+        
+        rasj.global.Debug.setDebugThreshold(loggingLevel);
+
     }
     
     /**

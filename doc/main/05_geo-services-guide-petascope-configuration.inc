@@ -436,3 +436,10 @@ See the `log4j 1.2 document for more details
         log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/petascope.%d{yyyyMMdd}.log.gz
         log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
         log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy
+
+.. _conf-rasj-logging-level:
+
+Logging level for rasj is configured via the optional setting ``rasj_logging_level``.
+The valid values for logging are ``ERROR``, ``WARN``, ``DEBUG``, and ``TRACE``.
+By default the logging level is ``WARN`` if this setting is not set in the configuration
+file.
