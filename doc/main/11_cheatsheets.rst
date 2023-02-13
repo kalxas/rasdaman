@@ -943,6 +943,8 @@ terminal. Examples with ``curl`` follow.
     'service=WCS&version=2.0.1&request=ProcessCoverages&query=\
     for c in (mean_summer_airtemp) return encode(c, "png")'
 
+- Upload files to be processed with ``decode()`` operator, see :ref:`here <positional_parameters_in_wcps>`.
+
 When the server requires basic authentication for a request, the rasdaman
 user credentials can be specified with the ``--user`` option, e.g.
 
