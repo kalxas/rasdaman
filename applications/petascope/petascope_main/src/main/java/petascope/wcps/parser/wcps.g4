@@ -48,8 +48,8 @@ MULTILINE_COMMENT
 ;
 
 wcpsQuery : (forClauseList) 
-            (whereClause)? 
             (letClauseList)? 
+            (whereClause)? 
             (returnClause)
 #WcpsQueryLabel;
 
