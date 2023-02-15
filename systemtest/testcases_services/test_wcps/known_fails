@@ -40,3 +40,6 @@
 
 # it failed because of rasql query
 554-scale_up_out_of_grid_bounds_on_irregular_axis.test
+
+# t failed because of rasql query
+563-domain_time_axis_iterator_coverage_constructor.test

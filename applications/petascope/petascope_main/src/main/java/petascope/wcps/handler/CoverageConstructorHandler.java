@@ -173,7 +173,7 @@ public class CoverageConstructorHandler extends Handler {
             axes.add(axisIterator.getAxis());
         }
         
-        List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
+        List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions, axes);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, valuesCoverageExpression.getMetadata(), numericSubsets, axes);
         
         updateAxisNamesFromAxisIterators(metadata, axisIterators);
@@ -193,20 +193,6 @@ public class CoverageConstructorHandler extends Handler {
     
     public static void validateAxisIteratorSubsetWithQuote(String coverageName, String axisIteratorAlias, 
                                                            WcpsSubsetDimension subsetDimension) {
-        if (subsetDimension.getStringBounds().startsWith("\"")) {
-            String errorMessage = "Invalid value '" + subsetDimension.getStringBounds() + "' specified for iterator variable " + axisIteratorAlias;
-            
-            if (coverageName == null) {
-                errorMessage += " of general condenser";
-            } else {
-                errorMessage += " of coverage constructor " + coverageName;
-            }
-            
-            errorMessage += ". Please specify integer grid coordinates, or use the imageCrsDomain function to derive them automatically from geo coordinates.";
-            
-            throw new WCPSException(ExceptionCode.InvalidRequest, errorMessage);
-        }
-        
     }
 
     private final String TEMPLATE = "MARRAY $iter in [$intervals] VALUES $values";

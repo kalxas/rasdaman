@@ -51,6 +51,7 @@ import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 import petascope.core.service.CrsComputerService;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.StringUtil;
 
@@ -182,6 +183,22 @@ public class SubsetParsingService {
         }
         return result;
     }
+    
+    public List<Subset> convertToRawNumericSubsets(List<WcpsSubsetDimension> dimensions, List<Axis> axes) throws PetascopeException {
+        List<Subset> result = new ArrayList();
+        for (WcpsSubsetDimension subsetDimension : dimensions) {
+            Subset subset = null;
+            try {
+                subset = this.convertToNumericSubset(subsetDimension, axes);
+            } catch (Exception ex) {
+                subset = this.convertToRawNumericSubset(subsetDimension);
+            }
+            
+            result.add(subset);
+        }
+
+        return result;        
+    }
 
     /**
      * Used in axis iterator
@@ -209,16 +226,26 @@ public class SubsetParsingService {
                 
                 Pair<String, String> userPair = AuthenticationService.getBasicAuthCredentialsOrRasguest(httpServletRequest);
                 
-                if (!NumberUtils.isNumber(lowerBound)) {
-                    // e.g: int(10/5)
-                    String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + lowerBound, userPair.fst, userPair.snd);
-                    lowerBound = result;
+                if (!lowerBound.contains("\"")) {
+                    if (!NumberUtils.isNumber(lowerBound)) {
+                        // e.g: int(10/5)
+                        String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + lowerBound, userPair.fst, userPair.snd);
+                        lowerBound = result;
+                    }
                 }
                 
-                if (!NumberUtils.isNumber(upperBound)) {
-                    // e.g: (long)(10/2) + 5
-                    String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + upperBound, userPair.fst, userPair.snd);
-                    upperBound = result;
+                if (!upperBound.contains("\"")) {
+                    if (!NumberUtils.isNumber(upperBound)) {
+                        // e.g: (long)(10/2) + 5
+                        String result = RasUtil.executeQueryToReturnString(RASQL_SELECT + " " + upperBound, userPair.fst, userPair.snd);
+                        upperBound = result;
+                    }
+                }
+                
+                String errorMessage = "Invalid bounds " + lowerBound + ":" + upperBound + " specified for iterator variable. "
+                                    + "Please specify integer grid coordinates, or use the imageCrsDomain or domain function to derive them from geo coordinates.";
+                if (!NumberUtils.isNumber(lowerBound) || !NumberUtils.isNumber(upperBound)) {
+                    throw new PetascopeException(ExceptionCode.InvalidRequest, errorMessage);
                 }
 
                 // Try to convert bounds to numbers

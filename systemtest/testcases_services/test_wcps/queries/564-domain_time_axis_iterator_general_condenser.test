@@ -1,0 +1,7 @@
+for $c in (test_irr_cube_2)
+return
+ encode(
+        condense + 
+        over $pt ansi( domain($c, ansi) )
+        using $c[ansi($pt), E:"CRS:1"(0:2), N:"CRS:1"(0:4)]
+        , "png")

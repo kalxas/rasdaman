@@ -192,7 +192,7 @@ public class GeneralCondenserHandler extends Handler {
         }
 
         //create a coverage with the domain expressed in the condenser
-        List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
+        List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions, axes);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(CONDENSER_TEMP_NAME, usingCoverageExpression.getMetadata(), numericSubsets, axes);
         
         updateAxisNamesFromAxisIterators(metadata, axisIterators);

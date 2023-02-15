@@ -1,0 +1,7 @@
+for c in (test_irr_cube_2)
+return
+ encode(
+        coverage temp
+        over $pt ansi( domain(c, ansi) )
+        VALUES crsTransform(c[ansi($pt), E:"CRS:1"(0:2), N:"CRS:1"(0:2)], { E:"http://localhost:8080/def/crs/EPSG/0/4326", N:"http://localhost:8080/def/crs/EPSG/0/4326"})
+        , "netcdf")
