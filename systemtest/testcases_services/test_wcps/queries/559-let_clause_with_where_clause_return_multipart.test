@@ -1,0 +1,6 @@
+for c in (test_mean_summer_airtemp, test_mr)
+
+-- avg() of both coverages are > 40 then it returns 2 results
+where avg(c) > 40 
+
+return avg(c)

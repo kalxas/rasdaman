@@ -1,0 +1,10 @@
+for            
+    $c in (test_irr_cube_2)
+
+let
+  $t := [ansi("2008-01-01T02:01:20.000Z": "2008-01-08T00:02:58.000Z")]
+    
+return 
+        condense +
+        over $tc ansi( imageCrsDomain($c[$t], ansi).lo : imageCrsDomain($c[$t], ansi).hi )
+        using avg($c[ansi($tc)])

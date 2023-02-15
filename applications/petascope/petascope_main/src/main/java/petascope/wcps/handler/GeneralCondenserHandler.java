@@ -21,6 +21,7 @@
  */
 package petascope.wcps.handler;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import petascope.util.StringUtil;
 import static petascope.wcps.handler.CoverageConstantHandler.updateAxisNamesFromAxisIterators;
 import static petascope.wcps.handler.CoverageConstructorHandler.validateAxisIteratorSubsetWithQuote;
 import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
@@ -99,7 +101,7 @@ public class GeneralCondenserHandler extends Handler {
         
         return result;
     }
-    
+
     @Override
     public WcpsResult handle() throws PetascopeException {
         String operator = ((WcpsResult)this.getFirstChild().handle()).getRasql();
@@ -177,13 +179,16 @@ public class GeneralCondenserHandler extends Handler {
                 rasqlAliasName = alias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }
             // Check if axis iterator's subset dimension which has the "$"
-            if (axisIterator.getSubsetDimension().getStringBounds().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
+            
+            String bounds = axisIterator.getSubsetDimension().getStringBounds();
+            if (bounds.contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN) || bounds.contains("[")) {
+                // e.g. axis iterator in rasql: pt[0] is used as lower / upper bound
                 axisIteratorSubsetDimensions.add(subsetDimension);
+                axes.add(new RegularAxis(subsetDimension.getAxisName(), null, null, null, null, null, null, null, 0, BigDecimal.ZERO, BigDecimal.ONE, null));
             } else {
                 pureSubsetDimensions.add(subsetDimension);
+                axes.add(axisIterator.getAxis());
             }
-            
-            axes.add(axisIterator.getAxis());
         }
 
         //create a coverage with the domain expressed in the condenser

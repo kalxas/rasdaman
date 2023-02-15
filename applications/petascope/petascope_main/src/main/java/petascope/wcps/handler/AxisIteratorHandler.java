@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 import petascope.wcps.result.VisitorResult;
+import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
@@ -68,8 +69,21 @@ public class AxisIteratorHandler extends Handler {
         // e.g. X
         String axisName = ((WcpsResult)this.getSecondChild().handle()).getRasql();
         
-        String gridLowerBound = ((WcpsResult)this.getThirdChild().handle()).getRasql();
-        String gridUpperBound = ((WcpsResult)this.getFourthChild().handle()).getRasql();
+        String gridLowerBound = null, gridUpperBound = null;
+        VisitorResult thirdChildResult = this.getThirdChild().handle();
+        VisitorResult fourthChildResult = this.getFourthChild().handle();
+        
+        if (thirdChildResult instanceof WcpsResult) {
+            gridLowerBound = ((WcpsResult) thirdChildResult).getRasql();
+        } else if (thirdChildResult instanceof WcpsMetadataResult) {
+            gridLowerBound = ((WcpsMetadataResult) thirdChildResult).getResult();
+        }
+        
+        if (fourthChildResult instanceof WcpsResult) {
+            gridUpperBound = ((WcpsResult) fourthChildResult).getRasql();
+        } else if (fourthChildResult instanceof WcpsMetadataResult) {
+            gridUpperBound = ((WcpsMetadataResult) fourthChildResult).getResult();
+        }        
         
         WcpsSubsetDimension subsetDimension = new WcpsTrimSubsetDimension(axisName, CrsUtil.GRID_CRS, gridLowerBound, gridUpperBound);
         

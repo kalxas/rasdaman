@@ -1,0 +1,15 @@
+ for
+     $c in (test_irr_cube_2)
+
+ let
+   $t := [ansi("2008-01-01T02:01:20.000Z": "2008-01-08T00:02:58.000Z")]
+
+ return encode (
+     coverage $c
+     over $tt t(0:3)
+     values
+         condense +
+         over $tc t(0 : $tt ) -- $tt comes from the outer coverage constructor
+         using avg($c[ansi($tc)])
+     , "csv"
+ )

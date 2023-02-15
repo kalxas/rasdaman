@@ -1,0 +1,6 @@
+for c in (test_mean_summer_airtemp, test_mr)
+
+-- avg() of only mean_summer_airtemp is > 41
+where avg(c) > 41
+
+return avg(c)
