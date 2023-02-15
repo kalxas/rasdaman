@@ -64,8 +64,8 @@ def rasmgr_connect(stub, username, password):
     return connection
 
 
-def rasmgr_disconnect(stub, cuuid, cid):
-    return stub.Disconnect(make_rasmgr_disconnect_req(cuuid, cid),
+def rasmgr_disconnect(stub, cid):
+    return stub.Disconnect(make_rasmgr_disconnect_req(cid),
                            _TIMEOUT_SECONDS)
 
 
@@ -73,16 +73,16 @@ def rasmgr_keep_alive(stub, cuuid):
     return stub.KeepAlive(make_rasmgr_keep_alive_req(cuuid), _TIMEOUT_SECONDS)
 
 
-def rasmgr_open_db(stub, cuuid, cid, dbname):
-    resp = stub.OpenDb(make_rasmgr_open_db_req(cuuid, cid, dbname),
+def rasmgr_open_db(stub, cid, dbname):
+    resp = stub.OpenDb(make_rasmgr_open_db_req(cid, dbname),
                        _TIMEOUT_SECONDS)
     if not resp:
         raise Exception("Remote function 'OpenDb' did not return anything")
     return resp
 
 
-def rasmgr_close_db(stub, cuuid, cid, dbid):
-    return stub.CloseDb(make_rasmgr_close_db_req(cuuid, cid, dbid),
+def rasmgr_close_db(stub, cid, dbid):
+    return stub.CloseDb(make_rasmgr_close_db_req(cid, dbid),
                         _TIMEOUT_SECONDS)
 
 

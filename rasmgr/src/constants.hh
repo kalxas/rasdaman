@@ -3,8 +3,16 @@
 
 #include <cstdint>
 
+
 namespace rasmgr
 {
+
+// exit codes
+const int RASMGR_RESULT_OK = 0;
+const int RASMGR_RESULT_NO_MD5 = 1;
+const int RASMGR_RESULT_ILL_ARGS = 2;
+const int RASMGR_RESULT_FAILED = 3;
+
 /**
  * @brief MIN_ALIVE_SERVER_NO Minimum number of alive(running) servers each server group
  * should keep by default while respecting the maximum number

@@ -146,7 +146,7 @@ void openDatabase()
         
         char capability[500];
         sprintf(capability, "%s$U%s$P%s$K", DQ_CAPABILITY, user, passwd);
-        instance.connectNewClient(capability);
+        instance.connectNewClient(1, capability);
         
         INFO("opening database " << baseName << " at " << DQ_SERVER_NAME << "..." << flush);
         instance.openDB(baseName.c_str());
@@ -618,6 +618,8 @@ void doStuff()
                 marray->storageFormat = r_Array;
                 marray->data.confarray_len = mddDomain.cell_count() * baseTypeSize;
                 marray->data.confarray_val = fileContents;
+                marray->bandLinearization = 0;
+                marray->cellLinearization = 0;
             }
             catch (std::bad_alloc &e)
             {

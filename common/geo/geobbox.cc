@@ -2,6 +2,8 @@
 #include "geobbox.hh"
 #include "common/exceptions/exception.hh"
 #include "common/string/stringutil.hh"
+#include "raslib/error.hh"
+#include "logging.hh"
 #include <cstring>                                   // for strtok, NULL
 #include <cassert>
 #include <unordered_map>
@@ -69,6 +71,33 @@ GeoBbox::GeoBbox(const string &crsArg, const string &boundsArg, int w, int h)
 
     updateGeoTransform();
   }
+}
+
+GeoBbox::GeoBbox(const string &crsArg, const string &boundsArg, double xres, double yres)
+  : GeoBbox(crsArg, boundsArg, 0, 0)
+{
+  if (xres == 0.0 || yres == 0.0)
+  {
+      LERROR << "Invalid resolution, xres and yres must not be 0.";
+      throw r_Error(454);
+  }
+  width = static_cast<int>((xmax - xmin + (xres/2.0)) / xres);
+  height = static_cast<int>(std::fabs(ymax - ymin + (yres/2.0)) / yres);
+  if (width <= 0)
+  {
+      LERROR << "Invalid X resolution " << xres << ", output width is <= 0.";
+      throw r_Error(452);
+  }
+  if (height <= 0)
+  {
+      LERROR << "Invalid Y resolution " << yres << ", output height is <= 0.";
+      throw r_Error(453);
+  }
+  gt[0] = xmin;
+  gt[1] = xres;
+  gt[3] = ymax;
+  gt[5] = (ymax > ymin) ? -yres : yres;
+  
 }
 
 void GeoBbox::updateGeoTransform() {

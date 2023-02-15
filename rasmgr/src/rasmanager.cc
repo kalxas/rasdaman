@@ -51,6 +51,7 @@
 #include "usermanager.hh"
 #include "common/grpc/grpcutils.hh"
 #include "common/exceptions/resourcebusyexception.hh"
+#include "cpuscheduler.hh"
 #include <logging.hh>
 
 #include <memory>
@@ -89,7 +90,8 @@ void RasManager::start()
     auto peerManager = std::make_shared<PeerManager>();
 
     ClientManagerConfig clientManagerConfig;
-    auto clientManager = std::make_shared<ClientManager>(clientManagerConfig, userManager, serverManager, peerManager);
+    auto cpuScheduler = std::make_shared<CpuScheduler>(1);
+    auto clientManager = std::make_shared<ClientManager>(clientManagerConfig, userManager, serverManager, peerManager, cpuScheduler);
     auto rascontrol = std::make_shared<RasControl>(userManager, dbhManager, dbManager, serverManager, peerManager, this);
     auto commandExecutor = std::make_shared<ControlCommandExecutor>(rascontrol);
 

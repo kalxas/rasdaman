@@ -177,17 +177,8 @@ void ConfigurationManager::saveDatabaseHosts(std::ofstream &out)
         DatabaseHostProto dbhData = dbhMgrData.database_hosts(i);
 
         out << "define dbh " << dbhData.host_name()
-            << " -connect " << dbhData.connect_string();
-        if (!dbhData.user_name().empty())
-        {
-            out << " -user " << dbhData.user_name();
-        }
-        if (!dbhData.password().empty())
-        {
-            out << " -passwd " << dbhData.password();
-        }
-
-        out << std::endl;
+            << " -connect " << dbhData.connect_string()
+            << std::endl;
     }
 }
 

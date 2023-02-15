@@ -35,30 +35,30 @@ def make_rasmgr_connect_req(username, password):
     return con_req
 
 
-def make_rasmgr_disconnect_req(cuiid, cid):
-    discon_req = rasmgr.DisconnectReq(clientUUID=cuiid, clientId=cid)
+def make_rasmgr_disconnect_req(cid):
+    discon_req = rasmgr.DisconnectReq(clientId=cid)
     if not discon_req:
         raise Exception("Can't create Disconnect request")
     return discon_req
 
 
 def make_rasmgr_keep_alive_req(cuiid):
-    keep_alive_req = rasmgr.KeepAliveReq(clientUUID=cuiid)
+    keep_alive_req = rasmgr.KeepAliveReq(clientId=cuiid)
     if not keep_alive_req:
         raise Exception("Can't create KeepAlive request")
     return keep_alive_req
 
 
-def make_rasmgr_open_db_req(cuiid, cid, dbname):
-    open_db_req = rasmgr.OpenDbReq(clientUUID=cuiid, clientId=cid,
+def make_rasmgr_open_db_req(cid, dbname):
+    open_db_req = rasmgr.OpenDbReq(clientId=cid,
                                    databaseName=dbname)
     if not open_db_req:
         raise Exception("Can't create OpenDb request")
     return open_db_req
 
 
-def make_rasmgr_close_db_req(cuuid, cid, dbsid):
-    close_db_req = rasmgr.CloseDbReq(clientUUID=cuuid, clientId=cid,
+def make_rasmgr_close_db_req(cid, dbsid):
+    close_db_req = rasmgr.CloseDbReq(clientId=cid,
                                      dbSessionId=dbsid)
     if not close_db_req:
         raise Exception("Can't create CloseDb request")

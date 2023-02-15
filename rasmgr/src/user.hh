@@ -46,6 +46,14 @@ public:
     User(std::string name, std::string password,
          const UserDatabaseRights &defaultDbRights,
          const UserAdminRights &adminRights);
+    
+    /**
+     * Initialize a new instance of the User class with username and password,
+     * as well as a token.
+     */
+    User(std::string name, std::string password, std::string token,
+         const UserDatabaseRights &defaultDbRights,
+         const UserAdminRights &adminRights);
 
     virtual ~User() = default;
 
@@ -58,6 +66,9 @@ public:
 
     const std::string &getName() const;
     void setName(const std::string &name);
+
+    const std::string &getToken() const;
+    void setToken(const std::string &token);
 
     const std::string &getPassword() const;
     void setPassword(const std::string &password);

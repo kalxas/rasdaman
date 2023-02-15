@@ -77,14 +77,14 @@ public:
     */
 
     /// deletes an entry of the client table (must be public because it is used in the global garbage collection function)
-    unsigned short deleteClientTblEntry(unsigned long ClientId);
+    unsigned short deleteClientTblEntry(std::uint32_t ClientId);
     /**
       Deletes the entry of the client table corresponding to the given client id.
       If no corresponding id is found, false is returned.
     */
 
     /// returns a pointer to the context of the calling client, 0 it there is no context
-    ClientTblElt *getClientContext(unsigned long ClientId, bool printErrors = true);
+    ClientTblElt *getClientContext(std::uint32_t ClientId, bool printErrors = true);
     /**
       Returns a pointer to the context of the calling client. This is done by
       searching the client table maintained by the server for the given client id.

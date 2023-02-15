@@ -29,6 +29,7 @@ rasdaman GmbH.
 #include "common/grpc/messages/error.pb.h"
 #include "common/uuid/uuid.hh"
 #include "common/exceptions/exception.hh"
+#include "mymalloc/mymalloc.h"
 #include "common/pragmas/pragmas.hh"
 #include <logging.hh>
 
@@ -439,8 +440,11 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(
         response->set_data(nextChunk.bytes, nextChunk.length);
         response->set_bytes_left(result->getRemainingBytesLength());
         response->set_data_length(std::uint64_t(resultLen));
-        auto requestUUID = common::UUID::generateUUID();
+        
+        static std::atomic<std::uint32_t> requestIdCounter{};
+        auto requestUUID = ++requestIdCounter;
         response->set_uuid(requestUUID);
+        
         this->clientManager->addQueryStreamedResult(requestUUID, result);
     ), CODE())
 }

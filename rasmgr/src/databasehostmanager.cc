@@ -55,9 +55,7 @@ void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &
 
     std::string empty = "";
     std::string connectStr = newDbHost.has_connect_string() ? newDbHost.connect_string() : empty;
-    std::string userName = newDbHost.has_user_name() ? newDbHost.user_name() : empty;
-    std::string password = newDbHost.has_password() ? newDbHost.password() : empty;
-    auto dbHost = std::make_shared<DatabaseHost>(newDbHost.host_name(), connectStr, userName, password);
+    auto dbHost = std::make_shared<DatabaseHost>(newDbHost.host_name(), connectStr);
 
     boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
     this->hostList.push_back(dbHost);
@@ -78,10 +76,6 @@ void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const D
                   (*it)->setConnectString(newProperties.connect_string());
               if (newProperties.has_host_name() && !newProperties.host_name().empty())
                   (*it)->setHostName(newProperties.host_name());
-              if (newProperties.has_password())
-                  (*it)->setPasswdString(newProperties.password());
-              if (newProperties.has_user_name())
-                  (*it)->setUserName(newProperties.user_name());
               changed = true;
               break;
             }

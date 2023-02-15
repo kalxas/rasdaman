@@ -1,0 +1,21 @@
+netcdf crs_latitude_longitude {
+dimensions:
+	Lon = 89 ;
+	Lat = 71 ;
+variables:
+	char crs ;
+		crs:grid_mapping_name = "latitude_longitude" ;
+		crs:long_name = "CRS definition" ;
+		crs:longitude_of_prime_meridian = 0. ;
+		crs:semi_major_axis = 6378137. ;
+		crs:inverse_flattening = 298.257223563 ;
+		crs:crs_wkt = "GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AXIS[\"Latitude\",NORTH],AXIS[\"Longitude\",EAST],AUTHORITY[\"EPSG\",\"4326\"]]" ;
+	ubyte Gray(Lon, Lat) ;
+		Gray:valid_min = 0UB ;
+		Gray:valid_max = 255UB ;
+		Gray:grid_mapping = "crs" ;
+		Gray:description = "" ;
+		Gray:units = "10^0" ;
+	double Lon(Lon) ;
+	double Lat(Lat) ;
+}

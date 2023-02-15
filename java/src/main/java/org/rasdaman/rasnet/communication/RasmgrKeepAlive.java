@@ -39,7 +39,7 @@ public class RasmgrKeepAlive {
     private final Lock keepAliveLock = new ReentrantLock();
     private final Condition isKeepAliveRunningCond = keepAliveLock.newCondition();
     private final RasmgrClientServiceGrpc.RasmgrClientServiceBlockingStub rasmgrService;
-    private final String clientUUID;
+    private final int clientID;
     private final long aliveIntervalMilliseconds;
     private Thread runnerThread;
 
@@ -48,13 +48,13 @@ public class RasmgrKeepAlive {
      * RasmgrClientServiceGrpc to the rasmgr and sends keep alive messages.
      *
      * @param rasmgrService             GRPC service that is connected to a rasserver
-     * @param clientUUID                String that uniquely identifies the client on the server
+     * @param clientID                String that uniquely identifies the client on the server
      * @param aliveIntervalMilliseconds The number of milliseconds between each heart beat.
      */
     public RasmgrKeepAlive(RasmgrClientServiceGrpc.RasmgrClientServiceBlockingStub rasmgrService,
-                           String clientUUID, long aliveIntervalMilliseconds) {
+                           int clientID, long aliveIntervalMilliseconds) {
         this.rasmgrService = rasmgrService;
-        this.clientUUID = clientUUID;
+        this.clientID = clientID;
         this.aliveIntervalMilliseconds = aliveIntervalMilliseconds;
     }
 
@@ -73,7 +73,7 @@ public class RasmgrKeepAlive {
 
             this.isKeepAliveRunning = true;
             //Start the keep alive
-            this.runnerThread = new Thread(new KeepAliveRunner(this.clientUUID));
+            this.runnerThread = new Thread(new KeepAliveRunner(this.clientID));
             this.runnerThread.start();
 
         } catch (Exception ex) {
@@ -124,9 +124,9 @@ public class RasmgrKeepAlive {
         /**
          * Client unique ID
          */
-        private final String clientUUID;
+        private final int clientUUID;
 
-        public KeepAliveRunner(String clientUUID) {
+        public KeepAliveRunner(int clientUUID) {
             this.clientUUID = clientUUID;
         }
 
@@ -139,7 +139,7 @@ public class RasmgrKeepAlive {
                     if (!isKeepAliveRunningCond.await(aliveIntervalMilliseconds, TimeUnit.MILLISECONDS)) {
                         //The time expired
                         RasmgrClientServiceOuterClass.KeepAliveReq keepAliveReq = RasmgrClientServiceOuterClass.KeepAliveReq.newBuilder()
-                                .setClientUUID(clientUUID)
+                                .setClientId(clientID)
                                 .build();
 
                         //If this throws an exception, let it fail.

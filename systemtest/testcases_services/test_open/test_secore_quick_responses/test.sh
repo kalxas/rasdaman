@@ -32,34 +32,32 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-echo $SCRIPT_DIR
 . "$SCRIPT_DIR"/../../../util/common.sh
 
-# array to store process ids
-pids=""
-
 OUTPUT_FOLDER="output"
+rm -rf "$OUTPUT_FOLDER"
 mkdir -p "$OUTPUT_FOLDER"
 
+N=20
 log "Test SECORE response time with $N concurrent queries..."
-for i in {1..20}; do
-   # echo "test $i time..."
+for i in $(seq 20); do
+   log "  sending request $i..."
    wget -q "$SECORE_URL" -O "$OUTPUT_FOLDER/secore$i.txt" &
-   # add current process pid to an array, then later it can finish the script when all processes are stopped.
-   pids="$pids $!"
 done
 
-wait $pids
+log "Waiting for all requests to finish..."
+wait
 
 result=true
 log "All queries finished, checking results."
 for f in "$OUTPUT_FOLDER"/*; do
-   grep ellipsoid "$f" -q
-   [ $? -ne 0 ] && { result=false; break; }
+   if ! grep ellipsoid "$f" -q; then
+      log "  response $f invalid:"
+      cat "$f"
+      echo
+      result=false
+   fi
 done
-
-# clean the output file
-rm -rf "$OUTPUT_FOLDER"
 
 # check the test result
 check_result "true" "$result" "SECORE responses as expected"

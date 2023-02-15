@@ -1371,7 +1371,7 @@ template <>
 class ActionResultHolder<void> : public UntypedActionResultHolderBase {
  public:
   explicit ActionResultHolder() {}
-
+  
   void GetValueAndDelete() const { delete this; }
 
   virtual void PrintAsActionResult(::std::ostream* /* os */) const {}

@@ -39,23 +39,23 @@ message DatabaseRights
 // by the client id to it.
 message AllocateClientReq
 {
-    string clientId = 1;
-    string sessionId = 2;
+    uint32 clientId = 1;
+    uint32 sessionId = 2;
     string capabilities = 3;
 }
 
 message DeallocateClientReq
 {
-    string clientId = 1;
-    string sessionId = 2;
+    uint32 clientId = 1;
+    uint32 sessionId = 2;
 }
 
 message CloseServerReq {  string serverId = 1; }
 
 message ClientStatusReq
 {
-    string clientId = 1;
-    string sessionId = 2;
+    uint32 clientId = 1;
+    uint32 sessionId = 2;
 }
 
 message ClientStatusRepl
@@ -69,7 +69,7 @@ message ClientStatusRepl
 
 message ServerStatusReq {}
 
-message ServerStatusRepl {  uint32 clientQueueSize = 1; }
+message ServerStatusRepl { bool hasClients = 1; }
 
 // Service offered by a RasServer to the parent RasManager
 service RasServerService

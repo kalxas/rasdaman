@@ -25,13 +25,17 @@
 namespace rasmgr
 {
 
-DuplicateDbSessionException::DuplicateDbSessionException(const std::string& dbName, const std::string& sessionUID)
-    : common::RuntimeException("Database " + dbName + " already contains session " + sessionUID)
+DuplicateDbSessionException::DuplicateDbSessionException(const std::string& dbName, std::uint32_t sessionUID)
+    : common::RuntimeException("Database " + dbName + " already contains session " +
+                               std::to_string(sessionUID))
+{}
+
+DuplicateDbSessionException::DuplicateDbSessionException(const std::string &dbName, uint32_t clientId, uint32_t sessionId)
+  : common::RuntimeException("Database " + dbName + " already contains session <" + 
+                             std::to_string(clientId) + ", " + std::to_string(sessionId) + ">")
 {}
 
 DuplicateDbSessionException::~DuplicateDbSessionException() noexcept
-{
-
-}
+{}
 
 }

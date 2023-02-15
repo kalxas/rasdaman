@@ -31,7 +31,7 @@ rasdaman GmbH.
 #include <logging.hh>
 #include <cstring>
 
-ClientTblElt::ClientTblElt(ClientType clientTypeArg, unsigned long client)
+ClientTblElt::ClientTblElt(ClientType clientTypeArg, std::uint32_t client)
     : clientId(client), clientType{clientTypeArg}
 {
 #ifdef RASDEBUG

@@ -6,7 +6,7 @@ namespace rasserver
 const std::uint64_t ClientQueryStreamedResult::CHUNK_SIZE;
 
 ClientQueryStreamedResult::ClientQueryStreamedResult(
-    char* dataArg, std::uint64_t lengthArg, const std::string& clientUUIDArg,
+    char* dataArg, std::uint64_t lengthArg, std::int32_t clientUUIDArg,
     bool* nullMaskArg, std::uint64_t nullMaskLengthArg)
     : clientUUID(clientUUIDArg),
       data(dataArg), length(lengthArg),
@@ -31,7 +31,7 @@ DataChunk ClientQueryStreamedResult::getNextChunk()
     return chunk;
 }
 
-const std::string &ClientQueryStreamedResult::getClientUUID() const
+std::int32_t ClientQueryStreamedResult::getClientUUID() const
 {
     return this->clientUUID;
 }

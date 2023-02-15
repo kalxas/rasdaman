@@ -86,6 +86,17 @@ string StackTrace::toString(long offset) const {
   return ss.str();
 }
 
+string StackTrace::toString(long offset, long maxCount) const
+{
+  stringstream ss;
+  auto it = m_stack.begin();
+  long count = 0;
+  for (it += offset; it != m_stack.end() && count++ < maxCount; ++it) {
+    ss << it->toString(offset) << "\n";
+  }
+  return ss.str();
+}
+
 void StackTrace::generateNew(void) {
   m_stack.clear();
 

@@ -141,7 +141,7 @@ void ServerGroup::restartServer()
     if (this->hasAvailableServer())
     {
         // Send a Close request to all active rasservers
-        const auto &serverId = runningServer->getServerId();
+        auto serverId = runningServer->getServerId();
         LDEBUG << "\n\nRestarting server " << serverId;
         TRY_CATCH(
           CODE(

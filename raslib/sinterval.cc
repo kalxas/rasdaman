@@ -459,7 +459,10 @@ r_Sinterval r_Sinterval::calc_union(const r_Sinterval &a, const r_Sinterval &b) 
     
     if (a.is_slice() && b.is_slice())
         result.set_slice();
-
+    
+    if (a.has_axis_name())
+        result.set_axis_name(a.get_axis_name());
+    
     return result;
 }
 
@@ -533,7 +536,10 @@ r_Sinterval::calc_difference(const r_Sinterval &a, const r_Sinterval &b) const
         throw r_Error(NOINTERVAL, "cannot calculate difference of intervals " + a.to_string() + " and " + b.to_string());
     }
     }
-
+    
+    if (a.has_axis_name())
+        result.set_axis_name(a.get_axis_name());
+    
     return result;
 }
 
@@ -638,6 +644,9 @@ r_Sinterval::calc_intersection(const r_Sinterval &a, const r_Sinterval &b) const
     if (a.is_slice() || b.is_slice())
         result.set_slice();
     
+    if (a.has_axis_name())
+        result.set_axis_name(a.get_axis_name());
+    
     return result;
 }
 
@@ -654,7 +663,10 @@ r_Sinterval::calc_closure(const r_Sinterval &a, const r_Sinterval &b) const
         closure.set_high('*');
     else
         closure.set_high(std::max(a.high(), b.high()));
-
+    
+    if (a.has_axis_name())
+        closure.set_axis_name(a.get_axis_name());
+    
     return closure;
 }
 

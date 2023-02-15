@@ -15,6 +15,16 @@ struct GeoBbox {
    * @param h grid height
    */
   GeoBbox(const std::string &crsArg, const std::string &boundsArg, int w, int h);
+  
+  /**
+   * Initialize with crs, bounds, output resolution.
+   *
+   * @param crsArg the CRS of bounds
+   * @param boundsArg a comma-separated list of values: "xmin, ymin, xmax, ymax"
+   * @param xres x resolution
+   * @param yres y resolution
+   */
+  GeoBbox(const std::string &crsArg, const std::string &boundsArg, double xres, double yres);
 
   /**
    * Update the geotransform (gt).

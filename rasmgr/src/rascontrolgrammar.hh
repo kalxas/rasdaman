@@ -217,14 +217,16 @@ class RCError
 {
 public:
     RCError();
-    virtual std::string getString() = 0;
-
+    explicit RCError(const std::string &what);
+    virtual std::string getString();
+private:
+    std::string what;
 };
 
 class RCErrorUnexpToken : public RCError
 {
 public:
-    RCErrorUnexpToken(const std::string &);
+    explicit RCErrorUnexpToken(const std::string &);
     std::string getString() override;
 private:
     std::string pcc;
@@ -241,7 +243,7 @@ private:
 class RCErrorInvalidName : public RCError
 {
 public:
-    RCErrorInvalidName(const std::string &);
+    explicit RCErrorInvalidName(const std::string &);
     std::string getString() override;
 private:
     std::string pcc;
@@ -250,7 +252,7 @@ private:
 class RCErrorMissingParam : public RCError
 {
 public:
-    RCErrorMissingParam(const std::string &);
+    explicit RCErrorMissingParam(const std::string &);
     std::string getString() override;
 private:
     std::string pcc;
@@ -259,7 +261,7 @@ private:
 class RCErrorIncorNumberValue : public RCError
 {
 public:
-    RCErrorIncorNumberValue(const std::string &);
+    explicit RCErrorIncorNumberValue(const std::string &);
     std::string getString() override;
 private:
     std::string pcc;

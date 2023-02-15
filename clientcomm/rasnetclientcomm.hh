@@ -26,6 +26,7 @@ rasdaman GmbH.
 
 #include "clientcomm/clientcomm.hh"
 #include "globals.hh"
+#include "raslib/parseparams.hh"
 
 #include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
 #include "rasnet/messages/client_rassrvr_service.grpc.pb.h"
@@ -52,132 +53,147 @@ struct GetElementRes;
 class RasnetClientComm : public ClientComm
 {
 public:
-    RasnetClientComm(std::string rasmgrHost, int rasmgrPort = DEFAULT_PORT);
+    explicit RasnetClientComm(const std::string &rasmgrHost, int rasmgrPort = DEFAULT_PORT);
     virtual ~RasnetClientComm() noexcept;
 
-    int connectClient(std::string userName, std::string passwordHash);
+    int connectClient(const std::string &userName, const std::string &passwordHash);
     int disconnectClient();
 
-    int openDB(const char *database);
-    int closeDB();
-    int createDB(const char *name);
-    int destroyDB(const char *name);
+    int openDB(const char *database) override;
+    int closeDB() override;
+    int createDB(const char *name) override;
+    int destroyDB(const char *name) override;
 
-    int openTA(unsigned short readOnly);
-    int commitTA();
-    int abortTA();
+    int openTA(unsigned short readOnly) override;
+    int commitTA() override;
+    int abortTA() override;
 
-    void insertMDD(const char *collName, r_GMarray *mar);
-    r_Ref_Any getMDDByOId(const r_OId &oid);
+    void insertMDD(const char *collName, r_GMarray *mar) override;
+    r_Ref_Any getMDDByOId(const r_OId &oid) override;
 
-    void insertColl(const char *collName, const char *typeName, const r_OId &oid);
-    void deleteCollByName(const char *collName);
-    void deleteObjByOId(const r_OId &oid);
-    void removeObjFromColl(const char *name, const r_OId &oid);
-    r_Ref_Any getCollByName(const char *name);
-    r_Ref_Any getCollByOId(const r_OId &oid);
-    r_Ref_Any getCollOIdsByName(const char *name);
-    r_Ref_Any getCollOIdsByOId(const r_OId &oid);
+    void insertColl(const char *collName, const char *typeName, const r_OId &oid) override;
+    void deleteCollByName(const char *collName) override;
+    void deleteObjByOId(const r_OId &oid) override;
+    void removeObjFromColl(const char *name, const r_OId &oid) override;
+    r_Ref_Any getCollByName(const char *name) override;
+    r_Ref_Any getCollByOId(const r_OId &oid) override;
+    r_Ref_Any getCollOIdsByName(const char *name) override;
+    r_Ref_Any getCollOIdsByOId(const r_OId &oid) override;
 
-    void executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result);
-    void executeQuery(const r_OQL_Query &query);
-    void executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy);
+    void executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result) override;
+    void executeQuery(const r_OQL_Query &query) override;
+    void executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy) override;
 
-    r_OId getNewOId(unsigned short objType);
-    unsigned short getObjectType(const r_OId &oid);
+    r_OId getNewOId(unsigned short objType) override;
+    unsigned short getObjectType(const r_OId &oid) override;
 
-    char *getTypeStructure(const char *typeName, r_Type_Type typeType);
+    char *getTypeStructure(const char *typeName, r_Type_Type typeType) override;
 
-    int setTransferFormat(r_Data_Format format, const char *formatParams = NULL);
-    int setStorageFormat(r_Data_Format format, const char *formatParams = NULL);
+    int setTransferFormat(r_Data_Format format, const char *formatParams = NULL) override;
+    int setStorageFormat(r_Data_Format format, const char *formatParams = NULL) override;
 
-    bool effectivTypeIsRNP();
-    long unsigned int getClientID() const;
-    void triggerAliveSignal();
-    void sendAliveSignal();
-    void setUserIdentification(const char *userName, const char *plainTextPassword);
-    void setMaxRetry(unsigned int newMaxRetry);
-    unsigned int  getMaxRetry();
-    void setTimeoutInterval(int seconds);
-    int  getTimeoutInterval();
+    void setUserIdentification(const char *userName, const char *plainTextPassword) override;
+    void setMaxRetry(unsigned int newMaxRetry) override;
+    unsigned int getMaxRetry() override;
+    void setTimeoutInterval(int seconds) override;
+    int getTimeoutInterval() override;
 
 private:
-    std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
-    bool initializedRasServerService; /*! Flag used to indicate if the service was initialized */
-    boost::shared_mutex rasServerServiceMtx;
-    std::shared_ptr<common::HealthService::Stub> rasserverHealthService;
-
+    
+    // -------------------------------------------------------------------------
+    // rasmgr service
     std::shared_ptr<rasnet::service::RasmgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
-    bool initializedRasMgrService; /*! Flag used to indicate if the service was initialized */
+    bool initializedRasMgrService{false}; /*! Flag used to indicate if the service was initialized */
     boost::shared_mutex rasMgrServiceMtx;
     std::shared_ptr<common::HealthService::Stub> rasmgrHealthService;
+    //
+    std::shared_ptr<rasnet::service::RasmgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed = true);
+    void initRasserverService();
+    void closeRasserverService();
+    
+    // -------------------------------------------------------------------------
+    // rasserver service
+    std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
+    bool initializedRasServerService{false}; /*! Flag used to indicate if the service was initialized */
+    boost::shared_mutex rasServerServiceMtx;
+    std::shared_ptr<common::HealthService::Stub> rasserverHealthService;
+    //
+    std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService(bool throwIfConnectionFailed = true);
+    void initRasmgrService();
+    void closeRasmgrService();
+    
+    // -------------------------------------------------------------------------
+    // START: KEEP ALIVE THREADS
+    int64_t keepAliveTimeout{};
 
-    /* START: KEEP ALIVE */
-    int64_t keepAliveTimeout;
-
-    /* RASMGR */
+    // rasmgr
     std::unique_ptr<boost::thread> rasMgrKeepAliveManagementThread;
     boost::mutex rasmgrKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
-    bool isRasmgrKeepAliveRunning; /*! Flag used to stop the worker thread */
+    bool isRasmgrKeepAliveRunning{false}; /*! Flag used to stop the worker thread */
     boost::condition_variable isRasmgrKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
-
+    //
     void startRasMgrKeepAlive();
     void stopRasMgrKeepAlive();
-
     void clientRasMgrKeepAliveRunner();
 
-    /* RASSERVER */
+    // rasserver
     std::unique_ptr<boost::thread> rasServerKeepAliveManagementThread;
     boost::mutex rasserverKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
-    bool isRasserverKeepAliveRunning; /*! Flag used to stop the worker thread */
+    bool isRasserverKeepAliveRunning{false}; /*! Flag used to stop the worker thread */
     boost::condition_variable isRasserverKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
-
+    //
     void startRasServerKeepAlive();
     void stopRasServerKeepAlive();
-
     void clientRasServerKeepAliveRunner();
-    /* END: KEEP ALIVE */
+    // END: KEEP ALIVE
 
-    std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService(bool throwIfConnectionFailed = true);
-    std::shared_ptr<rasnet::service::RasmgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed = true);
-
-    void initRasserverService();
-    void initRasmgrService();
-    void closeRasserverService();
-    void closeRasmgrService();
-
-    long unsigned int clientId;
+    
+    // -------------------------------------------------------------------------
+    // various identifiers
     /// The ID allocated by the rasmgr upon a successful connect request
-    std::string clientUUID;
-
+    std::uint32_t clientId{};
     /// The ID allocated to the client upon a OpenDb request.
     /// If the allocated server belongs to the current rasmgr, the UUID is the same
     /// as the clientUUID. If the allocated server belongs to a peer of the current rasmgr,
     /// the UUID uniquely identifies the client on the remote server.
-    std::string remoteClientUUID;
-    std::string sessionId;
-
+    std::uint32_t remoteClientId;
+    std::uint32_t sessionId;
+    
+    // -------------------------------------------------------------------------
+    // authentication
     char capability[100];
-    /// data format for transfer compression
-    r_Data_Format transferFormat;
-    /// storage format for inserting new tiles
-    r_Data_Format storageFormat;
-    /// transfer format parameters
-    char *transferFormatParams;
-    /// storage format parameters
-    char *storageFormatParams;
-    /// parameter object for configuration
-    r_Parse_Params *clientParams;
-
-    std::string rasServerHost;
-    int rasServerPort;
-
+    
+    // -------------------------------------------------------------------------
+    // connection details
+    /// full rasmgr address in format hostname:port
     std::string rasmgrHost;
-
+    /// the rasmgr hostname
+    std::string rasmgrHostname;
+    /// rasserver hostname
+    std::string rasServerHost;
+    /// rasserver port
+    int rasServerPort;
+    /// data format for transfer compression
+    r_Data_Format transferFormat{r_Array};
+    /// storage format for inserting new tiles
+    r_Data_Format storageFormat{r_Array};
+    /// transfer format parameters
+    char *transferFormatParams{nullptr};
+    /// storage format parameters
+    char *storageFormatParams{nullptr};
+    /// connection timeout in milliseconds for calls to rasmgr/rasserver services.
+    /// Default is 0: no timeout
+    size_t timeoutMs{};
+    /// parameter object for configuration
+    r_Parse_Params clientParams;
+    
+    // -------------------------------------------------------------------------
+    // error handlers
     static void handleError(const std::string &error);
-    static void handleConnectionFailure();
     static void handleStatusCode(int status, const std::string &method);
 
+    // -------------------------------------------------------------------------
+    // utility methods
     int executeStartInsertPersMDD(const char *collName, r_GMarray *mar);
     int executeInsertTile(bool persistent, RPCMarray *tile);
     void executeEndInsertMDD(bool persistent);
@@ -204,7 +220,8 @@ private:
     void freeGetTileRes(GetTileRes *ptr);
 
     void freeMarRpcRepresentation(const r_GMarray *mar, RPCMarray *rpcMarray);
-    void getMarRpcRepresentation(const r_GMarray *mar, RPCMarray *&rpcMarray, r_Data_Format initStorageFormat, const r_Base_Type *baseType);
+    void getMarRpcRepresentation(
+        const r_GMarray *mar, RPCMarray *&rpcMarray, r_Data_Format initStorageFormat, const r_Base_Type *baseType);
     void checkForRwTransaction();
 };
 

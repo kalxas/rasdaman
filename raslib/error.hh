@@ -790,4 +790,8 @@ public:
 //10000
 #define INTERNALSERVERERROR                 10000//used
 
+#ifndef SQLITE_NOTFOUND
+#define SQLITE_NOTFOUND 12
+#endif
+
 #endif

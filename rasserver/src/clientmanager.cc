@@ -26,6 +26,7 @@ rasdaman GmbH.
 #include "common/uuid/uuid.hh"
 #include "server/rasserver_entry.hh"
 #include "common/exceptions/missingresourceexception.hh"
+#include "common/pragmas/pragmas.hh"
 #include <logging.hh>
 #include <boost/thread.hpp>
 
@@ -74,37 +75,36 @@ ClientManager::~ClientManager()
     }
 }
 
-bool ClientManager::allocateClient(const std::string & clientUUID,
-                                   __attribute__ ((unused)) const std::string &)
+bool ClientManager::allocateClient(std::uint32_t clientUUID, UNUSED std::uint32_t sessionId)
 {
     boost::lock_guard<boost::shared_mutex> lock(clientMutex);
-    if (!clientId.empty())
+    if (clientConnected)
     {
         LWARNING << "Current client " << clientId << " has not been deallocated"
                  << ", but a new client is to be allocated: " << clientUUID;
     }
     timeSinceLastPing.reset();
     clientId = clientUUID;
+    clientConnected = true;
     return true;
 }
 
-void ClientManager::deallocateClient(const std::string &clientUUID,
-                                     __attribute__ ((unused)) const std::string &)
+void ClientManager::deallocateClient(std::uint32_t clientUUID, UNUSED std::uint32_t sessionId)
 {
     boost::lock_guard<boost::shared_mutex> lock(clientMutex);
     if (clientId == clientUUID)
     {
-        clientId = "";
+        clientConnected = false;
     }
 }
 
-bool ClientManager::isAlive(const std::string &clientUUID)
+bool ClientManager::isAlive(std::uint32_t clientUUID)
 {
     boost::shared_lock<boost::shared_mutex> lock(clientMutex);
     return clientId == clientUUID && !timeSinceLastPing.hasExpired();
 }
 
-void ClientManager::resetLiveliness(const std::string &clientUUID)
+void ClientManager::resetLiveliness(std::uint32_t clientUUID)
 {
     boost::lock_guard<boost::shared_mutex> lock(clientMutex);
     if (clientId == clientUUID)
@@ -113,27 +113,28 @@ void ClientManager::resetLiveliness(const std::string &clientUUID)
     }
 }
 
-void ClientManager::addQueryStreamedResult(const std::string& requestUUID,
+void ClientManager::addQueryStreamedResult(std::uint32_t requestUUID,
                                            const shared_ptr<ClientQueryStreamedResult>& streamedResult)
 {
     boost::lock_guard<boost::shared_mutex> lock(requestMutex);
-    if (!requestId.empty())
+    if (streamingRequest)
     {
         LWARNING << "Previous request " << requestId << " has not been deallocated"
                  << ", but a new one is being added: " << requestUUID;
     }
     requestId = requestUUID;
     requestResult = streamedResult;
+    streamingRequest = true;
 }
 
 shared_ptr<ClientQueryStreamedResult>
-ClientManager::getQueryStreamedResult(const std::string& requestUUID)
+ClientManager::getQueryStreamedResult(std::uint32_t requestUUID)
 {
     boost::shared_lock<boost::shared_mutex> lock(requestMutex);
-    if (requestId != requestUUID)
+    if (!streamingRequest || requestId != requestUUID)
     {
         throw common::MissingResourceException(
-            "No request result found for request uuid " + requestUUID);
+            "No request result found for request uuid " + std::to_string(requestUUID));
     }
     return requestResult;
 }
@@ -141,24 +142,26 @@ ClientManager::getQueryStreamedResult(const std::string& requestUUID)
 void ClientManager::removeAllQueryStreamedResults()
 {
     boost::lock_guard<boost::shared_mutex> lock(requestMutex);
-    requestId = "";
+    requestId = 0;
     requestResult.reset();
+    streamingRequest = false;
 }
 
-void ClientManager::cleanQueryStreamedResult(const std::string& requestUUID)
+void ClientManager::cleanQueryStreamedResult(std::uint32_t requestUUID)
 {
     boost::lock_guard<boost::shared_mutex> lock(requestMutex);
     if (requestId == requestUUID)
     {
-        requestId = "";
+        requestId = 0;
         requestResult.reset();
+        streamingRequest = false;
     }
 }
 
-size_t ClientManager::getClientQueueSize()
+bool ClientManager::hasClients()
 {
     boost::shared_lock<boost::shared_mutex> lock(requestMutex);
-    return clientId.empty() ? 0 : 1;
+    return clientConnected;
 }
 
 void ClientManager::evaluateClientStatus()
@@ -178,7 +181,7 @@ void ClientManager::evaluateClientStatus()
                 // will contain the clients from which no keep alive message
                 // was received after ALIVE_PERIOD milliseconds
                 boost::upgrade_lock<boost::shared_mutex> sharedLock(clientMutex);
-                if (!clientId.empty() && timeSinceLastPing.hasExpired())
+                if (clientConnected && timeSinceLastPing.hasExpired())
                 {
                     // client Keep Alive timer has expired, so the client is considered dead
 
@@ -205,7 +208,7 @@ void ClientManager::evaluateClientStatus()
                     
                     // disconnect client here
                     boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(sharedLock);
-                    clientId = "";
+                    clientConnected = false;
                 }
             }
         }

@@ -26,7 +26,7 @@ import os
 import re
 import subprocess
 import sys
-from distutils.spawn import find_executable
+from shutil import which
 
 # Find the Protocol Compiler.
 # TODO: Take windows cases into account
@@ -40,8 +40,8 @@ elif os.path.exists('/usr/scripts/protoc'):
     protoc = "/usr/scripts/protoc"
     grpc_plugin = "/usr/scripts/grpc_python_plugin"
 else:
-    protoc = find_executable("protoc")
-    grpc_plugin = find_executable("grpc_python_plugin")
+    protoc = which("protoc")
+    grpc_plugin = which("grpc_python_plugin")
 
 
 def generate_proto(source, destination, proto_dir, stubs_dir, require=True):
@@ -98,10 +98,11 @@ def main(args=None):
                        stubs_dir, require=True)
         f = open(stubs_dir + pb2_file, "r+b")
         f_content = f.read()
-        f_content = re.sub(r"syntax='proto3',", r"#syntax='proto3'", f_content)
+        f_content_str = f_content.decode('utf-8')
+        f_content = re.sub(r"syntax='proto3',", r"#syntax='proto3'", f_content_str)
         f.seek(0)
         f.truncate()
-        f.write(f_content)
+        f.write(bytes(f_content, 'utf-8'))
         f.close()
 
 

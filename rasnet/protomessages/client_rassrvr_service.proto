@@ -35,17 +35,17 @@ import "common_service.proto";
 // REGION: DATABASE METHODS
 message OpenServerDatabaseReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string database_name = 2;
 }
 
 message OpenServerDatabaseRepl {}
 
-message CloseServerDatabaseReq {  int32 client_id = 1; }
+message CloseServerDatabaseReq {  uint32 client_id = 1; }
 
 message CreateDatabaseReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string database_name = 2;
 }
 
@@ -53,7 +53,7 @@ message CreateDatabaseRepl {}
 
 message DestroyDatabaseReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string database_name = 2;
 }
 
@@ -63,21 +63,21 @@ message DestroyDatabaseRepl {}
 // REGION: TRANSACTION METHODS
 message BeginTransactionReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     bool rw = 2;
 }
 
 message BeginTransactionRepl {}
 
-message CommitTransactionReq {  int32 client_id = 1; }
+message CommitTransactionReq {  uint32 client_id = 1; }
 
 message CommitTransactionRepl {}
 
-message AbortTransactionReq {  int32 client_id = 1; }
+message AbortTransactionReq {  uint32 client_id = 1; }
 
 message AbortTransactionRepl {}
 
-message IsTransactionOpenReq {  int32 client_id = 1; }
+message IsTransactionOpenReq {  uint32 client_id = 1; }
 
 message IsTransactionOpenRepl {  bool isOpen = 1; }
 // ENDREGION: TRANSACTION METHODS
@@ -85,7 +85,7 @@ message IsTransactionOpenRepl {  bool isOpen = 1; }
 // REGION: MDD METHODS
 message StartInsertMDDReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string collName = 2;
     bytes domain = 3;
     int32 type_length = 4;
@@ -97,7 +97,7 @@ message StartInsertMDDRepl {  int32 status = 1; }
 
 message InsertTileReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     bool persistent = 2;
     string domain = 3;
     int32 type_length = 4;
@@ -113,7 +113,7 @@ message InsertTileRepl {  int32 status = 1; }
 
 message EndInsertMDDReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     bool persistent = 2;
 }
 
@@ -121,7 +121,7 @@ message EndInsertMDDRepl {  int32 status = 1; }
 
 message StartInsertTransMDDReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string domain = 2;
     int32 type_length = 3;
     string type_name = 4;
@@ -134,7 +134,7 @@ message StartInsertTransMDDRepl {  int32 status = 1; }
 // REGION: COLLECTION METHODS
 message InsertCollectionReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string collection_name = 2;
     string type_name = 3;
     string oid = 4;
@@ -144,7 +144,7 @@ message InsertCollectionRepl {  int32 status = 1; }
 
 message DeleteCollectionByNameReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string collection_name = 2;
 }
 
@@ -152,7 +152,7 @@ message DeleteCollectionByNameRepl {  int32 status = 1; }
 
 message DeleteCollectionByOidReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string oid = 2;
 }
 
@@ -160,7 +160,7 @@ message DeleteCollectionByOidRepl {  int32 status = 1; }
 
 message GetCollectionByNameOrOidReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string collection_identifier = 2;
     bool is_name = 3;
 }
@@ -176,7 +176,7 @@ message GetCollectionByNameOrOidRepl
 
 message GetCollOidsByNameOrOidReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string collection_identifier = 2;
     bool is_name = 3;
 }
@@ -193,14 +193,14 @@ message GetCollOidsByNameOrOidRepl
 
 message RemoveObjectFromCollectionReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string collection_name = 2;
     string oid = 3;
 }
 
 message RemoveObjectFromCollectionRepl {  int32 status = 1; }
 
-message GetNextMDDReq {  int32 client_id = 1; }
+message GetNextMDDReq {  uint32 client_id = 1; }
 
 message GetNextMDDRepl
 {
@@ -212,7 +212,7 @@ message GetNextMDDRepl
     int32 current_format = 6;
 }
 
-message GetNextTileReq {  int32 client_id = 1; }
+message GetNextTileReq {  uint32 client_id = 1; }
 
 message GetNextTileRepl
 {
@@ -227,20 +227,20 @@ message GetNextTileRepl
     int32 cell_linearization = 9;
 }
 
-message EndTransferReq {  int32 client_id = 1; }
+message EndTransferReq {  uint32 client_id = 1; }
 
 message EndTransferRepl {  int32 status = 1; }
 
 // ENDREGION: COLLECTION METHODS
 
 // REGION: QUERY METHODS
-message InitUpdateReq {  int32 client_id = 1; }
+message InitUpdateReq {  uint32 client_id = 1; }
 
 message InitUpdateRepl {  int32 status = 1; }
 
 message ExecuteQueryReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string query = 2;
 }
 
@@ -257,7 +257,7 @@ message ExecuteQueryRepl
 
 message ExecuteHttpQueryReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     bytes data = 2;
     int32 data_length = 3;
 }
@@ -267,12 +267,12 @@ message ExecuteHttpQueryRepl {  bytes data = 1; }
 message GetNextStreamedQueryReq
 {
     //UUID identifying a storage location on the server from which the rest of the data can be streamed as char *
-    string uuid = 1;
+    uint32 uuid = 1;
 }
 
 message StreamedQueryRepl
 {
-    string uuid = 1;
+    uint32 uuid = 1;
     bytes raw_data = 2;
     int32 bytes_left = 3;
     bytes null_mask = 4;
@@ -281,24 +281,24 @@ message StreamedQueryRepl
 
 message BeginStreamedHttpQueryReq
 {
-    string client_uuid = 1;
+    uint32 client_uuid = 1;
     bytes data = 2;
 }
 
 message GetNextStreamedHttpQueryReq
 {
-    string uuid = 1;
+    uint32 uuid = 1;
 }
 
 message StreamedHttpQueryRepl
 {
-    string uuid = 1;
+    uint32 uuid = 1;
     bytes data = 2;
     uint64 data_length = 3;
     uint64 bytes_left = 4;
 }
 
-message GetNextElementReq {  int32 client_id = 1; }
+message GetNextElementReq {  uint32 client_id = 1; }
 
 message GetNextElementRepl
 {
@@ -309,7 +309,7 @@ message GetNextElementRepl
 
 message ExecuteUpdateQueryReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string query = 2;
 }
 
@@ -324,7 +324,7 @@ message ExecuteUpdateQueryRepl
 
 message ExecuteInsertQueryReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string query = 2;
 }
 
@@ -344,7 +344,7 @@ message ExecuteInsertQueryRepl
 // REGION: SYSTEM METHODS
 message GetNewOidReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     int32 object_type = 2;
 }
 
@@ -352,7 +352,7 @@ message GetNewOidRepl {  string oid = 1; }
 
 message GetObjectTypeReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string oid = 2;
 }
 
@@ -364,7 +364,7 @@ message GetObjectTypeRepl
 
 message GetTypeStructureReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     string type_name = 2;
     int32 type_type = 3;
 }
@@ -377,7 +377,7 @@ message GetTypeStructureRepl
 
 message SetFormatReq
 {
-    int32 client_id = 1;
+    uint32 client_id = 1;
     int32 transfer_format = 2;
     int32 format = 3;
     string format_params = 4;
@@ -388,8 +388,8 @@ message SetFormatRepl {  int32 status = 2; }
 
 message KeepAliveRequest
 {
-    string client_uuid = 1;
-    string session_id = 2;
+    uint32 client_uuid = 1;
+    uint32 session_id = 2;
 }
 
 service ClientRassrvrService

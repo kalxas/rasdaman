@@ -60,7 +60,6 @@ public:
     //@Man: Database methods
     //@{
     ///
-    //RNP: all made pure
 
     /// open database
     virtual int openDB(const char* database) = 0;
@@ -128,25 +127,18 @@ public:
     //@{
     ///
 
-    /// query execution
+    /// Executes a retrieval query of type r_OQL_Query and returns the result. Every
+    /// MDD object of the MDD collection is fetched from the server and inserted
+    /// in the result r_Set.
     virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result) = 0;
-    /*@Doc:
-      Executes a retrieval query of type \Ref{r_OQL_Query} and returns the result. Every
-      MDD object of the MDD collection is fetched from the server and inserted
-      in the resulting \Ref{r_Set}.
-    */
 
-    /// update execution
+    /// Executes an update query of type r_OQL_Query.
     virtual void executeQuery(const r_OQL_Query& query) = 0;
-    /*@Doc:
-      Executes an update query of type \Ref{r_OQL_Query}.
-    */
 
-    /// insert returning oid, third parameter is dummy parameter
+    /// Executes an insert query of type r_OQL_Query, returning the OId of the
+    /// inserted array. The third parameter is only used to distinguish the
+    /// method signature from the retrieval query one.
     virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) = 0;
-    /*@Doc:
-      Executes an insert query of type \Ref{r_OQL_Query}.
-    */
 
     ///
     //@}
@@ -176,24 +168,8 @@ public:
     //@}
 
 
-    //@Man: Methods for asynchronious alive signal concept
+    //@Man: Configuration methods
     //@{
-
-    /// triggers an alive signal
-    virtual void triggerAliveSignal() = 0;
-    /**
-      First, it sets the switch <tt>aliveSignalRemaining</tt> saying that an alive signal
-      should be send to the server. Then it calls <tt>sendAliveSignal()</tt> to send it
-      immediately if possible.
-    */
-
-    /// send an alive signal if necessary and possible
-    virtual void sendAliveSignal() = 0;
-    /**
-      Sends an alive signal to the server if the switch <tt>aliveSignalRemaining</tt> is
-      set and no other RPC is active. If a signal can be sent, <tt>aliveSignalRemaining</tt>
-      is set to 0 again.
-    */
 
     /// set the preferred transfer format
     virtual int setTransferFormat(r_Data_Format format, const char* formatParams = NULL) = 0;
@@ -201,37 +177,29 @@ public:
     /// set the preferred storage format
     virtual int setStorageFormat(r_Data_Format format, const char* formatParams = NULL) = 0;
 
-    /// get extended error information
-    const char* getServerName();
-
     /// user identification for RasMGR
     virtual void setUserIdentification(const char* userName, const char* plainTextPassword) = 0;
 
     /// set maximum retry to get a server
     virtual void setMaxRetry(unsigned int newMaxRetry) = 0;
-
     /// get maximum retry to get a server
-    virtual unsigned int  getMaxRetry() = 0;
+    virtual unsigned int getMaxRetry() = 0;
 
-    /// set and get communication timeout interval. Only RNP really uses it
+    /// set communication timeout interval in seconds.
     virtual void setTimeoutInterval(int seconds) = 0;
-    virtual int  getTimeoutInterval() = 0;
+    /// get communication timeout interval in seconds.
+    virtual int getTimeoutInterval() = 0;
 
     /// sets the database that is using this client communicator
     void setDatabase(r_Database* database);
-
     /// sets the transaction that is using this client communicator
     void setTransaction(r_Transaction* transaction);
-
     /// resets to the global r_Transaction::actual_transaction if necessary
     virtual void updateTransaction();
 
     ///
     //@}
     
-    /// provides read access to my clientID
-    virtual unsigned long getClientID() const  = 0;
-
 protected:
     /// constructor getting nothing
     ClientComm() = default;

@@ -70,8 +70,6 @@ public:
     int         getMaxTransferBufferSize();
     int         getTimeout();
     const char* getDbConnectionID();
-    const char* getDbUser();
-    const char* getDbPasswd();
 
     int         getDefaultTileSize();
     int         getDefaultPCTMin();
@@ -136,8 +134,6 @@ private:
 
     CommandLineParameter* cmlOptLevel{};
     CommandLineParameter* cmlConnectStr{};
-    CommandLineParameter* cmlUserStr{};
-    CommandLineParameter* cmlPasswdStr{};
     CommandLineParameter* cmlLog{};
 
     CommandLineParameter* cmlTileSize{};
@@ -183,8 +179,6 @@ private:
     const char* rasmgrHost{};
     
     const char* dbConnection{};
-    const char* dbUser{};
-    const char* dbPasswd{};
     
     const char* logFileName{}; // == 0 if stdout
     const char* tileConf{};

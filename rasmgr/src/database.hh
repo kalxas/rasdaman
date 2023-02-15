@@ -55,13 +55,13 @@ public:
      * This allows for preventing the removal of the database while it still has running
      * transactions.
      */
-    void addClientSession(const std::string &clientId, const std::string &sessionId);
+    void addClientSession(std::uint32_t clientId, std::uint32_t sessionId);
 
     /**
      * @brief removeClientSession Remove the session with the given client ID and session ID
      * @return The number of sessions removed.
      */
-    int removeClientSession(const std::string &clientId, const std::string &sessionId);
+    int removeClientSession(std::uint32_t clientId, std::uint32_t sessionId);
 
     /**
      * Check if there are running transactions on this database
@@ -88,7 +88,7 @@ public:
 private:
     std::string dbName; /*!< Name of this database */
     
-    std::set<std::pair<std::string, std::string>> sessionList; /*! List of <clientId,sessionId> pairs representing open sessions on the db*/
+    std::set<std::pair<std::uint32_t, std::uint32_t>> sessionList; /*! List of <clientId,sessionId> pairs representing open sessions on the db*/
     mutable boost::shared_mutex sessionListMutex; /*! For thread-safe access to sessionList */
 };
 

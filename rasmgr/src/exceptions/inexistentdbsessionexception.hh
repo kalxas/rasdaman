@@ -34,8 +34,8 @@ namespace rasmgr
 class InexistentDbSessionException: public common::MissingResourceException
 {
 public:
-    InexistentDbSessionException(const std::string& dbSession);
-    InexistentDbSessionException(const std::string& dbSession, const std::string &details);
+    InexistentDbSessionException(std::uint32_t dbSession);
+    InexistentDbSessionException(std::uint32_t dbSession, const std::string &details);
 
     virtual ~InexistentDbSessionException() noexcept;
 };

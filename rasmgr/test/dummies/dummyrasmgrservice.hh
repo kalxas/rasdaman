@@ -15,8 +15,8 @@ class DummyRasmgrService: public rasnet::service::RasmgrRasmgrService::Service
 {
 public:
     DummyRasmgrService():
-        clientId("clientid"),
-        dbSessionId("dbSessionId"),
+        clientId(1),
+        dbSessionId(2),
         serverHost("serverHost"),
         serverPort(36000)
     {
@@ -49,8 +49,8 @@ public:
         return grpc::Status::OK;
     }
 
-    const std::string clientId;
-    const std::string dbSessionId;
+    const std::uint32_t clientId;
+    const std::uint32_t dbSessionId;
     const std::string serverHost;
     const std::uint32_t serverPort;
 };

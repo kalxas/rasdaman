@@ -77,10 +77,8 @@ macro(InstallExternalDynamicLibrary LIBRARY_NAME LIBRARY_PATH DEPENDENCIES)
 endmacro()
 
 #########################################
-# DOWNLOAD THE SUBMODULES				#
+# Prepare				#
 #########################################
-execute_process(COMMAND git submodule update --init --recursive
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Create this folder first before tar can extract grpc.tar.gz
 execute_process(COMMAND mkdir -p ${CMAKE_BINARY_DIR}/third_party)
@@ -309,10 +307,12 @@ find_package (Threads REQUIRED)
 InstallExternalLibrary(${GRPC_LIBRARY} ${GRPC_LIBRARY_PATH} google-grpc)
 set_property(TARGET ${GRPC_LIBRARY} APPEND PROPERTY
         IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES})
+target_link_libraries(${GRPC_LIBRARY} INTERFACE ${ZLIB_LIBRARIES})
 
 InstallExternalLibrary(${GRPCPP_LIBRARY} ${GRPCPP_LIBRARY_PATH} google-grpc)
 set_property(TARGET ${GRPCPP_LIBRARY} APPEND PROPERTY
         IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES})
+target_link_libraries(${GRPCPP_LIBRARY} INTERFACE ${ZLIB_LIBRARIES})
 
 InstallExternalLibrary(${PROTOBUF_LIBRARY} ${PROTOBUF_LIBRARY_PATH} google-grpc)
 

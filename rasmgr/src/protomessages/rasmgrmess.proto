@@ -86,16 +86,12 @@ message StopServerGroup {
 message DefineDbHost {
   required string host_name = 1;
   optional string connect = 2;
-  optional string user = 3;
-  optional string passwd = 4;
 }
 
 message ChangeDbHost {
   required string host_name = 1;
   optional string n_name = 2;
   optional string n_connect = 3;
-  optional string n_user = 4;
-  optional string n_passwd = 5;
 }
 
 message RemoveDbHost { required string host_name = 1; }
@@ -209,8 +205,6 @@ message DatabasePropertiesProto { optional string n_name = 1; }
 message DatabaseHostProto {
   required string host_name = 1;
   required string connect_string = 2;
-  required string user_name = 3;
-  required string password = 4;
 
   required int32 session_count = 5;
   required int32 server_count = 6;
@@ -221,8 +215,6 @@ message DatabaseHostProto {
 message DatabaseHostPropertiesProto {
   optional string host_name = 1;
   optional string connect_string = 2;
-  optional string user_name = 3;
-  optional string password = 4;
 }
 
 message DatabaseHostMgrProto { repeated DatabaseHostProto database_hosts = 1; }

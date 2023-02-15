@@ -232,7 +232,7 @@ void r_Format_Params::parseVariables()
                 {
                     bandIds.push_back(val[i].asInt());
                 }
-                else
+                else if (val[i].isString())
                 {
                     variables.push_back(val[i].asString());
                 }

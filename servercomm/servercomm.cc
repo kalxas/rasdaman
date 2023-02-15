@@ -225,7 +225,7 @@ ServerComm::abortEveryThingNow()
 }
 
 ClientTblElt *
-ServerComm::getClientContext(unsigned long clientId, bool printErrors)
+ServerComm::getClientContext(std::uint32_t clientId, bool printErrors)
 {
     const std::lock_guard<std::mutex> lock(clientTblMutex);
     if (clientTbl)
@@ -267,7 +267,7 @@ ServerComm::addClientTblEntry(ClientTblElt *context)
 }
 
 unsigned short
-ServerComm::deleteClientTblEntry(unsigned long clientId)
+ServerComm::deleteClientTblEntry(std::uint32_t clientId)
 {
     const std::lock_guard<std::mutex> lock(clientTblMutex);
   

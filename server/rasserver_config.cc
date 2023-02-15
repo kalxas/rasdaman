@@ -165,8 +165,6 @@ void Configuration::initParameters()
     cmlLockMgrOn   = &cmlInter.addFlagParameter(nsn, "enable-tilelocking", "enables fine grained locking of tiles");
 
     cmlConnectStr  = &cmlInter.addStringParameter(nsn, "connect", "<connect-str> connect string for underlying database(e.g. test/test@julep)", "/");
-    cmlUserStr     = &cmlInter.addStringParameter('u', "user", "<username> database connection user (empty by default)", "");
-    cmlPasswdStr   = &cmlInter.addStringParameter('p', "passwd", "<password> database connection password (empty by default)", "");
     cmlLog         = &cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "$RMANHOME/log/<srv-name>.<pid>.log");
 
     cmlTileSize   = &cmlInter.addLongParameter(nsn, "tilesize", "<nnnn> specifies maximal size of tiles in bytes\n\t\t-regular tiles with equal edge lengthes",  4194304);
@@ -267,8 +265,8 @@ void Configuration::checkParameters()
         fileName = cmlFile->getValueAsString();
 
     baseName = cmlDatabase->getValueAsString();
-    user = cmlUserStr->getValueAsString();
-    passwd = cmlPasswdStr->getValueAsString();
+    user = cmlUser->getValueAsString();
+    passwd = cmlPasswd->getValueAsString();
     output = cmlOut->isPresent();
     displayType = cmlType->isPresent();
     outputType = OUT_FILE;
@@ -329,8 +327,6 @@ void Configuration::checkParameters()
     lockmgrOn             = cmlLockMgrOn->isPresent();
 
     dbConnection = cmlConnectStr->getValueAsString();
-    dbUser       = cmlUserStr->getValueAsString();
-    dbPasswd     = cmlPasswdStr->getValueAsString();
 
     tileSize   = cmlTileSize->getValueAsInt();
     pctMin     = cmlPctMin->getValueAsInt();
@@ -451,12 +447,6 @@ int Configuration::getTimeout() {
 }
 const char *Configuration::getDbConnectionID() {
   return dbConnection;
-}
-const char *Configuration::getDbUser() {
-  return dbUser;
-}
-const char *Configuration::getDbPasswd() {
-  return dbPasswd;
 }
 
 int Configuration::getDefaultTileSize() {

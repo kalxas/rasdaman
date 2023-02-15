@@ -37,9 +37,9 @@ TEST(DatabaseTest, addClientSessionSuccess)
     using rasmgr::Database;
 
     Database db("dbName");
-    std::string clientId = "client";
-    std::string sessionId = "session";
-    std::string sessionId2 = "session2";
+    std::uint32_t clientId = 1;
+    std::uint32_t sessionId = 2;
+    std::uint32_t sessionId2 = 3;
 
     // Test preconditions
     ASSERT_FALSE(db.isBusy());
@@ -57,8 +57,8 @@ TEST(DatabaseTest, addClientSessionFailWhenDuplicateIsAdded)
     using rasmgr::Database;
 
     Database db("dbName");
-    std::string clientId = "client";
-    std::string sessionId = "session";
+    std::uint32_t clientId = 1;
+    std::uint32_t sessionId = 4;
 
     ASSERT_FALSE(db.isBusy());
 
@@ -82,8 +82,8 @@ TEST(DatabaseTest, isBusyReturnsTrueWhenThereIsAtLeastOneSessions)
     using rasmgr::Database;
 
     Database db("dbName");
-    std::string clientId = "client";
-    std::string sessionId = "session";
+    std::uint32_t clientId = 1;
+    std::uint32_t sessionId = 5;
 
     //Add a client sessions and the state of the database should become busy
     ASSERT_NO_THROW(db.addClientSession(clientId, sessionId));
@@ -97,8 +97,8 @@ TEST(DatabaseTest, removeClientSession)
     using rasmgr::Database;
 
     Database db("dbName");
-    std::string clientId = "client";
-    std::string sessionId = "session";
+    std::uint32_t clientId = 1;
+    std::uint32_t sessionId = 4;
 
     //Initial state
     ASSERT_FALSE(db.isBusy());
@@ -119,8 +119,8 @@ TEST(DatabaseTest, removeClientSession)
 TEST(DatabaseTest, serializeToProto)
 {
     std::string dbName = "dbName";
-    std::string clientId = "client";
-    std::string sessionId = "session";
+    std::uint32_t clientId = 1;
+    std::uint32_t sessionId = 3;
 
     Database db(dbName);
     db.addClientSession(clientId, sessionId);
@@ -129,8 +129,8 @@ TEST(DatabaseTest, serializeToProto)
 
     ASSERT_EQ(dbName, proto.name());
     ASSERT_EQ(1, proto.sessions_size());
-    ASSERT_EQ(clientId, proto.sessions(0).first());
-    ASSERT_EQ(sessionId, proto.sessions(0).second());
+    ASSERT_EQ(std::to_string(clientId), proto.sessions(0).first());
+    ASSERT_EQ(std::to_string(sessionId), proto.sessions(0).second());
 }
 
 TEST(DatabaseTest, setDbNameDbIsNotBusy)
@@ -150,8 +150,8 @@ TEST(DatabaseTest, setDbNameDbIsBusy)
 {
     std::string dbName = "dbName";
     std::string newName = "newName";
-    std::string clientId = "client";
-    std::string sessionId = "session";
+    std::uint32_t clientId = 1;
+    std::uint32_t sessionId = 4;
 
     Database db(dbName);
     db.addClientSession(clientId, sessionId);

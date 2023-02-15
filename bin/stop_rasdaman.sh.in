@@ -166,12 +166,15 @@ rasdaman $VERSION build $BUILD
 
 Stop the rasdaman server if it is currently running.
 
-Usage:
+Usage
+
   $PROG [OPTION]...
 
-Options:
+
+Options
+
   --service <svc>       stop a particular service <svc> only; allowed values 
-                        for <svc> are: core, petascope. By default all
+                        for <svc> are: core, petascope, rasfed. By default all 
                         services are stopped.
 
   -p, --port <port>     specify the port on which rasmgr listens. If rasdaman
@@ -189,6 +192,27 @@ Options:
                         logs manually, to determine why is it hanging.
 
   -h, --help            show this message and exit.
+
+
+Environment variables
+
+  This script will use various environment variables, if they are set before it
+  is executed:
+
+  - RASMGR_PORT - the port on which rasmgr will listen when started, and to
+    which client applications will connect in order to send queries to rasdaman.
+    This variable will be overrided by the value of option --port, if 
+    specified. By default if none are specified, the port is set to 7001.
+
+  - RASLOGIN - rasdaman admin credentials which will be used for 
+    starting rasmgr non-interactively. See the rascontrol docs for details on 
+    the format  and how is this setting used. If not set, the script defaults to  
+    using rasadmin/rasadmin credentials; the documentation provides guidelines 
+    on how to change these defaults.
+
+  - JAVA_OPTS - options passed on to the java command when used to start
+    the OGC frontend of rasdaman (petascope) if it is configured for
+    embedded deployment. If not set, it defaults to "-Xmx4000m"
 EOF
     exit $RC_HELP
 }

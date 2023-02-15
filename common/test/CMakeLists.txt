@@ -41,6 +41,10 @@ target_link_libraries(common_test
         ${Boost_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT})
 
+if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
+target_precompile_headers(common_test REUSE_FROM common_logging)
+endif()
+
 add_test(common_testrunner common_test)
 
 add_dependencies(unit-check common_test)

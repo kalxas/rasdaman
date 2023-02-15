@@ -152,6 +152,7 @@ private:
      * Copied from servercomm.hh, should be refactored into a common place.
      */
     bool startsWith(const char *s, const char *prefix) const;
+    const char *skipComments(const char *s) const;
 
     /// method replaces the next argument with the delivered valueString
     void replaceNextArgument(const char *valueString);

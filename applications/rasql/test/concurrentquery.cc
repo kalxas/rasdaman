@@ -22,6 +22,7 @@
  */
 #include "version.h"
 #include "config.h"
+#include "raslib/rminit.hh"
 
 #include "globals.hh"
 

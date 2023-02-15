@@ -50,7 +50,7 @@ class ClientTblElt
 {
 public:
 
-    ClientTblElt(ClientType clientTypeArg, unsigned long clientId);
+    ClientTblElt(ClientType clientTypeArg, std::uint32_t clientId);
 
     ClientTblElt(const ClientTblElt &) = delete;
 
@@ -61,7 +61,7 @@ public:
     void releaseTransferStructures();
 
     /// unique client identification assigned by the server
-    unsigned long clientId;
+    std::uint32_t clientId;
 
     /// client type
     ClientType clientType{ClientType::Invalid};

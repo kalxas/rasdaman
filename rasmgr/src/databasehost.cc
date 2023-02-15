@@ -33,16 +33,14 @@
 namespace rasmgr
 {
 
-DatabaseHost::DatabaseHost(std::string hostName, std::string connectString,
-                           std::string userName, std::string passwdString) :
-    hostName(hostName), connectString(connectString),
-    userName(userName), passwdString(passwdString)
+DatabaseHost::DatabaseHost(const std::string &hostName, const std::string &connectString) :
+    hostName(hostName), connectString(connectString)
 {
     this->sessionCount = 0;
     this->serverCount = 0;
 }
 
-void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, const std::string &clientId, const std::string &sessionId)
+void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, std::uint32_t clientId, std::uint32_t sessionId)
 {
     boost::upgrade_lock<boost::shared_mutex> lock(databaseListMutex);
     bool foundDb = false;
@@ -67,7 +65,7 @@ void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, const s
     }
 }
 
-void DatabaseHost::removeClientSessionFromDB(const std::string &clientId, const std::string &sessionId)
+void DatabaseHost::removeClientSessionFromDB(std::uint32_t clientId, std::uint32_t sessionId)
 {
     boost::lock_guard<boost::shared_mutex> lock(this->databaseListMutex);
     for (auto it = this->databaseList.begin(); it != this->databaseList.end(); it++)
@@ -157,8 +155,6 @@ DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
 
     result.set_host_name(dbHost.hostName);
     result.set_connect_string(dbHost.connectString);
-    result.set_user_name(dbHost.userName);
-    result.set_password(dbHost.passwdString);
 
     result.set_session_count(dbHost.sessionCount);
     result.set_server_count(dbHost.serverCount);
@@ -194,30 +190,6 @@ const std::string &DatabaseHost::getConnectString() const
 void DatabaseHost::setConnectString(const std::string &connectString)
 {
     this->connectString = connectString;
-}
-
-const std::string &DatabaseHost::getUserName() const
-{
-    return this->userName;
-}
-
-void DatabaseHost::setUserName(const std::string &userName)
-{
-    if (userName.empty())
-    {
-        throw common::LogicException("Cannot set empty username for database host.");
-    }
-    this->userName = userName;
-}
-
-const std::string &DatabaseHost::getPasswdString() const
-{
-    return this->passwdString;
-}
-
-void DatabaseHost::setPasswdString(const std::string &passwdString)
-{
-    this->passwdString = passwdString;
 }
 
 bool DatabaseHost::containsDatabase(const std::string &dbName)

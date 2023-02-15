@@ -35,8 +35,8 @@ namespace rasmgr
  */
 struct ClientServerSession
 {
-    std::string clientSessionId;/*!< ID assigned to the client session*/
-    std::string dbSessionId;/*!< ID assigned to the current database session*/
+    std::uint32_t clientSessionId;/*!< ID assigned to the client session*/
+    std::uint32_t dbSessionId;/*!< ID assigned to the current database session*/
     std::string serverHostName;/*!< The host on which the remote server runs*/
     std::uint32_t serverPort;/*!< The port on which the remote server runs*/
 };

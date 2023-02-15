@@ -34,15 +34,15 @@ namespace rasmgr
 class RemoteClientSession
 {
 public:
-    RemoteClientSession(const std::string &clientSessionId,
-                        const std::string &dbSessionId);
+    RemoteClientSession(std::uint32_t clientSessionId,
+                        std::uint32_t dbSessionId);
 
-    const std::string &getClientSessionId() const;
-    const std::string &getDbSessionId() const;
+    std::uint32_t getClientSessionId() const;
+    std::uint32_t getDbSessionId() const;
 
 private:
-    const std::string clientSessionId;/*!< String identifying the client session on the remote rasmgr */
-    const std::string dbSessionId;/*!< String identifying the database session on the remote rasmgr*/
+    std::uint32_t clientSessionId;/*!< String identifying the client session on the remote rasmgr */
+    std::uint32_t dbSessionId;/*!< String identifying the database session on the remote rasmgr*/
 };
 
 }

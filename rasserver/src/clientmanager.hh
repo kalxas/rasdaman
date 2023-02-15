@@ -52,34 +52,34 @@ public:
      * Allocate a slot for the client with the given clientUUID and sessionId
      * @return TRUE if the allocation was successful, FALSE otherwise.
      */
-    bool allocateClient(const std::string &clientUUID, const std::string &sessionId);
+    bool allocateClient(std::uint32_t clientUUID, std::uint32_t sessionId);
 
     /**
      * Remove the client with the given id from the list.
      */
-    void deallocateClient(const std::string &clientUUID, const std::string &sessionId);
+    void deallocateClient(std::uint32_t clientUUID, std::uint32_t sessionId);
 
     /**
      * Check if the client with the given ID is alive.
      * @return TRUE if the client id alive, false otherwise
      */
-    bool isAlive(const std::string &clientUUID);
+    bool isAlive(std::uint32_t clientUUID);
 
     /**
      * Reset the lifetime of a client.
      */
-    void resetLiveliness(const std::string &clientUUID);
+    void resetLiveliness(std::uint32_t clientUUID);
 
     /**
      * @return The number of alive clients.
      */
-    size_t getClientQueueSize();
+    bool hasClients();
 
     /**
      * Removes from the pool a result which must be streamed.
      * @param requestUUID An unique identifier for the streamed result.
      */
-    void cleanQueryStreamedResult(const std::string& requestUUID);
+    void cleanQueryStreamedResult(std::uint32_t requestUUID);
     
     /**
      * @brief removeAllQueryStreamedResults Remove all results that must be streamed.
@@ -94,14 +94,14 @@ public:
      * @param requestUUID An unique identifier for the streamed result.
      * @return A ClientQueryStreamedResult providing methods for getting the next chunk of data to be streamed.
      */
-    std::shared_ptr<ClientQueryStreamedResult> getQueryStreamedResult(const std::string& requestUUID);
+    std::shared_ptr<ClientQueryStreamedResult> getQueryStreamedResult(std::uint32_t requestUUID);
 
     /**
      * Saves a resul which will be streamed to the client.
      * @param requestUUID An unique identifier for the streamed result.
      * @param streamedResult The result which will be streamed.
      */
-    void addQueryStreamedResult(const std::string& requestUUID,
+    void addQueryStreamedResult(std::uint32_t requestUUID,
                                 const std::shared_ptr<ClientQueryStreamedResult>& streamedResult);
 
 private:
@@ -114,10 +114,12 @@ private:
 
     boost::shared_mutex clientMutex;
     common::Timer timeSinceLastPing; /*! a Timer that counts down from the last ping*/
-    std::string clientId; /*! Current client connected to this server */
+    std::uint32_t clientId; /*! Current client connected to this server */
+    bool clientConnected{false};
     
     boost::shared_mutex requestMutex;
-    std::string requestId; /*! Request id for the query result */
+    std::uint32_t requestId; /*! Request id for the query result */
+    bool streamingRequest{false};
     std::shared_ptr<ClientQueryStreamedResult> requestResult;
     
     std::unique_ptr<std::thread> evaluateClientStatusThread;/*! Thread running the evaluateClientStatus method */

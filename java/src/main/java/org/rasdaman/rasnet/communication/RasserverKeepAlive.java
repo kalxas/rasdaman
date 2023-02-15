@@ -39,8 +39,8 @@ public class RasserverKeepAlive {
     private final Lock keepAliveLock = new ReentrantLock();
     private final Condition isKeepAliveRunningCond = keepAliveLock.newCondition();
     private final ClientRassrvrServiceGrpc.ClientRassrvrServiceBlockingStub rasserverService;
-    private final String clientUUID;
-    private final String sessionId;
+    private final int clientUUID;
+    private final int sessionId;
     private final long aliveIntervalMilliseconds;
     private Thread runnerThread;
 
@@ -53,8 +53,8 @@ public class RasserverKeepAlive {
      * @param sessionId        String that uniquely identifies the database session on the server
      */
     public RasserverKeepAlive(ClientRassrvrServiceGrpc.ClientRassrvrServiceBlockingStub rasserverService,
-                              String clientUUID,
-                              String sessionId,
+                              int clientUUID,
+                              int sessionId,
                               long aliveIntervalMilliseconds) {
         this.rasserverService = rasserverService;
         this.clientUUID = clientUUID;
@@ -128,14 +128,14 @@ public class RasserverKeepAlive {
         /**
          * Client unique ID
          */
-        private final String clientUUID;
+        private final int clientUUID;
 
         /**
          * Session unqiue ID
          */
-        private final String sessionId;
+        private final int sessionId;
 
-        public KeepAliveRunner(String clientUUID, String sessionId) {
+        public KeepAliveRunner(int clientUUID, int sessionId) {
             this.clientUUID = clientUUID;
             this.sessionId = sessionId;
         }

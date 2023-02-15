@@ -38,7 +38,6 @@
 #include "common/exceptions/runtimeexception.hh"
 #include "rasnet/messages/rassrvr_rasmgr_service.pb.h"
 #include <logging.hh>
-#include "common/logging/stacktrace.hh"
 
 #include <unistd.h>
 #include <signal.h>
@@ -86,40 +85,40 @@ const std::int32_t Server::SERVER_CLEANUP_TIMEOUT = 3000000;
 const std::int32_t Server::SERVER_CHECK_INTERVAL = 10000;
 
 Server::Server(const ServerConfig &config):
-  hostName{config.getHostName()},
-  port(int32_t(config.getPort())),
-  dbHost(config.getDbHost()),
-  options{config.getOptions()},
-  processId{-1},
-  serverId{common::UUID::generateUUID()},
-  registered{false},
-  allocatedClientsNo{0},
-  started{false},
-  sessionNo{0}
+    hostName{config.getHostName()},
+    port(int32_t(config.getPort())),
+    dbHost(config.getDbHost()),
+    options{config.getOptions()},
+    processId{-1},
+    serverId{common::UUID::generateUUID()},
+    registered{false},
+    clientConnected{0},
+    started{false},
+    sessionNo{0}
 {
     // Initialize the service
     auto serverAddress = GrpcUtils::constructAddressString(this->hostName, std::uint32_t(this->port));
-    auto channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+    auto channel = grpc::CreateCustomChannel(serverAddress, grpc::InsecureChannelCredentials(),
+                                             GrpcUtils::getDefaultChannelArguments());
     this->service.reset(new RasServerService::Stub(channel));
 }
 
 Server::~Server()
 {
-    boost::lock_guard<boost::shared_mutex> lock(sessionListMutex);
+    boost::lock_guard<boost::shared_mutex> lock(sessionMutex);
     if (dbHost)
     {
-        for (const auto &s: this->sessionList)
+        if (this->sessionOpen)
         {
-            this->dbHost->removeClientSessionFromDB(s.first, s.second);
+            this->dbHost->removeClientSessionFromDB(clientId, sessionId);
         }
-        this->sessionList.clear();
+        this->sessionOpen = false;
     
         //Wait for the process to finish
         if (this->started)
         {
             LWARNING << "The server process " << serverId << " is running; "
                      << "blocking thread to wait for process " << processId << " to exit.";
-            LWARNING << common::stacktrace::StackTrace{}.toString() << "\n\n";
         }
     
         int status;
@@ -235,7 +234,7 @@ bool Server::isStarted()
     return started;
 }
 
-bool Server::isClientAlive(const std::string &clientId)
+bool Server::isClientAlive(std::uint32_t client)
 {
     bool result = false;
 
@@ -243,18 +242,17 @@ bool Server::isClientAlive(const std::string &clientId)
     // The server must be started and responding to messages
     if (this->started)
     {
-        ClientStatusRepl response;
-        ClientStatusReq request;
-        request.set_clientid(clientId);
+        LTRACE << "Check if client " << client << " is alive on server " << serverId;
+        ClientStatusReq req;
+        req.set_clientid(client);
         ClientContext context;
         this->configureClientContext(context);
-
-        LTRACE << "Check if client " << clientId << " is alive from server " << serverId;
-        Status status = this->service->GetClientStatus(&context, request, &response);
-        result = status.ok() && response.status() == ClientStatusRepl::ALIVE;
+        ClientStatusRepl repl;
+        Status status = this->service->GetClientStatus(&context, req, &repl);
+        result = status.ok() && repl.status() == ClientStatusRepl::ALIVE;
         if (!result)
         {
-            LDEBUG << "Client " << clientId << " not alive on server " << serverId
+            LDEBUG << "Client " << client << " not alive on server " << serverId
                    << ": " << GrpcUtils::convertStatusToString(status);
         }
     }
@@ -262,56 +260,68 @@ bool Server::isClientAlive(const std::string &clientId)
     return result;
 }
 
-void Server::allocateClientSession(const std::string &clientId,
-                                   const std::string &sessionId,
+void Server::allocateClientSession(std::uint32_t client,
+                                   std::uint32_t session,
                                    const std::string &dbName,
                                    const UserDatabaseRights &dbRights)
 {
-    auto capabilities =  this->getCapability(serverId.c_str(), dbName.c_str(), dbRights);
-    allocateClientSession(clientId, sessionId, dbName, capabilities);
+    auto capabilities = this->getCapability(serverId.c_str(), dbName.c_str(), dbRights);
+    allocateClientSession(client, session, dbName, capabilities);
 }
 
-void Server::deallocateClientSession(const std::string &clientId,
-                                     const std::string &sessionId)
+void Server::allocateClientSession(std::uint32_t client,
+                                   const std::string &username,
+                                   const std::string &password,
+                                   const std::string &token,
+                                   std::uint32_t session,
+                                   const std::string &dbName,
+                                   const UserDatabaseRights &dbRights)
+{
+    auto capabilities = this->getCapability(serverId.c_str(), dbName.c_str(),
+                                            dbRights, username, password, token);
+    allocateClientSession(client, session, dbName, capabilities);
+}
+
+void Server::deallocateClientSession(std::uint32_t client,
+                                     std::uint32_t session)
 {
     // Remove the client session from rasmgr objects.
     // Decrease the session count
-    this->dbHost->removeClientSessionFromDB(clientId, sessionId);
+    this->dbHost->removeClientSessionFromDB(client, session);
     {
-        boost::lock_guard<boost::shared_mutex> listLock(this->sessionListMutex);
-        this->sessionList.erase(std::make_pair(clientId, sessionId));
+        boost::lock_guard<boost::shared_mutex> listLock(this->sessionMutex);
+        sessionOpen = false;
     }
     {
         boost::lock_guard<boost::shared_mutex> stateLock(this->stateMutex);
-        this->allocatedClientsNo--;
+        this->clientConnected = false;
     }
 
     // Deallocate on server if the server is started - it may have died from
     // from a segfault for example, in which case the request below is not needed
     if (this->started)
     {
-        DeallocateClientReq request;
-        request.set_clientid(clientId);
-        request.set_sessionid(sessionId);
+        LDEBUG << "Deallocating client " << client << " on server " << serverId;
+        DeallocateClientReq req;
+        req.set_clientid(client);
+        req.set_sessionid(session);
         ClientContext context;
         this->configureClientContext(context);
-        Void response;
-        
-        LDEBUG << "Deallocating client " << clientId << " on server " << serverId;
-        Status status = this->service->DeallocateClient(&context, request, &response);
+        Void repl;
+        Status status = this->service->DeallocateClient(&context, req, &repl);
         if (!status.ok())
         {
-            LDEBUG << "Failed deallocating client " << clientId << " on server " << serverId
+            LDEBUG << "Failed deallocating client " << client << " on server " << serverId
                    << ": " << GrpcUtils::convertStatusToString(status);
             GrpcUtils::convertStatusToExceptionAndThrow(status);
         }
     }
     else
     {
-        LDEBUG << "Deallocating client " << clientId << " on server " << serverId << " - server not started.";
+        LDEBUG << "Deallocating client " << client << " on server " << serverId << " - server not started.";
     }
     
-    LDEBUG << "Deallocated client " << clientId << " on server " << serverId;
+    LDEBUG << "Deallocated client " << client << " on server " << serverId;
 }
 
 void Server::registerServer(const std::string &newServerId)
@@ -331,19 +341,18 @@ void Server::registerServer(const std::string &newServerId)
   
     if (common::SystemUtil::isProcessAlive(processId))
     {
-        ServerStatusReq request = ServerStatusReq::default_instance();
+        LDEBUG << "Sending GetServerStatus request to rasserver to register it in rasmgr " << newServerId;
+        ServerStatusReq req = ServerStatusReq::default_instance();
         // Set timeout for API
         ClientContext context;
         this->configureClientContext(context);
-        ServerStatusRepl reply;
-
-        LDEBUG << "Sending GetServerStatus request to rasserver to register it in rasmgr " << newServerId;
-        Status status = this->service->GetServerStatus(&context, request, &reply);
+        ServerStatusRepl repl;
+        Status status = this->service->GetServerStatus(&context, req, &repl);
         if (status.ok())
         {
             boost::lock_guard<boost::shared_mutex> stateLock(this->stateMutex);
-            LDEBUG << "Ok, server registered.";
             this->registered = true;
+            LDEBUG << "Ok, server registered.";
         }
         else
         {
@@ -418,11 +427,10 @@ void Server::stop(KillLevel level)
             // Set timeout for API
             ClientContext context;
             this->configureClientContext(context);
-            CloseServerReq request;
-            request.set_serverid(serverId);
-            Void reply;
-            
-            Status status = this->service->Close(&context, request, &reply);
+            CloseServerReq req;
+            req.set_serverid(serverId);
+            Void repl;
+            Status status = this->service->Close(&context, req, &repl);
             if (status.ok())
             {
                 LDEBUG << "Sent Close request to server: " << serverId;
@@ -471,7 +479,7 @@ bool Server::isFree()
     }
     try
     {
-        this->allocatedClientsNo = this->getClientQueueSize();
+        this->clientConnected = this->getHasClients();
     }
     catch (common::Exception &ex)
     {
@@ -483,23 +491,27 @@ bool Server::isFree()
         LDEBUG << "Caught exception, server  " << serverId << " is not free.";
         return false;
     }
-    const auto ret = this->allocatedClientsNo == 0;
-    LTRACE << "Server " << serverId << " is free: " << ret;
-    return ret;
+    LTRACE << "Server " << serverId << " is free: " << !this->clientConnected;
+    return !this->clientConnected;
 }
 
 bool Server::isAvailable()
 {
     LTRACE << "Checking if server " << serverId << " is available";
     boost::lock_guard<boost::shared_mutex> stateLock(this->stateMutex);
-    if (!this->registered || !this->started)
+    if (!this->registered)
     {
-        LDEBUG << "Error, server " << serverId << " not registered or not started.";
-        throw common::InvalidStateException("The server is not registered with rasmgr or is not started.");
+        LDEBUG << "Error, server " << serverId << " not registered.";
+        throw common::InvalidStateException("The server " + serverId + " is not registered with rasmgr.");
+    }
+    if (!this->started)
+    {
+        LDEBUG << "Error, server " << serverId << " not started.";
+        throw common::InvalidStateException("The server " + serverId + " is not started in rasmgr.");
     }
     try
     {
-        this->allocatedClientsNo = this->getClientQueueSize();
+        this->clientConnected = this->getHasClients();
     }
     catch (common::Exception &ex)
     {
@@ -511,11 +523,8 @@ bool Server::isAvailable()
         LDEBUG << "Caught exception, server  " << serverId << " is not available.";
         return false;
     }
-    auto maxClients = RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer();
-    const auto ret = this->allocatedClientsNo < maxClients;
-    LTRACE << "Server  " << serverId << " has allocated " << allocatedClientsNo
-           << " / " << maxClients << " = available: " << ret;
-    return ret;
+    LTRACE << "Server  " << serverId << " is available: " << !clientConnected;
+    return !this->clientConnected;
 }
 
 std::int32_t Server::getPort() const
@@ -539,38 +548,27 @@ void Server::setStarted(bool value)
     this->started = value;
 }
 
-std::pair<std::string, std::string> Server::getCurrentClientSession()
+std::pair<std::uint32_t, bool> Server::getCurrentClientSession()
 {
-    boost::shared_lock<boost::shared_mutex> listLock(this->sessionListMutex);
-    if (!this->sessionList.empty())
-    {
-        return *sessionList.begin();
-    }
-    else
-    {
-        listLock.unlock();
-        return std::pair<std::string, std::string>("", "");
-    }
+    boost::shared_lock<boost::shared_mutex> listLock(this->sessionMutex);
+    return std::pair<std::uint32_t, bool>(clientId, sessionOpen);
 }
 
-std::uint32_t Server::getClientQueueSize()
+bool Server::getHasClients()
 {
+    LTRACE << "Getting server status for " << serverId;
     ClientContext context;
     this->configureClientContext(context);
-    ServerStatusReq request = ServerStatusReq::default_instance();
-    ServerStatusRepl reply;
-
-    LTRACE << "Getting server status for " << serverId;
-    Status status = this->service->GetServerStatus(&context, request, &reply);
-
+    ServerStatusReq req = ServerStatusReq::default_instance();
+    ServerStatusRepl repl;
+    Status status = this->service->GetServerStatus(&context, req, &repl);
     if (!status.ok())
     {
         LDEBUG << "Failed getting server status for " << serverId << ", throwing exception.";
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
-
-    LTRACE << "Client queue size for " << serverId << ": " << reply.clientqueuesize();
-    return reply.clientqueuesize();
+    LTRACE << "Server " << serverId << " has clients: " << repl.hasclients();
+    return repl.hasclients();
 }
 
 std::vector<std::string> Server::getStartProcessCommand()
@@ -601,8 +599,8 @@ void Server::configureClientContext(grpc::ClientContext &context)
     context.set_deadline(deadline);
 }
 
-void Server::allocateClientSession(const std::string &clientId,
-                                   const std::string &sessionId,
+void Server::allocateClientSession(std::uint32_t client,
+                                   std::uint32_t session,
                                    const std::string &dbName,
                                    const std::string &capabilities)
 {
@@ -611,41 +609,40 @@ void Server::allocateClientSession(const std::string &clientId,
     {
         throw common::RuntimeException("The server cannot accept any new clients, "
                                        "it is serving the maximum number of clients " + 
-                                       std::to_string(allocatedClientsNo) + " already.");
+                                       std::to_string(int(clientConnected)) + " already.");
     }
-  
-    AllocateClientReq request;
-    request.set_capabilities(capabilities);
-    request.set_clientid(clientId);
-    request.set_sessionid(sessionId);
+    
+    LDEBUG << "Allocating client " << client << " on server " << serverId;
     ClientContext context;
     this->configureClientContext(context);
-    Void response;
-  
-    LDEBUG << "Allocating client " << clientId << " on server " << serverId;
-    Status status = this->service->AllocateClient(&context, request, &response);
+    AllocateClientReq req;
+    req.set_capabilities(capabilities);
+    req.set_clientid(client);
+    req.set_sessionid(session);
+    Void repl;
+    Status status = this->service->AllocateClient(&context, req, &repl);
     if (!status.ok())
     {
-        LDEBUG << "Failed allocating client " << clientId << " on server " << serverId
+        LDEBUG << "Failed allocating client " << client << " on server " << serverId
                << ": " << GrpcUtils::convertStatusToString(status);
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
   
     // If everything went well so far, increase the session count for this database
-    this->dbHost->addClientSessionOnDB(dbName, clientId, sessionId);
+    this->dbHost->addClientSessionOnDB(dbName, client, session);
     {
-        boost::lock_guard<boost::shared_mutex> listLock(this->sessionListMutex);
-        this->sessionList.insert(std::make_pair(clientId, sessionId));
+        boost::lock_guard<boost::shared_mutex> listLock(this->sessionMutex);
+        clientId = client;
+        sessionId = session;
     }
     {
         boost::lock_guard<boost::shared_mutex> stateLock(this->stateMutex);
-        this->allocatedClientsNo++;
+        this->clientConnected = true;
     }
   
     // Increase the session counter
     this->sessionNo++;
-  
-    LDEBUG << "Allocated client " << clientId << " on server " << serverId
+    LDEBUG << "Allocated client " << client << " on server " << serverId
            << "; session counter: " << this->sessionNo;
 }
 
@@ -676,9 +673,41 @@ std::string Server::getCapability(const char *serverName, const char *databaseNa
     return capaQ;
 }
 
+std::string Server::getCapability(const char *serverName, const char *databaseName, 
+                                  const UserDatabaseRights &rights,
+                                  const std::string &username, const std::string &password,
+                                  const std::string &token)
+{
+    //Format of Capability (no brackets())
+    //$I(userID)$E(effectivRights)$B(databaseName)$T(timeout)$N(serverName)$D(messageDigest)$U(username)$P(password)$J(jwtToken)$K
+
+    time_t tmx = time(NULL) + 180;
+    tm *b = localtime(&tmx);
+    char formattedTime[30];
+    sprintf(formattedTime, "%d:%d:%d:%d:%d:%d", 
+            b->tm_mday, b->tm_mon + 1, b->tm_year + 1900, b->tm_hour, b->tm_min, b->tm_sec);
+
+    std::string rString = this->convertDatabRights(rights);
+
+    long userID = 0;
+
+    char capaS[300];
+    sprintf(capaS, "$I%ld$E%s$B%s$T%s$N%s",
+            userID, rString.c_str(), databaseName, formattedTime, serverName);
+
+    char capaQ[1200];
+    sprintf(capaQ, "$Canci%s", capaS);
+
+    auto digest = common::Crypto::messageDigest(capaQ, "MD5");
+
+    sprintf(capaQ, "%s$D%s$U%s$P%s$J%s$K",
+            capaS, digest.c_str(), username.c_str(), password.c_str(), token.c_str());
+    return capaQ;
+}
+
 std::string Server::convertDatabRights(const UserDatabaseRights &dbRights)
 {
-    string ret;
+    std::string ret;
     ret += (dbRights.hasReadAccess())  ? 'R' : '.';
     ret += (dbRights.hasWriteAccess()) ? 'W' : '.';
     return ret;
@@ -687,7 +716,7 @@ std::string Server::convertDatabRights(const UserDatabaseRights &dbRights)
 bool Server::waitUntilServerExits()
 {
   bool alive = true;
-  std::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
+  auto cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
   while (cleanupTimeout > 0 && (alive = common::SystemUtil::isProcessAlive(processId)))
   {
       usleep(SERVER_CHECK_INTERVAL);

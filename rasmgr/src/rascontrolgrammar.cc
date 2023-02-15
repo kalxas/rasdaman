@@ -37,7 +37,7 @@ RasControlGrammar::RasControlGrammar(
 
 void RasControlGrammar::parse(const std::string &reqMessage)
 {
-    LDEBUG << "Parsing command '" << reqMessage << "'...";
+    NNLDEBUG << "Parsing command '" << reqMessage << "'... ";
     this->tokens.clear();
     char *msg = strdup(reqMessage.c_str());
     char *token = strtok(msg, " \r\n\t\0");
@@ -52,7 +52,7 @@ void RasControlGrammar::parse(const std::string &reqMessage)
         this->tokens.emplace_back(token);
         token = strtok(NULL, " \r\n\t\0");
     }
-    LDEBUG << "Done, " << tokens.size() << " tokens parsed.";
+    BLDEBUG << "done, " << tokens.size() << " tokens parsed.\n";
     free(msg);
 }
 
@@ -61,6 +61,11 @@ std::string RasControlGrammar::processRequest()
     auto command = tokens.size() ? tokens[0] : commentPrefix;
     try
     {
+        if (isCommand(commentPrefix))
+        {
+            return empty;
+        }
+        
         LDEBUG << "Processing rascontrol command: '" << command << "'...";
 
         if (isCommand(helloLit))
@@ -106,10 +111,6 @@ std::string RasControlGrammar::processRequest()
         else if (isCommand(exitLit))
         {
             return exitCommand();
-        }
-        else if (isCommand(commentPrefix))
-        {
-            return empty;
         }
         else
         {
@@ -420,7 +421,7 @@ std::string RasControlGrammar::defineUsers()
     return rascontrol->defineUser(defUser);
 }
 
-//define << dbh h -connect c [-user u -passwd p] >>
+//define << dbh h -connect c >>
 std::string RasControlGrammar::defineDBHosts()
 {
     defDbHost.Clear();
@@ -429,17 +430,6 @@ std::string RasControlGrammar::defineDBHosts()
     defDbHost.set_host_name(dbhName);
     const auto &connStr = getValueMandatoryFlag(_connectLit, true);
     defDbHost.set_connect(connStr);
-
-    const auto &userStr = getValueOf(_userLit, true);
-    if (!userStr.empty())
-    {
-        defDbHost.set_user(userStr);
-    }
-    const auto &passwdStr = getValueOf(_passwdLit, true);
-    if (!passwdStr.empty())
-    {
-        defDbHost.set_passwd(passwdStr);
-    }
 
     return rascontrol->defineDbHost(defDbHost);
 }
@@ -484,7 +474,6 @@ std::string RasControlGrammar::defineRasServers()
     const auto &dbhName = getValueMandatoryFlag(_dbhLit);
     defServerGroup.set_db_host(dbhName);
 
-    // TODO: port parsing needs to be more sophisticated
     const auto &portStr = getValueMandatoryFlag(_portLit);
     auto listenPort = convertToULong(portStr, "port");
     defServerGroup.add_ports(listenPort);
@@ -718,17 +707,6 @@ std::string RasControlGrammar::changeDBHost()
     if (!connString.empty())
     {
         changeDbHost.set_n_name(connString);
-    }
-
-    const auto &userString = getValueOptionalFlag(_userLit);
-    if (!userString.empty())
-    {
-        changeDbHost.set_n_user(userString);
-    }
-    const auto &passwdString = getValueOptionalFlag(_passwdLit);
-    if (!passwdString.empty())
-    {
-        changeDbHost.set_n_passwd(passwdString);
     }
 
     return rascontrol->changeDbHost(changeDbHost);
@@ -1134,10 +1112,9 @@ std::string RasControlGrammar::defineHelp()
            "define host H -net ADDR [-port PORT]\r\n"
            "       - define server host with symbolic name H, located at address 'ADDR:PORT'\r\n"
            "         (PORT defaults to " STRINGIFY(DEFAULT_PORT) ")\r\n"
-           "define srv S -host H -dbh DBH -type STYPE -port PORT \r\n"
+           "define srv S -host H -dbh DBH -port PORT \r\n"
            "                     [-autorestart on|off] [-countdown COUNT] [-xp OPTS]\r\n"
            "       - define server with symbolic name S on server host H connected to database host DBH\r\n"
-           "         -type is ignored (historically, STYPE could be 'r' = RPC or 'h' = HTTP or 'n' = RNP)\r\n"
            "         -port specifies the PORT number on which the server listens\r\n"
            "         -autorestart (default: on): the server will autorestart after an unexpected termination\r\n"
            "         -countdown COUNT (default: 10000): the server will be restarted after COUNT transactions\r\n"
@@ -1257,17 +1234,31 @@ std::string RasControlGrammar::getValueOf(const std::string &flag, bool acceptMi
         if (strieq(flag, tokens[i]))
         {
             auto value = tokens[i + 1];
-            if (acceptMinus)
-            {
-                if (value[0] == '-' && value.size() > 1)
-                {
-                    return empty;
-                }
-            }
-            else if (value[0] == '-')
+            if (value[0] == '-' && (!acceptMinus || value.size() > 1))
             {
                 return empty;
             }
+            if (value[0] == '"')
+            {
+                // append tokens until one with a final " is found
+                size_t j = i + 2;
+                while (j < tokens.size() && value.back() != '"')
+                {
+                    value += " ";
+                    value += tokens[j];
+                    ++j;
+                }
+                // check that there is a closing double quote
+                if (value.back() != '"')
+                {
+                    throw RCError("Value of option " + flag + 
+                                  " is missing a closing double quote: " + value);
+                }
+                // remove the double quotes: "str" -> str
+                value = value.substr(1, value.size() - 2);
+                LDEBUG << "removed double quotes, value is: " << value;
+            }
+            
             return value;
         }
     }
@@ -1393,6 +1384,16 @@ const std::string RasControlGrammar::commentPrefix = "#";
 
 RCError::RCError()
 {
+}
+
+RCError::RCError(const std::string &arg)
+    : what(arg)
+{
+}
+
+string RCError::getString()
+{
+    return what;
 }
 
 RCErrorUnexpToken::RCErrorUnexpToken(const std::string &token)

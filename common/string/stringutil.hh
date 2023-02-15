@@ -49,7 +49,7 @@ class StringUtil {
   * @param str the string to be trimmed
   * @return the trimmed string
   */
-  static std::string trim(const std::string &str);
+  static std::string trim(std::string str);
   
   /**
    * Check if a string s starts with string prefix, ignoring whitespace 

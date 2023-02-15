@@ -66,6 +66,8 @@ class StackTrace {
    * Skip the n top-most stack entries
    */
   std::string toString(long offset = 0) const;
+  
+  std::string toString(long offset, long maxCount) const;
 
  private:
    

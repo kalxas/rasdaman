@@ -41,42 +41,38 @@ message ConnectReq
 
 message ConnectRepl
 {
-    string clientUUID = 1;
+    uint32 clientId = 1;
     int32 keepAliveTimeout = 2;
-    int32 clientId = 3;
 }
 
 message DisconnectReq
 {
-    string clientUUID = 1;
-    int32 clientId = 2;
+    uint32 clientId = 1;
 }
 
 message OpenDbReq
 {
-    string clientUUID = 1;
-    int32 clientId = 2;
-    string databaseName = 3;
+    uint32 clientId = 1;
+    string databaseName = 2;
 }
 
 message OpenDbRepl
 {
-    string clientSessionId = 1;
-    string dbSessionId = 2;
+    uint32 clientSessionId = 1;
+    uint32 dbSessionId = 2;
     string serverHostName = 3;
     uint32 port = 4;
 }
 
 message CloseDbReq
 {
-    string clientUUID = 1;
-    int32 clientId = 2;
-    string dbSessionId = 3;
+    uint32 clientId = 1;
+    uint32 dbSessionId = 2;
 }
 
 message KeepAliveReq
 {
-    string clientUUID = 1;
+    uint32 clientId = 1;
 }
 
 service RasmgrClientService

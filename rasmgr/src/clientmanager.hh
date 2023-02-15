@@ -46,6 +46,7 @@ class PeerManager;
 class Server;
 class ServerManager;
 class UserManager;
+class CpuScheduler;
 
 /**
  * A struct allowing to communicate data (the session assigned to the client)
@@ -133,11 +134,13 @@ public:
      * @param serverManager Instance of the server manager that is used to retrieve
      * servers for clients of each client
      * @param peerManager the peer manager
+     * @param cpuScheduler the CPU core scheduler
      */
     ClientManager(const ClientManagerConfig &config,
                   std::shared_ptr<UserManager> userManager,
                   std::shared_ptr<ServerManager> serverManager,
-                  std::shared_ptr<PeerManager> peerManager);
+                  std::shared_ptr<PeerManager> peerManager,
+                  std::shared_ptr<CpuScheduler> cpuScheduler);
 
     /**
      * Destruct the ClientManager class object.
@@ -152,12 +155,12 @@ public:
      * 
      * @param clientCredentials Credentials used to authenticate the client.
      * @param rasmgrHost The rasmgr hostname to which to connect
-     * @param out_clientUUID The UUID assigned to the connected client
+     * @return The UUID assigned to the connected client
      * @throws InexistentUserException
      * @throws InvalidTokenException
      */
-    virtual void connectClient(const ClientCredentials &clientCredentials,
-                               const std::string &rasmgrHost, std::string &out_clientUUID);
+    virtual std::uint32_t connectClient(const ClientCredentials &clientCredentials,
+                                        const std::string &rasmgrHost);
 
     /**
      * Disconnect the client from rasmgr and remove it from its assigned server
@@ -165,7 +168,7 @@ public:
      * no error is thrown and only a message is logged in the rasmgr log.
      * @param clientId UUID of the client that will be disconnected.
      */
-    virtual void disconnectClient(const std::string &clientId);
+    virtual void disconnectClient(std::uint32_t clientId);
 
     /**
      * Open a DB session for the client with clientId and return a unique session id.
@@ -176,7 +179,7 @@ public:
      * @throws NoAvailableServerException
      * @throws common::RuntimeException on invalid server hostname
      */
-    virtual void openClientDbSession(const std::string &clientId,
+    virtual void openClientDbSession(std::uint32_t clientId,
                                      const std::string &dbName,
                                      ClientServerSession &out_serverSession);
 
@@ -186,15 +189,15 @@ public:
      * @param sessionId ID that uniquely identifies a client session
      * @throws InexistentClientException
      */
-    virtual void closeClientDbSession(const std::string &clientId,
-                                      const std::string &sessionId);
+    virtual void closeClientDbSession(std::uint32_t clientId,
+                                      std::uint32_t sessionId);
 
     /**
      * Extend the liveliness of the client and prevent it from being removed
      * from rasmgr database of active clients.
      * @param clientId UUID of the client
      */
-    virtual void keepClientAlive(const std::string &clientId);
+    virtual void keepClientAlive(std::uint32_t clientId);
 
     /**
      *  Get a copy of the configuration object used by the client manager.
@@ -205,28 +208,30 @@ private:
     ClientManagerConfig config;
     std::shared_ptr<UserManager> userManager;
     std::shared_ptr<ServerManager> serverManager;
-    std::mutex serverManagerMutex; /*! Mutex used to prevent a free server being assigned to two different clients when tryGetFreeLocalServer is called*/
+    std::mutex serverManagerMutex; /*!< Mutex used to prevent a free server being assigned to two different clients when tryGetFreeLocalServer is called*/
     std::shared_ptr<PeerManager> peerManager;
+    std::shared_ptr<CpuScheduler> cpuScheduler;
+    
     // -------------------------------------------------------------------------
     // manage all clients
-    std::map<std::string, std::shared_ptr<Client>> clients; /*! Map of clientId -> active client */
-    boost::shared_mutex clientsMutex; /*! Mutex used to synchronize access to the clients object*/
+    std::map<std::uint32_t, std::shared_ptr<Client>> clients; /*!< Map of clientId -> active client */
+    boost::shared_mutex clientsMutex; /*!< Mutex used to synchronize access to the clients object*/
 
-    std::unique_ptr<std::thread> checkAssignedClientsThread; /*! Thread used to manage the list of clients and remove dead ones */
-    std::mutex checkAssignedClientsMutex;/*! Mutex used to safely stop the worker thread */
-    std::condition_variable checkAssignedClientsCondition; /*! Condition variable used to stop the worker thread */
-    bool isCheckAssignedClientsThreadRunning; /*! Flag used to stop the worker thread */
+    std::unique_ptr<std::thread> checkAssignedClientsThread; /*!< Thread used to manage the list of clients and remove dead ones */
+    std::mutex checkAssignedClientsMutex;/*!< Mutex used to safely stop the worker thread */
+    std::condition_variable checkAssignedClientsCondition; /*!< Condition variable used to stop the worker thread */
+    bool isCheckAssignedClientsThreadRunning; /*!< Flag used to stop the worker thread */
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
     // manage waiting clients
     std::queue<WaitingClient*> waitingClients;
-    boost::shared_mutex waitingClientsMutex; /*! Mutex used to synchronize access to the waitingClients object*/
+    boost::shared_mutex waitingClientsMutex; /*!< Mutex used to synchronize access to the waitingClients object*/
     
-    std::unique_ptr<std::thread> checkWaitingClientsThread; /*! Thread used to check the queue of waiting clients */
-    std::mutex checkWaitingClientsMutex;/*! Mutex used with the checkWaitingClientsThreadCondition */
-    std::condition_variable checkWaitingClientsCondition; /*! Condition variable used to trigger waiting client checking thread */
-    bool isCheckWaitingClientsThreadRunning; /*! Flag used to stop the waiting client checking thread */
+    std::unique_ptr<std::thread> checkWaitingClientsThread; /*!< Thread used to check the queue of waiting clients */
+    std::mutex checkWaitingClientsMutex;/*!< Mutex used with the checkWaitingClientsThreadCondition */
+    std::condition_variable checkWaitingClientsCondition; /*!< Condition variable used to trigger waiting client checking thread */
+    bool isCheckWaitingClientsThreadRunning; /*!< Flag used to stop the waiting client checking thread */
     std::atomic<bool> isCheckWaitingClientsConditionWaiting{false};
     // -------------------------------------------------------------------------
 
@@ -239,6 +244,8 @@ private:
     /// Notify the thread to check the queue of waiting clients
     void notifyWaitingClientsThread();
     std::mutex notifyWaitingClientsThreadMutex;
+    
+    std::atomic<std::uint32_t> nextClientId{};
     
     /**
      * Open a DB session for the client and return a unique session id.

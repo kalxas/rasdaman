@@ -42,7 +42,6 @@ import rasj.global.RasGlobalDefs;
 import rasj.odmg.*;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -74,8 +73,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
     private boolean readWrite = false;
     private int dbIsOpen = 0;
     private int clientID = 0;
-    private String clientUUID;
-    private String sessionId;
+    private int sessionId;
 
     private String errorStatus = "";
 
@@ -214,12 +212,11 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         Debug.enterVerbose("RasNetImplementation.openDB start. db=" + name + ", accessMode=" + accessMode);
         this.databaseName = name;
         this.accessMode = accessMode;
-        this.readWrite = (accessMode != Database.OPEN_READ_ONLY) ? true : false;
+        this.readWrite = accessMode != Database.OPEN_READ_ONLY;
 
         try {
             OpenDbReq openDbReq = OpenDbReq.newBuilder()
                                   .setClientId(this.clientID)
-                                  .setClientUUID(this.clientUUID)
                                   .setDatabaseName(this.databaseName)
                                   .build();
 
@@ -262,7 +259,6 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
             CloseDbReq closeDbReq = CloseDbReq.newBuilder()
                                     .setClientId(this.clientID)
-                                    .setClientUUID(this.clientUUID)
                                     .setDbSessionId(this.sessionId)
                                     .build();
 
@@ -374,7 +370,6 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             ConnectRepl connectRepl = this.getRasmgService().connect(connectReq);
 
             this.clientID = connectRepl.getClientId();
-            this.clientUUID = connectRepl.getClientUUID();
             this.keepAliveTimeout = connectRepl.getKeepAliveTimeout();
 
             startRasmgrKeepAlive();
@@ -392,7 +387,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             byte[] bytes = parameters.getBytes("8859_1");
 
             BeginStreamedHttpQueryReq beginStreamedHttpQueryReq = BeginStreamedHttpQueryReq.newBuilder()
-                    .setClientUuid(this.clientUUID)
+                    .setClientUuid(this.clientID)
                     .setData(ByteString.copyFrom(bytes))
                     .build();
 
@@ -400,7 +395,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                     this.getRasServerService().beginStreamedHttpQuery(
                             beginStreamedHttpQueryReq);
             long bytesLeft = streamedHttpQueryRepl.getBytesLeft();
-            String requestUUID = streamedHttpQueryRepl.getUuid();
+            int requestUUID = streamedHttpQueryRepl.getUuid();
 
             Debug.enterVerbose("RasNetImplementation.getResponse: start.");
 
@@ -819,7 +814,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
     public void disconnectClient() {
         try {
             DisconnectReq disconnectReq = DisconnectReq.newBuilder()
-                                          .setClientUUID(clientUUID)
+                                          .setClientId(clientID)
                                           .build();
 
             this.getRasmgService().disconnect(disconnectReq);
@@ -956,7 +951,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
     private synchronized void startRasmgrKeepAlive() {
         if (this.rasmgrKeepAlive == null) {
-            this.rasmgrKeepAlive = new RasmgrKeepAlive(this.getRasmgService(), this.clientUUID, keepAliveTimeout);
+            this.rasmgrKeepAlive = new RasmgrKeepAlive(this.getRasmgService(), this.clientID, keepAliveTimeout);
             this.rasmgrKeepAlive.start();
         } else {
             throw new AssertionError("Cannot call the startRasmgrKeepAlive method twice without calling stopRasmgrKeepAlive in between.");
@@ -972,7 +967,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
     private synchronized void startRasserverKeepAlive() {
         if (this.rasserverKeepAlive == null) {
             this.rasserverKeepAlive = new RasserverKeepAlive(this.getRasServerService(),
-                    this.clientUUID,
+                    this.clientID,
                     this.sessionId,
                     this.keepAliveTimeout);
             this.rasserverKeepAlive.start();

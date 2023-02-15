@@ -36,9 +36,6 @@ using namespace std;
 
 extern AccessControl accessControl;
 
-unsigned long RasServerEntry::clientCount = 0;
-const unsigned long RasServerEntry::noClientConnected = numeric_limits<unsigned long>::max();
-
 RasServerEntry& RasServerEntry::getInstance()
 {
     static RasServerEntry instance;
@@ -53,7 +50,7 @@ void RasServerEntry::connectToRasbase()
     server.setAdmin(admin);
 }
 
-void RasServerEntry::connectNewClient(const char* capability)
+void RasServerEntry::connectNewClient(std::uint32_t clientId, const char* capability)
 {
     if (!currentClientContext)
     {
@@ -61,8 +58,8 @@ void RasServerEntry::connectNewClient(const char* capability)
             LWARNING << "Invalid capability: '" << capability << "'";
             throw r_Ecapability_refused();
         }
-        
-        currentClientIdx = ++clientCount;
+        clientConnected = true;
+        currentClientIdx = clientId;
         currentClientContext = new ClientTblElt(ClientType::Regular, currentClientIdx);
         server.addClientTblEntry(currentClientContext);
     }
@@ -81,7 +78,7 @@ ClientTblElt *RasServerEntry::getClientContext()
 void RasServerEntry::disconnectClient()
 {
     server.deleteClientTblEntry(currentClientIdx);
-    currentClientIdx = noClientConnected;
+    clientConnected = false;
     currentClientContext = nullptr;
 }
 

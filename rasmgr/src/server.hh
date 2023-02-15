@@ -148,7 +148,7 @@ public:
      * @return true if the client is alive, false otherwise
      * @throws runtime_error if the server cannot be contacted.
      */
-    virtual bool isClientAlive(const std::string &clientId);
+    virtual bool isClientAlive(std::uint32_t clientId);
 
     /**
      * Allocate the client with the given ID and session ID to the server and respective database.
@@ -157,19 +157,36 @@ public:
      * @param dbName name of the database which will be opened.
      * @param dbRights rights the client has on this database
      */
-    virtual void allocateClientSession(const std::string &clientId,
-                                       const std::string &sessionId,
+    virtual void allocateClientSession(std::uint32_t clientId,
+                                       std::uint32_t sessionId,
                                        const std::string &dbName,
                                        const UserDatabaseRights &dbRights);
 
+    /**
+     * Allocate the client with the given ID and session ID to the server and respective database.
+     * @param clientId UUID of the client
+     * @param username username provided by the client
+     * @param password password provided by the client
+     * @param token user token
+     * @param sessionId UUID of the session.
+     * @param dbName name of the database which will be opened.
+     * @param dbRights rights the client has on this database
+     */
+    virtual void allocateClientSession(std::uint32_t clientId,
+                                       const std::string &username,
+                                       const std::string &password,
+                                       const std::string &token,
+                                       std::uint32_t sessionId,
+                                       const std::string &dbName,
+                                       const UserDatabaseRights &dbRights);
 
     /**
      * Remove the client with the given ID and session ID from the server.
      * @param clientId UUID of the client
      * @param sessionId UUID of the session.
      */
-    virtual void deallocateClientSession(const std::string &clientId,
-                                         const std::string &sessionId);
+    virtual void deallocateClientSession(std::uint32_t clientId,
+                                         std::uint32_t sessionId);
 
     /**
      * @return the number of client sessions processed by this server throughout
@@ -202,7 +219,7 @@ public:
      * @return the current client session if one exists as a pair of
      * (clientId, sessionId), or a pair of empty strings otherwise.
      */
-    virtual std::pair<std::string, std::string> getCurrentClientSession();
+    virtual std::pair<std::uint32_t, bool> getCurrentClientSession();
 
 protected:
     /// Only needed for creating a Mock object in the tests.
@@ -236,21 +253,23 @@ private:
 
     boost::shared_mutex stateMutex;
     bool registered;/*! Flag to indicate if the server is starting but has not yet registered */
-    std::uint32_t allocatedClientsNo; /*! The number of allocated clients */
+    bool clientConnected; /*! True if any client is connected */
     bool started; /*! True after the process is started*/
 
     std::uint32_t sessionNo;
 
     std::shared_ptr<::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
 
-    boost::shared_mutex sessionListMutex; /*!Mutex used for making the object thread safe */
-    std::set<std::pair<std::string, std::string>> sessionList;
+    boost::shared_mutex sessionMutex; /*!Mutex used for making the object thread safe */
+    std::uint32_t clientId;
+    std::uint32_t sessionId;
+    bool sessionOpen{false};
 
     /**
      * @return the number of clients currently allocated to the the RasServer process.
      * @throws common::Exception if the GRPC GetServerStatus fails or timeouts.
      */
-    uint32_t getClientQueueSize();
+    bool getHasClients();
 
     /**
      * @return the command to start a server process as a list of arguments.
@@ -270,14 +289,20 @@ private:
      * @param dbName name of the database which will be opened.
      * @param capabilities access rights capability string
      */
-    void allocateClientSession(const std::string &clientId,
-                               const std::string &sessionId,
+    void allocateClientSession(std::uint32_t clientId,
+                               std::uint32_t sessionId,
                                const std::string &dbName,
                                const std::string &capabilities);
 
 
     std::string getCapability(const char *serverName, const char *databaseName,
                               const UserDatabaseRights &rights);
+
+    std::string getCapability(const char *serverName, const char *databaseName,
+                              const UserDatabaseRights &rights,
+                              const std::string &username,
+                              const std::string &password,
+                              const std::string &token);
 
     std::string convertDatabRights(const UserDatabaseRights &dbRights);
     

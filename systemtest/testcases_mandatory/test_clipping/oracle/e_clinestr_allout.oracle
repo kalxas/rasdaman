@@ -1,1 +1,1 @@
-rasdaman error 201: Exception: The result is no interval.
+rasdaman error 201: Exception: The result is no interval: cannot calculate intersection of intervals 0:99 and -39:-1

@@ -245,11 +245,8 @@ bool initialize()
     strcpy(globalConnectId, configuration.getDbConnectionID());
     BLINFO << ", connecting to " << BASEDBSTRING << " with '" << globalConnectId <<  "'";
 
-    strcpy(globalDbUser, configuration.getDbUser());
-    if (strlen(configuration.getDbUser()) > 0)
-        BLINFO << ", user " << globalDbUser;
-    
-    strcpy(globalDbPasswd, configuration.getDbPasswd());
+    strcpy(globalDbUser, configuration.getUser());
+    strcpy(globalDbPasswd, configuration.getPasswd());
     BLINFO << "\n";
 
     NNLINFO << "Verifying rasmgr host name: " << configuration.getRasmgrHost() << "... ";

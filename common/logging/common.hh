@@ -25,17 +25,6 @@
  * as a precompiled header via the target_precompile_headers command in cmake.
  */
 
-#include "common/logging/logging.hh"
-#include "common/exceptions/exception.hh"
-#include "raslib/error.hh"
-#include "raslib/minterval.hh"
-#include "raslib/type.hh"
-#include "raslib/odmgtypes.hh"
-#include "raslib/mddtypes.hh"
-#include "raslib/rmdebug.hh"
-#include "raslib/rminit.hh"
-#include "mymalloc/mymalloc.h"
-
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -55,3 +44,4 @@
 #include <math.h>
 #include <unistd.h>
 #include <gtest/gtest.h>
+#include <boost/optional.hpp>

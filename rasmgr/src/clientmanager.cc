@@ -28,12 +28,12 @@
 #include "server.hh"
 #include "clientmanager.hh"
 #include "peermanager.hh"
+#include "cpuscheduler.hh"
 
+#include "exceptions/invalidtokenexception.hh"
 #include "exceptions/inexistentuserexception.hh"
 #include "exceptions/inexistentclientexception.hh"
 #include "exceptions/noavailableserverexception.hh"
-
-#include "common/uuid/uuid.hh"
 #include "common/string/stringutil.hh"
 
 #include <logging.hh>
@@ -53,8 +53,9 @@ namespace rasmgr
 ClientManager::ClientManager(const ClientManagerConfig &c,
                              std::shared_ptr<UserManager> um,
                              std::shared_ptr<ServerManager> sm,
-                             std::shared_ptr<PeerManager> pm):
-    config(c), userManager(um), serverManager(sm), peerManager(pm)
+                             std::shared_ptr<PeerManager> pm,
+                             std::shared_ptr<CpuScheduler> cs):
+    config(c), userManager(um), serverManager(sm), peerManager(pm), cpuScheduler(cs)
 {
     this->isCheckAssignedClientsThreadRunning = true;
     this->checkAssignedClientsThread.reset(new std::thread(&ClientManager::evaluateAssignedClients, this));
@@ -116,22 +117,24 @@ ClientManager::~ClientManager()
     }
 }
 
-void ClientManager::connectClient(const ClientCredentials &clientCredentials, 
-                                  const std::string &rasmgrHost,
-                                  std::string &out_clientUUID)
+std::uint32_t  ClientManager::connectClient(const ClientCredentials &clientCredentials, 
+                                            const std::string &rasmgrHost)
 {
     /**
-     * 1. Check if there is a user with the given credentials
-     * 2. Generate a unique ID for the client
-     * 3. Add the client to the list of managed clients
+     * 1. Check if the user is a token, if yes verify its validity.
+     * 2. If not, check if there is a user with the given credentials
+     * 3. Generate a unique ID for the client
+     * 4. Add the client to the list of managed clients
      */
-    LDEBUG << "Connecting client username: " << clientCredentials.getUserName();
+    LDEBUG << "Connecting client username: " << clientCredentials.getUserName()
+           << ", token: " << clientCredentials.getToken();
 
     std::shared_ptr<User> out_user;
-
-    bool isUserValid = this->userManager->tryGetUser(clientCredentials.getUserName(), 
-                                                  clientCredentials.getPasswordHash(),
-                                                  out_user);
+    bool isUserValid = false;
+        LDEBUG << "Authenticating username and password client";
+        isUserValid = this->userManager->tryGetUser(clientCredentials.getUserName(), 
+                                                    clientCredentials.getPasswordHash(),
+                                                    out_user);
 
     if (isUserValid)
     {
@@ -141,22 +144,17 @@ void ClientManager::connectClient(const ClientCredentials &clientCredentials,
         // and to avoid concurrent changes to the clients list
         boost::upgrade_lock<boost::shared_mutex> sharedLock(this->clientsMutex);
         // Generate a UID for the client
-        do
-        {
-            out_clientUUID = common::UUID::generateUUID();
-        }
-        while (this->clients.find(out_clientUUID) != this->clients.end());
+        auto ret = ++nextClientId;
         
-        out_user->setPassword(clientCredentials.getPasswordHash());
-
-        auto client = std::make_shared<Client>(out_clientUUID, out_user, 
+        auto client = std::make_shared<Client>(ret, out_user, 
                                                this->config.getClientLifeTime(),
-                                               rasmgrHost);
+                                               rasmgrHost, cpuScheduler);
 
-        LDEBUG << "Inserting client object " << out_clientUUID << " into clients list...";
+        LDEBUG << "Inserting client object " << ret << " into clients list...";
         boost::upgrade_to_unique_lock<boost::shared_mutex> exclusiveLock(sharedLock);
-        LDEBUG << "Inserted client object " << out_clientUUID << " into clients list.";
-        this->clients.insert(std::make_pair(out_clientUUID, client));
+        LDEBUG << "Inserted client object " << ret << " into clients list.";
+        this->clients.insert(std::make_pair(ret, client));
+        return ret;
     }
     else
     {
@@ -164,7 +162,7 @@ void ClientManager::connectClient(const ClientCredentials &clientCredentials,
     }
 }
 
-void ClientManager::disconnectClient(const std::string &clientId)
+void ClientManager::disconnectClient(std::uint32_t clientId)
 {
     /**
      * 1. Find the client with the given id. If the client is not in our list, just log a message.
@@ -192,7 +190,7 @@ void ClientManager::disconnectClient(const std::string &clientId)
     }
 }
 
-void ClientManager::openClientDbSession(const std::string &clientId,
+void ClientManager::openClientDbSession(std::uint32_t clientId,
                                         const std::string &dbName,
                                         ClientServerSession &out_serverSession)
 {
@@ -263,8 +261,8 @@ void ClientManager::openClientDbSession(const std::string &clientId,
 #endif
 }
 
-void ClientManager::closeClientDbSession(const std::string &clientId,
-                                         const std::string &sessionId)
+void ClientManager::closeClientDbSession(std::uint32_t clientId,
+                                         std::uint32_t sessionId)
 {
     boost::shared_lock<boost::shared_mutex> lock(this->clientsMutex);
 
@@ -292,7 +290,7 @@ void ClientManager::closeClientDbSession(const std::string &clientId,
     this->notifyWaitingClientsThread();
 }
 
-void ClientManager::keepClientAlive(const std::string &clientId)
+void ClientManager::keepClientAlive(std::uint32_t clientId)
 {
     boost::shared_lock<boost::shared_mutex> lock(this->clientsMutex);
 
@@ -549,9 +547,8 @@ bool ClientManager::tryGetFreeLocalServer(std::shared_ptr<Client> client,
     std::shared_ptr<Server> assignedServer;
     if (this->serverManager->tryGetAvailableServer(dbName, assignedServer))
     {
-        std::string dbSessionId;
-
-        // A value will be assigned to dbSessionId by the ID
+        // A value will be assigned to dbSessionId by addDbSession
+        std::uint32_t dbSessionId;
         client->addDbSession(dbName, assignedServer, dbSessionId);
 
         out_serverSession.clientSessionId = client->getClientId();

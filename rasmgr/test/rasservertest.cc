@@ -78,7 +78,7 @@ class MockRasServerService: public ::rasnet::service::RasServerService::Service
 
     grpc::Status GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response) override
     {
-        response->set_clientqueuesize(1);
+        response->set_hasclients(true);
         return Status::OK;
     }
 }
@@ -148,7 +148,7 @@ protected:
         failingService = failingServerBuilder.BuildAndStart();
 
 
-        dbHost.reset(new rasmgr::DatabaseHost("hostName", "connectString", "user", "passwd"));
+        dbHost.reset(new rasmgr::DatabaseHost("hostName", "connectString"));
 
         ServerConfig goodServerConfig(hostName, goodPort, dbHost);
         ServerConfig failingServerConfig(hostName, badPort, dbHost);

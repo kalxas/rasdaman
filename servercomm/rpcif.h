@@ -26,6 +26,8 @@ struct RPCMarray {
 	u_short currentFormat;
 	u_short storageFormat;
 	confarray data;
+	u_short bandLinearization{0};
+	u_short cellLinearization{0};
 };
 typedef struct RPCMarray RPCMarray;
 

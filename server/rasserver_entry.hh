@@ -51,10 +51,8 @@ private:
     HttpServer server;
     
     ClientTblElt* currentClientContext;
-    unsigned long currentClientIdx;
-    
-    static unsigned long clientCount;
-    static const unsigned long noClientConnected;
+    std::uint32_t currentClientIdx;
+    bool clientConnected{false};
 
 public:
     static RasServerEntry& getInstance();
@@ -73,9 +71,10 @@ public:
      * server instance can have at most one client at a time; this requirement
      * automatically managed by rasmgr.
      * 
+     * @param clientId the client ID
      * @param capability an authentication string provided by rasmgr.
      */
-    void connectNewClient(const char* capability);
+    void connectNewClient(std::uint32_t clientId, const char* capability);
     
     /**
      * @return context data for the current client.

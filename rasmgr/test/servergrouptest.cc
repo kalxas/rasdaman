@@ -65,7 +65,7 @@ protected:
     {
         this->dbHostManager.reset(new DatabaseHostManagerMock());
         this->serverFactory.reset(new ServerFactoryMock());
-        this->dbHost.reset(new rasmgr::DatabaseHost("dbHost", "connect", "", ""));
+        this->dbHost.reset(new rasmgr::DatabaseHost("dbHost", "connect"));
         this->server.reset(new MockRasServer());
     }
 

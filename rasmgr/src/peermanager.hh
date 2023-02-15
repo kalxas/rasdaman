@@ -83,6 +83,7 @@ public:
 
     /**
      * Try to acquire a remote server for a client.
+     * @param request credentials/dbname for the remote server connection
      * @param out_reply Struct containing information identifying the connection
      * @return TRUE if a server was found, FALSE otherwise.
      */
@@ -101,10 +102,8 @@ public:
     virtual void releaseServer(const RemoteClientSession &clientSession);
 
     /**
-     * @brief serializeToProto Serialize the data contained by this object
-     * into a format which can be later used for presenting information to the user
-     * or saved to disk
-     * @return
+     * Serialize the data contained by this object into a format which can be
+     * later used for presenting information to the user or saved to disk.
      */
     virtual PeerMgrProto serializeToProto();
 

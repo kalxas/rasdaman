@@ -27,12 +27,14 @@
 #include <boost/thread.hpp>
 #include <string>
 #include <memory>
+#include <atomic>
 
 namespace rasmgr
 {
 
 class User;
 class Server;
+class CpuScheduler;
 
 /**
  * Represents a client that connects to rasmgr and requests a server onto which to
@@ -61,15 +63,19 @@ public:
      * @param user user object with access rights this client has on the database
      * @param lifeTime The number of milliseconds for how long the client is alive between pings.
      * @param rasmgrHostArg rasmgr hostname
+     * @param cpuSchedulerArg the CPU cores scheduler
      */
-    Client(const std::string &clientId, std::shared_ptr<User> user,
-           std::int32_t lifeTime, const std::string &rasmgrHostArg);
+    Client(std::uint32_t clientId, std::shared_ptr<User> user,
+           std::int32_t lifeTime, const std::string &rasmgrHostArg,
+           const std::shared_ptr<CpuScheduler> &cpuSchedulerArg = nullptr);
+    
+    ~Client();
 
     /**
      *
      * @return The unique ID associated with this client
      */
-    const std::string &getClientId() const;
+    std::uint32_t getClientId() const;
 
     /**
      * Get the user information(user name, password, access rights) associated with this client.
@@ -97,19 +103,19 @@ public:
     /**
      * Add a DB session to this client.
      * @param dbName Name of the database for this session
-     * @param assignedServer Server assigned to the client for this session
+     * @param newServer Server assigned to the client for this session
      * @param out_sessionId Unique ID that is created for this session.
      * @throws An exception is thrown if the user does not have rights on the
      * database with the given name or if the server cannot allocate a client session.
      */
     void addDbSession(const std::string &dbName, std::shared_ptr<Server> newServer,
-                      std::string &out_sessionId);
+                      std::uint32_t &out_sessionId);
 
     /**
      * Remove the session with the given ID from the client's memory.
      * @param sessionId UUID that uniquely identifies the session on this client.
      */
-    void removeDbSession(const std::string &sessionId);
+    void removeDbSession(std::uint32_t sessionId);
 
     /**
      * Remove the client from all the servers it has been associated with.
@@ -117,16 +123,20 @@ public:
     void removeClientFromServer();
 
 private:
-    std::string clientId; /*! Unique client id.*/
+    std::uint32_t clientId; /*! Unique client id.*/
     std::shared_ptr<User> user; /*! User represented by this client. */
     common::Timer timer;/*! Timer for keeping track of the life of the client */
     std::string rasmgrHost; /*! Hostname to which the client originally connected to. */
 
     boost::shared_mutex timerMutex; /*! Mutex used to synchronize access to the timer */
 
-    std::string sessionId; /*! unique client session ID */
+    static std::atomic<std::uint32_t> sessionIdCounter;
+    std::uint32_t sessionId; /*! unique client session ID */
+    bool sessionOpen{false}; /*! true if a session is currently open */
     std::shared_ptr<Server> assignedServer; /*! the server assigned for the session*/
     boost::shared_mutex assignedServerMutex; /*! Mutex used to synchronize access to the server*/
+    
+    std::shared_ptr<CpuScheduler> cpuScheduler;
 
     /**
      * @brief isClientAliveOnServers Go through the list of servers and check if the client

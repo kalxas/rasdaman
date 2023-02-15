@@ -1046,6 +1046,8 @@ unsigned short HttpServer::insertMDD(unsigned long callingClientId,
     rpcMarray->storageFormat  = r_Array;
     rpcMarray->data.confarray_len = mdd->dataSize;
     rpcMarray->data.confarray_val = mdd->binData;
+    rpcMarray->bandLinearization = u_short(r_Band_Linearization::PixelInterleaved);
+    rpcMarray->cellLinearization = u_short(r_Cell_Linearization::ColumnMajor);
 
     /*
     LDEBUG << "Creating RPCMarray with domain " << rpcMarray->domain << ", size " <<

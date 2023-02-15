@@ -94,9 +94,9 @@ public class GrpcUtils {
             healthService.withDeadlineAfter(timeoutMilliseconds, TimeUnit.MILLISECONDS).check(request);
             isAlive = true;
         } catch (Exception ex) {
-            // Commented out because they look out of place in petascope.log and
-            // are not really useful
-            //Debug.talkWarning(ex.getLocalizedMessage());
+           // Commented out because they look out of place in petascope.log and
+           // are not really useful
+           // Debug.talkWarning(ex.getLocalizedMessage());
         }
 
         return isAlive;

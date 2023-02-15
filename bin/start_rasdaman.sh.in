@@ -79,9 +79,14 @@ war_path="@pkgdatadir@war"
 PETASCOPEDB=@petascopedb@
 ENABLE_JAVA=@ENABLE_JAVA@
 
+# rasmgr port
+DEFAULT_RASMGR_PORT=7001
+[ -z "$RASMGR_PORT" ] && RASMGR_PORT="$DEFAULT_RASMGR_PORT"
+
 # rasadmin/rasadmin
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
-[ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
+[ -z "$RASLOGIN" ] && RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
+export RASLOGIN
 
 # set default memory limit of 4GB for embedded petascope
 [ -z "$JAVA_OPTS" ] && JAVA_OPTS="-Xmx4000m"
@@ -204,16 +209,18 @@ usage()
     cat <<EOF
 Start the rasdaman server if it is not already running.
 
-Usage:
-  start_rasdaman.sh [OPTION]...
+Usage
+  $PROG [OPTION]...
 
-Options:
+
+Options
+
   --service <svc>       start a particular service <svc> only; allowed values 
-                        for <svc> are: core, petascope. By default all
-                        services are started.
+                        for <svc> are: core (rasmgr + rasservers), petascope.
+                        By default all services are started.
 
   -p, --port <port>     specify the port on which rasmgr will listen. By default
-                        this is 7001, it is recommended to avoid changing this
+                        this is 7001. It is recommended to avoid changing this
                         value unless really necessary.
   
   --allow-root          allow starting rasdaman (i.e. running this script) with
@@ -225,6 +232,27 @@ Options:
                         are started.
 
   -h, --help            show this message and exit.
+
+
+Environment variables
+
+  This script will use various environment variables, if they are set before it
+  is executed:
+
+  - RASMGR_PORT - the port on which rasmgr will listen when started, and to
+    which client applications will connect in order to send queries to rasdaman.
+    This variable will be overrided by the value of option --port, if 
+    specified. By default if none are specified, the port is set to 7001.
+
+  - RASLOGIN - rasdaman admin credentials which will be used for 
+    starting rasmgr non-interactively. See the rascontrol docs for details on 
+    the format  and how is this setting used. If not set, the script defaults to  
+    using rasadmin/rasadmin credentials; the documentation provides guidelines 
+    on how to change these defaults.
+
+  - JAVA_OPTS - options passed on to the java command when used to start
+    the OGC frontend of rasdaman (petascope) if it is configured for
+    embedded deployment. If not set, it defaults to "-Xmx4000m"
 EOF
     exit $RC_HELP
 }

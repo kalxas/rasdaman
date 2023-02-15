@@ -302,6 +302,7 @@ std::vector<std::string> FileUtils::listFiles(const std::string &dirPath,
   dirIter.open();
   while (dirIter.isOpen()) {
     auto f = dirIter.nextFile();
+    LTRACE << "next file '" << f << "'";
     if (f.empty())
       break;
     if (extension.empty()) {
@@ -317,8 +318,10 @@ std::vector<std::string> FileUtils::listFiles(const std::string &dirPath,
             break;
           }
         }
-        if (add)
+        if (add) {
+          LTRACE << "adding file " << f;
           ret.push_back(f);
+        }
       }
     }
   }
@@ -381,8 +384,8 @@ std::string FileDirIterator::nextFile()
       struct stat st;
       if (fstatat(dirfd(dirStream), d_name, &st, 0) == -1)
       {
-        LWARNING << "failed reading directory: " << d_name;
-        return ""; // failed reading directory
+        LWARNING << "failed stat on path " << dirPath << "/" << d_name;
+        return ""; // failed reading
       }
       
       if (!S_ISDIR(st.st_mode)) {

@@ -29,7 +29,13 @@ using std::move;
 
 User::User(std::string name, std::string password,
            const UserDatabaseRights &defaultDbRights, const UserAdminRights &adminRights) :
-    name(move(name)), password(move(password)),
+    name(move(name)), password(move(password)), token(""),
+    defaultDbRights(defaultDbRights), adminRights(adminRights)
+{}
+
+User::User(std::string name, std::string password, std::string token,
+           const UserDatabaseRights &defaultDbRights, const UserAdminRights &adminRights) :
+    name(move(name)), password(move(password)), token(move(token)),
     defaultDbRights(defaultDbRights), adminRights(adminRights)
 {}
 
@@ -56,6 +62,16 @@ const std::string &User::getName() const
 void User::setName(const std::string &name)
 {
     this->name = name;
+}
+
+const std::string &User::getToken() const
+{
+  return token;
+}
+
+void User::setToken(const std::string &token)
+{
+  this->token = token;
 }
 
 const std::string &User::getPassword() const

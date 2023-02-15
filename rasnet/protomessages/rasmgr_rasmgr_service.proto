@@ -51,10 +51,10 @@ message GetRemoteServerRequest {
 
 message GetRemoteServerReply {
     // The client session id assigned by the remote rasmgr
-    string client_session_id = 1;
+    uint32 client_session_id = 1;
 
     // DB session ID associated with this transaction
-    string db_session_id = 2;
+    uint32 db_session_id = 2;
 
     // Host name of the assigned server
     string server_host_name = 3;
@@ -65,10 +65,10 @@ message GetRemoteServerReply {
 
 message ReleaseServerRequest {
     // The client id assigned by the remote rasmgr
-    string client_session_id = 1;
+    uint32 client_session_id = 1;
 
     // The ID of the DB session we want to release
-    string db_session_id = 2;
+    uint32 db_session_id = 2;
 }
 
 service RasmgrRasmgrService{

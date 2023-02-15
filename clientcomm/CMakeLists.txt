@@ -48,10 +48,10 @@ target_link_libraries(clientcomm
     common_exceptions
     common_crypto
     common_uuid 
+    common_string
     ${Boost_SYSTEM_LIBRARY}
     ${GRPCPP_LIBRARY}
     ${GRPC_LIBRARY}
-    ${ZLIB_LIBRARIES}
     )
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")

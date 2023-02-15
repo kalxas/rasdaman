@@ -113,6 +113,17 @@ if (USE_CLANG)
     set(USE_LLD "-Qunused-arguments -fuse-ld=lld")
 endif ()
 
+set(USE_MOLD "" CACHE STRING "Use mold for linking.")
+if (NOT USE_MOLD STREQUAL "")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(USE_LLD "-Qunused-arguments -fuse-ld=mold")
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        set(USE_LLD "-B${USE_MOLD}")
+    endif()
+endif()
+
+add_definitions(-DCMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}")
+
 #
 # Enable C++11
 #
@@ -132,13 +143,18 @@ set(SANITIZER_FLAG "")
 
 set(ENABLE_ASAN OFF CACHE BOOL "Use AddressSanitizer (compile with -fsanitize=address).")
 if (ENABLE_ASAN)
-    set(SANITIZER_FLAG "-fsanitize=address -fsanitize=undefined -lubsan")
+    set(SANITIZER_FLAG "-fsanitize=address")
     message(STATUS "AddressSanitizer enabled (-DENABLE_ASAN=${ENABLE_ASAN}).")
 endif ()
 set(ENABLE_TSAN OFF CACHE BOOL "Use ThreadSanitizer (compile with -fsanitize=thread).")
 if (ENABLE_TSAN)
-    set(SANITIZER_FLAG "-fsanitize=thread -fsanitize=undefined -lubsan")
+    set(SANITIZER_FLAG "-fsanitize=thread")
     message(STATUS "ThreadSanitizer enabled (-DENABLE_TSAN=${ENABLE_TSAN}).")
+endif ()
+set(ENABLE_UBSAN OFF CACHE BOOL "Use UBSan (compile with -fsanitize=undefined -lubsan).")
+if (ENABLE_UBSAN)
+    set(SANITIZER_FLAG "-fsanitize=undefined -lubsan -fno-sanitize=alignment")
+    message(STATUS "UBSan enabled (-DENABLE_TSAN=${ENABLE_TSAN}).")
 endif ()
 
 #
@@ -153,7 +169,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # using Clang
     set(ENABLE_MSAN OFF CACHE BOOL "Use MemorySanitizer (compile with -fsanitize=memory).")
     if (ENABLE_MSAN)
-        set(SANITIZER_FLAG "-fsanitize=memory -fsanitize=undefined -lubsan")
+        set(SANITIZER_FLAG "-fsanitize=memory -fsanitize=undefined -lubsan -fno-sanitize=alignment")
         message(STATUS "MemorySanitizer enabled (-DENABLE_MSAN=${ENABLE_MSAN}).")
     endif ()
     set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wthread-safety")
@@ -220,7 +236,7 @@ if (ENABLE_DEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
     # Do not enable below as it clashes with define from easylogging
     # set(DEBUG ${ENABLE_DEBUG})
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g ")
 
     add_definitions(-DELPP_DEBUG_ERRORS)
 
@@ -518,7 +534,7 @@ endif ()
 
 set(ENABLE_STRICT OFF CACHE BOOL 
     "Enable compilation in strict mode (warnings terminate compilation).")
-if (ENABLE_STRICT)
+if (ENABLE_STRICT AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # list from http://stackoverflow.com/a/9862800
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Werror -Wall -Wextra -Wshadow ")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align -Wcast-qual -Wsign-promo")
@@ -527,7 +543,7 @@ if (ENABLE_STRICT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing -Wno-missing-include-dirs")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnoexcept -Woverloaded-virtual -Wredundant-decls")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsign-conversion -Wstrict-null-sentinel")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wstrict-overflow=5 -Wundef")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wstrict-overflow=5 -Wundef -Wno-disabled-optimization")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused -Wno-empty-body -Wno-unused-function") 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-result -Wno-long-long -Wno-format-nonliteral ")
     if ("${CMAKE_CXX_COMPILER_VERSION}" GREATER_EQUAL "7.0")

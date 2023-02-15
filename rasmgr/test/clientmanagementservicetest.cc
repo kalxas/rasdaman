@@ -27,7 +27,6 @@
 
 #include "../src/clientmanager.hh"
 #include "../src/servermanager.hh"
-#include "../src/constants.hh"
 #include "../src/clientmanagementservice.hh"
 #include "../src/exceptions/rasmgrexceptions.hh"
 
@@ -35,7 +34,6 @@
 #include "mocks/clientmanagermock.hh"
 #include "mocks/usermanagermock.hh"
 #include "mocks/servergroupfactorymock.hh"
-#include "mocks/mockrasserver.hh"
 #include "mocks/peermanagermock.hh"
 
 namespace rasmgr
@@ -87,19 +85,19 @@ TEST_F(ClientManagementServiceTest, ConnectSuccess)
     request.set_username("user");
     request.set_passwordhash("password");
 
-    std::string clientId = "clientId";
+    std::uint32_t clientId = 1;
 
     rasnet::service::ConnectRepl reply;
 
     ClientManagerMock& clientMgrMock = *std::dynamic_pointer_cast<ClientManagerMock>(clientManager);
 
-    EXPECT_CALL(clientMgrMock, connectClient(_, _, _))
-    .WillOnce(SetArgReferee<2>(clientId));
+    EXPECT_CALL(clientMgrMock, connectClient(_, _))
+    .WillOnce(Return(clientId));
 
     Status status = this->service->Connect(NULL, &request, &reply);
 
     ASSERT_TRUE(status.ok());
-    ASSERT_EQ(clientId, reply.clientuuid());
+    ASSERT_EQ(clientId, reply.clientid());
     ASSERT_EQ(this->clientManager->getConfig().getClientLifeTime(), reply.keepalivetimeout());
 }
 
@@ -115,7 +113,7 @@ TEST_F(ClientManagementServiceTest, ConnectFailure)
 
     ClientManagerMock& clientMgrMock = *std::dynamic_pointer_cast<ClientManagerMock>(clientManager);
 
-    EXPECT_CALL(clientMgrMock, connectClient(_, _, _))
+    EXPECT_CALL(clientMgrMock, connectClient(_, _))
     .WillOnce(Throw(exception));
 
     Status status = this->service->Connect(NULL, &request, &reply);
@@ -158,9 +156,9 @@ TEST_F(ClientManagementServiceTest, DisconnectSuccess)
 
 TEST_F(ClientManagementServiceTest, OpenDbSucess)
 {
-    std::string clientUUID = "clientUUID";
+    std::uint32_t clientUUID = 1;
     std::string hostName = "hostName";
-    std::string dbId = "dbId";
+    std::uint32_t dbId = 2;
     std::uint32_t port = DEFAULT_PORT;
 
     ClientServerSession session {clientUUID, dbId, hostName, port};

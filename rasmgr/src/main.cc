@@ -24,6 +24,7 @@
 #include "config.h"
 #include "version.h"
 #include "rasmanager.hh"
+#include "constants.hh"
 #include "configuration.hh"
 
 #include "common/crypto/crypto.hh"
@@ -38,11 +39,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define RASMGR_RESULT_OK            0
-#define RASMGR_RESULT_NO_MD5        1
-#define RASMGR_RESULT_ILL_ARGS      2
-#define RASMGR_RESULT_FAILED        3
-
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -52,6 +48,8 @@ void shutdownHandler(int sig, siginfo_t *info, void *ucontext);
 using common::Crypto;
 using rasmgr::Configuration;
 using rasmgr::RasManager;
+using rasmgr::RASMGR_RESULT_OK;
+using rasmgr::RASMGR_RESULT_FAILED;
 
 // RasManager object that orchestrates
 std::shared_ptr<rasmgr::RasManager> manager;
@@ -114,7 +112,7 @@ Configuration parseCmdLine(int argc, char **argv)
     if (Crypto::isMessageDigestAvailable(DEFAULT_DIGEST) == false)
     {
         std::cerr << "Error: Message Digest MD5 not available." << std::endl;
-        exit(RASMGR_RESULT_NO_MD5);
+        exit(rasmgr::RASMGR_RESULT_NO_MD5);
     }
     
     Configuration config;
@@ -122,7 +120,7 @@ Configuration parseCmdLine(int argc, char **argv)
     if (result == false)
     {
         std::cerr << "Error: failed parsing command-line parameters." << std::endl;
-        exit(RASMGR_RESULT_ILL_ARGS);
+        exit(rasmgr::RASMGR_RESULT_ILL_ARGS);
     }
     return config;
 }

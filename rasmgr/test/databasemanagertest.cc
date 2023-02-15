@@ -45,8 +45,7 @@ using rasmgr::DatabaseMgrProto;
 class DatabaseManagerTest: public ::testing::Test
 {
 protected:
-    DatabaseManagerTest(): hostName("hostName"), connectString("connectString"),
-        userName("userName"), passwdString("passwdString"), dbName("dbName"),
+    DatabaseManagerTest(): hostName("hostName"), connectString("connectString"), dbName("dbName"),
         db(new Database(dbName))
     {
         this->dbhManager.reset(new DatabaseHostManager());
@@ -55,8 +54,6 @@ protected:
 
     std::string hostName;
     std::string connectString ;
-    std::string userName;
-    std::string passwdString;
     std::string dbName;
     std::shared_ptr<Database> db;
     std::shared_ptr<DatabaseHostManager> dbhManager;
@@ -74,8 +71,6 @@ TEST_F(DatabaseManagerTest, defineDatabaseSuccess)
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
     proto.set_connect_string(connectString);
-    proto.set_user_name(userName);
-    proto.set_password(passwdString);
     dbhManager->defineDatabaseHost(proto);
 
     //Succeed
@@ -87,8 +82,6 @@ TEST_F(DatabaseManagerTest, defineDatabaseFailsWhenDoneTwice)
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
     proto.set_connect_string(connectString);
-    proto.set_user_name(userName);
-    proto.set_password(passwdString);
     dbhManager->defineDatabaseHost(proto);
 
     //Succeed
@@ -102,8 +95,6 @@ TEST_F(DatabaseManagerTest, defineDatabaseWithSameNameOnTwoHosts)
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
     proto.set_connect_string(connectString);
-    proto.set_user_name(userName);
-    proto.set_password(passwdString);
     dbhManager->defineDatabaseHost(proto);
 
     std::string secondHost = "secondHost";
@@ -136,8 +127,6 @@ TEST_F(DatabaseManagerTest, changeDatabaseName)
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
     proto.set_connect_string(connectString);
-    proto.set_user_name(userName);
-    proto.set_password(passwdString);
 
     //Define the database host
     dbhManager->defineDatabaseHost(proto);
@@ -163,8 +152,6 @@ TEST_F(DatabaseManagerTest, removeDatabase)
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
     proto.set_connect_string(connectString);
-    proto.set_user_name(userName);
-    proto.set_password(passwdString);
 
     //Define the database host
     dbhManager->defineDatabaseHost(proto);
@@ -184,8 +171,6 @@ TEST_F(DatabaseManagerTest, serializeToProto)
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
     proto.set_connect_string(connectString);
-    proto.set_user_name(userName);
-    proto.set_password(passwdString);
 
     //Define the database host
     dbhManager->defineDatabaseHost(proto);

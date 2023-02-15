@@ -84,16 +84,6 @@ std::string RasControl::defineDbHost(const DefineDbHost &dbHostData)
             dbhProp.set_connect_string(dbHostData.connect());
         }
 
-        if (dbHostData.has_user())
-        {
-            dbhProp.set_user_name(dbHostData.user());
-        }
-
-        if (dbHostData.has_passwd())
-        {
-            dbhProp.set_password(dbHostData.passwd());
-        }
-
         this->dbHostManager_->defineDatabaseHost(dbhProp);
 
         this->rasmanager_->setIsConfigurationDirty(true);
@@ -123,16 +113,6 @@ std::string RasControl::changeDbHost(const ChangeDbHost &dbHostData)
         if (dbHostData.has_n_connect())
         {
             dbhProto.set_connect_string(dbHostData.n_connect());
-        }
-
-        if (dbHostData.has_n_user())
-        {
-            dbhProto.set_user_name(dbHostData.n_user());
-        }
-
-        if (dbHostData.has_n_passwd())
-        {
-            dbhProto.set_password(dbHostData.n_passwd());
         }
 
         if (dbHostData.has_n_name())

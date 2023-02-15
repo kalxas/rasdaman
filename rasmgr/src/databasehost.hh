@@ -49,23 +49,20 @@ public:
     /**
      * @param hostName Name of the database host, the machine on which the database will run.
      * @param connectString The string that will be used to connect to the database
-     * @param userName The user name used for secure connection to the database
-     * @param passwdString The password string associated with the user name
      */
-    DatabaseHost(std::string hostName, std::string connectString,
-                 std::string userName, std::string passwdString);
+    DatabaseHost(const std::string &hostName, const std::string &connectString);
 
     /**
      * Increase the number of sessions running on the given database.
      * @throws InexistentDatabaseException if this host does not contain databaseName
      */
     void addClientSessionOnDB(const std::string &databaseName,
-                              const std::string &clientId, const std::string &sessionId);
+                              std::uint32_t clientId, std::uint32_t sessionId);
 
     /**
      * Decrease the number of sessions running on the given database.
      */
-    void removeClientSessionFromDB(const std::string &clientId, const std::string &sessionId);
+    void removeClientSessionFromDB(std::uint32_t clientId, std::uint32_t sessionId);
 
     /**
      * @brief increaseServerCount Increase the number of servers using this host.
@@ -119,17 +116,9 @@ public:
     const std::string &getConnectString() const;
     void setConnectString(const std::string &connectString);
 
-    const std::string &getUserName() const;
-    void setUserName(const std::string &userName);
-
-    const std::string &getPasswdString() const;
-    void setPasswdString(const std::string &passwdString);
-
 private:
     std::string hostName; /*!< Name of this database host */
     std::string connectString; /*!< String used to connect to this database host*/
-    std::string userName; /*!< User name used to connect to the database host*/
-    std::string passwdString; /*!< Password string used to connect to the database host*/
 
     int sessionCount; /*!< Counter used to track the number of active sessions*/
     int serverCount;/*!< Counter used to track the number of server groups using this host*/

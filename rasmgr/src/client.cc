@@ -20,18 +20,18 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <stdexcept>
-
-#include "common/uuid/uuid.hh"
-#include <logging.hh>
-
-#include "exceptions/rasmgrexceptions.hh"
-#include "rasmgr/src/messages/rasmgrmess.pb.h"
-#include "rasmgrconfig.hh"
-#include "server.hh"
-#include "user.hh"
 
 #include "client.hh"
+#include "rasmgr/src/messages/rasmgrmess.pb.h"
+#include "server.hh"
+#include "user.hh"
+#include "cpuscheduler.hh"
+#include "common/uuid/uuid.hh"
+#include "exceptions/duplicatedbsessionexception.hh"
+#include "exceptions/userdbrightsexception.hh"
+#include "exceptions/inexistentdbsessionexception.hh"
+
+#include <logging.hh>
 
 
 namespace rasmgr
@@ -46,13 +46,21 @@ using boost::unique_lock;
 using boost::upgrade_lock;
 using boost::upgrade_to_unique_lock;
 
-Client::Client(const string &clientIdArg, std::shared_ptr<User> userArg, 
-               std::int32_t lifeTime, const std::string &rasmgrHostArg)
-    : clientId(clientIdArg), user(userArg), timer(lifeTime), rasmgrHost(rasmgrHostArg)
+std::atomic<std::uint32_t> Client::sessionIdCounter{};
+
+Client::Client(std::uint32_t clientIdArg, std::shared_ptr<User> userArg, 
+               std::int32_t lifeTime, const std::string &rasmgrHostArg,
+               const std::shared_ptr<CpuScheduler> &cpuSchedulerArg)
+    : clientId(clientIdArg), user(userArg), timer(lifeTime), rasmgrHost(rasmgrHostArg),
+      cpuScheduler(cpuSchedulerArg)
 {
 }
 
-const string &Client::getClientId() const
+Client::~Client()
+{
+}
+
+std::uint32_t Client::getClientId() const
 {
     return this->clientId;
 }
@@ -91,7 +99,7 @@ void Client::resetLiveliness()
 
 void Client::addDbSession(const std::string &dbName,
                           std::shared_ptr<Server> newServer,
-                          std::string &out_sessionId)
+                          std::uint32_t &out_sessionId)
 {
     /**
      * 1. Generate a DbSessionId
@@ -105,24 +113,27 @@ void Client::addDbSession(const std::string &dbName,
 
     boost::lock_guard<shared_mutex> lock(this->assignedServerMutex);
     
-    if (!sessionId.empty())
+    if (sessionOpen)
     {
         throw DuplicateDbSessionException(dbName, sessionId);
     }
 
-    //Generate a unique session id.
-    out_sessionId = UUID::generateUUID();
-    sessionId = out_sessionId;
-    
     //Check if the client is allowed to access the db
     out_dbRights = this->user->getDefaultDbRights();
 
     // TODO(DM) - remove this rights mgmt here
     if (out_dbRights.hasReadAccess()  || out_dbRights.hasWriteAccess())
     {
+        //Generate a unique session id.
+        out_sessionId = ++sessionIdCounter;
+        sessionId = out_sessionId;
+        LDEBUG << "client " << clientId << " added db session: " << sessionId;
+
         this->assignedServer = newServer;
         newServer->allocateClientSession(
-              this->clientId, out_sessionId, dbName, out_dbRights);
+              this->clientId, this->user->getName(), this->user->getPassword(),
+              this->user->getToken(), out_sessionId, dbName, out_dbRights);
+        sessionOpen = true;
     }
     else
     {
@@ -130,20 +141,22 @@ void Client::addDbSession(const std::string &dbName,
     }
 }
 
-void Client::removeDbSession(const string &sessionIdToRemove)
+void Client::removeDbSession(std::uint32_t sessionIdToRemove)
 {
     boost::lock_guard<shared_mutex> lock(this->assignedServerMutex);
 
-    if (!sessionId.empty())
+    if (sessionOpen)
     {
         if (sessionIdToRemove == sessionId)
         {
+            LDEBUG << "client " << clientId << " removed db session: " << sessionIdToRemove;
             assignedServer->deallocateClientSession(this->clientId, sessionId);
             assignedServer.reset();
-            sessionId = "";
+            sessionOpen = false;
         }
         else
         {
+            LDEBUG << "client " << clientId << " db session not found: " << sessionIdToRemove;
             throw InexistentDbSessionException(sessionIdToRemove);
         }
     }
@@ -152,12 +165,12 @@ void Client::removeDbSession(const string &sessionIdToRemove)
 void Client::removeClientFromServer()
 {
     upgrade_lock<shared_mutex> lock(this->assignedServerMutex);
-    if (assignedServer && !sessionId.empty())
+    if (assignedServer && sessionOpen)
     {
         assignedServer->deallocateClientSession(this->clientId, sessionId);
         upgrade_to_unique_lock<shared_mutex> uniqueServerLock(lock);
         assignedServer.reset();
-        sessionId = "";
+        sessionOpen = false;
     }
 }
 
@@ -175,7 +188,7 @@ bool Client::isClientAliveOnServer()
 {
     {
         boost::shared_lock<shared_mutex> serversLock(this->assignedServerMutex);
-        if (!sessionId.empty())
+        if (sessionOpen)
         {
             return assignedServer->isClientAlive(this->clientId);
         }
@@ -193,7 +206,7 @@ void Client::removeDeadServer()
         LDEBUG << "removing dead server assigned to client";
         boost::upgrade_to_unique_lock<shared_mutex> uniqueLock(serversLock);
         assignedServer.reset();
-        sessionId = "";
+        sessionOpen = false;
     }
 }
 

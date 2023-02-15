@@ -79,10 +79,11 @@ std::string StringUtil::trimRight(const std::string& str)
   return s;
 }
 
-std::string StringUtil::trim(const std::string& str)
+std::string StringUtil::trim(std::string s)
 {
-  std::string s = std::string(str);
-  return trimLeft(trimRight(s));
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+  s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+  return s;
 }
 
 bool StringUtil::startsWith(const char *s, const char *prefix)

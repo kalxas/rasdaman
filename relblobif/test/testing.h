@@ -30,6 +30,7 @@ rasdaman GmbH.
 #ifndef RELBLOBIF_TESTING_H__
 #define RELBLOBIF_TESTING_H__
 
+#include "raslib/rmdebug.hh"
 #include <iostream>
 #include <string>
 

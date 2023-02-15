@@ -38,9 +38,11 @@ public:
     /**
      * @param userName User name
      * @param passwordHash Password hash
+     * @param token user token
      */
     ClientCredentials(const std::string &userName = "",
-                      const std::string &passwordHash = "");
+                      const std::string &passwordHash = "",
+                      const std::string &token = "");
 
     ~ClientCredentials() = default;
 
@@ -60,6 +62,17 @@ public:
      */
     const std::string &getUserName() const;
 
+    /**
+     * Set the user token
+     */
+    void setToken(const std::string &token);
+
+    /**
+     *
+     * @return the user token
+     */
+    const std::string &getToken() const;
+
   /**
    * Set the user name
    */
@@ -68,6 +81,7 @@ public:
 private:
     std::string userName;/*! User name used for authenticating the client*/
     std::string passwordHash;/*!Password hash used for authenticating the client */
+    std::string token;/*!JWT used for authenticating the client*/
 };
 } /* namespace rasmgr */
 

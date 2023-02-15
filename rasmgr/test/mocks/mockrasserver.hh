@@ -18,9 +18,27 @@ class MockRasServer: public Server
 public:
     MOCK_METHOD0(startProcess, void(void));
     MOCK_METHOD0(isAlive, bool(void));
-    MOCK_METHOD1(isClientAlive, bool(const std::string&));
-    MOCK_METHOD4(allocateClientSession, void(const std::string&, const std::string&, const std::string&, const rasmgr::UserDatabaseRights& dbRights));
-    MOCK_METHOD2(deallocateClientSession, void(const std::string&, const std::string&));
+    MOCK_METHOD1(isClientAlive, bool(std::uint32_t));
+    
+    MOCK_METHOD4(allocateClientSession, void(std::uint32_t,
+                                             std::uint32_t,
+                                             const std::string&,
+                                             const rasmgr::UserDatabaseRights& dbRights));
+    
+    MOCK_METHOD7(allocateClientSession, void(std::uint32_t,
+                                             const std::string&,
+                                             const std::string&,
+                                             const std::string&,
+                                             std::uint32_t,
+                                             const std::string&,
+                                             const rasmgr::UserDatabaseRights& dbRights));
+    
+    MOCK_METHOD4(allocateClientSession, void(std::uint32_t,
+                                             std::uint32_t,
+                                             const std::string&,
+                                             const std::string& capabilities));
+    
+    MOCK_METHOD2(deallocateClientSession, void(std::uint32_t, std::uint32_t));
     MOCK_METHOD1(registerServer, void(const std::string&));
     MOCK_METHOD0(getTotalSessionNo, std::uint32_t(void));
     MOCK_METHOD1(stop, void(KillLevel));

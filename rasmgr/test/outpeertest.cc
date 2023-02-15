@@ -125,7 +125,7 @@ TEST_F(OutPeerTest, tryGetRemoteServer_Success)
 
 TEST_F(OutPeerTest, releaseServer_NoSessions)
 {
-    RemoteClientSession clientSession("testClientId", "testDbId");
+    RemoteClientSession clientSession(1, 2);
 
     // Even if the session does not exist, releasing it will not throw an exception
     ASSERT_NO_THROW(this->peer.releaseServer(clientSession));

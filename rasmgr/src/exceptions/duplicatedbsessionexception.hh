@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_EXCEPTIONS_DUPLICATEDBSESSIONEXCEPTION_HH
 #define RASMGR_X_SRC_EXCEPTIONS_DUPLICATEDBSESSIONEXCEPTION_HH
 
-#include "common/exceptions/rasexceptions.hh"
+#include "common/exceptions/runtimeexception.hh"
 
 namespace rasmgr
 {
@@ -39,7 +39,15 @@ public:
      * @param dbName Name of the database that was being modified.
      * @param sessionUID String uniquely identifying the client session.
      */
-    DuplicateDbSessionException(const std::string& dbName, const std::string& sessionUID);
+    DuplicateDbSessionException(const std::string& dbName, std::uint32_t sessionUID);
+    
+    /**
+     * @brief DuplicateDbSessionException
+     * @param dbName Name of the database that was being modified.
+     * @param clientId client id
+     * @param sessionId client session id
+     */
+    DuplicateDbSessionException(const std::string& dbName, std::uint32_t clientId, std::uint32_t sessionId);
 
     virtual ~DuplicateDbSessionException() noexcept;
 };

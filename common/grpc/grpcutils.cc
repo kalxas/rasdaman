@@ -173,6 +173,7 @@ grpc::ChannelArguments GrpcUtils::getDefaultChannelArguments() {
   grpc::ChannelArguments args;
   args.SetMaxReceiveMessageSize(-1); // unlimited
   args.SetMaxSendMessageSize(-1); // unlimited
+  args.SetInt(GRPC_ARG_MAX_METADATA_SIZE, 10 * 1024 * 1024); // 10 MB
   return args;
 }
 

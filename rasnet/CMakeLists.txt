@@ -22,13 +22,13 @@
 ###################################################################
 
 set(PROTO_SRC
-        protomessages/client_rassrvr_service.proto
-        protomessages/common_service.proto
-        protomessages/rasmgr_client_service.proto
-        protomessages/rasmgr_rasctrl_service.proto
-        protomessages/rasmgr_rassrvr_service.proto
-        protomessages/rassrvr_rasmgr_service.proto
-        protomessages/rasmgr_rasmgr_service.proto)
+    protomessages/client_rassrvr_service.proto
+    protomessages/common_service.proto
+    protomessages/rasmgr_client_service.proto
+    protomessages/rasmgr_rasctrl_service.proto
+    protomessages/rasmgr_rassrvr_service.proto
+    protomessages/rassrvr_rasmgr_service.proto
+    protomessages/rasmgr_rasmgr_service.proto)
 set(GRPC_SRC ${PROTO_SRC})
 
 set(PROTO_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/messages")
@@ -46,16 +46,15 @@ foreach (GRPC_FILE ${GRPC_SRC})
 endforeach ()
 
 add_library(rasnet STATIC
-        ${PROTO_SRC} # Added to the list of files so that QtCreator sees them.
-        ${GENERATED_PROTO_SOURCES}
-        ${GENERATED_GRPC_SOURCES}
-        )
+    ${PROTO_SRC} # Added to the list of files so that QtCreator sees them.
+    ${GENERATED_PROTO_SOURCES}
+    ${GENERATED_GRPC_SOURCES}
+    )
 
 target_link_libraries(rasnet
     PRIVATE
     ${GRPCPP_LIBRARY}
     ${GRPC_LIBRARY}
-    ${ZLIB_LIBRARIES}
     ${PROTOBUF_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     )

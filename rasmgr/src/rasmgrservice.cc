@@ -46,10 +46,8 @@ grpc::Status RasmgrService::TryGetRemoteServer(
         ClientCredentials credentials(request->user_name(),
                                       request->password_hash());
 
-        std::string clientSessionId;
-
         // The clientSessionId will be initialized by this method
-        this->clientManager->connectClient(credentials, request->hostname(), clientSessionId);
+        auto clientSessionId = this->clientManager->connectClient(credentials, request->hostname());
         LDEBUG << "Connected remote client with ID:" << clientSessionId;
 
         // The clientServerSession will be initialized by the following method

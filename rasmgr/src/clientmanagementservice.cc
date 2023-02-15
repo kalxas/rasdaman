@@ -24,7 +24,6 @@
 #include "clientcredentials.hh"
 #include "clientmanagementservice.hh"
 
-#include "common/uuid/uuid.hh"
 #include "common/grpc/grpcutils.hh"
 #include "common/exceptions/exception.hh"
 
@@ -58,21 +57,21 @@ grpc::Status ClientManagementService::Connect(
      */
     try
     {
-        std::string out_clientUUID;
+        std::uint32_t out_clientUUID;
 
         //Create the ClientCredentials object used for authentication.
         ClientCredentials credentials(request->username(),
-                                      request->passwordhash());
+                                      request->passwordhash(),
+                                      request->token());
 
         //Try to authenticate the client and assign the client an ID.
         //If the authentication fails, an exception is thrown
-        this->clientManager->connectClient(credentials, request->hostname(), out_clientUUID);
+        out_clientUUID = this->clientManager->connectClient(credentials, request->hostname());
 
-        response->set_clientid(common::UUID::generateIntId());
-        response->set_clientuuid(out_clientUUID);
+        response->set_clientid(out_clientUUID);
         response->set_keepalivetimeout(this->clientManager->getConfig().getClientLifeTime());
 
-        LDEBUG << "Client connected, assigned ID " << response->clientuuid();
+        LDEBUG << "Client connected, assigned ID " << response->clientid();
     }
     catch (common::Exception &ex)
     {
@@ -96,7 +95,7 @@ grpc::Status ClientManagementService::Connect(
 grpc::Status ClientManagementService::Disconnect(
     grpc::ServerContext *, const rasnet::service::DisconnectReq *request, rasnet::service::Void *)
 {
-    const auto &clientId = request->clientuuid();
+    const auto clientId = request->clientid();
     BLDEBUG << "\n";
     LDEBUG << "Disconnect client " << clientId;
     grpc::Status status = grpc::Status::OK;
@@ -117,7 +116,7 @@ grpc::Status ClientManagementService::Disconnect(
     catch (...)
     {
         LERROR << "Failed disconnecting client " << clientId;
-        status = GrpcUtils::convertExceptionToStatus("Failed disconnecting client " + clientId);
+        status = GrpcUtils::convertExceptionToStatus("Failed disconnecting client " + std::to_string(clientId));
     }
     return status;
 }
@@ -125,7 +124,7 @@ grpc::Status ClientManagementService::Disconnect(
 grpc::Status ClientManagementService::OpenDb(
     grpc::ServerContext *, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response)
 {
-    const auto &clientId = request->clientuuid();
+    const auto clientId = request->clientid();
     const auto &dbName = request->databasename();
     BLDEBUG << "\n";
     LDEBUG << "Open DB session for client " << clientId;
@@ -153,7 +152,7 @@ grpc::Status ClientManagementService::OpenDb(
     catch (...)
     {
         LERROR << "Failed opening DB session for client " << clientId;
-        status = GrpcUtils::convertExceptionToStatus("Failed opening DB session for client " + clientId);
+        status = GrpcUtils::convertExceptionToStatus("Failed opening DB session for client " + std::to_string(clientId));
     }
 
     return status;
@@ -162,7 +161,7 @@ grpc::Status ClientManagementService::OpenDb(
 grpc::Status ClientManagementService::CloseDb(
     grpc::ServerContext *, const rasnet::service::CloseDbReq *request, rasnet::service::Void *)
 {
-    const auto &clientId = request->clientuuid();
+    const auto clientId = request->clientid();
     const auto &sessionId = request->dbsessionid();
     BLDEBUG << "\n";
     LDEBUG << "Close database session " << sessionId << " by client " << clientId;
@@ -184,7 +183,7 @@ grpc::Status ClientManagementService::CloseDb(
     catch (...)
     {
         LERROR << "Failed closing client database session for client " << clientId << "";
-        status = GrpcUtils::convertExceptionToStatus("Failed closing client database session for client " + clientId);
+        status = GrpcUtils::convertExceptionToStatus("Failed closing client database session for client " + std::to_string(clientId));
     }
 
     return status;
@@ -193,8 +192,7 @@ grpc::Status ClientManagementService::CloseDb(
 grpc::Status ClientManagementService::KeepAlive(
     grpc::ServerContext *, const rasnet::service::KeepAliveReq *request, rasnet::service::Void *)
 {
-    const auto &clientId = request->clientuuid();
-    BLDEBUG << "\n";
+    const auto clientId = request->clientid();
     LDEBUG << "Process keep alive message from client " << clientId;
     grpc::Status status = grpc::Status::OK;
     try
@@ -214,7 +212,7 @@ grpc::Status ClientManagementService::KeepAlive(
     catch (...)
     {
         LERROR << "Failed processing keep alive message from client " << clientId;
-        status = GrpcUtils::convertExceptionToStatus("Failed processing keep alive message from client " + clientId);
+        status = GrpcUtils::convertExceptionToStatus("Failed processing keep alive message from client " + std::to_string(clientId));
     }
 
     return status;

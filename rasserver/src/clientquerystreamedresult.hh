@@ -42,7 +42,7 @@ public:
      */
     ClientQueryStreamedResult(char* data,
                               std::uint64_t length,
-                              const std::string& clientUUID,
+                              std::int32_t clientUUID,
                               bool* nullMask = nullptr,
                               std::uint64_t nullMaskLength = 0);
 
@@ -56,7 +56,7 @@ public:
      * Returns the client unique identifier used for cleanup. (@see clientmanager.cc)
      * @return A string representing the client uuid.
      */
-    const std::string &getClientUUID() const;
+    std::int32_t getClientUUID() const;
 
     /**
      * Computes the remaining bytes left to be served from the array.
@@ -78,7 +78,7 @@ public:
 private:
     /// The client uuid which requested a char array to be split into chunks.
     /// Used for cleanup in @see clientmanager.cc
-    std::string clientUUID;
+    std::int32_t clientUUID;
     
     /// The raw data pointer.
     std::unique_ptr<char[]> data;

@@ -87,8 +87,7 @@ class Connection(object):
         the session.
         """
         self._stop_keep_alive()
-        rasmgr_disconnect(self.stub, self.session.clientUUID,
-                          self.session.clientId)
+        rasmgr_disconnect(self.stub, self.session.clientId)
         self.session = None
 
     def connect(self):
@@ -111,7 +110,7 @@ class Connection(object):
                 self._keep_alive_thread = StoppableTimeoutThread(
                     rasmgr_keep_alive,
                     self.session.keepAliveTimeout / 2000,
-                    self.stub, self.session.clientUUID)
+                    self.stub, self.session.clientId)
                 self._keep_alive_thread.daemon = True
                 self._keep_alive_thread.start()
         else:
@@ -173,10 +172,9 @@ class Database(object):
         same machine.
         """
         self.rasmgr_db = rasmgr_open_db(self.connection.stub,
-                                        self.connection.session.clientUUID,
                                         self.connection.session.clientId,
                                         self.name)
-        if self.rasmgr_db.dbSessionId == self.connection.session.clientUUID:
+        if self.rasmgr_db.dbSessionId == self.connection.session.clientId:
             self.connection._stop_keep_alive()
         options = [
             ('grpc.max_send_message_length', 100 * 1024 * 1024),
@@ -205,7 +203,6 @@ class Database(object):
 
         # Trying to close connection to rasmgr
         rasmgr_close_db(self.connection.stub,
-                        self.connection.session.clientUUID,
                         self.connection.session.clientId,
                         self.rasmgr_db.dbSessionId)
 
@@ -253,7 +250,7 @@ class Database(object):
                 self._keep_alive_thread = StoppableTimeoutThread(
                     rassrvr_keep_alive,
                     self.connection.session.keepAliveTimeout / 2000,
-                    self.stub, self.connection.session.clientUUID,
+                    self.stub, self.connection.session.clientId,
                     self.rasmgr_db.dbSessionId)
 
                 self._keep_alive_thread.daemon = True

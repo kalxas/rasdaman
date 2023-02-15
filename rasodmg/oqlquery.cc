@@ -247,13 +247,16 @@ r_OQL_Query::startsWith(const char *s, const char *prefix) const
     while (s[0] != '\0' && prefix[0] != '\0')
     {
         if (isspace(s[0]))
+        {
             ++s;
+        }
         else
         {
             assert(islower(prefix[0]));
-
             if (tolower(s[0]) != prefix[0])
+            {
                 return false;
+            }
             else
             {
                 ++s;
@@ -262,6 +265,39 @@ r_OQL_Query::startsWith(const char *s, const char *prefix) const
         }
     }
     return true;
+}
+
+const char *r_OQL_Query::skipComments(const char *s) const
+{
+    assert(s);
+    bool foundComment = true;
+    size_t size = strlen(s);
+    while (size > 0 && foundComment)
+    {
+        foundComment = false;
+        
+        // skip whitespace
+        while (size > 0 && isspace(*s))
+        {
+            ++s;
+            --size;
+        }
+        
+        // if it's a comment start
+        if (size > 2 && s[0] == '-' && s[1] == '-')
+        {
+            foundComment = true;
+            // skip everything until the next '\n' or end of string
+            while (size > 0 && *s != '\n')
+            {
+                ++s;
+                --size;
+            }
+            // the '\n' is not skipped here, but will be in the next iteration
+            // as part of the "skip whitespace" step.
+        }
+    }
+    return s;
 }
 
 int
@@ -277,13 +313,41 @@ r_OQL_Query::is_retrieval_query() const
 
     if (parameterizedQueryString)
     {
-        // convert string to upper case
-        std::string q(parameterizedQueryString);
-        std::transform(q.begin(), q.end(), q.begin(), ::tolower);
-
-        // it is retrieval if it's a SELECT but not SELECT INTO expression
-        returnValue = (startsWith(q.c_str(), "select") && q.find(" into ") == std::string::npos)
-                      || startsWith(q.c_str(), "list") || startsWith(q.c_str(), "define");
+        const char *q = skipComments(parameterizedQueryString);
+        
+        if (startsWith(q, "select"))
+        {
+            // it's retrieval if it does not contain an into keyword
+            auto size = strlen(q);
+            while (size > 5)
+            {
+                if (isspace((unsigned char)q[0]) &&
+                    tolower((unsigned char)q[1]) == 'i' &&
+                    tolower((unsigned char)q[2]) == 'n' &&
+                    tolower((unsigned char)q[3]) == 't' &&
+                    tolower((unsigned char)q[4]) == 'o' &&
+                    isspace((unsigned char)q[5]))
+                {
+                    return false; // found an " into "
+                }
+                else if (q[0] == '-' && q[1] == '-')
+                {
+                    q = skipComments(q);
+                    size = strlen(q);
+                }
+                else
+                {
+                    --size;
+                    ++q;
+                }
+            }
+            // no " into " found -> it's a standard SELECT query
+            return true;
+        }
+        else
+        {
+            return startsWith(q, "list") || startsWith(q, "define");
+        }
     }
 
     return returnValue;
@@ -293,7 +357,8 @@ r_OQL_Query::is_retrieval_query() const
 int
 r_OQL_Query::is_insert_query() const
 {
-    return startsWith(parameterizedQueryString, "insert");
+    const char *q = skipComments(parameterizedQueryString);
+    return startsWith(q, "insert");
 }
 
 void
