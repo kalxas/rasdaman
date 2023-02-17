@@ -38,7 +38,8 @@ public interface RasGlobalDefs {
     
     // rasj version string (similar to executables startup message) -- can't we get rasdaman version info automatically?
     // static final String RASJ_VERSION = "rasj: rasdaman Java API. rasdaman v5.1revC -- generated Mit Jun 25 10:46:59 CEST 2003.";
-    static final String RASJ_VERSION = "rasj: rasdaman Java API. rasdaman " + Version.VERSION + " -- generated " + Version.DATE + ".";
+    //static final String RASJ_VERSION = "rasj: rasdaman Java API. rasdaman " + Version.VERSION + " -- generated " + Version.DATE + ".";
+    static final String RASJ_VERSION = "rasj: rasdaman Java API.";
 
     // fastscale predefines; FIXME: should be used dynamically! -- PB 2003-jun-25
     static final int NUM_FAST_PRE_SCALE = 8;

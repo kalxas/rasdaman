@@ -106,8 +106,8 @@ get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
 check_process()
 {
     # get exit code and pid of the last executed command
-    local exit_code=$?
-    local pid=$!
+    exit_code=$?
+    pid=$!
     # wait 1 second for the process to establish
     sleep 1
 
@@ -127,8 +127,8 @@ get_property_value()
 {
     # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
     # $2 is the key of a property in this file which needs to get the value of this key.
-    local properties_file="$1"
-    local key="$2"
+    properties_file="$1"
+    key="$2"
     # only grep key=value line not commented line (e.g: #key=value)
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
 }
@@ -137,7 +137,7 @@ get_property_value()
 # $1: the port to check
 check_port_available()
 {
-    local port="$1"
+    port="$1"
     if type fuser > /dev/null 2>&1; then
         fuser -s -n tcp "$port" > /dev/null 2>&1
     elif type lsof > /dev/null 2>&1; then
@@ -157,12 +157,15 @@ set_rasmgr_port()
       ''|*[!0-9]*)  error "Invalid port specified: $1; expected a positive number <= 65535.";;
       *)            RASMGR_PORT="$1";;
     esac
-    [ "$RASMGR_PORT" -gt 0 -a "$RASMGR_PORT" -lt 65535 ] || \
-        error "Invalid port specified: $1; expected a positive number <= 65535."
+    if [ "$RASMGR_PORT" -gt 0 ] && [ "$RASMGR_PORT" -lt 65535 ]; then
+      : # all good
+    else
+      error "Invalid port specified: $1; expected a positive number <= 65535."
+    fi
 }
 
 get_rasmgr_process() {
-    local prefix="^$USER"
+    prefix="^$USER"
     [ -z "$USER" ] && prefix="" # USER is empty in docker, so above would fail
     ps -Ao user,pid,args | grep -E "$prefix +[[:digit:]]+ +$rasmgr_bin --port $RASMGR_PORT"
 }
@@ -171,26 +174,46 @@ get_rasmgr_process() {
 
 # Start embedded tomcat from values in properties file
 # $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
-# $2: the web application name (e.g: petascope, secore).
-# $3: the war file of application (e.g: rasdaman.war, def.war).
+# $2: the web application name (e.g: petascope).
+# $3: the war file of application (e.g: rasdaman.war).
 start_embedded()
 {
-    local props_path="$1"
-    local app_name="$2"
-    local war_file_name="$3"
-    local war_file="$war_path/$war_file_name"
+    props_path="$1"
+    app_name="$2"
+    war_file_name="$3"
+    war_file="$war_path/$war_file_name"
 
     if [ -f "$props_path" ]; then
         # check if java-server is embedded/external
         java_server=$(get_property_value "$props_path" "java_server")
         # if java-server is embedded and the war file exists then attempt starting it
-        if [ "$java_server" = "embedded" -a -f "$war_file" ]; then
+        if [ "$java_server" = "embedded" ] && [ -f "$war_file" ]; then
             # Get the embedded port for server
             server_port=$(get_property_value "$props_path" "server.port")
             logn "  starting $app_name on port $server_port... "
             check_port_available "$server_port"
             if [ $? -ne 0 ]; then
-                nohup java $JAVA_OPTS -jar "$war_file" >> "$app_name.log" 2>&1 &
+                log_file="$(get_property_value "$props_path" "log4j.appender.rollingFile.rollingPolicy.ActiveFileName")"
+                if [ -z "$log_file" ]; then
+                    log_file="$(get_property_value "$props_path" "log4j.appender.rollingFile.File")"
+                fi
+                nohup java $JAVA_OPTS -jar "$war_file" >> "$log_file" 2>&1 &
+                if [ -n "$log_file" ]; then
+                    if type timeout > /dev/null 2>&1; then
+                        printf "initializing... "
+                        # wait until a string appears in the petascope.log;
+                        # main solution is from https://superuser.com/a/900134,
+                        # plus we added the timeout of 60 seconds in case of error,
+                        # this way it is not necessary to also grep for error strings
+                        ( tail -F -n0 --quiet "$log_file" 2> /dev/null & ) | timeout 60 grep -q "Started ApplicationMain"
+                        if [ $? -eq 124 ]; then
+                            # the grep timed out
+                            printf "warning: initialization may have failed, check %s... " "$log_file"
+                        fi
+                    fi
+                else
+                    printf "warning: could not determine petascope.log path from %s... " "$props_path"
+                fi
                 check_process "$app_name"
             else
                 echo "failed, port $server_port is occupied."

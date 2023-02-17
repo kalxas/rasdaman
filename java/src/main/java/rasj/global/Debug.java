@@ -53,7 +53,8 @@ rasdaman GmbH.
 
 package rasj.global;
 
-import java.lang.System;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Methods of this static class perform debugging output into
@@ -197,16 +198,10 @@ public class Debug {
     * writes messages to the "standard" error log stream, increments indentation
     **/
     private static void enter(int level, String what) {
-        StringBuffer s = new StringBuffer(100);     // to hold indent prefix
-
         if (level <= debugThreshold) {
             indentLevel++;              // indent one more to the right
-            s.append("rasj[" + Integer.toString(level) + "] ");     // document log level
-            for (int i = 0; i < indentLevel; i++) {
-                s.append(INDENT);
-            }
-            s.append(what);
-            System.err.println(s);
+            logPrefix(level);
+            System.err.println(what);
         }
     }
 
@@ -215,15 +210,9 @@ public class Debug {
      * writes messages to the "standard" error log stream, decrements indentation
      **/
     static void leave(int level, String what) {
-        StringBuffer s = new StringBuffer(100);     // to hold indent prefix
-
         if (level <= debugThreshold) {
-            s.append("rasj[" + Integer.toString(level) + "] ");     // document log level
-            for (int i = 0; i < indentLevel; i++) {
-                s.append(INDENT);
-            }
-            s.append(what);
-            System.err.println(s);
+            logPrefix(level);
+            System.err.println(what);
             indentLevel--;              // indent one less, go left
         }
     }
@@ -232,15 +221,29 @@ public class Debug {
     * writes messages to the "standard" error log stream; indentation unchanged
     **/
     static void talk(int level, String what) {
-        StringBuffer s = new StringBuffer(100);     // to hold indent prefix
-
         if (level <= debugThreshold) {
-            s.append("rasj[" + Integer.toString(level) + "] ");     // document log level
-            for (int i = 0; i < indentLevel; i++) {
-                s.append(INDENT);
-            }
-            s.append(what);
-            System.err.println(s);
+            logPrefix(level);
+            System.err.println(what);
         }
+    }
+    
+    private static void logPrefix(int level) {
+        StringBuffer s = new StringBuffer(41 + indentLevel);
+        s.append("rasj ");
+        switch (level)
+        {
+          case CRITICAL_LEVEL: s.append("ERROR"); break;
+          case WARNING_LEVEL:  s.append(" WARN"); break;
+          case SPARSE_LEVEL:   s.append(" INFO"); break;
+          case VERBOSE_LEVEL:  s.append("DEBUG"); break;
+          default: break;
+        }
+        s.append(" [");
+        s.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date()));
+        s.append("] ");
+        for (int i = 0; i < indentLevel; i++) {
+            s.append(INDENT);
+        }
+        System.err.print(s);
     }
 }
