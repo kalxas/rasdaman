@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 
 #include "raslib/mintervaltype.hh"
+#include <ostream>
 
 r_Minterval_Type::r_Minterval_Type(const r_Minterval_Type &oldObj)
     : r_Type(oldObj)

@@ -44,7 +44,6 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "raslib/type.hh"
 #include "raslib/mddtypes.hh"
-#include "raslib/storageman.hh"
 #include <string>
 
 
@@ -142,12 +141,6 @@ public:
     /// set conversion format, used only by r_Conv_GDAL at the moment
     virtual void set_format(const std::string& formatArg);
 
-    /// set storage handler, default is malloc/free
-    void set_storage_handler(const r_Storage_Man& newStore);
-
-    /// get storage handler, default is malloc/free
-    const r_Storage_Man& get_storage_handler() const;
-
     /// release the resulting object
     void releaseDest();
 
@@ -191,9 +184,6 @@ protected:
 
     /// new-style format params
     r_Format_Params formatParams;
-
-    /// storage manager
-    r_Storage_Man mystore;
 
     // format identifier, used only by the GDAL converter
     std::string format;

@@ -33,12 +33,13 @@ rasdaman GmbH.
 #include "common/grpc/messages/health_service.grpc.pb.h"
 
 #include <memory>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/thread.hpp>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
+
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
-class TurboQueryResult;
 class r_Ref_Any;
 template <typename T>
 class r_Ref;
@@ -104,7 +105,7 @@ private:
     // rasmgr service
     std::shared_ptr<rasnet::service::RasmgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasMgrService{false}; /*! Flag used to indicate if the service was initialized */
-    boost::shared_mutex rasMgrServiceMtx;
+    std::mutex rasMgrServiceMtx;
     std::shared_ptr<common::HealthService::Stub> rasmgrHealthService;
     //
     std::shared_ptr<rasnet::service::RasmgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed = true);
@@ -115,7 +116,7 @@ private:
     // rasserver service
     std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
     bool initializedRasServerService{false}; /*! Flag used to indicate if the service was initialized */
-    boost::shared_mutex rasServerServiceMtx;
+    std::mutex rasServerServiceMtx;
     std::shared_ptr<common::HealthService::Stub> rasserverHealthService;
     //
     std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService(bool throwIfConnectionFailed = true);
@@ -127,20 +128,20 @@ private:
     int64_t keepAliveTimeout{};
 
     // rasmgr
-    std::unique_ptr<boost::thread> rasMgrKeepAliveManagementThread;
-    boost::mutex rasmgrKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
+    std::unique_ptr<std::thread> rasMgrKeepAliveManagementThread;
+    std::mutex rasmgrKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
     bool isRasmgrKeepAliveRunning{false}; /*! Flag used to stop the worker thread */
-    boost::condition_variable isRasmgrKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
+    std::condition_variable isRasmgrKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
     //
     void startRasMgrKeepAlive();
     void stopRasMgrKeepAlive();
     void clientRasMgrKeepAliveRunner();
 
     // rasserver
-    std::unique_ptr<boost::thread> rasServerKeepAliveManagementThread;
-    boost::mutex rasserverKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
+    std::unique_ptr<std::thread> rasServerKeepAliveManagementThread;
+    std::mutex rasserverKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
     bool isRasserverKeepAliveRunning{false}; /*! Flag used to stop the worker thread */
-    boost::condition_variable isRasserverKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
+    std::condition_variable isRasserverKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
     //
     void startRasServerKeepAlive();
     void stopRasServerKeepAlive();

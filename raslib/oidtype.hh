@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: oidtype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Oid_Type
- *
- * COMMENTS:
- *
-*/
 
 #ifndef _D_OID_TYPE_
 #define _D_OID_TYPE_
@@ -36,8 +27,11 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class represents the oid type in the ODMG conformant
   representation of the RasDaMan type system.
 */

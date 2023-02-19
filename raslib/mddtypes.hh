@@ -20,7 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
+/*
  * INCLUDE: mddtypes.hh
  *
  * MODULE:  raslib
@@ -31,29 +31,29 @@ rasdaman GmbH.
  * COMMENTS:
  * - always append new data formats to remain compatible with earlier compiled code
  *
-*/
+ */
 
 #ifndef _D_MDDTYPES_
 #define _D_MDDTYPES_
 
-#include <ostream>
+#include <iosfwd>
 #include <cstdint>
 
 /// number of bytes in an tile or mdd or type.
 using r_Bytes = size_t;
 
 /// for conversion from pointers to integer variables on 64bit arch.
-using r_Ptr = unsigned long;
+using r_Ptr = std::ptrdiff_t;
 
 /// number of cells in an mdd object or tile.
 using r_Area = std::uint64_t;
 
 /// for axis indexing, e.g. lower/upper bounds of r_Sinterval, projection value
 /// and coordinate values of r_Point.
-using r_Range = long long;
+using r_Range = std::int64_t;
 
 /// number of dimensions in r_Point and r_Minterval.
-using r_Dimension = unsigned int;
+using r_Dimension = std::uint32_t;
 
 /**
   \latexonly

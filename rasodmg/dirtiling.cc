@@ -332,7 +332,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
             {
                 // No unspecified dimensions --- create block cross sections
                 for (r_Dimension i = 0; i < dimension; i++)
-                    partition << r_Sinterval(0ll, tile[i].high() - tile[i].low());
+                    partition << r_Sinterval(0l, tile[i].high() - tile[i].low());
             }
             else
             {
@@ -348,7 +348,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
 
                 // Create specification
                 for (r_Dimension i = 0; i < dimension; i++)
-                    partition << r_Sinterval(0ll, undef_dim[i] ? edgesize - 1 : tile[i].high() - tile[i].low());
+                    partition << r_Sinterval(0l, undef_dim[i] ? edgesize - 1 : tile[i].high() - tile[i].low());
             }
 
             LRDEBUG("(DirTiling::compute_tiles(): Tile size = " << get_tile_size() << " Specs = " << partition)

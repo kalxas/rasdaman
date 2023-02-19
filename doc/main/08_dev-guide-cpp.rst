@@ -40,12 +40,12 @@ Rasdaman Documentation Set
 
 This manual should be read in conjunction with the complete rasdaman
 documentation set which this guide is part of. The documentation set in
-its completeness covers all important infor­mat­ion needed to work with
+its completeness covers all important information needed to work with
 the rasdaman system, such as programming and query access to databases,
 guidance to utilities such as *raswct*, release notes, and additional
 information on the rasdaman wiki.
 
-The rasdaman Documentation Set consists of the following docu­ments:
+The rasdaman Documentation Set consists of the following documents:
 
 -  Installation and Administration Guide
 -  Query Language Guide
@@ -76,8 +76,8 @@ Application Examples
 ********************
 
 The following sections contain three examples of using the rasdaman API.
-Every example contains a code fragment including variable decla­rations
-and definitions, database open/close and transaction be­gin/commit
+Every example contains a code fragment including variable declarations
+and definitions, database open/close and transaction begin/commit
 statements. The numbers at the beginning of the code lines are used as
 references in the explaining text. Code segments which are in more than
 one example are explained where they occur first. For more clarity,
@@ -99,8 +99,8 @@ Basic Application Program Structure
 In order to access data in a database, variables have to be first
 defined and initialized, the database has to be opened and a transaction
 started. In the end, the transaction has to be committed and the
-data­base closed. Hence, an application basically consists of the
-following com­ponents (sample C++ code interspersed as far as rasdaman
+database closed. Hence, an application basically consists of the
+following components (sample C++ code interspersed as far as rasdaman
 access is concerned):
 
 -  Declaration and definition of database and transaction variables and
@@ -115,32 +115,32 @@ access is concerned):
 
 -  Set user identification. ::
 
-        database.set_useridentification( "me", "myPassword" );
+       database.set_useridentification( "me", "myPassword" );
 
 -  Open the database. ::
 
-        database.open( "DatabaseName" );
+       database.open( "DatabaseName" );
 
 -  Begin the transaction. ::
 
-        transaction.begin();
+       transaction.begin();
 
 -  Work with the database.
 
 -  Commit the transaction. ::
 
-        transaction.commit();
+       transaction.commit();
 
 -  Close the database. ::
 
-        database.close();
+       database.close();
 
 **Synchronous query execution**
 
 When a query is sent to the rasdaman server it will be executed in
 completeness - a running query cannot be aborted [1]_. Care should be
-taken therefore not to start queries requir­ing resources beyond the
-capability of the server hardware and soft­ware environment, as the
+taken therefore not to start queries requiring resources beyond the
+capability of the server hardware and software environment, as the
 rasdaman service may be blocked for an indefinite time period.
 
 Insertion of MDD
@@ -153,10 +153,10 @@ zero, and the second one by way of some assumed initialization function.
 (1)  The variable declaration part includes one instance of type
      ``r_Database`` to represent the database and one instance of type
      ``r_Transaction`` to serve for the transaction handling. The
-     do­main of type ``r_Minterval`` is used for specifying the spatial
-     do­main of the images. In order to hold a persistent image,
+     domain of type ``r_Minterval`` is used for specifying the spatial
+     domain of the images. In order to hold a persistent image,
      image has to be declared as an ``r_Ref`` pointer on the ``r_Marray``
-     struc­ture. The same applies for ``image_set`` which is an ``r_Ref``
+     structure. The same applies for ``image_set`` which is an ``r_Ref``
      to the set of images.
 
      ::
@@ -174,7 +174,7 @@ zero, and the second one by way of some assumed initialization function.
          database.set_servername( "MyServer" );
          database.set_useridentification( "me", "myPassword" );
 
-(3)  An open message with the database name is sent to the data­base
+(3)  An open message with the database name is sent to the database
      object. ::
 
          database.open( "MyDatabase" );
@@ -200,10 +200,10 @@ zero, and the second one by way of some assumed initialization function.
 
          database.set_object_name(*image_set, "MyCollection");
 
-(7)  The spatial domain ``domain`` of the first is initial­ized with
+(7)  The spatial domain ``domain`` of the first is initialized with
      ``[1:91,1:91]``. For doing so, a temporary two-dimensional object
      of type ``r_Minterval`` is filled with ``r_Sintervals`` specifying
-     lower and upper bounds per dimension and then gets as­signed to
+     lower and upper bounds per dimension and then gets assigned to
      ``domain``.
 
      ::
@@ -212,7 +212,7 @@ zero, and the second one by way of some assumed initialization function.
                                  << r_Sinterval( 0l, 9l );
 
 (8)  Memory for a persistent object of type ``r_Marray`` is allocated
-     us­ing the new operator of ``r_Ref``. Again, the new operator gets
+     using the new operator of ``r_Ref``. Again, the new operator gets
      the current database and the type name of the MDD object
      (creation of types is described in :ref:`sec-rasql-typedef`).
      The constructor of ``r_Marray`` gets the value
@@ -229,7 +229,7 @@ zero, and the second one by way of some assumed initialization function.
          image_set->insert_element( image );
 
 (10) The second image is created with a function pointer as second
-     ar­gument for the ``r_Marray`` constructor. The function must be
+     argument for the ``r_Marray`` constructor. The function must be
      of type ``r_ULong (*initFunction)(const r_Point& pt)``. The
      function is invoked for each cell of the MDD with the current
      coordinates of the cell passed as the pt argument. The result
@@ -248,7 +248,7 @@ zero, and the second one by way of some assumed initialization function.
          image_set->insert_element( image );
 
 (12) The transaction is committed. At this time, the image set is
-     cre­ated in the database and the images are inserted. The data
+     created in the database and the images are inserted. The data
      is made persistent and becomes visible to other transactions.
      The transient memory used to store the image on client side is
      freed and pointers to these objects (``image_set`` and ``image``)
@@ -281,8 +281,8 @@ This example demonstrates retrieval of a set containing MDD objects as
 elements and iteration through the retrieved result set using raslib.
 
 (1) An iteration variable named ``iterator`` is defined. It needs the
-    ele­ment type of the collection being iterated as template
-    argu­ment.
+    element type of the collection being iterated as template
+    argument.
 
     ::
 
@@ -345,10 +345,10 @@ elements and iteration through the retrieved result set using raslib.
 Invocation of RasML statements
 ==============================
 
-This example shows the creation and invocation of RasML queries us­ing
+This example shows the creation and invocation of RasML queries using
 the raslib classes:
 
-(1) Two domains, a collection name, and a threshold value are de­fined
+(1) Two domains, a collection name, and a threshold value are defined
     to use them at creation stage of the RasML query.
 
     ::
@@ -403,7 +403,7 @@ the raslib classes:
 
 (5) Finally, the query is executed using the global function
     ``r_oql_execute``. The query result is returned in the
-    call-by-refer­ence parameter ``image_set``. As query results are
+    call-by-reference parameter ``image_set``. As query results are
     transient, the data of the whole result is sent to the client at
     this point.
 
@@ -428,8 +428,8 @@ Overview
 ========
 
 The raslib classes represent the rasdaman programming interface. It
-relies on the ODMG standard with some extensions sup­porting a smooth
-integration of the rasdaman-specific array struc­tures into the
+relies on the ODMG standard with some extensions supporting a smooth
+integration of the rasdaman-specific array structures into the
 conventional C++ programming model.
 
 raslib classes are categorized in
@@ -443,7 +443,7 @@ raslib classes are categorized in
 
 -  *Schema Access Classes* to get runtime type information,
 
--  *Stor­age Layout Classes* for handling the storage structure, and
+-  *Storage Layout Classes* for handling the storage structure, and
 
 -  *Error Classes* for error handling.
 
@@ -461,8 +461,8 @@ Type Classes
 
 The types ``r_Long``, ``r_ULong``, ``r_Short``, ``r_UShort``, ``r_Octet``, ``r_Char``,
 ``r_Boolean``, ``r_Float``, and ``r_Double`` are atomic, serving as base types
-for MDD objects (:numref:`fig-primitive-types`). Com­posite types built from
-atomic (primitive) or other complex (struc­tured) types are built using the
+for MDD objects (:numref:`fig-primitive-types`). Composite types built from
+atomic (primitive) or other complex (structured) types are built using the
 record (struct) constructor.
 
 Complex numbers, while by nature equivalent to a record structure
@@ -536,9 +536,10 @@ Class ``r_Sinterval``
 ---------------------
 
 Class ``r_Sinterval`` represents a one-dimensional interval with lower and
-upper bound. Both bounds can either be fixed or variable (indi­cated by
+upper bound. Both bounds can either be fixed or variable (indicated by
 an asterisk '\*'). Operations on intervals are defined following
-conventional interval arithmetics.
+conventional interval arithmetics. Optionally each interval can have an axis
+axis name, e.g. ``"x"``.
 
 **Example**
 
@@ -560,8 +561,7 @@ class is implemented through an array of intervals of type ``r_Sinterval``.
 
 ``r_Minterval intervalname("[0:100, 0:300]");``
 
-The object generated by the above expression yields the following
-output:
+The object generated by the above expression yields the following output:
 
 ::
 
@@ -574,14 +574,14 @@ Class ``r_OId``
 ---------------
 
 This handles object identifiers. Every array has a unique object
-identi­fier it can be addressed with.
+identifier it can be addressed with.
 
 Class ``r_Object``
 ------------------
 
 ``r_Object`` is an abstract class. Instances can only be generated from the
 non abstract classes inheriting from this class, that is ``r_Set``,
-``r_GMarray`` and ``r_Marray<T>``. All these subclasses are capable of hav­ing
+``r_GMarray`` and ``r_Marray<T>``. All these subclasses are capable of having
 persistent as well as transient instances and therefore are called
 persistent capable classes.
 
@@ -599,7 +599,7 @@ operator:
     of the new object.
 
 (2) To generate persistent instances one also has to specify the
-    data­base the object is to be inserted in.
+    database the object is to be inserted in.
 
 (3) is the new operator for transient objects carrying type information.
 
@@ -648,7 +648,7 @@ Class ``r_Set``
 ---------------
 
 The class implements a set container. It inherits most of the
-function­ality from ``r_Collection``. The set can not have any duplicates
+functionality from ``r_Collection``. The set can not have any duplicates
 and it is not ordered. The method
 
 ::
@@ -720,7 +720,7 @@ must be indicated. Further optional parameters are
 -  password (default: ``"rasguest"``).
 
 A database object must be instantiated and opened before starting any
-transaction on the database, and closed after end­ing these transactions
+transaction on the database, and closed after ending these transactions
 (with a commit or abort).
 
 **Which Server to Contact?**
@@ -750,14 +750,14 @@ Class ``r_Transaction``
 -----------------------
 
 To use a transaction, an object of type ``r_Transaction`` has to be
-in­stantiated with an optional ``r_Database`` object as an argument (*not*
+instantiated with an optional ``r_Database`` object as an argument (*not*
 thread-safe if the database parameter is not specified).
 Transactions can be started either in read/write or
 read-only mode, committed, aborted, and checkpointed. It is important to
 note that all access, creation, modification, and deletion of persistent
 objects must be done within a transaction. In order to achieve maximal
-performance, read-only transactions should be used when­ever possible,
-i.e., when no update operations occur within this trans­action. Right
+performance, read-only transactions should be used whenever possible,
+i.e., when no update operations occur within this transaction. Right
 now checkpointing is not supported.
 
 ::
@@ -1152,8 +1152,8 @@ appropriate for objects which are accessed through selection of linear
 ranges along only part of the directions of the domain.
 
 The storage format indicates how tiles of an object are stored in the
-database. This addresses both encoding and compression. Some en­coding
-always has to be chosen; for compression, various alter­nat­ives are
+database. This addresses both encoding and compression. Some encoding
+always has to be chosen; for compression, various alternatives are
 available, ranging from uncompressed storage over losslessly compressed
 to lossy compressed data.
 
@@ -1308,7 +1308,7 @@ constructor :
 
 ``ts`` specifies the tile size to be used, whereas strat is the tile size
 limitation strategy. The *areas of interest* algorithm splits the
-multi­dimensional array into tiles aligned with the areas of interest so
+multidimensional array into tiles aligned with the areas of interest so
 that future accesses to those areas result in no cells outside the area
 being loaded from disk. In order to perform this, the algorithm first
 calculates a maximum partition of the space using the *directional
@@ -1405,15 +1405,15 @@ Class ``r_Convertor`` and Subclasses
 ------------------------------------
 
 The storage format indicator specifies the compression method used to
-compress / decompress tiles written to / retrieved from the data­base.
+compress / decompress tiles written to / retrieved from the database.
 
 The transfer format indicator specifies the compression method used to
 compress / decompress tiles when transferred between client and server.
 
 By default storage and transfer format is ``r_Array`` which means encoding
-in the server's main memory format, without any comp­ress­ion. The
+in the server's main memory format, without any compression. The
 ``r_Database`` function ``set_transfer_format()`` allows to change transfer
-format and compression, for both directions uni­formly: ::
+format and compression, for both directions uniformly: ::
 
     void set_transfer_format( r_Data_Format format,
                               const char *formatParams=NULL )
@@ -1502,7 +1502,7 @@ type enum ``r_Data_Format`` in module raslib, see :numref:`table-storage-fmts`.
 
 -  Almost all of the above formats have further parameters which allow
    fine tuning. They are passed in a string as comma-separated
-   ``"name=value"`` pairs. See the ``r_Convertor`` class HTML documentat­ion
+   ``"name=value"`` pairs. See the ``r_Convertor`` class HTML documentation
    for the admissible names and values.
 
 -  Moreover, a white paper is available from rasdaman GmbH if you really
@@ -1644,8 +1644,8 @@ Applications always maintain raster data and descriptive alphanumeric
 data. The latter often are called metadata - a term we adopt for the
 purpose of this discussion. Actually, all over the world a lot of effort
 already has been put into metadata modelling, and many database
-structures and metadata applications have been developed success­fully.
-rasdaman does not reinvent the wheel: metadata remain un­changed in
+structures and metadata applications have been developed successfully.
+rasdaman does not reinvent the wheel: metadata remain unchanged in
 their (relational or object-oriented) database; they are not touched by
 rasdaman, but remain under the sole control of the underlying
 conventional DBMS (in the rasdaman documentation also referred to as
@@ -1707,7 +1707,7 @@ The object identifier of a rasdaman object is returned by: ::
     r_OId& r_Object::get_oid()
 
 The object identifier may be used as a reference in an underlying
-data­base.
+database.
 
 To be used as a reference in the underlying database the object
 identifier of a rasdaman object is stored as a member in an object of
@@ -1745,174 +1745,76 @@ Compilation and Linkage of Client Programs
 Compilation
 ===========
 
-C++ applications using rasdaman have to include the header file
-``rasdaman.hh`` which resides in ``$RMANHOME/include``. Technically, ``rasdaman.hh``
-includes further header files taken from the sub­direct­ories of
+C++ applications using rasdaman should usually include the header file
+``rasdaman.hh`` which resides in ``$RMANHOME/include``. Technically,
+``rasdaman.hh`` includes further header files taken from the subdirectories of
 ``$RMANHOME/include``.
 
-The class library makes intensive use of templates. As templates are
-handled differently by the various compilers, individual measures have
-to be taken. To this end, the header files are instrumented to recognise
-the variable ``OSTYPE`` indicating the system platform. For example, setting
-OSTYPE to ``linux-gnu`` (case-sensitive!) indicates a Linux/Gnu
-environ­ment, whereas the value ``solaris`` indicates a SUN/ Solaris
-platform. You should contact your dealer to find out which plat­forms
-are supported.
-
-While in the deliverable sources (including the Makefiles provided)
-platform issues are dealt with, it nevertheless is important to
-under­stand the particularities. Therefore, some considerations follow
-next. If in doubt, you may want to contact the hotline.
-
-**Gnu**
-
-With the Gnu C++ compiler, the good way to handle templates is by
-early template instantiation using the compile flag
-``-DEARLY_TEMPLATE``. A template instantiation source file,
+The class library makes intensive use of templates. With the Gnu C++ compiler,
+the good way to handle templates is by early template instantiation using the
+compile flag ``-DEARLY_TEMPLATE``. A template instantiation source file,
 ``template_inst.hh``, is provided in the ``$RMANHOME/include/raslib``
 directory; if the ``OSTYPE`` variable is set to ``linux-gnu``, then this
 instantiation file will be included automatically.
-
-**Microsoft**
-
-With the Microsoft Visual C++ compiler, situation is similar as with Gnu
-above: it also needs early template instantiation.
-
-**Solaris**
-
-With the SUN-provided C++ compiler under Solaris, template instantiation
-at compile time is done by looking at the ``.cc`` files in the
-``$RMANHOME/include subdirectories``.
 
 Linkage
 =======
 
 For the linkage of an executable several libraries are needed. Those
-delivered with rasdaman are located in the ``$RMANHOME/lib directory``.
-
-One common problem are the dynamic libraries needed, such as ``libXmu.so``.
-Usually there are different versions around. The version needed by a
-rasdaman application can be found out with the Unix ``ldd`` command which,
-for example, states:
-
-.. code-block:: text
-
-    libtiff.so.3 => /usr/lib/libtiff.so.3 (0x4001b000)
-    libstdc++-libc6.1-2.so.3 => not found
-    libXmu.so.6 => /usr/X11R6/lib/libXmu.so.6 (0x4005e000)
-    libXt.so.6 => /usr/X11R6/lib/libXt.so.6 (0x40071000)
-    libX11.so.6 => /usr/X11R6/lib/libX11.so.6 (0x400bc000)
-    libz.so.1 => /usr/lib/libz.so.1 (0x40160000)
-    libm.so.6 => /lib/libm.so.6 (0x4016f000)
-    libc.so.6 => /lib/libc.so.6 (0x4018c000)
-    libjpeg.so.62 => /usr/lib/libjpeg.so.62 (0x40281000)
-    libSM.so.6 => /usr/X11R6/lib/libSM.so.6 (0x402a0000)
-    libICE.so.6 => /usr/X11R6/lib/libICE.so.6 (0x402ab000)
-    libXext.so.6 => /usr/X11R6/lib/libXext.so.6 (0x402c2000)
-    /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
-
-As can be seen in the second line, ``libstdc++-libc6.1-2.so.3`` cannot be
-found where­as all other references to dynamic libraries can be
-resolved. Sometimes a straightforward link to an older version helps,
-such as
+delivered with rasdaman are located in the ``$RMANHOME/lib`` directory, and
+they can be linked with
 
 .. code-block:: shell
+   -L/opt/rasdaman/lib     \
+   -lrasodmg               \
+   -lraslib                \
+   -lclientcomm            \
+   -lrasodmg               \
+   -lraslib                \
+   -lrasnet                \
+   -lcommon_grpc           \
+   -lcommon_exceptions     \
+   -lcommon_network        \
+   -lcommon_logging        \
+   -lcommon_string         \
+   -leasyloggingpp         \
+   -lmymalloc_cln          \
+   -lgrpc++_unsecure       \
+   -lgrpc_unsecure         \
+   -lprotobuf
 
-    ln -s libstdc++-libc6.1-2.so.2 $RMANHOME/lib/libstdc++-libc6.1-2.so.3
+ In addition several externally provided libraries need to be linked:
+ ``-lz -lpthread -ldl``.
 
-Obviously very much care should be taken when fooling the system like
-this, and it is certainly not the recommended way.
-
-Another common problem is to put the libraries into the right order in
+A common problem is to put the libraries into the right order in
 the link command, and which of them have to be linked twice to resolve
 all referenced symbols.
 
-Some working examples can be found in the Makefiles of the delivered
-examples.
-
-Client Environment Parameters
-=============================
-
-To allow for easier application steering, raslib evaluates the
-environ­ment parameter ``RMANCLIENTOPT`` at program start-up. This variable
-can contain options similar to command line option syntax.
-
-If contradicting options are set (e.g., ``-tiling`` and ``-notiling``), then the
-last occurrence wins.
-
-**Options Known**
-
-**Note: deprecated with the default rasnet server/client protocol.**
-
--timeout        set server communication timeout seconds
-                (default: 3600)
-
--notimeout      disable timeout, wait forever if necessary
-
--tilesize       set tile size bytes (default: 100000)
-
--notiling       disable client-side tiling
-
--l logfile      set log stream to *logfile* (default: ./client.log)
-
-**Example**
-
-The following shell dialog shows how an environment is set before
-invoking a rasdaman client. Settings done are: use timeout of 5 seconds,
-write log output to ``/dev/null``.
-
-.. code-block:: shell
-
-    $ export RMANCLIENTOPT="-timeout 5 -l /dev/null"
 
 The Example Programs
 ====================
 
-An example program is delivered in ``$RMANHOME/examples/c++``. This query
-program sends a rasql query to the rasdaman server and prints the result
-retrieved.
+An example program is delivered in
+``/opt/rasdaman/share/rasdaman/examples/c++``. This query program sends a rasql
+query to the rasdaman server and prints the result retrieved.
 
 The code is documented and produces ample screen output, so it should be
-self explanatory. The programs are built by invoking ``make`` in the
-corresponding subdirectory.
+self explanatory. The program is built by invoking ``make`` in the
+corresponding subdirectory. The accompanying ``Makefile`` is a good start for
+building your own programs.
 
 .. note::
     Before the test programs can be used, the rasdaman database has to be 
     initialized.
 
-Copyright Note
-==============
-
-raslib contains code for password encoding based on MD5, located in the
-C++ library ``$RMANHOME/lib/libcrypto.a``. This library must be linked to
-rasdaman applications in order to make them work.
-
-Provision of this code is done in accordance with the GNU *Library
-General Public License* (see www.gnu.org).
-
-Legal Note
-==========
-
-Note that under some legislations usage and/or distribution of
-crypto­graphy code may be prohibited by law. If you have obtained the
-above­mentioned library in or from a region under such a legislation,
-whatever you do with it is fully under your own responsibility. Please
-inform rasdaman GmbH about the source where you have it obtained from so
-that we can take action against the violator.
-
-
 ******************
 HTML Documentation
 ******************
 
-All classes are described extensively in a set of HTML files shipped
-with the software. Starting point into the whole documentation is
-``$RMANHOME/doc/index.html``. Follow the "raslib" link to enter the
-description of the C++ interface.
-
-The documentation can be viewed with any Web browser. Only graphical
-traversal between classes requires Java enabled; however, all links are
-available in textual form, too.
+All classes are described extensively in a set of HTML files shipped with the
+software. Starting point into the whole documentation is
+``/opt/rasdaman/share/rasdaman/doc/index.html``. Follow the "raslib" link to
+enter the documentation of the C++ interface.
 
 Top-level entry to the documentation shows the alphabetical listing of
 definitions, classes and functions; alternatively the class hierarchy
@@ -1926,7 +1828,7 @@ direct subclasses and superclasses. The second part gives a short
 description of all class components, some of which have additional links
 to a more detailed documentation in the third part of the page. In this
 third part there is a detailed description of what the class does. Every
-time a class is used inside method declarations as either a para­meter
+time a class is used inside method declarations as either a parameter
 or return value, a link to the documentation of this class is provided.
 
 .. [1]

@@ -28,9 +28,6 @@ rasdaman GmbH.
  *
 */
 
-#include "raslib/miter.hh"
-#include "raslib/minterval.hh"
-
 inline char *
 r_Miter::nextCell()
 {

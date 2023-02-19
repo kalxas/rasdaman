@@ -286,9 +286,6 @@ ostream &CommandLineParameter::printHelp(ostream &os)
         return os;
     }
 
-    static const unsigned int longNameLen = 30;
-    static const unsigned int longParamLen = 30;
-
     os << CommandLineParameter::descIndent;
 
     if (isalnum(shortName) && (shortName != CommandLineParser::noShortName))
@@ -618,6 +615,130 @@ ostream &StringParameter::printStatus(ostream &os)
 }
 
 //##########################################################
+
+
+DeprecatedParameter::DeprecatedParameter(char nShortName, const char *nLongName, bool flag)
+    : CommandLineParameter(nShortName, nLongName, (const char *)NULL), isFlag{flag}
+{
+}
+
+bool DeprecatedParameter::setPresent(char c)
+{
+    if (c && c == shortName)
+    {
+        present = true;
+        return true;
+    }
+    return false;
+}
+
+bool DeprecatedParameter::setPresent(const char *s)
+{
+    if (longName != NULL && !strcmp(longName, s))
+    {
+        wasLongName = true;
+        present = true;
+        printStatus();
+        return true;
+    }
+    return false;
+}
+
+bool DeprecatedParameter::isPresent()
+{
+    return (!value.empty());
+}
+
+void DeprecatedParameter::reset()
+{
+    value.clear();
+    CommandLineParameter::reset();
+}
+
+bool DeprecatedParameter::needsValue()
+{
+    return !isFlag;
+}
+
+bool DeprecatedParameter::takeValue(const char *s)
+{
+    char *aux = dupString(s);
+    value.push_back(aux);
+    return true;
+}
+
+void DeprecatedParameter::popValue()
+{
+    if (!value.empty())
+    {
+        value.pop_front();
+    }
+}
+
+const char *DeprecatedParameter::getValueAsString()
+{
+    return (!value.empty() ? value.front() : defaultValue);
+}
+
+long   DeprecatedParameter::getValueAsLong()
+{
+    const char *r = (!value.empty() ? value.front() : defaultValue);
+
+    if (r == NULL)
+    {
+        throw CmlException(string("") + "No value for parameter '" + calledName() + "'");
+    }
+
+    char *endptr;
+
+    long result = strtol(r, &endptr, 0);
+
+    if (*endptr != 0)
+    {
+        throw CmlException(string("") + "Invalid integer value for parameter '" + calledName() + "'");
+    }
+
+    return result;
+}
+
+int   DeprecatedParameter::getValueAsInt()
+{
+    auto longRes = getValueAsLong();
+    if (longRes <= std::numeric_limits<int>::max() && longRes >= std::numeric_limits<int>::lowest())
+        return static_cast<int>(longRes);
+    else
+        throw CmlException("Invalid integer value " + std::to_string(longRes) + " for parameter '" + calledName() + "'");
+}
+
+double DeprecatedParameter::getValueAsDouble()
+{
+    const char *r = (!value.empty() ? value.front() : defaultValue);
+
+    if (r == NULL)
+    {
+        throw CmlException(string("") + "No value for parameter '" + calledName() + "'");
+    }
+
+    char *endptr;
+
+    double result = strtod(r, &endptr);
+
+    if (*endptr != 0)
+    {
+        throw CmlException(string("") + "Invalid double value for parameter '" + calledName() + "'");
+    }
+
+    return result;
+}
+
+ostream &DeprecatedParameter::printStatus(ostream &os)
+{
+    os << "option '" << calledName() << "' is deprecated, will be ignored\n";
+    return os;
+}
+
+
+//##########################################################
 const char CommandLineParser::noShortName = '-';
 const char *CommandLineParser::noLongName = "--";
 const char *CommandLineParser::ShortSign = "-";
@@ -675,6 +796,13 @@ CommandLineParameter &CommandLineParser::addLongParameter(char shortName, const 
 {
     CommandLineParameter *cp = new StringParameter(shortName, longName, newDefaultValue);
     cp->setDescription(description);
+    cmlParameter.push_back(cp);
+    return *cp;
+}
+
+CommandLineParameter &CommandLineParser::addDeprecatedParameter(char shortName, const char *longName, bool flag)
+{
+    CommandLineParameter *cp = new DeprecatedParameter(shortName, longName, flag);
     cmlParameter.push_back(cp);
     return *cp;
 }
@@ -885,8 +1013,12 @@ void CommandLineParser::printHelp()
     for (; iter != iterEnd; ++iter)
     {
         CommandLineParameter *ptr = *iter;
-        ptr->printHelp(std::cout);
-        std::cout << std::endl;
+        if (!dynamic_cast<DeprecatedParameter*>(ptr))
+        {
+            // only print non-deprecated parameters
+            ptr->printHelp(std::cout);
+            std::cout << std::endl;
+        }
     }
     return;
 }

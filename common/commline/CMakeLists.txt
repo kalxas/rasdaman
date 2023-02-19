@@ -22,9 +22,3 @@
 ###################################################################
 
 add_library(commline cmlparser.hh cmlparser.cc)
-
-install(TARGETS commline
-        DESTINATION ${LIB_DIR})
-
-install(FILES cmlparser.hh
-        DESTINATION "${INCLUDE_DIR}/commline")

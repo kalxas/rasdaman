@@ -28,6 +28,7 @@ rasdaman GmbH.
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddcolliter.hh"
 #include "tilemgr/tile.hh"
+#include "raslib/endian.hh"
 #include <logging.hh>
 #include <cstring>
 
@@ -173,4 +174,10 @@ ClientTblElt::releaseTransferStructures()
     }
     transferTimer = 0;
 #endif
+}
+
+bool ClientTblElt::needEndianessSwap() const
+{
+    return clientType == ClientType::Http &&
+           r_Endian::get_endianness() != r_Endian::r_Endian_Big;
 }

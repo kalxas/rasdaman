@@ -31,7 +31,6 @@ rasdaman GmbH.
 */
 
 #include "raslib/mddtypes.hh"
-#include "raslib/error.hh"
 #include <logging.hh>
 
 #include <cstring>

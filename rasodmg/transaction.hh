@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE:  transaction.hh
- *
- * MODULE:   rasodmg
- * CLASS:    r_Transaction
- *
- * COMMENTS:
- *          None
-*/
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -44,13 +35,11 @@ class r_Database;
 class r_Ref_Any;
 template <typename T> class r_Ref;
 
-/*@Doc:
-
+/**
   Transactions can be started, committed, aborted, and checkpointed.
   It is important to note that all access, creation, modification,
   and deletion of persistent objects must be done within a transaction.
   Right now, only one transaction can be active at a time.
-
 */
 
 /**

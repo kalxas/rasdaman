@@ -26,9 +26,3 @@ set(TIME_HEADERS timer.hh date.h)
 add_library(common_time timer.cc ${TIME_HEADERS})
 
 target_link_libraries(common_time common_exceptions)
-
-install(TARGETS common_time
-        DESTINATION ${LIB_DIR})
-
-install(FILES ${TIME_HEADERS}
-        DESTINATION "${INCLUDE_DIR}/common/time")

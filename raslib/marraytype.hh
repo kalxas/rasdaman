@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: marraytype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Marray_Type
- *
- * COMMENTS:
- *
-*/
 
 #ifndef _D_MARRAY_TYPE_
 #define _D_MARRAY_TYPE_
@@ -38,18 +29,19 @@ rasdaman GmbH.
 class r_Base_Type;
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class represents the marray type in the ODMG conformant
   representation of the RasDaMan type system.
 */
-
-
 class r_Marray_Type : public r_Type
 {
 public:
     /// constructor getting basetype
-    r_Marray_Type(const r_Base_Type &);
+    explicit r_Marray_Type(const r_Base_Type &);
 
     /// copy constructor
     /// if base type is NULL an exception will be raised.

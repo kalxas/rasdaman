@@ -44,17 +44,15 @@ class r_Type;
 
 //@ManMemo: Module: {\bf rasodmg}
 
-/*@Doc:
-
+/**
   Through inheritance of this class, the type definer specifies that
   the subclass is capable of having persistent as well as transient
   instances.
 
-  {\bf Attention: }Right now, just the classes \Ref{r_Set} and \Ref{r_Marray}
-  inherit from \Ref{r_Object} which, therefore, are the only persistent
-  capable classes. In fact, just objects of type <tt>r_Set<r_Ref<r_Marray<...>>></tt>
+  Attention: Right now, just the classes r_Set and r_Marray
+  inherit from r_Object which, therefore, are the only persistent
+  capable classes. In fact, just objects of type `r_Set<r_Ref<r_Marray<...>>>`
   can be made persitent right now.
-
 */
 
 /**

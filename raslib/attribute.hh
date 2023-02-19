@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: attribute.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Attribute
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _D_ATTRIBUTE_
 #define _D_ATTRIBUTE_
@@ -39,15 +30,19 @@ rasdaman GmbH.
 
 class r_Base_Type;
 
+/**
+  * \defgroup raslib Raslib Classes
+  */
+/**
+  * \ingroup raslib
+  */
 
 //@ManMemo: Module: {\bf raslib}
 
-/*@Doc:
+/**
   This class represents attributes of structs in the ODMG
   conformant representation of the RasDaMan type system.
 */
-
-
 class r_Attribute : public r_Property
 {
 public:

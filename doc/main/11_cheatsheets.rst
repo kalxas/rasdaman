@@ -296,6 +296,8 @@ Coverage operations
 
     extend( covExpr, { axis1(lo:hi), axis2:crs(lo:hi), ... } )
 
+  .. _wcps-scale:
+
 - **Scale** is like extend but it resamples the current coverage values to:
 
   - Fit the new domain: ::
@@ -314,15 +316,59 @@ Coverage operations
 
   Currently only nearest neighbour interpolation is supported for scaling.
 
-- **Reproject** allows to project a 2D coverage with geo X/Y axes by a CRS: ::
+    .. code-block:: rasql
 
-    crsTransform( covExpr, { axisX:outputCRS, axisY:outputCRS }, { interpolation } )
+        crsTransform( covExpr, { axisX:outputCRS, axisY:outputCRS }
+                               [ , { interpolation } ]
+                               [ , {axisLabelX:geoXResolution, axisLabelY:geoYResolution}   ]
+                               [ , {axisLabelX(lo:hi), axisLabelY(lo:hi)} or {domain(2D coverage)} ] 
+                    )
+
+  For example, the query below reprojects a 2D coverage to ``EPSG:4326`` CRS with 
+  ``bilinear`` interpolation and target geo resolutions for ``Lat``
+  and ``Lon`` axes ``0.5`` and ``1 + the resolution of Lat axis in coverage $d`` respectively, and crops the result to 
+  the target geo domain ``[Lat(30.5:60.5), Lon(50.5:70.5)]``:
+
+    .. code-block:: rasql
+
+        crsTransform($c, 
+                        {Lat:"http://localhost:8080/rasdaman/def/crs/EPSG/0/4326", 
+                         Lon:"http://localhost:8080/rasdaman/def/crs/EPSG/0/4326" }, 
+                        {bilinear},
+                        {Lat:0.5, Lon:1 + domain($d, Lat).resolution},
+                        {Lat(30.5:60.5), Lon(50.5:70.5)}
+                    )
+    
 
 .. _wcps-crstransform-shorthand:
  
-    or shorthand version
+  Alternatively, a shorthand version can be used where the target CRS is
+  applies to both axes (instead of specifying it individually for each axis).
 
-    crsTransform( covExpr, "outputCRS", { interpolation } )
+    .. code-block:: rasql
+
+        crsTransform( covExpr, "outputCRS", 
+                         [ , { interpolation } ]
+                         [ , {axisLabelX:geoXResolution, axisLabelY:geoYResolution}   ]
+                         [ , {axisLabelX(lo:hi), axisLabelY(lo:hi)} or {domain(2D coverage)} ] 
+                    )
+
+  A similar example as above with shorthand CRS notation, and target geo domain that
+  matches the domain of coverage `$d`:
+
+    .. code-block:: rasql
+
+        crsTransform($c, 
+                        "EPSG:4326", 
+                        {bilinear},
+                        {Lat:0.5,
+                         Lon:1 + domain($d, Lat).resolution},
+                        {domain($d)}
+                    )
+
+  Note that the shorthand notation is not compliant with the WCPS 1.0 standard, and is
+  an extension that rasdaman provides for convenience. Furthermore, the optional
+  parameters for specifying resolution and target domain are also non-standard.
 
   For supported interpolation methods see the options for 
   :ref:`resampleAlg parameter <sec-geo-projection-interpolation>`.
@@ -346,6 +392,25 @@ Coverage operations
     coverage covName
     over $iterVar axis(lo:hi), ...
     values scalarExpr
+
+  Typically the iterator variable is iterated through a grid domain, e.g. by using the
+  ``imageCrsdomain(coverageExpr, axisLabel)`` operator. However, iteration over
+  a geo domain is also supported with ``domain(coverageExpr, axisLabel)``.
+  Note that this feature is a non-standard extension that rasdaman provides
+  for convenience. For example, to create a 2D geo-referenced coverage with
+  ``Lat`` and ``Lon`` axes, based on an existing geo-referenced coverage:
+
+  .. code-block:: rasql
+
+    for $c in (test_mean_summer_airtemp)
+    return 
+        encode(
+          coverage targetCoverage
+          over  $pLat Lat(domain($c[Lat(-30:-28.5)], Lat)),
+                $pLon Lon(domain($c[Lon(111.975:113.475)], Lon))
+
+          values $c[Lat($pLat), Lon($pLon)]
+          , "tiff")
 
 - **General condenser on coverages** is same as the scalar general condenser,
   except that in the ``using`` clause we have a coverage expression. The coverage 
@@ -427,7 +492,9 @@ Several functions allow to extract metadata information about a coverage ``C``:
 |                           | returning the lower and upper bounds respectively  |
 +---------------------------+----------------------------------------------------+
 | domain(C, a, c).x         | Where x is one of ``lo`` or ``hi``                 | 
-|                           | returning the lower or upper bounds respectively   |
+|                           | (returning the lower or upper bounds respectively) |
+|                           | or ``resolution`` (returning the geo resolution of |
+|                           | axis a)                                            |
 +---------------------------+----------------------------------------------------+
 | domain(C, a)              | Geo (lo, hi) bounds for axis a                     |
 |                           | returning the lower and upper bounds respectively  |
@@ -744,6 +811,75 @@ collection level.
           <canvas id="canvasOne" style="width: 100%; height: 100%;"> </canvas>
       </body>
     </html> 
+
+
+- Simple example to setup a web page with a map from a WMTS server using WebWorldWind:
+
+  .. code-block:: html
+
+    <html>
+
+      <head>
+        <script src="https://files.worldwind.arc.nasa.gov/artifactory/web/0.9.0/worldwind.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+      </head>
+
+      <body>
+        <canvas id="canvasOne" style="width: 100%; height: 100%;"> </canvas>
+
+        <script>
+          var wwd = new WorldWind.WorldWindow("canvasOne");
+          document.addEventListener("DOMContentLoaded", function(event) {
+            WorldWind.Logger.setLoggingLevel(WorldWind.Logger.LEVEL_WARNING);
+            var layers = [{
+              layer: new WorldWind.BingRoadsLayer(null),
+              enabled: true
+            }, {
+              layer: new WorldWind.CoordinatesDisplayLayer(wwd),
+              enabled: true
+            }, {
+              layer: new WorldWind.ViewControlsLayer(wwd),
+              enabled: true
+            }];
+
+            for (var l = 0; l < layers.length; l++) {
+              wwd.addLayer(layers[l].layer);
+            }
+
+          });
+
+          // Web Map Tiling Service information from
+          var serviceAddress = "http://localhost:8080/rasdaman/ows?service=WMTS&version=1.0.0&request=GetCapabilities";
+          // Layer displaying Gridded Population of the World density forecast
+          var layerIdentifier = "test_world_map";
+
+          // Called asynchronously to parse and create the WMTS layer
+          var createLayer = function(xmlDom) {
+            // Create a WmtsCapabilities object from the XML DOM
+            var wmtsCapabilities = new WorldWind.WmtsCapabilities(xmlDom);
+            // Retrieve a WmtsLayerCapabilities object by the desired layer name
+            var wmtsLayerCapabilities = wmtsCapabilities.getLayer(layerIdentifier);
+            // Form a configuration object from the WmtsLayerCapabilities object
+            var wmtsConfig = WorldWind.WmtsLayer.formLayerConfiguration(wmtsLayerCapabilities);
+
+            // Create the WMTS Layer from the configuration object
+            var wmtsLayer = new WorldWind.WmtsLayer(wmtsConfig);
+
+
+            // Add the layers to WorldWind and update the layer manager
+            wwd.addLayer(wmtsLayer);
+          };
+
+          // Called if an error occurs during WMTS Capabilities document retrieval
+          var logError = function(jqXhr, text, exception) {
+            console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
+          };
+
+          $.get(serviceAddress).done(createLayer).fail(logError);
+        </script>
+      </body>
+
+    </html>
 
 
 Python / Jupter Notebook

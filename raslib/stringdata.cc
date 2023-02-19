@@ -21,12 +21,24 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
- * INCLUDE: rm.hh
- *
- * PURPOSE:
- *  Artificially created to manipulate hierarchy tree.
- *
- * COMMENTS:
- *
-*/
+#include "raslib/stringdata.hh"
+
+r_String::r_String(const char *v) : value{v}
+{
+}
+        
+void
+r_String::print_status(std::ostream &s) const
+{
+    s << value;
+}
+
+const std::string r_String::get_value() const
+{
+    return value;
+}
+std::ostream &operator<<(std::ostream &s, const r_String &oid)
+{
+    oid.print_status(s);
+    return s;
+}

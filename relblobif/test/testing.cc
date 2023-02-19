@@ -21,19 +21,20 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "testing.h"
+#include "logging.hh"
+
 #include <sys/time.h>
 #include <unistd.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#include "testing.h"
 
 bool Test::test_result_ = 0;
 int Test::tests_run_ = 0;
 int Test::tests_passed_ = 0;
 int Test::timer_sec_ = 0;
 int Test::timer_usec_ = 0;
-ostream& Test::log_ = cout;
 
 void Test::startTimer()
 {
@@ -55,8 +56,8 @@ double Test::stopTimer()
 
 int Test::getResult()
 {
-    LOG << endl;
-    LOG << tests_passed_ << "/" << tests_run_ << " tests passed!" << endl;
+    LINFO << endl;
+    LINFO << tests_passed_ << "/" << tests_run_ << " tests passed!" << endl;
     return (tests_passed_ != tests_run_);
 }
 

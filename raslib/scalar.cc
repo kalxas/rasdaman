@@ -35,7 +35,7 @@
 #include "raslib/error.hh"
 #include <logging.hh>
 
-#include <iostream>
+#include <ostream>
 
 r_Scalar::r_Scalar(const r_Base_Type *newType)
 {

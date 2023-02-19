@@ -1284,6 +1284,7 @@ Exceptions in the Class ``rasj.RasRuntimeException``
 **RasClientInternalException**
 
 This runtime exception indicates an internal error on client side which
+cannot be solved by the user. In case of such an event, send a
 report to your dealer containing the complete error message and a
 precise description of the actions that lead to this exception.
 

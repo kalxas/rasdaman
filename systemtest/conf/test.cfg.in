@@ -40,12 +40,27 @@ export RASMGR_PORT=7001
 export RASMGR_HOST=localhost
 export RASMGR_ADMIN_USER=rasadmin
 export RASMGR_ADMIN_PASSWD=rasadmin
+export RASMGR_GUEST_USER=rasguest
+export RASMGR_GUEST_PASSWD=rasguest
 export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 
 export BASEDB=@BASEDBSTRING@
 export RMANHOME=@CMAKE_INSTALL_PREFIX@
 export RASMGR_CONF=$RMANHOME/etc/rasmgr.conf
-export RASDB="$(grep define $RASMGR_CONF | grep connect | awk '{ print $5 }')"
+export RASDB="$(grep -E '^define' "$RASMGR_CONF" | grep ' dbh ' | sed 's/.* -connect *//')"
+if [ "${RASDB:0:1}" = "/" ]; then
+  export BASEDBMS=sqlite
+  if [[ "$RASDB" == *\;* ]]; then
+    RASDATA="${RASDB/*;/}"
+  else
+    RASDATA="$(dirname "$RASDB")"
+  fi
+else
+  export BASEDBMS=pgsql
+  RASDATA="${RASDB/*;/}"
+fi
+export RASDATA
+
 export ENABLE_JAVA=@ENABLE_JAVA@
 
 export HAVE_TIFF=@HAVE_TIFF@
@@ -65,14 +80,13 @@ export BUILD_TYPE=@CMAKE_BUILD_TYPE@
 export PETASCOPE_DB=petascopedb
 export PETASCOPE_PORT=8080
 export PETASCOPE_URL="http://localhost:$PETASCOPE_PORT/rasdaman/ows"
+export PETASCOPE_ADMIN_URL=${PETASCOPE_URL/ows/admin}
 export PETASCOPE_OAPI="http://localhost:$PETASCOPE_PORT/rasdaman/oapi"
 export RASQL_SERVLET="http://localhost:$PETASCOPE_PORT/rasdaman/rasql"
-export PETASCOPE_ADMIN_URL=${PETASCOPE_URL/"ows"/"admin"}
 
 # ------------------------------------------------------------------------------
 # secore connection details
 #
 export SECORE_HOST=localhost
 export SECORE_PORT="$PETASCOPE_PORT"
-# default it is internal SECORE inside petascope
 export SECORE_URL="http://$SECORE_HOST:$SECORE_PORT/rasdaman/def"

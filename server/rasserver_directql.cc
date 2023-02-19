@@ -197,8 +197,6 @@ void closeTransaction(bool doCommit)
         LDEBUG << "ok";
         taIsOpen = false;
     }
-    if (configuration.isLockMgrOn())
-        LockManager::Instance()->clearLockTable();
 }
 
 void printScalar(char* buffer, QtData* data, unsigned int resultIndex)

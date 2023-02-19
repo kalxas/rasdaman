@@ -20,16 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
- * INCLUDE: type.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Type
- *
- * COMMENTS:
- *
-*/
-
 #ifndef D_TYPE_HH
 #define D_TYPE_HH
 
@@ -43,10 +33,14 @@ class r_Sinterval_Type;
 class r_Minterval_Type;
 class r_Point_Type;
 class r_Oid_Type;
+class r_String_Type;
 class r_Base_Type;
 class r_Collection_Type;
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
 /**
   This class the superclass for all types in the ODMG conformant
@@ -61,7 +55,7 @@ public:
     enum r_Type_Id { ULONG, USHORT, BOOL, LONG, SHORT, OCTET,
                      DOUBLE, FLOAT, CHAR, COMPLEXTYPE1, COMPLEXTYPE2, CINT16, CINT32,
                      STRUCTURETYPE, MARRAYTYPE, COLLECTIONTYPE,
-                     SINTERVALTYPE, MINTERVALTYPE, POINTTYPE, OIDTYPE,
+                     SINTERVALTYPE, MINTERVALTYPE, POINTTYPE, OIDTYPE, STRINGTYPE,
                      UNKNOWNTYPE
                    };
     /// default constructor.
@@ -106,6 +100,9 @@ public:
 
     /// check, if type is a oid
     virtual bool isOidType() const;
+    
+    /// check, if type is a string
+    virtual bool isStringType() const;
 
     /// build type schema from string representation
     static r_Type *get_any_type(const char *type_string);
@@ -129,7 +126,7 @@ private:
                      DLLEP, DLREP, DLLAP, DLRAP, DLLCP, DLRCP,
                      DLIDENTIFIER, DLCHAR, DLOCTET, DLSHORT, DLUSHORT,
                      DLLONG, DLULONG, DLFLOAT, DLDOUBLE, DLBOOL, DLCOMPLEXTYPE1, DLCOMPLEXTYPE2, DLCINT16, DLCINT32, 
-                     DLINTERVAL,  DLMINTERVAL, DLPOINT, DLOID, DLUNKNOWN
+                     DLINTERVAL,  DLMINTERVAL, DLPOINT, DLOID, DLSTRING, DLUNKNOWN
                    };
     ///
     static DLTOKEN getNextToken(char *&pos, char *&identifier);
@@ -153,6 +150,8 @@ private:
     static r_Point_Type *getPointType(char *&pos);
     ///
     static r_Oid_Type *getOidType(char *&pos);
+    ///
+    static r_String_Type *getStringType(char *&pos);
 
     ///
     //@}

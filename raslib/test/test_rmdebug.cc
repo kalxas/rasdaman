@@ -32,16 +32,11 @@
  ************************************************************/
 
 #include <iostream>
-#include "raslib/rmdebug.hh"
-
-#include "raslib/rminit.hh"
 
 using namespace std;
 
 // number of repetitions for performance tests
 static const int repeat = 100000;
-
-RMINITGLOBALS('C')
 
 void testFunc1()
 {

@@ -30,7 +30,6 @@
 #include "relblobif/blobfile.hh"
 #include "relblobif/blobfscommon.hh"
 #include "testing.h"
-#include "raslib/rminit.hh"
 
 #include "loggingutils.hh"
 
@@ -43,12 +42,8 @@ char globalDbPasswd[255] = {0};
 
 class MDDColl;
 MDDColl *mddConstants = 0; // used in QtMDD
-unsigned long maxTransferBufferSize = 4000000;
-int noTimeOut = 0;
 
 INITIALIZE_EASYLOGGINGPP
-
-RMINITGLOBALS('C')
 
 class TestBlobFile
 {

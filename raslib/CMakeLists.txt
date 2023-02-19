@@ -52,15 +52,13 @@ set(SRC_HEADERS
         primitivetype.hh
         property.hh
         rmdebug.hh
-        rm.hh
-        rminit.hh
         scalar.hh
-        shhopt.hh
         sinterval.hh
         sintervaltype.hh
-        storageman.hh
         structure.hh
         structuretype.hh
+        stringtype.hh
+        stringdata.hh
         type.hh
         miterd.icc
         miterf.icc
@@ -96,16 +94,14 @@ add_library(raslib
         primitive.cc
         primitivetype.cc
         property.cc
-        rm.cc
         rmdebug.cc
-        rminit.cc
         scalar.cc
-        shhopt.cc
         sinterval.cc
         sintervaltype.cc
-        storageman.cc
         structure.cc
         structuretype.cc
+        stringtype.cc
+        stringdata.cc
         turboqueryresult.cc
         type.cc
         ${SRC_HEADERS}

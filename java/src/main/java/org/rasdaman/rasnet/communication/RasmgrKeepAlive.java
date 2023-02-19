@@ -111,7 +111,6 @@ public class RasmgrKeepAlive {
             this.isKeepAliveRunningCond.signal();
         } finally {
             this.keepAliveLock.unlock();
-
             try {
                 this.runnerThread.join();
             } catch (InterruptedException e) {

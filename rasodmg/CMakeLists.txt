@@ -22,69 +22,49 @@
 ###################################################################
 
 set(SRC_HEADERS
-        alignedtiling.hh
-        collection.hh
-        collection.cc
-        database.hh
-        dirdecompose.hh
-        dirtiling.hh
-        gmarray.hh
-        interesttiling.hh
-        iterator.hh
-        iterator.cc
-        marray.hh
-        marray.cc
-        object.hh
-        oqlquery.hh
-        partinsert.hh
-        polycutout.hh
-        polygon.hh
-        ref.hh
-        ref.cc
-        set.hh
-        set.cc
-        stattiling.hh
-        storagelayout.hh
-        tiling.hh
-        genreftype.hh
-        transaction.hh
-        template_inst.hh
-        )
-
+    collection.hh collection.cc
+    database.hh
+    gmarray.hh
+    iterator.hh iterator.cc
+    marray.hh marray.cc
+    object.hh
+    oqlquery.hh
+    ref.hh ref.cc
+    set.hh set.cc
+    genreftype.hh
+    transaction.hh
+    template_inst.hh
+    tiling.hh
+    alignedtiling.hh
+    dirdecompose.hh
+    dirtiling.hh
+    interesttiling.hh
+    stattiling.hh
+    storagelayout.hh)
 add_library(rasodmg
-        alignedtiling.cc
-        database.cc
-        dirdecompose.cc
-        dirtiling.cc
-        gmarray.cc
-        interesttiling.cc
-        object.cc
-        oqlquery.cc
-        partinsert.cc
-        polycutout.cc
-        polygon.cc
-        stattiling.cc
-        storagelayout.cc
-        tiling.cc
-        transaction.cc
-        ${SRC_HEADERS}
-        )
-
+    database.cc
+    gmarray.cc
+    object.cc
+    oqlquery.cc
+    transaction.cc
+    alignedtiling.cc
+    dirdecompose.cc
+    dirtiling.cc
+    interesttiling.cc
+    stattiling.cc
+    storagelayout.cc
+    tiling.cc
+    ${SRC_HEADERS})
 target_link_libraries(rasodmg
     PUBLIC
     raslib
-    
     PRIVATE
     clientcomm
-    common_logging
-    )
+    common_logging)
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(rasodmg REUSE_FROM common_logging)
 endif()
 
-install(TARGETS rasodmg
-        DESTINATION ${LIB_DIR})
-
-install(FILES ${SRC_HEADERS}
-        DESTINATION "${INCLUDE_DIR}/rasodmg")
+install(TARGETS rasodmg DESTINATION ${LIB_DIR})
+install(FILES ${SRC_HEADERS} ${TILING_SRC_HEADERS} DESTINATION "${INCLUDE_DIR}/rasodmg")

@@ -59,6 +59,9 @@ public:
     /// releases transfer collection/iterator; as the collections are persistent,
     /// creation and deletion must be done within the same transaction.
     void releaseTransferStructures();
+    
+    /// @return true if data needs endianess swap before transferring to client
+    bool needEndianessSwap() const;
 
     /// unique client identification assigned by the server
     std::uint32_t clientId;

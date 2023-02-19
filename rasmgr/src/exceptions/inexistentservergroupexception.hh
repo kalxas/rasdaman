@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_EXCEPTIONS_INEXISTENTSERVERGROUPEXCEPTION_HH_
 #define RASMGR_X_SRC_EXCEPTIONS_INEXISTENTSERVERGROUPEXCEPTION_HH_
 
-#include "common/exceptions/rasexceptions.hh"
+#include "common/exceptions/missingresourceexception.hh"
 
 namespace rasmgr
 {
@@ -35,7 +35,7 @@ namespace rasmgr
 class InexistentServerGroupException : public common::MissingResourceException
 {
 public:
-    InexistentServerGroupException(const std::string& serverId);
+    InexistentServerGroupException(const std::string& serverId, const std::string &details);
 
     virtual ~InexistentServerGroupException() noexcept;
 };

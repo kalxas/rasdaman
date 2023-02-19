@@ -56,7 +56,7 @@
 #include "rasodmg/oqlquery.hh"
 
 // needed to configure logging
-#include "common/logging/loggingutils.hh"
+#include "loggingutils.hh"
 #include <iostream>
 
 using namespace std;

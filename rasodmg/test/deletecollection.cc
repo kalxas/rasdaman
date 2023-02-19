@@ -55,7 +55,7 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #endif
 
-#include "include/basictypes.hh"
+#include "basictypes.hh"
 #include "raslib/type.hh"
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/alignedtiling.hh"

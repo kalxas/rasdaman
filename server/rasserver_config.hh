@@ -68,7 +68,6 @@ public:
     bool        isLogToStdOut();
 
     int         getMaxTransferBufferSize();
-    int         getTimeout();
     const char* getDbConnectionID();
 
     int         getDefaultTileSize();
@@ -78,10 +77,7 @@ public:
     const char* getDefaultTileConfig();
     const char* getTilingScheme();
     const char* getIndexType();
-    bool        useTileContainer();
     
-    bool        isLockMgrOn();
-    long        getCacheLimit();
     const char* getNewServerId();
 
 #ifdef RMANDEBUG
@@ -129,22 +125,17 @@ private:
     CommandLineParameter* cmlMgrPort{};
 
     CommandLineParameter* cmlTransBuffer{};
-    CommandLineParameter* cmlTimeOut{};
-    CommandLineParameter* cmlLockMgrOn{};
 
-    CommandLineParameter* cmlOptLevel{};
     CommandLineParameter* cmlConnectStr{};
     CommandLineParameter* cmlLog{};
 
     CommandLineParameter* cmlTileSize{};
     CommandLineParameter* cmlPctMin{};
     CommandLineParameter* cmlPctMax{};
-    CommandLineParameter* cmlUseTC{};
     CommandLineParameter* cmlTileConf{};
     CommandLineParameter* cmlTiling{};
     CommandLineParameter* cmlIndex{};
     CommandLineParameter* cmlIndexSize{};
-    CommandLineParameter* cmlCacheLimit{};
     CommandLineParameter* cmlNewServerId{}; // required by rasnet
 
     // directql parameters
@@ -167,11 +158,17 @@ private:
     // rasdl parameters
     CommandLineParameter* cmlCreateDb{};
     CommandLineParameter* cmlDelDb{};
-
+    
+    // deprecated, kept for backwards compatibility
+    CommandLineParameter* cmlTimeOut{};
+    CommandLineParameter* cmlUseTC{};
+    CommandLineParameter* cmlLockMgrOn{};
+    CommandLineParameter* cmlCacheLimit{};
 #ifdef RMANDEBUG
     CommandLineParameter* cmlDbg{};
     CommandLineParameter* cmlDbgLevel{};
 #endif
+
     const char* myExecutable{};
     
     const char* newServerId{}; // required by rasnet
@@ -185,8 +182,6 @@ private:
     const char* tilingName{};
     const char* indexType{};
     
-    long        cacheLimit{};
-    
     int         rasmgrPort{};
     int         listenPort{};
     int         tileSize{};
@@ -194,11 +189,7 @@ private:
     int         pctMax{};
     int         indexSize{};
     int         maxTransferBufferSize{};
-    int         timeout{};
-#ifdef RMANDEBUG
-    int         dbgLevel{};
-#endif
-    
+
     // directql
     const char* queryString{};
     const char* fileName{};
@@ -218,9 +209,7 @@ private:
     bool        mddDomainDef{false};
     bool        mddTypeNameDef{false};
     bool        queryStringOn{false};
-    bool        useTC{false};
     bool        logToStdOut{true};
-    bool        lockmgrOn{false};
 };
 
 extern Configuration configuration;

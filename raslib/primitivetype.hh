@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: primitivetype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Primitive_Type
- *
- * COMMENTS:
- *
-*/
 
 #ifndef D_PRIMITIVE_TYPE_HH
 #define D_PRIMITIVE_TYPE_HH
@@ -37,8 +28,11 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class represents all primitive types in the ODMG conformant
   representation of the RasDaMan type system. Examples are ULONG or
   BOOL.

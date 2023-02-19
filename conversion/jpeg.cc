@@ -415,7 +415,7 @@ r_Conv_Desc& r_Conv_JPEG::convertTo(const char* options, const r_Range*)
 
     jpegSize = static_cast<r_Long>(memfs_size(handle));
 
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(jpegSize)))) == NULL)
+    if ((desc.dest = static_cast<char*>(mymalloc(static_cast<size_t>(jpegSize)))) == NULL)
     {
         LERROR << "r_Conv_JPEG::convertTo(" << options << "): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -475,7 +475,7 @@ r_Conv_Desc& r_Conv_JPEG::convertFrom(const char* options)
         }
         if (desc.dest != NULL)
         {
-            mystore.storage_free(desc.dest);
+            free(desc.dest);
             desc.dest = NULL;
         }
         jpeg_abort_decompress(dptr);
@@ -525,7 +525,7 @@ r_Conv_Desc& r_Conv_JPEG::convertFrom(const char* options)
     spp = static_cast<int>(dptr->output_components);
 
     row = new JSAMPLE[width * spp];
-    desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(width * height * spp)));
+    desc.dest = static_cast<char*>(mymalloc(static_cast<size_t>(width * height * spp)));
 
     if ((row == NULL) || (desc.dest == NULL))
     {

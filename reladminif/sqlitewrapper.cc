@@ -252,7 +252,7 @@ int SQLiteQuery::nextColumnInt()
     return ret;
 }
 
-long long SQLiteQuery::nextColumnLong()
+long SQLiteQuery::nextColumnLong()
 {
     assert(stmt);
     auto ret = sqlite3_column_int64(stmt, columnCounter++);

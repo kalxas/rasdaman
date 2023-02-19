@@ -26,6 +26,7 @@ add_subdirectory(logging)
 
 add_subdirectory(tree)
 add_subdirectory(crypto)
+add_subdirectory(commline)
 add_subdirectory(uuid)
 add_subdirectory(exceptions)
 add_subdirectory(network)
@@ -37,7 +38,3 @@ add_subdirectory(string)
 add_subdirectory(util)
 add_subdirectory(grpc)
 add_subdirectory(test)
-
-install(DIRECTORY ./ DESTINATION "${INCLUDE_DIR}/common"
-        FILES_MATCHING
-        PATTERN "*.hh")

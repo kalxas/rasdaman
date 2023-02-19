@@ -125,7 +125,7 @@ r_Range r_Point::operator[](r_Dimension i) const
     else
     {
         LERROR << "dimension (" << i << ") out of bounds (" << points.size() << ")";
-        throw r_Eindex_violation(0ll, static_cast<r_Range>(points.size()) - 1, i);
+        throw r_Eindex_violation(0l, static_cast<r_Range>(points.size()) - 1, i);
     }
 }
 
@@ -136,7 +136,7 @@ r_Range &r_Point::operator[](r_Dimension i)
     else
     {
         LERROR << "dimension (" << i << ") out of bounds (" << points.size() << ")";
-        throw r_Eindex_violation(0ll, static_cast<r_Range>(points.size()) - 1, i);
+        throw r_Eindex_violation(0l, static_cast<r_Range>(points.size()) - 1, i);
     }
 }
 
@@ -147,7 +147,7 @@ r_Range r_Point::at(r_Dimension i) const
     else
     {
         LERROR << "dimension (" << i << ") out of bounds (" << points.size() << ")";
-        throw r_Eindex_violation(0ll, static_cast<r_Range>(points.size()) - 1, i);
+        throw r_Eindex_violation(0l, static_cast<r_Range>(points.size()) - 1, i);
     }
 }
 
@@ -158,7 +158,7 @@ r_Range &r_Point::at(r_Dimension i)
     else
     {
         LERROR << "dimension (" << i << ") out of bounds (" << points.size() << ")";
-        throw r_Eindex_violation(0ll, static_cast<r_Range>(points.size()) - 1, i);
+        throw r_Eindex_violation(0l, static_cast<r_Range>(points.size()) - 1, i);
     }
 }
 

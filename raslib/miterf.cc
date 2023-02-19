@@ -30,6 +30,7 @@ rasdaman GmbH.
 
 #include "raslib/miterf.hh"
 #include "raslib/minterval.hh"
+#include <ostream>
 
 const int     r_FixedPointNumber::FIXPREC  = 30;
 const r_Range r_FixedPointNumber::carryPos = 1 << FIXPREC;

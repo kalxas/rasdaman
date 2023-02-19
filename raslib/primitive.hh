@@ -20,16 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: primitive.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Primitive
- *
- * COMMENTS:
- *      The class represents a primitive type value.
- *
-*/
 
 #ifndef _D_PRIMITIVE_
 #define _D_PRIMITIVE_
@@ -42,9 +32,11 @@ rasdaman GmbH.
 class r_Primitive_Type;
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
-
+/**
  Class r_Primitive represents a primitive (atomic) type value.
 */
 class r_Primitive : public r_Scalar

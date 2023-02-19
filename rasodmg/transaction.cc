@@ -39,6 +39,7 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "raslib/scalar.hh"
 #include "raslib/oid.hh"
+#include "raslib/stringdata.hh"
 
 #include "clientcomm/clientcomm.hh"
 
@@ -181,6 +182,11 @@ r_Transaction::commit()
                 LDEBUG << "transient OId DELETED";
                 delete (static_cast<r_OId *>((*iter2)->ref));
                 break;
+            
+            case STRING:
+                LDEBUG << "transient String DELETED";
+                delete (static_cast<r_String *>((*iter2)->ref));
+                break;
 
             default:
                 LDEBUG << "transient Scalar DELETED";
@@ -257,6 +263,11 @@ r_Transaction::abort()
             case OID:
                 LDEBUG << "  Transient OId DELETED";
                 delete (static_cast<r_OId *>((*iter2)->ref));
+                break;
+            
+            case STRING:
+                LDEBUG << "  Transient String DELETED";
+                delete (static_cast<r_String *>((*iter2)->ref));
                 break;
 
             default:

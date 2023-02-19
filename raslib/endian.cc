@@ -203,7 +203,6 @@ template void swap_array_templ(r_Miter &, r_Miter &, const r_Double *);
 /*
  *  r_Endian members
  */
-
 r_Short r_Endian::swap(r_Short val)
 {
     return eswap(val);

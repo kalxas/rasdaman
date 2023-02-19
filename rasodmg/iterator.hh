@@ -14,46 +14,35 @@
 * You should have received a copy of the GNU General Public License
 * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 *
-* Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
-rasdaman GmbH.
+* Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann / rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-*/
-/**
- * INCLUDE: iterator.hh
- *
- * MODULE:  rasodmg
- * CLASS:   r_Iterator
- *
- * COMMENTS:
- *      None
 */
 
 #ifndef _D_ITERATOR_
 #define _D_ITERATOR_
 
-#include "raslib/error.hh"
 #include "rasodmg/collection.hh"
 
 //@ManMemo: Module: {\bf rasodmg}
 
-/*@Doc:
+/**
+  * \ingroup Rasodmgs
+  */
 
-  The template class \Ref{r_Iterator} defines the generic
+/**
+
+  The template class r_Iterator defines the generic
   behavior for iteration. All iterators use a consistent protocol
   for sequentially returning each element from the collection over
   which the iteration is defined.
   When an iterator is constructed, it is either initialized with
   another iterator or is set to null. When an iterator is constructed
-  via the <tt>create_iterator()</tt> method defined in \Ref{r_Collection},
+  via the create_iterator() method defined in r_Collection,
   the iterator is initailized to point to the first element, if there
   is one.
 */
-
-/**
-  * \ingroup Rasodmgs
-  */
 template <class T>
 class r_Iterator
 {
@@ -63,7 +52,7 @@ public:
     /// copy constructor
     r_Iterator(const r_Iterator<T> &iter);
     /// constructor getting the collection on which to iterate (used for <tt>r_Collection::create_iterator()</tt>)
-    r_Iterator(r_Collection<T> &source, int removed_objects = 0);
+    explicit r_Iterator(r_Collection<T> &source, int removed_objects = 0);
     /**
       Creates an iterator which points to the first element of the element collection. If
       <tt>removed_objects</tt> ist set to 1, the iterator points to the first element of

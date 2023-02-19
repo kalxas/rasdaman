@@ -4475,24 +4475,30 @@ Coloring Arrays
     color with an array cell value, the cell value is used as a subscript into
     the color table (starting from 0).
 
+.. _netcdf-encode:
+
 NetCDF
 ^^^^^^
 
 The following are mandatory options when encoding to NetCDF:
+
+- ``dimensions`` - An array of names for each dimension, e.g. ``["Lat","Long"]``.
 
 - ``variables`` -  Specify variable names for each band of the MDD,
   dimension names if they need to be saved as `coordinate variables
   <https://www.unidata.ucar.edu/software/netcdf/docs/netcdf_data_set_components.html#coordinate_variables>`__,
   as well as non-data `grid mapping variables
   <https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html#grid-mappings-and-projections>`__.
-  There are two ways to specify the variables:
+  There are three ways to specify the variables:
 
   1. An array of strings for each variable name, e.g. ``["var1", "var2"]``;
      no coordinate variables should be specified in this case, as there is no
      way to specify the data for them;
 
-  2. An object of variable name - object pairs, where each object lists the
-     following variable details:
+  2. An array of variable objects, where each object lists the following
+     variable details:
+
+     - ``name`` - The variable name, e.g. ``"name": "var1"``
 
      - ``metadata`` - An object of string key-value pairs which are added as
        attributes to the variable;
@@ -4512,8 +4518,12 @@ The following are mandatory options when encoding to NetCDF:
      attribute is ignored in this case, so the value for it can be an empty
      JSON array ``[]``.
 
-- ``dimensions`` - An array of names for each dimension, e.g. ``["Lat","Long"]``.
-
+  3. An object of variable name - object pairs, where each object lists the
+     variable details in similar fashion to the option 2. above, except that
+     the key ``name`` is optional. This way of specifying the variables in a
+     JSON object is deprecated because their order is non-deterministic and may
+     not work as expected when encoding multiple variables. It is recommended
+     to use the method in option 2.
 
 .. _csv-encode:
 
@@ -6760,7 +6770,11 @@ This appendix presents the list of all tokens that CANNOT be used as variable na
       - sort
       - flip
       - asc
-      - desc
+    * - desc
+      -
+      -
+      -
+      -
 
 
 

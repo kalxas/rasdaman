@@ -477,7 +477,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) con
                     // Create a specification of a regular n-dim cube grid
                     r_Minterval specs(num_dims);
                     for (r_Dimension i = 0; i < num_dims; i++)
-                        specs << r_Sinterval(0ll, (*it)[i].high() - (*it)[i].low());
+                        specs << r_Sinterval(0l, (*it)[i].high() - (*it)[i].low());
     
                     // Class for performing sub-tiling
                     r_Aligned_Tiling subtiling(specs, get_tile_size());

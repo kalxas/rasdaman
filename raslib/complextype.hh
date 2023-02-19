@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: complextype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Complex_Type
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _D_COMPLEXTYPE_TYPE_
 #define _D_COMPLEXTYPE_TYPE_
@@ -37,6 +28,9 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"
 #include "raslib/mddtypes.hh"
 
+/**
+  * \ingroup raslib
+  */
 class r_Complex_Type :  public r_Primitive_Type
 {
 public:

@@ -20,24 +20,17 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
- * INCLUDE: sintervaltype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Sinterval_Type
- *
- * COMMENTS:
- *
-*/
-
 #ifndef D_SINTERVAL_TYPE_HH
 #define D_SINTERVAL_TYPE_HH
 
 #include "raslib/type.hh"
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class represents the sinterval type in the ODMG conformant
   representation of the RasDaMan type system.
 */

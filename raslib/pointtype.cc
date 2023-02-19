@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 
 #include "raslib/pointtype.hh"
+#include <ostream>
 
 r_Point_Type::r_Point_Type(const r_Point_Type &oldObj)
     : r_Type(oldObj)

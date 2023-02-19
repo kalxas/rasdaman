@@ -20,9 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <ctype.h>   //  for isalpha()
-#include <string.h> //  for strncmp()
-
 #include "raslib/type.hh"
 #include "raslib/collectiontype.hh"
 #include "raslib/primitivetype.hh"
@@ -33,10 +30,13 @@
 #include "raslib/mintervaltype.hh"
 #include "raslib/pointtype.hh"
 #include "raslib/oidtype.hh"
+#include "raslib/stringtype.hh"
 #include "raslib/attribute.hh"
 #include "raslib/error.hh"
-
 #include <logging.hh>
+
+#include <ctype.h>   //  for isalpha()
+#include <string.h> //  for strncmp()
 
 
 r_Type::r_Type(const char *newTypeName)
@@ -100,6 +100,11 @@ r_Type::isPointType() const
 
 bool
 r_Type::isOidType() const
+{
+    return false;
+}
+
+bool r_Type::isStringType() const
 {
     return false;
 }
@@ -280,6 +285,11 @@ r_Type::getNextToken(char *&pos, char *&identifier)
         token = DLOID;
         pos += 3;
     }
+    else if (!strncmp(pos, "string", 3))
+    {
+        token = DLSTRING;
+        pos += 6;
+    }
     else
     {
         token = DLIDENTIFIER;  // identifier
@@ -374,6 +384,10 @@ r_Type::getType(char *&pos)
     else if (token == DLOID)
     {
         returnValue = getOidType(pos);
+    }
+    else if (token == DLSTRING)
+    {
+        returnValue = getStringType(pos);
     }
     else
     {
@@ -624,6 +638,19 @@ r_Type::getOidType(char *&pos)
     getNextToken(pos, dummy);
 
     returnValue = new r_Oid_Type();
+
+    return returnValue;
+}
+
+r_String_Type *
+r_Type::getStringType(char *&pos)
+{
+    char                *dummy = NULL;
+    r_String_Type *returnValue = NULL;
+
+    getNextToken(pos, dummy);
+
+    returnValue = new r_String_Type();
 
     return returnValue;
 }

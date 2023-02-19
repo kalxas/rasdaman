@@ -26,7 +26,6 @@ rasdaman GmbH.
 #include <iostream>
 
 #include "qlparser/parseinfo.hh"
-#include "raslib/rminit.hh"
 #include "catalogmgr/nullvalues.hh"
 
 #include <string>

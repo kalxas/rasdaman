@@ -26,7 +26,7 @@
 #include <string>
 #include <cstdint>
 
-#include "../../commline/cmlparser.hh"
+#include "common/commline/cmlparser.hh"
 
 namespace rascontrol
 {

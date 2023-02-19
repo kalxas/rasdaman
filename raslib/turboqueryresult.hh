@@ -40,9 +40,8 @@
  *          The class wraps the result of a query executed through  Servercomm::executeTurboQuery()
 */
 
-#include <stdlib.h>
-#include <string>
 #include "raslib/mddtypes.hh"
+#include <string>
 
 class TurboQueryResult
 {

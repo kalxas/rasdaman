@@ -56,7 +56,6 @@ double r_Nullvalues::getFirstNullValue() const
 std::string r_Nullvalues::toString() const
 {
     std::string ret = "[";
-    bool addComma = false;
     for (const auto &p : nullvalues)
     {
         if (ret.size() > 1) // ret == "[" at the start

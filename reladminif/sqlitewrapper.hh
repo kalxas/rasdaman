@@ -90,7 +90,7 @@ public:
      * next column.
      * @return the long long value of the current column.
      */
-    long long nextColumnLong();
+    long nextColumnLong();
 
     /**
      * Returns the current column value, and then advances the counter to the

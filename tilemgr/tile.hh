@@ -38,7 +38,6 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"   // for r_Minterval
 #include "raslib/point.hh"       // for r_Point
 #include "raslib/mddtypes.hh"    // for r_Data_Format
-#include "raslib/rminit.hh"
 #include "catalogmgr/ops.hh"                // for Ops::OpType
 #include "reladminif/dbref.hh"
 #include "relblobif/tileid.hh"
@@ -399,14 +398,7 @@ Tile::Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom, NullValues
     type = (*tileIt)->getType();
 
     // init contents
-    if (RMInit::useTileContainer)
-    {
-        blobTile = new InlineTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
-    }
-    else
-    {
-        blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
-    }
+    blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
     
     if (nullvalues)
     {

@@ -20,16 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: oid.hh
- *
- * MODULE:  raslib
- * CLASS:   r_OId
- *
- * COMMENTS:
- *      The class represents an object identifier (OId).
- *
-*/
 
 #ifndef D_OID_HH
 #define D_OID_HH
@@ -38,8 +28,11 @@ rasdaman GmbH.
 #include <string>
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc: 
+/**
  * Class r_OId represents an object identifier.
  */
 class r_OId

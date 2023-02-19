@@ -510,7 +510,7 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
     memfs_seek(handle, 0, SEEK_SET);
     memfs_write(handle, bmpHeaders, BMPHEADERSIZE);
 
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(fileSize))) == NULL)
+    if ((desc.dest = static_cast<char*>(mymalloc(fileSize))) == NULL)
     {
         LERROR << "r_Conv_BMP::convertTo(): out of memory!";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -696,7 +696,7 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
 
     imgLine = (const unsigned char*)(palette + paletteSize);
 
-    if ((dest = static_cast<unsigned char*>(mystore.storage_alloc(static_cast<size_t>(width * height * pixelSize)))) == NULL)
+    if ((dest = static_cast<unsigned char*>(mymalloc(static_cast<size_t>(width * height * pixelSize)))) == NULL)
     {
         LERROR << "r_Conv_BMP::convertFrom(): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -1123,7 +1123,7 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
     default:
     {
         LERROR << "r_Conv_BMP::convertFrom(): bad compression type";
-        mystore.storage_free(dest);
+        free(dest);
         throw r_Error(r_Error::r_Error_General);
     }
     }

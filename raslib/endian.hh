@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: endian.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Endian
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _R_ENDIANTOOLS_HH_
 #define _R_ENDIANTOOLS_HH_
@@ -41,13 +32,15 @@ class r_Base_Type;
 class r_Primitive_Type;
 
 //@ManMemo: Module {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   Class to check the endianness of the host machine and to
   swap the endianness of types and arrays. Don't instantiate,
   static members only.
 */
-
 class r_Endian
 {
 public:

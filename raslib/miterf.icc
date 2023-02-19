@@ -28,8 +28,6 @@ rasdaman GmbH.
  *
 */
 
-#include "raslib/miterf.hh"
-
 #include <math.h>
 
 //

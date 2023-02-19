@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: property.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Property
- *
- * COMMENTS:
- *
-*/
 
 #ifndef D_PROPERTY_HH
 #define D_PROPERTY_HH
@@ -38,8 +29,11 @@ rasdaman GmbH.
 class r_Base_Type;
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class the superclass for properties of classes in the ODMG
   conformant representation of the RasDaMan type system.
 */

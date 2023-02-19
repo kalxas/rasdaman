@@ -69,9 +69,8 @@ public class RasImplementation implements Implementation {
      */
     public RasImplementation(String server) {
         Debug.talkSparse(RasGlobalDefs.RASJ_VERSION);
-        Debug.talkSparse(" Using server " + server);
         imp = new RasRasnetImplementation(new RasnetServiceFactoryImpl(), server);
-    } // RasImplementation()
+    }
 
     /**
      *  returns 1 if an openDB command is executed (closeDB sets it back to 0).

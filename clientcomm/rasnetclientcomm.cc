@@ -40,13 +40,13 @@ rasdaman GmbH.
 #include "raslib/primitive.hh"
 #include "raslib/complex.hh"
 #include "raslib/structure.hh"
+#include "raslib/stringdata.hh"
 #include "raslib/turboqueryresult.hh"
 #include "raslib/miterd.hh"
+#include "raslib/error.hh"
 #include "mymalloc/mymalloc.h"
 #include "servercomm/rpcif.h"
 
-#include "common/crypto/crypto.hh"
-#include "common/uuid/uuid.hh"
 #include "common/string/stringutil.hh"
 #include "common/grpc/grpcutils.hh"
 #include "common/exceptions/invalidargumentexception.hh"
@@ -71,10 +71,13 @@ using grpc::Status;
 
 using namespace rasnet::service;
 
+/// returns an MD5 digest of initial_msg
+std::string md5Digest(const std::uint8_t *initial_msg, size_t initial_len);
+
 RasnetClientComm::RasnetClientComm(const std::string &rasmgrHost1, int rasmgrPort1)
   : rasmgrHostname{rasmgrHost1}
 {
-    this->rasmgrHost = GrpcUtils::constructAddressString(rasmgrHost1, boost::uint32_t(rasmgrPort1));
+    this->rasmgrHost = GrpcUtils::constructAddressString(rasmgrHost1, std::uint32_t(rasmgrPort1));
 }
 
 RasnetClientComm::~RasnetClientComm() noexcept
@@ -1258,6 +1261,7 @@ GetElementRes *RasnetClientComm::executeGetNextElement()
     result->data.confarray_len = u_int(repl.data_length());
     result->data.confarray_val = new char[repl.data_length()];
     memcpy(result->data.confarray_val, repl.data().c_str(), size_t(repl.data_length()));
+    LDEBUG << "got " << *reinterpret_cast<double*>(result->data.confarray_val) << " of size " << repl.data_length();
     result->status = repl.status();
     return result;
 }
@@ -1351,6 +1355,16 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
             stringRep[dataLen] = '\0';
             element = new r_OId(stringRep);
             transaction->add_object_list(GenRefType::OID, (void *) element);
+            delete [] stringRep;
+            break;
+        }
+        case r_Type::STRINGTYPE:
+        {
+            char *stringRep = new char[dataLen + 1];
+            strncpy(stringRep, data, dataLen);
+            stringRep[dataLen] = '\0';
+            element = new r_String(stringRep);
+            transaction->add_object_list(GenRefType::STRING, (void *) element);
             delete [] stringRep;
             break;
         }
@@ -1539,9 +1553,141 @@ void RasnetClientComm::handleStatusCode(int status, const std::string &method)
     }
 }
 
+std::string md5Digest(const std::uint8_t *initial_msg, size_t initial_len)
+{
+    // Constants are the integer part of the sines of integers (in radians) * 2^32.
+    static const uint32_t k[64] = {
+    0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee ,
+    0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501 ,
+    0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be ,
+    0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821 ,
+    0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa ,
+    0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8 ,
+    0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed ,
+    0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a ,
+    0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c ,
+    0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70 ,
+    0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05 ,
+    0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665 ,
+    0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039 ,
+    0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1 ,
+    0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1 ,
+    0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391 };
+    
+// leftrotate function definition
+#define LEFTROTATE(x, c) (((x) << (c)) | ((x) >> (32 - (c))))
+    
+    // These vars will contain the hash
+    uint32_t h0, h1, h2, h3;
+
+    // Message (to prepare)
+    uint8_t *msg = NULL;
+    int new_len;
+    uint32_t bits_len;
+    int offset;
+    uint32_t i, f, g, temp;
+
+    // Note: All variables are unsigned 32 bit and wrap modulo 2^32 when calculating
+
+    // r specifies the per-round shift amounts
+    static const uint32_t r[] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+                                 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20,
+                                 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+                                 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
+
+    // Initialize variables - simple count in nibbles:
+    h0 = 0x67452301;
+    h1 = 0xefcdab89;
+    h2 = 0x98badcfe;
+    h3 = 0x10325476;
+
+    // Pre-processing: adding a single 1 bit
+    //append "1" bit to message    
+    /* Notice: the input bytes are considered as bits strings,
+       where the first bit is the most significant bit of the byte.[37] */
+
+    // Pre-processing: padding with zeros
+    //append "0" bit until message length in bit ≡ 448 (mod 512)
+    //append length mod (2 pow 64) to message
+
+    for(new_len = initial_len*8 + 1; new_len%512!=448; new_len++);
+    new_len /= 8;
+
+    msg = (uint8_t*)calloc(size_t(new_len) + 64, 1); // also appends "0" bits 
+                                   // (we alloc also 64 extra bytes...)
+    memcpy(msg, initial_msg, initial_len);
+    msg[initial_len] = 128; // write the "1" bit
+
+    bits_len = 8*initial_len; // note, we append the len
+    memcpy(msg + new_len, &bits_len, 4);           // in bits at the end of the buffer
+
+    // Process the message in successive 512-bit chunks:
+    //for each 512-bit chunk of message:
+    for(offset=0; offset<new_len; offset += (512/8)) {
+
+        // break chunk into sixteen 32-bit words w[j], 0 ≤ j ≤ 15
+        auto *w = (uint32_t *) (msg + offset);
+
+        // Initialize hash value for this chunk:
+        auto a = h0;
+        auto b = h1;
+        auto c = h2;
+        auto d = h3;
+
+        // Main loop:
+        for(i = 0; i<64; i++) {
+
+             if (i < 16) {
+                f = (b & c) | ((~b) & d);
+                g = i;
+            } else if (i < 32) {
+                f = (d & b) | ((~d) & c);
+                g = (5*i + 1) % 16;
+            } else if (i < 48) {
+                f = b ^ c ^ d;
+                g = (3*i + 5) % 16;          
+            } else {
+                f = c ^ (b | (~d));
+                g = (7*i) % 16;
+            }
+
+             temp = d;
+            d = c;
+            c = b;
+            b = b + LEFTROTATE((a + f + k[i] + w[g]), r[i]);
+            a = temp;
+
+        }
+
+        // Add this chunk's hash to result so far:
+        h0 += a;
+        h1 += b;
+        h2 += c;
+        h3 += d;
+
+    }
+
+    // cleanup
+    free(msg);
+    
+    auto *p0 = reinterpret_cast<std::uint8_t*>(&h0);
+    auto *p1 = reinterpret_cast<std::uint8_t*>(&h1);
+    auto *p2 = reinterpret_cast<std::uint8_t*>(&h2);
+    auto *p3 = reinterpret_cast<std::uint8_t*>(&h3);
+    char ret[33];
+    sprintf(ret, "%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x",
+            p0[0], p0[1], p0[2], p0[3],
+            p1[0], p1[1], p1[2], p1[3],
+            p2[0], p2[1], p2[2], p2[3],
+            p3[0], p3[1], p3[2], p3[3]
+            );
+    return ret;
+}
+
 void RasnetClientComm::setUserIdentification(const char *userName, const char *plainTextPassword)
 {
-    connectClient(userName, common::Crypto::messageDigest(plainTextPassword, DEFAULT_DIGEST));
+    connectClient(userName, md5Digest(reinterpret_cast<const std::uint8_t*>(plainTextPassword),
+                                      strlen(plainTextPassword)));
 }
 
 void RasnetClientComm::setMaxRetry(UNUSED unsigned int newMaxRetry)
@@ -1582,13 +1728,13 @@ std::shared_ptr<ClientRassrvrService::Stub> RasnetClientComm::getRasServerServic
 
 void RasnetClientComm::initRasserverService()
 {
-    boost::unique_lock<boost::shared_mutex> lock(this->rasServerServiceMtx);
+    std::unique_lock<std::mutex> lock(this->rasServerServiceMtx);
     if (!this->initializedRasServerService)
     {
         LDEBUG << "initializing rasserver service to " << rasServerHost << ":" << rasServerPort;
         try
         {
-            auto address = GrpcUtils::constructAddressString(rasServerHost, boost::uint32_t(rasServerPort));
+            auto address = GrpcUtils::constructAddressString(rasServerHost, std::uint32_t(rasServerPort));
             auto channel = grpc::CreateCustomChannel(address, grpc::InsecureChannelCredentials(),
                                                      GrpcUtils::getDefaultChannelArguments());
 
@@ -1607,7 +1753,7 @@ void RasnetClientComm::initRasserverService()
 
 void RasnetClientComm::closeRasserverService()
 {
-    boost::unique_lock<boost::shared_mutex> lock(this->rasServerServiceMtx);
+    std::lock_guard<std::mutex> lock(this->rasServerServiceMtx);
     if (this->initializedRasServerService)
     {
         this->initializedRasServerService = false;
@@ -1630,7 +1776,7 @@ std::shared_ptr<rasnet::service::RasmgrClientService::Stub> RasnetClientComm::ge
 
 void RasnetClientComm::initRasmgrService()
 {
-    boost::unique_lock<boost::shared_mutex> lock(this->rasMgrServiceMtx);
+    std::unique_lock<std::mutex> lock(this->rasMgrServiceMtx);
     if (!this->initializedRasMgrService)
     {
         try
@@ -1651,7 +1797,7 @@ void RasnetClientComm::initRasmgrService()
 
 void RasnetClientComm::closeRasmgrService()
 {
-    boost::unique_lock<boost::shared_mutex> lock(this->rasMgrServiceMtx);
+    std::lock_guard<std::mutex> lock(this->rasMgrServiceMtx);
     if (this->initializedRasMgrService)
     {
         this->initializedRasMgrService = false;
@@ -1665,11 +1811,11 @@ void RasnetClientComm::closeRasmgrService()
 /* RASMGR */
 void RasnetClientComm::startRasMgrKeepAlive()
 {
-    boost::lock_guard<boost::mutex> lock(this->rasmgrKeepAliveMutex);
+    std::lock_guard<std::mutex> lock(this->rasmgrKeepAliveMutex);
 
     //TODO-GM
     this->isRasmgrKeepAliveRunning = true;
-    this->rasMgrKeepAliveManagementThread.reset(new boost::thread(&RasnetClientComm::clientRasMgrKeepAliveRunner, this));
+    this->rasMgrKeepAliveManagementThread.reset(new std::thread(&RasnetClientComm::clientRasMgrKeepAliveRunner, this));
 }
 
 void RasnetClientComm::stopRasMgrKeepAlive()
@@ -1677,7 +1823,7 @@ void RasnetClientComm::stopRasMgrKeepAlive()
     try
     {
         {
-            boost::unique_lock<boost::mutex> lock(this->rasmgrKeepAliveMutex);
+            std::unique_lock<std::mutex> lock(this->rasmgrKeepAliveMutex);
             this->isRasmgrKeepAliveRunning = false;
         }
 
@@ -1696,13 +1842,6 @@ void RasnetClientComm::stopRasMgrKeepAlive()
                 this->rasMgrKeepAliveManagementThread->join();
                 LDEBUG << "Joined rasmgr keep alive management thread.";
             }
-            else
-            {
-                LDEBUG << "Interrupting rasmgr keep alive management thread.";
-                this->rasMgrKeepAliveManagementThread->interrupt();
-                LDEBUG << "Interrupted rasmgr keep alive management thread.";
-            }
-
         }
     }
     catch (std::exception &ex)
@@ -1717,16 +1856,16 @@ void RasnetClientComm::stopRasMgrKeepAlive()
 
 void RasnetClientComm::clientRasMgrKeepAliveRunner()
 {
-    boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(this->keepAliveTimeout);
+    std::chrono::milliseconds timeToSleepFor(this->keepAliveTimeout);
 
-    boost::unique_lock<boost::mutex> threadLock(this->rasmgrKeepAliveMutex);
+    std::unique_lock<std::mutex> threadLock(this->rasmgrKeepAliveMutex);
     while (this->isRasmgrKeepAliveRunning)
     {
         try
         {
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
-            if (!this->isRasmgrKeepAliveRunningCondition.timed_wait(threadLock, timeToSleepFor))
+            if (this->isRasmgrKeepAliveRunningCondition.wait_for(threadLock, timeToSleepFor) == std::cv_status::timeout)
             {
                 LDEBUG << "clientRasMgrKeepAliveRunner - sending KeepAlive request to rasmgr";
                 grpc::ClientContext context;
@@ -1760,11 +1899,11 @@ void RasnetClientComm::clientRasMgrKeepAliveRunner()
 /* RASSERVER */
 void RasnetClientComm::startRasServerKeepAlive()
 {
-    boost::lock_guard<boost::mutex> lock(this->rasserverKeepAliveMutex);
+    std::lock_guard<std::mutex> lock(this->rasserverKeepAliveMutex);
 
     this->isRasserverKeepAliveRunning = true;
     this->rasServerKeepAliveManagementThread.reset(
-        new boost::thread(&RasnetClientComm::clientRasServerKeepAliveRunner, this));
+        new std::thread(&RasnetClientComm::clientRasServerKeepAliveRunner, this));
 }
 
 void RasnetClientComm::stopRasServerKeepAlive()
@@ -1772,7 +1911,7 @@ void RasnetClientComm::stopRasServerKeepAlive()
     try
     {
         {
-            boost::unique_lock<boost::mutex> lock(this->rasserverKeepAliveMutex);
+            std::unique_lock<std::mutex> lock(this->rasserverKeepAliveMutex);
             // Change the condition and notify the variable
             this->isRasserverKeepAliveRunning = false;
         }
@@ -1791,13 +1930,6 @@ void RasnetClientComm::stopRasServerKeepAlive()
                 this->rasServerKeepAliveManagementThread->join();
                 LDEBUG << "Joined rasserver keep alive management thread.";
             }
-            else
-            {
-                LDEBUG << "Interrupting rasserver keep alive management thread.";
-                this->rasServerKeepAliveManagementThread->interrupt();
-                LDEBUG << "Interrupted rasserver keep alive management thread.";
-            }
-
         }
     }
     catch (std::exception &ex)
@@ -1812,16 +1944,16 @@ void RasnetClientComm::stopRasServerKeepAlive()
 
 void RasnetClientComm::clientRasServerKeepAliveRunner()
 {
-    boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(this->keepAliveTimeout);
+    std::chrono::milliseconds timeToSleepFor(this->keepAliveTimeout);
 
-    boost::unique_lock<boost::mutex> threadLock(this->rasserverKeepAliveMutex);
+    std::unique_lock<std::mutex> threadLock(this->rasserverKeepAliveMutex);
     while (this->isRasserverKeepAliveRunning)
     {
         try
         {
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
-            if (!this->isRasserverKeepAliveRunningCondition.timed_wait(threadLock, timeToSleepFor))
+            if (this->isRasserverKeepAliveRunningCondition.wait_for(threadLock, timeToSleepFor) == std::cv_status::timeout)
             {
                 grpc::ClientContext context;
                 GrpcUtils::setDeadline(context, SERVICE_CALL_TIMEOUT);

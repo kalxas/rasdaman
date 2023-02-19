@@ -238,7 +238,7 @@ std::pair<int, int> computeStepsToSkip(const r_Point &currentPosition, const r_P
     for (size_t i = 0; i < hyperplaneEquations.size(); i++)
     {
         //subtract Ax from both sides (x = currentPosition)
-        rhs[i] = hyperplaneEquations[i].second - hyperplaneEquations[i].first.dotProduct(currentPosition);
+        rhs[i] = hyperplaneEquations[i].second - hyperplaneEquations[i].first.dotProduct(r_PointDouble(currentPosition));
 
         //divide by A_n (the last column of A) in each coordinate, if it is nonzero
         if (std::abs(hyperplaneEquations[i].first[boxDim - 1]) > epsilon)
@@ -304,7 +304,7 @@ std::pair<int, int> computeStepsToSkip(const r_Point &currentPosition, const r_P
     for (size_t i = 0; i < hyperplaneEquations.size(); i++)
     {
         //subtract Ax from both sides (x = currentPosition)
-        rhs[i] = -hyperplaneEquations[i].second + hyperplaneEquations[i].first.dotProduct(boundingPosition);
+        rhs[i] = -hyperplaneEquations[i].second + hyperplaneEquations[i].first.dotProduct(r_PointDouble(boundingPosition));
 
         //divide by A_n (the last column of A) in each coordinate, if it is nonzero
         if (std::abs(hyperplaneEquations[i].first[boxDim - 1]) > epsilon)
@@ -708,7 +708,7 @@ pair< vector< vector< r_Point >>, vector< r_Minterval >>
     vector< r_Minterval > resInt;
     resInt.reserve(1);
     r_Minterval resMint(1);
-    resMint[0] = r_Sinterval{0ll, static_cast<r_Range>(resPoints[0].size() - 1)};
+    resMint[0] = r_Sinterval{0l, static_cast<r_Range>(resPoints[0].size() - 1)};
     resInt.emplace_back(resMint);
 
     // construct result pair

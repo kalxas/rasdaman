@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: pointtype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Point_Type
- *
- * COMMENTS:
- *
-*/
 
 #ifndef D_POINT_TYPE_HH
 #define D_POINT_TYPE_HH
@@ -36,8 +27,11 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class represents the point type in the ODMG conformant
   representation of the RasDaMan type system.
 */

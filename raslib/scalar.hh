@@ -20,18 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
- * INCLUDE: scalar.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Scalar
- *
- * COMMENTS:
- *
- * The class represents a scalar type value.
- *
-*/
-
 #ifndef _D_SCALAR_
 #define _D_SCALAR_
 
@@ -40,8 +28,11 @@
 class r_Base_Type;
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
 
  Class r_Scalar represents a scalar type value which
  is either r_Primitive or r_Structure.

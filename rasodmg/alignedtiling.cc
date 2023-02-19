@@ -77,7 +77,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(r_Dimension dim, r_Bytes ts)
 {
     /// Default tile configuration - equal sides
     for (r_Dimension i = 0; i < dim; i++)
-        tile_config << r_Sinterval(0ll, 1ll);
+        tile_config << r_Sinterval(0l, 1l);
 }
 
 r_Aligned_Tiling::r_Aligned_Tiling(const r_Minterval &tc, r_Bytes ts)

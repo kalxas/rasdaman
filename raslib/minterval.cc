@@ -33,7 +33,6 @@ rasdaman GmbH.
 #include "minterval.hh"
 #include "raslib/error.hh"
 #include "raslib/mddtypes.hh"           // for r_Dimension, r_Area, r_Range, r_Bytes
-#include "odmgtypes.hh"
 
 #include <logging.hh>
 
@@ -1248,7 +1247,7 @@ r_Minterval r_Minterval::computeDomainOfResult(const r_Minterval &b) const
       ret.reserve(dim);
       for (DimType i = 0; i < dim; ++i) {
         if (a[i].get_extent() == b[i].get_extent())
-          ret.emplace_back(0ll, static_cast<BoundType>(a[i].get_extent() - 1));
+          ret.emplace_back(0l, static_cast<BoundType>(a[i].get_extent() - 1));
         else
           throw r_Elimits_mismatch(r_Range(a[i].get_extent()), 
                                    r_Range(b[i].get_extent()));

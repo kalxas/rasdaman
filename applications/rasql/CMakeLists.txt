@@ -21,16 +21,15 @@
 #
 ###################################################################
 
-add_executable(rasql rasql.cc
-        rasql_error.hh rasql_error.cc)
+add_executable(rasql rasql.cc)
+
+add_library(rasql_error_lib rasql_error.hh rasql_error.cc)
 
 target_link_libraries(rasql
-    rasodmg raslib clientcomm commline common_logging rasnet)
+    rasql_error_lib rasodmg raslib clientcomm commline common_logging common_util rasnet)
 
 if (${CMAKE_VERSION} GREATER_EQUAL "3.16.1")
 target_precompile_headers(rasql REUSE_FROM common_logging)
 endif()
 
 install(TARGETS rasql DESTINATION ${BIN_DIR})
-
-add_subdirectory(test)

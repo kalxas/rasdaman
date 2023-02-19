@@ -20,18 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
- * INCLUDE: structure.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Structure
- *
- * COMMENTS:
- *
- * The class represents a structured value.
- *
-*/
-
 #ifndef D_STRUCTURE_HH
 #define D_STRUCTURE_HH
 
@@ -40,8 +28,11 @@
 class r_Structure_Type;
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
 
  Class r_Structure represents a structured value.
 
@@ -86,17 +77,15 @@ public:
     const r_Scalar &operator[](unsigned int) const;
 
 private:
-    /// number of elements
-    unsigned int numElements{};
-
     /// array of pointers to elements
     r_Scalar **elements{NULL};
 
     /// char representation
     char *valueBuffer{NULL};
+    
+    /// number of elements
+    unsigned int numElements{};
 };
-
-
 
 //@ManMemo: Module: {\bf raslib}
 /**

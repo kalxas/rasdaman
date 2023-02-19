@@ -35,10 +35,6 @@
  ************************************************************/
 
 #include <iostream>
-#include "raslib/rmdebug.hh"
-
-
-RMINITGLOBALS('C')
 
 using namespace std;
 

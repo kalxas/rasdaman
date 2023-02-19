@@ -1,1 +1,1 @@
-  Result element 1: 6
+6

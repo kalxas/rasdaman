@@ -20,16 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
- * INCLUDE: structuretype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Structure_Type
- *
- * COMMENTS:
- *
-*/
-
 #ifndef _D_STRUCTURE_TYPE_
 #define _D_STRUCTURE_TYPE_
 
@@ -38,8 +28,11 @@
 #include <vector>
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class represents all user defined structured types in the
   ODMG conformant representation of the RasDaMan type system.
 */

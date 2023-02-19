@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: point.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Point
- *
- * COMMENTS:
- *
-*/
 
 #ifndef D_POINT_HH
 #define D_POINT_HH
@@ -38,10 +29,13 @@ rasdaman GmbH.
 #include <iosfwd>
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
 
- Class \Ref{r_Point} represents an n-dimensional point vector.
+ Class r_Point represents an n-dimensional point vector.
 
 */
 

@@ -33,10 +33,6 @@
 
 #include "raslib/miterd.hh"
 #include "raslib/minterval.hh"
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
-
-RMINITGLOBALS('C')
 
 using namespace std;
 

@@ -44,6 +44,7 @@ rasdaman GmbH.
 #include "raslib/complextype.hh"
 #include "raslib/type.hh"
 #include "common/string/stringutil.hh"
+#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
 #include <iostream>
@@ -142,8 +143,8 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options, const r_Range* nullVal)
     std::string result = resultStream.str();
     auto resultSize = result.length();
 
-    desc.destInterv = r_Minterval({r_Sinterval(0ll, r_Range(resultSize) - 1)});
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(resultSize))) == NULL)
+    desc.destInterv = r_Minterval({r_Sinterval(0l, r_Range(resultSize) - 1)});
+    if ((desc.dest = static_cast<char*>(mymalloc(resultSize))) == NULL)
     {
         LERROR << "r_Conv_CSV::convertTo(): out of memory error";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -418,7 +419,7 @@ r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options)
 
     totalSize = numElem * typeSize;
 
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(totalSize))) == NULL)
+    if ((desc.dest = static_cast<char*>(mymalloc(totalSize))) == NULL)
     {
         LERROR << "out of memory error";
         throw r_Error(MEMMORYALLOCATIONERROR);

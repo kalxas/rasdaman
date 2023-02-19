@@ -50,11 +50,6 @@ rasdaman GmbH.
 #include <exception>
 #include <iostream>
 
-using std::string;
-using std::list;
-using std::ostream;
-using std::cout;
-
 // Command Line Parser version
 extern const char *CommandLineParserVersion;
 
@@ -64,12 +59,12 @@ char *dupString(const char *cc);
 class CmlException : public std::exception
 {
 public:
-    explicit CmlException(const string &whatString);
+    explicit CmlException(const std::string &whatString);
     virtual ~CmlException() noexcept;
-    virtual  const char *what() const noexcept;
+    virtual const char *what() const noexcept;
 
 protected:
-    string  problem;
+    std::string  problem;
 };
 
 
@@ -116,8 +111,8 @@ public:
     virtual int         getValueAsInt() = 0;
     virtual double      getValueAsDouble() = 0;
 
-    virtual ostream &printStatus(ostream & = cout) = 0;
-    ostream &printHelp(ostream & = cout);
+    virtual std::ostream &printStatus(std::ostream & = std::cout) = 0;
+    std::ostream &printHelp(std::ostream & = std::cout);
 
 protected:
     CommandLineParameter(char newShortName, const char *newLongName, const char *newDefaultValue);
@@ -142,50 +137,78 @@ class FlagParameter: public CommandLineParameter
 {
 public:
     FlagParameter(char nShortName, const char *nLongName);
+    ~FlagParameter() override = default;
 
-    bool setPresent(char c);
-    bool setPresent(const char *s);
-    bool isPresent();
+    bool setPresent(char c) override;
+    bool setPresent(const char *s) override;
+    bool isPresent() override;
 
-    bool needsValue();
-    bool takeValue(const char *s);
-    void popValue();
+    bool needsValue() override;
+    bool takeValue(const char *s) override;
+    void popValue() override;
 
-    const char *getValueAsString();
-    long        getValueAsLong();
-    int         getValueAsInt();
-    double      getValueAsDouble();
+    const char *getValueAsString() override;
+    long        getValueAsLong() override;
+    int         getValueAsInt() override;
+    double      getValueAsDouble() override;
 
-    ostream &printStatus(ostream & = cout);
+    std::ostream &printStatus(std::ostream & = std::cout) override;
 };
 
 class StringParameter: public CommandLineParameter
 {
 private:
-    list<char *> value;
+    std::list<char *> value;
 
 public:
     StringParameter(char nShortName, const char *nLongName, const char *newDefaultValue = NULL);
     StringParameter(char nShortName, const char *nLongName, long newDefaultValue = 0L);
-    ~StringParameter();
+    ~StringParameter() override;
 
-    bool setPresent(char c);
-    bool setPresent(const char *s);
-    bool isPresent();
+    bool setPresent(char c) override;
+    bool setPresent(const char *s) override;
+    bool isPresent() override;
 
-    bool needsValue();
-    bool takeValue(const char *s);
-    void popValue();
+    bool needsValue() override;
+    bool takeValue(const char *s) override;
+    void popValue() override;
 
-    const char *getValueAsString();
-    long        getValueAsLong();
-    int         getValueAsInt();
-    double      getValueAsDouble();
+    const char *getValueAsString() override;
+    long        getValueAsLong() override;
+    int         getValueAsInt() override;
+    double      getValueAsDouble() override;
 
-    void reset();
+    void reset() override;
 
-    ostream &printStatus(ostream & = cout);
+    std::ostream &printStatus(std::ostream & = std::cout) override;
+};
 
+class DeprecatedParameter: public CommandLineParameter
+{
+private:
+    std::list<char *> value;
+    bool isFlag{false};
+
+public:
+    DeprecatedParameter(char nShortName, const char *nLongName, bool flag = false);
+    ~DeprecatedParameter() override = default;
+    
+    bool setPresent(char c) override;
+    bool setPresent(const char *s) override;
+    bool isPresent() override;
+    
+    bool needsValue() override;
+    bool takeValue(const char *s) override;
+    void popValue() override;
+    
+    const char *getValueAsString() override;
+    long        getValueAsLong() override;
+    int         getValueAsInt() override;
+    double      getValueAsDouble() override;
+
+    void reset() override;
+    
+    std::ostream &printStatus(std::ostream & = std::cout) override;
 };
 
 
@@ -212,6 +235,7 @@ public:
     CommandLineParameter &addFlagParameter(char shortName, const char *longName, const char *description);
     CommandLineParameter &addStringParameter(char shortName, const char *longName,  const char *description, const char *newDefaultValue = NULL);
     CommandLineParameter &addLongParameter(char shortName, const char *longName,  const char *description, long newDefaultValue = 0L);
+    CommandLineParameter &addDeprecatedParameter(char shortName, const char *longName, bool flag = false);
 
     bool isPresent(char shortName);
     bool isPresent(const char *longName);
@@ -234,7 +258,7 @@ public:
 private:
     static CommandLineParser *myself;
 
-    list<CommandLineParameter *> cmlParameter;
+    std::list<CommandLineParameter *> cmlParameter;
 
     CommandLineParameter *lastParameter;
     bool nextTokenIsValue;

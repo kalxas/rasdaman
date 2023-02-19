@@ -46,6 +46,7 @@ rasdaman GmbH.
 
 #include "conversion/png.hh"
 #include "conversion/memfs.hh"
+#include "mymalloc/mymalloc.h"
 
 #include "raslib/parseparams.hh"
 #include "raslib/structuretype.hh"
@@ -441,7 +442,7 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
 
     r_Long pngSize = static_cast<r_Long>(memfs_size(handle));
 
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(pngSize)))) == NULL)
+    if ((desc.dest = static_cast<char*>(mymalloc(size_t(pngSize)))) == NULL)
     {
         LERROR << "Error: " << method_convertTo << ": out of memory.";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -584,7 +585,7 @@ r_Conv_Desc& r_Conv_PNG::convertFrom(const char* options)
 
     png_byte* row = new png_byte[pitch];
 
-    desc.dest = static_cast<char*>(mystore.storage_alloc(pitch * height));
+    desc.dest = static_cast<char*>(mymalloc(pitch * height));
 
     for (pass = 0; pass < numPasses; pass++)
     {

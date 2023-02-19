@@ -550,8 +550,8 @@ void r_Conv_GDAL::setTargetDomain(bool transpose)
     else
     {
         desc.destInterv = r_Minterval(2)
-            << r_Sinterval(0ll, r_Range(poDataset->GetRasterXSize()) - 1)
-            << r_Sinterval(0ll, r_Range(poDataset->GetRasterYSize()) - 1);
+            << r_Sinterval(0l, r_Range(poDataset->GetRasterXSize()) - 1)
+            << r_Sinterval(0l, r_Range(poDataset->GetRasterYSize()) - 1);
         LDEBUG << "Image to be decoded has sdom " << desc.destInterv.to_string();
     }
     if (transpose && formatParams.isTranspose())

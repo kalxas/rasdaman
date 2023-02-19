@@ -36,20 +36,16 @@ class r_Ref_Any;
 class r_Base_Type;
 class r_Parse_Params;
 
-/**
+/** 
 *   @defgroup ClientComm ClientComm
-*
-*   @file clientcomm.hh
-*
-*   @ingroup ClientComm
+*   @{
 */
-//  @Doc
-
-/*  The class ClientComm represents {\bf one} connection between
-    {\bf one} client entity (e.g. an object of class \Ref{r_Database}) and
-    the server. Therefore, the host name has to be provided at
-    the constructor.
-*/
+/**
+ *   
+ * The class ClientComm represents one connection between
+   one client entity (for example an object of class r_Database) and
+   the server.
+ */
 class ClientComm
 {
 public:
@@ -57,8 +53,8 @@ public:
     /// destructor (closes the connection and releases resources)
     virtual ~ClientComm() = default;
 
-    //@Man: Database methods
-    //@{
+    /// Database methods
+    ///@{
     ///
 
     /// open database
@@ -71,10 +67,10 @@ public:
     virtual int destroyDB(const char* name) = 0;
 
     ///
-    //@}
+    ///@}
 
-    //@Man: Transaction methods
-    //@{
+    /// Transaction methods
+    ///@{
     ///
 
     /// begin transaction
@@ -85,10 +81,10 @@ public:
     virtual int abortTA() = 0;
 
     ///
-    //@}
+    ///@}
 
-    //@Man: MDD methods
-    //@{
+    /// MDD methods
+    ///@{
     ///
 
     /// inserts a MDD object in an existing MDD collection on the server
@@ -97,10 +93,10 @@ public:
     virtual r_Ref_Any getMDDByOId(const r_OId& oid) = 0;
 
     ///
-    //@}
+    ///@}
 
-    //@Man: Collection methods
-    //@{
+    /// Collection methods
+    ///@{
     ///
 
     /// creates an empty MDD collection on the server
@@ -121,10 +117,10 @@ public:
     virtual r_Ref_Any getCollOIdsByOId(const r_OId& oid) = 0;
 
     ///
-    //@}
+    ///@}
 
-    //@Man: Query methods
-    //@{
+    /// Query methods
+    ///@{
     ///
 
     /// Executes a retrieval query of type r_OQL_Query and returns the result. Every
@@ -141,11 +137,11 @@ public:
     virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) = 0;
 
     ///
-    //@}
+    ///@}
 
 
-    //@Man: System methods
-    //@{
+    /// System methods
+    ///@{
     ///
 
     /// get new oid
@@ -165,11 +161,11 @@ public:
     virtual char* getTypeStructure(const char* typeName, r_Type_Type typeType) = 0;
 
     ///
-    //@}
+    ///@}
 
 
-    //@Man: Configuration methods
-    //@{
+    /// Configuration methods
+    ///@{
 
     /// set the preferred transfer format
     virtual int setTransferFormat(r_Data_Format format, const char* formatParams = NULL) = 0;
@@ -198,7 +194,7 @@ public:
     virtual void updateTransaction();
 
     ///
-    //@}
+    ///@}
     
 protected:
     /// constructor getting nothing
@@ -210,5 +206,7 @@ protected:
     /// reference to the transaction being used by this client communicator
     r_Transaction* transaction;
 };
+
+/// @}
 
 #endif

@@ -20,14 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: odmgtypes.hh
- *
- * MODULE:  rasodmg
- *
- * PURPOSE:
- *      The file contains ODMG type definitions.
-*/
 
 #ifndef D_ODMGTYPES_HH
 #define D_ODMGTYPES_HH
@@ -35,14 +27,15 @@ rasdaman GmbH.
 // for type-limits
 #include <limits.h>
 #include <float.h>
+#include <cstdint>
 
-using r_Boolean = unsigned char;
-using r_Char = unsigned char;
-using r_Octet = signed char;
-using r_UShort = unsigned short;
-using r_Short = signed short;
-using r_Long = signed int;
-using r_ULong = unsigned int;
+using r_Boolean = std::uint8_t;
+using r_Char = std::uint8_t;
+using r_Octet = std::int8_t;
+using r_UShort = std::uint16_t;
+using r_Short = std::int16_t;
+using r_Long = std::int32_t;
+using r_ULong = std::uint32_t;
 using r_Float = float;
 using r_Double = double;
 

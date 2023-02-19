@@ -103,7 +103,7 @@ void ServerManager::registerServer(const std::string &serverId)
 
     if (!registered)
     {
-        throw InexistentServerGroupException(serverId);
+        throw InexistentServerGroupException(serverId, "failed registering server");
     }
 }
 
@@ -149,7 +149,7 @@ void ServerManager::changeServerGroup(const std::string &oldServerGroupName,
 
     if (!found)
     {
-        throw InexistentServerGroupException(oldServerGroupName);
+        throw InexistentServerGroupException(oldServerGroupName, "cannot change server configuration");
     }
 }
 
@@ -177,7 +177,7 @@ void ServerManager::removeServerGroup(const std::string &serverGroupName)
 
     if (!found)
     {
-        throw InexistentServerGroupException(serverGroupName);
+        throw InexistentServerGroupException(serverGroupName, "cannot remove server");
     }
 }
 
@@ -202,7 +202,7 @@ void ServerManager::startServerGroup(const StartServerGroup &startGroup)
         }
         if (!found)
         {
-            throw InexistentServerGroupException(group);
+            throw InexistentServerGroupException(group, "cannot start server");
         }
     }
     else if (startGroup.has_host_name())
@@ -258,7 +258,7 @@ void ServerManager::stopServerGroup(const StopServerGroup &stopGroup)
         }
         if (!found)
         {
-            throw InexistentServerGroupException(group);
+            throw InexistentServerGroupException(group, "cannot stop server");
         }
     }
     else if (stopGroup.has_host_name())
@@ -362,7 +362,7 @@ std::shared_ptr<Server> ServerManager::getServer(const std::string &serverId)
         }
     }
   
-    throw InexistentServerGroupException(serverId);
+    throw InexistentServerGroupException(serverId, "cannot get server");
 }
 
 ServerMgrProto ServerManager::serializeToProto()

@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: dirtiling.hh
- *
- * MODULE:  rasodmg
- * CLASS:   r_Dir_Tiling
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _R_DIRTILING_HH_
 #define _R_DIRTILING_HH_
@@ -40,7 +31,7 @@ rasdaman GmbH.
 
 //@ManMemo: Module: {\bf rasodmg}
 
-/*@Doc:
+/**
   This class implements the "Directional Tiling" tiling method. In this
   method the decomposition is done along certain directions of the
   multi-dimensional cube. The user uses <tt>r_Dir_Decompose</tt> to inform
@@ -65,12 +56,12 @@ public:
     };
     /// read everything from encoded string
     /// e.g. "3;[0,2,4,5],[*],[0,10,15];100;NOSUBTILING"
-    r_Dir_Tiling(const char *encoded);
+    explicit r_Dir_Tiling(const char *encoded);
 
     /// Class constructor
     r_Dir_Tiling(r_Dimension dims,
                  const std::vector<r_Dir_Decompose> &decomp,
-                 r_Bytes ts = RMInit::clientTileSize,
+                 r_Bytes ts = r_Tiling::defaultTileSize,
                  SubTiling sub = WITH_SUBTILING);
     /**
     The user has to give the number of dimensions of the space and the

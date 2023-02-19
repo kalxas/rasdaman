@@ -25,10 +25,3 @@ add_library(common_crypto crypto.hh crypto.cc)
 
 target_link_libraries(common_crypto PUBLIC ${OPENSSL_LIBRARIES})
 target_include_directories(common_crypto PUBLIC ${OPENSSL_INCLUDE_DIR})
-
-# Install the library to the lib folder
-install(TARGETS common_crypto
-        DESTINATION ${LIB_DIR})
-
-install(FILES crypto.hh
-        DESTINATION "${INCLUDE_DIR}/common/crypto")

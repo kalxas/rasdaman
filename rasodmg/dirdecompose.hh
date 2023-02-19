@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: dirdecomp.hh
- *
- * MODULE:  rasodmg
- * CLASS:   r_Dir_Decompose
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _R_DIRDECOMPOSE_HH_
 #define _R_DIRDECOMPOSE_HH_
@@ -37,10 +28,12 @@ rasdaman GmbH.
 #include <vector>
 
 //@ManMemo: Module {\bf rasodmg}
+/**
+  * \ingroup Rasodmgs
+  */
 
-/*@Doc:
-
-  The <tt>r_Dir_Decompose</tt> class is used to specify a decomposition on
+/**
+  The r_Dir_Decompose class is used to specify a decomposition on
   an n-dimensional cube (for use in <tt>r_Dir_Tiling</tt>). For instance, to
   specify a tiling restriction on a dimension with the form: [0, 2, 4, 5],
   the following code would apply:
@@ -57,10 +50,6 @@ rasdaman GmbH.
   the r_Dir_Decompose should be empty, this is, no restriction should be
   entered.
 */
-
-/**
-  * \ingroup Rasodmgs
-  */
 class r_Dir_Decompose
 {
 public:

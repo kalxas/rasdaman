@@ -49,8 +49,7 @@ class r_Transaction;
 
 //@ManMemo: Module: {\bf rasodmg}
 
-/*@Doc:
-
+/**
   The class represents a generic MDD in the sense that it
   is independent of the cell base type. The only information
   available is the length in bytes of the base type.

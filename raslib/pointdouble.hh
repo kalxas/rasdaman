@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: point.hh
- *
- * MODULE:  raslib
- * CLASS:   r_PointDouble
- *
- * COMMENTS:
- *
-*/
 
 #ifndef R_DOUBLEPOINT_HH
 #define R_DOUBLEPOINT_HH
@@ -41,10 +32,13 @@ rasdaman GmbH.
 #include <vector>
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
 
- Class \Ref{r_Point} represents an n-dimensional point std::vector.
+ Class r_PointDouble represents an n-dimensional point of double coordinates.
 
 */
 
@@ -52,7 +46,7 @@ class r_PointDouble
 {
 public:
     /// constructor getting dimensionality for stream initializing
-    r_PointDouble(r_Dimension);
+    explicit r_PointDouble(r_Dimension);
 
     r_PointDouble(r_Dimension dim, double value);
 
@@ -60,9 +54,9 @@ public:
     ///
     //@}
 
-    r_PointDouble(const r_Point &pt);
+    explicit r_PointDouble(const r_Point &pt);
 
-    r_PointDouble(const std::vector<double> &content);
+    explicit r_PointDouble(const std::vector<double> &content);
 
     /// copy constructor
     r_PointDouble(const r_PointDouble &vectorArg);

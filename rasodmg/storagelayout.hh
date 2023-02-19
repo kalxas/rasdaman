@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: storagelayout.hh
- *
- * MODULE:  rasodmg
- * CLASS:   r_Storage_Layout, r_Domain_Storage_Layout
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _R_STORAGELAYOUT_HH_
 #define _R_STORAGELAYOUT_HH_
@@ -49,10 +40,9 @@ class r_Set;
 
 //@ManMemo: Module: {\bf rasodmg}
 
-/*@Doc:
-
-    The <tt>r_Storage_Layout</tt> class is used to express the storage options
-    for <tt>r_Marray</tt> objects. This is the superclass of different storage
+/**
+    The r_Storage_Layout class is used to express the storage options
+    for r_Marray objects. This is the superclass of different storage
     layout classes which may be used for different types of storage layout
     schemes. It is also used directly by the rasdaman client for
     default storage layout, i.e., for the storage layout for objects for

@@ -77,6 +77,7 @@ target_link_libraries(servercomm
     common_time
     common_uuid
     common_string
+    common_crypto
     )
 
 if (ENABLE_PROFILING)

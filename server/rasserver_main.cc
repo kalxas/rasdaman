@@ -36,6 +36,7 @@ rasdaman GmbH.
 #include "rasserver/src/rasnetserver.hh"
 #include "rasserver_config.hh"
 #include "servercomm/accesscontrol.hh"
+#include "applications/rasql/rasql_error.hh"
 
 #include "logging.hh"
 #include "loggingutils.hh"
@@ -48,7 +49,6 @@ rasdaman GmbH.
 #include <signal.h>
 #include <vector>
 
-RMINITGLOBALS('S')
 INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
@@ -57,13 +57,6 @@ static const int RC_OK = 0;
 static const int RC_ERROR = -1;
 
 extern AccessControl accessControl;
-#ifdef RMANDEBUG
-extern int RManDebug;
-#endif
-
-// TODO remove these global variables at some point, used in servercomm.cc
-unsigned long maxTransferBufferSize = 4000000;
-int           noTimeOut = 0;
 
 // here the id string for connecting to the RDBMS is stored (used by rel* modules).
 // FIXME: bad hack -- PB 2003-oct-12
@@ -242,12 +235,24 @@ bool initialize()
     if (configuration.isRasserver())
         BLINFO << " listening on port " << configuration.getListenPort();
 
-    strcpy(globalConnectId, configuration.getDbConnectionID());
-    BLINFO << ", connecting to " << BASEDBSTRING << " with '" << globalConnectId <<  "'";
+    std::string connectString;
+    if (configuration.getDbConnectionID() == nullptr)
+    {
+        if (configuration.isRasserver())
+            throw r_Error(NOCONNECTSTRING);
+        else
+            connectString = rasserver::directql::getDefaultDb();
+    }
+    else
+    {
+        connectString = configuration.getDbConnectionID();
+    }
+    strcpy(globalConnectId, connectString.c_str());
+    const char *basedbString = globalConnectId[0] == '/' ? "sqlite" : "postgres";
+    BLINFO << ", connecting to " << basedbString << " with '" << globalConnectId <<  "'\n";
 
     strcpy(globalDbUser, configuration.getUser());
     strcpy(globalDbPasswd, configuration.getPasswd());
-    BLINFO << "\n";
 
     NNLINFO << "Verifying rasmgr host name: " << configuration.getRasmgrHost() << "... ";
     if (!gethostbyname(configuration.getRasmgrHost()))
@@ -257,10 +262,6 @@ bool initialize()
     }
     BLINFO << "ok\n";
 
-    maxTransferBufferSize = static_cast<unsigned int>(configuration.getMaxTransferBufferSize());
-    if (configuration.getTimeout() == 0)
-        noTimeOut = 1;
-    
     StorageLayout::DefaultTileSize = static_cast<r_Bytes>(configuration.getDefaultTileSize());
     LINFO << "Tile size set to : " << StorageLayout::DefaultTileSize;
     StorageLayout::DefaultMinimalTileSize = static_cast<r_Bytes>(configuration.getDefaultPCTMin());
@@ -269,11 +270,6 @@ bool initialize()
     LINFO << "PCTMax set to    : " << StorageLayout::DefaultPCTMax;
     StorageLayout::DefaultIndexSize = static_cast<unsigned int>(configuration.getDefaultIndexSize());
     LINFO << "Index size set to: " << StorageLayout::DefaultIndexSize;
-
-#ifdef RMANDEBUG
-    RManDebug = configuration.getDebugLevel();
-    LINFO << "Debug level      : " << RManDebug;
-#endif
 
     try
     {
@@ -296,8 +292,6 @@ bool initialize()
     }
     if (ts != r_Tiling_Scheme_NUMBER)
         StorageLayout::DefaultTilingScheme = ts;
-    // retiling enabled only if tiling scheme is regular tiling
-    RMInit::tiling = (ts == r_RegularTiling);
     LINFO << "Default tiling   : " << StorageLayout::DefaultTilingScheme;
 
     // Index
@@ -305,10 +299,6 @@ bool initialize()
     if (tmpIT != r_Index_Type_NUMBER)
         StorageLayout::DefaultIndexType = tmpIT;
     LINFO << "Default Index    : " << StorageLayout::DefaultIndexType;
-
-    //use tilecontainer
-    RMInit::useTileContainer = configuration.useTileContainer();
-    LINFO << "Tile container   : " << (RMInit::useTileContainer ? "yes" : "no");
 
     return true;
 }

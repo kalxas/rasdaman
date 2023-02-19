@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 #include "rasodmg/dirdecompose.hh"
 #include "raslib/error.hh"
+#include <ostream>
 
 r_Dir_Decompose &r_Dir_Decompose::operator<<(r_Range limit)
 {
@@ -41,7 +42,7 @@ size_t r_Dir_Decompose::get_num_intervals() const
 r_Range r_Dir_Decompose::get_partition(size_t number) const
 {
     if (number >= intervals.size())
-        throw r_Eindex_violation(0ll, static_cast<r_Range>(intervals.size()),
+        throw r_Eindex_violation(0l, static_cast<r_Range>(intervals.size()),
                                  static_cast<r_Range>(number));
     return intervals[number];
 }

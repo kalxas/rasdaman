@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: collection.hh
- *
- * MODULE:  rasodmg
- * CLASS:   r_Collection
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _D_COLLECTION_
 #define _D_COLLECTION_
@@ -39,19 +30,15 @@ template <class T>
 class r_Iterator;
 
 //@ManMemo: Module: {\bf rasodmg}
-
-/*@Doc:
-
- Basic class of a collection. Possible subclasses are \Ref{r_Set},
- \Ref{r_Bag} and \Ref{r_List}. The protected members isOrdered and
- allowsDuplicates are not initialized here, they have to be initialized
- in the respective subclasses.
-
-*/
-
 /**
   * \ingroup Rasodmgs
   */
+
+/**
+ Basic class of a collection. Possible subclasses are r_Set. The protected
+ members isOrdered and allowsDuplicates are not initialized here, they have to
+ be initialized in the respective subclasses.
+*/
 template <class T>
 class r_Collection : public r_Object
 {

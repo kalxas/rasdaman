@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: metaobject.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Meta_Object
- *
- * COMMENTS:
- *
-*/
 
 #ifndef _D_META_OBJECT_
 #define _D_META_OBJECT_
@@ -37,12 +28,14 @@ rasdaman GmbH.
 #include <string>
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class the superclass for all classes in the ODMG conformant
   representation of the RasDaMan type system.
 */
-
 class r_Meta_Object
 {
 public:

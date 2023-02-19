@@ -6,6 +6,11 @@
 
 namespace common {
 
+/**
+ * \defgroup common
+ * 
+ * Utility methods for string manipulation.
+ */
 class StringUtil {
  public:
   static std::string concat(const std::vector<std::string> &v, char sep = ',');

@@ -20,38 +20,30 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
- * INCLUDE: sinterval.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Sinterval
- *
- * COMMENTS:
- *
-*/
-
 #ifndef D_SINTERVAL_HH
 #define D_SINTERVAL_HH
 
 #include "raslib/mddtypes.hh"  // for r_Range, r_Bytes
 #include <iosfwd>     // for ostream, cout
+#include <string>
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
-
+/**
  The class represents an interval with lower and upper bound.
  Operations on the interval are defined according to the
  ODMG-93 standard.
  The operations union, difference, and intersection are
  defined according to the following table:
 
-    | ...  fixed bound \\
+    | ...  fixed bound
     * ...  open bound
 
 
- \begin{verbatim}
-
+ \code
  class   orientation       union    difference  intersection
  -----------------------------------------------------------
    1     |-a-| |-b-|       error    a           error
@@ -208,8 +200,7 @@
 
   52     *-a-*             a        error       a
          *-b-*
-
- \end{verbatim}
+ \endcode
 
  Attention: The difference operation has to be reconsidered in future
  concerning a discrete interpretation of the intervals.
@@ -218,9 +209,7 @@
  interval containing the two operands.
  The method <tt>intersects_with()</tt> returns 0 in the error cases of the
  intersection operation and 1 otherwise.
-
 */
-
 class r_Sinterval
 {
 public:
@@ -230,7 +219,7 @@ public:
     /// default constructor creates an interval with open bounds
     r_Sinterval() = default;
     /// constructor taking string representation (e.g. *:200 )
-    r_Sinterval(const char *);
+    explicit r_Sinterval(const char *);
     /// constructor for an interval with fixed bounds
     r_Sinterval(r_Range low, r_Range high);
     /// constructor for a slice (TODO)

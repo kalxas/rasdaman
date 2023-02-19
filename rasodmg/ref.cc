@@ -465,4 +465,6 @@ template class r_Ref<r_Minterval>;
 template class r_Ref<r_OId>;
 #include "raslib/scalar.hh"
 template class r_Ref<r_Scalar>;
+#include "raslib/stringdata.hh"
+template class r_Ref<r_String>;
 

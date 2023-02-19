@@ -20,13 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: miterd.hh
- *
- * MODULE:  raslib
- * CLASS:   r_MiterDirect
- *
-*/
 
 #ifndef R_MITERD_HH
 #define R_MITERD_HH
@@ -40,8 +33,11 @@ class r_Minterval;
 class r_miter_direct_data;
 
 //@ManMemo: Module {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   r_MiterDirect is similar to r_Miter, but allows stepping by more
   than one cell in each direction, arbitrary order of dimensions in
   the iteration and has a lot of its internal state variables as public

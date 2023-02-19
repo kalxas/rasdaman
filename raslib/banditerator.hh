@@ -24,13 +24,12 @@ rasdaman GmbH.
 #ifndef _BAND_ITERATOR_
 #define _BAND_ITERATOR_
 
-#include "raslib/error.hh"
 #include "raslib/mddtypes.hh"
 #include <assert.h>
 
 class r_Base_Type;
 
-//@ManMemo: Module: {\bf rasodmg}
+//@ManMemo: Module: {\bf raslib}
 
 
 /**
@@ -43,7 +42,7 @@ class r_Base_Type;
 */
 
 /**
-  * \ingroup Rasodmgs
+  * \ingroup raslib
   */
 class r_Band_Iterator
 {

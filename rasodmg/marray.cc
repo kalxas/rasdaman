@@ -32,7 +32,6 @@ rasdaman GmbH.
 
 #include "rasodmg/marray.hh"
 #include "rasodmg/database.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/error.hh"
 #include "clientcomm/clientcomm.hh"
 

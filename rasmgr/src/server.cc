@@ -346,6 +346,7 @@ void Server::registerServer(const std::string &newServerId)
         // Set timeout for API
         ClientContext context;
         this->configureClientContext(context);
+        context.set_wait_for_ready(true);
         ServerStatusRepl repl;
         Status status = this->service->GetServerStatus(&context, req, &repl);
         if (status.ok())

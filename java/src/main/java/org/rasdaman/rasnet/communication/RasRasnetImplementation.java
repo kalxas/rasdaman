@@ -42,6 +42,7 @@ import rasj.global.RasGlobalDefs;
 import rasj.odmg.*;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -656,7 +657,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                             throw new RasTypeNotSupportedException(rt + " as RasCollectionType");
                         }
                         if (rt.getTypeID() != RasGlobalDefs.RAS_COLLECTION) {
-                            Debug.leaveCritical("RasNetImplementation.getResponse: done. type not supported: " + rt);
+                            Debug.talkCritical("RasNetImplementation.getResponse: done. type not supported: " + rt);
+                            Debug.leaveVerbose("RasNetImplementation.getResponse: done, unsupported type");
                             throw new RasTypeNotSupportedException(rt + " as RasCollectionType");
                         }
 
@@ -901,6 +903,22 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             break;
         case RasGlobalDefs.RAS_OID:
             ret = new RasOID(new String(binData));
+            break;
+        case RasGlobalDefs.RAS_STRING:
+            RasMInterval dom = new RasMInterval(1);
+            int length = binData.length; 
+            if (binData.length > 1)
+                --length; // remove the '\0' from C++
+            try {
+              dom.stream(new RasSInterval(0, length - 1));
+            } catch (RasStreamInputOverflowException ex) {
+              // ignore, cannot happen
+            }
+            RasGMArray res = new RasGMArray(dom, 1);
+            byte[] newBinData = new byte[length];
+            System.arraycopy(binData, 0, newBinData, 0, length);
+            res.setArray(newBinData);
+            ret = res;
             break;
         case RAS_BOOLEAN:
             if (dis.readUnsignedByte() == 1) {

@@ -44,13 +44,8 @@
 #include "raslib/mddtypes.hh"
 #include "raslib/miterf.hh"
 #include "raslib/minterval.hh"
-#include "raslib/rminit.hh"
-#include "raslib/rmdebug.hh"
 
 using namespace std;
-
-RMINITGLOBALS('C')
-
 
 int main(int argc, char* argv[])
 {

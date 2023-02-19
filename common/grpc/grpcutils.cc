@@ -22,9 +22,9 @@
 
 #include "grpcutils.hh"
 
-#include "../network/networkresolverfactory.hh"
-#include "../exceptions/exception.hh"
-#include "../exceptions/runtimeexception.hh"
+#include "common/network/networkresolverfactory.hh"
+#include "common/exceptions/exception.hh"
+#include "common/exceptions/runtimeexception.hh"
 #include <logging.hh>
 
 #include <grpc/support/log.h>

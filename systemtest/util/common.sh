@@ -46,9 +46,11 @@ UTIL_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # command shortcuts; variables configured in conf/test.cfg
 #
 export RASQL_OPTS="--server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD"
+export RASQL_OPTS_GUEST="--server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_GUEST_USER --passwd $RASMGR_GUEST_PASSWD"
 export RASQL="rasql --server $RASMGR_HOST $RASQL_OPTS"
+export RASQL_GUEST="rasql --server $RASMGR_HOST $RASQL_OPTS_GUEST"
 export PY_RASQL="$SCRIPT_DIR/rasql.py $RASQL_OPTS --database $RASDB"
-export DIRECTQL="directql --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
+export DIRECTQL="directql --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD --connect $RASDB"
 export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
 
 export START_RAS=start_rasdaman.sh
@@ -66,21 +68,14 @@ export RASSERVER_COUNT="$(grep 'define srv ' "$RASMGR_CONF" -c)"
 export PETASCOPE_PROPERTIES_FILE="$RMANHOME/etc/petascope.properties"
 
 # Run up to 8 test queries in parallel
-PARALLEL_QUERIES=8
+PARALLEL_QUERIES=4
 if [ $PARALLEL_QUERIES -gt "$RASSERVER_COUNT" ]; then
     PARALLEL_QUERIES=$RASSERVER_COUNT
 fi
 export PARALLEL_QUERIES
-
-
-PYTHONBIN=
-for b in python3 python python2; do
-  if $b --version > /dev/null 2>&1; then
-    PYTHONBIN=$b; break;
-  fi
-done
-[ -n "$PYTHONBIN" ] || error "python/python2/python3 not found, please install python first."
-export PYTHONBIN
+# if number of background jobs does not decrease within 120 seconds, the test
+# will terminate with an error.
+export WAIT_TIMEOUT_SEC=120
 
 
 # -------------------
@@ -135,6 +130,8 @@ TEST_SUBSETTING_HOLES=test_subsetting_holes
 TEST_OVERLAP=test_overlap
 TEST_OVERLAP_3D=test_overlap_3d
 TEST_INSITU_BIN=test_insitu_bin
+TEST_DWD_TX24=test_DWD_TX24
+TEST_DWD_NIEDERSCHLAG=test_DWD_Niederschlag
 # ------------------------------------------------------------------------------
 # OS version; the current os can be determined with the get_os function
 #
@@ -252,6 +249,15 @@ if [ -n "$SCRIPT_DIR" ] ; then
   log ""
 fi
 
+# setup python binary
+PYTHONBIN=
+for b in python3 python python2; do
+  if $b --version > /dev/null 2>&1; then
+    PYTHONBIN=$b; break;
+  fi
+done
+[ -n "$PYTHONBIN" ] || error "python/python2/python3 not found, please install python first."
+export PYTHONBIN
 
 # ------------------------------------------------------------------------------
 # manage timing, in ms
@@ -324,6 +330,7 @@ get_os()
       Ubuntu19.0*)       OS_VERSION=$OS_UBUNTU1904;;
       Ubuntu19.1*)       OS_VERSION=$OS_UBUNTU1910;;
       Ubuntu20.0*)       OS_VERSION=$OS_UBUNTU2004;;
+      Ubuntu22.0*)       OS_VERSION=$OS_UBUNTU2204;;
       UbuntuJammy*)      OS_VERSION=$OS_UBUNTU2204;;
       Debian*8*)         OS_VERSION=$OS_DEBIAN8;;
       Debian*9*)         OS_VERSION=$OS_DEBIAN9;;
@@ -648,7 +655,7 @@ prepare_json_file()
 {
   local json_file="$1"
   if [[ -n "$json_file" && -f "$json_file" ]]; then
-    sed -i -e '/href/d' \
+    sed -i -e '/href/d' -e 's/ *Result element [[:digit:]]: *//' \
            "$json_file"
   fi
 }
@@ -698,6 +705,7 @@ prepare_gdal_file()
   sed -i -e '/TOWGS84\[/d' \
          -e '/fileReferenceHistory/d' \
          -e '/Mask Flags/d' \
+         -e 's/ColorInterp=.*//g' \
          "$tmpf"
 
   rm -f "$1.aux.xml" "$1" && mv "$tmpf" "$1"
@@ -827,6 +835,7 @@ post_request_kvp() {
   kvpValues="$(echo "$2" | tr -d '\n')"
   $CURL -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
+
 
 post_request_kvp_with_breaklines() {
   # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/ows)
@@ -975,7 +984,8 @@ run_test()
     #
     case "$SVC_NAME" in
 
-      rasql)
+      servlet)
+              # test_rasql_servlet
               case "$test_type" in
                 kvp)
                     QUERY=$(cat "$f")
@@ -1023,7 +1033,7 @@ run_test()
 
                     QUERY=$(cat "$f")
                     if check_query_runable "$QUERY"; then
-                       post_request_kvp_with_breaklines "$PETASCOPE_URL" "query=$QUERY" "$out"
+                      post_request_kvp_with_breaklines "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
                       return
                     fi
@@ -1032,7 +1042,7 @@ run_test()
                     QUERY=$(cat "$f")
                     if check_query_runable "$QUERY"; then
                       # send POST/SOAP to petascope
-                       post_request_kvp_with_breaklines "$PETASCOPE_URL" "query=$QUERY" "$out"
+                      post_request_kvp_with_breaklines "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
                       return
                     fi
@@ -1131,8 +1141,9 @@ run_test()
               local RASQL_CMD="$RASQL"
               [ "$SVC_NAME" = "rasdapy3" ] && RASQL_CMD="$PY_RASQL"
               local out_scalar="${out}_scalar"
+              local out_stdout="${out}_stdout"
 
-              $RASQL_CMD -q "$QUERY" --out file --outfile "$out" 2> "$err" | grep "  Result " > "$out_scalar"
+              $RASQL_CMD -q "$QUERY" --out file --outfile "$out" 2> "$err" | tee "$out_stdout" | grep "  Result " > "$out_scalar"
 
               # if an exception was thrown, then the err file has non-zero size
               grep -q "Warning 6: PNG" "$err"
@@ -1201,9 +1212,9 @@ exit_script() { if [ $NUM_FAIL -ne 0 ]; then exit $RC_ERROR; else exit $RC_OK; f
 
 stop_rasdaman()
 {
-  logn "stopping rasdaman..."
+  logn "stopping rasdaman $*..."
   if pgrep rasmgr &> /dev/null; then
-    $STOP_RAS &> /dev/null
+    $STOP_RAS $* &> /dev/null
     sleep 0.2 || sleep 1
   fi
   loge ok
@@ -1211,16 +1222,35 @@ stop_rasdaman()
 
 start_rasdaman()
 {
-  logn "starting rasdaman..."
-  $START_RAS &> /dev/null
+  logn "starting rasdaman $*..."
+  $START_RAS $* &> /dev/null
   sleep 0.2 || sleep 1
   loge ok.
 }
 
 restart_rasdaman()
 {
-  stop_rasdaman
-  start_rasdaman
+  stop_rasdaman "$@"
+  start_rasdaman "$@"
+  if [[ $# = 0 ]]; then
+      # everything is restarted including petascope; wait til petascope is up
+      local wait_seconds=120 # wait up to 2 minutes for petascope to start
+      local waited=0
+      local sleep_seconds=5
+      local petascope_available=false
+      while [[ $waited -lt $wait_seconds ]]; do
+          sleep $sleep_seconds
+          waited=$((waited + sleep_seconds))
+          if check_petascope > /dev/null 2>&1; then
+              petascope_available=true
+              break # petascope check returned 0 (success), stop waiting
+          fi
+      done
+      if [[ $petascope_available = false ]]; then
+          log "warning: petascope failed to start and respond within $wait_seconds seconds after restarting rasdaman."
+      fi
+  fi
+  log "rasdaman restarted."
 }
 
 # ------------------------------------------------------------------------------
@@ -1279,6 +1309,107 @@ get_server_pid()
 {
   local -r server_pid=$(ps aux | grep 'bin/rasserver' | grep -v grep | awk '{ print $2; }' | head -n 1)
   [ -n "$server_pid" ] && echo "$server_pid"
+}
+
+# if there are more background jobs than $PARALLEL_QUERIES, then this function
+# will wait until there are less. It has a timeout of 60 seconds and will exit
+# with error if the timeout is reached.
+wait_for_background_jobs()
+{
+  local major=${BASH_VERSINFO[0]}
+  local minor=${BASH_VERSINFO[1]}
+  if ((major > 4 || (major = 4 && minor >= 3))); then
+    # The wait bash command has option -n since Bash 4.3
+    if [ "$(jobs -p | wc -l)" -gt "$PARALLEL_QUERIES" ]; then
+      #echo waiting, currently "$(jobs -p | wc -l)" jobs running
+      wait -n
+    fi
+  else
+    # CentOS 7 has Bash 4.2 without wait -n; we emulate it here with sleep
+    elapsed_sec=0
+    while ((elapsed_sec < WAIT_TIMEOUT_SEC)); do
+      if [ "$(jobs -p | wc -l)" -gt "$PARALLEL_QUERIES" ]; then
+        sleep 0.2
+        elapsed_sec=$((elapsed_sec + 1))
+      else
+        break
+      fi
+    done
+    if ((elapsed_sec >= WAIT_TIMEOUT_SEC)); then
+      error "background jobs did not terminate after waiting for $elapsed_sec seconds."
+    fi
+  fi
+}
+
+# Call to start measuring CPU utilization.
+# Sets global variables cpu_active_prev and cpu_total_prev.
+# It also calls the start_timer function.
+# Note: adapted from https://stackoverflow.com/a/26791468
+measure_cpu_utilization_start()
+{
+  # Read /proc/stat file (for first datapoint)
+  read cpu user nice system idle iowait irq softirq steal guest < /proc/stat
+  # compute active and total utilizations
+  cpu_active_prev=$((user+system+nice+softirq+steal))
+  cpu_total_prev=$((user+system+nice+softirq+steal+idle+iowait))
+  cpus_active_prev=()
+  cpus_total_prev=()
+  cpu_count=$(nproc)
+  for i in $(seq 0 $((cpu_count-1))); do
+    read cpu user nice system idle iowait irq softirq steal guest < <(grep "cpu$i " /proc/stat)
+    cpus_active_prev+=($((user+system+nice+softirq+steal)))
+    cpus_total_prev+=($((user+system+nice+softirq+steal+idle+iowait)))
+  done
+  start_timer
+}
+
+# Call to end measuring CPU utilization; measure_cpu_utilization_start must have
+# been called first. It also calls the stop_timer function.
+# By default a report is printed with overal and per-CPU utilization as well as
+# execution since measure_cpu_utilization_start was called.
+# If an argument "noreport" is specified nothing is printed. 
+# In both cases a global variable cpu_util is set.
+measure_cpu_utilization_end()
+{
+  stop_timer
+  # Read /proc/stat file (for first datapoint)
+  read cpu user nice system idle iowait irq softirq steal guest < /proc/stat
+  # compute active and total utilizations
+  local cpu_active_cur=$((user+system+nice+softirq+steal))
+  local cpu_total_cur=$((user+system+nice+softirq+steal+idle+iowait))
+  # compute CPU utilization (%)
+  cpu_util=$((100*( cpu_active_cur-cpu_active_prev ) / (cpu_total_cur-cpu_total_prev) ))
+
+  # compute individual CPU utilization in %
+  declare -a cpus_active_cur
+  declare -a cpus_total_cur
+  declare -a cpus_util
+  for i in $(seq 0 $((cpu_count-1))); do
+    read cpu user nice system idle iowait irq softirq steal guest < <(grep "cpu$i " /proc/stat)
+    cpus_active_cur+=($((user+system+nice+softirq+steal)))
+    cpus_total_cur+=($((user+system+nice+softirq+steal+idle+iowait)))
+    cpus_util+=($((100*( cpus_active_cur[i]-cpus_active_prev[i] ) / (cpus_total_cur[i]-cpus_total_prev[i]) )))
+  done
+
+  if [ "$1" = report ]; then
+    printf "Total execution time: ${c_bold}%s seconds${c_off}\n" $(get_time_s)
+    printf "CPU core utilization:\n"
+    for i in $(seq 0 $((cpu_count-1))); do
+      printf "|%4d " "$i"
+    done
+    printf "| ${c_bold}Total${c_off} |\n"
+
+    for i in $(seq 0 $((cpu_count-1))); do
+      if [ "${cpus_util[$i]}" -gt 80 ]; then
+        printf "|${c_red}%3d%%${c_off} " "${cpus_util[$i]}"
+      elif [ "${cpus_util[$i]}" -gt 40 ]; then
+        printf "|${c_yellow}%3d%%${c_off} " "${cpus_util[$i]}"
+      else
+        printf "|${c_green}%3d%%${c_off} " "${cpus_util[$i]}"
+      fi
+    done
+    printf "| ${c_bold}%3d%%${c_off}  |\n" "$cpu_util"
+  fi
 }
 
 #

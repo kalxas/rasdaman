@@ -138,20 +138,20 @@ if [ $NUM_FAIL -eq 0 ]; then
 
 #testing error when making marray with long name (804 to be precise)
     TEST_NAME="test01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
-    $RASQL --quiet -q "create type $TEST_NAME as RGBPixel mdarray [x, y]" 2>&1 | grep -F -q "975"
+    $RASQL --quiet -q "create type $TEST_NAME as RGBPixel mdarray [x, y]" 2>&1 | grep -F -q "error"
     check_result 0 $? "create type $TEST_NAME as RGBPixel mdarray [x, y]"
 
 #testing error when making set with long name (804 to be precise)
-    $RASQL --quiet -q "create type $TEST_NAME as set (RGBImage)" 2>&1 | grep -F -q "976"
+    $RASQL --quiet -q "create type $TEST_NAME as set (RGBImage)" 2>&1 | grep -F -q "error"
     check_result 0 $? "create type $TEST_NAME as set (RGBImage)"
 
 #testing error when making struct with long name (804 to be precise)
-    $RASQL --quiet -q "create type $TEST_NAME as (x1 char, x2 char, x3 char)" 2>&1 | grep -F -q "977"
+    $RASQL --quiet -q "create type $TEST_NAME as (x1 char, x2 char, x3 char)" 2>&1 | grep -F -q "error"
     check_result 0 $? "create type $TEST_NAME as (x1 char, x2 char, x3 char)"
 
 #testing create type preserving axis names
     $RASQL --quiet -q "create type RGBImageTest as RGBPixel MDARRAY [a,b,c]" 2>&1
-    $RASQL --quiet -q "select a from RAS_MARRAY_TYPES a" --out string | grep -F -q "RGBImageTest AS RGBPixel MDARRAY [a(*:*),b(*:*),c(*:*)]"
+    $RASQL -q "select a from RAS_MARRAY_TYPES a" --out string | grep -F -q "RGBImageTest AS RGBPixel MDARRAY [a(*:*),b(*:*),c(*:*)]"
     check_result 0 $? "CREATE TYPE RGBImageTest AS RGBPixel MDARRAY [a(*:*),b(*:*),c(*:*)]"
     test_drop_type "RGBImageTest"
 

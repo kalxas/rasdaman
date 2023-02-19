@@ -173,6 +173,9 @@ public class RasType {
             } else if (currentStr.equals("oid")) {
                 returnValue = getOIDType(typeTok.nextToken(""));
                 returnValue.typeID = RasGlobalDefs.RAS_OID;
+            } else if (currentStr.equals("string")) {
+                returnValue = getOIDType(typeTok.nextToken(""));
+                returnValue.typeID = RasGlobalDefs.RAS_STRING;
             } else {
                 //System.out.println("getPrimitiveType");
                 returnValue = getPrimitiveType(typeStr);

@@ -47,9 +47,9 @@ using std::istringstream;
 using std::string;
 using namespace std;
 
-#include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
+#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
 
@@ -678,7 +678,7 @@ r_Conv_DEM::convertFrom(const char* options)
         LINFO  << "r_Conv_DEM::convertFrom(...) dest type=" << desc.destType->type_id();
 
         //--claim memory for result
-        desc.dest = static_cast<char*>(mystore.storage_alloc(desc.destInterv.cell_count() * (static_cast<r_Primitive_Type*>(desc.destType))->size()));
+        desc.dest = static_cast<char*>(mymalloc(desc.destInterv.cell_count() * (static_cast<r_Primitive_Type*>(desc.destType))->size()));
         if (desc.dest == NULL)
         {
             LERROR << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
@@ -709,7 +709,7 @@ r_Conv_DEM::convertFrom(const char* options)
         //desc.dest
         if (desc.dest)
         {
-            mystore.storage_free(desc.dest);
+            free(desc.dest);
             desc.dest = NULL;
         }
 
@@ -838,7 +838,7 @@ r_Conv_DEM::convertTo(const char* options, const r_Range*)
         LINFO  << "r_Conv_DEM::convertTo(...) dest type=" << desc.destType->type_id();
 
         //--claim memory for desc.dest
-        desc.dest = static_cast<char*>(mystore.storage_alloc(lenFile));
+        desc.dest = static_cast<char*>(mymalloc(lenFile));
         if (desc.dest == NULL)
         {
             LERROR << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
@@ -875,7 +875,7 @@ r_Conv_DEM::convertTo(const char* options, const r_Range*)
         //desc.dest
         if (desc.dest)
         {
-            mystore.storage_free(desc.dest);
+            free(desc.dest);
             desc.dest = NULL;
         }
 

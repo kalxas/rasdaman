@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: flatbasetype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Flat_Base_Type
- *
- * COMMENTS:
- *
-*/
 
 #ifndef _FLAT_BASE_TYPE_HH_
 #define _FLAT_BASE_TYPE_HH_
@@ -41,23 +32,24 @@ class r_Primitive_Type;
 class r_Structure_Type;
 
 //@ManMemo: Module {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-
-/*@Doc:
+/**
   This class can be used to get a more convenient view on a structured
   base type. It eliminates all hierarchies and gives you the primitive
   types only which can be iterated over with a normal linear loop. Used
   in e.g. the compression module. Note that this is not a regular member
   of the r_Type hierarchy!
 */
-
 class r_Flat_Base_Type
 {
 public:
     /// default constructor, shouldn't be used
     r_Flat_Base_Type(void);
     /// constructor receiving the (hierarchical) base type
-    r_Flat_Base_Type(const r_Base_Type *type);
+    explicit r_Flat_Base_Type(const r_Base_Type *type);
     /// copy constructor
     r_Flat_Base_Type(const r_Flat_Base_Type &src);
     /// destructor

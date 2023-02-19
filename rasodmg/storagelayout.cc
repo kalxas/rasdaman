@@ -32,12 +32,11 @@ rasdaman GmbH.
 */
 
 #include "rasodmg/storagelayout.hh"
-#include "rasodmg/iterator.hh"
 #include "rasodmg/tiling.hh"
-#include "rasodmg/alignedtiling.hh"
 #include "rasodmg/gmarray.hh"
 #include "rasodmg/set.hh"
 #include "raslib/minterval.hh"
+#include "raslib/error.hh"
 
 #include <logging.hh>
 

@@ -22,7 +22,6 @@ rasdaman GmbH.
 */
 
 #include "raslib/basetype.hh"
-#include "raslib/attribute.hh"
 
 r_Base_Type::r_Base_Type(const char *newTypeName, r_Bytes newTypeSize)
     :   r_Type(newTypeName),

@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_CONFIGURATION_HH
 #define RASMGR_X_SRC_CONFIGURATION_HH
 
-#include "commline/cmlparser.hh"
+#include "common/commline/cmlparser.hh"
 
 #include <string>
 #include <cstdint>

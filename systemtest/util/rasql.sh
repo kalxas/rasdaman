@@ -35,13 +35,13 @@
 # ------------------------------------------------------------------------------
 # execute a rasql query by taking into account rasdaman availability. The rasql
 # query is not passed directly here, as we can never account for all the
-# possible cases. Instead, it's wrapped into a function, and the function name
+# possible cases. Instead, it's wrapped into a function, and the name
 # is passed here.
 #
-# This function will execute the function retrying maximum 5 times until the
-# called function returns a 0.
+# This will execute the retrying maximum 5 times until the
+# called returns a 0.
 #
-# arg 1: function name to execute
+# arg 1: name to execute
 run_query()
 {
   local func="$1"
@@ -75,10 +75,10 @@ run_query()
 # arg 1: collection name
 # return 0 if found in rasdaman, non-zero otherwise
 #
-function check_coll()
+check_coll()
 {
   local coll_name="$1"
-  $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$coll_name\b" > /dev/null
+  $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | grep -Eq "\b$coll_name\b"
 }
 
 # ------------------------------------------------------------------------------
@@ -86,10 +86,10 @@ function check_coll()
 # arg 1: collection name
 # return 0 if empty, 1 otherwise
 #
-function is_coll_empty()
+is_coll_empty()
 {
   local coll_name="$1"
-  $RASQL -q "select oid(r) from $coll_name as r" --out string | egrep "\bQuery result collection has 0 element\b" > /dev/null
+  $RASQL -q "select oid(r) from $coll_name as r" --out string | grep -Eq "\bQuery result collection has 0 element\b"
 }
 
 
@@ -97,10 +97,10 @@ function is_coll_empty()
 # check user-defined types
 # arg 1: set type name
 #
-function check_user_type()
+check_user_type()
 {
   local SET_TYPE="$1"
-  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet "\b$SET_TYPE\b"
+  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | grep -Eq "\b$SET_TYPE\b"
 }
 
 
@@ -108,23 +108,41 @@ function check_user_type()
 # check built-in types, if not present error is thrown
 # arg 1: set type name
 #
-function check_type()
+check_type()
 {
   SET_TYPE="$1"
-  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\b$SET_TYPE\b" \
+  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | grep -Eq  "\b$SET_TYPE\b" \
     || error "rasdaman type $SET_TYPE not found, please create it first."
+}
+
+# ------------------------------------------------------------------------------
+# check all built-in types, if not present error is thrown
+# arg *: set type names
+#
+check_set_types()
+{
+  set_types=$($RASQL -q "select c from RAS_SET_TYPES as c" --out string | strings)
+  [ $? -eq 0 ] || error "failed querying rasdaman for set type list."
+  local type_arg
+  for type_arg in "$@"; do
+    if [[ $set_types != *\ $type_arg\ * ]]; then
+      error "rasdaman type $SET_TYPE not found, please create it first."
+    fi
+  done
 }
 
 
 # ------------------------------------------------------------------------------
 # drop collections passed as argument
 #
-function drop_colls()
+drop_colls()
 {
-  #check_rasdaman
+  local all_colls
+  all_colls=$($RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | strings)
+  [ $? -eq 0 ] || error "failed querying rasdaman for collection list."
+  local c
   for c in "$@"; do
-    $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$c\b" > /dev/null
-    if [ $? -eq 0 ]; then
+    if [[ $all_colls == *:\ $c* ]]; then
       $RASQL -q "drop collection $c" > /dev/null
     fi
   done
@@ -137,7 +155,7 @@ function drop_colls()
 # arg 2: mdd type
 # arg 3: pixel type, can be empty if there's none
 #
-function drop_types()
+drop_types()
 {
   local t=
   for t in "$@"; do
@@ -154,7 +172,7 @@ function drop_types()
 # arg 4: conversion function
 # arg 5: rasql options
 #
-function insert_into()
+insert_into()
 {
   local coll_name="$1"
   local file_name="$2"
@@ -182,7 +200,7 @@ function insert_into()
 # arg 5: target domain
 # arg 6: shift point
 #
-function update()
+update()
 {
   local coll_name="$1"
   local file_name="$2"
@@ -206,7 +224,7 @@ function update()
 # arg 2: file name
 # arg 3: conversion function
 #
-function export_to_file()
+export_to_file()
 {
   local coll_name="$1"
   local file_name="$2"
@@ -229,7 +247,7 @@ function export_to_file()
 # arg 1: coll name
 # arg 2: coll type
 #
-function create_coll()
+create_coll()
 {
   local coll_name="$1"
   local coll_type="$2"
@@ -244,7 +262,7 @@ function create_coll()
 # $1 - testdata dir holding files to be imported
 # $2 - if not empty data is inserted insitu
 #
-function import_rasql_data()
+import_rasql_data()
 {
   local TESTDATA_PATH="$1"
   local INSITU=
@@ -266,22 +284,17 @@ function import_rasql_data()
   done
 
   # check data types
-  check_type GreySet
-  check_type GreySet3
-  check_type RGBSet
-  check_type Gauss2Set
-  check_type Gauss1Set
-  check_type CInt16Set
-  check_type CInt32Set
-  check_type DoubleSet3
-  check_type DoubleSet
-  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT
-  drop_colls $TEST_CFLOAT32 $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32
-  drop_colls $TEST_OVERLAP $TEST_OVERLAP_3D test_oneD test_twoD test_threeD test_threeD_two_objects test_twoD_named
+  check_set_types GreySet GreySet3 RGBSet Gauss1Set Gauss2Set CInt16Set CInt32Set DoubleSet DoubleSet3
+  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT $TEST_GREY3D_EMPTY_IN_MIDDLE \
+             $TEST_CFLOAT32 $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32 $TEST_DWD_TX24 $TEST_DWD_NIEDERSCHLAG \
+             $TEST_OVERLAP $TEST_OVERLAP_3D $TEST_INSITU_BIN \
+             test_oneD test_twoD test_threeD test_threeD_two_objects test_twoD_named
+  drop_types test_DoubleSet_named test_sortNamedAxis
 
+  # $set_types is set in check_set_types
+  
   # create the struct_cube_set type
-  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bstruct_cube_set\b"
-  if [ $? -ne 0 ]; then
+  if [[ $set_types != *\ struct_cube_set\ * ]]; then
     log "rasdaman type struct_cube_set not found, inserting..."
     $RASQL -q "create type struct_pixel as ( x1 float, x2 double, x3 octet, x4 double, x5 short )" > /dev/null
     $RASQL -q "create type struct_cube as struct_pixel mdarray [ x, y, z ]" > /dev/null
@@ -292,8 +305,7 @@ function import_rasql_data()
   $RASQL -q "insert into $TEST_STRUCT values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/23k.bin" --mdddomain "[0:99,0:9,0:0]" --mddtype struct_cube > /dev/null
 
   # create the GreySet4 type
-  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bGreySet4\b"
-  if [ $? -ne 0 ]; then
+  if [[ $set_types != *\ GreySet4\ * ]]; then
     log "rasdaman type GreySet4 not found, inserting..."
     $RASQL -q "create type GreyTesseract as char mdarray [ x0, x1, x2, x3 ]" > /dev/null
     $RASQL -q "create type GreySet4 as set ( GreyTesseract )" > /dev/null
@@ -311,6 +323,7 @@ function import_rasql_data()
   create_coll $TEST_GREY2 GreySet
   create_coll $TEST_RGB2 RGBSet
   create_coll $TEST_GREY3D GreySet3
+  create_coll $TEST_GREY3D_EMPTY_IN_MIDDLE GreySet3
   create_coll $TEST_CFLOAT32 Gauss1Set
   create_coll $TEST_CFLOAT64 Gauss2Set
   create_coll $TEST_CINT16 CInt16Set
@@ -322,6 +335,8 @@ function import_rasql_data()
   create_coll test_threeD DoubleSet3
   create_coll test_threeD_two_objects DoubleSet3
   create_coll test_twoD_named test_DoubleSet_named
+  create_coll $TEST_DWD_TX24 GreySet3
+  create_coll $TEST_DWD_NIEDERSCHLAG GreySet3
   insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
   insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
   insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode" "" "tiling aligned [0:49,0:49] tile size 7500 $STORAGE_CLAUSE"
@@ -330,6 +345,14 @@ function import_rasql_data()
   insert_into $TEST_CINT16 "$TESTDATA_PATH/cint16_image.tif" "" "decode"
   insert_into $TEST_CINT32 "$TESTDATA_PATH/cint32_image.tif" "" "decode"
 
+  $RASQL -q "insert into $TEST_GREY3D_EMPTY_IN_MIDDLE values <[-5:-5,0:0,0:0] 0c> TILING ALIGNED [0:0,0:159,0:129] TILE SIZE 20800"> /dev/null
+  update $TEST_GREY3D_EMPTY_IN_MIDDLE "$TESTDATA_PATH/mr_1.png" "" "decode" "[-5,0:255,0:210]" "[0,0]"
+  update $TEST_GREY3D_EMPTY_IN_MIDDLE "$TESTDATA_PATH/mr_1.png" "" "decode" "[500,0:255,1211:1421]" "[0,1211]"
+
+  add_overlap_data
+  $RASQL -q "insert into $TEST_GREY3D values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
+
+  # sort/flip data
   $RASQL -q 'insert into test_oneD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:29]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
   $RASQL -q 'insert into test_twoD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:2]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
   $RASQL -q 'insert into test_threeD values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:4, 0:1]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/threeD.csv > /dev/null
@@ -337,12 +360,13 @@ function import_rasql_data()
   $RASQL -q 'insert into test_threeD_two_objects values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:4, 0:1]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/threeD.csv > /dev/null
   $RASQL -q 'insert into test_twoD_named values decode($1, "csv", "{ \"formatParameters\":{ \"domain\": \"[0:9, 0:2]\",\"basetype\": \"double\" } }")' -f $TESTDATA_PATH/twoD.csv > /dev/null
 
-  add_overlap_data
-  $RASQL -q "insert into $TEST_GREY3D values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
+  # induced condenser data
+  $RASQL -q "insert into $TEST_DWD_TX24 values marray i in [-6119:-6115,151:152,364:365] values (char)(i[0] + i[1] + i[2]) tiling aligned [0:0,151:152,364:365] tile size 4"
+  $RASQL -q "insert into $TEST_DWD_NIEDERSCHLAG values marray i in [-2832:-2828,151:152,363:364] values (char)(i[0] + i[1] + i[2]) tiling aligned [0:0,151:152,363:364] tile size 4"
 }
 
 #adds the necessary data to the $TEST_OVERLAP collection
-function add_overlap_data()
+add_overlap_data()
 {
   #2d
   insert_into $TEST_OVERLAP "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:59,0:59] tile size 3600"
@@ -368,7 +392,7 @@ function add_overlap_data()
 # import data used in rasql tests. Expects arguments
 # $1 - testdata dir holding files to be imported
 #
-function import_nullvalues_data()
+import_nullvalues_data()
 {
   #
   # check data types and insert if not available
@@ -440,7 +464,7 @@ drop_subsetting_data()
 # import data used in rasql subsetting tests. Expects arguments		
 # $1 - testdata dir holding files to be imported		
 #		
-function import_subsetting_data()		
+import_subsetting_data()
 {		
   local TESTDATA_PATH="$1"		
   if [ ! -d "$TESTDATA_PATH" ]; then		
@@ -457,11 +481,8 @@ function import_subsetting_data()
 	  error "tesdata file $TESTDATA_PATH/101.bin not found"		
 	fi		
 			
-  # check data types		
-  check_type GreySet1		
-  check_type GreySet		
-  check_type RGBSet		
-  check_type GreySet3		
+  # check data types
+  check_set_types GreySet1 GreySet RGBSet GreySet3		
 	 		
   drop_subsetting_data		
 			

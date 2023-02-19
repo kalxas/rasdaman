@@ -45,21 +45,22 @@ $WCST_IMPORT "$SCRIPT_DIR/ingest.json" > /dev/null 2>&1
 check_result 0 $? "importing test data"
 
 # Then, rename the coverage id to a new coverage id
-admin_endpoint=$(echo "$PETASCOPE_URL" | sed "s/ows/admin/")
+admin_endpoint="${PETASCOPE_URL/ows/admin}"
 
-update_coverage_id_request="$admin_endpoint/coverage/update?COVERAGEID=$COVERAGE_ID&NEWCOVERAGEID=$NEW_COVERAGE_ID"
-echo "$update_coverage_id_request"
-result=$(get_http_return_code "$update_coverage_id_request")
+req="$admin_endpoint/coverage/update?COVERAGEID=$COVERAGE_ID&NEWCOVERAGEID=$NEW_COVERAGE_ID"
+log "$req"
+result=$(get_http_return_code "$req")
 check_result "200" "$result" "update coverage id to a new id"
 
 # Then, check the new coverage id exists
-update_coverage_id_request="$PETASCOPE_URL?SERVICE=WCS&VERSION=2.0.1&REQUEST=DescribeCoverage&COVERAGEID=$NEW_COVERAGE_ID"
-result=$(get_http_return_code "$update_coverage_id_request")
+req="$PETASCOPE_URL?SERVICE=WCS&VERSION=2.0.1&REQUEST=DescribeCoverage&COVERAGEID=$NEW_COVERAGE_ID"
+log "$req"
+result=$(get_http_return_code "$req")
 check_result "200" "$result" "check new coverage id exists"
 
 # And delete this test coverage
-delete_coverage_request="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$NEW_COVERAGE_ID"
-result=$(get_http_return_code "$delete_coverage_request")
+req="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$NEW_COVERAGE_ID"
+result=$(get_http_return_code "$req")
 check_result "200" "$result" "delete coverate $NEW_COVERAGE_ID"
 
 # print summary from util/common.sh

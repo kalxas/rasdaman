@@ -26,7 +26,7 @@ rasdaman GmbH.
 #include "globals.hh"   // DEFAULT_PORT, LOGDIR, LOG_SUFFIX
 
 #include "raslib/error.hh"
-#include "commline/cmlparser.hh"
+#include "common/commline/cmlparser.hh"
 #include "applications/rasql/rasql_error.hh"
 #include "loggingutils.hh"
 #include "common/util/fileutils.hh"
@@ -160,17 +160,13 @@ void Configuration::initParameters()
     cmlMgrPort  = &cmlInter.addLongParameter(nsn, "mgrport", "<nnnn> rasmgr port", DEFAULT_PORT);
 
     cmlTransBuffer = &cmlInter.addLongParameter(nsn, "transbuffer", "<nnnn> maximal size of the transfer buffer in bytes", MAX_BUFFER_SIZE);
-    cmlTimeOut     = &cmlInter.addLongParameter(nsn, "timeout", "<nnn> client time out in seconds.\n\t\tif it is set to 0 server doesn't check for client timeouts", CLIENT_TIMEOUT);
 
-    cmlLockMgrOn   = &cmlInter.addFlagParameter(nsn, "enable-tilelocking", "enables fine grained locking of tiles");
-
-    cmlConnectStr  = &cmlInter.addStringParameter(nsn, "connect", "<connect-str> connect string for underlying database(e.g. test/test@julep)", "/");
+    cmlConnectStr  = &cmlInter.addStringParameter(nsn, "connect", "<connect-str> connect string for underlying database(e.g. test/test@julep)");
     cmlLog         = &cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "$RMANHOME/log/<srv-name>.<pid>.log");
 
-    cmlTileSize   = &cmlInter.addLongParameter(nsn, "tilesize", "<nnnn> specifies maximal size of tiles in bytes\n\t\t-regular tiles with equal edge lengthes",  4194304);
+    cmlTileSize   = &cmlInter.addLongParameter(nsn, "tilesize", "<nnnn> specifies maximal size of tiles in bytes\n\t\tfor regular tiles with equal edge lengthes",  4194304);
     cmlPctMin     = &cmlInter.addLongParameter(nsn, "pctmin", "<nnnn> specifies minimal size of blobtiles in bytes",  2048);
     cmlPctMax     = &cmlInter.addLongParameter(nsn, "pctmax", "<nnnn> specifies maximal size of inlinetiles in bytes",  4096);
-    cmlUseTC      = &cmlInter.addFlagParameter(nsn, "usetc", "use TileContainerIndex");
     cmlTileConf   = &cmlInter.addStringParameter(nsn, "tileconf", "<dom> default tile configuration (e.g. [0:1,0:2])", "[0:1023,0:1023]");
 
     cmlNewServerId = &cmlInter.addStringParameter(nsn, "serverId", "serverID", NULL);
@@ -193,8 +189,6 @@ void Configuration::initParameters()
     string indexsizeDesc = string("<nnnn> make the index use n nodes");
     cmlIndexSize  = &cmlInter.addLongParameter(nsn, "indexsize", indexsizeDesc.c_str(), 0L);
 
-    cmlCacheLimit = &cmlInter.addLongParameter(nsn, "cachelimit", "<limit> specifies upper limit in bytes on using memory for caching", 0L);
-
     // directql 
     cmlQuery      = &cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
     cmlQueryFile  = &cmlInter.addStringParameter(nsn, PARAM_QUERYFILE, HELP_QUERYFILE);
@@ -216,11 +210,17 @@ void Configuration::initParameters()
     // rasdl
     cmlCreateDb   = &cmlInter.addFlagParameter(FLAG_CREATE, PARAM_CREATE, HELP_CREATE);
     cmlDelDb      = &cmlInter.addFlagParameter(nsn, PARAM_DELDB, HELP_DELDB);
-
+    
+    // deprecated options
+    const bool isFlag = true;
+    cmlTimeOut    = &cmlInter.addDeprecatedParameter(nsn, "timeout", !isFlag);
+    cmlUseTC      = &cmlInter.addDeprecatedParameter(nsn, "usetc", isFlag);
+    cmlCacheLimit = &cmlInter.addDeprecatedParameter(nsn, "cachelimit", !isFlag);
+    cmlLockMgrOn  = &cmlInter.addDeprecatedParameter(nsn, "enable-tilelocking", isFlag);
 #ifdef RMANDEBUG
-    cmlDbg        = &cmlInter.addStringParameter('d', "debug", "<dgb-file> debug output is printed to <dbg-file>; if <dbg-file> is stdout, debug output is printed to standard out", "<srv-name>.log");
-    cmlDbgLevel   = &cmlInter.addLongParameter(nsn, "dl", "<nn> debug level (0-4; 0 = no / 4 = maximal debug information)", 0L);
-#endif // RMANDEBUG
+    cmlDbg        = &cmlInter.addDeprecatedParameter(nsn, "debug", !isFlag);
+    cmlDbgLevel   = &cmlInter.addDeprecatedParameter(nsn, "dl", !isFlag);
+#endif
 }
 
 void Configuration::checkParameters()
@@ -322,28 +322,18 @@ void Configuration::checkParameters()
     LDEBUG << "rasmgr host = " << rasmgrHost << ", port = " << rasmgrPort;
 
     maxTransferBufferSize = cmlTransBuffer->getValueAsInt();
-    timeout               = cmlTimeOut->getValueAsInt();
-
-    lockmgrOn             = cmlLockMgrOn->isPresent();
 
     dbConnection = cmlConnectStr->getValueAsString();
 
     tileSize   = cmlTileSize->getValueAsInt();
     pctMin     = cmlPctMin->getValueAsInt();
     pctMax     = cmlPctMax->getValueAsInt();
-    useTC      = cmlUseTC->isPresent();
 
     tileConf   = cmlTileConf->getValueAsString();//(r_Minterval..)
     tilingName = cmlTiling->getValueAsString();
     indexType  = cmlIndex->getValueAsString();
     indexSize  = cmlIndexSize->getValueAsInt();
-    cacheLimit = cmlCacheLimit->getValueAsLong();
     newServerId = cmlNewServerId->getValueAsString();
-#ifdef RMANDEBUG
-    // TODO
-    //if (cmlDbg->isPresent())
-    dbgLevel   = cmlDbgLevel->getValueAsInt();
-#endif
 }
 
 void Configuration::printHelp()
@@ -442,9 +432,6 @@ bool Configuration::isLogToStdOut() {
 int Configuration::getMaxTransferBufferSize() {
   return maxTransferBufferSize;
 }
-int Configuration::getTimeout() {
-  return timeout;
-}
 const char *Configuration::getDbConnectionID() {
   return dbConnection;
 }
@@ -470,16 +457,6 @@ const char *Configuration::getTilingScheme() {
 const char *Configuration::getIndexType() {
   return indexType;
 }
-bool Configuration::useTileContainer() {
-  return useTC;
-}
-long Configuration::getCacheLimit() {
-  return cacheLimit;
-}
-
-bool Configuration::isLockMgrOn() {
-  return lockmgrOn;
-}
 
 const char *Configuration::getNewServerId() {
   return newServerId;
@@ -487,13 +464,6 @@ const char *Configuration::getNewServerId() {
 bool Configuration::isRasserver() {
   return !usesRasdl() && !hasQueryString();
 }
-
-#ifdef RMANDEBUG
-int         Configuration::getDebugLevel()
-{
-    return dbgLevel;
-}
-#endif
 
 // -------------------------------------------------------------------------
 // -- directql section start

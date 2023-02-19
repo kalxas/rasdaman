@@ -20,24 +20,19 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: miter.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Miter
- *
-*/
 
 #ifndef D_MITER_HH
 #define D_MITER_HH
 
 #include "raslib/mddtypes.hh"
-
-class r_Minterval;
+#include "raslib/minterval.hh"
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   r_Miter is used for iterating through parts of
   multidimensional intervals. It is given the domain of
   the object to be iterated through, the size of the base

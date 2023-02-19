@@ -87,10 +87,6 @@ const int systemEndianess = ServerComm::ENDIAN_BIG;
 const int ackCodeOK = 99;
 const int ackCodeNotOK = 98;
 
-// defined in server/rasserver_main.cc, configurable as a rasserver parameter:
-//       --transbuffer <nnnn>   (default: 4194304)
-//              maximal size of the transfer buffer in bytes
-extern unsigned long maxTransferBufferSize;
 extern AccessControl accessControl;
 
 const int HttpServer::commOpenDB           = 1;
@@ -282,8 +278,7 @@ void
 HttpServer::printServerStatus()
 {
     LDEBUG << "HTTP Server state information\n"
-           << "  Transaction active.............: " << (transactionActive ? "yes" : "no") << "\n"
-           << "  Max. transfer buffer size......: " << maxTransferBufferSize << " bytes\n";
+           << "  Transaction active.............: " << (transactionActive ? "yes" : "no") << "\n";
 }
 
 int HttpServer::encodeAckn(char *&result, int ackCode = ackCodeOK)

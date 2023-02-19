@@ -30,6 +30,9 @@ rasdaman GmbH.
 #include <string>
 #include <cmath>
 
+/**
+  * \ingroup raslib
+  */
 class r_Nullvalues
 {
 public:
@@ -40,7 +43,7 @@ public:
     static const double_t unlimitedHigh;
     
     r_Nullvalues() = default;
-    r_Nullvalues(std::vector<std::pair<r_Double, r_Double>> &&nullvaluesArg);
+    explicit r_Nullvalues(std::vector<std::pair<r_Double, r_Double>> &&nullvaluesArg);
 
     const std::vector<std::pair<r_Double, r_Double>> &getNullvalues() const
     {

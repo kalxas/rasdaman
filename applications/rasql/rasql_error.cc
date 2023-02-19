@@ -78,6 +78,9 @@ const char* RasqlError::what()
     case NOCONNECTION:
         msg += "Failed connecting to the database.";
         break;
+    case NOCONNECTSTRING:
+        msg += "Mandatory parameter --connect missing.";
+        break;
     default:
         msg += "Unknown error code.";
         break;

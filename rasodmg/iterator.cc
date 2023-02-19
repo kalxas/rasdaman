@@ -32,9 +32,10 @@ rasdaman GmbH.
 
 #include "rasodmg/iterator.hh"
 #include "rasodmg/collection.hh"
-#include <iostream>
-using namespace std;
+#include "raslib/error.hh"
+#include <ostream>
 
+using namespace std;
 
 template<class T>
 r_Iterator<T>::r_Iterator(const r_Iterator<T> &iter)

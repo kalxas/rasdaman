@@ -25,9 +25,5 @@
 add_library(common_string 
     stringutil.cc stringutil.hh)
 
-# Install the library to the lib folder
 install(TARGETS common_string
         DESTINATION ${LIB_DIR})
-
-install(FILES stringutil.hh
-        DESTINATION "${INCLUDE_DIR}/common/string")

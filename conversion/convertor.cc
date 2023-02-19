@@ -156,18 +156,6 @@ void r_Convertor::set_format(const std::string& formatArg)
 }
 
 
-void r_Convertor::set_storage_handler(const r_Storage_Man& newStore)
-{
-    mystore = newStore;
-}
-
-
-const r_Storage_Man&
-r_Convertor::get_storage_handler() const
-{
-    return mystore;
-}
-
 std::string r_Convertor::type_to_string(int ctype)
 {
     switch (ctype)

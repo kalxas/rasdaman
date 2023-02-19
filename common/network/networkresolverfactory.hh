@@ -23,11 +23,12 @@
 #ifndef NETWORKRESOLVERFACTORY_HH
 #define NETWORKRESOLVERFACTORY_HH
 
+#include "abstractnetworkresolver.hh"
+
 #include <string>
 #include <cstdint>
 #include <memory>
 
-#include "abstractnetworkresolver.hh"
 namespace common
 {
 
@@ -43,10 +44,9 @@ public:
      * @brief getNetworkResolver Creates a netowrk resolver for a host and a port, regardless the address family.
      * @param host Host name or ip address.
      * @param port The port.
-     * @return
      */
-  static std::shared_ptr<AbstractNetworkResolver> getNetworkResolver(const std::string &host,
-                                                                     std::uint32_t port);
+  static std::shared_ptr<AbstractNetworkResolver>
+  getNetworkResolver(const std::string &host, std::uint32_t port);
 
 };
 

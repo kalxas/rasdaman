@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: marray.hh
- *
- * MODULE:  rasodmg
- * CLASS:   r_Marray
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _D_MARRAY_
 #define _D_MARRAY_
@@ -39,8 +30,7 @@ rasdaman GmbH.
 
 //@ManMemo: Module: {\bf rasodmg}
 
-/*@Doc:
-
+/**
  The central class of the library for representing an MDD
  object is named r_Marray. Through overloading operators,
  the handling of an MDD object is similar to the usage of
@@ -62,7 +52,7 @@ public:
     r_Marray();
 
     /// constructor for uninitialized MDD objects
-    r_Marray(const r_Minterval &, r_Storage_Layout *stl = 0);
+    explicit r_Marray(const r_Minterval &, r_Storage_Layout *stl = 0);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the r_Marray class.
@@ -80,7 +70,7 @@ public:
     */
 
     /// constructor with initializing function
-    r_Marray(const r_Minterval &, r_InitFunction, r_Storage_Layout *stl = 0);
+    explicit r_Marray(const r_Minterval &, r_InitFunction, r_Storage_Layout *stl = 0);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the r_Marray class.
@@ -92,7 +82,7 @@ public:
     r_Marray(const r_Marray<T> &);
 
     /// constructor getting an object of type r_GMarray
-    r_Marray(r_GMarray &);
+    explicit r_Marray(r_GMarray &);
     /*
       This constructor is used for converting general r_GMarray objects
       to cell type safe r_Marray objects. Care has to be taken because

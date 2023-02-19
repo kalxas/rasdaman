@@ -43,28 +43,30 @@
 
 #include "rasql_error.hh"
 #include "raslib/type.hh"
+#include "raslib/error.hh"
 #include "raslib/marraytype.hh"
 #include "raslib/minterval.hh"
 #include "raslib/primitive.hh"
 #include "raslib/complex.hh"
 #include "raslib/structure.hh"
-#include "raslib/rmdebug.hh"
 #include "raslib/structuretype.hh"
-#include "raslib/primitivetype.hh"
+#include "raslib/stringdata.hh"
+#include "raslib/basetype.hh"
 
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/ref.hh"
 #include "rasodmg/set.hh"
-#include "rasodmg/marray.hh"
 #include "rasodmg/iterator.hh"
 #include "rasodmg/oqlquery.hh"
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/alignedtiling.hh"
+#include "rasodmg/gmarray.hh"
 
 #include "common/logging/signalhandler.hh"
 #include "clientcomm/clientcomm.hh"
-#include "commline/cmlparser.hh"
+#include "common/commline/cmlparser.hh"
+#include "common/util/fileutils.hh"
 #include "loggingutils.hh"
 #include "globals.hh"
 
@@ -79,13 +81,9 @@
 #include <limits>
 #include <iomanip>
 #include <memory>
-
-RMINITGLOBALS('C')
+#include <complex>
 
 using namespace std;
-
-const int MAX_STR_LEN = 255;
-const int MAX_QUERY_LEN = 10240;
 
 // possible  types of output
 typedef enum
@@ -149,6 +147,9 @@ typedef enum
 #define PARAM_QUERY "query"
 #define HELP_QUERY  "<q> query string to be sent to the rasdaman server for execution"
 
+#define PARAM_QUERYFILE "queryfile"
+#define HELP_QUERYFILE  "<file> file containing the query string to be sent to the rasdaman server for execution"
+
 #define PARAM_OUT   "out"
 #define HELP_OUT    "<t> use display method t for cell values of result MDDs where t is one of none, file, formatted, string, hex. Implies --content"
 #define DEFAULT_OUT OUT_NONE
@@ -201,6 +202,7 @@ const char *passwd = DEFAULT_PASSWD;
 
 const char *fileName = NULL;
 const char *queryString = NULL;
+std::string queryStringFromFile;
 
 bool output = false;
 bool displayType = false;
@@ -274,38 +276,41 @@ crashHandler(int sig, siginfo_t *info, void *ucontext);
 void
 parseParams(int argc, char **argv)
 {
+    const auto nsn = CommandLineParser::noShortName;
+    
     CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
 
     CommandLineParameter &clp_help      = cmlInter.addFlagParameter(PARAM_HELP_FLAG, PARAM_HELP, HELP_HELP);
 
-    CommandLineParameter &clp_query         = cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
+    CommandLineParameter &clp_query     = cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
+    CommandLineParameter &clp_queryfile = cmlInter.addStringParameter(nsn, PARAM_QUERYFILE, HELP_QUERYFILE);
     CommandLineParameter &clp_file      = cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
 
-    CommandLineParameter &clp_content   = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_CONTENT, HELP_CONTENT);
-    CommandLineParameter &clp_out       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
-    CommandLineParameter &clp_outfile   = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
-    CommandLineParameter &clp_mddDomain     = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_DOMAIN, HELP_DOMAIN);
-    CommandLineParameter &clp_mddType       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
-    CommandLineParameter &clp_type      = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_TYPE, HELP_TYPE);
+    CommandLineParameter &clp_content   = cmlInter.addFlagParameter(nsn, PARAM_CONTENT, HELP_CONTENT);
+    CommandLineParameter &clp_out       = cmlInter.addStringParameter(nsn, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
+    CommandLineParameter &clp_outfile   = cmlInter.addStringParameter(nsn, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
+    CommandLineParameter &clp_mddDomain = cmlInter.addStringParameter(nsn, PARAM_DOMAIN, HELP_DOMAIN);
+    CommandLineParameter &clp_mddType   = cmlInter.addStringParameter(nsn, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
+    CommandLineParameter &clp_type      = cmlInter.addFlagParameter(nsn, PARAM_TYPE, HELP_TYPE);
 
     CommandLineParameter &clp_server    = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_HOSTNAME);
     CommandLineParameter &clp_port      = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, STRINGIFY(DEFAULT_PORT));
-    CommandLineParameter &clp_database      = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DBNAME);
-    CommandLineParameter &clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
-    CommandLineParameter &clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
-    CommandLineParameter &clp_quiet     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);
+    CommandLineParameter &clp_database  = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DBNAME);
+    CommandLineParameter &clp_user      = cmlInter.addStringParameter(nsn, PARAM_USER, HELP_USER, DEFAULT_USER);
+    CommandLineParameter &clp_passwd    = cmlInter.addStringParameter(nsn, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
+    CommandLineParameter &clp_quiet     = cmlInter.addFlagParameter(nsn, PARAM_QUIET, HELP_QUIET);
 
 #ifdef DEBUG
-    CommandLineParameter &clp_debug     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_DEBUG, HELP_DEBUG);
+    CommandLineParameter &clp_debug     = cmlInter.addFlagParameter(nsn, PARAM_DEBUG, HELP_DEBUG);
 #endif
 
     try
     {
         cmlInter.processCommandLine(argc, argv);
 
-        if (cmlInter.isPresent(PARAM_HELP_FLAG) || argc == 1)
+        if (clp_help.isPresent() || argc == 1)
         {
-            cout << "rasql: rasdaman query tool " << RMANVERSION << "."<<endl;
+            cout << "rasql: rasdaman query tool " << RMANVERSION << "." << endl;
             cout << "usage: " << argv[0] << " [--query querystring|-q querystring] [options]" << endl;
             cout << "options:" << endl;
             cmlInter.printHelp();
@@ -315,9 +320,15 @@ parseParams(int argc, char **argv)
         // check mandatory parameters ====================================================
 
         // evaluate mandatory parameter collection --------------------------------------
-        if (cmlInter.isPresent(PARAM_QUERY))
+        if (clp_query.isPresent())
         {
-            queryString = cmlInter.getValueAsString(PARAM_QUERY);
+            queryString = clp_query.getValueAsString();
+        }
+        else if (clp_queryfile.isPresent())
+        {
+            const char *file = clp_queryfile.getValueAsString();
+            queryStringFromFile = common::FileUtils::readFileToString(file);
+            queryString = queryStringFromFile.c_str();
         }
         else
         {
@@ -327,117 +338,99 @@ parseParams(int argc, char **argv)
         // check optional parameters ====================================================
 
         // evaluate optional parameter file --------------------------------------
-        if (cmlInter.isPresent(PARAM_FILE))
+        if (clp_file.isPresent())
         {
-            fileName = cmlInter.getValueAsString(PARAM_FILE);
+            fileName = clp_file.getValueAsString();
         }
 
         // evaluate optional parameter server --------------------------------------
-        if (cmlInter.isPresent(PARAM_SERV))
+        if (clp_server.isPresent())
         {
-            serverName = cmlInter.getValueAsString(PARAM_SERV);
+            serverName = clp_server.getValueAsString();
         }
 
         // evaluate optional parameter port --------------------------------------
-        if (cmlInter.isPresent(PARAM_PORT))
+        if (clp_port.isPresent())
         {
-            serverPort = cmlInter.getValueAsLong(PARAM_PORT);
+            serverPort = clp_port.getValueAsLong();
         }
 
         // evaluate optional parameter database --------------------------------------
-        if (cmlInter.isPresent(PARAM_DB))
+        if (clp_database.isPresent())
         {
-            baseName = cmlInter.getValueAsString(PARAM_DB);
+            baseName = clp_database.getValueAsString();
         }
 
         // evaluate optional parameter user --------------------------------------
-        if (cmlInter.isPresent(PARAM_USER))
+        if (clp_user.isPresent())
         {
-            user = cmlInter.getValueAsString(PARAM_USER);
+            user = clp_user.getValueAsString();
         }
 
         // evaluate optional parameter passwd --------------------------------------
-        if (cmlInter.isPresent(PARAM_PASSWD))
+        if (clp_passwd.isPresent())
         {
-            passwd = cmlInter.getValueAsString(PARAM_PASSWD);
+            passwd = clp_passwd.getValueAsString();
         }
 
         // evaluate optional parameter content --------------------------------------
-        if (cmlInter.isPresent(PARAM_CONTENT))
-        {
-            output = true;
-        }
+        output = clp_content.isPresent();
 
         // evaluate optional parameter type --------------------------------------
-        if (cmlInter.isPresent(PARAM_TYPE))
-        {
-            displayType = true;
-        }
+        displayType = clp_type.isPresent();
 
         // evaluate optional parameter hex --------------------------------------
-        if (cmlInter.isPresent(PARAM_OUT))
+        if (clp_out.isPresent())
         {
             output = true;
-            const char *val = cmlInter.getValueAsString(PARAM_OUT);
-            if (val != 0 && strcmp(val, PARAM_OUT_STRING) == 0)
-            {
-                outputType = OUT_STRING;
-            }
-            else if (val != 0 && strcmp(val, PARAM_OUT_FILE) == 0)
-            {
-                outputType = OUT_FILE;
-            }
-            else if (val != 0 && strcmp(val, PARAM_OUT_FORMATTED) == 0)
-            {
-                outputType = OUT_FORMATTED;
-            }
-            else if (val != 0 && strcmp(val, PARAM_OUT_HEX) == 0)
-            {
-                outputType = OUT_HEX;
-            }
-            else if (val != 0 && strcmp(val, PARAM_OUT_NONE) == 0)
-            {
-                outputType = OUT_NONE;
-            }
-            else
-            {
+            const char *val = clp_out.getValueAsString();
+            if (val == 0)
                 throw RasqlError(ILLEGALOUTPUTTYPE);
-            }
+            if (strcmp(val, PARAM_OUT_STRING) == 0)
+                outputType = OUT_STRING;
+            else if (strcmp(val, PARAM_OUT_FILE) == 0)
+                outputType = OUT_FILE;
+            else if (strcmp(val, PARAM_OUT_FORMATTED) == 0)
+                outputType = OUT_FORMATTED;
+            else if (strcmp(val, PARAM_OUT_HEX) == 0)
+                outputType = OUT_HEX;
+            else if (strcmp(val, PARAM_OUT_NONE) == 0)
+                outputType = OUT_NONE;
+            else
+                throw RasqlError(ILLEGALOUTPUTTYPE);
         }
 
         // evaluate optional parameter outfile --------------------------------------
-        if (cmlInter.isPresent(PARAM_OUTFILE))
+        if (clp_outfile.isPresent())
         {
-            outFileMask = cmlInter.getValueAsString(PARAM_OUTFILE);
+            outFileMask = clp_outfile.getValueAsString();
             outputType = OUT_FILE;
         }
 
         // evaluate optional parameter domain --------------------------------------
-        if (cmlInter.isPresent(PARAM_DOMAIN))
+        if (clp_mddDomain.isPresent())
         {
             try
             {
-                mddDomain = r_Minterval(cmlInter.getValueAsString(PARAM_DOMAIN));
+                mddDomain = r_Minterval(clp_mddDomain.getValueAsString());
                 mddDomainDef = true;
             }
             catch (r_Error &e)              // Minterval constructor had syntax problems
             {
+                cerr << "invalid domain '" << clp_mddDomain.getValueAsString() << ": " << e.what();
                 throw RasqlError(NOVALIDDOMAIN);
             }
         }
-
+        
         // evaluate optional parameter MDD type name --------------------------------------
-        if (cmlInter.isPresent(PARAM_MDDTYPE))
+        if (clp_mddType.isPresent())
         {
-            mddTypeName = cmlInter.getValueAsString(PARAM_MDDTYPE);
+            mddTypeName = clp_mddType.getValueAsString();
             mddTypeNameDef = true;
         }
 
         // evaluate optional parameter 'quiet' --------------------------------------------
-        if (cmlInter.isPresent(PARAM_QUIET))
-        {
-            quietLog = true;
-        }
+        quietLog = clp_quiet.isPresent();
 
 #ifdef DEBUG
         // evaluate optional parameter MDD type name --------------------------------------
@@ -551,59 +544,61 @@ void printScalar(const r_Scalar &scalar)
     switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        NNLINFO << ((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_boolean() ? "t" : "f");
+        NNLINFO << (static_cast<const r_Primitive &>(scalar).get_boolean() ? "t" : "f");
         break;
 
     case r_Type::CHAR:
-        NNLINFO << static_cast<int>((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_char());
+        NNLINFO << static_cast<int>(static_cast<const r_Primitive &>(scalar).get_char());
         break;
 
     case r_Type::OCTET:
-        NNLINFO << static_cast<int>((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_octet());
+        NNLINFO << static_cast<int>(static_cast<const r_Primitive &>(scalar).get_octet());
         break;
 
     case r_Type::SHORT:
-        NNLINFO << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_short();
+        NNLINFO << static_cast<const r_Primitive &>(scalar).get_short();
         break;
 
     case r_Type::USHORT:
-        NNLINFO << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_ushort();
+        NNLINFO << static_cast<const r_Primitive &>(scalar).get_ushort();
         break;
 
     case r_Type::LONG:
-        NNLINFO << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_long();
+        NNLINFO << static_cast<const r_Primitive &>(scalar).get_long();
         break;
 
     case r_Type::ULONG:
-        NNLINFO << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_ulong();
+        NNLINFO << static_cast<const r_Primitive &>(scalar).get_ulong();
         break;
 
     case r_Type::FLOAT:
-        NNLINFO << std::setprecision(std::numeric_limits<float>::digits10 + 1) << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_float();
+        NNLINFO << std::setprecision(std::numeric_limits<float>::digits10 + 1) 
+                << static_cast<const r_Primitive &>(scalar).get_float();
         break;
 
     case r_Type::DOUBLE:
-        NNLINFO << std::setprecision(std::numeric_limits<double>::digits10 + 1) << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_double();
+        NNLINFO << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                << static_cast<const r_Primitive &>(scalar).get_double();
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        NNLINFO << "(" << (static_cast<const r_Complex &>(scalar)).get_re() << "," 
-                       << (static_cast<const r_Complex &>(scalar)).get_im() << ")";
+        NNLINFO << "(" << static_cast<const r_Complex &>(scalar).get_re() << "," 
+                       << static_cast<const r_Complex &>(scalar).get_im() << ")";
         break;
     case r_Type::CINT16:
     case r_Type::CINT32:
-	      NNLINFO << "(" << (static_cast<const r_Complex &>(scalar)).get_re_long() << ","
-                         << (static_cast<const r_Complex &>(scalar)).get_im_long() << ")";
+	      NNLINFO << "(" << static_cast<const r_Complex &>(scalar).get_re_long() << ","
+                         << static_cast<const r_Complex &>(scalar).get_im_long() << ")";
         break;
     case r_Type::STRUCTURETYPE:
     {
-        r_Structure *structValue = static_cast<r_Structure *>(&const_cast<r_Scalar &>(scalar));
+        const auto &structValue = static_cast<const r_Structure &>(scalar);
         NNLINFO << "{ ";
-        for (unsigned int i = 0; i < structValue->count_elements(); i++)
+        for (unsigned int i = 0; i < structValue.count_elements(); i++)
         {
-            printScalar((*structValue)[i]);
-            if (i < structValue->count_elements() - 1)
+            printScalar(structValue[i]);
+            if (i < structValue.count_elements() - 1)
             {
                 BLINFO << ", ";
             }
@@ -633,7 +628,6 @@ void writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum)
     if (file.is_open())
     {
         NNLINFO << "  Result object " << fileNum << ": going into file " << defFileName << "... ";
-        file << "  Result element " << fileNum << ": ";
 
         switch (scalar.get_type()->type_id())
         {
@@ -767,6 +761,33 @@ void writeStructToFileStream(const r_Structure *const structValue, std::ofstream
     file << " }";
 }
 
+void printScalar(const char *buf, r_Type::r_Type_Id typeId);
+
+void printScalar(const char *buf, r_Type::r_Type_Id typeId)
+{
+#define PRINT_FLT(T) cout << std::setprecision(std::numeric_limits<T>::digits10 + 1) \
+                          << *reinterpret_cast<const T*>(buf)
+    switch (typeId)
+    {
+    case r_Type::BOOL:  cout << (*reinterpret_cast<const r_Boolean*>(buf) ? "t" : "f"); break;
+    case r_Type::CHAR:  cout << int(*reinterpret_cast<const r_Char*>(buf)); break;
+    case r_Type::OCTET: cout << int(*reinterpret_cast<const r_Octet*>(buf)); break;
+    case r_Type::SHORT: cout << *reinterpret_cast<const r_Short*>(buf); break;
+    case r_Type::USHORT:cout << *reinterpret_cast<const r_UShort*>(buf); break;
+    case r_Type::LONG:  cout << *reinterpret_cast<const r_Long*>(buf); break;
+    case r_Type::ULONG: cout << *reinterpret_cast<const r_ULong*>(buf); break;
+    case r_Type::FLOAT: cout << std::setprecision(std::numeric_limits<r_Float>::digits10 + 1)
+                             << *reinterpret_cast<const r_Float*>(buf); break;
+    case r_Type::DOUBLE:cout << std::setprecision(std::numeric_limits<r_Double>::digits10 + 1)
+                             << *reinterpret_cast<const r_Double*>(buf); break;
+    case r_Type::COMPLEXTYPE1:cout << *reinterpret_cast<const std::complex<r_Float>*>(buf); break;
+    case r_Type::COMPLEXTYPE2:cout << *reinterpret_cast<const std::complex<r_Double>*>(buf); break;
+    case r_Type::CINT16:      cout << *reinterpret_cast<const std::complex<r_Short>*>(buf); break;
+    case r_Type::CINT32:      cout << *reinterpret_cast<const std::complex<r_Long>*>(buf); break;
+    default:                  cout << "?"; break;
+    }
+} // printScalar()
+
 // result_set should be parameter, but is global -- see def for reason
 void printResult(/* r_Set< r_Ref_Any > result_set */)
 {
@@ -799,14 +820,6 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
         }
         BLINFO << "\n";
     }
-
-    /* The following can be used if the type is known and the element type is not atomic.
-
-        r_Set< r_Ref< r_Point > >* set2 = (r_Set< r_Ref< r_Point > >*)&result_set;
-        r_Iterator< r_Ref<r_Point> > iter2 = set2->create_iterator();
-        for( iter2.reset(); iter2.not_done(); iter2++ )
-            cout << **iter2 << endl;
-    */
 
     r_Iterator<r_Ref_Any> iter = result_set.create_iterator();
     // iter.not_done() seems to behave wrongly on empty set, therefore this additional check -- PB 2003-aug-16
@@ -847,8 +860,54 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             case OUT_FORMATTED:
             {
                 NNLINFO << "  Result object " << i << ": ";
-                size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
-                const char *theStuff = r_Ref<r_GMarray>(*iter)->get_array();
+                const auto &dom = r_Ref<r_GMarray>(*iter)->spatial_domain();
+                const auto cellSize = r_Ref<r_GMarray>(*iter)->get_type_length();
+                size_t numCells = dom.cell_count();
+                const char *data = r_Ref<r_GMarray>(*iter)->get_array();
+                const r_Base_Type *type = r_Ref<r_GMarray>(*iter)->get_base_type_schema();
+                auto lastDimSize = dom[dom.dimension() - 1].get_extent();
+                if (type->isStructType())
+                {
+                    const auto *structType = static_cast<const r_Structure_Type *>(type);
+                    const auto &atts = structType->getAttributes();
+                    size_t bandNo = atts.size();
+                    std::vector<r_Bytes> typeSizes;
+                    std::vector<r_Type::r_Type_Id> typeIds;
+                    for (const auto &att: atts)
+                    {
+                        typeIds.push_back(att.type_of().type_id());
+                        typeSizes.push_back(att.type_of().size());
+                    }
+                    for (size_t j = 0; j < numCells; ++j)
+                    {
+                        if (j > 0) {
+                            cout << ",";
+                            if (j % lastDimSize == 0)
+                                cout << "\n" << flush;
+                        }
+                        cout << "{";
+                        for (size_t k = 0; k < bandNo; ++k)
+                        {
+                            if (k > 0) cout << ",";
+                            printScalar(data, typeIds[k]);
+                            data += typeSizes[k];
+                        }
+                        cout << "}";
+                    }
+                }
+                else
+                {
+                    const auto typeId = type->type_id();
+                    for (size_t j = 0; j < numCells; ++j, data += cellSize)
+                    {
+                        if (j > 0) {
+                            cout << ",";
+                            if (j % lastDimSize == 0)
+                                cout << "\n" << flush;
+                        }
+                        printScalar(data, typeId);
+                    }
+                }
                 cout << endl;
             }
             break;
@@ -860,42 +919,22 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
 
                 // special treatment only for DEFs
                 r_Data_Format mafmt = r_Ref<r_GMarray>(*iter)->get_current_format();
+                const char *suffix = ".unknown";
                 switch (mafmt)
                 {
-                case r_TIFF:
-                    strcat(defFileName, ".tif");
-                    break;
-                case r_JP2:
-                    strcat(defFileName, ".jp2");
-                    break;
-                case r_JPEG:
-                    strcat(defFileName, ".jpg");
-                    break;
-                case r_HDF:
-                    strcat(defFileName, ".hdf");
-                    break;
-                case r_PNG:
-                    strcat(defFileName, ".png");
-                    break;
-                case r_BMP:
-                    strcat(defFileName, ".bmp");
-                    break;
-                case r_NETCDF:
-                    strcat(defFileName, ".nc");
-                    break;
-                case r_CSV:
-                    strcat(defFileName, ".csv");
-                    break;
-                case r_JSON:
-                    strcat(defFileName, ".json");
-                    break;
-                case r_DEM:
-                    strcat(defFileName, ".dem");
-                    break;
-                default:
-                    strcat(defFileName, ".unknown");
-                    break;
+                case r_TIFF:  suffix = ".tif"; break;
+                case r_JP2:   suffix = ".jp2"; break;
+                case r_JPEG:  suffix = ".jpg"; break;
+                case r_HDF:   suffix = ".hdf"; break;
+                case r_PNG:   suffix = ".png"; break;
+                case r_BMP:   suffix = ".bmp"; break;
+                case r_NETCDF:suffix = ".nc"; break;
+                case r_CSV:   suffix = ".csv"; break;
+                case r_JSON:  suffix = ".json"; break;
+                case r_DEM:   suffix = ".dem"; break;
+                default:      suffix = ".unknown"; break;
                 }
+                strcat(defFileName, suffix);
 
                 NNLINFO << "  Result object " << i << ": going into file " << defFileName << "... ";
                 FILE *tfile = fopen(defFileName, "wb");
@@ -950,7 +989,16 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             NNLINFO << "  Result element " << i << ": ";
             BLINFO << *(r_Ref<r_OId>(*iter)) << "\n";
             break;
-
+        
+        case r_Type::STRINGTYPE: {
+            const auto &value = r_Ref<r_String>(*iter)->get_value();
+            NNLINFO << "  Result element " << i << ": " << value << "\n";
+            if (outputType == OUT_FILE)
+            {
+                writeStringToFile(value, i);
+            }
+            break;
+        }
         default:
             NNLINFO << "  Result element " << i << ": ";
             r_Ref<r_Scalar> scalar(*iter);
@@ -980,7 +1028,7 @@ void writeStringToFile(const std::string &str, unsigned int fileNum)
     if (file.is_open())
     {
         NNLINFO << "  Result object " << fileNum << ": going into file " << defFileName << "... ";
-        file << "  Result element " << fileNum << ": " << str << std::endl;
+        file << str;
         file.close();
     }
     else

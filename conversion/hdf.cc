@@ -41,6 +41,7 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
+#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
 #include <stdio.h>
@@ -223,7 +224,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
     desc.destInterv = r_Minterval(1);
     desc.destInterv << r_Sinterval((r_Range)0, (r_Range)filesize - 1);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(filesize))) == NULL)
+    if ((desc.dest = (char*)mymalloc(static_cast<size_t>(filesize))) == NULL)
     {
         LERROR << "r_Conv_HDF::convertTo(): out of memory error";
         fclose(fp);
@@ -331,7 +332,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
         desc.destInterv = desc.srcInterv;
     }
 
-    if ((desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(array_size))) == NULL)
+    if ((desc.dest = (char*)mymalloc(static_cast<size_t>(array_size))) == NULL)
     {
         LERROR << "r_Conv_HDF::convertFrom(): out of memory error!";
         SDend(handle);

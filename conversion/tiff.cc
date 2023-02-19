@@ -556,7 +556,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     r_Long tifSize = static_cast<r_Long>(memfs_size(handle));
 
     // Allocate an array of just the right size and "load" object there
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(sizeof(char) * static_cast<unsigned long>(tifSize)))) == NULL)
+    if ((desc.dest = static_cast<char*>(mymalloc(sizeof(char) * static_cast<unsigned long>(tifSize)))) == NULL)
     {
         LDEBUG << "r_Conv_TIFF::convertTo(): out of memory.";
         LERROR << "Error: out of memory.";
@@ -822,7 +822,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
         }
 
 
-        if ((desc.dest = static_cast<char*>(mystore.storage_alloc(width * height * typeSize * sizeof(char)))) == NULL)
+        if ((desc.dest = static_cast<char*>(mymalloc(width * height * typeSize * sizeof(char)))) == NULL)
         {
             LERROR << "r_Conv_TIFF::convertFrom(): out of memory error!";
             throw r_Error(MEMMORYALLOCATIONERROR);

@@ -40,6 +40,3 @@ endif()
 # Install the library to the lib folder
 install(TARGETS common_network
 	DESTINATION ${LIB_DIR})
-
-install(FILES ${NETWORK_HEADER_FILES}
-	DESTINATION "${INCLUDE_DIR}/common/network")

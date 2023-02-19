@@ -46,8 +46,6 @@ target_link_libraries(clientcomm
     mymalloc_cln
     common_logging
     common_exceptions
-    common_crypto
-    common_uuid 
     common_string
     ${Boost_SYSTEM_LIBRARY}
     ${GRPCPP_LIBRARY}

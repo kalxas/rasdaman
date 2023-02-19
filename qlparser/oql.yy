@@ -4540,7 +4540,7 @@ sortExp : sortHeader AS sortAxisIterator listingOrder BY generalExp
   // get sdom of mdd at axis - used in ranking function.
   QtAxisSDom *sdom;
   if(!$1.named)
-    sdom = new QtAxisSDom( $1.MDD, $1.axis );
+    sdom = new QtAxisSDom( $1.MDD, r_Dimension($1.axis) );
   else
     sdom = new QtAxisSDom( $1.MDD, $1.namedAxis );
 
@@ -4573,7 +4573,7 @@ sortExp : sortHeader AS sortAxisIterator listingOrder BY generalExp
   // $4 needs to become array of sortOrders for future multidimensional sorting
   QtSort *sortNode;
   if(!$1.named)
-    sortNode = new QtSort($1.MDD, $1.axis, $4.value, ranksArray );
+    sortNode = new QtSort($1.MDD, r_Dimension($1.axis), $4.value, ranksArray );
   else
     sortNode = new QtSort($1.MDD, $1.namedAxis, $4.value, ranksArray );
 
@@ -4652,7 +4652,7 @@ flipExp: FLIP generalExp ALONG flipAxis
   }
   else
   {
-    sortNode = new QtSort($2, $4.axis);
+    sortNode = new QtSort($2, r_Dimension($4.axis));
   }
 
   // get ParseInfo for error case in ALONG clause.

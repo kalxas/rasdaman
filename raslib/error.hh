@@ -23,19 +23,17 @@ rasdaman GmbH.
 
 #ifndef _D_ERROR_
 #define _D_ERROR_
+#include "raslib/mddtypes.hh"
+#include <exception>
+#include <string>
+
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
-
- This class implements partially the r_Error class of the
- C++ binding of ODMG-93 v.1.2. It extends exception
- handling through deriving special classes for MDD specific
- errors.
-
- In future, r_Error should be derived from the class exception
- defined in the C++ standard.
-
+/**
  The class allows the specification of an error number. The error number
  is used as an index to a generic textual description of the error which
  is read by <tt>setErrorTextOnNumber()</tt>. Error text is loaded from a
@@ -54,11 +52,6 @@ rasdaman GmbH.
  name expected is defined here. Ideally all programs using this mechanism should
  include error.hh to use the same settings.
 */
-
-#include "raslib/mddtypes.hh"
-#include <exception>
-#include <string>
-
 class r_Error : public std::exception
 {
 public:

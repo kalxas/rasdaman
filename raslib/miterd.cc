@@ -28,7 +28,7 @@ rasdaman GmbH.
  *
 */
 
-#include <iostream>
+#include <ostream>
 
 #include "raslib/miterd.hh"
 #include "raslib/minterval.hh"

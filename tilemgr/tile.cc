@@ -77,20 +77,13 @@ Tile::Tile(const Tile &tile)
     : domain(tile.domain), type(tile.type), blobTile((DBTile *)nullptr)
 {
     LTRACE << "Tile copy constructor (this tile size " << getSize() << ", other tile size " << tile.getSize() << ")";
-    if (RMInit::useTileContainer)
+    if (tile.blobTile->getCells())
     {
-        blobTile = new InlineTile(tile.blobTile->getSize(), tile.blobTile->getCells(), tile.blobTile->getDataFormat());
+        blobTile = new BLOBTile(tile.blobTile->getSize(), tile.blobTile->getCells(), tile.blobTile->getDataFormat());
     }
     else
     {
-        if (tile.blobTile->getCells())
-        {
-            blobTile = new BLOBTile(tile.blobTile->getSize(), tile.blobTile->getCells(), tile.blobTile->getDataFormat());
-        }
-        else
-        {
-            blobTile = new BLOBTile(tile.blobTile->getDataFormat());
-        }
+        blobTile = new BLOBTile(tile.blobTile->getDataFormat());
     }
     blobTile->setCurrentFormat(tile.blobTile->getCurrentFormat());
 }
@@ -109,14 +102,7 @@ Tile::Tile(std::vector<Tile *> *tilesVec)
     tileIt = tilesVec->begin();
     // initialize type with type of first tile
     type = (*tileIt)->getType();
-    if (RMInit::useTileContainer)
-    {
-        blobTile = new InlineTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
-    }
-    else
-    {
-        blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
-    }
+    blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
     // initialize domain
     domain = (*(tileIt++))->getDomain();
     while (tileIt != tileEnd)
@@ -157,10 +143,7 @@ Tile::Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Di
     LTRACE << "domain result: " << domain << " domain original: " << projTile->getDomain();
 
     // init contents
-    if (RMInit::useTileContainer)
-        blobTile = new InlineTile(getSize(), static_cast<char>(0), projTile->getDataFormat());
-    else
-        blobTile = new BLOBTile(getSize(), static_cast<char>(0), projTile->getDataFormat());
+    blobTile = new BLOBTile(getSize(), static_cast<char>(0), projTile->getDataFormat());
     // using r_Miter to iterate through tile to be projected and new tile.
     r_Miter projTileIter(&projDom, &projTile->getDomain(), type->getSize(), static_cast<const char *>(projTile->getContents()));
     r_Miter newTileIter(&domain, &domain, type->getSize(), blobTile->getCells());
@@ -194,14 +177,7 @@ Tile::Tile(const r_Minterval &newDom, const BaseType *newType, r_Data_Format new
     LTRACE << "Tile(new), size " << getSize();
     // note that the size is not correct (usually too big) for compressed
     // tiles. Doesn't matter, because resize is called anyway.
-    if (RMInit::useTileContainer)
-    {
-        blobTile = new InlineTile(getSize(), static_cast<char>(0), newFormat);
-    }
-    else
-    {
-        blobTile = new BLOBTile(getSize(), static_cast<char>(0), newFormat);
-    }
+    blobTile = new BLOBTile(getSize(), static_cast<char>(0), newFormat);
 }
 
 Tile::Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershipOfNewCells,
@@ -222,10 +198,7 @@ Tile::Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershi
         // setting compressed contents
         current = newFormat;
     }
-    if (RMInit::useTileContainer)
-        blobTile = new InlineTile(newSize, takeOwnershipOfNewCells, newCells, newFormat);
-    else
-        blobTile = new BLOBTile(newSize, takeOwnershipOfNewCells, newCells, newFormat);
+    blobTile = new BLOBTile(newSize, takeOwnershipOfNewCells, newCells, newFormat);
     blobTile->setCurrentFormat(current);
 }
 
@@ -245,14 +218,7 @@ Tile::Tile(const r_Minterval &newDom, const BaseType *newType, const char *newCe
         // setting compressed contents
         current = newFormat;
     }
-    if (RMInit::useTileContainer)
-    {
-        blobTile = new InlineTile(newSize, newCells, newFormat);
-    }
-    else
-    {
-        blobTile = new BLOBTile(newSize, newCells, newFormat);
-    }
+    blobTile = new BLOBTile(newSize, newCells, newFormat);
     blobTile->setCurrentFormat(current);
 }
 

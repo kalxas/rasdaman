@@ -42,6 +42,7 @@
 #define FILEREADERROR                   12
 #define FILEWRITEERROR                  13
 #define NOCONNECTION					14
+#define NOCONNECTSTRING                 17
 
 class RasqlError
 {

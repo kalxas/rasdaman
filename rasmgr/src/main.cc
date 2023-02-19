@@ -91,11 +91,11 @@ void configureLogging(const Configuration &config)
         outputLogFilePath = std::string(LOGDIR);
         if (outputLogFilePath[outputLogFilePath.length() - 1] != '/')
             outputLogFilePath += "/";
-        outputLogFilePath += string("rasmgr.") + std::to_string(::getpid()) + ".log";
+        outputLogFilePath += "rasmgr." + std::to_string(::getpid()) + ".log";
     }
   
     // setup log config
-    common::LogConfiguration logConfig(string(CONFDIR), RASMGR_LOG_CONF);
+    common::LogConfiguration logConfig(CONFDIR, RASMGR_LOG_CONF);
     logConfig.configServerLogging(outputLogFilePath, config.isQuiet());
     common::GrpcUtils::redirectGRPCLogToEasyLogging();
   

@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: set.hh
- *
- * MODULE:  rasodmg
- * CLASS:   r_Set
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _D_SET_
 #define _D_SET_
@@ -36,18 +27,16 @@ rasdaman GmbH.
 #include "rasodmg/collection.hh"
 
 //@ManMemo: Module: {\bf rasodmg}
-
-/*@Doc:
-
-  The class implements a set container. It inherits most of the
-  functionality from \c r_Collection. The set can not have
-  any duplicates and it is not ordered.
-
-*/
-
 /**
   * \ingroup Rasodmgs
   */
+
+/**
+  The class implements a set container. It inherits most of the
+  functionality from r_Collection. The set can not have
+  any duplicates and it is not ordered.
+
+*/
 template <class T>
 class r_Set : public r_Collection<T>
 {

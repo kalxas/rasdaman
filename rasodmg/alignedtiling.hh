@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
-  * INCLUDE: alignedtiling.hh
- *
- * MODULE:  rasodmg
- * CLASS:   r_Aligned_Tiling, r_Default_Tiling
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _R_ALIGNEDTILING_HH_
 #define _R_ALIGNEDTILING_HH_
@@ -36,22 +27,20 @@ rasdaman GmbH.
 #include "rasodmg/tiling.hh"
 #include "raslib/minterval.hh"
 
-class r_Aligned_Tiling;
-
 //@ManMemo: Module: {\bf rasodmg}
+/**
+  * \defgroup Rasodmgs Rasodmg Classes
+  */
 
-/*@Doc:
+/**
 
-    The \c r_Aligned_Tiling class is used to express the options
-    for aligned tiling of \c r_Marray objects.
+    The r_Aligned_Tiling class is used to express the options
+    for aligned tiling of r_Marray objects.
 
     The following options may be set:
 
-    \begin{itemize}
-    \item {\bf Tile configuration}
-
-         describes which format tiles should have. The tile configuration
-     is expressed using a multidimensional interval \c r_Minterval.
+    - Tile configuration: describes which format tiles should have. The tile configuration
+     is expressed using a multidimensional interval r_Minterval.
      This interval should have null lower limits and
      must have the same dimensionality as that of the
      objects to which it is to be applied. Its lengths along each
@@ -69,7 +58,7 @@ class r_Aligned_Tiling;
      144000. This will also result in more efficient computation of
      the tiling since the given tile configuration is used unchanged if
 
-       <tt> 90% * tile_size < size of tile_config  < tile_size</tt>
+     `90% * tile_size < size of tile_config  < tile_size`
 
      (i.e., no computation is necessary). This applies equally to tile
      configurations with non-fixed limits.
@@ -79,11 +68,11 @@ class r_Aligned_Tiling;
      tiles should be done along the first direction, i.e., they
      should have domains :
 
-     \begin{verbatim}
+     ```
      [  0 :  9 , 0 : marray.domain[1].high() ]
      [ 10 : 19 , 0 : marray.domain[1].high() ]
      ...
-     \end{verbatim}
+     ```
 
      assuming this results in a tile with the given tile size. If not,
      the limits in the first direction are changed. The higher dimensions
@@ -94,20 +83,15 @@ class r_Aligned_Tiling;
      The default configuration corresponds to an interval with equal
      lengths along all directions.
 
-    \item {\bf Tile size }
-
-         describes the size for tiles of the object in characters.
+    - Tile size: describes the size for tiles of the object in characters.
      Tiling is done so that tiles are as big as possible but wit a
      smaller size than this one.
      The default tile size is the size specified for the RasDaMan client.
 
   Notice: the tiling options are invalid if the rasdaman client is running
-          with the option notiling. In that case, no tiling is done,
-      independently of the storage layout chosen.
+  with the option notiling. In that case, no tiling is done,
+  independently of the storage layout chosen.
 */
-/**
-  * \defgroup Rasodmgs Rasodmg Classes
-  */
 
 /**
   * \ingroup Rasodmgs
@@ -119,13 +103,13 @@ public:
 
     /// read everything from encoded string
     /// (e.g. "[0:9,0:9];100" or "2;100")
-    r_Aligned_Tiling(const char *encoded);
+    explicit r_Aligned_Tiling(const char *encoded);
 
     /// dimension and tile size.
-    r_Aligned_Tiling(r_Dimension dim, r_Bytes ts = RMInit::clientTileSize);
+    explicit r_Aligned_Tiling(r_Dimension dim, r_Bytes ts = r_Tiling::defaultTileSize);
 
     /// tile configuration and tile size.
-    r_Aligned_Tiling(const r_Minterval &tc, r_Bytes ts = RMInit::clientTileSize);
+    explicit r_Aligned_Tiling(const r_Minterval &tc, r_Bytes ts = r_Tiling::defaultTileSize);
 
     virtual r_Tiling *clone() const;
 
@@ -179,25 +163,5 @@ protected:
     ///
     r_Minterval get_opt_size(const r_Minterval &tile_domain, r_Bytes cell_size) const;
 };
-
-//@ManMemo: Module: {\bf rasodmg}
-
-/*@Doc:
-
-    The <tt>r_Default_Tiling</tt> class is used to express the default tiling
-    of <tt>r_Marray</tt> objects. According to this algorithm, tiles are divided
-    into equal sized multidimensional blocks qith equal lengths along
-    all directions of the spatial domain.
-
-    The following parameter may be set:
-
-    \item {\bf Tile size }
-
-         describes the size for tiles of the object in characters.
-     Tiling is done so that tiles have a smaller size than this one.
-     The default tile size is the size specified for the RasDaMan client.
-     In bytes.
-*/
-
 
 #endif

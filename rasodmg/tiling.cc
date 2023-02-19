@@ -32,7 +32,6 @@ rasdaman GmbH.
 */
 
 #include "rasodmg/tiling.hh"
-#include "rasodmg/gmarray.hh"
 #include "raslib/minterval.hh"
 #include "raslib/error.hh"
 
@@ -51,6 +50,7 @@ const char *r_Tiling::TCOMMA    = ",";
 const char *r_Tiling::LSQRBRA   = "[";
 const char *r_Tiling::RSQRBRA   = "]";
 const int   r_Tiling::DefaultBase = 10;
+const r_Bytes r_Tiling::defaultTileSize = 4000000;
 
 unsigned int r_Tiling::parse_unsigned(const char *encoded) const
 {
@@ -218,7 +218,7 @@ r_Size_Tiling::compute_tiles(const r_Minterval &obj_domain, r_Bytes cellTypeSize
                                static_cast<r_Range>(1));
     r_Minterval tileDom(dim);
     for (r_Dimension dimcnt = 0; dimcnt < dim; dimcnt++)
-        tileDom << r_Sinterval(0ll, edgeLength - 1);
+        tileDom << r_Sinterval(0l, edgeLength - 1);
 
     r_Minterval currDom(dim);
     r_Point cursor(dim);

@@ -64,6 +64,7 @@ rasdaman GmbH.
 #include "relcatalogif/mdddimensiontype.hh"
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/structtype.hh"
+#include "mymalloc/mymalloc.h"
 
 #include "common/util/timer.hh"
 
@@ -94,9 +95,6 @@ rasdaman GmbH.
 #endif
 
 using namespace std;
-
-// init globals for server initialization
-// RMINITGLOBALS('S')
 
 // --------------------------------------------------------------------------------
 //                          constants
@@ -132,10 +130,6 @@ ClientTblElt *currentClientTblElt = 0;  // used in QtMDDAccess and oql.yy
 
 // Defined elsewhere
 
-// defined in server/rasserver_main.cc, configurable as a rasserver parameter:
-//       --transbuffer <nnnn>   (default: 4194304)
-//              maximal size of the transfer buffer in bytes
-extern unsigned long maxTransferBufferSize;
 // defined in oql.yy
 extern int yyparse(void *);
 extern void yyreset();
@@ -367,7 +361,7 @@ ServerComm::printServerStatus()
     LDEBUG << "\n-----------------------------------------------------------------------------"
            << "\nServer state information at " << ctime(&currentTime)
            << "\n  Transaction active.............: " << (transactionActive ? "yes" : "no")
-           << "\n  Max. transfer buffer size......: " << maxTransferBufferSize << " bytes"
+           << "\n  Max. transfer buffer size......: " << configuration.getMaxTransferBufferSize() << " bytes"
            << ct.str()
            << "\n-----------------------------------------------------------------------------";
 #else
@@ -594,10 +588,6 @@ ServerComm::commitTA(unsigned long callingClientId)
         context->releaseTransferStructures();
         try
         {
-            if (configuration.isLockMgrOn())
-            {
-                LockManager::Instance()->unlockAllTiles();
-            }
             context->transaction.commit();
             transactionActive = 0;
             reportExecutionTimes(context);
@@ -636,10 +626,6 @@ ServerComm::abortTA(unsigned long callingClientId)
         try
         {
             context->transaction.abort();
-            if (configuration.isLockMgrOn())
-            {
-                LockManager::Instance()->unlockAllTiles();
-            }
             transactionActive = 0;
             reportExecutionTimes(context);
             DBGOK
@@ -1390,8 +1376,7 @@ ServerComm::insertTile(unsigned long callingClientId,
                 std::unique_ptr<Tile> tile(new Tile(domain, baseType, true, dataPtr, newDataSize, dataFmt));
 
                 // for java clients only: check endianness and swap bytes tile if necessary
-                if (context->clientType == ClientType::Http &&
-                    r_Endian::get_endianness() != r_Endian::r_Endian_Big)
+                if (context->needEndianessSwap())
                 {
                     DBGINFONNL("big-endian client so changing result endianness... ");
                     // we have to swap the endianess
@@ -1745,8 +1730,7 @@ ServerComm::getNextElement(unsigned long callingClientId,
                         buffer = new char [bufferSize];
                         memcpy(buffer, scalarDataObj->getValueBuffer(), bufferSize);
                         // change endianess if necessary
-                        if (context->clientType == ClientType::Http &&
-                            r_Endian::get_endianness() != r_Endian::r_Endian_Big)
+                        if (context->needEndianessSwap())
                         {
                             swapScalarElement(buffer, scalarDataObj->getValueType());
                         }
@@ -1846,6 +1830,7 @@ ServerComm::getNextTile(unsigned long callingClientId,
                 char *useTransData = resultTile->getContents();
                 unsigned long totalSize = resultTile->getSize();
                 auto transferSize = totalSize;
+                const auto maxTransferBufferSize = size_t(configuration.getMaxTransferBufferSize());
                 if (totalSize > maxTransferBufferSize)
                 {
                     // if there is the rest of a tile to transfer, do it!
@@ -1889,7 +1874,6 @@ ServerComm::getNextTile(unsigned long callingClientId,
                     context->totalRawSize += resultTile->getSize();
                     (*context->tileIter)++;
                 }
-                // else?
             }
             catch (r_Error &err)
             {

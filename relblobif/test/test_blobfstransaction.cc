@@ -32,11 +32,8 @@
 #include "relblobif/dirwrapper.hh"
 #include "relblobif/blobfs.hh"
 #include "testing.h"
-#include "raslib/rminit.hh"
 
 #include "loggingutils.hh"
-
-RMINITGLOBALS('C')
 
 using namespace std;
 
@@ -47,7 +44,6 @@ char globalDbPasswd[255] = {0};
 
 class MDDColl;
 MDDColl *mddConstants = 0; // used in QtMDD
-unsigned long maxTransferBufferSize = 4000000;
 int noTimeOut = 0;
 char testData[] = {'t', 'e', 's', 't'};
 

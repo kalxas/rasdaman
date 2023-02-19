@@ -27,7 +27,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "raslib/rminit.hh"
 #include "relblobif/blobfstransactionlock.hh"
 #include "relblobif/blobfile.hh"
 #include "relblobif/dirwrapper.hh"
@@ -44,12 +43,8 @@ char globalDbPasswd[255] = {0};
 
 class MDDColl;
 MDDColl *mddConstants = 0; // used in QtMDD
-unsigned long maxTransferBufferSize = 4000000;
-int noTimeOut = 0;
 
 INITIALIZE_EASYLOGGINGPP
-
-RMINITGLOBALS('C')
 
 class TestBlobFSTransactionLock
 {

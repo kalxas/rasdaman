@@ -20,10 +20,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <utility>
 #include "turboqueryresult.hh"
+#include <utility>
 
-TurboQueryResult::TurboQueryResult(char *rawData1, size_t rawDataSize1, r_Data_Format data_format1, std::string domain1,
+TurboQueryResult::TurboQueryResult(char *rawData1, size_t rawDataSize1,
+                                   r_Data_Format data_format1, std::string domain1,
                                    bool *nullMask1, std::size_t nullMaskSize1):
     rawData(rawData1),
     rawDataSize(rawDataSize1),

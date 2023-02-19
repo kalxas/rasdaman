@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: basetype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Base_Type
- *
- * COMMENTS:
- *          None
-*/
 
 #ifndef _D_BASETYPE_
 #define _D_BASETYPE_
@@ -36,6 +27,9 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
 /**
   This class is the superclass of the types r_Structure_Type and r_Primitive_Type in the

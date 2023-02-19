@@ -20,13 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: miter.hh
- *
- * MODULE:  raslib
- * CLASS:   r_MiterFloat
- *
-*/
 
 #ifndef D_MITERF_HH
 #define D_MITERF_HH
@@ -36,11 +29,15 @@ rasdaman GmbH.
 class r_Minterval;
 class Tile;
 
+/**
+  * \ingroup raslib
+  */
+
 class r_FixedPointNumber
 {
 public:
     r_FixedPointNumber() = default;
-    r_FixedPointNumber(const double &);
+    explicit r_FixedPointNumber(const double &);
 
     r_FixedPointNumber &operator=(const r_FixedPointNumber &) = default;
     r_FixedPointNumber &operator=(const double &);
@@ -65,8 +62,11 @@ private:
 };
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   r_MiterFloat is used for iterating through parts of
   multidimensional intervals with arbitrary stepping size using
   nearest neighbours. It is given the tile, the source domain

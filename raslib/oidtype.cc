@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 
 #include "raslib/oidtype.hh"
+#include <ostream>
 
 bool
 r_Oid_Type::isOidType() const

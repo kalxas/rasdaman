@@ -20,24 +20,19 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: mintervaltype.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Minterval_Type
- *
- * COMMENTS:
- *
-*/
 
 #ifndef D_MINTERVAL_TYPE_HH
 #define D_MINTERVAL_TYPE_HH
 
 #include "raslib/type.hh"
+#include <iosfwd>
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   This class represents the multidimensional interval type in the ODMG conformant
   representation of the RasDaMan type system.
 */
@@ -76,4 +71,3 @@ public:
 extern std::ostream &operator<<(std::ostream &str, const r_Minterval_Type &type);
 
 #endif
-

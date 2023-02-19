@@ -20,16 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE:  oqlquery.hh
- *
- * MODULE:   rasodmg
- * CLASS:    r_OQL_Query
- * FUNCTION: r_oql_execute()
- *
- * COMMENTS:
- *      None
-*/
 
 #ifndef _D_OQL_QUERY_
 #define _D_OQL_QUERY_
@@ -47,21 +37,23 @@ class r_Transaction;
 class r_GMarray;
 
 //@ManMemo: Module: {\bf rasodmg}
+/**
+  * \ingroup Rasodmgs
+  */
 
-/*@Doc:
-
- The global function \Ref{r_oql_execute} is used to invoke RasML
+/**
+ The global function r_oql_execute() is used to invoke RasML
  queries. The query statement is represented through an object
- of class \Ref{r_OQL_Query} which is the first argument of the function.
- The constructor gets a parameterized query string where #$i#
+ of class r_OQL_Query which is the first argument of the function.
+ The constructor gets a parameterized query string where `$i`
  indicates the i-th parameter. The overloaded stream input
  operators allows to insert the parameter values to the query, at
  the same time preserving their respective types. If any of the
- #$i# are not followed by a right operant construction argument at
- the point \Ref{r_oql_execute} is called, a \Ref{r_Error} exception object
- of kind <tt>r_Error_QueryParameterCountInvalid</tt> is thrown.
- Once a query has been executed via \Ref{r_oql_execute}, the arguments
- associated with the #$i# parameters are cleared and new arguments
+ `$i` are not followed by a right operant construction argument at
+ the point r_oql_execute is called, a r_Error exception object
+ of kind r_Error_QueryParameterCountInvalid is thrown.
+ Once a query has been executed via r_oql_execute(), the arguments
+ associated with the `$i` parameters are cleared and new arguments
  must be supplied.
 
  The copy constructor and assignment operator copy all the underlying
@@ -69,15 +61,10 @@ class r_GMarray;
  that have been passed to the query at the point the operation is
  performed.
 
- The stream operators raise a \Ref{r_Error} exception of type
- <tt>r_Error_QueryParameterCountInvalid</tt> if the number of arguments is
+ The stream operators raise a r_Error exception of type
+ r_Error_QueryParameterCountInvalid if the number of arguments is
  exceeded.
-
 */
-
-/**
-  * \ingroup Rasodmgs
-  */
 class r_OQL_Query
 {
 public:
@@ -85,7 +72,7 @@ public:
     r_OQL_Query() = default;
 
     /// constructor getting the query string
-    r_OQL_Query(const char *s);
+    explicit r_OQL_Query(const char *s);
 
     /// copy constructor
     r_OQL_Query(const r_OQL_Query &q);
@@ -171,90 +158,100 @@ private:
 
 
 //@ManMemo: Module: {\bf rasodmg}
+/**
+  * \ingroup Rasodmgs
+  */
 
-/*@Doc:
-  The free standing function \Ref{r_oql_execute} is called to execute a retrieval query.
-  The first parameter, <tt>query</tt>, is a reference to a \Ref{r_OQL_Query} object specifying
-  the query to execute. The second parameter, <tt>result</tt>, is used for returning the
-  result of the query. The query result is of type <tt>r_Set< r_Ref_Any ></tt>.
+/**
+  The free standing function r_oql_execute is called to execute a retrieval query.
+  The first parameter, query, is a reference to a r_OQL_Query object specifying
+  the query to execute. The second parameter, result, is used for returning the
+  result of the query. The query result is of type r_Set< r_Ref_Any >.
   Important: If the transaction parameter is not provided this function is not thread-safe.
 
-  If the function is not called within the scope of an opened database, a \Ref{r_Error}
-  exception of kind <tt>r_Error_DatabaseClosed</tt> is raised. If it is called outside any
-  transaction, the exception is of kind <tt>r_Error_TransactionNotOpen</tt>.
+  If the function is not called within the scope of an opened database, a r_Error
+  exception of kind r_Error_DatabaseClosed is raised. If it is called outside any
+  transaction, the exception is of kind r_Error_TransactionNotOpen.
 
   A complete list of all possible error kinds is given by the following table.
 
-  \begin{tabular}{lll}
-  r_Error_ClientUnknown              && Client is not known by the server (earlier communication problems).\\
-  r_Error_DatabaseClosed             && No database is not opened.\\
-  r_Error_TransactionNotOpen         && Call is not within an active transaction.\\
-  r_Error_QueryParameterCountInvalid && At least one of the query parameters is not supplied with a value.\\
-  r_Error_TransferFailed             && Other communication problem. \\
-  r_Error_QueryExecutionFailed       && The execution of the query failed (further information is available
-  in an error object of type <tt>r_Equery_execution</tt>).\\
-  r_Error_TypeInvalid                && Result base type doesn't match the template type. \\
-  \end{tabular}
+  ```
+  r_Error_ClientUnknown                 Client is not known by the server (earlier communication problems).
+  r_Error_DatabaseClosed                No database is not opened.
+  r_Error_TransactionNotOpen            Call is not within an active transaction.
+  r_Error_QueryParameterCountInvalid    At least one of the query parameters is not supplied with a value.
+  r_Error_TransferFailed                Other communication problem.
+  r_Error_QueryExecutionFailed          The execution of the query failed (further information is available
+                                        in an error object of type r_Equery_execution).
+  r_Error_TypeInvalid                   Result base type doesn't match the template type.
+  ```
 */
-
 void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, r_Transaction *transaction = NULL);
 
 
 //@ManMemo: Module: {\bf rasodmg}
+/**
+  * \ingroup Rasodmgs
+  */
 
-/*@Doc:
-  The funcetion is used to execute retrieval queries with the result set being
-  of type <tt>r_Set< r_Ref< r_GMarray > ></tt>. The function is supported for
+/**
+  The function is used to execute retrieval queries with the result set being
+  of type r_Set< r_Ref< r_GMarray > >. The function is supported for
   compatibility reasons only. We suggest to use the general function
-  \Ref{r_oql_execute} able to maintain query results of any type.
+  r_oql_execute able to maintain query results of any type.
   Important: If the transaction parameter is not provided this function is not thread-safe.
 */
 void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref<r_GMarray>> &result, r_Transaction *transaction = NULL);
 
-/*@Doc:
-  The free standing function \Ref{r_oql_execute} is called to execute an insert query
+//@ManMemo: Module: {\bf rasodmg}
+/**
+  * \ingroup Rasodmgs
+  */
+/**
+  The free standing function r_oql_execute is called to execute an insert query
   that returns the OID that has been inserted.
-  The first parameter, <tt>query</tt>, is a reference to a \Ref{r_OQL_Query} object specifying
-  the query to execute. The second parameter, <tt>result</tt>, is used for returning the
-  result of the query. The query result is of type <tt>r_Set< r_Ref_Any ></tt>.
+  The first parameter, query, is a reference to a r_OQL_Query object specifying
+  the query to execute. The second parameter, result, is used for returning the
+  result of the query. The query result is of type r_Set< r_Ref_Any >.
   The third parameter is a dummy parameter, it is used to differentiate from retrieval queries.
   The function used the same return values as the retrieval function above.
   Important: If the transaction parameter is not provided this function is not thread-safe.
 
-  If the function is not called within the scope of an opened database, a \Ref{r_Error}
-  exception of kind <tt>r_Error_DatabaseClosed</tt> is raised. If it is called outside any
-  transaction, the exception is of kind <tt>r_Error_TransactionNotOpen</tt>.
+  If the function is not called within the scope of an opened database, a r_Error
+  exception of kind r_Error_DatabaseClosed is raised. If it is called outside any
+  transaction, the exception is of kind r_Error_TransactionNotOpen.
 */
-
 void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Transaction *transaction = NULL);
 
 
 //@ManMemo: Module: {\bf rasodmg}
+/**
+  * \ingroup Rasodmgs
+  */
 
-/*@Doc:
-  The free standing function \Ref{r_oql_execute} is called to execute an update / delete query.
+/**
+  The free standing function r_oql_execute is called to execute an update / delete query.
   It is also used by older ( < v9.1 ) clients for insert queries.
-  The first parameter, <tt>query</tt>, is a reference to a \Ref{r_OQL_Query} object specifying
+  The first parameter, query, is a reference to a r_OQL_Query object specifying
   the query to execute.
   Important: If the transaction parameter is not provided this function is not thread-safe.
 
-  If the function is not called within the scope of an opened database, a \Ref{r_Error}
-  exception of kind <tt>r_Error_DatabaseClosed</tt> is raised. If it is called outside any
-  transaction, the exception is of kind <tt>r_Error_TransactionNotOpen</tt>.
+  If the function is not called within the scope of an opened database, a r_Error
+  exception of kind r_Error_DatabaseClosed is raised. If it is called outside any
+  transaction, the exception is of kind r_Error_TransactionNotOpen.
 
   A complete list of all possible error kinds is given by the following table.
-
-  \begin{tabular}{lll}
-  r_Error_ClientUnknown              && Client is not known by the server (earlier communication problems).\\
-  r_Error_DatabaseClosed             && No database is not opened.\\
-  r_Error_TransactionNotOpen         && Call is not within an active transaction.\\
-  r_Error_QueryParameterCountInvalid && At least one of the query parameters is not supplied with a value.\\
-  r_Error_TransferFailed             && Other communication problem. \\
-  r_Error_QueryExecutionFailed       && The execution of the query failed (further information is available
-  in an error object of type <tt>r_Equery_execution</tt>).\\
-  \end{tabular}
+  
+  ```
+  r_Error_ClientUnknown                 Client is not known by the server (earlier communication problems).
+  r_Error_DatabaseClosed                No database is not opened.
+  r_Error_TransactionNotOpen            Call is not within an active transaction.
+  r_Error_QueryParameterCountInvalid    At least one of the query parameters is not supplied with a value.
+  r_Error_TransferFailed                Other communication problem.
+  r_Error_QueryExecutionFailed          The execution of the query failed (further information is available
+                                        in an error object of type r_Equery_execution).
+  ```
 */
-
 void r_oql_execute(r_OQL_Query &query, r_Transaction *transaction = NULL);
 
 #endif

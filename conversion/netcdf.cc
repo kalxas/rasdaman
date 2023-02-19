@@ -187,7 +187,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options, const r_Range* nullVa
     // read data from temp file and return result
     long fileSize = 0;
     desc.dest = tmpFileObj.readData(fileSize);
-    desc.destInterv = r_Minterval(1) << r_Sinterval(0ll, static_cast<r_Range>(fileSize - 1));
+    desc.destInterv = r_Minterval(1) << r_Sinterval(0l, static_cast<r_Range>(fileSize - 1));
     desc.destType = r_Type::get_any_type("char");
     return desc;
 

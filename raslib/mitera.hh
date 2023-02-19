@@ -20,13 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: mitera.hh
- *
- * MODULE:  raslib
- * CLASS:   r_MiterArea
- *
-*/
 
 #ifndef D_MITERA_HH
 #define D_MITERA_HH
@@ -34,8 +27,11 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
-/*@Doc:
+/**
   r_MiterArea is used for iterating r_Mintervals through larger
   r_Mintervals. It is given the domain to be iterated through and
   an Minterval specifying the shape of area to be iterated with.

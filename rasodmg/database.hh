@@ -35,6 +35,7 @@ rasdaman GmbH.
 
 #include "raslib/mddtypes.hh"
 #include "globals.hh"
+#include <string>
 
 // forward declarations
 class r_Object;
@@ -45,8 +46,7 @@ class ClientComm;
 
 //@ManMemo: Module: {\bf rasodmg}
 
-/*@Doc:
-
+/**
   A database object must be instantiated and opened before
   starting any transaction which uses the database, and closed
   after ending these transactions.
@@ -74,7 +74,7 @@ public:
     r_Database();
 
     /// constructor getting the rasmgr name
-    r_Database(const char *name);
+    explicit r_Database(const char *name);
     /**
       One error situations can occur which raise an exception of type r_Error with
       one of the following kinds:

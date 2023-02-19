@@ -40,7 +40,7 @@ Database
 -   ``spring.datasource.jdbc_jar_path`` absolute path to the JDBC jar file for
     connecting to the database configured in setting ``spring.datasource.url``.
     If left empty, the default PostgreSQL JDBC driver will be used. 
-    To use a different DBMS (e.g. H2), please download the corresponding JDBC
+    To use a different DBMS (e.g. H2) download the corresponding JDBC
     driver, and set the path to it.
 
     - Default: empty
@@ -99,7 +99,7 @@ Database
 -   ``metadata_jdbc_jar_path`` absolute path to the JDBC jar file for
     connecting to the database configured in setting ``metadata_url``.
     If left empty, the default PostgreSQL JDBC driver will be used. 
-    To use a different DBMS (e.g. H2), please download the corresponding JDBC
+    To use a different DBMS (e.g. H2) download the corresponding JDBC
     driver, and set the path to it.
 
     - Default: empty
@@ -163,7 +163,7 @@ General
 
     - Default: empty
 
-    - Need to change: **YES** when rasdaman-geo runs behind a proxy
+    - Need to change: **YES** when rasdaman-geo runs behind a proxy.
 
 
 -   ``max_wms_cache_size`` set the maximum amount of memory (in bytes) to use
@@ -443,3 +443,4 @@ Logging level for rasj is configured via the optional setting ``rasj_logging_lev
 The valid values for logging are ``ERROR``, ``WARN``, ``DEBUG``, and ``TRACE``.
 By default the logging level is ``WARN`` if this setting is not set in the configuration
 file.
+

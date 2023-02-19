@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: minterval.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Minterval
- *
- * COMMENTS:
- *
-*/
 
 #ifndef D_MINTERVAL_HH
 #define D_MINTERVAL_HH
@@ -37,12 +28,15 @@ rasdaman GmbH.
 #include "raslib/point.hh"
 #include "raslib/mddtypes.hh"  // for r_Dimension, r_Area, r_Bytes, r_Range
 
-#include <iosfwd>     // for ostream, cout
+#include <iosfwd>       // for ostream, cout
 #include <string>       // for string
 #include <vector>       // for vector
 
 
 //@ManMemo: Module: {\bf raslib}
+/**
+  * \ingroup raslib
+  */
 
 /**
 
@@ -239,11 +233,11 @@ public:
     /// constructor getting a low, high pair
     r_Minterval(const r_Point &low, const r_Point &high);
     /// constructor getting dimensionality for stream initializing
-    r_Minterval(r_Dimension);
+    explicit r_Minterval(r_Dimension);
     /// constructor taking string representation (e.g. [ 1:255, *:200, *:* ])
-    r_Minterval(const char *);
+    explicit r_Minterval(const char *);
     /// constructor taking string representation (e.g. [ 1:255, *:200, *:* ])
-    r_Minterval(char *);
+    explicit r_Minterval(char *);
     /// construct from interval axes
     explicit r_Minterval(std::vector<r_Sinterval> intervals);
     /// for stream initializing with intervals

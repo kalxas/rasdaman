@@ -21,6 +21,7 @@
 */
 
 #include "raslib/sintervaltype.hh"
+#include <ostream>
 
 r_Type *
 r_Sinterval_Type::clone() const
