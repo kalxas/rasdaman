@@ -677,82 +677,36 @@ used, here is a guidance for some of the most frequently used.
                           --global-option="-I/usr/include/gdal" GDAL==...
 
 
-CentOS 7
-~~~~~~~~
+Ubuntu 20.04
+~~~~~~~~~~~~
 
 .. hidden-code-block:: bash
 
     # To build rasdaman
-    $ sudo yum install \
-      make libtool autoconf bison flex flex-devel git curl gcc gcc-c++ unzip \
-      boost-devel libstdc++-static boost-static libtiff-devel zlib-devel \
-      libedit-devel readline-devel libpng-devel netcdf-devel postgresql-devel \
-      eccodes-devel hdf-devel sqlite-devel openssl-devel libxml2-devel elfutils-devel
-    # To build Java components
-    $ sudo yum install java-1.8.0-openjdk-devel maven ant
-
-    # CMake needs to be manually downloaded and installed as the system 
-    # provided version is too outdated.
-
-    # To generate HTML documentation
-    $ sudo pip install sphinx sphinx_rtd_theme
-    # To generate PDF documentation (in addition to above)
-    $ sudo yum install python-pip texlive-cm texlive-ec texlive-ucs \
-      texlive-metafont-bin texlive-fncychap texlive-pdftex-def texlive-fancyhdr \
-      texlive-titlesec texlive-framed texlive-wrapfig texlive-parskip \
-      texlive-upquote texlive-ifluatex texlive-cmap texlive-makeindex-bin \
-      texlive-times texlive-courier texlive-dvips texlive-helvetic latexmk
-    # To generate C++ API documentation
-    $ sudo yum install doxygen
-
-    # To run rasdaman
-    $ sudo yum install \
-      postgresql-server postgresql-contrib sqlite zlib elfutils netcdf libtiff \
-      libedit readline openssl libxml2 which python3-devel python3-pip \
-      python3-setuptools python3-wheel eccodes hdf sysvinit-tools
-    # To run Java components
-    $ sudo yum install java-1.8.0-openjdk tomcat
-
-    # To run wcst_import.sh
-    $ sudo pip3 install jsonschema python-dateutil lxml \
-      pyproj pygrib numpy netCDF4==1.2.7 pygrib
-
-    # To run rasdapy
-    $ pip3 install --user grpcio==1.9.0 protobuf==3.6.1
-
-    # To run systemtest
-    $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
-
-Debian 10 / Ubuntu 18.04 / Ubuntu 20.04
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. hidden-code-block:: bash
-
-    # To build rasdaman
-    $ sudo apt-get install --no-install-recommends \
+    $ sudo apt install --no-install-recommends \
       make libtool gawk autoconf automake bison flex git g++ unzip libpng-dev \
       libjpeg-dev libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
       libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev libnetcdf-dev \
       libedit-dev libreadline-dev libdw-dev libsqlite3-dev libgrib2c-dev curl \
       libssl-dev libeccodes-dev cmake ccache
     # To build Java components
-    $ sudo apt-get install default-jdk-headless maven ant libgdal-java
+    $ sudo apt install default-jdk-headless maven ant libgdal-java
 
     # To generate HTML documentation
     $ pip3 install --user sphinx sphinx_rtd_theme
     # To generate PDF documentation (in addition to above)
-    $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
+    $ sudo apt install --no-install-recommends latexmk texlive-latex-base \
       texlive-fonts-recommended texlive-latex-extra 
     # To generate C++ API documentation
-    $ sudo apt-get install --no-install-recommends doxygen
+    $ sudo apt install --no-install-recommends doxygen
 
     # To run rasdaman
-    $ sudo apt-get install \
+    $ sudo apt install \
       postgresql postgresql-contrib sqlite3 zlib1g libdw1 gdal-bin debianutils \
       libedit-dev libnetcdf-dev python3-pip python3-setuptools python3-wheel \
       libreadline-dev libssl1.1 libeccodes0
     # To run Java components
-    $ sudo apt-get install default-jre-headless libgdal-java tomcat9
+    $ sudo apt install default-jre-headless libgdal-java tomcat9
 
     # To run wcst_import.sh; it is recommended to install Python 3.6
     $ pip3 install --user jsonschema python-dateutil lxml \
@@ -761,7 +715,7 @@ Debian 10 / Ubuntu 18.04 / Ubuntu 20.04
     $ pip3 install --user grpcio==1.9.0 protobuf==3.6.1
 
     # To run systemtest
-    $ sudo apt-get install bc vim-common valgrind netcdf-bin libpython3-dev
+    $ sudo apt install bc vim-common valgrind netcdf-bin libpython3-dev
 
 
 Ubuntu 22.04
@@ -770,34 +724,36 @@ Ubuntu 22.04
 .. hidden-code-block:: bash
   
     # To build rasdaman
-    $ apt-get install --no-install-recommends make libtool gawk autoconf automake \
+    $ sudo apt install --no-install-recommends make libtool gawk autoconf automake \
       pkg-config bison flex git g++ unzip libpng-dev libjpeg-dev libtiff-dev \
       libgdal-dev libnetcdf-dev libeccodes-dev libboost-filesystem-dev libssl-dev \
       libboost-thread-dev libboost-system-dev libboost-dev zlib1g-dev libffi-dev \
       libedit-dev libreadline-dev libdw-dev libsqlite3-dev libgrib2c-dev curl
     # To build Java components
-    $ apt-get install default-jdk-headless maven ant
+    $ sudo apt install default-jdk-headless maven ant
 
     # To generate HTML/PDF and C++ API documentation
-    $ apt-get install latexmk tex-gyre python3-sphinx python3-sphinx-rtd-theme \
+    $ sudo apt install latexmk tex-gyre python3-sphinx python3-sphinx-rtd-theme \
       texlive-latex-base texlive-fonts-recommended texlive-latex-extra doxygen
 
     # To run rasdaman
-    $ apt-get install sqlite3 zlib1g libdw1 debianutils sudo libssl3 gdal-bin \
+    $ sudo apt install sqlite3 zlib1g libdw1 debianutils sudo libssl3 gdal-bin \
       libnetcdf-dev libgdal-dev libeccodes0 libreadline-dev libedit-dev \
       python3-jsonschema python3-dateutil python3-lxml python3-grib python3-numpy \
       python3-netcdf4 python3-pyproj
     # To run Java components
-    $ apt-get install postgresql postgresql-contrib default-jre-headless
+    $ sudo apt install postgresql postgresql-contrib default-jre-headless
     
     # To run systemtest
-    $ apt-get install bc vim-common valgrind netcdf-bin gdal-bin python3-protobuf \
+    $ sudo apt install bc vim-common valgrind netcdf-bin gdal-bin python3-protobuf \
       python3-pip jq
     $ pip3 install grpcio pylint==2.13.4
 
 
 .. note::
-    Two files - *gdal.jar* and *libgdalalljni.so*, are absent in Ubuntu 22.04. You need to manually paste *gdal.jar* at ``/usr/share/java`` and *libgdalalljni.so* at ``/usr/lib/jni/`` for a successful build.  
+    Two files - *gdal.jar* and *libgdalalljni.so*, are absent in Ubuntu 22.04.
+    You need to manually paste *gdal.jar* at ``/usr/share/java`` and
+    *libgdalalljni.so* at ``/usr/lib/jni/`` for a successful build.  
     
     You can find these files here:
     https://download.rasdaman.org/installer/tpinstaller/ubuntu2204/
