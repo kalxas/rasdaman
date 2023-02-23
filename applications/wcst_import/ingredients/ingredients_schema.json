@@ -218,6 +218,9 @@
                                         "type": {
                                             "type": "string"
                                         },
+                                        "subtype": {
+                                            "type": "string"
+                                        },
 
                                         "pixelIsPoint": {
                                             "type": [ "boolean", "string" ]

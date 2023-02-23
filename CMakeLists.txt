@@ -568,6 +568,14 @@ else()
     message(STATUS "Documentation building disabled " 
         "(-DGENERATE_DOCS=${GENERATE_DOCS}).")
 endif()
+set(GENERATE_DOCS_PDF OFF CACHE BOOL "Build and install PDF documentation.")
+if (GENERATE_DOCS_PDF)
+    message(STATUS "PDF documentation building enabled " 
+        "(-DGENERATE_DOCS_PDF=${GENERATE_DOCS_PDF}).")
+else()
+    message(STATUS "PDF documentation building disabled " 
+        "(-DGENERATE_DOCS_PDF=${GENERATE_DOCS_PDF}).")
+endif()
 
 ########################################
 # Begin backward compatibility section

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<n1:Level-2A_Tile_ID xmlns:n1="https://psd-14.sentinel2.eo.esa.int/PSD/S2_PDI_Level-2A_Tile_Metadata.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://psd-14.sentinel2.eo.esa.int/PSD/S2_PDI_Level-2A_Tile_Metadata.xsd /gpfs/dpc/app/s2ipf/FORMAT_METADATA_TILE_L1C/04.04.01/scripts/../../../schemas/04.04.00/PSD/S2_PDI_Level-2A_Tile_Metadata.xsd">
+  <n1:General_Info>
+    <L1C_TILE_ID metadataLevel="Brief">S2A_OPER_MSI_L1C_TL_VGS2_20211101T130235_A033224_T31UFA_N03.01</L1C_TILE_ID>
+    <TILE_ID metadataLevel="Brief">S2A_OPER_MSI_L2A_TL_VGS2_20211101T140418_A033224_T31UFA_N03.01</TILE_ID>
+    <DATASTRIP_ID metadataLevel="Standard">S2A_OPER_MSI_L2A_DS_VGS2_20211101T140418_S20211101T105445_N03.01</DATASTRIP_ID>
+    <DOWNLINK_PRIORITY metadataLevel="Standard">NOMINAL</DOWNLINK_PRIORITY>
+    <SENSING_TIME metadataLevel="Standard">2021-11-01T10:55:58.511381Z</SENSING_TIME>
+    <Archiving_Info metadataLevel="Expertise">
+      <ARCHIVING_CENTRE>VGS2</ARCHIVING_CENTRE>
+      <ARCHIVING_TIME>2021-11-01T15:30:30.502761Z</ARCHIVING_TIME>
+    </Archiving_Info>
+  </n1:General_Info>
+  <n1:Geometric_Info>
+    <Tile_Geocoding metadataLevel="Brief">
+      <HORIZONTAL_CS_NAME>WGS84 / UTM zone 31N</HORIZONTAL_CS_NAME>
+      <HORIZONTAL_CS_CODE>EPSG:32631</HORIZONTAL_CS_CODE>
+      <Size resolution="10">
+        <NROWS>10980</NROWS>
+        <NCOLS>10980</NCOLS>
+      </Size>
+      <Size resolution="20">
+        <NROWS>5490</NROWS>
+        <NCOLS>5490</NCOLS>
+      </Size>
+      <Size resolution="60">
+        <NROWS>1830</NROWS>
+        <NCOLS>1830</NCOLS>
+      </Size>
+      <Geoposition resolution="10">
+        <ULX>600000</ULX>
+        <ULY>6100020</ULY>
+        <XDIM>10</XDIM>
+        <YDIM>-10</YDIM>
+      </Geoposition>
+      <Geoposition resolution="20">
+        <ULX>600000</ULX>
+        <ULY>6100020</ULY>
+        <XDIM>20</XDIM>
+        <YDIM>-20</YDIM>
+      </Geoposition>
+      <Geoposition resolution="60">
+        <ULX>600000</ULX>
+        <ULY>6100020</ULY>
+        <XDIM>60</XDIM>
+        <YDIM>-60</YDIM>
+      </Geoposition>
+    </Tile_Geocoding>
+  </n1:Geometric_Info>
+</n1:Level-2A_Tile_ID>

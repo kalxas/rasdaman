@@ -31,6 +31,7 @@ import json
 from util.log import log, log_to_file, prepend_time
 from util.import_util import decode_res
 from util.time_util import timeout, execute_with_retry_on_timeout
+from util.s2metadata_util import S2MetadataUtil
 
 _spatial_ref_cache = {}
 _gdal_dataset_cache = {}
@@ -42,6 +43,15 @@ MAX_RETRIES_TO_OPEN_FILE = 3
 
 
 class GDALGmlUtil:
+    @staticmethod
+    def get(filepath, recipe=None):
+        enabled_in_recipe = recipe is not None and S2MetadataUtil.enabled_in_ingredients(recipe)
+        if enabled_in_recipe or S2MetadataUtil.is_s2_data(filepath):
+            dataset = S2MetadataUtil.get(filepath)
+            if dataset is not None:
+                return dataset
+        return GDALGmlUtil(filepath)
+
     def __init__(self, gdal_file_path):
         """
         Utility class to extract information from a gdal file. Best to isolate

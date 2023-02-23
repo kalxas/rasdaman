@@ -1765,6 +1765,7 @@ delivered with rasdaman are located in the ``$RMANHOME/lib`` directory, and
 they can be linked with
 
 .. code-block:: shell
+
    -L/opt/rasdaman/lib     \
    -lrasodmg               \
    -lraslib                \

@@ -857,6 +857,8 @@ that can be specified with ``-D<option>``, along with the default settings.
     +---------------------------------+-------------------+--------------------------------------------------------------------------+
     | ``GENERATE_DOCS``               | **ON** / OFF      | Generate and install documentation (manuals, doxygen, javadoc).          |
     +---------------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``GENERATE_DOCS_PDF``           | ON / **OFF**      | Generate and install documentation in PDF format.                        |
+    +---------------------------------+-------------------+--------------------------------------------------------------------------+
     | ``GENERATE_PIC``                | **ON** / OFF      | Generate position independent code (PIC).                                |
     +---------------------------------+-------------------+--------------------------------------------------------------------------+
     | ``ENABLE_JAVA``                 | **ON** / OFF      | Generate and install of Java-based components (rasj, petascope, secore). |

@@ -70,7 +70,7 @@ class GdalExpressionEvaluator(ExpressionEvaluator):
             value = gdal_dataset.get_metadata_tag(expression.replace("metadata:", ""))
         else:
             user_bands = []
-            for band in GDALGmlUtil.get_fields_range_type(gdal_dataset):
+            for band in gdal_dataset.get_fields_range_type():
                 user_band = UserBand(band.field_name, "", "", "", "", band.nill_values, band.uom_code)
                 user_bands.append(user_band)
 

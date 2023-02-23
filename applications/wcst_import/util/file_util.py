@@ -33,7 +33,7 @@ from master.error.runtime_exception import RuntimeException
 import stat
 from util.import_util import import_glob
 import os
-import getpass
+from os.path import normpath, join
 
 class FileUtil:
 
@@ -55,26 +55,15 @@ class FileUtil:
         From the file path in regular expression (e.g: *.txt, ./txt), return list of file paths
         :return: list of string
         """
-        file_paths = []
-
         # If the input file is actually a regex pattern then glob can be used
-        if "*" in file_path_regex or "?" in file_path_regex \
-            or "./" in file_path_regex \
-            or ".." in file_path_regex:
+        if "*" in file_path_regex or "?" in file_path_regex:
             glob = import_glob()
             if not file_path_regex.strip().startswith("/"):
-                file_path_regex = ingredients_dir_path + file_path_regex
-
-            file_paths = file_paths + glob.glob(file_path_regex, recursive=True)
+                file_path_regex = join(ingredients_dir_path, file_path_regex)
+            return glob.glob(file_path_regex, recursive=True)
         else:
             # non regex file path
-            if "/" not in file_path_regex:
-                # only file name is listed
-                file_path_regex = ingredients_dir_path + "/" + file_path_regex
-
-            file_paths.append(file_path_regex)
-
-        return file_paths
+            return [normpath(join(ingredients_dir_path, file_path_regex))]
 
     @staticmethod
     def validate_file_path(file_path):

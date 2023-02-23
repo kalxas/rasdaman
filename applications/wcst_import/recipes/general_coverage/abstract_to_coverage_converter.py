@@ -58,6 +58,7 @@ from master.provider.data.file_data_provider import FileDataProvider
 from util.string_util import is_number, create_coverage_id_for_overview
 from util.file_util import FileUtil
 from util.timer import Timer
+from util.s2metadata_util import S2MetadataUtil
 import copy
 
 
@@ -521,28 +522,39 @@ class AbstractToCoverageConverter:
 
             if valid_coverage_slice:
                 if self.session.recipe["options"]["coverage"]["slicer"]["type"] == "gdal":
-                    gdal_file = GDALGmlUtil(file.get_filepath())
-                    geo_axis_crs = gdal_file.get_crs()
-                    try:
-                        CRSUtil.validate_crs(coverage_crs, geo_axis_crs)
-                    except Exception as ex:
-                        FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
-                        valid_coverage_slice = False
+                    read_gdal_file = True
+                    if S2MetadataUtil.enabled_in_ingredients(self.session.recipe):
+                        mtd_file = S2MetadataUtil.get(file.get_filepath())
+                        if mtd_file is not None:
+                            read_gdal_file = False
+                            if self.session.import_overviews_only is False:
+                                slices_dict["base"].append(coverage_slice)
+                            # Then, create slices for selected overviews from user
+                            for overview_index in self.session.import_overviews:
+                                axis_subsets_overview = BaseRecipe.create_subsets_for_overview(coverage_slice.axis_subsets,
+                                                                                               overview_index, mtd_file)
+                                coverage_slice_overview = copy.deepcopy(coverage_slice)
+                                coverage_slice_overview.axis_subsets = axis_subsets_overview
+                                slices_dict[str(overview_index)].append(coverage_slice_overview)
 
-                    if valid_coverage_slice:
-
-                        if self.session.import_overviews_only is False:
-                            slices_dict["base"].append(coverage_slice)
-
-                        # Then, create slices for selected overviews from user
-                        for overview_index in self.session.import_overviews:
-                            axis_subsets_overview = BaseRecipe.create_subsets_for_overview(coverage_slice.axis_subsets,
-                                                                                           overview_index, gdal_file)
-
-                            coverage_slice_overview = copy.deepcopy(coverage_slice)
-                            coverage_slice_overview.axis_subsets = axis_subsets_overview
-
-                            slices_dict[str(overview_index)].append(coverage_slice_overview)
+                    if read_gdal_file:
+                        gdal_file = GDALGmlUtil(file.get_filepath())
+                        geo_axis_crs = gdal_file.get_crs()
+                        try:
+                            CRSUtil.validate_crs(coverage_crs, geo_axis_crs)
+                        except Exception as ex:
+                            FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
+                            valid_coverage_slice = False
+                        if valid_coverage_slice:
+                            if self.session.import_overviews_only is False:
+                                slices_dict["base"].append(coverage_slice)
+                            # Then, create slices for selected overviews from user
+                            for overview_index in self.session.import_overviews:
+                                axis_subsets_overview = BaseRecipe.create_subsets_for_overview(coverage_slice.axis_subsets,
+                                                                                               overview_index, gdal_file)
+                                coverage_slice_overview = copy.deepcopy(coverage_slice)
+                                coverage_slice_overview.axis_subsets = axis_subsets_overview
+                                slices_dict[str(overview_index)].append(coverage_slice_overview)
                 else:
                     if self.session.import_overviews_only is False:
                         slices_dict["base"].append(coverage_slice)

@@ -1024,6 +1024,8 @@ as documented below.
 GetCoverage request
 -------------------
 
+.. _wcs-getcoverage-interpolation:
+
 Interpolation
 ^^^^^^^^^^^^^
 
@@ -1814,7 +1816,6 @@ available and their meaning. Example:
         &FORMAT=image/png
         &INTERPOLATION=bilinear
 
-
 .. _wms-random:
 
 Random parameter
@@ -2172,7 +2173,7 @@ Examples
    which always refer to the current layer, other layers can be referenced by
    name using an iterator of the form ``$LAYER_NAME`` in the style
    expression. 
-  
+
    Example: create a WCPS query fragment style referencing 2 layers
    (``$c`` refers to layer *sentinel2_B4* which defines the style):
 
@@ -2490,7 +2491,7 @@ formats and file/directory organizations.
 The systemtest contains 
 `many examples <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata>`__
 for importing different types of data. Note that the ``ingest.template.json`` are template files
-which cannot be directly imported, as several variables need to be set.
+which cannot be directly imported, as several variables need to be set first.
 
 .. _data-import-intro:
 
@@ -2583,7 +2584,9 @@ config section
 
       "service_url": "http://localhost:8080/rasdaman/ows"
 
-* ``service_is_local`` -  ``true`` if the WCS service endpoint runs locally on the same machine,
+.. _wcst_import-service_is_local:
+
+*  ``service_is_local`` -  ``true`` if the WCS service endpoint runs locally on the same machine,
    ``false`` otherwise. When set to ``false``, the data to be imported will be uploaded
    to the remote host. This may also be done even when the WCS service endpoint runs locally
    but has no read permissions on the data files, in which case the only way to import the data
@@ -2728,11 +2731,12 @@ input section
   .. NOTE::
 
      wcst_import analyzes each input file from ``paths`` and maximum time to open one file
-     to analyze is 60 seconds. If during this time, the file cannot be opened, then, wcst_import
-     will try to open it 3 more times. If the file is still not possible to open, then, it will:
+     for this purpose is 60 seconds. If during this time the file cannot be opened, then wcst_import
+     will try to open it two more times. If the file is still not possible to open, then it will:
     
-     - Throw exception and stop the importing process if ``skip`` setting is ``False``
-     - Ignore the input file and continue with these other input files if ``skip`` setting is ``True``
+     - throw exception and stop the importing process if ``skip`` setting is ``False``, or
+     - ignore this file and continue with the other input files if ``skip`` setting is ``True``
+
 
 * ``inspire`` section contains the settings for importing INSPIRE coverage:
 
@@ -3351,6 +3355,15 @@ bounds and resolution corresponding to each file.
     to flip it before importing to rasdaman, e.g. with
     ``cdo invertlat input.grib output.grib``.
 
+* ``subtype`` - Specify a slicer subtype. Currently only ``"sentinel2"`` is
+  supported as a value, valid in combination with ``"type": "gdal"``. When
+  present in the ingredients, instead of opening files to be imported with GDAL
+  in order to read needed metadata such as CRS and geo bbox, this will be done
+  by reading the ``MTD_TL.xml`` file present in the SAFE container that
+  contains the file to be imported. This can be much faster compared to reading
+  the metadata from JPEG 2000 files with GDAL. Note that this only works with
+  file paths on the filesystem in extracted SAFE directories.
+
 * ``pixelIsPoint`` - Only valid if ``type`` is ``netcdf`` or ``grib``.
   In some cases, by convention in the input files, the coordinates 
   are set in the middle of grid pixels, hence, set to ``true`` to extend the 
@@ -3388,6 +3401,8 @@ bounds and resolution corresponding to each file.
   properties are listed below; generally, ``gridOrder``, ``min``, ``max``,
   and ``resolution`` have to be specified, except for irregular axes where
   ``resolution`` is not applicable.
+
+  .. _wcst_import-gridorder:
 
   * ``gridOrder`` - specify the grid order of axes defined by the coverage CRS.
     If not specified, wcst_import will try to automatically derive the gridOrder
@@ -4722,8 +4737,8 @@ file called ``recipe.py``
 
 Use your favorite editor or IDE to work on the recipe (there are type
 annotations for most WCSTImport classes so an IDE like PyCharm would give out of
-the box completion support). First, let's add the skeleton of the recipe (
-note that in this tutorial, we will omit the import section of the files (your
+the box completion support). First, let's add the skeleton of the recipe (note that
+in this tutorial, we will omit the import section of the files (your
 IDE will help you auto import them)):
 
 .. hidden-code-block:: python
@@ -5206,6 +5221,7 @@ Errors that occur while wcst_import is running are handled in the following way:
 
 - The error message is written in the terminal console;
 - The error message and the full stack trace are written to the log file.
+
 
 
 Data export

@@ -70,8 +70,7 @@ class GDALEvaluatorSlice(FileEvaluatorSlice):
         :rtype: gdal Dataset
         """
         if self.dataset is None:
-            self.dataset = GDALGmlUtil(self.get_file().filepath)
-
+            self.dataset = GDALGmlUtil.get(self.get_file().filepath)
         return self.dataset
 
     def get_data_type(self, gdal_recipe_converter=None):

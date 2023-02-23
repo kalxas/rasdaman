@@ -23,14 +23,12 @@
 
 
 out="$1"
-oracle="$2"
-
-nout="$out.output_tmp"
-nora="$out.oracle_tmp"
+ora="$2"
 
 # remove potentially different port from output and oracle
-sed 's|localhost:.*/|localhost/|g' "$out" > "$nout"
-sed 's|localhost:.*/|localhost/|g' "$oracle" > "$nora"
+process() {
+  sed -e 's|localhost:.*/|localhost/|g' -e 's/_insitu//g' "$1"
+}
 
-diff -b "$nout" "$nora" > /dev/null 2>&1
+diff -b <(process "$out") <(process "$ora") > /dev/null 2>&1
 exit $?

@@ -134,30 +134,6 @@ class Session:
         self.description_max_no_slices = int(
             self.config['description_max_no_slices']) if "description_max_no_slices" in self.config else 5
         self.track_files = bool(self.config['track_files']) if "track_files" in self.config else True
-        self.pyramid_members = None
-        self.pyramid_bases = None
-        self.pyramid_harvesting = False
-
-        self.wms_import = False
-        self.import_overviews = []
-        self.import_overviews_only = False
-
-        if "options" in self.recipe:
-            self.wms_import = True if "wms" not in self.recipe["options"] else bool(self.recipe["options"])
-            self.pyramid_members = None if "pyramid_members" not in self.recipe["options"] else self.recipe["options"]["pyramid_members"]
-            self.pyramid_bases = None if "pyramid_bases" not in self.recipe["options"] else self.recipe["options"][
-                "pyramid_bases"]
-            # If set to true, then request: /rasdaman/admin/coverage/pyramid/add?COVERAGEID=s2_10m&MEMBERS=s2_60m&harvesting=true
-            # mean: recursively add pyramid member coverages of s2_60m coverage to base s2_10m coverage
-            self.pyramid_harvesting = False if "pyramid_harvesting" not in self.recipe["options"] else bool(self.recipe["options"]["pyramid_harvesting"])
-
-            if self.pyramid_members is None and self.pyramid_bases is None and self.pyramid_harvesting is True:
-                raise RuntimeException("'pyramid_harvesting' setting can be used only, "
-                                       "when either 'pyramid_members' or 'pyramid_bases' setting are specified with values in the ingredients file.")
-
-            self.__get_import_overviews()
-            self.import_overviews_only = False if "import_overviews_only" not in self.recipe["options"] else bool(self.recipe["options"]["import_overviews_only"])
-
 
         # Pre/Post hooks to run before analyzing files/after import replaced files
         # (original files are not used but processed files (e.g: by gdalwarp))
@@ -174,7 +150,31 @@ class Session:
                     raise RecipeValidationException("Please specify \"before_import\" "
                                                     "or \"after_import\" for \"when\" setting in a hook. Given: " + hook["when"])
 
+        # ConfigManager must be initialized before the overviews are processed,
+        # because overview processing uses CrsUtil which depends on ConfigManager.crs_resolver
         self.setup_config_manager()
+
+        self.pyramid_members = None
+        self.pyramid_bases = None
+        self.pyramid_harvesting = False
+        self.wms_import = False
+        self.import_overviews = []
+        self.import_overviews_only = False
+        if "options" in self.recipe:
+            self.wms_import = True if "wms" not in self.recipe["options"] else bool(self.recipe["options"])
+            self.pyramid_members = None if "pyramid_members" not in self.recipe["options"] else self.recipe["options"]["pyramid_members"]
+            self.pyramid_bases = None if "pyramid_bases" not in self.recipe["options"] else self.recipe["options"][
+                "pyramid_bases"]
+            # If set to true, then request: /rasdaman/admin/coverage/pyramid/add?COVERAGEID=s2_10m&MEMBERS=s2_60m&harvesting=true
+            # mean: recursively add pyramid member coverages of s2_60m coverage to base s2_10m coverage
+            self.pyramid_harvesting = False if "pyramid_harvesting" not in self.recipe["options"] else bool(self.recipe["options"]["pyramid_harvesting"])
+
+            if self.pyramid_members is None and self.pyramid_bases is None and self.pyramid_harvesting is True:
+                raise RuntimeException("'pyramid_harvesting' setting can be used only, "
+                                       "when either 'pyramid_members' or 'pyramid_bases' setting are specified with values in the ingredients file.")
+
+            self.__get_import_overviews()
+            self.import_overviews_only = False if "import_overviews_only" not in self.recipe["options"] else bool(self.recipe["options"]["import_overviews_only"])
 
         self.filter_imported_files()
 
@@ -246,10 +246,17 @@ class Session:
             self.import_overviews = self.recipe["options"]["import_overviews"] \
                 if "import_overviews" in self.recipe["options"] else []
 
-            if len(self.files) > 0 and ("import_all_overviews" in self.recipe["options"] or "import_overviews" in self.recipe["options"]):
+            import_overviews = "import_all_overviews" in self.recipe["options"] or \
+                               "import_overviews" in self.recipe["options"]
+            if len(self.files) > 0 and import_overviews:
 
                 from util.gdal_util import GDALGmlUtil
-                first_input_file_gdal = GDALGmlUtil(self.files[0].filepath)
+                from util.s2metadata_util import S2MetadataUtil
+                first_input_file_gdal = None
+                if S2MetadataUtil.enabled_in_ingredients(self.recipe):
+                    first_input_file_gdal = S2MetadataUtil.get(self.files[0].filepath)
+                if first_input_file_gdal is None:
+                    first_input_file_gdal = GDALGmlUtil(self.files[0].filepath)
 
                 if "import_all_overviews" in self.recipe["options"] \
                         and bool(self.recipe["options"]["import_all_overviews"]) is True:
@@ -274,16 +281,12 @@ class Session:
                                 "Overview index '{}' does not exist in the input file '{}'.".format(overview_index,
                                                                                                 first_input_file_gdal.gdal_file_path))
 
-
-
-                from util.gdal_util import GDALGmlUtil
                 # e.g 101140
                 gdal_version = int(GDALGmlUtil.get_gdal_version()[0:2])
                 if gdal_version < 20:
                     from osgeo import gdal
                     # e.g: 1.11.4
                     version = gdal.__version__
-
                     raise RuntimeException("NOTE: Importing overviews is only supported since gdal version 2.0, "
                                            "and your system has GDAL version '" + version + "'.")
 

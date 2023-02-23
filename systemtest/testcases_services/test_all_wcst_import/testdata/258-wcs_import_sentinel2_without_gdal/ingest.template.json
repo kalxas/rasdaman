@@ -1,0 +1,60 @@
+{
+    "config": {
+        "service_url": "PETASCOPE_URL",
+        "tmp_directory": "/tmp/",
+        "automated": true,
+        "track_files": false,
+        "default_null_values": [0],
+        "mock": false
+    },
+    "input": {
+        "coverage_id": "test_wcs_sentinel2_without_gdal",
+        "paths": [
+            "S2A_MSIL2A_20211101T105211_N0301_R051_T31UFA_20211101T140418.SAFE/GRANULE/L2A_T31UFA_A033224_20211101T105445/IMG_DATA/R60m/T31UFA_20211101T105211_AOT_60m.jp2"
+        ]
+    },
+    "recipe": {
+        "name": "general_coverage",
+        "options": {
+            "wms_import": false,
+            "import_overviews": [0, 1],
+            "coverage": {
+                "crs": "OGC/0/AnsiDate@EPSG/0/32631",
+                "metadata": {
+                    "type": "xml"
+                },
+                "slicer": {
+                    "type": "gdal",
+                    "subtype": "sentinel2",
+                    "bands": [{
+                        "name": "AOT",
+                        "variable": "AOT",
+                        "identifier": "AOT"
+                    }],
+                    "axes": {
+                        "ansi": {
+                            "min": "datetime(regex_extract('${file:name}', '.*_(.*)T.*_.*_.*', 1), 'YYYYMMDD')",
+                            "gridOrder": 0,
+                            "type": "ansidate",
+                            "irregular": true,
+                            "dataBound": false
+                        },
+                        "E": {
+                            "min": "${gdal:minX}",
+                            "max": "${gdal:maxX}",
+                            "gridOrder": 1,
+                            "resolution": "${gdal:resolutionX}"
+                        },
+                        "N": {
+                            "min": "${gdal:minY}",
+                            "max": "${gdal:maxY}",
+                            "gridOrder": 2,
+                            "resolution": "${gdal:resolutionY}"
+                        }
+                    }
+                }
+            },
+            "tiling": "ALIGNED [0:0, 0:2999,0:2999] TILE SIZE 18000000"
+        }
+    }
+}

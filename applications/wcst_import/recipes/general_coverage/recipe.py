@@ -44,6 +44,7 @@ from util.gdal_validator import GDALValidator
 from util.import_util import import_netcdf4
 from util.log import log, log_to_file
 from util.netcdf4_util import netcdf4_open
+from util.s2metadata_util import S2MetadataUtil
 from util.string_util import escape_metadata_dict, is_band_name_valid, BAND_NAME_PATTERN
 from util.string_util import escape_metadata_nested_dicts
 from util.file_util import FileUtil
@@ -250,7 +251,7 @@ class Recipe(BaseRecipe):
                 # If gdal does not specify bands in ingredient file, just fetch all bands from first file
                 for file in self.session.get_files():
                     try:
-                        gdal_util = GDALGmlUtil(file)
+                        gdal_util = GDALGmlUtil.get(file, self.session.recipe)
                         gdal_fields = gdal_util.get_fields_range_type()
 
                         ret_bands = []
@@ -432,8 +433,9 @@ class Recipe(BaseRecipe):
                                 color_palette_table = file_reader.read()
             elif supported_recipe:
                 # If colorPaletteTable is not mentioned in the ingredient, automatically fetch it
-                gdal_dataset = GDALGmlUtil(file_path)
-                color_palette_table = gdal_dataset.get_color_table()
+                if not S2MetadataUtil.enabled_in_ingredients(self.session.recipe):
+                    gdal_dataset = GDALGmlUtil(file_path)
+                    color_palette_table = gdal_dataset.get_color_table()
 
             if color_palette_table is not None:
                 metadata_dict["colorPaletteTable"] = color_palette_table
@@ -461,13 +463,13 @@ class Recipe(BaseRecipe):
                             else:
                                 # global metadata is defined with auto, then parse the metadata from the first file to a dict
                                 if self.options['coverage']['slicer']['type'] == "gdal":
-                                    metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path)
+                                    metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path, self.session.recipe)
                                 elif self.options['coverage']['slicer']['type'] == "netcdf":
                                     metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
                     else:
                         # global is not specified in ingredient file, it is considered as "global": "auto"
                         if self.options['coverage']['slicer']['type'] == "gdal":
-                            metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path)
+                            metadata_dict = GdalToCoverageConverter.parse_gdal_global_metadata(file_path, self.session.recipe)
                         elif self.options['coverage']['slicer']['type'] == "netcdf":
                             metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
 
