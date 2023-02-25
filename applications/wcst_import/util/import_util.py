@@ -184,6 +184,7 @@ def encode_res(data):
         return data
     return bytes(data, encoding = "ISO-8859-1")
 
+
 def decode_res(data):
     """
     Decoding of data according to python version

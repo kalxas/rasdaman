@@ -417,7 +417,7 @@ class Recipe(BaseRecipe):
                                                         " in general recipe with slicer's type: gdal.")
                     elif value == "auto":
                         # Get colorPaletteTable automatically from first file
-                        gdal_dataset = GDALGmlUtil(file_path)
+                        gdal_dataset = GDALGmlUtil.init(file_path)
                         color_palette_table = gdal_dataset.get_color_table()
                     else:
                         # file_path can be relative path or full path
@@ -434,7 +434,7 @@ class Recipe(BaseRecipe):
             elif supported_recipe:
                 # If colorPaletteTable is not mentioned in the ingredient, automatically fetch it
                 if not S2MetadataUtil.enabled_in_ingredients(self.session.recipe):
-                    gdal_dataset = GDALGmlUtil(file_path)
+                    gdal_dataset = GDALGmlUtil.init(file_path)
                     color_palette_table = gdal_dataset.get_color_table()
 
             if color_palette_table is not None:

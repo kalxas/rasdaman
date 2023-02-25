@@ -134,7 +134,7 @@ class Recipe(BaseRecipe):
             valid_coverage_slice = True
 
             try:
-                gdal_file = GDALGmlUtil(file.get_filepath())
+                gdal_file = GDALGmlUtil.init(file.get_filepath())
                 # array of AxisSubset
                 subsets = GdalAxisFiller(crs_axes, gdal_file).fill()
             except Exception as ex:

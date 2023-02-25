@@ -267,7 +267,7 @@ class Recipe(GeneralCoverageRecipe):
             if not FileUtil.validate_file_path(f.get_filepath()):
                 continue
 
-            gdal_ds = GDALGmlUtil(f.get_filepath())
+            gdal_ds = GDALGmlUtil.init(f.get_filepath())
             subdatasets = self._get_subdatasets(gdal_ds, f)
             gdal_ds.close()
 

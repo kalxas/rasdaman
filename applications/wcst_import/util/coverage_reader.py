@@ -393,7 +393,7 @@ class CoverageReader():
                 contents = decode_res(validate_and_read_url(slice.data_provider.get_url()))
                 file_path = TmpFile().write_to_tmp_file(contents, "tif")
                 try:
-                    data_type = GDALGmlUtil(file_path).get_band_gdal_type()
+                    data_type = GDALGmlUtil.init(file_path).get_band_gdal_type()
                 finally:
                     FileUtil.delete_file_ignore_error(file_path)
 

@@ -154,7 +154,7 @@ class Recipe(BaseRecipe):
                 valid_file = True
 
                 try:
-                    gdal_file = GDALGmlUtil(tfile.get_filepath())
+                    gdal_file = GDALGmlUtil.init(tfile.get_filepath())
                 except Exception as ex:
                     FileUtil.ignore_coverage_slice_from_file_if_possible(tfile.get_filepath(), ex)
                     valid_file = False
@@ -212,7 +212,7 @@ class Recipe(BaseRecipe):
 
             valid_coverage_slice = True
             try:
-                gdal_file = GDALGmlUtil(file_path)
+                gdal_file = GDALGmlUtil.init(file_path)
 
                 geo_axis_crs = gdal_file.get_crs()
                 CRSUtil.validate_crs(crs, geo_axis_crs)

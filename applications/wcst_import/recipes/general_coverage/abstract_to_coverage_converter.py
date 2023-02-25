@@ -538,7 +538,7 @@ class AbstractToCoverageConverter:
                                 slices_dict[str(overview_index)].append(coverage_slice_overview)
 
                     if read_gdal_file:
-                        gdal_file = GDALGmlUtil(file.get_filepath())
+                        gdal_file = GDALGmlUtil.init(file.get_filepath())
                         geo_axis_crs = gdal_file.get_crs()
                         try:
                             CRSUtil.validate_crs(coverage_crs, geo_axis_crs)

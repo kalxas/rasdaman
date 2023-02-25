@@ -32,6 +32,7 @@ from util.log import log, log_to_file, prepend_time
 from util.import_util import decode_res
 from util.time_util import timeout, execute_with_retry_on_timeout
 from util.s2metadata_util import S2MetadataUtil
+from util.type_util import NoPublicConstructor
 
 _spatial_ref_cache = {}
 _gdal_dataset_cache = {}
@@ -42,21 +43,26 @@ TIME_OUT_IF_FILE_CANNOT_BE_OPENED = 60
 MAX_RETRIES_TO_OPEN_FILE = 3
 
 
-class GDALGmlUtil:
-    @staticmethod
-    def get(filepath, recipe=None):
+class GDALGmlUtil(metaclass=NoPublicConstructor):
+
+    @classmethod
+    def get(cls, filepath, recipe=None):
+        """Use this method instead of the __init__ constructor directly."""
         enabled_in_recipe = recipe is not None and S2MetadataUtil.enabled_in_ingredients(recipe)
         if enabled_in_recipe or S2MetadataUtil.is_s2_data(filepath):
             dataset = S2MetadataUtil.get(filepath)
             if dataset is not None:
                 return dataset
-        return GDALGmlUtil(filepath)
+        return cls._create(filepath)
+
+    @classmethod
+    def init(cls, filepath):
+        return cls._create(filepath)
 
     def __init__(self, gdal_file_path):
         """
-        Utility class to extract information from a gdal file. Best to isolate
-        all gdal fuctionality to one class as gdallib is known to be problematic
-        in imports.
+        Utility class to extract information from a gdal file.
+        Do not use this constructor directly, use the get(filepath) method instead.
         :param str gdal_file_path: the file path to the gdal supported file
         """
         self.gdal_file_path = gdal_file_path
@@ -518,7 +524,7 @@ class GDALGmlUtil:
         for file in files:
             file_path = file.get_filepath()
             try:
-                gdal_dataset = GDALGmlUtil(file_path)
+                gdal_dataset = GDALGmlUtil.init(file_path)
                 return gdal_dataset
             except Exception as ex:
                 error_message = "Failed to open GDAL file '{}'. Reason: {}".format(file_path, str(ex))

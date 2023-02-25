@@ -31,6 +31,7 @@ import json
 from util.log import log, log_to_file, prepend_time
 from util.import_util import decode_res
 from util.time_util import timeout, execute_with_retry_on_timeout
+from util.type_util import NoPublicConstructor
 import re
 import os
 
@@ -38,15 +39,15 @@ _IS_S2_DATA_PATTERN = re.compile(".*/GRANULE/.*/(IMG_DATA/R..m/|QI_DATA/).*jp2")
 _dataset_cache = {}
 
 
-class S2MetadataUtil:
+class S2MetadataUtil(metaclass=NoPublicConstructor):
 
     @staticmethod
     def is_s2_data(file_path):
         global _IS_S2_DATA_PATTERN
         return _IS_S2_DATA_PATTERN.search(str(file_path))
 
-    @staticmethod
-    def get(file_path):
+    @classmethod
+    def get(cls, file_path):
         global _dataset_cache
         filepath = str(file_path)
         if "IMG_DATA" in filepath:
@@ -60,7 +61,7 @@ class S2MetadataUtil:
         res = components[1].split(".")[0].split("_")[-1]
         cache_path = mtd_path + res
         if cache_path not in _dataset_cache:
-            ret = S2MetadataUtil(filepath, mtd_path, res)
+            ret = cls._create(filepath, mtd_path, res)
             if ret.exists():
                 ret.read()
             else:
@@ -80,8 +81,10 @@ class S2MetadataUtil:
         """
         Utility class to extract information from a MTD_TL.xml file found in
         a Sentinel 2 SAFE directory.
+        Do not use this constructor directly, use the get(file_path) method instead.
         :param str file_path: the file path to a file in the IMG_DATA directory.
         :param str mtd_path: the file path to MTD_TL.xml file
+        :param resolution: one of "10m", "20m", "60m"
         """
         self.file_path = file_path
         self.mtd_path = mtd_path

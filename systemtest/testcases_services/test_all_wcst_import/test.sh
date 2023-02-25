@@ -46,8 +46,11 @@ OUTPUT_DIR="$SCRIPT_DIR/output"
 # Parse script arguments.
 DISABLE_TEMPLATE_INSTANTIATION=
 SINGLE_TEST_CASE=
+ENABLE_PARALLEL=0
 if [[ "$1" = "--disable-template-instantiation" ]]; then
     DISABLE_TEMPLATE_INSTANTIATION=1
+elif [[ "$1" = "--enable-parallel" ]]; then
+    ENABLE_PARALLEL=1
 elif [[ "$1" = "-h" || "$1" = "--help" ]]; then
     cat <<EOF
 Usage: $PROG [<test-case>] [--disable-template-instantiation] [-h|--help]
@@ -58,6 +61,9 @@ Usage: $PROG [<test-case>] [--disable-template-instantiation] [-h|--help]
 --disable-template-instantiation
     Do not instantiate ingest.template.json to ingest.json
 
+--enable-parallel
+    Run tests in parallel.
+
 -h|--help
     Show this message and exit.
 EOF
@@ -65,6 +71,25 @@ EOF
 else
     [ -n "$1" ] && SINGLE_TEST_CASE="$1"
 fi
+
+# execute this method on exit
+on_exit() {
+    # move *.log files from testdata/ to output/
+    local newf
+    for f in $(find "$TESTDATA_DIR" -name '*.log'); do
+        newf=${f/testdata/output}
+        newdir=$(dirname "$newf")
+        mkdir -p "$newdir"
+        mv -f "$f" "$newf"
+    done
+    # make sure temp result files from parallel subprocesses are removed on exit
+    if [[ $ENABLE_PARALLEL = 1 ]]; then
+        res_file_prefix="$OUTPUT_DIR/test_wcst_import-"
+        rm -f "$res_file_prefix"*
+    fi
+}
+trap on_exit EXIT
+
 
 # Return 0 if test with name $1 should be preserved in petascope, so it can be
 # reused in later tests (test_wcs, test_wcps, etc); Otherwise, return 1.
@@ -98,8 +123,100 @@ run_wcst_import() {
 }
 skip_test() {
     # print the current test as skipped
+    start_timer
+    stop_timer
     update_result
     status="$ST_SKIP"
+    print_testcase_result "$test_case_name" "$status" "$total_test_no" "$curr_test_no"
+}
+run_test() {
+    start_timer
+
+    # 1.3 If test case name is "collection_exists" then need to import a test collection in rasdaman before
+    if [ "$test_case_name" = "$COLLECTION_EXISTS" ]; then
+        create_coll "$COLLECTION_NAME" RGBSet > /dev/null 2>&1
+    fi
+
+    mkdir -p "$OUTPUT_DIR/$test_case_name/"
+
+    #
+    # 1.4 wait for dependency tests to be evaluated first
+    #
+    if [[ $ENABLE_PARALLEL = 1 ]]; then
+        WAIT_FOR_SECS=20
+        jqfilter='.input.source_coverage_ids + .recipe.options.pyramid_members + .recipe.options.pyramid_bases'
+        deps=$(jq "$jqfilter" "$recipe_file" -c | tr -d '[]"' | tr ',' ' ' | sed 's/null//g')
+        for dep in $deps; do
+            retry=0
+            while ! grep -E -q "^$dep\$" "$res_file_prefix"*; do
+                if [ $retry -ge $WAIT_FOR_SECS ]; then
+                    log "WARNING: test case $test_case has dependency $dep which was not evaluated after waiting for $WAIT_FOR_SECS s."
+                    break
+                fi
+                sleep 1
+                retry=$((retry+1))
+            done
+        done
+    fi
+
+    #
+    # 1.5 execute wcst_import with $recipe_file
+    #
+    if [[ "$test_case" == *error* ]]; then
+
+        # 1.4.1 This test returns error, then check with test.oracle
+        outputError=$($WCST_IMPORT "$recipe_file" 2>&1)
+        echo "$outputError" > "$OUTPUT_DIR/$test_case_name/test.output"
+        oracleError=$(cat "$test_case/test.oracle")
+
+        # Check if output contains the error message from test.oracle
+        if [[ "$outputError" == *"$oracleError"* ]]; then
+            status="$ST_PASS"
+        else            
+            status="$ST_FAIL"
+            write_to_failed_log "$test_case" "Error output is different from oracle output."            
+        fi
+
+    else
+
+        # 1.4.2 This test is expected to succeed, if not that's an error
+        if ! run_wcst_import "$test_case_name" "$recipe_file"; then
+            status="$ST_FAIL"
+            write_to_failed_log "$test_case" "Failed importing coverage $COVERAGE_ID."
+        else
+            if grep -q '"mock": true' "$recipe_file"; then
+                # It is a mock import, nothing has been ingested
+                return
+            fi
+
+            # Check if the folder name is in unwanted delete coverage IDs list
+            keep_coverage_by_folder_name "$test_case_name"
+            IS_REMOVE=$?
+            if [[ "$IS_REMOVE" == 1 ]]; then
+                delete_coverage "$COVERAGE_ID"
+                rc=$?
+                if [[ $rc != 0 ]]; then                    
+                    status="$ST_FAIL"         
+                    write_to_failed_log "$test_case" "Failed deleting coverage $COVERAGE_ID."
+                fi
+            fi
+        fi
+
+        # remove file resume.json
+        clear_resume_file "$test_case"
+    fi
+
+    # 1.6 remove created collection in rasdaman
+    if [ "$test_case_name" = "$COLLECTION_EXISTS" ]; then
+        drop_colls "$COLLECTION_NAME"
+    fi
+
+    stop_timer
+
+    get_return_code "$status"
+    update_result
+
+    # print result of this test case
     print_testcase_result "$test_case_name" "$status" "$total_test_no" "$curr_test_no"
 }
 
@@ -132,8 +249,6 @@ for test_case in $testcases; do
     curr_test_no=$((curr_test_no + 1))
     status="$ST_PASS"
 
-    start_timer
-
     if [[ "$OS_VERSION" == "$OS_CENTOS7" && "$test_case_name" == *"overview"* ]]; then
         # NOTE: centos 7 and ubuntu 16.04 with gdal version 1.x does not support importing overview
         skip_test
@@ -161,74 +276,51 @@ for test_case in $testcases; do
     # Get coverage id from ingest.json
     COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' "$recipe_file" | awk -F'"' '{print $4}')
 
-    # 1.3 If test case name is "collection_exists" then need to import a test collection in rasdaman before
-    if [ "$test_case_name" = "$COLLECTION_EXISTS" ]; then
-        create_coll "$COLLECTION_NAME" RGBSet > /dev/null 2>&1
-    fi
+    if [[ $ENABLE_PARALLEL = 1 ]]; then
 
-    mkdir -p "$OUTPUT_DIR/$test_case_name/"
+        # if tests executing in the background are >= $PARALLEL_QUERIES, then we wait
+        # for at least one to finish execution 
+        wait_for_background_jobs
 
-    #
-    # 1.4 execute wcst_import with $recipe_file
-    #
-    if [[ "$test_case" == *error* ]]; then
-
-        # 1.4.1 This test returns error, then check with test.oracle
-        outputError=$($WCST_IMPORT "$recipe_file" 2>&1)
-	    echo "$outputError" > "$OUTPUT_DIR/$test_case_name/test.output"
-        oracleError=$(cat "$test_case/test.oracle")
-
-        # Check if output contains the error message from test.oracle
-        if [[ "$outputError" == *"$oracleError"* ]]; then
-            status="$ST_PASS"
-        else            
-            status="$ST_FAIL"
-            write_to_failed_log "$test_case" "Error output is different from oracle output."            
-        fi
+        # run in the background
+        {
+        run_test
+        res_file="$res_file_prefix$test_case_name"
+        echo "$NUM_TOTAL $NUM_SUC $NUM_FAIL" > "$res_file"
+        echo "$COVERAGE_ID" >> "$res_file"
+        # add also generated scale level coverages
+        jqfilter='.recipe.options.scale_levels'
+        scale_levels=$(jq "$jqfilter" "$recipe_file" -c | tr -d '[]"' | tr ',' ' ' | sed 's/null//g')
+        for sl in $scale_levels; do
+            echo "${COVERAGE_ID}_${sl}" >> "$res_file"
+        done
+        # and handle scale_factors..
+        jqfilter='.recipe.options.scale_factors | .[]?.coverage_id'
+        scale_levels=$(jq "$jqfilter" "$recipe_file" -c | tr -d '"' | sed 's/null//g')
+        for sl in $scale_levels; do
+            echo "${sl}" >> "$res_file"
+        done
+        } &
 
     else
-
-        # 1.4.2 This test is expected to succeed, if not that's an error
-        if ! run_wcst_import "$test_case_name" "$recipe_file"; then
-            status="$ST_FAIL"
-            write_to_failed_log "$test_case" "Failed importing coverage $COVERAGE_ID."
-        else
-            if grep -q '"mock": true' "$recipe_file"; then
-                # It is a mock import, nothing has been ingested
-                continue
-            fi
-
-            # Check if the folder name is in unwanted delete coverage IDs list
-            keep_coverage_by_folder_name "$test_case_name"
-            IS_REMOVE=$?
-            if [[ "$IS_REMOVE" == 1 ]]; then
-                delete_coverage "$COVERAGE_ID"
-                rc=$?
-                if [[ $rc != 0 ]]; then                    
-                    status="$ST_FAIL"         
-                    write_to_failed_log "$test_case" "Failed deleting coverage $COVERAGE_ID."
-                fi
-            fi            
-        fi
-
-        # remove file resume.json
-        clear_resume_file "$test_case"
+        run_test
     fi
-
-    # 1.5 remove created collection in rasdaman
-    if [ "$test_case_name" = "$COLLECTION_EXISTS" ]; then
-        drop_colls "$COLLECTION_NAME"
-    fi
-
-    stop_timer
-
-    get_return_code "$status"
-    update_result
-
-    # print result of this test case
-    print_testcase_result "$test_case_name" "$status" "$total_test_no" "$curr_test_no"
 
 done
+
+if [[ $ENABLE_PARALLEL = 1 ]]; then
+    wait
+    # aggregate statistics from result files
+    for ff in "$res_file_prefix"*; do
+      res=($(head -n1 "$ff"))
+      total=${res[0]}
+      suc=${res[1]}
+      fail=${res[2]}
+      NUM_TOTAL=$((NUM_TOTAL+$total))
+      NUM_SUC=$((NUM_SUC+$suc))
+      NUM_FAIL=$((NUM_FAIL+$fail))
+    done
+fi
 
 # 2. copy result log file of these testcases to output directory
 for test_case in $testcases; do

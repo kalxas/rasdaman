@@ -961,6 +961,8 @@ wcps_rasdaman.py
 is a python client which sends a WCPS query to a rasdaman server and wraps the response for further use 
 depending on the response format chosen in the query.
 
+.. _cheatsheets-access-from-r:
+
 Access from R
 -------------
 

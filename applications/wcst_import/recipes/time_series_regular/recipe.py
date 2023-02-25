@@ -210,8 +210,7 @@ class Recipe(BaseRecipe):
             valid_coverage_slice = True
 
             try:
-                gdal_file = GDALGmlUtil(file.get_filepath())
-
+                gdal_file = GDALGmlUtil.init(file.get_filepath())
                 geo_axis_crs = gdal_file.get_crs()
                 CRSUtil.validate_crs(crs, geo_axis_crs)
             except Exception as ex:

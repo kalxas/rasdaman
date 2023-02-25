@@ -222,7 +222,7 @@ class Recipe(GeneralCoverageRecipe):
         """
         for file in self.session.get_files():
             try:
-                gdal_ds = GDALGmlUtil(file.get_filepath())
+                gdal_ds = GDALGmlUtil.init(file.get_filepath())
                 self.epsg_xy_crs = gdal_ds.get_crs()
                 break
             except Exception as e:

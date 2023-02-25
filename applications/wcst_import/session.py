@@ -256,7 +256,7 @@ class Session:
                 if S2MetadataUtil.enabled_in_ingredients(self.recipe):
                     first_input_file_gdal = S2MetadataUtil.get(self.files[0].filepath)
                 if first_input_file_gdal is None:
-                    first_input_file_gdal = GDALGmlUtil(self.files[0].filepath)
+                    first_input_file_gdal = GDALGmlUtil.init(self.files[0].filepath)
 
                 if "import_all_overviews" in self.recipe["options"] \
                         and bool(self.recipe["options"]["import_all_overviews"]) is True:

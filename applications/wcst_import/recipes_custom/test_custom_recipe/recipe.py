@@ -94,7 +94,7 @@ class Recipe(BaseRecipe):
         for file in self.session.get_files():
             try:
                 file_path = file.get_filepath()
-                gdal_dataset = GDALGmlUtil(file_path)
+                gdal_dataset = GDALGmlUtil.get(file_path)
                 break
             except Exception as e:
                 if ConfigManager.skip == True:
@@ -120,14 +120,14 @@ class Recipe(BaseRecipe):
             # For the space coordinates we can use the GDAL helper to extract it for us
             # The helper will return a list of subsets based on the crs axes that we extracted
             # and will fill the coordinates for the ones that it can (the easting and northing axes)
-            subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(infile.get_filepath())).fill()
+            subsets = GdalAxisFiller(crs_axes, GDALGmlUtil.get(infile.get_filepath())).fill()
             # Now we must fill the time axis as well and indicate the position in time
             for subset in subsets:
                 # Find the time axis
                 if subset.coverage_axis.axis.crs_axis.is_time_axis():
                     # Set the time position for it. Our recipe extracts it from a GDAL tag provided by the user
                     # datetime format needs enquoted (e.g: "2015-01")
-                    subset.interval.low = '"' + GDALGmlUtil(infile).get_datetime(self.options["time_tag"]) + '"'
+                    subset.interval.low = '"' + GDALGmlUtil.init(infile).get_datetime(self.options["time_tag"]) + '"'
             slices.append(Slice(subsets, FileDataProvider(infile)))
 
         return slices
