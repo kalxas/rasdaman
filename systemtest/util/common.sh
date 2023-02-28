@@ -188,6 +188,13 @@ c_green=$(get_color "$C_GREEN")
 c_red=$(get_color "$C_RED")
 c_yellow=$(get_color "$C_YELLOW")
 
+# create output dir to store test outputs for test scripts
+if [ -n "$SCRIPT_DIR" ]; then
+  export OUTPUT_DIR="$SCRIPT_DIR/output"
+  [ -d "$OUTPUT_DIR" ] && rm -rf "$OUTPUT_DIR"
+  mkdir -p "$OUTPUT_DIR"
+fi
+
 # $1: test status
 # stdout: $color_on and $color_on if $1 != $ST_PASS
 get_status_color()
@@ -459,6 +466,16 @@ check_java_enabled() {
     log "Test cannot be executed as compilation of Java components in rasdaman is disabled."
     log "To enable it, please run cmake again with -DENABLE_JAVA=ON, followed by make and make install."
     return 1
+  fi
+}
+
+# e.g. H2 petascopedb cannot run some tests which only postgresql can run
+skip_test_if_not_postgresql_petascopedb()
+{
+  props="$RMANHOME/etc/petascope.properties"
+  if ! grep -q 'spring.datasource.url=jdbc:postgresql' "$props"; then
+    log "this test works only with postgresql backend, skipping."
+    exit $RC_SKIP
   fi
 }
 

@@ -40,34 +40,50 @@ rm -rf "$etc_dir_tmp"
 cp -r "$etc_dir" "$etc_dir_tmp"
 
 temp_petascope_properties="$etc_dir_tmp/petascope.properties"
+temp_secore_properties="$etc_dir_tmp/secore.properties"
+log_file="$SCRIPT_DIR/petascope.log"
+mkdir -p "$etc_dir_tmp/secore"
+
+skip_test_if_not_postgresql_petascopedb
 
 # replace port from default one to 9090
 sed -i "/server.port=/c\server.port=$port" "$temp_petascope_properties"
 sed -i "s@allow_write_requests_from=127.0.0.1@allow_write_requests_from=1.2.3.4@g" "$temp_petascope_properties"
+sed -i "s@secore_urls=.*@secore_urls=$SECORE_URL@g" "$temp_petascope_properties"
+sed -i "s@secoredb.path=.*@secoredb.path=$etc_dir_tmp/secore@g" "$temp_secore_properties"
+sed -i "s@log4j.appender.rollingFile.File=.*@log4j.appender.rollingFile.File=$log_file@g" "$temp_petascope_properties"
+sed -i "s@log4j.appender.rollingFile.rollingPolicy.ActiveFileName=.*@log4j.appender.rollingFile.rollingPolicy.ActiveFileName=$log_file@g" "$temp_petascope_properties"
 
-sleep_time=40
-
-logn "Starting embedded petascope (wait for $sleep_time seconds)..."
-
+logn "Starting embedded petascope..."
 
 nohup java -jar "$petascope_war_file" --petascope.confDir="$etc_dir_tmp" > nohup.out 2>&1 &
 pid=$!
 
 # Wait embedded petascope starts
-sleep "$sleep_time"
+sleep 10
+if [ ! -f "$log_file" ]; then
+  log "$log_file not found."
+  exit $RC_ERROR
+fi
+( tail -F -n0 --quiet "$log_file" 2> /dev/null & ) | timeout 40 grep -q "Started ApplicationMain"
+if [ $? -eq 124 ]; then
+    # the grep timed out
+  log "startup timedout, petascope.log:"
+  cat "$log_file"
+  exit $RC_ERROR
+fi
 
 $WGET -q --spider "http://localhost:$port/rasdaman/ows?service=WCS&version=2.0.1&request=GetCapabilities"
-
 # defined in common.sh
 check_result 0 $? "test embedded petascope with customized etc dir"
-
 
 # Try to delete a coverage, but the IP is not allowed in petascope.properties
 wget -q --spider "http://localhost:$port/rasdaman/ows?service=WCS&version=2.0.1&request=DeleteCoverage&coverageId=test_123"
 check_result 8 $? "test write request: DeleteCoverage is not allowed from localhost"
 
 # Try to insert a test coverage with rasadmin and it should bypass IP check
-$WGET -q --spider "http://localhost:$port/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=InsertCoverage&coverageRef=https://rasdaman.org/raw-attachment/wiki/test_web_interfaces_test_InsertCoverage/insertcoverage.gml"
+fileref="file:/$SCRIPT_DIR/testdata/insertcoverage.gml"
+$WGET -q --spider "http://localhost:$port/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=InsertCoverage&coverageRef=$fileref"
 check_result 0 $? "test write request: InsertCoverage is allowed for rasadmin user"
 
 # Try to delete a test coverage with rasadmin and it should bypass IP check
@@ -76,9 +92,8 @@ check_result 0 $? "test write request: DeleteCoverage is allowed for rasadmin us
 
 # Then kill embedded petascope
 kill -9 "$pid"
-rm -rf "$etc_dir_tmp"
+#rm -rf "$etc_dir_tmp"
 
 # print summary from util/common.sh
 print_summary
-exit $RC
-
+exit "$RC"

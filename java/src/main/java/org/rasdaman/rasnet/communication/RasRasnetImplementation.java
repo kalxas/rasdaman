@@ -105,6 +105,10 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             Debug.talkCritical("RasNetImplementation.RasNetImplementation: " + e.getMessage());
             Debug.leaveVerbose("RasNetImplementation.RasNetImplementation done: " + e.getMessage());
             throw new RasConnectionFailedException(RasGlobalDefs.URL_FORMAT_ERROR, server);
+        } catch (Exception e) {
+            String errorMessage = "Failed parsing rasmgr host and port from connection URL: " + server + ". Reason: " + e.getMessage();
+            Debug.talkCritical("RasNetImplementation.RasNetImplementation: " + errorMessage);
+            throw new RasConnectionFailedException(RasGlobalDefs.URL_FORMAT_ERROR, errorMessage);
         }
         Debug.leaveVerbose("RasNetImplementation.RasNetImplementation done.");
     }
