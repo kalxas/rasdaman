@@ -63,6 +63,9 @@ readonly PROPERTIES_FILE="@CONF_DIR@/petascope.properties"
 
 log "rasdaman $VERSION build $BUILD";
 
+# set default memory limit of 4GB for embedded petascope
+[ -z "$JAVA_OPTS" ] && JAVA_OPTS="-Xmx4000m"
+
 # This jar file is generated from the petascope_migration application
 readonly PETASCOPE_WAR="@WAR_DIR@/rasdaman.war"
 if [ ! -f "$PETASCOPE_WAR" ]; then
@@ -74,7 +77,7 @@ echo -e ""
 if [[ $REPLY =~ ^[Yy]$ ]] || [[ "$REPLY" = "" ]]; then
     # User can see the log from the terminal at the same time as migration application writes to petascope.log
     # Filter log4j/grpc log to user's console
-    java -jar "$PETASCOPE_WAR" --migrate 2>&1 |  grep -v --line-buffered -e 'grpc' -e 'log4j'
+    java $JAVA_OPTS -jar "$PETASCOPE_WAR" --migrate 2>&1 |  grep -v --line-buffered -e 'grpc' -e 'log4j'
 
     # NOTE: $? always return 0 even when first command returns 1 (exception in migration application)
     # so we have to get the exit code of the java -jar command from PIPESTATUS

@@ -1533,6 +1533,12 @@ There are 2 types of migration:
   The petascope Web application must not be running (e.g in Tomcat) while 
   migrating to a different database (type 2 above) to protect the existing 
   data integrity.
+  
+The script will use various environment variables, if they are set before it is
+executed:
+
+- ``JAVA_OPTS`` - options passed on to the ``java`` command when used to start
+  embedded petascope to migrate. If not set, it defaults to ``-Xmx4000m``
 
 
 Configuration files
